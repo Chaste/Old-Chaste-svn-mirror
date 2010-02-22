@@ -295,7 +295,7 @@ public:
             //Don't use parallel mesh for now
             //HeartConfig::Instance()->SetMeshFileName( constructor.Construct(this->MeshNum, mMeshWidth) );
 
-            ParallelTetrahedralMesh<DIM, DIM> mesh;
+            DistributedTetrahedralMesh<DIM, DIM> mesh;
             constructor.Construct(mesh, this->MeshNum, mMeshWidth);
 
             unsigned num_ele_across = (unsigned) SmallPow(2, this->MeshNum+2); // number of elements in each dimension

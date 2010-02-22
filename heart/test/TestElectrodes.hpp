@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "Electrodes.hpp"
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -48,7 +48,7 @@ public:
     void TestElectrodeGrounded2dAndSwitchOffSwitchOn() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ParallelTetrahedralMesh<2,2> mesh;
+        DistributedTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double magnitude = 543.324;
@@ -58,7 +58,7 @@ public:
 
         boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = electrodes.GetBoundaryConditionsContainer();
 
-        for(ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter
+        for(DistributedTetrahedralMesh<2,2>::BoundaryElementIterator iter
            = mesh.GetBoundaryElementIteratorBegin();
            iter != mesh.GetBoundaryElementIteratorEnd();
            iter++)
@@ -122,7 +122,7 @@ public:
     void TestElectrodeUngrounded2d() throw (Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
-        ParallelTetrahedralMesh<2,2> mesh;
+        DistributedTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         double magnitude = 543.324;
@@ -131,7 +131,7 @@ public:
 
         boost::shared_ptr<BoundaryConditionsContainer<2,2,2> >  p_bcc = electrodes.GetBoundaryConditionsContainer();
 
-        for(ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter
+        for(DistributedTetrahedralMesh<2,2>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorBegin();
            iter != mesh.GetBoundaryElementIteratorEnd();
            iter++)
@@ -163,7 +163,7 @@ public:
 
         boost::shared_ptr<BoundaryConditionsContainer<3,3,2> >  p_bcc = electrodes.GetBoundaryConditionsContainer();
 
-        for(ParallelTetrahedralMesh<3,3>::BoundaryElementIterator iter
+        for(DistributedTetrahedralMesh<3,3>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorBegin();
            iter != mesh.GetBoundaryElementIteratorEnd();
            iter++)
@@ -202,7 +202,7 @@ public:
 
         boost::shared_ptr<BoundaryConditionsContainer<3,3,2> > p_bcc = electrodes.GetBoundaryConditionsContainer();
 
-        for(ParallelTetrahedralMesh<3,3>::BoundaryElementIterator iter
+        for(DistributedTetrahedralMesh<3,3>::BoundaryElementIterator iter
                 = mesh.GetBoundaryElementIteratorBegin();
            iter != mesh.GetBoundaryElementIteratorEnd();
            iter++)
@@ -269,7 +269,7 @@ public:
         
             // (We can do this p_electrodes->mpMesh only because we are a friend class,
             // this is the only place it is used so didn't want to make a GetMesh() method).
-            for(ParallelTetrahedralMesh<3,3>::BoundaryElementIterator iter 
+            for(DistributedTetrahedralMesh<3,3>::BoundaryElementIterator iter 
                      = p_electrodes->mpMesh->GetBoundaryElementIteratorBegin();
                iter != p_electrodes->mpMesh->GetBoundaryElementIteratorEnd();
                iter++)

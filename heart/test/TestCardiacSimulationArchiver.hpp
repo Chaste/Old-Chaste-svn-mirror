@@ -125,7 +125,7 @@ public:
 
             /// \todo: Make this test pass if the mesh is set via HeartConfig
             TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1mm_10_elements");
-            ParallelTetrahedralMesh<1,1> mesh;
+            DistributedTetrahedralMesh<1,1> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
             bidomain_problem.SetMesh(&mesh);
     
@@ -346,7 +346,7 @@ private:
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), totalNumCells);
         TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
         // Check the mesh is/isn't the parallel variety
-        const ParallelTetrahedralMesh<DIM,DIM>* p_par_mesh = dynamic_cast<const ParallelTetrahedralMesh<DIM,DIM>*>(p_problem->GetPde()->pGetMesh());
+        const DistributedTetrahedralMesh<DIM,DIM>* p_par_mesh = dynamic_cast<const DistributedTetrahedralMesh<DIM,DIM>*>(p_problem->GetPde()->pGetMesh());
         if (isParallelMesh)
         {
             TS_ASSERT(p_par_mesh != NULL);
@@ -789,7 +789,7 @@ private:
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), totalNumCells);
         TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
         // Check the mesh is/isn't the parallel variety
-        const ParallelTetrahedralMesh<DIM,DIM>* p_par_mesh = dynamic_cast<const ParallelTetrahedralMesh<DIM,DIM>*>(p_problem->GetPde()->pGetMesh());
+        const DistributedTetrahedralMesh<DIM,DIM>* p_par_mesh = dynamic_cast<const DistributedTetrahedralMesh<DIM,DIM>*>(p_problem->GetPde()->pGetMesh());
         if (isParallelMesh)
         {
             TS_ASSERT(p_par_mesh != NULL);
@@ -964,7 +964,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
         
-        ParallelTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<ParallelTetrahedralMesh<2,2> >(
+        DistributedTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<DistributedTetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
 
@@ -1049,7 +1049,7 @@ public:
             }
         }
         // Now check that all relevant boundary elements have neumann conditions
-        for (ParallelTetrahedralMesh<2,2>::BoundaryElementIterator iter = p_problem->rGetMesh().GetBoundaryElementIteratorBegin();
+        for (DistributedTetrahedralMesh<2,2>::BoundaryElementIterator iter = p_problem->rGetMesh().GetBoundaryElementIteratorBegin();
              iter != p_problem->rGetMesh().GetBoundaryElementIteratorEnd();
              iter++)
         {
@@ -1114,7 +1114,7 @@ public:
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
         
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_10_elements");
-        ParallelTetrahedralMesh<1,1> mesh;
+        DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(reader);
         // Set the whole mesh to be bath
         DistributedVectorFactory* p_factory = mesh.GetDistributedVectorFactory();
@@ -1122,7 +1122,7 @@ public:
         {
             mesh.GetNode(i)->SetRegion(HeartRegionCode::BATH);
         }
-        for (ParallelTetrahedralMesh<1,1>::ElementIterator it = mesh.GetElementIteratorBegin();
+        for (DistributedTetrahedralMesh<1,1>::ElementIterator it = mesh.GetElementIteratorBegin();
              it != mesh.GetElementIteratorEnd();
              ++it)
         {
@@ -1221,7 +1221,7 @@ public:
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
         
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
-        ParallelTetrahedralMesh<1,1> mesh;
+        DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(reader);
         
         // Stimulate at LHS
@@ -1285,7 +1285,7 @@ public:
             }
         }
         // Now check that all relevant boundary elements have neumann conditions
-        for (ParallelTetrahedralMesh<1,1>::BoundaryElementIterator it = p_problem->rGetMesh().GetBoundaryElementIteratorBegin();
+        for (DistributedTetrahedralMesh<1,1>::BoundaryElementIterator it = p_problem->rGetMesh().GetBoundaryElementIteratorBegin();
              it != p_problem->rGetMesh().GetBoundaryElementIteratorEnd();
              it++)
         {

@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTetrahedralMeshWriter.hpp"
 #include "AbstractTetrahedralMesh.hpp"
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 
 #include <mpi.h> // For MPI_Send, MPI_Recv
 
@@ -242,7 +242,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     
     //Have we got a parallel mesh?
     ///\todo This should be const too
-    mpParallelMesh = dynamic_cast<ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
+    mpParallelMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
     
     if (mpParallelMesh != NULL)
     {

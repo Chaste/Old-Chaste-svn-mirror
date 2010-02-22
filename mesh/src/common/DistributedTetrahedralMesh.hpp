@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef PARALLELTETRAHEDRALMESH_HPP_
-#define PARALLELTETRAHEDRALMESH_HPP_
+#ifndef DISTRIBUTEDTETRAHEDRALMESH_HPP_
+#define DISTRIBUTEDTETRAHEDRALMESH_HPP_
 
 #include <map>
 #include <vector>
@@ -62,9 +62,9 @@ extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, 
  * A local copy of ghost/halo nodes which are all the nodes used in the supporting elements, but not owned outright.
  */ 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class ParallelTetrahedralMesh : public AbstractTetrahedralMesh< ELEMENT_DIM, SPACE_DIM>
+class DistributedTetrahedralMesh : public AbstractTetrahedralMesh< ELEMENT_DIM, SPACE_DIM>
 {
-    friend class TestParallelTetrahedralMesh;
+    friend class TestDistributedTetrahedralMesh;
 
 public:
 
@@ -132,12 +132,12 @@ public:
      * 
      * @param metisPartitioning defaults to METIS_LIBRARY, but in 1-D is always overridden in this constructor to be the DUMB partition
      */
-    ParallelTetrahedralMesh(PartitionType metisPartitioning=METIS_LIBRARY);
+    DistributedTetrahedralMesh(PartitionType metisPartitioning=METIS_LIBRARY);
 
     /**
      * Destructor.
      */
-    virtual ~ParallelTetrahedralMesh();
+    virtual ~DistributedTetrahedralMesh();
 
     /**
      * Construct the mesh using a MeshReader.
@@ -386,13 +386,13 @@ private:
      * Reorder the node indices in this mesh by applying the permutation
      * give in mNodesPermutation.
      * 
-     * The node indexed with "i" will be re-assigned with the new indice mNodesPermutation[i]
+     * The node indexed with "i" will be re-assigned with the new index mNodesPermutation[i]
      */
     void ReorderNodes();
 };
 
 #include "TemplatedExport.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(ParallelTetrahedralMesh);
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(DistributedTetrahedralMesh);
 
 namespace boost
 {
@@ -403,30 +403,30 @@ namespace serialization
  */
 template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void save_construct_data(
-    Archive & ar, const ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     unsigned num_procs = PetscTools::GetNumProcs();
-    const typename ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType partition_type = t->GetPartitionType();
+    const typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType partition_type = t->GetPartitionType();
     ar << num_procs;
     ar << partition_type;
 }
 
 /**
- * De-serialize constructor parameters and initialise a ParallelTetrahedralMesh, 
+ * De-serialize constructor parameters and initialise a DistributedTetrahedralMesh, 
  * checking the number of processors is the same.
  */
 template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void load_construct_data(
-    Archive & ar, ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
+    Archive & ar, DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
     unsigned num_procs;
-    typename ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType partition_type;
+    typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType partition_type;
 
     ar >> num_procs;
     ar >> partition_type;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(partition_type);
+    ::new(t)DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(partition_type);
     
     /*
      * The exception needs to be thrown after the call to ::new(t), or Boost will try
@@ -442,4 +442,4 @@ inline void load_construct_data(
 }
 } // namespace ...
 
-#endif /*PARALLELTETRAHEDRALMESH_HPP_*/
+#endif /*DISTRIBUTEDTETRAHEDRALMESH_HPP_*/

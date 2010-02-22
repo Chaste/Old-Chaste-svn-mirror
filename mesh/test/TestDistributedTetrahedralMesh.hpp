@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTPARALLELTETRAHEDRALMESH_HPP_
-#define TESTPARALLELTETRAHEDRALMESH_HPP_
+#ifndef TESTDISTRIBUTEDTETRAHEDRALMESH_HPP_
+#define TESTDISTRIBUTEDTETRAHEDRALMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <boost/archive/text_oarchive.hpp>
@@ -35,20 +35,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "UblasCustomFunctions.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "PetscTools.hpp"
 #include "ArchiveOpener.hpp"
 
-class TestParallelTetrahedralMesh : public CxxTest::TestSuite
+class TestDistributedTetrahedralMesh : public CxxTest::TestSuite
 {
 
 private:
 
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-    void CheckEverythingIsAssigned(ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
+    void CheckEverythingIsAssigned(DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
     {
         /*
          * All the nodes have been assigned
@@ -170,7 +170,7 @@ public:
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
 
-        ParallelTetrahedralMesh<1,1> mesh;
+        DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Check we have the right number of nodes & elements
@@ -197,11 +197,11 @@ public:
     {
         /*
          * In this test we don't use reordering since we want to check that a TetrahedralMesh and
-         * a ParallelTetrahedralMesh create the same geometry from the same file.
+         * a DistributedTetrahedralMesh create the same geometry from the same file.
          */
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
-        ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::DUMB); // No reordering
+        DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::DUMB); // No reordering
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Check we have the right number of nodes & elements
@@ -212,7 +212,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100u);
 
         // For coverage purposes
-        mesh.SetElementOwnerships(0,1); // see comment in ParallelTetrahedralMesh
+        mesh.SetElementOwnerships(0,1); // see comment in DistributedTetrahedralMesh
 
         for (AbstractTetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
              iter != mesh.GetElementIteratorEnd();
@@ -292,7 +292,7 @@ public:
             }
         }
 
-        for (ParallelTetrahedralMesh<2,2>::BoundaryElementIterator it=mesh.GetBoundaryElementIteratorBegin();
+        for (DistributedTetrahedralMesh<2,2>::BoundaryElementIterator it=mesh.GetBoundaryElementIteratorBegin();
              it!=mesh.GetBoundaryElementIteratorEnd();
              ++it)
         {
@@ -316,12 +316,12 @@ public:
     void TestConstructFromMeshReader3D()
     {
         /*
-         * In this test we let METIS reorder the ParallelTetrahedralMesh. We want to check that although
+         * In this test we let METIS reorder the DistributedTetrahedralMesh. We want to check that although
          * the indices of the nodes have changed, the location of the nodes is consistent with a
          * TetrahedralMesh representation of the same mesh.
          */
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        ParallelTetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Check we have the right number of nodes & elements
@@ -352,7 +352,7 @@ public:
             }
         }
 
-        for (ParallelTetrahedralMesh<3,3>::BoundaryElementIterator it=mesh.GetBoundaryElementIteratorBegin();
+        for (DistributedTetrahedralMesh<3,3>::BoundaryElementIterator it=mesh.GetBoundaryElementIteratorBegin();
              it!=mesh.GetBoundaryElementIteratorEnd();
              ++it)
         {
@@ -383,10 +383,10 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements_binary");
         TrianglesMeshReader<3,3> mesh_reader_ascii("mesh/test/data/cube_136_elements");
 
-        ParallelTetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        ParallelTetrahedralMesh<3,3> mesh_from_ascii;
+        DistributedTetrahedralMesh<3,3> mesh_from_ascii;
         mesh_from_ascii.ConstructFromMeshReader(mesh_reader_ascii);
 
         // Check that we have the right number of nodes and elements
@@ -422,7 +422,7 @@ public:
     void TestEverythingIsAssignedMetisLibrary()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_LIBRARY);
+        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::METIS_LIBRARY);
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
@@ -435,7 +435,7 @@ public:
     void TestEverythingIsAssignedMetisBinary()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_BINARY);
+        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::METIS_BINARY);
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
@@ -448,7 +448,7 @@ public:
     void TestConstruct3DWithRegions() throw (Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart_nonnegative_flags");
-        ParallelTetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
@@ -488,20 +488,20 @@ public:
 
         {
             TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-            ParallelTetrahedralMesh<3,3> mesh(ParallelTetrahedralMesh<3,3>::METIS_LIBRARY);
+            DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::METIS_LIBRARY);
             mesh.ConstructFromMeshReader(mesh_reader);
 
             // Check that each processor owns the number of nodes corresponding to its METIS partition
             unsigned local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
             TS_ASSERT_EQUALS(local_nodes, mesh.GetNumLocalNodes());
 
-            typedef ParallelTetrahedralMesh<3,3> MESH_TYPE; // To stop TS_ASSERT mistaking the comma for an argument
+            typedef DistributedTetrahedralMesh<3,3> MESH_TYPE; // To stop TS_ASSERT mistaking the comma for an argument
             TS_ASSERT_EQUALS(mesh.GetPartitionType(),MESH_TYPE::METIS_LIBRARY);
         }
 
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-            ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::METIS_LIBRARY);
+            DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::METIS_LIBRARY);
             mesh.ConstructFromMeshReader(mesh_reader);
 
             // Check that each processor owns the number of nodes corresponding to its METIS partition
@@ -511,7 +511,7 @@ public:
 
         {
             TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-            ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::METIS_BINARY);
+            DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::METIS_BINARY);
             mesh.ConstructFromMeshReader(mesh_reader);
 
             // Check that each processor owns the number of nodes corresponding to its METIS partition
@@ -524,10 +524,10 @@ public:
     void TestArchiving() throw(Exception)
     {
         std::string archive_dir = "archive";
-        std::string archive_file = "parallel_tetrahedral_mesh.arch";
-        ArchiveLocationInfo::SetMeshFilename("parallel_tetrahedral_mesh");
+        std::string archive_file = "distributed_tetrahedral_mesh.arch";
+        ArchiveLocationInfo::SetMeshFilename("distributed_tetrahedral_mesh");
 
-        ParallelTetrahedralMesh<2,2>* p_mesh = new ParallelTetrahedralMesh<2,2>(ParallelTetrahedralMesh<2,2>::DUMB);
+        DistributedTetrahedralMesh<2,2>* p_mesh = new DistributedTetrahedralMesh<2,2>(DistributedTetrahedralMesh<2,2>::DUMB);
         //std::vector<unsigned> halo_node_indices;
         std::vector<Node<2>*> halo_nodes;
         unsigned num_nodes;
@@ -564,7 +564,7 @@ public:
             // restore from the archive
             (*p_arch) >> p_mesh_abstract2;
             // Check we have the right number of nodes & elements
-            ParallelTetrahedralMesh<2,2>* p_mesh2 = static_cast<ParallelTetrahedralMesh<2,2>*>(p_mesh_abstract2);
+            DistributedTetrahedralMesh<2,2>* p_mesh2 = static_cast<DistributedTetrahedralMesh<2,2>*>(p_mesh_abstract2);
 
             TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), num_nodes);
             TS_ASSERT_EQUALS(p_mesh2->GetNumLocalNodes(), local_num_nodes);
@@ -628,7 +628,7 @@ public:
             if ( PetscTools::IsSequential() )
             {
                 ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
-                        "mesh/test/data/parallel_mesh_archive/", "parallel_tetrahedral_mesh.arch", false);
+                        "mesh/test/data/distributed_mesh_archive/", "distributed_tetrahedral_mesh.arch", false);
                 boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
                 AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
                 (*p_arch) >> p_mesh3;
@@ -640,14 +640,14 @@ public:
                 if (PetscTools::GetMyRank()>0)
                 {
                     /// Should not read this archive because none exists here.
-                    TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener("mesh/test/data/parallel_mesh_archive/", "parallel_tetrahedral_mesh.arch", false),
+                    TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener("mesh/test/data/distributed_mesh_archive/", "distributed_tetrahedral_mesh.arch", false),
                                 "Cannot load secondary archive file:");
                 }
                 else
                 {
                     /// Should not read this archive because there are two or more processes and
                     // this archive was written on one process.
-                    InputArchiveOpener arch_opener("mesh/test/data/parallel_mesh_archive/", "parallel_tetrahedral_mesh.arch", false);
+                    InputArchiveOpener arch_opener("mesh/test/data/distributed_mesh_archive/", "distributed_tetrahedral_mesh.arch", false);
                     boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
                     AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
                     TS_ASSERT_THROWS_THIS((*p_arch) >> p_mesh3,
@@ -663,9 +663,9 @@ public:
 private:
 
     template <unsigned DIM>
-    void CompareParallelMeshOwnership(ParallelTetrahedralMesh<DIM,DIM> &readMesh, ParallelTetrahedralMesh<DIM,DIM> &constructedMesh)
+    void CompareParallelMeshOwnership(DistributedTetrahedralMesh<DIM,DIM> &readMesh, DistributedTetrahedralMesh<DIM,DIM> &constructedMesh)
     {
-        typedef ParallelTetrahedralMesh<DIM,DIM> MESH_TYPE; // To stop TS_ASSERT mistaking the comma for an argument
+        typedef DistributedTetrahedralMesh<DIM,DIM> MESH_TYPE; // To stop TS_ASSERT mistaking the comma for an argument
         //The read mesh has a dumb partition in the test
         TS_ASSERT_EQUALS(readMesh.GetPartitionType(), MESH_TYPE::DUMB);
         //All constructed meshes have dumb partitioning -- so that they are invariant under archiving
@@ -733,9 +733,9 @@ public:
     void TestConstructLinearMesh()
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
-        ParallelTetrahedralMesh<1,1> read_mesh;
+        DistributedTetrahedralMesh<1,1> read_mesh;
         read_mesh.ConstructFromMeshReader(mesh_reader);
-        ParallelTetrahedralMesh<1,1> constructed_mesh;
+        DistributedTetrahedralMesh<1,1> constructed_mesh;
         constructed_mesh.ConstructLinearMesh(10u);
 
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
@@ -774,7 +774,7 @@ public:
 
     void TestConstructLinearMeshVerySmall()
     {
-        ParallelTetrahedralMesh<1,1> small_mesh;
+        DistributedTetrahedralMesh<1,1> small_mesh;
         //Coverage hack
         TS_ASSERT_THROWS_THIS(small_mesh.ConstructLinearMesh(1), "There aren't enough nodes to make parallelisation worthwhile");
         if (PetscTools::GetNumProcs() >= 4u)
@@ -864,10 +864,10 @@ public:
         PetscTools::Barrier();
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<1,1> mesh_reader(output_dir+"linear");
-        ParallelTetrahedralMesh<1,1> read_mesh(ParallelTetrahedralMesh<1,1>::DUMB);
+        DistributedTetrahedralMesh<1,1> read_mesh(DistributedTetrahedralMesh<1,1>::DUMB);
         read_mesh.ConstructFromMeshReader(mesh_reader);
 
-        ParallelTetrahedralMesh<1,1> constructed_mesh;
+        DistributedTetrahedralMesh<1,1> constructed_mesh;
         constructed_mesh.ConstructLinearMesh(width);
 
         //Double check
@@ -891,10 +891,10 @@ public:
         PetscTools::Barrier();
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<2,2> mesh_reader(output_dir+"rectangle");
-        ParallelTetrahedralMesh<2,2> read_mesh(ParallelTetrahedralMesh<2,2>::DUMB);
+        DistributedTetrahedralMesh<2,2> read_mesh(DistributedTetrahedralMesh<2,2>::DUMB);
         read_mesh.ConstructFromMeshReader(mesh_reader);
 
-        ParallelTetrahedralMesh<2,2> constructed_mesh;
+        DistributedTetrahedralMesh<2,2> constructed_mesh;
         constructed_mesh.ConstructRectangularMesh(width, height, false);
 
         TS_ASSERT_EQUALS(constructed_mesh.GetNumBoundaryNodes(), read_mesh.GetNumBoundaryNodes());
@@ -913,10 +913,10 @@ public:
         PetscTools::Barrier();
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<2,2> mesh_reader(output_dir+"rectangle");
-        ParallelTetrahedralMesh<2,2> read_mesh(ParallelTetrahedralMesh<2,2>::DUMB);
+        DistributedTetrahedralMesh<2,2> read_mesh(DistributedTetrahedralMesh<2,2>::DUMB);
         read_mesh.ConstructFromMeshReader(mesh_reader);
 
-        ParallelTetrahedralMesh<2,2> constructed_mesh;
+        DistributedTetrahedralMesh<2,2> constructed_mesh;
         //Coverage
         TS_ASSERT_THROWS_THIS(constructed_mesh.ConstructRectangularMesh(width, 1, false),
                             "There aren't enough nodes to make parallelisation worthwhile");
@@ -958,10 +958,10 @@ public:
         PetscTools::Barrier();
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<2,2> mesh_reader(output_dir+"rectangle");
-        ParallelTetrahedralMesh<2,2> read_mesh(ParallelTetrahedralMesh<2,2>::DUMB);
+        DistributedTetrahedralMesh<2,2> read_mesh(DistributedTetrahedralMesh<2,2>::DUMB);
         read_mesh.ConstructFromMeshReader(mesh_reader);
 
-        ParallelTetrahedralMesh<2,2> constructed_mesh;
+        DistributedTetrahedralMesh<2,2> constructed_mesh;
         constructed_mesh.ConstructRectangularMesh(width, height, true);
 
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
@@ -998,10 +998,10 @@ public:
         PetscTools::Barrier();
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<3,3> mesh_reader(output_dir+"cuboid");
-        ParallelTetrahedralMesh<3,3> read_mesh(ParallelTetrahedralMesh<3,3>::DUMB);
+        DistributedTetrahedralMesh<3,3> read_mesh(DistributedTetrahedralMesh<3,3>::DUMB);
         read_mesh.ConstructFromMeshReader(mesh_reader);
 
-        ParallelTetrahedralMesh<3,3> constructed_mesh;
+        DistributedTetrahedralMesh<3,3> constructed_mesh;
         //Coverage
         TS_ASSERT_THROWS_THIS(constructed_mesh.ConstructCuboid(width, height, 1),
                             "There aren't enough nodes to make parallelisation worthwhile");
@@ -1015,22 +1015,22 @@ public:
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
         TetrahedralMesh<1,1> sequential_mesh;
         sequential_mesh.ConstructFromMeshReader(reader);
-        TrianglesMeshWriter<1,1> mesh_writer1("TestParallelMeshWriter", "seq_line_10_elements");
+        TrianglesMeshWriter<1,1> mesh_writer1("TestDistributedMeshWriter", "seq_line_10_elements");
         mesh_writer1.WriteFilesUsingMesh(sequential_mesh);
 
-        ParallelTetrahedralMesh<1,1> parallel_mesh(ParallelTetrahedralMesh<1,1>::DUMB); //Makes sure that there is no permutation
-        AbstractTetrahedralMesh<1,1> *p_parallel_mesh = &parallel_mesh; //Hide the fact that it's parallel from the compiler
-        parallel_mesh.ConstructFromMeshReader(reader);
-        TrianglesMeshWriter<1,1> mesh_writer2("TestParallelMeshWriter", "par_line_10_elements", false);
-        mesh_writer2.WriteFilesUsingMesh(*p_parallel_mesh);
+        DistributedTetrahedralMesh<1,1> distributed_mesh(DistributedTetrahedralMesh<1,1>::DUMB); //Makes sure that there is no permutation
+        AbstractTetrahedralMesh<1,1> *p_distributed_mesh = &distributed_mesh; //Hide the fact that it's distributed from the compiler
+        distributed_mesh.ConstructFromMeshReader(reader);
+        TrianglesMeshWriter<1,1> mesh_writer2("TestDistributedMeshWriter", "par_line_10_elements", false);
+        mesh_writer2.WriteFilesUsingMesh(*p_distributed_mesh);
 
         std::string output_dir = mesh_writer1.GetOutputDirectory();
         /* Compare
-         grep -ab "#" /tmp/$USER/testoutput/TestParallelMeshWriter/seq_line_10_elements.node
+         grep -ab "#" /tmp/$USER/testoutput/TestDistributedMeshWriter/seq_line_10_elements.node
          219:# Generated by Chaste mesh file writer
          258:# Created by Chaste version 1.1.7899 on Thu, 04 Feb 2010 12:55:33 +0000.  Chaste was built on Wed, 03 Feb 2010 18:14:17 +0000 by machine (uname) 'Linux chaste-bob 2.6.24-25-server #1 SMP Tue Oct 20 07:20:02 UTC 2009 x86_64' using settings: default, shared libraries.
          i.e. Bytes after 258 are provenance data and will change -- one second clock difference will be spotted
-         grep -ab "#" /tmp/$USER/testoutput/TestParallelMeshWriter/seq_line_10_elements.ele
+         grep -ab "#" /tmp/$USER/testoutput/TestDistributedMeshWriter/seq_line_10_elements.ele
          */
         TS_ASSERT_EQUALS(system(("cmp -n 258 " + output_dir + "/par_line_10_elements.node "+ output_dir + "/seq_line_10_elements.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp -n 127 " + output_dir + "/par_line_10_elements.ele "+ output_dir + "/seq_line_10_elements.ele").c_str()), 0);
@@ -1041,15 +1041,15 @@ public:
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> sequential_mesh;
         sequential_mesh.ConstructFromMeshReader(reader);
-        TrianglesMeshWriter<3,3> mesh_writer1("TestParallelMeshWriter", "seq_cube_2mm_12_elements", false);
+        TrianglesMeshWriter<3,3> mesh_writer1("TestDistributedMeshWriter", "seq_cube_2mm_12_elements", false);
         mesh_writer1.WriteFilesUsingMesh(sequential_mesh);
 
-        ParallelTetrahedralMesh<3,3> parallel_mesh(ParallelTetrahedralMesh<3,3>::DUMB); //Makes sure that there is no permutation
-        AbstractTetrahedralMesh<3,3> *p_parallel_mesh = &parallel_mesh; //Hide the fact that it's parallel from the compiler
+        DistributedTetrahedralMesh<3,3> distributed_mesh(DistributedTetrahedralMesh<3,3>::DUMB); //Makes sure that there is no permutation
+        AbstractTetrahedralMesh<3,3> *p_distributed_mesh = &distributed_mesh; //Hide the fact that it's distributed from the compiler
 
-        parallel_mesh.ConstructFromMeshReader(reader);
-        TrianglesMeshWriter<3,3> mesh_writer2("TestParallelMeshWriter", "par_cube_2mm_12_elements", false);
-        mesh_writer2.WriteFilesUsingMesh(*p_parallel_mesh);
+        distributed_mesh.ConstructFromMeshReader(reader);
+        TrianglesMeshWriter<3,3> mesh_writer2("TestDistributedMeshWriter", "par_cube_2mm_12_elements", false);
+        mesh_writer2.WriteFilesUsingMesh(*p_distributed_mesh);
 
         std::string output_dir = mesh_writer1.GetOutputDirectory();
 
@@ -1062,10 +1062,10 @@ public:
     void TestArchiveOfConstructedMesh() throw(Exception)
     {
         std::string archive_dir = "archive";
-        std::string archive_file = "parallel_rectangle.arch";
-        ArchiveLocationInfo::SetMeshFilename("parallel_rectangle");
+        std::string archive_file = "distributed_rectangle.arch";
+        ArchiveLocationInfo::SetMeshFilename("distributed_rectangle");
 
-        ParallelTetrahedralMesh<2,2>* p_mesh = new ParallelTetrahedralMesh<2,2>;
+        DistributedTetrahedralMesh<2,2>* p_mesh = new DistributedTetrahedralMesh<2,2>;
         //std::vector<unsigned> halo_node_indices;
         std::vector<Node<2>*> halo_nodes;
         unsigned num_nodes;
@@ -1103,7 +1103,7 @@ public:
             // restore from the archive
             (*p_arch) >> p_mesh_abstract2;
             // Check we have the right number of nodes & elements
-            ParallelTetrahedralMesh<2,2>* p_mesh2 = static_cast<ParallelTetrahedralMesh<2,2>*>(p_mesh_abstract2);
+            DistributedTetrahedralMesh<2,2>* p_mesh2 = static_cast<DistributedTetrahedralMesh<2,2>*>(p_mesh_abstract2);
 
             TS_ASSERT_EQUALS(p_mesh2->GetNumNodes(), num_nodes);
             TS_ASSERT_EQUALS(p_mesh2->GetNumLocalNodes(), local_num_nodes);
@@ -1175,12 +1175,12 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
 
 
-        ParallelTetrahedralMesh<3,3> parallel_mesh(ParallelTetrahedralMesh<3,3>::DUMB); // No reordering;
-        parallel_mesh.ConstructFromMeshReader(mesh_reader);
-        TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
-        TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), 48000u);
-        TS_ASSERT_EQUALS(parallel_mesh.GetNumBoundaryElements(), 4800u);
+        DistributedTetrahedralMesh<3,3> distributed_mesh(DistributedTetrahedralMesh<3,3>::DUMB); // No reordering;
+        distributed_mesh.ConstructFromMeshReader(mesh_reader);
+        TS_ASSERT_EQUALS(distributed_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
+        TS_ASSERT_EQUALS(distributed_mesh.GetNumElements(), 48000u);
+        TS_ASSERT_EQUALS(distributed_mesh.GetNumBoundaryElements(), 4800u);
     }    
 
 };
-#endif /*TESTPARALLELTETRAHEDRALMESH_HPP_*/
+#endif /*TESTDISTRIBUTEDTETRAHEDRALMESH_HPP_*/

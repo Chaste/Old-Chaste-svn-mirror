@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "DistanceMapCalculator.hpp"
 #include "TetrahedralMesh.hpp"
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestDistanceMapCalculator : public CxxTest::TestSuite
@@ -55,7 +55,7 @@ public:
             distance_calculator_serial.ComputeDistanceMap(map_origin, distances_serial);
         }
         
-        ParallelTetrahedralMesh<1,1> parallel_mesh;
+        DistributedTetrahedralMesh<1,1> parallel_mesh;
         parallel_mesh.ConstructFromMeshReader(mesh_reader);
         
         TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 11u);
@@ -100,7 +100,7 @@ public:
             distance_calculator_serial.ComputeDistanceMap(map_origin, distances_serial);
         }
         
-        ParallelTetrahedralMesh<2,2> parallel_mesh;
+        DistributedTetrahedralMesh<2,2> parallel_mesh;
         parallel_mesh.ConstructRectangularMesh(1, levels-1);
 
         TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), levels*2u);
@@ -144,7 +144,7 @@ public:
             distance_calculator_serial.ComputeDistanceMap(map_origin, distances_serial);
         }
         
-        ParallelTetrahedralMesh<3,3> parallel_mesh;
+        DistributedTetrahedralMesh<3,3> parallel_mesh;
         parallel_mesh.ConstructCuboid(1, 1, levels-1);
         TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), levels*2u*2u);
 
@@ -180,7 +180,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
 
-        ParallelTetrahedralMesh<3,3> parallel_mesh(ParallelTetrahedralMesh<3,3>::DUMB); // No reordering;
+        DistributedTetrahedralMesh<3,3> parallel_mesh(DistributedTetrahedralMesh<3,3>::DUMB); // No reordering;
         parallel_mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
         TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), 48000u);
@@ -239,7 +239,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
 
-        ParallelTetrahedralMesh<3,3> parallel_mesh(ParallelTetrahedralMesh<3,3>::DUMB); // No reordering
+        DistributedTetrahedralMesh<3,3> parallel_mesh(DistributedTetrahedralMesh<3,3>::DUMB); // No reordering
         parallel_mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
         TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), 48000u);
@@ -281,7 +281,7 @@ public:
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
 
-        ParallelTetrahedralMesh<3,3> parallel_mesh;
+        DistributedTetrahedralMesh<3,3> parallel_mesh;
         parallel_mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
         TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), 48000u);

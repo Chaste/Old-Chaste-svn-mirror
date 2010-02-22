@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 
 #include <cassert>
 #include <sstream>
@@ -45,13 +45,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParallelTetrahedralMesh(PartitionType metisPartitioning)
+DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DistributedTetrahedralMesh(PartitionType metisPartitioning)
     : mMetisPartitioning((SPACE_DIM!=1)?metisPartitioning:DUMB)
 {
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ParallelTetrahedralMesh()
+DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~DistributedTetrahedralMesh()
 {
     for (unsigned i=0; i<this->mHaloNodes.size(); i++)
     {
@@ -60,7 +60,7 @@ ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~ParallelTetrahedralMesh()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
     std::set<unsigned>& rNodesOwned,
     std::set<unsigned>& rHaloNodesOwned,
@@ -112,7 +112,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
 {
     this->mMeshFileBaseName = rMeshReader.GetMeshFileBaseName();
@@ -337,49 +337,49 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalNodes() const
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalNodes() const
 {
     return this->mNodes.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalElements() const
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalElements() const
 {
     return this->mElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumNodes() const
 {
     return mTotalNumNodes;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumAllNodes() const
 {
     return mTotalNumNodes;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumElements() const
 {
     return mTotalNumElements;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-typename ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetPartitionType() const
+typename DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PartitionType DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetPartitionType() const
 {
     return mMetisPartitioning;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryElements() const
 {
     return mTotalNumBoundaryElements;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetHaloNodeIndices(std::vector<unsigned>& rHaloIndices) const
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetHaloNodeIndices(std::vector<unsigned>& rHaloIndices) const
 {
     //Make sure the output vector is empty
     rHaloIndices.clear();
@@ -390,7 +390,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetHaloNodeIndices(std::ve
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsigned lo, unsigned hi)
 {
     // This method exists just to keep compatibility with TetrahedralMesh.
     // In parallel, you only create the data structures for the elements you have been assigned.
@@ -405,7 +405,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(unsig
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfElement( unsigned elementIndex ) const
+bool DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfElement( unsigned elementIndex ) const
 {
     try
     {
@@ -419,7 +419,7 @@ bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnersh
     }
 }
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex ) const
+bool DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex ) const
 {
     try
     {
@@ -434,31 +434,31 @@ bool ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnersh
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterNode(unsigned index)
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterNode(unsigned index)
 {
     mNodesMapping[index] = this->mNodes.size();
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterHaloNode(unsigned index)
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterHaloNode(unsigned index)
 {
     mHaloNodesMapping[index] = mHaloNodes.size();
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterElement(unsigned index)
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterElement(unsigned index)
 {
     mElementsMapping[index] = this->mElements.size();
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterBoundaryElement(unsigned index)
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RegisterBoundaryElement(unsigned index)
 {
     mBoundaryElementsMapping[index] = this->mBoundaryElements.size();
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index) const
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index) const
 {
     std::map<unsigned, unsigned>::const_iterator node_position = mNodesMapping.find(index);
 
@@ -472,14 +472,14 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsig
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveHaloNodeMapping(unsigned index)
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveHaloNodeMapping(unsigned index)
 {
     assert(mHaloNodesMapping.find(index) != mHaloNodesMapping.end());
     return mHaloNodesMapping[index];
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index) const
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index) const
 {
     std::map<unsigned, unsigned>::const_iterator element_position = mElementsMapping.find(index);
 
@@ -494,7 +494,7 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(un
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
 {
     std::map<unsigned, unsigned>::const_iterator boundary_element_position = mBoundaryElementsMapping.find(index);
 
@@ -508,7 +508,7 @@ unsigned ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMa
     return boundary_element_position->second;
 }
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Node<SPACE_DIM> * ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAnyNode(unsigned index) const
+Node<SPACE_DIM> * DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAnyNode(unsigned index) const
 {
     std::map<unsigned, unsigned>::const_iterator node_position;
     //First search the halo
@@ -528,7 +528,7 @@ Node<SPACE_DIM> * ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAnyNode(un
     EXCEPTION(message.str().c_str());
 }
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                            std::set<unsigned>& rNodesOwned)
 {
     assert(!this->mpDistributedVectorFactory);
@@ -542,7 +542,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Abstr
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                                   std::set<unsigned>& rNodesOwned,
                                                                                   std::vector<unsigned>& rProcessorsOffset)
 {
@@ -616,7 +616,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
     /*
      * Wait for the permutation to be available
      */
-    PetscTools::Barrier("ParallelTetrahedralMesh::MetisBinaryNodePartitioning");
+    PetscTools::Barrier("DistributedTetrahedralMesh::MetisBinaryNodePartitioning");
 
     /*
      *  Read partition file and compute local node ownership and processors offset
@@ -676,7 +676,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitionin
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                                   std::set<unsigned>& rNodesOwned,
                                                                                   std::vector<unsigned>& rProcessorsOffset)
 {
@@ -779,7 +779,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioni
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes()
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes()
 {
     assert(!PetscTools::IsSequential());
 
@@ -808,7 +808,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ReorderNodes()
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width)
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width)
 {
     assert(ELEMENT_DIM == 1);
 
@@ -886,7 +886,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned width, unsigned height, bool stagger)
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned width, unsigned height, bool stagger)
 {
     assert(SPACE_DIM == 2);
     assert(ELEMENT_DIM == 2);
@@ -1048,7 +1048,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,
         unsigned height,
         unsigned depth)
 {
@@ -1273,7 +1273,7 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFactor, const double yFactor, const double zFactor)
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFactor, const double yFactor, const double zFactor)
 {
     //Base class scale (scales node positions
     AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(xFactor, yFactor, zFactor);
@@ -1299,9 +1299,9 @@ void ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFactor
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
 
-template class ParallelTetrahedralMesh<1,1>;
-template class ParallelTetrahedralMesh<1,2>;
-template class ParallelTetrahedralMesh<1,3>;
-template class ParallelTetrahedralMesh<2,2>;
-template class ParallelTetrahedralMesh<2,3>;
-template class ParallelTetrahedralMesh<3,3>;
+template class DistributedTetrahedralMesh<1,1>;
+template class DistributedTetrahedralMesh<1,2>;
+template class DistributedTetrahedralMesh<1,3>;
+template class DistributedTetrahedralMesh<2,2>;
+template class DistributedTetrahedralMesh<2,3>;
+template class DistributedTetrahedralMesh<3,3>;

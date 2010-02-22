@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartGeometryInformation.hpp"
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp"  //temporary
 //#include "MeshalyzerMeshWriter.hpp" //temporary
 #include "PetscSetupAndFinalize.hpp"
@@ -76,7 +76,7 @@ private:
 public:
     void TestCalculateRelativeWallPositionSimple2dMesh() throw(Exception)
     {   
-        ParallelTetrahedralMesh<2,2> mesh;
+        DistributedTetrahedralMesh<2,2> mesh;
         //This mesh will have 6 nodes per face, spaced by 1
         mesh.ConstructRectangularMesh(5, 5);
 
@@ -126,7 +126,7 @@ public:
 
     void TestCalculateRelativeWallPositionSimple3dMesh() throw(Exception)
     {
-        ParallelTetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh;
         //This mesh will have 6 nodes per face, spaced by 1
         mesh.ConstructCuboid(5, 5, 5);
 
@@ -168,7 +168,7 @@ public:
     
     void TestCalculateRelativeWallPositionWithThreeSurfaces() throw(Exception)
     {
-        ParallelTetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh;
         //This mesh will have 9 nodes per side, spaced by 1, it is a cube
         mesh.ConstructCuboid(8, 8, 8);
 
@@ -245,7 +245,7 @@ public:
     
     void TestDetermineLayerForEachNodeWritingAndReading() throw (Exception)
     {
-        ParallelTetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh;
         //This mesh will have 31 nodes per side, spaced by 1, it is a cube
         mesh.ConstructCuboid(30, 30, 30);
 
@@ -355,7 +355,7 @@ public:
                
         //read in the mesh
         TrianglesMeshReader<3,3> mesh_reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
-        //ParallelTetrahedralMesh<3,3> mesh;
+        //DistributedTetrahedralMesh<3,3> mesh;
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         

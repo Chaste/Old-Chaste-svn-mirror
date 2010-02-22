@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneStimulusCellFactory.hpp"
 #include "BidomainWithBathAssembler.hpp"
 #include "TetrahedralMesh.hpp"
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "HeartEventHandler.hpp"
@@ -258,7 +258,7 @@ public:
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
 
-        ParallelTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<ParallelTetrahedralMesh<2,2> >(
+        DistributedTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<DistributedTetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.04);
 
         bidomain_problem.SetMesh(p_mesh);
@@ -485,7 +485,7 @@ public:
         double boundary_flux = -4e2;
         double duration = 0.2; //ms
 
-        ParallelTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<ParallelTetrahedralMesh<2,2> >(
+        DistributedTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<DistributedTetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 
         ///////////////////////////////////////////////////////////////////

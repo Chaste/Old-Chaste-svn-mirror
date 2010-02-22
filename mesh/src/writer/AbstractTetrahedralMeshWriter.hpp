@@ -35,7 +35,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractTetrahedralMesh;
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class ParallelTetrahedralMesh;
+class DistributedTetrahedralMesh;
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct MeshWriterIterators;
@@ -68,7 +68,7 @@ private:
     
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**<Pointer to the mesh (if we are writing from the a mesh)*/
     unsigned mNodesPerElement; /**< Same as (ELEMENT_DIM+1), except when writing a quadratic mesh!*/
-    ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpParallelMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
+    DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpParallelMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
 
     MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>* mpIters; /**< Handy iterators so that we know the next node/element to be written */
 

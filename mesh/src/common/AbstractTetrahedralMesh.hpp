@@ -63,7 +63,7 @@ private:
     /**
      * Pure virtual solve element mapping method. For an element with a given
      * global index, get the local index used by this process.
-     * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
+     * Overridden in TetrahedralMesh and DistributedTetrahedralMesh classes.
      *
      * @param index the global index of the element
      */
@@ -72,7 +72,7 @@ private:
     /**
      * Pure virtual solve boundary element mapping method. For a boundary
      * element with a given global index, get the local index used by this process.
-     * Overridden in TetrahedralMesh and ParallelTetrahedralMesh classes.
+     * Overridden in TetrahedralMesh and DistributedTetrahedralMesh classes.
      *
      * @param index the global index of the boundary element
      */
@@ -122,7 +122,7 @@ private:
                      * HeartConfig...
                      *
                      * The advantage of the current code here is that we don't need any communication in the
-                     * case of a ParallelTetrahedralMesh; the master process just slurps the file in and spits
+                     * case of a DistributedTetrahedralMesh; the master process just slurps the file in and spits
                      * it out again chunk by chunk.
                      */
                     TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
@@ -186,7 +186,7 @@ private:
         {
             if (!this->mpDistributedVectorFactory)
             {
-                // If we're not using a ParallelTetrahedralMesh, ConstructFromMeshReader won't set
+                // If we're not using a DistributedTetrahedralMesh, ConstructFromMeshReader won't set
                 // this->mpDistributedVectorFactory.
                 this->mpDistributedVectorFactory = p_factory;
             }
@@ -351,7 +351,7 @@ public:
      * If SPACE_DIM > 1 then the y & z default to 0.0 for every node.
      *
      * @param width  width of the mesh (in the x-direction)
-     * Overridden in ParallelTetrahedralMesh
+     * Overridden in DistributedTetrahedralMesh
      */
      virtual void ConstructLinearMesh(unsigned width);
 
@@ -364,7 +364,7 @@ public:
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
      * @param stagger  whether the mesh should 'jumble' up the elements (defaults to true)
-     * Overridden in ParallelTetrahedralMesh
+     * Overridden in DistributedTetrahedralMesh
      */
     virtual void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
 
@@ -374,7 +374,7 @@ public:
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
      * @param depth  depth of the mesh (in the z-direction)
-     * Overridden in ParallelTetrahedralMesh
+     * Overridden in DistributedTetrahedralMesh
      */
     virtual void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
     

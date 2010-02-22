@@ -51,7 +51,7 @@ private:
      * Pure virtual solve node mapping method. For a node with a given global
      * index, get the local index used by this process.
      *
-     * Overridden in TetrahedralMesh ParallelTetrahedralMesh and Vertex Mesh classes.
+     * Overridden in TetrahedralMesh DistributedTetrahedralMesh and Vertex Mesh classes.
      *
      * @param index the global index of the node
      */
@@ -142,7 +142,7 @@ public:
     /**
      * Get the number of nodes that are actually in use.
      *
-     * Overridden in MutableMesh and ParallelTetrahedralMesh.
+     * Overridden in MutableMesh and DistributedTetrahedralMesh.
      */
     virtual unsigned GetNumNodes() const;
 

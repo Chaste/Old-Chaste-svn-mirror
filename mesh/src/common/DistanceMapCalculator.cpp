@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DistanceMapCalculator.hpp"
-#include "ParallelTetrahedralMesh.hpp" //For dynamic cast
+#include "DistributedTetrahedralMesh.hpp" //For dynamic cast
 #include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -40,7 +40,7 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
 {
     mNumNodes = mrMesh.GetNumNodes();
 
-    ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_parallel_mesh = dynamic_cast<ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh);
+    DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_parallel_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh);
     if ( PetscTools::IsSequential() || p_parallel_mesh == NULL)
     {
         //It's a non-distributed mesh...

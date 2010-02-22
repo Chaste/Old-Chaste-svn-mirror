@@ -161,12 +161,12 @@ MeshType* Load2dMeshAndSetCircularTissue(const std::string& rMeshPath,
  * @param radius radius of tissue
  */
 template<>
-ParallelTetrahedralMesh<2,2>* Load2dMeshAndSetCircularTissue(const std::string& rMeshPath,
+DistributedTetrahedralMesh<2,2>* Load2dMeshAndSetCircularTissue(const std::string& rMeshPath,
                                                              double centreX, double centreY, double radius)
 {
     TrianglesMeshReader<2,2> reader(rMeshPath);
     // Force dumb partitioning so migration tests pass!
-    ParallelTetrahedralMesh<2,2>* p_mesh = new ParallelTetrahedralMesh<2,2>(ParallelTetrahedralMesh<2,2>::DUMB);
+    DistributedTetrahedralMesh<2,2>* p_mesh = new DistributedTetrahedralMesh<2,2>(DistributedTetrahedralMesh<2,2>::DUMB);
     p_mesh->ConstructFromMeshReader(reader);
     
     SetCircularTissueIn2dMesh(p_mesh, centreX, centreY, radius);

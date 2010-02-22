@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "TetrahedralMesh.hpp"
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "SimplePoissonEquation.hpp"
 #include "LinearPdeWithZeroSource.hpp"
 #include "EllipticPdeWithLinearSource.hpp"
@@ -278,7 +278,7 @@ public:
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
-        ParallelTetrahedralMesh<2,2> mesh(ParallelTetrahedralMesh<2,2>::DUMB);
+        DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object

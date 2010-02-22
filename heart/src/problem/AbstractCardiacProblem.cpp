@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TrianglesMeshReader.hpp"
 #include "TetrahedralMesh.hpp"
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "Exception.hpp"
 #include "HeartConfig.hpp"
 #include "HeartEventHandler.hpp"
@@ -125,7 +125,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                 }
                 else
                 {
-                    mpMesh = new ParallelTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
+                    mpMesh = new DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
                 }
                 mpMesh->ConstructFromMeshReader(mesh_reader);
             }

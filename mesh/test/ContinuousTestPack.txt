@@ -2,6 +2,7 @@ TestBoxCollection.hpp
 TestChasteRegions.hpp
 TestChastePoint.hpp
 TestDistanceMapCalculator.hpp
+TestDistributedTetrahedralMesh.hpp
 TestElement.hpp
 TestFace.hpp
 TestFemlabMeshReader.hpp
@@ -11,7 +12,6 @@ TestMeshWriters.hpp
 TestMutableMesh.hpp
 TestNode.hpp
 TestNonCachedTetrahedralMesh.hpp
-TestParallelTetrahedralMesh.hpp
 TestQuadraticMesh.hpp
 TestRemesh.hpp
 TestTetrahedralMesh.hpp

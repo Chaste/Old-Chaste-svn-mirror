@@ -69,7 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * or by the test itself. It's safer though. 
  * 
  */
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp"
 #include "MonodomainPde.hpp"
 #include "BidomainPde.hpp"
@@ -636,7 +636,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
         else
         {
             // The BCs will only actually be different if using a parallel tetrahedral mesh
-            ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_para_mesh = dynamic_cast<ParallelTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>*>(mpMesh);
+            DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_para_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>*>(mpMesh);
             if (p_para_mesh)
             {
                 mpBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);

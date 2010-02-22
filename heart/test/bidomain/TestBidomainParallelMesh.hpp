@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "HeartConfig.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include "ParallelTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -98,12 +98,12 @@ public:
 
 
         ///////////////////////////////////////////////////////////////////
-        // ParallelTetrahedralMesh
+        // DistributedTetrahedralMesh
         ///////////////////////////////////////////////////////////////////
         HeartConfig::Instance()->SetOutputFilenamePrefix("distributed1d");
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
-        ParallelTetrahedralMesh<2,2> mesh;
+        DistributedTetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         BidomainProblem<2> distributed_problem( &cell_factory );
