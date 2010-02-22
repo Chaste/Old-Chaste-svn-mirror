@@ -1381,10 +1381,10 @@ class cellml_model(element_base):
             if not wargs.get('omitXmlDeclaration'):
                 wargs['omitXmlDeclaration'] = u'yes'
             if stream:
-                writer = create_writer(stream, wargs)
+                writer = amara.bindery.create_writer(stream, wargs)
             else:
-                temp_stream = cStringIO.StringIO()
-                writer = create_writer(temp_stream, wargs)
+                temp_stream = StringIO()
+                writer = amara.bindery.create_writer(temp_stream, wargs)
 
             writer.startDocument()
             close_document = 1
@@ -3372,10 +3372,16 @@ class mathml(element_base):
                 msg = "Adding units " + units.name + " as "
                 units.name = units.description(cellml=True)
                 msg = msg + units.name
-                logging.getLogger('partial-evaluator').log(logging.DEBUG,
-                                                           msg.encode('UTF-8'))
-                units.xml_parent.add_units(units.name, units)
-                units.xml_parent.xml_append(units)
+                DEBUG('partial-evaluator', msg.encode('UTF-8'))
+                if units.name == units.unit.units:
+                    # Uh-oh
+                    DEBUG('partial-evaluator', 'Generated units',
+                          units.name, 'identical to referenced units; ignoring.')
+                    assert units.get_multiplicative_factor() == 1
+                    assert units.get_offset() == 0
+                else:
+                    units.xml_parent.add_units(units.name, units)
+                    units.xml_parent.xml_append(units)
             attrs = {(u'cml:units', NSS[u'cml']): units.name}
         except UnitsError:
             # Hack to allow PE on broken (wrt units) models

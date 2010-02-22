@@ -95,14 +95,14 @@ def convert(model):
         print cmd
         os.system(cmd)
 
-        if use_opt:
-            # With optimisation
-            cmd = command_base % {'opts': ' '.join(['-p -l'] + options),
-                                  'classname': class_name + 'Opt',
-                                  'model': model,
-                                  'outfile': os.path.join(model_dir, model_base + 'Opt.cpp')}
-            print cmd
-            os.system(cmd)
+    if use_opt and (use_normal or not use_cvode):
+        # With optimisation
+        cmd = command_base % {'opts': ' '.join(['-p -l'] + options),
+                              'classname': class_name + 'Opt',
+                              'model': model,
+                              'outfile': os.path.join(model_dir, model_base + 'Opt.cpp')}
+        print cmd
+        os.system(cmd)
     
     if use_cvode:
         cmd = command_base % {'opts': ' '.join(['-t CVODE'] + options),
