@@ -209,6 +209,7 @@ if os.environ.get('XTPE_COMPILE_TARGET', ''):
     env = Environment(ENV = os.environ)
 else:
     env = Environment(
+        #tools = ['g++', 'gnulink', 'gas', 'ar', 'g77'],
         ENV={'PATH': '.:' + os.environ['PATH'],
              'PYTHONPATH': os.environ.get('PYTHONPATH', ''),
              'USER': os.environ['USER'],
@@ -220,7 +221,7 @@ else:
              'LD_LIBRARY_PATH': ':'.join(other_libpaths),
              'HOME': os.environ['HOME']
             })
-env.Append(BOPT = 'g_c++')
+env.Append(BOPT = 'g_c++') # Needed for some versions of PETSc?
 env.Replace(CXX = build.tools['mpicxx'])
 env.Replace(AR = build.tools['ar'])
 
@@ -314,6 +315,10 @@ del vg_path
 
 # Record key build info for the provenance system
 SConsTools.RecordBuildInfo(env, build_type, static_libs, use_chaste_libs)
+
+# Allow hostconfig scripts to modify the build environment
+if hasattr(hostconfig.conf, 'ModifyEnv') and callable(hostconfig.conf.ModifyEnv):
+    hostconfig.conf.ModifyEnv(env)
 
 # We need different linker flags when compiling dynamically loadable modules
 dynenv = env.Copy()

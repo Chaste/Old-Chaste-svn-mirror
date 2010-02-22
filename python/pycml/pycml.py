@@ -65,6 +65,7 @@ import copy
 from cStringIO import StringIO
 
 from enum import Enum # Pythonic enums
+import cellml_metadata # Handle RDF metadata for CellML
 
 # Useful for functional-style programming
 import itertools
@@ -164,7 +165,7 @@ CELLML_SUBSET_ELTS = frozenset(
      'semantics', 'annotation', 'annotation-xml'])
 
 # Binding times for BTA
-BINDING_TIMES = Enum(u'static', u'dynamic')
+BINDING_TIMES = Enum('static', 'dynamic')
 
 # Allowed metadata names, more to come
 # TODO: Use a proper ontology!
@@ -1366,13 +1367,17 @@ class cellml_model(element_base):
         as a Python string (not Unicode) encoded as UTF-8.
 
         This overrides Amara's method, in order to force declaration of
-        various namespaces with prefixes on this element.
+        various namespaces with prefixes on this element, and to ensure
+        the RDF annotations are up-to-date.
 
         See base class docs for possible keyword arguments.
         """
         extra_namespaces = {u'cellml': NSS[u'cml'],
                             u'pe': NSS[u'pe'],
                             u'lut': NSS[u'lut']}
+        
+        # Update RDF block if necessary
+        cellml_metadata.update_serialized_rdf(self)
         
         temp_stream = None
         close_document = 0
@@ -1775,13 +1780,61 @@ class cellml_variable(element_base):
             model._pe_repeat = u'yes'
         return
 
+    def _set_colour(self, col):
+        "Method used by validator."
+        self._cml_colour = col
+        return
+    def _get_colour(self):
+        "Method used by validator."
+        return self._cml_colour
+
+    def add_rdf_annotation(self, property, target):
+        """Add an RDF annotation about this variable.
+        
+        property must be a tuple (qname, namespace_uri).
+        target may either be a tuple as above, or a unicode string, in which
+        case it is interpreted as a literal RDF node.
+        
+        If the variable does not already have a cmeta:id, one will be created
+        for it with value self.fullname(cellml=True).
+
+        The actual RDF will be added to the main RDF block in the model, which
+        will be created if it does not exist.  Any existing annotations with
+        the same source and property will be removed.
+        """
+        meta_id = self.getAttributeNS(NSS['cmeta'], u'id')
+        if not meta_id:
+            # Create ID for this variable, so we can refer to it in RDF
+            meta_id = unicode(self.fullname(cellml=True))
+            self.xml_set_attribute((u'cmeta:id', NSS['cmeta']), meta_id)
+        property = cellml_metadata.create_rdf_node(property)
+        target = cellml_metadata.create_rdf_node(target)
+        source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
+        cellml_metadata.replace_statement(self.model, source, property, target)
+
+    def get_rdf_annotation(self, property):
+        """Get an RDF annotation about this variable.
+        
+        property must be a tuple (qname, namespace_uri).
+        
+        Will return the first annotation found with source being this variable's id,
+        and the given property.  If no annotation is found (or if the variable does
+        not have a cmeta:id), returns None.
+        """
+        meta_id = self.getAttributeNS(NSS['cmeta'], u'id')
+        if not meta_id:
+            return None
+        property = cellml_metadata.create_rdf_node(property)
+        source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
+        return cellml_metadata.get_target(self.model, source, property)
+
     def _set_binding_time(self, bt):
         """Set the binding time of this variable.
         
         Options are members of the BINDING_TIMES Enum.
         """
         assert bt in BINDING_TIMES
-        self.xml_set_attribute((u'pe:binding_time', NSS[u'pe']), unicode(bt))
+        self.add_rdf_annotation(('pe:binding_time', NSS[u'pe']), str(bt))
         self._cml_binding_time = bt
         return
     def _get_binding_time(self):
@@ -1798,10 +1851,11 @@ class cellml_variable(element_base):
           Computed -> binding time of defining expression
         """
         if self._cml_binding_time is None:
-            # Check for an attribute setting the BT
-            if hasattr(self, u'binding_time'):
+            # Check for an annotation setting the BT
+            bt_annotation = self.get_rdf_annotation(('pe:binding_time', NSS[u'pe']))
+            if bt_annotation:
                 self._cml_binding_time = getattr(BINDING_TIMES,
-                                                 self.binding_time)
+                                                 bt_annotation)
                 DEBUG('partial-evaluator', "BT var", self.fullname(),
                       "is annotated as", self._cml_binding_time)
             elif self.pe_keep:
@@ -1831,14 +1885,6 @@ class cellml_variable(element_base):
                 DEBUG('partial-evaluator', "BT var", self.fullname(),
                       "is", self._cml_binding_time)
         return self._cml_binding_time
-
-    def _set_colour(self, col):
-        "Method used by validator."
-        self._cml_colour = col
-        return
-    def _get_colour(self):
-        "Method used by validator."
-        return self._cml_colour
 
     def set_value(self, value, ode=None, follow_maps=True):
         """Set the value of this variable.
@@ -1891,17 +1937,17 @@ class cellml_variable(element_base):
     @property
     def pe_keep(self):
         """Whether PE should retain this variable in the specialised model."""
-        return self.getAttributeNS(NSS['pe'], u'keep', u'no') == u'yes'
+        return self.get_rdf_annotation(('pe:keep', NSS[u'pe'])) == 'yes'
     def set_pe_keep(self, keep):
         """Set method for the pe_keep property.
         
         We need a separate method for this to bypass Amara's property setting checks.
         """
         if keep:
-            val = u'yes'
+            val = 'yes'
         else:
-            val = u'no'
-        self.xml_set_attribute((u'pe:keep', NSS['pe']), val)
+            val = 'no'
+        self.add_rdf_annotation(('pe:keep', NSS[u'pe']), val)
 
     @property
     def oxmeta_name(self):

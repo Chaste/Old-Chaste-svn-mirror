@@ -1399,7 +1399,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """
         # Find annotated variables
         if self.kept_vars_as_members:
-            kept_vars = self.doc.xml_xpath(u'/*/*/cml:variable[@pe:keep]')
+            kept_vars = cellml_metadata.find_variables(self.model, ('pe:keep', NSS[u'pe']), 'yes')
         else:
             kept_vars = []
         self.cell_parameters = kept_vars
@@ -3283,16 +3283,19 @@ def parteval(doc):
         # it.
         for comp in old_comps:
             # Move relevant contents into new_comp
-            for units in getattr(comp, u'units', []):
+            for units in list(getattr(comp, u'units', [])):
                 # Copy all <units> elements
                 # TODO: Just generate the ones we need,
                 # using _ensure_units_exist
                 units.next_elem = None
                 new_comp.xml_append(units)
-            for var in getattr(comp, u'variable', []):
+            for var in list(getattr(comp, u'variable', [])):
                 # Only move used source variables
+                debug('Variable', var.fullname(), 'usage', var.get_usage_count(),
+                      'type', var.get_type(), 'kept', var.pe_keep)
                 if (var.get_usage_count() and
                     var.get_type() != VarTypes.Mapped) or var.pe_keep:
+                    debug('Moving variable', var.fullname())
                     # Remove from where it was
                     comp._del_variable(var)
                     # Set name to canonical version
@@ -3300,7 +3303,7 @@ def parteval(doc):
                     # Place in new component
                     new_comp._add_variable(var)
             # Don't copy reactions
-            for math in getattr(comp, u'math', []):
+            for math in list(getattr(comp, u'math', [])):
                 # Copy all <math> elements with content
                 if math.xml_children:
                     math.next_elem = None
