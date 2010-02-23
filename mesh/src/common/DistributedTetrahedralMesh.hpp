@@ -297,13 +297,6 @@ private:
     unsigned SolveNodeMapping(unsigned index) const;
 
     /**
-     * Overridden solve halo node mapping method.
-     *
-     * @param index the global index of the node
-     */
-    unsigned SolveHaloNodeMapping(unsigned index);
-
-    /**
      * Overridden solve element mapping method.
      *
      * @param index the global index of the element

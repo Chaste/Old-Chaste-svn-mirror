@@ -157,6 +157,12 @@ public:
         //call the constructor that takes in the surface files...
         HeartGeometryInformation<3> info(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri", false);
         
+        //Check get methods
+        std::vector<unsigned> nodes_on_endo = info.rGetNodesOnEndoSurface();
+        TS_ASSERT_EQUALS(nodes_on_endo.size(),  36u);
+        std::vector<unsigned> nodes_on_epi = info.rGetNodesOnEpiSurface();
+        TS_ASSERT_EQUALS(nodes_on_epi.size(),  36u);
+        
         for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];

@@ -471,12 +471,12 @@ unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(un
     return node_position->second;
 }
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveHaloNodeMapping(unsigned index)
-{
-    assert(mHaloNodesMapping.find(index) != mHaloNodesMapping.end());
-    return mHaloNodesMapping[index];
-}
+//template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveHaloNodeMapping(unsigned index)
+//{
+//    assert(mHaloNodesMapping.find(index) != mHaloNodesMapping.end());
+//    return mHaloNodesMapping[index];
+//}
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index) const
