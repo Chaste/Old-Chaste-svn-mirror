@@ -418,7 +418,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     while (!stepper.IsTimeAtEnd())
     {
         LOG(2, "\nCurrent time = " << stepper.GetTime());
-        #ifdef MECH_VERBOSE // define in AbstractNonlinearElasticityAssembler
+        #ifdef MECH_VERBOSE // defined in AbstractNonlinearElasticityAssembler
         // also output time to screen as newton solve information will be output
         std::cout << "\n\n ** Current time = " << stepper.GetTime() << "\n";
         #endif
