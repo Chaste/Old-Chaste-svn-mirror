@@ -240,70 +240,81 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
     }
 
     // Boundary nodes and elements
-    for (unsigned face_index=0; face_index<mTotalNumBoundaryElements; face_index++)
+    try
     {
-        ElementData face_data = rMeshReader.GetNextFaceData();
-        std::vector<unsigned> node_indices = face_data.NodeIndices;
-
-        bool own = false;
-
-        for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
+        for (unsigned face_index=0; face_index<mTotalNumBoundaryElements; face_index++)
         {
-            // if I own this node
-            if (mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
+            ElementData face_data = rMeshReader.GetNextFaceData();
+            std::vector<unsigned> node_indices = face_data.NodeIndices;
+    
+            bool own = false;
+    
+            for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
             {
-                own = true;
-                break;
+                // if I own this node
+                if (mNodesMapping.find(node_indices[node_index]) != mNodesMapping.end())
+                {
+                    own = true;
+                    break;
+                }
+            }
+    
+            if (!own)
+            {
+                continue;
+            }
+    
+            // Determine if this is a boundary face
+            std::set<unsigned> containing_element_indices; // Elements that contain this face
+            std::vector<Node<SPACE_DIM>*> nodes;
+    
+            for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
+            {
+                //because we have populated mNodes and mHaloNodes above, we can now use this method, 
+                //which SHOULD never throw (but it does).
+                try
+                {
+                    nodes.push_back(this->GetAnyNode(node_indices[node_index]));
+                }
+                catch (Exception &e)
+                {
+                    std::stringstream message;
+                    message << "Face does not appear in element file (Face " << face_index << " in "<<this->mMeshFileBaseName<< ")";
+                    EXCEPTION(message.str().c_str());
+                }
+            }
+    
+            // This is a boundary face
+            // Ensure all its nodes are marked as boundary nodes
+            for (unsigned j=0; j<nodes.size(); j++)
+            {
+                if (!nodes[j]->IsBoundaryNode())
+                {
+                    nodes[j]->SetAsBoundaryNode();
+                    this->mBoundaryNodes.push_back(nodes[j]);
+                }
+                // Register the index that this bounday element will have with the node
+                nodes[j]->AddBoundaryElement(face_index);
+            }
+    
+            RegisterBoundaryElement(face_index);
+            BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(face_index, nodes);
+            this->mBoundaryElements.push_back(p_boundary_element);
+    
+            if (rMeshReader.GetNumFaceAttributes() > 0)
+            {
+                assert(rMeshReader.GetNumFaceAttributes() == 1);
+                unsigned attribute_value = face_data.AttributeValue;
+                p_boundary_element->SetRegion(attribute_value);
             }
         }
-
-        if (!own)
-        {
-            continue;
         }
-
-        // Determine if this is a boundary face
-        std::set<unsigned> containing_element_indices; // Elements that contain this face
-        std::vector<Node<SPACE_DIM>*> nodes;
-
-        for (unsigned node_index=0; node_index<node_indices.size(); node_index++)
-        {
-            //because we have populated mNodes and mHaloNodes above, we can now use this method, 
-            //which SHOULD never throw (but it does).
-            try
-            {
-                nodes.push_back(this->GetAnyNode(node_indices[node_index]));
-            }
-            catch (Exception &e)
-            {
-                ///\todo This ought to be NEVER_REACHED;
-            }
-        }
-
-        // This is a boundary face
-        // Ensure all its nodes are marked as boundary nodes
-        for (unsigned j=0; j<nodes.size(); j++)
-        {
-            if (!nodes[j]->IsBoundaryNode())
-            {
-                nodes[j]->SetAsBoundaryNode();
-                this->mBoundaryNodes.push_back(nodes[j]);
-            }
-            // Register the index that this bounday element will have with the node
-            nodes[j]->AddBoundaryElement(face_index);
-        }
-
-        RegisterBoundaryElement(face_index);
-        BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(face_index, nodes);
-        this->mBoundaryElements.push_back(p_boundary_element);
-
-        if (rMeshReader.GetNumFaceAttributes() > 0)
-        {
-            assert(rMeshReader.GetNumFaceAttributes() == 1);
-            unsigned attribute_value = face_data.AttributeValue;
-            p_boundary_element->SetRegion(attribute_value);
-        }
+    catch (Exception &e)
+    {
+        PetscTools::ReplicateException(true); //Bad face exception
+        throw e;
     }
+    PetscTools::ReplicateException(false);
 
     if (mMetisPartitioning != DUMB && !PetscTools::IsSequential())
     {
@@ -1278,7 +1289,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFactor, const double yFactor, const double zFactor)
 {
-    //Base class scale (scales node positions
+    //Base class scale (scales node positions)
     AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(xFactor, yFactor, zFactor);
     //Scales halos
     for (unsigned i=0; i<mHaloNodes.size(); i++)

@@ -44,7 +44,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestDistributedTetrahedralMesh : public CxxTest::TestSuite
 {
-
 private:
 
     template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -1184,17 +1183,46 @@ public:
         delete p_mesh;
     }
     
-    void TestSimpleLoad() throw (Exception)
+//    {
+//
+//        TetrahedralMesh<3,3> cuboid_mesh;
+//        cuboid_mesh.ConstructCuboid(20, 20, 20);
+//        TS_ASSERT_EQUALS(cuboid_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
+//        TS_ASSERT_EQUALS(cuboid_mesh.GetNumElements(), 48000u);
+//        TS_ASSERT_EQUALS(cuboid_mesh.GetNumBoundaryElements(), 4800u);
+//        
+//        cuboid_mesh.Translate(-10,-10,-10);
+//        cuboid_mesh.Scale(0.25/10.0,0.25/10.0,0.25/10.0);
+//        
+//        TrianglesMeshWriter<3,3> mesh_writer("", "Cube21");
+//        mesh_writer.WriteFilesUsingMesh(cuboid_mesh);
+//    }
+
+
+    void TestLoadBadFacesException() throw (Exception)
     {
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
 
 
-        DistributedTetrahedralMesh<3,3> distributed_mesh(DistributedTetrahedralMesh<3,3>::DUMB); // No reordering;
-        //DistributedTetrahedralMesh<3,3> distributed_mesh; 
-        distributed_mesh.ConstructFromMeshReader(mesh_reader);
-        TS_ASSERT_EQUALS(distributed_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
-        TS_ASSERT_EQUALS(distributed_mesh.GetNumElements(), 48000u);
-        TS_ASSERT_EQUALS(distributed_mesh.GetNumBoundaryElements(), 4800u);
+        DistributedTetrahedralMesh<3,3> distributed_mesh_bad;
+        TrianglesMeshReader<3,3> mesh_reader_bad("mesh/test/data/cube_21_nodes_side/Cube21_bad_faces"); // 5x5x5mm cube (internode distance = 0.25mm)
+        if (PetscTools::IsSequential())
+        {
+            distributed_mesh_bad.ConstructFromMeshReader(mesh_reader_bad);
+            TS_ASSERT_EQUALS(distributed_mesh_bad.GetNumNodes(), 9261u); // 21x21x21 nodes
+            TS_ASSERT_EQUALS(distributed_mesh_bad.GetNumElements(), 48000u);
+            TS_ASSERT_EQUALS(distributed_mesh_bad.GetNumBoundaryElements(), 4800u);
+        }
+        else
+        {
+            TS_ASSERT_THROWS_CONTAINS(distributed_mesh_bad.ConstructFromMeshReader(mesh_reader_bad), "Face does not appear in element file (Face ");
+        }
+        
+        DistributedTetrahedralMesh<3,3> distributed_mesh_good;
+        TrianglesMeshReader<3,3> mesh_reader_good("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
+        distributed_mesh_good.ConstructFromMeshReader(mesh_reader_good);
+        TS_ASSERT_EQUALS(distributed_mesh_good.GetNumNodes(), 9261u); // 21x21x21 nodes
+        TS_ASSERT_EQUALS(distributed_mesh_good.GetNumElements(), 48000u);
+        TS_ASSERT_EQUALS(distributed_mesh_good.GetNumBoundaryElements(), 4800u);
     }    
 
 };
