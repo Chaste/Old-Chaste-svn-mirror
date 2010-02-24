@@ -36,8 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 #include "SimpleDataWriter.hpp"
-#include "Debug.hpp"
-
 
 
 class TestPeregoCellModels : public CxxTest::TestSuite
@@ -106,7 +104,7 @@ public:
             TS_ASSERT_DELTA(matlab_answers[i],r_predicted_values[i],1e-3);
         }
 
-        //for coverage test I ionic against hardcoded value
+        //for coverage test I ionic against hardcoded value, possibly re-evaluate when tissue simulations are in place
         TS_ASSERT_DELTA(lr91_perego.GetIIonic(), 0.003,1e-4);
     }
 
@@ -196,7 +194,7 @@ public:
     {
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 2.00;//for this test it will be number of time steps
+        double duration  = 2.00; //ms
         double when = 0.0;
 
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
@@ -234,9 +232,8 @@ public:
     {
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 1.99;//for this test it will be number of time steps
+        double duration  = 1.99; //ms
         double when = 0.0;
-
 
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
@@ -253,17 +250,14 @@ public:
 
         std::vector<double> tol(8);
 
-
         // Tolerance to error in each variable is based on a visual inspection of the difference
         // between the two AP traces and the maximum values of the differences between Perego and
         // forward Euler over time in this case.
         tol[0]=6e-2;
         tol[1]=4e-3;
         tol[2]=4e-2;
-
         tol[3]=1e-4;
         tol[4]=1;
-
         tol[5]=2e-3;
         tol[6]=3e-4;
         tol[7]=1e-3;
@@ -272,22 +266,20 @@ public:
 
         for(unsigned i=0; i<solutions_perego.rGetSolutions().size(); i++)
         {
-            //TS_ASSERT_DELTA(solutions.rGetTimes()[i],solutions_perego.rGetTimes()[i],1e-12);
+            TS_ASSERT_DELTA(solutions.rGetTimes()[i],solutions_perego.rGetTimes()[i],1e-4);
             for(unsigned j=0; j<8; j++)
             {
                 TS_ASSERT_DELTA(solutions.rGetSolutions()[i][j],solutions_perego.rGetSolutions()[i][j],tol[j]);
 
             }
         }
-//        solutions.WriteToFile("TestPeregoLr91Compare","lr91_standard","ms");
-//        solutions_perego.WriteToFile("TestPeregoLr91Compare","lr91_perego","ms", 1, false);
     }
 
     void TestEvaluateErrors(void) throw(Exception)
     {
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 1.99;//for this test it will be number of time steps
+        double duration  = 1.99; //ms
         double when = 0.0;
 
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
@@ -327,10 +319,7 @@ public:
         previous_corrected_solution[6] = 0.994279658014422;
         previous_corrected_solution[7] = 0.166470067496488;
         
-//        lr91_perego.mThetaP = -3.309930740729620;
-//        lr91_perego.mThetaC = -0.134988456788270;
-//        lr91_perego.mLocalTimeStep = 0.066198614814592;
-        
+
         double current_time = 0.02;
 
         // These need to be set correctly (usually by previous run)
@@ -339,7 +328,6 @@ public:
         lr91_perego.mIsTheCorrectorStep=false;
         lr91_perego.mIsTheErrorEvaluationStep=false;
         //Compute parameters (done in the child class, will modify the member variables here)
-//        lr91_perego.ComputeSystemParameters(corrected_solution, current_time);
         lr91_perego.ComputeSystemParameters(previous_corrected_solution, current_time);
 
         lr91_perego.mIsTheErrorEvaluationStep = true;
@@ -378,7 +366,6 @@ public:
         {
             if(i!=3 && i!=4) // test is only run the gating variables; 3=calcium, 4=voltage
             {
-//                PRINT_VARIABLE(i);
                 TS_ASSERT_DELTA(lr91_perego.ma_error[i], matlab_ma_error[i], 1e-5);
                 TS_ASSERT_DELTA(lr91_perego.ma_current[i], matlab_ma_current[i], 1e-5);
             }
@@ -404,8 +391,6 @@ public:
 
         for (unsigned i=0; i<errors.size(); i++)
         {
-//            std::cout << errors[i] << "\n";
-//            std::cout << matlab_errors[i] << " matlab" << "\n";
             TS_ASSERT_DELTA(errors[i],matlab_errors[i],(1e-4)*matlab_errors[i]);
         }
 
@@ -413,9 +398,11 @@ public:
 
     void TestAdaptiveTimesteps(void) throw(Exception)
     {
+        std::cout << std::setprecision(8);
+        
         // Set stimulus
         double magnitude = -25.5;
-        double duration  = 1.99;//for this test it will be number of time steps
+        double duration  = 1.99; //ms
         double when = 0.0;
 
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
@@ -429,19 +416,19 @@ public:
 
         TS_ASSERT_EQUALS(solutions_perego.rGetTimes().size(), solutions_perego.rGetSolutions().size());
 
-        std::vector<double> matlab_timesteps(10);
-
+        std::vector<double> matlab_timesteps(11);
 
         matlab_timesteps[0] = 0.00;
-        matlab_timesteps[1] = 0.066198614814592;
-        matlab_timesteps[2] = 0.066603712934993;
-        matlab_timesteps[3] = 0.068085035666819;
-        matlab_timesteps[4] = 0.069279542552099;
-        matlab_timesteps[5] = 0.070507181748773;
-        matlab_timesteps[6] = 0.071772602703771;
-        matlab_timesteps[7] = 0.073092397564555;
-        matlab_timesteps[8] = 0.074486709902735;
-        matlab_timesteps[9] = 0.075980375254532;
+        matlab_timesteps[1] = 0.01;
+        matlab_timesteps[2] = 0.066198614814592;
+        matlab_timesteps[3] = 0.066603712934993;
+        matlab_timesteps[4] = 0.068085035666819;
+        matlab_timesteps[5] = 0.069279542552099;
+        matlab_timesteps[6] = 0.070507181748773;
+        matlab_timesteps[7] = 0.071772602703771;
+        matlab_timesteps[8] = 0.073092397564555;
+        matlab_timesteps[9] = 0.074486709902735;
+        matlab_timesteps[10] = 0.075980375254532;
 
         for(unsigned i=0; i<matlab_timesteps.size(); i++)
         {
@@ -449,21 +436,43 @@ public:
             {   // Sum up the times
                 matlab_timesteps[i] += matlab_timesteps[i-1];
             }
-//            std::cout << "i\n";
-//            std::cout << matlab_timesteps[i] << " matlab" << "\n";
-//            std::cout << solutions_perego.rGetTimes()[i] << " solution" << "\n";
             TS_ASSERT_DELTA(matlab_timesteps[i],solutions_perego.rGetTimes()[i],1e-5);
         }
         TS_ASSERT_DELTA(solutions_perego.rGetTimes().back(),10.0,1e-9);
         
-//        PRINT_VARIABLE(solutions_perego.rGetTimes().back());
-        
     }
-//    void TestFullPeregoAfterTenMilliseconds throw(Exception)
-//    {
-//        
-//    }
-    
+
+    void TestFullActionPotential(void) throw(Exception)
+    {
+        // Set stimulus
+        double magnitude = -25.5;
+        double duration  = 1.99; //ms
+        double when = 0.0;
+
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
+
+        // Compute the solution with the Perego nonadaptive predictor-corrector scheme
+        // Create a luo Rudy cell set up for Perego-like solving
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus, true);
+        lr91_perego.SetToleranceWeight(1e-2);
+        OdeSolution solutions_perego = lr91_perego.Compute(0.0, 350.0);
+        
+        solutions_perego.WriteToFile("TestPeregoFullAp", "results","ms");
+        
+        unsigned final_time = solutions_perego.rGetTimes().size()-2u;
+        //we check that the time step before the last one is the same as in the matlab code.
+        TS_ASSERT_DELTA(solutions_perego.rGetTimes()[final_time],3.497529355*1e2,1e-6);
+        
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego_2( p_stimulus, true);
+
+        lr91_perego_2.SetToleranceWeight(1e-3);
+        OdeSolution solutions_perego_2 = lr91_perego_2.Compute(0.0, 350.0);
+        final_time = solutions_perego_2.rGetTimes().size()-2u;
+        
+        TS_ASSERT_DELTA(solutions_perego_2.rGetTimes()[final_time],3.499228143*1e2,1e-6);
+    }
 
 
 };

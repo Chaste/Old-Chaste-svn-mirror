@@ -143,6 +143,8 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
     double mThetaP; /**< A numerical solver parameter which changes as dt does*/
     double mThetaC; /**< Another numerical solver parameter which changes as dt does*/
     
+    double mNewDt;  /**< Variable to store the new timestep size until it is copied into mLocalTimestep*/
+    
     std::vector<double> mWeightedErrorTolerances; /**< Vector of tolerances to error in each of the system variables, will be weighted by a small tolerance factor*/
     
     bool mUseAdaptTimestep; /**< For testing purposes, so we can test the algorithm without adaptivity. To be removed eventually. */
@@ -193,8 +195,8 @@ public:
 
     /** Virtual destructor */
     virtual ~AbstractPeregoCardiacCell();
-         
-
+   
+    
     /**
      * Overloaded Compute method.
      * 

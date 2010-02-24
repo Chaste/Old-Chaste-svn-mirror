@@ -119,6 +119,13 @@ public:
      * Destructor
      */
     ~PeregoLuoRudyIModel1991OdeSystem();
+    
+    /**
+     * Set the weight for the tolerances to errors in the state variables.
+     * 
+     * @param tolerance_weight the tolerance weight to be set. The smaller it is, the less error you will have.
+     */     
+    void SetToleranceWeight (double tolerance_weight);
 
     /**
      * Returns the ionic current
