@@ -446,20 +446,7 @@ public:
         CheckEverythingIsAssigned<3,3>(mesh);
     }
 
-    void TestEverythingIsAssigned2DSimple()
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-        DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::DUMB);
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
-
-        CheckEverythingIsAssigned<2,2>(mesh);
-    }
-
-    void TestEverythingIsAssignedMetisBinary()
+   void TestEverythingIsAssignedMetisBinary()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::METIS_BINARY);
