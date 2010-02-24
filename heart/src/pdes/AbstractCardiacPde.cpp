@@ -60,17 +60,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
     for (unsigned local_index = 0; local_index < num_local_nodes; local_index++)
     {
         unsigned global_index = ownership_range_low + local_index;
-        try
-        {
-            mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
-        }
-        catch (const Exception& e)
-        {
-            // Free already created cells before re-throwing
-            mCellsDistributed.resize(local_index);
-            DeleteCells(mMeshUnarchived);
-            throw e;
-        }
+        mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
     }
 
     pCellFactory->FinaliseCellCreation(&mCellsDistributed,
