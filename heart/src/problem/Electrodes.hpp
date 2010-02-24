@@ -78,6 +78,23 @@ private:
      * \todo consider whether to just archive the mesh separately in the test
      */
     AbstractTetrahedralMesh<DIM,DIM>* mpMesh;
+
+    /** Left electrode area*/
+    double mLeftElectrodeArea;    
+
+    /** Right electrode area*/
+    double mRightElectrodeArea;    
+    
+    /**
+     * Helper method to compute electrodes area and check they are equal. Throws if they are not.
+     * 
+     *  @param index The value i when applying the electrodes to x_i=a and x_i=b (a<b)
+     *  @param lowerValue The value a when applying the electrodes to x_i=a and x_i=b (a<b) (should
+     *    be the minimum value of x_i for the given mesh)
+     *  @param upperValue The value b when applying the electrodes to x_i=a and x_i=b (a<b) (should
+     *    be the maximum value of x_i for the given mesh)
+     */
+    void ComputeElectrodesAreasAndCheckEquality(unsigned index, double lowerValue, double upperValue);
     
     /** Needed for serialization. */
     friend class boost::serialization::access;

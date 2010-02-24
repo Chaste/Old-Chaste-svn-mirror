@@ -450,6 +450,26 @@ public:
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2), 10u);
     }
 
+    void TestCalculateDesignatedOwnership()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        unsigned local_faces = 0;
+        unsigned total_num_faces;
+        for (unsigned index = 0; index < mesh.GetNumBoundaryElements(); index++)
+        {          
+            if (mesh.CalculateDesignatedOwnershipOfBoundaryElement(index))
+            {
+                local_faces++;
+            }
+        }
+        int mpi_ret = MPI_Allreduce(&local_faces, &total_num_faces, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        assert(mpi_ret == MPI_SUCCESS);
+        TS_ASSERT_EQUALS(total_num_faces, mesh.GetNumBoundaryElements());
+    }
+        
     void TestNodePermutation()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");

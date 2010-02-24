@@ -223,7 +223,7 @@ public:
      * 
      * @param faceIndex is the global index of the face
      */
-    bool CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex ) const;
+    bool CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex );
          
     /**
      * Construct a 1D linear grid on [0,width]
@@ -263,7 +263,18 @@ public:
      * @param zFactor is the scale in the z-direction (defaults to 1.0)
      */
     virtual void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
-    
+
+    /**
+     * Returns the local pointer to a node which is
+     * either owned or in the halo of this process.
+     * 
+     * We first search halo node (as there are fewer),
+     * then search totally owned nodes.  Otherwise throw.
+     *
+     * @param index the global index of the node
+     */
+    Node<SPACE_DIM> * GetAnyNode(unsigned index) const;
+        
 
 private:
 
@@ -316,17 +327,6 @@ private:
      */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
 
-    /**
-     * Returns the local pointer to a node which is
-     * either owned or in the halo of this process.
-     * 
-     * We first search halo node (as there are fewer),
-     * then search totally owned nodes.  Otherwise throw.
-     *
-     * @param index the global index of the node
-     */
-    Node<SPACE_DIM> * GetAnyNode(unsigned index) const;
-    
     /**
      * Compute a parallel partitioning of a given mesh
      * using specialised methods below based on the value

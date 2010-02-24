@@ -152,6 +152,68 @@ public:
         }
     }
 
+    void TestElectrodeUngrounded2dDifferentAreas() throw (Exception)
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
+        DistributedTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        try
+        {
+            // Node 120 is the bottom right corner (10,10) in the original mesh.
+            unsigned index = 120;
+            
+            // In parallel work out the new index for 120
+            if (!PetscTools::IsSequential())
+            {
+                index =  mesh.rGetNodePermutation()[120];
+            }
+            
+            // Move the node slightlty to the left so it's not considered to be located at the edge by 
+            // the Electrodes constructor. Node might be halo as well...
+            c_vector<double, 2>& corner_node_location = mesh.GetNode(index)->rGetModifiableLocation();
+            corner_node_location[0] -= 0.5;
+        }
+        catch(Exception& e)
+        {
+            // Don't do anything if you don't own (or halo-own) the node
+        } 
+
+        // Arbitrary input flux
+        double flux_in_magnitude = 543.324;
+        
+        // area of the left electrode is 10, area of the right electrode is 9
+        // input flux * left area = output flux * right area
+        double flux_out_magnitude = flux_in_magnitude * 10/9;
+                
+        double duration = 2.0;
+        Electrodes<2> electrodes(mesh,false,0,0,10,flux_in_magnitude,0.0,duration);
+
+        TS_ASSERT_THROWS_ANYTHING(electrodes.ComputeElectrodesAreasAndCheckEquality(0,0,10));
+        
+        boost::shared_ptr<BoundaryConditionsContainer<2,2,2> >  p_bcc = electrodes.GetBoundaryConditionsContainer();
+
+        for(DistributedTetrahedralMesh<2,2>::BoundaryElementIterator iter
+                = mesh.GetBoundaryElementIteratorBegin();
+           iter != mesh.GetBoundaryElementIteratorEnd();
+           iter++)
+        {
+            if ( fabs((*iter)->CalculateCentroid()[0] - 0.0) < 1e-6 )
+            {
+                double value = p_bcc->GetNeumannBCValue(*iter,(*iter)->CalculateCentroid(),1);
+
+                TS_ASSERT_DELTA(value,flux_in_magnitude,1e-12);
+            }
+
+
+            if ( fabs((*iter)->CalculateCentroid()[0] - 10.0) < 1e-6 )
+            {
+                double value = p_bcc->GetNeumannBCValue(*iter,(*iter)->CalculateCentroid(),1);
+                TS_ASSERT_DELTA(value,-flux_out_magnitude,1e-12);
+            }
+        }
+    }
+
     void TestElectrodeGrounded3d() throw (Exception)
     {
         TetrahedralMesh<3,3> mesh;

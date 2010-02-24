@@ -378,6 +378,15 @@ public:
      */
     virtual void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
     
+    /**
+     * Determine whether or not the current process owns node 0 of this boundary element (tie breaker to determine which process writes
+     * to file for when two or more share ownership of a face).
+     * 
+     * @param faceIndex is the global index of the face
+     */
+    virtual bool CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex );
+    
+    
     //////////////////////////////////////////////////////////////////////
     //                         Nested classes                           //
     //////////////////////////////////////////////////////////////////////
