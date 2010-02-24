@@ -58,18 +58,25 @@ private:
             unsigned num_global_nodes = rMesh.GetNumNodes();
             unsigned nodes_owned[num_global_nodes];
 
-            for (AbstractTetrahedralMesh<3,3>::NodeIterator iter = rMesh.GetNodeIteratorBegin();
-                 iter != rMesh.GetNodeIteratorEnd();
-                 ++iter)
+            for (unsigned node_id=0; node_id<num_global_nodes;  node_id++)
             {
-                unsigned node_index = iter->GetIndex();
-                nodes_owned[node_index] = 1;
-
-                total_nodes_this_process++;
+                
+                try
+                {
+                     unsigned node_index = rMesh.GetNode(node_id)->GetIndex();
+                     TS_ASSERT_EQUALS(node_id, node_index);
+                     nodes_owned[node_index] = 1;
+                     total_nodes_this_process++;
+                }
+                catch (Exception &e)
+                {
+                    nodes_owned[node_id] = 0;
+                }
             }
 
             TS_ASSERT_EQUALS(rMesh.GetNumLocalNodes(), total_nodes_this_process);
-
+            TS_ASSERT( 0u != total_nodes_this_process );
+            
             // Combine all the local maps by adding them up in the master process
             unsigned nodes_reduction[num_global_nodes];
             MPI_Reduce(&nodes_owned, &nodes_reduction, num_global_nodes, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
@@ -111,7 +118,8 @@ private:
             }
 
             TS_ASSERT_EQUALS(rMesh.GetNumLocalElements(), total_elements_this_process);
-
+            TS_ASSERT( 0u != total_elements_this_process );
+            
             // Combine all the local maps by adding them up in the master process
             unsigned elements_reduction[num_global_elements];
             MPI_Reduce(&elements_owned, &elements_reduction, num_global_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
@@ -132,16 +140,19 @@ private:
         {
             unsigned num_global_b_elements = rMesh.GetNumBoundaryElements();
             unsigned b_elements_owned[num_global_b_elements];
+            unsigned total_b_elements_this_process = 0;
 
             // Create a local map of the boundary elements this processor owns
             for (unsigned b_element_id=0; b_element_id<num_global_b_elements; b_element_id++)
             {
                 try
                 {
-                    unsigned b_element_index = rMesh.GetElement(b_element_id)->GetIndex();
+                    unsigned b_element_index = rMesh.GetBoundaryElement(b_element_id)->GetIndex();
                     TS_ASSERT_EQUALS(b_element_id, b_element_index);
 
                     b_elements_owned[b_element_index] = 1;
+                    
+                    total_b_elements_this_process++;
                 }
                 catch(Exception& e)
                 {
@@ -149,6 +160,9 @@ private:
                 }
             }
 
+            TS_ASSERT_EQUALS(rMesh.GetNumLocalBoundaryElements(), total_b_elements_this_process);
+            TS_ASSERT( 0u != total_b_elements_this_process );
+            
             // Combine all the local maps by adding them up in the master process
             unsigned b_elements_reduction[num_global_b_elements];
             MPI_Reduce(&b_elements_owned, &b_elements_reduction, num_global_b_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
@@ -430,6 +444,19 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
 
         CheckEverythingIsAssigned<3,3>(mesh);
+    }
+
+    void TestEverythingIsAssigned2DSimple()
+    {
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
+        DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::DUMB);
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
+
+        CheckEverythingIsAssigned<2,2>(mesh);
     }
 
     void TestEverythingIsAssignedMetisBinary()
@@ -1176,6 +1203,7 @@ public:
 
 
         DistributedTetrahedralMesh<3,3> distributed_mesh(DistributedTetrahedralMesh<3,3>::DUMB); // No reordering;
+        //DistributedTetrahedralMesh<3,3> distributed_mesh; 
         distributed_mesh.ConstructFromMeshReader(mesh_reader);
         TS_ASSERT_EQUALS(distributed_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
         TS_ASSERT_EQUALS(distributed_mesh.GetNumElements(), 48000u);

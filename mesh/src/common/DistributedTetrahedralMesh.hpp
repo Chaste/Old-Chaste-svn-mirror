@@ -159,6 +159,12 @@ public:
     unsigned GetNumLocalElements() const;
 
     /**
+     * Get the number of Boundary Elements which are owned by this process (have at least one entirely
+     * locally-owned node).
+     */
+    unsigned GetNumLocalBoundaryElements() const;
+
+    /**
      * Get the total number of nodes that are actually in use (globally).
      */
     unsigned GetNumNodes() const;

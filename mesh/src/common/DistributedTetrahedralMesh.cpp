@@ -240,7 +240,6 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
     }
 
     // Boundary nodes and elements
-    unsigned actual_face_index = 0;
     for (unsigned face_index=0; face_index<mTotalNumBoundaryElements; face_index++)
     {
         ElementData face_data = rMeshReader.GetNextFaceData();
@@ -260,7 +259,6 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
 
         if (!own)
         {
-            actual_face_index++;
             continue;
         }
 
@@ -292,11 +290,11 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
                 this->mBoundaryNodes.push_back(nodes[j]);
             }
             // Register the index that this bounday element will have with the node
-            nodes[j]->AddBoundaryElement(actual_face_index);
+            nodes[j]->AddBoundaryElement(face_index);
         }
 
-        RegisterBoundaryElement(actual_face_index);
-        BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(actual_face_index, nodes);
+        RegisterBoundaryElement(face_index);
+        BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>* p_boundary_element = new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(face_index, nodes);
         this->mBoundaryElements.push_back(p_boundary_element);
 
         if (rMeshReader.GetNumFaceAttributes() > 0)
@@ -305,7 +303,6 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
             unsigned attribute_value = face_data.AttributeValue;
             p_boundary_element->SetRegion(attribute_value);
         }
-        actual_face_index++;
     }
 
     if (mMetisPartitioning != DUMB && !PetscTools::IsSequential())
@@ -346,6 +343,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalElements() const
 {
     return this->mElements.size();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNumLocalBoundaryElements() const
+{
+    return this->mBoundaryElements.size();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
