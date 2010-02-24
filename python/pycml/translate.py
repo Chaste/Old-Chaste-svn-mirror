@@ -1403,9 +1403,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             kept_vars = []
         self.cell_parameters = kept_vars
-        # create set of all annotated variables         
+        # Create set of all oxmeta-annotated variables         
         if self.use_metadata:
-            vars = self.doc.xml_xpath(u'/*/*/cml:variable[@oxmeta:name]')
+            vars = cellml_metadata.find_variables(self.model, ('bqbiol:is', NSS[u'bqbiol']))
+            # Keep only the variables with an oxmeta name
+            vars = filter(lambda v: v.oxmeta_name, vars)
+            # We're actually only interested in constants or state variables
             self.metadata_vars = set([v for v in vars if v.get_type() == VarTypes.Constant
                                       or v in self.state_vars])
         else:
@@ -3816,8 +3819,8 @@ class ConfigurationStore(object):
             if hasattr(section, u'transmembrane_potential'):
                 self._parse_Vm(section.transmembrane_potential)
         # Now identify the variables in the model
-        self.find_current_vars()
         self.find_transmembrane_potential()
+        self.find_current_vars()
         return
 
     def _create_var_def(self, content, defn_type):
@@ -3907,8 +3910,9 @@ class ConfigurationStore(object):
                 if var:
                     var = var[0]
         elif defn_type == u'oxmeta':
-            var = self.doc.model.xml_xpath(u'cml:component/cml:variable[@oxmeta:name="%s"]'
-                                           % unicode(defn))
+            var = cellml_metadata.find_variables(self.doc.model,
+                                                 ('bqbiol:is', NSS['bqbiol']),
+                                                 ('oxmeta:'+str(defn), NSS['oxmeta']))
             if var:
                 var = var[0]
         elif defn_type == u'config-name':
@@ -3924,7 +3928,9 @@ class ConfigurationStore(object):
         """Find the variables representing currents."""
         # Try metadata first if specified on command line
         if self.options.use_metadata:
-            i_stim = self.doc.model.xml_xpath(u'cml:component/cml:variable[@oxmeta:name="membrane_stimulus_current"]')
+            i_stim = cellml_metadata.find_variables(self.doc.model,
+                                                    ('bqbiol:is', NSS['bqbiol']),
+                                                    ('oxmeta:membrane_stimulus_current', NSS['oxmeta']))
             if i_stim:
                 self.i_stim_var = i_stim[0]
             else:
@@ -4011,7 +4017,9 @@ class ConfigurationStore(object):
                                          'component and variable name')
         # Check for metadata annotation
         elif self.options.use_metadata:
-            var = self.doc.model.xml_xpath(u'cml:component/cml:variable[@oxmeta:name="membrane_voltage"]')
+            var = cellml_metadata.find_variables(self.doc.model,
+                                                 ('bqbiol:is', NSS['bqbiol']),
+                                                 ('oxmeta:membrane_voltage', NSS['oxmeta']))
             if var:
                 self.V_variable = var[0]
         if not self.V_variable:
@@ -4059,13 +4067,15 @@ class ConfigurationStore(object):
         Ensures that only names we know are used, and that the same name isn't used for multiple
         variables.
         """
-        self.metadata_vars = self.doc.xml_xpath(u'/*/*/cml:variable[@oxmeta:name]')
+        vars = cellml_metadata.find_variables(self.doc.model, ('bqbiol:is', NSS['bqbiol']))
+        self.metadata_vars = filter(lambda v: v.oxmeta_name, vars)
         names_used = [var.oxmeta_name for var in self.metadata_vars]
         # Check all metadata is allowed
         if frozenset(names_used) <= METADATA_NAMES:
             DEBUG('metadata', 'Metadata values are valid')
         else:
             DEBUG('metadata', 'Metadata values are NOT valid')
+            DEBUG('metadata', 'Names found: ', names_used)
             raise ConfigurationError('Metadata values are NOT valid, try running with --assume-valid')
         # Check for duplicates
         d = {}
@@ -4668,8 +4678,8 @@ def run():
         config.read_configuration_file(options.config_file)
     else:
         # Use defaults
-        config.find_current_vars()
         config.find_transmembrane_potential()
+        config.find_current_vars()
 
     if options.use_metadata:
         DEBUG('metadata', "metadata enabled, using for ConfigStore")

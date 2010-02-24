@@ -101,7 +101,7 @@ def create_rdf_node(node_content=None, fragment_id=None):
     If neither are given, a blank node is created.
     """
     if fragment_id:
-        node = RDF.Node(uri_string=str('#'+fragment_id))
+        node = RDF.Node(uri_string=str(_base_uri+'#'+fragment_id))
     elif node_content:
         if type(node_content) == types.TupleType:
             qname, nsuri = node_content
@@ -173,8 +173,12 @@ def find_variables(cellml_model, property, value=None):
     vars = []
     for result in results:
         assert result.subject.is_resource(), "Non-resource annotated."
-        assert str(result.subject.uri)[0] == '#', "Annotation found on non-local URI"
-        var_id = str(result.subject.uri)[1:] # Strip '#'
+        uri = str(result.subject.uri)
+        if uri.startswith(_base_uri):
+            # Strip the base URI part
+            uri = uri[len(_base_uri):]
+        assert uri[0] == '#', "Annotation found on non-local URI"
+        var_id = uri[1:] # Strip '#'
         var_objs = cellml_model.xml_xpath(u'*/cml:variable[@cmeta:id="%s"]' % var_id)
         assert len(var_objs) == 1, "Didn't find a single variable with ID " + var_id
         vars.append(var_objs[0])

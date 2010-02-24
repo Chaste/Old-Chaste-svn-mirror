@@ -1075,7 +1075,7 @@ class IntelNonopt(Intel):
     """Intel compilers with no optimisation."""
     def __init__(self, *args, **kwargs):
         Intel.__init__(self, *args, **kwargs)
-        self._cc_flags.extend(['-O0', '-xK'])
+        self._cc_flags.extend(['-O0'])
         self.build_dir = 'intel_nonopt'
         self.is_optimised = False
 

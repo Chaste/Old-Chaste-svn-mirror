@@ -127,7 +127,7 @@ NSS = {u'm'  : u'http://www.w3.org/1998/Math/MathML',
        u'pe': u'https://chaste.comlab.ox.ac.uk/cellml/ns/partial-evaluation',
        u'lut': u'https://chaste.comlab.ox.ac.uk/cellml/ns/lookup-tables',
        u'solver': u'https://chaste.comlab.ox.ac.uk/cellml/ns/solver-info',
-       u'oxmeta': u'https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata',
+       u'oxmeta': u'https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#',
        # Metadata-related
        u'cmeta'  : u"http://www.cellml.org/metadata/1.0#",
        u'rdf'    : u"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -138,6 +138,7 @@ NSS = {u'm'  : u'http://www.w3.org/1998/Math/MathML',
        u'cg'     : u"http://www.cellml.org/metadata/graphs/1.0#",
        u'cs'     : u"http://www.cellml.org/metadata/simulation/1.0#",
        u'csub'   : u"http://www.cellml.org/metadata/custom_subset/1.0#",
+       u'bqbiol' : u"http://biomodels.net/biology-qualifiers/",
        # Temporary documentation namespace
        u'doc' : u"http://cellml.org/tmp-documentation"
        }
@@ -1955,14 +1956,31 @@ class cellml_variable(element_base):
 
     @property
     def oxmeta_name(self):
-        """The canonical name of this variable, as given by Oxford metadata."""
-        return self.getAttributeNS(NSS['oxmeta'], u'name')
+        """The canonical name of this variable, as given by Oxford metadata.
+        
+        Returns the empty string if no annotation is given.
+        
+        TODO: Assumes that at most one bqbiol:is annotation exists for this variable.
+        TODO: Depends on the RDF library used.
+        """
+        annotation = self.get_rdf_annotation(('bqbiol:is', NSS['bqbiol']))
+        if annotation is None:
+            return ""
+        # Check that it is Oxford metadata
+        assert annotation.is_resource(), "Variable annotated with bqbiol:is that doesn't give a URI."
+        uri = str(annotation.uri)
+        if uri.startswith(NSS['oxmeta']):
+            return uri[len(NSS['oxmeta']):]
+        else:
+            return ""
     def set_oxmeta_name(self, name):
         """Set method for the oxmeta_name property.
         
+        Sets a bqbiol:is RDF annotation with the name.
+        
         We need a separate method for this to bypass Amara's property setting checks.
         """
-        self.xml_set_attribute((u'oxmeta:name', NSS['oxmeta']), name)
+        self.add_rdf_annotation(('bqbiol:is', NSS['bqbiol']), ('oxmeta:'+name, NSS['oxmeta']))
 
     def _reduce(self, update_usage=False):
         """Reduce this dynamic variable that is being kept.
