@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Electrodes.hpp"
 #include "DistributedTetrahedralMesh.hpp"
-#include "Debug.hpp"
 
 template<unsigned DIM>
 Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,

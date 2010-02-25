@@ -50,7 +50,7 @@ std::string FormDebugHead();
 
 /** Print the name and value of the given variables */
 #define PRINT_VARIABLE(var) std::cout << FormDebugHead() << #var " = " << var << std::endl << std::flush;
-#define PRINT_VARIABLES(var1,var2) std::cout << FormDebugHead() << #var1 " = " << var1 << ", " \
+#define PRINT_2_VARIABLES(var1,var2) std::cout << FormDebugHead() << #var1 " = " << var1 << ", " \
     #var2 " = " << var2 << std::endl << std::flush;
 #define PRINT_3_VARIABLES(var1,var2,var3) std::cout << FormDebugHead() << #var1 " = " << var1 << ", " \
     #var2 " = " << var2 << ", " #var3 " = " << var3 << std::endl << std::flush;

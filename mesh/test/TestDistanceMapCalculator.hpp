@@ -314,7 +314,7 @@ public:
             {
                 // The distance should be equal to the x-coordinate of the point (minus the offset of the left face of the cube)
                 c_vector<double, 3> node = parallel_mesh.GetNode(index)->rGetLocation();
-                TS_ASSERT_DELTA(parallel_distances[index], node[0]+0.25,1e-11);
+                TS_ASSERT_DELTA(parallel_distances[index], node[0]+0.25, 1e-15);
             }
             catch (Exception &e)
             {

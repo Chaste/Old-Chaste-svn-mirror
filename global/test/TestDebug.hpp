@@ -50,7 +50,7 @@ public:
         use_vars += (double) my_var;
 
         double another_var = 2.81;
-        PRINT_VARIABLES(my_var, another_var);
+        PRINT_2_VARIABLES(my_var, another_var);
         use_vars += another_var;
 
         double cancer_curing_constant = 0.053450242435;

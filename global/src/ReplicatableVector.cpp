@@ -26,8 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "Debug.hpp"
-
 #include "ReplicatableVector.hpp"
 
 #include <cassert>

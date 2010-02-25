@@ -33,11 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 #include "DistributedTetrahedralMesh.hpp"
-#include "TetrahedralMesh.hpp"  //temporary
-//#include "MeshalyzerMeshWriter.hpp" //temporary
 #include "PetscSetupAndFinalize.hpp"
-#include "Debug.hpp" //temporary
-
 class TestHeartGeometryInformation : public CxxTest::TestSuite
 {
 private:
@@ -156,7 +152,7 @@ public:
         std::string dir_path = handler.GetOutputDirectoryFullPath();
         //call the constructor that takes in the surface files...
         HeartGeometryInformation<3> info(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri", false);
-        
+         
         //Check get methods
         std::vector<unsigned> nodes_on_endo = info.rGetNodesOnEndoSurface();
         TS_ASSERT_EQUALS(nodes_on_endo.size(),  36u);
@@ -361,8 +357,9 @@ public:
                
         //read in the mesh
         TrianglesMeshReader<3,3> mesh_reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
-        //DistributedTetrahedralMesh<3,3> mesh;
-        TetrahedralMesh<3,3> mesh;
+        //DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::DUMB);
+        DistributedTetrahedralMesh<3,3> mesh;
+        //TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
         
         //calculate the geometry informations
@@ -370,21 +367,115 @@ public:
         info.DetermineLayerForEachNode(0.25,0.375);
         //and write them out to file
         OutputFileHandler results_handler("CellularHeterogeneity", false);
-        if (PetscTools::AmMaster())
-        {        
-            out_stream p_file = results_handler.OpenOutputFile("distances.dat");        
-            
-            for (unsigned index=0; index<mesh.GetNumNodes(); index++)
-            {
-                (*p_file)<<info.rGetLayerForEachNode()[index]<<std::endl;
-            }
-            p_file->close();
-            //since we visually checked that the output file is correct,
-            //we check that the data in the file match the calculated one.
-            EXPECT0(system, "diff " + results_handler.GetOutputDirectoryFullPath() + "/distances.dat " + "heart/test/data/heart_geometry_layers.dat");
+        
+
+        std::vector<double> relative_wall_position;
+        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        {
+            relative_wall_position.push_back(info.CalculateRelativeWallPosition(index));
         }
+
+//        //This only needs to be done when we are regenerating the output
+//        if (PetscTools::IsSequential())
+//        {        
+//            out_stream p_file = results_handler.OpenOutputFile("heart_geometry_layers.dat");        
+//            
+//            for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+//            {
+//                (*p_file)<<info.rGetLayerForEachNode()[index]<<std::endl;
+//            }
+//            p_file->close();
+//        }
+//
+//        //This only needs to be done when we are regenerating the output
+//        if (PetscTools::IsSequential())
+//        {        
+//            out_stream p_file = results_handler.OpenOutputFile("heart_relative_wall_position.dat");        
+//            *p_file << std::setprecision(20);//Slightly more than machine precision...
+//            for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+//            {
+//                (*p_file)<<relative_wall_position[index]<<std::endl;
+//            }
+//            p_file->close();
+//        }
+
+
+        //This is the actual test - read the file into a vector
+        std::vector<HeartLayerType> sequential_layers;
+        {
+            std::ifstream file_stream("heart/test/data/heart_geometry_layers.dat");
+            unsigned layer;
+            while (file_stream >> layer)
+            {
+                sequential_layers.push_back((HeartLayerType)layer);
+            }
+            file_stream.close();
+        }
+        std::vector<double> sequential_relative_wall_position;
+        {
+            std::ifstream file_stream("heart/test/data/heart_relative_wall_position.dat");
+            double dist;
+            while (file_stream >> dist)
+            {
+                sequential_relative_wall_position.push_back(dist);
+            }
+            file_stream.close();
+        }
+            
+        TS_ASSERT_EQUALS(sequential_layers.size(), info.rGetLayerForEachNode().size());
+        TS_ASSERT_EQUALS(sequential_layers.size(), sequential_relative_wall_position.size());
+
+//#ifdef CHASTE_VTK
+//// Requires  "sudo aptitude install libvtk5-dev" or similar
+//        if  (!PetscTools::IsSequential())
+//        {
+//            VtkWriter<3,3> writer("", "epi_distance_par", false);
+//            // Add distance from origin into the node "point" data
+//            writer.AddPointData("Distance from epi", info.rGetDistanceMapEpicardium());
+//            writer.AddPointData("Relative wall distance", relative_wall_position);
+//            std::vector<double> errors;
+//            for (unsigned i=0;i<relative_wall_position.size();i++)
+//            {
+//                errors.push_back(sequential_relative_wall_position[i] - relative_wall_position[mesh.rGetNodePermutation()[i]]);
+//            }
+//            writer.AddPointData("Error compared to sequential", errors);
+//            writer.WriteFilesUsingMesh(mesh);
+//        }
+//#endif //CHASTE_VTK
+
+
+        unsigned misclassified=0;
+        if (PetscTools::IsSequential()  || mesh.rGetNodePermutation().empty())
+        {
+            TS_ASSERT(mesh.rGetNodePermutation().empty());
+            for (unsigned i=0;i<sequential_layers.size();i++)
+            {
+                TS_ASSERT_DELTA(sequential_relative_wall_position[i], relative_wall_position[i], 1e-15);
+                if (sequential_layers[ i ] != info.rGetLayerForEachNode()[ i ])
+                {
+                    misclassified++;
+                }
+            }
+        }
+        else
+        {
+            //In parallel we need to apply the permuation to original data
+            //Node i in the original data has moved to index mesh.rGetNodePermutation()[i]
+            //therefore we will find its data in rGetLayerForEachNode()[ permutation...]
+            
+            TS_ASSERT(mesh.rGetNodePermutation().empty() == false );
+            for (unsigned i=0;i<sequential_layers.size();i++)
+            {
+                if (sequential_layers[ i ] != info.rGetLayerForEachNode()[ mesh.rGetNodePermutation()[i] ])
+                {
+                    misclassified++;
+                }
+                
+                ///\todo TS_ASSERT_DELTA(sequential_relative_wall_position[i], relative_wall_position[mesh.rGetNodePermutation()[i]], 4e-2); //This is quite sloppy: 4%
+            }
+        }
+        TS_ASSERT_LESS_THAN(misclassified, 2u);  //Allows for one difference
     }
 };
 
 #endif /*TESTHEARTGEOMETRYINFORMATION_HPP_*/
-

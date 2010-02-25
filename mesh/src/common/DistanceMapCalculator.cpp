@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "DistanceMapCalculator.hpp"
 #include "DistributedTetrahedralMesh.hpp" //For dynamic cast
-#include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
@@ -39,9 +38,14 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
       mRoundCounter(0u)
 {
     mNumNodes = mrMesh.GetNumNodes();
-
-    DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_parallel_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh);
-    if ( PetscTools::IsSequential() || p_parallel_mesh == NULL)
+    /**
+     * Rational: there's a propagation error of at most DBL_EPSILON when each edge is traced.
+     * The maximum path length will be related to the number of nodes in the mesh.
+     */
+    mExpectedPropagationErrorFactor = 1.0-(DBL_EPSILON*pow(mNumNodes, (1.0/ELEMENT_DIM)));
+    DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_distributed_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh);
+    assert(mExpectedPropagationErrorFactor!=1.0);
+    if ( PetscTools::IsSequential() || p_distributed_mesh == NULL)
     {
         //It's a non-distributed mesh...
         mLo=0;
@@ -54,7 +58,7 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
         mLo = mrMesh.GetDistributedVectorFactory()->GetLow();
         mHi = mrMesh.GetDistributedVectorFactory()->GetHigh();
         //Get local halo information
-        p_parallel_mesh->GetHaloNodeIndices(mHaloNodeIndices);
+        p_distributed_mesh->GetHaloNodeIndices(mHaloNodeIndices);
         //Share information on the number of halo nodes
         unsigned my_size=mHaloNodeIndices.size();
         mNumHalosPerProcess=new unsigned[PetscTools::GetNumProcs()];
@@ -65,27 +69,28 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
-        const std::vector<unsigned>& rOriginSurface,
+        const std::vector<unsigned>& rSourceNodeIndices,
         std::vector<double>& rNodeDistances)
 {
     rNodeDistances.resize(mNumNodes);
-     /*
-     * Matrix of distances along each dimension (initialised to +inf)
-     */
-    std::vector< c_vector<double, SPACE_DIM> >  cart_distances(mNumNodes);
     for (unsigned index=0; index<mNumNodes; index++)
     {
         rNodeDistances[index] = DBL_MAX;
     }
+    /*
+     * Vector of witness points (a closest point in original source set of points)
+     */
+    std::vector< c_vector<double, SPACE_DIM> >  witness_points(mNumNodes);
 
-    for (unsigned index=0; index<rOriginSurface.size(); index++)
+    for (unsigned source_index=0; source_index<rSourceNodeIndices.size(); source_index++)
     {
-        PushLocal(rOriginSurface[index]);
-        rNodeDistances[rOriginSurface[index]] = 0.0;
-
-        for (unsigned dim=0; dim<SPACE_DIM; dim++)
+        unsigned node_index=rSourceNodeIndices[source_index];
+        PushLocal(node_index);
+        rNodeDistances[node_index] = 0.0;
+        //If we have the correct information, then we can set the witness
+        if (mLo<=node_index && node_index<mHi)
         {
-            cart_distances[rOriginSurface[index]][dim] = 0.0;
+            witness_points[node_index]=mrMesh.GetNode(node_index)->rGetLocation();
         }
     }
 
@@ -93,11 +98,12 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     mRoundCounter=0;
     while (non_empty_queue)
     {
-        WorkOnLocalQueue(cart_distances, rNodeDistances);
-        non_empty_queue=UpdateQueueFromRemote(cart_distances, rNodeDistances);
+        WorkOnLocalQueue(witness_points, rNodeDistances);
+        non_empty_queue=UpdateQueueFromRemote(witness_points, rNodeDistances);
         //Sanity - check that we aren't doing this very many times
-        if (mRoundCounter++ > PetscTools::GetNumProcs())
+        if (mRoundCounter++ > 2 * PetscTools::GetNumProcs())
         {
+            //This line will be hit if there's a parallel distributed mesh with a really bad partition
             NEVER_REACHED;
         }
     }
@@ -115,7 +121,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::vector< c_vector<double, SPACE_DIM> >& rCartDistances,
+bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::vector< c_vector<double, SPACE_DIM> >& rWitnessPoints,
                                                                      std::vector<double>& rNodeDistances)
 {
     if (mWorkOnEntireMesh)
@@ -126,7 +132,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
     for (unsigned bcast_process=0; bcast_process<PetscTools::GetNumProcs(); bcast_process++)
     {
         //Process packs cart0/cart1/...euclid/index into a 1-d array
-        double* cart_exchange = new double[ SPACE_DIM * mNumHalosPerProcess[bcast_process] ];
+        double* witness_exchange = new double[ SPACE_DIM * mNumHalosPerProcess[bcast_process] ];
         double* dist_exchange = new double[  mNumHalosPerProcess[bcast_process] ];
         unsigned* index_exchange = new unsigned[  mNumHalosPerProcess[bcast_process] ];
         if (PetscTools::GetMyRank() == bcast_process)
@@ -136,16 +142,16 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
             {
                 for (unsigned j=0; j<SPACE_DIM; j++)
                 {
-                    cart_exchange[ index*(SPACE_DIM) + j] =  rCartDistances[mHaloNodeIndices[index]][j];
+                    witness_exchange[ index*(SPACE_DIM) + j] =  rWitnessPoints[mHaloNodeIndices[index]][j];
                 }
                 dist_exchange[index] = rNodeDistances[mHaloNodeIndices[index]];
-                index_exchange[index] = (double) mHaloNodeIndices[index]; 
+                index_exchange[index] = mHaloNodeIndices[index]; 
             }
         }
 
         //Broadcast - this is can be done by casting indices to double and packing everything
         //into a single array.  That would be better for latency, but this is probably more readable.
-        MPI_Bcast(cart_exchange, (SPACE_DIM) * mNumHalosPerProcess[bcast_process], MPI_DOUBLE, 
+        MPI_Bcast(witness_exchange, (SPACE_DIM) * mNumHalosPerProcess[bcast_process], MPI_DOUBLE, 
                   bcast_process, PETSC_COMM_WORLD);
         MPI_Bcast(dist_exchange, mNumHalosPerProcess[bcast_process], MPI_DOUBLE, 
                   bcast_process, PETSC_COMM_WORLD);
@@ -158,19 +164,19 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
             {
                 unsigned global_index=index_exchange[index];
                 //Is it a better answer?
-                if (dist_exchange[index] < rNodeDistances[global_index]*(1.0-DBL_EPSILON))
+                if (dist_exchange[index] < rNodeDistances[global_index]*mExpectedPropagationErrorFactor)
                 {
                     //Copy across - this may be unnecessary when PushLocal isn't going to push because it's not local.
                     rNodeDistances[global_index] = dist_exchange[index];
                     for (unsigned j=0; j<SPACE_DIM; j++)
                     {
-                         rCartDistances[global_index][j] = cart_exchange[ index*(SPACE_DIM) + j];
+                         rWitnessPoints[global_index][j] = witness_exchange[ index*(SPACE_DIM) + j];
                     }
                     PushLocal(global_index);
                 }
             }
         }
-        delete [] cart_exchange;
+        delete [] witness_exchange;
         delete [] dist_exchange;
         delete [] index_exchange;
     }
@@ -181,7 +187,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& rCartDistances,
+void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& rWitnessPoints,
                                                                      std::vector<double>& rNodeDistances)
 {
    while (!mActiveNodeIndexQueue.empty())
@@ -193,7 +199,6 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
         try 
         {
             Node<SPACE_DIM>* p_current_node = mrMesh.GetNode(current_node_index);
-
             // Loop over the elements containing the given node
             for(typename Node<SPACE_DIM>::ContainingElementIterator element_iterator = p_current_node->ContainingElementsBegin();
                 element_iterator != p_current_node->ContainingElementsEnd();
@@ -201,27 +206,26 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
             {
                 // Get a pointer to the container element
                 Element<ELEMENT_DIM, SPACE_DIM>* p_containing_element = mrMesh.GetElement(*element_iterator);
-    
-               // Loop over the nodes of the element
-               for(unsigned node_local_index=0;
+                                
+                // Loop over the nodes of the element
+                for(unsigned node_local_index=0;
                    node_local_index<p_containing_element->GetNumNodes();
                    node_local_index++)
-               {
+                {
                     Node<SPACE_DIM>* p_neighbour_node = p_containing_element->GetNode(node_local_index);
                     unsigned neighbour_node_index = p_neighbour_node->GetIndex();
     
                     // Avoid revisiting the active node
                     if(neighbour_node_index != current_node_index)
                     {
-                        // Test if we have found a shorter path from the origin surface to the current neighbour through current node
-                        if ((rNodeDistances[current_node_index]
-                            + norm_2(p_current_node->rGetLocation() - p_neighbour_node->rGetLocation()))
-                            < rNodeDistances[neighbour_node_index]*(1.0 - DBL_EPSILON) )
+                        
+                        // Test if we have found a shorter path from the witness in the source to the current neighbour through current node  
+                        //This will save some sqrts later...
+                        double updated_distance = norm_2(p_neighbour_node->rGetLocation() - rWitnessPoints[current_node_index]);
+                        if ( updated_distance < rNodeDistances[neighbour_node_index] * mExpectedPropagationErrorFactor)
                         {
-                            rCartDistances[neighbour_node_index] = rCartDistances[current_node_index]
-                                                                   + (p_current_node->rGetLocation() - p_neighbour_node->rGetLocation());
-                            //This will save some sqrts later...
-                            rNodeDistances[neighbour_node_index] = norm_2(rCartDistances[neighbour_node_index]);                                      
+                            rWitnessPoints[neighbour_node_index] = rWitnessPoints[current_node_index];
+                            rNodeDistances[neighbour_node_index] = updated_distance;                                      
                             PushLocal(neighbour_node_index);
                         }
                     }

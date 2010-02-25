@@ -34,7 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 #include "PetscTools.hpp"
-//#include "Debug.hpp"
 
 // Area of the septum considered to belong to the each ventricle (relative to 1)
 template<unsigned SPACE_DIM>
@@ -202,14 +201,13 @@ void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
     }
     else
     {
-        NEVER_REACHED;
-//        // Copy the original node indices from the set to the vector applying the permutation
-//        for(std::set<unsigned>::iterator node_index_it=surface_original_node_index_set.begin();
-//            node_index_it != surface_original_node_index_set.end();
-//            node_index_it++)
-//        {
-//            rSurfaceNodes.push_back(mpMesh->rGetNodePermutation()[*node_index_it]);
-//        }
+        // Copy the original node indices from the set to the vector applying the permutation
+        for(std::set<unsigned>::iterator node_index_it=surface_original_node_index_set.begin();
+            node_index_it != surface_original_node_index_set.end();
+            node_index_it++)
+        {
+            rSurfaceNodes.push_back(mpMesh->rGetNodePermutation()[*node_index_it]);
+        }
     }
 }
 

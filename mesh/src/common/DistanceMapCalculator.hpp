@@ -63,6 +63,8 @@ private:
     std::vector<unsigned> mHaloNodeIndices;
     /** Used to check parallel implementation*/
     unsigned mRoundCounter;
+    /** Used when comparing minimum distances bearing in mind the propagation of error.  This is to avoid tracing cycles in the mesh where small differences to minimum distances appear to matter*/
+    double mExpectedPropagationErrorFactor;
     
     /**
      * Queue of nodes to be processed (initialised with the nodes defining the surface)
@@ -72,23 +74,23 @@ private:
     /**
      * Work on the Queue of node indices (grass-fire across the mesh)
      * 
-     * @param rCartDistances  An list of the minimum distance of each node to the source
+     * @param rWitnessPoints  The witness points in the source which supply the current minimum distance of each node
      * @param rNodeDistances distance map computed
      */  
-    void WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& rCartDistances,
+    void WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& rWitnessPoints,
                           std::vector<double>& rNodeDistances);
                           
     /**
      * Update the local Queue of node indices using data that are from the halo nodes of remote processes.
      * 
-     * @param rCartDistances  An list of the minimum distance of each node to the source
+     * @param rWitnessPoints  The witness points in the source which supply the current minimum distance of each node
      * @param rNodeDistances distance map computed
      * 
      * @return true when this update was active => there are non-empty queues left to work on
      * @return false without working or side-effects if we don't have a true distributed mesh
      * 
      */  
-    bool UpdateQueueFromRemote(std::vector< c_vector<double, SPACE_DIM> >& rCartDistances,
+    bool UpdateQueueFromRemote(std::vector< c_vector<double, SPACE_DIM> >& rWitnessPoints,
                                std::vector<double>& rNodeDistances);
     
     /**
@@ -122,12 +124,12 @@ public:
     }
 
     /**
-     *  Generates a distance map of all the nodes of the mesh to the given surface
+     *  Generates a distance map of all the nodes of the mesh to the given source
      *
-     *  @param rOriginSurface set of node indexes defining the surface
+     *  @param rSourceNodeIndices set of node indexes defining the source set orsurface
      *  @param rNodeDistances distance map computed. The method will resize it if it's not big enough.
      */
-    void ComputeDistanceMap(const std::vector<unsigned>& rOriginSurface,
+    void ComputeDistanceMap(const std::vector<unsigned>& rSourceNodeIndices,
                             std::vector<double>& rNodeDistances);
 };
 
