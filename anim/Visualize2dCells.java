@@ -1460,7 +1460,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
     
     int width;
     int height;
-    int node_radius = 2;
+    int node_radius = 5;
     
     BufferedImage buffered_image = null;
     Graphics g2 = null;
