@@ -370,9 +370,8 @@ long int CvodeAdaptor::GetMaxSteps()
     return mMaxSteps;
 }
 
-#endif // CHASTE_CVODE
-
-
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(CvodeAdaptor);
+
+#endif // CHASTE_CVODE
