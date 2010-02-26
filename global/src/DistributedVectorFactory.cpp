@@ -148,3 +148,8 @@ DistributedVector DistributedVectorFactory::CreateDistributedVector(Vec vec)
     DistributedVector dist_vector(vec, this); 
     return dist_vector;
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(DistributedVectorFactory);

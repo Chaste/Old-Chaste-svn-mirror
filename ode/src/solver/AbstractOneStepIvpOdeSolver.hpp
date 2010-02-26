@@ -35,9 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractIvpOdeSolver.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * Abstract one-step initial value problem ODE solver class. Sets up variables and functions
  * for all the ODE solvers that only have one timestep.

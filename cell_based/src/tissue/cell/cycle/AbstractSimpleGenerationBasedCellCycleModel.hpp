@@ -34,9 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractSimpleCellCycleModel.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * This class contains all the things common to simple generation-based cell cycle
  * models, i.e. models in which the length of cell cycle phases are determined

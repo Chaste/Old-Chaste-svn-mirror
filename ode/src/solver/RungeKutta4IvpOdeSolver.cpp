@@ -81,3 +81,8 @@ void RungeKutta4IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOd
         rNextYValues[i] = rCurrentYValues[i] + (k1[i]+2*k2[i]+2*k3[i]+k4[i])/6.0;
     }
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(RungeKutta4IvpOdeSolver);

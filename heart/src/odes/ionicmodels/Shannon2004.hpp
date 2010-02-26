@@ -22,9 +22,6 @@
 #include "OdeSystemInformation.hpp"
 #include "AbstractStimulusFunction.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 class CellShannon2004FromCellML : public AbstractCardiacCell
 {
 private:
@@ -1213,7 +1210,7 @@ void OdeSystemInformation<CellShannon2004FromCellML>::Initialise(void)
 
 
 // Export an identifier for this class for boost serialization.
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(CellShannon2004FromCellML);
 
 namespace boost

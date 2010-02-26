@@ -36,9 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * This class sets up the Luo-Rudy I 1991 system of equations, and solves them
  * using a decoupled backward Euler approach.
@@ -158,7 +155,7 @@ public:
     double GetIntracellularCalciumConcentration();
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(BackwardEulerLuoRudyIModel1991)
 
 namespace boost

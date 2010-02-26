@@ -1155,3 +1155,8 @@ void OdeSystemInformation<BackwardEulerNobleVargheseKohlNoble1998>::Initialise(v
 
     this->mInitialised = true;
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(BackwardEulerNobleVargheseKohlNoble1998)

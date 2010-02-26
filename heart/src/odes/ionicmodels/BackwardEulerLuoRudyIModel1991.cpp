@@ -448,3 +448,8 @@ void BackwardEulerLuoRudyIModel1991::VerifyStateVariables()
     #undef COVERAGE_IGNORE
 }
 
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(BackwardEulerLuoRudyIModel1991)

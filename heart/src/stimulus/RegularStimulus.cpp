@@ -82,3 +82,8 @@ double RegularStimulus::GetStimulus(double time)
         return 0.0;
     }
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(RegularStimulus);

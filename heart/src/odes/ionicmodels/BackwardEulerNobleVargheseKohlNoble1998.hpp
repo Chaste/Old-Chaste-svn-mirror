@@ -69,7 +69,7 @@ protected:
 };
 
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(BackwardEulerNobleVargheseKohlNoble1998)
 
 namespace boost

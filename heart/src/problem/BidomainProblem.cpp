@@ -380,3 +380,8 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
 template class BidomainProblem<1>;
 template class BidomainProblem<2>;
 template class BidomainProblem<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainProblem);

@@ -99,7 +99,7 @@ public:
 };
 
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(FakeBathCell);
 
 namespace boost

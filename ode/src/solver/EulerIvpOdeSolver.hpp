@@ -35,9 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractOneStepIvpOdeSolver.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * A concrete one step ODE solver class that employs the forward Euler
  * method. This numerical method is explicit.
@@ -97,7 +94,7 @@ public:
     {}
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(EulerIvpOdeSolver);
 
 #endif //_EULERIVPODESOLVER_HPP_

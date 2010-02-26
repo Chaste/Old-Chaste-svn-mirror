@@ -785,3 +785,8 @@ void OdeSystemInformation<Maleckar2009OdeSystem>::Initialise(void)
 
     this->mInitialised = true;
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(Maleckar2009OdeSystem)

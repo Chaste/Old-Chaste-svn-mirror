@@ -102,7 +102,7 @@ public:
 };
 
 // Must be last
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(FaberRudy2000Version3)
 
 namespace boost

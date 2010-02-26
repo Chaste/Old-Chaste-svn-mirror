@@ -2084,8 +2084,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Serialization
         if self.include_serialization:
             self.output_comment('Needs to be included last', subsidiary=True)
-            self.writeln_hpp('#include "TemplatedExport.hpp"')
+            self.writeln_hpp('#include "SerializationExportWrapper.hpp"')
             self.writeln_hpp('CHASTE_CLASS_EXPORT(', self.class_name, ')')
+            self.output_comment('Serialization for Boost >= 1.36')
+            self.writeln('#include "SerializationExportWrapperForCpp.hpp"')
+            self.writeln('CHASTE_CLASS_EXPORT(', self.class_name, ')')
             self.writeln_hpp()
             self.writeln_hpp('namespace boost')
             self.open_block(subsidiary=True)

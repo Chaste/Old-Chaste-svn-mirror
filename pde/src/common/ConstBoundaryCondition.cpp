@@ -47,3 +47,8 @@ double ConstBoundaryCondition<SPACE_DIM>::GetValue(const ChastePoint<SPACE_DIM>&
 template class ConstBoundaryCondition<1>;
 template class ConstBoundaryCondition<2>;
 template class ConstBoundaryCondition<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(ConstBoundaryCondition);

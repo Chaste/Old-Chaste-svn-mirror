@@ -780,3 +780,8 @@ unsigned Cylindrical2dMesh::GetCorrespondingNodeIndex(unsigned nodeIndex)
     assert(corresponding_node_index != UINT_MAX);
     return corresponding_node_index;
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(Cylindrical2dMesh)

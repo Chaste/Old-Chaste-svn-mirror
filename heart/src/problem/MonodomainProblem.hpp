@@ -117,7 +117,7 @@ public:
     
 };
 
-#include "TemplatedExport.hpp" // Must be last
+#include "SerializationExportWrapper.hpp" // Must be last
 EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 1);
 EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 2);
 EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 3);

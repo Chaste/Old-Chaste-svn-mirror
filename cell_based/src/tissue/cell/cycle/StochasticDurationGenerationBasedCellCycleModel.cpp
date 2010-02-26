@@ -54,3 +54,8 @@ void StochasticDurationGenerationBasedCellCycleModel::SetG1Duration()
             NEVER_REACHED;
     }
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(StochasticDurationGenerationBasedCellCycleModel)

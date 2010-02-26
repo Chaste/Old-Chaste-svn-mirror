@@ -34,9 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "EulerIvpOdeSolver.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * This 'mock' class is only used in testing. It is the same
  * as the EulerIvpOdeSolver class, but also keeps a count of
@@ -107,7 +104,7 @@ public:
 
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MockEulerIvpOdeSolver);
 
 #endif //_MOCKEULERIVPODESOLVER_HPP_

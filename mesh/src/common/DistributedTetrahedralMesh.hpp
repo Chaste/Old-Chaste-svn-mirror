@@ -390,7 +390,7 @@ private:
     void ReorderNodes();
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 EXPORT_TEMPLATE_CLASS_ALL_DIMS(DistributedTetrahedralMesh);
 
 namespace boost

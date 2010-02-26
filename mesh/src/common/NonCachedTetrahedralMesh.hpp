@@ -34,8 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TetrahedralMesh.hpp"
 
-#include <boost/serialization/export.hpp>// at end of includes
-
 /**
  * A drop-in replacement for TetrahedralMesh that doesn't cache any
  * jacobian-related data.

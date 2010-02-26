@@ -42,8 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/list.hpp>
 
-#include <boost/serialization/export.hpp>
-
 // see http://www.boost.org/libs/serialization/doc/index.html
 class ParentClass;
 
@@ -87,7 +85,7 @@ public:
         archive & mTag;
     }
 };
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(ParentClass)
 
 namespace boost

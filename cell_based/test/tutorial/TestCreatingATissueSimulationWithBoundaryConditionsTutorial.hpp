@@ -147,7 +147,7 @@ public:
  * {{{load_construct_data}}} methods, which archive the tissue simulation
  * constructor input argument(s) (in this case, a tissue and a collection of
  * force laws). */
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MyTissueSimulation)
 
 namespace boost

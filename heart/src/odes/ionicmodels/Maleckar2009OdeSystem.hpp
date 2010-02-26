@@ -187,7 +187,7 @@ public:
 };
 
 // Needs to be included last
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(Maleckar2009OdeSystem)
 
 namespace boost

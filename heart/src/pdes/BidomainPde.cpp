@@ -152,3 +152,8 @@ const c_matrix<double, SPACE_DIM, SPACE_DIM>& BidomainPde<SPACE_DIM>::rGetExtrac
 template class BidomainPde<1>;
 template class BidomainPde<2>;
 template class BidomainPde<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainPde)

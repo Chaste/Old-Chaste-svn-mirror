@@ -225,7 +225,7 @@ public:
     unsigned GetNumVertices();
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(QuadraticMesh);
 
 

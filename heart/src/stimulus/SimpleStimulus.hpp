@@ -36,9 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractStimulusFunction.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * Provides an simple stimulus of magnitude 'magnitudeOfStimulus'
  * from time 'timeOfStimulus' for duration 'duration'.
@@ -96,7 +93,7 @@ public:
 };
 
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(SimpleStimulus);
 

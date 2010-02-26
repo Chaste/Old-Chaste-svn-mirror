@@ -34,9 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cfloat>
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 #include "Exception.hpp"
 
 /**

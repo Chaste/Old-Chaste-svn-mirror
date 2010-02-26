@@ -143,3 +143,8 @@ void CryptSimulation1d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
         assert(p_node->rGetLocation()[0] >= 0.0);
     }
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(CryptSimulation1d)

@@ -66,3 +66,8 @@ void HeunIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSystem
         rNextYValues[i] = rCurrentYValues[i] + timeStep*0.5*(k1[i] + k2[i]);
     }
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(HeunIvpOdeSolver);

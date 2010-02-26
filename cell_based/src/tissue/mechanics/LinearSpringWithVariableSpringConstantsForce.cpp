@@ -226,3 +226,8 @@ void LinearSpringWithVariableSpringConstantsForce<DIM>::AddForceContribution(
 template class LinearSpringWithVariableSpringConstantsForce<1>;
 template class LinearSpringWithVariableSpringConstantsForce<2>;
 template class LinearSpringWithVariableSpringConstantsForce<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(LinearSpringWithVariableSpringConstantsForce)

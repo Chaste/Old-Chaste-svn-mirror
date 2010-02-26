@@ -37,8 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableMesh.hpp"
 #include "TrianglesMeshWriter.hpp"
 
-#include <boost/serialization/export.hpp>// at end of includes
-
 /**
  * A subclass of MutableMesh<2,2> for a rectangular mesh with
  * periodic left and right boundaries, representing a cylindrical geometry.
@@ -319,7 +317,7 @@ inline void load_construct_data(
 }
 } // namespace ...
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(Cylindrical2dMesh)
 
 #endif /*CYLINDRICAL2DMESH_HPP_*/

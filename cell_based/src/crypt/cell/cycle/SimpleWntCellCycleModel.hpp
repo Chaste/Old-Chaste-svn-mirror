@@ -129,7 +129,7 @@ public:
     unsigned GetDimension();
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(SimpleWntCellCycleModel)
 

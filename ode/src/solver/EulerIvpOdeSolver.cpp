@@ -48,3 +48,8 @@ void EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSyste
         rNextYValues[i] = rCurrentYValues[i] + timeStep*rNextYValues[i];
     }
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(EulerIvpOdeSolver);

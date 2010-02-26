@@ -36,9 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractStimulusFunction.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * Provides a periodic square-wave stimulus.
  */
@@ -83,7 +80,7 @@ public:
 
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(RegularStimulus);
 

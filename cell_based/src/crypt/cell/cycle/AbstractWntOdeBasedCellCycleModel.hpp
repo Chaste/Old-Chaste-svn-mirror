@@ -37,9 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CvodeAdaptor.hpp"
 #include "WntConcentration.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * This class contains all the things common to the Wnt cell cycle ODE based models,
  * the resetting method and updating of cell types etc.

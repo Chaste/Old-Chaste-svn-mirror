@@ -323,3 +323,8 @@ void RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     bool return_solution = false;
     InternalSolve(not_required_solution, pOdeSystem, rYValues, working_memory, startTime, endTime, timeStep, 1e-4, 1e-5, return_solution);
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(RungeKuttaFehlbergIvpOdeSolver);

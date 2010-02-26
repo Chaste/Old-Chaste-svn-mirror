@@ -187,7 +187,7 @@ public:
 
 /* You only need to include the next block of code if you want to be able to
  * archive (save or load) the cell cycle model object in a tissue simulation. */
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MyCellCycleModel)
 
 /*

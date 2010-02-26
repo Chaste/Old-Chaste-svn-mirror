@@ -77,3 +77,8 @@ void RandomCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 template class RandomCellKiller<1>;
 template class RandomCellKiller<2>;
 template class RandomCellKiller<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(RandomCellKiller)

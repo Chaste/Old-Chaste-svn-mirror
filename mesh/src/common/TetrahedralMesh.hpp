@@ -43,7 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMeshReader.hpp"
 #include "ChastePoint.hpp"
 
-#include <boost/serialization/export.hpp> // needs to be included last
 //////////////////////////////////////////////////////////////////////////
 //   DECLARATION
 //////////////////////////////////////////////////////////////////////////
@@ -438,7 +437,7 @@ public:
     EdgeIterator EdgesEnd();
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 EXPORT_TEMPLATE_CLASS_ALL_DIMS(TetrahedralMesh);
 
 #endif //_TETRAHEDRALMESH_HPP_

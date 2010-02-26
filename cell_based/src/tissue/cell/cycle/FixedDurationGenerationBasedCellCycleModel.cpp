@@ -39,3 +39,8 @@ AbstractCellCycleModel* FixedDurationGenerationBasedCellCycleModel::CreateCellCy
     return new FixedDurationGenerationBasedCellCycleModel(*this);
 }
 
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(FixedDurationGenerationBasedCellCycleModel)

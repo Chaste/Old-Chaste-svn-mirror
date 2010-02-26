@@ -35,9 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MeshBasedTissue.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * Possible types of WntConcentration, currently:
  *  NONE - for testing and to remove Wnt dependence

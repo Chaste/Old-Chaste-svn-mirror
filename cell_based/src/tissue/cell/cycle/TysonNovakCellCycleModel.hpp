@@ -38,9 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CvodeAdaptor.hpp"
 #include "Exception.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  *  Tyson-Novak 2001 cell cycle model, taken from the version at  doi:10.1006/jtbi.2001.2293
  *
@@ -147,7 +144,7 @@ public:
 };
 
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(TysonNovakCellCycleModel)
 

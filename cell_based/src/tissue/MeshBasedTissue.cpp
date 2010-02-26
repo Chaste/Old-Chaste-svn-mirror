@@ -809,3 +809,8 @@ void MeshBasedTissue<DIM>::UnmarkSpring(TissueCell& rCell1, TissueCell& rCell2)
 template class MeshBasedTissue<1>;
 template class MeshBasedTissue<2>;
 template class MeshBasedTissue<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(MeshBasedTissue)

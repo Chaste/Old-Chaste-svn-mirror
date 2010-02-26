@@ -42,9 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractStimulusFunction.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * This class provides a stimulus function which is the
  * sum of an arbitrary number of stimuli.
@@ -103,7 +100,7 @@ public:
      void Clear();
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(MultiStimulus);
 

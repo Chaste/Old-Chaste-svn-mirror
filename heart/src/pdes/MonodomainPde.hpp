@@ -96,7 +96,7 @@ public:
 };
 
 // Declare identifier for the serializer
-#include "TemplatedExport.hpp" // Must be last
+#include "SerializationExportWrapper.hpp" // Must be last
 EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 1);
 EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 2);
 EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 3);

@@ -2643,3 +2643,8 @@ template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<Chaste
  */
 #undef COVERAGE_IGNORE //These methods are covered above with DIM=1,2,3 but the instantiations may fail spuriously
 
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(HeartConfig);

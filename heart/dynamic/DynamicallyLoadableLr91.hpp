@@ -136,7 +136,7 @@ public:
     double GetIntracellularCalciumConcentration();
 };
 
-//#include "TemplatedExport.hpp"
+//#include "SerializationExportWrapper.hpp"
 //CHASTE_CLASS_EXPORT(DynamicallyLoadableLr91);
 //
 //namespace boost

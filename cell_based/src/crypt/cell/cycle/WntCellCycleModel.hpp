@@ -38,9 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptCellMutationStates.hpp"
 
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
  * singleton object.
@@ -159,7 +156,7 @@ public:
 };
 
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(WntCellCycleModel)
 

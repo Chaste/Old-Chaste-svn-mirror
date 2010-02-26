@@ -34,9 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractOneStepIvpOdeSolver.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * A concrete one step ODE solver class that employs the Runge Kutta
  * 2nd order solver.
@@ -87,7 +84,7 @@ public:
 
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(RungeKutta2IvpOdeSolver);
 
 #endif //_RUNGEKUTTA2IVPODESOLVER_HPP_

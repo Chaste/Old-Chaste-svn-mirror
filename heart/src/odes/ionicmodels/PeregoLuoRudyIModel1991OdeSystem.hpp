@@ -136,7 +136,7 @@ public:
 
 };
 //
-//#include "TemplatedExport.hpp"
+//#include "SerializationExportWrapper.hpp"
 //CHASTE_CLASS_EXPORT(PeregoLuoRudyIModel1991OdeSystem);
 //
 //namespace boost

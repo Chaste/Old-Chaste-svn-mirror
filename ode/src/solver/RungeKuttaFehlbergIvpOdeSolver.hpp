@@ -34,9 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractOneStepIvpOdeSolver.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * A concrete one step ODE solver class that employs the Runge Kutta
  * Fehlberg adaptive solver (RKF45).
@@ -222,7 +219,7 @@ public:
 
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(RungeKuttaFehlbergIvpOdeSolver);
 
 #endif //_RUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_

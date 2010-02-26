@@ -64,7 +64,7 @@ protected:
 };
 
 // Must be last
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(BackwardEulerFoxModel2002Modified)
 
 namespace boost

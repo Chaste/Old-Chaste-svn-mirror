@@ -26,36 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "MockEulerIvpOdeSolver.hpp"
+#ifndef SERIALIZATIONEXPORTWRAPPERFORCPP_HPP_
+#define SERIALIZATIONEXPORTWRAPPERFORCPP_HPP_
 
-MockEulerIvpOdeSolver::MockEulerIvpOdeSolver()
-    : EulerIvpOdeSolver(),
-      mCallCount(0)
-{
-}
+/**
+ * @file
+ * 
+ * Companion file to SerializationExportWrapper.hpp, for inclusion
+ * in .cpp files.  See SerializationExportWrapper.hpp for more information.
+ */
 
-unsigned MockEulerIvpOdeSolver::GetCallCount()
-{
-    return mCallCount;
-}
+#define CHASTE_SERIALIZATION_CPP
+#include "SerializationExportWrapper.hpp"
 
-void MockEulerIvpOdeSolver::InternalSolve(AbstractOdeSystem* pAbstractOdeSystem,
-                                          std::vector<double>& rCurrentYValues,
-                                          std::vector<double>& rWorkingMemory,
-                                          double startTime,
-                                          double endTime,
-                                          double timeStep)
-{
-    mCallCount++;
-    EulerIvpOdeSolver::InternalSolve(pAbstractOdeSystem,
-                                     rCurrentYValues,
-                                     rWorkingMemory,
-                                     startTime,
-                                     endTime,
-                                     timeStep);
-}
-
-
-// Serialization for Boost >= 1.36
-#include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(MockEulerIvpOdeSolver);
+#endif /*SERIALIZATIONEXPORTWRAPPERFORCPP_HPP_*/

@@ -38,10 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueSimulation.hpp"
 #include "MeshBasedTissue.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
-
 /**
  * A 1D crypt simulation object. The model is a simplified version of a 2D crypt model
  * developed by Meineke et al (doi:10.1046/j.0960-7722.2001.00216.x).
@@ -113,7 +109,7 @@ public:
 
 
 // Declare identifier for the serializer
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(CryptSimulation1d)
 
 namespace boost

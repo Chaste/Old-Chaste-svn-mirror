@@ -74,7 +74,7 @@ public:
     double GetValue(const ChastePoint<SPACE_DIM>& rX) const;
 };
 
-#include "TemplatedExport.hpp" // Must be last
+#include "SerializationExportWrapper.hpp" // Must be last
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(ConstBoundaryCondition);
 
 namespace boost

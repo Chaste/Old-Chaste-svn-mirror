@@ -451,7 +451,7 @@ public:
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(MeshBasedTissue)
 
 namespace boost

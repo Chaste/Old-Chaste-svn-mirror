@@ -30,19 +30,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-// This must be included before other cell_based headers
+// This must be included before other Chaste headers
 #include "TissueSimulationArchiver.hpp"
 
 #include <iomanip>
 #include "CryptSimulation2d.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "StochasticWntCellCycleModelCellsGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
+
+#include "MeshBasedTissueWithGhostNodes.hpp"
 #include "StochasticWntCellCycleModel.hpp"
-#include "TysonNovakCellCycleModel.hpp"
 
 /**
  * This class consists of a single crypt simulation archiving test.

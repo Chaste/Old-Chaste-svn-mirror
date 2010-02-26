@@ -67,3 +67,8 @@ void OdeSystemInformation<FakeBathCell>::Initialise(void)
 
     this->mInitialised = true;
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(FakeBathCell);

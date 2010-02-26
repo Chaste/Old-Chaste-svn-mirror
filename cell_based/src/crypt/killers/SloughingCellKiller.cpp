@@ -102,3 +102,8 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 template class SloughingCellKiller<1>;
 template class SloughingCellKiller<2>;
 template class SloughingCellKiller<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(SloughingCellKiller)

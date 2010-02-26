@@ -52,9 +52,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/split_member.hpp>
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 namespace cp = chaste::parameters::v2_0;
 
 
@@ -1134,7 +1131,7 @@ private:
 
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(HeartConfig);
 

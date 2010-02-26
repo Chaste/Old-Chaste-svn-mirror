@@ -120,7 +120,7 @@ def coverage_ignore(src_file):
     
     This will only work if header files don't contain non-template function
     definitions, which should be the case if we're being good programmers.
-    Unfortunately the boost serialization tweaking file "TemplatedExport.hpp"
+    Unfortunately the boost serialization tweaking file "SerializationExportWrapper.hpp"
     has some templated definitions which are not code, for this reason we only
     scrape the file for "template" or "class" definitions that are not surrounded
     by COVERAGE_IGNORE.

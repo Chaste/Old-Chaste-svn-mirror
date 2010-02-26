@@ -244,7 +244,7 @@ public:
 };
 
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(NodeBasedTissue)
 
 namespace boost {

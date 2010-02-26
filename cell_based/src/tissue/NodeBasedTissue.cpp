@@ -367,3 +367,8 @@ std::set< std::pair<Node<DIM>*, Node<DIM>* > >& NodeBasedTissue<DIM>::rGetNodePa
 template class NodeBasedTissue<1>;
 template class NodeBasedTissue<2>;
 template class NodeBasedTissue<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(NodeBasedTissue)

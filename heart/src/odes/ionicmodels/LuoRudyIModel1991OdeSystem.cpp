@@ -365,3 +365,8 @@ void OdeSystemInformation<LuoRudyIModel1991OdeSystem>::Initialise(void)
 
     this->mInitialised = true;
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(LuoRudyIModel1991OdeSystem);

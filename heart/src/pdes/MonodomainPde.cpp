@@ -53,3 +53,12 @@ template class MonodomainPde<1,2>;
 template class MonodomainPde<1,3>;
 template class MonodomainPde<2,2>;
 template class MonodomainPde<3,3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 1);
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 2);
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 3);
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 2, 2);
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 3, 3);

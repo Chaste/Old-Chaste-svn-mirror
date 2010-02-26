@@ -270,3 +270,8 @@ void CryptSimulation2d::SetBottomCellAncestors()
         }
     }
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(CryptSimulation2d)

@@ -35,10 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleDataWriter.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
-
 /**
  * A 2D crypt simulation object. For more details, see the paper by
  * van Leeuwen et al (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
@@ -167,7 +163,7 @@ public :
 };
 
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(CryptSimulation2d)
 

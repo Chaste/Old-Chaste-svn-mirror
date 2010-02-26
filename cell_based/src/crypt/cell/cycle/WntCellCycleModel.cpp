@@ -111,3 +111,8 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
     UpdateCellProliferativeType();
     return msSolver.StoppingEventOccurred();
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(WntCellCycleModel)

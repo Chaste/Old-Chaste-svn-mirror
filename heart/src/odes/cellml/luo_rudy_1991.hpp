@@ -38,7 +38,7 @@ public:
 
 
 // Needs to be included last
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(Cellluo_rudy_1991FromCellML)
 
 namespace boost

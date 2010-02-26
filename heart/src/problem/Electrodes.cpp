@@ -257,3 +257,8 @@ void Electrodes<DIM>::ComputeElectrodesAreasAndCheckEquality(unsigned dimensionI
 template class Electrodes<1>;
 template class Electrodes<2>;
 template class Electrodes<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(Electrodes);

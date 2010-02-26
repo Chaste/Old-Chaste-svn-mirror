@@ -1148,3 +1148,9 @@ template class TetrahedralMesh<1,3>;
 template class TetrahedralMesh<2,2>;
 template class TetrahedralMesh<2,3>;
 template class TetrahedralMesh<3,3>;
+
+
+// Serialization for Boost >= 1.36
+#define CHASTE_SERIALIZATION_CPP
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(TetrahedralMesh);

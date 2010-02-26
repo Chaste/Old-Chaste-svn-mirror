@@ -246,7 +246,7 @@ public:
     void OnEndOfTimestep(double time);
 };
 
-#include "TemplatedExport.hpp" // Must be last
+#include "SerializationExportWrapper.hpp" // Must be last
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainProblem);
 
 

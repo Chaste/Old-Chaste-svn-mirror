@@ -35,9 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellCycleModel.hpp"
 #include "AbstractOdeSystem.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * This class contains all the things common to standard cell cycle
  * ODE models for intracellular protein concentrations (along the lines

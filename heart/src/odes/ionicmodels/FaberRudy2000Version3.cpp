@@ -845,3 +845,8 @@ void OdeSystemInformation<FaberRudy2000Version3>::Initialise(void)
 
     this->mInitialised = true;
 }
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(FaberRudy2000Version3)

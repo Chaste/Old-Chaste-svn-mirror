@@ -211,3 +211,8 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 template class GeneralisedLinearSpringForce<1>;
 template class GeneralisedLinearSpringForce<2>;
 template class GeneralisedLinearSpringForce<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(GeneralisedLinearSpringForce)

@@ -34,9 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractStimulusFunction.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  *  Stimulus which is always zero. More efficient than using an SimpleStimulus
  *  with magnitude zero
@@ -65,7 +62,7 @@ public:
     double GetStimulus(double time);
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(ZeroStimulus)
 

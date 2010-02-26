@@ -41,9 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueConfig.hpp"
 #include "TissueCell.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 class TissueCell; // Circular definition (cells need to know about cycle models and vice-versa)
 
 

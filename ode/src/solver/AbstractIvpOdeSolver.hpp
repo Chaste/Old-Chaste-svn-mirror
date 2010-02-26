@@ -35,9 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSolution.hpp"
 #include "AbstractOdeSystem.hpp"
 
-// Needs to be included last
-#include <boost/serialization/export.hpp>
-
 /**
  * Abstract initial value problem ODE solver class. Sets up variables and functions
  * for a numerical solution technique for an initial value ODE problem.

@@ -723,3 +723,8 @@ void QuadraticMesh<DIM>::HelperMethod2(BoundaryElement<DIM-1,DIM>* pBoundaryElem
 template class QuadraticMesh<1>;
 template class QuadraticMesh<2>;
 template class QuadraticMesh<3>;
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(QuadraticMesh);

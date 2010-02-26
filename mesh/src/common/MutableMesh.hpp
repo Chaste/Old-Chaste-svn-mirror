@@ -266,7 +266,7 @@ public:
 #undef COVERAGE_IGNORE
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 EXPORT_TEMPLATE_CLASS_ALL_DIMS(MutableMesh);
 
 #endif /*MUTABLEMESH_HPP_*/

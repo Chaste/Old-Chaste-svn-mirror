@@ -284,7 +284,7 @@ public:
 
 };
 
-#include "TemplatedExport.hpp"
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(CvodeAdaptor);
 
 #endif // _CVODEADAPTOR_HPP_
