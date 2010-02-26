@@ -51,7 +51,7 @@ public:
         CardiacElectroMechProbRegularGeom<2> problem(NHS,
                                                      1.0,  /* width */
                                                      5,    /* mech mesh size */
-                                                     96,   /* elec elem each dir */
+                                                     60,   /* elec elem each dir */
                                                      &cell_factory,
                                                      125,  /* end time */
                                                      0.01, /* electrics timestep (ms) */
