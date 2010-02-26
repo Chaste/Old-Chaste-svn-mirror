@@ -103,7 +103,7 @@ public:
      * @param cylindrical  Whether the mesh should be cylindrically periodic (defaults to true),
      * @param scaleFactor  The scale factor for the width (circumference) of the cells.
      *
-     * Note: this class creates an instance of the TissueConfig singleton and sets the crypt 
+     * Note: this class creates an instance of the TissueConfig singleton and sets the crypt
      * width and length accordingly in TissueConfig to be used elsewhere.
      */
     HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, bool cylindrical=true, double scaleFactor=1.0);

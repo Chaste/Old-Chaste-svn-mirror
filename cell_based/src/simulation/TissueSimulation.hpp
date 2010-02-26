@@ -100,6 +100,9 @@ protected:
     /** Visualiser setup file */
     out_stream mpSetupFile;
 
+    /** Results file node velocities */
+    out_stream mpNodeVelocitiesFile;
+
     /** Pointer to TissueConfig singleton */
     TissueConfig* mpConfig;
 

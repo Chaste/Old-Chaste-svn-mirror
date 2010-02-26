@@ -287,7 +287,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
 
     mpBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
 
-    //assert(mNodePairs.size() > 0); // should be possible to have nodes with no connections 
+    //assert(mNodePairs.size() > 0); // should be possible to have nodes with no connections
 }
 
 

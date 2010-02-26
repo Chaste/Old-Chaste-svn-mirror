@@ -245,6 +245,10 @@ public:
      * @return mOutputTissueAreas
      */
     bool GetOutputTissueAreas();
+    /**
+     * @return mOutputNodeVelocities
+     */
+    bool GetOutputNodeVelocities();
 
     /**
      * Set mStemCellG1Duration.
@@ -438,6 +442,10 @@ public:
      * Set mOutputTissueAreas.
      */
     void SetOutputTissueAreas(bool);
+    /**
+     * Set mOutputNodeVelocities.
+     */
+    void SetOutputNodeVelocities(bool);
 
     /**
      *  Reset all parameters to their defaults
@@ -727,6 +735,9 @@ private:
     /** Whether to write the tissue areas to file. */
     bool mOutputTissueAreas;
 
+    /** Whether to write the node velocities to a file. */
+    bool mOutputNodeVelocities;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -785,6 +796,7 @@ private:
         archive & mOutputCellAreas;
         archive & mOutputVoronoiData;
         archive & mOutputTissueAreas;
+        archive & mOutputNodeVelocities;
     }
 };
 

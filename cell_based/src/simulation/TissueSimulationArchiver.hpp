@@ -98,7 +98,7 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
     std::string mesh_filename = "mesh_" + time_stamp.str();
     ArchiveLocationInfo::SetMeshPathname(OutputFileHandler::GetChasteTestOutputDirectory()
                                          + rArchiveDirectory + "/archive/", mesh_filename);
-    
+
     // Create an input archive
     ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(rArchiveDirectory + "/archive/", archive_filename);
     boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();

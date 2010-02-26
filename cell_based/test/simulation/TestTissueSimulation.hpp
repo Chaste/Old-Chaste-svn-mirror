@@ -152,6 +152,54 @@ public:
         WntConcentration<2>::Destroy();
     }
 
+    void TestOutputNodeVelocities() throw(Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Create a differentiated cell for each node
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
+                                (TissueConfig::Instance()->GetStemCellG1Duration()
+                                    + TissueConfig::Instance()->GetSG2MDuration() );
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Create a tissue
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+        // Create a force law
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up simulation
+        TissueSimulation<2> simulator(tissue, force_collection);
+        simulator.SetOutputDirectory("TestOutputNodeVelocities");
+        simulator.SetEndTime(0.5);
+
+        // Record node velocities
+        TissueConfig::Instance()->SetOutputNodeVelocities(true);
+
+        // Run simulation
+        simulator.Solve();
+
+        // Check node velocities file
+        // The velocities should all be zero(ish), as the tissue is in mechanical equilibrium 
+        OutputFileHandler handler("TestOutputNodeVelocities", false);
+
+        std::string node_velocities_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/nodevelocities.dat";
+        NumericFileComparison node_velocities(node_velocities_file, "cell_based/test/data/TestOutputNodeVelocities/nodevelocities.dat");
+        TS_ASSERT(node_velocities.CompareFiles(1e-2));
+    }
 
     /**
      * Test a tissue simulation with a cell killer.

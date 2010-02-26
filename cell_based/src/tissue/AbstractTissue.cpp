@@ -497,7 +497,7 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
     double time = SimulationTime::Instance()->GetTime();
 
     *mpVizNodesFile << time << "\t";
-	*mpBoundaryNodesFile << time << "\t";
+    *mpBoundaryNodesFile << time << "\t";
 
     // Write node data to file
     for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)

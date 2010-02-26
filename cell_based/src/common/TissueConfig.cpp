@@ -143,6 +143,7 @@ void TissueConfig::Reset()
     mOutputCellAreas = false;
     mOutputVoronoiData = false;
     mOutputTissueAreas = false;
+    mOutputNodeVelocities = false;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -341,6 +342,11 @@ bool TissueConfig::GetOutputTissueAreas()
 {
     return mOutputTissueAreas;
 }
+bool TissueConfig::GetOutputNodeVelocities()
+{
+    return mOutputNodeVelocities;
+}
+
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
 ///////////////////////////////////////////////////////////////////////
@@ -579,4 +585,8 @@ void TissueConfig::SetOutputVoronoiData(bool outputVoronoiData)
 void TissueConfig::SetOutputTissueAreas(bool outputTissueAreas)
 {
     mOutputTissueAreas = outputTissueAreas;
+}
+void TissueConfig::SetOutputNodeVelocities(bool outputNodeVelocities)
+{
+    mOutputNodeVelocities = outputNodeVelocities;
 }

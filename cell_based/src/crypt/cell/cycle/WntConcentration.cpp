@@ -151,7 +151,7 @@ double WntConcentration<DIM>::GetWntLevel(double height)
     }
 
     double wnt_level = -1.0; // Test this is changed before leaving method.
-	double crypt_height = mpTissueConfig->GetCryptLength();
+    double crypt_height = mpTissueConfig->GetCryptLength();
 
     // The first type of Wnt concentration to try
     if (mWntType==LINEAR || mWntType==RADIAL)
@@ -225,7 +225,7 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
         }
         else
         {
-        	EXCEPTION("No method to calculate gradient of this Wnt type");
+            EXCEPTION("No method to calculate gradient of this Wnt type");
         }
     }
     return wnt_gradient;

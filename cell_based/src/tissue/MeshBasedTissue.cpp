@@ -419,7 +419,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
     *mpElementFile <<  SimulationTime::Instance()->GetTime() << "\t";
 
     bool element_contains_dead_cells_or_deleted_nodes = false;
-    
+
     for (typename MutableMesh<DIM,DIM>::ElementIterator elem_iter = mrMesh.GetElementIteratorBegin();
          elem_iter != mrMesh.GetElementIteratorEnd();
          ++elem_iter)
@@ -428,7 +428,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
         for (unsigned i=0; i<DIM+1; i++)
         {
             unsigned node_index = elem_iter->GetNodeGlobalIndex(i);
-    
+
             if (this->GetNode(node_index)->IsDeleted())
             {
                 element_contains_dead_cells_or_deleted_nodes = true;

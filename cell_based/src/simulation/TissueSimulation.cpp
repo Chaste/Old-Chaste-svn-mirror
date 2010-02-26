@@ -63,11 +63,11 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
     // Different time steps are used for cell-centre and vertex-based tissue simulations
     if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&rTissue))
     {
-    	mDt = 1.0/120.0; // 30 seconds
+        mDt = 1.0/120.0; // 30 seconds
     }
     else
     {
-    	mDt = 0.002; // smaller time step required for convergence/stability
+        mDt = 0.002; // smaller time step required for convergence/stability
     }
 
     if (mInitialiseCells)
@@ -245,9 +245,10 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueC
 template<unsigned DIM>
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces)
 {
-    // Get the previous node positions (these may be needed
-    // when applying boundary conditions, e.g. in the case
-    // of immotile cells)
+    /*
+     * Get the previous node positions (these may be needed when applying boundary conditions,
+     * e.g. in the case of immotile cells)
+     */
     std::vector<c_vector<double, DIM> > old_node_locations;
     old_node_locations.reserve(mrTissue.GetNumNodes());
     for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
@@ -260,6 +261,47 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
 
     // Apply any boundary conditions
     ApplyTissueBoundaryConditions(old_node_locations);
+
+    // Write node velocities to file if required
+    if ( TissueConfig::Instance()->GetOutputNodeVelocities() )
+    {
+        if (SimulationTime::Instance()->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
+        {
+            *mpNodeVelocitiesFile << SimulationTime::Instance()->GetTime() << "\t";
+            for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
+            {
+                /*
+                 * Hack that covers the case where the node is associated with a cell
+                 * that has just been killed, in the case of a cell-centre based tissue
+                 * (#1129)
+                 */
+                bool is_dead_cell = false;
+                if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
+                {
+                    is_dead_cell = mrTissue.rGetCellUsingLocationIndex(node_index).IsDead();
+                }
+                bool is_deleted_node = mrTissue.GetNode(node_index)->IsDeleted();
+
+                // Write node data to file
+                if ( !is_deleted_node && !is_dead_cell)
+                {
+                    const c_vector<double,DIM>& position = mrTissue.GetNode(node_index)->rGetLocation();
+                    c_vector<double, 2> velocity = this->mDt * rNodeForces[node_index] / this->mrTissue.GetDampingConstant(node_index);
+
+                    *mpNodeVelocitiesFile << node_index  << " ";
+                    for (unsigned i=0; i<DIM; i++)
+                    {
+                        *mpNodeVelocitiesFile << position[i] << " ";
+                    }
+                    for (unsigned i=0; i<DIM; i++)
+                    {
+                        *mpNodeVelocitiesFile << velocity[i] << " ";
+                    }
+                }
+            }
+            *mpNodeVelocitiesFile << "\n";
+        }
+    }
 }
 
 
@@ -414,6 +456,12 @@ void TissueSimulation<DIM>::Solve()
 
     mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
 
+    if (TissueConfig::Instance()->GetOutputNodeVelocities())
+    {
+        OutputFileHandler output_file_handler2(results_directory+"/", false);
+        mpNodeVelocitiesFile = output_file_handler2.OpenOutputFile("nodevelocities.dat");
+    }
+
     SetupSolve();
 
     // Age the cells to the correct time. Note that cells are created with
@@ -431,7 +479,7 @@ void TissueSimulation<DIM>::Solve()
 
     // Write initial conditions to file for the visualizer
     WriteVisualizerSetupFile();
-    
+
     *mpSetupFile << std::flush;
 
     mrTissue.WriteResultsToFiles();
@@ -522,7 +570,13 @@ void TissueSimulation<DIM>::Solve()
     AfterSolve();
 
     CellBasedEventHandler::BeginEvent(CellBasedEventHandler::OUTPUT);
+
     mrTissue.CloseOutputFiles();
+
+    if (TissueConfig::Instance()->GetOutputNodeVelocities())
+    {
+        mpNodeVelocitiesFile->close();
+    }
 
     *mpSetupFile << "Complete\n";
     mpSetupFile->close();

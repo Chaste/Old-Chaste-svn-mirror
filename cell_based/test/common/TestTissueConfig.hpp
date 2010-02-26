@@ -98,6 +98,7 @@ private:
         TS_ASSERT_EQUALS(p_inst->GetOutputCellAreas(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputVoronoiData(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputTissueAreas(), false);
+        TS_ASSERT_EQUALS(p_inst->GetOutputNodeVelocities(), false);
     }
 
 public:
@@ -153,6 +154,7 @@ public:
         p_inst->SetOutputCellAreas(true);
         p_inst->SetOutputVoronoiData(true);
         p_inst->SetOutputTissueAreas(true);
+        p_inst->SetOutputNodeVelocities(true);
         p_inst->Reset();
 
         CheckValuesAreTheDefaultValues();
@@ -207,6 +209,7 @@ public:
         p_inst1->SetOutputCellAreas(true);
         p_inst1->SetOutputVoronoiData(true);
         p_inst1->SetOutputTissueAreas(true);
+        p_inst1->SetOutputNodeVelocities(true);
 
         TissueConfig* p_inst2 = TissueConfig::Instance();
 
@@ -254,6 +257,7 @@ public:
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellAreas(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputVoronoiData(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputTissueAreas(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputNodeVelocities(), true);
     }
 
     void TestArchiveTissueConfig()
@@ -310,6 +314,7 @@ public:
             p_inst1->SetOutputCellAreas(true);
             p_inst1->SetOutputVoronoiData(true);
             p_inst1->SetOutputTissueAreas(true);
+            p_inst1->SetOutputNodeVelocities(true);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -367,6 +372,7 @@ public:
             p_inst1->SetOutputCellAreas(false);
             p_inst1->SetOutputVoronoiData(false);
             p_inst1->SetOutputTissueAreas(false);
+            p_inst1->SetOutputNodeVelocities(false);
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -420,6 +426,7 @@ public:
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellAreas(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputVoronoiData(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputTissueAreas(), true);
+            TS_ASSERT_EQUALS(p_inst1->GetOutputNodeVelocities(), true);
         }
     }
 };

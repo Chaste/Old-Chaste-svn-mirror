@@ -46,7 +46,7 @@ class NodeBasedTissue : public AbstractCellCentreBasedTissue<DIM>
 {
     friend class TestNodeBasedTissue;
     friend class TestBoxCollection;
-    
+
 protected:
 
     /** List of nodes. */
@@ -57,7 +57,7 @@ protected:
 
     /** Whether nodes have been added to the tissue. */
     bool mAddedNodes;
-    
+
 private:
 
     /** Pointer to a Node box collection */
