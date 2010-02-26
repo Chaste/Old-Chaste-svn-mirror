@@ -144,7 +144,6 @@ public:
  * start by including a serialization header, then define {{{save_construct_data}}}
  * and {{{load_construct_data}}} methods, which archive the cell killer
  * constructor input argument(s) (in this case, a {{{Tissue}}}). */
-#include <boost/serialization/export.hpp>
 
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MyCellKiller)
@@ -180,7 +179,8 @@ namespace boost
 /*
  * This completes the code for {{{MyCellKiller}}}. Note that usually this code
  * would be separated out into a separate declaration in a .hpp file and definition
- * in a .cpp file.
+ * in a .cpp file.  In this case, serialization has to be handled slightly more
+ * carefully; see BoostSerialization for details.
  *
  * EMPTYLINE
  *
