@@ -38,13 +38,7 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
       mRoundCounter(0u)
 {
     mNumNodes = mrMesh.GetNumNodes();
-    /**
-     * Rational: there's a propagation error of at most DBL_EPSILON when each edge is traced.
-     * The maximum path length will be related to the number of nodes in the mesh.
-     */
-    mExpectedPropagationErrorFactor = 1.0-(DBL_EPSILON*pow(mNumNodes, (1.0/ELEMENT_DIM)));
     DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_distributed_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh);
-    assert(mExpectedPropagationErrorFactor!=1.0);
     if ( PetscTools::IsSequential() || p_distributed_mesh == NULL)
     {
         //It's a non-distributed mesh...
@@ -164,7 +158,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
             {
                 unsigned global_index=index_exchange[index];
                 //Is it a better answer?
-                if (dist_exchange[index] < rNodeDistances[global_index]*mExpectedPropagationErrorFactor)
+                if (dist_exchange[index] < rNodeDistances[global_index]*(1.0-DBL_EPSILON) )
                 {
                     //Copy across - this may be unnecessary when PushLocal isn't going to push because it's not local.
                     rNodeDistances[global_index] = dist_exchange[index];
@@ -222,7 +216,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                         // Test if we have found a shorter path from the witness in the source to the current neighbour through current node  
                         //This will save some sqrts later...
                         double updated_distance = norm_2(p_neighbour_node->rGetLocation() - rWitnessPoints[current_node_index]);
-                        if ( updated_distance < rNodeDistances[neighbour_node_index] * mExpectedPropagationErrorFactor)
+                        if ( updated_distance < rNodeDistances[neighbour_node_index] * (1.0-DBL_EPSILON) )
                         {
                             rWitnessPoints[neighbour_node_index] = rWitnessPoints[current_node_index];
                             rNodeDistances[neighbour_node_index] = updated_distance;                                      

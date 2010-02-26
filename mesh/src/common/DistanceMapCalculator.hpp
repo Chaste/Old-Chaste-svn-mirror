@@ -63,8 +63,6 @@ private:
     std::vector<unsigned> mHaloNodeIndices;
     /** Used to check parallel implementation*/
     unsigned mRoundCounter;
-    /** Used when comparing minimum distances bearing in mind the propagation of error.  This is to avoid tracing cycles in the mesh where small differences to minimum distances appear to matter*/
-    double mExpectedPropagationErrorFactor;
     
     /**
      * Queue of nodes to be processed (initialised with the nodes defining the surface)
