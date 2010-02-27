@@ -188,7 +188,7 @@ void OdeSystemInformation<My2dOde>::Initialise()
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(1.0);
 
-    this->mVariableNames.push_back("dy/dt");
+    this->mVariableNames.push_back("ydot");
     this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(0.0);
 

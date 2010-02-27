@@ -52,6 +52,10 @@ unsigned GaussianQuadratureRule<ELEMENT_DIM>::GetNumQuadPoints() const
     return mNumQuadPoints;
 }
 
+/**
+ * Constructor specialization for 0d.
+ * @param numPointsInEachDimension  number of gauss points in each dimension
+ */
 template<>
 GaussianQuadratureRule<0>::GaussianQuadratureRule(unsigned numPointsInEachDimension)
 {
@@ -62,6 +66,10 @@ GaussianQuadratureRule<0>::GaussianQuadratureRule(unsigned numPointsInEachDimens
     mPoints.push_back(ChastePoint<0>());
 }
 
+/**
+ * Constructor specialization for 1d.
+ * @param numPointsInEachDimension  number of gauss points in each dimension
+ */
 template<>
 GaussianQuadratureRule<1>::GaussianQuadratureRule(unsigned numPointsInEachDimension)
 {
@@ -99,6 +107,10 @@ GaussianQuadratureRule<1>::GaussianQuadratureRule(unsigned numPointsInEachDimens
     }
 }
 
+/**
+ * Constructor specialization for 2d.
+ * @param numPointsInEachDimension  number of gauss points in each dimension
+ */
 template<>
 GaussianQuadratureRule<2>::GaussianQuadratureRule(unsigned numPointsInEachDimension)
 {
@@ -153,6 +165,10 @@ GaussianQuadratureRule<2>::GaussianQuadratureRule(unsigned numPointsInEachDimens
     }
 }
 
+/**
+ * Constructor specialization for 3d.
+ * @param numPointsInEachDimension  number of gauss points in each dimension
+ */
 template<>
 GaussianQuadratureRule<3>::GaussianQuadratureRule(unsigned numPointsInEachDimension)
 {

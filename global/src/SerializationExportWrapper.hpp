@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// gcov doesn't like this file...
+/// gcov doesn't like this file...
 #define COVERAGE_IGNORE
 
 
@@ -96,6 +96,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Handle broken BOOST_CLASS_EXPORT in Boost 1.36 & 1.37 
 #if BOOST_VERSION >= 103600 && BOOST_VERSION < 103800
 
+/**
+ * Global unique identifier for Boost 1.36 and 1.37, to avoid using the source line
+ * number as a 'unique' id.
+ * @param T type this guid is for
+ * @param K string version of T
+ * @param S uniquifying string
+ */
 #define CHASTE_CLASS_EXPORT_GUID(T, K, S)                                           \
 namespace                                                                           \
 {                                                                                   \
@@ -106,22 +113,39 @@ namespace                                                                       
           >::get_mutable_instance().export_guid(K);                                 \
 }
 
-//Avoid using line number as Global "Unique" Identifier
+/**
+ * General export for templated classes.
+ * @param T  a type
+ * @param S  a unique string for the class + specific template parameter values
+ */
 #define CHASTE_CLASS_EXPORT_TEMPLATED(T, S)                   \
     CHASTE_CLASS_EXPORT_GUID(                    \
         T,                                      \
         BOOST_PP_STRINGIZE(T), S                   \
     )                                           \
 
+/**
+ * What CHASTE_CLASS_EXPORT expands to when it isn't a no-op.
+ * @param T  the class to export
+ */
 #define CHASTE_CLASS_EXPORT_INTERNAL(T)                   \
    CHASTE_CLASS_EXPORT_TEMPLATED(T, T)
 
 #else // BOOST_VERSION >= 103600 && BOOST_VERSION < 103800
 
 //Do exactly as we did before (so that archives created with 1.33 don't have to be re-generated)
+/**
+ * General export for templated classes.
+ * @param T  a type
+ * @param S  a unique string for the class + specific template parameter values
+ */
 #define CHASTE_CLASS_EXPORT_TEMPLATED(T, S)                   \
    BOOST_CLASS_EXPORT(T)
 
+/**
+ * What CHASTE_CLASS_EXPORT expands to when it isn't a no-op.
+ * @param T  the class to export
+ */
 #define CHASTE_CLASS_EXPORT_INTERNAL(T)                   \
    BOOST_CLASS_EXPORT(T)
 #endif
@@ -136,15 +160,42 @@ template<class T> struct pack<void (T)> {
 
 // Macros for templated classes
 
+/**
+ * Export a templated class with 3 parameters.
+ * This is the definition of EXPORT_TEMPLATE_CLASS3 when it isn't a no-op.
+ * @param CLASS the class (without parameters)
+ * @param E  first template parameter
+ * @param S  second template parameter
+ * @param P  third template parameter
+ */
 #define EXPORT_TEMPLATE_CLASS3_INTERNAL(CLASS, E, S, P) \
     CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< E,S,P >)>::type, CLASS##E##S##P );
 
+/**
+ * Export a templated class with 2 parameters.
+ * This is the definition of EXPORT_TEMPLATE_CLASS2 when it isn't a no-op.
+ * @param CLASS the class (without parameters)
+ * @param E  first template parameter
+ * @param S  second template parameter
+ */
 #define EXPORT_TEMPLATE_CLASS2_INTERNAL(CLASS, E, S) \
     CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< E,S >)>::type, CLASS##E##S );
 
+/**
+ * Export a templated class with 1 parameter.
+ * This is the definition of EXPORT_TEMPLATE_CLASS1 when it isn't a no-op.
+ * @param CLASS the class (without parameters)
+ * @param D  template parameter
+ */
 #define EXPORT_TEMPLATE_CLASS1_INTERNAL(CLASS, D) \
     CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< D >)>::type, CLASS##D );
 
+/**
+ * Export a class templated over both element and space dimension, for all valid
+ * combinations.
+ * This is the definition of EXPORT_TEMPLATE_CLASS_ALL_DIMS when it isn't a no-op.
+ * @param CLASS the class (without parameters)
+ */
 #define EXPORT_TEMPLATE_CLASS_ALL_DIMS_INTERNAL(CLASS) \
     EXPORT_TEMPLATE_CLASS2(CLASS, 1, 1) \
     EXPORT_TEMPLATE_CLASS2(CLASS, 1, 2) \
@@ -153,6 +204,12 @@ template<class T> struct pack<void (T)> {
     EXPORT_TEMPLATE_CLASS2(CLASS, 2, 3) \
     EXPORT_TEMPLATE_CLASS2(CLASS, 3, 3)
 
+/**
+ * Export a class templated over both element and space dimension, for combinations
+ * where ELEMENT_DIM == SPACE_DIM.
+ * This is the definition of EXPORT_TEMPLATE_CLASS_SAME_DIMS when it isn't a no-op.
+ * @param CLASS the class (without parameters)
+ */
 #define EXPORT_TEMPLATE_CLASS_SAME_DIMS_INTERNAL(CLASS) \
     EXPORT_TEMPLATE_CLASS1(CLASS, 1) \
     EXPORT_TEMPLATE_CLASS1(CLASS, 2) \
@@ -182,20 +239,82 @@ template<class T> struct pack<void (T)> {
 // Boost 1.34 and older - export goes in headers
 // Boost 1.36 and newer - export goes in .cpp
 
+/**
+ * Define the serialization export key for this class.
+ * @param T  the class
+ */
 #define CHASTE_CLASS_EXPORT(T)                 CHASTE_CLASS_EXPORT_INTERNAL(T)
+/**
+ * Export a class templated over both element and space dimension, for combinations
+ * where ELEMENT_DIM == SPACE_DIM.
+ * @param CLASS the class (without parameters)
+ */
 #define EXPORT_TEMPLATE_CLASS_SAME_DIMS(CLASS) EXPORT_TEMPLATE_CLASS_SAME_DIMS_INTERNAL(CLASS)
+/**
+ * Export a class templated over both element and space dimension, for all valid
+ * combinations.
+ * @param CLASS the class (without parameters)
+ */
 #define EXPORT_TEMPLATE_CLASS_ALL_DIMS(CLASS)  EXPORT_TEMPLATE_CLASS_ALL_DIMS_INTERNAL(CLASS)
+/**
+ * Export a templated class with 1 parameter.
+ * @param CLASS the class (without parameters)
+ * @param D  template parameter
+ */
 #define EXPORT_TEMPLATE_CLASS1(CLASS, D)       EXPORT_TEMPLATE_CLASS1_INTERNAL(CLASS, D)
+/**
+ * Export a templated class with 2 parameters.
+ * @param CLASS the class (without parameters)
+ * @param E  first template parameter
+ * @param S  second template parameter
+ */
 #define EXPORT_TEMPLATE_CLASS2(CLASS, E, S)    EXPORT_TEMPLATE_CLASS2_INTERNAL(CLASS, E, S)
+/**
+ * Export a templated class with 3 parameters.
+ * @param CLASS the class (without parameters)
+ * @param E  first template parameter
+ * @param S  second template parameter
+ * @param P  third template parameter
+ */
 #define EXPORT_TEMPLATE_CLASS3(CLASS, E, S, P) EXPORT_TEMPLATE_CLASS3_INTERNAL(CLASS, E, S, P)
 
 #else
 
+/**
+ * No-op for this Boost version in this setting.
+ * @param T
+ */
 #define CHASTE_CLASS_EXPORT(T)
+/**
+ * No-op for this Boost version in this setting.
+ * @param CLASS
+ */
 #define EXPORT_TEMPLATE_CLASS_SAME_DIMS(CLASS)
+/**
+ * No-op for this Boost version in this setting.
+ * @param CLASS
+ */
 #define EXPORT_TEMPLATE_CLASS_ALL_DIMS(CLASS)
+/**
+ * No-op for this Boost version in this setting.
+ * @param CLASS
+ * @param D
+ */
 #define EXPORT_TEMPLATE_CLASS1(CLASS, D)
+/**
+ * No-op for this Boost version in this setting.
+ * @param CLASS
+ * @param E
+ * @param S
+ */
 #define EXPORT_TEMPLATE_CLASS2(CLASS, E, S)
+/**
+ * No-op for this Boost version in this setting.
+ * @param CLASS
+ * @param E
+ * @param S
+ * @param P
+ */
 #define EXPORT_TEMPLATE_CLASS3(CLASS, E, S, P)
 
 #endif
