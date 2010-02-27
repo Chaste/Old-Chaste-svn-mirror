@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _SIMPLESTIMULUS_HPP_
 #define _SIMPLESTIMULUS_HPP_
 
-#include <new> // Apparently 'new' (for boost's two phase construction) isn't included - words fail me.
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>
 

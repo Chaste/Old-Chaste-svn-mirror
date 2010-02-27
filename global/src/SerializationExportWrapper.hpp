@@ -55,6 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * which are certainly needed for Boost versions before 1.38.
  */
 #include <boost/version.hpp>
+#include <new> // Apparently 'new' (for boost's two phase construction) isn't included sometimes...
 
 // Make sure includes happen in the correct place.  This has to go before
 // the SERIALIZATIONEXPORTWRAPPER_HPP_ guard, since we need it to be seen
