@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistanceMapCalculator.hpp"
 #include "AbstractTetrahedralMesh.hpp"
 #include "HeartRegionCodes.hpp"
+#include "ChasteCuboid.hpp"
 
 /** Names for layers in the heart wall */
 typedef enum HeartLayerType_
@@ -126,6 +127,13 @@ private:
     
     /** Vector to store the layer for each node*/
     std::vector<HeartLayerType> mLayerForEachNode;
+
+    /**
+     * Get a bounding box for a group of node indices (such as the epi-surface)
+     * 
+     * @param rSurfaceNodes The indices of the nodes which represent this surface
+     */
+    ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfSurface(const std::vector<unsigned>& rSurfaceNodes);
         
 public:
     /**
@@ -272,6 +280,47 @@ public:
      *  @param file Output file
      */
     void WriteLayerForEachNode(std::string outputDir, std::string file);
+    
+    /**
+     * Uses CalculateBoundingBoxOfSurface to calculate an
+     * axis-aligned bounding box of the nodes in the input 
+     * epicardial surface
+     * 
+     */
+    inline ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfEpi()
+    {
+        return CalculateBoundingBoxOfSurface(mEpiSurface);
+    }
+    /**
+     * Uses CalculateBoundingBoxOfSurface to calculate an
+     * axis-aligned bounding box of the nodes in the input 
+     * endocardial surface
+     * 
+     */
+    inline ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfEndo()
+    {
+        return CalculateBoundingBoxOfSurface(mEndoSurface);
+    }
+    /**
+     * Uses CalculateBoundingBoxOfSurface to calculate an
+     * axis-aligned bounding box of the nodes in the input 
+     * endocardial left ventricular surface
+     * 
+     */
+    inline ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfLV()
+    {
+        return CalculateBoundingBoxOfSurface(mLVSurface);
+    }
+    /**
+     * Uses CalculateBoundingBoxOfSurface to calculate an
+     * axis-aligned bounding box of the nodes in the input 
+     * endocardial left ventricular surface
+     * 
+     */
+     inline ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfRV()
+    {
+        return CalculateBoundingBoxOfSurface(mRVSurface);
+    }
 };
 #endif //HEARTGEOMETRYINFORMATION_HPP_
 

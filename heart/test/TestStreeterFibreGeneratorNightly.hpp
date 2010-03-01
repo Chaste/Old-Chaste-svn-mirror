@@ -28,6 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTSTREETERFIBREGENERATORNIGHTLY_HPP_
 #define TESTSTREETERFIBREGENERATORNIGHTLY_HPP_
 
+#include "TetrahedralMesh.hpp"
+//#include "DistributedTetrahedralMesh.hpp"
 #include "StreeterFibreGenerator.hpp"
 #include "OutputFileHandler.hpp"
 #include "MemfemMeshReader.hpp"

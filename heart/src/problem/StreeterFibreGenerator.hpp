@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <set>
 #include "DistanceMapCalculator.hpp"
-#include "TetrahedralMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "HeartGeometryInformation.hpp"
 
 /**
@@ -45,7 +45,7 @@ template<unsigned SPACE_DIM>
 class StreeterFibreGenerator
 {
 private:
-    TetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh; /**< Reference to the mesh (used for calculating distances to epi and endo surfaces)*/
+    AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh; /**< Reference to the mesh (used for calculating distances to epi and endo surfaces)*/
     
     HeartGeometryInformation<SPACE_DIM>* mpGeometryInfo; /**< Provides a method to calculate the relative position of a node with respect to two (or three) given surfaces*/
 
@@ -72,7 +72,7 @@ public:
      * 
      * @param  rMesh reference to the tetrahedral mesh of the ventricles
      */
-    StreeterFibreGenerator(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh);
+    StreeterFibreGenerator(AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh);
 
     /** 
      * Destructor

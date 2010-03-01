@@ -395,6 +395,57 @@ void HeartGeometryInformation<SPACE_DIM>::WriteLayerForEachNode(std::string outp
     PetscTools::Barrier("HeartGeometryInformation::WriteLayerForEachNode"); // Make other processes wait until we're done
 }
 
+ 
+template<unsigned SPACE_DIM>
+ChasteCuboid<SPACE_DIM> HeartGeometryInformation<SPACE_DIM>::CalculateBoundingBoxOfSurface(const std::vector<unsigned>& rSurfaceNodes)
+{
+    
+    assert(rSurfaceNodes.size()>0);
+    //Set min to DBL_MAX etc.
+    c_vector<double, SPACE_DIM> my_minimum_point;
+    for (unsigned i=0; i<SPACE_DIM; i++)
+    {
+        my_minimum_point[i]=DBL_MAX; //Start with max and work down to actual
+    }
+    c_vector<double, SPACE_DIM> my_maximum_point=-my_minimum_point;
+    
+    //Iterate through the set of points on the surface
+    for (unsigned surface_index=0; surface_index<rSurfaceNodes.size(); surface_index++)
+    {
+        try
+        {
+            c_vector<double, SPACE_DIM> position = mpMesh->GetNode(rSurfaceNodes[surface_index])->rGetLocation();
+            //Update max/min
+            for (unsigned i=0; i<SPACE_DIM; i++)
+            {
+                if (position[i] < my_minimum_point[i])
+                {
+                    my_minimum_point[i] = position[i];
+                }
+                if (position[i] > my_maximum_point[i])
+                {
+                    my_maximum_point[i] = position[i];
+                }
+            }
+        } 
+        catch (Exception &e)
+        {
+            //mpMesh->GetNode() fails when node is not owned locally
+        }
+    }
+    
+    //Share the local data and reduce over all processes
+    c_vector<double, SPACE_DIM> global_minimum_point;
+    c_vector<double, SPACE_DIM> global_maximum_point;
+    MPI_Allreduce(&my_minimum_point[0], &global_minimum_point[0], SPACE_DIM, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
+    MPI_Allreduce(&my_maximum_point[0], &global_maximum_point[0], SPACE_DIM, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD);
+    
+
+    ChastePoint<SPACE_DIM> min(global_minimum_point);
+    ChastePoint<SPACE_DIM> max(global_maximum_point);
+    
+    return ChasteCuboid<SPACE_DIM>(min, max);
+}
 
 
 /////////////////////////////////////////////////////////////////////

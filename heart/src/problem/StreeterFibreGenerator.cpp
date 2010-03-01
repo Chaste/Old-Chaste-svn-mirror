@@ -124,7 +124,7 @@ double StreeterFibreGenerator<SPACE_DIM>::GetFibreMaxAngle(
 }
 
 template<unsigned SPACE_DIM>
-StreeterFibreGenerator<SPACE_DIM>::StreeterFibreGenerator(TetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh)
+StreeterFibreGenerator<SPACE_DIM>::StreeterFibreGenerator(AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh)
     : mrMesh(rMesh),
       mpGeometryInfo(NULL)
 {

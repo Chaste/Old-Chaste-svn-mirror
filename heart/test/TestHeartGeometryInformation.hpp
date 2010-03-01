@@ -166,6 +166,26 @@ public:
             TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
             TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],(5.0-x));
         } 
+        ChasteCuboid<3> epi_bounding_box=info.CalculateBoundingBoxOfEpi();
+        ChasteCuboid<3> endo_bounding_box=info.CalculateBoundingBoxOfEndo();
+        for (unsigned i=0; i<3; i++)
+        {
+            if (i==0)
+            {
+                TS_ASSERT_DELTA(epi_bounding_box.rGetUpperCorner()[i], 0.0, 1e-10);
+                TS_ASSERT_DELTA(endo_bounding_box.rGetLowerCorner()[i], 5.0, 1e-10);
+            } 
+            else
+            {
+                TS_ASSERT_DELTA(epi_bounding_box.rGetUpperCorner()[i], 5.0, 1e-10);
+                TS_ASSERT_DELTA(endo_bounding_box.rGetLowerCorner()[i], 0.0, 1e-10);
+            } 
+            TS_ASSERT_DELTA(epi_bounding_box.rGetLowerCorner()[i], 0.0, 1e-10);
+            TS_ASSERT_DELTA(endo_bounding_box.rGetUpperCorner()[i], 5.0, 1e-10);
+        }
+         
+
+
     }
     
     void TestCalculateRelativeWallPositionWithThreeSurfaces() throw(Exception)
@@ -242,7 +262,21 @@ public:
             {
                 TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(x-5.0)/3.0);
             }
-        } 
+        }
+        
+        ChasteCuboid<3> epi_bounding_box=info.CalculateBoundingBoxOfEpi();
+        for (unsigned i=0; i<3; i++)
+        {
+            TS_ASSERT_DELTA(epi_bounding_box.rGetUpperCorner()[i], 8.0, 1e-10);
+            TS_ASSERT_DELTA(epi_bounding_box.rGetLowerCorner()[i], 0.0, 1e-10);
+        }
+        ChasteCuboid<3> lv_bounding_box=info.CalculateBoundingBoxOfLV();
+        TS_ASSERT_DELTA(lv_bounding_box.rGetUpperCorner()[0], 3.0, 1e-10);
+        TS_ASSERT_DELTA(lv_bounding_box.rGetLowerCorner()[0], 3.0, 1e-10);
+        ChasteCuboid<3> rv_bounding_box=info.CalculateBoundingBoxOfRV();
+        TS_ASSERT_DELTA(rv_bounding_box.rGetUpperCorner()[0], 5.0, 1e-10);
+        TS_ASSERT_DELTA(rv_bounding_box.rGetLowerCorner()[0], 5.0, 1e-10);
+         
     }
     
     void TestDetermineLayerForEachNodeWritingAndReading() throw (Exception)

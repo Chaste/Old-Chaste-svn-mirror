@@ -28,11 +28,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTSTREETERFIBREGENERATOR_HPP_
 #define TESTSTREETERFIBREGENERATOR_HPP_
 
+#include "TetrahedralMesh.hpp"
+//#include "DistributedTetrahedralMesh.hpp"
 #include "StreeterFibreGenerator.hpp"
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "NumericFileComparison.hpp"
-
+#include "PetscSetupAndFinalize.hpp"
 
 class TestStreeterFibreGenerator : public CxxTest::TestSuite
 {
@@ -46,6 +48,7 @@ public:
         std::string lv_face_file = "heart/test/data/box_shaped_heart/lv.tri";
 
         TetrahedralMesh<3,3> mesh;
+        //DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         StreeterFibreGenerator<3> fibre_generator(mesh);
@@ -65,6 +68,7 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
 
         TetrahedralMesh<3,3> mesh;
+        //DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         StreeterFibreGenerator<3> fibre_generator(mesh);
