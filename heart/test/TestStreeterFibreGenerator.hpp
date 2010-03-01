@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTSTREETERFIBREGENERATOR_HPP_
 
 #include "TetrahedralMesh.hpp"
-//#include "DistributedTetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "StreeterFibreGenerator.hpp"
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -47,8 +47,7 @@ public:
         std::string rv_face_file = "heart/test/data/box_shaped_heart/rv.tri";
         std::string lv_face_file = "heart/test/data/box_shaped_heart/lv.tri";
 
-        TetrahedralMesh<3,3> mesh;
-        //DistributedTetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         StreeterFibreGenerator<3> fibre_generator(mesh);
@@ -63,12 +62,33 @@ public:
         TS_ASSERT(comp.CompareFiles(1e-11));
     }
 
+    void TestSimpleOrthotropicNotDistributed() throw (Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
+        std::string epi_face_file = "heart/test/data/box_shaped_heart/epi.tri";
+        std::string rv_face_file = "heart/test/data/box_shaped_heart/rv.tri";
+        std::string lv_face_file = "heart/test/data/box_shaped_heart/lv.tri";
+
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        StreeterFibreGenerator<3> fibre_generator(mesh);
+        fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file);
+
+        fibre_generator.GenerateOrthotropicFibreOrientation("shorter_streeter", "box_heart_not_dist.ortho", true);
+
+        OutputFileHandler handler("shorter_streeter", false);
+        std::string fibre_file = handler.GetOutputDirectoryFullPath() + "box_heart_not_dist.ortho";
+
+        NumericFileComparison comp(fibre_file,"heart/test/data/box_shaped_heart/box_heart.ortho");
+        TS_ASSERT(comp.CompareFiles(1e-11));
+    }
+
     void TestExceptions()
     {
         TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
 
-        TetrahedralMesh<3,3> mesh;
-        //DistributedTetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         StreeterFibreGenerator<3> fibre_generator(mesh);

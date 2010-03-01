@@ -1,4 +1,4 @@
-bidomain/TestBidomainParallelMesh.hpp
+bidomain/TestBidomainDistributedMesh.hpp
 bidomain/TestBidomainPde.hpp
 bidomain/TestBidomainProblem.hpp
 bidomain/TestBidomainWithBathAssembler.hpp

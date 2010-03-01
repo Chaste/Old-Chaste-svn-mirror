@@ -467,15 +467,15 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
     this->RefreshMesh();
 }
 
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex ) 
 {
         unsigned tie_break_index = this->GetBoundaryElement(faceIndex)->GetNodeGlobalIndex(0);
 
-        unsigned hi = this->GetDistributedVectorFactory()->GetHigh();
-        unsigned lo = this->GetDistributedVectorFactory()->GetLow();
         //if it is in my range
-        if (tie_break_index>=lo && tie_break_index<hi)
+        if (tie_break_index >= this->GetDistributedVectorFactory()->GetLow() 
+            && tie_break_index < this->GetDistributedVectorFactory()->GetHigh() )
         {
             return true;
         }
@@ -483,7 +483,23 @@ bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnersh
         {
             return false;
         }
+}
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfElement( unsigned elementIndex )
+{
+        unsigned tie_break_index = this->GetElement(elementIndex)->GetNodeGlobalIndex(0);
+
+        //if it is in my range
+        if (tie_break_index >= this->GetDistributedVectorFactory()->GetLow() 
+            && tie_break_index < this->GetDistributedVectorFactory()->GetHigh() )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
 }
 
 

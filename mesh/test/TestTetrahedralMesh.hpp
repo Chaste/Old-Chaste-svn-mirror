@@ -457,7 +457,6 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
         
         unsigned local_faces = 0;
-        unsigned total_num_faces;
         for (unsigned index = 0; index < mesh.GetNumBoundaryElements(); index++)
         {          
             if (mesh.CalculateDesignatedOwnershipOfBoundaryElement(index))
@@ -465,9 +464,22 @@ public:
                 local_faces++;
             }
         }
-        int mpi_ret = MPI_Allreduce(&local_faces, &total_num_faces, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
-        assert(mpi_ret == MPI_SUCCESS);
+        unsigned total_num_faces;
+        MPI_Allreduce(&local_faces, &total_num_faces, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
         TS_ASSERT_EQUALS(total_num_faces, mesh.GetNumBoundaryElements());
+        
+        unsigned local_elements = 0;
+        for (unsigned index = 0; index < mesh.GetNumElements(); index++)
+        {          
+            if (mesh.CalculateDesignatedOwnershipOfElement(index))
+            {
+                local_elements++;
+            }
+        }
+        unsigned total_num_elements;
+        MPI_Allreduce(&local_elements, &total_num_elements, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+        TS_ASSERT_EQUALS(total_num_elements, mesh.GetNumElements());
+        
     }
         
     void TestNodePermutation()

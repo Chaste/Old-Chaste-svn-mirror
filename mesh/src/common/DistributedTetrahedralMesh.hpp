@@ -215,7 +215,7 @@ public:
      * 
      * @param elementIndex is the global index of the element
      */
-    bool CalculateDesignatedOwnershipOfElement( unsigned elementIndex ) const;
+    bool CalculateDesignatedOwnershipOfElement( unsigned elementIndex );
 
     /**
      * Determine whether or not the current process owns node 0 of this boundary element (tie breaker to determine which process writes

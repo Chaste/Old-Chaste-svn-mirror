@@ -419,7 +419,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetElementOwnerships(un
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfElement( unsigned elementIndex ) const
+bool DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfElement( unsigned elementIndex )
 {
     try
     {
@@ -427,7 +427,7 @@ bool DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwne
         SolveNodeMapping(tie_break_index);      // throws an exception if we don't own node 0
         return true;
     }
-    catch(Exception e)      // either we don't own the element or we don't own node 0 of a shared element
+    catch(Exception& e)      // either we don't own the element or we don't own node 0 of a shared element
     {
         return false;
     }
@@ -441,7 +441,7 @@ bool DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwne
         SolveNodeMapping(tie_break_index);      // throws an exception if we don't own node 0
         return true;
     }
-    catch(Exception e)      // either we don't own the element or we don't own node 0 of a shared element
+    catch(Exception& e)      // either we don't own the element or we don't own node 0 of a shared element
     {
         return false;
     }

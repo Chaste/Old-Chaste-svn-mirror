@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTBIDOMAINPARALLELMESH_HPP_
-#define TESTBIDOMAINPARALLELMESH_HPP_
+#ifndef TESTBIDOMAINDISTRIBUTEDMESH_HPP_
+#define TESTBIDOMAINDISTRIBUTEDMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "LuoRudyIModel1991OdeSystem.hpp"
@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
-class TestBidomainParallelMesh : public CxxTest::TestSuite
+class TestBidomainDistributedMesh : public CxxTest::TestSuite
 {
 public:
 
@@ -152,4 +152,4 @@ public:
     }
 };
 
-#endif /*TESTBIDOMAINPARALLELMESH_HPP_*/
+#endif /*TESTBIDOMAINDISTRIBUTEDMESH_HPP_*/

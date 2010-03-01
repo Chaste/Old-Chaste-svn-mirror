@@ -55,9 +55,9 @@ private:
      * 
      * @param nodeIndex  The index of the node in question
      * @param wallThickness  vector of thickness of all nodes in node index order
-     * @return Neighbourhood average thickness
+     * @return Neighbourhood average thickness (will return 0 if the node is not local to this process)
      */
-    double GetAveragedThickness(const unsigned nodeIndex, const std::vector<double>& wallThickness) const;
+    double GetAveragedThicknessLocalNode(const unsigned nodeIndex, const std::vector<double>& wallThickness) const;
 
     /**    
      * R is the maximum angle between the fibre and the v axis (heart region dependant)
@@ -65,7 +65,7 @@ private:
      * @return  Pi/4 (if the element is in RV), Pi/3 otherwise
      */
    double GetFibreMaxAngle(const c_vector<HeartRegionType, SPACE_DIM+1>& nodesRegionsForElement) const;
-
+   
 public:
     /** 
      * Constructor
