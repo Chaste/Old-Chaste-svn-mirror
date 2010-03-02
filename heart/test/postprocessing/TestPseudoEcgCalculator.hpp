@@ -111,7 +111,6 @@ public:
         ///////////////////////////////////////////////////
         // Now we compute the pseudo ECG. We set an electrode at x=15.
         ///////////////////////////////////////////////////
-        MARK;
         ChastePoint<1> electrode;
         electrode.SetCoordinate(0, 15.0);
         
@@ -124,10 +123,7 @@ public:
         double expected_result = -(1/14.0-1/15.0);
         for (unsigned k = 0; k< number_of_time_steps; k++)
         {
-            PRINT_VARIABLE(k);
             pseudo_ecg = calculator.ComputePseudoEcgAtOneTimeStep(k);
-            PRINT_VARIABLE(k);
-            
             TS_ASSERT_DELTA(pseudo_ecg, expected_result,1e-6);
         } 
         
