@@ -469,16 +469,17 @@ void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
     ChasteCuboid<SPACE_DIM> rv_bounds=mpGeometryInfo->CalculateBoundingBoxOfRV();
         
     //Check that LV midway point is not inside the RV interval
-    double lv_y_midway=(lv_bounds.rGetUpperCorner()[1] + lv_bounds.rGetLowerCorner()[1])/2.0;
+    double lv_y_midway=lv_bounds.rGetUpperCorner()[1] + lv_bounds.rGetLowerCorner()[1];
+    lv_y_midway /= 2.0;
     assert(lv_y_midway < rv_bounds.rGetLowerCorner()[1]  || lv_y_midway > rv_bounds.rGetUpperCorner()[1]);
 
     //Check that RV midway point is not inside the LV interval
-    double rv_y_midway=(rv_bounds.rGetUpperCorner()[1] + rv_bounds.rGetLowerCorner()[1])/2.0;
+    double rv_y_midway=rv_bounds.rGetUpperCorner()[1] + rv_bounds.rGetLowerCorner()[1];
+    rv_y_midway /= 2.0;
     assert(rv_y_midway < lv_bounds.rGetLowerCorner()[1]  || rv_y_midway > lv_bounds.rGetUpperCorner()[1]);
 }
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
-
 template class StreeterFibreGenerator<3>;

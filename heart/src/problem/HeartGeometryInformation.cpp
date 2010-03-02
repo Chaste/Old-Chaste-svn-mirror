@@ -304,7 +304,6 @@ double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEndo(unsigned nodeIndex
 template<unsigned SPACE_DIM>
 double HeartGeometryInformation<SPACE_DIM>::GetDistanceToEpi(unsigned nodeIndex)
 {
-    ///\todo: there needs to be the logic for the septum as in Streeter
     return mDistMapEpicardium[nodeIndex];
 }
 
