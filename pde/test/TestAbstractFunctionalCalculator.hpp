@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractFunctionalCalculator.hpp"
 #include "TetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -80,13 +81,17 @@ public:
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
+        DistributedTetrahedralMesh<2,2> distributed_mesh;
+        distributed_mesh.ConstructFromMeshReader(reader);
 
         VolumeCalculator<2> volume_calculator;
 
         Vec vec = PetscTools::CreateVec(mesh.GetNumNodes(), 0.0);
 
         double result = volume_calculator.Calculate(mesh,vec);
-        TS_ASSERT_DELTA(result, mesh.GetVolume(), 1e-6);
+        TS_ASSERT_DELTA(result, mesh.GetVolume(), 1e-12);
+        double distributed_result = volume_calculator.Calculate(distributed_mesh,vec);
+        TS_ASSERT_DELTA(result, distributed_result, 1e-12);
 
         Vec bad_vec = PetscTools::CreateVec(mesh.GetNumNodes()+1, 0.0);
         TS_ASSERT_THROWS_THIS(volume_calculator.Calculate(mesh,bad_vec),"The solution size does not match the mesh");
@@ -94,8 +99,60 @@ public:
         VecDestroy(vec);
         VecDestroy(bad_vec);
     }
-
+    
     void TestWithExampleFunctionals()
+    {
+        TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
+        DistributedTetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(reader);
+
+        // Test interpolation of x and u
+        // Integrate x^2 + 2y over the unit square
+        // = 4/3
+        ExampleFunctionalOne calculator;
+
+        DistributedVectorFactory* p_factory = mesh.GetDistributedVectorFactory();
+        Vec petsc_vec = p_factory->CreateVec(2);
+        DistributedVector vec1 = p_factory->CreateDistributedVector(petsc_vec);
+        DistributedVector::Stripe u1(vec1, 0);
+        DistributedVector::Stripe v1(vec1, 1);
+        for (DistributedVector::Iterator index = vec1.Begin();
+             index != vec1.End();
+             ++index)
+        {
+            Node<2>* p_node = mesh.GetNode(index.Global);
+            u1[index] = p_node->rGetLocation()[0];
+            v1[index] = 2.0;
+        }
+        vec1.Restore();
+
+        double result = calculator.Calculate(mesh, petsc_vec);
+        TS_ASSERT_DELTA(result, 4.0/3.0, 1e-6);
+
+        // Test interpolation of grad_u
+        // Integrate x^2 + y^2 + 1 over the unit square
+        // = 5/3
+        ExampleFunctionalTwo other_calculator;
+
+        DistributedVector vec2 = p_factory->CreateDistributedVector(petsc_vec);
+        DistributedVector::Stripe u2(vec2, 0);
+        DistributedVector::Stripe v2(vec2, 1);
+        for (DistributedVector::Iterator index = vec2.Begin();
+             index != vec2.End();
+             ++index)
+        {
+            Node<2>* p_node = mesh.GetNode(index.Global);
+            u2[index] = p_node->rGetLocation()[0];
+            v2[index] = p_node->rGetLocation()[1];
+        }
+        vec2.Restore();
+
+        result = other_calculator.Calculate(mesh, petsc_vec);
+        TS_ASSERT_DELTA(result, 1 + 2.0/3.0, 1e-6);
+
+        VecDestroy(petsc_vec);
+    }
+    void TestWithExampleFunctionalsNonDistributed()
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
         TetrahedralMesh<2,2> mesh;

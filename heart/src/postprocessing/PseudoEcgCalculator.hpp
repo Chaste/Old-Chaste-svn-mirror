@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _PSEUDOECGALCALCULATOR_HPP_
 
 #include "AbstractFunctionalCalculator.hpp"
-#include "TetrahedralMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "ChastePoint.hpp"
 #include "Hdf5DataReader.hpp"
 
@@ -59,7 +59,7 @@ private:
     Hdf5DataReader* mpDataReader; /**< An HDF5 reader from which to get the solution*/
     unsigned mNumberOfNodes; /**< Number of nodes in the mesh (got from the data reader)*/
     unsigned mNumTimeSteps;/**< Number of time steps in the simulation (got from the data reader)*/
-    TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& mrMesh;/**< A mesh used by the calculator*/
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& mrMesh;/**< A mesh used by the calculator*/
     ChastePoint<SPACE_DIM>& mrX; /**<The point from where we want to calculate the pseudoECG*/
     double mDiffusionCoefficient;/**<The diffusion coefficient D*/
     std::string mVariableName;/**< the variable for which we want to calculate the pseudo ecg, defaults to "V"*/
@@ -100,7 +100,7 @@ public:
      *
      * ///\ todo pass in the name of the variable in the hdf5 file? it is currently hardcoded to "V".  See Doxygen above
      */
-    PseudoEcgCalculator (TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
+    PseudoEcgCalculator (AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
                          ChastePoint<SPACE_DIM>& rX,
                          std::string directory,
                          std::string hdf5File,

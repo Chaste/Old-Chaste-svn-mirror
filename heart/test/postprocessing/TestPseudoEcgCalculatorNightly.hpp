@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "TetrahedralMesh.hpp" //must be first, it gets UblasIncludes from the mesh classes (ChastePoint.hpp)
+#include "DistributedTetrahedralMesh.hpp"
 #include "PseudoEcgCalculator.hpp"
 #include "ReplicatableVector.hpp"
 #include "Hdf5DataReader.hpp"
@@ -53,8 +54,42 @@ public:
 
     void TestCalculatorRealistic3D() throw (Exception)
     {
-        EXIT_IF_PARALLEL;
+        //TODO - doesn't work in parallel
         
+        //get the mesh, whole heart mesh
+        TrianglesMeshReader<3,3> reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
+        DistributedTetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(reader);
+
+        // Compute the pseudo ECG. We set an electrode at x=2.2, y=6, z=1.85.        
+        ChastePoint<3> electrode;
+        
+        electrode.SetCoordinate(0, 2.2);
+        electrode.SetCoordinate(1, 6.0);
+        electrode.SetCoordinate(2, 1.85);
+        // The file 3D.h5 contains the first 5 time steps of a whole heart simulations known to produce 
+        // a reasonably-looking ECG trace. 
+        PseudoEcgCalculator<3,3,1> calculator (mesh, electrode, "heart/test/data/PseudoEcg", "3D", "V", false);
+        
+        calculator.SetDiffusionCoefficient(1.0);//the default value
+        
+        //where to put results... 
+        std::string pseudo_ecg_output_dir = "TestRealisticPseudoEcg";
+        HeartConfig::Instance()->SetOutputDirectory(pseudo_ecg_output_dir);
+        
+        //write out the pseudoECG
+        calculator.WritePseudoEcg();  
+        
+        //now compare it with a valid pseudo-ecg file (see above). 
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        
+        std::string command_second_time_step = "cmp " + test_output_directory + pseudo_ecg_output_dir + "/output/PseudoEcg.dat"
+                                     + " heart/test/data/PseudoEcg/ValidPseudoEcg.dat";
+        TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
+        
+    }
+    void TestCalculatorRealistic3DNotDistributed() throw (Exception)
+    {
          //get the mesh, whole heart mesh
         TrianglesMeshReader<3,3> reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
         TetrahedralMesh<3,3> mesh;
@@ -73,7 +108,7 @@ public:
         calculator.SetDiffusionCoefficient(1.0);//the default value
         
         //where to put results... 
-        std::string pseudo_ecg_output_dir = "TestRealisticPseudoEcg";
+        std::string pseudo_ecg_output_dir = "TestRealisticPseudoEcgNonDist";
         HeartConfig::Instance()->SetOutputDirectory(pseudo_ecg_output_dir);
         
         //write out the pseudoECG

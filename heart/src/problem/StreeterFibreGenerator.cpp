@@ -482,4 +482,6 @@ void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
+#define COVERAGE_IGNORE
 template class StreeterFibreGenerator<3>;
+#undef COVERAGE_IGNORE

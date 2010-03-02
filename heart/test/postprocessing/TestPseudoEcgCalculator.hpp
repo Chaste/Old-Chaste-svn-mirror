@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "TetrahedralMesh.hpp" //must be first, it gets UblasIncludes from the mesh classes (ChastePoint.hpp)
+#include "DistributedTetrahedralMesh.hpp"
 #include "PseudoEcgCalculator.hpp"
 #include "ReplicatableVector.hpp"
 #include "Hdf5DataReader.hpp"
@@ -52,7 +53,6 @@ public:
     
     void TestCalculator1DLinearGradient() throw (Exception)
     {
-        EXIT_IF_PARALLEL;
         
         //read in the 1D mesh, from 0 to 1
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
@@ -111,7 +111,7 @@ public:
         ///////////////////////////////////////////////////
         // Now we compute the pseudo ECG. We set an electrode at x=15.
         ///////////////////////////////////////////////////
-        
+        MARK;
         ChastePoint<1> electrode;
         electrode.SetCoordinate(0, 15.0);
         
@@ -124,7 +124,10 @@ public:
         double expected_result = -(1/14.0-1/15.0);
         for (unsigned k = 0; k< number_of_time_steps; k++)
         {
+            PRINT_VARIABLE(k);
             pseudo_ecg = calculator.ComputePseudoEcgAtOneTimeStep(k);
+            PRINT_VARIABLE(k);
+            
             TS_ASSERT_DELTA(pseudo_ecg, expected_result,1e-6);
         } 
         
@@ -141,10 +144,8 @@ public:
     
     void TestCalculator1DParabolic() throw (Exception)
     {
-        EXIT_IF_PARALLEL;
-        
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
-        TetrahedralMesh<1,1> mesh;
+        DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(reader);
         
         ////////////////////////////////////////////////////

@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
-#include "TetrahedralMesh.hpp"
+#include "AbstractTetrahedralMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "ReplicatableVector.hpp"
 
@@ -86,10 +86,13 @@ public:
      * Calculate the integral over the given mesh, using the given solution
      * vector on the mesh.
      *
+     * Note that, in parallel, this method uses a collective reduction step and 
+     * should therefore always be called collectively.
+     * 
      * @param rMesh  The mesh
      * @param solution  The solution vector
      */
-    double Calculate(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, Vec solution);
+    double Calculate(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, Vec solution);
 
 };
 
@@ -164,7 +167,7 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calculate(TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, Vec solution)
+double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calculate(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, Vec solution)
 {
     assert(solution);
     mSolutionReplicated.ReplicatePetscVector(solution);
@@ -173,7 +176,7 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
         EXCEPTION("The solution size does not match the mesh");
     }
 
-    double result = 0;
+    double local_result = 0;
 
     for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = rMesh.GetElementIteratorBegin();
          iter != rMesh.GetElementIteratorEnd();
@@ -182,18 +185,15 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
         //// the following if statement is for parallelisation, but doesn't
         //// work yet as multiple processes can own the same elements, so
         //// the if is commented out
-        //if ((*iter)->GetOwnership() == true)
+        if (rMesh.CalculateDesignatedOwnershipOfElement((*iter).GetIndex()) == true)
         {
-            result += CalculateOnElement(*iter);
+            local_result += CalculateOnElement(*iter);
         }
     }
 
-    //// once parallised (see above comment), do this:
-    //double final_result;
-    //MPI_Allreduce(&result, &final_result, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
-    //return final_result;
-
-    return result;
+    double final_result;
+    MPI_Allreduce(&local_result, &final_result, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
+    return final_result;
 }
 
 #endif /*ABSTRACTFUNCTIONALCALCULATOR_HPP_*/

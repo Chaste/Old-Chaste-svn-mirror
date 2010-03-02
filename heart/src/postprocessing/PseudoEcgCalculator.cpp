@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PseudoEcgCalculator.hpp"
 #include "HeartConfig.hpp"
 #include "PetscTools.hpp"
-
+//#include "Debug.hpp"
 #include <iostream>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -59,7 +59,7 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(C
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::PseudoEcgCalculator (TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
+PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::PseudoEcgCalculator (AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
                                                                                  ChastePoint<SPACE_DIM>& rX,
                                                                                  std::string directory,
                                                                                  std::string hdf5File,
@@ -95,14 +95,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputePseudoEcgAtOneTimeStep (unsigned timeStep)
 {
     double pseudo_ecg_at_one_timestep = 0;
-    if (PetscTools::AmMaster())
-    {  
-        Vec solution_at_one_time_step = PetscTools::CreateVec(mNumberOfNodes);           
-        mpDataReader->GetVariableOverNodes(solution_at_one_time_step, mVariableName , timeStep);
-        pseudo_ecg_at_one_timestep = Calculate(mrMesh, solution_at_one_time_step);
+    Vec solution_at_one_time_step = PetscTools::CreateVec(mNumberOfNodes);           
+    mpDataReader->GetVariableOverNodes(solution_at_one_time_step, mVariableName , timeStep);
+    pseudo_ecg_at_one_timestep = Calculate(mrMesh, solution_at_one_time_step);
+    //PRINT_3_VARIABLES(mVariableName, timeStep, pseudo_ecg_at_one_timestep);
 
-        VecDestroy(solution_at_one_time_step);
-    }
+    VecDestroy(solution_at_one_time_step);
 
     return pseudo_ecg_at_one_timestep;
 
@@ -111,22 +109,27 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputePseudoEc
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
 {
+    std::stringstream stream;
+    stream << "PseudoEcg.dat";
+    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+    out_stream p_file=out_stream(NULL);
     if (PetscTools::AmMaster())
     {
-        out_stream p_file=out_stream(NULL);
-        std::stringstream stream;
-        stream << "PseudoEcg.dat";
-        OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
-        p_file = output_file_handler.OpenOutputFile(stream.str());
-
-        for (unsigned i = 0; i < mNumTimeSteps; i++)
+         p_file = output_file_handler.OpenOutputFile(stream.str());
+    }
+    for (unsigned i = 0; i < mNumTimeSteps; i++)
+    {
+        double pseudo_ecg_at_one_timestep = ComputePseudoEcgAtOneTimeStep(i);
+        //PRINT_2_VARIABLES(i, pseudo_ecg_at_one_timestep);
+        if (PetscTools::AmMaster())
         {
-            double pseudo_ecg_at_one_timestep = ComputePseudoEcgAtOneTimeStep(i);
             *p_file << pseudo_ecg_at_one_timestep << "\n";
         }
+    }
+    if (PetscTools::AmMaster())
+    {
          p_file->close();
     }
-
 }
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
