@@ -325,7 +325,15 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         if (mUseAreaBasedDampingConstant || TissueConfig::Instance()->GetOutputVoronoiData() ||
             TissueConfig::Instance()->GetOutputTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
         {
-            CreateVoronoiTessellation();
+            std::vector<unsigned> location_indices;
+            for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
+                 cell_iter != this->End();
+                 ++cell_iter)
+            {
+                unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+                location_indices.push_back(node_index);
+            }
+            CreateVoronoiTessellation(location_indices);
         }
         CellBasedEventHandler::EndEvent(CellBasedEventHandler::TESSELLATION);
     }
@@ -666,10 +674,10 @@ typename MeshBasedTissue<DIM>::SpringIterator MeshBasedTissue<DIM>::SpringsEnd()
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::CreateVoronoiTessellation()
+void MeshBasedTissue<DIM>::CreateVoronoiTessellation(const std::vector<unsigned> locationIndices)
 {
     delete mpVoronoiTessellation;
-    mpVoronoiTessellation = new VoronoiTessellation<DIM>(mrMesh);
+    mpVoronoiTessellation = new VoronoiTessellation<DIM>(mrMesh, locationIndices);
 }
 
 /**
@@ -677,7 +685,7 @@ void MeshBasedTissue<DIM>::CreateVoronoiTessellation()
  * are two definitions to this method (one templated and one not).
  */
 template<>
-void MeshBasedTissue<1>::CreateVoronoiTessellation()
+void MeshBasedTissue<1>::CreateVoronoiTessellation(const std::vector<unsigned> locationIndices)
 {
     // No 1D Voronoi tessellation
     NEVER_REACHED;

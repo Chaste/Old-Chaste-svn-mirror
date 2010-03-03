@@ -198,7 +198,7 @@ public:
         // It seems quite difficult to test this on a periodic mesh,
         // so just check the areas of all the cells are correct.
 
-        tissue.CreateVoronoiTessellation();
+        tissue.CreateVoronoiTessellation(location_indices);
 
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
@@ -542,6 +542,50 @@ public:
         TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
     }
 
+    void TestVoronoiTessellationWithGhostNodes() throw (Exception)
+    {
+        // Create a small honeycomb mesh surrounded by a single layer of ghost nodes
+        HoneycombMeshGenerator generator(2, 2, 1, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+
+        // Create some cells
+        std::vector<TissueCell> cells;
+        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        cells_generator.GenerateGivenLocationIndices(cells, location_indices);
+
+        // Create a tissue
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+
+        // Create Voronoi tessellation (normally done in a simulation)
+        tissue.CreateVoronoiTessellation(location_indices);
+        VoronoiTessellation<2>& tess = tissue.rGetVoronoiTessellation();
+
+        for (unsigned node_index=0; node_index<p_mesh->GetNumNodes(); node_index++)
+        {
+            if (tissue.IsGhostNode(node_index))
+            {
+                // If the node is a ghost node, then we shouldn't be able to access the corresponding Face
+                TS_ASSERT_THROWS_THIS(tess.rGetFace(node_index),
+                                      "Attempting to get a Face corresponding to a ghost node");
+
+                TS_ASSERT_THROWS_THIS(tess.GetFaceArea(node_index),
+                                      "Attempting to get the area of a Face corresponding to a ghost node");
+
+                TS_ASSERT_THROWS_THIS(tess.GetFacePerimeter(node_index),
+                                      "Attempting to get the perimeter of a Face corresponding to a ghost node");
+
+                TS_ASSERT_THROWS_THIS(tess.GetEdgeLength(node_index, 5),
+                                      "Attempting to get the tessellation edge between two nodes, at least one of which is a ghost node");
+            }
+            else
+            {
+                // ...otherwise, the Face should be a regular hexagon
+                TS_ASSERT_DELTA(tess.GetFaceArea(node_index), sqrt(3)/2, 1e-4);
+                TS_ASSERT_DELTA(tess.GetFacePerimeter(node_index), 6/sqrt(3), 1e-4);
+            }
+        }
+    }
 };
 
 

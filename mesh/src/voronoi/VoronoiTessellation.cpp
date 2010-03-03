@@ -29,19 +29,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VoronoiTessellation.hpp"
 
-
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
 
 template<unsigned DIM>
-VoronoiTessellation<DIM>::VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh)
+VoronoiTessellation<DIM>::VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh, const std::vector<unsigned> locationIndices)
     : mrMesh(rMesh)
 {
     #define COVERAGE_IGNORE
     assert(DIM==2 || DIM==3);
     #undef COVERAGE_IGNORE
+
+    if (!locationIndices.empty())
+    {
+        for (unsigned i=0; i<locationIndices.size(); i++)
+        {
+            mLocationIndices.insert(locationIndices[i]);
+        }
+    }
 
     if (DIM==3)
     {
@@ -72,9 +79,9 @@ void VoronoiTessellation<1>::Initialise(TetrahedralMesh<1,1>& rMesh)
 template<>
 void VoronoiTessellation<2>::Initialise(TetrahedralMesh<2,2>& rMesh)
 {
+    // Create as many Faces as there are nodes in the mesh
     for (unsigned i=0; i<rMesh.GetNumAllNodes(); i++)
     {
-        // This edge is on the boundary
         Face<2>* p_face = new Face<2>;
         mFaces.push_back(p_face);
     }
@@ -102,7 +109,18 @@ void VoronoiTessellation<2>::Initialise(TetrahedralMesh<2,2>& rMesh)
         for (unsigned node_index=0; node_index<3; node_index++)
         {
             unsigned node_global_index = mrMesh.GetElement(i)->GetNodeGlobalIndex(node_index);
-            mFaces[node_global_index]->AddVertex(p_circumcentre);
+
+            if (!mLocationIndices.empty())
+            {
+                if (mLocationIndices.find(node_global_index) != mLocationIndices.end())
+                {
+                    mFaces[node_global_index]->AddVertex(p_circumcentre);
+                }
+            }
+            else
+            {
+                mFaces[node_global_index]->AddVertex(p_circumcentre);
+            }
         }
     }
 
@@ -275,6 +293,10 @@ void VoronoiTessellation<DIM>::GenerateVerticesFromElementCircumcentres()
 template<unsigned DIM>
 const VoronoiCell& VoronoiTessellation<DIM>::rGetCell(unsigned index) const
 {
+    #define COVERAGE_IGNORE
+    assert(DIM==3);
+    #undef COVERAGE_IGNORE
+
     return mVoronoiCells[index];
 }
 
@@ -285,6 +307,14 @@ const Face<DIM>& VoronoiTessellation<DIM>::rGetFace(unsigned index) const
     assert(DIM==2);
     #undef COVERAGE_IGNORE
 
+    if (!mLocationIndices.empty())
+    {
+        if (mLocationIndices.find(index) == mLocationIndices.end())
+        {
+            EXCEPTION("Attempting to get a Face corresponding to a ghost node");
+        }
+    }
+
     return *(mFaces[index]);
 }
 
@@ -294,6 +324,15 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned nodeIndex1, unsigned nod
     #define COVERAGE_IGNORE
     assert(DIM==2);
     #undef COVERAGE_IGNORE
+
+    if (!mLocationIndices.empty())
+    {
+        if (   mLocationIndices.find(nodeIndex1) == mLocationIndices.end()
+            || mLocationIndices.find(nodeIndex2) == mLocationIndices.end() )
+        {
+            EXCEPTION("Attempting to get the tessellation edge between two nodes, at least one of which is a ghost node");
+        }
+    }
 
     std::vector< c_vector<double, DIM>* > vertices_1 = mFaces[nodeIndex1]->rGetVertices();
     std::vector< c_vector<double, DIM>* > vertices_2 = mFaces[nodeIndex2]->rGetVertices();
@@ -335,9 +374,17 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned nodeIndex1, unsigned nod
 template<unsigned DIM>
 double VoronoiTessellation<DIM>::GetFaceArea(unsigned index) const
 {
-#define COVERAGE_IGNORE
+    #define COVERAGE_IGNORE
     assert(DIM==2);
-#undef COVERAGE_IGNORE
+    #undef COVERAGE_IGNORE
+
+    if (!mLocationIndices.empty())
+    {
+        if (mLocationIndices.find(index) == mLocationIndices.end())
+        {
+            EXCEPTION("Attempting to get the area of a Face corresponding to a ghost node");
+        }
+    }
 
     Face<DIM>& face = *(mFaces[index]);
     assert(face.GetNumVertices() > 0);
@@ -368,6 +415,14 @@ double VoronoiTessellation<DIM>::GetFacePerimeter(unsigned index) const
     #define COVERAGE_IGNORE
     assert(DIM==2);
     #undef COVERAGE_IGNORE
+
+    if (!mLocationIndices.empty())
+    {
+        if (mLocationIndices.find(index) == mLocationIndices.end())
+        {
+            EXCEPTION("Attempting to get the perimeter of a Face corresponding to a ghost node");
+        }
+    }
 
     Face<DIM>& face = *(mFaces[index]);
     assert(face.GetNumVertices() > 0);
@@ -401,6 +456,7 @@ unsigned VoronoiTessellation<DIM>::GetNumVertices() const
 template<unsigned DIM>
 unsigned VoronoiTessellation<DIM>::GetNumFaces() const
 {
+    ///\todo If mLocationIndices is not empty, then should this return mLocationIndices.size()? See also #1257.
     return mFaces.size();
 }
 

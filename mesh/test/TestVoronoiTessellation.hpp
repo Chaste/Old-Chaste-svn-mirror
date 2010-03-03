@@ -239,6 +239,9 @@ public:
         TS_ASSERT_EQUALS(tessellation.rGetFace(4), expected_face);
         TS_ASSERT_EQUALS(tessellation.rGetFace(4).GetNumVertices(), 4u);
 
+        TS_ASSERT_DELTA(tessellation.GetFaceArea(4), 0.5, 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetFacePerimeter(4), 2*sqrt(2), 1e-4);
+
         std::vector< c_vector<double, 2>*> vertices_of_face4 = tessellation.rGetFace(4).GetVertices();
         c_vector<double, 2> first_vertex_of_face4 = *(vertices_of_face4[0]);
         TS_ASSERT_DELTA( first_vertex_of_face4(0), 0.5, 1e-4);

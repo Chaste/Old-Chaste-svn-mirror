@@ -348,8 +348,10 @@ public:
 
     /**
      * Get a reference to a Voronoi tessellation of the mesh.
+     * 
+     * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
      */
-    void CreateVoronoiTessellation();
+    void CreateVoronoiTessellation(const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * @return mpVoronoiTessellation.

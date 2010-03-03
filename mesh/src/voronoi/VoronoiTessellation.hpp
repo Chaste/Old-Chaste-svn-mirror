@@ -59,6 +59,9 @@ private:
     /** Cells correspond to nodes of the mesh. */
     std::vector< VoronoiCell > mVoronoiCells;
 
+    /** Set of node indices corresponding to non-ghost nodes. */
+    std::set<unsigned> mLocationIndices;
+
     /**
      * Generate the vertices of the tessellation using the 
      * circumcentres of the mesh elements.
@@ -80,8 +83,9 @@ public:
      * (see TetrahedralMesh::CheckIsVoronoi).
      *
      * @param rMesh a tetrahedral mesh
+     * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
      */
-    VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh);
+    VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh, const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * Destructor.
