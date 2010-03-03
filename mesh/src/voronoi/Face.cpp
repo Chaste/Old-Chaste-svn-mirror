@@ -148,6 +148,8 @@ std::vector< c_vector<double, DIM>* > Face<DIM>::GetVertices() const
 template<unsigned DIM>
 void Face<DIM>::OrderVerticesAntiClockwise()
 {
+    assert(mVertices.size() > 1);
+
     // Compute the location of the centre of the face
     c_vector<double,DIM> centre = zero_vector<double>(DIM);
     for (unsigned j=0; j<mVertices.size(); j++)
