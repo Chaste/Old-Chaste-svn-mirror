@@ -819,7 +819,7 @@ public:
         /*
          * Swap one of the pairs of elements on the left around so that
          * CorrectNonPeriodicMesh() has some work to do.
-         * Note this test could possibly make the mesh break the voronoi condition,
+         * Note this test could possibly make the mesh break the Voronoi condition,
          * but this is OK as the CorrectNonPeriodicMesh()
          * deals with cases where the Voronoi definition is ambiguous.
          */

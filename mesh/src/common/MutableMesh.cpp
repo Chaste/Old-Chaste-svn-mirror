@@ -991,7 +991,7 @@ bool MutableMesh<ELEMENT_DIM, SPACE_DIM>::CheckIsVoronoi(Element<ELEMENT_DIM, SP
         double squared_distance = inner_prod(node_location, node_location);
 
         // If the squared idstance is less than the elements circum-radius(squared),
-        // then the voronoi property is violated.
+        // then the Voronoi property is violated.
         if (squared_distance < this_circum_centre[ELEMENT_DIM])
         {
             // We know the node is inside the circumsphere, but we don't know how far

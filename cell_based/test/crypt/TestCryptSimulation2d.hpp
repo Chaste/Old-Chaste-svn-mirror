@@ -757,7 +757,7 @@ public:
         TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.rGetCellUsingLocationIndex(120)), 0.9900, 1e-4);
         WntConcentration<2>::Destroy();
 
-        // Check writing of voronoi data
+        // Check writing of Voronoi data
         OutputFileHandler handler("Crypt2DPeriodicStandardResult", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellcyclephases.dat";
 
@@ -978,7 +978,7 @@ public:
         TS_ASSERT_EQUALS(cell_type_count[2], 0u);
         TS_ASSERT_EQUALS(cell_type_count[3], 0u);
 
-        // Check writing of voronoi data
+        // Check writing of Voronoi data
         OutputFileHandler handler("Crypt2DWntMatureCells", false);
         std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
 

@@ -91,7 +91,7 @@ public:
 
         TS_ASSERT(mesh.CheckIsVoronoi());
 
-        // Create Voronoi Tesselation
+        // Create Voronoi tessellation
         VoronoiTessellation<3> tessellation(mesh);
 
         InventorVoronoiWriter inventor_writer("InventorWriter", "Complex", false);

@@ -148,30 +148,29 @@ std::vector< c_vector<double, DIM>* > Face<DIM>::GetVertices() const
 template<unsigned DIM>
 void Face<DIM>::OrderVerticesAntiClockwise()
 {
-    // Reorder mVertices anticlockwise
-    std::vector<VertexAndAngle<DIM> > vertices_and_angles;
-
+    // Compute the location of the centre of the face
     c_vector<double,DIM> centre = zero_vector<double>(DIM);
-
     for (unsigned j=0; j<mVertices.size(); j++)
     {
         centre += *(mVertices[j]);
     }
-
     centre /= mVertices.size();
+
+    // Compute and store the polar angle from the centre to each vertex
+    std::vector<VertexAndAngle<DIM> > vertices_and_angles;
     for (unsigned j=0; j<mVertices.size(); j++)
     {
-        VertexAndAngle<DIM> va;
         c_vector<double, DIM> centre_to_vertex = *(mVertices[j]) - centre;
 
+        VertexAndAngle<DIM> va;
         va.ComputeAndSetAngle(centre_to_vertex(0), centre_to_vertex(1));
         va.SetVertex(mVertices[j]);
+
         vertices_and_angles.push_back(va);
     }
 
+    // Use polar angles to reorder mVertices anticlockwise
     std::sort(vertices_and_angles.begin(), vertices_and_angles.end());
-
-    // Create face
     mVertices.clear();
     for (typename std::vector<VertexAndAngle<DIM> >::iterator vertex_iterator = vertices_and_angles.begin();
          vertex_iterator !=vertices_and_angles.end();

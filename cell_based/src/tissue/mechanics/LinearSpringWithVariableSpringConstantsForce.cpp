@@ -137,7 +137,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     if (mUseBCatSprings)
     {
         assert(rTissue.HasMesh());
-        // If using beta-cat dependent springs, both cell-cycle models has better be IngeWntSwatCellCycleModel
+        // If using beta-cat dependent springs, both cell-cycle models had better be IngeWntSwatCellCycleModel
         IngeWntSwatCellCycleModel* p_model_A = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
         IngeWntSwatCellCycleModel* p_model_B = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
 

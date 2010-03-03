@@ -70,7 +70,7 @@ public:
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 0u);
         TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 2u);
 
-        // Create Voronoi Tessellation
+        // Create Voronoi tessellation
         VoronoiTessellation<3> tessellation(mesh);
 
         tessellation.GenerateVerticesFromElementCircumcentres();
@@ -170,10 +170,10 @@ public:
         cell.AddFace(&face4);
         cell.AddOrientation(true);
 
-        // Create Voronoi Tesselation
+        // Create Voronoi tessellation
         VoronoiTessellation<3> tessellation(mesh);
 
-        // Check tesellation is correct
+        // Check tessellation is correct
         for (unsigned cell_index=0; cell_index<mesh.GetNumNodes(); cell_index++)
         {
             if ( mesh.GetNode(cell_index)->IsBoundaryNode() )
@@ -215,7 +215,7 @@ public:
 
         TS_ASSERT(mesh.CheckIsVoronoi());
 
-        // Create Voronoi Tesselation
+        // Create Voronoi tessellation
         VoronoiTessellation<2> tessellation(mesh);
 
         Face<2> expected_face;
@@ -243,7 +243,7 @@ public:
         c_vector<double, 2> first_vertex_of_face4 = *(vertices_of_face4[0]);
         TS_ASSERT_DELTA( first_vertex_of_face4(0), 0.5, 1e-4);
 
-        // Calculate length of voronoi edge between nodes 4 and 2
+        // Calculate length of Voronoi edge between nodes 4 and 2
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(4u, 2u), pow(2.0, -0.5), 1e-7);
         TS_ASSERT_EQUALS(tessellation.GetNumFaces(), 5u);
     }
