@@ -62,7 +62,7 @@ public:
                 new ConstBoundaryCondition<1>((double)i);
             bcc1.AddDirichletBoundaryCondition(nodes[i], p_boundary_condition);
         }
-
+        bcc1.ResetDirichletCommunication();
         TS_ASSERT(bcc1.HasDirichletBoundaryConditions());
 
         for (int i=0; i<num_nodes; i++)

@@ -141,7 +141,9 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
     if (mGroundSecondElectrode)
     {
         ConstBoundaryCondition<DIM>* p_zero_bc = new ConstBoundaryCondition<DIM>(0.0);
-
+        // We will need to recalculate this when HasDirichletBoundaryConditions() is called.
+        this->mpBoundaryConditionsContainer->ResetDirichletCommunication();
+  
         for (typename AbstractTetrahedralMesh<DIM,DIM>::NodeIterator iter=mpMesh->GetNodeIteratorBegin();
              iter != mpMesh->GetNodeIteratorEnd();
              ++iter)

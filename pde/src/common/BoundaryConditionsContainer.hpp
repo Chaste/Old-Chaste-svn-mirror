@@ -395,6 +395,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
              ++it)
         {
             unsigned node_index = it->first;
+            this->mHasDirichletBCs=true;  //We know that a Dirichlet is being added, even if not by this process
             Node<SPACE_DIM>* p_node;
             try
             {
@@ -402,14 +403,13 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
             }
             catch (Exception& e)
             {
-                // It's a parallel mesh and we don't own this node
+                // It's a parallel mesh and we don't own this node - skip to the next BC
                 continue;
             }
             AddDirichletBoundaryCondition(p_node, it->second, index_of_unknown, false);
-            this->mHasDirichletBCs=true;
-            this->mCheckedAndCommunicatedIfDirichletBcs=true;
         }
     }
+    this->mCheckedAndCommunicatedIfDirichletBcs=true; // Whether the Dirichlet BCC was empty or not, all processes know the status.
 
     // Load Neumann conditions
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)

@@ -94,7 +94,7 @@ void AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Del
     }
     
     // Recommunicate that Dirichlet BCs have changed (next time we ask)
-    mCheckedAndCommunicatedIfDirichletBcs = false;
+    ResetDirichletCommunication();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

@@ -370,6 +370,9 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SetFixedExtracellularPotential
 
     mFixedExtracellularPotentialNodes = fixedExtracellularPotentialNodes;
 
+    // We will need to recalculate this when HasDirichletBoundaryConditions() is called.
+    this->mpBoundaryConditions->ResetDirichletCommunication();
+    
     for (unsigned i=0; i<mFixedExtracellularPotentialNodes.size(); i++)
     {
         ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition

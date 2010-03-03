@@ -126,6 +126,16 @@ public:
      * @param indexOfUnknown index of the unknown for which to obtain the value of the boundary condition (defaults to 0)
      */
     bool HasDirichletBoundaryCondition(const Node<SPACE_DIM>* pNode, unsigned indexOfUnknown = 0);
+    
+    /**
+     * When Dirichlet boundary conditions are likely to be added on one or more processes then we should call this
+     * method collectively in order to ensure that all processes do a collective communication on the next call
+     * to HasDirichletBoundaryConditions()
+     */
+    void ResetDirichletCommunication()
+    {
+        mCheckedAndCommunicatedIfDirichletBcs = false;
+    }
 };
 
 #endif /*ABSTRACTBOUNDARYCONDITIONSCONTAINER_HPP_*/
