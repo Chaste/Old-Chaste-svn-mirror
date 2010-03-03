@@ -668,7 +668,7 @@ www.vtk.org</xs:documentation>
     </xs:attribute>
     <xs:attribute name="sigma" type="xs:double" use="required">
       <xs:annotation>
-        <xs:documentation>Specifies the value of sigma, one of the parameters of the adapting algorithm</xs:documentation>
+        <xs:documentation>Specifies the value of sigma, one of the parameters of the adapting algorithm.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="max_edge_length" type="xs:double" use="required">
@@ -686,7 +686,11 @@ www.vtk.org</xs:documentation>
         <xs:documentation/>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="max_nodes" type="xs:integer" use="required"/>
+    <xs:attribute name="max_nodes" type="xs:integer" use="required">
+      <xs:annotation>
+        <xs:documentation>Maximal number of nodes allowed during mesh refinement.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="num_sweeps" type="xs:integer" use="required"/>
   </xs:complexType>
   <xs:complexType name="simulation_type">
