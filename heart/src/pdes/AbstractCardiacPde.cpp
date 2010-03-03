@@ -185,20 +185,23 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
     // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep
     // a pointer to it and we don't want it to go out of scope before Init() is called
     unsigned num_elements = mpMesh->GetNumElements();
+    std::vector<c_vector<double, SPACE_DIM> > hetero_intra_conductivities;        
 
     if (mpConfig->GetConductivityHeterogeneitiesProvided())
     {
-        std::vector<c_vector<double, SPACE_DIM> > hetero_intra_conductivities;        
         try
         {   
             hetero_intra_conductivities.resize(num_elements);
         }
-        catch(Exception &e)
+        catch(std::bad_alloc &badAlloc)
         {
 #define COVERAGE_IGNORE            
             std::cout << "Failed to allocate std::vector of size " << num_elements << std::endl;
+            PetscTools::ReplicateException(true);
+            throw badAlloc;
 #undef COVERAGE_IGNORE            
         }
+        PetscTools::ReplicateException(false);        
         
         std::vector<ChasteCuboid<SPACE_DIM> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;

@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ReplicatableVector.hpp"
 #include "Exception.hpp"
+#include "PetscTools.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -107,12 +108,15 @@ void ReplicatableVector::Resize(unsigned size)
     {
         mpData = new double[mSize];
     }
-    catch(Exception &e)
+    catch(std::bad_alloc &badAlloc)
     {
 #define COVERAGE_IGNORE        
         std::cout << "Failed to allocate a ReplicatableVector of size " << size  << std::endl;
+        PetscTools::ReplicateException(true);
+        throw badAlloc;
 #undef COVERAGE_IGNORE               
     }
+    PetscTools::ReplicateException(false);
 }
 
 double& ReplicatableVector::operator[](unsigned index)
