@@ -15,6 +15,7 @@ mechanics/TestImplicitCardiacMechanicsAssembler.hpp
 mechanics/TestExplicitCardiacMechanicsAssembler.hpp
 mechanics/TestNhsModelWithBackwardSolver.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
+monodomain/TestMonodomainPerego.hpp
 monodomain/TestMonodomainProblem.hpp
 monodomain/TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 monodomain/TestMonodomainPde.hpp

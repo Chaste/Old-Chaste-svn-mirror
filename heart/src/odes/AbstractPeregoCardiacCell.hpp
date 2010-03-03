@@ -39,6 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <cmath>
 
+#include "Debug.hpp"
+
 /**
  * This is the base class for cardiac cells solved using a Perego Veneziani predictor corrector scheme
  * Reference:
@@ -102,7 +104,7 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
      */
     void EvaluateErrors(std::vector<double>& rErrors, const std::vector<double>& rPredictedSolution, const std::vector<double>& rCorrectedSolution, double currentTime);
     
-    
+   
   protected:
     
     /** 
@@ -125,7 +127,7 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
     double mc0;/**< weights for Adams-Moulton integration*/
     double mc1;/**< weights for Adams-Moulton integration*/
     double mcMinus1;/**< weights for Adams-Moulton integration*/
-    
+            
     std::vector<double> ma_current;/**< current value for system variables, first part*/
     std::vector<double> ma_predicted;/**< predicted value for system variables, first part*/
     std::vector<double> ma_previous;/**< value for system variables, first part, from previous time step*/
@@ -144,6 +146,7 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
     double mThetaC; /**< Another numerical solver parameter which changes as dt does*/
     
     double mNewDt;  /**< Variable to store the new timestep size until it is copied into mLocalTimestep*/
+    double mNewDtFromEndOfPreviousPdeStep; /**< Variable to store the timestep that would've been used at the end of the last PDE timestep if it hadn't caused overshoot of endTime. */ 
     
     std::vector<double> mWeightedErrorTolerances; /**< Vector of tolerances to error in each of the system variables, will be weighted by a small tolerance factor*/
     
@@ -175,6 +178,15 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
      * @param currentTime is the current time
      */
     virtual void ComputeSystemParameters(const std::vector<double>& stateVariablesAtPrevousTime, double currentTime)=0;
+    
+    /**
+     * Adjusts the system parameters after a change in the timestep size. This depends on the ratio
+     * of the old timestep to the new.
+     * 
+     * @param oldDt is the old timestep
+     * @param newDt is the new timestep to be set
+     */ 
+    void ChangeTimestepAndRecomputeParameters(double oldDt, double newDt);    
          
 public:
 
@@ -219,9 +231,29 @@ public:
      */
     void ComputeExceptVoltage(double tStart, double tEnd)
     {
-        NEVER_REACHED;
+        double saved_voltage = GetVoltage();
+        //PRINT_VARIABLE(tStart);
+//        mSetVoltageDerivativeToZero = true;
+        // Recover the ODE timestep size from the end of the last PDE timestep
+        mNewDt = mNewDtFromEndOfPreviousPdeStep;
+        Compute(tStart, tEnd);
+//        mSetVoltageDerivativeToZero = false;
+    
+        SetVoltage(saved_voltage);
+        
+      //  PRINT_VECTOR(this->mStateVariables);
+    
+        VerifyStateVariables();        
+//        NEVER_REACHED;
         // not tested in tissue yet
     }
+    
+    /**
+     * Set method to switch on and off the time adaptivity
+     * 
+     * @param flag is true if you want adaptivity to be on, false otherwise
+     */
+    void  SetAdaptivityFlag (bool flag);
     
 };
 

@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include "Exception.hpp"
 
-
+#include "Debug.hpp"
 //
 // Model-scope constant parameters
 //
@@ -54,6 +54,7 @@ const double PeregoLuoRudyIModel1991OdeSystem::time_dependent_potassium_current_
  * Constructor
  */
 PeregoLuoRudyIModel1991OdeSystem::PeregoLuoRudyIModel1991OdeSystem(
+    boost::shared_ptr<AbstractIvpOdeSolver> pSolver, // unused.
     boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus,
     bool useAdaptTimestep)
         : AbstractPeregoCardiacCell(8, 4, pIntracellularStimulus, useAdaptTimestep)
@@ -115,6 +116,11 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     double slow_inward_current_f_gate_f = rY[6];
     double time_dependent_potassium_current_X_gate_X = rY[7];
 
+    //PRINT_VECTOR(rY);
+    for(unsigned i=0;i<8;i++)
+    {
+        assert(!std::isnan(rY[i]));
+    }
     
     if (mIsTheCorrectorStep == false && mIsTheErrorEvaluationStep == false && mIsThereTooMuchError == false)
     {
@@ -232,21 +238,28 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     
 
     //calculate dV
+    assert(!std::isnan(i_stim));
+    assert(!std::isnan(fast_sodium_current_i_Na));
+    assert(!std::isnan(slow_inward_current_i_si));
+    assert(!std::isnan(time_dependent_potassium_current_i_K));
+    assert(!std::isnan(time_independent_potassium_current_i_K1));
+    assert(!std::isnan(plateau_potassium_current_i_Kp));
+    assert(!std::isnan(background_current_i_b));
     double membrane_V_prime = (-1.0/membrane_C)*(fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b + i_stim);
-
+    //PRINT_2_VARIABLES(membrane_V_prime,membrane_V);
     assert(!std::isnan(membrane_V_prime));
     
     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
-    if (mSetVoltageDerivativeToZero)
-    {
-        NEVER_REACHED;
-        // this hasn't been tested in tissue yet
-
-        ///\ TODO Remove coverage ignore when ComputeExceptVoltage method will be implemented in the abstract class  
-        #define COVERAGE_IGNORE
-        membrane_V_prime = 0;
-        #undef COVERAGE_IGNORE
-    }
+//    if (mSetVoltageDerivativeToZero)
+//    {
+//        //NEVER_REACHED;
+//        // this hasn't been tested in tissue yet
+//
+//        ///\ TODO Remove coverage ignore when ComputeExceptVoltage method will be implemented in the abstract class  
+//        //#define COVERAGE_IGNORE
+//        membrane_V_prime = 0;
+//        //#undef COVERAGE_IGNORE
+//    }
     
     if (mIsTheCorrectorStep == false && mIsTheErrorEvaluationStep == false)
     {
@@ -268,6 +281,8 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         // ...and add to ma_current the derivatives of the voltage and the calcium concentration    
         ma_current[4] = membrane_V_prime;
         ma_current[3] = intracellular_calcium_concentration_Cai_prime;
+        //PRINT_VECTOR(ma_current);
+        //PRINT_VECTOR(mb_current);  
     }
     if (mIsTheCorrectorStep == true && mIsTheErrorEvaluationStep == false)
     {
@@ -290,6 +305,8 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         // ...and add to ma_predicted the derivatives of the voltage and the calcium concentration    
         ma_predicted[4] = membrane_V_prime;
         ma_predicted[3] = intracellular_calcium_concentration_Cai_prime;
+        //PRINT_VECTOR(ma_predicted);
+        //PRINT_VECTOR(mb_predicted);        
     }
     if (mIsTheErrorEvaluationStep==true)
     {
@@ -313,7 +330,8 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         ma_error[4] = membrane_V_prime;
         ma_error[3] = intracellular_calcium_concentration_Cai_prime;
         
-        mIsTheErrorEvaluationStep=false;
+        //PRINT_VECTOR(ma_error);
+        //PRINT_VECTOR(mb_error);
     }
     
     if (mIsTheFirstStep == true)

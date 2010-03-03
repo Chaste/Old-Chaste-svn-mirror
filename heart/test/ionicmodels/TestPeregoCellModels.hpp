@@ -53,12 +53,13 @@ public:
         double duration  = 1.99; // ms
         double when = 0.0;
 
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver()); // Not actually used; just for compliance with the standard Chaste AbstractCardiacCell
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
         // Create a luo Rudy cell set up for Perego-like solving
-        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus);
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego(p_solver, p_stimulus);
 
 
         std::vector<double> r_initial_values;
@@ -116,12 +117,13 @@ public:
         double duration  = 1.99; // ms
         double when = 0.0;
 
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver()); // Not actually used; just for compliance with the standard Chaste AbstractCardiacCell
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
         // Create a luo Rudy cell set up for Perego-like solving
-        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus);
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego(p_solver, p_stimulus);
 
 
         std::vector<double> r_initial_values;
@@ -196,13 +198,14 @@ public:
         double magnitude = -25.5;
         double duration  = 2.00; //ms
         double when = 0.0;
-
+        
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver()); // Not actually used; just for compliance with the standard Chaste AbstractCardiacCell
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
         // Create a luo Rudy cell set up for Perego-like solving
-        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus, false);
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego(p_solver, p_stimulus, false);
 
         OdeSolution solutions = lr91_perego.Compute(0.0, 10.0);
 
@@ -235,16 +238,16 @@ public:
         double duration  = 1.99; //ms
         double when = 0.0;
 
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver()); // Not actually used; just for compliance with the standard Chaste AbstractCardiacCell
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.01, 0.01);
 
         // Compute the solution with the Perego nonadaptive predictor-corrector scheme
         // Create a luo Rudy cell set up for Perego-like solving
-        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus, false);
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego(p_solver, p_stimulus, false);
         OdeSolution solutions_perego = lr91_perego.Compute(0.0, 10.0);
 
-        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         LuoRudyIModel1991OdeSystem lr91(p_solver, p_stimulus);
         OdeSolution solutions = lr91.Compute(0.0, 10.0);
 
@@ -282,9 +285,10 @@ public:
         double duration  = 1.99; //ms
         double when = 0.0;
 
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver()); // Not actually used; just for compliance with the standard Chaste AbstractCardiacCell
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
-        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus, true);
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego(p_solver, p_stimulus, true);
 
         std::vector<double> errors(8); // Gets filled by method below
         std::vector<double> predicted_solution(8);
@@ -405,13 +409,14 @@ public:
         double duration  = 1.99; //ms
         double when = 0.0;
 
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver()); // Not actually used; just for compliance with the standard Chaste AbstractCardiacCell
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
         // Compute the solution with the Perego nonadaptive predictor-corrector scheme
         // Create a luo Rudy cell set up for Perego-like solving
-        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus, true);
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego(p_solver, p_stimulus, true);
         OdeSolution solutions_perego = lr91_perego.Compute(0.0, 10.0);
 
         TS_ASSERT_EQUALS(solutions_perego.rGetTimes().size(), solutions_perego.rGetSolutions().size());
@@ -449,13 +454,14 @@ public:
         double duration  = 1.99; //ms
         double when = 0.0;
 
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver()); // Not actually used; just for compliance with the standard Chaste AbstractCardiacCell
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
         // Compute the solution with the Perego nonadaptive predictor-corrector scheme
         // Create a luo Rudy cell set up for Perego-like solving
-        PeregoLuoRudyIModel1991OdeSystem lr91_perego( p_stimulus, true);
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego(p_solver, p_stimulus, true);
         lr91_perego.SetToleranceWeight(1e-2);
         OdeSolution solutions_perego = lr91_perego.Compute(0.0, 350.0);
         
@@ -465,7 +471,7 @@ public:
         //we check that the time step before the last one is the same as in the matlab code.
         TS_ASSERT_DELTA(solutions_perego.rGetTimes()[final_time],3.497529355*1e2,1e-6);
         
-        PeregoLuoRudyIModel1991OdeSystem lr91_perego_2( p_stimulus, true);
+        PeregoLuoRudyIModel1991OdeSystem lr91_perego_2(p_solver, p_stimulus, true);
 
         lr91_perego_2.SetToleranceWeight(1e-3);
         OdeSolution solutions_perego_2 = lr91_perego_2.Compute(0.0, 350.0);
