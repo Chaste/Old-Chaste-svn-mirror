@@ -57,6 +57,8 @@ public:
     
     void TestBarCleansFilesUpAfterException()
     {
+        double smidge = 1e-8;
+        
         {
             ProgressReporter progress_bar("ProgressReporterException", 1.0, 10.0);
             try
@@ -64,7 +66,7 @@ public:
                 progress_bar.PrintInitialising();
                 for (unsigned i=0; i<=900; i++)
                 {
-                    double t = 1.0 + ((i+0.0)/1000)*9.0;
+                    double t = 1.0 + ((i+0.0)/1000)*9.0 - smidge;
                     progress_bar.Update(t);
                 }
                 EXCEPTION("Throw");
