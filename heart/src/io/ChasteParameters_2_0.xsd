@@ -539,15 +539,57 @@
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="output_visualizer_type">
-    <xs:attribute name="meshalyzer" type="yesno_type" default="yes" use="optional"/>
-    <xs:attribute name="cmgui" type="yesno_type" default="no" use="optional"/>
-    <xs:attribute name="vtk" type="yesno_type" default="no" use="optional"/>
+    <xs:annotation>
+      <xs:documentation>Data (mesh and HDF5 data) may be converted at the end of the simulation to a variety of output types.  Zero or more output types may be given: no output conversion, conversion to one output type (normal usage) or conversion to more than one output type.
+
+Note that in parallel the output meshes may be renumbered from the original input but will be consistent with the HDF5 data.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="meshalyzer" type="yesno_type" default="yes" use="optional">
+      <xs:annotation>
+        <xs:documentation>Convert mesh and voltage data to Meshalyzer format
+
+http://carp.meduni-graz.at/03_visualization/03_meshalyzer.htm</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="cmgui" type="yesno_type" default="no" use="optional">
+      <xs:annotation>
+        <xs:documentation>Convert mesh and voltage data to Cmgui (CMISS) format
+
+http://www.cmiss.org/cmgui</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="vtk" type="yesno_type" default="no" use="optional">
+      <xs:annotation>
+        <xs:documentation>Convert mesh and voltage data to VTK format suitable for Paraview, Mayavi2 etc.  Requires that code has been compiled against vtkIO library (-DCHASTE_VTK).
+
+www.vtk.org</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
   <xs:complexType name="time_steps_type">
-    <xs:attribute name="ode" type="xs:double" use="required"/>
-    <xs:attribute name="pde" type="xs:double" use="required"/>
-    <xs:attribute name="printing" type="xs:double" use="required"/>
-    <xs:attribute name="unit" type="xs:string" use="required" fixed="ms"/>
+    <xs:annotation>
+      <xs:documentation>Type for storing time steps together.  This is so that consistency checks can be made.  (printing &gt;= pde &gt;= ode etc.)</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="ode" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>The time step used in the ODE solution of cell models.  This should divide the PDE time step, so that one or more ODE steps are taken in the cell models between each PDE diffusion solve.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pde" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>The time step used in the PDE diffusion solution.  This should divide the printing time step, so that one or more PDE diffussion steps between each output.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="printing" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>The printing time step indicates at what level output can be written to the HDF5 data file.  This determines the granularity with which the simulation can be interrogated in postprocessing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="unit" type="xs:string" use="required" fixed="ms">
+      <xs:annotation>
+        <xs:documentation>All time steps are given in milliseconds</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
   <xs:simpleType name="ksp_use_type">
     <xs:restriction base="xs:string">
