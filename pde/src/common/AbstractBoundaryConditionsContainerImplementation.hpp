@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractBoundaryConditionsContainer()
+    : mHasDirichletBCs(false),
+      mCheckedAndCommunicatedIfDirichletBcs(false)
 {
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
@@ -51,20 +53,25 @@ AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~Abstrac
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 bool AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::HasDirichletBoundaryConditions()
 {
-    bool i_have_dirichlet=false;
-    for (unsigned i=0; i<PROBLEM_DIM; i++)
+    if (!mCheckedAndCommunicatedIfDirichletBcs)
     {
-        if (!mpDirichletMap[i]->empty())
+        bool i_have_dirichlet=false;
+        for (unsigned i=0; i<PROBLEM_DIM; i++)
         {
-            i_have_dirichlet=true;
-            break;
+            if (!mpDirichletMap[i]->empty())
+            {
+                i_have_dirichlet=true;
+                break;
+            }
         }
-    }
-    return PetscTools::ReplicateBool(i_have_dirichlet);
+        mHasDirichletBCs = PetscTools::ReplicateBool(i_have_dirichlet);
+        mCheckedAndCommunicatedIfDirichletBcs = true;
+    }   
+    return mHasDirichletBCs;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deletedConditions)
+void AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> alreadyDeletedConditions)
 {
     for (unsigned i=0; i<PROBLEM_DIM; i++)
     {
@@ -73,9 +80,9 @@ void AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Del
             mDirichIterator = mpDirichletMap[i]->begin();
             while (mDirichIterator != mpDirichletMap[i]->end() )
             {
-                if (deletedConditions.count(mDirichIterator->second) == 0)
+                if (alreadyDeletedConditions.count(mDirichIterator->second) == 0)
                 {
-                    deletedConditions.insert(mDirichIterator->second);
+                    alreadyDeletedConditions.insert(mDirichIterator->second);
                     delete mDirichIterator->second;
                 }
                 mDirichIterator++;
@@ -85,6 +92,9 @@ void AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Del
             mpDirichletMap[i] = NULL;
         }
     }
+    
+    // Recommunicate that Dirichlet BCs have changed (next time we ask)
+    mCheckedAndCommunicatedIfDirichletBcs = false;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

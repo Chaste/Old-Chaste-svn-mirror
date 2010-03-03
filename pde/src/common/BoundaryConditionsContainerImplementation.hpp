@@ -99,6 +99,8 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AddDirichle
     }
 
     (*(this->mpDirichletMap[indexOfUnknown]))[pBoundaryNode] = pBoundaryCondition;
+    // We will need to recalculate this when HasDirichletBoundaryConditions() is called.
+    this->mCheckedAndCommunicatedIfDirichletBcs = false;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

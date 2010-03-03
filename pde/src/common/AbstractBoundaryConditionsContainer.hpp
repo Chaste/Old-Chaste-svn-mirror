@@ -72,6 +72,21 @@ protected:
     typedef typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator
         DirichletIteratorType;
     DirichletIteratorType mDirichIterator; /**< Internal iterator over Dirichlet boundary conditions */
+    
+    /** Whether there are any Dirichlet BCs anywhere on the mesh*/
+    bool mHasDirichletBCs;
+    /** Have we calculated mHasDirichletBCs */
+    bool mCheckedAndCommunicatedIfDirichletBcs;
+
+    /**
+     * Delete the list of Dirichlet boundary conditions.
+     * @note This should stay as a protected method to avoid it being called with default arguments and causing seg faults
+     *  (requires careful bookkeeping when calling this method).
+     * @param alreadyDeletedConditions  This is a set of BCs that have already been deleted that we should avoid trying 
+     *  to delete inside this method. (defaults to empty = delete everything)
+     */
+    void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> alreadyDeletedConditions 
+                                            = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>());
 
 public:
     /**
@@ -86,16 +101,11 @@ public:
 
     /** 
      * Return whether any Dirichlet conditions are defined (for ANY of the unknowns, on ANY of the processes).
-     * Must be called collectively.
+     * Must be called collectively. The first time this is called, the result is communicated to all processes
+     * and then cached locally (the bool mHasDirichletBCs). If this needs recalculating 
+     * mCheckedAndCommunicatedIfDirichletBcs must be reset to zero.
      */
     bool HasDirichletBoundaryConditions();
-
-    /**
-     * Delete list of Dirichlet boundary conditions.
-     * 
-     * @param deletedConditions (optional)
-     */
-    void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> deletedConditions = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>());
 
     /**
      * Obtain value of Dirichlet boundary condition at specified node.
@@ -111,8 +121,6 @@ public:
 
     /**
      * Test if there is a Dirichlet boundary condition defined on the given node.
-     *
-     * \todo Perhaps have flag in node object for efficiency?
      * 
      * @param pNode pointer to a node
      * @param indexOfUnknown index of the unknown for which to obtain the value of the boundary condition (defaults to 0)

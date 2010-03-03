@@ -406,6 +406,8 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
                 continue;
             }
             AddDirichletBoundaryCondition(p_node, it->second, index_of_unknown, false);
+            this->mHasDirichletBCs=true;
+            this->mCheckedAndCommunicatedIfDirichletBcs=true;
         }
     }
 
