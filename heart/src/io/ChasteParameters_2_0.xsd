@@ -443,6 +443,9 @@
     </xs:attribute>
   </xs:complexType>
   <xs:complexType name="load_mesh_type">
+    <xs:annotation>
+      <xs:documentation>Type for storing information about the location of the mesh file and the mesia type (presence of fibres, etc)</xs:documentation>
+    </xs:annotation>
     <xs:attribute name="name" type="xs:string" use="required">
       <xs:annotation>
         <xs:documentation>Path  to the set of mesh files (.node, .ele ...).  This is a relative path and it should include the basename of the files but not the ".node" suffices.</xs:documentation>
@@ -593,14 +596,25 @@ www.vtk.org</xs:documentation>
   </xs:complexType>
   <xs:complexType name="ksp_tolerances_type">
     <xs:annotation>
-      <xs:documentation>Type of KSP (Kyrlove subspace) tolerance to use. </xs:documentation>
+      <xs:documentation>Type of KSP (Kyrlove subspace) tolerance to use. It can be specified as relative (KSPRelative) or absolute (KSPAbsolute).</xs:documentation>
     </xs:annotation>
     <xs:choice>
-      <xs:element name="KSPRelative" type="xs:double"/>
-      <xs:element name="KSPAbsolute" type="xs:double"/>
+      <xs:element name="KSPRelative" type="xs:double">
+        <xs:annotation>
+          <xs:documentation>Type for specification of the KSP relative tolerance</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="KSPAbsolute" type="xs:double">
+        <xs:annotation>
+          <xs:documentation>Type for specification of the KSP absolute tolerance</xs:documentation>
+        </xs:annotation>
+      </xs:element>
     </xs:choice>
   </xs:complexType>
   <xs:simpleType name="ksp_solver_type">
+    <xs:annotation>
+      <xs:documentation>Type of KSP solver method. It can be specified as conjugate gradient (cg), symmetric LQ (symmlq) or generalized minimum residual method (gmres).</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="cg"/>
       <xs:enumeration value="symmlq"/>
@@ -608,6 +622,9 @@ www.vtk.org</xs:documentation>
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="ksp_preconditioner_type">
+    <xs:annotation>
+      <xs:documentation>Type of KSP preconditioner to use. It can specified as incomplete LU factorization (ilu), jacobi (jaccobi), block jacobi (bjacobi), algebraic multigrid (hypre), multi-level preconditioning (ml), sparse approximate inverse preconditioner (spai), block diagonal (blockdiagonal), ldu factorization (ldufactorization) or no preconditioner (none).</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="ilu"/>
       <xs:enumeration value="jacobi"/>
@@ -621,16 +638,54 @@ www.vtk.org</xs:documentation>
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="checkpoint_type">
-    <xs:attribute name="timestep" type="xs:double" use="required"/>
-    <xs:attribute name="max_checkpoints_on_disk" type="xs:unsignedInt" use="required"/>
-    <xs:attribute name="unit" type="xs:string" use="required" fixed="ms"/>
+    <xs:annotation>
+      <xs:documentation>Type for specification of a checkpoint in a simulation. It stores information on when to checkpoint (timestep), its units (fixed to ms) and the maximum number of checkpoints. </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="timestep" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies at which timestep of the simulation the checkpoint is requested.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max_checkpoints_on_disk" type="xs:unsignedInt" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the maximum number of checkpoint archives to keep on disk.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="unit" type="xs:string" use="required" fixed="ms">
+      <xs:annotation>
+        <xs:documentation>The units of the time step at which to checkpoint. In Chaste time is in ms.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
   <xs:complexType name="adaptivity_parameters_type">
-    <xs:attribute name="target_error" type="xs:double" use="required"/>
-    <xs:attribute name="sigma" type="xs:double" use="required"/>
-    <xs:attribute name="max_edge_length" type="xs:double" use="required"/>
-    <xs:attribute name="min_edge_length" type="xs:double" use="required"/>
-    <xs:attribute name="gradation" type="xs:double" use="required"/>
+    <xs:annotation>
+      <xs:documentation>Type for specification of parameters for spatial adaptivity. It stores information on the target error, the value of sigma, the maximum and minimum edge length that the adapting algorithm is allowed to impose, the maximal difference between the edge of a tetrahedron and the next (gradation), the maximum level of refinement allowed (max_nodes) and the number of times the adapting algorithm is allowed to examine the mesh (num_sweeps).</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="target_error" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>The error at which the spatial adaptation will stop.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sigma" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>Specifies the value of sigma, one of the parameters of the adapting algorithm</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max_edge_length" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>Maximal length of an edge. It is an upper bound to how much the mesh can be coarsened during adaptation.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="min_edge_length" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>Minimal length of an edge. It sets the limit at how much the mesh is allowed to be refined during adaptation.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="gradation" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation/>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="max_nodes" type="xs:integer" use="required"/>
     <xs:attribute name="num_sweeps" type="xs:integer" use="required"/>
   </xs:complexType>
