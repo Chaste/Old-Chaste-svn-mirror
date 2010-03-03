@@ -591,13 +591,10 @@ www.vtk.org</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
-  <xs:simpleType name="ksp_use_type">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="relative"/>
-      <xs:enumeration value="absolute"/>
-    </xs:restriction>
-  </xs:simpleType>
   <xs:complexType name="ksp_tolerances_type">
+    <xs:annotation>
+      <xs:documentation>Type of KSP (Kyrlove subspace) tolerance to use. </xs:documentation>
+    </xs:annotation>
     <xs:choice>
       <xs:element name="KSPRelative" type="xs:double"/>
       <xs:element name="KSPAbsolute" type="xs:double"/>
@@ -642,7 +639,11 @@ www.vtk.org</xs:documentation>
       <xs:element name="SpaceDimension" type="xs:integer" minOccurs="0"/>
       <xs:element name="SimulationDuration" type="time_type" minOccurs="0"/>
       <xs:element name="Domain" type="domain_type" minOccurs="0"/>
-      <xs:element name="Mesh" type="mesh_type" minOccurs="0"/>
+      <xs:element name="Mesh" type="mesh_type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Mesh can be loaded from file or a semi-structured 1D, 2D or 3D cuboid constructed in memory.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="IonicModels" type="ionic_models_type" minOccurs="0"/>
       <xs:element name="Stimuli" minOccurs="0">
         <xs:complexType>
