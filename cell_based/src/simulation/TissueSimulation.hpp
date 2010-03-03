@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TISSUESIMULATION_HPP_
 
 #include <climits> // work around boost bug
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 

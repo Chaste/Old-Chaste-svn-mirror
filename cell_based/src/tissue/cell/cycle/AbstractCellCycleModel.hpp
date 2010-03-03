@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCELLCYCLEMODEL_HPP_
 
 #include "UblasIncludes.hpp"
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 

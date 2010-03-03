@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef WNTCONCENTRATION_HPP_
 #define WNTCONCENTRATION_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include <iostream>

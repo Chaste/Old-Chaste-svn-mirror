@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef FAKEBATHCELL_HPP_
 #define FAKEBATHCELL_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractCardiacCell.hpp"

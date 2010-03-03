@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CRYPTSIMULATION2D_HPP_
 #define CRYPTSIMULATION2D_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "TissueSimulation.hpp"

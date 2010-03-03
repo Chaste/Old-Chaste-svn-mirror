@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CRYPTSIMULATION1D_HPP_
 #define CRYPTSIMULATION1D_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include <cmath>

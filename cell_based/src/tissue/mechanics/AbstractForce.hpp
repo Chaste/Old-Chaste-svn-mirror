@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTFORCE_HPP_
 #define ABSTRACTFORCE_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 
 #include "AbstractTissue.hpp"

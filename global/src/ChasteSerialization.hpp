@@ -26,44 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef ZEROSTIMULUS_HPP_
-#define ZEROSTIMULUS_HPP_
-
-#include "ChasteSerialization.hpp"
-#include <boost/serialization/base_object.hpp>
-
-#include "AbstractStimulusFunction.hpp"
-
 /**
- *  Stimulus which is always zero. More efficient than using an SimpleStimulus
- *  with magnitude zero
+ * @file
+ *
+ * This header is a wrapper including some of the Boost serialization library
+ * headers, along with a couple of standard C++ headers required to fix bugs
+ * Boost.
+ *
+ * Include this header in place of <boost/serialization/access.hpp>
  */
-class ZeroStimulus : public AbstractStimulusFunction
-{
-    /** Needed for serialization. */
-    friend class boost::serialization::access;
-    /**
-     * Archive the zero stimulus, never used directly - boost uses this.
-     *
-     * @param archive
-     * @param version
-     */
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        // This calls serialize on the base class.
-        archive & boost::serialization::base_object<AbstractStimulusFunction>(*this);
-    }
-public:
-    ZeroStimulus();
 
-    virtual ~ZeroStimulus();
+#include <new>
+#include <climits>
 
-    double GetStimulus(double time);
-};
-
-#include "SerializationExportWrapper.hpp"
-// Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(ZeroStimulus)
-
-#endif /*ZEROSTIMULUS_HPP_*/
+#include <boost/serialization/access.hpp>

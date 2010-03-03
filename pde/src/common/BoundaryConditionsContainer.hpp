@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _BOUNDARYCONDITIONSCONTAINER_HPP_
 
 #include <map>
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/map.hpp>
 

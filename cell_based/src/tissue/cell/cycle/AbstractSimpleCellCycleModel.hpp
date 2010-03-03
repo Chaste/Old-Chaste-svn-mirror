@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTSIMPLECELLCYCLEMODEL_HPP_
 #define ABSTRACTSIMPLECELLCYCLEMODEL_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 

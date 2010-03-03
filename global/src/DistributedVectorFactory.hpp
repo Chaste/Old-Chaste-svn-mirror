@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef DISTRIBUTEDVECTORFACTORY_HPP_
 #define DISTRIBUTEDVECTORFACTORY_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <petscvec.h>
 
 #include "DistributedVector.hpp"

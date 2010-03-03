@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TYSONNOVAKCELLCYCLEMODEL_HPP_
 #define TYSONNOVAKCELLCYCLEMODEL_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 
 #include <iostream>
 

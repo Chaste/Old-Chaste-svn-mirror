@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <climits> // Work around a boost bug - see #1024.
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/split_member.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>

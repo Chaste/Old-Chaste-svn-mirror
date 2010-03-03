@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <list>
 
 #include <climits> // work around boost bug
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/list.hpp>

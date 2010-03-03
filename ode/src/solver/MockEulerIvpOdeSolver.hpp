@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _MOCKEULERIVPODESOLVER_HPP_
 #define _MOCKEULERIVPODESOLVER_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "EulerIvpOdeSolver.hpp"

@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TISSUECELL_HPP_
 #define TISSUECELL_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 
 #include "Element.hpp"
 #include "CellProliferativeTypes.hpp"

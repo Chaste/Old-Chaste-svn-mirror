@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <climits> // Work around a boost bug - see #1024.
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
 #include "ClassIsAbstract.hpp"
 #include <boost/shared_ptr.hpp>

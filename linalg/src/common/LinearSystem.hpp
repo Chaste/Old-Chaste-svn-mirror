@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _LINEARSYSTEM_HPP_
 #define _LINEARSYSTEM_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include "UblasCustomFunctions.hpp" // meeds to be 'first'
 
 #include "PetscTools.hpp"

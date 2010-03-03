@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTBACKWARDEULERCARDIACCELL_HPP_
 #define ABSTRACTBACKWARDEULERCARDIACCELL_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 #include "ClassIsAbstract.hpp"
 #include "AbstractCardiacCell.hpp"

@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TISSUECONFIG_HPP_
 #define TISSUECONFIG_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <cassert>
 #include "Exception.hpp"
 

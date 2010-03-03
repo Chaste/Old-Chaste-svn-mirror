@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _HEUNIVPODESOLVER_HPP_
 #define _HEUNIVPODESOLVER_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractOneStepIvpOdeSolver.hpp"

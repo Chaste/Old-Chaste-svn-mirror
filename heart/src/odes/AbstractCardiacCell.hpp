@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACCELL_HPP_
 #define ABSTRACTCARDIACCELL_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 #include <boost/shared_ptr.hpp>

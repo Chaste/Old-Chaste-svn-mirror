@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include "AbstractOdeSystemWithAnalyticJacobian.hpp"
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractOneStepIvpOdeSolver.hpp"

@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef NONCACHEDTETRAHEDRALMESH_HPP_
 #define NONCACHEDTETRAHEDRALMESH_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "TetrahedralMesh.hpp"

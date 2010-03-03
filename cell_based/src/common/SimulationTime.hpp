@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SIMULATIONTIME_HPP_
 #define SIMULATIONTIME_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 
 #include "Exception.hpp"
 
