@@ -74,7 +74,7 @@ public:
             cell = new PeregoLuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
         
-//        cell->SetAdaptivityFlag(false);
+        cell->SetAdaptivityFlag(false);
         return cell;
     }
 };
