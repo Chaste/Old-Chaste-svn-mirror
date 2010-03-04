@@ -39,8 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 #include <cmath>
 
-#include "Debug.hpp"
-
 /**
  * This is the base class for cardiac cells solved using a Perego Veneziani predictor corrector scheme
  * Reference:

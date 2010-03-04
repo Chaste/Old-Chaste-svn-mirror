@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PseudoEcgCalculator.hpp"
 #include "HeartConfig.hpp"
 #include "PetscTools.hpp"
-//#include "Debug.hpp"
 #include <iostream>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -37,36 +36,23 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(C
                                 c_vector<double,PROBLEM_DIM>& rU,
                                 c_matrix<double,PROBLEM_DIM,SPACE_DIM>& rGradU)
 {
-    double denominator = 0;
-    for (unsigned i = 0; i < SPACE_DIM; i++)
-    {
-        denominator += (rX[i] - mrX[i])*(rX[i] - mrX[i]); 
-    }
-
-    c_vector<double,SPACE_DIM> grad_one_over_r;
-    for (unsigned j = 0; j < SPACE_DIM; j++)
-    {
-        grad_one_over_r[j] = - (rX[j] - mrX[j])*pow( (1/denominator) , 1.5);
-    }
-
-    double integrand = 0;
-    for (unsigned k = 0; k < SPACE_DIM; k++)
-    {
-        integrand += rGradU(0, k) * grad_one_over_r[k]; 
-    }
-
+    c_vector<double,SPACE_DIM> r_vector = rX.rGetLocation()- mProbeElectrode.rGetLocation();
+    c_vector<double,SPACE_DIM> grad_one_over_r = - (r_vector)*SmallPow( (1/norm_2(r_vector)) , 3);
+    matrix_row<c_matrix<double, PROBLEM_DIM, SPACE_DIM> > grad_u_row(rGradU, 0);
+    double integrand = inner_prod(grad_u_row, grad_one_over_r);
+    
     return -mDiffusionCoefficient*integrand;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::PseudoEcgCalculator (AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
-                                                                                 ChastePoint<SPACE_DIM>& rX,
+                                                                                 const ChastePoint<SPACE_DIM>& rProbeElectrode,
                                                                                  std::string directory,
                                                                                  std::string hdf5File,
                                                                                  std::string variableName,
                                                                                  bool makeAbsolute)
                                       : mrMesh(rMesh),
-                                        mrX(rX),
+                                        mProbeElectrode(rProbeElectrode),
                                         mVariableName(variableName)
 
 {
@@ -94,16 +80,13 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetDiffusionCoeff
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputePseudoEcgAtOneTimeStep (unsigned timeStep)
 {
-    double pseudo_ecg_at_one_timestep = 0;
     Vec solution_at_one_time_step = PetscTools::CreateVec(mNumberOfNodes);           
     mpDataReader->GetVariableOverNodes(solution_at_one_time_step, mVariableName , timeStep);
-    pseudo_ecg_at_one_timestep = Calculate(mrMesh, solution_at_one_time_step);
-    //PRINT_3_VARIABLES(mVariableName, timeStep, pseudo_ecg_at_one_timestep);
+
+    double pseudo_ecg_at_one_timestep = Calculate(mrMesh, solution_at_one_time_step);
 
     VecDestroy(solution_at_one_time_step);
-
     return pseudo_ecg_at_one_timestep;
-
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -120,7 +103,6 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
     for (unsigned i = 0; i < mNumTimeSteps; i++)
     {
         double pseudo_ecg_at_one_timestep = ComputePseudoEcgAtOneTimeStep(i);
-        //PRINT_2_VARIABLES(i, pseudo_ecg_at_one_timestep);
         if (PetscTools::AmMaster())
         {
             *p_file << pseudo_ecg_at_one_timestep << "\n";

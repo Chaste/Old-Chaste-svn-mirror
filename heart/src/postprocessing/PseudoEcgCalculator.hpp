@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractFunctionalCalculator.hpp"
 #include "AbstractTetrahedralMesh.hpp"
 #include "ChastePoint.hpp"
+#include "UblasCustomFunctions.hpp"
 #include "Hdf5DataReader.hpp"
 
 /**
@@ -60,12 +61,15 @@ private:
     unsigned mNumberOfNodes; /**< Number of nodes in the mesh (got from the data reader)*/
     unsigned mNumTimeSteps;/**< Number of time steps in the simulation (got from the data reader)*/
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& mrMesh;/**< A mesh used by the calculator*/
-    ChastePoint<SPACE_DIM>& mrX; /**<The point from where we want to calculate the pseudoECG*/
+    ChastePoint<SPACE_DIM> mProbeElectrode; /**<The point from where we want to calculate the pseudoECG*/
     double mDiffusionCoefficient;/**<The diffusion coefficient D*/
     std::string mVariableName;/**< the variable for which we want to calculate the pseudo ecg, defaults to "V"*/
 
     /**
      * Get the integrand.
+     * The pseudo-ECG is defined as the integral over the mesh of the following integrand:
+     *
+     * - D * grad (solution) dot grad (1/r)
      *
      * @param rX The point in space
      * @param rU The unknown as a vector, u(i) = u_i
@@ -91,17 +95,15 @@ public:
      * Constructor
      *
      * @param rMesh A reference to the mesh
-     * @param rX The location of the recording electrode
+     * @param rProbeElectrode The location of the recording electrode
      * @param directory The directory where the simulation results are stored
      * @param hdf5File The file name  where the simulation results are stored
      * @param variableName  The name of the voltage variable (hardcoded to V - see todo)
      * @param makeAbsolute whether to make the path of directory absolute (using the OutputFileHandler)
      *
-     *
-     * ///\ todo pass in the name of the variable in the hdf5 file? it is currently hardcoded to "V".  See Doxygen above
      */
     PseudoEcgCalculator (AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh,
-                         ChastePoint<SPACE_DIM>& rX,
+                         const ChastePoint<SPACE_DIM>& rProbeElectrode,
                          std::string directory,
                          std::string hdf5File,
                          std::string variableName = "V",

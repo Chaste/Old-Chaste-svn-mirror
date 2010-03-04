@@ -3,3 +3,4 @@ bidomain/TestBidomainHeart.hpp
 monodomain/TestMonodomainSlabLong.hpp
 performance/Test3dPerformance.hpp
 convergence/TestConvergenceWeekly.hpp
+postprocessing/TestPseudoEcgCalculatorNightly.hpp

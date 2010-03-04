@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include "Exception.hpp"
 
-#include "Debug.hpp"
 //
 // Model-scope constant parameters
 //

@@ -111,10 +111,9 @@ public:
         ///////////////////////////////////////////////////
         // Now we compute the pseudo ECG. We set an electrode at x=15.
         ///////////////////////////////////////////////////
-        ChastePoint<1> electrode;
-        electrode.SetCoordinate(0, 15.0);
+        ChastePoint<1> probe_electrode(15.0);
         
-        PseudoEcgCalculator<1,1,1> calculator (mesh, electrode, "hdf5", "gradient_V");
+        PseudoEcgCalculator<1,1,1> calculator (mesh, probe_electrode, "hdf5", "gradient_V");
         double pseudo_ecg;      
         
         // The expected result is the integral of: - d(gradV)*dgrad(1/r) in dx
@@ -198,11 +197,9 @@ public:
         // Now we compute the pseudo ECG. We set an electrode at x=15.
         ///////////////////////////////////////////////////
         
-        ChastePoint<1> electrode;
+        ChastePoint<1> probe_electrode(15.0);
         
-        electrode.SetCoordinate(0, 15.0); 
-        
-        PseudoEcgCalculator<1,1,1> calculator (mesh, electrode, "hdf5", "parabolic_V", "V", true);
+        PseudoEcgCalculator<1,1,1> calculator (mesh, probe_electrode, "hdf5", "parabolic_V", "V", true);
         
         double pseudo_ecg; //stores the results
         
