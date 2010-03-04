@@ -155,9 +155,7 @@ public:
     void TestOutputNodeVelocities() throw(Exception)
     {
         // Create a simple mesh
-        int num_cells_depth = 5;
-        int num_cells_width = 5;
-        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create a differentiated cell for each node
@@ -199,6 +197,45 @@ public:
         std::string node_velocities_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/nodevelocities.dat";
         NumericFileComparison node_velocities(node_velocities_file, "cell_based/test/data/TestOutputNodeVelocities/nodevelocities.dat");
         TS_ASSERT(node_velocities.CompareFiles(1e-2));
+    }
+
+    void FailingTestOutputNodeVelocitiesWithGhostNodes() throw(Exception)
+    {
+        // Create a simple mesh with a surrounding layer of ghost nodes
+        HoneycombMeshGenerator generator(3, 3, 1, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Get location indices corresponding to real cells
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+
+        // Create a differentiated cell for each non-ghost node
+        std::vector<TissueCell> cells;
+        for (unsigned i=0; i<location_indices.size(); i++)
+        {
+            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            cell.SetBirthTime(-1.0);
+            cells.push_back(cell);
+        }
+
+        // Create tissue
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+
+        // Create a force law
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>* > force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up simulation
+        TissueSimulation<2> simulator(tissue, force_collection);
+        simulator.SetOutputDirectory("TestOutputNodeVelocitiesWithGhostNodes");
+        simulator.SetEndTime(0.5);
+
+        // Record node velocities
+        TissueConfig::Instance()->SetOutputNodeVelocities(true);
+
+        // Run simulation
+        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
     }
 
     /**
