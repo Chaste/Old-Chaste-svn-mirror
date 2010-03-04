@@ -199,7 +199,7 @@ public:
         TS_ASSERT(node_velocities.CompareFiles(1e-2));
     }
 
-    void FailingTestOutputNodeVelocitiesWithGhostNodes() throw(Exception)
+    void TestOutputNodeVelocitiesWithGhostNodes() throw(Exception)
     {
         // Create a simple mesh with a surrounding layer of ghost nodes
         HoneycombMeshGenerator generator(3, 3, 1, false);

@@ -270,20 +270,37 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
             *mpNodeVelocitiesFile << SimulationTime::Instance()->GetTime() << "\t";
             for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
             {
-                /*
-                 * Hack that covers the case where the node is associated with a cell
-                 * that has just been killed, in the case of a cell-centre based tissue
-                 * (#1129)
-                 */
-                bool is_dead_cell = false;
-                if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
+                // Check that results should be written for this node
+                bool is_real_node = true;
+                if (mrTissue.GetNode(node_index)->IsDeleted())
                 {
-                    is_dead_cell = mrTissue.rGetCellUsingLocationIndex(node_index).IsDead();
+                    is_real_node = false;
                 }
-                bool is_deleted_node = mrTissue.GetNode(node_index)->IsDeleted();
+                else
+                {
+                    if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
+                    {
+                        if (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue)->IsGhostNode(node_index))
+                        {
+                            is_real_node = false;
+                        }
+                        else
+                        {
+                            /*
+                             * Hack that covers the case where the node is associated with a cell
+                             * that has just been killed, in the case of a cell-centre based tissue
+                             * (#1129)
+                             */
+                            if (mrTissue.rGetCellUsingLocationIndex(node_index).IsDead())
+                            {
+                                is_real_node = false;
+                            }
+                        }
+                    }
+                }
 
                 // Write node data to file
-                if ( !is_deleted_node && !is_dead_cell)
+                if (is_real_node)
                 {
                     const c_vector<double,DIM>& position = mrTissue.GetNode(node_index)->rGetLocation();
                     c_vector<double, 2> velocity = this->mDt * rNodeForces[node_index] / this->mrTissue.GetDampingConstant(node_index);

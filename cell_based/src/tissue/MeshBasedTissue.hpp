@@ -216,16 +216,6 @@ public:
     void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation);
 
     /**
-     * Find if a given node is a ghost node. The method always returns false
-     * but is overridden in MeshBasedTissueWithGhostNodes.
-     *
-     * @param index the global index of a specified node
-     *
-     * @return whether the node is a ghost node
-     */
-    virtual bool IsGhostNode(unsigned index);
-
-    /**
      * Overridden GetDampingConstant() method that includes the
      * case of a cell-area-based damping constant.
      *

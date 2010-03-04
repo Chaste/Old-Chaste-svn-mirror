@@ -99,12 +99,6 @@ void MeshBasedTissue<DIM>::SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLoc
 }
 
 template<unsigned DIM>
-bool MeshBasedTissue<DIM>::IsGhostNode(unsigned index)
-{
-    return false;
-}
-
-template<unsigned DIM>
 double MeshBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 {
     double damping_multiplier = AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(nodeIndex);

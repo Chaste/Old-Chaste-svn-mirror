@@ -124,6 +124,12 @@ double AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex
 }
 
 
+template<unsigned DIM>
+bool AbstractCellCentreBasedTissue<DIM>::IsGhostNode(unsigned index)
+{
+    return false;
+}
+
 
 template<unsigned DIM>
 void AbstractCellCentreBasedTissue<DIM>::GenerateCellResultsAndWriteToFiles()
