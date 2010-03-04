@@ -231,20 +231,7 @@ void AbstractPeregoCardiacCell::AdaptTimestep(std::vector<double>& rErrors)
     
     double new_dt = 0.8 * minimum_value * mLocalTimeStep;
 
-//    ChangeTimestepAndRecomputeParameters(mLocalTimeStep, new_dt);
-    double nu = mLocalTimeStep / new_dt;
-
-    // The rules to update these variables come from the Perego paper
-    // (see class documentation for reference)
-    mc0 = mc0 + mc1 * (1 - nu);
-    mc1 = nu * mc1;
-    mc0bar = mc0bar + mc1bar * (1 - nu);
-    mc1bar = nu * mc1bar;
-    mThetaP = mc1bar / (nu * nu);
-    mThetaC = mcMinus1 + mc1 / (nu * nu);
-
-    mNewDt=new_dt;
-//    PRINT_VARIABLE(mLocalTimeStep);
+    ChangeTimestepAndRecomputeParameters(mLocalTimeStep, new_dt);
 }
 
 void AbstractPeregoCardiacCell::EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY)
@@ -334,19 +321,7 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
                 if (fabs(endTime - local_time) > 0.01)
                 {
                     new_dt = endTime - local_time;
-                    
-                    
-//                    ChangeTimestepAndRecomputeParameters(mNewDt, new_dt);
-                    double nu = mNewDt / new_dt;
-    
-                    mc0 = mc0 + mc1 * (1 - nu);
-                    mc1 = nu * mc1;
-                    mc0bar = mc0bar + mc1bar * (1 - nu);
-                    mc1bar = nu * mc1bar;
-                    mThetaP = mc1bar / (nu * nu);
-                    mThetaC = mcMinus1 + mc1 / (nu * nu);
-                    
-                    mNewDt=new_dt;
+                    ChangeTimestepAndRecomputeParameters(mNewDt, new_dt);
                 }
             }
         }
