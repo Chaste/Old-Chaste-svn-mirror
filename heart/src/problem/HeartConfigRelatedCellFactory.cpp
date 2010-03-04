@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfigRelatedCellFactory.hpp"
 #include "HeartGeometryInformation.hpp"
 #include "ChasteNodesList.hpp"
-#include "NonCachedTetrahedralMesh.hpp"
 #include "FileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
 

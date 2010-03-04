@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChastePoint.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class TetrahedralMesh;
+class AbstractTetrahedralMesh;
 
 /**
  * A node in a finite element mesh.
@@ -245,7 +245,7 @@ public:
      * @param rMesh the mesh containing the nodes and elements
      */
     template <unsigned ELEMENT_DIM>
-    bool IsFlagged(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
+    bool IsFlagged(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
     {
         bool in_flagged_element = false;
         for (ContainingElementIterator it = ContainingElementsBegin();

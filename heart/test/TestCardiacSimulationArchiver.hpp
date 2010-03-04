@@ -739,7 +739,7 @@ public:
         // There are no dirichlet BCs.
         TS_ASSERT( ! p_bcc->HasDirichletBoundaryConditions());
         // Now check that all relevant boundary elements have neumann conditions
-        for (TetrahedralMesh<2,2>::BoundaryElementIterator iter = p_problem->rGetMesh().GetBoundaryElementIteratorBegin();
+        for (AbstractTetrahedralMesh<2,2>::BoundaryElementIterator iter = p_problem->rGetMesh().GetBoundaryElementIteratorBegin();
              iter != p_problem->rGetMesh().GetBoundaryElementIteratorEnd();
              iter++)
         {

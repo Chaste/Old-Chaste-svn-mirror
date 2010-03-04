@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include "AbstractTetrahedralMesh.hpp"
-#include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "OutputFileHandler.hpp"

@@ -70,7 +70,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 #include "DistributedTetrahedralMesh.hpp"
-#include "TetrahedralMesh.hpp"
+#include "TetrahedralMesh.hpp" //May be needed for unarchiving a mesh
 #include "MonodomainPde.hpp"
 #include "BidomainPde.hpp"
 

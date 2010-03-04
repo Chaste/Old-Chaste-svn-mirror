@@ -29,8 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacProblem.hpp"
 
 #include "TrianglesMeshReader.hpp"
-#include "TetrahedralMesh.hpp"
-#include "DistributedTetrahedralMesh.hpp"
 #include "Exception.hpp"
 #include "HeartConfig.hpp"
 #include "HeartEventHandler.hpp"
@@ -143,12 +141,10 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                             c_vector<double, 1> fibre_length;
                             HeartConfig::Instance()->GetFibreLength(fibre_length);
 
+                            ///\todo ...
                             mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
-
                             unsigned slab_nodes_x = (unsigned)round(fibre_length[0]/inter_node_space);
-
-                            static_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh)->ConstructLinearMesh(slab_nodes_x);
-
+                            mpMesh->ConstructLinearMesh(slab_nodes_x);
                             break;
                         }
                         case 2:
@@ -160,9 +156,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
 
                             unsigned slab_nodes_x = (unsigned)round(sheet_dimensions[0]/inter_node_space);
                             unsigned slab_nodes_y = (unsigned)round(sheet_dimensions[1]/inter_node_space);
-
-                            static_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh)->ConstructRectangularMesh(slab_nodes_x, slab_nodes_y);
-
+                            mpMesh->ConstructRectangularMesh(slab_nodes_x, slab_nodes_y);
                             break;
                         }
                         case 3:
@@ -176,11 +170,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                             unsigned slab_nodes_x = (unsigned)round(slab_dimensions[0]/inter_node_space);
                             unsigned slab_nodes_y = (unsigned)round(slab_dimensions[1]/inter_node_space);
                             unsigned slab_nodes_z = (unsigned)round(slab_dimensions[2]/inter_node_space);
-                            ///\todo Do we still need a cast here?
-                            ///\todo This could be parallel execpt for a acceptance test which expects to be able to post-process.
-                            static_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh)->ConstructCuboid(slab_nodes_x,
-                                                   slab_nodes_y,
-                                                   slab_nodes_z);
+                            mpMesh->ConstructCuboid(slab_nodes_x, slab_nodes_y, slab_nodes_z);
                             break;
                         }
                         default:
@@ -539,17 +529,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
 
     if(HeartConfig::Instance()->IsPostProcessingRequested())
     {
-        //Test that we have a tetrahedral mesh
-        TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_tetmesh= dynamic_cast<TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(mpMesh);
-
-//        if (p_tetmesh == NULL)
-//        {
-//            //Assume that it's a parallel tetrahedral mesh - Note that every process throws together
-//            ///\todo need to sort out issues with parallel meshes
-//            EXCEPTION("Cannot post-process on a parallel mesh yet");
-//        }
-        assert(p_tetmesh != NULL);
-        PostProcessingWriter<ELEMENT_DIM, SPACE_DIM> post_writer(*p_tetmesh, HeartConfig::Instance()->GetOutputDirectory(),
+        PostProcessingWriter<ELEMENT_DIM, SPACE_DIM> post_writer(*mpMesh, HeartConfig::Instance()->GetOutputDirectory(),
                         HeartConfig::Instance()->GetOutputFilenamePrefix(), true);
         post_writer.WritePostProcessingFiles();
     }
