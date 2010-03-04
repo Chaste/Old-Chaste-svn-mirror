@@ -253,7 +253,7 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
     std::vector<double> errors = mStateVariables;
 
     // Variable used only on the final time-step
-    double new_dt = 0.0;
+    //double new_dt = 0.0;
 
     // Initialise the previous state variables to be a copy of the current state variables
     previous_yvalues = corrected_values;
@@ -309,22 +309,6 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
             solutions.rGetTimes().push_back(local_time);        
         }
         
-        if(!mIsThereTooMuchError)
-        {
-            if (local_time + mLocalTimeStep + 1e-10 < endTime)
-            {
-                local_time += mLocalTimeStep;
-            }
-            else
-            {
-                final_time_step = true;
-                if (fabs(endTime - local_time) > 0.01)
-                {
-                    new_dt = endTime - local_time;
-                    ChangeTimestepAndRecomputeParameters(mNewDt, new_dt);
-                }
-            }
-        }
 //        if(!mIsThereTooMuchError)
 //        {
 //            if (local_time + mLocalTimeStep + 1e-10 < endTime)
@@ -334,8 +318,24 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
 //            else
 //            {
 //                final_time_step = true;
+//                if (fabs(endTime - local_time) > 0.01)
+//                {
+//                    new_dt = endTime - local_time;
+//                    ChangeTimestepAndRecomputeParameters(mNewDt, new_dt);
+//                }
 //            }
 //        }
+        if(!mIsThereTooMuchError)
+        {
+            if (local_time + mLocalTimeStep + 1e-10 < endTime)
+            {
+                local_time += mLocalTimeStep;
+            }
+            else
+            {
+                final_time_step = true;
+            }
+        }
         if(mUseAdaptTimestep)
         {
             mLocalTimeStep = mNewDt;
