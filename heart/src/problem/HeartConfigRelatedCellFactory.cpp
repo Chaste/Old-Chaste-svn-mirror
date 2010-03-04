@@ -285,13 +285,9 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
         std::string rv_surface = mesh_file_name + ".rv";
         
         
-        TrianglesMeshReader<3,3> mesh_reader(mesh_file_name);
-        //TetrahedralMesh<3u,3u>* p_mesh = dynamic_cast<TetrahedralMesh<3u,3u>*> (this->GetMesh());
-        NonCachedTetrahedralMesh<3u,3u> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        
         //create the HeartGeometryInformation object
-        HeartGeometryInformation<3u> info(mesh, epi_surface, lv_surface, rv_surface, true);
+        //HeartGeometryInformation<3u> info(mesh, epi_surface, lv_surface, rv_surface, true);
+        HeartGeometryInformation<3u> info(*(this->GetMesh()), epi_surface, lv_surface, rv_surface, true);
         
         //We need the fractions of epi and endo layer supplied by the user
         double epi_fraction = HeartConfig::Instance()->GetEpiLayerFraction();
@@ -301,7 +297,7 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
         info.DetermineLayerForEachNode(epi_fraction,endo_fraction);
         //get the big heterogeneity vector
         std::vector<unsigned> heterogeneity_node_list;
-        for (unsigned index=0; index<mesh.GetNumNodes(); index++)
+        for (unsigned index=0; index<this->GetMesh()->GetNumNodes(); index++)
         {
             heterogeneity_node_list.push_back(info.rGetLayerForEachNode()[index]);
         }
@@ -313,21 +309,9 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
         //create the list of (pointer to object) nodes in each layer from the heterogeneities vector that was just filled in
         for (unsigned node_index = 0; node_index < this->GetMesh()->GetNumNodes(); node_index++)
         {
-            //initialise to the unpermuted index in case the simulation is sequential (because the for loop below will be executed only in parallel)
-            unsigned int unpermuted_index = node_index;
-            
-            //now get the old, unpermuted node (this is because the endo_node_list needs it as it will be used in sequential).           
-            for (unsigned index=0; index < this->GetMesh()->rGetNodePermutation().size(); index++)
-            {
-              if (this->GetMesh()->rGetNodePermutation()[index] == node_index)
-              {
-                unpermuted_index = index;
-                break;
-              }
-            }
             try
             {
-                switch (heterogeneity_node_list[unpermuted_index])
+                switch (heterogeneity_node_list[node_index])
                 {
                     //epi
                     case 2u:
