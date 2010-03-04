@@ -827,7 +827,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(uns
     assert(ELEMENT_DIM == 1);
 
      //Check that there are enough nodes to make the parallelisation worthwhile
-    if (width<2 || width+1 < PetscTools::GetNumProcs())
+    if (width==0)
     {
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
@@ -840,10 +840,14 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(uns
     //Use DistributedVectorFactory to make a dumb partition of the nodes
     assert(!this->mpDistributedVectorFactory);
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
+    if (this->mpDistributedVectorFactory->GetLocalOwnership() == 0)
+    {
+        //It's a short mesh and this process owns no nodes
+        return;
+    }
 
     unsigned lo_node=this->mpDistributedVectorFactory->GetLow();
     unsigned hi_node=this->mpDistributedVectorFactory->GetHigh();
-
     if (!PetscTools::AmMaster())
     {
         //Allow for a halo node
@@ -905,7 +909,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
     assert(SPACE_DIM == 2);
     assert(ELEMENT_DIM == 2);
     //Check that there are enough nodes to make the parallelisation worthwhile
-    if (height<2 || height+1 < PetscTools::GetNumProcs())
+    if (height==0)
     {
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
@@ -923,6 +927,12 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
     //Dumb partition of nodes has to be such that each process gets complete slices
     assert(!this->mpDistributedVectorFactory);
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes, (width+1)*y_partition.GetLocalOwnership());
+    if (this->mpDistributedVectorFactory->GetLocalOwnership() == 0)
+    {
+        //It's a short mesh and this process owns no nodes
+        assert(y_partition.GetLocalOwnership() == 0);
+        return;
+    }
 
     if (!PetscTools::AmMaster())
     {
@@ -1069,7 +1079,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
     assert(SPACE_DIM == 3);
     assert(ELEMENT_DIM == 3);
     //Check that there are enough nodes to make the parallelisation worthwhile
-    if (depth<2 || depth+1 < PetscTools::GetNumProcs())
+    if (depth==0)
     {
         EXCEPTION("There aren't enough nodes to make parallelisation worthwhile");
     }
@@ -1085,9 +1095,19 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
     DistributedVectorFactory z_partition(depth+1);
     unsigned lo_z = z_partition.GetLow();
     unsigned hi_z = z_partition.GetHigh();
+ 
     //Dumb partition of nodes has to be such that each process gets complete slices
     assert(!this->mpDistributedVectorFactory);
     this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes, (width+1)*(height+1)*z_partition.GetLocalOwnership());
+    if (this->mpDistributedVectorFactory->GetLocalOwnership() == 0)
+    {
+        //It's a short mesh and this process owns no nodes
+       assert(z_partition.GetLocalOwnership() == 0);
+       return;
+    }
+
+
+
     if (!PetscTools::AmMaster())
     {
         //Allow for a halo node

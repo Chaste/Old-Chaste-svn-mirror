@@ -52,8 +52,8 @@ private:
         /*
          * All the nodes have been assigned
          */
+        unsigned total_nodes_this_process = 0;
         {
-            unsigned total_nodes_this_process = 0;
             unsigned num_global_nodes = rMesh.GetNumNodes();
             unsigned nodes_owned[num_global_nodes];
 
@@ -74,7 +74,6 @@ private:
             }
 
             TS_ASSERT_EQUALS(rMesh.GetNumLocalNodes(), total_nodes_this_process);
-            TS_ASSERT( 0u != total_nodes_this_process );
             
             // Combine all the local maps by adding them up in the master process
             unsigned nodes_reduction[num_global_nodes];
@@ -93,8 +92,8 @@ private:
         /*
          * All elements have been assigned
          */
+        unsigned total_elements_this_process = 0;
         {
-            unsigned total_elements_this_process = 0;
             unsigned num_global_elements = rMesh.GetNumElements();
             unsigned elements_owned[num_global_elements];
 
@@ -117,7 +116,6 @@ private:
             }
 
             TS_ASSERT_EQUALS(rMesh.GetNumLocalElements(), total_elements_this_process);
-            TS_ASSERT( 0u != total_elements_this_process );
             
             // Combine all the local maps by adding them up in the master process
             unsigned elements_reduction[num_global_elements];
@@ -136,10 +134,10 @@ private:
         /*
          * All boundary elements have been assigned
          */
+        unsigned total_b_elements_this_process = 0;
         {
             unsigned num_global_b_elements = rMesh.GetNumBoundaryElements();
             unsigned b_elements_owned[num_global_b_elements];
-            unsigned total_b_elements_this_process = 0;
 
             // Create a local map of the boundary elements this processor owns
             for (unsigned b_element_id=0; b_element_id<num_global_b_elements; b_element_id++)
@@ -160,7 +158,6 @@ private:
             }
 
             TS_ASSERT_EQUALS(rMesh.GetNumLocalBoundaryElements(), total_b_elements_this_process);
-            TS_ASSERT( 0u != total_b_elements_this_process );
             
             // Combine all the local maps by adding them up in the master process
             unsigned b_elements_reduction[num_global_b_elements];
@@ -175,6 +172,23 @@ private:
                 }
             }
         }
+        if (total_nodes_this_process != 0)
+        {
+            TS_ASSERT( 0u != total_nodes_this_process );
+            TS_ASSERT( 0u != total_elements_this_process );
+            TS_ASSERT( 0u != total_b_elements_this_process );
+        }
+        else
+        {
+            //Metis may allocate no nodes to a partition if the mesh is small and there are many processes
+            // Look out for "You just increased the maxndoms"
+            TS_ASSERT( 0u == total_nodes_this_process );
+            TS_ASSERT( 0u == total_elements_this_process );
+            TS_ASSERT( 0u == total_b_elements_this_process );
+        }
+            
+
+
     }
 
 public:
@@ -789,76 +803,80 @@ public:
     {
         DistributedTetrahedralMesh<1,1> small_mesh;
         //Coverage hack
-        TS_ASSERT_THROWS_THIS(small_mesh.ConstructLinearMesh(1), "There aren't enough nodes to make parallelisation worthwhile");
-        if (PetscTools::GetNumProcs() >= 4u)
+        TS_ASSERT_THROWS_THIS(small_mesh.ConstructLinearMesh(0), "There aren't enough nodes to make parallelisation worthwhile");
+        //Works with up to 3 processes
+        small_mesh.ConstructLinearMesh(2);
+        //Scale it
+        small_mesh.Scale(10.0);
+        unsigned owned=small_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        TS_ASSERT_EQUALS(small_mesh.GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(small_mesh.GetNumLocalNodes(), owned);
+        TS_ASSERT_EQUALS(small_mesh.GetNumBoundaryElements(),  2u);
+        TS_ASSERT_EQUALS(small_mesh.GetNumElements(), 2u);
+        //See logic in earlier test
+        unsigned expected_elements=owned+1;
+        
+        std::vector<unsigned> halo_indices;
+        small_mesh.GetHaloNodeIndices(halo_indices);
+        /**
+         * 1 Proc:
+         * p0:  0 Ow 1 Ow 2 Ow
+         * 2 Proc:
+         * p0:  0 Ow 1 Ow 2 Ha
+         * p1:       1 Ha 2 Ow
+         * 3 Proc:
+         * p0:  0 Ow 1 Ha
+         * p1:  0 Ha 1 Ow 2 Ha
+         * p2:       2 Ha 3 Ow
+         */ 
+        if (PetscTools::AmMaster())
         {
-            TS_ASSERT_THROWS_THIS(small_mesh.ConstructLinearMesh(2), "There aren't enough nodes to make parallelisation worthwhile");
+            expected_elements--;
+            //Left processor always owns left node
+            TS_ASSERT_EQUALS(small_mesh.GetNode(0),small_mesh.GetAnyNode(0));
+            TS_ASSERT_DELTA(small_mesh.GetAnyNode(0)->rGetLocation()[0], 0.0, 1e-5);
+            TS_ASSERT_DELTA(small_mesh.GetAnyNode(1)->rGetLocation()[0], 10.0, 1e-5);
+            if (PetscTools::IsSequential())
+            {
+                TS_ASSERT_EQUALS(halo_indices.size(), 0u);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(halo_indices.size(), 1u);
+                TS_ASSERT_DELTA(halo_indices[0], 1u, 1u);//Halo is at index 1 (3 procs) or index 2 (2 procs)
+            }
+        }
+        if (PetscTools::AmTopMost() && PetscTools::GetNumProcs() <= 3)
+        {
+            expected_elements--;
+            if (PetscTools::IsSequential())
+            {
+                TS_ASSERT_EQUALS(halo_indices.size(), 0u);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(halo_indices.size(), 1u);
+                TS_ASSERT_EQUALS(halo_indices[0], 1u); //Halo is at index 1 (2 or 3 procs)
+                TS_ASSERT_THROWS_CONTAINS(small_mesh.GetAnyNode(0), "Requested node/halo");
+                //Right processor has  node 1 as halo
+                TS_ASSERT_THROWS_CONTAINS(small_mesh.GetNode(1), "does not belong to processor");
+                TS_ASSERT_THROWS_NOTHING(small_mesh.GetAnyNode(1));//It's a halo
+                TS_ASSERT_DELTA(small_mesh.GetAnyNode(1)->rGetLocation()[0], 10.0, 1e-5);
+                TS_ASSERT_DELTA(small_mesh.GetAnyNode(2)->rGetLocation()[0], 20.0, 1e-5);
+            }
+        }
+        if (PetscTools::GetMyRank() < 3)
+        {
+            TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), expected_elements);
         }
         else
         {
-            //Works with up to 3 processes
-            small_mesh.ConstructLinearMesh(2);
-            //Scale it
-            small_mesh.Scale(10.0);
-            unsigned owned=small_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
-            TS_ASSERT_EQUALS(small_mesh.GetNumNodes(), 3u);
-            TS_ASSERT_EQUALS(small_mesh.GetNumLocalNodes(), owned);
-            TS_ASSERT_EQUALS(small_mesh.GetNumBoundaryElements(),  2u);
-            TS_ASSERT_EQUALS(small_mesh.GetNumElements(), 2u);
-            //See logic in earlier test
-            unsigned expected_elements=owned+1;
-            std::vector<unsigned> halo_indices;
-            small_mesh.GetHaloNodeIndices(halo_indices);
-            /**
-             * 1 Proc:
-             * p0:  0 Ow 1 Ow 2 Ow
-             * 2 Proc:
-             * p0:  0 Ow 1 Ow 2 Ha
-             * p1:       1 Ha 2 Ow
-             * 3 Proc:
-             * p0:  0 Ow 1 Ha
-             * p1:  0 Ha 1 Ow 2 Ha
-             * p2:       2 Ha 3 Ow
-             */ 
-            if (PetscTools::AmMaster())
-            {
-                expected_elements--;
-                //Left processor always owns left node
-                TS_ASSERT_EQUALS(small_mesh.GetNode(0),small_mesh.GetAnyNode(0));
-                TS_ASSERT_DELTA(small_mesh.GetAnyNode(0)->rGetLocation()[0], 0.0, 1e-5);
-                TS_ASSERT_DELTA(small_mesh.GetAnyNode(1)->rGetLocation()[0], 10.0, 1e-5);
-                if (PetscTools::IsSequential())
-                {
-                    TS_ASSERT_EQUALS(halo_indices.size(), 0u);
-                }
-                else
-                {
-                    TS_ASSERT_EQUALS(halo_indices.size(), 1u);
-                    TS_ASSERT_DELTA(halo_indices[0], 1u, 1u);//Halo is at index 1 (3 procs) or index 2 (2 procs)
-                }
-            }
-            if (PetscTools::AmTopMost())
-            {
-                expected_elements--;
-                if (PetscTools::IsSequential())
-                {
-                    TS_ASSERT_EQUALS(halo_indices.size(), 0u);
-                }
-                else
-                {
-                    TS_ASSERT_EQUALS(halo_indices.size(), 1u);
-                    TS_ASSERT_EQUALS(halo_indices[0], 1u); //Halo is at index 1 (2 or 3 procs)
-                    TS_ASSERT_THROWS_CONTAINS(small_mesh.GetAnyNode(0), "Requested node/halo");
-                    //Right processor has  node 1 as halo
-                    TS_ASSERT_THROWS_CONTAINS(small_mesh.GetNode(1), "does not belong to processor");
-                    TS_ASSERT_THROWS_NOTHING(small_mesh.GetAnyNode(1));//It's a halo
-                    TS_ASSERT_DELTA(small_mesh.GetAnyNode(1)->rGetLocation()[0], 10.0, 1e-5);
-                    TS_ASSERT_DELTA(small_mesh.GetAnyNode(2)->rGetLocation()[0], 20.0, 1e-5);
-                }
-            }
-            TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), expected_elements);
-        }
-
+            //This process owns nothing
+            TS_ASSERT_EQUALS(small_mesh.GetNumLocalNodes(), 0u);
+            TS_ASSERT_EQUALS(owned, 0u);
+            TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), 0u);
+            TS_ASSERT_EQUALS(halo_indices.size(), 0u);
+        }    
     }
 
     void TestConstructLinearMeshSmall()
@@ -931,7 +949,7 @@ public:
 
         DistributedTetrahedralMesh<2,2> constructed_mesh;
         //Coverage
-        TS_ASSERT_THROWS_THIS(constructed_mesh.ConstructRectangularMesh(width, 1, false),
+        TS_ASSERT_THROWS_THIS(constructed_mesh.ConstructRectangularMesh(width, 0, false),
                             "There aren't enough nodes to make parallelisation worthwhile");
 
         //Real mesh construction
@@ -1016,7 +1034,7 @@ public:
 
         DistributedTetrahedralMesh<3,3> constructed_mesh;
         //Coverage
-        TS_ASSERT_THROWS_THIS(constructed_mesh.ConstructCuboid(width, height, 1),
+        TS_ASSERT_THROWS_THIS(constructed_mesh.ConstructCuboid(width, height, 0),
                             "There aren't enough nodes to make parallelisation worthwhile");
         constructed_mesh.ConstructCuboid(width, height, depth);
 
