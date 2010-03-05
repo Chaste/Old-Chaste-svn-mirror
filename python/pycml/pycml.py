@@ -1,4 +1,7 @@
 
+# We want 1/2==0.5
+from __future__ import division
+
 """Copyright (C) University of Oxford, 2005-2010
 
 University of Oxford means the Chancellor, Masters and Scholars of the
@@ -46,9 +49,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #  - We could do units conversions in a separate processing pass,
 #    adding in extra mathematics to the CellML.
 
-
-# We want 1/2==0.5
-from __future__ import division
 
 # Pythonic XML bindings
 import amara
@@ -4329,13 +4329,14 @@ class mathml_apply(mathml_constructor, mathml_units_mixin):
         return self._cml_units
 
     def check_assigned_var(self):
-        """apply.check_assigned_var():
+        """Check the current component owns the variable being assigned to.
+        
         Should only be called if this object represents an assignment
-        expression.
-        Check that the variable being assigned to is owned by the current
-        component, i.e. doesn't have an interface value of 'in'.  If this
-        isn't a simple assignment (i.e. the LHS isn't a plain ci element)
-        then the check succeeds automatically.
+        expression.  Checks that the variable being assigned to doesn't
+        have an interface value of 'in'.  If this isn't a simple assignment
+        (i.e. the LHS isn't a plain ci element) then the check succeeds
+        automatically.
+        
         Adds to the model's error list if the check fails.  This method
         always returns None.
         """

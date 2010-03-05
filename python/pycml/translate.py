@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# We want 1/2==0.5
+from __future__ import division
+
 """Copyright (C) University of Oxford, 2005-2010
 
 University of Oxford means the Chancellor, Masters and Scholars of the
@@ -25,16 +28,14 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
-# Translate CellML 1.0 to computer code
-# Author: Jonathan Cooper
+"""
+This part of PyCml deals with converting CellML models into programming
+language code, primary C++ compatible with Chaste, but supporting a few
+other languages also (and easily extensible).
 
-# This first version is rather hackish - demo of principle
-# TODO:
-#  - Allow easy output of other languages than C++ for Chaste
-#  - Make file writes cope with non-ascii unicode?
-
-# We want 1/2==0.5
-from __future__ import division
+It also controls applying various optimising transformations to CellML
+models, in particular partial evaluation and the use of lookup tables.
+"""
 
 # Common CellML processing stuff
 import pycml
@@ -1326,7 +1327,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # .cpp should include .hpp
         self.writeln('#include "', os.path.basename(self.subsidiary_filename), '"')
         if self.include_serialization:
-            self.writeln_hpp('#include <boost/serialization/access.hpp>')
+            self.writeln_hpp('#include "ChasteSerialization.hpp"')
             self.writeln_hpp('#include <boost/serialization/base_object.hpp>')
         self.writeln('#include <cmath>')
         self.writeln('#include <cassert>')
@@ -3926,6 +3927,38 @@ class ConfigurationStore(object):
         else:
             raise ConfigurationError('"' + defn_type + '" is not a valid variable definition type')
         return var
+    
+    def _find_transmembrane_currents_from_voltage_ode(self):
+        """Analyse the expression for dV/dt to determine the transmembrane currents.
+        
+        Looks for an equation defining dV/d(something) and assumes the something is
+        time; this will be checked during code generation for Chaste.  If the RHS of
+        this equation looks like (1/C)*(i_1+i_2+...+i_n) then identifies the i_j as
+        transmembrane currents.  Will automatically exclude the stimulus current if
+        this has been configured (i.e. self.i_stim_var set).
+        
+        If self.V_variable is not set, returns the empty list.
+        """
+        if not self.V_variable:
+            return []
+        ionic_vars = []
+        # Iterate over all expressions in the model, to find the one for dV/d(something)
+        for expr in (e for e in self.doc.model.get_assignments() if isinstance(e, mathml_apply) and e.is_ode()):
+            # Assume the independent variable is time; if it isn't, we'll catch this later
+            (dep_var, time_var) = expr.assigned_variable()
+            if dep_var.get_source_variable(recurse=True) is self.V_variable:
+                rhs = expr.eq.rhs
+                # Rather limited matching of the RHS structure...
+                if isinstance(rhs, mathml_apply) and hasattr(rhs, u'times'):
+                    sum_expr = list(rhs.operands())[1]
+                    if isinstance(sum_expr, mathml_apply) and hasattr(sum_expr, u'plus'):
+                        for ci in sum_expr.operands():
+                            v = ci.variable.get_source_variable(recurse=True)
+                            if v is not self.i_stim_var:
+                                ionic_vars.append(v)
+                # Found dV/d(something); don't check any more expressions
+                break
+        return ionic_vars
 
     def find_current_vars(self):
         """Find the variables representing currents."""
@@ -3962,6 +3995,8 @@ class ConfigurationStore(object):
                         if (var is not self.i_stim_var and
                             var_re.match(unicode(var.name).strip())):
                             self.i_ionic_vars.append(var)
+        if not self.i_ionic_vars:
+            self.i_ionic_vars = self._find_transmembrane_currents_from_voltage_ode()
         if not self.i_ionic_vars:
             print "No ionic currents found; you'll have trouble generating Chaste code"
         return
