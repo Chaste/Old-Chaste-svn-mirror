@@ -270,31 +270,24 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
             *mpNodeVelocitiesFile << SimulationTime::Instance()->GetTime() << "\t";
             for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
             {
+                // We should never encounter deleted nodes due to where this method is called by Solve()
+                assert(!mrTissue.GetNode(node_index)->IsDeleted());
+
                 // Check that results should be written for this node
                 bool is_real_node = true;
-                if (mrTissue.GetNode(node_index)->IsDeleted())
+                if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
                 {
-                    is_real_node = false;
-                }
-                else
-                {
-                    if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
+                    if (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue)->IsGhostNode(node_index))
                     {
-                        if (static_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue)->IsGhostNode(node_index))
+                        // If this node is a ghost node then don't record its velocity
+                        is_real_node = false;
+                    }
+                    else
+                    {
+                        // If this node is associated with a cell that has just been killed then don't record its velocity
+                        if (mrTissue.rGetCellUsingLocationIndex(node_index).IsDead())
                         {
                             is_real_node = false;
-                        }
-                        else
-                        {
-                            /*
-                             * Hack that covers the case where the node is associated with a cell
-                             * that has just been killed, in the case of a cell-centre based tissue
-                             * (#1129)
-                             */
-                            if (mrTissue.rGetCellUsingLocationIndex(node_index).IsDead())
-                            {
-                                is_real_node = false;
-                            }
                         }
                     }
                 }
