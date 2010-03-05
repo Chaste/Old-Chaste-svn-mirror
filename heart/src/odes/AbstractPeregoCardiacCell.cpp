@@ -103,10 +103,10 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedValues(const std::vector<doubl
         else
         {
             double variable_derivative = mc0bar * ma_current[i] + mc1bar * ma_previous[i];            
-            if(i==4 && mSetVoltageDerivativeToZero)
-            {
-                assert(fabs(variable_derivative)<1e-9);
-            }
+//            if(i==4 && mSetVoltageDerivativeToZero)
+//            {
+//                assert(fabs(variable_derivative)<1e-9);
+//            }
             rPredictedSolution[i] = rSolutionAtPreviousTime[i] + mLocalTimeStep * variable_derivative;
             //PRINT_2_VARIABLES(rPredictedSolution[i],rSolutionAtPreviousTime[i]);
             //PRINT_2_VARIABLES(mLocalTimeStep,variable_derivative);
