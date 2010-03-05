@@ -930,7 +930,6 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
     if (this->mpDistributedVectorFactory->GetLocalOwnership() == 0)
     {
         //It's a short mesh and this process owns no nodes
-        assert(y_partition.GetLocalOwnership() == 0);
         return;
     }
 
@@ -1102,7 +1101,6 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
     if (this->mpDistributedVectorFactory->GetLocalOwnership() == 0)
     {
         //It's a short mesh and this process owns no nodes
-       assert(z_partition.GetLocalOwnership() == 0);
        return;
     }
 
