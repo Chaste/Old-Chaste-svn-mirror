@@ -9,7 +9,9 @@
       <cp20:Sheet inter_node_space="0.01" x="0.2" y="0.2"/>
     </cp20:Mesh>
     <cp20:IonicModels>
-      <cp20:Default><cp20:Hardcoded>Fox2002BackwardEuler</cp20:Hardcoded></cp20:Default>
+      <cp20:Default>
+        <cp20:Hardcoded>Fox2002BackwardEuler</cp20:Hardcoded>
+      </cp20:Default>
     </cp20:IonicModels>
     <cp20:Stimuli>
       <cp20:Stimulus>

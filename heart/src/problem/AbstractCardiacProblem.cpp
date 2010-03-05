@@ -46,7 +46,6 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
             AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
     : mMeshFilename(""),               // i.e. undefined
-      mNodesPerProcessorFilename(""),  // i.e. undefined
       mUseMatrixBasedRhsAssembly(true),
       mAllocatedMemoryForMesh(false),
       mWriteInfo(false),
@@ -70,7 +69,6 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
     // it doesn't really matter what we initialise these to, as they'll be overwritten by
     // the serialization methods
     : mMeshFilename(""),
-      mNodesPerProcessorFilename(""),
       mUseMatrixBasedRhsAssembly(true),
       mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacPde
       mWriteInfo(false),
@@ -115,22 +113,16 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         {
             if(HeartConfig::Instance()->GetLoadMesh())
             {
+                mpMesh = new DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
                 TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
-                if (ELEMENT_DIM == 1)
-                {
-                    ///\todo We CAN currently instantiate the parallel mesh in 1D, but there's an archiving test which assumes that 1D meshes are sequential
-                    mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
-                }
-                else
-                {
-                    mpMesh = new DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
-                }
                 mpMesh->ConstructFromMeshReader(mesh_reader);
             }
             else
             {
                 if(HeartConfig::Instance()->GetCreateMesh())
                 {
+                    ///\todo #1234
+                    mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
                     assert(HeartConfig::Instance()->GetSpaceDimension()==SPACE_DIM);
                     double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
 
@@ -140,9 +132,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                         {
                             c_vector<double, 1> fibre_length;
                             HeartConfig::Instance()->GetFibreLength(fibre_length);
-
-                            ///\todo ...
-                            mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
                             unsigned slab_nodes_x = (unsigned)round(fibre_length[0]/inter_node_space);
                             mpMesh->ConstructLinearMesh(slab_nodes_x);
                             break;
@@ -151,9 +140,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                         {
                             c_vector<double, 2> sheet_dimensions; //cm
                             HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions);
-
-                            mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
-
                             unsigned slab_nodes_x = (unsigned)round(sheet_dimensions[0]/inter_node_space);
                             unsigned slab_nodes_y = (unsigned)round(sheet_dimensions[1]/inter_node_space);
                             mpMesh->ConstructRectangularMesh(slab_nodes_x, slab_nodes_y);
@@ -163,10 +149,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                         {
                             c_vector<double, 3> slab_dimensions; //cm
                             HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
-
-                            ///\todo This could be parallel execpt for a acceptance test which expects to be able to post-process.
-                            mpMesh = new TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
-
                             unsigned slab_nodes_x = (unsigned)round(slab_dimensions[0]/inter_node_space);
                             unsigned slab_nodes_y = (unsigned)round(slab_dimensions[1]/inter_node_space);
                             unsigned slab_nodes_z = (unsigned)round(slab_dimensions[2]/inter_node_space);
@@ -176,9 +158,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                         default:
                             NEVER_REACHED;
                     }
-                    // scale
-                    double mesh_scale_factor = inter_node_space;
-                    mpMesh->Scale(mesh_scale_factor, mesh_scale_factor, mesh_scale_factor);
+                    // scale by mesh_scale_factor = inter_node_space;
+                    mpMesh->Scale(inter_node_space, inter_node_space, inter_node_space);
 
                 }
                 else
@@ -201,11 +182,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     {
         mpCellFactory->FillInCellularTransmuralAreas();
     }
-    
-    if (mNodesPerProcessorFilename != "")
-    {
-        mpMesh->ReadNodesPerProcessorFile(mNodesPerProcessorFilename);
-    }
     HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
     ///\todo Should this method be rolled into the Solve() method or the PreSolveChecks()?
@@ -226,11 +202,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     mCurrentTime = 0.0;
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetNodesPerProcessorFilename(const std::string& filename)
-{
-    mNodesPerProcessorFilename = filename;
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetBoundaryConditionsContainer(boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> > pBcc)

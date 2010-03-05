@@ -26,7 +26,6 @@ postprocessing/TestPropagationPropertiesCalculator.hpp
 postprocessing/TestPseudoEcgCalculator.hpp
 TestCardiacSimulation.hpp
 TestCardiacSimulationArchiver.hpp
-TestCardiacUneven.hpp
 TestChasteParametersReader.hpp
 TestCheckpointing.hpp
 TestConductivityTensors.hpp

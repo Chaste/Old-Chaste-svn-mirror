@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<cp20:ChasteParameters xmlns:cp20="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/chaste/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 /home/chaste/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_2_0.xsd">
+<cp20:ChasteParameters xmlns:cp20="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 /home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_2_0.xsd">
 
   <cp20:Simulation>
     <cp20:SimulationDuration unit="ms">10</cp20:SimulationDuration>
@@ -8,7 +8,9 @@
       <cp20:LoadMesh conductivity_media="NoFibreOrientation" name="mesh/test/data/cube_1626_elements"/>
     </cp20:Mesh>
     <cp20:IonicModels>
-      <cp20:Default>Fox2002BackwardEuler</cp20:Default>
+      <cp20:Default>
+        <cp20:Hardcoded>Fox2002BackwardEuler</cp20:Hardcoded>
+      </cp20:Default>
     </cp20:IonicModels>
     <cp20:Stimuli>
       <cp20:Stimulus>
@@ -25,7 +27,7 @@
     </cp20:Stimuli>
     <cp20:OutputDirectory>SaveBidomain</cp20:OutputDirectory>
     <cp20:OutputFilenamePrefix>BidomainLR91_3d</cp20:OutputFilenamePrefix>
-    <cp20:CheckpointSimulation timestep="10" unit="ms" max_checkpoints_on_disk="3"/>
+    <cp20:CheckpointSimulation max_checkpoints_on_disk="3" timestep="2" unit="ms"/>
   </cp20:Simulation>
 
   <cp20:Physiological>

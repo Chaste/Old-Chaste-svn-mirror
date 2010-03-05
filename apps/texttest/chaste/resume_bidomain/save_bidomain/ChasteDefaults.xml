@@ -9,7 +9,9 @@
       <cp20:LoadMesh conductivity_media="NoFibreOrientation" name="mesh/test/data/1D_0_to_1mm_10_elements"/>
     </cp20:Mesh>
     <cp20:IonicModels>
-      <cp20:Default><cp20:Hardcoded>LuoRudyI</cp20:Hardcoded></cp20:Default>
+      <cp20:Default>
+        <cp20:Hardcoded>LuoRudyI</cp20:Hardcoded>
+      </cp20:Default>
     </cp20:IonicModels>
     <cp20:OutputDirectory>BiProblemArchiveHelper</cp20:OutputDirectory>
     <cp20:OutputFilenamePrefix>BidomainLR91_1d</cp20:OutputFilenamePrefix>

@@ -106,7 +106,6 @@ private:
         archive & mMeshFilename;
         archive & mpMesh;
         //archive & mAllocatedMemoryForMesh; // Mesh is deleted by AbstractCardiacPde
-        archive & mNodesPerProcessorFilename;
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
@@ -168,7 +167,6 @@ private:
         archive & mMeshFilename;
         archive & mpMesh;
         //archive & mAllocatedMemoryForMesh; // Will always be true after a load
-        archive & mNodesPerProcessorFilename;
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
@@ -291,9 +289,6 @@ protected:
     /** Meshes can be read from file or instantiated and passed directly to this
      *  class, this is for the former */
     std::string mMeshFilename;
-
-    /** If this is set, the nodes for each processor are read */
-    std::string mNodesPerProcessorFilename;
 
     /**
      *  Whether to use matrix-based assembly of the RHS vector (much more efficient).
