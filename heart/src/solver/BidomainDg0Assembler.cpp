@@ -375,7 +375,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SetFixedExtracellularPotential
     
     for (unsigned i=0; i<mFixedExtracellularPotentialNodes.size(); i++)
     {
-        try
+        if (this->mpMesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(mFixedExtracellularPotentialNodes[i]))
         {
             ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition
                  = new ConstBoundaryCondition<SPACE_DIM>(0.0);
@@ -385,10 +385,6 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SetFixedExtracellularPotential
 
             this->mpBoundaryConditions->AddDirichletBoundaryCondition(p_node, p_boundary_condition, 1);
             
-        }
-        catch (Exception &e)
-        {
-            //Not owned by this process
         }
     }
 }

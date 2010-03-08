@@ -474,8 +474,7 @@ bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnersh
         unsigned tie_break_index = this->GetBoundaryElement(faceIndex)->GetNodeGlobalIndex(0);
 
         //if it is in my range
-        if (tie_break_index >= this->GetDistributedVectorFactory()->GetLow() 
-            && tie_break_index < this->GetDistributedVectorFactory()->GetHigh() )
+        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index)) 
         {
             return true;
         }
@@ -491,8 +490,7 @@ bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnersh
         unsigned tie_break_index = this->GetElement(elementIndex)->GetNodeGlobalIndex(0);
 
         //if it is in my range
-        if (tie_break_index >= this->GetDistributedVectorFactory()->GetLow() 
-            && tie_break_index < this->GetDistributedVectorFactory()->GetHigh() )
+        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index)) 
         {
             return true;
         }

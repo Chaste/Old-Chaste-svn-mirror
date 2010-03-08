@@ -424,11 +424,18 @@ bool DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwne
     try
     {
         unsigned tie_break_index = this->GetElement(elementIndex)->GetNodeGlobalIndex(0); // throws an exception if we don't own the element
-        SolveNodeMapping(tie_break_index);      // throws an exception if we don't own node 0
-        return true;
+        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
+        { 
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     catch(Exception& e)      // either we don't own the element or we don't own node 0 of a shared element
     {
+        ///\todo this is method is similar to the one in the abstract base class
         return false;
     }
 }
@@ -438,11 +445,18 @@ bool DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwne
     try
     {
         unsigned tie_break_index = this->GetBoundaryElement(faceIndex)->GetNodeGlobalIndex(0); // throws an exception if we don't own the element
-        SolveNodeMapping(tie_break_index);      // throws an exception if we don't own node 0
-        return true;
+        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
+        { 
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     catch(Exception& e)      // either we don't own the element or we don't own node 0 of a shared element
     {
+        ///\todo this is method is similar to the one in the abstract base class
         return false;
     }
 }

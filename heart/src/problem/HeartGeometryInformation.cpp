@@ -411,9 +411,10 @@ ChasteCuboid<SPACE_DIM> HeartGeometryInformation<SPACE_DIM>::CalculateBoundingBo
     //Iterate through the set of points on the surface
     for (unsigned surface_index=0; surface_index<rSurfaceNodes.size(); surface_index++)
     {
-        try
+        unsigned global_index=rSurfaceNodes[surface_index];
+        if (mpMesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(global_index) )
         {
-            c_vector<double, SPACE_DIM> position = mpMesh->GetNode(rSurfaceNodes[surface_index])->rGetLocation();
+            c_vector<double, SPACE_DIM> position = mpMesh->GetNode(global_index)->rGetLocation();
             //Update max/min
             for (unsigned i=0; i<SPACE_DIM; i++)
             {
@@ -426,10 +427,6 @@ ChasteCuboid<SPACE_DIM> HeartGeometryInformation<SPACE_DIM>::CalculateBoundingBo
                     my_maximum_point[i] = position[i];
                 }
             }
-        } 
-        catch (Exception &e)
-        {
-            //mpMesh->GetNode() fails when node is not owned locally
         }
     }
     

@@ -308,7 +308,7 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
         //create the list of (pointer to object) nodes in each layer from the heterogeneities vector that was just filled in
         for (unsigned node_index = 0; node_index < this->GetMesh()->GetNumNodes(); node_index++)
         {
-            try
+            if (this->GetMesh()->GetDistributedVectorFactory()->IsGlobalIndexLocal(node_index) )
             {
                 switch (heterogeneity_node_list[node_index])
                 {
@@ -334,11 +334,6 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
                     NEVER_REACHED;  
                 }
             }
-            catch (Exception& e)
-            {
-                //the node is not local
-            }
-                        
         }
         //assert((endo_nodes.size()+epi_nodes.size()+mid_nodes.size())==this->GetMesh()->GetNumNodes());
         
