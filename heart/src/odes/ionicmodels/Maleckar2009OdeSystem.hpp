@@ -15,12 +15,10 @@
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
-#include <cmath>
-#include <cassert>
 #include "AbstractCardiacCell.hpp"
-#include "Exception.hpp"
-#include "OdeSystemInformation.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "AbstractIvpOdeSolver.hpp"
+
 /**
  * 
  * This class implements the Maleckar 2009 atrial cell model
