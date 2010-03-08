@@ -545,6 +545,16 @@ public:
             unsigned local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
             TS_ASSERT_EQUALS(local_nodes, mesh.GetNumLocalNodes());
         }
+        {
+            TrianglesMeshReader<1,3> mesh_reader("mesh/test/data/branched_1d_in_3d_mesh");
+            DistributedTetrahedralMesh<1,3> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+    
+            TS_ASSERT_EQUALS( mesh.GetNumNodes(), 31u);
+            TS_ASSERT_EQUALS( mesh.GetNumElements(), 30u);
+            TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 3u);
+            TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 3u);
+        }
     }
 
 

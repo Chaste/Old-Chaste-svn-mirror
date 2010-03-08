@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DistributedTetrahedralMesh(PartitionType metisPartitioning)
-    : mMetisPartitioning((SPACE_DIM!=1)?metisPartitioning:DUMB)
+    : mMetisPartitioning((ELEMENT_DIM!=1)?metisPartitioning:DUMB)
 {
 }
 
