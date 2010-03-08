@@ -284,11 +284,8 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
                     }
                     else
                     {
-                        // If this node is associated with a cell that has just been killed then don't record its velocity
-                        if (mrTissue.rGetCellUsingLocationIndex(node_index).IsDead())
-                        {
-                            is_real_node = false;
-                        }
+                        // We should never encounter nodes associated with dead cells due to where this method is called by Solve()
+                        assert(!mrTissue.rGetCellUsingLocationIndex(node_index).IsDead());
                     }
                 }
 

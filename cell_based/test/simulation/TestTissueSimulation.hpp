@@ -191,7 +191,7 @@ public:
         simulator.Solve();
 
         // Check node velocities file
-        // The velocities should all be zero(ish), as the tissue is in mechanical equilibrium 
+        // The velocities should all be zero(ish), as the tissue is in mechanical equilibrium
         OutputFileHandler handler("TestOutputNodeVelocities", false);
 
         std::string node_velocities_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/nodevelocities.dat";
@@ -235,7 +235,7 @@ public:
         TissueConfig::Instance()->SetOutputNodeVelocities(true);
 
         // Run simulation
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        simulator.Solve();
     }
 
     /**
