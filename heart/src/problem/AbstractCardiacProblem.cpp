@@ -492,8 +492,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
 
         if (HeartConfig::Instance()->GetVisualizeWithVtk())
         {
-
-            //Convert simulation data to Cmgui format
+            //Convert simulation data to VTK format
             Hdf5ToVtkConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
         }
     }
