@@ -83,18 +83,16 @@ public:
 
         // the middle 4 elements are 'heart' elements (ie region=0),
         // so the middle 5 nodes should be heart nodes
-        TS_ASSERT_EQUALS(p_mesh->GetNode(0)->GetRegion(), HeartRegionCode::BATH);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(1)->GetRegion(), HeartRegionCode::BATH);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(2)->GetRegion(), HeartRegionCode::BATH);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(3)->GetRegion(), HeartRegionCode::TISSUE);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(4)->GetRegion(), HeartRegionCode::TISSUE);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(5)->GetRegion(), HeartRegionCode::TISSUE);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(6)->GetRegion(), HeartRegionCode::TISSUE);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(7)->GetRegion(), HeartRegionCode::TISSUE);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(8)->GetRegion(), HeartRegionCode::BATH);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(9)->GetRegion(), HeartRegionCode::BATH);
-        TS_ASSERT_EQUALS(p_mesh->GetNode(10)->GetRegion(), HeartRegionCode::BATH);
-
+        unsigned expected_node_regions[11]={ HeartRegionCode::BATH, HeartRegionCode::BATH, HeartRegionCode::BATH,
+                                      HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, 
+                                      HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
+        for (unsigned i=0; i<11; i++)
+        {
+            if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
+            {
+                TS_ASSERT_EQUALS(p_mesh->GetNode(i)->GetRegion(), expected_node_regions[i]);
+            }
+        }
         // we need to call solve as otherwise an EventHandler exception is thrown
         bidomain_problem.Solve();
     }
@@ -693,29 +691,40 @@ public:
             AbstractCardiacProblem<1,1,2>* p_abstract_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(archive_dir);
 
             AbstractTetrahedralMesh<1,1>* p_mesh = &(p_abstract_problem->rGetMesh());
+            
+
             // the middle 4 elements are 'heart' elements (ie region=0),
-            TS_ASSERT_EQUALS(p_mesh->GetElement(0)->GetRegion(), HeartRegionCode::BATH);
-            TS_ASSERT_EQUALS(p_mesh->GetElement(1)->GetRegion(), HeartRegionCode::BATH);
-            TS_ASSERT_EQUALS(p_mesh->GetElement(2)->GetRegion(), HeartRegionCode::BATH);
-            TS_ASSERT_EQUALS(p_mesh->GetElement(3)->GetRegion(), HeartRegionCode::TISSUE);
-            TS_ASSERT_EQUALS(p_mesh->GetElement(4)->GetRegion(), HeartRegionCode::TISSUE);
-            TS_ASSERT_EQUALS(p_mesh->GetElement(5)->GetRegion(), HeartRegionCode::TISSUE);
-            TS_ASSERT_EQUALS(p_mesh->GetElement(6)->GetRegion(), HeartRegionCode::TISSUE);
-            TS_ASSERT_EQUALS(p_mesh->GetElement(7)->GetRegion(), HeartRegionCode::BATH);
-            TS_ASSERT_EQUALS(p_mesh->GetElement(8)->GetRegion(), HeartRegionCode::BATH);
-            TS_ASSERT_EQUALS(p_mesh->GetElement(9)->GetRegion(), HeartRegionCode::BATH);
+            unsigned expected_element_regions[10]={ HeartRegionCode::BATH, HeartRegionCode::BATH, HeartRegionCode::BATH,
+                       HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, 
+                       HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
+            for (AbstractTetrahedralMesh<1,1>::ElementIterator iter = p_mesh->GetElementIteratorBegin();
+                 iter != p_mesh->GetElementIteratorEnd();
+                 ++iter)
+            {
+                TS_ASSERT_EQUALS(iter->GetRegion(), expected_element_regions[iter->GetIndex()]);
+            }
+//            for (unsigned i=0; i<10; i++)
+//            {
+//                try
+//                {
+//                    TS_ASSERT_EQUALS(p_mesh->GetElement(i)->GetRegion(), expected_element_regions[i]);
+//                }
+//                catch (Exception &e)
+//                {
+//                    //Element is not local
+//                }
+//            }
             // so the middle 5 nodes should be heart nodes
-            TS_ASSERT_EQUALS(p_mesh->GetNode(0)->GetRegion(), HeartRegionCode::BATH);
-            TS_ASSERT_EQUALS(p_mesh->GetNode(1)->GetRegion(), HeartRegionCode::BATH);
-            TS_ASSERT_EQUALS(p_mesh->GetNode(2)->GetRegion(), HeartRegionCode::BATH);
-            TS_ASSERT_EQUALS(p_mesh->GetNode(3)->GetRegion(), HeartRegionCode::TISSUE);
-            TS_ASSERT_EQUALS(p_mesh->GetNode(4)->GetRegion(), HeartRegionCode::TISSUE);
-            TS_ASSERT_EQUALS(p_mesh->GetNode(5)->GetRegion(), HeartRegionCode::TISSUE);
-            TS_ASSERT_EQUALS(p_mesh->GetNode(6)->GetRegion(), HeartRegionCode::TISSUE);
-            TS_ASSERT_EQUALS(p_mesh->GetNode(7)->GetRegion(), HeartRegionCode::TISSUE);
-            TS_ASSERT_EQUALS(p_mesh->GetNode(8)->GetRegion(), HeartRegionCode::BATH);
-            TS_ASSERT_EQUALS(p_mesh->GetNode(9)->GetRegion(), HeartRegionCode::BATH);
-            TS_ASSERT_EQUALS(p_mesh->GetNode(10)->GetRegion(), HeartRegionCode::BATH);
+            unsigned expected_node_regions[11]={ HeartRegionCode::BATH, HeartRegionCode::BATH, HeartRegionCode::BATH,
+                       HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, 
+                       HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
+            for (unsigned i=0; i<10; i++)
+            {
+                if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))
+                {
+                    TS_ASSERT_EQUALS(p_mesh->GetNode(i)->GetRegion(), expected_node_regions[i]);
+                }
+            }
 
             delete p_abstract_problem;
         }
