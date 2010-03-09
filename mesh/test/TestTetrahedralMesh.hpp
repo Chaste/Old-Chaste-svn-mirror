@@ -1443,6 +1443,12 @@ public:
                 TS_ASSERT_EQUALS(mesh.GetDistributedVectorFactory()->GetLocalOwnership(), 3u);
             }
         }
+        if (PetscTools::IsSequential())
+        {
+            // Throws because the file is written for two processes
+            TS_ASSERT_THROWS_THIS(mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_2.txt"),
+                  "Number of processes doesn't match the size of the nodes-per-processor file")
+        }
     }
 
     void TestReadingMeshesWithRegions() throw (Exception)
