@@ -305,10 +305,10 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingParal
     {
         try
         {
-            BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = mpParallelMesh->GetBoundaryElement(index);
-            assert(p_boundary_element->IsDeleted() == false);
             if ( mpParallelMesh->CalculateDesignatedOwnershipOfBoundaryElement( index ) == true )
             {
+                BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_boundary_element = mpParallelMesh->GetBoundaryElement(index);
+                assert(p_boundary_element->IsDeleted() == false);
                 for (unsigned j=0; j<ELEMENT_DIM; j++)
                 {
                     raw_face_indices[j] = p_boundary_element->GetNodeGlobalIndex(j);
