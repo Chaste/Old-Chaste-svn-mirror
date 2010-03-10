@@ -190,8 +190,8 @@ public:
     /*
      * EMPTYLINE
      *
-     * To visualize the results, open a new terminal, cd to the Chaste directory,
-     * then cd to 'anim'. Then do: {{{java Visualize2dCells /tmp/<USER_NAME>/testoutput/CryptTutorialFixedCellCycle/results_from_time_0}}}.
+     * To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+     * then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dCells /tmp/$USER/testoutput/CryptTutorialFixedCellCycle/results_from_time_0}}}.
      * You may have to do: {{{javac Visualize2dCells.java}}} beforehand to create the
      * java executable.
      *
@@ -207,7 +207,7 @@ public:
      */
     void TestCryptWntCellCycle() throw(Exception)
     {
-        /* First reinitialise time to 0, and reset the TissueConfig singleton, again. */
+        /* First re-initialize time to zero, and reset the {{{TissueConfig}}} singleton, again. */
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
         TissueConfig::Instance()->Reset();
@@ -217,9 +217,7 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        /* Create the cells, using the same method as before. Here, though, we pass
-         * in 'WNT' as the third parameters, saying the cells should have a
-         * Wnt based cell-cycle. This is an ODE based cell cycle. */
+        /* Create the cells, using the same method as before. Here, though, we use a {{{WntCellCycleModeCellsGenerator}}}.*/
         std::vector<TissueCell> cells;
         WntCellCycleModelCellsGenerator<2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
@@ -231,7 +229,7 @@ public:
          * the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
          * class. This is another singleton class (ie accessible from anywhere), so all
          * cells and cell cycle models can access it. We need to say what the profile of the
-         * Wnt concentation should be - here, we say it is linear (linear decreasing from 1 to 0
+         * Wnt concentation should be - here, we say it is {{{LINEAR}}} (linear decreasing from 1 to 0
          * from the bottom of the crypt to the top). We also need to inform the {{{WntConcentration}}}
          * of the tissue.*/
         WntConcentration<2>::Instance()->SetType(LINEAR);
@@ -254,8 +252,8 @@ public:
         /* Solve. */
         simulator.Solve();
 
-        /* Destroy the time, and the {{{WntConcentration}}} object. The solution can be visualised using the
-         * Visualizer as before, just with the different output directory. */
+        /* Finally, tidy up by destroying the {{{SimulationTime}}} and the {{{WntConcentration}}} singleton objects.
+         * The solution can be visualised using the visualizer as before, just with the different output directory. */
         WntConcentration<2>::Destroy();
         SimulationTime::Destroy();
     }
