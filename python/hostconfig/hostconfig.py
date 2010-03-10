@@ -248,6 +248,15 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
             build_name = conf.petsc_build_name
         libpath = os.path.join(petsc_base, build_name, 'lib')
         incpaths.append(os.path.join(petsc_base, build_name, 'include'))
+        # PETSc 3 allows us to automatically download openmpi.
+        # If we do, make sure to use the correct mpicxx/mpirun.
+        binpath = os.path.join(petsc_base, build_name, 'bin')
+        if not hasattr(conf, 'tools'):
+            conf.tools = {}
+        if os.path.exists(os.path.join(binpath, 'mpicxx')):
+            conf.tools['mpicxx'] = os.path.abspath(os.path.join(binpath, 'mpicxx'))
+        if os.path.exists(os.path.join(binpath, 'mpirun')):
+            conf.tools['mpirun'] = os.path.abspath(os.path.join(binpath, 'mpirun'))
     incpaths.append(os.path.join(petsc_base, 'include'))
     if not includesOnly:
         libpaths.append(libpath)
