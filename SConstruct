@@ -288,23 +288,24 @@ def run_xsd(schema_file):
     print "Running xsd on", schema_file
     os.system(command)
 # Check if we need to run XSD (and that 'xsd' is really xsd...)
-command = build.tools['xsd'] + ' version 2>&1'
-xsd_version_string = os.popen(command).readline().strip()
-if xsd_version_string.startswith('XML Schema Definition Compiler'):
-    xsd_version = 2
-elif xsd_version_string.startswith('CodeSynthesis XSD XML Schema to C++ compiler'):
-    xsd_version = 3
-else:
-    print "Unexpected XSD program found:"
-    print xsd_version_string
-    sys.exit(1)
-# If it's the old version, always run XSD; otherwise only run if generated code is out of date
-for schema_file in glob.glob('heart/src/io/ChasteParameters*.xsd'):
-    cpp_file = schema_file[:-3] + 'cpp'
-    if (xsd_version == 2 or
-        not os.path.exists(cpp_file) or
-        os.stat(schema_file).st_mtime > os.stat(cpp_file).st_mtime):
-        run_xsd(schema_file)
+if not GetOption('clean'):
+    command = build.tools['xsd'] + ' version 2>&1'
+    xsd_version_string = os.popen(command).readline().strip()
+    if xsd_version_string.startswith('XML Schema Definition Compiler'):
+        xsd_version = 2
+    elif xsd_version_string.startswith('CodeSynthesis XSD XML Schema to C++ compiler'):
+        xsd_version = 3
+    else:
+        print "Unexpected XSD program found:"
+        print xsd_version_string
+        sys.exit(1)
+    # If it's the old version, always run XSD; otherwise only run if generated code is out of date
+    for schema_file in glob.glob('heart/src/io/ChasteParameters*.xsd'):
+        cpp_file = schema_file[:-3] + 'cpp'
+        if (xsd_version == 2 or
+            not os.path.exists(cpp_file) or
+            os.stat(schema_file).st_mtime > os.stat(cpp_file).st_mtime):
+            run_xsd(schema_file)
 
 # Find full path to valgrind, as parallel memory testing needs it to be
 # given explicitly.
@@ -330,7 +331,7 @@ Export('env', 'dynenv')
 # Test log files to summarise
 test_log_files = []
 
-if run_infrastructure_tests:
+if run_infrastructure_tests and not GetOption('clean'):
     # Check for orphaned test files
     out = File(build.GetTestReportDir() + 'OrphanedTests.log')
     os.system('python/TestRunner.py python/CheckForOrphanedTests.py ' +
@@ -400,10 +401,10 @@ Clean('.', test_output_files)
 for toplevel_dir in components:
     Clean('.', os.path.join(toplevel_dir, 'build', build_dir))
 # Also make sure we remove any libraries still hanging around, just in case
-for lib in glob.glob('lib/*'):
-    Clean('.', lib)
-for lib in glob.glob('linklib/*'):
-    Clean('.', lib)
+Clean('.', glob.glob('lib/*'))
+Clean('.', glob.glob('linklib/*'))
+# Also make sure we regenerate the ChasteParameters files from the XSD.
+Clean('.', glob.glob('heart/src/io/ChasteParameters*pp'))
 
 
 # Test summary generation
