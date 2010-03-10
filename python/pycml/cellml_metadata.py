@@ -37,8 +37,10 @@ import pycml
 # Map from cellml_model instances to RDF.Model instances
 _models = {}
 
-# Base URI to use for models - we fake it (for now)
-_base_uri = 'urn:um' # TODO: can't be blank :(
+# Base URI to use for models.  Unfortunately the RDF library won't let
+# us use an empty URI, so we use a dummy URI then strip it out when
+# serializing the RDF.
+_base_uri = 'urn:chaste-pycml:dummy-rdf-base-uri'
 
 
 def _debug(*args):
@@ -83,7 +85,7 @@ def update_serialized_rdf(cellml_model):
             old_rdf_block.xml_parent.xml_remove_child(old_rdf_block)
         # Serialize the rdf model into cellml_model.RDF
         m = _models[cellml_model]
-        rdf_text = m.to_string()
+        rdf_text = m.to_string().replace(_base_uri, '')
         rdf_doc = pycml.amara.parse(rdf_text)
         cellml_model.xml_append(rdf_doc.RDF)
         # Remove the RDF model

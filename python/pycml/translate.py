@@ -1394,8 +1394,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         Sets self.cell_parameters to be a list of the cellml_variable objects
         representing parameters.
         
-        If we're using metadata (self.use_metadata = True), then also
-        collect variables annotated with oxmeta:name into self.metadata_vars.
+        If we're using metadata (self.use_metadata = True), then also collect
+        variables annotated with an RDF oxmeta name into self.metadata_vars.
         Only constants and state variables are included.
         """
         # Find annotated variables
@@ -3932,32 +3932,45 @@ class ConfigurationStore(object):
         """Analyse the expression for dV/dt to determine the transmembrane currents.
         
         Looks for an equation defining dV/d(something) and assumes the something is
-        time; this will be checked during code generation for Chaste.  If the RHS of
-        this equation looks like (1/C)*(i_1+i_2+...+i_n) then identifies the i_j as
-        transmembrane currents.  Will automatically exclude the stimulus current if
-        this has been configured (i.e. self.i_stim_var set).
+        time; this will be checked during code generation for Chaste.  It then finds
+        all variables on the RHS of this equation which have the same units as the
+        stimulus current (self.i_stim_var) and identifies these as transmembrane
+        currents.  Will automatically exclude the stimulus current.
         
-        If self.V_variable is not set, returns the empty list.
+        If self.V_variable or self.i_stim_var are not set, returns the empty list.
         """
         if not self.V_variable:
+            DEBUG('config', "Transmembrane potential not configured, so can't "
+                  "determine currents from its ODE")
             return []
+        if not self.i_stim_var:
+            DEBUG('config', "Stimulus current not configured, so can't determine "
+                  "transmembrane currents from dV/dt")
+            return []
+        stim_units = self.i_stim_var.component.get_units_by_name(self.i_stim_var.units)
+        def search_expr(expr):
+            """Recursively search for ci elements."""
+            if isinstance(expr, mathml_ci):
+                v = expr.variable.get_source_variable(recurse=True)
+                if v is not self.i_stim_var:
+                    # Check units
+                    u = v.component.get_units_by_name(v.units)
+                    if u == stim_units:
+                        ionic_vars.append(v)
+            elif isinstance(expr, mathml_apply):
+                for o in expr.operands():
+                    search_expr(o)
         ionic_vars = []
         # Iterate over all expressions in the model, to find the one for dV/d(something)
         for expr in (e for e in self.doc.model.get_assignments() if isinstance(e, mathml_apply) and e.is_ode()):
             # Assume the independent variable is time; if it isn't, we'll catch this later
             (dep_var, time_var) = expr.assigned_variable()
             if dep_var.get_source_variable(recurse=True) is self.V_variable:
-                rhs = expr.eq.rhs
-                # Rather limited matching of the RHS structure...
-                if isinstance(rhs, mathml_apply) and hasattr(rhs, u'times'):
-                    sum_expr = list(rhs.operands())[1]
-                    if isinstance(sum_expr, mathml_apply) and hasattr(sum_expr, u'plus'):
-                        for ci in sum_expr.operands():
-                            v = ci.variable.get_source_variable(recurse=True)
-                            if v is not self.i_stim_var:
-                                ionic_vars.append(v)
+                # Recursively search for ci elements
+                search_expr(expr.eq.rhs)
                 # Found dV/d(something); don't check any more expressions
                 break
+        DEBUG('config', "Found ionic currents from dV/dt: ", ionic_vars)
         return ionic_vars
 
     def find_current_vars(self):
@@ -4652,7 +4665,7 @@ def get_options(args):
     parser.add_option('-m', '--use-metadata',
                       dest='use_metadata', action='store_true', default=False,
                       help="obtain variable names from metadata embedded within "
-                      "the CellML file, rather than config.xml")
+                      "the CellML file, rather than config.xml [experimental]")
     parser.add_option('-y', '--dll', '--dynamically-loadable',
                       dest='dynamically_loadable',
                       action='store_true', default=False,
