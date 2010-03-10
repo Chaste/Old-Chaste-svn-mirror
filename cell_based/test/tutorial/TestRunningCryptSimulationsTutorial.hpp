@@ -50,20 +50,35 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * The first thing to do is include the following header, which allows us
  * to use certain methods in our test (this header file should be included
- * in any Chaste test):
+ * in any Chaste test).
  */
 #include <cxxtest/TestSuite.h>
 /* The next two header files define helper classes for generating a vector of
- * cells with fixed, and Wnt-dependent, cell cycle models: */
+ * cells with fixed, and Wnt-dependent, cell-cycle models. */
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "WntCellCycleModelCellsGenerator.hpp"
-/* This header file defines a helper class for generating a suitable mesh: */
+/* The next header file defines a helper class for generating a suitable mesh. */
 #include "HoneycombMeshGenerator.hpp"
-/* These are the classes that will be used in these tests */
+/* The next header file defines a {{{Tissue}}} class that uses a mesh, and allows
+ * for the inclusion ghost nodes. These are nodes in the mesh that do not correspond
+ * to cells; instead they help ensure that a sensible Delaunay triangulation is generated
+ * at each timestep (since the triangulation algorithm requires a convex hull). */
 #include "MeshBasedTissueWithGhostNodes.hpp"
+/* The next header file defines a force law, based on a linear spring, for describing
+ * the mechanical interactions between neighbouring cells in the tissue.
+ */
 #include "GeneralisedLinearSpringForce.hpp"
+/* The next header file defines the class that simulates the evolution of a {{{Tissue}}},
+ * specialized to deal with the cylindrical crypt model.
+ */
 #include "CryptSimulation2d.hpp"
+/* The next header file defines a Wnt singleton class, which (if used) deals with the
+ * imposed Wnt gradient in our crypt model.
+ */
 #include "WntConcentration.hpp"
+/* The final header file defines a cell killer class, which implements sloughing of cells
+ * into the lumen once they reach the top of the crypt.
+ */
 #include "SloughingCellKiller.hpp"
 
 /* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}
@@ -79,7 +94,7 @@ public:
      * EMPTYLINE
      *
      * In the first test, we run a simple crypt simulation, in which we use
-     * a cylindrical mesh, give each cell a fixed cell cycle model, and enforce
+     * a cylindrical mesh, give each cell a fixed cell-cycle model, and enforce
      * sloughing at the top of the crypt.
      */
     void TestCryptFixedCellCycle() throw(Exception)
