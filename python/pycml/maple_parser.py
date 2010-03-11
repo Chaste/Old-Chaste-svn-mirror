@@ -419,7 +419,7 @@ class MapleParser(object):
         s = "" # Current 'line' contents
         in_header = False
         for line in stream:
-            if line.startswith('bytes used'):
+            if line.startswith('bytes used') or line.startswith('memory used'):
                 # Maple footer
                 if curr_key and s:
                     self._parse_expr(curr_key, s, results, debug_res)

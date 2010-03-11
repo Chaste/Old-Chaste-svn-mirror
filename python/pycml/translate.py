@@ -1921,8 +1921,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln('rJacobian[', i, '][', j, '] = ', nl=False)
             if hasattr(entry.math, u'apply'):
                 self.output_expr(entry.math.apply, False)
-            else:
+            elif hasattr(entry.math, u'cn'):
                 self.output_expr(entry.math.cn, False)
+            elif hasattr(entry.math, u'ci'):
+                self.output_expr(entry.math.ci, False)
+            else:
+                raise ValueError('Unexpected entry: ' + entry.xml())
             self.writeln(self.STMT_END, indent=False)
         self.close_block()
         # The other methods are protected

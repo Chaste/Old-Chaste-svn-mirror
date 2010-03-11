@@ -69,12 +69,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NobleVargheseKohlNoble1998Optimised.hpp"
 #include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
 #include "Mahajan2008OdeSystem.hpp"
+#include "BackwardEulerMahajanModel2008.hpp"
 #include "TenTusscher2006OdeSystem.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 #include "Maleckar2009OdeSystem.hpp"
 #include "ArchiveLocationInfo.hpp"
 
 #include "PetscTools.hpp" //No PETSc here -- this is just to double-check
+
+
+#include "Debug.hpp"
+
 
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
@@ -722,6 +727,51 @@ public:
         CheckCellModelResults("Mahajan2008");
     }
 
+    void TestBackwardEulerMahajan(void) throw (Exception)
+    {
+        clock_t ck_start, ck_end;
+        // Set stimulus
+        double magnitude = -1800;
+        double duration  = 0.05 ;  // ms
+        double when = 5.0; // ms
+
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+        double end_time = 50.0;
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.05, 0.05);
+
+        // Define solver passed in both constructor but used only by forward Euler
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+
+        // Solve using backward euler
+        BackwardEulerMahajanModel2008 mahajan_backward_euler(p_solver, p_stimulus);                        
+
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&mahajan_backward_euler,
+                                   end_time,
+                                   "MahajanBackwardEuler");
+        ck_end = clock();
+        double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        
+        TS_ASSERT_DELTA( mahajan_backward_euler.GetIIonic(), 0.0140, 1e-3);        
+
+        // Solve using forward euler
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.05, 0.05);
+
+        Mahajan2008OdeSystem mahajan_ode_system(p_solver, p_stimulus);
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&mahajan_ode_system,
+                                   end_time,
+                                   "MahajanForward");
+        ck_end = clock();
+        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+
+        // Compare results
+        CompareCellModelResults("MahajanForward", "MahajanBackwardEuler", 0.03, true);
+        
+        std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
+          << backward << std::endl;
+    }
 
     void TestMaleckar(void) throw (Exception)
     {
