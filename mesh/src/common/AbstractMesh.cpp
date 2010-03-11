@@ -94,6 +94,13 @@ DistributedVectorFactory* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVe
     }
     return mpDistributedVectorFactory;
 }
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetDistributedVectorFactory(DistributedVectorFactory *pFactory)
+{
+    //assert(GetNumNodes()==0u);
+    assert(!mpDistributedVectorFactory);
+    mpDistributedVectorFactory = pFactory;
+}
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()

@@ -341,21 +341,31 @@ public:
     }
 
     ///\todo #1199 Need an uneven mesh distribution for Construct from mesh reader or whatever.
-    void donotTestConstructFromMeshReader2DWithUnevenDistribution()
+    void TestConstructFromMeshReader2DWithUnevenDistribution()
     {
         unsigned local_nodes=1u;
+        unsigned local_nodes_wrong=1u;
         unsigned total_nodes=543u;
         if (PetscTools::AmTopMost())
         {
             local_nodes=total_nodes-( PetscTools::GetNumProcs() -1 );
+            local_nodes_wrong=100-( PetscTools::GetNumProcs() -1 );
         }
-        DistributedVectorFactory uneven(total_nodes, local_nodes);
+        
         
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
 
         DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::DUMB); // No reordering
+
+        DistributedVectorFactory* p_wrong=new DistributedVectorFactory(100, local_nodes_wrong);
+        mesh.SetDistributedVectorFactory(p_wrong);
+        TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader), "The distributed vector factory size in the mesh doesn't match the total number of nodes");
+ 
+        DistributedVectorFactory* p_uneven= new DistributedVectorFactory(total_nodes, local_nodes);
+        mesh.SetDistributedVectorFactory(p_uneven);
         mesh.ConstructFromMeshReader(mesh_reader);
 
+ 
         // Check we have the right number of nodes & elements
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543u);
         TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543u);

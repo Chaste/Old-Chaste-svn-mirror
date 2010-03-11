@@ -76,8 +76,8 @@ public:
     typedef enum
     {
         DUMB=0,
-        METIS_BINARY,
-        METIS_LIBRARY
+        METIS_BINARY=1,  ///\todo We are going to lose this one 
+        METIS_LIBRARY=2 ///\todo and replace this one with ParMETIS.  But keep the same numbers for the archives?
     } PartitionType;
 
 private:

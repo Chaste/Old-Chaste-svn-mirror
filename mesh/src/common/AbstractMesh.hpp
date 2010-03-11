@@ -177,6 +177,13 @@ public:
     DistributedVectorFactory * GetDistributedVectorFactory();
 
     /**
+     * Set method for DistributedVectorFactory.
+     * Should be called before the mesh is used for anything.
+     * @param pFactory a factory to use for this distribution
+     */
+    void SetDistributedVectorFactory(DistributedVectorFactory *pFactory);
+
+    /**
      * Permute the nodes so that they appear in a different order in mNodes
      * (and their mIndex's are altered accordingly).
      */

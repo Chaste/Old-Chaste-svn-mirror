@@ -46,8 +46,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DistributedTetrahedralMesh(PartitionType metisPartitioning)
-    : mMetisPartitioning((ELEMENT_DIM!=1)?metisPartitioning:DUMB)
+    : 
+      mTotalNumElements(0u),
+      mTotalNumBoundaryElements(0u),
+      mTotalNumNodes(0u),
+      mMetisPartitioning(metisPartitioning)
 {
+
+
+
+
+    if (ELEMENT_DIM == 1)
+    {
+        //No METIS partition is possible - revert to DUMB
+        mMetisPartitioning=DUMB;
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -115,16 +128,15 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)
 {
-    this->mMeshFileBaseName = rMeshReader.GetMeshFileBaseName();
-    mTotalNumElements = rMeshReader.GetNumElements();
-    mTotalNumNodes = rMeshReader.GetNumNodes();
-    mTotalNumBoundaryElements = rMeshReader.GetNumFaces();
-
     std::set<unsigned> nodes_owned;
     std::set<unsigned> halo_nodes_owned;
     std::set<unsigned> elements_owned;
     std::vector<unsigned> proc_offsets;//(PetscTools::GetNumProcs());
 
+    this->mMeshFileBaseName = rMeshReader.GetMeshFileBaseName();
+    mTotalNumElements = rMeshReader.GetNumElements();
+    mTotalNumBoundaryElements = rMeshReader.GetNumFaces();
+    mTotalNumNodes = rMeshReader.GetNumNodes();
     ComputeMeshPartitioning(rMeshReader, nodes_owned, halo_nodes_owned, elements_owned, proc_offsets);
 
     // Reserve memory
@@ -541,8 +553,23 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                            std::set<unsigned>& rNodesOwned)
 {
-    assert(!this->mpDistributedVectorFactory);
-    this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
+    if(this->mpDistributedVectorFactory)
+    {
+        //A distribution is given by the factory
+        if (this->mpDistributedVectorFactory->GetProblemSize() != mTotalNumNodes)
+        {
+            //Reset stuff
+            this->mpDistributedVectorFactory=NULL;
+            this->mTotalNumNodes=0;
+            this->mTotalNumElements=0;
+            this->mTotalNumBoundaryElements=0;
+            EXCEPTION("The distributed vector factory size in the mesh doesn't match the total number of nodes");
+        }
+    }
+    else
+    {
+        this->mpDistributedVectorFactory = new DistributedVectorFactory(mTotalNumNodes);
+    }
     for (unsigned node_index = this->mpDistributedVectorFactory->GetLow();
          node_index < this->mpDistributedVectorFactory->GetHigh();
          node_index++)
