@@ -1074,6 +1074,8 @@ class FleMemoryTesting(FleDebug):
 class IntelNonopt(Intel):
     """Intel compilers with no optimisation."""
     def __init__(self, *args, **kwargs):
+        raise UserWarning("The Intel compiler with no optimisation has shown "
+                          "different behaviour from other compilers; tests may fail.")
         Intel.__init__(self, *args, **kwargs)
         self._cc_flags.extend(['-O0'])
         self.build_dir = 'intel_nonopt'

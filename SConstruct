@@ -33,7 +33,7 @@ EnsurePythonVersion(2,3)
 EnsureSConsVersion(0,97)
 
 Help("""
-  Type: 'scons -c' to remove all the compiled files (clean build),
+  Type: 'scons -c .' to remove all the compiled files (clean build),
         'scons' to do a default build,
         'scons test_suite=<Path from chaste folder>' to run a single test,
         'scons <component>' to build and test a single component.
