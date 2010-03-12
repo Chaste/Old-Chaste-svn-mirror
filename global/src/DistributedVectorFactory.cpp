@@ -55,6 +55,21 @@ void DistributedVectorFactory::CalculateOwnership(Vec vec)
     mNumProcs = PetscTools::GetNumProcs();
 }
 
+
+void DistributedVectorFactory::SetFromFactory(DistributedVectorFactory* pFactory)
+{
+    if (pFactory->GetNumProcs() != mNumProcs)
+    {
+        EXCEPTION("Cannot set from a factory for a different number of processes.");
+    }
+    if (pFactory->GetProblemSize() != mProblemSize)
+    {
+        EXCEPTION("Cannot set from a factory for a different problem size.");
+    }
+    mLo = pFactory->GetLow();
+    mHi = pFactory->GetHigh();
+}
+
 DistributedVectorFactory::DistributedVectorFactory(Vec vec)
     : mPetscStatusKnown(false),
       mpOriginalFactory(NULL)

@@ -236,6 +236,22 @@ public:
     {
         return mpOriginalFactory;
     }
+    
+    /**
+     * Set #mLo and #mHi from another vector factory.  Used by archiving.
+     * @param pFactory  the factory to set from.
+     */
+    void SetFromFactory(DistributedVectorFactory* pFactory);
+    
+//    /**
+//     * For debugging.
+//     */
+//    void Dump(std::string msg=std::string())
+//    {
+//        std::cout << "DVF(" << this << "): " << msg;
+//        std::cout << " lo=" << mLo << " hi=" << mHi << " size=" << mProblemSize << " np=" << mNumProcs;
+//        std::cout << " [running np=" << PetscTools::GetNumProcs() << " rank=" << PetscTools::GetMyRank() << "]\n" << std::flush;
+//    }
 };
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer

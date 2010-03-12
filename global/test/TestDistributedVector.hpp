@@ -117,6 +117,39 @@ public:
         DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad();
         TS_ASSERT(DistributedVectorFactory::CheckNumberOfProcessesOnLoad());
     }
+    
+    // For #1199
+    void TestFactorySetFromFactory()
+    {
+        unsigned num_procs = PetscTools::GetNumProcs();
+        unsigned total_elements = (num_procs+1)*num_procs/2;
+        unsigned my_rank=PetscTools::GetMyRank();
+
+        DistributedVectorFactory uneven_factory(total_elements, my_rank+1);
+        DistributedVectorFactory even_factory(total_elements);
+        DistributedVectorFactory* p_even_orig = even_factory.GetOriginalFactory();
+        
+        TS_ASSERT_EQUALS(uneven_factory.GetNumProcs(), even_factory.GetNumProcs());
+        TS_ASSERT_EQUALS(uneven_factory.GetProblemSize(), even_factory.GetProblemSize());
+        bool any_differ = PetscTools::ReplicateBool(uneven_factory.GetLow() != even_factory.GetLow());
+        TS_ASSERT(PetscTools::IsSequential() || any_differ);
+        
+        // Now make them equal
+        even_factory.SetFromFactory(&uneven_factory);
+        TS_ASSERT_EQUALS(uneven_factory.GetNumProcs(), even_factory.GetNumProcs());
+        TS_ASSERT_EQUALS(uneven_factory.GetProblemSize(), even_factory.GetProblemSize());
+        TS_ASSERT_EQUALS(uneven_factory.GetLow(), even_factory.GetLow());
+        TS_ASSERT_EQUALS(uneven_factory.GetHigh(), even_factory.GetHigh());
+        TS_ASSERT(even_factory.GetOriginalFactory() == p_even_orig);
+        
+        // Exceptions
+        DistributedVectorFactory diff_procs(1, 2, total_elements, num_procs+1);
+        TS_ASSERT_THROWS_THIS(even_factory.SetFromFactory(&diff_procs),
+                              "Cannot set from a factory for a different number of processes.");
+        DistributedVectorFactory diff_total(1, 2, total_elements+1, num_procs);
+        TS_ASSERT_THROWS_THIS(even_factory.SetFromFactory(&diff_total),
+                              "Cannot set from a factory for a different problem size.");
+    }
 
     void TestRead()
     {
