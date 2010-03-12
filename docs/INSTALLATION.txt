@@ -166,12 +166,12 @@ still work, but are not tested on a regular basis.
 
 cd $CHASTE_LIBS
 wget http://tetgen.berlios.de/files/tetgen1.4.3.tar.gz
-tar -zxvf tetgen1.4.2.tar.gz
-cd tetgen1.4.2
+tar -zxvf tetgen1.4.3.tar.gz
+cd tetgen1.4.3
 make
 mv tetgen $CHASTE_LIBS/bin/
 cd ..
-rm -rf tetgen1.4.2*
+rm -rf tetgen1.4.3*
 
 =============== TRIANGLE =====================
 
