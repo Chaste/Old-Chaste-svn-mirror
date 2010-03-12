@@ -775,7 +775,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             }
             catch (Exception e) 
         	{
-            	System.out.println("Error occured. Exception message: "+e.getMessage());
+            	System.out.println("Error occurred. Exception message: "+e.getMessage());
         	}
         }             
         
@@ -1266,7 +1266,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         } 
         catch (Exception e) 
         {
-            System.out.println("Error occured. Exception message: "+e.getMessage());
+            System.out.println("Error occurred. Exception message: "+e.getMessage());
         }
     	    	
     }
