@@ -124,10 +124,16 @@ void AbstractCvodeCell::SetVoltage(double voltage)
     NV_Ith_S(mStateVariables, mVoltageIndex) = voltage;
 }
 
+void AbstractCvodeCell::SetStimulusFunction(boost::shared_ptr<AbstractStimulusFunction> pStimulus)
+{
+    mpIntracellularStimulus = pStimulus;
+}
+
 double AbstractCvodeCell::GetStimulus(double time)
 {
     return mpIntracellularStimulus->GetStimulus(time);
 }
+
 
 unsigned AbstractCvodeCell::GetNumberOfStateVariables()
 {

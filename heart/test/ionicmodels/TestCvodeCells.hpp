@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "RegularStimulus.hpp"
 #include "SimpleStimulus.hpp"
+#include "ZeroStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "RunAndCheckIonicModels.hpp"
 #include "OdeSystemInformation.hpp"
@@ -101,6 +102,7 @@ public:
         double duration  = 2.0 ;  // ms
         double start = 50.0; // ms
         double period = 500; // ms
+        boost::shared_ptr<ZeroStimulus> p_zero_stimulus(new ZeroStimulus()); // For coverage of SetStimulusFunction()
         boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(magnitude,
                                                                           duration,
                                                                           period,
@@ -110,7 +112,11 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
         // Make a model that uses Cvode directly:
-        Lr91Cvode lr91_cvode_system(p_solver, p_stimulus);
+        Lr91Cvode lr91_cvode_system(p_solver, p_zero_stimulus);
+
+        // Cover swapping to a proper stimulus
+        lr91_cvode_system.SetStimulusFunction(p_stimulus);
+
         TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetVoltage(),"State variables not set yet.");
         TS_ASSERT_THROWS_THIS(lr91_cvode_system.SetVoltage(0.0),"State variables not set yet.");
         TS_ASSERT_EQUALS(lr91_cvode_system.GetVoltageIndex(), 4u);

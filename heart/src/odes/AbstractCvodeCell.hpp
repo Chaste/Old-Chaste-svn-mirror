@@ -152,7 +152,15 @@ public:
     void SetVoltage(double voltage);
 
     /**
+     * Set the intracellular stimulus.
+     * Shorthand for SetIntracellularStimulusFunction.
+     * @param pStimulus  new stimulus function
+     */
+    void SetStimulusFunction(boost::shared_ptr<AbstractStimulusFunction> pStimulus);
+
+    /**
      * Get the value of the intracellular stimulus.
+     * Shorthand for GetIntracellularStimulus.
      * @param time  the time at which to evaluate the stimulus
      */
     double GetStimulus(double time);
