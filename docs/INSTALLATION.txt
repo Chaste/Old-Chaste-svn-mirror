@@ -54,6 +54,10 @@ Note: while these instructions use the MPICH library to provide MPI
 functionality, other MPI implementations may work for you.  The Chaste
 developers have also used OpenMPI successfully.
 
+Note: if you are installing on a machine with g++ 4.3 or later, download 
+the patched MPICH from
+https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/attachment/wiki/InstallGuides/NonRootDeveloper/mpich-1.2.7p1.tar.gz
+
 cd $CHASTE_LIBS
 wget ftp://ftp.mcs.anl.gov/pub/mpi/mpich.tar.gz
 tar -zxvf mpich.tar.gz
@@ -130,6 +134,13 @@ cd metis-4.0
 make
 cd ..
 rm -f metis-4.0.tar.gz
+
+If you have a problem compiling with a recent gcc compiler involving
+"conflicting types for ‘__log2’" then a solution is to edit the final
+line of Lib/rename.h
+-#define log2				__log2
++#define log2				__Log2
+
 
 ============= XSD and XML =============
 Installing Apache Xerces XML libraries:
