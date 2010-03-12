@@ -361,11 +361,13 @@ public:
                                                                                   PetscTools::GetNumProcs(), PetscTools::GetNumProcs()+1);
         TS_ASSERT_THROWS_THIS(mesh.SetDistributedVectorFactory(p_wrong_factory1),
                               "The distributed vector factory provided to the mesh is for the wrong number of processes.");
-
+        delete p_wrong_factory1;
+        
         DistributedVectorFactory* p_wrong_factory2 = new DistributedVectorFactory(total_nodes_wrong, local_nodes_wrong);
         mesh.SetDistributedVectorFactory(p_wrong_factory2);
         TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader),
                               "The distributed vector factory size in the mesh doesn't match the total number of nodes.");
+        delete p_wrong_factory2;
 
         // OK call
         DistributedVectorFactory* p_uneven_factory = new DistributedVectorFactory(total_nodes, local_nodes);
