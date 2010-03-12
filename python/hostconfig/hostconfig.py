@@ -77,13 +77,18 @@ try:
     conf = machines.config_module()
 except ImportError:
     # How about distro-specific config?
+    tmp = sys.path
+    sys.path = ['python/hostconfig']
     try:
         fp = open('/etc/issue')
         distro = fp.read().split()[0].lower()
         fp.close()
         conf = __import__(distro)
     except (ImportError, IOError):
+        sys.path = tmp
         import default as conf
+    finally:
+        sys.path = tmp
 
 # For debugging
 #for name in dir(conf):

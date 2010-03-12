@@ -51,12 +51,11 @@ import glob
 import socket
 import time
 
-sys.path.append('python')
+sys.path[0:0] = ['python', 'python/hostconfig']
 import BuildTypes
 import SConsTools
 Export('SConsTools')
 
-sys.path.append('python/hostconfig')
 import hostconfig
 
 # If building a loadable module at run-time
