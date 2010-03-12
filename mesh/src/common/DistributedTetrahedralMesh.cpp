@@ -73,6 +73,13 @@ DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::~DistributedTetrahedralMesh(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SetDistributedVectorFactory(DistributedVectorFactory* pFactory)
+{
+    AbstractMesh<ELEMENT_DIM,SPACE_DIM>::SetDistributedVectorFactory(pFactory);
+    mMetisPartitioning = DUMB;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning(
     AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
     std::set<unsigned>& rNodesOwned,
@@ -442,6 +449,7 @@ bool DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwne
         return false;
     }
 }
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex ) 
 {
@@ -529,6 +537,7 @@ unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElemen
 
     return boundary_element_position->second;
 }
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM> * DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAnyNode(unsigned index) const
 {
@@ -549,21 +558,22 @@ Node<SPACE_DIM> * DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAnyNode
     message << "Requested node/halo " << index << " does not belong to processor " << PetscTools::GetMyRank();
     EXCEPTION(message.str().c_str());
 }
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                                                                           std::set<unsigned>& rNodesOwned)
+                                                                              std::set<unsigned>& rNodesOwned)
 {
-    if(this->mpDistributedVectorFactory)
+    if (this->mpDistributedVectorFactory)
     {
-        //A distribution is given by the factory
+        // A distribution is given by the factory
         if (this->mpDistributedVectorFactory->GetProblemSize() != mTotalNumNodes)
         {
-            //Reset stuff
-            this->mpDistributedVectorFactory=NULL;
-            this->mTotalNumNodes=0;
-            this->mTotalNumElements=0;
-            this->mTotalNumBoundaryElements=0;
-            EXCEPTION("The distributed vector factory size in the mesh doesn't match the total number of nodes");
+            // Reset stuff
+            this->mpDistributedVectorFactory = NULL;
+            this->mTotalNumNodes = 0u;
+            this->mTotalNumElements = 0u;
+            this->mTotalNumBoundaryElements = 0u;
+            EXCEPTION("The distributed vector factory size in the mesh doesn't match the total number of nodes.");
         }
     }
     else
@@ -580,13 +590,11 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Ab
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                                                                                  std::set<unsigned>& rNodesOwned,
-                                                                                  std::vector<unsigned>& rProcessorsOffset)
+                                                                                     std::set<unsigned>& rNodesOwned,
+                                                                                     std::vector<unsigned>& rProcessorsOffset)
 {
     assert(!PetscTools::IsSequential());
-    #define COVERAGE_IGNORE
-    assert( ELEMENT_DIM==2 || ELEMENT_DIM==3 ); // Metis works with triangles and tetras
-    #undef COVERAGE_IGNORE
+    assert(ELEMENT_DIM==2 || ELEMENT_DIM==3); // Metis works with triangles and tetras
 
     unsigned num_procs = PetscTools::GetNumProcs();
 

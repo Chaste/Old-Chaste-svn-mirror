@@ -95,61 +95,21 @@ private:
     template<class Archive>
     void save(Archive & archive, const unsigned int version) const
     {
-        //Only the master process writes any meshes to disk
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
         archive & mMeshIsLinear;
         // Create a mesh writer pointing to the correct file and directory.
         TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
                                                                ArchiveLocationInfo::GetMeshFilename(),
                                                                false);
-
-        if (this->IsMeshChanging())
-        {
-            mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
-        }
-        else
-        {
-            bool need_to_write_mesh;
-            if (PetscTools::AmMaster())
-            {
-                try
-                {
-                    /**
-                     * \todo If this mesh object has been constructed from a file, we could just copy the file.
-                     *
-                     * Rewrites mesh with a different name in its original format to the ArchiveLocationInfo.
-                     * This doesn't have the permutation applied.  It may be better to copy the mesh or to use
-                     * HeartConfig...
-                     *
-                     * The advantage of the current code here is that we don't need any communication in the
-                     * case of a DistributedTetrahedralMesh; the master process just slurps the file in and spits
-                     * it out again chunk by chunk.
-                     */
-                    TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(this->GetMeshFileBaseName());
-                    mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
-                    need_to_write_mesh = false;
-                }
-                catch(Exception& e)
-                {
-                    /**
-                     * Catching an exception thrown by TrianglesMeshReader constructor if it cannot find the mesh on disk.
-                     * That may mean it is a mesh constructed from a geometric description rather that read from file.
-                     * We can't just write here, as we may need to communicate with the slaves...
-                     */
-                    need_to_write_mesh = true;
-                }
-            }
-            else
-            {
-                // Slaves don't know if the mesh has been written yet.
-                need_to_write_mesh = false;
-            }
-            if (PetscTools::ReplicateBool(need_to_write_mesh))
-            {
-                mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
-            }
-        }
-        PetscTools::Barrier("AbstractTetrahedralMesh::save");//Make sure that the files are written before slave processes proceed
+        /**
+         * Always write the in-memory mesh to disk, to make sure we have a properly permuted version of it.
+         * 
+         * \todo  This is bad for very large meshes.  Consider making a symlink and just writing the permutation.
+         * Perhaps even copy the permutation file from an earlier checkpoint?
+         */
+        mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));
+        // Make sure that the files are written before slave processes proceed
+        PetscTools::Barrier("AbstractTetrahedralMesh::save");
     }
 
     /**
@@ -167,6 +127,22 @@ private:
         // Store the DistributedVectorFactory loaded from the archive
         DistributedVectorFactory* p_factory = this->mpDistributedVectorFactory;
         this->mpDistributedVectorFactory = NULL;
+        // Check whether we're migrating, or if we can use the original partition for the mesh
+        DistributedVectorFactory* p_our_factory = NULL;
+        if (p_factory)
+        {
+            p_our_factory = p_factory->GetOriginalFactory();
+        }
+        if (p_our_factory && p_our_factory->GetNumProcs() == p_factory->GetNumProcs())
+        {
+            // Specify the node distribution
+            this->SetDistributedVectorFactory(p_our_factory);
+        }
+        else
+        {
+            // Migrating; let the mesh re-partition if it likes
+            p_our_factory = NULL;
+        }
         
         if (mMeshIsLinear)
         {
@@ -181,7 +157,7 @@ private:
             this->ConstructFromMeshReader(mesh_reader);
         }
         
-        // Sanity check that we still have the same distribution of nodes
+        // Make sure we're using the correct vector factory
         if (p_factory)
         {
             if (!this->mpDistributedVectorFactory)
@@ -192,12 +168,14 @@ private:
             }
             else
             {
-                assert(p_factory->GetLow() == this->mpDistributedVectorFactory->GetLow());
-                assert(p_factory->GetHigh() == this->mpDistributedVectorFactory->GetHigh());
-                assert(p_factory->GetProblemSize() == this->mpDistributedVectorFactory->GetProblemSize());
-                // Replace our new factory with the original, so AbstractCardiacPde isn't pointing at
-                // a deleted factory.
-                delete this->mpDistributedVectorFactory;
+                // We need to update p_factory to match this->mpDistributedVectorFactory, and then use
+                // p_factory, since the rest of the code (e.g. AbstractCardiacPde) will be using p_factory.
+                p_factory->SetFromFactory(this->mpDistributedVectorFactory);
+                if (p_our_factory != this->mpDistributedVectorFactory)
+                {
+                    // Avoid memory leak
+                    delete this->mpDistributedVectorFactory;
+                }
                 this->mpDistributedVectorFactory = p_factory;
             }
         }

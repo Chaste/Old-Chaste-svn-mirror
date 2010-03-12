@@ -97,8 +97,14 @@ DistributedVectorFactory* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetDistributedVe
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetDistributedVectorFactory(DistributedVectorFactory *pFactory)
 {
-    //assert(GetNumNodes()==0u);
-    assert(!mpDistributedVectorFactory);
+    if (mpDistributedVectorFactory)
+    {
+        EXCEPTION("Cannot change the mesh's distributed vector factory once it has been set.");
+    }
+    if (pFactory->GetNumProcs() != PetscTools::GetNumProcs())
+    {
+        EXCEPTION("The distributed vector factory provided to the mesh is for the wrong number of processes.");
+    }
     mpDistributedVectorFactory = pFactory;
 }
 

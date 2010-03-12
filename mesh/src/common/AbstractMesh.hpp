@@ -177,11 +177,14 @@ public:
     DistributedVectorFactory * GetDistributedVectorFactory();
 
     /**
-     * Set method for DistributedVectorFactory.
-     * Should be called before the mesh is used for anything.
-     * @param pFactory a factory to use for this distribution
+     * Set method for #mpDistributedVectorFactory.
+     * Must be called before the mesh is used for anything.  This only actually
+     * impacts the DistributedTetrahedralMesh subclass, in which the supplied factory
+     * is then used to specify the node distribution among the processes.
+     * 
+     * @param pFactory a factory to use for this mesh
      */
-    void SetDistributedVectorFactory(DistributedVectorFactory *pFactory);
+    virtual void SetDistributedVectorFactory(DistributedVectorFactory* pFactory);
 
     /**
      * Permute the nodes so that they appear in a different order in mNodes

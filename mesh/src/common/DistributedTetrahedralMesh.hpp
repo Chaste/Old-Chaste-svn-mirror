@@ -138,6 +138,14 @@ public:
      * Destructor.
      */
     virtual ~DistributedTetrahedralMesh();
+    
+    /**
+     * Specify the node distribution across processes.
+     * This also makes sure we don't try to use METIS to partition the mesh.
+     * 
+     * @param pFactory a factory to use for this mesh
+     */
+    void SetDistributedVectorFactory(DistributedVectorFactory* pFactory);
 
     /**
      * Construct the mesh using a MeshReader.
@@ -337,7 +345,6 @@ private:
      * @param rHaloNodesOwned is a set to be filled with the indices of halo nodes owned by this process
      * @param rElementsOwned is a set to be filled with the indices of elements owned by this process
      * @param rProcessorsOffset a vector of length NumProcs to be filled with the index of the lowest indexed node owned by each process
-     *  
      */
     void ComputeMeshPartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                  std::set<unsigned>& rNodesOwned,

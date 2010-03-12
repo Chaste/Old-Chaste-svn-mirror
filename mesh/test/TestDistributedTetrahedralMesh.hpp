@@ -340,42 +340,54 @@ public:
         }
     }
 
-    ///\todo #1199 Need an uneven mesh distribution for Construct from mesh reader or whatever.
+    // See #1199
     void TestConstructFromMeshReader2DWithUnevenDistribution()
     {
-        unsigned local_nodes=1u;
-        unsigned local_nodes_wrong=1u;
-        unsigned total_nodes=543u;
+        unsigned local_nodes = 1u;
+        unsigned local_nodes_wrong = 1u;
+        unsigned total_nodes = 543u;
+        unsigned total_nodes_wrong = 100u;
         if (PetscTools::AmTopMost())
         {
-            local_nodes=total_nodes-( PetscTools::GetNumProcs() -1 );
-            local_nodes_wrong=100-( PetscTools::GetNumProcs() -1 );
+            local_nodes = total_nodes - (PetscTools::GetNumProcs()-1);
+            local_nodes_wrong = total_nodes_wrong - (PetscTools::GetNumProcs()-1);
         }
         
-        
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-
         DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::DUMB); // No reordering
 
-        DistributedVectorFactory* p_wrong=new DistributedVectorFactory(100, local_nodes_wrong);
-        mesh.SetDistributedVectorFactory(p_wrong);
-        TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader), "The distributed vector factory size in the mesh doesn't match the total number of nodes");
- 
-        DistributedVectorFactory* p_uneven= new DistributedVectorFactory(total_nodes, local_nodes);
-        mesh.SetDistributedVectorFactory(p_uneven);
+        // Exceptions
+        DistributedVectorFactory* p_wrong_factory1 = new DistributedVectorFactory(PetscTools::GetMyRank(), PetscTools::GetMyRank()+1,
+                                                                                  PetscTools::GetNumProcs(), PetscTools::GetNumProcs()+1);
+        TS_ASSERT_THROWS_THIS(mesh.SetDistributedVectorFactory(p_wrong_factory1),
+                              "The distributed vector factory provided to the mesh is for the wrong number of processes.");
+
+        DistributedVectorFactory* p_wrong_factory2 = new DistributedVectorFactory(total_nodes_wrong, local_nodes_wrong);
+        mesh.SetDistributedVectorFactory(p_wrong_factory2);
+        TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader),
+                              "The distributed vector factory size in the mesh doesn't match the total number of nodes.");
+
+        // OK call
+        DistributedVectorFactory* p_uneven_factory = new DistributedVectorFactory(total_nodes, local_nodes);
+        mesh.SetDistributedVectorFactory(p_uneven_factory);
         mesh.ConstructFromMeshReader(mesh_reader);
 
- 
+        // Check the mesh is using the supplied factory
+        TS_ASSERT(mesh.GetDistributedVectorFactory() == p_uneven_factory);
+
         // Check we have the right number of nodes & elements
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 543u);
-        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), 543u);
-        TS_ASSERT_EQUALS(mesh.GetDistributedVectorFactory()->GetProblemSize(), 543u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), total_nodes);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), total_nodes);
+        TS_ASSERT_EQUALS(mesh.GetDistributedVectorFactory()->GetProblemSize(), total_nodes);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100u);
-
         TS_ASSERT_EQUALS(mesh.GetNumLocalNodes(), local_nodes);
-
+        
+        // Another exception
+        TS_ASSERT_THROWS_THIS(mesh.SetDistributedVectorFactory(p_uneven_factory),
+                              "Cannot change the mesh's distributed vector factory once it has been set.");
     }
+    
     void TestConstructFromMeshReader3D()
     {
         /*

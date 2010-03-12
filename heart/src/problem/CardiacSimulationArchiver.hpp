@@ -169,7 +169,7 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
     info_file >> num_procs >> archive_version;
 
     PROBLEM_CLASS *p_unarchived_simulation;
-
+    
     // Avoid the DistributedVectorFactory throwing a 'wrong number of processes' exception when loading,
     // and make it get the original DistributedVectorFactory from the archive so we can compare against
     // num_procs.
@@ -177,25 +177,46 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
     // Put what follows in a try-catch to make sure we reset this
     try
     {
-        // Load the master and process-0 archive files.
-        // This will also set up ArchiveLocationInfo for us.
-        ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true, 0u);
-        boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
-        (*p_main_archive) >> p_unarchived_simulation;
-
-        // Work out how many more files to load
-        DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
-        assert(p_factory != NULL);
-        unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
-        assert(original_num_procs == num_procs); // Paranoia
-
-        // Merge in the extra data
-        for (unsigned archive_num=1; archive_num<original_num_procs; archive_num++)
+        if (num_procs == PetscTools::GetNumProcs())
         {
-            std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath("archive.arch", archive_num);
-            std::ifstream ifs(archive_path.c_str());
-            boost::archive::text_iarchive archive(ifs);
-            p_unarchived_simulation->LoadExtraArchive(archive, archive_version);
+            // We're not actually doing a migrate, and will re-use exactly the same mesh
+            // partitioning etc. from before, so don't need any of the LoadExtraArchive
+            // magic.  Indeed, we mustn't use it, or the mesh will get confused about
+            // which nodes it owns.
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true);
+            boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
+            (*p_main_archive) >> p_unarchived_simulation;
+            
+            // Paranoia checks
+            DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
+            assert(p_factory != NULL);
+            unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
+            assert(original_num_procs == num_procs);
+        }
+        else
+        {
+            // We are migrating, and must re-distribute nodes, cells, etc.
+
+            // Load the master and process-0 archive files.
+            // This will also set up ArchiveLocationInfo for us.
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true, 0u);
+            boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
+            (*p_main_archive) >> p_unarchived_simulation;
+    
+            // Work out how many more files to load
+            DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
+            assert(p_factory != NULL);
+            unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
+            assert(original_num_procs == num_procs); // Paranoia
+    
+            // Merge in the extra data
+            for (unsigned archive_num=1; archive_num<original_num_procs; archive_num++)
+            {
+                std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath("archive.arch", archive_num);
+                std::ifstream ifs(archive_path.c_str());
+                boost::archive::text_iarchive archive(ifs);
+                p_unarchived_simulation->LoadExtraArchive(archive, archive_version);
+            }
         }
     }
     catch (Exception &e)

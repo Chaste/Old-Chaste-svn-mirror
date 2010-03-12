@@ -179,7 +179,6 @@ public:
      * Load a quadratic mesh from a file.
      *
      * @param rMeshReader the mesh reader
-     * 
      */
     void ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader);
     

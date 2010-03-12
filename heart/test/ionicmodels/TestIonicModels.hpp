@@ -78,9 +78,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp" //No PETSc here -- this is just to double-check
 
 
-#include "Debug.hpp"
-
-
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp
 

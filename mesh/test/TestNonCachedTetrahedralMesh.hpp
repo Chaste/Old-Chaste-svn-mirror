@@ -48,21 +48,28 @@ private:
 #ifdef __linux__
         OutputFileHandler handler("");
         std::string file_name = handler.GetOutputDirectoryFullPath() + "memusage.tmp";
-
-        std::stringstream ps_command;
-        // Option "-o vsize=" makes ps report process virtual size. "=" after "vsize" prints no column header.
-        ps_command << "ps -o vsize= " << getpid() << " > " << file_name;
-        EXPECT0(system, ps_command.str().c_str());
-
+        if (PetscTools::AmMaster())
+        {
+            std::stringstream ps_command;
+            // Option "-o vsize=" makes ps report process virtual size. "=" after "vsize" prints no column header.
+            ps_command << "ps -o vsize= " << getpid() << " > " << file_name;
+            EXPECT0(system, ps_command.str().c_str());
+        }
+        PetscTools::Barrier("GetMemoryUsage-1");
+    
         std::ifstream mem_file;
         mem_file.open(file_name.c_str());
         assert(mem_file.is_open());
         unsigned vsize;
         mem_file >> vsize;
-
-        std::string rm_command = "rm -rf " + file_name;
-        EXPECT0(system, rm_command.c_str());
-
+    
+        PetscTools::Barrier("GetMemoryUsage-2");
+        if (PetscTools::AmMaster())
+        {
+            std::string rm_command = "rm -rf " + file_name;
+            EXPECT0(system, rm_command.c_str());
+        }
+    
         return vsize;
 #else
         return 0;
@@ -98,7 +105,7 @@ public:
         double non_cached_construction_time = (non_cached_finish-non_cached_start)/(double)CLOCKS_PER_SEC;
 
         // Constructing the non cached object should be quicker
-        TS_ASSERT( cached_construction_time > non_cached_construction_time );
+        TS_ASSERT_LESS_THAN( non_cached_construction_time, cached_construction_time );
 
         // compare mem usage
         TS_ASSERT( cached_mem_usage >= non_cached_mem_usage );
