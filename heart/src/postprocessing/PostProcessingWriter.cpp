@@ -112,13 +112,10 @@ PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::~PostProcessingWriter()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repolarisationPercentage, double threshold)
 {
-    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+    std::vector<std::vector<double> > output_data;
     if(PetscTools::AmMaster())
     {
-        out_stream p_file=out_stream(NULL);
-        std::stringstream stream;
-        stream << "Apd_" << repolarisationPercentage << "_" << threshold << "_Map.dat";
-        p_file = output_file_handler.OpenOutputFile(stream.str());
+        //Fill in data 
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
         {
             std::vector<double> apds;
@@ -133,28 +130,21 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repola
                 apds.push_back(0);
                 assert(apds.size() == 1);
             }
-            for (unsigned i = 0; i < apds.size(); i++)
-            {
-                *p_file << apds[i] << "\t";
-            }
-            *p_file << std::endl;
+            output_data.push_back(apds);
         }
-        p_file->close();
     }
-    PetscTools::Barrier();
-    
+    std::stringstream filename_stream;
+    filename_stream << "Apd_" << repolarisationPercentage << "_" << threshold << "_Map.dat";
+    WriteGenericFile(output_data, filename_stream.str());
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteUpstrokeTimeMap(double threshold)
 {
-    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+    std::vector<std::vector<double> > output_data;
     if(PetscTools::AmMaster())
     {
-        out_stream p_file=out_stream(NULL);
-        std::stringstream stream;
-        stream << "UpstrokeTimeMap_" << threshold << ".dat";
-        p_file = output_file_handler.OpenOutputFile(stream.str());
+        //Fill in data 
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
         {
             std::vector<double> upstroke_times;
@@ -168,27 +158,21 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteUpstrokeTimeMap(double t
                 upstroke_times.push_back(0);
                 assert(upstroke_times.size() == 1);
             }
-            for (unsigned i = 0; i < upstroke_times.size(); i++)
-            {
-                *p_file << upstroke_times[i] << "\t";
-            }
-            *p_file << std::endl;
+            output_data.push_back(upstroke_times);
         }
-        p_file->close();
     }
-    PetscTools::Barrier();
+    std::stringstream filename_stream;
+    filename_stream << "UpstrokeTimeMap_" << threshold << ".dat";
+    WriteGenericFile(output_data, filename_stream.str());
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(double threshold)
 {
-    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+    std::vector<std::vector<double> > output_data;
     if(PetscTools::AmMaster())
     {
-        out_stream p_file=out_stream(NULL);
-        std::stringstream stream;
-        stream << "MaxUpstrokeVelocityMap_" << threshold << ".dat";
-        p_file = output_file_handler.OpenOutputFile(stream.str());
+        //Fill in data 
         for (unsigned node_index = 0; node_index < mNumberOfNodes; node_index++)
         {
             std::vector<double> upstroke_velocities;
@@ -202,28 +186,21 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(d
                 upstroke_velocities.push_back(0);
                 assert(upstroke_velocities.size() ==1);
             }
-            for (unsigned i = 0; i < upstroke_velocities.size(); i++)
-            {
-                *p_file << upstroke_velocities[i] << "\t";
-            }
-            *p_file << std::endl;
-         }
-         p_file->close();
+            output_data.push_back(upstroke_velocities);
+        }
     }
-    PetscTools::Barrier();
+    std::stringstream filename_stream;
+    filename_stream << "MaxUpstrokeVelocityMap_" << threshold << ".dat";
+    WriteGenericFile(output_data, filename_stream.str());
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteConductionVelocityMap(unsigned originNode, std::vector<double> distancesFromOriginNode)
 {
-    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+    //Fill in data 
+    std::vector<std::vector<double> > output_data;
     if(PetscTools::AmMaster())
     {
-        out_stream p_file=out_stream(NULL);
-
-        std::stringstream filename;
-        filename << "ConductionVelocityFromNode" << originNode << ".dat";
-        p_file = output_file_handler.OpenOutputFile(filename.str());
         for (unsigned dest_node = 0; dest_node < mNumberOfNodes; dest_node++)
         {
             std::vector<double> conduction_velocities;
@@ -237,16 +214,34 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteConductionVelocityMap(un
                 conduction_velocities.push_back(0);
                 assert(conduction_velocities.size() == 1);
             }
-            for (unsigned i = 0; i < conduction_velocities.size(); i++)
+            output_data.push_back(conduction_velocities);
+        }
+    }
+    std::stringstream filename_stream;
+    filename_stream << "ConductionVelocityFromNode" << originNode << ".dat";
+    WriteGenericFile(output_data, filename_stream.str());
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteGenericFile(std::vector<std::vector<double> >& rDataPayload, std::string fileName)
+{
+    OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);
+    if(PetscTools::AmMaster())
+    {
+        out_stream p_file=out_stream(NULL);
+        p_file = output_file_handler.OpenOutputFile(fileName);
+        assert(rDataPayload.size() == mNumberOfNodes);
+        for (unsigned line_number=0; line_number<rDataPayload.size(); line_number++)
+        {
+            for (unsigned i = 0; i < rDataPayload[line_number].size(); i++)
             {
-                *p_file << conduction_velocities[i] << "\t";
+                *p_file << rDataPayload[line_number][i] << "\t";
             }
             *p_file << std::endl;
-         }
-         p_file->close();
+        }
+        p_file->close();
     }
     PetscTools::Barrier();
-    
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -132,6 +132,15 @@ private:
      * @param distancesFromOriginNode - Distance map from originNode to all the nodes in the simulation. Tipically calculated with DistanceMapCalculator
      */
     void WriteConductionVelocityMap(unsigned originNode, std::vector<double> distancesFromOriginNode);
+    /**
+     * Method for opening a file and writing one row per node
+     * line 1: <first scalar data for node 0> <second scalar data for node 0> ...
+     * line 2: <first scalar data for node 1> <second scalar data for node 1> ...
+     * etc.
+     * @param  rDataPayload vector data for each node.  Each node's data are represented by a vector of scalars (variable length)  
+     * @param  fileName where to put the data.
+     */
+    void WriteGenericFile(std::vector<std::vector<double> >& rDataPayload, std::string fileName);
 
 };
 
