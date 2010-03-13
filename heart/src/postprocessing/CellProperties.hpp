@@ -91,6 +91,19 @@ private:
      */
     std::vector<double> CalculateActionPotentialDurations(const double percentage);
 
+    /**
+     * Throw an exception if we are asking for information which is not present, because
+     * upstroke was never detected (the voltage trace never exceeded the threshold voltage).
+     */
+    void CheckExceededThreshold(void);
+
+    /**
+     * Throw an exception if we are asking for information which is not present, because
+     * an AP was never detected (the voltage trace never exceeded the threshold voltage
+     * and then returned past it).
+     */
+    void CheckReturnedToThreshold(void);
+
 public:
 
     /**
@@ -146,21 +159,22 @@ public:
      * 
      * @return a vector containing the cycle lengths for all APs
      */
-    std::vector<double>  GetCycleLengths()
-    {
-        return mCycleLengths;
-    }
+    std::vector<double> GetCycleLengths();
 
     /**
      * Returns the peak potentials for all APs.
      * 
      * @return a vector containing the peak potentials for all APs
      */
-    std::vector<double>  GetPeakPotentials()
-    {
-        return mPeakValues;
-    }
+    std::vector<double> GetPeakPotentials();
     
+    /**
+     * Returns the last AP's peak potential.
+     *
+     * @return last peak potential V_max
+     */
+    double GetLastPeakPotential();
+
     /**
      * Returns the resting potentials before each AP.
      * These are calculated as the point where the derivative
@@ -169,10 +183,7 @@ public:
      * 
      * @return a vector containing the resting potentials for all APs
      */
-    std::vector<double> GetRestingPotentials()
-    {
-        return mRestingValues;
-    }
+    std::vector<double> GetRestingPotentials();
 
     /**
      * Returns all the action potentials durations

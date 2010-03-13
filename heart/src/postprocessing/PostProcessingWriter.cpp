@@ -125,8 +125,9 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repola
                 assert(apds.size() != 0);
             }
             catch(Exception& e)
-            {   assert(e.GetShortMessage()=="No full action potential was recorded" ||
-                       e.GetShortMessage()=="No upstroke occurred");
+            {
+                assert(e.GetShortMessage()=="No full action potential was recorded" ||
+                       e.GetShortMessage()=="AP did not occur, never exceeded threshold voltage.");
                 apds.push_back(0);
                 assert(apds.size() == 1);
             }

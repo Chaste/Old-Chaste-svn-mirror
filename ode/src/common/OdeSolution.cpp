@@ -63,6 +63,8 @@ std::vector<double> OdeSolution::GetVariableAtIndex(unsigned index)
     return answer;
 }
 
+
+
 std::vector<double>& OdeSolution::rGetTimes()
 {
     return mTimes;

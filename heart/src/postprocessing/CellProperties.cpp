@@ -171,11 +171,7 @@ void CellProperties::CalculateProperties()
 
 std::vector<double> CellProperties::CalculateActionPotentialDurations(const double percentage)
 {
-    if (mOnsets.size() == 0)
-    {
-        // possible false error here if the simulation started at time < 0
-        EXCEPTION("No upstroke occurred");
-    }
+    CheckExceededThreshold();
 
     double prev_v = -DBL_MAX;
     unsigned APcounter=0;//will keep count of the APDs that we calculate
@@ -217,22 +213,9 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
     return apds;
 }
 
-
-std::vector<double> CellProperties::GetAllActionPotentialDurations(const double percentage)
-{
-    return CalculateActionPotentialDurations(percentage);
-}
-
-double CellProperties::GetLastActionPotentialDuration(const double percentage)
-{
-     std::vector<double> apds = CalculateActionPotentialDurations(percentage);
-
-    //return the last apd
-    return apds[apds.size()-1];
-}
-
 std::vector<double> CellProperties::GetActionPotentialAmplitudes()
 {
+    CheckExceededThreshold();
     unsigned size = mPeakValues.size();
     std::vector<double> amplitudes(size);
     for (unsigned i=0; i< size ;i++)
@@ -241,43 +224,95 @@ std::vector<double> CellProperties::GetActionPotentialAmplitudes()
     }
     return amplitudes;
 }
-double CellProperties::GetLastMaxUpstrokeVelocity()
-{
-    unsigned size = mMaxUpstrokeVelocities.size();
-    if (size==0)
-    {
-        EXCEPTION("Upstroke never occurred");
-    }
-    return mMaxUpstrokeVelocities[size-1];
 
-}
-double CellProperties::GetTimeAtLastMaxUpstrokeVelocity()
+void CellProperties::CheckExceededThreshold(void)
 {
-    unsigned size = mTimesAtMaxUpstrokeVelocity.size();
-    if (size==0)
+    // mOnsets and mRestingValues are all
+    // set at the same time, so checking one should suffice.
+    if (mOnsets.empty())
     {
-        EXCEPTION("Upstroke never occurred");
+        // possible false error here if the simulation started at time < 0
+        EXCEPTION("AP did not occur, never exceeded threshold voltage.");
     }
-    return mTimesAtMaxUpstrokeVelocity[size-1];
+}
+
+void CellProperties::CheckReturnedToThreshold(void)
+{
+    // mPeakValues, mMaxUpstrokeVelocities and mTimesAtMaxUpstrokeVelocity are all
+    // set at the same time so checking one should suffice.
+    if (mMaxUpstrokeVelocities.empty())
+    {
+        EXCEPTION("AP did not occur, never descended past threshold voltage.");
+    }
+}
+
+//
+// The Get std::vector<double> methods
+//
+
+std::vector<double> CellProperties::GetCycleLengths()
+{
+    return mCycleLengths;
+}
+
+std::vector<double> CellProperties::GetRestingPotentials()
+{
+    CheckExceededThreshold();
+    return mRestingValues;
+}
+
+std::vector<double> CellProperties::GetPeakPotentials()
+{
+    CheckReturnedToThreshold();
+    return mPeakValues;
 }
 
 std::vector<double> CellProperties::GetMaxUpstrokeVelocities()
 {
-    unsigned size = mMaxUpstrokeVelocities.size();
-    if (size==0)
-    {
-        EXCEPTION("Threshold never reached");
-    }
+    CheckReturnedToThreshold();
     return mMaxUpstrokeVelocities;
 }
 
 std::vector<double> CellProperties::GetTimesAtMaxUpstrokeVelocity()
 {
-    unsigned size = mTimesAtMaxUpstrokeVelocity.size();
-    if (size==0)
-    {
-        EXCEPTION("Threshold never reached");
-    }
+    CheckReturnedToThreshold();
     return mTimesAtMaxUpstrokeVelocity;
 }
+
+std::vector<double> CellProperties::GetAllActionPotentialDurations(const double percentage)
+{
+    return CalculateActionPotentialDurations(percentage);
+}
+
+//
+// The Get <double> methods
+//
+
+double CellProperties::GetLastPeakPotential()
+{
+    CheckReturnedToThreshold();
+    return mPeakValues.back();
+}
+
+double CellProperties::GetLastMaxUpstrokeVelocity()
+{
+    CheckReturnedToThreshold();
+    return mMaxUpstrokeVelocities.back();
+}
+
+double CellProperties::GetTimeAtLastMaxUpstrokeVelocity()
+{
+    CheckReturnedToThreshold();
+    return mTimesAtMaxUpstrokeVelocity.back();
+}
+
+double CellProperties::GetLastActionPotentialDuration(const double percentage)
+{
+    std::vector<double> apds = CalculateActionPotentialDurations(percentage);
+    // We tested this returns a non-empty vector in the method.
+    return apds.back();
+}
+
+
+
 

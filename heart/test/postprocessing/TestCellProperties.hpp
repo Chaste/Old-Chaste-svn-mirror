@@ -36,7 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <iomanip>
 #include "OdeSolution.hpp"
-#include "ColumnDataReader.hpp"
 #include "CellProperties.hpp"
 #include "RegularStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
@@ -64,14 +63,14 @@ public:
         CellProperties cell_properties(flat_v, times);
 
         //Should throw exceptions because the cached vector of onset times (mOnsets) is empty
-        TS_ASSERT_THROWS_THIS(cell_properties.GetLastActionPotentialDuration(90), "No upstroke occurred");
-        TS_ASSERT_THROWS_THIS(cell_properties.GetAllActionPotentialDurations(90)[0], "No upstroke occurred");
+        TS_ASSERT_THROWS_THIS(cell_properties.GetLastActionPotentialDuration(90), "AP did not occur, never exceeded threshold voltage.");
+        TS_ASSERT_THROWS_THIS(cell_properties.GetAllActionPotentialDurations(90)[0], "AP did not occur, never exceeded threshold voltage.");
 
         //Should throw exceptions because upstroke was never crossed
-        TS_ASSERT_THROWS_THIS(cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), "Upstroke never occurred");
-        TS_ASSERT_THROWS_THIS(cell_properties.GetLastMaxUpstrokeVelocity(), "Upstroke never occurred");
-        TS_ASSERT_THROWS_THIS(cell_properties.GetMaxUpstrokeVelocities(), "Threshold never reached");
-        TS_ASSERT_THROWS_THIS(cell_properties.GetTimesAtMaxUpstrokeVelocity(), "Threshold never reached");
+        TS_ASSERT_THROWS_THIS(cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), "AP did not occur, never descended past threshold voltage.");
+        TS_ASSERT_THROWS_THIS(cell_properties.GetLastMaxUpstrokeVelocity(), "AP did not occur, never descended past threshold voltage.");
+        TS_ASSERT_THROWS_THIS(cell_properties.GetMaxUpstrokeVelocities(), "AP did not occur, never descended past threshold voltage.");
+        TS_ASSERT_THROWS_THIS(cell_properties.GetTimesAtMaxUpstrokeVelocity(), "AP did not occur, never descended past threshold voltage.");
 
         //Now make it cross the threshold so the onset vector isn't empty any longer
         times.push_back(100);
@@ -120,7 +119,6 @@ public:
 
         solution.WriteToFile("", __FUNCTION__, "ms");
 
-
         // Now calculate the properties
         std::vector<double> voltage=solution.GetVariableAtIndex(4);
         CellProperties cell_props(voltage, solution.rGetTimes()); // Use default threshold
@@ -131,6 +129,7 @@ public:
         TS_ASSERT_DELTA(cell_props.GetPeakPotentials()[size-1], 43.1665, 0.0001);
         TS_ASSERT_DELTA(cell_props.GetRestingPotentials()[size-1], -84.4395, 0.0001);
         TS_ASSERT_DELTA(cell_props.GetActionPotentialAmplitudes()[size-1], 127.606, 0.001);
+        TS_ASSERT_DELTA(cell_props.GetLastPeakPotential(), 43.1665, 0.0001);
         TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(20), 6.66416, 0.00001);
         TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(50), 271.184, 0.001);
         TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(90), 361.544, 0.001); // Should use penultimate AP
