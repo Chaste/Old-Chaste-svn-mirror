@@ -42,6 +42,13 @@ void CellProperties::CalculateProperties()
         EXCEPTION("Insufficient time steps to calculate physiological properties.");
     }
 
+    if (mrTime.size() != mrVoltage.size())
+    {
+        std::stringstream exception_message;
+        exception_message << "Time and Voltage series should be the same length. Time.size() = " << mrTime.size() << ", Voltage.size() = " << mrVoltage.size();
+        EXCEPTION(exception_message.str());
+    }
+
     double prev_v = mrVoltage[0];
     double prev_t = mrTime[0];
     double current_upstroke_velocity = 0;

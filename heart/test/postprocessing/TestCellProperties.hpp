@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <iomanip>
 #include "OdeSolution.hpp"
+#include "ColumnDataReader.hpp"
 #include "CellProperties.hpp"
 #include "RegularStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
@@ -60,7 +61,7 @@ public:
             times.push_back(i);
             flat_v.push_back(-85.0);
         }
-        CellProperties  cell_properties(flat_v, times);
+        CellProperties cell_properties(flat_v, times);
 
         //Should throw exceptions because the cached vector of onset times (mOnsets) is empty
         TS_ASSERT_THROWS_THIS(cell_properties.GetLastActionPotentialDuration(90), "No upstroke occurred");
@@ -76,7 +77,7 @@ public:
         times.push_back(100);
         flat_v.push_back(20.0);
 
-        CellProperties  new_cell_properties(flat_v, times);
+        CellProperties new_cell_properties(flat_v, times);
 
         //Now this should throw an exception because the vectors of APs is empty...
         TS_ASSERT_THROWS_THIS(new_cell_properties.GetLastActionPotentialDuration(90), "No full action potential was recorded");
@@ -84,6 +85,10 @@ public:
         //...but we can calculate peak properties for the last AP (though incomplete)
         TS_ASSERT_EQUALS(new_cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), 100);
         TS_ASSERT_EQUALS(new_cell_properties.GetLastMaxUpstrokeVelocity(),105);
+
+        times.push_back(101);
+        TS_ASSERT_THROWS_THIS(CellProperties bad_cell_properties(flat_v, times),
+                "Time and Voltage series should be the same length. Time.size() = 102, Voltage.size() = 101");
     }
 
     void TestCellPhysiologicalPropertiesForRegularLr91(void)
@@ -118,7 +123,7 @@ public:
 
         // Now calculate the properties
         std::vector<double> voltage=solution.GetVariableAtIndex(4);
-        CellProperties  cell_props(voltage, solution.rGetTimes()); // Use default threshold
+        CellProperties cell_props(voltage, solution.rGetTimes()); // Use default threshold
         unsigned size = cell_props.GetMaxUpstrokeVelocities().size();
 
         TS_ASSERT_DELTA(cell_props.GetMaxUpstrokeVelocities()[size-1], 418.4795, 0.001);
@@ -204,6 +209,7 @@ public:
         TS_ASSERT_DELTA(cycle_lengths[8], 2500, 1);
         TS_ASSERT_DELTA(cycle_lengths[size-1], 2500, 1);
      }
+
 };
 
 #endif //_TESTCELLPROPERTIES_HPP_
