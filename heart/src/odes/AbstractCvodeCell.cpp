@@ -189,6 +189,15 @@ N_Vector AbstractCvodeCell::GetInitialConditions()
     return v;
 }
 
+N_Vector AbstractCvodeCell::GetStateVariables()
+{
+    assert(mpSystemInfo);
+    if (!mStateVariables)
+    {
+        return GetInitialConditions();
+    }
+    return CopyVector(mStateVariables);
+}
 
 N_Vector AbstractCvodeCell::rGetStateVariables()
 {
@@ -204,6 +213,15 @@ void AbstractCvodeCell::SetStateVariables(N_Vector stateVars)
         ///\todo re-init CVODE here?
     }
     mStateVariables = stateVars;
+}
+
+void AbstractCvodeCell::SetStateVariablesUsingACopyOfThisVector(N_Vector stateVars)
+{
+    if (mStateVariables)
+    {
+        mStateVariables->ops->nvdestroy(mStateVariables);
+    }
+    mStateVariables = CopyVector(stateVars);
 }
 
 
@@ -410,6 +428,17 @@ std::string AbstractCvodeCell::DumpState(const std::string& message,
         res << "\t" << rGetVariableNames()[i] << ":" << NV_Ith_S(Y, i) << "\n";
     }
     return res.str();
+}
+
+N_Vector AbstractCvodeCell::CopyVector(N_Vector originalVec)
+{
+    unsigned size = NV_LENGTH_S(originalVec);
+    N_Vector v = N_VClone(originalVec);
+    for (unsigned i=0; i<size; i++)
+    {
+        NV_Ith_S(v, i) = NV_Ith_S(originalVec, i);
+    }
+    return v;
 }
 
 

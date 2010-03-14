@@ -151,6 +151,7 @@ public:
         {
             TS_ASSERT_EQUALS(voltages[i], lr91_cvode_system.GetVoltage());
         }
+
         lr91_cvode_system.SetVoltageDerivativeToZero(false);
 
         // Reset CVODE cell to initial conditions, and solve without sampling
@@ -234,7 +235,22 @@ public:
         double max_timestep = 1.0;
         double sampling_time = 1.0;
 
+        // Take a copy of the state variables, solve once, reset state variables and solve again (should get same answer)
+        N_Vector state_vars = sh04_cvode_system.GetStateVariables(); // This returns the initial conditions
+        sh04_cvode_system.Solve(start_time, end_time, max_timestep, sampling_time);
+        N_Vector state_vars_after_solve = sh04_cvode_system.GetStateVariables(); // This returns the state variables at the end (for coverage)...
+
+        sh04_cvode_system.SetStateVariablesUsingACopyOfThisVector(state_vars);
         OdeSolution solution_cvode = sh04_cvode_system.Solve(start_time, end_time, max_timestep, sampling_time);
+
+        // Check we get the right answer both times
+        std::vector<double> final_state_vars = solution_cvode.rGetSolutions().back();
+        for (unsigned i=0; i<final_state_vars.size(); i++)
+        {
+            TS_ASSERT_DELTA(final_state_vars[i], NV_Ith_S(state_vars_after_solve, i), 1e-6);
+        }
+
+        // Solve using Chaste solvers for comparison.
         OdeSolution solution_chaste = sh04_ode_system.Compute(start_time, end_time);
 
         unsigned step_per_row_chaste = 1000u;
@@ -257,11 +273,15 @@ public:
         {
             TS_ASSERT_EQUALS(voltages[i], sh04_cvode_system.GetVoltage());
         }
+
         sh04_cvode_system.SetVoltageDerivativeToZero(false);
 
         // Coverage of mSetVoltageDerivativeToZero in non-CVODE class
         sh04_ode_system.ComputeExceptVoltage(end_time,end_time+0.01);
 
+        // Tidy up
+        state_vars->ops->nvdestroy(state_vars);
+        state_vars_after_solve->ops->nvdestroy(state_vars_after_solve);
 #endif // CHASTE_CVODE
     }
 };

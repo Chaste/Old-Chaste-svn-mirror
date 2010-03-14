@@ -118,6 +118,11 @@ protected:
      */
     void Init();
 
+    /**
+     * This class is used by GetStateVariables and SetStateVariablesUsingACopyOfThisVector()
+     */
+    N_Vector CopyVector(N_Vector originalVec);
+
 public:
     /**
      * Create a new cardiac cell.
@@ -228,6 +233,23 @@ public:
      * @param stateVars  new state variables vector
      */
     void SetStateVariables(N_Vector stateVars);
+
+    /**
+     * Assign a vector to be copied for this cell's state.
+     *
+     * Caller retains responsibility for freeing the vector.
+     *
+     * @param stateVars  new state variables vector
+     */
+    void SetStateVariablesUsingACopyOfThisVector(N_Vector stateVars);
+
+    /**
+     * Takes a copy of the state variable vector.
+     * Doesn't really return a vector (N_Vector is a pointer type)
+     * but named like this to match AbstractCardiacCell.
+     * Caller takes responsibility for freeing the vector.
+     */
+    N_Vector GetStateVariables();
 
     /**
      * Get the state variable vector.
@@ -342,7 +364,6 @@ public:
      * Get the last step size used internally by CVODE in the last Solve call.
      */
     double GetLastStepSize();
-
 
 private:
 
