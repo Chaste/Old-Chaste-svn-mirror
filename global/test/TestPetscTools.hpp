@@ -129,7 +129,7 @@ public:
         unsigned nonzeros_allocated;
 
         MatGetInfo(mat2,MAT_LOCAL,&info);
-        nonzeros_allocated = info.nz_allocated;
+        nonzeros_allocated = (unsigned) info.nz_allocated;
 
         // Total number of nozeros that should be allocated is 36 (4*12 (12 = number of rows) in diagonal part,
         // plus 0.5*4*12 in the off-diagonal part. These are then split between the number of processors. So, a

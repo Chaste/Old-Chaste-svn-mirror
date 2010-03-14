@@ -482,7 +482,7 @@ public :
         TS_ASSERT_DELTA(times[274], 273, 1e-2);
         TS_ASSERT_DELTA(active_tensions[274], 2.1633, 1e-2);
 
-        TS_ASSERT_DELTA(active_tensions[active_tensions.back()], 0.0,  1e-2);
+        TS_ASSERT_DELTA(active_tensions[active_tensions.size()-1], 0.0,  1e-2);
     }
     
     void TestKerchoffs2003ContractionModelVaryingStetch() throw(Exception)
@@ -546,7 +546,7 @@ public :
         TS_ASSERT_DELTA(times[250], 250, 1e-2);
         TS_ASSERT_DELTA(active_tensions[250], 3.3597,  1e-2);
 
-        TS_ASSERT_DELTA(active_tensions[active_tensions.back()], 0.0,  1e-2);
+        TS_ASSERT_DELTA(active_tensions[active_tensions.size()-1], 0.0,  1e-2);
     }
 
 

@@ -579,7 +579,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(
         index++;
     }
     
-    double best_index;
+    unsigned best_index;
     
     if(index==damping_values.size() && (next_resid_norm < current_resid_norm))
     {
