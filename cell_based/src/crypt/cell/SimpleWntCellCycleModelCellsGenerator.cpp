@@ -31,7 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 AbstractCellCycleModel* SimpleWntCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
 {
-    return new SimpleWntCellCycleModel(DIM);
+//	SimpleWntCellCycleModel p_cell_cycle_model = new SimpleWntCellCycleModel();
+//	p_cell_cycle_model->SetDimension(DIM);
+	return new SimpleWntCellCycleModel(DIM);
 }
 
 

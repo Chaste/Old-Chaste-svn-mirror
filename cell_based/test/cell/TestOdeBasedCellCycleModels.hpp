@@ -207,7 +207,8 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+        p_cell_model->SetDimension(2);
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
@@ -291,10 +292,12 @@ public:
 
         // Cover exception - when constructing an instance of IngeWntSwatCellCycleModel,
         // we must pass in an hypothesis number (1 or 2)
-        TS_ASSERT_THROWS_THIS(IngeWntSwatCellCycleModel model(0,2), "Model must be set up with argument(hypothesis) = 1u or 2u");
+//        TS_ASSERT_THROWS_THIS(IngeWntSwatCellCycleModel model(0,2), "Model must be set up with argument(hypothesis) = 1u or 2u");
 
         // Create cell cycle model and associated cell
-        IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1,2);
+        IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel();
+        p_cell_model->SetDimension(2);
+        p_cell_model->SetHypothesis(1);
 
         // Test that member variables are set correctly
         TS_ASSERT_EQUALS(p_cell_model->GetHypothesis(), 1u);
@@ -478,7 +481,9 @@ public:
         // Coverage of 1D
 
         WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
-        IngeWntSwatCellCycleModel* p_cell_model_1d = new IngeWntSwatCellCycleModel(1,1);
+        IngeWntSwatCellCycleModel* p_cell_model_1d = new IngeWntSwatCellCycleModel();
+        p_cell_model_1d->SetDimension(1);
+		p_cell_model_1d->SetHypothesis(1);
 
         TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
 
@@ -494,7 +499,9 @@ public:
         // Coverage of 3D
 
         WntConcentration<3>::Instance()->SetConstantWntValueForTesting(wnt_level);
-        IngeWntSwatCellCycleModel* p_cell_model_3d = new IngeWntSwatCellCycleModel(1,3);
+        IngeWntSwatCellCycleModel* p_cell_model_3d = new IngeWntSwatCellCycleModel();
+        p_cell_model_3d->SetDimension(3);
+        p_cell_model_3d->SetHypothesis(1);
 
         TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
 
@@ -526,7 +533,8 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+        p_cell_model->SetDimension(2);
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
@@ -534,7 +542,8 @@ public:
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+        p_cell_model_1->SetDimension(2);
         TissueCell stem_cell_1(STEM, APC_ONE_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
@@ -583,14 +592,16 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+        p_cell_model->SetDimension(2);
         TissueCell stem_cell(STEM, BETA_CATENIN_ONE_HIT, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+        p_cell_model_1->SetDimension(2);
         TissueCell stem_cell_1(STEM, BETA_CATENIN_ONE_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
@@ -641,12 +652,14 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+        p_cell_model_1->SetDimension(2);
         TissueCell stem_cell_1(STEM, APC_TWO_HIT, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
+        p_cell_model_2->SetDimension(2);
         TissueCell stem_cell_2(STEM, APC_TWO_HIT, p_cell_model_2);
         stem_cell_2.InitialiseCellCycleModel();
 
@@ -698,12 +711,14 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
+        p_cell_model_1->SetDimension(2);
         TissueCell stem_cell_1(STEM, HEALTHY, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
         // Create another cell cycle model and associated cell
-        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel(2);
+        WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
+        p_cell_model_2->SetDimension(2);
         TissueCell stem_cell_2(STEM, HEALTHY, p_cell_model_2);
         stem_cell_2.InitialiseCellCycleModel();
 
@@ -754,7 +769,8 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Create cell cycle model and associated cell
-        StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel(2);
+        StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
+        p_cell_model->SetDimension(2);
         TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
@@ -862,7 +878,8 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16, 2);
 
             // Create cell cycle model and associated cell
-            WntCellCycleModel* p_cell_model = new WntCellCycleModel(3);
+            WntCellCycleModel* p_cell_model = new WntCellCycleModel();
+            p_cell_model->SetDimension(3);
             TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
             stem_cell.InitialiseCellCycleModel();
 
@@ -939,7 +956,9 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17, 2);
 
             // Create cell cycle model and associated cell
-            IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel(1,2);
+            IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel();
+            p_cell_model->SetDimension(2);
+            p_cell_model->SetHypothesis(1);
             TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
             stem_cell.InitialiseCellCycleModel();
 
@@ -1017,12 +1036,14 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 1000);
 
             // Create cell cycle model and associated cell
-            StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel(2);
+            StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel();
+            p_stoc_model->SetDimension(2);
             TissueCell stoc_cell(STEM, HEALTHY, p_stoc_model);
             stoc_cell.InitialiseCellCycleModel();
 
             // Create another cell cycle model and associated cell
-            WntCellCycleModel* p_wnt_model = new WntCellCycleModel(2);
+            WntCellCycleModel* p_wnt_model = new WntCellCycleModel();
+            p_wnt_model->SetDimension(2);
             TissueCell wnt_cell(STEM, HEALTHY, p_wnt_model);
             wnt_cell.InitialiseCellCycleModel();
 

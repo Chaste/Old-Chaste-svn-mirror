@@ -41,7 +41,7 @@ WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& rOtherModel)
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                      const CryptCellMutationState& rMutationState,
                                      const unsigned& rDimension)
-    : AbstractWntOdeBasedCellCycleModel(rDimension)
+    : AbstractWntOdeBasedCellCycleModel()
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], rMutationState); // Wnt pathway is reset in a couple of lines
 

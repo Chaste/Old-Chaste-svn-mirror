@@ -191,6 +191,18 @@ public:
 
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
+
+        // Create cells again with basic
+		std::vector<TissueCell> new_cells;
+		CellsGenerator<StochasticDurationGenerationBasedCellCycleModel, 2> cells_generator;
+		cells_generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
+		// Test that cells were generated correctly
+		TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
+
+		for (unsigned i=0; i<new_cells.size(); i++)
+		{
+			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+		}
     }
 
     void TestTysonNovakCellCycleModelCellsGenerator() throw(Exception)
@@ -209,6 +221,19 @@ public:
 
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
+
+
+        // Create cells again with basic
+		std::vector<TissueCell> new_cells;
+		CellsGenerator<TysonNovakCellCycleModel, 2> cells_generator;
+		cells_generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
+		// Test that cells were generated correctly
+		TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
+
+		for (unsigned i=0; i<new_cells.size(); i++)
+		{
+			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+		}
     }
 
 
@@ -233,6 +258,18 @@ public:
         {
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
+
+        // Create cells again with basic
+		std::vector<TissueCell> new_cells;
+		CellsGenerator<WntCellCycleModel, 2> cells_generator;
+		cells_generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
+		// Test that cells were generated correctly
+		TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
+
+		for (unsigned i=0; i<new_cells.size(); i++)
+		{
+			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+		}
     }
 
     void TestSimpleWntCellCycleModelCellsGenerator() throw(Exception)
@@ -256,6 +293,7 @@ public:
         {
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
+
     }
 
     void TestStochasticWntCellCycleModelCellsGenerator() throw(Exception)
@@ -279,6 +317,18 @@ public:
         {
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
+
+        // Create cells again with basic
+		std::vector<TissueCell> new_cells;
+		CellsGenerator<StochasticWntCellCycleModel, 2> cells_generator;
+		cells_generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
+		// Test that cells were generated correctly
+		TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
+
+		for (unsigned i=0; i<new_cells.size(); i++)
+		{
+			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+		}
     }
 
     void TestGenerateBasic() throw(Exception)

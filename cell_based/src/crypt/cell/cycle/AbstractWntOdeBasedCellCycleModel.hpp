@@ -100,7 +100,7 @@ public:
      *
      * @param dimension the spatial dimension (used by WntConcentration)
      */
-    AbstractWntOdeBasedCellCycleModel(unsigned dimension);
+    AbstractWntOdeBasedCellCycleModel();
 
     /**
      * Copy constructor.
@@ -138,6 +138,13 @@ public:
     virtual void ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()=0;
 
     /**
+	 * Set the spatial dimension.
+	 *
+	 * @param dimension
+	 */
+	void SetDimension(unsigned dimension);
+
+	/**
      * Get the spatial dimension.
      *
      * @return mDimension

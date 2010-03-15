@@ -115,10 +115,9 @@ public:
 
     /**
      * The standard constructor called in tests.
-     *
-     * @param dimension the spatial dimension (needed by WntConcentration)
      */
-    StochasticWntCellCycleModel(unsigned dimension);
+    StochasticWntCellCycleModel()
+    {}
 
     /**
      * A private constructor for archiving.

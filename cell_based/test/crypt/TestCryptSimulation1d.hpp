@@ -619,8 +619,10 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<num_cells; i++)
         {
-            TissueCell cell(STEM, HEALTHY, new WntCellCycleModel(1));
-            cell.SetBirthTime(0.0);
+        	WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
+			p_cell_cycle_model1->SetDimension(1);
+			TissueCell cell(TRANSIT, HEALTHY, p_cell_cycle_model1);
+			cell.SetBirthTime(0.0);
             cells.push_back(cell);
         }
 

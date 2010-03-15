@@ -94,7 +94,7 @@ public:
      * interactions modelled by the cell cycle ODE system.
      * @param dimension the spatial dimension
      */
-    IngeWntSwatCellCycleModel(unsigned hypothesis, unsigned dimension);
+    IngeWntSwatCellCycleModel();
 
     /**
      * Copy constructor.
@@ -154,6 +154,11 @@ public:
      * @return the level of nuclear beta-catenin. To be used in transcription
      */
     double GetNuclearBetaCateninLevel();
+
+    /**
+	 * @param hypothesis.
+	 */
+	void SetHypothesis(unsigned hypothesis);
 
     /**
      * @return mHypothesis.

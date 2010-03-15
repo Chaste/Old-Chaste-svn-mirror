@@ -85,8 +85,8 @@ public:
      *
      * @param dimension the spatial dimension
      */
-    WntCellCycleModel(unsigned dimension)
-        : AbstractWntOdeBasedCellCycleModel(dimension)
+    WntCellCycleModel()
+        : AbstractWntOdeBasedCellCycleModel()
     {}
 
     /**

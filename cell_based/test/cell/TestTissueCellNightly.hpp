@@ -172,8 +172,10 @@ public:
         double wnt_stimulus = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, new WntCellCycleModel(2));
-        wnt_cell.InitialiseCellCycleModel();
+        WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
+		p_cell_cycle_model1->SetDimension(2);
+		TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, p_cell_cycle_model1);
+		wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
@@ -242,8 +244,10 @@ public:
         double wnt_stimulus = 0.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TissueCell wnt_cell(TRANSIT, BETA_CATENIN_ONE_HIT, new WntCellCycleModel(2));
-        wnt_cell.InitialiseCellCycleModel();
+        WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
+		p_cell_cycle_model1->SetDimension(2);
+		TissueCell wnt_cell(TRANSIT, BETA_CATENIN_ONE_HIT, p_cell_cycle_model1);
+		wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
@@ -313,8 +317,10 @@ public:
         double wnt_stimulus = 0.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TissueCell wnt_cell(TRANSIT, APC_TWO_HIT, new WntCellCycleModel(2));
-        wnt_cell.InitialiseCellCycleModel();
+        WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
+		p_cell_cycle_model1->SetDimension(2);
+		TissueCell wnt_cell(TRANSIT, APC_TWO_HIT, p_cell_cycle_model1);
+		wnt_cell.InitialiseCellCycleModel();
 
         CryptCellMutationState this_state = wnt_cell.GetMutationState();
 

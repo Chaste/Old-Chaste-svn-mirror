@@ -302,7 +302,10 @@ public:
         // Test a Wnt dependent cell
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(0.0);
 
-        TissueCell wnt_cell(TRANSIT, HEALTHY, new WntCellCycleModel(2));
+        WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
+		p_cell_cycle_model1->SetDimension(2);
+		TissueCell wnt_cell(TRANSIT, HEALTHY, p_cell_cycle_model1);
+
 
         TS_ASSERT_EQUALS(wnt_cell.GetCellProliferativeType(),TRANSIT);
 
@@ -736,8 +739,11 @@ public:
 
         double wnt_stimulus = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
-        TissueCell wnt_cell(TRANSIT, HEALTHY, new WntCellCycleModel(2));
-        wnt_cell.InitialiseCellCycleModel();
+
+        WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
+		p_cell_cycle_model1->SetDimension(2);
+		TissueCell wnt_cell(TRANSIT, HEALTHY, p_cell_cycle_model1);
+		wnt_cell.InitialiseCellCycleModel();
 
 #ifdef CHASTE_CVODE
         const double expected_g1_duration = 5.96441;
@@ -818,7 +824,9 @@ public:
         double wnt_stimulus = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TissueCell wnt_cell(TRANSIT, HEALTHY, new StochasticWntCellCycleModel(2));
+        StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
+		p_cell_model->SetDimension(2);
+        TissueCell wnt_cell(TRANSIT, HEALTHY, p_cell_model);
         wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
@@ -1197,16 +1205,24 @@ public:
         double wnt_stimulus = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, new WntCellCycleModel(2));
+        WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
+        p_cell_cycle_model1->SetDimension(2);
+        TissueCell wnt_cell(TRANSIT, APC_ONE_HIT, p_cell_cycle_model1);
         wnt_cell.InitialiseCellCycleModel();
 
-        TissueCell wnt_cell2(TRANSIT, BETA_CATENIN_ONE_HIT, new WntCellCycleModel(2));
+        WntCellCycleModel* p_cell_cycle_model2 = new WntCellCycleModel();
+        p_cell_cycle_model2->SetDimension(2);
+        TissueCell wnt_cell2(TRANSIT, BETA_CATENIN_ONE_HIT, p_cell_cycle_model2);
         wnt_cell2.InitialiseCellCycleModel();
 
-        TissueCell wnt_cell3(TRANSIT, APC_TWO_HIT, new WntCellCycleModel(2));
+        WntCellCycleModel* p_cell_cycle_model3 = new WntCellCycleModel();
+        p_cell_cycle_model3->SetDimension(2);
+        TissueCell wnt_cell3(TRANSIT, APC_TWO_HIT, p_cell_cycle_model3);
         wnt_cell3.InitialiseCellCycleModel();
 
-        TissueCell wnt_cell4(TRANSIT, LABELLED, new WntCellCycleModel(2));
+        WntCellCycleModel* p_cell_cycle_model4 = new WntCellCycleModel();
+        p_cell_cycle_model4->SetDimension(2);
+        TissueCell wnt_cell4(TRANSIT, LABELLED, p_cell_cycle_model4);
         wnt_cell4.InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(wnt_cell.ReadyToDivide(), false);

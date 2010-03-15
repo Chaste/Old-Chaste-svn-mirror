@@ -35,9 +35,8 @@ RungeKutta4IvpOdeSolver AbstractWntOdeBasedCellCycleModel::msSolver;
 #endif //CHASTE_CVODE
 
 
-AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(unsigned dimension)
+AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel()
 {
-    mDimension = dimension;
 #ifdef CHASTE_CVODE
     // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so.
     msSolver.CheckForStoppingEvents();
@@ -53,6 +52,10 @@ AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const Abstr
 {
 }
 
+void AbstractWntOdeBasedCellCycleModel::SetDimension(unsigned dimension)
+{
+    mDimension = dimension;
+}
 
 unsigned AbstractWntOdeBasedCellCycleModel::GetDimension()
 {

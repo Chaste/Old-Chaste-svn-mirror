@@ -252,7 +252,8 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            WntCellCycleModel* p_model = new WntCellCycleModel(2);
+            WntCellCycleModel* p_model = new WntCellCycleModel();
+            p_model->SetDimension(2);
             TissueCell cell(STEM, HEALTHY, p_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
@@ -402,7 +403,8 @@ public:
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            WntCellCycleModel* p_model = new WntCellCycleModel(2);
+            WntCellCycleModel* p_model = new WntCellCycleModel();
+            p_model->SetDimension(2);
             TissueCell cell(STEM, HEALTHY, p_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);

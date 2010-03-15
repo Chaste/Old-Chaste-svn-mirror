@@ -29,14 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "IngeWntSwatCellCycleModel.hpp"
 
 
-IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(unsigned hypothesis, unsigned dimension)
-   : AbstractWntOdeBasedCellCycleModel(dimension),
-     mHypothesis(hypothesis)
+IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel()
+   : AbstractWntOdeBasedCellCycleModel()
 {
-    if ( !(mHypothesis==1u || mHypothesis==2u) )
-    {
-        EXCEPTION("Model must be set up with argument(hypothesis) = 1u or 2u");
-    }
 }
 
 
@@ -55,7 +50,7 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis
                                                      const std::vector<double>& rParentProteinConcentrations,
                                                      const CryptCellMutationState& rMutationState,
                                                      const unsigned& rDimension)
-    : AbstractWntOdeBasedCellCycleModel(rDimension)
+    : AbstractWntOdeBasedCellCycleModel()
 {
     mHypothesis = rHypothesis;
     mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, rParentProteinConcentrations[21], rMutationState);// Wnt pathway is reset in a couple of lines.
@@ -151,6 +146,14 @@ double IngeWntSwatCellCycleModel::GetNuclearBetaCateninLevel()
            mpOdeSystem->rGetStateVariables()[19];
 }
 
+void IngeWntSwatCellCycleModel::SetHypothesis(unsigned hypothesis)
+{
+	mHypothesis = hypothesis;
+    if ( !(mHypothesis==1u || mHypothesis==2u) )
+    {
+        EXCEPTION("Model must be set up with argument(hypothesis) = 1u or 2u");
+    }
+}
 
 unsigned IngeWntSwatCellCycleModel::GetHypothesis() const
 {
