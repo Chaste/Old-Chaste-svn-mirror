@@ -48,7 +48,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 }
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleModel& rOtherModel)
-    : AbstractOdeBasedCellCycleModel(rOtherModel)
+    : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
 {
     if (rOtherModel.mpOdeSystem != NULL)
     {
@@ -59,7 +59,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleMode
 
 void TysonNovakCellCycleModel::ResetForDivision()
 {
-    AbstractOdeBasedCellCycleModel::ResetForDivision();
+	AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
 
     assert(mpOdeSystem!=NULL);
 

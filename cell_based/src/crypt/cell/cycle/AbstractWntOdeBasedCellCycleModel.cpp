@@ -47,7 +47,7 @@ AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel()
 
 
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& rOtherModel)
-    : AbstractOdeBasedCellCycleModel(rOtherModel),
+    : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel),
       mDimension(rOtherModel.mDimension)
 {
 }
@@ -104,7 +104,7 @@ double AbstractWntOdeBasedCellCycleModel::GetWntLevel()
 
 void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
 {
-    AbstractOdeBasedCellCycleModel::ResetForDivision();
+	AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
 
     assert(mpOdeSystem!=NULL);
 

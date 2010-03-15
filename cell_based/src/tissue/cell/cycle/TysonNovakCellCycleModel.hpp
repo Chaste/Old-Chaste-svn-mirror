@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
-#include "AbstractOdeBasedCellCycleModel.hpp"
+#include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
 #include "TysonNovak2001OdeSystem.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CvodeAdaptor.hpp"
@@ -50,7 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
  *  or operator=.
  */
-class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModel
+class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModelWithStoppingEvent
 {
 private:
 
@@ -75,7 +75,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
+        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
     }
 
 public:
@@ -95,7 +95,7 @@ public:
     TysonNovakCellCycleModel(const TysonNovakCellCycleModel& rOtherModel);
 
     /**
-     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision()
+     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision()
      * and setting initial conditions for protein concentrations.
      */
     void ResetForDivision();
