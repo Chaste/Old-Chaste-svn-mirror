@@ -52,7 +52,8 @@ private:
     //std::string mOutputDirectory; /**< The directory to write the data */
     Hdf5DataReader* mpDataReader; /**< An HDF5 reader from which to build the PropagationPropertiesCalculator */
     PropagationPropertiesCalculator* mpCalculator; /**< PropagationPropertiesCalculator based on HDF5 data reader*/
-    unsigned mNumberOfNodes; /**< Number of nodes in the mesh (got from the data reader)*/
+    unsigned mLo; /**< Cache of mLo from the mesh DitributedVectorFactory */
+    unsigned mHi; /**< Cache of mHi from the mesh DitributedVectorFactory */
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& mrMesh;/**< A mesh used to calculate the distance map to pass to the conduction velocity calculator*/
 
 public:
