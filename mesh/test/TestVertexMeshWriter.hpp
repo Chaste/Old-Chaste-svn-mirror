@@ -81,8 +81,8 @@ public:
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.node";
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.cell";
 
-        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " notforrelease_cell_based/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " notforrelease_cell_based/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file1 + " mesh/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_file2 + " mesh/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
 
 #ifdef CHASTE_VTK
         std::vector<double> cell_ids;
@@ -102,7 +102,7 @@ public:
 
         //1.5K uncompressed, 1.5K compressed
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.vtu";
-        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " notforrelease_cell_based/test/data/TestVertexMesh/vertex_mesh.vtu").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMesh/vertex_mesh.vtu").c_str()), 0);
 
 #endif //CHASTE_VTK
     }
@@ -177,7 +177,7 @@ public:
 
         //1.5K uncompressed, 1.5K compressed
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_42.vtu";
-        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " notforrelease_cell_based/test/data/TestVertexMesh/vertex_mesh_3d.vtu").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMesh/vertex_mesh_3d.vtu").c_str()), 0);
 #endif //CHASTE_VTK
     }
 

@@ -48,7 +48,7 @@ public:
      */
     void TestFilesOpen() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cell_based/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
     }
 
 
@@ -59,11 +59,11 @@ public:
      */
     void TestNodesDataRead() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cell_based/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 7u);
 
-        VertexMeshReader<2,2> mesh_reader2("notforrelease_cell_based/test/data/baddata/vertex_mesh_bad_nodes");
+        VertexMeshReader<2,2> mesh_reader2("mesh/test/data/baddata/vertex_mesh_bad_nodes");
 
         // Reads node 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextNode());
@@ -80,7 +80,7 @@ public:
      */
     void TestElementsDataRead() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cell_based/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 2u);
 
@@ -111,7 +111,7 @@ public:
             TS_ASSERT_EQUALS(data.AttributeValue, 0u);
         }
 
-        VertexMeshReader<2,2> mesh_reader2("notforrelease_cell_based/test/data/baddata/vertex_mesh_bad_elements");
+        VertexMeshReader<2,2> mesh_reader2("mesh/test/data/baddata/vertex_mesh_bad_elements");
 
         // Reads element 0 from file
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextElementData());
@@ -129,7 +129,7 @@ public:
      */
     void TestPermutedNodesFail() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cell_based/test/data/baddata/vertex_mesh_permuted_nodes");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/baddata/vertex_mesh_permuted_nodes");
         TS_ASSERT_THROWS_THIS(for(unsigned i=0;i<mesh_reader.GetNumNodes();i++){mesh_reader.GetNextNode();}, "Data for node 3 missing")
     }
 
@@ -142,7 +142,7 @@ public:
      */
     void TestGetNextNode() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cell_based/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
 
         std::vector<double> first_node;
         first_node = mesh_reader.GetNextNode();
@@ -173,7 +173,7 @@ public:
      */
     void TestGetNextElementData() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cell_based/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
 
         std::vector<unsigned> next_element;
         for (unsigned i=0; i<mesh_reader.GetNumElements(); i++)
@@ -188,7 +188,7 @@ public:
 
     void TestReadingElementAttributes() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("notforrelease_cell_based/test/data/TestVertexMeshReader2d/vertex_mesh_with_element_attributes");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMeshReader2d/vertex_mesh_with_element_attributes");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 2u);
 
@@ -224,10 +224,10 @@ public:
 
     void TestOtherExceptions() throw(Exception)
     {
-        TS_ASSERT_THROWS_THIS(READER_2D mesh_reader("notforrelease_cell_based/test/data/nonexistent_file"),
-                "Could not open data file: notforrelease_cell_based/test/data/nonexistent_file.node");
-        TS_ASSERT_THROWS_THIS(READER_2D mesh_reader("notforrelease_cell_based/test/data/baddata/vertex_mesh_without_element_file"),
-                "Could not open data file: notforrelease_cell_based/test/data/baddata/vertex_mesh_without_element_file.cell");
+        TS_ASSERT_THROWS_THIS(READER_2D mesh_reader("mesh/test/data/nonexistent_file"),
+                "Could not open data file: mesh/test/data/nonexistent_file.node");
+        TS_ASSERT_THROWS_THIS(READER_2D mesh_reader("mesh/test/data/baddata/vertex_mesh_without_element_file"),
+                "Could not open data file: mesh/test/data/baddata/vertex_mesh_without_element_file.cell");
     }
 
 };
