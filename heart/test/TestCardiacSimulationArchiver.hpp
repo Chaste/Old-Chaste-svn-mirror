@@ -1133,9 +1133,8 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
         // And Save
         CardiacSimulationArchiver<BidomainProblem<1> >::Save(bidomain_problem, directory);
     }
-
-    ///\todo Deadlock caused by r8260     
-    void currentlyBrokenTestBcsOnNonMasterOnly() throw (Exception)
+   
+    void TestBcsOnNonMasterOnly() throw (Exception)
     {
         // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
         std::string source_directory = "heart/test/data/checkpoint_migration_bcs_on_non_master_only/";
@@ -1154,22 +1153,26 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
         // Test the bccs - zero dirichlet on RHS only
         TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
         boost::shared_ptr<BoundaryConditionsContainer<1,1,2> > p_bcc = p_problem->mpBoundaryConditionsContainer;
-        TS_ASSERT(p_bcc);
-        TS_ASSERT(! p_bcc->AnyNonZeroNeumannConditions());
-        TS_ASSERT( p_bcc->HasDirichletBoundaryConditions());
-        DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
-        for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
+        // If running on 2 procs we now don't migrate, so process 0 doesn't have a BCC.
+        if (PetscTools::GetNumProcs() != 2)
         {
-            Node<1>* p_node = p_problem->rGetMesh().GetNode(i);
-            TS_ASSERT(! p_bcc->HasDirichletBoundaryCondition(p_node, 0u));
-            if (i == num_nodes-1)
+            TS_ASSERT(p_bcc);
+            TS_ASSERT(! p_bcc->AnyNonZeroNeumannConditions());
+            TS_ASSERT( p_bcc->HasDirichletBoundaryConditions());
+            DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
+            for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
             {
-                TS_ASSERT(p_bcc->HasDirichletBoundaryCondition(p_node, 1u));
-                TS_ASSERT_EQUALS(p_bcc->GetDirichletBCValue(p_node, 1u), 0u);
-            }
-            else
-            {
-                TS_ASSERT(! p_bcc->HasDirichletBoundaryCondition(p_node, 1u));
+                Node<1>* p_node = p_problem->rGetMesh().GetNode(i);
+                TS_ASSERT(! p_bcc->HasDirichletBoundaryCondition(p_node, 0u));
+                if (i == num_nodes-1)
+                {
+                    TS_ASSERT(p_bcc->HasDirichletBoundaryCondition(p_node, 1u));
+                    TS_ASSERT_EQUALS(p_bcc->GetDirichletBCValue(p_node, 1u), 0u);
+                }
+                else
+                {
+                    TS_ASSERT(! p_bcc->HasDirichletBoundaryCondition(p_node, 1u));
+                }
             }
         }
 
