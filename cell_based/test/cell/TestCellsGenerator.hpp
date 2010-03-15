@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModelCellsGenerator.hpp"
 #include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "CellsGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
@@ -279,6 +280,31 @@ public:
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
     }
+
+    void TestGenerateBasic() throw(Exception)
+	{
+		// Create mesh
+		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
+		TetrahedralMesh<2,2> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
+
+		// Create cells
+		std::vector<TissueCell> cells;
+		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+		cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+		// Test that cells were generated correctly
+		TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
+
+		for (unsigned i=0; i<cells.size(); i++)
+		{
+			TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
+		}
+	}
+
+
+
+
 
 };
 

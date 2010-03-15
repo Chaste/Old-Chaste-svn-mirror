@@ -33,10 +33,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
+#include "CellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "MeshBasedTissue.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "ArchiveOpener.hpp"
 
@@ -55,7 +56,7 @@ private:
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM> generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, DIM> generator;
         generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create the tissue
@@ -139,7 +140,7 @@ public:
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Give cells 0 and 1 specific mutations to enable later testing
@@ -176,7 +177,7 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         // Bestow mutations on some cells
@@ -217,7 +218,7 @@ public:
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
         cells[9].SetMutationState(APC_TWO_HIT);
 
@@ -254,7 +255,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a tissue, with no ghost nodes at the moment
@@ -319,7 +320,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
         cells[27].StartApoptosis();
 
@@ -389,7 +390,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a tissue, with no ghost nodes at the moment
@@ -432,7 +433,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
         cells[0].SetCellProliferativeType(APOPTOTIC); // coverage
 
@@ -502,7 +503,7 @@ public:
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create the tissue
@@ -546,7 +547,7 @@ public:
             // Set up cells, one for each node. Give each a birth time of -node_index,
             // so the age = node_index
             std::vector<TissueCell> cells;
-            FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+            CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
             cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
             // Create the tissue
@@ -640,7 +641,7 @@ public:
         MutableMesh<2,2> mesh(nodes);
 
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -699,7 +700,7 @@ public:
         MutableMesh<2,2> mesh(nodes);
 
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -742,7 +743,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         // Create tissue but do not try to validate

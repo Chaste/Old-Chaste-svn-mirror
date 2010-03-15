@@ -73,17 +73,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellKiller.hpp"
 /* The remaining header files define classes that will be used in the tissue
  * simulation test: {{{HoneycombMeshGenerator}}} defines a helper class for
- * generating a suitable mesh; {{{FixedDurationGenerationBasedCellCycleModelCellsGenerator}}}
- * defines a helper class for generating a vector of cells with fixed cell
+ * generating a suitable mesh; {{{CellsGenerator}}}
+ * defines a helper class for generating a vector of cells and
+ * {{{FixedDurationGenerationBasedCellCycleModel}}} makes them have fixed cell
  * cycle models; {{{GeneralisedLinearSpringForce}}} defines a force law for
  * describing the mechanical interactions between neighbouring cells in the
  * tissue; and {{{TissueSimulation}}} defines the class that simulates the
  * evolution of a tissue. */
 #include "HoneycombMeshGenerator.hpp"
-#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "TissueSimulation.hpp"
-
+#include "CellsGenerator.hpp"
 /*
  * EMPTYLINE
  *
@@ -216,13 +217,13 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
-         * To do this, we can use a static method on the
-         * {{{FixedDurationGenerationBasedCellCycleModelCellsGenerator}}} helper class.
-         * The {{{<2>}}} below denotes the dimension. We create an empty vector of cells
+         * To do this, we can use a static method on the {{{CellsGenerator}}} helper class.
+         * The {{{<FixedDurationGenerationBasedCellCycleModel, 2>}}} defines the
+         * cell-cycle model and that it is in 2d. We create an empty vector of cells
          * and pass this into the method along with the mesh. The {{{cells}}} vector is
          * populated once the method {{{GenerateBasic}}} is called. */
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         /* Now that we have defined the mesh and cells, we can define the tissue. The
@@ -329,13 +330,13 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
-         * To do this, we can use a static method on the
-         * {{{FixedDurationGenerationBasedCellCycleModelCellsGenerator}}} helper class.
-         * The {{{<2>}}} below denotes the dimension. We create an empty vector of cells
+         * To do this, we can use a static method on the {{{CellsGenerator}}} helper class.
+         * The {{{<FixedDurationGenerationBasedCellCycleModel, 2>}}} defines the
+         * cell-cycle model and that it is in 2d. We create an empty vector of cells
          * and pass this into the method along with the mesh. The {{{cells}}} vector is
          * populated once the method {{{GenerateBasic}}} is called. */
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         /* Now that we have defined the mesh and cells, we can define the tissue. The

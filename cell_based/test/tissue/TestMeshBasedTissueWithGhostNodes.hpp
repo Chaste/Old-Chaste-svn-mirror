@@ -36,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "CellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
@@ -234,7 +236,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, cell_location_indices.size());
         cells[27].StartApoptosis();
 
@@ -324,7 +326,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, cell_location_indices.size());
         cells[27].StartApoptosis();
 
@@ -487,7 +489,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<3> generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> generator;
         generator.GenerateBasic(cells, cell_location_indices.size());
 
         // Create a tissue, with no ghost nodes at the moment

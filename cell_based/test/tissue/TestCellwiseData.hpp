@@ -35,8 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
 
+#include "CellsGenerator.hpp"
 #include "CellwiseData.hpp"
-#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "ArchiveOpener.hpp"
 #include "ArchiveLocationInfo.hpp"
@@ -58,7 +59,7 @@ public:
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a tissue
@@ -157,7 +158,7 @@ public:
 
         // Set up cells, one for each node. Give each a birth time of -node_index, so the age = node_index
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a tissue
