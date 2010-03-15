@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "CvodeAdaptor.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
-#include "SunterSetup.hpp"
 
 class TestMirams2010WntOdeSystem : public AbstractCellBasedTestSuite
 {

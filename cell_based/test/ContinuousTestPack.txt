@@ -12,9 +12,11 @@ crypt/TestCylindrical2dMesh.hpp
 crypt/TestIngeWntSwatCellCycleOdeSystem.hpp
 crypt/TestWntCellCycleOdeSystem.hpp
 crypt/TestWntConcentration.hpp
+crypt/TestSingleOdeWntCellCycleModel.hpp
 mesh/TestHoneycombMeshGenerator.hpp
 mesh/TestVoronoiAreaOnPeriodicMesh.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
+odes/TestMirams2010WntOdeSystem.hpp
 simulation/TestTissueSimulation.hpp
 simulation/TestTissueSimulation3d.hpp
 simulation/TestTissueSimulationWithNodeBasedTissue.hpp
