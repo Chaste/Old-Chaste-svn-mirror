@@ -56,6 +56,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexMesh : public AbstractMesh<ELEMENT_DIM, SPACE_DIM>
 {
     friend class TestVertexMesh;
+    friend class TestVertexMeshReMesh;
 
 protected:
 

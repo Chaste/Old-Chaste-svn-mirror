@@ -20,6 +20,7 @@ TestTrianglesMeshReader.hpp
 TestVertexAndAngle.hpp
 TestVertexElement.hpp
 TestVertexMesh.hpp
+TestVertexMeshReMesh.hpp
 TestVertexMeshReader.hpp
 TestVertexMeshWriter.hpp
 TestVoronoiCell.hpp
