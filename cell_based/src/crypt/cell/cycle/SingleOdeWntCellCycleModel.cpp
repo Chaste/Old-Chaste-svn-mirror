@@ -1,0 +1,143 @@
+/*
+
+Copyright (C) University of Oxford, 2005-2010
+
+University of Oxford means the Chancellor, Masters and Scholars of the
+University of Oxford, having an administrative office at Wellington
+Square, Oxford OX1 2JD, UK.
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details. The offer of Chaste under the terms of the
+License is subject to the License being interpreted in accordance with
+English Law and subject to any action against the University of Oxford
+being under the jurisdiction of the English Courts.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Chaste. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+#include "SingleOdeWntCellCycleModel.hpp"
+
+#ifdef CHASTE_CVODE
+CvodeAdaptor SingleOdeWntCellCycleModel::msSolver;
+#else
+RungeKutta4IvpOdeSolver SingleOdeWntCellCycleModel::msSolver;
+#endif //CHASTE_CVODE
+
+AbstractCellCycleModel* SingleOdeWntCellCycleModel::CreateCellCycleModel()
+{
+    return new SingleOdeWntCellCycleModel(*this);
+}
+
+SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(const SingleOdeWntCellCycleModel& rOtherModel)
+    : SimpleWntCellCycleModel(rOtherModel),
+      mpOdeSystem(NULL) // This line is even more unbelievably important than you'd expect.
+{
+    mBetaCateninDivisionThreshold = rOtherModel.mBetaCateninDivisionThreshold;
+    mLastTime = rOtherModel.mLastTime;
+    if (rOtherModel.mpOdeSystem != NULL)
+    {
+        mpOdeSystem = new Mirams2010WntOdeSystem(*static_cast<Mirams2010WntOdeSystem*>(rOtherModel.mpOdeSystem));
+    }
+}
+
+void SingleOdeWntCellCycleModel::UpdateCellCyclePhase()
+{
+    assert(SimulationTime::Instance()->IsStartTimeSetUp());
+    UpdateBetaCateninLevel();
+    ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
+    AbstractSimpleCellCycleModel::UpdateCellCyclePhase(); /// Don't call the SimpleWntCellCycleModel - it will overwrite this.
+}
+
+
+SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(std::vector<double>& rParentProteinConcentrations,
+                                     CryptCellMutationState& rMutationState,
+                                     unsigned& rDimension,
+                                     bool useTypeDependentG1)
+    : SimpleWntCellCycleModel(rDimension,useTypeDependentG1),
+      mLastTime(DBL_MAX)
+{
+#ifdef CHASTE_CVODE
+        msSolver.SetMaxSteps(10000);
+#endif // CHASTE_CVODE
+	// Set the other initial conditions to be the same as the parent cell
+    mpOdeSystem = new Mirams2010WntOdeSystem(rParentProteinConcentrations[2], rMutationState);
+    mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
+}
+
+
+void SingleOdeWntCellCycleModel::Initialise()
+{
+    assert(mpOdeSystem == NULL);
+    assert(mpCell != NULL);
+
+    double wnt_level = this->GetWntLevel();
+    mpOdeSystem = new Mirams2010WntOdeSystem(wnt_level, mpCell->GetMutationState());
+    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+
+    // MAGIC NUMBER!
+    mBetaCateninDivisionThreshold = 100.0;
+
+    // This call actually sets up the G1 phase to something sensible (random number generated)
+    SimpleWntCellCycleModel::Initialise();
+
+    mLastTime = mBirthTime;
+
+    ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
+}
+
+void SingleOdeWntCellCycleModel::UpdateBetaCateninLevel()
+{
+    assert(mpOdeSystem!=NULL);
+    assert(mpCell!=NULL);
+    assert(mLastTime < DBL_MAX - 1e5);
+
+    // We run the cell cycle ODEs whatever time we are interested in
+#ifdef CHASTE_CVODE
+    const double dt = SimulationTime::Instance()->GetTimeStep(); // Use the mechanics time step as max time step.
+#else
+    double dt = 0.001;
+#endif // CHASTE_CVODE
+
+    // Pass this time step's Wnt stimulus into the solver as a constant over this timestep.
+    mpOdeSystem->rGetStateVariables()[2] = this->GetWntLevel();
+
+    // Use the cell's current mutation status as another input
+    static_cast<Mirams2010WntOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
+
+    double current_time = SimulationTime::Instance()->GetTime();
+    if (mLastTime < current_time)
+    {
+        msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, current_time, dt);
+        mLastTime = current_time;
+    }
+}
+
+void SingleOdeWntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
+{
+    assert(mpOdeSystem!=NULL);
+    assert(mpCell!=NULL);
+
+    CellProliferativeType cell_type = TRANSIT;
+    if (GetBetaCateninConcentration() < GetBetaCateninDivisionThreshold())
+    {
+        cell_type = DIFFERENTIATED;
+    }
+
+    mpCell->SetCellProliferativeType(cell_type);
+}
+
+// Declare identifier for the serializer
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(SingleOdeWntCellCycleModel)
+
+
