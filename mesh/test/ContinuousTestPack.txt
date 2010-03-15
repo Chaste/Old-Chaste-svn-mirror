@@ -18,5 +18,9 @@ TestTetrahedralMesh.hpp
 TestTransformations.hpp
 TestTrianglesMeshReader.hpp
 TestVertexAndAngle.hpp
+TestVertexElement.hpp
+TestVertexMesh.hpp
+TestVertexMeshReader.hpp
+TestVertexMeshWriter.hpp
 TestVoronoiCell.hpp
 TestVoronoiTessellation.hpp
