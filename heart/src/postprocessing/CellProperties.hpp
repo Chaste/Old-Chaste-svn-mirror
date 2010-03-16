@@ -72,7 +72,9 @@ private:
     std::vector<double> mMaxUpstrokeVelocities;
     /** Cached vector containing the times of AP upstrokes */
     std::vector<double> mTimesAtMaxUpstrokeVelocity;
-
+    /** Cached vector containing the number of recorded depolarisations while above threshold */   
+    std::vector<unsigned> mCounterOfPlateauDepolarisations;
+    
     /**
      * Calculate all the cacheable values.
      */
@@ -212,6 +214,21 @@ public:
      * @return a vector containing all the AP amplitudes
      */
     std::vector<double> GetActionPotentialAmplitudes();
+    
+    
+    /**
+     * 
+     * @return a vector containing the number of above-threshold depolarisations for each Ap.
+     * 
+     */
+    std::vector<unsigned> GetNumberOfAboveThresholdDepolarisationsForAllAps();
+    
+    /**
+     * 
+     * @return a vector containing the number of above-threshold depolarisations for the last Ap.
+     * 
+     */   
+    unsigned GetNumberOfAboveThresholdDepolarisationsForLastAp();
 };
 
 #endif //_CELLPROPERTIES_HPP_

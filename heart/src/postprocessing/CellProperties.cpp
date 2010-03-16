@@ -58,7 +58,9 @@ void CellProperties::CalculateProperties()
     double current_minimum_velocity=DBL_MAX;
     double prev_voltage_derivative=0;
     unsigned ap_counter = 0;
-
+    unsigned counter_of_plateau_depolarisations = 0;
+    //boolean to keep track whether we are switching phase from BELOWTHRESHOLD to ABOVETHRESHOLD
+    bool switching_phase = false;
     APPhases ap_phase = BELOWTHRESHOLD;
 
     unsigned time_steps = mrTime.size()-1; //The number of time steps is the number of intervals
@@ -102,7 +104,8 @@ void CellProperties::CalculateProperties()
                     {
                         mCycleLengths.push_back( mOnsets[ap_counter]-mOnsets[ap_counter-1] );
                     }
-
+                    
+                    switching_phase = true;
                     ap_phase = ABOVETHRESHOLD;
                     // no break here - deliberate fall through to next case
                 }
@@ -117,7 +120,19 @@ void CellProperties::CalculateProperties()
                 {
                    current_peak = v;
                 }
-
+                
+                // we check whether we have above threshold depolarisations
+                // and only if if we haven't just switched from below threshold at this time step.
+                // The latter is to avoid recording things depending on resting behaviour (in case of sudden upstroke from rest)
+                if (prev_voltage_derivative<=0 && voltage_derivative>0 && !switching_phase)
+                {
+                    counter_of_plateau_depolarisations++;
+                }
+                
+                // From the next time step, we are not "switching phase" any longer 
+                // (we want to check for above threshold deolarisations)             
+                switching_phase = false;
+                
                 // If we cross the threshold again, the AP is over
                 // and we register all the parameters.
                 if ( v<mThreshold && prev_v >= mThreshold )
@@ -136,10 +151,15 @@ void CellProperties::CalculateProperties()
                     mTimesAtMaxUpstrokeVelocity.push_back(current_time_of_upstroke_velocity);
                     //re-initialise current_time_of_upstroke_velocity=t;
                     current_time_of_upstroke_velocity = 0.0;
-
-                    //update the counter.
+                    
+                    mCounterOfPlateauDepolarisations.push_back(counter_of_plateau_depolarisations);
+                    
+                    //update the counters.
                     ap_counter++;
                     ap_phase = BELOWTHRESHOLD;
+                    
+                    //reinitialise counter of plateau depolarisations
+                    counter_of_plateau_depolarisations = 0;
                 }
                 break;
         }
@@ -284,6 +304,10 @@ std::vector<double> CellProperties::GetAllActionPotentialDurations(const double 
     return CalculateActionPotentialDurations(percentage);
 }
 
+std::vector<unsigned> CellProperties::GetNumberOfAboveThresholdDepolarisationsForAllAps()
+{
+    return mCounterOfPlateauDepolarisations;
+}
 //
 // The Get <double> methods
 //
@@ -313,6 +337,9 @@ double CellProperties::GetLastActionPotentialDuration(const double percentage)
     return apds.back();
 }
 
-
+unsigned CellProperties::GetNumberOfAboveThresholdDepolarisationsForLastAp()
+{
+    return mCounterOfPlateauDepolarisations.back();
+} 
 
 
