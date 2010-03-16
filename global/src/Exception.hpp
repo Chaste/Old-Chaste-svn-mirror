@@ -119,6 +119,15 @@ public:
         EXCEPTION("Failed to execute command: " #cmd "(" + _arg + ")"); \
     } }
 
+#define MPIABORTIFNON0(cmd, arg) { \
+    std::string _arg = (arg); \
+    int ret = cmd(_arg.c_str()); \
+    if (ret != 0) { \
+        std::cout << "Failed to execute command: " #cmd "(" + _arg + ")"; \
+        MPI_Abort(PETSC_COMM_WORLD, -1); \
+    } }
+
+
 #define EXPECTNON0(cmd, arg) { \
     std::string _arg = (arg); \
     int ret = cmd(_arg.c_str()); \
