@@ -499,7 +499,7 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
         VecNorm(nullBasis[vec_index], NORM_2, &l2_norm);
         if (fabs(l2_norm-1.0) > 1e-08)
         {
-            EXCEPTION("One of the vectors in the null space is not normal");
+            EXCEPTION("One of the vectors in the null space is not normalised");
         }
     }
 
