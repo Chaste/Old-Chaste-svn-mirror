@@ -51,12 +51,12 @@ void CellProperties::CalculateProperties()
 
     double prev_v = mrVoltage[0];
     double prev_t = mrTime[0];
-    double current_upstroke_velocity = 0;
+    double max_upstroke_velocity = 0;
     double current_time_of_upstroke_velocity = 0;
     double current_resting_value=-DBL_MAX;
     double current_peak=-DBL_MAX;
     double current_minimum_velocity=DBL_MAX;
-    double prev_upstroke_vel=0;
+    double prev_voltage_derivative=0;
     unsigned ap_counter = 0;
 
     APPhases ap_phase = BELOWTHRESHOLD;
@@ -67,12 +67,12 @@ void CellProperties::CalculateProperties()
     {
         double v = mrVoltage[i];
         double t = mrTime[i];
-        double upstroke_vel = (v - prev_v) / (t - prev_t);
+        double voltage_derivative = (v - prev_v) / (t - prev_t);
 
         //Look for the upstroke velocity and when it happens (could be below or above threshold).
-        if (upstroke_vel >= current_upstroke_velocity)
+        if (voltage_derivative >= max_upstroke_velocity)
         {
-            current_upstroke_velocity = upstroke_vel;
+            max_upstroke_velocity = voltage_derivative;
             current_time_of_upstroke_velocity = t;
         }
 
@@ -81,9 +81,9 @@ void CellProperties::CalculateProperties()
             case BELOWTHRESHOLD:
                 //while below threshold, find the resting value by checking where the velocity is minimal
                 //i.e. when it is flattest
-                if (fabs(upstroke_vel)<=current_minimum_velocity)
+                if (fabs(voltage_derivative)<=current_minimum_velocity)
                 {
-                    current_minimum_velocity=fabs(upstroke_vel);
+                    current_minimum_velocity=fabs(voltage_derivative);
                     current_resting_value = prev_v;
                 }
 
@@ -128,9 +128,9 @@ void CellProperties::CalculateProperties()
                     current_peak = mThreshold;
 
                     //register maximum upstroke velocity for this AP
-                    mMaxUpstrokeVelocities.push_back(current_upstroke_velocity);
-                    //re-initialise current_upstroke_velocity
-                    current_upstroke_velocity = 0.0;
+                    mMaxUpstrokeVelocities.push_back(max_upstroke_velocity);
+                    //re-initialise max_upstroke_velocity
+                    max_upstroke_velocity = 0.0;
 
                     //register time when maximum upstroke velocity occurred for this AP
                     mTimesAtMaxUpstrokeVelocity.push_back(current_time_of_upstroke_velocity);
@@ -146,7 +146,7 @@ void CellProperties::CalculateProperties()
 
         prev_v = v;
         prev_t = t;
-        prev_upstroke_vel = upstroke_vel;
+        prev_voltage_derivative = voltage_derivative;
     }
 
     // One last check. If the simulation ends halfway through an AP
@@ -156,7 +156,7 @@ void CellProperties::CalculateProperties()
     // for the last incomplete AP.
     if (mOnsets.size()>mMaxUpstrokeVelocities.size())
     {
-        mMaxUpstrokeVelocities.push_back(current_upstroke_velocity);
+        mMaxUpstrokeVelocities.push_back(max_upstroke_velocity);
     }
     if (mOnsets.size()>mPeakValues.size())
     {
