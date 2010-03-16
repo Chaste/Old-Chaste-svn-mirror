@@ -36,93 +36,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <cxxtest/TestSuite.h>
 
-#include "OutputFileHandler.hpp"
-
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-// see http://www.boost.org/libs/serialization/doc/index.html
-class ParentClass;
-
-class ChildClass
-{
-public:
-    unsigned mTag;
-    ParentClass* mpParent;
-    ChildClass() : mTag(1)
-    {
-    }
-    void SetParent(ParentClass* pParent)
-    {
-        mpParent = pParent;
-    }
-
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        // If Archive is an output archive, then & resolves to <<
-        // If Archive is an input archive, then & resolves to >>
-        archive & mTag;
-    }
-};
-
-class ParentClass
-{
-public:
-    unsigned mTag;
-    ChildClass* mpChild;
-    ParentClass(ChildClass* pChild) : mTag(0), mpChild(pChild)
-    {
-        mpChild->SetParent(this);
-    }
-
-    template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        // If Archive is an output archive, then & resolves to <<
-        // If Archive is an input archive, then & resolves to >>
-        archive & mTag;
-    }
-};
-#include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(ParentClass)
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate an instance of ParentClass.
- */
-template<class Archive>
-inline void save_construct_data(
-    Archive & ar, const ParentClass * t, const unsigned int file_version)
-{
-    ar << t->mpChild;
-}
-
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a ParentClass instance.
- */
-template<class Archive>
-inline void load_construct_data(
-    Archive & ar, ParentClass * t, const unsigned int file_version)
-{
-    // It doesn't actually matter what values we pass to our standard
-    // constructor, provided they are valid parameter values, since the
-    // state loaded later from the archive will overwrite their effect in
-    // this case.
-    // Invoke inplace constructor to initialize instance of ParentClass.
-    ChildClass* p_child;
-    ar >> p_child;
-    ::new(t)ParentClass(p_child);
-}
-}
-} // namespace ...
+#include "OutputFileHandler.hpp"
+#include "ForTestArchiving.hpp"
 
 class ClassOfSimpleVariables
 {
@@ -417,7 +337,8 @@ public:
 
 			boost::shared_ptr<ChildClass> p_child(new ChildClass);
 
-			p_child->mTag = 11;;
+			p_child->mTag = 11;
+			p_child->mTagInBaseClass = 3;
 
 			boost::shared_ptr<ChildClass> const p_child_for_archiving = p_child;
 
@@ -435,9 +356,43 @@ public:
 			input_arch >> p_child;
 
 			TS_ASSERT_EQUALS(p_child->mTag, 11u);
+			TS_ASSERT_EQUALS(p_child->mTagInBaseClass, 3u);
 		}
 	}
 
+
+    void TestArchivingBoostSharedPtrToChildUsingBaseClass() throw (Exception)
+	{
+		OutputFileHandler handler("archive", false);
+		std::string archive_filename;
+		archive_filename = handler.GetOutputDirectoryFullPath() + "shared_ptr_abs.arch";
+
+		// Save
+		{
+			// Create an output archive
+			std::ofstream ofs(archive_filename.c_str());
+			boost::archive::text_oarchive output_arch(ofs);
+
+			boost::shared_ptr<BaseClass> p_base(new ChildClass());
+
+			p_base->mTagInBaseClass = 6;
+
+			output_arch << p_base;
+		}
+
+		// Load
+		{
+			// Create an input archive
+			std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+			boost::archive::text_iarchive input_arch(ifs);
+
+			boost::shared_ptr<BaseClass> p_base;
+
+			input_arch >> p_base;
+
+			TS_ASSERT_EQUALS(p_base->mTagInBaseClass, 6u);
+		}
+	}
 };
 
 
