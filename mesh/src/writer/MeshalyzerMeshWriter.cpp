@@ -95,7 +95,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
     if (ELEMENT_DIM == 3)
     {
-        element_file_name = this->mBaseName + ".tetra";
+        element_file_name = this->mBaseName + ".tetras";
     }
     else if (ELEMENT_DIM == 2)
     {
@@ -117,7 +117,9 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     unsigned nodes_per_element = ELEMENT_DIM+1;
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
-        std::vector<unsigned> current_item = this->GetNextElement().NodeIndices; //this->mElementData[item_num];
+        ElementData element_data = this->GetNextElement();
+        
+        std::vector<unsigned> current_item = element_data.NodeIndices;
         for (unsigned i=0; i<nodes_per_element; i++)
         {
             if (this->mIndexFromZero)
@@ -128,9 +130,9 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
             {
                 *p_element_file << current_item[i]+1 << "\t";
             }
-        }
-        *p_element_file << "\n";
+        }        
 
+        *p_element_file << element_data.AttributeValue << "\n";
     }
     p_element_file->close();
 
