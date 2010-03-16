@@ -88,6 +88,20 @@ public:
         {
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(location_indices[i]), 1e-9);
         }
+
+        // Create cells again with basic
+  		std::vector<TissueCell> new_cells;
+  		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator2;
+  		TS_ASSERT_THROWS_THIS(cells_generator2.GenerateBasic(new_cells, 83511u, location_indices),
+  				"The size of the locationIndices vector must match the required number of output cells");
+  		cells_generator2.GenerateBasic(new_cells, location_indices.size(), location_indices);
+  		// Test that cells were generated correctly
+
+  		for (unsigned i=0; i<new_cells.size(); i++)
+  		{
+  			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(location_indices[i]), 1e-9);
+  		}
+
     }
 
     void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateForCrypt() throw(Exception)

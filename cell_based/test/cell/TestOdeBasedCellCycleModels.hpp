@@ -292,7 +292,9 @@ public:
 
         // Cover exception - when constructing an instance of IngeWntSwatCellCycleModel,
         // we must pass in an hypothesis number (1 or 2)
-//        TS_ASSERT_THROWS_THIS(IngeWntSwatCellCycleModel model(0,2), "Model must be set up with argument(hypothesis) = 1u or 2u");
+        IngeWntSwatCellCycleModel* p_failing_cell_model = new IngeWntSwatCellCycleModel();
+        p_failing_cell_model->SetDimension(2);
+        TS_ASSERT_THROWS_THIS(p_failing_cell_model->SetHypothesis(0), "Model must be set up with argument(hypothesis) = 1u or 2u");
 
         // Create cell cycle model and associated cell
         IngeWntSwatCellCycleModel* p_cell_model = new IngeWntSwatCellCycleModel();

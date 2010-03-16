@@ -31,35 +31,54 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellsGenerator.hpp"
 
+
+/**
+ * A helper class for generating a vector of cells for a given mesh.
+ * \todo write a generator for meshes
+ *
+ * It is templated for different types of cell model.
+ */
 template<class CELL_CYCLE_MODEL, unsigned DIM>
 class CellsGenerator
 {
 public:
 
-    CellsGenerator()
+    /** Empty constructor */
+	CellsGenerator()
     {}
 
+    /** Empty destructor */
     ~CellsGenerator()
     {}
 
+      /**
+       * Fills a vector of cells with a specified cell cycle model, to match
+       * a given number of cells. Gives them birth times of 0 for node 0,
+       * -1 for node 1, -2 for node 2 etc...
+       *
+       * @param rCells  An empty vector of cells to fill up.
+       * @param numCells  The number of cells to generate.
+       * @param locationIndices is used when a birth-time hint is needed for individual cell.
+       * 			Defaults to an empty vector -- otherwise must be of length numCells
+       *
+       */
     void GenerateBasic(std::vector<TissueCell>& rCells,
                        unsigned numCells,
                        const std::vector<unsigned> locationIndices=std::vector<unsigned>())
     {
         rCells.clear();
-        unsigned num_cells;
         if (!locationIndices.empty())
         {
-            num_cells = locationIndices.size();
+            //If location indices is given, then it needs to match the number of output cells
+        	if (numCells != locationIndices.size())
+        	{
+        		EXCEPTION("The size of the locationIndices vector must match the required number of output cells");
+        	}
         }
-        else
-        {
-            num_cells = numCells;
-        }
-        rCells.reserve(num_cells);
+        rCells.reserve(numCells);
 
         // Create cells
-        for (unsigned i=0; i<num_cells; i++)
+        for (unsigned i=0; i<numCells; i++)
         {
             CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL();
             TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
