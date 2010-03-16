@@ -393,7 +393,7 @@ public:
 
             LinearSystem ls((PetscInt) size);
             TS_ASSERT_THROWS_THIS(ls.SetNullBasis(&non_orthonormal, 1),
-                    "One of the vectors in the null space is not normal");
+                    "One of the vectors in the null space is not normaliseds");
             VecDestroy(non_orthonormal);
         }
 
