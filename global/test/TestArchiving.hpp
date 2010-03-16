@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/list.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 // see http://www.boost.org/libs/serialization/doc/index.html
 class ParentClass;
@@ -401,6 +402,42 @@ public:
             TS_ASSERT_EQUALS(p_two_in_list, p_two_in_set);
         }
     }
+
+    void TestArchivingBoostSharedPtrToChild() throw (Exception)
+	{
+		OutputFileHandler handler("archive",false);
+		std::string archive_filename;
+		archive_filename = handler.GetOutputDirectoryFullPath() + "shared_ptr.arch";
+
+		// Save
+		{
+			// Create an output archive
+			std::ofstream ofs(archive_filename.c_str());
+			boost::archive::text_oarchive output_arch(ofs);
+
+			boost::shared_ptr<ChildClass> p_child(new ChildClass);
+
+			p_child->mTag = 11;;
+
+			boost::shared_ptr<ChildClass> const p_child_for_archiving = p_child;
+
+			output_arch << p_child_for_archiving;
+		}
+
+		// Load
+		{
+			// Create an input archive
+			std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+			boost::archive::text_iarchive input_arch(ifs);
+
+			boost::shared_ptr<ChildClass> p_child;
+
+			input_arch >> p_child;
+
+			TS_ASSERT_EQUALS(p_child->mTag, 11u);
+		}
+	}
+
 };
 
 
