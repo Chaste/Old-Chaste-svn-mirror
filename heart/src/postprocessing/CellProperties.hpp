@@ -225,7 +225,7 @@ public:
     
     /**
      * 
-     * @return a vector containing the number of above-threshold depolarisations for the last Ap.
+     * @return the number of above-threshold depolarisations for the last Ap.
      * 
      */   
     unsigned GetNumberOfAboveThresholdDepolarisationsForLastAp();
