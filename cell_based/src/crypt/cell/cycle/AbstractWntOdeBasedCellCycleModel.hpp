@@ -97,8 +97,6 @@ public:
 
     /**
      * Default constructor
-     *
-     * @param dimension the spatial dimension (used by WntConcentration)
      */
     AbstractWntOdeBasedCellCycleModel();
 

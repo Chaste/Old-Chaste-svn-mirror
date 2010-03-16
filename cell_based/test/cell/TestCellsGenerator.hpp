@@ -49,57 +49,70 @@ class TestCellsGenerator : public AbstractCellBasedTestSuite
 {
 public:
 
+//    void xTestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateBasic() throw(Exception)
+//    {
+//        // Create mesh
+//        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
+//        TetrahedralMesh<2,2> mesh;
+//        mesh.ConstructFromMeshReader(mesh_reader);
+//
+//        // Create cells
+//        std::vector<TissueCell> cells;
+//        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> generator;
+//        generator.GenerateBasic(cells, mesh.GetNumNodes());
+//
+//        // Test that cells were generated correctly
+//        TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
+//
+//        for (unsigned i=0; i<cells.size(); i++)
+//        {
+//            TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
+//        }
+//    }
+
     void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateBasic() throw(Exception)
-    {
-        // Create mesh
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
+	{
+		// Create mesh
+		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
+		TetrahedralMesh<2,2> mesh;
+		mesh.ConstructFromMeshReader(mesh_reader);
 
-        // Create cells
-        std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> generator;
-        generator.GenerateBasic(cells, mesh.GetNumNodes());
+		// Create cells
+		std::vector<TissueCell> cells;
+		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+		cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        // Test that cells were generated correctly
-        TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
+		// Test that cells were generated correctly
+		TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
 
-        for (unsigned i=0; i<cells.size(); i++)
-        {
-            TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
-        }
-    }
+		for (unsigned i=0; i<cells.size(); i++)
+		{
+			TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
+		}
+	}
+
+
+
+
+
 
     void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateGivenLocationIndices() throw(Exception)
     {
         // Use a mesh generator to generate some location indices corresponding to real cells
-        HoneycombMeshGenerator generator(6, 7, 2, false);
-        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
-
-        // Set up cells
-        std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
-        cells_generator.GenerateGivenLocationIndices(cells, location_indices);
-
-        // Test that cells were generated correctly
-        TS_ASSERT_EQUALS(cells.size(), location_indices.size());
-
-        for (unsigned i=0; i<cells.size(); i++)
-        {
-            TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(location_indices[i]), 1e-9);
-        }
+        HoneycombMeshGenerator mesh_generator(6, 7, 2, false);
+        std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells again with basic
-  		std::vector<TissueCell> new_cells;
-  		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator2;
-  		TS_ASSERT_THROWS_THIS(cells_generator2.GenerateBasic(new_cells, 83511u, location_indices),
+  		std::vector<TissueCell> cells;
+  		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+  		TS_ASSERT_THROWS_THIS(cells_generator.GenerateBasic(cells, 83511u, location_indices),
   				"The size of the locationIndices vector must match the required number of output cells");
-  		cells_generator2.GenerateBasic(new_cells, location_indices.size(), location_indices);
-  		// Test that cells were generated correctly
+  		cells_generator.GenerateBasic(cells, location_indices.size(), location_indices);
 
-  		for (unsigned i=0; i<new_cells.size(); i++)
+  		// Test that cells were generated correctly
+  		for (unsigned i=0; i<cells.size(); i++)
   		{
-  			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(location_indices[i]), 1e-9);
+  			TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(location_indices[i]), 1e-9);
   		}
 
     }
@@ -344,30 +357,6 @@ public:
 			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
 		}
     }
-
-    void TestGenerateBasic() throw(Exception)
-	{
-		// Create mesh
-		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-		TetrahedralMesh<2,2> mesh;
-		mesh.ConstructFromMeshReader(mesh_reader);
-
-		// Create cells
-		std::vector<TissueCell> cells;
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
-
-		// Test that cells were generated correctly
-		TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
-
-		for (unsigned i=0; i<cells.size(); i++)
-		{
-			TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
-		}
-	}
-
-
-
 
 
 };
