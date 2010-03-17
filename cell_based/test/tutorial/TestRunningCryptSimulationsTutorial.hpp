@@ -132,12 +132,13 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
-         * To do this, we can use a static method on the {{{FixedDurationGenerationBasedCellCycleModelCellsGenerator}}}
-         * helper class. The {{{<2>}}} below denotes the dimension. We create an empty vector
-         * of cells and pass this into the method along with the mesh. The third argument
-         * 'true' indicates that the cells should be assigned random birth times, to avoid
-         * synchronous division. The {{{cells}}} vector is populated once the method
-         * {{{GenerateForCrypt}}} is called. */
+         * To do this, we the CellsGenerator helper class, which is templated over the type
+         * of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}}
+         * and the dimension. We create an empty vector of cells and pass this into the
+         * method along with the mesh. The third argument 'true' indicates that the cells
+         * should be assigned random birth times, to avoid synchronous division. The
+         * {{{cells}}} vector is populated once the method {{{GenerateForCrypt}}} is
+         * called. */
         std::vector<TissueCell> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);

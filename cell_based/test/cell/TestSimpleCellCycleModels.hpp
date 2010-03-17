@@ -185,7 +185,9 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel;
+        TS_ASSERT_EQUALS(p_cycle_model->GetDimension(),0u);
         p_cycle_model->SetDimension(2);
+        TS_ASSERT_EQUALS(p_cycle_model->GetDimension(),2u);
 
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 

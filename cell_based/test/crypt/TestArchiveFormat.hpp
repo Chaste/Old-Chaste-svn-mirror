@@ -37,9 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulation2d.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "StochasticWntCellCycleModelCellsGenerator.hpp"
 #include "SloughingCellKiller.hpp"
-
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 

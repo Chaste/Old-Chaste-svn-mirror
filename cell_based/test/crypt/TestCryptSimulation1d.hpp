@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulation1d.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "SloughingCellKiller.hpp"
-#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"

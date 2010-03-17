@@ -29,16 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTCELLSGENERATOR_HPP_
 
 #include <cxxtest/TestSuite.h>
-
-//#include "SimpleWntCellCycleModelCellsGenerator.hpp"
-//#include "StochasticWntCellCycleModelCellsGenerator.hpp"
-//#include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
-///\todo: test dimension and proliferative type are set correctly
+///\todo: test  proliferative type are set correctly
 
 
 /**
@@ -68,6 +64,7 @@ public:
 		for (unsigned i=0; i<cells.size(); i++)
 		{
 			TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
+			TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
 		}
 	}
 
@@ -90,6 +87,7 @@ public:
   		for (unsigned i=0; i<cells.size(); i++)
   		{
   			TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(location_indices[i]), 1e-9);
+			TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
   		}
 
     }
@@ -122,25 +120,32 @@ public:
             double height = p_mesh->GetNode(i)->rGetLocation()[1];
             unsigned generation = static_cast<FixedDurationGenerationBasedCellCycleModel*>(cells[i].GetCellCycleModel())->GetGeneration();
 
-            if (height <= y0)
+			TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
+
+			if (height <= y0)
             {
                 TS_ASSERT_EQUALS(generation, 0u);
+    			TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), STEM);
             }
             else if (height < y1)
             {
                 TS_ASSERT_EQUALS(generation, 1u);
+    			TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
             }
             else if (height < y2)
             {
                 TS_ASSERT_EQUALS(generation, 2u);
+    			TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
             }
             else if (height < y3)
             {
                 TS_ASSERT_EQUALS(generation, 3u);
+    			TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
             }
             else
             {
                 TS_ASSERT_EQUALS(generation, 4u);
+    			TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), DIFFERENTIATED);
             }
         }
     }
@@ -295,11 +300,8 @@ public:
         {
             TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
         }
-
     }
 
-/////////////////////////////////////////////////
-// #1112 these not done yet
     void TestStochasticWntCellCycleModelCellsGenerator() throw(Exception)
     {
         // Create mesh

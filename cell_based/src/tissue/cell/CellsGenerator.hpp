@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModel.hpp"
 #include "SingleOdeWntCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
-#include "WntCellCycleModelCellsGenerator.hpp"
+#include "WntCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
@@ -153,7 +153,9 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCell>
 	// Create cells
 	for (unsigned i=0; i<numCells; i++)
 	{
-		CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL();
+		CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
+        p_cell_cycle_model->SetDimension(DIM);
+
 		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 		TissueCell cell(STEM, p_state, p_cell_cycle_model);
 
@@ -295,10 +297,14 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vec
 
     for (unsigned i=0; i<num_cells; i++)
     {
-    	CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL();
+    	CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
+        p_cell_cycle_model->SetDimension(DIM);
+
     	boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        TissueCell cell(STEM, p_state, p_cell_cycle_model);
-        double birth_time = 0.0 - locationIndices[i];
+
+    	TissueCell cell(STEM, p_state, p_cell_cycle_model);
+
+    	double birth_time = 0.0 - locationIndices[i];
         cell.SetBirthTime(birth_time);
         rCells.push_back(cell);
     }
