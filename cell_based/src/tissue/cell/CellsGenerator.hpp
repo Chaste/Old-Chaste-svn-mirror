@@ -123,6 +123,12 @@ public:
                                   double y3 = 4.0,
                                   bool initialiseCells = false);
 
+    /**
+     * Fills a vector of cells with birth times to match a given vector of location indices.
+     *
+     * @param rCells  An empty vector of cells to fill up.
+     * @param locationIndices  The indices of the tissue to assign real cells to.
+     */
     void GenerateGivenLocationIndices(std::vector<TissueCell>& rCells,
     		                          const std::vector<unsigned> locationIndices);
 
