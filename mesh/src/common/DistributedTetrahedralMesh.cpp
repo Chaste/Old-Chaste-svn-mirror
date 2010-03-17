@@ -52,10 +52,6 @@ DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DistributedTetrahedralMesh(P
       mTotalNumNodes(0u),
       mMetisPartitioning(metisPartitioning)
 {
-
-
-
-
     if (ELEMENT_DIM == 1)
     {
         //No METIS partition is possible - revert to DUMB
@@ -89,11 +85,11 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
 {
     ///\todo: add a timing event for the partitioning
 
-    if (mMetisPartitioning==METIS_BINARY && !PetscTools::IsSequential())
+    if (mMetisPartitioning==UNUSED)
     {
-        MetisBinaryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
+        NEVER_REACHED;
     }
-    else if (mMetisPartitioning==METIS_LIBRARY && !PetscTools::IsSequential())
+    if (mMetisPartitioning==METIS_LIBRARY && !PetscTools::IsSequential())
     {
         MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
     }
@@ -588,137 +584,6 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Ab
     }
 }
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                                                                                     std::set<unsigned>& rNodesOwned,
-                                                                                     std::vector<unsigned>& rProcessorsOffset)
-{
-    assert(!PetscTools::IsSequential());
-    assert(ELEMENT_DIM==2 || ELEMENT_DIM==3); // Metis works with triangles and tetras
-
-    unsigned num_procs = PetscTools::GetNumProcs();
-
-    // Open a file for the elements
-    OutputFileHandler handler("");
-
-    // Filenames
-    std::string basename = "metis.mesh";
-    std::stringstream output_file;
-    output_file << basename << ".npart." << num_procs;
-    std::string nodes_per_proc_file = basename + ".nodesperproc";
-
-    // Only the master process should do IO and call METIS
-    std::string full_path = handler.GetOutputDirectoryFullPath();
-
-    if (PetscTools::AmMaster())
-    {
-        /*
-         *  Create input file for METIS
-         */
-        out_stream metis_file=handler.OpenOutputFile(basename);
-
-        // File header
-        (*metis_file) << this->GetNumElements() << "\t";
-        if (ELEMENT_DIM==2)
-        {
-            (*metis_file) << 1 << "\n"; //1 is Metis speak for triangles
-        }
-        else
-        {
-            (*metis_file) << 2 << "\n"; //2 is Metis speak for tetrahedra
-        }
-
-        // Graph representation of the mesh
-        for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
-        {
-            ElementData element_data = rMeshReader.GetNextElementData();
-
-            for (unsigned i=0; i<ELEMENT_DIM+1; i++)
-            {
-                    (*metis_file) << element_data.NodeIndices[i] + 1 << "\t";
-            }
-            (*metis_file) << "\n";
-        }
-        metis_file->close();
-
-        rMeshReader.Reset();
-
-        /*
-         * Call METIS binary to perform the partitioning.
-         * It will output a file called metis.mesh.npart.numProcs
-         */
-        std::stringstream permute_command;
-        permute_command <<  "./bin/partdmesh "
-                        <<  full_path
-                        <<  basename << " "
-                        <<  num_procs
-                        <<  " > /dev/null";
-
-        // METIS doesn't return 0 after a successful execution
-        IGNORE_RET(system, permute_command.str());
-    }
-
-    /*
-     * Wait for the permutation to be available
-     */
-    PetscTools::Barrier("DistributedTetrahedralMesh::MetisBinaryNodePartitioning");
-
-    /*
-     *  Read partition file and compute local node ownership and processors offset
-     */
-    std::ifstream partition_stream;
-    full_path +=  output_file.str();
-
-    partition_stream.open(full_path.c_str());
-    assert(partition_stream.is_open());
-
-    assert(rProcessorsOffset.size() == 0); // Making sure the vector is empty. After calling resize() only newly created memory will be initialised to 0.
-    rProcessorsOffset.resize(PetscTools::GetNumProcs(), 0);
-
-    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
-    {
-        unsigned part_read;
-
-        partition_stream >> part_read;
-
-        // METIS output says I own this node
-        if (part_read == PetscTools::GetMyRank())
-        {
-            rNodesOwned.insert(node_index);
-        }
-
-        // Offset is defined as the first node owned by a processor. We compute it incrementally.
-        // i.e. if node_index belongs to proc 3 (of 6) we have to shift the processors 4, 5, and 6
-        // offset a position
-        for (unsigned proc=part_read+1; proc<PetscTools::GetNumProcs(); proc++)
-        {
-            rProcessorsOffset[proc]++;
-        }
-    }
-
-    /*
-     *  Once we know the offsets we can compute the permutation vector
-     */
-    // Move stream pointer to the beginning of the file
-    partition_stream.seekg (0, std::ios::beg);
-
-    std::vector<unsigned> local_index(PetscTools::GetNumProcs(), 0);
-    this->mNodesPermutation.resize(this->GetNumNodes());
-
-    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
-    {
-        unsigned part_read;
-
-        partition_stream >> part_read;
-
-        this->mNodesPermutation[node_index] = rProcessorsOffset[part_read] + local_index[part_read];
-
-        local_index[part_read]++;
-    }
-
-    partition_stream.close();
-
-}
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,

@@ -70,13 +70,13 @@ public:
 
      /** Definition of partition types. 
       * "DUMB" is using naturally mesh ordering with PETSC_DECIDE.
-      * "METIS_BINARY" via METIS file dump and a call to the Metis binary partdmesh.
+      * "UNUSED" is not used
       * "METIS_LIBRARY" is a call to the sequential METIS library 
       * */
     typedef enum
     {
         DUMB=0,
-        METIS_BINARY=1,  ///\todo We are going to lose this one 
+        UNUSED=1,  ///\todo We are going to lose this one 
         METIS_LIBRARY=2 ///\todo and replace this one with ParMETIS.  But keep the same numbers for the archives?
     } PartitionType;
 

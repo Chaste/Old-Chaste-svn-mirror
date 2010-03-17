@@ -509,18 +509,6 @@ public:
         CheckEverythingIsAssigned<3,3>(mesh);
     }
 
-   void TestEverythingIsAssignedMetisBinary()
-    {
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::METIS_BINARY);
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
-
-        CheckEverythingIsAssigned<3,3>(mesh);
-    }
 
     void TestConstruct3DWithRegions() throw (Exception)
     {
@@ -585,26 +573,19 @@ public:
             unsigned local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
             TS_ASSERT_EQUALS(local_nodes, mesh.GetNumLocalNodes());
         }
-
-        {
-            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
-            DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::METIS_BINARY);
-            mesh.ConstructFromMeshReader(mesh_reader);
-
-            // Check that each processor owns the number of nodes corresponding to its METIS partition
-            unsigned local_nodes = mesh.GetDistributedVectorFactory()->GetLocalOwnership();
-            TS_ASSERT_EQUALS(local_nodes, mesh.GetNumLocalNodes());
-        }
-        {
-            TrianglesMeshReader<1,3> mesh_reader("mesh/test/data/branched_1d_in_3d_mesh");
-            DistributedTetrahedralMesh<1,3> mesh;
-            mesh.ConstructFromMeshReader(mesh_reader);
+    }
     
-            TS_ASSERT_EQUALS( mesh.GetNumNodes(), 31u);
-            TS_ASSERT_EQUALS( mesh.GetNumElements(), 30u);
-            TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 3u);
-            TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 3u);
-        }
+    void TestPartitioningOfEmbeddedDimensionMesh()
+    {
+        //Shouldn't ever use a partition other than DUMB because it's 1-D 
+        TrianglesMeshReader<1,3> mesh_reader("mesh/test/data/branched_1d_in_3d_mesh");
+        DistributedTetrahedralMesh<1,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_EQUALS( mesh.GetNumNodes(), 31u);
+        TS_ASSERT_EQUALS( mesh.GetNumElements(), 30u);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 3u);
+        TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 3u);
     }
 
 
