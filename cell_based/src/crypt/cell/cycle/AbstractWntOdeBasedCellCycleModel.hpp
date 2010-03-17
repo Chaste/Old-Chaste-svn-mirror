@@ -65,7 +65,6 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
-        archive & mDimension;
     }
 
 protected:
@@ -77,11 +76,6 @@ protected:
     /** The ODE solver. */
     static RungeKutta4IvpOdeSolver msSolver;
 #endif //CHASTE_CVODE
-
-    /**
-     * The spatial dimension (needed by the templated class WntConcentration).
-     */
-    unsigned mDimension;
 
     /**
      * @return time when the ODEs reached their stopping condition.
@@ -134,21 +128,6 @@ public:
      * current levels of beta-catenin.
      */
     virtual void ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()=0;
-
-    /**
-	 * Set the spatial dimension.
-	 *
-	 * @param dimension
-	 */
-	void SetDimension(unsigned dimension);
-
-	/**
-     * Get the spatial dimension.
-     *
-     * @return mDimension
-     */
-    unsigned GetDimension();
-
 };
 
 CLASS_IS_ABSTRACT(AbstractWntOdeBasedCellCycleModel)

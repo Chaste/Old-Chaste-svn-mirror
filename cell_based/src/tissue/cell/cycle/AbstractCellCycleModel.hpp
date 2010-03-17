@@ -82,6 +82,7 @@ private:
         archive & mCurrentCellCyclePhase;
         archive & mG1Duration;
         archive & mReadyToDivide;
+        archive & mDimension;
     }
 
     /**
@@ -116,6 +117,11 @@ protected:
      * Whether the cell is currently ready to undergo division.
      */
     bool mReadyToDivide;
+
+    /**
+     *  Spatial dimension being used in simulation (defaults to 0, set with SetDimension)
+     */
+    unsigned mDimension;
 
 public:
 
@@ -184,6 +190,22 @@ public:
      * (This function is overridden in AbstractOdeBasedCellCycleModel).
      */
     virtual void SetBirthTime(double birthTime);
+
+    /**
+     * Set the spatial dimension.
+     *
+     * @param dimension
+     */
+    void SetDimension(unsigned dimension);
+
+    /**
+     *  Get the dimension this cell cycle model thinks the simulation is in
+     */
+    unsigned GetDimension()
+    {
+    	return mDimension;
+    }
+
 
     /**
      * @return the time at which the cell was born.

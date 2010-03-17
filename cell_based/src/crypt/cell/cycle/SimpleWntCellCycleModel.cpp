@@ -28,9 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModel.hpp"
 
 
-SimpleWntCellCycleModel::SimpleWntCellCycleModel(unsigned dimension, bool useCellProliferativeTypeDependentG1Duration)
-    : mUseCellProliferativeTypeDependentG1Duration(useCellProliferativeTypeDependentG1Duration),
-      mDimension(dimension)
+SimpleWntCellCycleModel::SimpleWntCellCycleModel()
+ : mUseCellProliferativeTypeDependentG1Duration(false)
 {
 }
 
@@ -41,9 +40,9 @@ AbstractCellCycleModel* SimpleWntCellCycleModel::CreateCellCycleModel()
 }
 
 
-unsigned SimpleWntCellCycleModel::GetDimension()
+void SimpleWntCellCycleModel::SetUseCellProliferativeTypeDependentG1Duration(bool useCellProliferativeTypeDependentG1Duration)
 {
-    return mDimension;
+	mUseCellProliferativeTypeDependentG1Duration = useCellProliferativeTypeDependentG1Duration;
 }
 
 
@@ -111,6 +110,7 @@ double SimpleWntCellCycleModel::GetWntLevel()
             break;
         }
         default:
+        	std::cout << "dim = " << mDimension << "\n" << std::flush;
             NEVER_REACHED;
     }
     return level;

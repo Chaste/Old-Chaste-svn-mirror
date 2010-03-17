@@ -57,7 +57,6 @@ private:
         archive & *p_gen;
 
         archive & mUseCellProliferativeTypeDependentG1Duration;
-        archive & mDimension;
     }
 
     /**
@@ -67,10 +66,6 @@ private:
     bool mUseCellProliferativeTypeDependentG1Duration;
 
 protected:
-    /**
-     * The spatial dimension (needed by the templated class WntConcentration).
-     */
-    unsigned mDimension;
 
     /**
      * Get the Wnt level experienced by the cell.
@@ -99,11 +94,8 @@ public:
     /**
      * Constructor - just a default, mBirthTime is now set in the AbstractCellCycleModel class.
      * mG1Duration is set very high, it is set for the individual cells when InitialiseDaughterCell is called.
-     *
-     * @param dimension the spatial dimension (needed by the templated class WntConcentration)
-     * @param useCellProliferativeTypeDependentG1Duration  Whether the duration of the G1 phase is dependent on cell type
      */
-    SimpleWntCellCycleModel(unsigned dimension, bool useCellProliferativeTypeDependentG1Duration=false);
+    SimpleWntCellCycleModel();
 
     /**
      * Overridden UpdateCellCyclePhase() method.
@@ -121,12 +113,12 @@ public:
      */
     virtual AbstractCellCycleModel* CreateCellCycleModel();
 
+
     /**
-     * Get the spatial dimension.
-     *
-     * @return mDimension
+     * Set whether Whether the duration of the G1 phase is dependent on cell type
+     * @param useCellProliferativeTypeDependentG1Duration - boolean, defaults to true.
      */
-    unsigned GetDimension();
+    void SetUseCellProliferativeTypeDependentG1Duration(bool useCellProliferativeTypeDependentG1Duration=true);
 };
 
 #include "SerializationExportWrapper.hpp"
@@ -163,8 +155,7 @@ inline void load_construct_data(
      * from the archive will overwrite their effect in this case.
      */
 
-    unsigned dimension = UINT_MAX;
-    ::new(t)SimpleWntCellCycleModel(dimension);
+    ::new(t)SimpleWntCellCycleModel;
 }
 }
 } // namespace ...

@@ -176,7 +176,9 @@ public:
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel(2);
+        SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel;
+        p_cycle_model->SetDimension(2);
+
         TissueCell cell(STEM, HEALTHY, p_cycle_model);
         cell.InitialiseCellCycleModel();
 
@@ -255,11 +257,15 @@ public:
         TS_ASSERT_EQUALS(cell2.GetCellProliferativeType(), TRANSIT);
 
         // For coverage...
-        SimpleWntCellCycleModel* p_cycle_model1 = new SimpleWntCellCycleModel(2);
+        SimpleWntCellCycleModel* p_cycle_model1 = new SimpleWntCellCycleModel;
+        p_cycle_model1->SetDimension(2);
+
         TissueCell cell1(DIFFERENTIATED, HEALTHY, p_cycle_model1);
         cell1.InitialiseCellCycleModel();
 
-        SimpleWntCellCycleModel* p_another_cycle_model = new SimpleWntCellCycleModel(true);
+        SimpleWntCellCycleModel* p_another_cycle_model = new SimpleWntCellCycleModel;
+        p_another_cycle_model->SetDimension(2);
+
         TissueCell another_cell(STEM, HEALTHY, p_another_cycle_model);
         another_cell.InitialiseCellCycleModel();
         // ...end of coverage
@@ -278,7 +284,9 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Set up a cell cycle model and cell
-        SimpleWntCellCycleModel* p_cycle_model4 = new SimpleWntCellCycleModel(2);
+        SimpleWntCellCycleModel* p_cycle_model4 = new SimpleWntCellCycleModel;
+        p_cycle_model4->SetDimension(2);
+
         TissueCell cell4(STEM, HEALTHY,  p_cycle_model4);
         cell4.InitialiseCellCycleModel();
 
@@ -329,7 +337,9 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(30.0, 2);
 
         WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
-        SimpleWntCellCycleModel* p_cell_model_1d = new SimpleWntCellCycleModel(1, true);
+        SimpleWntCellCycleModel* p_cell_model_1d = new SimpleWntCellCycleModel;
+        p_cell_model_1d->SetDimension(1);
+        p_cell_model_1d->SetUseCellProliferativeTypeDependentG1Duration();
 
         TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
 
@@ -351,7 +361,8 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
 
         WntConcentration<3>::Instance()->SetConstantWntValueForTesting(wnt_level);
-        SimpleWntCellCycleModel* p_cell_model_3d = new SimpleWntCellCycleModel(3);
+        SimpleWntCellCycleModel* p_cell_model_3d = new SimpleWntCellCycleModel;
+        p_cell_model_3d->SetDimension(3);
 
         TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
 
@@ -541,7 +552,8 @@ public:
             WntConcentration<1>::Instance()->SetConstantWntValueForTesting(0.7);
 
             // Create cell cycle model and associated cell
-            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel(1);
+            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel;
+            p_cell_model->SetDimension(1);
             p_cell_model->SetBirthTime(-1.0);
 
             TissueCell stem_cell(STEM, HEALTHY, p_cell_model);
@@ -649,8 +661,8 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
 
-            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel(2);
-
+            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel;
+            p_cell_model->SetDimension(2);
             p_cell_model->SetBirthTime(-1.0);
 
             TissueCell cell(STEM, HEALTHY, p_cell_model);

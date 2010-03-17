@@ -30,9 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "SimpleWntCellCycleModelCellsGenerator.hpp"
-#include "StochasticWntCellCycleModelCellsGenerator.hpp"
-#include "WntCellCycleModelCellsGenerator.hpp"
+//#include "SimpleWntCellCycleModelCellsGenerator.hpp"
+//#include "StochasticWntCellCycleModelCellsGenerator.hpp"
+//#include "WntCellCycleModelCellsGenerator.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -55,6 +55,7 @@ public:
 
 		// Create cells
 		std::vector<TissueCell> cells;
+
 		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
 		cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
@@ -269,8 +270,6 @@ public:
 		}
     }
 
-/////////////////////////////////////////////////
-// #1112 these not done yet
 
     void TestSimpleWntCellCycleModelCellsGenerator() throw(Exception)
     {
@@ -283,7 +282,7 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        SimpleWntCellCycleModelCellsGenerator<2> generator;
+        CellsGenerator<SimpleWntCellCycleModel,2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
 
         // Test that cells were generated correctly
@@ -296,6 +295,8 @@ public:
 
     }
 
+/////////////////////////////////////////////////
+// #1112 these not done yet
     void TestStochasticWntCellCycleModelCellsGenerator() throw(Exception)
     {
         // Create mesh
@@ -307,7 +308,7 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        StochasticWntCellCycleModelCellsGenerator<2> generator;
+        CellsGenerator<StochasticWntCellCycleModel,2> generator;
         generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
 
         // Test that cells were generated correctly
@@ -320,8 +321,7 @@ public:
 
         // Create cells again with basic
 		std::vector<TissueCell> new_cells;
-		CellsGenerator<StochasticWntCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
+		generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
 		// Test that cells were generated correctly
 		TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
 
@@ -330,8 +330,6 @@ public:
 			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
 		}
     }
-
-
 };
 
 #endif /*TESTCELLSGENERATOR_HPP_*/

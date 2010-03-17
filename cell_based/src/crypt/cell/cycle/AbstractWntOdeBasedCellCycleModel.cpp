@@ -47,19 +47,9 @@ AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel()
 
 
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& rOtherModel)
-    : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel),
-      mDimension(rOtherModel.mDimension)
+    : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
 {
-}
-
-void AbstractWntOdeBasedCellCycleModel::SetDimension(unsigned dimension)
-{
-    mDimension = dimension;
-}
-
-unsigned AbstractWntOdeBasedCellCycleModel::GetDimension()
-{
-    return mDimension;
+	mDimension = rOtherModel.mDimension;
 }
 
 

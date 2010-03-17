@@ -63,9 +63,11 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(std::vector<double>& rPar
                                      CryptCellMutationState& rMutationState,
                                      unsigned& rDimension,
                                      bool useTypeDependentG1)
-    : SimpleWntCellCycleModel(rDimension,useTypeDependentG1),
-      mLastTime(DBL_MAX)
+    : mLastTime(DBL_MAX)
 {
+	std::cout << "Calling SetDim with d = " << rDimension << "\n" << std::flush;
+	SetDimension(rDimension),
+	SetUseCellProliferativeTypeDependentG1Duration(useTypeDependentG1);
 #ifdef CHASTE_CVODE
         msSolver.SetMaxSteps(10000);
 #endif // CHASTE_CVODE

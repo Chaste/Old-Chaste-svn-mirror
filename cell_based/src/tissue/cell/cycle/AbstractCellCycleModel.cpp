@@ -33,7 +33,8 @@ AbstractCellCycleModel::AbstractCellCycleModel()
       mBirthTime(SimulationTime::Instance()->GetTime()),
       mCurrentCellCyclePhase(M_PHASE),
       mG1Duration(DOUBLE_UNSET),
-      mReadyToDivide(false)
+      mReadyToDivide(false),
+      mDimension(0)
 {
 }
 
@@ -129,4 +130,10 @@ bool AbstractCellCycleModel::ReadyToDivide()
         }
     }
     return mReadyToDivide;
+}
+
+void AbstractCellCycleModel::SetDimension(unsigned dimension)
+{
+	assert(dimension <= 3);
+	mDimension = dimension;
 }

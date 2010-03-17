@@ -60,8 +60,9 @@ public:
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
         unsigned dimension = 2;
-        TissueCell cell(STEM, HEALTHY, new SingleOdeWntCellCycleModel(dimension)); // Deal with memory properly
-        SingleOdeWntCellCycleModel* p_cycle_model = static_cast<SingleOdeWntCellCycleModel*> (cell.GetCellCycleModel());
+        SingleOdeWntCellCycleModel* p_cycle_model = new SingleOdeWntCellCycleModel();
+        p_cycle_model->SetDimension(dimension);
+        TissueCell cell(STEM, HEALTHY, p_cycle_model); // Deal with memory properly
 
         cell.InitialiseCellCycleModel(); // Associates a cell with a cell cycle model.
 
@@ -177,7 +178,9 @@ public:
         wnt_level = 1.0;
         WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
         dimension = 1u;
-        SingleOdeWntCellCycleModel* p_cell_model_1d = new SingleOdeWntCellCycleModel(dimension, true);
+        SingleOdeWntCellCycleModel* p_cell_model_1d = new SingleOdeWntCellCycleModel;
+        p_cell_model_1d->SetDimension(1);
+        p_cell_model_1d->SetUseCellProliferativeTypeDependentG1Duration();
 
         TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
 
@@ -199,7 +202,8 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
         dimension = 3;
         WntConcentration<3>::Instance()->SetConstantWntValueForTesting(wnt_level);
-        SingleOdeWntCellCycleModel* p_cell_model_3d = new SingleOdeWntCellCycleModel(dimension);
+        SingleOdeWntCellCycleModel* p_cell_model_3d = new SingleOdeWntCellCycleModel;
+        p_cell_model_3d->SetDimension(3);
 
         TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
 

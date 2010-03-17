@@ -119,11 +119,9 @@ public:
 
     /**
      * Default constructor.
-     * @param dimension the spatial dimension
      */
-    SingleOdeWntCellCycleModel(unsigned dimension, bool useTypeDependentG1Durations=false)
-        : SimpleWntCellCycleModel(dimension, useTypeDependentG1Durations),
-          mpOdeSystem(NULL),
+    SingleOdeWntCellCycleModel()
+      :   mpOdeSystem(NULL),
           mLastTime(DBL_MAX) // Ensure this is set properly before we try to use it.
     {
 #ifdef CHASTE_CVODE
