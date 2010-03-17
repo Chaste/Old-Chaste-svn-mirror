@@ -10,6 +10,6 @@ The following new files/directories were created:
 ------------ChasteParameters.xml
 ------------SimulationResults_V.dat
 ------------SimulationResults_mesh.pts
-------------SimulationResults_mesh.tetra
+------------SimulationResults_mesh.tetras
 ------------SimulationResults_mesh.tri
 ------------SimulationResults_times.info

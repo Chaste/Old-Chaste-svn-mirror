@@ -20,7 +20,7 @@ results_h5:ChasteResults/SimulationResults.h5
 results_v_dat:ChasteResults/output/SimulationResults_V.dat
 results_phi_e_dat:ChasteResults/output/SimulationResults_Phi_e.dat
 mesh_pts:ChasteResults/output/SimulationResults_mesh.pts
-mesh_tetra:ChasteResults/output/SimulationResults_mesh.tetra
+mesh_tetras:ChasteResults/output/SimulationResults_mesh.tetras
 mesh_tri:ChasteResults/output/SimulationResults_mesh.tri
 
 # Extra files to test against in postprocess_monodomain

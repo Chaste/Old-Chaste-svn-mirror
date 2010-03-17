@@ -11,6 +11,6 @@ The following new files/directories were created:
 ------------SimulationResults_Phi_e.dat
 ------------SimulationResults_V.dat
 ------------SimulationResults_mesh.pts
-------------SimulationResults_mesh.tetra
+------------SimulationResults_mesh.tetras
 ------------SimulationResults_mesh.tri
 ------------SimulationResults_times.info
