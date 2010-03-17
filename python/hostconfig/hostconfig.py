@@ -271,16 +271,6 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
         if sys.platform == 'cygwin':
             libraries.extend(['gdi32', 'user32', 'advapi32', 'kernel32', 'dl'])
 
-def DoMetis():
-    """Add METIS include and library paths."""
-    if conf.metis_path is None:
-        raise ValueError('METIS required, but no path given in the host config.')
-    libpath = os.path.abspath(conf.metis_path)
-    incpath = os.path.join(libpath, 'Lib') # Yes, METIS is odd!
-    libpaths.append(libpath)
-    incpaths.append(incpath)
-    libraries.append('metis')
-
 def DoDealii(build):
     """Add Deal.II include & library paths, and libraries.
 
@@ -329,7 +319,6 @@ def configure(build):
         conf.Configure(prefs)
     if build.using_dealii:
         DoDealii(build)
-        #DoMetis()
         libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
         libraries.extend(['blas', 'lapack']) # Use versions provided with Deal.II
     else:
