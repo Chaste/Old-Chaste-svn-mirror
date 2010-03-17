@@ -122,6 +122,10 @@ public:
                                   double y2 = 3.0,
                                   double y3 = 4.0,
                                   bool initialiseCells = false);
+
+    void GenerateGivenLocationIndices(std::vector<TissueCell>& rCells,
+    		                          const std::vector<unsigned> locationIndices);
+
 };
 
 template<class CELL_CYCLE_MODEL, unsigned DIM>
@@ -269,6 +273,28 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateForCrypt(std::vector<TissueCe
         {
             rCells.push_back(cell);
         }
+    }
+}
+
+template<class CELL_CYCLE_MODEL, unsigned DIM>
+void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vector<TissueCell>& rCells,
+                                                                        const std::vector<unsigned> locationIndices)
+{
+    assert(!locationIndices.empty());
+
+    unsigned num_cells = locationIndices.size();
+
+    rCells.clear();
+    rCells.reserve(num_cells);
+
+    for (unsigned i=0; i<num_cells; i++)
+    {
+    	CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL();
+    	boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TissueCell cell(STEM, p_state, p_cell_cycle_model);
+        double birth_time = 0.0 - locationIndices[i];
+        cell.SetBirthTime(birth_time);
+        rCells.push_back(cell);
     }
 }
 

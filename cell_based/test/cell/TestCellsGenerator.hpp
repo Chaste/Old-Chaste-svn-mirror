@@ -84,7 +84,7 @@ public:
   		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
   		TS_ASSERT_THROWS_THIS(cells_generator.GenerateBasic(cells, 83511u, location_indices),
   				"The size of the locationIndices vector must match the required number of output cells");
-  		cells_generator.GenerateBasic(cells, location_indices.size(), location_indices);
+  		cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
   		// Test that cells were generated correctly
   		for (unsigned i=0; i<cells.size(); i++)

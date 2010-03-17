@@ -36,12 +36,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueSimulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "StochasticWntCellCycleModelCellsGenerator.hpp"
+#include "CellsGenerator.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "RandomCellKiller.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "NumericFileComparison.hpp"
 #include "CellBasedEventHandler.hpp"
@@ -103,7 +102,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        StochasticWntCellCycleModelCellsGenerator<2> cell_generator;
+        CellsGenerator<StochasticWntCellCycleModel,2> cell_generator;
         cell_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Set up tissue
@@ -311,7 +310,7 @@ public:
 
         // Set up cells, one for each node. Give each cell a random birth time.
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         // Create a tissue

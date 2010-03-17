@@ -53,10 +53,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * in any Chaste test).
  */
 #include <cxxtest/TestSuite.h>
-/* The next two header files define helper classes for generating a vector of
- * cells with fixed, and Wnt-dependent, cell-cycle models. */
-#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
-#include "WntCellCycleModelCellsGenerator.hpp"
+/* The next header file defines a helper class for generating
+ * cells. */
+#include "CellsGenerator.hpp"
+/*
+ * The next two header files define two different types of cell-cycle model,
+ * one with fixed cell-cycle times and one where the cell-cycle time depends
+ * on the Wnt concentration.
+ */
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "WntCellCycleModel.hpp"
 /* The next header file defines a helper class for generating a suitable mesh. */
 #include "HoneycombMeshGenerator.hpp"
 /* The next header file defines a {{{Tissue}}} class that uses a mesh, and allows
@@ -133,7 +139,7 @@ public:
          * synchronous division. The {{{cells}}} vector is populated once the method
          * {{{GenerateForCrypt}}} is called. */
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices,
@@ -219,7 +225,7 @@ public:
 
         /* Create the cells, using the same method as before. Here, though, we use a {{{WntCellCycleModeCellsGenerator}}}.*/
         std::vector<TissueCell> cells;
-        WntCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<WntCellCycleModel,2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
 
         /* Create the tissue, as before. */

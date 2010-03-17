@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
@@ -209,7 +208,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true); // true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
@@ -286,7 +285,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
         cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);// true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
@@ -424,7 +423,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
         MeshBasedTissueWithGhostNodes<2> stretched_tissue(*p_mesh, cells, location_indices);
@@ -453,7 +452,7 @@ public:
         std::vector<unsigned> location_indices2 = generator2.GetCellLocationIndices();
 
         std::vector<TissueCell> cells2;
-        FixedDurationGenerationBasedCellCycleModelCellsGenerator<2> cells_generator2;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator2;
         cells_generator2.GenerateGivenLocationIndices(cells2, location_indices2);
 
         MeshBasedTissueWithGhostNodes<2> squashed_tissue(*p_mesh2, cells2, location_indices2);

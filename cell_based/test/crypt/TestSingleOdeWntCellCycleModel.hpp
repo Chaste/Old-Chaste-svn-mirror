@@ -33,8 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 // Must be included before any other cell_based headers
 #include "TissueSimulationArchiver.hpp"
-
-#include "SingleOdeWntCellCycleModelCellsGenerator.hpp"
+#include "SingleOdeWntCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
