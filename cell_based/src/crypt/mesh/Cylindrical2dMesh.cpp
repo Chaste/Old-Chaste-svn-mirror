@@ -28,6 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <map>
 
+/* These lines are very useful for debugging (visualize with 'showme').
+#include "TrianglesMeshWriter.hpp"
+TrianglesMeshWriter<2,2> mesh_writer("Cylindrical2dMeshDebug","mesh",false);
+mesh_writer.WriteFilesUsingMesh(*this);
+*/
 #include "Cylindrical2dMesh.hpp"
 
 
@@ -126,6 +131,11 @@ void Cylindrical2dMesh::CreateMirrorNodes()
         mRightImages.push_back(new_node_index);
         mImageToRightOriginalNodeMap[new_node_index] = mRightOriginals[i];
     }
+
+    assert(mRightOriginals.size()==mRightImages.size());
+    assert(mLeftOriginals.size()==mLeftImages.size());
+    assert(mImageToLeftOriginalNodeMap.size()==mLeftOriginals.size());
+    assert(mImageToRightOriginalNodeMap.size()==mRightOriginals.size());
 }
 
 
@@ -202,6 +212,9 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
     mImageToLeftOriginalNodeMap.clear();
     mImageToRightOriginalNodeMap.clear();
 
+    assert(mLeftOriginals.size()==mLeftImages.size());
+    assert(mRightOriginals.size()==mRightImages.size());
+
     for (unsigned i=0; i<mLeftOriginals.size(); i++)
     {
         mLeftOriginals[i] = big_map.GetNewIndex(mLeftOriginals[i]);
@@ -221,6 +234,7 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
         mTopHaloNodes[i] = big_map.GetNewIndex(mTopHaloNodes[i]);
         mBottomHaloNodes[i] = big_map.GetNewIndex(mBottomHaloNodes[i]);
     }
+
 
     // This method checks elements crossing the periodic boundary have been meshed in the same way at each side.
     CorrectNonPeriodicMesh();
@@ -528,6 +542,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
      */
     std::set<unsigned> temp_left_hand_side_elements = mLeftPeriodicBoundaryElementIndices;
     std::set<unsigned> temp_right_hand_side_elements = mRightPeriodicBoundaryElementIndices;
+    assert(mLeftPeriodicBoundaryElementIndices.size()==mRightPeriodicBoundaryElementIndices.size());
 
     // Go through all of the elements on the left periodic boundary
     for (std::set<unsigned>::iterator left_iter = mLeftPeriodicBoundaryElementIndices.begin();
@@ -598,7 +613,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
     }
     else
     {
-        assert(temp_right_hand_side_elements.size() == 2 && temp_left_hand_side_elements.size() == 2);
+    	assert(temp_right_hand_side_elements.size() == 2 && temp_left_hand_side_elements.size() == 2);
         if (temp_right_hand_side_elements.size() == 2)
         {
             // Use the right hand side meshing and map to left
@@ -712,7 +727,6 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
         for (unsigned i=0; i<3; i++)
         {
             unsigned this_node_index = elem_iter->GetNodeGlobalIndex(i);
-
             if (mImageToLeftOriginalNodeMap.find(this_node_index) != mImageToLeftOriginalNodeMap.end())
             {
                 number_of_left_image_nodes++;
@@ -726,15 +740,18 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
         // Elements on the left hand side (images of right nodes)
         if (number_of_right_image_nodes == 1 || number_of_right_image_nodes == 2)
         {
-            mLeftPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
+        	mLeftPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
         }
 
         // Elements on the right (images of left nodes)
         if (number_of_left_image_nodes == 1 || number_of_left_image_nodes == 2)
         {
-            mRightPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
+        	mRightPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
         }
     }
+    // Every boundary element on the left should have a corresponding element on
+    // the right...
+    assert(mLeftPeriodicBoundaryElementIndices.size()==mRightPeriodicBoundaryElementIndices.size());
 }
 
 
@@ -784,4 +801,4 @@ unsigned Cylindrical2dMesh::GetCorrespondingNodeIndex(unsigned nodeIndex)
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(Cylindrical2dMesh)
+CHASTE_CLASS_EXPORT(Cylindrical2dMesh);
