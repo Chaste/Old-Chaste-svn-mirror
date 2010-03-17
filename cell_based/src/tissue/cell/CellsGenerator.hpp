@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModel.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 
+
 /**
  * A helper class for generating a vector of cells for a given mesh.
  * \todo write a generator for meshes
@@ -186,16 +187,12 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateForCrypt(std::vector<TissueCe
 
     unsigned num_cells = locationIndices.empty() ? rMesh.GetNumNodes() : locationIndices.size();
 
-    CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
-    double typical_transit_cycle_time;
-    double typical_stem_cycle_time;
-
     rCells.clear();
     rCells.reserve(num_cells);
 
     for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
     {
-        CellProliferativeType cell_type;
+    	CellProliferativeType cell_type;
         unsigned generation;
 
         double y = 0.0;
@@ -211,8 +208,9 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateForCrypt(std::vector<TissueCe
             y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
         }
 
-        typical_transit_cycle_time = GetTypicalTransitCellCycleTime();
-        typical_stem_cycle_time = GetTypicalStemCellCycleTime();
+        CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
+        double typical_transit_cycle_time = GetTypicalTransitCellCycleTime();
+        double typical_stem_cycle_time = GetTypicalStemCellCycleTime();
 
         double birth_time = 0.0;
         if (randomBirthTimes)
@@ -253,10 +251,12 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateForCrypt(std::vector<TissueCe
 
         if (dynamic_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model))
         {
-///\todo            static_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model)->SetGeneration(generation);
+        	dynamic_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model)->SetGeneration(generation);
         }
 
+
         TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
+
         if (initialiseCells)
         {
             cell.InitialiseCellCycleModel();
@@ -412,7 +412,7 @@ double CellsGenerator<CELL_CYCLE_MODEL, DIM>::GetTypicalStemCellCycleTime()
     }
 }
 
-
+//typedef typename if_<is_same<CELL_CYCLE_MODEL, TysonNovakCellCycleModel>,integral_c<unsigned, 1>,typename if_<is_same<CELL_CYCLE_MODEL, WntCellCycleModel>,integral_c<unsigned, 2>,typename if_<is_same<CELL_CYCLE_MODEL, StochasticWntCellCycleModel>,integral_c<unsigned, 2>,typename if_<is_same<CELL_CYCLE_MODEL, SingleOdeWntCellCycleModel>,integral_c<unsigned, 2>,typename if_<is_same<CELL_CYCLE_MODEL, IngeWntSwatCellCycleModel>,integral_c<unsigned, 2>,integral_c<unsigned, 0>	>::type>::type>::type>::type>::type selector_t;
 
 
 #endif /* CELLSGENERATOR_HPP_ */
