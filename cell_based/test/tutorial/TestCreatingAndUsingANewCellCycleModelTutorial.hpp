@@ -86,15 +86,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The remaining header files define classes that will be used in the tissue
  * simulation test: {{{CheckReadyToDivideAndPhaseIsUpdated}}} defines a helper
  * class for testing a cell cycle model; {{{HoneycombMeshGenerator}}} defines
- * a helper class for generating a suitable mesh; {{{GeneralisedLinearSpringForce}}}
+ * a helper class for generating a suitable mesh; {{{WildTypeCellMutationState}}}
+ * defines a wild-type or 'healthy' cell mutation state; {{{GeneralisedLinearSpringForce}}}
  * defines a force law for describing the mechanical interactions between neighbouring
  * cells in the tissue; and {{{TissueSimulation}}} defines the class that
  * simulates the evolution of the tissue. */
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "WildTypeCellMutationState.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "TissueSimulation.hpp"
-#include "WildTypeCellMutationState.hpp"
 
 /*
  * EMPTYLINE

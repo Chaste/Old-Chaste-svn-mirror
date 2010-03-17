@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellMutationState.hpp"
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
-#include "Debug.hpp"
 
 /**
  * Subclass of AbstractCellMutationState defining a 'wild type' mutation state.
