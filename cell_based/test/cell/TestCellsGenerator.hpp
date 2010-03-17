@@ -38,6 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
+///\todo: test dimension and proliferative type are set correctly
+
+
 /**
  * This class contains tests for methods on classes
  * inheriting from AbstractCellsGenerator.

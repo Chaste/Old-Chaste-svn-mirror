@@ -77,11 +77,7 @@ public:
      * Whether cells are able to fully differentiate.
      * Defaults to false unless overridden.
      */
-    bool CellsCanDifferentiate()
-    {
-///\todo: The stochastic cell cycle model version should return true here
-    	return false;
-    }
+    bool CellsCanDifferentiate();
 
 
      /**
@@ -209,6 +205,8 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateForCrypt(std::vector<TissueCe
         }
 
         CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
+        p_cell_cycle_model->SetDimension(DIM);
+
         double typical_transit_cycle_time = GetTypicalTransitCellCycleTime();
         double typical_stem_cycle_time = GetTypicalStemCellCycleTime();
 
@@ -411,6 +409,34 @@ double CellsGenerator<CELL_CYCLE_MODEL, DIM>::GetTypicalStemCellCycleTime()
 				+ TissueConfig::Instance()->GetSG2MDuration();
     }
 }
+
+
+template<class CELL_CYCLE_MODEL, unsigned DIM>
+bool CellsGenerator<CELL_CYCLE_MODEL, DIM>::CellsCanDifferentiate()
+{
+	using namespace boost::mpl;
+	using namespace boost;
+	typedef typename if_<is_same<CELL_CYCLE_MODEL, FixedDurationGenerationBasedCellCycleModel>,
+					     integral_c<unsigned, 1>,
+					     typename if_<is_same<CELL_CYCLE_MODEL, StochasticDurationGenerationBasedCellCycleModel>,
+									  integral_c<unsigned, 1>,
+									  integral_c<unsigned, 0>
+									  >::type
+     					  >::type selector_t;
+
+    unsigned selector = selector_t();
+
+    if(selector==1)
+    {
+    	// With FixedDuration or Stochastic cell cycle models, cells can differentiate
+    	return true;
+    }
+    else
+    {
+    	return false;
+    }
+}
+
 
 //typedef typename if_<is_same<CELL_CYCLE_MODEL, TysonNovakCellCycleModel>,integral_c<unsigned, 1>,typename if_<is_same<CELL_CYCLE_MODEL, WntCellCycleModel>,integral_c<unsigned, 2>,typename if_<is_same<CELL_CYCLE_MODEL, StochasticWntCellCycleModel>,integral_c<unsigned, 2>,typename if_<is_same<CELL_CYCLE_MODEL, SingleOdeWntCellCycleModel>,integral_c<unsigned, 2>,typename if_<is_same<CELL_CYCLE_MODEL, IngeWntSwatCellCycleModel>,integral_c<unsigned, 2>,integral_c<unsigned, 0>	>::type>::type>::type>::type>::type selector_t;
 
