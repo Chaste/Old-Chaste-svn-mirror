@@ -108,12 +108,12 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     mpMeshReader = &rMeshReader;
     mNumNodes = mpMeshReader->GetNumNodes();
     mNumElements = mpMeshReader->GetNumElements();
-    
+
     if (!PetscTools::AmMaster())
     {
         return;
     }
-    
+
     //Boundary faces are cached
     for (unsigned i=0; i<rMeshReader.GetNumFaces(); i++)
     {

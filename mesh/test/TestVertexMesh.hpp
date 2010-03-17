@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexMeshWriter.hpp"
-#include "VertexMesh.hpp"
+#include "MutableVertexMesh.hpp"
 #include "ArchiveOpener.hpp"
 
 class TestVertexMesh : public CxxTest::TestSuite
@@ -47,12 +47,13 @@ public:
     {
         // Create mesh
         HoneycombVertexMeshGenerator generator(3, 3);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 30u);
 
         unsigned counter = 0;
-        for (VertexMesh<2,2>::NodeIterator iter = p_mesh->GetNodeIteratorBegin();
+        for (MutableVertexMesh<2,2>::NodeIterator iter = p_mesh->GetNodeIteratorBegin();
              iter != p_mesh->GetNodeIteratorEnd();
              ++iter)
         {
@@ -66,7 +67,7 @@ public:
         p_mesh->GetNode(0)->MarkAsDeleted();
 
         counter = 0;
-        for (VertexMesh<2,2>::NodeIterator iter = p_mesh->GetNodeIteratorBegin();
+        for (MutableVertexMesh<2,2>::NodeIterator iter = p_mesh->GetNodeIteratorBegin();
              iter != p_mesh->GetNodeIteratorEnd();
              ++iter)
         {
@@ -78,22 +79,23 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumAllNodes(), counter+1);
 
         // For coverage, test with an empty mesh
-        VertexMesh<2,2> empty_mesh;
+        MutableVertexMesh<2,2> empty_mesh;
 
         // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed
-        VertexMesh<2,2>::NodeIterator iter = empty_mesh.GetNodeIteratorBegin();
+        MutableVertexMesh<2,2>::NodeIterator iter = empty_mesh.GetNodeIteratorBegin();
 
         // Check that the iterator is now at the end (we need to check this as a double-negative,
         // as we only have a NOT-equals operator defined on the iterator).
         bool iter_is_not_at_end = (iter != empty_mesh.GetNodeIteratorEnd());
         TS_ASSERT_EQUALS(iter_is_not_at_end, false);
+
     }
 
     void TestVertexElementIterator() throw (Exception)
     {
         // Create mesh
         HoneycombVertexMeshGenerator generator(3, 3);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);
 
@@ -110,33 +112,71 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
 
         // For coverage, test with an empty mesh
-        VertexMesh<2,2> empty_mesh;
+        MutableVertexMesh<2,2> empty_mesh;
 
         // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed
-        VertexMesh<2,2>::VertexElementIterator iter = empty_mesh.GetElementIteratorBegin();
+        MutableVertexMesh<2,2>::VertexElementIterator iter = empty_mesh.GetElementIteratorBegin();
 
         // Check that the iterator is now at the end (we need to check this as a double-negative,
         // as we only have a NOT-equals operator defined on the iterator).
         bool iter_is_not_at_end = (iter != empty_mesh.GetElementIteratorEnd());
         TS_ASSERT_EQUALS(iter_is_not_at_end, false);
 
-        // Delete an element from mesh and test the iterator
-        p_mesh->DeleteElementPriorToReMesh(0);
-
-        counter = 0;
-        for (VertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
-             iter != p_mesh->GetElementIteratorEnd();
-             ++iter)
-        {
-            unsigned element_index = iter->GetIndex();
-            TS_ASSERT_EQUALS(counter+1, element_index); // assumes the iterator will give elements 1..,N in that order
-            counter++;
-        }
-
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
-        TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), counter+1);
+        TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), counter);
         TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), true);
     }
+
+    void TestMutableVertexElementIterator() throw (Exception)
+        {
+            // Create mesh
+            HoneycombVertexMeshGenerator generator(3, 3);
+            MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+
+            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);
+
+            unsigned counter = 0;
+            for (MutableVertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
+                 iter != p_mesh->GetElementIteratorEnd();
+                 ++iter)
+            {
+                unsigned element_index = iter->GetIndex();
+                TS_ASSERT_EQUALS(counter, element_index); // assumes the iterator will give elements 0,1..,N in that order
+                counter++;
+            }
+
+            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
+
+            // For coverage, test with an empty mesh
+            MutableVertexMesh<2,2> empty_mesh;
+
+            // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed
+            MutableVertexMesh<2,2>::VertexElementIterator iter = empty_mesh.GetElementIteratorBegin();
+
+            // Check that the iterator is now at the end (we need to check this as a double-negative,
+            // as we only have a NOT-equals operator defined on the iterator).
+            bool iter_is_not_at_end = (iter != empty_mesh.GetElementIteratorEnd());
+            TS_ASSERT_EQUALS(iter_is_not_at_end, false);
+
+
+            // Delete an element from mesh and test the iterator
+            p_mesh->DeleteElementPriorToReMesh(0);
+
+            counter = 0;
+            for (MutableVertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
+                 iter != p_mesh->GetElementIteratorEnd();
+                 ++iter)
+            {
+                unsigned element_index = iter->GetIndex();
+                TS_ASSERT_EQUALS(counter+1, element_index); // assumes the iterator will give elements 1..,N in that order
+                counter++;
+            }
+
+            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
+            TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), counter+1);
+            TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), true);
+        }
+
 
     void TestBasicVertexMesh() throw(Exception)
     {
@@ -168,7 +208,7 @@ public:
         basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
-        VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
+        MutableVertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
 
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 7u);
@@ -228,7 +268,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         // Test GetCentroidOfElement() method
         c_vector<double, 2> centroid = mesh.GetCentroidOfElement(0);
@@ -251,7 +291,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         // Test GetAreaGradientOfElementAtNode() method at each node
         VertexElement<2,2>* p_element = mesh.GetElement(0);
@@ -287,7 +327,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
 
@@ -316,7 +356,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         // Test gradient of area evaluated at each node
         VertexElement<2,2>* p_element = mesh.GetElement(0);
@@ -342,7 +382,7 @@ public:
     {
         // Create mesh
         HoneycombVertexMeshGenerator generator(3, 3);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Test GetWidthExtremes() method
         c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
@@ -378,7 +418,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes);
 
@@ -397,7 +437,7 @@ public:
     {
         // Create mesh
         VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
-        VertexMesh<2,2> mesh;
+        MutableVertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Test Get methods
@@ -423,7 +463,7 @@ public:
 
         // Create mesh in which elements have attributes
         VertexMeshReader<2,2> mesh_reader2("mesh/test/data/TestVertexMesh/vertex_mesh_with_attributes");
-        VertexMesh<2,2> mesh2;
+        MutableVertexMesh<2,2> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader2);
 
         // Check we have the right number of nodes & elements
@@ -451,7 +491,7 @@ public:
     {
         // Create mesh
         VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh_elements_indexed_from_1");
-        VertexMesh<2,2> mesh;
+        MutableVertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Check we have the right number of nodes & elements
@@ -475,7 +515,7 @@ public:
     {
         // Create mesh
         VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
-        VertexMesh<2,2> mesh;
+        MutableVertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ChastePoint<2> point = mesh.GetNode(3)->GetPoint();
@@ -503,7 +543,7 @@ public:
     {
         // Create mesh
         VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
-        VertexMesh<2,2> mesh;
+        MutableVertexMesh<2,2> mesh;
 
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -587,7 +627,7 @@ public:
         elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
@@ -665,8 +705,8 @@ public:
             // Restore from the archive
             (*p_arch) >> p_mesh2;
 
-            VertexMesh<2,2>* p_mesh_original = static_cast<VertexMesh<2,2>*>(p_mesh2);
-            VertexMesh<2,2>* p_mesh_loaded = static_cast<VertexMesh<2,2>*>(p_mesh);
+            MutableVertexMesh<2,2>* p_mesh_original = static_cast<MutableVertexMesh<2,2>*>(p_mesh2);
+            MutableVertexMesh<2,2>* p_mesh_loaded = static_cast<MutableVertexMesh<2,2>*>(p_mesh);
 
             // Compare the loaded mesh against the original
 
@@ -704,10 +744,6 @@ public:
                 }
             }
 
-            TS_ASSERT_DELTA(p_mesh_loaded->GetCellRearrangementThreshold(), p_mesh_original->GetCellRearrangementThreshold(), 1e-9);
-            TS_ASSERT_DELTA(p_mesh_loaded->GetEdgeDivisionThreshold(), p_mesh_original->GetEdgeDivisionThreshold(), 1e-9);
-            TS_ASSERT_DELTA(p_mesh_loaded->GetT2Threshold(), p_mesh_original->GetT2Threshold(), 1e-9);
-
             // Tidy up
             delete p_mesh_original;
         }
@@ -742,7 +778,7 @@ public:
     {
         // Create mesh
         HoneycombVertexMeshGenerator generator(2, 2);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 4u);
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 16u);
@@ -800,7 +836,7 @@ public:
         basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem));
 
         // Make a vertex mesh
-        VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
+        MutableVertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
 
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 1u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 4u);
@@ -859,7 +895,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 5u);
@@ -966,7 +1002,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 6u);
@@ -1061,7 +1097,7 @@ public:
         std::vector<VertexElement<2,2>*> vertex_elements;
         vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem));
 
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
         // Provide an axis of division that does not cross two edges of the element (it crosses four)
         c_vector<double, 2> axis_of_division;
@@ -1101,7 +1137,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 5u);
@@ -1178,7 +1214,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes_elem));
 
         // Make a vertex mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
@@ -1235,7 +1271,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes_elem));
 
         // Make a vertex mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
@@ -1293,7 +1329,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes_elem));
 
         // Make a vertex mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
@@ -1340,7 +1376,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        VertexMesh<2,2> small_mesh(nodes, elements);
+        MutableVertexMesh<2,2> small_mesh(nodes, elements);
 
         // Test CalculateMomentOfElement() method
         c_vector<double, 3> moments = small_mesh.CalculateMomentsOfElement(0);
@@ -1351,7 +1387,7 @@ public:
 
         // Hexagonal mesh from mesh generator
         HoneycombVertexMeshGenerator generator(4, 4, false, 0.01, 2.0);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 48u);
 
@@ -1403,7 +1439,7 @@ public:
         elements1.push_back(new VertexElement<2,2>(0, nodes1));
 
         // Create mesh
-        VertexMesh<2,2> mesh1(nodes1, elements1);
+        MutableVertexMesh<2,2> mesh1(nodes1, elements1);
 
         // Test GetShortAxisOfElement() method
         c_vector<double, 2> short_axis = mesh1.GetShortAxisOfElement(0);
@@ -1424,7 +1460,7 @@ public:
         elements2.push_back(new VertexElement<2,2>(0, nodes2));
 
         // Create mesh
-        VertexMesh<2,2> mesh2(nodes2, elements2);
+        MutableVertexMesh<2,2> mesh2(nodes2, elements2);
 
         // Test GetShortAxisOfElement() method
         short_axis = mesh2.GetShortAxisOfElement(0);
@@ -1449,7 +1485,7 @@ public:
         elements3.push_back(new VertexElement<2,2>(0, nodes3));
 
         // Create mesh
-        VertexMesh<2,2> mesh3(nodes3, elements3);
+        MutableVertexMesh<2,2> mesh3(nodes3, elements3);
 
         // Test GetShortAxisOfElement() method
         short_axis = mesh3.GetShortAxisOfElement(0);
@@ -1472,7 +1508,7 @@ public:
         elements4.push_back(new VertexElement<2,2>(0, nodes4));
 
         // Create mesh
-        VertexMesh<2,2> mesh4(nodes4, elements4);
+        MutableVertexMesh<2,2> mesh4(nodes4, elements4);
 
         // Test GetShortAxisOfElement() method
         short_axis = mesh4.GetShortAxisOfElement(0);
@@ -1487,7 +1523,7 @@ public:
     {
         // Create 2D mesh
         HoneycombVertexMeshGenerator generator(3, 3);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_DELTA(p_mesh->GetWidth(0), 3.5000, 1e-4);
         TS_ASSERT_DELTA(p_mesh->GetWidth(1), 2.8867, 1e-4);
@@ -1518,7 +1554,7 @@ public:
         std::vector<VertexElement<3,3>*> elements;
         elements.push_back(new VertexElement<3,3>(0, nodes));
 
-        VertexMesh<3,3> mesh3d(nodes, elements);
+        MutableVertexMesh<3,3> mesh3d(nodes, elements);
 
         TS_ASSERT_DELTA(mesh3d.GetWidth(0), 1.0, 1e-4);
         TS_ASSERT_DELTA(mesh3d.GetWidth(1), 2.0, 1e-4);
@@ -1561,7 +1597,7 @@ public:
         std::vector<VertexElement<2,2>*> elements;
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
-        VertexMesh<2,2> mesh1(nodes, elements);
+        MutableVertexMesh<2,2> mesh1(nodes, elements);
 
         // Test boundary property of nodes
         for (unsigned i=0; i<mesh1.GetNumNodes(); i++)
@@ -1571,7 +1607,7 @@ public:
 
         // Create a mesh with some interior nodes
         HoneycombVertexMeshGenerator generator1(2, 2, false, 0.01, 2.0);
-        VertexMesh<2,2>* p_mesh1 = generator1.GetMesh();
+        MutableVertexMesh<2,2>* p_mesh1 = generator1.GetMesh();
 
         // Test boundary property of nodes
         for (unsigned i=0; i<p_mesh1->GetNumNodes(); i++)
@@ -1582,7 +1618,7 @@ public:
 
         // Create a larger mesh with some interior nodes
         HoneycombVertexMeshGenerator generator2(3, 3, false, 0.01, 2.0);
-        VertexMesh<2,2>* p_mesh2 = generator2.GetMesh();
+        MutableVertexMesh<2,2>* p_mesh2 = generator2.GetMesh();
 
         // Test boundary property of nodes
         for (unsigned i=0; i<p_mesh2->GetNumNodes(); i++)
@@ -1601,7 +1637,7 @@ public:
     {
         // Create 2D mesh
         HoneycombVertexMeshGenerator generator(3, 3, false, 0.01, 2.0);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         c_vector<double, 2> old_location1 = p_mesh->GetNode(4)->rGetLocation();
         c_vector<double, 2> old_location2 = p_mesh->GetNode(9)->rGetLocation();
@@ -1628,7 +1664,7 @@ public:
     {
         // Create 2D mesh
         HoneycombVertexMeshGenerator generator(3, 3);
-        VertexMesh<2,2>* p_mesh = generator.GetMesh();
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Pick a random node and store spatial position
         Node<2>* p_node = p_mesh->GetNode(10);

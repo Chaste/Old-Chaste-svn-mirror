@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <vector>
 
-#include "VertexMesh.hpp"
+#include "MutableVertexMesh.hpp"
 
 /**
  *  Generator of honeycomb meshes, used as starting points for many simulations.
@@ -47,8 +47,7 @@ class HoneycombVertexMeshGenerator
 protected:
 
     /** A pointer to the mesh this class creates */
-    VertexMesh<2,2>* mpMesh;
-
+    MutableVertexMesh<2,2>* mpMesh;
 
 public:
 
@@ -71,19 +70,18 @@ public:
 
     /**
      * Null constructor for derived classes to call...
-     */ 
+     */
     HoneycombVertexMeshGenerator(){};
-    
+
     /**
      * Destructor - deletes the mesh object and pointer
      */
     ~HoneycombVertexMeshGenerator();
 
     /**
-     * @return a honeycomb mesh based on a 2D plane.
+     * @return a mutable honeycomb mesh based on a 2D plane.
      */
-    virtual VertexMesh<2,2>* GetMesh();
-
+    virtual MutableVertexMesh<2,2>* GetMesh();
 };
 
 #endif /*HONEYCOMBVERTEXMESHGENERATOR_HPP_*/

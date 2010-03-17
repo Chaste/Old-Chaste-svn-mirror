@@ -31,13 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-//#include <boost/archive/text_oarchive.hpp>
-//#include <boost/archive/text_iarchive.hpp>
-
-//#include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexMeshWriter.hpp"
-#include "VertexMesh.hpp"
-//#include "ArchiveOpener.hpp"
+#include "MutableVertexMesh.hpp"
 
 class TestVertexMeshReMesh : public CxxTest::TestSuite
 {
@@ -84,7 +79,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 8u);
@@ -167,7 +162,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 7u);
@@ -233,7 +228,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 8u);
@@ -315,7 +310,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
 
         // Create a mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
         vertex_mesh.SetCellRearrangementThreshold(0.1);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
@@ -395,7 +390,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
         vertex_mesh.SetCellRearrangementThreshold(0.1*2.0/1.5);// Threshold distance set to ease calculations.
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
@@ -511,7 +506,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
         vertex_mesh.SetCellRearrangementThreshold(0.1*2.0/1.5);// Threshold distance set to ease calculations.
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
@@ -623,7 +618,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
         vertex_mesh.SetCellRearrangementThreshold(0.1*2.0/1.5);// Threshold distance set to ease calculations.
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 3u);
@@ -730,7 +725,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
         vertex_mesh.SetCellRearrangementThreshold(0.1*2.0/1.5);// Threshold distance set to ease calculations.
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 2u);
@@ -853,7 +848,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(4, nodes_elem_4));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
         vertex_mesh.SetCellRearrangementThreshold(0.25);// T1 threshold distance is 0.25 so inner edges are too short
         vertex_mesh.SetT2Threshold(0.001); //T2 threshold small so doesnt occur
 
@@ -1011,7 +1006,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
         vertex_mesh.SetCellRearrangementThreshold(0.1);// Threshold distance set to ease calculations.
         vertex_mesh.SetT2Threshold(0.01);
 
@@ -1083,7 +1078,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements, 0.1);
         vertex_mesh.SetCellRearrangementThreshold(0.1);// Threshold distance set to ease calculations.
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
@@ -1145,7 +1140,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
         vertex_mesh.SetT2Threshold(0.01);
         vertex_mesh.SetCellRearrangementThreshold(0.00001); //So T1Swaps dont happen
@@ -1223,7 +1218,7 @@ public:
 
         // LoadMesh
         VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_remesh_mesh_all");
-        VertexMesh<2,2> vertex_mesh;
+        MutableVertexMesh<2,2> vertex_mesh;
 
         vertex_mesh.ConstructFromMeshReader(mesh_reader);
         vertex_mesh.SetCellRearrangementThreshold(0.1);
@@ -1341,7 +1336,7 @@ public:
 
         // Load in mesh
         VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_merge_mesh_all");
-        VertexMesh<2,2> vertex_mesh;
+        MutableVertexMesh<2,2> vertex_mesh;
         vertex_mesh.ConstructFromMeshReader(mesh_reader);
         vertex_mesh.SetCellRearrangementThreshold(0.1);
 
@@ -1467,7 +1462,7 @@ public:
         elements.push_back(p_element3);
 
         // Create mesh
-        VertexMesh<2,2> vertex_mesh(nodes, elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, elements);
         vertex_mesh.SetCellRearrangementThreshold(0.1);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 7u);
@@ -1509,7 +1504,7 @@ public:
         elements.push_back(p_element1);
 
         // Create mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
         mesh.SetEdgeDivisionThreshold(1.5); // This needs to be set to allow edge division.
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
@@ -1592,7 +1587,7 @@ public:
         elements.push_back(p_element1);
         elements.push_back(p_element2);
 
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 3u);
@@ -1709,7 +1704,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Make mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
 
         // Make some test points and test ElementIncludesPoint()
 
@@ -1835,7 +1830,7 @@ public:
         elements.push_back(new VertexElement<2,2>(4, nodes_in_element4));
 
         // Make mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
         mesh.SetCellRearrangementThreshold(0.1*1.0/1.5);// Threshold distance set to ease calculations.
 
         // Node 6 is close to, but not overlapping, an edge of element 0
@@ -1985,7 +1980,7 @@ public:
 		elements.push_back(new VertexElement<2,2>(3, nodes_in_element3));
 
         // Make mesh
-        VertexMesh<2,2> vertex_mesh(nodes, elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 9u);
         TS_ASSERT_EQUALS(vertex_mesh.GetNumElements(), 4u);
@@ -2031,7 +2026,7 @@ public:
         elements.push_back(new VertexElement<2,2>(1, nodes_in_element1));
 
         // Make mesh
-        VertexMesh<2,2> vertex_mesh_2(nodes, elements);
+        MutableVertexMesh<2,2> vertex_mesh_2(nodes, elements);
         vertex_mesh_2.SetCellRearrangementThreshold(1.0);// Threshold distance set to ease calculations.
 
         TS_ASSERT_EQUALS(vertex_mesh_2.GetNumNodes(), 7u);
@@ -2097,7 +2092,7 @@ public:
         elements.push_back(new VertexElement<2,2>(3, nodes_in_element3));
 
         // Make mesh
-        VertexMesh<2,2> mesh(nodes, elements);
+        MutableVertexMesh<2,2> mesh(nodes, elements);
         mesh.SetCellRearrangementThreshold(0.1*1.0/1.5);// Threshold distance set to ease calculations.
 
         // Node 6 and 8 are close to, but not overlapping, an edge of element 0
@@ -2215,7 +2210,7 @@ public:
 
         // LoadMesh
         VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_remesh_T3");
-        VertexMesh<2,2> vertex_mesh;
+        MutableVertexMesh<2,2> vertex_mesh;
 
         vertex_mesh.ConstructFromMeshReader(mesh_reader);
         vertex_mesh.SetCellRearrangementThreshold(0.1*1.0/1.5);// Threshold distance set to ease calculations.
@@ -2462,7 +2457,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(2, nodes_elem_2));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
         vertex_mesh.SetCellRearrangementThreshold(0.1);
 
@@ -2583,7 +2578,7 @@ public:
         vertex_elements.push_back(new VertexElement<2,2>(3, nodes_elem_3));
 
         // Make a vertex mesh
-        VertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
+        MutableVertexMesh<2,2> vertex_mesh(nodes, vertex_elements);
 
         vertex_mesh.SetCellRearrangementThreshold(0.1);
 

@@ -137,18 +137,19 @@ HoneycombVertexMeshGenerator::HoneycombVertexMeshGenerator(unsigned numElementsA
         }
     }
 
-    mpMesh = new VertexMesh<2,2>(nodes, elements, cellRearrangementThreshold, edgeDivisionThreshold, t2Threshold);
+  	mpMesh = new MutableVertexMesh<2,2>(nodes, elements, cellRearrangementThreshold, edgeDivisionThreshold, t2Threshold);
 }
 
 
 HoneycombVertexMeshGenerator::~HoneycombVertexMeshGenerator()
 {
-    delete mpMesh;
+	delete mpMesh;
 }
 
-
-VertexMesh<2,2>* HoneycombVertexMeshGenerator::GetMesh()
+MutableVertexMesh<2,2>* HoneycombVertexMeshGenerator::GetMesh()
 {
     return mpMesh;
 }
+
+
 
