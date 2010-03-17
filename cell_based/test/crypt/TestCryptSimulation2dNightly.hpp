@@ -464,7 +464,7 @@ public:
 
             boost::shared_ptr<AbstractCellMutationState> p_healthy(new WildTypeCellMutationState);
             boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
-            if (dist_from_3_6<1.1)
+            if (dist_from_3_6 < 1.1)
             {
             	cells[i].SetMutationState(p_apc2);
             }

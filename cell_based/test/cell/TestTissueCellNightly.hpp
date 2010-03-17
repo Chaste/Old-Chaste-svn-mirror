@@ -41,8 +41,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-
 
 class TestTissueCellNightly: public AbstractCellBasedTestSuite
 {
