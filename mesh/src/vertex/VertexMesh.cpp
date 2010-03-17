@@ -75,7 +75,6 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::~VertexMesh()
 {
-//TRACE("VertexMesh Destructor");
     Clear();
 }
 
