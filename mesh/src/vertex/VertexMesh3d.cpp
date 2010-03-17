@@ -71,13 +71,11 @@ VertexMesh3d::VertexMesh3d(std::vector<Node<3>*> nodes,
 }
 
 
-
 VertexMesh3d::VertexMesh3d()
 {
     this->mMeshChangesDuringSimulation = false;
     Clear();
 }
-
 
 
 VertexMesh3d::~VertexMesh3d()
@@ -110,8 +108,6 @@ unsigned VertexMesh3d::SolveBoundaryElementMapping(unsigned index) const
 
 void VertexMesh3d::Clear()
 {
-
-
 	for (unsigned i=0; i<mElements.size(); i++)
     {
         delete mElements[i];
@@ -143,15 +139,18 @@ unsigned VertexMesh3d::GetNumFaces() const
     return mFaces.size();
 }
 
+
 unsigned VertexMesh3d::GetNumElements() const
 {
     return mElements.size();
 }
 
+
 unsigned VertexMesh3d::GetNumAllElements() const
 {
     return mElements.size();
 }
+
 
 VertexElement3d* VertexMesh3d::GetElement(unsigned index) const
 {
@@ -252,6 +251,7 @@ c_vector<double, 3> VertexMesh3d::GetCentroidOfElement(unsigned index)
     return centroid;
 }
 
+
 void VertexMesh3d::ConstructFromMeshReader(AbstractMeshReader<3,3>& rMeshReader)
 {
 //    // Store numbers of nodes and elements
@@ -303,5 +303,7 @@ void VertexMesh3d::ConstructFromMeshReader(AbstractMeshReader<3,3>& rMeshReader)
 //    }
 }
 
+
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(VertexMesh3d)

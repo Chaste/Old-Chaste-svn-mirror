@@ -102,7 +102,7 @@ public:
         orientations.push_back(true);
         orientations.push_back(true);
 
-        //Make a cube element out of these faces
+        // Make a cube element out of these faces
         VertexElement3d element(0,nodes, faces, orientations);
 
         TS_ASSERT_EQUALS(element.GetNumNodes(),8u);
@@ -110,7 +110,7 @@ public:
 
         TS_ASSERT_EQUALS(element.GetIndex(),0u);
 
-        //Test the position of some random nodes
+        // Test the position of some random nodes
         TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
         TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[2], 0.0, 1e-6);

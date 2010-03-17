@@ -137,11 +137,13 @@ public:
      * Default constructor.
      *
      * @param nodes vector of pointers to nodes
-     * @param vertexElements vector of pointers to VertexElements
+     * @param faces vector of pointer to VertexElements
+     * @param vertexElements vector of pointers to VertexElement3ds
      */
     VertexMesh3d(std::vector<Node<3>*> nodes,
 				 std::vector<VertexElement<2,3>*> faces,
 				 std::vector<VertexElement3d*> vertexElements);
+
     /**
      * Default constructor for use by serializer.
      */
@@ -206,10 +208,7 @@ public:
     /**
      * Compute the centroid of an element.
      *
-     * This needs to be overridden
-     * in daughter classes for non-Euclidean metrics.
-     *
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
      *
      * @param index  the global index of a specified vertex element
      *
@@ -231,6 +230,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(VertexMesh3d);
+// Declare identifier for the serializer
+CHASTE_CLASS_EXPORT(VertexMesh3d);
 
 #endif /*VERTEXMESH3D_HPP_*/

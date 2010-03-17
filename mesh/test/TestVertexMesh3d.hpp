@@ -103,7 +103,7 @@ public:
         orientations.push_back(true);
         orientations.push_back(true);
 
-        //Make a cube element out of these faces
+        // Make a cube element out of these faces
         std::vector<VertexElement3d*> elements;
         elements.push_back(new VertexElement3d(0, nodes, faces, orientations));
 
@@ -113,7 +113,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumFaces(),6u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(),1u);
 
-//        //Test the position of some random nodes
+//        // Test the position of some random nodes
 //        TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
 //        TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
 //        TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[2], 0.0, 1e-6);

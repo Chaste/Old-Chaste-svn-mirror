@@ -38,7 +38,7 @@ VertexElement3d::VertexElement3d(unsigned index,
 								 std::vector<Node<3>*> nodes,
                                  std::vector<VertexElement<2,3>*> faces,
                                  std::vector<bool> orientations)
- : mOrientations(orientations)
+    : mOrientations(orientations)
 {
     this->mIndex = index;
 
@@ -116,5 +116,3 @@ void VertexElement3d::UpdateNode(const unsigned& rIndex, Node<3>* pNode)
     // Add element to this node
     this->mNodes[rIndex]->AddElement(this->mIndex);
 }
-
-

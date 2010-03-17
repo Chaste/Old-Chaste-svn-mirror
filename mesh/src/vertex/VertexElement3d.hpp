@@ -43,7 +43,7 @@ class VertexElement3d : public AbstractElement<3,3>
 private:
 
     /**
-     * Faces of the Vertex Element, which should be distinct.
+     * Faces of the VertexElement, which should be distinct.
      */
     std::vector<VertexElement<2,3>*> mFaces;
 
@@ -66,7 +66,7 @@ public:
 	 * @param index global index of the element
 	 * @param nodes vector of pointers to nodes
 	 * @param faces vector of pointers to VertexElements
-	 * @param orientations vector of how each face is oriented.
+	 * @param orientations vector of how each face is oriented
 	 */
 	VertexElement3d(unsigned index,
 					std::vector<Node<3>*> nodes,
@@ -89,10 +89,10 @@ public:
     unsigned GetNumFaces() const;
 
     /**
-       * @param index  the global index of a specified face
-       *
-       * @return a pointer to the face
-       */
+     * @param index the global index of a specified face
+     *
+     * @return a pointer to the face
+     */
     VertexElement<2,3>* GetFace(unsigned index) const;
 
     /**
