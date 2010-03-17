@@ -132,16 +132,16 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
-         * To do this, we the CellsGenerator helper class, which is templated over the type
+         * To do this, we the `CryptCellsGenerator` helper class, which is templated over the type
          * of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}}
          * and the dimension. We create an empty vector of cells and pass this into the
          * method along with the mesh. The third argument 'true' indicates that the cells
          * should be assigned random birth times, to avoid synchronous division. The
-         * {{{cells}}} vector is populated once the method {{{GenerateForCrypt}}} is
+         * {{{cells}}} vector is populated once the method {{{Generate}}} is
          * called. */
         std::vector<TissueCell> cells;
-        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
+        cells_generator.Generate(cells, *p_mesh, location_indices, true);
 
         /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices,
          * we can create a ''Tissue''. In general, this class associates a collection
@@ -224,10 +224,10 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        /* Create the cells, using the same method as before. Here, though, we use a {{{WntCellCycleModeCellsGenerator}}}.*/
+        /* Create the cells, using the same method as before. Here, though, we use a {{{WntCellCycleModel}}}.*/
         std::vector<TissueCell> cells;
-        CellsGenerator<WntCellCycleModel,2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        CryptCellsGenerator<WntCellCycleModel,2> cells_generator;
+        cells_generator.Generate(cells, *p_mesh, location_indices, true);
 
         /* Create the tissue, as before. */
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);

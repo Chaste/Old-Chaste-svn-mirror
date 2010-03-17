@@ -109,8 +109,8 @@ public:
         double y2 = 2.0;
         double y3 = 3.0;
 
-        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> generator;
-        generator.GenerateForCrypt(cells, *p_mesh, location_indices, true, y0, y1, y2,y3 );
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> generator;
+        generator.Generate(cells, *p_mesh, location_indices, true, y0, y1, y2,y3 );
 
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
@@ -161,8 +161,8 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CellsGenerator<StochasticDurationGenerationBasedCellCycleModel,2> generator;
-        generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
+        CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel,2> generator;
+        generator.Generate(cells, *p_mesh, location_indices, false);
 
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
@@ -224,8 +224,8 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CellsGenerator<TysonNovakCellCycleModel,2> generator;
-        generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        CryptCellsGenerator<TysonNovakCellCycleModel,2> generator;
+        generator.Generate(cells, *p_mesh, location_indices, true);
 
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
@@ -255,8 +255,8 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CellsGenerator<WntCellCycleModel,2> generator;
-        generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
+        CryptCellsGenerator<WntCellCycleModel,2> generator;
+        generator.Generate(cells, *p_mesh, location_indices, false);
 
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
@@ -290,8 +290,8 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CellsGenerator<SimpleWntCellCycleModel,2> generator;
-        generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
+        CryptCellsGenerator<SimpleWntCellCycleModel,2> generator;
+        generator.Generate(cells, *p_mesh, location_indices, false);
 
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
@@ -313,8 +313,8 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CellsGenerator<StochasticWntCellCycleModel,2> generator;
-        generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
+        CryptCellsGenerator<StochasticWntCellCycleModel,2> generator;
+        generator.Generate(cells, *p_mesh, location_indices, false);
 
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());

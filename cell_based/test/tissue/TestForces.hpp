@@ -208,8 +208,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true); // true = mature cells
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
+        cells_generator.Generate(cells, *p_mesh, location_indices, true); // true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
@@ -285,8 +285,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);// true = mature cells
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
+        cells_generator.Generate(cells, *p_mesh, location_indices, true);// true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
