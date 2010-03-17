@@ -28,9 +28,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-WntCellCycleOdeSystem::WntCellCycleOdeSystem(double wntLevel, const CryptCellMutationState& rMutationState)
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+
+WntCellCycleOdeSystem::WntCellCycleOdeSystem(
+		double wntLevel,
+		boost::shared_ptr<AbstractCellMutationState> pMutationState)
     : AbstractOdeSystem(9),
-      mMutationState(rMutationState)
+      mpMutationState(pMutationState)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<WntCellCycleOdeSystem>);
 
@@ -50,36 +56,39 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double wntLevel, const CryptCellMut
 
     Init(); // set up parameter values
 
+    // Set up a Wnt signalling pathway in a steady state
     double destruction_level = ma5d/(ma4d*wntLevel+ma5d);
     double beta_cat_level_1 = -1.0;
     double beta_cat_level_2 = -1.0;
 
-    // These three lines set up a Wnt signalling pathway in a steady state
-    if (mMutationState == HEALTHY || mMutationState == LABELLED)    // healthy cells
+    if (!mpMutationState)
     {
-        beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
-        beta_cat_level_2 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
+    	// No mutations specified
     }
-    else if (mMutationState == APC_ONE_HIT) // APC +/-
+    else if (mpMutationState && mpMutationState->IsType<ApcOneHitCellMutationState>())
     {
-        beta_cat_level_1 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level); // only half are active
+    	// APC +/- : only half are active
+        beta_cat_level_1 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level);
         beta_cat_level_2 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level);
     }
-    else if (mMutationState == BETA_CATENIN_ONE_HIT) // Beta-cat delta 45
+    else if (mpMutationState && mpMutationState->IsType<ApcTwoHitCellMutationState>())
     {
-        beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
-        beta_cat_level_2 = 0.5;
-    }
-    else if (mMutationState == APC_TWO_HIT) // APC -/-
-    {
+    	// APC -/-
         destruction_level = 0.0; // no active destruction complex
         beta_cat_level_1 = 0.5; // fully active beta-catenin
         beta_cat_level_2 = 0.5; // fully active beta-catenin
     }
+    else if (mpMutationState && mpMutationState->IsType<BetaCateninOneHitCellMutationState>())
+    {
+    	// Beta-cat delta 45
+        beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
+        beta_cat_level_2 = 0.5;
+    }
     else
     {
-        // Can't get here until new mutation states are added to CryptCellMutationState
-        NEVER_REACHED;
+    	// healthy cells
+        beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
+        beta_cat_level_2 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
     }
 
     // Cell-specific initial conditions
@@ -89,9 +98,9 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(double wntLevel, const CryptCellMut
     SetInitialConditionsComponent(8, wntLevel);
 }
 
-void WntCellCycleOdeSystem::SetMutationState(const CryptCellMutationState& rMutationState)
+void WntCellCycleOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
 {
-    mMutationState = rMutationState;
+    mpMutationState = pMutationState;
 }
 
 WntCellCycleOdeSystem::~WntCellCycleOdeSystem()
@@ -201,36 +210,35 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     // Bit back-to-front, but work out the Wnt section first...
 
     // Mutations take effect by altering the level of beta-catenin
-    if (mMutationState==HEALTHY || mMutationState==LABELLED)    // HEALTHY CELL
+    if (!mpMutationState)
+    {
+    	// No mutations specified
+    }
+    else if (mpMutationState->IsType<ApcOneHitCellMutationState>()) // APC +/-
+    {
+        dx6 = ma5d*(1.0-c) - ma4d*wnt_level*c;
+        dx7 = ma2d*(0.5-b1) - 0.5*ma3d*b1*c;
+        dx8 = ma2d*(0.5-b2) - 0.5*ma3d*b2*c;
+    }
+    else if (mpMutationState->IsType<ApcTwoHitCellMutationState>()) // APC -/-
+    {
+        dx6 = 0.0;
+        dx7 = ma2d*(0.5-b1);
+        dx8 = ma2d*(0.5-b2);
+    }
+    else if (mpMutationState->IsType<BetaCateninOneHitCellMutationState>()) // Beta-Cat D45
+    {
+        dx6 = ma5d*(1.0-c) - ma4d*wnt_level*c;
+        dx7 = ma2d*(0.5-b1) - ma3d*b1*c;
+        dx8 = ma2d*(0.5-b2);
+    }
+    else
     {
         // da
         dx6 = ma5d*(1.0-c) - ma4d*wnt_level*c;
         // db
         dx7 = ma2d*(0.5-b1) - ma3d*b1*c;
         dx8 = ma2d*(0.5-b2) - ma3d*b2*c;
-    }
-    else if (mMutationState==APC_ONE_HIT) // APC +/-
-    {
-        dx6 = ma5d*(1.0-c) - ma4d*wnt_level*c;
-        dx7 = ma2d*(0.5-b1) - 0.5*ma3d*b1*c;
-        dx8 = ma2d*(0.5-b2) - 0.5*ma3d*b2*c;
-    }
-    else if (mMutationState==BETA_CATENIN_ONE_HIT) // Beta-Cat D45
-    {
-        dx6 = ma5d*(1.0-c) - ma4d*wnt_level*c;
-        dx7 = ma2d*(0.5-b1) - ma3d*b1*c;
-        dx8 = ma2d*(0.5-b2);
-    }
-    else if (mMutationState==APC_TWO_HIT) // APC -/-
-    {
-        dx6 = 0.0;
-        dx7 = ma2d*(0.5-b1);
-        dx8 = ma2d*(0.5-b2);
-    }
-    else
-    {
-        // Can't get here until new mutation states are added to CryptCellMutationState
-        NEVER_REACHED;
     }
 
     // Now the cell cycle stuff...
@@ -259,9 +267,9 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     rDY[8] = 0.0; // do not change the Wnt level
 }
 
-CryptCellMutationState& WntCellCycleOdeSystem::rGetMutationState()
+boost::shared_ptr<AbstractCellMutationState> WntCellCycleOdeSystem::GetMutationState()
 {
-    return mMutationState;
+    return mpMutationState;
 }
 
 bool WntCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)

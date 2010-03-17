@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "AbstractOdeSystem.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "AbstractCellMutationState.hpp"
 #include "UblasCustomFunctions.hpp"
 
 /**
@@ -180,7 +180,7 @@ private:
     /**
      * The mutation state of the cell
      */
-    CryptCellMutationState mMutationState;
+    boost::shared_ptr<AbstractCellMutationState> mpMutationState;
 
     /**
      * The hypothesis we are using
@@ -196,9 +196,11 @@ public:
      *
      * @param hypothesis takes the value 1 or 2 and affects the ODE system.
      * @param wntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
-     * @param rMutationState affects the ODE system and is given by CryptCellMutationStates.hpp
+     * @param pMutationState cell mutation; some affect the ODE system
      */
-    IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double wntLevel = 0.0, const CryptCellMutationState& rMutationState = HEALTHY);
+    IngeWntSwatCellCycleOdeSystem(unsigned hypothesis,
+    		                      double wntLevel = 0.0,
+    		                      boost::shared_ptr<AbstractCellMutationState> pMutationState=boost::shared_ptr<AbstractCellMutationState>());
 
     /**
      * Destructor.
@@ -216,17 +218,16 @@ public:
      * This should be called by the relevant cell cycle model before any solving
      * of the ODE system (as it is used to evaluate the Y derivatives).
      *
-     * @param rMutationState the mutation state.
+     * @param pMutationState the mutation state.
      */
-    void SetMutationState(const CryptCellMutationState& rMutationState);
+    void SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState);
 
     /**
      * Called by the archive function on the Wnt cell cycle model.
      *
-     * @return mMutationState the mutation state of the cell defined by
-     * CryptCellMutationStates.hpp
+     * @return #mpMutationState the mutation state of the cell.
      */
-    CryptCellMutationState& rGetMutationState();
+    boost::shared_ptr<AbstractCellMutationState> GetMutationState();
 
     /**
      * Compute the RHS of the system of ODEs.

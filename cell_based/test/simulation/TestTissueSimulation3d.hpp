@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-
+#include "WildTypeCellMutationState.hpp"
 
 class TestTissueSimulation3d : public AbstractCellBasedTestSuite
 {
@@ -81,9 +81,10 @@ public:
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<num_cells; i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
             static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(0);
 
             if (i == 50u)
@@ -115,7 +116,8 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
         std::vector<TissueCell> cells;
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
@@ -167,9 +169,10 @@ public:
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<num_cells; i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
             static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(0);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                ( TissueConfig::Instance()->GetStemCellG1Duration()
@@ -221,6 +224,7 @@ public:
         std::vector<TissueCell> cells2;
         std::vector<unsigned> location_indices;
 
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<num_nodes; i++)
         {
             c_vector<double, 3> node_location = mesh.GetNode(i)->rGetLocation();
@@ -242,7 +246,7 @@ public:
                 }
             }
 
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
             static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(0);
             cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                 (  TissueConfig::Instance()->GetStemCellG1Duration() +

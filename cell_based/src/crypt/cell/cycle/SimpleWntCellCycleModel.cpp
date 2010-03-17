@@ -27,6 +27,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SimpleWntCellCycleModel.hpp"
 
+#include "WildTypeCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
 
 SimpleWntCellCycleModel::SimpleWntCellCycleModel()
  : mUseCellProliferativeTypeDependentG1Duration(false)
@@ -157,25 +162,33 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     // Set up under what level of Wnt stimulus a cell will divide
     double healthy_threshold = p_params->GetWntTransitThreshold();
     double labelled_threshold = p_params->GetWntLabelledThreshold();
-    switch (mpCell->GetMutationState())
+
+    if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
     {
-        case HEALTHY:
-            wnt_division_threshold = healthy_threshold;
-            break;
-        case LABELLED:
-            wnt_division_threshold = labelled_threshold;
-            break;
-        case APC_ONE_HIT:  // should be less than healthy values
-            wnt_division_threshold = 0.77*healthy_threshold;
-            break;
-        case BETA_CATENIN_ONE_HIT:  // less than above value
-            wnt_division_threshold = 0.155*healthy_threshold;
-            break;
-        case APC_TWO_HIT:  // should be zero (no Wnt-dependence)
-            wnt_division_threshold = 0.0;
-            break;
-        default:
-            NEVER_REACHED;
+    	wnt_division_threshold = healthy_threshold;
+    }
+    else if (mpCell->GetMutationState()->IsType<LabelledCellMutationState>())
+    {
+    	wnt_division_threshold = labelled_threshold;
+    }
+    else if (mpCell->GetMutationState()->IsType<ApcOneHitCellMutationState>())
+    {
+        // should be less than healthy values
+        wnt_division_threshold = 0.77*healthy_threshold;
+    }
+    else if (mpCell->GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
+    {
+    	// less than above value
+    	wnt_division_threshold = 0.155*healthy_threshold;
+    }
+    else if (mpCell->GetMutationState()->IsType<ApcTwoHitCellMutationState>())
+    {
+        // should be zero (no Wnt-dependence)
+        wnt_division_threshold = 0.0;
+    }
+    else
+    {
+    	NEVER_REACHED;
     }
 
     double wnt_level = GetWntLevel();

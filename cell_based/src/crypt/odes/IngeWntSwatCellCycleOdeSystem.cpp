@@ -25,12 +25,20 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "IngeWntSwatCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis, double wntLevel, const CryptCellMutationState& rMutationState)
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+
+IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(
+		unsigned hypothesis,
+		double wntLevel,
+		boost::shared_ptr<AbstractCellMutationState> pMutationState)
     : AbstractOdeSystem(22),
-      mMutationState(rMutationState),
+      mpMutationState(pMutationState),
       mHypothesis(hypothesis)
 {
     if (hypothesis!=1u && hypothesis!=2u)
@@ -76,35 +84,23 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     double sigma_D = 0.0; // for healthy cells
     double sigma_B = 0.0; // for healthy cells
 
-    switch (mMutationState)
+    if (!mpMutationState)
     {
-        case HEALTHY:
-        {
-            break;
-        }
-        case LABELLED:
-        {
-            break;
-        }
-        case APC_ONE_HIT:
-        {
-            sigma_D = 0.5;
-            break;
-        }
-        case APC_TWO_HIT:
-        {
-            sigma_D = 1.0;
-            break;
-        }
-        case BETA_CATENIN_ONE_HIT:
-        {
-            sigma_B = 0.5;
-            break;
-        }
-        default:
-            // This can't happen if all mutation states are catered for
-            NEVER_REACHED;
+    	// No mutations specified
     }
+    else if (mpMutationState->IsType<ApcOneHitCellMutationState>())
+    {
+    	sigma_D = 0.5;
+    }
+    else if (mpMutationState->IsType<ApcTwoHitCellMutationState>())
+    {
+    	sigma_D = 1.0;
+    }
+    else if (mpMutationState->IsType<BetaCateninOneHitCellMutationState>())
+    {
+    	sigma_B = 0.5;
+    }
+    // Other mutations have no effect.
 
     // Cell-specific initial conditions
     double steady_D = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
@@ -146,9 +142,9 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(unsigned hypothesis
     SetInitialConditionsComponent(21, wntLevel); // Wnt stimulus
 }
 
-void IngeWntSwatCellCycleOdeSystem::SetMutationState(const CryptCellMutationState& rMutationState)
+void IngeWntSwatCellCycleOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
 {
-    mMutationState = rMutationState;
+    mpMutationState = pMutationState;
 }
 
 IngeWntSwatCellCycleOdeSystem::~IngeWntSwatCellCycleOdeSystem()
@@ -296,35 +292,23 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     double sigma_D = 0.0;   // for healthy cells
     double sigma_B = 0.0;   // for healthy cells
 
-    switch (mMutationState)
+    if (!mpMutationState)
     {
-        case HEALTHY:
-        {
-            break;
-        }
-        case LABELLED:
-        {
-            break;
-        }
-        case APC_ONE_HIT:
-        {
-            sigma_D = 0.5;
-            break;
-        }
-        case APC_TWO_HIT:
-        {
-            sigma_D = 1.0;
-            break;
-        }
-        case BETA_CATENIN_ONE_HIT:
-        {
-            sigma_B = 0.5;
-            break;
-        }
-        default:
-            // This can't happen if all mutation states are catered for
-            NEVER_REACHED;
+    	// No mutations specified
     }
+    else if (mpMutationState->IsType<ApcOneHitCellMutationState>())
+    {
+    	sigma_D = 0.5;
+    }
+    else if (mpMutationState->IsType<ApcTwoHitCellMutationState>())
+    {
+    	sigma_D = 1.0;
+    }
+    else if (mpMutationState->IsType<BetaCateninOneHitCellMutationState>())
+    {
+    	sigma_B = 0.5;
+    }
+    // Other mutations have no effect.
 
     // Now the cell cycle stuff...
 
@@ -374,9 +358,9 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     rDY[21] = 0.0;  // don't interfere with Wnt stimulus
 }
 
-CryptCellMutationState& IngeWntSwatCellCycleOdeSystem::rGetMutationState()
+boost::shared_ptr<AbstractCellMutationState> IngeWntSwatCellCycleOdeSystem::GetMutationState()
 {
-    return mMutationState;
+    return mpMutationState;
 }
 
 bool IngeWntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)

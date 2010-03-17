@@ -30,12 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include <cfloat>
 
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "WntCellCycleOdeSystem.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "AbstractCellMutationState.hpp"
 
 
 /**
@@ -53,20 +55,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class WntCellCycleModel : public AbstractWntOdeBasedCellCycleModel
 {
 private:
-
     friend class boost::serialization::access;
     template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
-    {
-        assert(mpOdeSystem!=NULL);
-        archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
-        /**
-         * Reference can be read or written into once mpOdeSystem has been set up
-         * mpOdeSystem isn't set up by the first constructor, but is by the second
-         * which is now utilised by the load_construct at the bottom of this file.
-         */
-        archive & static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState();
-    }
+	void save(Archive & archive, const unsigned int version) const
+	{
+		assert(mpOdeSystem);
+		archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
+		boost::shared_ptr<AbstractCellMutationState> p_mutation_state = static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->GetMutationState();
+		archive & p_mutation_state;
+	}
+	/**
+	 * Load the cell cycle model and ODE system from archive.
+	 *
+	 * @param archive the archive
+	 * @param version the archive version
+	 */
+	template<class Archive>
+	void load(Archive & archive, const unsigned int version)
+	{
+		// The ODE system is set up by the archiving constructor, so we can set the mutation state
+		// here.  This is a horrible hack, but avoids having to regenerate test archives...
+		assert(mpOdeSystem);
+		archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
+		boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
+		archive & p_mutation_state;
+		static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(p_mutation_state);
+	}
+	BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     /**
      * Update the cell type according to the current beta catenin
@@ -82,8 +97,6 @@ public:
 
     /**
      * Default constructor.
-     *
-     * @param dimension the spatial dimension
      */
     WntCellCycleModel()
         : AbstractWntOdeBasedCellCycleModel()
@@ -112,7 +125,7 @@ public:
      * @param dimension the spatial dimension
      */
     WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
-                      const CryptCellMutationState& rMutationState,
+                      boost::shared_ptr<AbstractCellMutationState> pMutationState,
                       double birthTime,
                       double lastTime,
                       bool inSG2MPhase,
@@ -128,7 +141,7 @@ public:
      * @param rDimension the spatial dimension
      */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                      const CryptCellMutationState& rMutationState,
+					  boost::shared_ptr<AbstractCellMutationState> pMutationState,
                       const unsigned& rDimension);
 
     /**
@@ -195,9 +208,9 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }
 
-    CryptCellMutationState mutation_state = HEALTHY;
+    boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
     unsigned dimension = UINT_MAX;
-    ::new(t)WntCellCycleModel(state_vars, mutation_state, dimension);
+    ::new(t)WntCellCycleModel(state_vars, p_mutation_state, dimension);
 }
 }
 } // namespace

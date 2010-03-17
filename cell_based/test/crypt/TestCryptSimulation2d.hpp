@@ -44,6 +44,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NumericFileComparison.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 /**
  * Simple cell killer which just kills a single cell.
@@ -913,13 +918,16 @@ public:
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
-        cell_iterator->SetMutationState(LABELLED);
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        cell_iterator->SetMutationState(p_labelled);
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
-        cell_iterator->SetMutationState(APC_ONE_HIT);
+        cell_iterator->SetMutationState(p_apc1);
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
-        cell_iterator->SetMutationState(BETA_CATENIN_ONE_HIT);
+        cell_iterator->SetMutationState(p_bcat1);
 
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
@@ -1085,10 +1093,15 @@ public:
 
         // Test that labelling a few cells doesn't make any difference to the simulation
         // and therefore log them in the visualizer files for the next test to check.
-        simulator.rGetTissue().rGetCellUsingLocationIndex(57).SetMutationState(LABELLED);
-        simulator.rGetTissue().rGetCellUsingLocationIndex(56).SetMutationState(APC_ONE_HIT);
-        simulator.rGetTissue().rGetCellUsingLocationIndex(51).SetMutationState(APC_TWO_HIT);
-        simulator.rGetTissue().rGetCellUsingLocationIndex(63).SetMutationState(BETA_CATENIN_ONE_HIT);
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+
+        simulator.rGetTissue().rGetCellUsingLocationIndex(57).SetMutationState(p_labelled);
+        simulator.rGetTissue().rGetCellUsingLocationIndex(56).SetMutationState(p_apc1);
+        simulator.rGetTissue().rGetCellUsingLocationIndex(51).SetMutationState(p_apc2);
+        simulator.rGetTissue().rGetCellUsingLocationIndex(63).SetMutationState(p_bcat1);
         TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         // Run simulation
@@ -1510,11 +1523,16 @@ public:
         cells_generator.GenerateForCrypt(cells, *p_mesh, std::vector<unsigned>(), true);
 
         // Bestow mutations on some cells
-        cells[0].SetMutationState(HEALTHY);
-        cells[1].SetMutationState(APC_ONE_HIT);
-        cells[2].SetMutationState(APC_TWO_HIT);
-        cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
-        cells[4].SetMutationState(LABELLED);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_label(new LabelledCellMutationState);
+        cells[0].SetMutationState(p_healthy);
+        cells[1].SetMutationState(p_apc1);
+        cells[2].SetMutationState(p_apc2);
+        cells[3].SetMutationState(p_bcat1);
+        cells[4].SetMutationState(p_label);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);

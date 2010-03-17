@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "CvodeAdaptor.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 class TestMirams2010WntOdeSystem : public AbstractCellBasedTestSuite
 {
@@ -46,7 +48,8 @@ public:
     {
 #ifdef CHASTE_CVODE
         double wnt_level = 0.5;
-        Mirams2010WntOdeSystem wnt_system(wnt_level,HEALTHY);
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        Mirams2010WntOdeSystem wnt_system(wnt_level, p_state);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
 
@@ -82,7 +85,8 @@ public:
     {
 #ifdef CHASTE_CVODE
         double wnt_level = 0.5;
-        Mirams2010WntOdeSystem wnt_system(wnt_level,APC_TWO_HIT);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        Mirams2010WntOdeSystem wnt_system(wnt_level, p_apc2);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
 

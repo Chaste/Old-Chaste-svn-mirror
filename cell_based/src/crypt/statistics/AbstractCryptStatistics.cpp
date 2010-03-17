@@ -26,6 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "AbstractCryptStatistics.hpp"
+#include "WildTypeCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
 
 void AbstractCryptStatistics::LabelSPhaseCells()
 {
@@ -36,19 +38,22 @@ void AbstractCryptStatistics::LabelSPhaseCells()
         if (cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE)
         {
             // This should only be done for healthy or labelled populations, not mutants (at the moment anyway)
-            assert(cell_iter->GetMutationState() == HEALTHY || cell_iter->GetMutationState() == LABELLED);
-            cell_iter->SetMutationState(LABELLED);
+            assert( cell_iter->GetMutationState()->IsType<WildTypeCellMutationState>()
+            		|| cell_iter->GetMutationState()->IsType<LabelledCellMutationState>() );
+            boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+            cell_iter->SetMutationState(p_labelled);
         }
     }
 }
 
 void AbstractCryptStatistics::LabelAllCellsAsHealthy()
 {
+	boost::shared_ptr<AbstractCellMutationState> p_wildtype(new WildTypeCellMutationState);
     for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
-        cell_iter->SetMutationState(HEALTHY);
+        cell_iter->SetMutationState(p_wildtype);
     }
 }
 
@@ -58,7 +63,7 @@ std::vector<bool> AbstractCryptStatistics::GetWhetherCryptSectionCellsAreLabelle
 
     for (unsigned vector_index=0; vector_index<cryptSection.size(); vector_index++)
     {
-        if (cryptSection[vector_index]->GetMutationState() == LABELLED)
+        if (cryptSection[vector_index]->GetMutationState()->IsType<LabelledCellMutationState>())
         {
             crypt_section_labelled[vector_index] = true;
         }

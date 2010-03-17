@@ -137,3 +137,8 @@ void AbstractCellCycleModel::SetDimension(unsigned dimension)
 	assert(dimension <= 3);
 	mDimension = dimension;
 }
+
+unsigned AbstractCellCycleModel::GetDimension()
+{
+	return mDimension;
+}

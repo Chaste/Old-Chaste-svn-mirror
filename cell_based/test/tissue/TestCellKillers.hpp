@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SloughingCellKiller.hpp"
 #include "CellwiseData.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "WildTypeCellMutationState.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
 /**
@@ -221,9 +222,11 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -279,9 +282,11 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -335,9 +340,11 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);

@@ -40,6 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 /**
  * Note that all these tests call setUp() and tearDown() before running,
@@ -220,9 +223,10 @@ public:
         CryptStatistics crypt_statistics(crypt);
         std::vector< TissueCell* > test_section = crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
 
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
         for (unsigned i=0; i<test_section.size(); i++)
         {
-            test_section[i]->SetMutationState(LABELLED);
+            test_section[i]->SetMutationState(p_labelled);
         }
 
         simulator.Solve();
@@ -239,11 +243,12 @@ public:
         // TEST crypt_statistics::LabelSPhaseCells
 
         // First remove labels
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            cell_iter->SetMutationState(HEALTHY);
+            cell_iter->SetMutationState(p_state);
         }
 
         crypt_statistics.LabelSPhaseCells();
@@ -254,7 +259,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            bool is_labelled = cell_iter->GetMutationState() == LABELLED;
+            bool is_labelled = cell_iter->GetMutationState()->IsType<LabelledCellMutationState>();
 
             bool in_s_phase = cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE;
 
@@ -268,7 +273,7 @@ public:
         TS_ASSERT_EQUALS(counter,15u);
 
         // TEST crypt_statistics::LabelAllCellsAsHealthy
-        // Check this function sets all cells back to be HEALTHY cells.
+        // Check this function sets all cells back to be wild type cells.
         crypt_statistics.LabelAllCellsAsHealthy();
         // Iterate over cells checking for correct labels
         counter = 0;
@@ -276,7 +281,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->GetMutationState(),HEALTHY);
+            TS_ASSERT_EQUALS(cell_iter->GetMutationState()->IsType<WildTypeCellMutationState>(),true);
             counter++;
         }
 
@@ -289,9 +294,11 @@ public:
 
         // TEST CryptStatistics::GetWhetherCryptSectionCellsAreLabelled
 
-        // Set cells which are not in the crypt section to be in state APC_ONE_HIT, so that we can
+        // Set cells which are not in the crypt section to be in state APC +/-, so that we can
         // see the section
-        test_section=crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
+        test_section = crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
+
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
 
         for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
@@ -307,7 +314,7 @@ public:
             }
             if (!in_section)
             {
-                cell_iter->SetMutationState(APC_ONE_HIT);
+                cell_iter->SetMutationState(p_apc1);
             }
         }
         simulator.SetEndTime(3*time_of_each_run);

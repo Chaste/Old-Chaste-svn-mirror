@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
-
+#include "WildTypeCellMutationState.hpp"
 
 /**
  * A helper class for generating a vector of cells for a given mesh.
@@ -124,10 +124,6 @@ public:
                                   bool initialiseCells = false);
 };
 
-
-
-
-
 template<class CELL_CYCLE_MODEL, unsigned DIM>
 void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
 											             unsigned numCells,
@@ -148,7 +144,8 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCell>
 	for (unsigned i=0; i<numCells; i++)
 	{
 		CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL();
-		TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+		TissueCell cell(STEM, p_state, p_cell_cycle_model);
 
 		double birth_time;
 		if (!locationIndices.empty())
@@ -252,9 +249,8 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateForCrypt(std::vector<TissueCe
         	dynamic_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model)->SetGeneration(generation);
         }
 
-
-        TissueCell cell(cell_type, HEALTHY, p_cell_cycle_model);
-
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TissueCell cell(cell_type, p_state, p_cell_cycle_model);
         if (initialiseCells)
         {
             cell.InitialiseCellCycleModel();
@@ -409,6 +405,7 @@ double CellsGenerator<CELL_CYCLE_MODEL, DIM>::GetTypicalStemCellCycleTime()
 				+ TissueConfig::Instance()->GetSG2MDuration();
     }
 }
+
 
 
 template<class CELL_CYCLE_MODEL, unsigned DIM>

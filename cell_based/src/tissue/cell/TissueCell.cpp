@@ -31,12 +31,12 @@ unsigned TissueCell::mMaxCellId = 0;
 
 
 TissueCell::TissueCell(CellProliferativeType cellType,
-                       CryptCellMutationState mutationState,
+                       boost::shared_ptr<AbstractCellMutationState> pMutationState,
                        AbstractCellCycleModel* pCellCycleModel,
                        bool archiving)
     : mCanDivide(false),
       mCellProliferativeType(cellType),
-      mMutationState(mutationState),
+      mpMutationState(pMutationState),
       mpCellCycleModel(pCellCycleModel),
       mAncestor(UNSIGNED_UNSET), // Has to be set by a SetAncestor() call (usually from Tissue)
       mDeathTime(DBL_MAX), // This has to be initialised for archiving,
@@ -57,8 +57,9 @@ TissueCell::TissueCell(CellProliferativeType cellType,
 
     mpCellCycleModel->SetCell(this);
 
-    // Set Cell identifier
+    // Set Cell identifier & mutation state count
     mCellId = ++ mMaxCellId -1;
+    mpMutationState->IncrementCellCount();
 }
 
 
@@ -69,7 +70,7 @@ void TissueCell::CommonCopy(const TissueCell& rOtherCell)
 
     // Copy 'easy' protected data members
     mCellProliferativeType = rOtherCell.mCellProliferativeType;
-    mMutationState = rOtherCell.mMutationState;
+    mpMutationState = rOtherCell.mpMutationState;
     mUndergoingApoptosis = rOtherCell.mUndergoingApoptosis;
     mIsDead = rOtherCell.mIsDead;
     mDeathTime = rOtherCell.mDeathTime;
@@ -89,6 +90,7 @@ void TissueCell::CommonCopy(const TissueCell& rOtherCell)
 TissueCell::TissueCell(const TissueCell& rOtherCell)
 {
     CommonCopy(rOtherCell);
+    mpMutationState->IncrementCellCount();
 }
 
 
@@ -105,6 +107,7 @@ TissueCell& TissueCell::operator=(const TissueCell& rOtherCell)
 
 TissueCell::~TissueCell()
 {
+	mpMutationState->DecrementCellCount();
     delete mpCellCycleModel;
 }
 
@@ -161,15 +164,17 @@ CellProliferativeType TissueCell::GetCellProliferativeType() const
 }
 
 
-void TissueCell::SetMutationState(CryptCellMutationState mutationState)
+void TissueCell::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
 {
-    mMutationState = mutationState;
+	mpMutationState->DecrementCellCount();
+    mpMutationState = pMutationState;
+    mpMutationState->IncrementCellCount();
 }
 
 
-CryptCellMutationState TissueCell::GetMutationState() const
+boost::shared_ptr<AbstractCellMutationState> TissueCell::GetMutationState() const
 {
-    return mMutationState;
+    return mpMutationState;
 }
 
 
@@ -292,7 +297,7 @@ TissueCell TissueCell::Divide()
     mpCellCycleModel->ResetForDivision();
 
     // Create daughter cell
-    TissueCell new_cell = TissueCell(mCellProliferativeType, mMutationState,
+    TissueCell new_cell = TissueCell(mCellProliferativeType, mpMutationState,
                                      mpCellCycleModel->CreateCellCycleModel());
 
     // Initialise properties of daughter cell

@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCellCentreBasedTissue.hpp"
-
+#include "WildTypeCellMutationState.hpp"
 
 template<unsigned DIM>
 AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue(const std::vector<TissueCell>& rCells,
@@ -113,7 +113,8 @@ void AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(const std::vector< 
 template<unsigned DIM>
 double AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 {
-    if (this->rGetCellUsingLocationIndex(nodeIndex).GetMutationState() == HEALTHY)
+	TissueCell& cell = this->rGetCellUsingLocationIndex(nodeIndex);
+    if (cell.GetMutationState()->IsType<WildTypeCellMutationState>())
     {
         return TissueConfig::Instance()->GetDampingConstantNormal();
     }

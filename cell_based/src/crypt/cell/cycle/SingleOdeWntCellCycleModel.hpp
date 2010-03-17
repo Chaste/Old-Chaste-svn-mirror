@@ -35,10 +35,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleWntCellCycleModel.hpp"
 #include "Mirams2010WntOdeSystem.hpp"
-#include "CryptCellMutationStates.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "CvodeAdaptor.hpp"
 #include "WntConcentration.hpp"
+#include "AbstractCellMutationState.hpp"
 
 /**
  * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
@@ -70,12 +70,17 @@ private:
          * Note mpOdeSystem itself is not archived just the current values of the
          * state variables...
          */
-        archive & static_cast<Mirams2010WntOdeSystem*>(mpOdeSystem)->rGetMutationState();
         archive & mpOdeSystem->rGetStateVariables();
         archive & mBetaCateninDivisionThreshold;
         archive & mLastTime;
+
+        boost::shared_ptr<AbstractCellMutationState> p_mutation_state = static_cast<Mirams2010WntOdeSystem*>(mpOdeSystem)->GetMutationState();
+        archive & p_mutation_state;
     }
 
+    /**
+     * Pointer to the ODE system developed by Mirams et al (2010).
+     */
     Mirams2010WntOdeSystem* mpOdeSystem;
 
     /**
@@ -113,8 +118,6 @@ private:
     /** The last time at which the ODEs were solved up to */
     double mLastTime;
 
-
-
 public:
 
     /**
@@ -129,11 +132,16 @@ public:
 #endif // CHASTE_CVODE
     };
 
-
     /**
-	 * Normal constructor
+     * A 'private' constructor for archiving.
+     *
+     * @param rHypothesis which model hypothesis to use (1 or 2)
+     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
+     * @param pMutationState the mutation state of the cell (used by ODEs)
+     * @param rDimension the spatial dimension
+     * @param useTypeDependentG1 whether to make the duration of G1 phase dependent on the cell's proliferative type (defaults to false)
 	 */
-	SingleOdeWntCellCycleModel(std::vector<double>& rProteinConcs, CryptCellMutationState& rMutationState, unsigned& rDimension, bool useTypeDependentG1 = false);
+	SingleOdeWntCellCycleModel(std::vector<double>& rProteinConcs, boost::shared_ptr<AbstractCellMutationState> pMutationState, unsigned& rDimension, bool useTypeDependentG1 = false);
 
 	/**
 	 * Destructor
@@ -156,7 +164,6 @@ public:
 	void UpdateCellCyclePhase();
 
 	AbstractCellCycleModel* CreateCellCycleModel();
-
 
 	double GetBetaCateninConcentration(void)
 	{
@@ -214,9 +221,9 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }
 
-    CryptCellMutationState mutation_state = HEALTHY;
+    boost::shared_ptr<AbstractCellMutationState> p_state;
     unsigned dimension = UINT_MAX;
-    ::new(t)SingleOdeWntCellCycleModel(state_vars, mutation_state, dimension);
+    ::new(t)SingleOdeWntCellCycleModel(state_vars, p_state, dimension);
 }
 }
 } // namespace

@@ -43,8 +43,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "CryptCellMutationStates.hpp"
-
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 class TestIngeWntSwatCellCycleOdeSystem : public CxxTest::TestSuite
 {
@@ -87,7 +90,8 @@ public:
         TS_ASSERT_DELTA(initial_conditions[20], 2.235636835087720e+00, 1e-7);
         TS_ASSERT_DELTA(initial_conditions[21], 1.000000000000000e+00, 1e-7);
 
-        wnt_cell_cycle_system.SetMutationState(HEALTHY);    // for coverage
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        wnt_cell_cycle_system.SetMutationState(p_state);    // for coverage
         wnt_cell_cycle_system.EvaluateYDerivatives(time, initial_conditions, derivs);
 
         // Test derivatives are correct at t=0 for these initial conditions
@@ -166,7 +170,8 @@ public:
     {
         double time = 0.0;
         double wnt_level = 0.0;
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system2(1, wnt_level, LABELLED);
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system2(1, wnt_level, p_labelled);
         std::vector<double> initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
         std::vector<double> derivs(initial_conditions.size());
 
@@ -219,9 +224,9 @@ public:
         double time = 0.0;
         double wnt_level = 0.5;
 
-        CryptCellMutationState mutation = APC_ONE_HIT;
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
 
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system3(1, wnt_level,mutation);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system3(1, wnt_level, p_apc1);
 
         std::vector<double> initial_conditions = wnt_cell_cycle_system3.GetInitialConditions();
 
@@ -274,9 +279,9 @@ public:
         double time = 0.0;
         double wnt_level = 1.0;
 
-        CryptCellMutationState mutation = BETA_CATENIN_ONE_HIT;
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
 
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system4(1, wnt_level,mutation);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system4(1, wnt_level, p_bcat1);
 
         std::vector<double> initial_conditions = wnt_cell_cycle_system4.GetInitialConditions();
 
@@ -335,9 +340,9 @@ public:
         double time = 0.0;
         double wnt_level = 1.0;
 
-        CryptCellMutationState mutation = APC_TWO_HIT;
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
 
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system5(1, wnt_level,mutation);
+        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system5(1, wnt_level, p_apc2);
 
         std::vector<double> initial_conditions = wnt_cell_cycle_system5.GetInitialConditions();
 
@@ -385,7 +390,8 @@ public:
     void TestIngeWntSwatCellCycleSolver() throw(Exception)
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level, LABELLED);
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_labelled);
 
         // Solve system using rk4 solver
 
@@ -443,7 +449,8 @@ public:
     void TestIngeWntSwatCellCycleSolverWithAPCSingleHit() throw(Exception)
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,APC_ONE_HIT);
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_apc1);
 
         // Solve system using rk4 solver
 
@@ -493,7 +500,8 @@ public:
     void TestIngeWntSwatCellCycleSolverWithBetaCateninHit() throw(Exception)
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,BETA_CATENIN_ONE_HIT);
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_bcat1);
 
         // Solve system using rk4 solver
 
@@ -543,7 +551,8 @@ public:
     void TestIngeWntSwatCellCycleSolverWithAPCDoubleHit() throw(Exception)
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level,APC_TWO_HIT);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_apc2);
 
         // Solve system using rk4 solver
 

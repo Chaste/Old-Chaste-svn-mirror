@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellBasedTestSuite.hpp"
 #include "ArchiveOpener.hpp"
 #include "ArchiveLocationInfo.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 /**
  * This class contains tests for methods on the class CellwiseData.
@@ -91,7 +92,8 @@ public:
         TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 2.23, 1e-12);
 
         // Test ReallocateMemory method
-        TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TissueCell new_cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
         new_cell.SetBirthTime(-1);
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 0.2;

@@ -42,7 +42,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "WntConcentration.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 class TestForces : public AbstractCellBasedTestSuite
 {
@@ -63,17 +67,22 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            CryptCellMutationState mutation_state = HEALTHY;
             if (i==60)
             {
-                mutation_state = APC_TWO_HIT;
+                TissueCell cell(STEM, p_apc2, new FixedDurationGenerationBasedCellCycleModel());
+                cell.SetBirthTime(-10);
+				cells.push_back(cell);
             }
-
-            TissueCell cell(STEM, mutation_state, new FixedDurationGenerationBasedCellCycleModel());
-            cell.SetBirthTime(-10);
-            cells.push_back(cell);
+            else
+            {
+				TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
+				cell.SetBirthTime(-10);
+				cells.push_back(cell);
+            }
         }
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
@@ -336,11 +345,15 @@ public:
 
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
 
-        // Set cells mutation states
-        tissue.rGetCellUsingLocationIndex(0).SetMutationState(HEALTHY);
-        tissue.rGetCellUsingLocationIndex(1).SetMutationState(LABELLED);
-        tissue.rGetCellUsingLocationIndex(2).SetMutationState(APC_TWO_HIT);
-        tissue.rGetCellUsingLocationIndex(3).SetMutationState(BETA_CATENIN_ONE_HIT);
+        // Set cells' mutation states
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        tissue.rGetCellUsingLocationIndex(0).SetMutationState(p_state);
+        tissue.rGetCellUsingLocationIndex(1).SetMutationState(p_labelled);
+        tissue.rGetCellUsingLocationIndex(2).SetMutationState(p_apc2);
+        tissue.rGetCellUsingLocationIndex(3).SetMutationState(p_bcat1);
 
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(0, 1, tissue)), 15.0, 1e-10);
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(1, 2, tissue)), 15.0, 1e-10);
@@ -467,9 +480,10 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, p_state, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - node_index;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -575,7 +589,8 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         std::vector<TissueCell> cells;
-        TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             cell.SetBirthTime(-50.0);
@@ -698,7 +713,8 @@ public:
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
             std::vector<TissueCell> cells;
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+            TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 cell.SetBirthTime(-50.0);

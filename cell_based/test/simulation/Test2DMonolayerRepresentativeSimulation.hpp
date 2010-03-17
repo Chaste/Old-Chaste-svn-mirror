@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "RandomCellKiller.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 /**
  * This class consists of a single test, in which a 2D model
@@ -63,12 +64,13 @@ public:
 
         // Create some cells
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (TissueConfig::Instance()->GetStemCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-            TissueCell cell(TRANSIT, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel());
+            TissueCell cell(TRANSIT, p_state, new StochasticDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

@@ -94,6 +94,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "TissueSimulation.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 /*
  * EMPTYLINE
@@ -233,10 +234,11 @@ public:
          * associated cells: */
         unsigned num_cells = 1e5;
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<num_cells; i++)
         {
             MyCellCycleModel* p_cell_cycle_model = new MyCellCycleModel;
-            TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+            TissueCell cell(STEM, p_state, p_cell_cycle_model);
             cell.InitialiseCellCycleModel();
             cells.push_back(cell);
         }
@@ -255,7 +257,7 @@ public:
 
         /* Now construct another {{{MyCellCycleModel}}} and associated cell. */
         MyCellCycleModel* p_my_model = new MyCellCycleModel;
-        TissueCell my_cell(TRANSIT, HEALTHY, p_my_model);
+        TissueCell my_cell(TRANSIT, p_state, p_my_model);
         my_cell.InitialiseCellCycleModel();
 
         /* Use the helper method {{{CheckReadyToDivideAndPhaseIsUpdated()}}} to
@@ -292,7 +294,7 @@ public:
 
             /* Create a cell with associated cell cycle model. */
             MyCellCycleModel* p_model = new MyCellCycleModel;
-            TissueCell cell(TRANSIT, HEALTHY, p_model);
+            TissueCell cell(TRANSIT, p_state, p_model);
             cell.InitialiseCellCycleModel();
 
             /* Move forward two time steps. */
@@ -377,10 +379,11 @@ public:
         /* Next, we create some cells. First, define the cells vector. */
         std::vector<TissueCell> cells;
         /* Then we loop over the nodes. */
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             /* For each node we create a cell with our cell cycle model. */
-            TissueCell cell(STEM, HEALTHY, new MyCellCycleModel);
+            TissueCell cell(STEM, p_state, new MyCellCycleModel);
 
             /* Now, we define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration

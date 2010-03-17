@@ -199,13 +199,9 @@ public:
     void SetDimension(unsigned dimension);
 
     /**
-     *  Get the dimension this cell cycle model thinks the simulation is in
+     *  Get the dimension this cell cycle model thinks the simulation is in.
      */
-    unsigned GetDimension()
-    {
-    	return mDimension;
-    }
-
+    unsigned GetDimension();
 
     /**
      * @return the time at which the cell was born.

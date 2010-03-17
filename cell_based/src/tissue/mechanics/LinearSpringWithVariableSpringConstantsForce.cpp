@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissue.hpp"
 #include "IngeWntSwatCellCycleModel.hpp"
 #include "VoronoiTessellation.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
 
 template<unsigned DIM>
 LinearSpringWithVariableSpringConstantsForce<DIM>::LinearSpringWithVariableSpringConstantsForce()
@@ -107,13 +109,13 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     {
         unsigned number_of_mutants=0;
 
-        if (r_cell_A.GetMutationState() == APC_TWO_HIT || r_cell_A.GetMutationState() == BETA_CATENIN_ONE_HIT)
+        if (r_cell_A.GetMutationState()->IsType<ApcTwoHitCellMutationState>() || r_cell_A.GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
         {
             // If cell A is mutant
             number_of_mutants++;
         }
 
-        if (r_cell_B.GetMutationState() == APC_TWO_HIT || r_cell_B.GetMutationState() == BETA_CATENIN_ONE_HIT)
+        if (r_cell_B.GetMutationState()->IsType<ApcTwoHitCellMutationState>() || r_cell_B.GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
         {
             // If cell B is mutant
             number_of_mutants++;

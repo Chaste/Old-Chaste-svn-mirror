@@ -41,7 +41,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-
+#include "LabelledCellMutationState.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 class TestCryptSimulation1d : public AbstractCellBasedTestSuite
 {
@@ -65,9 +68,11 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - node_index;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -126,9 +131,11 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = 0.0 - node_index;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -188,6 +195,8 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             CellProliferativeType cell_type;
@@ -213,7 +222,7 @@ public:
                 generation = 4;
                 birth_time = 0; // hours
             }
-            TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel);
+            TissueCell cell(cell_type, p_healthy_state, new StochasticDurationGenerationBasedCellCycleModel);
             cell.InitialiseCellCycleModel();
             static_cast<StochasticDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
@@ -265,6 +274,8 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             double birth_time;
@@ -276,7 +287,7 @@ public:
             {
                 birth_time = -1.0;
             }
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel);
+            TissueCell cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -328,6 +339,8 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             CellProliferativeType cell_type;
@@ -353,7 +366,7 @@ public:
                 generation = 4;
                 birth_time = 0; // hours
             }
-            TissueCell cell(cell_type, HEALTHY, new StochasticDurationGenerationBasedCellCycleModel);
+            TissueCell cell(cell_type, p_healthy_state, new StochasticDurationGenerationBasedCellCycleModel);
             cell.InitialiseCellCycleModel();
             static_cast<StochasticDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
@@ -419,6 +432,8 @@ public:
         // Set up cells by iterating through the nodes
         unsigned num_cells_at_start = mesh.GetNumNodes();
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             CellProliferativeType cell_type;
@@ -444,7 +459,7 @@ public:
                 generation = 4;
                 birth_time = 0;
             }
-            TissueCell cell(cell_type, HEALTHY, new TysonNovakCellCycleModel());
+            TissueCell cell(cell_type, p_healthy_state, new TysonNovakCellCycleModel());
             cell.InitialiseCellCycleModel();
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -512,6 +527,8 @@ public:
         // Set up cells by iterating through the nodes
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned i=0; i<num_cells; i++)
         {
             CellProliferativeType cell_type = DIFFERENTIATED;
@@ -529,7 +546,7 @@ public:
                 generation = 4;
                 birth_time = 0;
             }
-            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(cell_type, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
             cell.InitialiseCellCycleModel();
             static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
@@ -617,11 +634,14 @@ public:
         // (don't use any stem cells as we want to test the jiggling)
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned i=0; i<num_cells; i++)
         {
-        	WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
+            WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
 			p_cell_cycle_model1->SetDimension(1);
-			TissueCell cell(TRANSIT, HEALTHY, p_cell_cycle_model1);
+			boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+			TissueCell cell(TRANSIT, p_state, p_cell_cycle_model1);
 			cell.SetBirthTime(0.0);
             cells.push_back(cell);
         }
@@ -633,13 +653,17 @@ public:
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
-        cell_iterator->SetMutationState(LABELLED);
+
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        cell_iterator->SetMutationState(p_labelled);
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
-        cell_iterator->SetMutationState(APC_ONE_HIT);
+        cell_iterator->SetMutationState(p_apc1);
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
-        cell_iterator->SetMutationState(BETA_CATENIN_ONE_HIT);
+        cell_iterator->SetMutationState(p_bcat1);
 
         // Create an instance of a Wnt concentration
         WntConcentration<1>::Instance()->SetType(LINEAR);
@@ -703,6 +727,8 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<TissueCell> cells;
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             CellProliferativeType cell_type;
@@ -728,7 +754,7 @@ public:
                 generation = 4;
                 birth_time = 0;
             }
-            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(cell_type, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-
+#include "WildTypeCellMutationState.hpp"
 
 class TestMeshBasedTissueWithGhostNodes : public AbstractCellBasedTestSuite
 {
@@ -63,10 +63,11 @@ public:
         // Give each a birth time of -node_index, so the age = node_index
         std::vector<TissueCell> cells;
         std::vector<unsigned> cell_location_indices;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
             AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
-            TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+            TissueCell cell(STEM, p_state, p_cell_cycle_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -336,7 +337,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 70u);
 
-        TissueCell new_cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TissueCell new_cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
         new_cell.SetBirthTime(0);
 
         c_vector<double,2> new_location;
@@ -355,7 +357,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 70u);
 
-        TissueCell new_cell2(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        TissueCell new_cell2(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
         new_cell2.SetBirthTime(0);
 
         c_vector<double,2> new_location2;

@@ -27,10 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Mirams2010WntOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
 
-Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel, const CryptCellMutationState& rMutationState)
+Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel, boost::shared_ptr<AbstractCellMutationState> pMutationState)
     : AbstractOdeSystem(3),
-      mMutationState(rMutationState)
+    mpMutationState(pMutationState)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<Mirams2010WntOdeSystem>);
 
@@ -45,10 +48,14 @@ Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel, const CryptCellM
     Init(); // set up parameter values
 
     // Set up rough guesses for the initial steady states in this Wnt conc.
-    double b1=0;
-    double b2=0;
+    double b1 = 0;
+    double b2 = 0;
     b1 = (mA/2.0) / (((wntLevel + mB)/(mC*wntLevel + mD)) + mF);
-    if (mMutationState==BETA_CATENIN_ONE_HIT)
+    if (!mpMutationState)
+    {
+    	// No mutations specified
+    }
+    else if (mpMutationState->IsType<BetaCateninOneHitCellMutationState>())
     {
         b2 = (mA/2.0)/mF;
     }
@@ -62,9 +69,9 @@ Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel, const CryptCellM
     SetInitialConditionsComponent(2, wntLevel);
 }
 
-void Mirams2010WntOdeSystem::SetMutationState(const CryptCellMutationState& rMutationState)
+void Mirams2010WntOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
 {
-    mMutationState = rMutationState;
+    mpMutationState = pMutationState;
 }
 
 Mirams2010WntOdeSystem::~Mirams2010WntOdeSystem()
@@ -100,12 +107,12 @@ void Mirams2010WntOdeSystem::EvaluateYDerivatives(double time, const std::vector
     double c = mC;
     double d = mD;
     // Mutations take effect by altering the parameters
-    if (mMutationState==APC_ONE_HIT) // APC +/-
+    if (mpMutationState->IsType<ApcOneHitCellMutationState>()) // APC +/-
     {
         c = 31.87;
         d = 0.490;
     }
-    else if(mMutationState==APC_TWO_HIT) // APC -/-
+    else if (mpMutationState->IsType<ApcTwoHitCellMutationState>()) // APC -/-
     {
         c = 71.21;
         d = 1.095;
@@ -114,7 +121,7 @@ void Mirams2010WntOdeSystem::EvaluateYDerivatives(double time, const std::vector
     // da
     dx1 = mA/2.0 - (((wnt_level + mB)/(c*wnt_level + d))*(mE/(mE+x1)) + mF)*x1;
     // db
-    if (mMutationState==BETA_CATENIN_ONE_HIT)
+    if (mpMutationState->IsType<BetaCateninOneHitCellMutationState>())
     {
         dx2 = mA/2.0 - mF*x2;
     }
@@ -128,9 +135,9 @@ void Mirams2010WntOdeSystem::EvaluateYDerivatives(double time, const std::vector
     rDY[2] = 0.0; // do not change the Wnt level
 }
 
-CryptCellMutationState& Mirams2010WntOdeSystem::rGetMutationState()
+boost::shared_ptr<AbstractCellMutationState> Mirams2010WntOdeSystem::GetMutationState()
 {
-    return mMutationState;
+    return mpMutationState;
 }
 
 

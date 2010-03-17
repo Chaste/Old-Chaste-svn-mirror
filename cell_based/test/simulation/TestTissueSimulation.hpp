@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "NumericFileComparison.hpp"
 #include "CellBasedEventHandler.hpp"
-
+#include "WildTypeCellMutationState.hpp"
 
 // Simple subclass of TissueSimulation which just overloads StoppingEventHasOccurred
 // for testing the stopping event functionality..
@@ -160,12 +160,13 @@ public:
 
         // Create a differentiated cell for each node
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (TissueConfig::Instance()->GetStemCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, p_state, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -210,9 +211,10 @@ public:
 
         // Create a differentiated cell for each non-ghost node
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            TissueCell cell(DIFFERENTIATED, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(DIFFERENTIATED, p_state, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(-1.0);
             cells.push_back(cell);
         }
@@ -255,12 +257,13 @@ public:
 
         // Set up cells, one for each node. Give each cell a random birth time.
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (TissueConfig::Instance()->GetStemCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-            TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -354,9 +357,10 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            TissueCell cell(TRANSIT, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(TRANSIT, p_state, new FixedDurationGenerationBasedCellCycleModel());
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
                                                +p_params->GetSG2MDuration());
             cell.SetBirthTime(birth_time);

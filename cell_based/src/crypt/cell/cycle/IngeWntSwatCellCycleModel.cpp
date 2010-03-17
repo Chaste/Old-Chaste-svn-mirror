@@ -48,12 +48,12 @@ IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleM
 
 IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                                                      const std::vector<double>& rParentProteinConcentrations,
-                                                     const CryptCellMutationState& rMutationState,
+                                                     boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                                      const unsigned& rDimension)
     : AbstractWntOdeBasedCellCycleModel()
 {
     mHypothesis = rHypothesis;
-    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, rParentProteinConcentrations[21], rMutationState);// Wnt pathway is reset in a couple of lines.
+    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, rParentProteinConcentrations[21], pMutationState);// Wnt pathway is reset in a couple of lines.
 
     // Set the model to be the same as the parent cell
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;

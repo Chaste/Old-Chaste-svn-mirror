@@ -43,6 +43,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedEventHandler.hpp"
 #include "VoronoiTessellation.hpp"
 #include "NumericFileComparison.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 class TestCryptSimulation2dNightly : public AbstractCellBasedTestSuite
 {
@@ -261,8 +263,8 @@ public:
                 generation = 4;
                 birth_time = -1; //hours
             }
-
-            TissueCell cell(cell_type, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+            TissueCell cell(cell_type, p_state, new FixedDurationGenerationBasedCellCycleModel());
             (static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel()))->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -458,22 +460,20 @@ public:
 
         for (unsigned i=0; i<p_mesh->GetNumAllNodes(); i++)
         {
-            CryptCellMutationState mutation_state;
-
             double x = p_mesh->GetNode(i)->GetPoint().rGetLocation()[0];
             double y = p_mesh->GetNode(i)->GetPoint().rGetLocation()[1];
             double dist_from_3_6 = sqrt((x-3)*(x-3)+(y-6)*(y-6));
 
+            boost::shared_ptr<AbstractCellMutationState> p_healthy(new WildTypeCellMutationState);
+            boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
             if (dist_from_3_6<1.1)
             {
-                mutation_state = APC_TWO_HIT;
+            	cells[i].SetMutationState(p_apc2);
             }
             else
             {
-                mutation_state = HEALTHY;
+            	cells[i].SetMutationState(p_healthy);
             }
-
-            cells[i].SetMutationState(mutation_state);
         }
 
         // Create tissue
@@ -514,7 +514,7 @@ public:
              ++cell_iter)
         {
             number_of_cells++;
-            if (cell_iter->GetMutationState()==APC_TWO_HIT)
+            if (cell_iter->GetMutationState()->IsType<ApcTwoHitCellMutationState>())
             {
                 number_of_mutant_cells++;
             }

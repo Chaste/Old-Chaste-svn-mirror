@@ -29,9 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 StochasticWntCellCycleModel::StochasticWntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                                         const CryptCellMutationState& rMutationState,
+                                                         boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                                          const unsigned& rDimension)
-    : WntCellCycleModel(rParentProteinConcentrations, rMutationState, rDimension)
+    : WntCellCycleModel(rParentProteinConcentrations, pMutationState, rDimension)
 {
 }
 

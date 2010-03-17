@@ -40,6 +40,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "ArchiveOpener.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 class TestMeshBasedTissue : public AbstractCellBasedTestSuite
 {
@@ -104,10 +109,11 @@ public:
         // Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
             AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
-            TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+            TissueCell cell(STEM, p_state, p_cell_cycle_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -118,7 +124,7 @@ public:
 
         // Add another cell
         AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
-        TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+        TissueCell cell(STEM, p_state, p_cell_cycle_model);
         double birth_time = -4.0;
         cell.SetBirthTime(birth_time);
         cells.push_back(cell);
@@ -144,8 +150,10 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Give cells 0 and 1 specific mutations to enable later testing
-        cells[0].SetMutationState(LABELLED);
-        cells[1].SetMutationState(APC_ONE_HIT);
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        cells[0].SetMutationState(p_labelled);
+        cells[1].SetMutationState(p_apc1);
 
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -157,11 +165,11 @@ public:
         std::set<TissueCell*>::iterator cell_pair_iter = cell_pair.begin();
 
         TissueCell* p_cell0 = *cell_pair_iter;
-        TS_ASSERT_EQUALS(p_cell0->GetMutationState(), LABELLED);
+        TS_ASSERT_EQUALS(p_cell0->GetMutationState(), p_labelled);
 
         ++cell_pair_iter;
         TissueCell* p_cell1 = *cell_pair_iter;
-        TS_ASSERT_EQUALS(p_cell1->GetMutationState(), APC_ONE_HIT);
+        TS_ASSERT_EQUALS(p_cell1->GetMutationState()->IsType<ApcOneHitCellMutationState>(), true);
     }
 
     void TestGetDampingConstant()
@@ -181,11 +189,17 @@ public:
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         // Bestow mutations on some cells
-        cells[0].SetMutationState(HEALTHY);
-        cells[1].SetMutationState(APC_ONE_HIT);
-        cells[2].SetMutationState(APC_TWO_HIT);
-        cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
-        cells[4].SetMutationState(LABELLED);
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+		boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+		boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+		boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+		boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+
+        cells[0].SetMutationState(p_state);
+        cells[1].SetMutationState(p_apc1);
+        cells[2].SetMutationState(p_apc2);
+        cells[3].SetMutationState(p_bcat1);
+        cells[4].SetMutationState(p_labelled);
 
         // Create tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
@@ -220,7 +234,8 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
-        cells[9].SetMutationState(APC_TWO_HIT);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        cells[9].SetMutationState(p_apc2);
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
@@ -283,7 +298,8 @@ public:
         unsigned old_num_cells = tissue.rGetCells().size();
 
         // Create a new cell, DON'T set the node index, set birth time=-1
-        TissueCell cell(STEM, HEALTHY, new FixedDurationGenerationBasedCellCycleModel());
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
         cell.SetBirthTime(-1);
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 2;
@@ -437,12 +453,18 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
         cells[0].SetCellProliferativeType(APOPTOTIC); // coverage
 
-        // Cover mutation state reporting.
-        cells[0].SetMutationState(HEALTHY);
-        cells[1].SetMutationState(APC_ONE_HIT);
-        cells[2].SetMutationState(APC_TWO_HIT);
-        cells[3].SetMutationState(BETA_CATENIN_ONE_HIT);
-        cells[4].SetMutationState(LABELLED);
+        // Cover mutation state reporting
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+		boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+		boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+		boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+		boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+
+        cells[0].SetMutationState(p_state);
+        cells[1].SetMutationState(p_apc1);
+        cells[2].SetMutationState(p_apc2);
+        cells[3].SetMutationState(p_bcat1);
+        cells[4].SetMutationState(p_labelled);
 
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);

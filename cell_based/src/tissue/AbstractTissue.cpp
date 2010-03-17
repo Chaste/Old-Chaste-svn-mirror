@@ -28,7 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTissue.hpp"
 #include "AbstractOdeBasedCellCycleModel.hpp"
-
+#include "WildTypeCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
 
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
@@ -62,7 +66,7 @@ AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
      * \todo remove explicit use of NUM_CRYPT_CELL_MUTATION_STATES, NUM_CELL_PROLIFERATIVE_TYPES
      *       and NUM_CELL_CYCLE_PHASES as these may eventually differ between simulations (see #1145)
      */
-    mCellMutationStateCount = std::vector<unsigned>(NUM_CRYPT_CELL_MUTATION_STATES);
+    mCellMutationStateCount = std::vector<unsigned>(5); ///\todo magic number! #1145
     for (unsigned i=0; i<mCellMutationStateCount.size(); i++)
     {
         mCellMutationStateCount[i] = 0;
@@ -363,30 +367,33 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     if (p_config->GetOutputCellMutationStates())
     {
         // Set colour dependent on cell mutation state and update rCellMutationStateCounter
-        CryptCellMutationState mutation = p_cell->GetMutationState();
-        switch (mutation)
+        if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
         {
-            case HEALTHY:
-                rCellMutationStateCounter[0]++;
-                break;
-            case APC_ONE_HIT:
-                colour = EARLY_CANCER_COLOUR;
-                rCellMutationStateCounter[2]++;
-                break;
-            case APC_TWO_HIT:
-                colour = LATE_CANCER_COLOUR;
-                rCellMutationStateCounter[3]++;
-                break;
-            case BETA_CATENIN_ONE_HIT:
-                colour = LATE_CANCER_COLOUR;
-                rCellMutationStateCounter[4]++;
-                break;
-            case LABELLED:
-                colour = LABELLED_COLOUR;
-                rCellMutationStateCounter[1]++;
-                break;
-            default:
-                NEVER_REACHED;
+        	rCellMutationStateCounter[0]++;
+        }
+        else if (p_cell->GetMutationState()->IsType<LabelledCellMutationState>())
+        {
+            colour = LABELLED_COLOUR;
+            rCellMutationStateCounter[1]++;
+        }
+        else if (p_cell->GetMutationState()->IsType<ApcOneHitCellMutationState>())
+        {
+        	colour = EARLY_CANCER_COLOUR;
+        	rCellMutationStateCounter[2]++;
+        }
+        else if (p_cell->GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
+        {
+            colour = LATE_CANCER_COLOUR;
+            rCellMutationStateCounter[4]++;
+        }
+        else if (p_cell->GetMutationState()->IsType<ApcTwoHitCellMutationState>())
+        {
+            colour = LATE_CANCER_COLOUR;
+            rCellMutationStateCounter[3]++;
+        }
+        else
+        {
+        	EXCEPTION("Inappropriate CellMutationState used in WntCellCycleModel");
         }
     }
 

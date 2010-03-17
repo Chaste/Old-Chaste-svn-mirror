@@ -38,6 +38,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellBasedTestSuite.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 class TestCellBasedSingleOdeWnt : public AbstractCellBasedTestSuite
 {
@@ -60,9 +65,10 @@ public:
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
         unsigned dimension = 2;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         SingleOdeWntCellCycleModel* p_cycle_model = new SingleOdeWntCellCycleModel();
         p_cycle_model->SetDimension(dimension);
-        TissueCell cell(STEM, HEALTHY, p_cycle_model); // Deal with memory properly
+        TissueCell cell(STEM, p_state, p_cycle_model); // Deal with memory properly
 
         cell.InitialiseCellCycleModel(); // Associates a cell with a cell cycle model.
 
@@ -87,7 +93,8 @@ public:
         // Divide the cell
         TS_ASSERT_EQUALS(cell.ReadyToDivide(), true);
         TissueCell cell2 = cell.Divide();
-        cell.SetMutationState(LABELLED);
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        cell.SetMutationState(p_labelled);
 
         SingleOdeWntCellCycleModel* p_cycle_model2 = static_cast<SingleOdeWntCellCycleModel*> (cell2.GetCellCycleModel());
 
@@ -134,14 +141,17 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // Introduce a mutation (no immediate effect)
-        cell2.SetMutationState(APC_ONE_HIT);
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        cell2.SetMutationState(p_apc1);
         TS_ASSERT(!p_cycle_model->ReadyToDivide());
         TS_ASSERT(!p_cycle_model2->ReadyToDivide());
 
         // Coverage...
-        cell2.SetMutationState(APC_TWO_HIT);
+        cell2.SetMutationState(p_apc2);
         TS_ASSERT(!p_cycle_model->ReadyToDivide());
-        cell2.SetMutationState(BETA_CATENIN_ONE_HIT);
+        cell2.SetMutationState(p_bcat1);
         TS_ASSERT(!p_cycle_model->ReadyToDivide());
 
         // The numbers for the G1 durations are taken from
@@ -184,7 +194,7 @@ public:
 
         TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
 
-        TissueCell stem_cell_1d(STEM, HEALTHY, p_cell_model_1d);
+        TissueCell stem_cell_1d(STEM, p_state, p_cell_model_1d);
         stem_cell_1d.InitialiseCellCycleModel();
 
         SimulationTime::Instance()->IncrementTimeOneStep();
@@ -207,7 +217,7 @@ public:
 
         TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
 
-        TissueCell stem_cell_3d(STEM, HEALTHY, p_cell_model_3d);
+        TissueCell stem_cell_3d(STEM, p_state, p_cell_model_3d);
         stem_cell_3d.InitialiseCellCycleModel();
 
         SimulationTime::Instance()->IncrementTimeOneStep();

@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "FixedDurationGenerationBasedCellCycleModelCellsGenerator.hpp"
-
+#include "WildTypeCellMutationState.hpp"
 
 template<unsigned DIM>
 AbstractCellCycleModel* FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
@@ -72,7 +72,8 @@ void FixedDurationGenerationBasedCellCycleModelCellsGenerator<DIM>::GenerateGive
     for (unsigned i=0; i<num_cells; i++)
     {
         AbstractCellCycleModel* p_cell_cycle_model = CreateCellCycleModel();
-        TissueCell cell(STEM, HEALTHY, p_cell_cycle_model);
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TissueCell cell(STEM, p_state, p_cell_cycle_model);
         double birth_time = 0.0 - locationIndices[i];
         cell.SetBirthTime(birth_time);
         rCells.push_back(cell);

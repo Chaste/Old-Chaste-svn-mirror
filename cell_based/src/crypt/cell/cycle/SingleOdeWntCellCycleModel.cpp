@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+#include "UblasIncludes.hpp"
 #include "SingleOdeWntCellCycleModel.hpp"
 
 #ifdef CHASTE_CVODE
@@ -60,19 +61,18 @@ void SingleOdeWntCellCycleModel::UpdateCellCyclePhase()
 
 
 SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(std::vector<double>& rParentProteinConcentrations,
-                                     CryptCellMutationState& rMutationState,
+                                     boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                      unsigned& rDimension,
                                      bool useTypeDependentG1)
     : mLastTime(DBL_MAX)
 {
-	std::cout << "Calling SetDim with d = " << rDimension << "\n" << std::flush;
 	SetDimension(rDimension),
 	SetUseCellProliferativeTypeDependentG1Duration(useTypeDependentG1);
 #ifdef CHASTE_CVODE
         msSolver.SetMaxSteps(10000);
 #endif // CHASTE_CVODE
 	// Set the other initial conditions to be the same as the parent cell
-    mpOdeSystem = new Mirams2010WntOdeSystem(rParentProteinConcentrations[2], rMutationState);
+    mpOdeSystem = new Mirams2010WntOdeSystem(rParentProteinConcentrations[2], pMutationState);
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
 
@@ -141,5 +141,3 @@ void SingleOdeWntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCate
 // Declare identifier for the serializer
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(SingleOdeWntCellCycleModel)
-
-

@@ -30,13 +30,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include <cfloat>
 
 #include "AbstractOdeSystem.hpp"
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "IngeWntSwatCellCycleOdeSystem.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "AbstractCellMutationState.hpp"
 #include "Exception.hpp"
 
 
@@ -53,21 +55,37 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model and ODE system, never used directly - boost uses this.
+     * Archive the cell cycle model and ODE system.
      *
      * @param archive the archive
-     * @param version the current version of this class
+     * @param version the archive version
      */
     template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
+    void save(Archive & archive, const unsigned int version) const
     {
-        assert(mpOdeSystem!=NULL);
+        assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
-        // Reference can be read or written into once mpOdeSystem has been set up
-        // mpOdeSystem isn't set up by the first constructor, but is by the second
-        // which is now utilised by the load_construct at the bottom of this file.
-        archive & static_cast<IngeWntSwatCellCycleOdeSystem*>(mpOdeSystem)->rGetMutationState();
+        boost::shared_ptr<AbstractCellMutationState> p_mutation_state = static_cast<IngeWntSwatCellCycleOdeSystem*>(mpOdeSystem)->GetMutationState();
+        archive & p_mutation_state;
     }
+    /**
+     * Load the cell cycle model and ODE system from archive.
+     *
+     * @param archive the archive
+     * @param version the archive version
+     */
+    template<class Archive>
+	void load(Archive & archive, const unsigned int version)
+    {
+    	// The ODE system is set up by the archiving constructor, so we can set the mutation state
+    	// here.  This is a horrible hack, but avoids having to regenerate test archives...
+    	assert(mpOdeSystem);
+        archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
+        boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
+        archive & p_mutation_state;
+        static_cast<IngeWntSwatCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(p_mutation_state);
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     /**
      * Called by ::Initialise() and ::UpdateCellProliferativeType() only.
@@ -89,10 +107,6 @@ public:
 
     /**
      * Default constructor.
-     *
-     * @param hypothesis Hypothesis number (1 or 2), concerning the nature of the
-     * interactions modelled by the cell cycle ODE system.
-     * @param dimension the spatial dimension
      */
     IngeWntSwatCellCycleModel();
 
@@ -105,18 +119,17 @@ public:
      */
     IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleModel& rOtherModel);
 
-
     /**
      * A 'private' constructor for archiving.
      *
      * @param rHypothesis which model hypothesis to use (1 or 2)
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
-     * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
      */
     IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
                               const std::vector<double>& rParentProteinConcentrations,
-                              const CryptCellMutationState& rMutationState,
+                              boost::shared_ptr<AbstractCellMutationState> pMutationState,
                               const unsigned& rDimension);
 
     /**
@@ -156,12 +169,14 @@ public:
     double GetNuclearBetaCateninLevel();
 
     /**
+     * Set #mHypothesis.
+     *
 	 * @param hypothesis.
 	 */
 	void SetHypothesis(unsigned hypothesis);
 
     /**
-     * @return mHypothesis.
+     * @return #mHypothesis.
      */
     unsigned GetHypothesis() const; // this function promises not to change the object
 
@@ -209,13 +224,13 @@ inline void load_construct_data(
         state_vars.push_back(0.0);
     }
 
-    CryptCellMutationState mutation_state = HEALTHY;
+    boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
     unsigned dimension = UINT_MAX;
 
     unsigned hypothesis;
     ar & hypothesis;
 
-    ::new(t)IngeWntSwatCellCycleModel(hypothesis, state_vars, mutation_state, dimension);
+    ::new(t)IngeWntSwatCellCycleModel(hypothesis, state_vars, p_mutation_state, dimension);
 }
 }
 } // namespace ...

@@ -29,10 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TISSUECELL_HPP_
 
 #include "ChasteSerialization.hpp"
+#include <boost/shared_ptr.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include "Element.hpp"
 #include "CellProliferativeTypes.hpp"
-#include "CryptCellMutationStates.hpp"
+#include "AbstractCellMutationState.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
 
@@ -69,7 +71,7 @@ private:
         // These first four are also dealt with by {load,save}_construct_data
         archive & mCanDivide;
         archive & mCellProliferativeType;
-        archive & mMutationState;
+        archive & mpMutationState;
         archive & mpCellCycleModel;
         archive & mUndergoingApoptosis;
         archive & mDeathTime;
@@ -88,8 +90,8 @@ protected:
     /** The cell type - defined in CellProliferativeTypes.hpp */
     CellProliferativeType mCellProliferativeType;
 
-    /** The cell's mutation state - defined in CryptCellMutationStates.hpp */
-    CryptCellMutationState mMutationState;
+    /** The cell's mutation state. */
+    boost::shared_ptr<AbstractCellMutationState> mpMutationState;
 
     /** The cell's cell-cycle model */
     AbstractCellCycleModel* mpCellCycleModel;
@@ -133,13 +135,13 @@ public:
     /**
      * Create a new tissue cell.
      * @param cellType  the type of cell this is
-     * @param mutationState the mutation state of the cell
+     * @param pMutationState the mutation state of the cell
      * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      * @param archiving  whether this constructor is being called by the archiver - do things slightly differently!
      */
     TissueCell(CellProliferativeType cellType,
-               CryptCellMutationState mutationState,
+    		   boost::shared_ptr<AbstractCellMutationState> pMutationState,
                AbstractCellCycleModel* pCellCycleModel,
                bool archiving = false);
 
@@ -201,28 +203,28 @@ public:
     double GetStartOfApoptosisTime() const;
 
     /**
-     * Get method for mCellProliferativeType.
+     * Get method for #mCellProliferativeType.
      */
     CellProliferativeType GetCellProliferativeType() const;
 
     /**
-     * Set method for mCellProliferativeType.
+     * Set method for #mCellProliferativeType.
      *
      * @param cellType the cell's type
      */
     void SetCellProliferativeType(CellProliferativeType cellType);
 
     /**
-     * Get method for mMutationState.
+     * Get method for #mpMutationState.
      */
-    CryptCellMutationState GetMutationState() const;
+    boost::shared_ptr<AbstractCellMutationState> GetMutationState() const;
 
     /**
-     * Set method for mMutationState.
+     * Set method for #mpMutationState.
      *
-     * @param mutationState the cell's mutation state
+     * @param pMutationState the cell's mutation state
      */
-    void SetMutationState(CryptCellMutationState mutationState);
+    void SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState);
 
     /**
      * Determine if this cell is ready to divide at the current simulation time.
@@ -302,6 +304,9 @@ public:
 };
 
 
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(TissueCell);
+
 namespace boost
 {
 namespace serialization
@@ -315,15 +320,16 @@ inline void save_construct_data(
 {
     // Save data required to construct instance
     const CellProliferativeType cell_type = t->GetCellProliferativeType();
-    const CryptCellMutationState mutation_state = t->GetMutationState();
-    const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
+    const boost::shared_ptr<AbstractCellMutationState> p_mutation_state = t->GetMutationState();
+
+	const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
     ar << cell_type;
-    ar << mutation_state;
+    ar << p_mutation_state;
     ar << p_cell_cycle_model;
 }
 
 /**
- * De-serialize constructor parameters and initialise a TissueCell.
+ * De-serialize constructor parameters and initialize a TissueCell.
  */
 template<class Archive>
 inline void load_construct_data(
@@ -331,15 +337,16 @@ inline void load_construct_data(
 {
     // Retrieve data from archive required to construct new instance
     CellProliferativeType cell_type;
-    CryptCellMutationState mutation_state;
+    boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
     AbstractCellCycleModel* p_cell_cycle_model;
+
     ar >> cell_type;
-    ar >> mutation_state;
+    ar >> p_mutation_state;
     ar >> p_cell_cycle_model;
     bool archiving = true;
 
-    // Invoke inplace constructor to initialise instance
-    ::new(t)TissueCell(cell_type, mutation_state, p_cell_cycle_model, archiving);
+    // Invoke inplace constructor to initialize instance
+    ::new(t)TissueCell(cell_type, p_mutation_state, p_cell_cycle_model, archiving);
 }
 }
 } // namespace ...

@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 /**
  * Note that all these tests call setUp() and tearDown() before running,
@@ -250,11 +251,12 @@ public:
         mesh.Translate(-0.5,-0.5);
 
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, HEALTHY, p_model);
+            TissueCell cell(STEM, p_state, p_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -401,11 +403,12 @@ public:
         std::vector<WntCellCycleModel*> models;
 
         std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, HEALTHY, p_model);
+            TissueCell cell(STEM, p_state, p_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
 

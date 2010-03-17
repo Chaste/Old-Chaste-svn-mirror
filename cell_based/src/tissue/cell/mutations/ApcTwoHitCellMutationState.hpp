@@ -25,22 +25,43 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CELLMUTATIONSTATES_HPP_
-#define CELLMUTATIONSTATES_HPP_
+#ifndef APCTWOHITCELLMUTATIONSTATE_HPP_
+#define APCTWOHITCELLMUTATIONSTATE_HPP_
+
+#include "AbstractCellMutationState.hpp"
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
 
 /**
- * Possible types mutation state for colonic crypt cells.
- * \todo make this inherit from an abstract cell mutation state class (see also #1138)
+ * Subclass of AbstractCellMutationState defining a APC -/- mutation state.
  */
-typedef enum CryptCellMutationState_
+class ApcTwoHitCellMutationState : public AbstractCellMutationState
 {
-    HEALTHY,                // Wild-type cell
-    APC_ONE_HIT,            // APC +/-
-    APC_TWO_HIT,            // APC -/-
-    BETA_CATENIN_ONE_HIT,   // Beta-catenin with a change at residue 45
-    LABELLED,               // To paint a different colour but not actually mutant
-} CryptCellMutationState;
+private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the cell cycle model.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellMutationState>(*this);
+    }
 
-const static unsigned NUM_CRYPT_CELL_MUTATION_STATES=5;
+public:
+	/**
+	 * Constructor.
+	 */
+	ApcTwoHitCellMutationState();
 
-#endif /*CELLMUTATIONSTATES_HPP_*/
+};
+
+#include "SerializationExportWrapper.hpp"
+// Declare identifier for the serializer
+CHASTE_CLASS_EXPORT(ApcTwoHitCellMutationState)
+
+#endif /* APCTWOHITCELLMUTATIONSTATE_HPP_ */
