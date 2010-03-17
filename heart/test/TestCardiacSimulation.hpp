@@ -245,6 +245,8 @@ public:
         FileFinder model("file_does_not_exist.so", cp::relative_to_type::chaste_source_root);
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/missing_dynamic_model.xml"),
                               "Dynamically loadable cell model '" + model.GetAbsolutePath() + "' does not exist.");
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/dynamic_checkpoint.xml"),
+                              "Checkpointing is not yet compatible with dynamically loaded cell models.");
     }
 };
 
