@@ -399,7 +399,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
             Node<SPACE_DIM>* p_node;
             try
             {
-                p_node = pMesh->GetNode(node_index);
+                p_node = pMesh->GetNodeFromPrePermutationIndex(node_index);
             }
             catch (Exception& e)
             {

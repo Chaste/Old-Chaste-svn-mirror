@@ -72,10 +72,9 @@ private:
     /** Whether the electrodes are currently switched on */
     bool mAreActive;
     /**
-     * This is only needed for the archiving tests of Electrodes:
+     * This is needed for archiving:
      * the boundary conditions refer to nodes and/or elements, so need
      * the mesh to be archived, but don't have a pointer to the mesh itself.
-     * \todo consider whether to just archive the mesh separately in the test
      */
     AbstractTetrahedralMesh<DIM,DIM>* mpMesh;
 
@@ -112,7 +111,7 @@ private:
         archive & mEndTime;
         archive & mAreActive;
         archive & mpMesh;
-        archive & mpBoundaryConditionsContainer;
+        (*ProcessSpecificArchive<Archive>::Get()) & mpBoundaryConditionsContainer;
     }
     /**
      * Load the Electrodes class
@@ -129,12 +128,10 @@ private:
         archive & mAreActive; 
         archive & mpMesh;
 
-        archive & mpBoundaryConditionsContainer;
-        if (mpBoundaryConditionsContainer)
-        {
-            // Allow the new object to load itself from the archive.
-            mpBoundaryConditionsContainer->LoadFromArchive(archive, mpMesh);
-        }
+        (*ProcessSpecificArchive<Archive>::Get()) & mpBoundaryConditionsContainer;
+        assert(mpBoundaryConditionsContainer);
+        // Allow the new object to load itself from the archive.
+        mpBoundaryConditionsContainer->LoadFromArchive(*ProcessSpecificArchive<Archive>::Get(), mpMesh);
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
     

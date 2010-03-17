@@ -341,7 +341,7 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
         // the same as the one being used in the assembler...
         this->mpBoundaryConditionsContainer = mpElectrodes->GetBoundaryConditionsContainer();        
 
-	/// \todo: heart/src/problem/AbstractCardiacProblem.hpp:657 expects both pointing at the same place when unarchiving
+        /// \todo: heart/src/problem/AbstractCardiacProblem.hpp:657 expects both pointing at the same place when unarchiving
         this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;        
     }
 }

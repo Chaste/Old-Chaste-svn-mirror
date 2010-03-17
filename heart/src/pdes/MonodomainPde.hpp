@@ -30,9 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MONODOMAINPDE_HPP_
 #define MONODOMAINPDE_HPP_
 
-#include <climits> // Work around a boost bug - see #1024.
-#include <boost/serialization/vector.hpp>
 #include "ChasteSerialization.hpp"
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
 #include <vector>
@@ -112,12 +111,12 @@ template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void save_construct_data(
     Archive & ar, const MonodomainPde<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
+    const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
+    ar & p_mesh;
+    
     // Don't use the std::vector serialization for cardiac cells, so that we can load them
     // more cleverly when migrating checkpoints.
     t->SaveCardiacCells(ar, file_version);
-
-    const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
-    ar & p_mesh;
 
     // CreateIntracellularConductivityTensor() is called by constructor and uses HeartConfig. So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).
@@ -137,11 +136,10 @@ inline void load_construct_data(
     std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh;
 
+    ar & p_mesh;
     // Load only the cells we actually own
     AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(
-            *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed);
-
-    ar & p_mesh;
+            *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed, p_mesh);
 
     // CreateIntracellularConductivityTensor() is called by AbstractCardiacPde constructor and uses HeartConfig.
     // So make sure that it is archived too (needs doing before construction so appears here instead of usual archive location).

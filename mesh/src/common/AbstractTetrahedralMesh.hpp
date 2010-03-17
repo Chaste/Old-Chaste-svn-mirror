@@ -141,6 +141,7 @@ private:
         else
         {
             // Migrating; let the mesh re-partition if it likes
+            /// \todo #1199  make this work for everything else...
             p_our_factory = NULL;
         }
         

@@ -140,9 +140,17 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::ExtendCells(const std::vector<AbstractCardiacCell*>& rExtraCells)
+void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::MergeCells(const std::vector<AbstractCardiacCell*>& rOtherCells)
 {
-    mCellsDistributed.insert(mCellsDistributed.end(), rExtraCells.begin(), rExtraCells.end());
+    assert(rOtherCells.size() == mCellsDistributed.size());
+    for (unsigned i=0; i<rOtherCells.size(); i++)
+    {
+        if (rOtherCells[i] != NULL)
+        {
+            assert(mCellsDistributed[i] == NULL);
+            mCellsDistributed[i] = rOtherCells[i];
+        }
+    }
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>

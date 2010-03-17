@@ -589,12 +589,17 @@ public:
      *  -# (via #mpCardiacPde) DistributedVectorFactory*
      *  -# #mpBoundaryConditionsContainer
      *  -# #mpDefaultBoundaryConditionsContainer
+     *  -# (if we're a BidomainProblem) stuff in BidomainProblem::LoadExtraArchiveForBidomain
      */
     template<class Archive>
     void LoadExtraArchive(Archive & archive, unsigned version);
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem);
+
+
+template<unsigned DIM>
+class BidomainProblem;
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 template<class Archive>
@@ -607,8 +612,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     // The cardiac cells
     std::vector<AbstractCardiacCell*> cells;
     // Load only the cells we actually own
-    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(archive, version, cells);
-    mpCardiacPde->ExtendCells(cells);
+    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(archive, version, cells, this->mpMesh);
+    mpCardiacPde->MergeCells(cells);
 
     {
         DistributedVectorFactory* p_pde_factory;
@@ -650,6 +655,15 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     {
         // This always holds, so we never need to load the BCs, since they are the last thing in the archive. 
         assert(p_bcc == p_default_bcc);
+    }
+    
+    // Are we a bidomain problem?
+    if (PROBLEM_DIM == 2)
+    {
+        assert(ELEMENT_DIM == SPACE_DIM);
+        BidomainProblem<ELEMENT_DIM>* p_problem = dynamic_cast<BidomainProblem<ELEMENT_DIM>*>(this);
+        assert(p_problem);
+        p_problem->LoadExtraArchiveForBidomain(archive, version);
     }
 }
 

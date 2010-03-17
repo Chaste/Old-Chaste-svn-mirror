@@ -137,12 +137,12 @@ template<class Archive, unsigned SPACE_DIM>
 inline void save_construct_data(
     Archive & ar, const BidomainPde<SPACE_DIM> * t, const unsigned int file_version)
 {
+    const AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
+    ar & p_mesh;
+    
     // Don't use the std::vector serialization for cardiac cells, so that we can load them
     // more cleverly when migrating checkpoints.
     t->SaveCardiacCells(ar, file_version);
-
-    const AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
-    ar & p_mesh;
 
     // CreateIntracellularConductivityTensor() is called by constructor and uses HeartConfig. So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).
@@ -162,12 +162,11 @@ inline void load_construct_data(
     std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh;
 
+    ar & p_mesh;
     // Load only the cells we actually own
     AbstractCardiacPde<SPACE_DIM,SPACE_DIM>::LoadCardiacCells(
-            *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed);
+            *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed, p_mesh);
     
-    ar & p_mesh;
-
     // CreateIntracellularConductivityTensor() is called by AbstractCardiacPde constructor and uses HeartConfig.
     // (as does CreateExtracellularConductivityTensor). So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).

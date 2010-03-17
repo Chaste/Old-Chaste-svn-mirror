@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define UNASSIGNED_NODE UINT_MAX
 
 /*
- *  The following definition fixes an odd incompatibility of METIS 4.0 and Chaste. Since
+ * The following definition fixes an odd incompatibility of METIS 4.0 and Chaste. Since
  * the library was compiled with a plain-C compiler, it fails to link using a C++ compiler.
  * Note that METIS 4.0 fails to compile with g++ or icpc, so a C compiler should be used.
  *
@@ -287,9 +287,8 @@ public:
      *
      * @param index the global index of the node
      */
-    Node<SPACE_DIM> * GetAnyNode(unsigned index) const;
-        
-
+    Node<SPACE_DIM>* GetAnyNode(unsigned index) const;
+    
 private:
 
     /**
@@ -445,7 +444,9 @@ inline void load_construct_data(
     ar >> partition_type;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(partition_type);
+    /// \todo #1199  Lots of stuff can't cope if we re-partition
+    //::new(t)DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(partition_type);
+    ::new(t)DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DUMB);
     
     /*
      * The exception needs to be thrown after the call to ::new(t), or Boost will try

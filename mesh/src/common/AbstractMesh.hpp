@@ -86,7 +86,7 @@ protected:  // Give access of these variables to subclasses
     /** Vector containing node permutation information. 
      *  When empty (most meshes) there is no node permutation
      *  When non-empty (parallel distributed meshes) then for a given original_index
-     *  mNodePermuation[original_index] holds the new assigned index of that node in memory
+     *  #mNodesPermutation[original_index] holds the new assigned index of that node in memory
      */
     std::vector<unsigned> mNodesPermutation;
 
@@ -165,6 +165,22 @@ public:
     Node<SPACE_DIM>* GetNode(unsigned index) const;
 
     /**
+     * Get the node with a given index in the mesh, prior to any node permutation
+     * being applied.  For non-permuted meshes, this will have the same effect
+     * as GetNode.
+     * 
+     * This method is intended for use by the archiving code, to enable checkpoint
+     * migration, so that we can load the correct cells and boundary conditions
+     * after the mesh has been re-partitioned.
+     * 
+     * If unsure, use GetNode in preference to this method!
+     *
+     * @param index the global index of the node prior to a permutation being applied
+     * @return a pointer to the node
+     */
+    Node<SPACE_DIM>* GetNodeFromPrePermutationIndex(unsigned index) const;
+
+    /**
      * Read in the number of nodes per processor from file.
      *
      * @param rNodesPerProcessorFile the name of the file
@@ -209,11 +225,11 @@ public:
     std::string GetMeshFileBaseName() const;
 
     /**
-     * Get method for mNodesPermutation.
+     * Get method for #mNodesPermutation.
      *
      *  When empty (most meshes) there is no node permutation
      *  When non-empty (parallel distributed meshes) then for a given original_index
-     *  mNodePermuation[original_index] holds the new assigned index of that node in memory
+     *  #mNodesPermutation[original_index] holds the new assigned index of that node in memory
      * 
      */
     const std::vector<unsigned>& rGetNodePermutation() const;

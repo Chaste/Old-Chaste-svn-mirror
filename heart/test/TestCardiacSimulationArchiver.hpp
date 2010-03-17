@@ -440,11 +440,13 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
                                                       unsigned numVars,
                                                       double endTime=0.0)
     {
-      // Simulate this problem
+        // Simulate this problem
         SetOutputDirAndEndTime(rArchiveDirectory, rRefArchiveDir, "mig1", endTime);
         pProblem->Solve();
         // Copy the results vector
         Vec migrated_soln = pProblem->GetSolution();
+        PetscScalar migrated_soln_sum;
+        VecSum(migrated_soln, &migrated_soln_sum);
         Vec migrated_soln_copy;
         VecDuplicate(migrated_soln, &migrated_soln_copy);
         VecCopy(migrated_soln, migrated_soln_copy);
@@ -455,8 +457,11 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
         Problem* p_orig_problem = CardiacSimulationArchiver<Problem>::Load(rRefArchiveDir);
         SetOutputDirAndEndTime(rRefArchiveDir, rRefArchiveDir, "orig", endTime);
         p_orig_problem->Solve();
+        PetscScalar orig_soln_sum;
+        VecSum(p_orig_problem->GetSolution(), &orig_soln_sum);
         DistributedVector orig_soln = p_orig_problem->GetSolutionDistributedVector();
         DistributedVector migrated_soln_1(migrated_soln_copy, orig_soln.GetFactory());
+        TS_ASSERT_DELTA(orig_soln_sum, migrated_soln_sum, ABS_TOL*orig_soln.GetFactory()->GetProblemSize());
         for (unsigned var=0; var<numVars; var++)
         {
             DistributedVector::Stripe orig_stripe(orig_soln, var);
@@ -657,7 +662,6 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./hear
         bidomain_problem.SetElectrodes(p_electrodes);
         bidomain_problem.SetMesh(p_mesh);
         
-        
 	    // We solve for a small period of time so BCCs are created (next test wants to check it)
         HeartConfig::Instance()->SetSimulationDuration(0.1);
         bidomain_problem.Initialise();
@@ -761,7 +765,7 @@ private:
             const std::string& rRefArchiveDir,
             const unsigned totalNumCells,
             bool isParallelMesh,
-	    double currentTime=0.0)
+            double currentTime=0.0)
     {
         // Do the migration
         Problem* p_problem = CardiacSimulationArchiver<Problem>::Migrate(rArchiveDirectory);
@@ -824,7 +828,13 @@ private:
         OutputFileHandler handler(rArchiveDirectory, false);
         std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/archive.arch";
         std::string my_archive = handler.GetOutputDirectoryFullPath() + "new_archive/archive.arch";
-        EXPECT0(system, "diff " + ref_archive + " " + my_archive);
+        ///\todo When #1199 is done, re-instate this if
+//        if (PetscTools::GetNumProcs() > 1)
+//        {
+            // If we're loading on 1 process, then the archives will differ in one digit:
+            // DistributedTetrahedralMesh::mMetisPartitioning !
+            EXPECT0(system, "diff " + ref_archive + " " + my_archive);
+//        }
         for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)
         {
             // This works because the original archive was created by a single process.
@@ -935,7 +945,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
 scons build=GccOpt_hostconfig,boost=1-33-1  test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./heart/test/data/checkpoint_migration_from_seq_with_bath/
      * 
-     * Sets up a simulation and archives it without solving at all.
+     * Sets up a simulation and archives it, solving for one PDE step first to set up default BCs.
      * 
      * When running in parallel, this creates an archive we can compare directly with
      * that produced by the next test.
@@ -965,12 +975,12 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
         bidomain_problem.SetElectrodes(p_electrodes);
         bidomain_problem.SetMesh(p_mesh);
         
-	// We solve for a small period of time so BCCs are created (next test wants to check it)
+        // We solve for a small period of time so BCCs are created (next test wants to check it)
         HeartConfig::Instance()->SetSimulationDuration(0.1);
         bidomain_problem.Initialise();
         bidomain_problem.Solve();  
 
-	// We increase the simulation time so next test finds something left to simulate in the archive
+        // We increase the simulation time so next test finds something left to simulate in the archive
         HeartConfig::Instance()->SetSimulationDuration(0.2);
 
         CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);

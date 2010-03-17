@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <set>
 #include <vector>
-#include <climits> // Work around a boost bug - see #1024.
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
@@ -47,6 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "HeartConfig.hpp"
 #include "ArchiveLocationInfo.hpp"
+
 
 //// OLD NOTE: read this if AbstractPde is brought back
 // IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual'
@@ -96,8 +96,8 @@ private:
         archive & mDoOneCacheReplication;
         (*ProcessSpecificArchive<Archive>::Get()) & mpDistributedVectorFactory;
         
-        ///\todo #1159 Fix when migrating, hence re-partitioning.
-        ///This will only work in sequential and in parallel with dumb partitioning. 
+        // Paranoia: check we agree with the mesh on who owns what
+        assert(mpDistributedVectorFactory->GetLow()==mpMesh->GetDistributedVectorFactory()->GetLow());
         assert(mpDistributedVectorFactory->GetLocalOwnership()==mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
         // archive & mMeshUnarchived; Not archived since set to true when archiving constructor is called.
     }
@@ -208,15 +208,16 @@ public:
     virtual ~AbstractCardiacPde();
     
     /**
-     * Extend the range of cells within this cardiac PDE.
+     * Add more cells to this cardiac PDE.
      * 
      * This method is used by the checkpoint migration code to load a simulation checkpointed in parallel onto
-     * a single process.  It adds the cells previously contained on one of the non-master processes to the end
-     * of this process' collection.
+     * a single process.  It adds the cells previously contained on one of the non-master processes to this
+     * process' collection.
      * 
-     * @param rExtraCells  the cells to add.
+     * @param rOtherCells  the cells to add.  This vector will have the same length as our collection, but
+     *   contain non-NULL pointers in (some of) the places we have NULLs.
      */
-    void ExtendCells(const std::vector<AbstractCardiacCell*>& rExtraCells);
+    void MergeCells(const std::vector<AbstractCardiacCell*>& rOtherCells);
 
     /**
      * Set whether or not to replicate the caches across all processors.
@@ -330,20 +331,28 @@ public:
      * Handles the checkpoint migration case, deleting loaded cells immediately if they are
      * not local to this process.
      * 
-     * \todo Assumes that we're not permuting.
-     * 
      * @param archive  the process-specific archive to load from
      * @param version  archive version
      * @param rCells  vector to fill in with pointers to local cells
+     * @param pMesh  the mesh, so we can get at the node permutation, if any
      */
     template<class Archive>
-    static void LoadCardiacCells(Archive & archive, const unsigned int version, std::vector<AbstractCardiacCell*>& rCells)
+    static void LoadCardiacCells(Archive & archive, const unsigned int version,
+                                 std::vector<AbstractCardiacCell*>& rCells,
+                                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
     {
         DistributedVectorFactory* p_factory;
         archive & p_factory;
         unsigned num_cells;
         archive & num_cells;
-        rCells.reserve(num_cells);
+        rCells.resize(p_factory->GetLocalOwnership());
+#ifndef NDEBUG
+        // Paranoia
+        for (unsigned i=0; i<rCells.size(); i++)
+        {
+            assert(rCells[i] == NULL);
+        }
+#endif
         
         // We don't store a cell index in the archive, so need to work out what global
         // index this collection of cells starts up.  If we're migrating (so have an
@@ -356,15 +365,30 @@ public:
         
         for (unsigned local_index=0; local_index<num_cells; local_index++)
         {
-            unsigned global_index = index_low + local_index;
-            bool local = p_factory->IsGlobalIndexLocal(global_index);
+            // If we're permuting, figure out where this cell goes
+            unsigned original_global_index = index_low + local_index;
+            const std::vector<unsigned>& r_permutation = pMesh->rGetNodePermutation();
+            unsigned new_global_index;
+            if (r_permutation.empty())
+            {
+                new_global_index = original_global_index;
+            }
+            else
+            {
+                ///\todo #1199 test this
+//                new_global_index = r_permutation[original_global_index];
+                NEVER_REACHED;
+            }
+            unsigned new_local_index = new_global_index - p_factory->GetLow();
+            bool local = p_factory->IsGlobalIndexLocal(new_global_index);
+            
             AbstractCardiacCell* p_cell;
             archive & p_cell;
             // Check if it's a fake cell
             FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_cell);
             if (local)
             {
-                rCells.push_back(p_cell); // Add to local cells collection
+                rCells[new_local_index] = p_cell; // Add to local cells collection
                 if (p_fake)
                 {
                     fake_bath_cells_local.insert(p_fake);

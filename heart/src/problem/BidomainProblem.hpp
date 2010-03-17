@@ -244,10 +244,51 @@ public:
      * @param time  the current time
      */
     void OnEndOfTimestep(double time);
+    
+    /**
+     * Used when loading a set of archives written by a parallel simulation onto a single process.
+     * Loads data from the given process-specific archive (written by a non-master process) and
+     * merges it into our data.
+     * 
+     * @param archive  the archive to load
+     * @param version  the archive file version
+     * 
+     * \note The process-specific archives currently contain the following data.  If the layout changes,
+     * then this method will need to be altered, since it hard-codes knowledge of the order in
+     * which things are archived.
+     * 
+     *  -# Stuff known by AbstractCardiacProblem
+     *  -# #mpElectrodes->mpBoundaryConditionsContainer
+     * 
+     * This gets called by AbstractCardiacProblem::LoadExtraArchive when it's done the generic stuff.
+     */
+    template<class Archive>
+    void LoadExtraArchiveForBidomain(Archive & archive, unsigned version);
 };
 
 #include "SerializationExportWrapper.hpp" // Must be last
 EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainProblem);
 
+
+template<unsigned DIM>
+template<class Archive>
+void BidomainProblem<DIM>::LoadExtraArchiveForBidomain(Archive & archive, unsigned version)
+{
+    // Not all bidomain problems have electrodes...
+    if (mpElectrodes)
+    {
+        // Electrodes will always have a BCC object by this point
+        assert(mpElectrodes->GetBoundaryConditionsContainer());
+        // We might need to get some of the boundary conditions from this archive, but it might be
+        // the case that the problem's BCC is the same object as the Electrodes' (if they are turned
+        // on) in which case we need to do 'nothing'.
+        boost::shared_ptr<BoundaryConditionsContainer<DIM, DIM, 2> > p_bcc;
+        archive >> p_bcc;
+        if (mpElectrodes->GetBoundaryConditionsContainer() != this->mpBoundaryConditionsContainer)
+        {
+            mpElectrodes->GetBoundaryConditionsContainer()->MergeFromArchive(archive, this->mpMesh);
+        }
+    }
+}
 
 #endif /*BIDOMAINPROBLEM_HPP_*/
