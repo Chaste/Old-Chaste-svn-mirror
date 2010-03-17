@@ -153,6 +153,7 @@ public:
 
     void TestBidomainProblemWithDistributedMesh2DParMetis() throw(Exception)
     {
+#ifdef CHASTE_PARMETIS        
         HeartConfig::Instance()->SetSimulationDuration(1);  //ms
         HeartConfig::Instance()->SetOutputDirectory("DistributedMesh2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("tetrahedral2d");
@@ -256,7 +257,7 @@ public:
             std::cout << seq_ave_voltage << "  " << para_ave_voltage << std::endl;
             TS_ASSERT_DELTA(seq_ave_voltage, para_ave_voltage, 1.0);
         }
-
+#endif //CHASTE_PARMETIS
     }
 };
 

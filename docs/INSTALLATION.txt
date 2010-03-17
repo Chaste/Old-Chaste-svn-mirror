@@ -125,7 +125,27 @@ cd ..
 rm -f hdf5-1.6.6.tar.gz
 rm -rf hdf5-1.6.6
 
+================parMETIS:==================
+
+cd $CHASTE_LIBS
+wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/parmetis/ParMetis-3.1.tar.gz
+tar -xzvf ParMetis-3.1.tar.gz
+cd ParMetis-3.1/
+make
+cd ..
+rm -f ParMetis-3.1.tar.gz
+
+# If you have a "mpicc: command not found" error (or have another MPI 
+# installed on your machine) then you will need to edit the 
+# Makefile.in file.
+# At line 3 
+# CC = ${CHASTE_LIBS}/mpi/bin/mpicc
+# At line 16
+# LD = ${CHASTE_LIBS}/mpi/bin/mpicc
+
+
 ================METIS:==================
+This step is unnecessary since the functionality is provided by parMETIS.
 
 cd $CHASTE_LIBS
 wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-4.0.tar.gz

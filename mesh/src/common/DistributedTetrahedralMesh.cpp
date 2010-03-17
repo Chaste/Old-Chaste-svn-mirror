@@ -93,11 +93,12 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
          *  With ParMetisLibraryNodePartitioning we compute the element partition first 
          *  and then we work out the node ownership.
          */
-#ifdef USE_PARMETIS
+#ifdef CHASTE_PARMETIS
         ParMetisLibraryNodePartitioning(rMeshReader, rElementsOwned, rNodesOwned, rHaloNodesOwned, rProcessorsOffset);
 #else
-       NEVER_REACHED;
-#endif //USE_PARMETIS
+        // If you hit this line of code is because you are trying to use ParMETIS-based partitioning and you didn't install it.
+        NEVER_REACHED;
+#endif //CHASTE_PARMETIS
     }
     else
     {
@@ -161,7 +162,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
     Timer::Reset();
     ComputeMeshPartitioning(rMeshReader, nodes_owned, halo_nodes_owned, elements_owned, proc_offsets);
     PetscTools::Barrier();
-    Timer::Print("partitioning");
+    //Timer::Print("partitioning");
 
     // Reserve memory
     this->mElements.reserve(elements_owned.size());
@@ -660,7 +661,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartiti
 
         Timer::Reset();
         METIS_PartMeshNodal(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart);//, wgetflag, vwgt);
-        Timer::Print("METIS call");
+        //Timer::Print("METIS call");
         
         delete[] elmnts;
         delete[] epart;
@@ -1247,7 +1248,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFac
 }
 
 
-#ifdef USE_PARMETIS  
+#ifdef CHASTE_PARMETIS  
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                                        std::set<unsigned>& rElementsOwned,
@@ -1323,7 +1324,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
     Timer::Reset();       
     ParMETIS_V3_Mesh2Dual(element_distribution, eptr, eind,
                           &numflag, &ncommonnodes, &xadj, &adjncy, &communicator);
-    Timer::Print("ParMETIS Mesh2Dual");
+    //Timer::Print("ParMETIS Mesh2Dual");
 
     delete[] eind;
     delete[] eptr;
@@ -1354,7 +1355,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
     ParMETIS_V3_PartKway(element_distribution, xadj, adjncy, NULL, NULL, &weight_flag, &numflag, 
                          &n_constrains, &n_subdomains, NULL, NULL, 
                          options, &edgecut, local_partition, &communicator);
-    Timer::Print("ParMETIS PartKway");
+    //Timer::Print("ParMETIS PartKway");
     
     
     idxtype* global_element_partition = new idxtype[num_elements];    
@@ -1478,20 +1479,20 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
      */
     std::vector<unsigned> local_index(PetscTools::GetNumProcs(), 0);
 
-    rNodePermutation.resize(this->GetNumNodes());
+    this->mNodesPermutation.resize(this->GetNumNodes());
 
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
         unsigned partition = global_node_partition[node_index];
         assert(partition!=UNASSIGNED_NODE);
 
-        rNodePermutation[node_index] = rProcessorsOffset[partition] + local_index[partition];
+        this->mNodesPermutation[node_index] = rProcessorsOffset[partition] + local_index[partition];
 
         local_index[partition]++;
     }
    
 }
-#endif //USE_PARMETIS
+#endif //CHASTE_PARMETIS
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

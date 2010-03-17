@@ -314,7 +314,7 @@ def OptionalLibraryDefines():
     Work out what optional libraries have been asked for,
     and return the appropriate #define flags, as a list.
     """
-    possible_flags = {'cvode': 'CHASTE_CVODE', 'vtk': 'CHASTE_VTK', 'adaptivity': 'CHASTE_ADAPTIVITY'}
+    possible_flags = {'parmetis': 'CHASTE_PARMETIS', 'cvode': 'CHASTE_CVODE', 'vtk': 'CHASTE_VTK', 'adaptivity': 'CHASTE_ADAPTIVITY'}
     actual_flags = []
     for libname, symbol in possible_flags.iteritems():
         if getattr(conf, 'use_' + libname, False):

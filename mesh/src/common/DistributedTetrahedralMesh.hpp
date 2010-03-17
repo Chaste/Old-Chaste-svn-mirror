@@ -54,11 +54,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, int*);
 };
-#ifdef USE_PARMETIS
+#ifdef CHASTE_PARMETIS
 #include <parmetis.h>
-#else //no USE_PARMETIS
+#else //no CHASTE_PARMETIS
 #include <metis.h>
-#endif //USE_PARMETIS
+#endif //CHASTE_PARMETIS
 
 /**
  * Parallel implementation of a mesh
@@ -381,7 +381,7 @@ private:
                                       std::set<unsigned>& rNodesOwned, 
                                       std::vector<unsigned>& rProcessorsOffset);
 
-#ifdef USE_PARMETIS
+#ifdef CHASTE_PARMETIS
     /**
       * Specialised method to compute a parallel partitioning of a given mesh with the ParMetis library
       * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning)
@@ -398,7 +398,7 @@ private:
                                           std::set<unsigned>& rNodesOwned,
                                           std::set<unsigned>& rHaloNodesOwned,
                                           std::vector<unsigned>& rProcessorsOffset);
-#endif //USE_PARMETIS
+#endif //CHASTE_PARMETIS
     
     /**
      * Reorder the node indices in this mesh by applying the permutation
