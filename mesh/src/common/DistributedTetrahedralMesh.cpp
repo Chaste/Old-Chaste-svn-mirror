@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include "OutputFileHandler.hpp"
 
+#include "Timer.hpp"
+
 /////////////////////////////////////////////////////////////////////////////////////
 //   IMPLEMENTATION
 /////////////////////////////////////////////////////////////////////////////////////
@@ -85,45 +87,58 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
 {
     ///\todo: add a timing event for the partitioning
 
-    if (mMetisPartitioning==UNUSED)
+    if (mMetisPartitioning==PARMETIS_LIBRARY && !PetscTools::IsSequential())
     {
-        NEVER_REACHED;
-    }
-    if (mMetisPartitioning==METIS_LIBRARY && !PetscTools::IsSequential())
-    {
-        MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
+        /*
+         *  With ParMetisLibraryNodePartitioning we compute the element partition first 
+         *  and then we work out the node ownership.
+         */
+#ifdef USE_PARMETIS
+        ParMetisLibraryNodePartitioning(rMeshReader, rElementsOwned, rNodesOwned, rHaloNodesOwned, rProcessorsOffset);
+#else
+       NEVER_REACHED;
+#endif //USE_PARMETIS
     }
     else
     {
-        DumbNodePartitioning(rMeshReader, rNodesOwned);
-    }
-
-    for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
-    {
-        ElementData element_data = rMeshReader.GetNextElementData();
-
-        bool element_owned = false;
-        std::set<unsigned> temp_halo_nodes;
-
-        for (unsigned i=0; i<ELEMENT_DIM+1; i++)
+        /*
+         *  Otherwise we compute the node partition and then we workout element distribution
+         */
+        if (mMetisPartitioning==METIS_LIBRARY && !PetscTools::IsSequential())
         {
-            if (rNodesOwned.find(element_data.NodeIndices[i]) != rNodesOwned.end())
+            MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
+        }
+        else
+        {
+            DumbNodePartitioning(rMeshReader, rNodesOwned);
+        }
+    
+        for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+        {
+            ElementData element_data = rMeshReader.GetNextElementData();
+    
+            bool element_owned = false;
+            std::set<unsigned> temp_halo_nodes;
+    
+            for (unsigned i=0; i<ELEMENT_DIM+1; i++)
             {
-                element_owned = true;
-                rElementsOwned.insert(element_number);
+                if (rNodesOwned.find(element_data.NodeIndices[i]) != rNodesOwned.end())
+                {
+                    element_owned = true;
+                    rElementsOwned.insert(element_number);
+                }
+                else
+                {
+                    temp_halo_nodes.insert(element_data.NodeIndices[i]);
+                }
             }
-            else
+    
+            if (element_owned)
             {
-                temp_halo_nodes.insert(element_data.NodeIndices[i]);
+                rHaloNodesOwned.insert(temp_halo_nodes.begin(), temp_halo_nodes.end());
             }
         }
-
-        if (element_owned)
-        {
-            rHaloNodesOwned.insert(temp_halo_nodes.begin(), temp_halo_nodes.end());
-        }
     }
-
     rMeshReader.Reset();
 }
 
@@ -140,7 +155,13 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
     mTotalNumElements = rMeshReader.GetNumElements();
     mTotalNumBoundaryElements = rMeshReader.GetNumFaces();
     mTotalNumNodes = rMeshReader.GetNumNodes();
+    
+    
+    PetscTools::Barrier();
+    Timer::Reset();
     ComputeMeshPartitioning(rMeshReader, nodes_owned, halo_nodes_owned, elements_owned, proc_offsets);
+    PetscTools::Barrier();
+    Timer::Print("partitioning");
 
     // Reserve memory
     this->mElements.reserve(elements_owned.size());
@@ -637,7 +658,10 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartiti
         idxtype* epart = new idxtype[ne];
         assert(epart != NULL);
 
+        Timer::Reset();
         METIS_PartMeshNodal(&ne, &nn, elmnts, &etype, &numflag, &nparts, &edgecut, epart, npart);//, wgetflag, vwgt);
+        Timer::Print("METIS call");
+        
         delete[] elmnts;
         delete[] epart;
     }
@@ -1223,6 +1247,251 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFac
 }
 
 
+#ifdef USE_PARMETIS  
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+                                                                                       std::set<unsigned>& rElementsOwned,
+                                                                                       std::set<unsigned>& rNodesOwned,
+                                                                                       std::set<unsigned>& rHaloNodesOwned,
+                                                                                       std::vector<unsigned>& rProcessorsOffset)
+ {
+    assert(!PetscTools::IsSequential());
+    assert(ELEMENT_DIM==2 || ELEMENT_DIM==3); // Metis works with triangles and tetras
+
+    unsigned num_elements = rMeshReader.GetNumElements();
+    unsigned num_procs = PetscTools::GetNumProcs();
+    unsigned local_proc_index = PetscTools::GetMyRank();
+    
+    /*
+     *  Work out initial element distribution
+     */
+    idxtype element_distribution[num_procs+1];    
+    idxtype element_count[num_procs];
+    
+    element_distribution[0]=0;
+    for (unsigned proc_index=1; proc_index<=num_procs; proc_index++)
+    {
+        element_distribution[proc_index] = element_distribution[proc_index-1] + num_elements/num_procs; 
+        if (proc_index-1 < num_elements%num_procs)
+        {
+            element_distribution[proc_index]++;
+        }            
+
+        element_count[proc_index-1] = element_distribution[proc_index] - element_distribution[proc_index-1];
+    }
+    assert((unsigned)element_distribution[num_procs]==num_elements);
+
+    /*
+     *  Create distributed mesh data structure
+     */
+    unsigned first_local_element = element_distribution[local_proc_index];
+    unsigned last_plus_one_element = element_distribution[local_proc_index+1]; 
+    unsigned num_local_elements = last_plus_one_element - first_local_element;
+    
+    idxtype* eind = new idxtype[num_local_elements*(ELEMENT_DIM+1)];
+    idxtype* eptr = new idxtype[num_local_elements+1];
+
+    // Advance the file pointer to the first element I own.
+    for (unsigned element_index = 0; element_index < first_local_element; element_index++)
+    {
+        ElementData element_data = rMeshReader.GetNextElementData();
+    }
+
+    unsigned counter=0;
+    for (unsigned element_index = 0; element_index < num_local_elements; element_index++)
+    {
+        ElementData element_data = rMeshReader.GetNextElementData();
+
+        eptr[element_index] = counter;
+        for (unsigned i=0; i<ELEMENT_DIM+1; i++)
+        {
+            eind[counter++] = element_data.NodeIndices[i];
+        }
+
+    }
+    eptr[num_local_elements] = counter;
+    
+    rMeshReader.Reset();
+    
+    int numflag = 0; // METIS speak for C-style numbering
+    int ncommonnodes = 3; // Connectivity degree. Manual recommends 3 for meshes made exclusively of tetrahedra.
+    MPI_Comm communicator = PETSC_COMM_WORLD;
+
+    idxtype* xadj;
+    idxtype* adjncy;
+    
+    Timer::Reset();       
+    ParMETIS_V3_Mesh2Dual(element_distribution, eptr, eind,
+                          &numflag, &ncommonnodes, &xadj, &adjncy, &communicator);
+    Timer::Print("ParMETIS Mesh2Dual");
+
+    delete[] eind;
+    delete[] eptr;
+
+    int weight_flag = 0; // unweighted graph
+    int n_constrains = 0; // number of weights that each vertex has (number of balance constrains)
+    int n_subdomains = PetscTools::GetNumProcs();
+    int options[3]; // extra options
+    options[0] = 0; // ignore extra options
+    int edgecut;
+            
+    idxtype* local_partition = new idxtype[num_local_elements];
+
+/*
+ *  In order to use ParMETIS_V3_PartGeomKway, we need to sort out how to compute the coordinates of the 
+ *  centers of each element efficiently.
+ * 
+ *  In the meantime use ParMETIS_V3_PartKway.
+ */
+//    int n_dimensions = ELEMENT_DIM;
+//    float node_coordinates[num_local_elements*SPACE_DIM];
+//
+//    ParMETIS_V3_PartGeomKway(element_distribution, xadj, adjncy, NULL, NULL, &weight_flag, &numflag, 
+//                             &n_dimensions, node_coordinates, &n_constrains, &n_subdomains, NULL, NULL, 
+//                             options, &edgecut, local_partition, &communicator);
+
+    Timer::Reset();    
+    ParMETIS_V3_PartKway(element_distribution, xadj, adjncy, NULL, NULL, &weight_flag, &numflag, 
+                         &n_constrains, &n_subdomains, NULL, NULL, 
+                         options, &edgecut, local_partition, &communicator);
+    Timer::Print("ParMETIS PartKway");
+    
+    
+    idxtype* global_element_partition = new idxtype[num_elements];    
+                                 
+    int ret = MPI_Allgatherv(local_partition, num_local_elements, MPI_INT, 
+                             global_element_partition, element_count, element_distribution, MPI_INT, PETSC_COMM_WORLD);
+    assert(ret==0);                                 
+    
+    delete[] local_partition;
+    
+    for(unsigned elem_index=0; elem_index<num_elements; elem_index++)
+    {
+        if ((unsigned) global_element_partition[elem_index] == local_proc_index)
+        {    
+            rElementsOwned.insert(elem_index);
+        }
+    }
+    
+    rMeshReader.Reset();
+    free(xadj);
+    free(adjncy);
+
+    unsigned num_nodes = rMeshReader.GetNumNodes();
+
+    //unsigned global_node_partition[num_nodes]; // initialised to UNASSIGNED (do #define UNASSIGNED -1    
+    std::vector<unsigned> global_node_partition;
+    global_node_partition.resize(num_nodes, UNASSIGNED_NODE);
+
+    assert(rProcessorsOffset.size() == 0); // Making sure the vector is empty. After calling resize() only newly created memory will be initialised to 0.
+    rProcessorsOffset.resize(PetscTools::GetNumProcs(), 0);
+    
+    
+    /*
+     *  Work out node distribution based on initial element distribution returned by ParMETIS
+     *
+     *  In this loop we handle 4 different data structures: 
+     *      global_node_partition and rProcessorsOffset are global,
+     *      rNodesOwned and rHaloNodesOwned are local.
+     */
+    for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+    {
+        unsigned element_owner = global_element_partition[element_number];
+        ElementData element_data = rMeshReader.GetNextElementData();
+
+        for (unsigned i=0; i<ELEMENT_DIM+1; i++)
+        {
+            /*
+             *  For each node in this element, check whether it hasn't been assigned to another processor yet.
+             *  If so, assign it to the owner the element. Otherwise, consider it halo.
+             */
+            if( global_node_partition[element_data.NodeIndices[i]] == UNASSIGNED_NODE )
+            {
+                if (element_owner == local_proc_index)
+                {
+                    rNodesOwned.insert(element_data.NodeIndices[i]);
+                }
+                                        
+                global_node_partition[element_data.NodeIndices[i]] = element_owner;
+                
+                // Offset is defined as the first node owned by a processor. We compute it incrementally.
+                // i.e. if node_index belongs to proc 3 (of 6) we have to shift the processors 4, 5, and 6
+                // offset a position.
+                for (unsigned proc=element_owner+1; proc<PetscTools::GetNumProcs(); proc++)
+                {
+                    rProcessorsOffset[proc]++;
+                }                    
+            }
+            else
+            {
+                if (element_owner == local_proc_index)
+                {
+                    //if (rNodesOwned.find(element_data.NodeIndices[i]) == rNodesOwned.end())
+                    if (global_node_partition[element_data.NodeIndices[i]] != local_proc_index)
+                    {
+                        rHaloNodesOwned.insert(element_data.NodeIndices[i]);
+                    }
+                }
+            }                                
+        }
+    }
+    
+    delete[] global_element_partition;
+
+    /*
+     *  Refine element distribution. Add extra elements that parMETIS didn't consider initially but 
+     *  include any node owned by the processor. This ensures that all the system matrix rows are
+     *  assembled locally.
+     */
+    rMeshReader.Reset();
+
+    for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+    {
+        ElementData element_data = rMeshReader.GetNextElementData();
+
+        bool element_owned = false;
+        std::set<unsigned> temp_halo_nodes;
+
+        for (unsigned i=0; i<ELEMENT_DIM+1; i++)
+        {
+            if (rNodesOwned.find(element_data.NodeIndices[i]) != rNodesOwned.end())
+            {
+                element_owned = true;
+                rElementsOwned.insert(element_number);
+            }
+            else
+            {
+                temp_halo_nodes.insert(element_data.NodeIndices[i]);
+            }
+        }
+
+        if (element_owned)
+        {
+            rHaloNodesOwned.insert(temp_halo_nodes.begin(), temp_halo_nodes.end());
+        }
+    }        
+
+    rMeshReader.Reset();
+
+    /*
+     *  Once we know the offsets we can compute the permutation vector
+     */
+    std::vector<unsigned> local_index(PetscTools::GetNumProcs(), 0);
+
+    rNodePermutation.resize(this->GetNumNodes());
+
+    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
+    {
+        unsigned partition = global_node_partition[node_index];
+        assert(partition!=UNASSIGNED_NODE);
+
+        rNodePermutation[node_index] = rProcessorsOffset[partition] + local_index[partition];
+
+        local_index[partition]++;
+    }
+   
+}
+#endif //USE_PARMETIS
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

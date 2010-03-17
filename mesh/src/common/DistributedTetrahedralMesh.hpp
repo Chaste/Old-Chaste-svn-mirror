@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Node.hpp"
 #include "AbstractMeshReader.hpp"
 
+#define UNASSIGNED_NODE UINT_MAX
+
 /*
  *  The following definition fixes an odd incompatibility of METIS 4.0 and Chaste. Since
  * the library was compiled with a plain-C compiler, it fails to link using a C++ compiler.
@@ -52,7 +54,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, int*);
 };
-#include "metis.h"
+#ifdef USE_PARMETIS
+#include <parmetis.h>
+#else //no USE_PARMETIS
+#include <metis.h>
+#endif //USE_PARMETIS
 
 /**
  * Parallel implementation of a mesh
@@ -69,14 +75,14 @@ class DistributedTetrahedralMesh : public AbstractTetrahedralMesh< ELEMENT_DIM, 
 public:
 
      /** Definition of partition types. 
-      * "DUMB" is using naturally mesh ordering with PETSC_DECIDE.
-      * "UNUSED" is not used
+      * "DUMB" is using natural mesh ordering with PETSC_DECIDE.
+      * "PARMETIS_LIBRARY" is a call to the parallel parMETIS library
       * "METIS_LIBRARY" is a call to the sequential METIS library 
       * */
     typedef enum
     {
         DUMB=0,
-        UNUSED=1,  ///\todo We are going to lose this one 
+        PARMETIS_LIBRARY=1, 
         METIS_LIBRARY=2 ///\todo and replace this one with ParMETIS.  But keep the same numbers for the archives?
     } PartitionType;
 
@@ -354,7 +360,7 @@ private:
 
     /**
      * Specialised method to compute a parallel partitioning of a given mesh
-     * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning
+     * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning)
      * 
      * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
      * @param rNodesOwned is an empty set to be filled with the indices of nodes owned by this process
@@ -362,19 +368,7 @@ private:
     void DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                               std::set<unsigned>& rNodesOwned);
 
-    /**
-     * Specialised method to compute a parallel partitioning of a given mesh
-     * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning
-     * 
-     * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
-     * @param rNodesOwned is an empty set to be filled with the indices of nodes owned by this process
-     * @param rProcessorsOffset a vector of length NumProcs to be filled with the index of the lowest indexed node owned by each process
-     * 
-     */
-    void MetisBinaryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                                     std::set<unsigned>& rNodesOwned, 
-                                     std::vector<unsigned>& rProcessorsOffset);
-
+    
     /**
      * Specialised method to compute a parallel partitioning of a given mesh
      * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning
@@ -388,6 +382,25 @@ private:
                                       std::set<unsigned>& rNodesOwned, 
                                       std::vector<unsigned>& rProcessorsOffset);
 
+#ifdef USE_PARMETIS
+    /**
+      * Specialised method to compute a parallel partitioning of a given mesh with the ParMetis library
+      * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning)
+      * 
+      * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
+      * @param rElementsOwned is an empty set to be filled with the indices of elements owned by this process
+      * @param rNodesOwned is an empty set to be filled with the indices of nodes owned by this process
+      * @param rHaloNodesOwned is an empty set to be filled with the indices of halo nodes owned by this process
+      * @param rProcessorsOffset a vector of length NumProcs to be filled with the index of the lowest indexed node owned by each process
+      * 
+      */
+     void ParMetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+                                          std::set<unsigned>& rElementsOwned,
+                                          std::set<unsigned>& rNodesOwned,
+                                          std::set<unsigned>& rHaloNodesOwned,
+                                          std::vector<unsigned>& rProcessorsOffset);
+#endif //USE_PARMETIS
+    
     /**
      * Reorder the node indices in this mesh by applying the permutation
      * give in mNodesPermutation.

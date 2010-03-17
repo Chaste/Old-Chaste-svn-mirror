@@ -150,6 +150,114 @@ public:
         }
 
     }
+
+    void TestBidomainProblemWithDistributedMesh2DParMetis() throw(Exception)
+    {
+        HeartConfig::Instance()->SetSimulationDuration(1);  //ms
+        HeartConfig::Instance()->SetOutputDirectory("DistributedMesh2d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("tetrahedral2d");
+
+        // The default stimulus in PlaneStimulusCellFactory is not enough to generate propagation
+        // here, increasing it an order of magnitude
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-6000);
+
+        // To avoid an issue with the Event handler only one simulation should be
+        // in existance at a time: therefore monodomain simulation is defined in a block
+        double seq_ave_voltage=0.0;
+        {
+            ///////////////////////////////////////////////////////////////////
+            // TetrahedralMesh
+            ///////////////////////////////////////////////////////////////////
+            TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
+            TetrahedralMesh<2,2> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+
+            BidomainProblem<2> nondistributed_problem( &cell_factory );
+            nondistributed_problem.SetMesh(&mesh);
+            nondistributed_problem.Initialise();
+
+            HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+            HeartConfig::Instance()->SetCapacitance(1.0);
+
+            nondistributed_problem.Solve();
+
+            DistributedVector dist_nondistributed_voltage = nondistributed_problem.GetSolutionDistributedVector();
+            DistributedVector::Stripe nondistributed_voltage(dist_nondistributed_voltage, 0);
+            DistributedVector::Stripe nondistributed_potential(dist_nondistributed_voltage, 1);
+
+            double seq_local_ave_voltage = 0.0;
+
+            for (DistributedVector::Iterator index = dist_nondistributed_voltage.Begin();
+                 index != dist_nondistributed_voltage.End();
+                 ++index)
+            {
+                if (index.Global==0)
+                {
+                    TS_ASSERT_LESS_THAN(0, nondistributed_voltage[index]);
+                }
+
+                seq_local_ave_voltage += nondistributed_voltage[index];
+            }
+
+            MPI_Reduce(&seq_local_ave_voltage, &seq_ave_voltage, 1, MPI_DOUBLE, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
+            seq_ave_voltage /= mesh.GetNumNodes();
+        }
+
+        ///////////////////////////////////////////////////////////////////
+        // DistributedTetrahedralMesh
+        ///////////////////////////////////////////////////////////////////
+        HeartConfig::Instance()->SetOutputFilenamePrefix("distributed1d");
+
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_400_elements");
+        DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::PARMETIS_LIBRARY);
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        BidomainProblem<2> distributed_problem( &cell_factory );
+
+        //distributed_problem.PrintOutput(false);
+
+        distributed_problem.SetMesh(&mesh);
+
+        distributed_problem.Initialise();
+
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+
+        distributed_problem.Solve();
+
+        DistributedVector dist_distributed_voltage = distributed_problem.GetSolutionDistributedVector();
+        DistributedVector::Stripe distributed_voltage(dist_distributed_voltage, 0);
+        DistributedVector::Stripe distributed_potential(dist_distributed_voltage, 1);
+
+        double para_local_ave_voltage = 0.0;
+
+        for (DistributedVector::Iterator index = dist_distributed_voltage.Begin();
+             index != dist_distributed_voltage.End();
+             ++index)
+        {
+            if (index.Global==0)
+            {
+                TS_ASSERT_LESS_THAN(0, distributed_voltage[index]);
+            }
+
+            para_local_ave_voltage += distributed_voltage[index];
+        }
+
+
+        double para_ave_voltage;
+        MPI_Reduce(&para_local_ave_voltage, &para_ave_voltage, 1, MPI_DOUBLE, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
+        para_ave_voltage /= mesh.GetNumNodes();
+
+        ///////////////////////////////////////////////////////////////////
+        // compare
+        ///////////////////////////////////////////////////////////////////
+        if (PetscTools::AmMaster())
+        {
+            std::cout << seq_ave_voltage << "  " << para_ave_voltage << std::endl;
+            TS_ASSERT_DELTA(seq_ave_voltage, para_ave_voltage, 1.0);
+        }
+
+    }
 };
 
 #endif /*TESTBIDOMAINDISTRIBUTEDMESH_HPP_*/

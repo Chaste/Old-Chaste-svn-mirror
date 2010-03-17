@@ -56,6 +56,10 @@ private:
         {
             unsigned num_global_nodes = rMesh.GetNumNodes();
             unsigned nodes_owned[num_global_nodes];
+            for(unsigned index=0; index<num_global_nodes; index++)
+            {
+                nodes_owned[index]=0u;
+            }
 
             for (unsigned node_id=0; node_id<num_global_nodes;  node_id++)
             {
@@ -84,9 +88,10 @@ private:
             {
                 for (unsigned node_id=0; node_id<num_global_nodes; node_id++)
                 {
-                    TS_ASSERT(nodes_reduction[node_id] > 0);
+                    TS_ASSERT(nodes_reduction[node_id] > 0u);
                 }
             }
+            
         }
 
         /*
@@ -509,6 +514,20 @@ public:
         CheckEverythingIsAssigned<3,3>(mesh);
     }
 
+    void TestEverythingIsAssignedParMetisLibrary()
+    {
+#ifdef USE_PARMETIS  
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PARMETIS_LIBRARY);
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
+
+        CheckEverythingIsAssigned<3,3>(mesh);     
+#endif
+    }
 
     void TestConstruct3DWithRegions() throw (Exception)
     {
