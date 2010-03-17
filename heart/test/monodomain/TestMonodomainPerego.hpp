@@ -49,6 +49,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 #include "PlaneStimulusCellFactory.hpp"
+
+
 class PointStimulusCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
@@ -74,7 +76,36 @@ public:
             cell = new PeregoLuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
         
-        cell->SetAdaptivityFlag(false);
+        cell->SetAdaptivityFlag(true);
+        return cell;
+    }
+};
+
+class PointStimulusLuoRudyCellFactory : public AbstractCardiacCellFactory<1>
+{
+private:
+    boost::shared_ptr<SimpleStimulus> mpStimulus;
+
+public:
+    PointStimulusLuoRudyCellFactory() : AbstractCardiacCellFactory<1>(),
+          mpStimulus(new SimpleStimulus(-1500.0, 0.5))
+    {
+    }
+
+    AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
+    {
+        LuoRudyIModel1991OdeSystem *cell;
+        ChastePoint<1> location = GetMesh()->GetNode(node)->GetPoint();
+
+        if (fabs(location[0]-0.05)<1e-6)
+        {
+            cell =  new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
+        }
+        else
+        {
+            cell = new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
+        }
+        
         return cell;
     }
 };
@@ -93,13 +124,13 @@ public:
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     void TestMonodomainPerego1D() throw(Exception)
     {
-//        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.01, 0.01);
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
-        HeartConfig::Instance()->SetSimulationDuration(15); //ms
+//        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
+//        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(10); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("PeregoMonoProblem1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("PeregoMonodomainLR91_1d");
-   
+
         PointStimulusCellFactory  cell_factory;
 //        PlaneStimulusCellFactory<PeregoLuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
@@ -111,6 +142,30 @@ public:
 
         monodomain_problem.Solve();
     }
+    
+
+    // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
+    void TestMonodomainPeregoCompareToLuoRudy() throw(Exception)
+    {
+//        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
+//        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(10); //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
+        HeartConfig::Instance()->SetOutputDirectory("PeregoMonoProblemCompareToLuoRudy1d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("PeregoMonodomainLR91CompareToLuoRudy_1d");
+
+        PointStimulusLuoRudyCellFactory  cell_factory;
+//        PlaneStimulusCellFactory<PeregoLuoRudyIModel1991OdeSystem, 1> cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+
+        monodomain_problem.Initialise();
+
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+
+        monodomain_problem.Solve();
+    }    
+   
 //        // test whether voltages and gating variables are in correct ranges
 //        CheckMonoLr91Vars<1>(monodomain_problem);
 //

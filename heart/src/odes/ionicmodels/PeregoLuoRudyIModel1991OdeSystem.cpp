@@ -95,6 +95,8 @@ PeregoLuoRudyIModel1991OdeSystem::PeregoLuoRudyIModel1991OdeSystem(
     mWeightedErrorTolerances[7] = 1 * tolerance_weight; // Gate X error
 
     Init();
+    
+    mCorrectedSolution = mStateVariables;
 }
 
 /**

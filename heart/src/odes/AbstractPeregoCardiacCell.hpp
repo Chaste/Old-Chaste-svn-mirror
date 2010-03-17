@@ -119,6 +119,8 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
     std::vector<double> mSolutionAtPreviousTimeStep; /**< Cache of previous solution */
     //Nomenclature of variables is based on the paper (see class documentation for reference) 
     
+    std::vector<double> mCorrectedSolution;/**< Variable to store the corrected solution. It's needed by the compute method that will use it as "previous" solution */
+    
     double mc0bar;/**< weights for Adams-Bashforth integration*/
     double mc1bar;/**< weights for Adams-Bashforth integration*/
     
@@ -150,6 +152,7 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
     
     bool mUseAdaptTimestep; /**< For testing purposes, so we can test the algorithm without adaptivity. To be removed eventually. */
     
+    unsigned mNumberOfStateVariables; /**< stores the number of state variables (for memory allocation)*/ 
     /**
      * Return true if the error in any variable exceeds tolerances
      * 
