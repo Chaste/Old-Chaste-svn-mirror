@@ -34,11 +34,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
-VertexElement3d::VertexElement3d(std::vector<Node<3>*> nodes,
+VertexElement3d::VertexElement3d(unsigned index,
+								 std::vector<Node<3>*> nodes,
                                  std::vector<VertexElement<2,3>*> faces,
                                  std::vector<bool> orientations)
  : mOrientations(orientations)
 {
+    this->mIndex = index;
+
     // Populate mNodes and mFaces
     for (unsigned node_index=0; node_index<nodes.size(); node_index++)
     {

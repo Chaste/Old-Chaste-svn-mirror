@@ -63,13 +63,15 @@ public:
 	/**
 	 * Default constructor.
 	 *
+	 * @param index global index of the element
 	 * @param nodes vector of pointers to nodes
 	 * @param faces vector of pointers to VertexElements
 	 * @param orientations vector of how each face is oriented.
 	 */
-	VertexElement3d(std::vector<Node<3>*> nodes,
-			   std::vector<VertexElement<2, 3>*> faces,
-			   std::vector<bool> orientations);
+	VertexElement3d(unsigned index,
+					std::vector<Node<3>*> nodes,
+					std::vector<VertexElement<2, 3>*> faces,
+					std::vector<bool> orientations);
 
 	/**
 	 * Default constructor for use by serializer.

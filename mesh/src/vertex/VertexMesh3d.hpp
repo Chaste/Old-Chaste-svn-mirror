@@ -47,20 +47,23 @@ class VertexMeshWriter;
 #include "VertexMeshReader.hpp"
 #include "VertexMeshWriter.hpp"
 #include "VertexElement.hpp"
+#include "VertexElement3d.hpp"
 #include "VertexElementMap.hpp"
 
 /**
- * A vertex-based mesh class, for use in vertex-based tissue simulations.
+ * A 3d vertex-based mesh class, for use in vertex-based tissue simulations.
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class VertexMesh3d : public AbstractMesh<ELEMENT_DIM, SPACE_DIM>
+class VertexMesh3d : public AbstractMesh<3,3>
 {
     friend class TestVertexMesh3d;
 
 protected:
 
     /** Vector of pointers to VertexElements. */
-    std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> mElements;
+    std::vector<VertexElement3d*> mElements;
+
+    /** Vector of pointers to VertexElements. */
+    std::vector<VertexElement<2,3>*> mFaces;
 
     /**
      * Solve node mapping method. This overridden method is required
@@ -136,9 +139,9 @@ public:
      * @param nodes vector of pointers to nodes
      * @param vertexElements vector of pointers to VertexElements
      */
-    VertexMesh3d(std::vector<Node<SPACE_DIM>*> nodes,
-               std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements);
-
+    VertexMesh3d(std::vector<Node<3>*> nodes,
+				 std::vector<VertexElement<2,3>*> faces,
+				 std::vector<VertexElement3d*> vertexElements);
     /**
      * Default constructor for use by serializer.
      */
@@ -155,6 +158,11 @@ public:
     virtual unsigned GetNumNodes() const;
 
     /**
+     * @return the number of VertexFaces in the mesh.
+     */
+    virtual unsigned GetNumFaces() const;
+
+    /**
      * @return the number of VertexElements in the mesh.
      */
     virtual unsigned GetNumElements() const;
@@ -169,7 +177,7 @@ public:
      *
      * @return a pointer to the vertex element
      */
-    VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
+    VertexElement3d* GetElement(unsigned index) const;
 
     /**
      * Compute the area of an element.
@@ -207,36 +215,19 @@ public:
      *
      * @return (centroid_x,centroid_y).
      */
-    virtual c_vector<double, SPACE_DIM> GetCentroidOfElement(unsigned index);
+    virtual c_vector<double, 3> GetCentroidOfElement(unsigned index);
 
     /**
      * Construct the mesh using a MeshReader.
      *
      * @param rMeshReader the mesh reader
      */
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);
+    void ConstructFromMeshReader(AbstractMeshReader<3,3>& rMeshReader);
 
     /**
-     * Delete mNodes and mElements.
+     * Delete mNodes, mFaces and mElements.
      */
     virtual void Clear();
-
-    /**
-     * Translate the mesh given the displacement vector.
-     * This is the translation method that actually does the work.
-     *
-     * @param rDisplacement is a translation vector of the correct size
-     */
-    void Translate(c_vector<double, SPACE_DIM>& rDisplacement);
-
-    /**
-     * Translate the mesh given the coordinate displacements separately.
-     *
-     * @param xMovement is the x-displacement (defaults to 0.0)
-     * @param yMovement is the y-displacement (defaults to 0.0)
-     * @param zMovement is the z-displacement (defaults to 0.0)
-     */
-    void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
 };
 
 #include "SerializationExportWrapper.hpp"
