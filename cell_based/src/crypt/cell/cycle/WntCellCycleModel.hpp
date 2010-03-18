@@ -56,6 +56,12 @@ class WntCellCycleModel : public AbstractWntOdeBasedCellCycleModel
 {
 private:
     friend class boost::serialization::access;
+    /**
+     * Save the cell cycle model and ODE system to archive.
+     *
+     * @param archive the archive
+     * @param version the archive version
+     */
     template<class Archive>
 	void save(Archive & archive, const unsigned int version) const
 	{
@@ -137,7 +143,7 @@ public:
      * A private constructor for archiving.
      *
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
-     * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
      */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,

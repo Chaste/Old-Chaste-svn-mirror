@@ -135,13 +135,13 @@ public:
     /**
      * A 'private' constructor for archiving.
      *
-     * @param rHypothesis which model hypothesis to use (1 or 2)
-     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
+     * @param rProteinConcs a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
      * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
      * @param useTypeDependentG1 whether to make the duration of G1 phase dependent on the cell's proliferative type (defaults to false)
 	 */
-	SingleOdeWntCellCycleModel(std::vector<double>& rProteinConcs, boost::shared_ptr<AbstractCellMutationState> pMutationState, unsigned& rDimension, bool useTypeDependentG1 = false);
+	SingleOdeWntCellCycleModel(std::vector<double>& rProteinConcs, boost::shared_ptr<AbstractCellMutationState> pMutationState, 
+                               unsigned& rDimension, bool useTypeDependentG1 = false);
 
 	/**
 	 * Destructor
@@ -156,27 +156,51 @@ public:
 	 *
 	 * This is important to make a copy of the ODE system instead of
 	 * giving the copied cell cycle model a pointer to the same ODE...
+     * @param rOtherModel  the one to copy
 	 */
 	SingleOdeWntCellCycleModel(const SingleOdeWntCellCycleModel& rOtherModel);
 
-    ///\todo (or not) Undocumented
+    /**
+     * Initialise the cell cycle model at the start of a simulation.
+     *
+     * This overridden method sets up a new WntCellCycleOdeSystem,
+     * sets the cell type according to the current beta catenin level
+     * and sets a random G2 duration.
+     */
     void Initialise();
 
-	void UpdateCellCyclePhase();
+	/**
+     * This specialisation updates the Beta-Catenin level
+     */
+     void UpdateCellCyclePhase();
 
-	AbstractCellCycleModel* CreateCellCycleModel();
+	/**
+     * Overridden builder method to create new copies of
+     * this cell cycle model.
+     */
+    AbstractCellCycleModel* CreateCellCycleModel();
 
-	double GetBetaCateninConcentration(void)
+	/**
+     * GetBetaCateninConcentration
+     */
+    double GetBetaCateninConcentration(void)
 	{
 	    return mpOdeSystem->rGetStateVariables()[0] + mpOdeSystem->rGetStateVariables()[1];
 	}
 
+    /**
+     * SetBetaCateninConcentration
+     * @param value  to be set
+     */
 	void SetBetaCateninDivisionThreshold(double value)
 	{
 	    mBetaCateninDivisionThreshold = value;
 	}
 
-	double GetBetaCateninDivisionThreshold(void)
+	/**
+     * GetBetaCateninDivisionThreshold
+     */
+    double GetBetaCateninDivisionThreshold(void)
 	{
 	    return mBetaCateninDivisionThreshold;
 	}
