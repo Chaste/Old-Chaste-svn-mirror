@@ -465,7 +465,7 @@ protected:
     TissueConfig(const TissueConfig&);
 
     /**
-     * Overloaded assignement operator.
+     * Overloaded assignment operator.
      */
     TissueConfig& operator= (const TissueConfig&);
 

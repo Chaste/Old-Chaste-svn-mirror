@@ -58,20 +58,6 @@ public:
     virtual AbstractCellCycleModel* CreateCellCycleModel()=0;
 
     /**
-     * Return the typical cell cycle duration for a transit cell, in hours.
-     * Used when giving cells random ages - the ages will follow a uniform
-     * distribution with this value as the upper limit.
-     */
-    virtual double GetTypicalTransitCellCycleTime()=0;
-
-    /**
-     * Return the typical cell cycle duration for a stem cell, in hours.
-     * Used when giving cells random ages - the ages will follow a uniform
-     * distribution with this value as the upper limit.
-     */
-    virtual double GetTypicalStemCellCycleTime()=0;
-
-    /**
      * Whether cells are able to fully differentiate.
      * Defaults to false unless overridden.
      */

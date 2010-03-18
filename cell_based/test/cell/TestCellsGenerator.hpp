@@ -31,6 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "HoneycombMeshGenerator.hpp"
 #include "CryptCellsGenerator.hpp"
+#include "TysonNovakCellCycleModel.hpp"
+#include "WntCellCycleModel.hpp"
+#include "SimpleWntCellCycleModel.hpp"
+#include "StochasticWntCellCycleModel.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
@@ -45,7 +49,7 @@ class TestCellsGenerator : public AbstractCellBasedTestSuite
 {
 public:
 
-    void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateBasic() throw(Exception)
+    void TestGenerateBasicWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
 	{
 		// Create mesh
 		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
@@ -70,7 +74,7 @@ public:
 
 
 
-    void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateGivenLocationIndices() throw(Exception)
+    void TestGenerateGivenLocationIndicesWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
         // Use a mesh generator to generate some location indices corresponding to real cells
         HoneycombMeshGenerator mesh_generator(6, 7, 2, false);
@@ -92,7 +96,7 @@ public:
 
     }
 
-    void TestFixedDurationGenerationBasedCellCycleModelCellsGeneratorGenerateForCrypt() throw(Exception)
+    void TestCryptCellsGeneratorWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
@@ -109,8 +113,8 @@ public:
         double y2 = 2.0;
         double y3 = 3.0;
 
-        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> generator;
-        generator.Generate(cells, *p_mesh, location_indices, true, y0, y1, y2,y3 );
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> generator;
+        generator.Generate(cells, p_mesh, location_indices, true, y0, y1, y2, y3);
 
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
@@ -150,7 +154,7 @@ public:
         }
     }
 
-    void TestStochasticDurationGenerationBasedCellCycleModelCellsGenerator() throw(Exception)
+    void TestCryptCellsGeneratorWithStochasticDurationGenerationBasedCellCycleModel() throw(Exception)
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
@@ -161,8 +165,8 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel,2> generator;
-        generator.Generate(cells, *p_mesh, location_indices, false);
+        CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> generator;
+        generator.Generate(cells, p_mesh, location_indices, false);
 
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
@@ -213,7 +217,7 @@ public:
 		}
     }
 
-    void TestTysonNovakCellCycleModelCellsGenerator() throw(Exception)
+    void TestTestCryptCellsGeneratorWithTysonNovakCellCycleModel() throw(Exception)
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
@@ -224,16 +228,16 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<TysonNovakCellCycleModel,2> generator;
-        generator.Generate(cells, *p_mesh, location_indices, true);
+        CryptCellsGenerator<TysonNovakCellCycleModel> generator;
+        generator.Generate(cells, p_mesh, location_indices, true);
 
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
-
         // Create cells again with basic
 		std::vector<TissueCell> new_cells;
 		generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
+
 		// Test that cells were generated correctly
 		TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
 
@@ -244,7 +248,7 @@ public:
     }
 
 
-    void TestWntCellCycleModelCellsGenerator() throw(Exception)
+    void TestTestCryptCellsGeneratorWithWntCellCycleModel() throw(Exception)
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
@@ -255,8 +259,8 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<WntCellCycleModel,2> generator;
-        generator.Generate(cells, *p_mesh, location_indices, false);
+        CryptCellsGenerator<WntCellCycleModel> generator;
+        generator.Generate(cells, p_mesh, location_indices, false);
 
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
@@ -279,7 +283,7 @@ public:
     }
 
 
-    void TestSimpleWntCellCycleModelCellsGenerator() throw(Exception)
+    void TestTestCryptCellsGeneratorWithSimpleWntCellCycleModel() throw(Exception)
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
@@ -290,8 +294,8 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<SimpleWntCellCycleModel,2> generator;
-        generator.Generate(cells, *p_mesh, location_indices, false);
+        CryptCellsGenerator<SimpleWntCellCycleModel> generator;
+        generator.Generate(cells, p_mesh, location_indices, false);
 
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
@@ -302,7 +306,7 @@ public:
         }
     }
 
-    void TestStochasticWntCellCycleModelCellsGenerator() throw(Exception)
+    void TestTestCryptCellsGeneratorWithStochasticWntCellCycleModel() throw(Exception)
     {
         // Create mesh
         HoneycombMeshGenerator mesh_generator(5, 10, 0, false);
@@ -313,8 +317,8 @@ public:
 
         // Create cells
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<StochasticWntCellCycleModel,2> generator;
-        generator.Generate(cells, *p_mesh, location_indices, false);
+        CryptCellsGenerator<StochasticWntCellCycleModel> generator;
+        generator.Generate(cells, p_mesh, location_indices, false);
 
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());

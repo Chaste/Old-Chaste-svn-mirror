@@ -45,19 +45,6 @@ AbstractCellCycleModel* IngeWntSwatCellCycleModelCellsGenerator<DIM>::CreateCell
 }
 
 
-template<unsigned DIM>
-double IngeWntSwatCellCycleModelCellsGenerator<DIM>::GetTypicalTransitCellCycleTime()
-{
-    return 16.0;
-}
-
-template<unsigned DIM>
-double IngeWntSwatCellCycleModelCellsGenerator<DIM>::GetTypicalStemCellCycleTime()
-{
-    return 16.0;
-}
-
-
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////

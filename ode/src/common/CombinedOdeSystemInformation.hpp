@@ -78,7 +78,7 @@ protected:
     CombinedOdeSystemInformation(const CombinedOdeSystemInformation&);
 
     /**
-     * Overloaded assignement operator.  Not defined.
+     * Overloaded assignment operator.  Not defined.
      */
     CombinedOdeSystemInformation& operator= (const CombinedOdeSystemInformation&);
 

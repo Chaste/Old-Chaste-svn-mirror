@@ -190,8 +190,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
-        cells_generator.Generate(cells, *p_mesh, location_indices, true); // true = mature cells
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
+        cells_generator.Generate(cells, p_mesh, location_indices, true); // true = mature cells
 
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
 
@@ -376,8 +376,8 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         std::vector<TissueCell> cells2;
-        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator2;
-        cells_generator2.Generate(cells2, *p_mesh, location_indices, true);
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator2;
+        cells_generator2.Generate(cells2, p_mesh, location_indices, true);
 
         MeshBasedTissueWithGhostNodes<2> tissue2(*p_mesh, cells2, location_indices);
 

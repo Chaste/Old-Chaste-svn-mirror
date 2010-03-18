@@ -83,8 +83,8 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
         }
 
         p_cell_cycle_model = CreateCellCycleModel();
-        typical_transit_cycle_time = this->GetTypicalTransitCellCycleTime();
-        typical_stem_cycle_time = GetTypicalStemCellCycleTime();
+        typical_transit_cycle_time = p_cell_cycle_model->GetAverageTransitCellCycleTime();
+        typical_stem_cycle_time = p_cell_cycle_model->GetAverageStemCellCycleTime();
 
         double birth_time = 0.0;
         if (randomBirthTimes)

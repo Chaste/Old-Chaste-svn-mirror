@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NumericFileComparison.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "StochasticWntCellCycleModel.hpp"
 
 // Simple subclass of TissueSimulation which just overloads StoppingEventHasOccurred
 // for testing the stopping event functionality..
@@ -102,8 +103,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<StochasticWntCellCycleModel,2> cell_generator;
-        cell_generator.Generate(cells, *p_mesh, location_indices, true);
+        CryptCellsGenerator<StochasticWntCellCycleModel> cell_generator;
+        cell_generator.Generate(cells, p_mesh, location_indices, true);
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
@@ -310,8 +311,8 @@ public:
 
         // Set up cells, one for each node. Give each cell a random birth time.
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
-        cells_generator.Generate(cells, *p_mesh, location_indices, true);
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
+        cells_generator.Generate(cells, p_mesh, location_indices, true);
 
         // Create a tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);

@@ -56,7 +56,7 @@ private:
     /** Copy constructor. */
     PetscArguments(const PetscArguments&);
 
-    /** Overloaded assignement operator. */
+    /** Overloaded assignment operator. */
     PetscArguments& operator= (const PetscArguments&);
 
     /** The single instance of the class. */

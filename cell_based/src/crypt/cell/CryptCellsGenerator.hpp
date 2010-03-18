@@ -28,7 +28,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CRYPTCELLSGENERATOR_HPP_
 #define CRYPTCELLSGENERATOR_HPP_
 
+// Shoot me now, and put me out of my misery
+#include <boost/mpl/integral_c.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/mpl/if.hpp>
+
 #include "CellsGenerator.hpp"
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "TetrahedralMesh.hpp"
+#include "VertexMesh.hpp"
 
 /**
  * A subclass of CellsGenerator that generates
@@ -36,17 +45,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * It is templated over types of cell cycle model.
  */
-template<class CELL_CYCLE_MODEL, unsigned DIM>
-class CryptCellsGenerator : public CellsGenerator<CELL_CYCLE_MODEL,DIM>
+template<class CELL_CYCLE_MODEL>
+class CryptCellsGenerator : public CellsGenerator<CELL_CYCLE_MODEL,2>
 {
 public:
+    /**
+     * Whether cells are able to fully differentiate.
+     * Defaults to false unless overridden.
+     */
+    bool CellsCanDifferentiate();
+
     /**
      * Generates cells of a specified cell cycle type under the correct
      * crypt conditions and gives random ages if required,
      * or gives them an age of 0.0 - creates least work for solver startup.
      *
      * @param rCells  An empty cells vector for this function to fill up
-     * @param rMesh  The crypt mesh (can be cylindrical)
+     * @param pMesh  The crypt mesh (can be cylindrical)
      * @param locationIndices the node indices corresponding to real cells
      * @param randomBirthTimes  Whether to assign the cells random birth times
      *    (this can be expensive computationally with ODE models)
@@ -58,7 +73,7 @@ public:
      *   cell is created
      */
     void Generate(std::vector<TissueCell>& rCells,
-                  TetrahedralMesh<2,2>& rMesh,
+                  AbstractMesh<2,2>* pMesh,
                   const std::vector<unsigned> locationIndices,
                   bool randomBirthTimes,
                   double y0 = 0.3,
@@ -69,10 +84,10 @@ public:
 };
 
 
-template<class CELL_CYCLE_MODEL, unsigned DIM>
-void CryptCellsGenerator<CELL_CYCLE_MODEL,DIM>::Generate(
+template<class CELL_CYCLE_MODEL>
+void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
 									  std::vector<TissueCell>& rCells,
-									  TetrahedralMesh<2,2>& rMesh,
+									  AbstractMesh<2,2>* pMesh,
 									  const std::vector<unsigned> locationIndices,
 									  bool randomBirthTimes,
 									  double y0,
@@ -81,37 +96,61 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL,DIM>::Generate(
 									  double y3,
 									  bool initialiseCells)
 {
-    #define COVERAGE_IGNORE
-    assert(DIM==2);
-    #undef COVERAGE_IGNORE
-
     RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
-    unsigned num_cells = locationIndices.empty() ? rMesh.GetNumNodes() : locationIndices.size();
-
     rCells.clear();
-    rCells.reserve(num_cells);
 
-    for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
+    unsigned mesh_size;
+    if (dynamic_cast<TetrahedralMesh<2,2>*>(pMesh))
+    {
+        mesh_size = pMesh->GetNumNodes();
+        unsigned num_cells = locationIndices.empty() ? pMesh->GetNumNodes() : locationIndices.size();
+        rCells.reserve(num_cells);
+    }
+    else
+    {
+        /*
+         * We cannot directly assert this dynamic cast. This is because the assert macro
+         * doesn't understand the <2,2> and thinks that it is being passed two arguments.
+         */  
+        bool is_vertex_mesh = (dynamic_cast<VertexMesh<2,2>*>(pMesh));
+        assert(is_vertex_mesh);
+        mesh_size = static_cast<VertexMesh<2,2>*>(pMesh)->GetNumElements();
+        rCells.reserve(mesh_size);
+    }
+
+    for (unsigned i=0; i<mesh_size; i++)
     {
     	CellProliferativeType cell_type;
         unsigned generation;
 
         double y = 0.0;
-        if (!locationIndices.empty())
+
+        if (dynamic_cast<TetrahedralMesh<2,2>*>(pMesh))
         {
-            if ( std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end() )
+            if (locationIndices.empty())
             {
-                y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
+                y = pMesh->GetNode(i)->GetPoint().rGetLocation()[1];
+
+            }
+            else if ( std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end() )
+            {
+                y = pMesh->GetNode(i)->GetPoint().rGetLocation()[1];
             }
         }
         else
         {
-            y = rMesh.GetNode(i)->GetPoint().rGetLocation()[1];
+            /*
+             * We cannot directly assert this dynamic cast. This is because the assert macro
+             * doesn't understand the <2,2> and thinks that it is being passed two arguments.
+             */  
+            bool is_vertex_mesh = (dynamic_cast<VertexMesh<2,2>*>(pMesh));
+            assert(is_vertex_mesh);
+            y = dynamic_cast<VertexMesh<2,2>*>(pMesh)->GetCentroidOfElement(i)[1];
         }
-
+        
         CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
-        p_cell_cycle_model->SetDimension(DIM);
+        p_cell_cycle_model->SetDimension(2);
 
         double typical_transit_cycle_time = p_cell_cycle_model->GetAverageTransitCellCycleTime();
         double typical_stem_cycle_time = p_cell_cycle_model->GetAverageStemCellCycleTime();
@@ -167,17 +206,40 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL,DIM>::Generate(
 
         cell.SetBirthTime(birth_time);
 
-        if (!locationIndices.empty())
-        {
-            if ( std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end() )
-            {
-                rCells.push_back(cell);
-            }
-        }
-        else
+        if (locationIndices.empty())
         {
             rCells.push_back(cell);
         }
+        else if ( std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end() )
+        {
+            rCells.push_back(cell);
+        }
+    }
+}
+
+template<class CELL_CYCLE_MODEL>
+bool CryptCellsGenerator<CELL_CYCLE_MODEL>::CellsCanDifferentiate()
+{
+    using namespace boost::mpl;
+    using namespace boost;
+    typedef typename if_<is_same<CELL_CYCLE_MODEL, FixedDurationGenerationBasedCellCycleModel>,
+                         integral_c<unsigned, 1>,
+                         typename if_<is_same<CELL_CYCLE_MODEL, StochasticDurationGenerationBasedCellCycleModel>,
+                                      integral_c<unsigned, 1>,
+                                      integral_c<unsigned, 0>
+                                      >::type
+                          >::type selector_t;
+
+    unsigned selector = selector_t();
+
+    if (selector==1)
+    {
+        // With FixedDuration or Stochastic cell cycle models, cells can differentiate
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 

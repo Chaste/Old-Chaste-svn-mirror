@@ -79,8 +79,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<StochasticWntCellCycleModel,2> cells_generator;
-        cells_generator.Generate(cells, *p_mesh, location_indices, true);
+        CryptCellsGenerator<StochasticWntCellCycleModel> cells_generator;
+        cells_generator.Generate(cells, p_mesh, location_indices, true);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 

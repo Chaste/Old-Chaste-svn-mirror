@@ -73,7 +73,7 @@ protected:
     OdeSystemInformation(const OdeSystemInformation<ODE_SYSTEM>&);
 
     /**
-     * Overloaded assignement operator.
+     * Overloaded assignment operator.
      */
     OdeSystemInformation& operator= (const OdeSystemInformation<ODE_SYSTEM>&);
 

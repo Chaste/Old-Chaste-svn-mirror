@@ -61,15 +61,6 @@ public:
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 
-    /**
-     * @return default cell cycle time for a transit cell.
-     */
-    double GetTypicalTransitCellCycleTime();
-
-    /**
-     * @return default cell cycle time for a transit cell.
-     */
-    double GetTypicalStemCellCycleTime();
 };
 
 #endif /*INGEWNTSWATCELLCYCLEMODELCELLSGENERATOR_HPP_*/

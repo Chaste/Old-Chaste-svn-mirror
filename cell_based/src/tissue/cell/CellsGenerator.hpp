@@ -29,41 +29,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CELLSGENERATOR_HPP_
 #define CELLSGENERATOR_HPP_
 
-//Shoot me now, and put me out of my misery
-#include <boost/mpl/integral_c.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/mpl/if.hpp>
 
 #include <vector>
 #include "TissueCell.hpp"
-
-
-#include "IngeWntSwatCellCycleModel.hpp"
-#include "SimpleWntCellCycleModel.hpp"
-#include "SingleOdeWntCellCycleModel.hpp"
-#include "StochasticWntCellCycleModel.hpp"
-#include "WntCellCycleModel.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
-#include "TysonNovakCellCycleModel.hpp"
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "WildTypeCellMutationState.hpp"
 
 /**
  * A helper class for generating a vector of cells for a given mesh.
  * \todo write a generator for meshes
  *
- * It is templated over types of cell cycle model.
+ * It is templated over types of cell cycle model and spatial dimension.
  */
 template<class CELL_CYCLE_MODEL, unsigned DIM>
 class CellsGenerator
 {
 public:
-
-    /**
-     * Whether cells are able to fully differentiate.
-     * Defaults to false unless overridden.
-     */
-    bool CellsCanDifferentiate();
 
     /**
      * Fills a vector of cells with a specified cell cycle model, to match
@@ -99,7 +79,7 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCell>
 	rCells.clear();
 	if (!locationIndices.empty())
 	{
-		//If location indices is given, then it needs to match the number of output cells
+		// If location indices is given, then it needs to match the number of output cells
 		if (numCells != locationIndices.size())
 		{
 			EXCEPTION("The size of the locationIndices vector must match the required number of output cells");
@@ -153,32 +133,6 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vec
     	double birth_time = 0.0 - locationIndices[i];
         cell.SetBirthTime(birth_time);
         rCells.push_back(cell);
-    }
-}
-
-template<class CELL_CYCLE_MODEL, unsigned DIM>
-bool CellsGenerator<CELL_CYCLE_MODEL, DIM>::CellsCanDifferentiate()
-{
-	using namespace boost::mpl;
-	using namespace boost;
-	typedef typename if_<is_same<CELL_CYCLE_MODEL, FixedDurationGenerationBasedCellCycleModel>,
-					     integral_c<unsigned, 1>,
-					     typename if_<is_same<CELL_CYCLE_MODEL, StochasticDurationGenerationBasedCellCycleModel>,
-									  integral_c<unsigned, 1>,
-									  integral_c<unsigned, 0>
-									  >::type
-     					  >::type selector_t;
-
-    unsigned selector = selector_t();
-
-    if (selector==1)
-    {
-    	// With FixedDuration or Stochastic cell cycle models, cells can differentiate
-    	return true;
-    }
-    else
-    {
-    	return false;
     }
 }
 

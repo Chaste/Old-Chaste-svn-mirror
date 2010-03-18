@@ -140,8 +140,8 @@ public:
          * {{{cells}}} vector is populated once the method {{{Generate}}} is
          * called. */
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
-        cells_generator.Generate(cells, *p_mesh, location_indices, true);
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
+        cells_generator.Generate(cells, p_mesh, location_indices, true);
 
         /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices,
          * we can create a ''Tissue''. In general, this class associates a collection
@@ -226,8 +226,8 @@ public:
 
         /* Create the cells, using the same method as before. Here, though, we use a {{{WntCellCycleModel}}}.*/
         std::vector<TissueCell> cells;
-        CryptCellsGenerator<WntCellCycleModel,2> cells_generator;
-        cells_generator.Generate(cells, *p_mesh, location_indices, true);
+        CryptCellsGenerator<WntCellCycleModel> cells_generator;
+        cells_generator.Generate(cells, p_mesh, location_indices, true);
 
         /* Create the tissue, as before. */
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
