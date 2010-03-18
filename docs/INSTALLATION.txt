@@ -208,20 +208,59 @@ rm -rf tetgen1.4.2*
 
 =============== TRIANGLE =====================
 
-Note: From Release 1.1 installation of triangle/showme binaries is optional
-since all 2D re-meshing methods in Chaste use direct library calls to
-Triangle code which is bundled with Chaste.
- 
-cd $CHASTE_LIBS
-wget http://www.netlib.org/voronoi/triangle.zip
-mkdir triangle
-cd triangle
-unzip ../triangle.zip
+Note: From Release 1.1 installation of triangle is not required.
+
+=============== VTK =====================
+
+VTK installation is optional.  If you wish to produce VTK output for a visualizer such as Paraview or Mayavi2 then you will need to install the VTK development libraries.  If you have a root/priviledged access then it is easy to install 
+the libvtk5-dev with
+sudo aptitude install libvtk5-dev #(Ubuntu/Debian)
+yum install vtk-devel             #(Fedora/RedHat)
+
+If you are installing in userspace there are 4 steps:
+1. Installation of CMake (for compiling VTK from source)
+2. Installation of VTK
+3. Configuring default.py to pick up the libraries
+
+1. (CMAKE -- First check to see if you have this on your system)
+cd $CHASTE_LIBS 
+wget http://www.cmake.org/files/v2.6/cmake-2.6.2-Linux-i386.tar.gz 
+tar xvfz cmake-2.6.2-Linux-i386.tar.gz 
+export PATH=${CHASTE_LIBS}/cmake-2.6.2-Linux-i386/bin/:${PATH}
+
+2. (VTK) 
+cd $CHASTE_LIBS 
+#Note that we currently test with VTK-5.0.4 so some tests may fail due to minor output differences.
+#However, 5.0.4 won't compile with recent versions of gcc! 
+wget http://www.vtk.org/files/release/5.2/vtk-5.2.1.tar.gz
+tar xvfz vtk-5.2.1.tar.gz 
+cd VTK
+ccmake -DCMAKE_INSTALL_PREFIX:PATH=${CHASTE_LIBS}/Vtk5 .
+# (Select option "C" (twice) to configure and 
+# then "G" to generate config files and quit
 make
-cp ./triangle $CHASTE_LIBS/bin/
-cp ./showme  $CHASTE_LIBS/bin/
-cd ..
-rm -rf triangle.zip triangle
+make install
+cd $CHASTE_LIBS 
+rm vtk-5.2.1.tar.gz 
+rm -rf VTK
+
+3. (CONFIGURE)
+Edit python/hostconfig/default.py:
+use_vtk = True
+
+=============== Paraview (VTK visualizer) =====================
+
+32-bit:
+wget http://www.paraview.org/files/v3.6/paraview-3.6.2-Linux32-x86.tar.gz
+tar xfvz paraview-3.6.2-Linux32-x86.tar.gz
+export PATH=${PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-i686/bin/
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-i686/lib/paraview-3.6/
+
+64-bit:
+wget http://www.paraview.org/files/v3.6/paraview-3.6.2-Linux64-x86.tar.gz
+tar xvfz paraview-3.6.2-Linux64-x86.tar.gz
+export PATH=${PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-x86_64/bin/
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-x86_64/lib/paraview-3.6/
 
 ===========SET ENVIRONMENTAL VARIABLES AND PATHS:===================
 

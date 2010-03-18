@@ -69,16 +69,27 @@ other_libpaths = [chaste_libs_path+'lib',
 
 
 blas_lapack = ['f2clapack', 'f2cblas']
-other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z', 'metis']
+other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z']
 # Note that boost serialization sometimes has a different name:
 # other_libraries = ['boost_serialization-gcc41', 'xerces-c', 'hdf5', 'z', 'metis']
 
+
+# use_vtk set to false initially. Change to True if VTK development libraries are 
+# available.
+use_vtk = False
 # use_parmetis set to false initially. Change to True if parMETIS is available.
 use_parmetis = False
+
 
 tools = {'mpirun': chaste_libs_path+'mpi/bin/mpirun',
          'mpicxx': chaste_libs_path+'mpi/bin/mpicxx',
          'xsd': chaste_libs_path+'xsd-3.2.0-i686-linux-gnu/bin/xsd'}
+
+#Extra libraries for VTK output
+if use_vtk:
+    other_includepaths.append(chaste_libs_path+'/Vtk5/include/vtk-5.2')
+    other_libpaths.append(chaste_libs_path+'/Vtk5/lib/vtk-5.2')
+    other_libraries.extend(['vtkFiltering','vtkIO',  'vtkCommon', 'vtksys', 'vtkzlib'])
 
 # We need to make sure that we pick the right library since ParMETIS 3.1 requires a symbol not defined 
 # in METIS 4.0.
