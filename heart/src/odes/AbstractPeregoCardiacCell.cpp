@@ -184,7 +184,7 @@ void  AbstractPeregoCardiacCell::EvaluateErrors(std::vector<double>& rErrors, co
             rErrors[i] =  fabs(error_weight_factor * ( rCorrectedSolution[i] - rPredictedSolution[i]) + (1.0/12.0) * (ma_error[i] * mb_current[i] - ma_current[i] * mb_error[i]) * mLocalTimeStep * mLocalTimeStep);
         }
         else
-        {
+        {            
             rErrors[i] = fabs( error_weight_factor * ( rCorrectedSolution[i] - rPredictedSolution[i] ) );
         }
         
@@ -214,8 +214,8 @@ void AbstractPeregoCardiacCell::AdaptTimestep(std::vector<double>& rErrors)
     double minimum_value = DBL_MAX;
     for(unsigned index=0; index<rErrors.size(); index++)
     {
-        double current_smallest_value;
-        if (rErrors[index] !=0)
+        double current_smallest_value = DBL_MAX;
+        if (rErrors[index] != 0)
         {
             current_smallest_value = pow(mWeightedErrorTolerances[index]/rErrors[index],1.0/3.0);
         }

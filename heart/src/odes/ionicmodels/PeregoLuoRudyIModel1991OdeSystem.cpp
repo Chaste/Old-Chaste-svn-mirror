@@ -290,13 +290,10 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         
         // ...and add to ma_predicted the derivatives of the voltage and the calcium concentration    
         ma_predicted[4] = membrane_V_prime;
-        ma_predicted[3] = intracellular_calcium_concentration_Cai_prime;
-        //PRINT_VECTOR(ma_predicted);
-        //PRINT_VECTOR(mb_predicted);        
+        ma_predicted[3] = intracellular_calcium_concentration_Cai_prime;      
     }
     if (mIsTheErrorEvaluationStep==true)
-    {
-        
+    {       
         // Compute the parameters for the gating variable updates...
         ma_error[0]= - fast_sodium_current_h_gate_alpha_h - fast_sodium_current_h_gate_beta_h;
         ma_error[1]= - fast_sodium_current_j_gate_alpha_j - fast_sodium_current_j_gate_beta_j;

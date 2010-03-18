@@ -171,7 +171,8 @@ public:
         
         // Comparing value by value doesn't make sense because the two cell models use different algorithms 
         // and produce different results. We test that the area under the curves is similar in the two cases.
-        // This might be improved when we will be able to set the tolerances of the Perego model to lower values   
+        // This might be improved when we will be able to set the tolerances of the Perego model to lower values.
+        // A longer test comparing APDs is in the nightly test pack.   
         for (unsigned i = 0;i<lr_results.size(); i++)
         {
             perego_sum = perego_sum + perego_results[i];
