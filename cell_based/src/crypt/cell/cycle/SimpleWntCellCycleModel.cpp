@@ -27,12 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SimpleWntCellCycleModel.hpp"
 
-#include "WildTypeCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
-#include "ApcOneHitCellMutationState.hpp"
-#include "ApcTwoHitCellMutationState.hpp"
-#include "BetaCateninOneHitCellMutationState.hpp"
-
 SimpleWntCellCycleModel::SimpleWntCellCycleModel()
  : mUseCellProliferativeTypeDependentG1Duration(false)
 {

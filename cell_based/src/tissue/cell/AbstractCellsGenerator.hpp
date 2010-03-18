@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 
+// Needed here to avoid serialization errors (on Boost<1.37)
+#include "WildTypeCellMutationState.hpp"
 
 /**
  * A helper class for generating a vector of cells for a given mesh.

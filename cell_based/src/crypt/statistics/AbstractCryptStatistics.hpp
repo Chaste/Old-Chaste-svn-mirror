@@ -30,6 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MeshBasedTissue.hpp"
 
+// Needed here to avoid serialization errors
+#include "WildTypeCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+
 /**
  * Abstract crypt statistics class.
  */

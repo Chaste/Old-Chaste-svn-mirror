@@ -28,9 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-#include "ApcOneHitCellMutationState.hpp"
-#include "ApcTwoHitCellMutationState.hpp"
-#include "BetaCateninOneHitCellMutationState.hpp"
 
 WntCellCycleOdeSystem::WntCellCycleOdeSystem(
 		double wntLevel,

@@ -33,6 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
+// Needed here to avoid serialization errors (on Boost<1.37)
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+
 /**
  * A subclass of GeneralisedLinearSpringForce with variable spring constants.
  */

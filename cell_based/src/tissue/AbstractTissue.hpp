@@ -33,13 +33,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <list>
 
-#include <climits> // work around boost bug
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
 
+// Needed here to avoid serialization errors (on Boost<1.37)
+#include "WildTypeCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
 
 /**
  * An abstract facade class encapsulating a tissue.

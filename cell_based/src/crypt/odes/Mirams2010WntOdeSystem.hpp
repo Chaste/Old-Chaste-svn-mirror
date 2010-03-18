@@ -34,6 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystem.hpp"
 #include "AbstractCellMutationState.hpp"
 
+// Needed here to avoid serialization errors
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+
 /**
  * Represents the Mirams et al. system of ODEs, based on Swat et al. (2004)
  * [doi:10.1093/bioinformatics/bth110]

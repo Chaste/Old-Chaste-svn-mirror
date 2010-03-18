@@ -29,6 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellMutationState.hpp"
 #include "Exception.hpp"
 
+AbstractCellMutationState::AbstractCellMutationState()
+	: mCellCount(0),
+	  mColour(UINT_MAX) // Will be overwritten in serialize method
+{
+}
+
 AbstractCellMutationState::AbstractCellMutationState(unsigned colour)
 	: mCellCount(0),
 	  mColour(colour)

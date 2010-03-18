@@ -26,8 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "AbstractCryptStatistics.hpp"
-#include "WildTypeCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 
 void AbstractCryptStatistics::LabelSPhaseCells()
 {

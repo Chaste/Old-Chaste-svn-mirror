@@ -27,9 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Mirams2010WntOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
-#include "ApcOneHitCellMutationState.hpp"
-#include "ApcTwoHitCellMutationState.hpp"
-#include "BetaCateninOneHitCellMutationState.hpp"
 
 Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel, boost::shared_ptr<AbstractCellMutationState> pMutationState)
     : AbstractOdeSystem(3),

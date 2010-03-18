@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCellCentreBasedTissue.hpp"
-#include "WildTypeCellMutationState.hpp"
 
 template<unsigned DIM>
 AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue(const std::vector<TissueCell>& rCells,

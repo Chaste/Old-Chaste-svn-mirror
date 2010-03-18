@@ -35,6 +35,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellMutationState.hpp"
 #include "UblasCustomFunctions.hpp"
 
+// Needed here to avoid serialization errors
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+
 /**
  * Represents the van Leeuwen et al. (2007) system of ODEs
  * [doi:10.1016/j.jtbi.2007.01.019]

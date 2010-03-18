@@ -29,10 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "IngeWntSwatCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-#include "ApcOneHitCellMutationState.hpp"
-#include "ApcTwoHitCellMutationState.hpp"
-#include "BetaCateninOneHitCellMutationState.hpp"
-
 IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(
 		unsigned hypothesis,
 		double wntLevel,

@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCELLMUTATIONSTATE_HPP_
 
 #include "ChasteSerialization.hpp"
-#include "ClassIsAbstract.hpp"
 
 /**
  * Base class for cell mutation states.
@@ -76,6 +75,9 @@ private:
         archive & mColour;
     }
 
+    /** Private default constructor for archiving */
+    AbstractCellMutationState();
+
 public:
 
 	/**
@@ -86,7 +88,7 @@ public:
 	AbstractCellMutationState(unsigned colour);
 
 	/**
-	 * Destructor.
+	 * Virtual destructor, to make this class polymorphic.
 	 */
 	virtual ~AbstractCellMutationState();
 
@@ -126,40 +128,6 @@ public:
 	 */
 	unsigned GetColour() const;
 };
-
-CLASS_IS_ABSTRACT(AbstractCellMutationState)
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Serialize information required to construct an AbstractCellMutationState.
- */
-template<class Archive>
-inline void save_construct_data(
-    Archive & ar, const AbstractCellMutationState * t, const BOOST_PFTO unsigned int file_version)
-{
-}
-
-/**
- * De-serialize constructor parameters and initialize an AbstractCellMutationState.
- */
-template<class Archive>
-inline void load_construct_data(
-    Archive & ar, AbstractCellMutationState * t, const unsigned int file_version)
-{
-    /**
-     * Invoke inplace constructor to initialize an instance of AbstractCellMutationState.
-     * It doesn't actually matter what colour value we pass to our standard constructor,
-     * provided it is a valid parameter value, since the state loaded later
-     * from the archive will overwrite its effect in this case.
-     */
-    unsigned colour = UINT_MAX;
-    ::new(t)AbstractCellMutationState(colour);
-}
-}
-} // namespace ...
 
 
 #endif /* ABSTRACTCELLMUTATIONSTATE_HPP_ */

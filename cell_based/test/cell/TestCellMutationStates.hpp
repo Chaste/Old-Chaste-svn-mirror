@@ -33,14 +33,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
+#include "AbstractCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+//#include "ApcTwoHitCellMutationState.hpp"
+//#include "BetaCateninOneHitCellMutationState.hpp"
+//#include "LabelledCellMutationState.hpp"
+
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-#include "WildTypeCellMutationState.hpp"
-#include "ApcOneHitCellMutationState.hpp"
-#include "ApcTwoHitCellMutationState.hpp"
-#include "BetaCateninOneHitCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "OutputFileHandler.hpp"
 
@@ -71,7 +73,7 @@ public:
 
 		// Archive a mutation state
 		{
-			ApcOneHitCellMutationState* p_state = new ApcOneHitCellMutationState();
+			AbstractCellMutationState* p_state = new ApcOneHitCellMutationState();
 			p_state->IncrementCellCount();
 
 			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
@@ -82,23 +84,27 @@ public:
 			boost::archive::text_oarchive output_arch(ofs);
 
 			// Write the cell to the archive
-			output_arch << p_state;
+			const AbstractCellMutationState* const p_const_state = p_state;
+			output_arch << p_const_state;
+			
+			delete p_state;
 		}
 
 		// Restore mutation state
 		{
-			// Initialize a mutation state
-
-			ApcOneHitCellMutationState* p_state;
+			AbstractCellMutationState* p_state;
 
 			// Restore the mutation state
-			std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+			std::ifstream ifs(archive_filename.c_str());
 			boost::archive::text_iarchive input_arch(ifs);
 
 			input_arch >> p_state;
 
 			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
 			TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
+			
+			ApcOneHitCellMutationState* p_real_state = dynamic_cast<ApcOneHitCellMutationState*>(p_state);
+			TS_ASSERT(p_real_state != NULL);
 
 			// Tidy up
 			delete p_state;
@@ -112,49 +118,10 @@ public:
 
 		// Archive a boost::shared_ptr to a mutation state
 		{
-			boost::shared_ptr<WildTypeCellMutationState> p_state(new WildTypeCellMutationState);
+			boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 			p_state->IncrementCellCount();
 
-			const boost::shared_ptr<WildTypeCellMutationState> p_const = p_state;
-
-			// Create an output archive
-			std::ofstream ofs(archive_filename.c_str());
-			boost::archive::text_oarchive output_arch(ofs);
-
-			// Write the cell to the archive
-			output_arch << p_const;
-		}
-
-		// Restore boost::shared_ptr to mutation state
-		{
-			// Initialize a mutation state
-			boost::shared_ptr<WildTypeCellMutationState> p_state;
-
-			// Restore the mutation state
-			std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-			boost::archive::text_iarchive input_arch(ifs);
-
-			input_arch >> p_state;
-
-			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-			TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
-		}
-	}
-
-	void TestArchiveBoostSharedPointerUsingAbstract() throw(Exception)
-	{
-		OutputFileHandler handler("archive", false);
-		std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mutation_abs.arch";
-
-		// Archive a boost::shared_ptr to a mutation state
-		{
-			boost::shared_ptr<AbstractCellMutationState> p_state(new BetaCateninOneHitCellMutationState);
-			p_state->IncrementCellCount();
-
-			const boost::shared_ptr<AbstractCellMutationState> p_const = p_state;
-
-			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-			TS_ASSERT_EQUALS(p_state->GetColour(), 4u);
+			const boost::shared_ptr<const AbstractCellMutationState> p_const = p_state;
 
 			// Create an output archive
 			std::ofstream ofs(archive_filename.c_str());
@@ -176,7 +143,7 @@ public:
 			input_arch >> p_state;
 
 			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-			TS_ASSERT_EQUALS(p_state->GetColour(), 4u);
+			TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
 		}
 	}
 };

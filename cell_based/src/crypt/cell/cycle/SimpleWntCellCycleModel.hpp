@@ -32,6 +32,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 #include "WntConcentration.hpp"
 
+// Needed here to avoid serialization errors
+#include "WildTypeCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "ApcOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
+
 
 /**
  *  Simple Wnt-dependent cell cycle model
