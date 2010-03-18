@@ -44,6 +44,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcTwoHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
 
+
+#include "WntCellCycleModel.hpp"
+#include "SimpleWntCellCycleModel.hpp"
 class TestCryptSimulation2dNightly : public AbstractCellBasedTestSuite
 {
 private:
@@ -388,9 +391,9 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        CellsGenerator<WntCellCycleModel> cells_generator;
+        CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
-
+        
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
