@@ -26,6 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <typeinfo>
+
 #include "AbstractCellMutationState.hpp"
 #include "Exception.hpp"
 
@@ -43,6 +45,18 @@ AbstractCellMutationState::AbstractCellMutationState(unsigned colour)
 
 AbstractCellMutationState::~AbstractCellMutationState()
 {
+}
+
+bool AbstractCellMutationState::IsSame(AbstractCellMutationState* pOther)
+{
+	const std::type_info& r_our_info = typeid(*this);
+	const std::type_info& r_their_info = typeid(*pOther);
+	return r_our_info == r_their_info;
+}
+
+bool AbstractCellMutationState::IsSame(boost::shared_ptr<AbstractCellMutationState> pOther)
+{
+	return IsSame(pOther.get());
 }
 
 void AbstractCellMutationState::IncrementCellCount()

@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCELLMUTATIONSTATE_HPP_
 #define ABSTRACTCELLMUTATIONSTATE_HPP_
 
+#include <boost/shared_ptr.hpp>
 #include "ChasteSerialization.hpp"
 
 /**
@@ -107,6 +108,18 @@ public:
 		SUBCLASS* p_subclass = dynamic_cast<SUBCLASS*>(const_cast<AbstractCellMutationState*>(this));
 		return (p_subclass != NULL);
 	}
+
+	/**
+	 * Determine whether this mutation state is the same as another.
+	 * @param pOther  the mutation state to compare against.
+	 */
+	bool IsSame(AbstractCellMutationState* pOther);
+
+	/**
+	 * Determine whether this mutation state is the same as another.
+	 * @param pOther  the mutation state to compare against.
+	 */
+	bool IsSame(boost::shared_ptr<AbstractCellMutationState> pOther);
 
 	/**
 	 * Increment #mCellCount.

@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 //#include "ApcTwoHitCellMutationState.hpp"
 //#include "BetaCateninOneHitCellMutationState.hpp"
-//#include "LabelledCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -64,6 +64,13 @@ public:
 
 		TS_ASSERT_EQUALS(p_state->IsType<WildTypeCellMutationState>(), true);
 		TS_ASSERT_EQUALS(p_state->IsType<ApcOneHitCellMutationState>(), false);
+
+		boost::shared_ptr<AbstractCellMutationState> p_wt_state(new WildTypeCellMutationState);
+		boost::shared_ptr<AbstractCellMutationState> p_l_state(new LabelledCellMutationState);
+		TS_ASSERT(p_wt_state->IsSame(p_state.get()));
+		TS_ASSERT(p_state->IsSame(p_wt_state));
+		TS_ASSERT(! p_wt_state->IsSame(p_l_state.get()));
+		TS_ASSERT(! p_l_state->IsSame(p_wt_state));
 	}
 
 	void TestArchiveCellMutationState() throw(Exception)
@@ -86,7 +93,7 @@ public:
 			// Write the cell to the archive
 			const AbstractCellMutationState* const p_const_state = p_state;
 			output_arch << p_const_state;
-			
+
 			delete p_state;
 		}
 
@@ -102,7 +109,7 @@ public:
 
 			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
 			TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
-			
+
 			ApcOneHitCellMutationState* p_real_state = dynamic_cast<ApcOneHitCellMutationState*>(p_state);
 			TS_ASSERT(p_real_state != NULL);
 
