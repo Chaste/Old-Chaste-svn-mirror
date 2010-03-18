@@ -247,20 +247,7 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     assert(!std::isnan(plateau_potassium_current_i_Kp));
     assert(!std::isnan(background_current_i_b));
     double membrane_V_prime = (-1.0/membrane_C)*(fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b + i_stim);
-    //PRINT_2_VARIABLES(membrane_V_prime,membrane_V);
     assert(!std::isnan(membrane_V_prime));
-    
-    // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
-//    if (mSetVoltageDerivativeToZero)
-//    {
-//        //NEVER_REACHED;
-//        // this hasn't been tested in tissue yet
-//
-//        ///\ TODO Remove coverage ignore when ComputeExceptVoltage method will be implemented in the abstract class  
-//        //#define COVERAGE_IGNORE
-//        membrane_V_prime = 0;
-//        //#undef COVERAGE_IGNORE
-//    }
     
     if (mIsTheCorrectorStep == false && mIsTheErrorEvaluationStep == false)
     {
@@ -282,8 +269,6 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         // ...and add to ma_current the derivatives of the voltage and the calcium concentration    
         ma_current[4] = membrane_V_prime;
         ma_current[3] = intracellular_calcium_concentration_Cai_prime;
-        //PRINT_VECTOR(ma_current);
-        //PRINT_VECTOR(mb_current);  
     }
     if (mIsTheCorrectorStep == true && mIsTheErrorEvaluationStep == false)
     {
@@ -330,9 +315,6 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         // ...and add to ma_error the derivatives of the voltage and the calcium concentration    
         ma_error[4] = membrane_V_prime;
         ma_error[3] = intracellular_calcium_concentration_Cai_prime;
-        
-        //PRINT_VECTOR(ma_error);
-        //PRINT_VECTOR(mb_error);
     }
     
     if (mIsTheFirstStep == true)

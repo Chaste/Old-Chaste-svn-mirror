@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleDataWriter.hpp"
 
-
 class TestPeregoCellModels : public CxxTest::TestSuite
 {
 public:
@@ -207,11 +206,11 @@ public:
         // Create a luo Rudy cell set up for Perego-like solving
         PeregoLuoRudyIModel1991OdeSystem lr91_perego(p_solver, p_stimulus, false);
 
-        OdeSolution solutions = lr91_perego.Compute(0.0, 10.0);
+        OdeSolution solutions = lr91_perego.Compute(0.0, 10.01);
 
         TS_ASSERT_EQUALS(solutions.rGetTimes()[0], 0.0);
-        TS_ASSERT_DELTA(solutions.rGetTimes().back(), 10.0, 1e-9);
-        TS_ASSERT_EQUALS(solutions.rGetTimes().size(), 1001u);
+        TS_ASSERT_DELTA(solutions.rGetTimes().back(), 10.01, 1e-9);
+        TS_ASSERT_EQUALS(solutions.rGetTimes().size(), 1002u);
 
         //values from Chris' code
         std::vector<double> matlab_answers;
