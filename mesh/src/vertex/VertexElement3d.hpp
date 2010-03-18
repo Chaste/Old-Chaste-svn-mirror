@@ -49,7 +49,7 @@ private:
 
     /**
      * How each face is oriented. From the perspective of the centre
-     * of the VoronoiCell, the vertices of each face should be ordered
+     * of the element, the vertices of each face should be ordered
      * anti clockwise. If and only if this is false, the order of vertices
      * in the corresponding face should be reversed.
      *

@@ -41,9 +41,9 @@ class TestVertexMesh3d : public CxxTest::TestSuite
 {
 public:
 
-    void TestVerySimpleMesh()
+    void TestBasic3dVertexMesh()
     {
-        // Make 8 nodes to assign to a cube element
+        // Make 8 nodes to assign to a cube and a piramid element
         std::vector<Node<3>*> nodes;
         nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
@@ -53,8 +53,10 @@ public:
         nodes.push_back(new Node<3>(5, false, 0.0, 1.0, 1.0));
         nodes.push_back(new Node<3>(6, false, 1.0, 0.0, 1.0));
         nodes.push_back(new Node<3>(7, false, 1.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(8, false, 0.5, 0.5, 1.5));
 
-        std::vector<Node<3>*> nodes_face_0, nodes_face_1, nodes_face_2, nodes_face_3, nodes_face_4, nodes_face_5;
+        std::vector<Node<3>*> nodes_face_0, nodes_face_1, nodes_face_2, nodes_face_3, nodes_face_4, nodes_face_5,
+							  nodes_face_6, nodes_face_7, nodes_face_8, nodes_face_9;
 
         // Make 6 square faces out of these nodes
         nodes_face_0.push_back(nodes[0]);
@@ -87,115 +89,131 @@ public:
 		nodes_face_5.push_back(nodes[3]);
 		nodes_face_5.push_back(nodes[5]);
 
+		// Make 4 triangular faces out of these nodes
+		nodes_face_6.push_back(nodes[6]);
+		nodes_face_6.push_back(nodes[7]);
+		nodes_face_6.push_back(nodes[8]);
+
+		nodes_face_7.push_back(nodes[6]);
+		nodes_face_7.push_back(nodes[8]);
+		nodes_face_7.push_back(nodes[3]);
+
+		nodes_face_8.push_back(nodes[3]);
+		nodes_face_8.push_back(nodes[8]);
+		nodes_face_8.push_back(nodes[5]);
+
+		nodes_face_9.push_back(nodes[5]);
+		nodes_face_9.push_back(nodes[8]);
+		nodes_face_9.push_back(nodes[7]);
+
+		//Make the faces
         std::vector<VertexElement<2,3>*> faces;
+
         faces.push_back(new VertexElement<2,3>(0, nodes_face_0));
         faces.push_back(new VertexElement<2,3>(1, nodes_face_1));
         faces.push_back(new VertexElement<2,3>(2, nodes_face_2));
         faces.push_back(new VertexElement<2,3>(3, nodes_face_3));
         faces.push_back(new VertexElement<2,3>(4, nodes_face_4));
         faces.push_back(new VertexElement<2,3>(5, nodes_face_5));
+        faces.push_back(new VertexElement<2,3>(6, nodes_face_6));
+       	faces.push_back(new VertexElement<2,3>(7, nodes_face_7));
+       	faces.push_back(new VertexElement<2,3>(8, nodes_face_8));
+       	faces.push_back(new VertexElement<2,3>(9, nodes_face_9));
 
-        std::vector<bool> orientations;
-        orientations.push_back(true);
-        orientations.push_back(true);
-        orientations.push_back(true);
-        orientations.push_back(true);
-        orientations.push_back(true);
-        orientations.push_back(true);
+       	//Make the elements
+       	std::vector<Node<3>*> nodes_element_0, nodes_element_1;
+       	std::vector<VertexElement<2,3>*> faces_element_0, faces_element_1;
+        std::vector<bool> orientations_0, orientations_1;
 
-        // Make a cube element out of these faces
+        //Cube element
+        nodes_element_0.push_back(nodes[0]);
+        nodes_element_0.push_back(nodes[1]);
+        nodes_element_0.push_back(nodes[2]);
+        nodes_element_0.push_back(nodes[3]);
+        nodes_element_0.push_back(nodes[4]);
+        nodes_element_0.push_back(nodes[5]);
+        nodes_element_0.push_back(nodes[6]);
+        nodes_element_0.push_back(nodes[7]);
+
+        faces_element_0.push_back(faces[0]);
+        faces_element_0.push_back(faces[1]);
+        faces_element_0.push_back(faces[2]);
+        faces_element_0.push_back(faces[3]);
+        faces_element_0.push_back(faces[4]);
+        faces_element_0.push_back(faces[5]);
+
+		orientations_0.push_back(true);
+		orientations_0.push_back(true);
+		orientations_0.push_back(true);
+		orientations_0.push_back(true);
+		orientations_0.push_back(true);
+		orientations_0.push_back(true);
+
+		//Piramid element
+		nodes_element_1.push_back(nodes[3]);
+		nodes_element_1.push_back(nodes[5]);
+		nodes_element_1.push_back(nodes[6]);
+		nodes_element_1.push_back(nodes[7]);
+		nodes_element_1.push_back(nodes[8]);
+
+		faces_element_1.push_back(faces[6]);
+		faces_element_1.push_back(faces[7]);
+		faces_element_1.push_back(faces[8]);
+		faces_element_1.push_back(faces[9]);
+		faces_element_1.push_back(faces[5]);
+
+		orientations_1.push_back(true);
+		orientations_1.push_back(true);
+		orientations_1.push_back(true);
+		orientations_1.push_back(true);
+		orientations_1.push_back(false);
+
         std::vector<VertexElement3d*> elements;
-        elements.push_back(new VertexElement3d(0, nodes, faces, orientations));
+        elements.push_back(new VertexElement3d(0, nodes_element_0, faces_element_0, orientations_0));
+        elements.push_back(new VertexElement3d(1, nodes_element_1, faces_element_1, orientations_1));
 
         VertexMesh3d mesh(nodes, faces, elements);
 
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(),8u);
-        TS_ASSERT_EQUALS(mesh.GetNumFaces(),6u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(),1u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(),9u);
+        TS_ASSERT_EQUALS(mesh.GetNumFaces(),10u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(),2u);
 
-//        // Test the position of some random nodes
-//        TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
-//        TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
-//        TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[2], 0.0, 1e-6);
-//
-//        TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[0], 0.0, 1e-6);
-//        TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[1], 0.0, 1e-6);
-//        TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[2], 1.0, 1e-6);
+        //test Location of random node
+        TS_ASSERT_DELTA(mesh.GetNode(2)->rGetLocation()[0], 0.0, 1e-3);
+        TS_ASSERT_DELTA(mesh.GetNode(2)->rGetLocation()[1], 1.0, 1e-3);
+        TS_ASSERT_DELTA(mesh.GetNode(2)->rGetLocation()[2], 0.0, 1e-3);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(2)->GetIndex(),2u);
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(2)->GetIndex(),6u);
+
+        // Check that the nodes know which elements they are in.
+        std::set<unsigned> temp_list1;
+        temp_list1.insert(0u);
+
+        // Nodes 0, 1, 2 and 4 are only in element 0.
+        TS_ASSERT_EQUALS(nodes[0]->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(nodes[1]->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(nodes[2]->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(nodes[4]->rGetContainingElementIndices(), temp_list1);
+
+        // Node 3, 5, 6 and 7 are in elements 0 and 1.
+        temp_list1.insert(1u);
+        TS_ASSERT_EQUALS(nodes[3]->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(nodes[5]->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(nodes[6]->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(nodes[7]->rGetContainingElementIndices(), temp_list1);
+
+        // Node 8 is only in element 1
+        std::set<unsigned> temp_list2;
+        temp_list2.insert(1u);
+        TS_ASSERT_EQUALS(nodes[8]->rGetContainingElementIndices(), temp_list2);
+
+        // Coverage
+        TS_ASSERT_EQUALS(mesh.SolveNodeMapping(0), 0u);
+        TS_ASSERT_EQUALS(mesh.SolveElementMapping(0), 0u);
+        TS_ASSERT_EQUALS(mesh.SolveBoundaryElementMapping(0), 0u);
+
     }
 
-    void TestBasicVertexMesh() throw(Exception)
-    {
-//        // Make four nodes to assign to two elements
-//        std::vector<Node<2>*> basic_nodes;
-//        basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-//        basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
-//        basic_nodes.push_back(new Node<2>(2, false, 1.5, 1.0));
-//        basic_nodes.push_back(new Node<2>(3, false, 1.0, 2.0));
-//        basic_nodes.push_back(new Node<2>(4, false, 0.0, 1.0));
-//        basic_nodes.push_back(new Node<2>(5, false, 2.0, 0.0));
-//        basic_nodes.push_back(new Node<2>(6, false, 2.0, 3.0));
-//
-//        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
-//
-//        // Make two triangular elements out of these nodes
-//        nodes_elem_0.push_back(basic_nodes[0]);
-//        nodes_elem_0.push_back(basic_nodes[1]);
-//        nodes_elem_0.push_back(basic_nodes[2]);
-//        nodes_elem_0.push_back(basic_nodes[3]);
-//        nodes_elem_0.push_back(basic_nodes[4]);
-//
-//        nodes_elem_1.push_back(basic_nodes[2]);
-//        nodes_elem_1.push_back(basic_nodes[5]);
-//        nodes_elem_1.push_back(basic_nodes[6]);
-//
-//        std::vector<VertexElement<2,2>*> basic_vertex_elements;
-//        basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
-//        basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
-//
-//        // Make a vertex mesh
-//        MutableVertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
-//
-//        TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
-//        TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 7u);
-//
-//        TS_ASSERT_DELTA(basic_vertex_mesh.GetNode(2)->rGetLocation()[0], 1.5, 1e-3);
-//        TS_ASSERT_EQUALS(basic_vertex_mesh.GetElement(1)->GetNode(2)->GetIndex(),6u);
-//
-//        // Check that the nodes know which elements they are in
-//        std::set<unsigned> temp_list1;
-//        temp_list1.insert(0u);
-//
-//        // Nodes 1 and 4 are only in element 0
-//        TS_ASSERT_EQUALS(basic_nodes[1]->rGetContainingElementIndices(), temp_list1);
-//        TS_ASSERT_EQUALS(basic_nodes[4]->rGetContainingElementIndices(), temp_list1);
-//
-//        // Node 2 is in elements 0 and 1
-//        temp_list1.insert(1u);
-//        TS_ASSERT_EQUALS(basic_nodes[2]->rGetContainingElementIndices(), temp_list1);
-//
-//        // Node 5 is only in element 1
-//        std::set<unsigned> temp_list2;
-//        temp_list2.insert(1u);
-//        TS_ASSERT_EQUALS(basic_nodes[5]->rGetContainingElementIndices(), temp_list2);
-//
-//        // Test Set and Get methods
-//        TS_ASSERT_DELTA(basic_vertex_mesh.GetCellRearrangementThreshold(), 0.01, 1e-4); // Default value
-//        TS_ASSERT_DELTA(basic_vertex_mesh.GetEdgeDivisionThreshold(), DBL_MAX, 1e-4); // Default value
-//        TS_ASSERT_DELTA(basic_vertex_mesh.GetT2Threshold(), 0.001, 1e-4); // Default value
-//
-//        basic_vertex_mesh.SetCellRearrangementThreshold(0.03);
-//        basic_vertex_mesh.SetEdgeDivisionThreshold(3.0);
-//        basic_vertex_mesh.SetT2Threshold(0.003);
-//
-//        TS_ASSERT_DELTA(basic_vertex_mesh.GetCellRearrangementThreshold(), 0.03, 1e-4);
-//        TS_ASSERT_DELTA(basic_vertex_mesh.GetEdgeDivisionThreshold(), 3.0, 1e-4);
-//        TS_ASSERT_DELTA(basic_vertex_mesh.GetT2Threshold(), 0.003, 1e-4);
-//
-//        // Coverage
-//        TS_ASSERT_EQUALS(basic_vertex_mesh.SolveNodeMapping(0), 0u);
-//        TS_ASSERT_EQUALS(basic_vertex_mesh.SolveElementMapping(0), 0u);
-//        TS_ASSERT_EQUALS(basic_vertex_mesh.SolveBoundaryElementMapping(0), 0u);
-    }
 
     void TestGetCentroidOfElement() throw(Exception)
     {

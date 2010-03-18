@@ -182,7 +182,7 @@ public:
     VertexElement3d* GetElement(unsigned index) const;
 
     /**
-     * Compute the area of an element.
+     * Compute the volume of an element.
      *
      * This needs to be overridden
      * in daughter classes for non-Euclidean metrics.
@@ -191,19 +191,31 @@ public:
      *
      * @return the area of the element
      */
-    virtual double GetAreaOfElement(unsigned index);
+    virtual double GetVolumeOfElement(unsigned index);
 
     /**
-     * Compute the perimeter of an element.
+     * Compute the surface area of an element.
      *
      * N.B. This calls GetVectorFromAtoB(), which can be overridden
      * in daughter classes for non-Euclidean metrics.
      *
-     * @param index  the global index of a specified vertex element
+     * @param index the global index of a specified vertex element
      *
-     * @return the perimeter of the element
+     * @return the surface area of the element
      */
-    double GetPerimeterOfElement(unsigned index);
+    double GetSurfaceAreaOfElement(unsigned index);
+
+    /**
+	 * Compute the area of a face.
+	 *
+	 * This needs to be overridden
+	 * in daughter classes for non-Euclidean metrics.
+	 *
+	 * @param index  the global index of a specified face
+	 *
+	 * @return the area of the face
+	 */
+	virtual double GetAreaOfFace(unsigned index);
 
     /**
      * Compute the centroid of an element.
@@ -212,7 +224,7 @@ public:
      *
      * @param index  the global index of a specified vertex element
      *
-     * @return (centroid_x,centroid_y).
+     * @return (centroid_x,centroid_y,centroid_z).
      */
     virtual c_vector<double, 3> GetCentroidOfElement(unsigned index);
 

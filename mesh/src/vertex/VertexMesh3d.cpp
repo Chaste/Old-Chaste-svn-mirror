@@ -159,96 +159,38 @@ VertexElement3d* VertexMesh3d::GetElement(unsigned index) const
 }
 
 
-double VertexMesh3d::GetAreaOfElement(unsigned index)
+double VertexMesh3d::GetVolumeOfElement(unsigned index)
 {
-//    #define COVERAGE_IGNORE
-//    assert(SPACE_DIM == 2);
-//    #undef COVERAGE_IGNORE
-//
-//    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
-//
-//    c_vector<double, SPACE_DIM> first_node;
-//    c_vector<double, SPACE_DIM> current_node;
-//    c_vector<double, SPACE_DIM> anticlockwise_node;
-//
-//    unsigned num_nodes_in_element = p_element->GetNumNodes();
-//
-    double element_area = 0;
-//
-//    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
-//    {
-//        // Find locations of current node and anticlockwise node
-//        current_node = p_element->GetNodeLocation(local_index);
-//        anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
-//
-//        element_area += 0.5*(current_node[0]*anticlockwise_node[1] - anticlockwise_node[0]*current_node[1]);
-//    }
-//
-    return element_area;
+    return 0.0;
 }
 
 
-double VertexMesh3d::GetPerimeterOfElement(unsigned index)
+double VertexMesh3d::GetSurfaceAreaOfElement(unsigned index)
 {
-//    #define COVERAGE_IGNORE
-//    assert(SPACE_DIM == 2);
-//    #undef COVERAGE_IGNORE
-//
-//    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
-//
-//    unsigned current_node_index;
-//    unsigned anticlockwise_node_index;
-//    unsigned num_nodes_in_element = p_element->GetNumNodes();
-//
-    double element_perimeter = 0;
-//
-//    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
-//    {
-//        // Find locations of current node and anticlockwise node
-//        current_node_index = p_element->GetNodeGlobalIndex(local_index);
-//        anticlockwise_node_index = p_element->GetNodeGlobalIndex((local_index+1)%num_nodes_in_element);
-//
-//        element_perimeter += this->GetDistanceBetweenNodes(current_node_index, anticlockwise_node_index);
-//    }
-//
-    return element_perimeter;
+    VertexElement3d* p_element = GetElement(index);
+
+    double element_surface_area = 0;
+
+    unsigned num_faces_in_element = p_element->GetNumFaces();
+
+    for (unsigned local_index=0; local_index<num_faces_in_element; local_index++)
+    {
+    	element_surface_area += GetAreaOfFace(p_element->GetFace(local_index)->GetIndex());
+    }
+
+    return element_surface_area;
+}
+
+
+double VertexMesh3d::GetAreaOfFace(unsigned index)
+{
+    return 0.0;
 }
 
 
 c_vector<double, 3> VertexMesh3d::GetCentroidOfElement(unsigned index)
 {
-//    #define COVERAGE_IGNORE
-//    assert(SPACE_DIM == 2);
-//    #undef COVERAGE_IGNORE
-//
-//    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
-//
-    c_vector<double, 3> centroid = zero_vector<double>(3);
-//    c_vector<double, SPACE_DIM> current_node;
-//    c_vector<double, SPACE_DIM> anticlockwise_node;
-//
-//    double temp_centroid_x = 0;
-//    double temp_centroid_y = 0;
-//
-//    unsigned num_nodes_in_element = p_element->GetNumNodes();
-//
-//    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
-//    {
-//        // Find locations of current node and anticlockwise node
-//        current_node = p_element->GetNodeLocation(local_index);
-//        anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
-//
-//        temp_centroid_x += (current_node[0]+anticlockwise_node[0])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
-//        temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
-//    }
-//
-//    double vertex_area = GetAreaOfElement(index);
-//    double centroid_coefficient = 1.0/(6.0*vertex_area);
-//
-//    centroid(0) = centroid_coefficient*temp_centroid_x;
-//    centroid(1) = centroid_coefficient*temp_centroid_y;
-//
-    return centroid;
+    return zero_vector<double>(3);
 }
 
 

@@ -33,7 +33,11 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
     : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
 {
-    RegisterWithNodes();
+    // \todo this would stop 2d meshes in 3d space
+    if(SPACE_DIM == ELEMENT_DIM)
+    {
+    	RegisterWithNodes();
+    }
 }
 
 
