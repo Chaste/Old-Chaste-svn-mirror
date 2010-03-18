@@ -171,7 +171,7 @@ public:
     /**
      * Set #mHypothesis.
      *
-	 * @param hypothesis.
+	 * @param hypothesis 
 	 */
 	void SetHypothesis(unsigned hypothesis);
 

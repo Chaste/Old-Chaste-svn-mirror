@@ -116,7 +116,7 @@ public:
      * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
      *
      * @param pParentOdeSystem  to copy the state of
-     * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param birthTime the simulation time when the cell divided (birth time of parent cell)
      * @param lastTime last time the cell cycle model was evaluated
      * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)

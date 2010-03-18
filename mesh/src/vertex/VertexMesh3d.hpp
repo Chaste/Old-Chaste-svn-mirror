@@ -96,8 +96,8 @@ protected:
 //     * Archive the VertexMesh3d and its member variables. Note that this will
 //     * write out a VertexMeshWriter file to wherever ArchiveLocationInfo has specified.
 //     *
-//     * @param archive the archive
-//     * @param version the current version of this class
+//    DOX param archive the archive
+//    DOX param version the current version of this class
 //     */
 //    template<class Archive>
 //    void save(Archive & archive, const unsigned int version) const
@@ -114,8 +114,8 @@ protected:
 //    /**
 //     * Loads a mesh by using VertexMeshReader and the location in ArchiveLocationInfo.
 //     *
-//     * @param archive the archive
-//     * @param version the current version of this class
+//    DOX param archive the archive
+//    DOX param version the current version of this class
 //     */
 //    template<class Archive>
 //    void load(Archive & archive, const unsigned int version)

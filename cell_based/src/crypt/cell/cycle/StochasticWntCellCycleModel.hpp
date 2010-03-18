@@ -123,7 +123,7 @@ public:
      * A private constructor for archiving.
      *
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
-     * @param rMutationState the mutation state of the cell (used by ODEs)
+     * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
      */
     StochasticWntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,

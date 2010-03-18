@@ -159,7 +159,8 @@ public:
 	 */
 	SingleOdeWntCellCycleModel(const SingleOdeWntCellCycleModel& rOtherModel);
 
-	void Initialise();
+    ///\todo (or not) Undocumented
+    void Initialise();
 
 	void UpdateCellCyclePhase();
 
