@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "BetaCateninOneHitCellMutationState.hpp"
 #include "LabelledCellMutationState.hpp"
 
+#include "CellMutationStateRegistry.hpp"
+
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
@@ -71,6 +73,30 @@ public:
 		TS_ASSERT(p_state->IsSame(p_wt_state));
 		TS_ASSERT(! p_wt_state->IsSame(p_l_state.get()));
 		TS_ASSERT(! p_l_state->IsSame(p_wt_state));
+	}
+
+	void TestRegistry() throw(Exception)
+	{
+		boost::shared_ptr<AbstractCellMutationState> p_state1(
+				CellMutationStateRegistry::Get<WildTypeCellMutationState>());
+		boost::shared_ptr<AbstractCellMutationState> p_state2(
+				CellMutationStateRegistry::Get<WildTypeCellMutationState>());
+		TS_ASSERT(p_state1 == p_state2);
+		TS_ASSERT_EQUALS(p_state1->GetCellCount(), 0u);
+		p_state2->IncrementCellCount();
+		TS_ASSERT_EQUALS(p_state1->GetCellCount(), 1u);
+
+		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+		TS_ASSERT_EQUALS(p_state->GetCellCount(), 0u);
+
+		std::vector<boost::shared_ptr<AbstractCellMutationState> > states =
+			CellMutationStateRegistry::rGetAllMutationStates();
+		TS_ASSERT_EQUALS(states.size(), 1u);
+		TS_ASSERT(states[0] == p_state1);
+
+		CellMutationStateRegistry::Clear();
+		states = CellMutationStateRegistry::rGetAllMutationStates();
+		TS_ASSERT_EQUALS(states.size(), 0u);
 	}
 
 	void TestArchiveCellMutationState() throw(Exception)

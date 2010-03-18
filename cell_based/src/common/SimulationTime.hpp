@@ -151,7 +151,7 @@ protected:
     SimulationTime(const SimulationTime&);
 
     /**
-     * Overloaded assignement operator.
+     * Overloaded assignment operator.
      */
     SimulationTime& operator= (const SimulationTime&);
 
