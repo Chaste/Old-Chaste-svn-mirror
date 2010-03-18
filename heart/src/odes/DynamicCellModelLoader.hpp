@@ -74,6 +74,11 @@ public:
      */
     AbstractCardiacCell* CreateCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                     boost::shared_ptr<AbstractStimulusFunction> pStimulus);
+    
+    /**
+     * @return the absolute path to the .so file we have loaded
+     */                              
+    const std::string GetLoadableModulePath() const;
 
 private:
     /** Handle for the loaded .so file */
@@ -89,6 +94,9 @@ private:
 
     /** Our cell creation function */
     CellCreationFunctionType* mpCreationFunction;
+    
+    /** Absolute path to the .so file we have loaded. */
+    std::string mLoadableModulePath;
 };
 
 #endif /* DYNAMICCELLMODELLOADER_HPP_ */

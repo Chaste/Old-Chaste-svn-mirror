@@ -126,10 +126,12 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
     if (ionic_model.Dynamic().present())
     {
+#ifndef CHASTE_CAN_CHECKPOINT_DLLS
         if (HeartConfig::Instance()->GetCheckpointSimulation())
         {
-            EXCEPTION("Checkpointing is not yet compatible with dynamically loaded cell models.");
+            EXCEPTION("Checkpointing is not compatible with dynamically loaded cell models on Boost<1.37.");
         }
+#endif // CHASTE_CAN_CHECKPOINT_DLLS
         // Load model from shared library
         DynamicCellModelLoader* p_loader = LoadDynamicModel(ionic_model, false);
         return p_loader->CreateCell(this->mpSolver, intracellularStimulus);

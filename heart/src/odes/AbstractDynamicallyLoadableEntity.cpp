@@ -26,30 +26,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-/**
- * @file
- *
- * This header is a wrapper including some of the Boost serialization library
- * headers, along with a couple of standard C++ headers required to fix bugs
- * in Boost.
- *
- * Include this header in place of <boost/serialization/access.hpp>
- */
+#include "AbstractDynamicallyLoadableEntity.hpp"
 
-// Apparently 'new' (for boost's two phase construction) isn't included sometimes...
-#include <new>
-#include <climits> // See #1024.
+void AbstractDynamicallyLoadableEntity::SetLoader(DynamicCellModelLoader* pLoader)
+{
+   mpLoader = pLoader;
+}
 
-#include <boost/serialization/access.hpp>
+const DynamicCellModelLoader* AbstractDynamicallyLoadableEntity::GetLoader() const
+{
+    return mpLoader;
+}
 
-/**
- * Only Boost 1.37 and above can properly handle serialization of dynamically
- * loaded objects.  We define a convenience macro for code to test if this is
- * possible.
- */
-#include <boost/version.hpp>
-#ifndef CHASTE_CAN_CHECKPOINT_DLLS
-#if BOOST_VERSION >= 103700
-#define CHASTE_CAN_CHECKPOINT_DLLS
-#endif
-#endif
+
+

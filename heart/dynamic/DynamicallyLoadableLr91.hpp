@@ -28,33 +28,34 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef DYNAMICALLY_LOADABLE_LR91_HPP_
 #define DYNAMICALLY_LOADABLE_LR91_HPP_
 
-//#include "ChasteSerialization.hpp"
-//#include <boost/serialization/base_object.hpp>
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
 
 #include "AbstractCardiacCell.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "AbstractDynamicallyLoadableEntity.hpp"
 #include <vector>
 
 /**
  * This class represents the Luo-Rudy 1991 system of equations,
  * with support for being compiled into a .so and loaded at run-time.
  */
-class DynamicallyLoadableLr91 : public AbstractCardiacCell
+class DynamicallyLoadableLr91 : public AbstractCardiacCell, AbstractDynamicallyLoadableEntity
 {
 private:
-//    /** Needed for serialization. */
-//    friend class boost::serialization::access;
-//    /**
-//     * Archive the member variables.
-//     *
-//     * @param archive
-//     * @param version
-//     */
-//    template<class Archive>
-//    void serialize(Archive & archive, const unsigned int version)
-//    {
-//        archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
-//    }
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
+    }
 
     /* Constants for the model */
     
@@ -136,45 +137,45 @@ public:
     double GetIntracellularCalciumConcentration();
 };
 
-//#include "SerializationExportWrapper.hpp"
-//CHASTE_CLASS_EXPORT(DynamicallyLoadableLr91);
-//
-//namespace boost
-//{
-//namespace serialization
-//{
-///**
-// * Allow us to not need a default constructor, by specifying how Boost should
-// * instantiate a DynamicallyLoadableLr91 instance.
-// */
-//template<class Archive>
-//inline void save_construct_data(
-//    Archive & ar, const DynamicallyLoadableLr91 * t, const unsigned int file_version)
-//{
-//    const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();
-//    const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();
-//    ar << p_solver;
-//    ar << p_stimulus;
-//}
-//
-///**
-// * Allow us to not need a default constructor, by specifying how Boost should
-// * instantiate a DynamicallyLoadableLr91 instance (using existing constructor).
-// *
-// * NB this constructor allocates memory for the other member variables too.
-// */
-//template<class Archive>
-//inline void load_construct_data(
-//    Archive & ar, DynamicallyLoadableLr91 * t, const unsigned int file_version)
-//{
-//
-//    boost::shared_ptr<AbstractIvpOdeSolver> p_solver;
-//    boost::shared_ptr<AbstractStimulusFunction> p_stimulus;
-//    ar >> p_solver;
-//    ar >> p_stimulus;
-//    ::new(t)DynamicallyLoadableLr91(p_solver, p_stimulus);
-//}
-//}
-//} // namespace ...
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(DynamicallyLoadableLr91);
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a DynamicallyLoadableLr91 instance.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const DynamicallyLoadableLr91 * t, const unsigned int file_version)
+{
+    const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();
+    const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();
+    ar << p_solver;
+    ar << p_stimulus;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a DynamicallyLoadableLr91 instance (using existing constructor).
+ *
+ * NB this constructor allocates memory for the other member variables too.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, DynamicallyLoadableLr91 * t, const unsigned int file_version)
+{
+
+    boost::shared_ptr<AbstractIvpOdeSolver> p_solver;
+    boost::shared_ptr<AbstractStimulusFunction> p_stimulus;
+    ar >> p_solver;
+    ar >> p_stimulus;
+    ::new(t)DynamicallyLoadableLr91(p_solver, p_stimulus);
+}
+}
+} // namespace ...
 
 #endif // DYNAMICALLY_LOADABLE_LR91_HPP_

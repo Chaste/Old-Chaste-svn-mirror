@@ -27,12 +27,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DynamicCellModelLoader.hpp"
+#include "AbstractDynamicallyLoadableEntity.hpp"
 
 #include <dlfcn.h>  // For dealing with .so files
 
 #include "Exception.hpp"
 
 DynamicCellModelLoader::DynamicCellModelLoader(const std::string& rLoadableModulePath)
+    : mLoadableModulePath(rLoadableModulePath)
 {
     // Open the .so file
     mpDynamicModule = dlopen(rLoadableModulePath.c_str(), RTLD_NOW);
@@ -66,5 +68,18 @@ DynamicCellModelLoader::~DynamicCellModelLoader()
 AbstractCardiacCell* DynamicCellModelLoader::CreateCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                                         boost::shared_ptr<AbstractStimulusFunction> pStimulus)
 {
-    return (*mpCreationFunction)(pSolver, pStimulus);
+    AbstractCardiacCell* p_cell = (*mpCreationFunction)(pSolver, pStimulus);
+    
+    AbstractDynamicallyLoadableEntity* p_entity = dynamic_cast<AbstractDynamicallyLoadableEntity*>(p_cell);
+    
+    if (p_entity != NULL)
+    {
+        p_entity->SetLoader(this);
+    }
+    return p_cell;
+}
+
+const std::string DynamicCellModelLoader::GetLoadableModulePath() const
+{
+    return mLoadableModulePath;
 }

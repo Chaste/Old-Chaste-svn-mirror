@@ -366,6 +366,8 @@ void OdeSystemInformation<DynamicallyLoadableLr91>::Initialise(void)
     this->mInitialised = true;
 }
 
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(DynamicallyLoadableLr91);
 
 extern "C" {
     /**

@@ -139,7 +139,7 @@ public:
     // requires TestCardiacSimulationSaveMonodomain() to have been run
     void TestCardiacSimulationResumeMonodomain() throw(Exception)
     {
-        // run a bidomain simulation
+        // run a monodomain simulation
         HeartConfig::Instance()->SetSpaceDimension(1);
         CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_short.xml");
         std::string foldername = "SaveMonodomainShort";
@@ -148,7 +148,35 @@ public:
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_short_results", false,
                    foldername, "SimulationResults", true));
     }
-    
+
+    void TestCardiacSimulationArchiveDynamic() throw(Exception)
+    {
+#ifdef CHASTE_CAN_CHECKPOINT_DLLS
+        // run a monodomain simulation
+        {
+            CardiacSimulation simulation("heart/test/data/xml/save_monodomain_dynamic.xml");
+        }
+        std::string foldername = "SaveMonodomainDynamic";
+        
+        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "save_monodomain_dynamic", false,
+                   foldername, "SimulationResults", true));
+
+        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0"; 
+        int return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value,0); 
+        
+        //resume the simulation
+        {
+            CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_dynamic.xml");
+        }
+        
+        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_dynamic", false,
+                   foldername, "SimulationResults", true));
+#endif // CHASTE_CAN_CHECKPOINT_DLLS
+    }
+
     // requires TestCardiacSimulationSaveBidomain() to have been run
     void TestCardiacSimulationResumeBidomain() throw(Exception)
     {
@@ -245,8 +273,10 @@ public:
         FileFinder model("file_does_not_exist.so", cp::relative_to_type::chaste_source_root);
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/missing_dynamic_model.xml"),
                               "Dynamically loadable cell model '" + model.GetAbsolutePath() + "' does not exist.");
+#ifndef CHASTE_CAN_CHECKPOINT_DLLS
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/dynamic_checkpoint.xml"),
-                              "Checkpointing is not yet compatible with dynamically loaded cell models.");
+                              "Checkpointing is not compatible with dynamically loaded cell models on Boost<1.37.");
+#endif
     }
 };
 

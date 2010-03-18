@@ -26,30 +26,39 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-/**
- * @file
- *
- * This header is a wrapper including some of the Boost serialization library
- * headers, along with a couple of standard C++ headers required to fix bugs
- * in Boost.
- *
- * Include this header in place of <boost/serialization/access.hpp>
- */
+#ifndef ABSTRACTDYNAMICALLYLOADABLEENTITY_HPP_
+#define ABSTRACTDYNAMICALLYLOADABLEENTITY_HPP_
 
-// Apparently 'new' (for boost's two phase construction) isn't included sometimes...
-#include <new>
-#include <climits> // See #1024.
-
-#include <boost/serialization/access.hpp>
+#include "DynamicCellModelLoader.hpp"
 
 /**
- * Only Boost 1.37 and above can properly handle serialization of dynamically
- * loaded objects.  We define a convenience macro for code to test if this is
- * possible.
+ * A mixin class for things that get loaded dynamically to maintain an association between instance objects and the shared library 
+ * they have been loaded from 
  */
-#include <boost/version.hpp>
-#ifndef CHASTE_CAN_CHECKPOINT_DLLS
-#if BOOST_VERSION >= 103700
-#define CHASTE_CAN_CHECKPOINT_DLLS
-#endif
-#endif
+class AbstractDynamicallyLoadableEntity 
+{
+private:
+    
+    /** The loader for our shared object file */
+    DynamicCellModelLoader* mpLoader;
+
+public:
+    
+    /** 
+     * @return a shared pointer to the loader
+     */
+    const DynamicCellModelLoader* GetLoader() const;
+
+    /** 
+     * Should only be called by a dynamic cell model loader
+     * 
+     * @param pLoader a shared pointer to the loader
+     */   
+    void SetLoader(DynamicCellModelLoader* pLoader);
+            
+}; 
+
+
+#endif /*ABSTRACTDYNAMICALLYLOADABLEENTITY_HPP_*/
+
+

@@ -15,8 +15,9 @@
 
 #include "AbstractCardiacCell.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "AbstractDynamicallyLoadableEntity.hpp"
 
-class Cellluo_rudy_1991FromCellML : public AbstractCardiacCell
+class Cellluo_rudy_1991FromCellML : public AbstractCardiacCell, AbstractDynamicallyLoadableEntity
 {
     
 public:

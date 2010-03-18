@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<cp20:ChasteParameters xmlns:cp20="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 /home/jmpf/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_2_0.xsd">
+<cp20:ChasteParameters xmlns:cp20="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="/home/chaste/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_1_1.xsd" xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 /home/chaste/eclipse/workspace/Chaste/heart/src/io/ChasteParameters_2_0.xsd">
 
   <cp20:Simulation>
     <cp20:SimulationDuration unit="ms">10</cp20:SimulationDuration>

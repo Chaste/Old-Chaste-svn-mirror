@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/string.hpp>
 
 #include <boost/numeric/ublas/matrix.hpp>
 
@@ -46,7 +47,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "HeartConfig.hpp"
 #include "ArchiveLocationInfo.hpp"
-
+#include "AbstractDynamicallyLoadableEntity.hpp"
+#include "DynamicModelLoaderRegistry.hpp"
 
 //// OLD NOTE: read this if AbstractPde is brought back
 // IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual'
@@ -321,6 +323,13 @@ public:
         r_archive & num_cells;
         for (unsigned i=0; i<num_cells; i++)
         {
+            AbstractDynamicallyLoadableEntity* p_entity = dynamic_cast<AbstractDynamicallyLoadableEntity*>(r_cells_distributed[i]);
+            bool is_dynamic = (p_entity != NULL);
+            r_archive & is_dynamic;
+            if (is_dynamic)
+            {
+                r_archive & p_entity->GetLoader()->GetLoadableModulePath();
+            }
             r_archive & r_cells_distributed[i];
         }
     }
@@ -382,6 +391,15 @@ public:
             unsigned new_local_index = new_global_index - p_factory->GetLow();
             bool local = p_factory->IsGlobalIndexLocal(new_global_index);
             
+            bool is_dynamic;
+            archive & is_dynamic;
+            if (is_dynamic)
+            {
+                // Ensure the shared object file for this cell model is loaded
+                std::string shared_object_path;
+                archive & shared_object_path;
+                DynamicModelLoaderRegistry::Instance()->GetLoader(shared_object_path);
+            }
             AbstractCardiacCell* p_cell;
             archive & p_cell;
             // Check if it's a fake cell
