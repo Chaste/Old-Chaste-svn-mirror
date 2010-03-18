@@ -217,7 +217,7 @@ the libvtk5-dev with
 sudo aptitude install libvtk5-dev #(Ubuntu/Debian)
 yum install vtk-devel             #(Fedora/RedHat)
 
-If you are installing in userspace there are 4 steps:
+If you are installing in userspace there are 3 steps:
 1. Installation of CMake (for compiling VTK from source)
 2. Installation of VTK
 3. Configuring default.py to pick up the libraries
