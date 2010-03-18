@@ -1360,8 +1360,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
 
     idxtype* global_element_partition = new idxtype[num_elements];
 
-    ret = MPI_Allgatherv(local_partition, num_local_elements, MPI_INT,
-                         global_element_partition, element_count, element_distribution, MPI_INT, PETSC_COMM_WORLD);
+    MPI_Allgatherv(local_partition, num_local_elements, MPI_INT,
+                   global_element_partition, element_count, element_distribution, MPI_INT, PETSC_COMM_WORLD);
 
     delete[] local_partition;
 
