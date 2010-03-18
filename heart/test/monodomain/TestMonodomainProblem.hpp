@@ -353,7 +353,7 @@ public:
                     // This works as we are using the 'criss-cross' mesh,
                     // the voltages would vary more with a mesh with all the
                     // triangles aligned in the same direction.
-                    TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, 3e-4);
+                    TS_ASSERT_DELTA(voltage_replicated[i], probe_voltage, 7e-4);
                 }
 
 
@@ -363,7 +363,7 @@ public:
 
                 // test the RHS edge voltages
                 // hardcoded result that looks accurate - this is a test to see
-                // that nothing has changeed
+                // that nothing has changed
                 // assumes endtime = 2ms
                 TS_ASSERT_DELTA(voltage_replicated[i], -59.6488, 5e-4);
             }
