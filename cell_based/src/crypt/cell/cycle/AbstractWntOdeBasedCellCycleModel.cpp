@@ -27,13 +27,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 
-
 #ifdef CHASTE_CVODE
 CvodeAdaptor AbstractWntOdeBasedCellCycleModel::msSolver;
 #else
 RungeKutta4IvpOdeSolver AbstractWntOdeBasedCellCycleModel::msSolver;
 #endif //CHASTE_CVODE
-
 
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel()
 {
@@ -45,20 +43,17 @@ AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel()
 #endif //CHASTE_CVODE
 }
 
-
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& rOtherModel)
     : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
 {
 	mDimension = rOtherModel.mDimension;
 }
 
-
 double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
 {
     assert(msSolver.StoppingEventOccurred());
     return msSolver.GetStoppingTime();
 }
-
 
 double AbstractWntOdeBasedCellCycleModel::GetWntLevel()
 {
@@ -91,7 +86,6 @@ double AbstractWntOdeBasedCellCycleModel::GetWntLevel()
     return level;
 }
 
-
 void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
 {
 	AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
@@ -108,7 +102,6 @@ void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
     }
 }
 
-
 void AbstractWntOdeBasedCellCycleModel::UpdateCellProliferativeType()
 {
     assert(mpOdeSystem!=NULL);
@@ -118,4 +111,15 @@ void AbstractWntOdeBasedCellCycleModel::UpdateCellProliferativeType()
         EXCEPTION("WntCellCycleModel::UpdateCellProliferativeType() should only be called when the cell cycle model has been evaluated to the current time\n");
     }
     ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
+}
+
+
+double AbstractWntOdeBasedCellCycleModel::GetAverageTransitCellCycleTime()
+{
+	return 16.0;
+}
+
+double AbstractWntOdeBasedCellCycleModel::GetAverageStemCellCycleTime()
+{
+	return 16.0;
 }

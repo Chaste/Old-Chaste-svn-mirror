@@ -128,6 +128,16 @@ public:
      * current levels of beta-catenin.
      */
     virtual void ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()=0;
+
+    /**
+     * Overridden GetAverageTransitCellCycleTime() method.
+     */
+    double GetAverageTransitCellCycleTime();
+
+    /**
+     * Overridden GetAverageStemCellCycleTime() method.
+     */
+    double GetAverageStemCellCycleTime();
 };
 
 CLASS_IS_ABSTRACT(AbstractWntOdeBasedCellCycleModel)

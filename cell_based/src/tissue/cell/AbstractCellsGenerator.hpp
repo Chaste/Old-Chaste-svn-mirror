@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A helper class for generating a vector of cells for a given mesh.
  *
- * It is subclassed for different types of cell model.
+ * It is subclassed over types of cell model.
  */
 template<unsigned DIM>
 class AbstractCellsGenerator
@@ -122,7 +122,5 @@ public:
                                   double y3 = 4.0,
                                   bool initialiseCells = false);
 };
-
-
 
 #endif /*ABSTRACTCELLSGENERATOR_HPP_*/

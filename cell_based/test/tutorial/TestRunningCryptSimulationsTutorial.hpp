@@ -54,8 +54,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <cxxtest/TestSuite.h>
 /* The next header file defines a helper class for generating
- * cells. */
-#include "CellsGenerator.hpp"
+ * cells for crypt simulations. */
+#include "CryptCellsGenerator.hpp"
 /*
  * The next two header files define two different types of cell-cycle model,
  * one with fixed cell-cycle times and one where the cell-cycle time depends

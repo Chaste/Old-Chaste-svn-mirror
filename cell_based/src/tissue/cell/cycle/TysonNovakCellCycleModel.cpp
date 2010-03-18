@@ -27,14 +27,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "TysonNovakCellCycleModel.hpp"
 
-
-
 #ifdef CHASTE_CVODE
 CvodeAdaptor TysonNovakCellCycleModel::msSolver;
 #else
 BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
 #endif //CHASTE_CVODE
-
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {
@@ -55,7 +52,6 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleMode
         mpOdeSystem = new TysonNovak2001OdeSystem(*static_cast<TysonNovak2001OdeSystem*>(rOtherModel.mpOdeSystem));
     }
 }
-
 
 void TysonNovakCellCycleModel::ResetForDivision()
 {
@@ -82,7 +78,6 @@ void TysonNovakCellCycleModel::ResetForDivision()
 #endif //CHASTE_CVODE
 }
 
-
 void TysonNovakCellCycleModel::InitialiseDaughterCell()
 {
     if (mpCell->GetCellProliferativeType() == STEM)
@@ -96,7 +91,6 @@ AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
     return new TysonNovakCellCycleModel(*this);
 }
 
-
 bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
 {
     double dt = 0.1/60.0;
@@ -106,13 +100,11 @@ bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
     return msSolver.StoppingEventOccurred();
 }
 
-
 double TysonNovakCellCycleModel::GetOdeStopTime()
 {
     assert(msSolver.StoppingEventOccurred());
     return msSolver.GetStoppingTime();
 }
-
 
 double TysonNovakCellCycleModel::GetSDuration()
 {
@@ -124,7 +116,6 @@ double TysonNovakCellCycleModel::GetSDuration()
     return 0.0;
 }
 
-
 double TysonNovakCellCycleModel::GetG2Duration()
 {
     /**
@@ -134,7 +125,6 @@ double TysonNovakCellCycleModel::GetG2Duration()
      */
     return 0.0;
 }
-
 
 double TysonNovakCellCycleModel::GetMDuration()
 {
@@ -146,6 +136,15 @@ double TysonNovakCellCycleModel::GetMDuration()
     return 0.0;
 }
 
+double TysonNovakCellCycleModel::GetAverageTransitCellCycleTime()
+{
+	return 1.25;
+}
+
+double TysonNovakCellCycleModel::GetAverageStemCellCycleTime()
+{
+	return 1.25;
+}
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

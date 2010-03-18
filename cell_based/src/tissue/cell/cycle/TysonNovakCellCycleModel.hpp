@@ -141,6 +141,15 @@ public:
      */
     void InitialiseDaughterCell();
 
+    /**
+     * Overridden GetAverageTransitCellCycleTime() method.
+     */
+    double GetAverageTransitCellCycleTime();
+
+    /**
+     * Overridden GetAverageStemCellCycleTime() method.
+     */
+    double GetAverageStemCellCycleTime();
 };
 
 

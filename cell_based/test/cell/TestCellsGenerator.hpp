@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "HoneycombMeshGenerator.hpp"
-#include "CellsGenerator.hpp"
+#include "CryptCellsGenerator.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 

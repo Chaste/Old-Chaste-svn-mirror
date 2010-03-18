@@ -299,6 +299,17 @@ public:
      */
     virtual double GetMDuration();
 
+    /**
+     * Return the typical cell cycle duration for a transit cell, in hours.
+     * This method is overridden in some subclasses.
+     */
+    virtual double GetAverageTransitCellCycleTime();
+
+    /**
+     * Return the typical cell cycle duration for a stem cell, in hours.
+     * This method is overridden in some subclasses.
+     */
+    virtual double GetAverageStemCellCycleTime();
 };
 
 

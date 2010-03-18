@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptStatistics.hpp"
 #include "CryptSimulation2d.hpp"
-#include "CellsGenerator.hpp"
+#include "CryptCellsGenerator.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
