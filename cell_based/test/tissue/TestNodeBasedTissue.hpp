@@ -542,11 +542,11 @@ public:
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
 
         // For coverage of WriteResultsToFiles()
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_state(node_based_tissue.GetMutationRegistry()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(node_based_tissue.GetMutationRegistry()->Get<LabelledCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(node_based_tissue.GetMutationRegistry()->Get<ApcOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(node_based_tissue.GetMutationRegistry()->Get<ApcTwoHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(node_based_tissue.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>());
         node_based_tissue.rGetCellUsingLocationIndex(0).SetCellProliferativeType(TRANSIT);
         node_based_tissue.rGetCellUsingLocationIndex(0).SetMutationState(p_labelled);
         node_based_tissue.rGetCellUsingLocationIndex(1).SetCellProliferativeType(DIFFERENTIATED);

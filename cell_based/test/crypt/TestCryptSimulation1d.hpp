@@ -41,10 +41,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
+
+#include "CellMutationStateRegistry.hpp"
 #include "LabelledCellMutationState.hpp"
 #include "ApcOneHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
+
 
 class TestCryptSimulation1d : public AbstractCellBasedTestSuite
 {
@@ -634,13 +637,13 @@ public:
         // (don't use any stem cells as we want to test the jiggling)
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<TissueCell> cells;
-    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         for (unsigned i=0; i<num_cells; i++)
         {
             WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
 			p_cell_cycle_model1->SetDimension(1);
-			boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+			boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 			TissueCell cell(TRANSIT, p_state, p_cell_cycle_model1);
 			cell.SetBirthTime(0.0);
             cells.push_back(cell);
@@ -654,9 +657,9 @@ public:
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
 
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(crypt.GetMutationRegistry()->Get<LabelledCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(crypt.GetMutationRegistry()->Get<ApcOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(crypt.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>());
         cell_iterator->SetMutationState(p_labelled);
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);

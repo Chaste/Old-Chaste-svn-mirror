@@ -458,11 +458,11 @@ public:
         cells[0].SetCellProliferativeType(APOPTOTIC); // coverage
 
         // Cover mutation state reporting
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-		boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-		boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
-		boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
-		boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+		boost::shared_ptr<AbstractCellMutationState> p_labelled(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
+		boost::shared_ptr<AbstractCellMutationState> p_apc1(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>());
+		boost::shared_ptr<AbstractCellMutationState> p_apc2(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
+		boost::shared_ptr<AbstractCellMutationState> p_bcat1(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
 
         cells[0].SetMutationState(p_state);
         cells[1].SetMutationState(p_apc1);

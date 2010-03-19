@@ -155,7 +155,7 @@ public:
 			p_state->IncrementCellCount();
 
 			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-			TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
+			TS_ASSERT_EQUALS(p_state->GetColour(), 3u);
 
 			// Create an output archive
 			std::ofstream ofs(archive_filename.c_str());
@@ -179,7 +179,7 @@ public:
 			input_arch >> p_state;
 
 			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-			TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
+			TS_ASSERT_EQUALS(p_state->GetColour(), 3u);
 
 			ApcOneHitCellMutationState* p_real_state = dynamic_cast<ApcOneHitCellMutationState*>(p_state);
 			TS_ASSERT(p_real_state != NULL);
