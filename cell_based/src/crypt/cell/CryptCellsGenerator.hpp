@@ -80,7 +80,7 @@ public:
      * Whether cells are able to fully differentiate.
      * Defaults to false unless overridden.
      */
-    bool CellsCanDifferentiate();
+    bool CanCellsTerminallyDifferentiate();
 
     /**
      * Generates cells of a specified cell cycle type under the correct
@@ -222,7 +222,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
         }
         else
         {
-            cell_type = this->CellsCanDifferentiate() ? DIFFERENTIATED : TRANSIT;
+            cell_type = this->CanCellsTerminallyDifferentiate() ? DIFFERENTIATED : TRANSIT;
             generation = 4;
             birth_time *= typical_transit_cycle_time; // hours
         }
@@ -254,7 +254,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
 
 
 template<class CELL_CYCLE_MODEL>
-bool CryptCellsGenerator<CELL_CYCLE_MODEL>::CellsCanDifferentiate()
+bool CryptCellsGenerator<CELL_CYCLE_MODEL>::CanCellsTerminallyDifferentiate()
 {
     if(    ClassesAreSame<CELL_CYCLE_MODEL,FixedDurationGenerationBasedCellCycleModel>()
         || ClassesAreSame<CELL_CYCLE_MODEL,StochasticDurationGenerationBasedCellCycleModel>() )

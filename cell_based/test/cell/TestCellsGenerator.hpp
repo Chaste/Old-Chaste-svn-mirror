@@ -358,17 +358,17 @@ public:
         CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> gen7;
         CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo> gen8;
         
-        TS_ASSERT_EQUALS(gen1.CellsCanDifferentiate(), true);
-        TS_ASSERT_EQUALS(gen2.CellsCanDifferentiate(), true);
-        TS_ASSERT_EQUALS(gen3.CellsCanDifferentiate(), false);
-        TS_ASSERT_EQUALS(gen4.CellsCanDifferentiate(), false);
-        TS_ASSERT_EQUALS(gen5.CellsCanDifferentiate(), false);
-        TS_ASSERT_EQUALS(gen6.CellsCanDifferentiate(), false);
-        TS_ASSERT_EQUALS(gen7.CellsCanDifferentiate(), false);
-        TS_ASSERT_EQUALS(gen8.CellsCanDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen1.CanCellsTerminallyDifferentiate(), true);
+        TS_ASSERT_EQUALS(gen2.CanCellsTerminallyDifferentiate(), true);
+        TS_ASSERT_EQUALS(gen3.CanCellsTerminallyDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen4.CanCellsTerminallyDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen5.CanCellsTerminallyDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen6.CanCellsTerminallyDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen7.CanCellsTerminallyDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen8.CanCellsTerminallyDifferentiate(), false);
         
         CryptCellsGenerator<Alarcon2004OxygenBasedCellCycleModel> gen9;
-        TS_ASSERT_THROWS_THIS( gen9.CellsCanDifferentiate(), "Using an invalid cell cycle model for crypt simulations");
+        TS_ASSERT_THROWS_THIS( gen9.CanCellsTerminallyDifferentiate(), "Using an invalid cell cycle model for crypt simulations");
     }
 };
 
