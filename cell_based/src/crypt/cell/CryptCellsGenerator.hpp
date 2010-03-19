@@ -227,9 +227,25 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
     }
 }
 
+
+///\todo: This code means that if someone creates a new (non-Wnt, say) cell cycle model,
+///       then doing: 
+//          CryptCellsGenerator<MyNewCellModel> generator;
+//          generator.Generate(...);
+//        will create a crypt with no differentiated cells.
 template<class CELL_CYCLE_MODEL>
 bool CryptCellsGenerator<CELL_CYCLE_MODEL>::CellsCanDifferentiate()
 {
+    // the following code just does, effectively
+    // if(  (CELL_CYCLE_MODEL==FixedDurationGenerationBasedCellCycleModel)
+    //    ||(CELL_CYCLE_MODEL==StochasticDurationGenerationBasedCellCycleModel) )
+    // {
+    //    selector = 1;
+    // }
+    // else
+    // {
+    //    selector = 0;
+    // }
     using namespace boost::mpl;
     using namespace boost;
     typedef typename if_<is_same<CELL_CYCLE_MODEL, FixedDurationGenerationBasedCellCycleModel>,
