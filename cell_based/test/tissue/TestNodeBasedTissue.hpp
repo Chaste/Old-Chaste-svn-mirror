@@ -52,7 +52,7 @@ private:
     std::vector<TissueCell> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
     {
         std::vector<TissueCell> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
             TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
@@ -584,7 +584,7 @@ public:
         // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = node_based_tissue.rGetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
-         TS_ASSERT_EQUALS(cell_mutation_states[0], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_states[0], 1u);
         for (unsigned i=1; i<cell_mutation_states.size(); i++)
         {
             TS_ASSERT_EQUALS(cell_mutation_states[i], 1u);
