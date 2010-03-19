@@ -96,11 +96,12 @@ public:
         TS_ASSERT_EQUALS(vertex_element.GetNumFaces(), 6u);
 
         // Test nodes are correct.
-        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 1.0, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.0, 1e-9);
+        // Note that this ordering depends on std::set insertion and iteration
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
 
-        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], 0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], 1.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.0, 1e-9);
 
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], -0.5, 1e-9);
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);

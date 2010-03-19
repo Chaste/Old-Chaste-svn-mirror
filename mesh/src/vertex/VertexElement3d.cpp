@@ -35,27 +35,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////////////////////////////////////////////////////
 
 VertexElement3d::VertexElement3d(unsigned index,
-								 std::vector<Node<3>*> nodes,
                                  std::vector<VertexElement<2,3>*> faces,
                                  std::vector<bool> orientations)
-    : mOrientations(orientations)
+    :  AbstractElement<3, 3>(index),
+	   mFaces(faces),
+       mOrientations(orientations)
 {
-    this->mIndex = index;
 
-    // Populate mNodes and mFaces
-    for (unsigned node_index=0; node_index<nodes.size(); node_index++)
-    {
-        Node<3>* p_temp_node = nodes[node_index];
-        this->mNodes.push_back(p_temp_node);
-    }
-    for (unsigned face_index=0; face_index<faces.size(); face_index++)
-    {
-        VertexElement<2,3>* p_temp_face = faces[face_index];
-        mFaces.push_back(p_temp_face);
-    }
-
-    // Register element with nodes
-	RegisterWithNodes();
+    assert(mFaces.size() == mOrientations.size());
+    // Populate mNodes using mFaces
+    //Make a set of nodes with mFaces
+     std::set<Node<3>* > nodes_set;
+     for (unsigned face_index=0; face_index<faces.size(); face_index++)
+     {
+     	for(unsigned node_index=0; node_index<mFaces[face_index]->GetNumNodes(); node_index++)
+     	{
+     		nodes_set.insert(mFaces[face_index]->GetNode(node_index));
+     	}
+     }
+     // Populate mNodes
+     for (std::set<Node<3>* >::iterator node_iter = nodes_set.begin();
+ 				node_iter != nodes_set.end();
+                 ++node_iter)
+     {
+     	this->mNodes.push_back(*node_iter);
+     }
+     // Register element with nodes
+ 	RegisterWithNodes();
 }
 
 VertexElement3d::VertexElement3d()

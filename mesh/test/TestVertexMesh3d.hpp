@@ -43,7 +43,7 @@ public:
 
     void TestBasic3dVertexMesh()
     {
-        // Make 8 nodes to assign to a cube and a piramid element
+        // Make 8 nodes to assign to a cube and a pyramid element
         std::vector<Node<3>*> nodes;
         nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
@@ -121,20 +121,10 @@ public:
        	faces.push_back(new VertexElement<2,3>(9, nodes_face_9));
 
        	//Make the elements
-       	std::vector<Node<3>*> nodes_element_0, nodes_element_1;
        	std::vector<VertexElement<2,3>*> faces_element_0, faces_element_1;
         std::vector<bool> orientations_0, orientations_1;
 
         //Cube element
-        nodes_element_0.push_back(nodes[0]);
-        nodes_element_0.push_back(nodes[1]);
-        nodes_element_0.push_back(nodes[2]);
-        nodes_element_0.push_back(nodes[3]);
-        nodes_element_0.push_back(nodes[4]);
-        nodes_element_0.push_back(nodes[5]);
-        nodes_element_0.push_back(nodes[6]);
-        nodes_element_0.push_back(nodes[7]);
-
         faces_element_0.push_back(faces[0]);
         faces_element_0.push_back(faces[1]);
         faces_element_0.push_back(faces[2]);
@@ -149,13 +139,7 @@ public:
 		orientations_0.push_back(true);
 		orientations_0.push_back(true);
 
-		//Piramid element
-		nodes_element_1.push_back(nodes[3]);
-		nodes_element_1.push_back(nodes[5]);
-		nodes_element_1.push_back(nodes[6]);
-		nodes_element_1.push_back(nodes[7]);
-		nodes_element_1.push_back(nodes[8]);
-
+		//Pyramid element
 		faces_element_1.push_back(faces[6]);
 		faces_element_1.push_back(faces[7]);
 		faces_element_1.push_back(faces[8]);
@@ -169,8 +153,8 @@ public:
 		orientations_1.push_back(false);
 
         std::vector<VertexElement3d*> elements;
-        elements.push_back(new VertexElement3d(0, nodes_element_0, faces_element_0, orientations_0));
-        elements.push_back(new VertexElement3d(1, nodes_element_1, faces_element_1, orientations_1));
+        elements.push_back(new VertexElement3d(0, faces_element_0, orientations_0));
+        elements.push_back(new VertexElement3d(1, faces_element_1, orientations_1));
 
         VertexMesh3d mesh(nodes, faces, elements);
 

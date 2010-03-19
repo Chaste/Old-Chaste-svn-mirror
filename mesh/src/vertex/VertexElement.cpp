@@ -37,36 +37,28 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
       mOrientations(orientations)
 {
 
-    // \todo this would stop 2d meshes in 3d space
-    if(SPACE_DIM == ELEMENT_DIM)
-    {
-    	RegisterWithNodes();
-    }
 
     assert(mFaces.size() == mOrientations.size());
 
-    //Calculate mNodes
-    if (ELEMENT_DIM == 2)
+    // Populate mNodes using mFaces
+    //Make a set of nodes with mFaces
+    std::set<Node<SPACE_DIM>* > nodes_set;
+    for (unsigned face_index=0; face_index<faces.size(); face_index++)
     {
-    	for (unsigned face_index = 0; face_index<mFaces.size(); face_index++)
-    	{
-    		assert(mFaces[face_index]->GetNumNodes()==2);
-
-    		if (mOrientations[face_index])
-    		{
-    			this->mNodes.push_back(mFaces[face_index]->GetNode(0));
-    		}
-    		else
-    		{
-				this->mNodes.push_back(mFaces[face_index]->GetNode(1));
-			}
-    	}
-    	assert(mFaces.size() == this->mNodes.size());
+    	for(unsigned node_index=0; node_index<mFaces[face_index]->GetNumNodes(); node_index++)
+     	{
+     		nodes_set.insert(mFaces[face_index]->GetNode(node_index));
+     	}
     }
-    else if (ELEMENT_DIM == 3)
+    // Populate mNodes
+    for (typename std::set< Node<SPACE_DIM>* >::iterator node_iter = nodes_set.begin();
+ 				node_iter != nodes_set.end();
+                ++node_iter)
     {
-    	//\todo ad unique nodes to mNodes. note there is no ordering in 3d.
+     	this->mNodes.push_back(*node_iter);
     }
+    // Register element with nodes
+ 	RegisterWithNodes();
 }
 
 
