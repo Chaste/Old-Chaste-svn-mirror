@@ -213,6 +213,59 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteConductionVelocityMap(un
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteAboveThresholdDepolarisationFile(double threshold )
+{
+    std::vector<std::vector<double> > output_data;
+      
+    //Fill in data 
+    for (unsigned node_index = mLo; node_index < mHi; node_index++)
+    {
+        std::vector<double> upstroke_velocities;
+        std::vector<unsigned> above_threshold_depolarisations;
+        std::vector<double> output_item;
+        bool no_upstroke_occurred = false;
+        
+        try
+        {
+            upstroke_velocities = mpCalculator->CalculateAllMaximumUpstrokeVelocities(node_index, threshold);
+            assert(upstroke_velocities.size() != 0);
+        }
+        catch(Exception& e)
+        {
+            upstroke_velocities.push_back(0);
+            assert(upstroke_velocities.size() ==1);
+            no_upstroke_occurred = true;
+        }
+        //this method won't throw any exception, so there is no need to put it into the try/catch
+        above_threshold_depolarisations =  mpCalculator->CalculateAllAboveThresholdDepolarisations(node_index, threshold);
+        
+        //count the total above threshold depolarisations
+        unsigned total_number_of_above_threshold_depolarisations = 0;
+        for (unsigned ead_index = 0; ead_index< above_threshold_depolarisations.size();ead_index++)
+        {
+            total_number_of_above_threshold_depolarisations = total_number_of_above_threshold_depolarisations + above_threshold_depolarisations[ead_index];
+        }
+        
+        //for this item, puch back the number of upstrokes...
+        if (no_upstroke_occurred)
+        {
+            output_item.push_back(0);
+        }
+        else
+        {
+            output_item.push_back(upstroke_velocities.size());
+        }
+        //... and the number of above thrshold depolarisations
+        output_item.push_back((double) total_number_of_above_threshold_depolarisations);
+        
+        output_data.push_back(output_item);
+    }
+    std::stringstream filename_stream;
+    filename_stream << "AboveThresholdDepolarisations" << threshold << ".dat";
+    WriteGenericFile(output_data, filename_stream.str());
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteGenericFile(std::vector<std::vector<double> >& rDataPayload, std::string fileName)
 {
     OutputFileHandler output_file_handler(HeartConfig::Instance()->GetOutputDirectory() + "/output", false);

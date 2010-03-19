@@ -78,6 +78,23 @@ public:
      */
     ~PostProcessingWriter();
 
+    /**
+     * Method for opening a file and writing one row per node:
+     * line 1: <number of upstrokes for node 0> <number of above-threshold depolarisations for node 0>
+     * line 2: <number of upstrokes for node 1> <number of above-threshold depolarisations for node 1>
+     * etc.
+     *
+     * For the nodes where the threshold isn't crossed, the 'number of upstrokes' will be 0 
+     * (so will the number of above-threshold depolarisations for that node)
+     * 
+     * \todo This method ought to be private and called by the  WritePostProcessingFiles method if the user requests for it.
+     *       This will be possible after modifying the schema and specifying Get and Set methods in HeartConfig 
+     *       to check whetehr the user wants this file or not
+     * 
+     * @param  threshold - used to signify the upstroke (mV) AND to specify above which voltage value the depolarisations are counted
+     */    
+    void WriteAboveThresholdDepolarisationFile(double threshold);
+
 private:
     /**
      * Method for opening an APD map file and writing one row per node

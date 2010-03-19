@@ -143,6 +143,8 @@ public:
 
         writer.WritePostProcessingFiles();
         
+        writer.WriteAboveThresholdDepolarisationFile(-40.0);
+        
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
         std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_80_-30_Map.dat " 
                                    + "heart/test/data/101_zeroes.dat";
@@ -172,7 +174,26 @@ public:
                   + "heart/test/data/PostProcessorWriter/conduction_velocity_100_nodes_from_node_0.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
         
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-40.dat " 
+                  + "heart/test/data/PostProcessorWriter/AboveThresholdDepolarisations-40.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+             
+    }
+    
+    void TestWritingEads() throw (Exception)
+    {
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_10_100_elements"); 
+        DistributedTetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
         
+        PostProcessingWriter<1,1> writer(mesh, "heart/test/data", "Ead", false);
+        
+        writer.WriteAboveThresholdDepolarisationFile(-30.0);
+        
+        std::string output_dir = "ChasteResults/output";
+        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-30.dat " 
+                  + "heart/test/data/PostProcessorWriter/AboveThresholdDepolarisations-30.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0); 
     }
 };
 
