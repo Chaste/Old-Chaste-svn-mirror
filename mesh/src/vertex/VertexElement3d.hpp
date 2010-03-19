@@ -34,6 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexElement.hpp"
 #include <cmath>
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/vector.hpp>
 
 /**
  * A 3d Vertex element class
@@ -58,6 +61,28 @@ private:
      * two cells.
      */
     std::vector<bool> mOrientations;
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Serialize the object and its member variables.
+     *
+     * Note that serialization of the mesh and cells is handled by load/save_construct_data.
+     *
+     * Note also that member data related to writers is not saved - output must
+     * be set up again by the caller after a restart.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // This needs to be first so that MeshBasedTissue::Validate() doesn't go mental.
+        archive & mFaces;
+        archive & mOrientations;
+        archive & boost::serialization::base_object<AbstractElement<3,3> >(*this);
+    }
 
 public:
 	/**

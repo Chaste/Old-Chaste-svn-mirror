@@ -28,16 +28,62 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexElement.hpp"
 #include "RandomNumberGenerator.hpp"
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
-    : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
+VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
+												     std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
+												     std::vector<bool> orientations)
+	  :AbstractElement<ELEMENT_DIM, SPACE_DIM>(index),
+      mFaces(faces),
+      mOrientations(orientations)
 {
+
     // \todo this would stop 2d meshes in 3d space
     if(SPACE_DIM == ELEMENT_DIM)
     {
     	RegisterWithNodes();
     }
+
+    assert(mFaces.size() == mOrientations.size());
+
+    //Calculate mNodes
+    if (ELEMENT_DIM == 2)
+    {
+    	for (unsigned face_index = 0; face_index<mFaces.size(); face_index++)
+    	{
+    		assert(mFaces[face_index]->GetNumNodes()==2);
+
+    		if (mOrientations[face_index])
+    		{
+    			this->mNodes.push_back(mFaces[face_index]->GetNode(0));
+    		}
+    		else
+    		{
+				this->mNodes.push_back(mFaces[face_index]->GetNode(1));
+			}
+    	}
+    	assert(mFaces.size() == this->mNodes.size());
+    }
+    else if (ELEMENT_DIM == 3)
+    {
+    	//\todo ad unique nodes to mNodes. note there is no ordering in 3d.
+    }
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
+													 std::vector<Node<SPACE_DIM>*> nodes)
+	: AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
+{
+//	#define COVERAGE_IGNORE
+//	assert(SPACE_DIM == 2);
+//	#undef COVERAGE_IGNORE
+
+	// \todo this would stop 2d meshes in 3d space
+	if(SPACE_DIM == ELEMENT_DIM)
+	{
+		RegisterWithNodes();
+	}
 }
 
 
@@ -46,6 +92,11 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::~VertexElement()
 {
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNumFaces() const
+{
+    return mFaces.size();
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::RegisterWithNodes()

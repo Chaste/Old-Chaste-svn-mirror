@@ -32,16 +32,38 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 #include "VertexElement.hpp"
-
+#include "Element.hpp"
+#include "Debug.hpp"
 
 class TestVertexElement : public CxxTest::TestSuite
 {
 public:
 
-    void TestVertexElementDeleteAndAddNode()
+	void Test1dVertexElement()
+	    {
+	        std::vector<Node<2>*> nodes;
+	        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+	        nodes.push_back(new Node<2>(1, false, 1.0, 1.0));
+
+	        VertexElement<1,2> element(0, nodes);
+
+	        TS_ASSERT_EQUALS(element.GetNumNodes(),2u);
+	        TS_ASSERT_EQUALS(element.GetNode(0)->GetIndex(),0u);
+	        TS_ASSERT_EQUALS(element.GetNode(1)->GetIndex(),1u);
+
+	        for (unsigned i=0; i<nodes.size(); i++)
+	        {
+	            delete nodes[i];
+	        }
+	    }
+
+    void TestVertexElementFaceConstructor()
     {
-        // Create nodes
+        // Create nodes and Faces
         std::vector<Node<2>*> nodes;
+        std::vector<VertexElement<1,2>*> faces;
+        std::vector<Node<2>*> face_nodes;
+        std::vector<bool> orientations;
         unsigned num_nodes = 6;
         for (unsigned i=0; i<num_nodes; i++)
         {
@@ -49,60 +71,125 @@ public:
             nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));
         }
 
+        for (unsigned i=0; i<num_nodes-1; i++)
+		{
+        	face_nodes.clear();
+        	face_nodes.push_back(nodes[i]);
+        	face_nodes.push_back(nodes[i+1]);
+
+        	faces.push_back(new VertexElement<1,2>(i, face_nodes));
+        	orientations.push_back(true);
+		}
+        //Create a face with negative orientation.
+        face_nodes.clear();
+		face_nodes.push_back(nodes[0]);
+		face_nodes.push_back(nodes[num_nodes-1]);
+		faces.push_back(new VertexElement<1,2>(num_nodes-1, face_nodes));
+		orientations.push_back(false);
+
+
         // Create element
-        VertexElement<2,2> vertex_element(0, nodes);
+        VertexElement<2,2> vertex_element(0, faces, orientations);
+
 
         TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(vertex_element.GetNumFaces(), 6u);
 
-        vertex_element.DeleteNode(3); // Removes (-1,0) node
-        vertex_element.DeleteNode(0); // Removes (1,0) node
+        // Test nodes are correct.
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 1.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.0, 1e-9);
 
-        // Test node is removed
-        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 4u);
-
-        // Test other nodes are updated
-        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
-
-        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], -0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], 0.5, 1e-9);
         TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
 
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], -0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
 
-        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], -1.0, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], 0.0, 1e-9);
 
-        // Add new node
-        Node<2>* p_new_node = new Node<2>(4, false, 0.0, 0.0);
-        vertex_element.AddNode(3, p_new_node); // Add node at (0,0) between nodes 3 and 0
+        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[0], -0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
 
-        // Test node is added
-        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 5u);
+        TS_ASSERT_DELTA(vertex_element.GetNode(5)->GetPoint()[0], 0.5, 1e-9);
+        TS_ASSERT_DELTA(vertex_element.GetNode(5)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
 
-        // Test other nodes are updated
-        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
-
-        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], -0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
-
-        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], -0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
-
-        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
-
-        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[0], 0.0, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[1], 0.0, 1e-9);
 
         // Tidy up
         for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
+            delete faces[i];
         }
-        delete p_new_node;
     }
+
+    void TestVertexElementDeleteAndAddNode()
+	{
+		// Create nodes and Faces
+		std::vector<Node<2>*> nodes;
+		unsigned num_nodes = 6;
+		for (unsigned i=0; i<num_nodes; i++)
+		{
+			double theta = 2.0*M_PI*(double)(i)/(double)(num_nodes);
+			nodes.push_back(new Node<2>(i, false, cos(theta), sin(theta)));
+		}
+
+		// Create element
+		VertexElement<2,2> vertex_element(0, nodes);
+
+		TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 6u);
+
+		vertex_element.DeleteNode(3); // Removes (-1,0) node
+		vertex_element.DeleteNode(0); // Removes (1,0) node
+
+		// Test node is removed
+		TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 4u);
+
+		// Test other nodes are updated
+		TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.5, 1e-9);
+		TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
+
+		TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], -0.5, 1e-9);
+		TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
+
+		TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], -0.5, 1e-9);
+		TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+
+		TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 0.5, 1e-9);
+		TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+
+		// Add new node
+		Node<2>* p_new_node = new Node<2>(4, false, 0.0, 0.0);
+		vertex_element.AddNode(3, p_new_node); // Add node at (0,0) between nodes 3 and 0
+
+		// Test node is added
+		TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 5u);
+
+		// Test other nodes are updated
+		TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.5, 1e-9);
+		TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
+
+		TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], -0.5, 1e-9);
+		TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
+
+		TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], -0.5, 1e-9);
+		TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+
+		TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], 0.5, 1e-9);
+		TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+
+		TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[0], 0.0, 1e-9);
+		TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[1], 0.0, 1e-9);
+
+		// Tidy up
+		for (unsigned i=0; i<nodes.size(); i++)
+		{
+			delete nodes[i];
+		}
+
+		delete p_new_node;
+	}
+
 
 
     void TestMarkAsDeleted()

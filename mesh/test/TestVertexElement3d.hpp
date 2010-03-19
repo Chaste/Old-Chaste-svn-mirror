@@ -118,8 +118,17 @@ public:
         TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[1], 0.0, 1e-6);
         TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[2], 1.0, 1e-6);
-    }
 
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
+
+        for (unsigned i=0; i<faces.size(); i++)
+		{
+        	delete faces[i];
+		}
+    }
 };
 
 #endif /*TESTVERTEXELEMENT3D_HPP_*/

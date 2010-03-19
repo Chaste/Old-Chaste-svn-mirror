@@ -94,32 +94,6 @@ MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::~MutableVertexMesh()
     Clear();
 }
 
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveNodeMapping(unsigned index) const
-{
-    assert(index < this->mNodes.size());
-    return index;
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index) const
-{
-    assert(index < this->mElements.size());
-    return index;
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
-{
-    /// \todo sort out boundary elements in a vertex mesh
-//    assert(index < this->mBoundaryElements.size() );
-    return index;
-}
-
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCellRearrangementThreshold() const
 {
