@@ -561,7 +561,6 @@ public:
 
 #ifdef CHASTE_CVODE
 		const double expected_g1_duration = 6.18252;
-		tol  = 1e-5;
 #else
 		const double expected_g1_duration = 6.1959;
 #endif //CHASTE_CVODE
