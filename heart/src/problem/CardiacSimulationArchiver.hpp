@@ -191,7 +191,11 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
             DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
             assert(p_factory != NULL);
             unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
-            assert(original_num_procs == num_procs);
+            if (original_num_procs != num_procs)
+            {
+                NEVER_REACHED;
+                //assert(original_num_procs == num_procs);
+            }
         }
         else
         {
