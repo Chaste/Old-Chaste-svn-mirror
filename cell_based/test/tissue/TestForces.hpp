@@ -489,6 +489,7 @@ public:
         }
 
         // Create tissue
+        std::vector<TissueCell> cells_copy(cells);
         MeshBasedTissue<1> tissue(mesh, cells);
 
         // Create force law object
@@ -550,7 +551,7 @@ public:
         MutableMesh<1,1> mesh2;
         mesh2.ConstructLinearMesh(5);
 
-        MeshBasedTissue<1> tissue2(mesh2, cells);
+        MeshBasedTissue<1> tissue2(mesh2, cells_copy);
         GeneralisedLinearSpringForce<1> linear_force2;
 
         // Move one node and check that forces are correctly calculated
@@ -596,7 +597,8 @@ public:
             cells.push_back(cell);
         }
 
-        MeshBasedTissue<3> tissue(mesh,cells);
+        std::vector<TissueCell> cells_copy(cells);
+        MeshBasedTissue<3> tissue(mesh, cells);
         GeneralisedLinearSpringForce<3> linear_force;
 
         // Test forces on springs
@@ -659,7 +661,7 @@ public:
         MutableMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
 
-        MeshBasedTissue<3> tissue2(mesh2,cells);
+        MeshBasedTissue<3> tissue2(mesh2, cells_copy);
         GeneralisedLinearSpringForce<3> linear_force2;
 
         c_vector<double,3> old_point = mesh2.GetNode(0)->rGetLocation();
@@ -720,7 +722,7 @@ public:
                 cells.push_back(cell);
             }
 
-            MeshBasedTissue<2> tissue(mesh,cells);
+            MeshBasedTissue<2> tissue(mesh, cells);
             LinearSpringWithVariableSpringConstantsForce<2> linear_force;
 
             std::ofstream ofs(archive_filename.c_str());

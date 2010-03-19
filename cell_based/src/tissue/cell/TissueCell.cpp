@@ -59,7 +59,10 @@ TissueCell::TissueCell(CellProliferativeType cellType,
 
     // Set Cell identifier & mutation state count
     mCellId = ++ mMaxCellId -1;
-    mpMutationState->IncrementCellCount();
+    if (!archiving)
+    {
+    	mpMutationState->IncrementCellCount();
+    }
 }
 
 
@@ -98,7 +101,9 @@ TissueCell& TissueCell::operator=(const TissueCell& rOtherCell)
 {
     // In case this is self-assignment, don't delete the cell cycle model
     AbstractCellCycleModel* p_temp_model = mpCellCycleModel;
+    mpMutationState->DecrementCellCount();
     CommonCopy(rOtherCell);
+    mpMutationState->IncrementCellCount();
     // ...until after we've copied it.
     delete p_temp_model;
     return *this;

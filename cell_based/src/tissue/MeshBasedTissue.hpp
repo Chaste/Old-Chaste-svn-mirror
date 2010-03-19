@@ -158,7 +158,7 @@ public:
      * @param validate whether to validate the tissue
      */
     MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
-                    const std::vector<TissueCell>& rCells,
+                    std::vector<TissueCell>& rCells,
                     const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
                     bool deleteMesh=false,
                     bool validate=true);

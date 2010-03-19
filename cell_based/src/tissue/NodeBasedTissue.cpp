@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
-                                      const std::vector<TissueCell>& rCells,
+                                      std::vector<TissueCell>& rCells,
                                       const std::vector<unsigned> locationIndices,
                                       bool deleteNodes)
     : AbstractCellCentreBasedTissue<DIM>(rCells, locationIndices),
@@ -57,7 +57,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool
 
 template<unsigned DIM>
 NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
-                                      const std::vector<TissueCell>& rCells)
+                                      std::vector<TissueCell>& rCells)
     : AbstractCellCentreBasedTissue<DIM>(rCells),
       mAddedNodes(false),
       mpBoxCollection(NULL),

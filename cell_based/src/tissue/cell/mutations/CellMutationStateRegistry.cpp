@@ -39,12 +39,12 @@ CellMutationStateRegistry* CellMutationStateRegistry::Instance()
 
 const std::vector<boost::shared_ptr<AbstractCellMutationState> >& CellMutationStateRegistry::rGetAllMutationStates()
 {
-	return Instance()->mMutationStates;
+	return mMutationStates;
 }
 
 void CellMutationStateRegistry::Clear()
 {
-	Instance()->mMutationStates.clear();
+	mMutationStates.clear();
 }
 
 CellMutationStateRegistry::CellMutationStateRegistry()
@@ -52,3 +52,9 @@ CellMutationStateRegistry::CellMutationStateRegistry()
 }
 
 CellMutationStateRegistry* CellMutationStateRegistry::mpInstance = NULL;
+
+CellMutationStateRegistry* CellMutationStateRegistry::TakeOwnership()
+{
+	mpInstance = NULL;
+	return this;
+}

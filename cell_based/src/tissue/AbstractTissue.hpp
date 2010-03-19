@@ -134,17 +134,7 @@ protected:
      */
     virtual void Validate()=0;
 
-public:
-
-    /**
-     * AbstractTissue Constructor.
-     *
-     * @param rCells a vector of cells
-     * @param locationIndices an optional vector of location indices that correspond to real cells
-     */
-    AbstractTissue(const std::vector<TissueCell>& rCells,
-                   const std::vector<unsigned> locationIndices=std::vector<unsigned>());
-
+protected:
     /**
      * Constructor for use by archiving only. Please use the other constructor.
      *
@@ -152,6 +142,18 @@ public:
      * with by the serialize method.
      */
     AbstractTissue(){};
+
+public:
+
+    /**
+     * AbstractTissue Constructor.
+     *
+     * @param rCells a vector of cells.  Copies of the cells will be stored in the tissue,
+     *     and the passed-in vector cleared.
+     * @param locationIndices an optional vector of location indices that correspond to real cells
+     */
+    AbstractTissue(std::vector<TissueCell>& rCells,
+                   const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * Base class with virtual methods needs a virtual destructor.

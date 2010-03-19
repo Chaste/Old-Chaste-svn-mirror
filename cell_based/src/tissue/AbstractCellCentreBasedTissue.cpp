@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellCentreBasedTissue.hpp"
 
 template<unsigned DIM>
-AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue(const std::vector<TissueCell>& rCells,
+AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue(std::vector<TissueCell>& rCells,
                                                                   const std::vector<unsigned> locationIndices)
     : AbstractTissue<DIM>(rCells, locationIndices)
 {

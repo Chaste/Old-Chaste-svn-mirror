@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
-                                      const std::vector<TissueCell>& rCells,
+                                      std::vector<TissueCell>& rCells,
                                       const std::vector<unsigned> locationIndices,
                                       bool deleteMesh,
                                       bool validate)

@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCellsGenerator.hpp"
+#include "CellMutationStateRegistry.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -52,6 +53,8 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
     #define COVERAGE_IGNORE
     assert(DIM==2);
     #undef COVERAGE_IGNORE
+
+    CellMutationStateRegistry::Instance()->Clear();
 
     RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
@@ -128,7 +131,7 @@ void AbstractCellsGenerator<DIM>::GenerateForCrypt(std::vector<TissueCell>& rCel
             static_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model)->SetGeneration(generation);
         }
 
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
         TissueCell cell(cell_type, p_state, p_cell_cycle_model);
         if (initialiseCells)
         {
@@ -157,11 +160,12 @@ void AbstractCellsGenerator<DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
 {
     rCells.clear();
     rCells.reserve(numCells);
+    CellMutationStateRegistry::Instance()->Clear();
 
     for (unsigned i=0; i<numCells; i++)
     {
         AbstractCellCycleModel* p_cell_cycle_model = CreateCellCycleModel();
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
         TissueCell cell(STEM, p_state, p_cell_cycle_model);
         double birth_time = 0.0 - i;
         cell.SetBirthTime(birth_time);

@@ -30,13 +30,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeBasedCellCycleModel.hpp"
 
 template<unsigned DIM>
-AbstractTissue<DIM>::AbstractTissue(const std::vector<TissueCell>& rCells,
+AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCell>& rCells,
                                     const std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
       mTissueContainsMesh(false)
 {
     // There must be at least one cell
     assert(mCells.size() > 0);
+    // To avoid double-counting problems, clear the passed-in cells vector
+    rCells.clear();
 
     if (!locationIndices.empty())
     {

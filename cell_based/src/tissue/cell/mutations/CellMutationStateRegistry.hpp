@@ -34,6 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellMutationState.hpp"
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+
 /**
  * A singleton registry of available mutation states.
  */
@@ -44,10 +48,10 @@ public:
 	 * The main interface to this class: get a particular mutation state object.
 	 * Use like:
 	 *    boost::shared_ptr<AbstractCellMutationState> p_state(
-				CellMutationStateRegistry::Get<WildTypeCellMutationState>());
+				CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 	 */
 	template<class SUBCLASS>
-	static boost::shared_ptr<AbstractCellMutationState> Get();
+	boost::shared_ptr<AbstractCellMutationState> Get();
 
     /**
      * Get the single instance of the registry.
@@ -57,12 +61,22 @@ public:
     /**
      * Get a list of the mutation states registered.
      */
-    static const std::vector<boost::shared_ptr<AbstractCellMutationState> >& rGetAllMutationStates();
+    const std::vector<boost::shared_ptr<AbstractCellMutationState> >& rGetAllMutationStates();
 
     /**
      * Clear all registered mutation states.
      */
-    static void Clear();
+    void Clear();
+
+    /**
+     * Take ownership of the current registry.  Calling Instance after this will
+     * create a new registry.  The caller takes responsibility for freeing the
+     * returned registry when finished with it.
+     *
+     * This method is intended for use by TissueSimulation, so that we can have
+     * multiple concurrent simulations, each with their own registry.
+     */
+    CellMutationStateRegistry* TakeOwnership();
 
 private:
 
@@ -90,18 +104,32 @@ private:
      * The mutation states in the registry.
      */
     std::vector<boost::shared_ptr<AbstractCellMutationState> > mMutationStates;
+
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mMutationStates;
+    }
 };
 
 template<class SUBCLASS>
 boost::shared_ptr<AbstractCellMutationState> CellMutationStateRegistry::Get()
 {
 	boost::shared_ptr<AbstractCellMutationState> p_state;
-	std::vector<boost::shared_ptr<AbstractCellMutationState> >& r_states = Instance()->mMutationStates;
-	for (unsigned i=0; i<r_states.size(); i++)
+	for (unsigned i=0; i<mMutationStates.size(); i++)
 	{
-		if (r_states[i]->IsType<SUBCLASS>())
+		if (mMutationStates[i]->IsType<SUBCLASS>())
 		{
-			p_state = r_states[i];
+			p_state = mMutationStates[i];
 			break;
 		}
 	}
@@ -109,7 +137,7 @@ boost::shared_ptr<AbstractCellMutationState> CellMutationStateRegistry::Get()
 	{
 		// Create a new mutation state
 		p_state.reset(new SUBCLASS);
-		r_states.push_back(p_state);
+		mMutationStates.push_back(p_state);
 	}
 	return p_state;
 }

@@ -29,8 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TISSUESIMULATIONARCHIVER_HPP_
 #define TISSUESIMULATIONARCHIVER_HPP_
 
-#include <climits> // work around boost bug
-
 // Must be included before any other serialisation headers
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>

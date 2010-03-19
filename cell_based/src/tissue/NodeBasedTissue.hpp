@@ -145,7 +145,7 @@ public:
      * @param deleteNodes whether to delete nodes in destructor
      */
     NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
-                    const std::vector<TissueCell>& rCells,
+                    std::vector<TissueCell>& rCells,
                     const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
                     bool deleteNodes=true);
 
@@ -171,7 +171,7 @@ public:
      * @param rCells a vector of TissueCells.
      */
     NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
-                    const std::vector<TissueCell>& rCells);
+                    std::vector<TissueCell>& rCells);
 
     /**
      * Destructor.

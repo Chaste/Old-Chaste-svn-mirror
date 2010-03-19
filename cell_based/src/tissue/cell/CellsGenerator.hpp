@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "TissueCell.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "CellMutationStateRegistry.hpp"
 
 /**
  * A helper class for generating a vector of cells for a given mesh.
@@ -76,6 +77,7 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCell>
 											             unsigned numCells,
 											             const std::vector<unsigned> locationIndices)
 {
+	CellMutationStateRegistry::Instance()->Clear();
 	rCells.clear();
 	if (!locationIndices.empty())
 	{
@@ -93,7 +95,7 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCell>
 		CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
         p_cell_cycle_model->SetDimension(DIM);
 
-		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+		boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 		TissueCell cell(STEM, p_state, p_cell_cycle_model);
 
 		double birth_time;
@@ -120,13 +122,14 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vec
 
     rCells.clear();
     rCells.reserve(num_cells);
+    CellMutationStateRegistry::Instance()->Clear();
 
     for (unsigned i=0; i<num_cells; i++)
     {
     	CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
         p_cell_cycle_model->SetDimension(DIM);
 
-    	boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+    	boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 
     	TissueCell cell(STEM, p_state, p_cell_cycle_model);
 

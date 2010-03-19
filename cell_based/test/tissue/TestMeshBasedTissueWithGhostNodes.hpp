@@ -77,7 +77,9 @@ public:
         // Fails as the tissue constructor is not given the location indices
         // corresponding to real cells, so cannot work out which nodes are
         // ghost nodes
-        TS_ASSERT_THROWS_THIS(MeshBasedTissueWithGhostNodes<2> dodgy_tissue(mesh, cells),"Node 4 does not appear to be a ghost node or have a cell associated with it");
+        std::vector<TissueCell> cells_copy(cells);
+        TS_ASSERT_THROWS_THIS(MeshBasedTissueWithGhostNodes<2> dodgy_tissue(mesh, cells_copy),
+        		"Node 4 does not appear to be a ghost node or have a cell associated with it");
 
         // Passes as the tissue constructor automatically works out which
         // cells are ghost nodes using the mesh and cell_location_indices

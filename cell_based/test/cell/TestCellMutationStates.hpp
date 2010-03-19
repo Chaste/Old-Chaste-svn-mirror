@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "ApcOneHitCellMutationState.hpp"
-//#include "ApcTwoHitCellMutationState.hpp"
-//#include "BetaCateninOneHitCellMutationState.hpp"
+#include "ApcTwoHitCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
 #include "LabelledCellMutationState.hpp"
 
 #include "CellMutationStateRegistry.hpp"
@@ -78,9 +78,9 @@ public:
 	void TestRegistry() throw(Exception)
 	{
 		boost::shared_ptr<AbstractCellMutationState> p_state1(
-				CellMutationStateRegistry::Get<WildTypeCellMutationState>());
+				CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 		boost::shared_ptr<AbstractCellMutationState> p_state2(
-				CellMutationStateRegistry::Get<WildTypeCellMutationState>());
+				CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 		TS_ASSERT(p_state1 == p_state2);
 		TS_ASSERT_EQUALS(p_state1->GetCellCount(), 0u);
 		p_state2->IncrementCellCount();
@@ -90,13 +90,26 @@ public:
 		TS_ASSERT_EQUALS(p_state->GetCellCount(), 0u);
 
 		std::vector<boost::shared_ptr<AbstractCellMutationState> > states =
-			CellMutationStateRegistry::rGetAllMutationStates();
+			CellMutationStateRegistry::Instance()->rGetAllMutationStates();
 		TS_ASSERT_EQUALS(states.size(), 1u);
 		TS_ASSERT(states[0] == p_state1);
 
-		CellMutationStateRegistry::Clear();
-		states = CellMutationStateRegistry::rGetAllMutationStates();
+		CellMutationStateRegistry::Instance()->Clear();
+		states = CellMutationStateRegistry::Instance()->rGetAllMutationStates();
 		TS_ASSERT_EQUALS(states.size(), 0u);
+
+		// The taking-ownership functionality
+		p_state1 = CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>();
+		CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>();
+		TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->rGetAllMutationStates().size(), 2u);
+		CellMutationStateRegistry* p_instance = CellMutationStateRegistry::Instance();
+		CellMutationStateRegistry* p_registry = CellMutationStateRegistry::Instance()->TakeOwnership();
+		TS_ASSERT_EQUALS(p_instance, p_registry);
+		TS_ASSERT_EQUALS(p_registry->rGetAllMutationStates().size(), 2u);
+		TS_ASSERT_DIFFERS(CellMutationStateRegistry::Instance(), p_registry);
+		TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->rGetAllMutationStates().size(), 0u);
+		TS_ASSERT_EQUALS(p_registry->rGetAllMutationStates().size(), 2u);
+		delete p_registry;
 	}
 
 	void TestArchiveCellMutationState() throw(Exception)
@@ -151,29 +164,33 @@ public:
 
 		// Archive a boost::shared_ptr to a mutation state
 		{
-			boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+			boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 			p_state->IncrementCellCount();
 
-			const boost::shared_ptr<const AbstractCellMutationState> p_const = p_state;
+			const CellMutationStateRegistry* const p_registry = CellMutationStateRegistry::Instance()->TakeOwnership();
 
 			// Create an output archive
 			std::ofstream ofs(archive_filename.c_str());
 			boost::archive::text_oarchive output_arch(ofs);
 
 			// Write the cell to the archive
-			output_arch << p_const;
+			output_arch << p_registry;
+
+			delete p_registry;
 		}
 
 		// Restore boost::shared_ptr to mutation state
 		{
 			// Initialize a mutation state
-			boost::shared_ptr<AbstractCellMutationState> p_state;
+			CellMutationStateRegistry* p_registry;
 
 			// Restore the mutation state
 			std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
 			boost::archive::text_iarchive input_arch(ifs);
 
-			input_arch >> p_state;
+			input_arch >> p_registry;
+
+			boost::shared_ptr<AbstractCellMutationState> p_state = p_registry->Get<WildTypeCellMutationState>();
 
 			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
 			TS_ASSERT_EQUALS(p_state->GetColour(), 0u);

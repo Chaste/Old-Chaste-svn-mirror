@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
      MutableMesh<DIM, DIM>& rMesh,
-     const std::vector<TissueCell>& rCells,
+     std::vector<TissueCell>& rCells,
      const std::vector<unsigned> locationIndices,
      bool deleteMesh)
              : MeshBasedTissue<DIM>(rMesh, rCells, locationIndices, deleteMesh, false) // do not call the base class Validate()

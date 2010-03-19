@@ -74,12 +74,14 @@ private:
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCell> cells = SetUpCells(&mesh);
+        unsigned num_cells = cells.size();
 
         // Create the tissue
         NodeBasedTissue<DIM> node_based_tissue(mesh, cells);
 
         TS_ASSERT_EQUALS(node_based_tissue.rGetNodes().size(), mesh.GetNumNodes());
-        TS_ASSERT_EQUALS(node_based_tissue.rGetCells().size(), cells.size());
+        TS_ASSERT_EQUALS(node_based_tissue.rGetCells().size(), num_cells);
+        TS_ASSERT_EQUALS(cells.size(), 0u);
 
         unsigned counter = 0;
         for (typename AbstractTissue<DIM>::Iterator cell_iter = node_based_tissue.Begin();
@@ -130,11 +132,13 @@ public:
         }
 
         // Create the tissue
+        unsigned num_cells = cells.size();
+        std::vector<TissueCell> cells_copy(cells);
         NodeBasedTissue<2> node_based_tissue(nodes, cells);
 
         TS_ASSERT_EQUALS(node_based_tissue.rGetNodes().size(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(node_based_tissue.rGetNodes().size(), nodes.size());
-        TS_ASSERT_EQUALS(node_based_tissue.rGetCells().size(), cells.size());
+        TS_ASSERT_EQUALS(node_based_tissue.rGetCells().size(), num_cells);
 
         // For coverage, test that tissue constructor with 3rd argument locationIndices throws
         // an exception when the size of locationIndices does not equal the number of cells
@@ -143,7 +147,8 @@ public:
         location_indices.push_back(1);
         location_indices.push_back(2);
 
-        TS_ASSERT_THROWS_THIS(NodeBasedTissue<2> node_based_tissue(nodes, cells, location_indices),"There is not a one-one correspondence between cells and location indices");
+        TS_ASSERT_THROWS_THIS(NodeBasedTissue<2> node_based_tissue(nodes, cells_copy, location_indices),
+        		              "There is not a one-one correspondence between cells and location indices");
     }
 
     void TestValidateNodeBasedTissue()
@@ -176,8 +181,9 @@ public:
             nodes.push_back(p_node);
         }
         // Fails as no cell corresponding to node 4
-        TS_ASSERT_THROWS_THIS(NodeBasedTissue<2> tissue(nodes, cells),
-                "Node 4 does not appear to have a cell associated with it");
+        std::vector<TissueCell> cells_copy(cells);
+        TS_ASSERT_THROWS_THIS(NodeBasedTissue<2> tissue(nodes, cells_copy),
+							  "Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
         AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();

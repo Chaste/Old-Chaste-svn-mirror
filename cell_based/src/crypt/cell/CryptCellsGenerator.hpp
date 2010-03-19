@@ -34,6 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/mpl/if.hpp>
 
 #include "CellsGenerator.hpp"
+
+#include "CellMutationStateRegistry.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "TetrahedralMesh.hpp"
@@ -96,6 +98,8 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
 									  double y3,
 									  bool initialiseCells)
 {
+    CellMutationStateRegistry::Instance()->Clear();
+
     RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
     rCells.clear();
@@ -112,7 +116,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
         /*
          * We cannot directly assert this dynamic cast. This is because the assert macro
          * doesn't understand the <2,2> and thinks that it is being passed two arguments.
-         */  
+         */
         bool is_vertex_mesh = (dynamic_cast<VertexMesh<2,2>*>(pMesh));
         if(!is_vertex_mesh)
         {
@@ -146,7 +150,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
             /*
              * We cannot directly assert this dynamic cast. This is because the assert macro
              * doesn't understand the <2,2> and thinks that it is being passed two arguments.
-             */  
+             */
             bool is_vertex_mesh = (dynamic_cast<VertexMesh<2,2>*>(pMesh));
             if(!is_vertex_mesh)
             {
@@ -154,7 +158,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
             }
             y = dynamic_cast<VertexMesh<2,2>*>(pMesh)->GetCentroidOfElement(i)[1];
         }
-        
+
         CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
         p_cell_cycle_model->SetDimension(2);
 
@@ -203,7 +207,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
         	dynamic_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model)->SetGeneration(generation);
         }
 
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
         TissueCell cell(cell_type, p_state, p_cell_cycle_model);
         if (initialiseCells)
         {

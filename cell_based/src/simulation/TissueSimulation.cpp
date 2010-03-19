@@ -56,6 +56,7 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
       mForceCollection(forceCollection)
 {
     mpConfig = TissueConfig::Instance();
+    mpMutationStateRegistry = CellMutationStateRegistry::Instance()->TakeOwnership();
 
     // This line sets a random seed of 0 if it wasn't specified earlier.
     mpRandomGenerator = RandomNumberGenerator::Instance();
@@ -100,6 +101,7 @@ TissueSimulation<DIM>::~TissueSimulation()
         }
         delete &mrTissue;
     }
+    delete mpMutationStateRegistry;
 }
 
 
@@ -363,6 +365,11 @@ std::string TissueSimulation<DIM>::GetOutputDirectory()
     return mOutputDirectory;
 }
 
+template<unsigned DIM>
+CellMutationStateRegistry* TissueSimulation<DIM>::GetMutationRegistry()
+{
+	return mpMutationStateRegistry;
+}
 
 template<unsigned DIM>
 void TissueSimulation<DIM>::SetSamplingTimestepMultiple(unsigned samplingTimestepMultiple)

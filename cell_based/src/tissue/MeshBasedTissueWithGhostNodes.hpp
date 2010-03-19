@@ -105,7 +105,7 @@ public:
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
-                                  const std::vector<TissueCell>& rCells,
+                                  std::vector<TissueCell>& rCells,
                                   const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
                                   bool deleteMesh=false);
 

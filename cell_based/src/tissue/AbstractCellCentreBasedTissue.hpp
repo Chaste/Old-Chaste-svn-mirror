@@ -57,6 +57,13 @@ private:
         archive & boost::serialization::base_object<AbstractTissue<DIM> >(*this);
     }
 
+protected:
+    /**
+     * Constructor for use by archiving - doesn't take in cells, since these are dealt
+     * with by the serialize method.
+     */
+    AbstractCellCentreBasedTissue();
+
 public:
 
     /**
@@ -65,14 +72,8 @@ public:
      * @param rCells a vector of cells
      * @param locationIndices an optional vector of location indices that correspond to real cells
      */
-    AbstractCellCentreBasedTissue(const std::vector<TissueCell>& rCells,
+    AbstractCellCentreBasedTissue(std::vector<TissueCell>& rCells,
                                   const std::vector<unsigned> locationIndices=std::vector<unsigned>());
-
-    /**
-     * Constructor for use by archiving - doesn't take in cells, since these are dealt
-     * with by the serialize method.
-     */
-    AbstractCellCentreBasedTissue();
 
     /**
      * Overridden GetLocationOfCellCentre() method.

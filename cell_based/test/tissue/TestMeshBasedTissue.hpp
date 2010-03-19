@@ -65,10 +65,11 @@ private:
         generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create the tissue
+        unsigned num_cells = cells.size();
         MeshBasedTissue<DIM> tissue(mesh, cells);
 
         TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(), mesh.GetNumNodes());
-        TS_ASSERT_EQUALS(tissue.rGetCells().size(), cells.size());
+        TS_ASSERT_EQUALS(tissue.rGetCells().size(), num_cells);
 
         unsigned counter = 0;
         for (typename AbstractTissue<DIM>::Iterator cell_iter = tissue.Begin();
@@ -120,7 +121,9 @@ public:
         }
 
         // Fails as no cell corresponding to node 4
-        TS_ASSERT_THROWS_THIS(MeshBasedTissue<2> tissue2(mesh, cells),"Node 4 does not appear to have a cell associated with it");
+        std::vector<TissueCell> cells_copy(cells);
+        TS_ASSERT_THROWS_THIS(MeshBasedTissue<2> tissue2(mesh, cells_copy),
+        		              "Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
         AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -129,7 +132,8 @@ public:
         cell.SetBirthTime(birth_time);
         cells.push_back(cell);
 
-        TS_ASSERT_THROWS_NOTHING(MeshBasedTissue<2> tissue2(mesh, cells));
+        std::vector<TissueCell> cells_copy2(cells);
+        TS_ASSERT_THROWS_NOTHING(MeshBasedTissue<2> tissue2(mesh, cells_copy2));
 
         // A bit of Northern compatibility testing hidden here (not relevant to this test!)
         TS_ASSERT_THROWS_NOWT(MeshBasedTissue<2> tissue2(mesh, cells));
