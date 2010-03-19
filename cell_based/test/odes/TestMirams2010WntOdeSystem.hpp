@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "BetaCateninOneHitCellMutationState.hpp"
 
 class TestMirams2010WntOdeSystem : public AbstractCellBasedTestSuite
 {
@@ -87,16 +88,13 @@ public:
         double wnt_level = 0.5;
         boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
         Mirams2010WntOdeSystem wnt_system(wnt_level, p_apc2);
+
         // Solve system using rk4 solver
-        // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
+        // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits
 
         double h_value = 0.0001;
-
         CvodeAdaptor cvode_solver;
-
         OdeSolution solutions;
-        //OdeSolution solutions2;
-
         std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
 
         double start_time, end_time, elapsed_time = 0.0;
@@ -106,9 +104,10 @@ public:
         elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
         std::cout <<  "1. Cvode Elapsed time = " << elapsed_time << " secs for 100 hours\n";
 
-        // Test solutions are OK for a small time increase...
+        // Test solutions are OK for a small time increase
         int end = solutions.rGetSolutions().size() - 1;
-        // Tests the simulation is ending at the right time...(going into S phase at 7.8 hours)
+
+        // Test the simulation is ending at the right time (going into S phase at 7.8 hours)
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 100, 1e-2);
 
         // Decent results
@@ -118,6 +117,40 @@ public:
 #endif //CHASTE_CVODE
     }
 
+    void TestGarysWntOdeSystemBetaCatenin1Hit() throw(Exception)
+    {
+#ifdef CHASTE_CVODE
+        double wnt_level = 0.5;
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        Mirams2010WntOdeSystem wnt_system(wnt_level, p_bcat1);
+
+        // Solve system using rk4 solver
+        // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits
+
+        double h_value = 0.0001;
+        CvodeAdaptor cvode_solver;
+        OdeSolution solutions;
+        std::vector<double> initial_conditions = wnt_system.GetInitialConditions();
+
+        double start_time, end_time, elapsed_time = 0.0;
+        start_time = std::clock();
+        solutions = cvode_solver.Solve(&wnt_system, initial_conditions, 0.0, 100.0, h_value, h_value);
+        end_time = std::clock();
+        elapsed_time = (end_time - start_time)/(CLOCKS_PER_SEC);
+        std::cout <<  "1. Cvode Elapsed time = " << elapsed_time << " secs for 100 hours\n";
+
+        // Test solutions are OK for a small time increase
+        int end = solutions.rGetSolutions().size() - 1;
+
+        // Tests the simulation is ending at the right time (going into S phase at 7.8 hours)
+        TS_ASSERT_DELTA(solutions.rGetTimes()[end], 100, 1e-2);
+
+        ///\todo check results are decent (#
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 67.5011, 1e-4);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 824.0259, 1e-4);
+        TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], wnt_level, 1e-4);
+#endif //CHASTE_CVODE
+    }
 };
 
 #endif /* TESTMIRAMS2010WNTODESYSTEM_HPP_ */
