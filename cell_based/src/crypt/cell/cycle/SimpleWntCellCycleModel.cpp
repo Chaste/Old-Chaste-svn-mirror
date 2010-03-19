@@ -109,8 +109,7 @@ double SimpleWntCellCycleModel::GetWntLevel()
             break;
         }
         default:
-        	std::cout << "dim = " << mDimension << "\n" << std::flush;
-            NEVER_REACHED;
+        	NEVER_REACHED;
     }
     return level;
 }

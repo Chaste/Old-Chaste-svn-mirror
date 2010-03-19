@@ -34,6 +34,11 @@ CvodeAdaptor SingleOdeWntCellCycleModel::msSolver;
 RungeKutta4IvpOdeSolver SingleOdeWntCellCycleModel::msSolver;
 #endif //CHASTE_CVODE
 
+SingleOdeWntCellCycleModel::~SingleOdeWntCellCycleModel()
+{
+    delete mpOdeSystem;
+}
+
 AbstractCellCycleModel* SingleOdeWntCellCycleModel::CreateCellCycleModel()
 {
     return new SingleOdeWntCellCycleModel(*this);
@@ -136,6 +141,21 @@ void SingleOdeWntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCate
     }
 
     mpCell->SetCellProliferativeType(cell_type);
+}
+
+double SingleOdeWntCellCycleModel::GetBetaCateninConcentration()
+{
+    return mpOdeSystem->rGetStateVariables()[0] + mpOdeSystem->rGetStateVariables()[1];
+}
+
+void SingleOdeWntCellCycleModel::SetBetaCateninDivisionThreshold(double betaCateninDivisionThreshold)
+{
+    mBetaCateninDivisionThreshold = betaCateninDivisionThreshold;
+}
+
+double SingleOdeWntCellCycleModel::GetBetaCateninDivisionThreshold()
+{
+    return mBetaCateninDivisionThreshold;
 }
 
 // Declare identifier for the serializer

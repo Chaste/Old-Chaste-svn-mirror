@@ -179,7 +179,7 @@ inline void load_construct_data(
     }
 
     boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-    unsigned dimension = UINT_MAX;
+    unsigned dimension = 1;
     ::new(t)StochasticWntCellCycleModel(state_vars, p_mutation_state, dimension);
 }
 }

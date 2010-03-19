@@ -28,8 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef SINGLEODEWNTCELLCYCLEMODEL_HPP_
 #define SINGLEODEWNTCELLCYCLEMODEL_HPP_
 
-#include <boost/serialization/access.hpp>
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #include <cfloat>
 
@@ -37,8 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Mirams2010WntOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "CvodeAdaptor.hpp"
-#include "WntConcentration.hpp"
-#include "AbstractCellMutationState.hpp"
 
 /**
  * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
@@ -55,12 +55,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class SingleOdeWntCellCycleModel : public SimpleWntCellCycleModel
 {
 private:
-
     friend class boost::serialization::access;
+    /**
+     * Save the cell cycle model and ODE system to archive.
+     *
+     * @param archive the archive
+     * @param version the archive version
+     */
     template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
+    void save(Archive & archive, const unsigned int version) const
     {
-        assert(mpOdeSystem!=NULL);
+        assert(mpOdeSystem);
         archive & boost::serialization::base_object<SimpleWntCellCycleModel>(*this);
         /**
          * Reference can be read or written into once mpOdeSystem has been set up
@@ -71,12 +76,39 @@ private:
          * state variables...
          */
         archive & mpOdeSystem->rGetStateVariables();
-        archive & mBetaCateninDivisionThreshold;
-        archive & mLastTime;
 
         boost::shared_ptr<AbstractCellMutationState> p_mutation_state = static_cast<Mirams2010WntOdeSystem*>(mpOdeSystem)->GetMutationState();
         archive & p_mutation_state;
+
+        archive & mBetaCateninDivisionThreshold;
+        archive & mLastTime;
     }
+    /**
+     * Load the cell cycle model and ODE system from archive.
+     *
+     * @param archive the archive
+     * @param version the archive version
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+        /*
+         * The ODE system is set up by the archiving constructor, so we can set the mutation state
+         * here. This is a horrible hack, but avoids having to regenerate test archives.
+         */
+        assert(mpOdeSystem);
+
+        archive & boost::serialization::base_object<SimpleWntCellCycleModel>(*this);
+
+        boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
+        archive & p_mutation_state;
+
+        static_cast<Mirams2010WntOdeSystem*>(mpOdeSystem)->SetMutationState(p_mutation_state);
+
+        archive & mBetaCateninDivisionThreshold;
+        archive & mLastTime;
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     /**
      * Pointer to the ODE system developed by Mirams et al (2010).
@@ -140,22 +172,22 @@ public:
      * @param rDimension the spatial dimension
      * @param useTypeDependentG1 whether to make the duration of G1 phase dependent on the cell's proliferative type (defaults to false)
 	 */
-	SingleOdeWntCellCycleModel(std::vector<double>& rProteinConcs, boost::shared_ptr<AbstractCellMutationState> pMutationState, 
-                               unsigned& rDimension, bool useTypeDependentG1 = false);
+	SingleOdeWntCellCycleModel(std::vector<double>& rProteinConcs,
+	                           boost::shared_ptr<AbstractCellMutationState> pMutationState, 
+                               unsigned& rDimension,
+                               bool useTypeDependentG1 = false);
 
 	/**
-	 * Destructor
+	 * Destructor.
 	 */
-	~SingleOdeWntCellCycleModel()
-	{
-	    delete mpOdeSystem;
-	}
+	~SingleOdeWntCellCycleModel();
 
 	/**
-	 * Copy constructor...
+	 * Copy constructor.
 	 *
 	 * This is important to make a copy of the ODE system instead of
-	 * giving the copied cell cycle model a pointer to the same ODE...
+	 * giving the copied cell cycle model a pointer to the same ODE.
+	 * 
      * @param rOtherModel  the one to copy
 	 */
 	SingleOdeWntCellCycleModel(const SingleOdeWntCellCycleModel& rOtherModel);
@@ -170,7 +202,7 @@ public:
     void Initialise();
 
 	/**
-     * This specialisation updates the Beta-Catenin level
+     * This specialisation updates the beta-catenin level
      */
      void UpdateCellCyclePhase();
 
@@ -181,30 +213,21 @@ public:
     AbstractCellCycleModel* CreateCellCycleModel();
 
 	/**
-     * GetBetaCateninConcentration
+     * Return the total beta-catenin concentration
      */
-    double GetBetaCateninConcentration(void)
-	{
-	    return mpOdeSystem->rGetStateVariables()[0] + mpOdeSystem->rGetStateVariables()[1];
-	}
+    double GetBetaCateninConcentration();
 
     /**
-     * SetBetaCateninConcentration
-     * @param value  to be set
+     * Set #mBetaCateninDivisionThreshold.
+     * 
+     * @param betaCateninDivisionThreshold to be set
      */
-	void SetBetaCateninDivisionThreshold(double value)
-	{
-	    mBetaCateninDivisionThreshold = value;
-	}
+	void SetBetaCateninDivisionThreshold(double betaCateninDivisionThreshold);
 
 	/**
-     * GetBetaCateninDivisionThreshold
+     * Get #mBetaCateninDivisionThreshold.
      */
-    double GetBetaCateninDivisionThreshold(void)
-	{
-	    return mBetaCateninDivisionThreshold;
-	}
-
+    double GetBetaCateninDivisionThreshold();
 };
 
 // Declare identifier for the serializer
@@ -241,13 +264,10 @@ inline void load_construct_data(
      */
 
     std::vector<double> state_vars;
-    for (unsigned i=0; i<1; i++)
-    {
-        state_vars.push_back(0.0);
-    }
+    state_vars.push_back(0.0);
 
     boost::shared_ptr<AbstractCellMutationState> p_state;
-    unsigned dimension = UINT_MAX;
+    unsigned dimension = 1;
     ::new(t)SingleOdeWntCellCycleModel(state_vars, p_state, dimension);
 }
 }

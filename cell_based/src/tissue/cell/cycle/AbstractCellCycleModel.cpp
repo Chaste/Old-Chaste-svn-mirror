@@ -120,7 +120,10 @@ bool AbstractCellCycleModel::ReadyToDivide()
 
 void AbstractCellCycleModel::SetDimension(unsigned dimension)
 {
-	assert(dimension <= 3);
+	if (dimension != 1 && dimension !=2 && dimension != 3)
+	{
+	    EXCEPTION("Dimension must be 1, 2 or 3");
+	}
 	mDimension = dimension;
 }
 

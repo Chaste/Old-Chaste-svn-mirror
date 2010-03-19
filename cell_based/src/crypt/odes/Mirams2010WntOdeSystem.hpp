@@ -38,6 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
+#include "LabelledCellMutationState.hpp"
+#include "WildTypeCellMutationState.hpp"
 
 /**
  * Represents the Mirams et al. system of ODEs, based on Swat et al. (2004)

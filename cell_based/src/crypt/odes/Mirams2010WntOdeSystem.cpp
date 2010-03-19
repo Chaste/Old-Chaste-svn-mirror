@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel, boost::shared_ptr<AbstractCellMutationState> pMutationState)
     : AbstractOdeSystem(3),
-    mpMutationState(pMutationState)
+      mpMutationState(pMutationState)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<Mirams2010WntOdeSystem>);
 

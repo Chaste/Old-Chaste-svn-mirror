@@ -185,9 +185,14 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel;
-        TS_ASSERT_EQUALS(p_cycle_model->GetDimension(),0u);
+        TS_ASSERT_EQUALS(p_cycle_model->GetDimension(), 0u);
+
+        // Test the dimension must be 1, 2 or 3
+        TS_ASSERT_THROWS_THIS(p_cycle_model->SetDimension(4), "Dimension must be 1, 2 or 3");
+
+        // Test the set/get dimension methods
         p_cycle_model->SetDimension(2);
-        TS_ASSERT_EQUALS(p_cycle_model->GetDimension(),2u);
+        TS_ASSERT_EQUALS(p_cycle_model->GetDimension(), 2u);
 
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
