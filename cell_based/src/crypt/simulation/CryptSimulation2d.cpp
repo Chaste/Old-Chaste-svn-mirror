@@ -28,7 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptSimulation2d.hpp"
 #include "WntConcentration.hpp"
-#include "IngeWntSwatCellCycleModel.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 
 
 CryptSimulation2d::CryptSimulation2d(AbstractTissue<2>& rTissue,
@@ -140,8 +141,9 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
         x = mpStaticCastTissue->GetLocationOfCellCentre(*cell_iter)[0];
         y = mpStaticCastTissue->GetLocationOfCellCentre(*cell_iter)[1];
 
-        // If writing beta-catenin, the model has to be an IngeWntSwatCellCycleModel
-        IngeWntSwatCellCycleModel* p_model = static_cast<IngeWntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
+        // If writing beta-catenin, the model has to be an VanLeeuwen2009WntSwatCellCycleModel
+        AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(cell_iter->GetCellCycleModel());
+        assert(p_model); // if this fails, it wasn't a VanLeeuwen2009WntSwatCellCycleModel!!
 
         b_cat_membrane = p_model->GetMembraneBoundBetaCateninLevel();
         b_cat_cytoplasm = p_model->GetCytoplasmicBetaCateninLevel();
@@ -157,7 +159,7 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
 void CryptSimulation2d::SetupSolve()
 {
     if (   (mrTissue.Begin() != mrTissue.End()) // there are any cells
-        && (dynamic_cast<IngeWntSwatCellCycleModel*>(mrTissue.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
+        && (dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(mrTissue.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
     {
         SetupWriteBetaCatenin();
         double current_time = SimulationTime::Instance()->GetTime();
@@ -173,7 +175,7 @@ void CryptSimulation2d::PostSolve()
     if ((p_time->GetTimeStepsElapsed()+1)%mSamplingTimestepMultiple==0)
     {
         if (   (mrTissue.Begin() != mrTissue.End()) // there are any cells
-            && (dynamic_cast<IngeWntSwatCellCycleModel*>(mrTissue.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
+            && (dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(mrTissue.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
         {
             double time_next_step = p_time->GetTime() + p_time->GetTimeStep();
             WriteBetaCatenin(time_next_step);
@@ -185,7 +187,7 @@ void CryptSimulation2d::PostSolve()
 void CryptSimulation2d::AfterSolve()
 {
     if (   (mrTissue.Begin() != mrTissue.End()) // there are any cells
-        && (dynamic_cast<IngeWntSwatCellCycleModel*>(mrTissue.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
+        && (dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(mrTissue.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
     {
         mBetaCatResultsFile->close();
     }

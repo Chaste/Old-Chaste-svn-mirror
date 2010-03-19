@@ -25,30 +25,22 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
 
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 
-template<unsigned DIM>
-IngeWntSwatCellCycleModelCellsGenerator<DIM>::IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis)
-    : mHypothesis(hypothesis)
+/**
+ *  Extra constructor for archiving.
+ */
+VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(const std::vector<double>& rParentProteinConcentrations,
+												 boost::shared_ptr<AbstractCellMutationState> pMutationState,
+												 const unsigned& rDimension)
 {
+	InitialiseOdeSystem(rParentProteinConcentrations[21], pMutationState);
+	// Set the model to be the same as the parent cell
+	mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
 
 
-template<unsigned DIM>
-AbstractCellCycleModel* IngeWntSwatCellCycleModelCellsGenerator<DIM>::CreateCellCycleModel()
-{
-	IngeWntSwatCellCycleModel* p_cell_cycle_model = new IngeWntSwatCellCycleModel();
-	p_cell_cycle_model->SetDimension(DIM);
-	p_cell_cycle_model->SetHypothesis(mHypothesis);
-    return p_cell_cycle_model;
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-// Explicit instantiation
-/////////////////////////////////////////////////////////////////////////////
-
-//template class IngeWntSwatCellCycleModelCellsGenerator<1>;
-template class IngeWntSwatCellCycleModelCellsGenerator<2>;
-//template class IngeWntSwatCellCycleModelCellsGenerator<3>;
+// Declare identifier for the serializer
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(VanLeeuwen2009WntSwatCellCycleModelHypothesisOne)

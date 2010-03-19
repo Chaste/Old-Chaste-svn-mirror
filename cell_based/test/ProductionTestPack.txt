@@ -6,7 +6,7 @@ common/TestTissueConfig.hpp
 crypt/TestCryptSimulation1d.hpp
 crypt/TestCryptSimulation2d.hpp
 crypt/TestCylindrical2dMesh.hpp
-crypt/TestIngeWntSwatCellCycleOdeSystem.hpp
+crypt/TestVanLeeuwen2009WntSwatCellCycleOdeSystem.hpp
 crypt/TestWntCellCycleOdeSystem.hpp
 crypt/TestWntConcentration.hpp
 mesh/TestHoneycombMeshGenerator.hpp

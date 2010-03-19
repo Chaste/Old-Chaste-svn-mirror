@@ -167,7 +167,7 @@ public:
     /**
      * A 'private' constructor for archiving.
      *
-     * @param rProteinConcs a std::vector of doubles of the protein concentrations (see IngeWntSwatCellCycleOdeSystem)
+     * @param rProteinConcs a std::vector of doubles of the protein concentrations (see VanLeeuwen2009WntSwatCellCycleOdeSystem)
      * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
      * @param useTypeDependentG1 whether to make the duration of G1 phase dependent on the cell's proliferative type (defaults to false)

@@ -26,10 +26,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "IngeWntSwatCellCycleOdeSystem.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(
+VanLeeuwen2009WntSwatCellCycleOdeSystem::VanLeeuwen2009WntSwatCellCycleOdeSystem(
 		unsigned hypothesis,
 		double wntLevel,
 		boost::shared_ptr<AbstractCellMutationState> pMutationState)
@@ -42,7 +42,7 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(
         EXCEPTION("You must set up this cell cycle ODE system with hypothesis one or two.");
     }
 
-    mpSystemInfo.reset(new CellwiseOdeSystemInformation<IngeWntSwatCellCycleOdeSystem>);
+    mpSystemInfo.reset(new CellwiseOdeSystemInformation<VanLeeuwen2009WntSwatCellCycleOdeSystem>);
 
     /**
      * State variables are
@@ -138,17 +138,17 @@ IngeWntSwatCellCycleOdeSystem::IngeWntSwatCellCycleOdeSystem(
     SetInitialConditionsComponent(21, wntLevel); // Wnt stimulus
 }
 
-void IngeWntSwatCellCycleOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
+void VanLeeuwen2009WntSwatCellCycleOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
 {
     mpMutationState = pMutationState;
 }
 
-IngeWntSwatCellCycleOdeSystem::~IngeWntSwatCellCycleOdeSystem()
+VanLeeuwen2009WntSwatCellCycleOdeSystem::~VanLeeuwen2009WntSwatCellCycleOdeSystem()
 {
     // Do nothing
 }
 
-void IngeWntSwatCellCycleOdeSystem::Init()
+void VanLeeuwen2009WntSwatCellCycleOdeSystem::Init()
 {
     // Swat (2004) parameters
     double k1 = 1.0;
@@ -239,7 +239,7 @@ void IngeWntSwatCellCycleOdeSystem::Init()
     }
 }
 
-void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
+void VanLeeuwen2009WntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
 {
     double r = rY[0];
     double e = rY[1];
@@ -354,12 +354,12 @@ void IngeWntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, const std:
     rDY[21] = 0.0;  // don't interfere with Wnt stimulus
 }
 
-boost::shared_ptr<AbstractCellMutationState> IngeWntSwatCellCycleOdeSystem::GetMutationState()
+boost::shared_ptr<AbstractCellMutationState> VanLeeuwen2009WntSwatCellCycleOdeSystem::GetMutationState()
 {
     return mpMutationState;
 }
 
-bool IngeWntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)
+bool VanLeeuwen2009WntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)
 {
     std::vector<double> dy(rY.size());
     EvaluateYDerivatives(time, rY, dy);
@@ -367,14 +367,14 @@ bool IngeWntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time, const st
     return (rY[1] > 1.0 && dy[1] > 0.0);
 }
 
-double IngeWntSwatCellCycleOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
+double VanLeeuwen2009WntSwatCellCycleOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
 {
     return rY[1]-1.0;
 }
 
 
 template<>
-void CellwiseOdeSystemInformation<IngeWntSwatCellCycleOdeSystem>::Initialise()
+void CellwiseOdeSystemInformation<VanLeeuwen2009WntSwatCellCycleOdeSystem>::Initialise()
 {
     this->mVariableNames.push_back("pRb");
     this->mVariableUnits.push_back("non_dim");

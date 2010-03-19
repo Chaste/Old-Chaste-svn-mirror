@@ -26,51 +26,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "UblasIncludes.hpp"
-#include "IngeWntSwatCellCycleModel.hpp"
+#include "AbstractVanLeeuwen2009WntSwatCellCycleModel.hpp"
 
 
-IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel()
+AbstractVanLeeuwen2009WntSwatCellCycleModel::AbstractVanLeeuwen2009WntSwatCellCycleModel()
    : AbstractWntOdeBasedCellCycleModel()
 {
 }
 
 
-IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const IngeWntSwatCellCycleModel& rOtherModel)
-    : AbstractWntOdeBasedCellCycleModel(rOtherModel),
-      mHypothesis(rOtherModel.mHypothesis)
+AbstractVanLeeuwen2009WntSwatCellCycleModel::AbstractVanLeeuwen2009WntSwatCellCycleModel(const AbstractVanLeeuwen2009WntSwatCellCycleModel& rOtherModel)
+    : AbstractWntOdeBasedCellCycleModel(rOtherModel)
 {
     if (rOtherModel.mpOdeSystem != NULL)
     {
-        mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(*static_cast<IngeWntSwatCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
+        mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(*static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
     }
 }
 
 
-IngeWntSwatCellCycleModel::IngeWntSwatCellCycleModel(const unsigned& rHypothesis,
-                                                     const std::vector<double>& rParentProteinConcentrations,
-                                                     boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                                                     const unsigned& rDimension)
-    : AbstractWntOdeBasedCellCycleModel()
-{
-    mHypothesis = rHypothesis;
-    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(rHypothesis, rParentProteinConcentrations[21], pMutationState);// Wnt pathway is reset in a couple of lines.
-
-    // Set the model to be the same as the parent cell
-    mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
-}
 
 
-AbstractCellCycleModel* IngeWntSwatCellCycleModel::CreateCellCycleModel()
-{
-    return new IngeWntSwatCellCycleModel(*this);
-}
-
-
-void IngeWntSwatCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
+void AbstractVanLeeuwen2009WntSwatCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
 {
     assert(mpOdeSystem!=NULL);
     assert(mpCell!=NULL);
-    double beta_catenin_level = mpOdeSystem->rGetStateVariables()[16]
+    double beta_catenin_level =   mpOdeSystem->rGetStateVariables()[16]
                                 + mpOdeSystem->rGetStateVariables()[17]
                                 + mpOdeSystem->rGetStateVariables()[18]
                                 + mpOdeSystem->rGetStateVariables()[19];
@@ -87,21 +68,23 @@ void IngeWntSwatCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCaten
 }
 
 
-void IngeWntSwatCellCycleModel::Initialise()
+void AbstractVanLeeuwen2009WntSwatCellCycleModel::Initialise()
 {
     assert(mpOdeSystem==NULL);
     assert(mpCell!=NULL);
 
     double wnt_level = GetWntLevel();
 
-    mpOdeSystem = new IngeWntSwatCellCycleOdeSystem(mHypothesis, wnt_level, mpCell->GetMutationState());
+    //mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(mHypothesis, wnt_level, mpCell->GetMutationState());
+    InitialiseOdeSystem(wnt_level, mpCell->GetMutationState());
+
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 
     ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 }
 
 
-bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
+bool AbstractVanLeeuwen2009WntSwatCellCycleModel::SolveOdeToTime(double currentTime)
 {
     // We are in G0 or G1 phase - running cell cycle ODEs
 #ifdef CHASTE_CVODE
@@ -114,7 +97,7 @@ bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
     mpOdeSystem->rGetStateVariables()[21] = GetWntLevel();
 
     // Use the cell's current mutation status as another input
-    static_cast<IngeWntSwatCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
+    static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
 
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
 
@@ -124,43 +107,24 @@ bool IngeWntSwatCellCycleModel::SolveOdeToTime(double currentTime)
 }
 
 
-double IngeWntSwatCellCycleModel::GetMembraneBoundBetaCateninLevel()
+double AbstractVanLeeuwen2009WntSwatCellCycleModel::GetMembraneBoundBetaCateninLevel()
 {
     return mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14];
 }
 
 
-double IngeWntSwatCellCycleModel::GetCytoplasmicBetaCateninLevel()
+double AbstractVanLeeuwen2009WntSwatCellCycleModel::GetCytoplasmicBetaCateninLevel()
 {
-    return mpOdeSystem->rGetStateVariables()[7] + mpOdeSystem->rGetStateVariables()[8]
-        + mpOdeSystem->rGetStateVariables()[9] + mpOdeSystem->rGetStateVariables()[10]
-        + mpOdeSystem->rGetStateVariables()[11];
+    return  mpOdeSystem->rGetStateVariables()[7] + mpOdeSystem->rGetStateVariables()[8]
+          + mpOdeSystem->rGetStateVariables()[9] + mpOdeSystem->rGetStateVariables()[10]
+          + mpOdeSystem->rGetStateVariables()[11];
 }
 
 
-double IngeWntSwatCellCycleModel::GetNuclearBetaCateninLevel()
+double AbstractVanLeeuwen2009WntSwatCellCycleModel::GetNuclearBetaCateninLevel()
 {
     return mpOdeSystem->rGetStateVariables()[16] +
            mpOdeSystem->rGetStateVariables()[17] +
            mpOdeSystem->rGetStateVariables()[18] +
            mpOdeSystem->rGetStateVariables()[19];
 }
-
-void IngeWntSwatCellCycleModel::SetHypothesis(unsigned hypothesis)
-{
-	mHypothesis = hypothesis;
-    if ( !(mHypothesis==1u || mHypothesis==2u) )
-    {
-        EXCEPTION("Model must be set up with argument(hypothesis) = 1u or 2u");
-    }
-}
-
-unsigned IngeWntSwatCellCycleModel::GetHypothesis() const
-{
-    return mHypothesis;
-}
-
-
-// Serialization for Boost >= 1.36
-#include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(IngeWntSwatCellCycleModel)

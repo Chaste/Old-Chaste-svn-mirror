@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef INGEWNTSWATCELLCYCLEODESYSTEM_HPP_
-#define INGEWNTSWATCELLCYCLEODESYSTEM_HPP_
+#ifndef VANLEEUWEN2009WNTSWATCELLCYCLEODESYSTEM_HPP_
+#define VANLEEUWEN2009WNTSWATCELLCYCLEODESYSTEM_HPP_
 
 #include <cmath>
 #include <iostream>
@@ -72,7 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *   20. Y = Wnt Target protein
  *   21. Wnt level
  */
-class IngeWntSwatCellCycleOdeSystem : public AbstractOdeSystem
+class VanLeeuwen2009WntSwatCellCycleOdeSystem : public AbstractOdeSystem
 {
 private:
 
@@ -203,14 +203,14 @@ public:
      * @param wntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
      * @param pMutationState cell mutation; some affect the ODE system
      */
-    IngeWntSwatCellCycleOdeSystem(unsigned hypothesis,
+    VanLeeuwen2009WntSwatCellCycleOdeSystem(unsigned hypothesis,
     		                      double wntLevel = 0.0,
     		                      boost::shared_ptr<AbstractCellMutationState> pMutationState=boost::shared_ptr<AbstractCellMutationState>());
 
     /**
      * Destructor.
      */
-    ~IngeWntSwatCellCycleOdeSystem();
+    ~VanLeeuwen2009WntSwatCellCycleOdeSystem();
 
     /**
      * Initialise parameter values.
@@ -269,4 +269,4 @@ public:
 
 };
 
-#endif /*INGEWNTSWATCELLCYCLEODESYSTEM_HPP_*/
+#endif /*VANLEEUWEN2009WNTSWATCELLCYCLEODESYSTEM_HPP_*/

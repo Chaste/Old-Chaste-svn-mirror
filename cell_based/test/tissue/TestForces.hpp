@@ -35,7 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CryptCellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
@@ -385,8 +386,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(2u);
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, false);
+        CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo> cells_generator;
+        cells_generator.Generate(cells, p_mesh, location_indices, false);
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 

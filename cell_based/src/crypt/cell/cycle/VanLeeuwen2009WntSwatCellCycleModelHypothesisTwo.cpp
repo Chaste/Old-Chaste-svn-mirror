@@ -25,42 +25,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef INGEWNTSWATCELLCYCLEMODELCELLSGENERATOR_HPP_
-#define INGEWNTSWATCELLCYCLEMODELCELLSGENERATOR_HPP_
 
-#include "AbstractCellsGenerator.hpp"
-#include "IngeWntSwatCellCycleModel.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 
-/**
- * A helper class for generating a vector of cells with
- * IngeWntSwatCellCycleModels for a given mesh.
- */
-template<unsigned DIM>
-class IngeWntSwatCellCycleModelCellsGenerator : public AbstractCellsGenerator<DIM>
+VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo(const std::vector<double>& rParentProteinConcentrations,
+												 boost::shared_ptr<AbstractCellMutationState> pMutationState,
+												const unsigned& rDimension)
 {
-private:
+	InitialiseOdeSystem(rParentProteinConcentrations[21], pMutationState);
+	// Set the model to be the same as the parent cell
+	mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
+}
 
-    /**
-     * Hypothesis number (1 or 2), concerning the nature of the
-     * interactions modelled by the cell cycle ODE system.
-     */
-    unsigned mHypothesis;
-
-public:
-
-    /**
-     * Constructor.
-     *
-     * @param hypothesis Hypothesis number (1 or 2), concerning the nature of the
-     * interactions modelled by the cell cycle ODE system
-     */
-    IngeWntSwatCellCycleModelCellsGenerator(unsigned hypothesis);
-
-    /**
-     * @return a pointer to a new IngeWntSwatCellCycleModel.
-     */
-    AbstractCellCycleModel* CreateCellCycleModel();
-
-};
-
-#endif /*INGEWNTSWATCELLCYCLEMODELCELLSGENERATOR_HPP_*/
+// Declare identifier for the serializer
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo)

@@ -28,7 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "MeshBasedTissue.hpp"
-#include "IngeWntSwatCellCycleModel.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 #include "VoronoiTessellation.hpp"
 
 template<unsigned DIM>
@@ -137,9 +138,9 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     if (mUseBCatSprings)
     {
         assert(rTissue.HasMesh());
-        // If using beta-cat dependent springs, both cell-cycle models had better be IngeWntSwatCellCycleModel
-        IngeWntSwatCellCycleModel* p_model_A = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
-        IngeWntSwatCellCycleModel* p_model_B = dynamic_cast<IngeWntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
+        // If using beta-cat dependent springs, both cell-cycle models had better be VanLeeuwen2009WntSwatCellCycleModel
+        AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model_A = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
+        AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model_B = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
 
         assert(!mUseEdgeBasedSpringConstant);   // This already adapts for edge lengths - don't want to do it twice.
         double beta_cat_cell_1 = p_model_A->GetMembraneBoundBetaCateninLevel();

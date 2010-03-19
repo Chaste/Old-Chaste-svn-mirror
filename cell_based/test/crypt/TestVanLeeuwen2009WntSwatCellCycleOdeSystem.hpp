@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef TESTINGEWNTSWATCELLCYCLEODESYSTEM_HPP_
-#define TESTINGEWNTSWATCELLCYCLEODESYSTEM_HPP_
+#ifndef TESTVANLEEUWEN2009WNTSWATCELLCYCLEODESYSTEM_HPP_
+#define TESTVANLEEUWEN2009WNTSWATCELLCYCLEODESYSTEM_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -38,7 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptSimulation2d.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "SloughingCellKiller.hpp"
-#include "IngeWntSwatCellCycleModelCellsGenerator.hpp"
+#include "CryptCellsGenerator.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
@@ -49,17 +51,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LabelledCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
 
-class TestIngeWntSwatCellCycleOdeSystem : public CxxTest::TestSuite
+class TestVanLeeuwen2009WntSwatCellCycleOdeSystem : public CxxTest::TestSuite
 {
 public:
 
-    void TestIngeWntSwatCellCycleEquationsHighWnt()
+    void TestVanLeeuwen2009WntSwatCellCycleEquationsHighWnt()
     {
         double wnt_level = 1.0;
 
-        TS_ASSERT_THROWS_THIS(IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(3,wnt_level),"You must set up this cell cycle ODE system with hypothesis one or two.");
+        TS_ASSERT_THROWS_THIS(VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system(3,wnt_level),"You must set up this cell cycle ODE system with hypothesis one or two.");
 
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(1,wnt_level);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system(1,wnt_level);
 
         double time = 0.0;
         std::vector<double> initial_conditions = wnt_cell_cycle_system.GetInitialConditions();
@@ -110,10 +112,10 @@ public:
         }
     }
 
-    void TestIngeWntSwatCellCycleEquationsHighWntHypothesisTwo()
+    void TestVanLeeuwen2009WntSwatCellCycleEquationsHighWntHypothesisTwo()
     {
         double wnt_level = 1.0;
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system(2,wnt_level);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system(2,wnt_level);
 
         double time = 0.0;
 
@@ -166,12 +168,12 @@ public:
     /**
      * And the same for a healthy cell at a low Wnt level
      */
-    void TestIngeWntSwatCellCycleEquationsLowWnt()
+    void TestVanLeeuwen2009WntSwatCellCycleEquationsLowWnt()
     {
         double time = 0.0;
         double wnt_level = 0.0;
         boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system2(1, wnt_level, p_labelled);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system2(1, wnt_level, p_labelled);
         std::vector<double> initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
         std::vector<double> derivs(initial_conditions.size());
 
@@ -219,14 +221,14 @@ public:
      * A test for the case mutation = 1
      * (An APC +/- mutation)
      */
-    void TestIngeWntSwatCellCycleEquationsAPCOneHit()
+    void TestVanLeeuwen2009WntSwatCellCycleEquationsAPCOneHit()
     {
         double time = 0.0;
         double wnt_level = 0.5;
 
         boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
 
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system3(1, wnt_level, p_apc1);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system3(1, wnt_level, p_apc1);
 
         std::vector<double> initial_conditions = wnt_cell_cycle_system3.GetInitialConditions();
 
@@ -274,14 +276,14 @@ public:
      * A test for the case mutation = 2
      * (A beta-cat delta45 mutation)
      */
-    void TestIngeWntSwatCellCycleEquationsBetaCatOneHit()
+    void TestVanLeeuwen2009WntSwatCellCycleEquationsBetaCatOneHit()
     {
         double time = 0.0;
         double wnt_level = 1.0;
 
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
 
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system4(1, wnt_level, p_bcat1);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system4(1, wnt_level, p_bcat1);
 
         std::vector<double> initial_conditions = wnt_cell_cycle_system4.GetInitialConditions();
 
@@ -335,14 +337,14 @@ public:
      * A test for the case mutation = 3
      * (An APC -/- mutation)
      */
-    void TestIngeWntSwatCellCycleEquationsAPCTwoHit()
+    void TestVanLeeuwen2009WntSwatCellCycleEquationsAPCTwoHit()
     {
         double time = 0.0;
         double wnt_level = 1.0;
 
         boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
 
-        IngeWntSwatCellCycleOdeSystem wnt_cell_cycle_system5(1, wnt_level, p_apc2);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system5(1, wnt_level, p_apc2);
 
         std::vector<double> initial_conditions = wnt_cell_cycle_system5.GetInitialConditions();
 
@@ -387,11 +389,11 @@ public:
         }
     }
 
-    void TestIngeWntSwatCellCycleSolver() throw(Exception)
+    void TestVanLeeuwen2009WntSwatCellCycleSolver() throw(Exception)
     {
         double wnt_level = 1.0;
         boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_labelled);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_labelled);
 
         // Solve system using rk4 solver
 
@@ -446,11 +448,11 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][21], 1.0, 1e-3);
     }
 
-    void TestIngeWntSwatCellCycleSolverWithAPCSingleHit() throw(Exception)
+    void TestVanLeeuwen2009WntSwatCellCycleSolverWithAPCSingleHit() throw(Exception)
     {
         double wnt_level = 1.0;
         boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
-        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_apc1);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_apc1);
 
         // Solve system using rk4 solver
 
@@ -497,11 +499,11 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][21], 1.0, 1e-3);
     }
 
-    void TestIngeWntSwatCellCycleSolverWithBetaCateninHit() throw(Exception)
+    void TestVanLeeuwen2009WntSwatCellCycleSolverWithBetaCateninHit() throw(Exception)
     {
         double wnt_level = 1.0;
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
-        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_bcat1);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_bcat1);
 
         // Solve system using rk4 solver
 
@@ -548,11 +550,11 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][21], 1, 1e-3);
     }
 
-    void TestIngeWntSwatCellCycleSolverWithAPCDoubleHit() throw(Exception)
+    void TestVanLeeuwen2009WntSwatCellCycleSolverWithAPCDoubleHit() throw(Exception)
     {
         double wnt_level = 1.0;
         boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
-        IngeWntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_apc2);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_apc2);
 
         // Solve system using rk4 solver
 
@@ -601,10 +603,10 @@ public:
 
     /**
      * Test to check that none of the protein concentrations in the
-     * IngeWntSwatCellCycleModel go negative in a crypt simulation
+     * VanLeeuwen2009WntSwatCellCycleModel go negative in a crypt simulation
      * (see ticket #629).
      */
-    void TestIngeWntOdeSolutionDoesNotGoNegative() throw (Exception)
+    void TestVanLeeuwen2009WntOdeSolutionDoesNotGoNegative() throw (Exception)
     {
         TissueConfig* p_params = TissueConfig::Instance();
         p_params->Reset();
@@ -625,8 +627,8 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-        IngeWntSwatCellCycleModelCellsGenerator<2> cells_generator(1u);
-        cells_generator.GenerateForCrypt(cells, *p_mesh, location_indices, true);
+        CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> cells_generator;
+        cells_generator.Generate(cells, p_mesh, location_indices, true);
 
         for (unsigned i=0; i<cells.size(); i++)
         {
@@ -664,4 +666,4 @@ public:
 
 };
 
-#endif /*TESTINGEWNTSWATCELLCYCLEODESYSTEM_HPP_*/
+#endif /*TESTVANLEEUWEN2009WNTSWATCELLCYCLEODESYSTEM_HPP_*/
