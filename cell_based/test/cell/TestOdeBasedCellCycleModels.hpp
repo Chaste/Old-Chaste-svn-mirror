@@ -527,6 +527,7 @@ public:
         TS_ASSERT_EQUALS(p_cell_model_3d->ReadyToDivide(), false);
 
         // Tidy up
+        delete p_failing_cell_model;
         WntConcentration<1>::Destroy();
         WntConcentration<2>::Destroy();
         WntConcentration<3>::Destroy();
