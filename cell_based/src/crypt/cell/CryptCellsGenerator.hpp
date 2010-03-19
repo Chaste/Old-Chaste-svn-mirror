@@ -36,10 +36,35 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellsGenerator.hpp"
 
 #include "CellMutationStateRegistry.hpp"
-#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
-#include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "TetrahedralMesh.hpp"
 #include "VertexMesh.hpp"
+
+#include "StochasticDurationGenerationBasedCellCycleModel.hpp"
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+#include "TysonNovakCellCycleModel.hpp"
+#include "WntCellCycleModel.hpp"
+#include "SimpleWntCellCycleModel.hpp"
+#include "StochasticWntCellCycleModel.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
+
+
+
+/** 
+ *  Small helper method, which returns whether the two classes given as the template parameters
+ *  are identical or not
+ */
+template<class T1, class T2>
+bool ClassesAreSame()
+{
+    using namespace boost::mpl;
+    using namespace boost;
+    typedef typename if_< is_same<T1, T2>, integral_c<unsigned, 1>, integral_c<unsigned, 0> >::type selector_t;
+    return  (selector_t()==1);
+}
+
+
+
 
 /**
  * A subclass of CellsGenerator that generates
@@ -228,44 +253,29 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
 }
 
 
-///\todo: This code means that if someone creates a new (non-Wnt, say) cell cycle model,
-///       then doing: 
-//          CryptCellsGenerator<MyNewCellModel> generator;
-//          generator.Generate(...);
-//        will create a crypt with no differentiated cells.
 template<class CELL_CYCLE_MODEL>
 bool CryptCellsGenerator<CELL_CYCLE_MODEL>::CellsCanDifferentiate()
 {
-    // the following code just does, effectively
-    // if(  (CELL_CYCLE_MODEL==FixedDurationGenerationBasedCellCycleModel)
-    //    ||(CELL_CYCLE_MODEL==StochasticDurationGenerationBasedCellCycleModel) )
-    // {
-    //    selector = 1;
-    // }
-    // else
-    // {
-    //    selector = 0;
-    // }
-    using namespace boost::mpl;
-    using namespace boost;
-    typedef typename if_<is_same<CELL_CYCLE_MODEL, FixedDurationGenerationBasedCellCycleModel>,
-                         integral_c<unsigned, 1>,
-                         typename if_<is_same<CELL_CYCLE_MODEL, StochasticDurationGenerationBasedCellCycleModel>,
-                                      integral_c<unsigned, 1>,
-                                      integral_c<unsigned, 0>
-                                      >::type
-                          >::type selector_t;
-
-    unsigned selector = selector_t();
-
-    if (selector==1)
+    if(    ClassesAreSame<CELL_CYCLE_MODEL,FixedDurationGenerationBasedCellCycleModel>()
+        || ClassesAreSame<CELL_CYCLE_MODEL,StochasticDurationGenerationBasedCellCycleModel>() )
     {
-        // With FixedDuration or Stochastic cell cycle models, cells can differentiate
         return true;
     }
-    else
+    else if (   ClassesAreSame<CELL_CYCLE_MODEL,TysonNovakCellCycleModel>()
+             || ClassesAreSame<CELL_CYCLE_MODEL,WntCellCycleModel>()
+             || ClassesAreSame<CELL_CYCLE_MODEL,SimpleWntCellCycleModel>()
+             || ClassesAreSame<CELL_CYCLE_MODEL,StochasticWntCellCycleModel>()
+             || ClassesAreSame<CELL_CYCLE_MODEL,VanLeeuwen2009WntSwatCellCycleModelHypothesisOne>()
+             || ClassesAreSame<CELL_CYCLE_MODEL,VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo>() )
     {
+        // Wnt cells don't differentiate
         return false;
+    }
+    else 
+    {
+        // if this exception fails with a new cell cycle model, it needs to be added to one of the
+        // appropriate if statements above..
+        EXCEPTION("Using an invalid cell cycle model for crypt simulations"); 
     }
 }
 

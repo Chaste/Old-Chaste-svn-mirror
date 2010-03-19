@@ -133,7 +133,7 @@ public:
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
          * To do this, we the `CryptCellsGenerator` helper class, which is templated over the type
-         * of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}}
+         * of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}})
          * and the dimension. We create an empty vector of cells and pass this into the
          * method along with the mesh. The third argument 'true' indicates that the cells
          * should be assigned random birth times, to avoid synchronous division. The

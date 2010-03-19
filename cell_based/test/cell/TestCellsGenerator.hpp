@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticWntCellCycleModel.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-
+#include "Alarcon2004OxygenBasedCellCycleModel.hpp"
 
 class TestCellsGenerator : public AbstractCellBasedTestSuite
 {
@@ -343,6 +343,32 @@ public:
 		{
 			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
 		}
+    }
+    
+
+
+    void TestCanDifferentiate() throw(Exception)
+    {
+        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> gen1;
+        CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> gen2;
+        CryptCellsGenerator<TysonNovakCellCycleModel> gen3;
+        CryptCellsGenerator<WntCellCycleModel> gen4;
+        CryptCellsGenerator<SimpleWntCellCycleModel> gen5;
+        CryptCellsGenerator<StochasticWntCellCycleModel> gen6;
+        CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> gen7;
+        CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo> gen8;
+        
+        TS_ASSERT_EQUALS(gen1.CellsCanDifferentiate(), true);
+        TS_ASSERT_EQUALS(gen2.CellsCanDifferentiate(), true);
+        TS_ASSERT_EQUALS(gen3.CellsCanDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen4.CellsCanDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen5.CellsCanDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen6.CellsCanDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen7.CellsCanDifferentiate(), false);
+        TS_ASSERT_EQUALS(gen8.CellsCanDifferentiate(), false);
+        
+        CryptCellsGenerator<Alarcon2004OxygenBasedCellCycleModel> gen9;
+        TS_ASSERT_THROWS_THIS( gen9.CellsCanDifferentiate(), "Using an invalid cell cycle model for crypt simulations");
     }
 };
 
