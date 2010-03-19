@@ -171,6 +171,14 @@ public:
      * @return local_index.
      */
     unsigned GetNodeLocalIndex(unsigned globalIndex);
+     /**
+      * @param index the global index of a specified face
+      *
+      * @return a pointer to the face
+      */
+     VertexElement<ELEMENT_DIM-1,SPACE_DIM>* GetFace(unsigned index) const;
+
+
 
 };
 

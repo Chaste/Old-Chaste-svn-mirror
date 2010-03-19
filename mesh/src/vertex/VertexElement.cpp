@@ -182,6 +182,13 @@ unsigned VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocalIndex(unsigned globa
     return local_index;
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexElement<ELEMENT_DIM-1,  SPACE_DIM>* VertexElement<ELEMENT_DIM, SPACE_DIM>::GetFace(unsigned index) const
+{
+    assert(index < mFaces.size());
+	return mFaces[index];
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
