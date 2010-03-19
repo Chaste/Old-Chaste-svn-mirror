@@ -58,7 +58,6 @@ public:
 
 		// Create cells
 		std::vector<TissueCell> cells;
-
 		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
 		cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
@@ -70,9 +69,22 @@ public:
 			TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
 			TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
 		}
+
+		// Test with extra input argument
+		std::vector<unsigned> location_indices;
+		location_indices.push_back(2);
+        location_indices.push_back(7);
+        location_indices.push_back(9);
+
+		std::vector<TissueCell> cells2;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator2;
+        cells_generator2.GenerateBasic(cells2, 3, location_indices);
+
+        TS_ASSERT_EQUALS(cells2.size(), 3u);
+        TS_ASSERT_DELTA(cells2[0].GetBirthTime(), -2.0, 1e-4);
+        TS_ASSERT_DELTA(cells2[1].GetBirthTime(), -7.0, 1e-4);
+        TS_ASSERT_DELTA(cells2[2].GetBirthTime(), -9.0, 1e-4);
 	}
-
-
 
     void TestGenerateGivenLocationIndicesWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
@@ -93,7 +105,6 @@ public:
   			TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(location_indices[i]), 1e-9);
 			TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
   		}
-
     }
 
     void TestCryptCellsGeneratorWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
