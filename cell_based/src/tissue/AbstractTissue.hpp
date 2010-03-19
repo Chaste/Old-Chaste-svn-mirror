@@ -32,13 +32,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 
 #include <list>
+#include <map>
+#include <vector>
+#include <boost/shared_ptr.hpp>
 
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
+#include "CellMutationStateRegistry.hpp"
 // Needed here to avoid serialization errors (on Boost<1.37)
 #include "WildTypeCellMutationState.hpp"
 #include "LabelledCellMutationState.hpp"
@@ -74,6 +79,7 @@ private:
         archive & mCellProliferativeTypeCount;
         archive & mCellCyclePhaseCount;
         archive & mTissueContainsMesh;
+        archive & mpMutationStateRegistry;
     }
 
 protected:
@@ -129,6 +135,9 @@ protected:
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;
 
+    /** Cell mutation state registry */
+    boost::shared_ptr<CellMutationStateRegistry> mpMutationStateRegistry;
+
     /**
      * Check consistency of our internal data structures.
      */
@@ -138,7 +147,7 @@ protected:
     /**
      * Constructor for use by archiving only. Please use the other constructor.
      *
-     * doesn't take in cells, since these are dealt
+     * Doesn't take in cells, since these are dealt
      * with by the serialize method.
      */
     AbstractTissue(){};
@@ -147,6 +156,9 @@ public:
 
     /**
      * AbstractTissue Constructor.
+     *
+     * @note Warning: the passed-in vector of cells will be emptied, even if the constructor
+     * throws an exception!
      *
      * @param rCells a vector of cells.  Copies of the cells will be stored in the tissue,
      *     and the passed-in vector cleared.
@@ -387,6 +399,17 @@ public:
      * @return the location index.
      */
     unsigned GetLocationIndexUsingCell(TissueCell& rCell);
+
+    /**
+     * @return registry of mutation states used in this tissue.
+     */
+    boost::shared_ptr<CellMutationStateRegistry> GetMutationRegistry();
+
+    /**
+     * Set a default ordering on mutation states, so that existing tests don't need to
+     * specify the old ordering explicitly.
+     */
+    void SetDefaultMutationStateOrdering();
 
     /**
      * Use an output file handler to create output files for visualizer and post-processing.

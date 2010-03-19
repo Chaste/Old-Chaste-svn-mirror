@@ -112,6 +112,38 @@ public:
 		delete p_registry;
 	}
 
+	void TestMutationStateOrdering() throw(Exception)
+	{
+        // Ordering of mutation states matters for output at present, so we need a way of specifying it
+		CellMutationStateRegistry* p_instance = CellMutationStateRegistry::Instance();
+		p_instance->Clear();
+		p_instance->Get<ApcOneHitCellMutationState>();
+        std::vector<boost::shared_ptr<AbstractCellMutationState> > mutations;
+        mutations.push_back(p_instance->Get<WildTypeCellMutationState>());
+        mutations.push_back(p_instance->Get<LabelledCellMutationState>());
+        mutations.push_back(p_instance->Get<ApcOneHitCellMutationState>());
+        TS_ASSERT(!p_instance->HasOrderingBeenSpecified());
+        p_instance->SpecifyOrdering(mutations);
+        TS_ASSERT(p_instance->HasOrderingBeenSpecified());
+
+        TS_ASSERT_THROWS_THIS(p_instance->SpecifyOrdering(mutations),
+							  "An ordering has already been specified.");
+
+        std::vector<boost::shared_ptr<AbstractCellMutationState> > states =	p_instance->rGetAllMutationStates();
+        TS_ASSERT_EQUALS(states.size(), 3u);
+        TS_ASSERT(states[0]->IsType<WildTypeCellMutationState>());
+        TS_ASSERT(states[1]->IsType<LabelledCellMutationState>());
+        TS_ASSERT(states[2]->IsType<ApcOneHitCellMutationState>());
+
+        // The ordering must be complete
+        TS_ASSERT_THROWS_THIS(p_instance->Get<BetaCateninOneHitCellMutationState>(),
+        		"Cannot add a new mutation state not specified in the ordering.");
+        p_instance->Clear();
+        p_instance->Get<BetaCateninOneHitCellMutationState>();
+        TS_ASSERT_THROWS_THIS(p_instance->SpecifyOrdering(mutations),
+        		"The given ordering doesn't include all mutation states in the registry.");
+	}
+
 	void TestArchiveCellMutationState() throw(Exception)
 	{
 		OutputFileHandler handler("archive", false);

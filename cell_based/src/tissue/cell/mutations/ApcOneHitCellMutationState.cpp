@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 
 ApcOneHitCellMutationState::ApcOneHitCellMutationState()
-	: AbstractCellMutationState(0)
+	: AbstractCellMutationState(3)
 {}
 
 

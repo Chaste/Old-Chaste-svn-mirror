@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "AbstractCellMutationState.hpp"
+#include "Exception.hpp"
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/shared_ptr.hpp>
@@ -78,6 +79,21 @@ public:
      */
     CellMutationStateRegistry* TakeOwnership();
 
+    /**
+     * Specify the ordering in which mutation states should be returned by rGetAllMutationStates().
+     * The provided ordering must include all mutation states in the registry. Once an ordering
+     * has been specified attempts to get a mutation state which is not in the ordering will
+     * throw an exception.
+     *
+     * @param rOrdering  vector of mutation states in the desired order
+     */
+    void SpecifyOrdering(const std::vector<boost::shared_ptr<AbstractCellMutationState> >& rOrdering);
+
+    /**
+     * @return whether an ordering has been specified.
+     */
+    bool HasOrderingBeenSpecified();
+
 private:
 
     /**
@@ -105,6 +121,8 @@ private:
      */
     std::vector<boost::shared_ptr<AbstractCellMutationState> > mMutationStates;
 
+    /** Whether an ordering has been set up */
+    bool mOrderingHasBeenSpecified;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -118,6 +136,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & mMutationStates;
+        archive & mOrderingHasBeenSpecified;
     }
 };
 
@@ -135,9 +154,16 @@ boost::shared_ptr<AbstractCellMutationState> CellMutationStateRegistry::Get()
 	}
 	if (!p_state)
 	{
-		// Create a new mutation state
-		p_state.reset(new SUBCLASS);
-		mMutationStates.push_back(p_state);
+		if (mOrderingHasBeenSpecified)
+		{
+			EXCEPTION("Cannot add a new mutation state not specified in the ordering.");
+		}
+		else
+		{
+			// Create a new mutation state
+			p_state.reset(new SUBCLASS);
+			mMutationStates.push_back(p_state);
+		}
 	}
 	return p_state;
 }

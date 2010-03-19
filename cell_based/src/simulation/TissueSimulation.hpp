@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTissue.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "ChastePoint.hpp"
-#include "CellMutationStateRegistry.hpp"
 
 
 /**
@@ -109,9 +108,6 @@ protected:
     /** The singleton RandomNumberGenerator */
     RandomNumberGenerator* mpRandomGenerator;
 
-    /** Cell mutation state registry */
-    CellMutationStateRegistry* mpMutationStateRegistry;
-
     /** Counts the number of births during the simulation */
     unsigned mNumBirths;
 
@@ -166,7 +162,6 @@ protected:
         archive & mCellKillers;
         archive & mSamplingTimestepMultiple;
         archive & mForceCollection;
-        archive & mpMutationStateRegistry;
     }
 
     /**
@@ -390,11 +385,6 @@ public:
      * @return const reference to mForceCollection (used in archiving).
      */
     const std::vector<AbstractForce<DIM>*> rGetForceCollection() const;
-
-    /**
-     * @return registry of mutation states used in this simulation.
-     */
-    CellMutationStateRegistry* GetMutationRegistry();
 };
 
 

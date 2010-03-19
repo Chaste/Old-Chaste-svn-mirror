@@ -921,9 +921,9 @@ public:
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(crypt.GetMutationRegistry()->Get<LabelledCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(crypt.GetMutationRegistry()->Get<ApcOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(crypt.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>());
         cell_iterator->SetMutationState(p_labelled);
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
@@ -1548,11 +1548,11 @@ public:
         TS_ASSERT_EQUALS(cell_mutation_state_count1[4], 0u);
 
         // However, using the cell mutation objects, they have counted!
-        TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>()->GetCellCount(), 12u);
-        TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 12u);
+        TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
 
         std::vector<unsigned> cell_type_count1 = crypt.rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count1.size(), 4u);
@@ -1592,11 +1592,11 @@ public:
         TS_ASSERT_EQUALS(cell_mutation_state_count3[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count3[3], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count3[4], 1u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
 
         std::vector<unsigned> cell_type_count3 = crypt.rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count3.size(), 4u);
@@ -1617,21 +1617,21 @@ public:
         TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Check the original simulation's counts haven't changed
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
 
         // Load the simulation
         CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("TestMutationStateCellCount",1.0);
 
         // Check the original simulation's counts haven't changed
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(simulator.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
 
         // In the loaded simulation, we want the various cell counts to be saved
         // (so that simulations which quit when a certain population is removed don't stop too soon)
@@ -1642,11 +1642,11 @@ public:
         TS_ASSERT_EQUALS(cell_mutation_state_count4[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count4[3], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count4[4], 1u);
-        TS_ASSERT_EQUALS(p_simulator->GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
-        TS_ASSERT_EQUALS(p_simulator->GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(p_simulator->GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(p_simulator->GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(p_simulator->GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
 
         std::vector<unsigned> cell_type_count4 = crypt.rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count4.size(), 4u);
@@ -1675,11 +1675,11 @@ public:
         TS_ASSERT_EQUALS(cell_mutation_state_count5[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count5[3], 2u);
         TS_ASSERT_EQUALS(cell_mutation_state_count5[4], 1u);
-        TS_ASSERT_EQUALS(p_simulator->GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
-        TS_ASSERT_EQUALS(p_simulator->GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 2u);
-        TS_ASSERT_EQUALS(p_simulator->GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(p_simulator->GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 2u);
-        TS_ASSERT_EQUALS(p_simulator->GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 2u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 2u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
 
         std::vector<unsigned> cell_type_count5 = p_simulator->rGetTissue().rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count5.size(), 4u);

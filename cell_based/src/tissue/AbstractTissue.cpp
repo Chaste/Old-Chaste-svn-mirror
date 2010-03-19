@@ -33,7 +33,8 @@ template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCell>& rCells,
                                     const std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
-      mTissueContainsMesh(false)
+      mTissueContainsMesh(false),
+      mpMutationStateRegistry(CellMutationStateRegistry::Instance()->TakeOwnership())
 {
     // There must be at least one cell
     assert(mCells.size() > 0);
@@ -187,6 +188,27 @@ unsigned AbstractTissue<DIM>::GetLocationIndexUsingCell(TissueCell& rCell)
     return mCellLocationMap[&rCell];
 }
 
+template<unsigned DIM>
+boost::shared_ptr<CellMutationStateRegistry> AbstractTissue<DIM>::GetMutationRegistry()
+{
+	return mpMutationStateRegistry;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetDefaultMutationStateOrdering()
+{
+	boost::shared_ptr<CellMutationStateRegistry> p_registry = GetMutationRegistry();
+	if (!p_registry->HasOrderingBeenSpecified())
+	{
+		std::vector<boost::shared_ptr<AbstractCellMutationState> > mutations;
+		mutations.push_back(p_registry->Get<WildTypeCellMutationState>());
+		mutations.push_back(p_registry->Get<LabelledCellMutationState>());
+		mutations.push_back(p_registry->Get<ApcOneHitCellMutationState>());
+		mutations.push_back(p_registry->Get<ApcTwoHitCellMutationState>());
+		mutations.push_back(p_registry->Get<BetaCateninOneHitCellMutationState>());
+		p_registry->SpecifyOrdering(mutations);
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //                             Output methods                               //
@@ -363,35 +385,23 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
 
     if (p_config->GetOutputCellMutationStates())
     {
-        // Set colour dependent on cell mutation state and update rCellMutationStateCounter
-        if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
-        {
-        	rCellMutationStateCounter[0]++;
-        }
-        else if (p_cell->GetMutationState()->IsType<LabelledCellMutationState>())
-        {
-            colour = LABELLED_COLOUR;
-            rCellMutationStateCounter[1]++;
-        }
-        else if (p_cell->GetMutationState()->IsType<ApcOneHitCellMutationState>())
-        {
-        	colour = EARLY_CANCER_COLOUR;
-        	rCellMutationStateCounter[2]++;
-        }
-        else if (p_cell->GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
-        {
-            colour = LATE_CANCER_COLOUR;
-            rCellMutationStateCounter[4]++;
-        }
-        else if (p_cell->GetMutationState()->IsType<ApcTwoHitCellMutationState>())
-        {
-            colour = LATE_CANCER_COLOUR;
-            rCellMutationStateCounter[3]++;
-        }
-        else
-        {
-        	EXCEPTION("Inappropriate CellMutationState used in WntCellCycleModel");
-        }
+        // Set colour dependent on cell mutation state
+		if (!p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
+		{
+			colour = p_cell->GetMutationState()->GetColour();
+		}
+
+		// This should really go outside the cell loop!
+    	SetDefaultMutationStateOrdering();
+    	const std::vector<boost::shared_ptr<AbstractCellMutationState> >& r_mutation_states
+			= GetMutationRegistry()->rGetAllMutationStates();
+    	// Should be redundant when #1145 is done
+    	assert(rCellMutationStateCounter.size() == r_mutation_states.size());
+    	rCellMutationStateCounter.resize(r_mutation_states.size());
+    	for (unsigned i=0; i<r_mutation_states.size(); i++)
+    	{
+			rCellMutationStateCounter[i] = r_mutation_states[i]->GetCellCount();
+    	}
     }
 
     if (p_cell->HasApoptosisBegun())

@@ -26,7 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <algorithm>
+
 #include "CellMutationStateRegistry.hpp"
+
+CellMutationStateRegistry* CellMutationStateRegistry::mpInstance = NULL;
 
 CellMutationStateRegistry* CellMutationStateRegistry::Instance()
 {
@@ -45,16 +49,43 @@ const std::vector<boost::shared_ptr<AbstractCellMutationState> >& CellMutationSt
 void CellMutationStateRegistry::Clear()
 {
 	mMutationStates.clear();
+	mOrderingHasBeenSpecified = false;
 }
 
 CellMutationStateRegistry::CellMutationStateRegistry()
+	: mOrderingHasBeenSpecified(false)
 {
 }
 
-CellMutationStateRegistry* CellMutationStateRegistry::mpInstance = NULL;
 
 CellMutationStateRegistry* CellMutationStateRegistry::TakeOwnership()
 {
 	mpInstance = NULL;
 	return this;
 }
+
+void CellMutationStateRegistry::SpecifyOrdering(const std::vector<boost::shared_ptr<AbstractCellMutationState> >& rOrdering)
+{
+	if (mOrderingHasBeenSpecified)
+	{
+		EXCEPTION("An ordering has already been specified.");
+	}
+	for (unsigned i=0; i<mMutationStates.size(); i++)
+	{
+		std::vector<boost::shared_ptr<AbstractCellMutationState> >::const_iterator it
+			= find(rOrdering.begin(), rOrdering.end(), mMutationStates[i]);
+		if (it == rOrdering.end())
+		{
+			EXCEPTION("The given ordering doesn't include all mutation states in the registry.");
+		}
+	}
+	mMutationStates = rOrdering;
+
+	mOrderingHasBeenSpecified = true;
+}
+
+bool CellMutationStateRegistry::HasOrderingBeenSpecified()
+{
+	return mOrderingHasBeenSpecified;
+}
+
