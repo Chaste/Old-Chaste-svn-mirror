@@ -19,7 +19,6 @@ TestTransformations.hpp
 TestTrianglesMeshReader.hpp
 TestVertexAndAngle.hpp
 TestVertexElement.hpp
-TestVertexElement3d.hpp
 TestVertexMesh.hpp
 TestVertexMesh3d.hpp
 TestVertexMeshReMesh.hpp

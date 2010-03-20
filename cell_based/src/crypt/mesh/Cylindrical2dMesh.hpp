@@ -222,9 +222,7 @@ public:
     /**
      * Destructor.
      */
-    ~Cylindrical2dMesh()
-    {
-    }
+    ~Cylindrical2dMesh();
 
     /**
      * Conducts a cylindrical remesh (OVERRIDDEN constructor of main ReMesh function)

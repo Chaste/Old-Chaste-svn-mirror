@@ -28,6 +28,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCryptStatistics.hpp"
 #include "CellMutationStateRegistry.hpp"
 
+AbstractCryptStatistics::AbstractCryptStatistics(MeshBasedTissue<2>& rCrypt)
+    : mrCrypt(rCrypt)
+{}
+
+AbstractCryptStatistics::~AbstractCryptStatistics()
+{
+}
+
 void AbstractCryptStatistics::LabelSPhaseCells()
 {
     for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();

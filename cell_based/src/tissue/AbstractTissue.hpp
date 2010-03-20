@@ -150,7 +150,9 @@ protected:
      * Doesn't take in cells, since these are dealt
      * with by the serialize method.
      */
-    AbstractTissue(){};
+    AbstractTissue()
+    {
+    }
 
 public:
 

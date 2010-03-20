@@ -116,8 +116,7 @@ public:
     /**
      * The standard constructor called in tests.
      */
-    StochasticWntCellCycleModel()
-    {}
+    StochasticWntCellCycleModel();
 
     /**
      * A private constructor for archiving.

@@ -28,6 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticWntCellCycleModel.hpp"
 
 
+StochasticWntCellCycleModel::StochasticWntCellCycleModel()
+{
+}
+
+
 StochasticWntCellCycleModel::StochasticWntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                                          boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                                          const unsigned& rDimension)

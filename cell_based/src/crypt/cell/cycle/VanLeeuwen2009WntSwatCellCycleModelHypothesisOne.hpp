@@ -29,16 +29,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef VANLEEUWEN2009WNTSWATCELLCYCLEMODELHYPOTHESISONE_HPP_
 #define VANLEEUWEN2009WNTSWATCELLCYCLEMODELHYPOTHESISONE_HPP_
 
-#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
-#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
+#include "AbstractVanLeeuwen2009WntSwatCellCycleModel.hpp"
 
 /**
- *  Concrete Van Leeuwen 2009 cell cycle model, using hypothesis one (see paper)
+ * Concrete Van Leeuwen 2009 cell cycle model, using hypothesis one (see paper).
  */
 class VanLeeuwen2009WntSwatCellCycleModelHypothesisOne
-  : public AbstractVanLeeuwen2009WntSwatCellCycleModel
+    : public AbstractVanLeeuwen2009WntSwatCellCycleModel
 {
 private:
+
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -47,40 +47,36 @@ private:
     }
 
 public:
-    /**
-     *  Default constructor calls base class
-     */
-    VanLeeuwen2009WntSwatCellCycleModelHypothesisOne()
-        : AbstractVanLeeuwen2009WntSwatCellCycleModel()
-    {
-    }
 
     /**
-     *  Extra constructor for archiving.
+     * Default constructor calls base class
+     */
+    VanLeeuwen2009WntSwatCellCycleModelHypothesisOne();
+
+    /**
+     * Extra constructor for archiving.
+     *
+     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+     * @param pMutationState the mutation state of the cell (used by ODEs)
+     * @param rDimension the spatial dimension
      */
     VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(const std::vector<double>& rParentProteinConcentrations,
                                                      boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                                      const unsigned& rDimension);
 
     /**
-     *  Overloaded method which allocates the ode system using HYPOTHESIS ONE
+     * Overloaded method which allocates the ode system using HYPOTHESIS ONE
      *
-     *  @param wntConcentration Wnt concentration
-     *  @param pMutationState Mutation state
+     * @param wntConcentration Wnt concentration
+     * @param pMutationState Mutation state
      */
-    void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)
-    {
-        mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(1, wntConcentration,  pMutationState);
-    }
+    void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState);
 
     /**
      * Overridden builder method to create new copies of
      * this cell cycle model.
      */
-    AbstractCellCycleModel* CreateCellCycleModel()
-    {
-        return new VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(*this);
-    }
+    AbstractCellCycleModel* CreateCellCycleModel();
 };
 
 

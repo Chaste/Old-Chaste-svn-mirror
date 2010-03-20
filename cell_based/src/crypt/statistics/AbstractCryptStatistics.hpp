@@ -47,19 +47,16 @@ protected:
 public:
 
     /**
-     *  Constructor
+     * Constructor.
      *
-     *  @param rCrypt The crypt
+     * @param rCrypt The crypt
      */
-    AbstractCryptStatistics(MeshBasedTissue<2>& rCrypt)
-        : mrCrypt(rCrypt)
-    {}
+    AbstractCryptStatistics(MeshBasedTissue<2>& rCrypt);
 
     /**
      * Destructor.
      */
-    virtual ~AbstractCryptStatistics()
-    {}
+    virtual ~AbstractCryptStatistics();
 
     /**
      * To recreate the virtual labelling experiments performed by Meineke et al

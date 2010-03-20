@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TysonNovakCellCycleModel.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
+#include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
@@ -1018,11 +1019,11 @@ public:
     }
 
 
-    void TestArchiveVanLeeuwen2009WntSwatCellCycleModel()
+    void TestArchiveVanLeeuwen2009WntSwatCellCycleModelHypothesisOne()
     {
         // Set up
         OutputFileHandler handler("archive", false);
-        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "inge_wnt_swat_cell_cycle.arch";
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_swat_one.arch";
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
         {
@@ -1032,6 +1033,81 @@ public:
 
             // Create cell cycle model and associated cell
             AbstractVanLeeuwen2009WntSwatCellCycleModel* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisOne();
+            p_cell_model->SetDimension(2);
+            boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
+            TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
+            stem_cell.InitialiseCellCycleModel();
+
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), false);
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), true);
+
+            stem_cell.GetCellCycleModel()->SetBirthTime(-1.0);
+
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Archive cell
+            TissueCell* const p_cell = &stem_cell;
+            output_arch << p_cell;
+
+            SimulationTime::Destroy();
+        }
+
+        {
+            // Set up simulation time
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
+            TissueConfig* p_inst1 = TissueConfig::Instance();
+
+            p_inst1->SetSDuration(101.0);
+
+            TissueCell* p_cell;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_cell;
+
+            // Test archiving
+            AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
+            TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());
+
+            TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
+            TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetAge(), 18.0, 1e-12);
+            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), G_TWO_PHASE);
+
+            delete p_cell;
+        }
+
+        // Tidy up
+        WntConcentration<2>::Destroy();
+    }
+
+
+    void TestArchiveVanLeeuwen2009WntSwatCellCycleModelHypothesisTwo()
+    {
+        // Set up
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_swat_two.arch";
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
+
+        {
+            // Set up simulation time
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(17, 2);
+
+            // Create cell cycle model and associated cell
+            AbstractVanLeeuwen2009WntSwatCellCycleModel* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo();
             p_cell_model->SetDimension(2);
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 

@@ -44,6 +44,11 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width)
 }
 
 
+Cylindrical2dMesh::~Cylindrical2dMesh()
+{
+}
+
+
 Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2>* > nodes)
   : MutableMesh<2,2>(),
     mWidth(width)

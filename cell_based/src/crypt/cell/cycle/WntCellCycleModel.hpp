@@ -104,9 +104,7 @@ public:
     /**
      * Default constructor.
      */
-    WntCellCycleModel()
-        : AbstractWntOdeBasedCellCycleModel()
-    {}
+    WntCellCycleModel();
 
     /**
      * Copy constructor.

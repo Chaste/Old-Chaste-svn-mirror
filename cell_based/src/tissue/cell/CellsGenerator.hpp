@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A helper class for generating a vector of cells for a given mesh.
- * \todo write a generator for meshes
  *
  * It is templated over types of cell cycle model and spatial dimension.
  */

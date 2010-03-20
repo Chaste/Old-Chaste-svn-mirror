@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexElement.hpp"
 #include "RandomNumberGenerator.hpp"
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
                                                      std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
@@ -36,20 +37,18 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
       mFaces(faces),
       mOrientations(orientations)
 {
-
-
     assert(mFaces.size() == mOrientations.size());
 
-    // Populate mNodes using mFaces
     //Make a set of nodes with mFaces
     std::set<Node<SPACE_DIM>* > nodes_set;
     for (unsigned face_index=0; face_index<faces.size(); face_index++)
     {
-        for(unsigned node_index=0; node_index<mFaces[face_index]->GetNumNodes(); node_index++)
-         {
-             nodes_set.insert(mFaces[face_index]->GetNode(node_index));
-         }
+        for (unsigned node_index=0; node_index<mFaces[face_index]->GetNumNodes(); node_index++)
+        {
+            nodes_set.insert(mFaces[face_index]->GetNode(node_index));
+        }
     }
+
     // Populate mNodes
     for (typename std::set< Node<SPACE_DIM>* >::iterator node_iter = nodes_set.begin();
                  node_iter != nodes_set.end();
@@ -57,8 +56,9 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
     {
          this->mNodes.push_back(*node_iter);
     }
+
     // Register element with nodes
-     RegisterWithNodes();
+    RegisterWithNodes();
 }
 
 
@@ -72,7 +72,7 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
 //    #undef COVERAGE_IGNORE
 
     // \todo this would stop 2d meshes in 3d space
-    if(SPACE_DIM == ELEMENT_DIM)
+    if (SPACE_DIM == ELEMENT_DIM)
     {
         RegisterWithNodes();
     }
@@ -84,11 +84,13 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::~VertexElement()
 {
 }
 
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNumFaces() const
 {
     return mFaces.size();
 }
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::RegisterWithNodes()
@@ -182,12 +184,22 @@ unsigned VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocalIndex(unsigned globa
     return local_index;
 }
 
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexElement<ELEMENT_DIM-1,  SPACE_DIM>* VertexElement<ELEMENT_DIM, SPACE_DIM>::GetFace(unsigned index) const
 {
     assert(index < mFaces.size());
     return mFaces[index];
 }
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool VertexElement<ELEMENT_DIM, SPACE_DIM>::FaceIsOrientatedClockwise(unsigned index) const
+{
+    assert(index < mOrientations.size());
+    return mOrientations[index];
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

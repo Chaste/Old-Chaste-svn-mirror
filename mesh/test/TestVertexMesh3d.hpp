@@ -152,9 +152,9 @@ public:
         orientations_1.push_back(true);
         orientations_1.push_back(false);
 
-        std::vector<VertexElement3d*> elements;
-        elements.push_back(new VertexElement3d(0, faces_element_0, orientations_0));
-        elements.push_back(new VertexElement3d(1, faces_element_1, orientations_1));
+        std::vector<VertexElement<3,3>*> elements;
+        elements.push_back(new VertexElement<3,3>(0, faces_element_0, orientations_0));
+        elements.push_back(new VertexElement<3,3>(1, faces_element_1, orientations_1));
 
         VertexMesh3d mesh(nodes, faces, elements);
 

@@ -67,7 +67,7 @@ VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::VertexMeshWriter(const std::string& rD
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::~VertexMeshWriter()
 {
-    if(mpIters->pNodeIter)
+    if (mpIters->pNodeIter)
     {
         delete mpIters->pNodeIter;
         delete mpIters->pElemIter;
@@ -75,7 +75,7 @@ VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::~VertexMeshWriter()
 
     delete mpIters;
 
-    if(mpNodeMap)
+    if (mpNodeMap)
     {
         delete mpNodeMap;
     }
@@ -90,7 +90,7 @@ VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::~VertexMeshWriter()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
-    if(mpMesh)
+    if (mpMesh)
     {
         std::vector<double> coords(SPACE_DIM);
 
@@ -115,7 +115,7 @@ std::vector<double> VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
 {
-    if(mpMesh)
+    if (mpMesh)
     {
         assert(this->mNumElements==mpMesh->GetNumElements());
 

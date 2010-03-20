@@ -27,6 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "WntCellCycleModel.hpp"
 
+
+WntCellCycleModel::WntCellCycleModel()
+    : AbstractWntOdeBasedCellCycleModel()
+{}
+
+
 WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& rOtherModel)
     : AbstractWntOdeBasedCellCycleModel(rOtherModel)
 {
@@ -35,7 +41,6 @@ WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& rOtherModel)
         mpOdeSystem = new WntCellCycleOdeSystem(*static_cast<WntCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
     }
 }
-
 
 
 WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,

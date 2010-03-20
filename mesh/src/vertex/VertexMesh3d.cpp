@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 VertexMesh3d::VertexMesh3d(std::vector<Node<3>*> nodes,
                            std::vector<VertexElement<2,3>*> faces,
-                           std::vector<VertexElement3d*> vertexElements)
+                           std::vector<VertexElement<3,3>*> vertexElements)
 {
     // Reset member variables and clear mNodes and mElements
     Clear();
@@ -52,14 +52,14 @@ VertexMesh3d::VertexMesh3d(std::vector<Node<3>*> nodes,
 
     for (unsigned elem_index=0; elem_index<vertexElements.size(); elem_index++)
     {
-        VertexElement3d* p_temp_vertex_element = vertexElements[elem_index];
+        VertexElement<3,3>* p_temp_vertex_element = vertexElements[elem_index];
         mElements.push_back(p_temp_vertex_element);
     }
 
     // Register elements with nodes
     for (unsigned index=0; index<mElements.size(); index++)
     {
-        VertexElement3d* p_temp_vertex_element = mElements[index];
+        VertexElement<3,3>* p_temp_vertex_element = mElements[index];
         for (unsigned node_index=0; node_index<p_temp_vertex_element->GetNumNodes(); node_index++)
         {
             Node<3>* p_temp_node = p_temp_vertex_element->GetNode(node_index);
@@ -152,7 +152,7 @@ unsigned VertexMesh3d::GetNumAllElements() const
 }
 
 
-VertexElement3d* VertexMesh3d::GetElement(unsigned index) const
+VertexElement<3,3>* VertexMesh3d::GetElement(unsigned index) const
 {
     assert(index < mElements.size());
     return mElements[index];
@@ -167,7 +167,7 @@ double VertexMesh3d::GetVolumeOfElement(unsigned index)
 
 double VertexMesh3d::GetSurfaceAreaOfElement(unsigned index)
 {
-    VertexElement3d* p_element = GetElement(index);
+    VertexElement<3,3>* p_element = GetElement(index);
 
     double element_surface_area = 0;
 

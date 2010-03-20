@@ -37,6 +37,21 @@ VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::VanLeeuwen2009WntSwatCellCycle
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
 
+VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo()
+    : AbstractVanLeeuwen2009WntSwatCellCycleModel()
+{
+}
+
+void VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)
+{
+    mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(2, wntConcentration,  pMutationState);
+}
+
+AbstractCellCycleModel* VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::CreateCellCycleModel()
+{
+    return new VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo(*this);
+}
+
 // Declare identifier for the serializer
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo)

@@ -28,9 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 
-/**
- *  Extra constructor for archiving.
- */
+VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::VanLeeuwen2009WntSwatCellCycleModelHypothesisOne()
+    : AbstractVanLeeuwen2009WntSwatCellCycleModel()
+{
+}
+
 VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(const std::vector<double>& rParentProteinConcentrations,
                                                  boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                                  const unsigned& rDimension)
@@ -40,6 +42,15 @@ VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::VanLeeuwen2009WntSwatCellCycle
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
 
+void VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)
+{
+    mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(1, wntConcentration,  pMutationState);
+}
+
+AbstractCellCycleModel* VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::CreateCellCycleModel()
+{
+    return new VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(*this);
+}
 
 // Declare identifier for the serializer
 #include "SerializationExportWrapperForCpp.hpp"

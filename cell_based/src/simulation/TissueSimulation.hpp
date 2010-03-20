@@ -245,7 +245,9 @@ protected:
      *  This method may be overridden in subclasses to do something
      *  at the end of each time loop.
      */
-    virtual void AfterSolve(){};
+    virtual void AfterSolve()
+    {
+    }
 
     /**
      *  A child class can overload this if they want the simulation to stop

@@ -49,7 +49,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 
 
-
 /**
  *  Small helper method, which returns whether the two classes given as the template parameters
  *  are identical or not
@@ -64,11 +63,8 @@ bool ClassesAreSame()
 }
 
 
-
-
 /**
- * A subclass of CellsGenerator that generates
- * cells for crypt simulations.
+ * A subclass of CellsGenerator that generates cells for crypt simulations.
  *
  * It is templated over types of cell cycle model.
  */
@@ -143,7 +139,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
          * doesn't understand the <2,2> and thinks that it is being passed two arguments.
          */
         bool is_vertex_mesh = (dynamic_cast<VertexMesh<2,2>*>(pMesh));
-        if(!is_vertex_mesh)
+        if (!is_vertex_mesh)
         {
             NEVER_REACHED;
         }
@@ -177,7 +173,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
              * doesn't understand the <2,2> and thinks that it is being passed two arguments.
              */
             bool is_vertex_mesh = (dynamic_cast<VertexMesh<2,2>*>(pMesh));
-            if(!is_vertex_mesh)
+            if (!is_vertex_mesh)
             {
                 NEVER_REACHED;
             }
@@ -256,7 +252,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
 template<class CELL_CYCLE_MODEL>
 bool CryptCellsGenerator<CELL_CYCLE_MODEL>::CanCellsTerminallyDifferentiate()
 {
-    if(    ClassesAreSame<CELL_CYCLE_MODEL,FixedDurationGenerationBasedCellCycleModel>()
+    if (   ClassesAreSame<CELL_CYCLE_MODEL,FixedDurationGenerationBasedCellCycleModel>()
         || ClassesAreSame<CELL_CYCLE_MODEL,StochasticDurationGenerationBasedCellCycleModel>() )
     {
         return true;

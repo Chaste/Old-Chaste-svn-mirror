@@ -40,22 +40,134 @@ class TestVertexElement : public CxxTest::TestSuite
 public:
 
     void Test1dVertexElement()
+    {
+        std::vector<Node<2>*> nodes;
+        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+        nodes.push_back(new Node<2>(1, false, 1.0, 1.0));
+
+        VertexElement<1,2> element(0, nodes);
+
+        TS_ASSERT_EQUALS(element.GetNumNodes(),2u);
+        TS_ASSERT_EQUALS(element.GetNode(0)->GetIndex(),0u);
+        TS_ASSERT_EQUALS(element.GetNode(1)->GetIndex(),1u);
+
+        for (unsigned i=0; i<nodes.size(); i++)
         {
-            std::vector<Node<2>*> nodes;
-            nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-            nodes.push_back(new Node<2>(1, false, 1.0, 1.0));
-
-            VertexElement<1,2> element(0, nodes);
-
-            TS_ASSERT_EQUALS(element.GetNumNodes(),2u);
-            TS_ASSERT_EQUALS(element.GetNode(0)->GetIndex(),0u);
-            TS_ASSERT_EQUALS(element.GetNode(1)->GetIndex(),1u);
-
-            for (unsigned i=0; i<nodes.size(); i++)
-            {
-                delete nodes[i];
-            }
+            delete nodes[i];
         }
+    }
+
+    void TestCreateVertexElement()
+    {
+        // Make 8 nodes to assign to a cube element
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(4, false, 1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(5, false, 0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(6, false, 1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(7, false, 1.0, 1.0, 1.0));
+
+        std::vector<Node<3>*> nodes_face_0, nodes_face_1, nodes_face_2, nodes_face_3, nodes_face_4, nodes_face_5;
+
+        // Make 6 square faces out of these nodes
+        nodes_face_0.push_back(nodes[0]);
+        nodes_face_0.push_back(nodes[2]);
+        nodes_face_0.push_back(nodes[4]);
+        nodes_face_0.push_back(nodes[1]);
+
+        nodes_face_1.push_back(nodes[4]);
+        nodes_face_1.push_back(nodes[7]);
+        nodes_face_1.push_back(nodes[5]);
+        nodes_face_1.push_back(nodes[2]);
+
+        nodes_face_2.push_back(nodes[7]);
+        nodes_face_2.push_back(nodes[6]);
+        nodes_face_2.push_back(nodes[1]);
+        nodes_face_2.push_back(nodes[4]);
+
+        nodes_face_3.push_back(nodes[0]);
+        nodes_face_3.push_back(nodes[3]);
+        nodes_face_3.push_back(nodes[5]);
+        nodes_face_3.push_back(nodes[2]);
+
+        nodes_face_4.push_back(nodes[1]);
+        nodes_face_4.push_back(nodes[6]);
+        nodes_face_4.push_back(nodes[3]);
+        nodes_face_4.push_back(nodes[0]);
+
+        nodes_face_5.push_back(nodes[7]);
+        nodes_face_5.push_back(nodes[6]);
+        nodes_face_5.push_back(nodes[3]);
+        nodes_face_5.push_back(nodes[5]);
+
+        std::vector<VertexElement<2,3>*> faces;
+        faces.push_back(new VertexElement<2,3>(0, nodes_face_0));
+        faces.push_back(new VertexElement<2,3>(1, nodes_face_1));
+        faces.push_back(new VertexElement<2,3>(2, nodes_face_2));
+        faces.push_back(new VertexElement<2,3>(3, nodes_face_3));
+        faces.push_back(new VertexElement<2,3>(4, nodes_face_4));
+        faces.push_back(new VertexElement<2,3>(5, nodes_face_5));
+
+        std::vector<bool> orientations;
+        orientations.push_back(true);
+        orientations.push_back(true);
+        orientations.push_back(true);
+        orientations.push_back(true);
+        orientations.push_back(true);
+        orientations.push_back(true);
+
+        ///\todo Temporary test with hard-coded class
+        {
+            // Make a cube element out of these faces
+            VertexElement<3,3> element(0, faces, orientations);
+
+            TS_ASSERT_EQUALS(element.GetNumNodes(),8u);
+            TS_ASSERT_EQUALS(element.GetNumFaces(),6u);
+
+            TS_ASSERT_EQUALS(element.GetIndex(),0u);
+
+            // Test the position of some nodes
+            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[2], 0.0, 1e-6);
+
+            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[2], 1.0, 1e-6);
+        }
+        // Test with generic class
+        {
+            // Make a cube element out of these faces
+            VertexElement<3,3> element(0, faces, orientations);
+
+            TS_ASSERT_EQUALS(element.GetNumNodes(),8u);
+            TS_ASSERT_EQUALS(element.GetNumFaces(),6u);
+
+            TS_ASSERT_EQUALS(element.GetIndex(),0u);
+
+            // Test the position of some random nodes
+            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[2], 0.0, 1e-6);
+
+            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[0], 0.0, 1e-6);
+            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[1], 0.0, 1e-6);
+            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[2], 1.0, 1e-6);
+        }
+
+        // Tidy up
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
+        for (unsigned i=0; i<faces.size(); i++)
+        {
+            delete faces[i];
+        }
+    }
 
     void TestVertexElementFaceConstructor()
     {
@@ -87,10 +199,8 @@ public:
         faces.push_back(new VertexElement<1,2>(num_nodes-1, face_nodes));
         orientations.push_back(false);
 
-
         // Create element
         VertexElement<2,2> vertex_element(0, faces, orientations);
-
 
         TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 6u);
         TS_ASSERT_EQUALS(vertex_element.GetNumFaces(), 6u);
@@ -114,7 +224,6 @@ public:
 
         TS_ASSERT_DELTA(vertex_element.GetNode(5)->GetPoint()[0], 0.5, 1e-9);
         TS_ASSERT_DELTA(vertex_element.GetNode(5)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
-
 
         // Tidy up
         for (unsigned i=0; i<nodes.size(); i++)
@@ -187,11 +296,8 @@ public:
         {
             delete nodes[i];
         }
-
         delete p_new_node;
     }
-
-
 
     void TestMarkAsDeleted()
     {
@@ -225,7 +331,6 @@ public:
         }
     }
 
-
     void TestUpdateNode()
     {
         // Create nodes
@@ -257,7 +362,6 @@ public:
         delete p_node;
     }
 
-
 //     void xTestAnticlockwisenessOfNodes() throw(Exception)
 //     {
 //        // Tests to check that the nodes are anticlockwise when we create element
@@ -286,7 +390,6 @@ public:
 //            delete corner_nodes2[i];
 //        }
 //     }
-
 
     void TestGetNodeLocalIndex()
     {

@@ -47,7 +47,6 @@ class VertexMeshWriter;
 #include "VertexMeshReader.hpp"
 #include "VertexMeshWriter.hpp"
 #include "VertexElement.hpp"
-#include "VertexElement3d.hpp"
 #include "VertexElementMap.hpp"
 
 /**
@@ -60,7 +59,7 @@ class VertexMesh3d : public AbstractMesh<3,3>
 protected:
 
     /** Vector of pointers to VertexElements. */
-    std::vector<VertexElement3d*> mElements;
+    std::vector<VertexElement<3,3>*> mElements;
 
     /** Vector of pointers to VertexElements. */
     std::vector<VertexElement<2,3>*> mFaces;
@@ -138,11 +137,11 @@ public:
      *
      * @param nodes vector of pointers to nodes
      * @param faces vector of pointer to VertexElements
-     * @param vertexElements vector of pointers to VertexElement3ds
+     * @param vertexElements vector of pointers to VertexElement<3,3>s
      */
     VertexMesh3d(std::vector<Node<3>*> nodes,
                  std::vector<VertexElement<2,3>*> faces,
-                 std::vector<VertexElement3d*> vertexElements);
+                 std::vector<VertexElement<3,3>*> vertexElements);
 
     /**
      * Default constructor for use by serializer.
@@ -179,7 +178,7 @@ public:
      *
      * @return a pointer to the vertex element
      */
-    VertexElement3d* GetElement(unsigned index) const;
+    VertexElement<3,3>* GetElement(unsigned index) const;
 
     /**
      * Compute the volume of an element.
