@@ -56,11 +56,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifdef TEST_FOR_FPE
 void FpeSignalToAbort(int sig_num, siginfo_t* info, void* context )
 {
-       if ( info->si_code == FPE_FLTDIV) 
+       if ( info->si_code == FPE_FLTDIV)
        {
            std::cerr<<"SIGFPE: floating point exception was divide by zero.\n";
        }
-       else if ( info->si_code == FPE_FLTINV) 
+       else if ( info->si_code == FPE_FLTINV)
        {
            std::cerr<<"SIGFPE: floating point exception was an invalid operation (like 0.0/0.0).\n";
        }
@@ -96,7 +96,7 @@ public:
             std::cout << "CWD now: " << GetCurrentWorkingDirectory() << std::endl;
 #undef COVERAGE_IGNORE
         }
-       
+
 #ifdef TEST_FOR_FPE
         //Give all PETSc enabled tests the ability to trap for divide-by-zero
         feenableexcept(FE_DIVBYZERO | FE_INVALID );
@@ -106,7 +106,7 @@ public:
         sa.sa_flags = SA_RESETHAND|SA_SIGINFO;
         sa.sa_restorer = 0;
         sigaction(SIGFPE, &sa, NULL);
-#endif       
+#endif
         return true;
     }
     /** Clean up PETSc after running all tests. */

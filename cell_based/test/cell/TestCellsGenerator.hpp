@@ -44,33 +44,33 @@ class TestCellsGenerator : public AbstractCellBasedTestSuite
 public:
 
     void TestGenerateBasicWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
-	{
-		// Create mesh
-		TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
-		TetrahedralMesh<2,2> mesh;
-		mesh.ConstructFromMeshReader(mesh_reader);
+    {
+        // Create mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
+        TetrahedralMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
 
-		// Create cells
-		std::vector<TissueCell> cells;
-		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-		cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+        // Create cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-		// Test that cells were generated correctly
-		TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
+        // Test that cells were generated correctly
+        TS_ASSERT_EQUALS(cells.size(), mesh.GetNumNodes());
 
-		for (unsigned i=0; i<cells.size(); i++)
-		{
-			TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
-			TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
-		}
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
+            TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
+        }
 
-		// Test with extra input argument
-		std::vector<unsigned> location_indices;
-		location_indices.push_back(2);
+        // Test with extra input argument
+        std::vector<unsigned> location_indices;
+        location_indices.push_back(2);
         location_indices.push_back(7);
         location_indices.push_back(9);
 
-		std::vector<TissueCell> cells2;
+        std::vector<TissueCell> cells2;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator2;
         cells_generator2.GenerateBasic(cells2, 3, location_indices);
 
@@ -78,7 +78,7 @@ public:
         TS_ASSERT_DELTA(cells2[0].GetBirthTime(), -2.0, 1e-4);
         TS_ASSERT_DELTA(cells2[1].GetBirthTime(), -7.0, 1e-4);
         TS_ASSERT_DELTA(cells2[2].GetBirthTime(), -9.0, 1e-4);
-	}
+    }
 
     void TestGenerateGivenLocationIndicesWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
@@ -87,18 +87,18 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells again with basic
-  		std::vector<TissueCell> cells;
-  		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-  		TS_ASSERT_THROWS_THIS(cells_generator.GenerateBasic(cells, 83511u, location_indices),
-  				"The size of the locationIndices vector must match the required number of output cells");
-  		cells_generator.GenerateGivenLocationIndices(cells, location_indices);
+          std::vector<TissueCell> cells;
+          CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+          TS_ASSERT_THROWS_THIS(cells_generator.GenerateBasic(cells, 83511u, location_indices),
+                  "The size of the locationIndices vector must match the required number of output cells");
+          cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
-  		// Test that cells were generated correctly
-  		for (unsigned i=0; i<cells.size(); i++)
-  		{
-  			TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(location_indices[i]), 1e-9);
-			TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
-  		}
+          // Test that cells were generated correctly
+          for (unsigned i=0; i<cells.size(); i++)
+          {
+              TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(location_indices[i]), 1e-9);
+            TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
+          }
     }
 
     void TestCryptCellsGeneratorWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
@@ -129,32 +129,32 @@ public:
             double height = p_mesh->GetNode(i)->rGetLocation()[1];
             unsigned generation = static_cast<FixedDurationGenerationBasedCellCycleModel*>(cells[i].GetCellCycleModel())->GetGeneration();
 
-			TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
+            TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
 
-			if (height <= y0)
+            if (height <= y0)
             {
                 TS_ASSERT_EQUALS(generation, 0u);
-    			TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), STEM);
+                TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), STEM);
             }
             else if (height < y1)
             {
                 TS_ASSERT_EQUALS(generation, 1u);
-    			TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
+                TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
             }
             else if (height < y2)
             {
                 TS_ASSERT_EQUALS(generation, 2u);
-    			TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
+                TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
             }
             else if (height < y3)
             {
                 TS_ASSERT_EQUALS(generation, 3u);
-    			TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
+                TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
             }
             else
             {
                 TS_ASSERT_EQUALS(generation, 4u);
-    			TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), DIFFERENTIATED);
+                TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), DIFFERENTIATED);
             }
         }
     }
@@ -211,15 +211,15 @@ public:
         }
 
         // Create cells again with basic
-		std::vector<TissueCell> new_cells;
-		generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
-		// Test that cells were generated correctly
-		TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
+        std::vector<TissueCell> new_cells;
+        generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
+        // Test that cells were generated correctly
+        TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
 
-		for (unsigned i=0; i<new_cells.size(); i++)
-		{
-			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
-		}
+        for (unsigned i=0; i<new_cells.size(); i++)
+        {
+            TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+        }
     }
 
     void TestTestCryptCellsGeneratorWithTysonNovakCellCycleModel() throw(Exception)
@@ -240,16 +240,16 @@ public:
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
         // Create cells again with basic
-		std::vector<TissueCell> new_cells;
-		generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
+        std::vector<TissueCell> new_cells;
+        generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
 
-		// Test that cells were generated correctly
-		TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
+        // Test that cells were generated correctly
+        TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
 
-		for (unsigned i=0; i<new_cells.size(); i++)
-		{
-			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
-		}
+        for (unsigned i=0; i<new_cells.size(); i++)
+        {
+            TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+        }
     }
 
 
@@ -276,15 +276,15 @@ public:
         }
 
         // Create cells again with basic
-		std::vector<TissueCell> new_cells;
-		generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
-		// Test that cells were generated correctly
-		TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
+        std::vector<TissueCell> new_cells;
+        generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
+        // Test that cells were generated correctly
+        TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
 
-		for (unsigned i=0; i<new_cells.size(); i++)
-		{
-			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
-		}
+        for (unsigned i=0; i<new_cells.size(); i++)
+        {
+            TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+        }
     }
 
 
@@ -334,17 +334,17 @@ public:
         }
 
         // Create cells again with basic
-		std::vector<TissueCell> new_cells;
-		generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
-		// Test that cells were generated correctly
-		TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
+        std::vector<TissueCell> new_cells;
+        generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
+        // Test that cells were generated correctly
+        TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
 
-		for (unsigned i=0; i<new_cells.size(); i++)
-		{
-			TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
-		}
+        for (unsigned i=0; i<new_cells.size(); i++)
+        {
+            TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+        }
     }
-    
+
 
 
     void TestCanDifferentiate() throw(Exception)
@@ -357,7 +357,7 @@ public:
         CryptCellsGenerator<StochasticWntCellCycleModel> gen6;
         CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> gen7;
         CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo> gen8;
-        
+
         TS_ASSERT_EQUALS(gen1.CanCellsTerminallyDifferentiate(), true);
         TS_ASSERT_EQUALS(gen2.CanCellsTerminallyDifferentiate(), true);
         TS_ASSERT_EQUALS(gen3.CanCellsTerminallyDifferentiate(), false);
@@ -366,7 +366,7 @@ public:
         TS_ASSERT_EQUALS(gen6.CanCellsTerminallyDifferentiate(), false);
         TS_ASSERT_EQUALS(gen7.CanCellsTerminallyDifferentiate(), false);
         TS_ASSERT_EQUALS(gen8.CanCellsTerminallyDifferentiate(), false);
-        
+
         CryptCellsGenerator<Alarcon2004OxygenBasedCellCycleModel> gen9;
         TS_ASSERT_THROWS_THIS( gen9.CanCellsTerminallyDifferentiate(), "Using an invalid cell cycle model for crypt simulations");
     }

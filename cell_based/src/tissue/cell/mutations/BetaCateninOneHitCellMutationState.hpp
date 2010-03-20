@@ -54,10 +54,10 @@ private:
     }
 
 public:
-	/**
-	 * Constructor.
-	 */
-	BetaCateninOneHitCellMutationState();
+    /**
+     * Constructor.
+     */
+    BetaCateninOneHitCellMutationState();
 
 };
 

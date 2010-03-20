@@ -113,7 +113,7 @@ public:
         tester.PdeTimeStep /= 2.0;
         tester.SetMeshWidth(0.10);//cm
         tester.Stimulus = QUARTER;
-        
+
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 3u);

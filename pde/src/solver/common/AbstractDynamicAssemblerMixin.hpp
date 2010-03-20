@@ -68,7 +68,7 @@ protected:
     /** Whether the matrix has been assembled for the current time step. */
     bool mMatrixIsAssembled;
 
-    /** Whether the matrix is constant in time (if so the system need not be assembled at each time step. 
+    /** Whether the matrix is constant in time (if so the system need not be assembled at each time step.
      *  Defaults to false */
     bool mMatrixIsConstant;
 
@@ -87,7 +87,7 @@ protected:
      * to do matrix-based RHS assembly, and implemented
      * ConstructVectorForMatrixBasedRhsAssembly. This method just assembles the RHS
      * matrix b by setting up z and doing Bz=b.
-     * 
+     *
      * @param currentSolution
      * @param time
      */
@@ -103,7 +103,7 @@ public:
 
     /**
      * Set the times to solve between, and the time step to use.
-     * 
+     *
      * @param tStart the start time
      * @param tEnd the end time
      * @param dt the time step
@@ -112,14 +112,14 @@ public:
 
     /**
      * Set the initial condition.
-     * 
+     *
      * @param initialCondition the initial condition
      */
     void SetInitialCondition(Vec initialCondition);
 
     /**
      * Set the boolean mMatrixIsConstant to true to build the matrix only once.
-     * 
+     *
      * @param matrixIsConstant whether the matrix is constant (defaults to true)
      */
     void SetMatrixIsConstant(bool matrixIsConstant=true);
@@ -139,7 +139,7 @@ public:
      * Currently, it is assumed by this code that the matrix is constant for the lifetime of the assembler.
      * In other words, the matrix will *only* be assembled when this method is first called.
      * This is probably not safe in general, but all of our tests use a constant matrix at present.
-     * 
+     *
      * @param currentSolutionOrGuess defaults to NULL
      * @param currentTime defaults to 0.0
      */
@@ -148,7 +148,7 @@ public:
     /**
      * This method should be overloaded by any subclass which uses matrix-based
      * assembly.
-     * 
+     *
      * @param currentSolution the current solution
      */
     virtual void ConstructVectorForMatrixBasedRhsAssembly(Vec currentSolution);
@@ -277,7 +277,7 @@ Vec AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Ve
             // matrix is constant case: only assembler matrix the first time
             // matrix is not constant case: always assemble
             bool assemble_matrix = (!mMatrixIsConstant || !mMatrixIsAssembled);
-            
+
             next_solution = this->StaticSolve(current_solution, stepper.GetTime(), assemble_matrix);
         }
         else

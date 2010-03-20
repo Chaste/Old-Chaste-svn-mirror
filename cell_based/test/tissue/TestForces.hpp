@@ -75,13 +75,13 @@ public:
             {
                 TissueCell cell(STEM, p_apc2, new FixedDurationGenerationBasedCellCycleModel());
                 cell.SetBirthTime(-10);
-				cells.push_back(cell);
+                cells.push_back(cell);
             }
             else
             {
-				TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
-				cell.SetBirthTime(-10);
-				cells.push_back(cell);
+                TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
+                cell.SetBirthTime(-10);
+                cells.push_back(cell);
             }
         }
 

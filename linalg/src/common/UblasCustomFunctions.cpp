@@ -148,8 +148,8 @@ double SmallPow(double x, unsigned exponent)
                 return SmallPow(x, exponent-1)*x;
             }
         }
-        
+
     }
 }
-    
+
 

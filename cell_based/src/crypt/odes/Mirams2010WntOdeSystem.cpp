@@ -50,7 +50,7 @@ Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel, boost::shared_pt
     b1 = (mA/2.0) / (((wntLevel + mB)/(mC*wntLevel + mD)) + mF);
     if (!mpMutationState)
     {
-    	// No mutations specified
+        // No mutations specified
     }
     else if (mpMutationState->IsType<BetaCateninOneHitCellMutationState>())
     {

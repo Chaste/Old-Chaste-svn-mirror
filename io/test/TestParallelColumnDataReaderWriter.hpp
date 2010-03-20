@@ -206,7 +206,7 @@ public:
 
         // Check file
         MPI_Barrier(PETSC_COMM_WORLD);
-        
+
         TS_ASSERT_EQUALS(system(("diff "+output_dir+"Stripe.info io/test/data/Stripe.info").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff "+output_dir+"Stripe_000000.dat io/test/data/Stripe_000000.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff "+output_dir+"Stripe_unlimited.dat io/test/data/Stripe_unlimited.dat").c_str()), 0);

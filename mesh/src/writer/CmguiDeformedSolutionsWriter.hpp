@@ -34,33 +34,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticMesh.hpp"
 
 
-/** 
+/**
  *  CmguiDeformedSolutionsWriter
- * 
- *  A class for writing a mesh, and solutions from a solid mechanics (ie deformed meshes) problem, 
+ *
+ *  A class for writing a mesh, and solutions from a solid mechanics (ie deformed meshes) problem,
  *  in Cmgui output format.
- * 
+ *
  *  Inherits from CmguiMeshWriter
  */
 template<unsigned DIM>
 class CmguiDeformedSolutionsWriter : public CmguiMeshWriter<DIM, DIM>
 {
 private:
-    /** 
+    /**
      *  The quadratic mesh used in the mechanics simulation. solution_0.exnode and solution_0.exelem
      *  (the only exelem file written) will be written using this mesh
      */
     QuadraticMesh<DIM>* mpQuadraticMesh;
-    
-    /** 
+
+    /**
      *  A counter is given whenever WriteDeformationPositions() is called, this variable
      *  stores the last one used
      */
     unsigned mFinalCounter;
 
-	/** 
+    /**
      *  Overridden GetNumNodes() just returns the number of vertices in the quadratic mesh,
-	 *  since (currently - perhaps not in the future) the cmgui element file assumes linear
+     *  since (currently - perhaps not in the future) the cmgui element file assumes linear
      *  interpolation in the elements and therefore we don't need to write the internal nodes
      */
     unsigned GetNumNodes()
@@ -70,7 +70,7 @@ private:
 
 public:
     /**
-     *  Constructor 
+     *  Constructor
      *  @param outputDirectory The output directory for the Cmgui files
      *  @param baseName The base name for the Cmgui output files - the files written will be
      *   [basename_0.exnode, [basename]_0.exelem; [basename]_1.exnode, [basename]_2.exnode, ..
@@ -79,12 +79,12 @@ public:
     CmguiDeformedSolutionsWriter(std::string outputDirectory,
                                  std::string baseName,
                                  QuadraticMesh<DIM>& rQuadraticMesh);
-    
+
     /**
      *  Write [basename]_0.exnode, [basename]_0.exelem using the quadratic mesh
      */
     void WriteInitialMesh();
-    
+
     /**
      *  Write [basename]_i.exnode using the given deformed positions
      *  @param rDeformedPositions std::vector of deformed positions to be used, must have size equal to number
@@ -93,14 +93,14 @@ public:
      */
     void WriteDeformationPositions(std::vector<c_vector<double,DIM> >& rDeformedPositions,
                                    unsigned counter);
-    
+
     /**
-     *  Writes a small cmgui script called LoadSolutions.com, for loading the output that has been written. 
-     *  Assumes the output was solution_0.exnode .. solution_N.exnode, where N is the counter that was 
+     *  Writes a small cmgui script called LoadSolutions.com, for loading the output that has been written.
+     *  Assumes the output was solution_0.exnode .. solution_N.exnode, where N is the counter that was
      *  given in the last call to WriteDeformationPositions()
      */
     void WriteCmguiScript();
-    
+
     /**
      *  For a simulation that has already been run, convert the chaste output to cmgui format.
      *  @param inputDirectory The directory the chaste output is in
@@ -109,9 +109,9 @@ public:
      *  The first file is assumed to be [basename]_0.nodes. The files [basename]_0.nodes up to
      *  [basename]_N.nodes will be converted to cmgui format and put in the output directory
      *  given in the constructor.
-     */   
-    void ConvertOutput(std::string inputDirectory, 
-                       std::string inputFileBaseName, 
+     */
+    void ConvertOutput(std::string inputDirectory,
+                       std::string inputFileBaseName,
                        unsigned finalCounter);
 };
 

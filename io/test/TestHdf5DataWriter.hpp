@@ -298,18 +298,18 @@ public:
 //
 //            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_multi_column_dumped.txt").c_str()), 0);
 //        }
-    
+
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_multi_column", true,
             "io/test/data", "hdf5_test_multi_column", false));
-        
+
         // We make sure that the comparison returns the same result with the weaker method
         TS_ASSERT(CompareFilesViaHdf5DataReaderGlobalNorm("hdf5", "hdf5_test_multi_column", true,
             "io/test/data", "hdf5_test_multi_column", false));
-            
+
         // We make that the comparison fails if the files are different
         TS_ASSERT(!CompareFilesViaHdf5DataReaderGlobalNorm("hdf5", "hdf5_test_multi_column", true,
             "io/test/data", "hdf5_test_full_format_extended", false));
-        
+
         VecDestroy(petsc_data_1);
         VecDestroy(petsc_data_2);
     }
@@ -462,9 +462,9 @@ public:
         //Test whether one with big-endian datatypes looks the same:
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete", true,
                                                 "io/test/data", "hdf5_test_full_format_incomplete_bigendian", false));
-        
-        
-        
+
+
+
         VecDestroy(petsc_data_1);
         VecDestroy(petsc_data_2);
         VecDestroy(petsc_data_3);
@@ -973,14 +973,14 @@ public:
 
     /**
      * Test the functionality for adding further data to an existing file.
-     * 
+     *
      */
     void TestFailCreateFile(void)
     {
         //This test causes memory leak within MPIO
         int number_nodes = 100;
         DistributedVectorFactory factory(number_nodes);
-        
+
         OutputFileHandler handler("hdf5", false);
         //Create file and remove permission to overwrite file
         system(("touch "+ handler.GetOutputDirectoryFullPath()+"empty.h5").c_str());
@@ -997,35 +997,35 @@ public:
     }
     /**
      * Test the functionality for adding further data to an existing file.
-     * 
+     *
      * This test must come after TestHdf5DataWriterFullFormat, as we extend that file.
      */
     void TestWriteToExistingFile(void)
     {
         int number_nodes = 100;
         DistributedVectorFactory factory(number_nodes);
-        
+
         // Test some exceptions
         TS_ASSERT_THROWS_THIS(Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format", true, true),
                               "You are asking to delete a file and then extend it, change arguments to constructor.");
-        
+
         TS_ASSERT_THROWS_CONTAINS(Hdf5DataWriter writer(factory, "hdf5", "absent_file", false, true),
                                   "Hdf5DataWriter could not open");
-        
+
         TS_ASSERT_THROWS_THIS(Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_multi_column", false, true),
                               "Tried to open a datafile for extending which doesn't have an unlimited dimension.");
-        
+
         // Open the real file
         Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format", false, true);
-        
+
         // Get IDs for the variables in the file
         int node_id = writer.GetVariableByName("Node");
         int ik_id = writer.GetVariableByName("I_K");
         int ina_id = writer.GetVariableByName("I_Na");
-        
+
         TS_ASSERT_THROWS_THIS(writer.GetVariableByName("bob"),
                               "Variable does not exist in hdf5 definitions.");
-        
+
         // Create some extra test data
         Vec node_petsc = factory.CreateVec();
         Vec ik_petsc = factory.CreateVec();
@@ -1033,7 +1033,7 @@ public:
         DistributedVector node_data = factory.CreateDistributedVector(node_petsc);
         DistributedVector ik_data = factory.CreateDistributedVector(ik_petsc);
         DistributedVector ina_data = factory.CreateDistributedVector(ina_petsc);
-        
+
         for (unsigned time_step=10; time_step<15; time_step++)
         {
             // Fill in data
@@ -1048,7 +1048,7 @@ public:
             node_data.Restore();
             ik_data.Restore();
             ina_data.Restore();
-            
+
             // Write to file
             writer.PutVector(node_id, node_petsc);
             writer.PutVector(ina_id, ina_petsc);
@@ -1056,13 +1056,13 @@ public:
             writer.PutUnlimitedVariable(time_step);
             writer.AdvanceAlongUnlimitedDimension();
         }
-        
+
         // Close & test
         writer.Close();
         VecDestroy(node_petsc);
         VecDestroy(ik_petsc);
         VecDestroy(ina_petsc);
-        
+
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format", true,
                                                 "io/test/data", "hdf5_test_full_format_extended", false));
     }

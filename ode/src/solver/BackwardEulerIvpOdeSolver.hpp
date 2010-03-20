@@ -199,10 +199,10 @@ public:
      * the ODE system object provides an analytical Jacobian.
      */
     void ForceUseOfNumericalJacobian();
-    
+
     /**
      * Public method used in archiving.
-     * 
+     *
      * @return the size of the system
      */
      unsigned GetSystemSize() const {return mSizeOfOdeSystem;};
@@ -225,12 +225,12 @@ inline void save_construct_data(
 {
     const unsigned system_size = t->GetSystemSize();
     ar & system_size;
-}  
-    
+}
+
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
  * instantiate a BackwardEulerIvpOdeSolver instance (using existing constructor)
- * 
+ *
  * NB this constructor allocates memory for the other member variables too.
  */
 template<class Archive>

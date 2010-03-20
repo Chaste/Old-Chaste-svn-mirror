@@ -48,12 +48,12 @@ void ReplicatableVector::RemovePetscContext()
         VecDestroy(mReplicated);
         mReplicated = NULL;
     }
-    
+
     if (mpData != NULL)
     {
         delete[] mpData;
         mpData = NULL;
-    }        
+    }
 }
 
 // Constructors & destructors
@@ -103,18 +103,18 @@ void ReplicatableVector::Resize(unsigned size)
     RemovePetscContext();
 
     mSize = size;
-    
+
     try
     {
         mpData = new double[mSize];
     }
     catch(std::bad_alloc &badAlloc)
     {
-#define COVERAGE_IGNORE        
+#define COVERAGE_IGNORE
         std::cout << "Failed to allocate a ReplicatableVector of size " << size  << std::endl;
         PetscTools::ReplicateException(true);
         throw badAlloc;
-#undef COVERAGE_IGNORE               
+#undef COVERAGE_IGNORE
     }
     PetscTools::ReplicateException(false);
 }
@@ -136,7 +136,7 @@ void ReplicatableVector::Replicate(unsigned lo, unsigned hi)
 
     // Now do the real replication
     ReplicatePetscVector(distributed_vec);
-    
+
     // Clean up
     VecDestroy(distributed_vec);
 }
@@ -159,7 +159,7 @@ void ReplicatableVector::ReplicatePetscVector(Vec vec)
     }
 
     // Replicate the data
-//PETSc-3.x.x or PETSc-2.3.3 
+//PETSc-3.x.x or PETSc-2.3.3
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
     VecScatterBegin(mToAll, vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD);
     VecScatterEnd  (mToAll, vec, mReplicated, INSERT_VALUES, SCATTER_FORWARD);

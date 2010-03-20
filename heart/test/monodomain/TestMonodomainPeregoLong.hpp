@@ -74,7 +74,7 @@ public:
         {
             cell = new PeregoLuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
-        
+
         cell->SetAdaptivityFlag(true);
         cell->SetToleranceWeight(1e-2);
         return cell;
@@ -105,7 +105,7 @@ public:
         {
             cell = new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
         }
-        
+
         return cell;
     }
 };
@@ -129,49 +129,49 @@ public:
             HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
             HeartConfig::Instance()->SetOutputDirectory("PeregoMonoProblem1d");
             HeartConfig::Instance()->SetOutputFilenamePrefix("PeregoMonodomainLR91_1d");
-    
+
             PointStimulusCellFactory  cell_factory;
             MonodomainProblem<1> monodomain_problem( &cell_factory );
-    
+
             monodomain_problem.Initialise();
-    
+
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
-    
+
             monodomain_problem.Solve();
         }
-        
+
         {
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
             HeartConfig::Instance()->SetSimulationDuration(350); //ms
             HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
             HeartConfig::Instance()->SetOutputDirectory("PeregoMonoProblemCompareToLuoRudy1d");
             HeartConfig::Instance()->SetOutputFilenamePrefix("PeregoMonodomainLR91CompareToLuoRudy_1d");
-    
+
             PointStimulusLuoRudyCellFactory  cell_factory;
             MonodomainProblem<1> monodomain_problem( &cell_factory );
-    
+
             monodomain_problem.Initialise();
-    
+
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
-    
+
             monodomain_problem.Solve();
-        }  
-        
-        
+        }
+
+
         Hdf5DataReader* p_reader_perego = new Hdf5DataReader("PeregoMonoProblem1d", "PeregoMonodomainLR91_1d");
-        
+
         Hdf5DataReader* p_reader_lr = new Hdf5DataReader("PeregoMonoProblemCompareToLuoRudy1d", "PeregoMonodomainLR91CompareToLuoRudy_1d");
-        
+
         PropagationPropertiesCalculator properties_perego(p_reader_perego);
         PropagationPropertiesCalculator properties_lr(p_reader_lr);
-        
+
         double perego_apd90 = properties_perego.CalculateActionPotentialDuration(90.0, 2u);
         double lr_apd90 = properties_lr.CalculateActionPotentialDuration(90.0, 2u);
-        
+
         TS_ASSERT_DELTA(perego_apd90, lr_apd90, 0.2);
-    }  
+    }
 };
 
 #endif //_TESTMONODOMAINPEREGOLONG_HPP_

@@ -47,7 +47,7 @@ HodgkinHuxleySquidAxon1952OriginalOdeSystem::HodgkinHuxleySquidAxon1952OriginalO
         : AbstractCardiacCell(pOdeSolver, 4, 0, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<HodgkinHuxleySquidAxon1952OriginalOdeSystem>::Instance();
-    
+
     Init();
 }
 
@@ -67,33 +67,33 @@ void HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDerivatives(double ti
      * sodium_channel_h_gate_h = 0.6
      * sodium_channel_m_gate_m = 0.05
      */
-    
+
     double membrane_V = rY[0];
     double potassium_channel_n_gate_n = rY[1];
     double sodium_channel_h_gate_h = rY[2];
     double sodium_channel_m_gate_m = rY[3];
-    
+
     /*
      * Compute the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
      */
-    
+
     double leakage_current_E_L = membrane_E_R+10.613;
     double leakage_current_i_L = leakage_current_g_L*(membrane_V-leakage_current_E_L);
-    
+
     double membrane_i_Stim = GetStimulus(time);
-    
+
     double sodium_channel_E_Na = membrane_E_R+115.0;
     double sodium_channel_i_Na = sodium_channel_g_Na*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_h_gate_h*(membrane_V-sodium_channel_E_Na);
     double potassium_channel_E_K = membrane_E_R-12.0;
     double potassium_channel_i_K = potassium_channel_g_K*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*potassium_channel_n_gate_n*(membrane_V-potassium_channel_E_K);
-    
+
     double membrane_V_prime = -(-membrane_i_Stim+sodium_channel_i_Na+potassium_channel_i_K+leakage_current_i_L)/membrane_Cm;
     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
     if (mSetVoltageDerivativeToZero)
     {
         membrane_V_prime = 0;
     }
-    
+
     double potassium_channel_n_gate_alpha_n;
     if (-65.0001<membrane_V && membrane_V<-64.9999)
     {
@@ -103,13 +103,13 @@ void HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDerivatives(double ti
     {
         potassium_channel_n_gate_alpha_n = -0.01*(membrane_V+65.0)/(exp(-(membrane_V+65.0)/10.0)-1.0);
     }
-    
+
     double potassium_channel_n_gate_beta_n = 0.125*exp((membrane_V+75.0)/80.0);
     double potassium_channel_n_gate_n_prime = potassium_channel_n_gate_alpha_n*(1.0-potassium_channel_n_gate_n)-potassium_channel_n_gate_beta_n*potassium_channel_n_gate_n;
     double sodium_channel_h_gate_alpha_h = 0.07*exp(-(membrane_V+75.0)/20.0);
     double sodium_channel_h_gate_beta_h = 1.0/(exp(-(membrane_V+45.0)/10.0)+1.0);
     double sodium_channel_h_gate_h_prime = sodium_channel_h_gate_alpha_h*(1.0-sodium_channel_h_gate_h)-sodium_channel_h_gate_beta_h*sodium_channel_h_gate_h;
-    
+
     double sodium_channel_m_gate_alpha_m;
     if (-50.0001<membrane_V && membrane_V<-49.9999)
     {
@@ -121,7 +121,7 @@ void HodgkinHuxleySquidAxon1952OriginalOdeSystem::EvaluateYDerivatives(double ti
     }
     double sodium_channel_m_gate_beta_m = 4.0*exp(-(membrane_V+75.0)/18.0);
     double sodium_channel_m_gate_m_prime = sodium_channel_m_gate_alpha_m*(1.0-sodium_channel_m_gate_m)-sodium_channel_m_gate_beta_m*sodium_channel_m_gate_m;
-    
+
     rDY[0] = membrane_V_prime;
     rDY[1] = potassium_channel_n_gate_n_prime;
     rDY[2] = sodium_channel_h_gate_h_prime;
@@ -135,14 +135,14 @@ double HodgkinHuxleySquidAxon1952OriginalOdeSystem::GetIIonic()
     double potassium_channel_n_gate_n = mStateVariables[1];
     double sodium_channel_h_gate_h = mStateVariables[2];
     double sodium_channel_m_gate_m = mStateVariables[3];
-    
+
     /*
      * Compute the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
      */
-    
+
     double leakage_current_E_L = membrane_E_R+10.613;
     double leakage_current_i_L = leakage_current_g_L*(membrane_V-leakage_current_E_L);
-    
+
     double sodium_channel_E_Na = membrane_E_R+115.0;
     double sodium_channel_i_Na = sodium_channel_g_Na*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_m_gate_m*sodium_channel_h_gate_h*(membrane_V-sodium_channel_E_Na);
     double potassium_channel_E_K = membrane_E_R-12.0;

@@ -54,7 +54,7 @@ class GenericEventHandler
     friend class TestGenericEventHandler;
     friend class TestCellBasedEventHandler;
     friend class TestHeartEventHandler;
-    
+
 private:
     static std::vector<double> mCpuTime; /**< CPU ticks assigned to each event */
     static std::vector<bool> mHasBegun; /**< Whether each event is in progress */
@@ -66,7 +66,7 @@ private:
      * Sleep for a specified number of milliseconds
      * Used in testing
      * Ought to be more portable than sleep() or usleep().
-     * 
+     *
      * @param milliseconds  minimim number of milliseconds for which to sleep (ought to be a multiple of 10)
      */
     inline static void MilliSleep(unsigned milliseconds)

@@ -148,7 +148,7 @@ public:
         location_indices.push_back(2);
 
         TS_ASSERT_THROWS_THIS(NodeBasedTissue<2> node_based_tissue(nodes, cells_copy, location_indices),
-        		              "There is not a one-one correspondence between cells and location indices");
+                              "There is not a one-one correspondence between cells and location indices");
     }
 
     void TestValidateNodeBasedTissue()
@@ -183,7 +183,7 @@ public:
         // Fails as no cell corresponding to node 4
         std::vector<TissueCell> cells_copy(cells);
         TS_ASSERT_THROWS_THIS(NodeBasedTissue<2> tissue(nodes, cells_copy),
-							  "Node 4 does not appear to have a cell associated with it");
+                              "Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
         AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();

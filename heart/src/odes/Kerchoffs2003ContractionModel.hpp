@@ -35,20 +35,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Implementation of the ODE-based, stretch-dependent, stretch-rate-INdependent, contraction
- *  model detailed in the appendix of Kerchoffs 2003 "Intra- and interventricular asynchrony of 
+ *  model detailed in the appendix of Kerchoffs 2003 "Intra- and interventricular asynchrony of
  *  electromechanics in the ventricularly paced heart".
  */
 class Kerchoffs2003ContractionModel : public AbstractOdeBasedContractionModel
 {
 friend class TestContractionModels;
-    
+
 private:
     static const double a6;  /**< See reference. 2.0 um^{-1} */
-    static const double a7;  /**< See reference. 1.5 um */ 
+    static const double a7;  /**< See reference. 1.5 um */
     static const double T0;  /**< See reference. 180 kPa */
     static const double Ea;  /**< See reference. 20 um^{-1} */
     static const double v0;  /**< See reference. 0.0075 um/ms */
-    static const double ls0; /**< See reference. 1.9 um */ 
+    static const double ls0; /**< See reference. 1.9 um */
     static const double tr;  /**< See reference. 75 ms */
     static const double td;  /**< See reference. 75 ms */
     static const double b;   /**< See reference. 150 ms/um */
@@ -66,8 +66,8 @@ private:
     /** Whether the cell is activated - whether the voltage has gone above 40mV without going below -70mV. */
     bool mIsActivated;
 
-    /** 
-     *  Get the active tension as a function of length of contractile element. This is private. The public 
+    /**
+     *  Get the active tension as a function of length of contractile element. This is private. The public
      *  GetActiveTension() calls this using the value of lc in the state variable
      *  @param lengthOfContractileElement length of contractile element (the state variable in this model).
      */
@@ -77,16 +77,16 @@ private:
 public:
     /** Constructor */
     Kerchoffs2003ContractionModel();
-   
 
-    /** 
-     *  The derivative function of the one state variable: "lc" in reference, the length of the contractile element 
+
+    /**
+     *  The derivative function of the one state variable: "lc" in reference, the length of the contractile element
      *  @param time time
      *  @param rY 1D vector containing lc
      *  @param rDY 1D vector in which dlc/dt is set
      */
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
-    
+
     /**
      *  Set the input parameters. The calcium concentration is not used. If the voltage is such that activation
      *  has occured (gone above 40mV), the state is set to active and the time saved as the activation time.
@@ -94,20 +94,20 @@ public:
      *  @param rInputParameters reference to the input parameters
      */
     void SetInputParameters(ContractionModelInputParameters& rInputParameters);
-    
+
     /**
      *  Take the stretch and compute the sarcomere length (stretch rate is not used).
      *  @param stretch stretch
      *  @param stretchRate stretch rate
      */
     void SetStretchAndStretchRate(double stretch, double stretchRate);
-    
-    /** 
+
+    /**
      *  Get the active tension (note: actually a stress), ie kPa
      */
     double GetActiveTension();
-    
-    /** 
+
+    /**
      *  This model is stretch-dependent
      */
     bool IsStretchDependent()
@@ -115,7 +115,7 @@ public:
         return true;
     }
 
-    /** 
+    /**
      *  This model is stretch-rate-independent
      */
     bool IsStretchRateDependent()
@@ -124,7 +124,7 @@ public:
     }
 
     /**
-     *  Get the active tension corresponding to the temporary stored state variables 
+     *  Get the active tension corresponding to the temporary stored state variables
      *  produced by calling RunDoNotUpdate (and before calling UpdateStateVariables())
      */
     double GetNextActiveTension();

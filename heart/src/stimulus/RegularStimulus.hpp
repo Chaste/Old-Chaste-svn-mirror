@@ -60,7 +60,7 @@ private:
         archive & mStartTime;
         archive & mStopTime;
     }
-    
+
     /** The 'height' of the square wave applied */
     double mMagnitudeOfStimulus;
     /** The length of the square wave */
@@ -100,7 +100,7 @@ inline void load_construct_data(
      * It doesn't actually matter what values we pass to our standard constructor,
      * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
-     */   
+     */
      ::new(t)RegularStimulus(0.0, 0.0, 0.1, 0.0, 1.0);
 }
 }

@@ -45,16 +45,16 @@ BaseClass::~BaseClass()
 
 ChildClass::ChildClass() : mTag(1)
 {
-	assert(mTagInBaseClass==4);
+    assert(mTagInBaseClass==4);
 }
 void ChildClass::SetParent(ParentClass* pParent)
 {
-	mpParent = pParent;
+    mpParent = pParent;
 }
 
 void ChildClass::Hello()
 {
-	std::cout << "Hello!\n";
+    std::cout << "Hello!\n";
 }
 
 
@@ -67,5 +67,5 @@ CHASTE_CLASS_EXPORT(ChildClass)
 ParentClass::ParentClass(ChildClass* pChild)
     : mTag(0), mpChild(pChild)
 {
-	mpChild->SetParent(this);
+    mpChild->SetParent(this);
 }

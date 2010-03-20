@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * @file
- * 
+ *
  * Some helper classes and functions for setting up a simple bath problem for testing.
  */
 
@@ -146,9 +146,9 @@ MeshType* Load2dMeshAndSetCircularTissue(const std::string& rMeshPath,
     TrianglesMeshReader<2,2> reader(rMeshPath);
     MeshType* p_mesh = new MeshType;
     p_mesh->ConstructFromMeshReader(reader);
-    
+
     SetCircularTissueIn2dMesh(p_mesh, centreX, centreY, radius);
-    
+
     return p_mesh;
 }
 
@@ -168,9 +168,9 @@ DistributedTetrahedralMesh<2,2>* Load2dMeshAndSetCircularTissue(const std::strin
     // Force dumb partitioning so migration tests pass!
     DistributedTetrahedralMesh<2,2>* p_mesh = new DistributedTetrahedralMesh<2,2>(DistributedTetrahedralMesh<2,2>::DUMB);
     p_mesh->ConstructFromMeshReader(reader);
-    
+
     SetCircularTissueIn2dMesh(p_mesh, centreX, centreY, radius);
-    
+
     return p_mesh;
 }
 

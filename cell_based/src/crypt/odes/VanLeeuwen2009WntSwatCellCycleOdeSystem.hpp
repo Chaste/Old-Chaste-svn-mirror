@@ -204,8 +204,8 @@ public:
      * @param pMutationState cell mutation; some affect the ODE system
      */
     VanLeeuwen2009WntSwatCellCycleOdeSystem(unsigned hypothesis,
-    		                      double wntLevel = 0.0,
-    		                      boost::shared_ptr<AbstractCellMutationState> pMutationState=boost::shared_ptr<AbstractCellMutationState>());
+                                  double wntLevel = 0.0,
+                                  boost::shared_ptr<AbstractCellMutationState> pMutationState=boost::shared_ptr<AbstractCellMutationState>());
 
     /**
      * Destructor.

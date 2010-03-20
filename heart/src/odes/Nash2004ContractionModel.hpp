@@ -33,20 +33,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 
 /**
- *  Nash2004 contraction model - Nash & Panfilov "Electromechanical mode of excitable tissue to 
+ *  Nash2004 contraction model - Nash & Panfilov "Electromechanical mode of excitable tissue to
  *  study reentrant cardiac arrthrymias", Progress in Biophysics and Molecular Biology, 2004.
- * 
+ *
  *  A simple, stretch- and stretch-rate-independent contraction model, just dependent on the voltage.
  *  If v is the non-dimensionalised voltage, Ta is given by
  *  dTa/dt = eps(v) (kTa*v - Ta);
  *  where eps(v) = e0 if v < 0.05, = 10*e0 v >= 0.05.
- * 
+ *
  *  We use the non-dimensionalisation: V in [-85,40] ---> v in [0,1], ie v=(V+85)/125
- * 
+ *
  *  Not sure what the appropriate value of e0 is: as the paper uses non-dimensionalised time
- *  the e0 above corresponds to "eps0/t0", where eps0 is value used in the paper (1.0) and 
- *  t0 is the characteristic time. The paper suggests using t0=25.9 (?), which gives Ta growing too 
- *  quickly at the beginning (as rapidly as the voltage). t0 = 100 coded at the moment..  
+ *  the e0 above corresponds to "eps0/t0", where eps0 is value used in the paper (1.0) and
+ *  t0 is the characteristic time. The paper suggests using t0=25.9 (?), which gives Ta growing too
+ *  quickly at the beginning (as rapidly as the voltage). t0 = 100 coded at the moment..
  *
  */
 class Nash2004ContractionModel : public AbstractOdeBasedContractionModel
@@ -62,14 +62,14 @@ class Nash2004ContractionModel : public AbstractOdeBasedContractionModel
 
 public:
     /** Constructor */
-    Nash2004ContractionModel() : AbstractOdeBasedContractionModel(1) 
+    Nash2004ContractionModel() : AbstractOdeBasedContractionModel(1)
     {
         this->mpSystemInfo = OdeSystemInformation<Nash2004ContractionModel>::Instance();
 
         mScaledVoltage = 0.0;
         this->mStateVariables.push_back(0.0);
     }
-   
+
     /**
      *  Calculate the derivative of the Ta (the state variable)
      *  @param time time
@@ -84,14 +84,14 @@ public:
 
     /**
      *  Set the input parameters. Only the voltage is used
-     *  @param rInputParameters reference to the input parameters    
+     *  @param rInputParameters reference to the input parameters
      */
     void SetInputParameters(ContractionModelInputParameters& rInputParameters)
     {
         assert(rInputParameters.voltage != DOUBLE_UNSET);
         mScaledVoltage = (rInputParameters.voltage+85)/125;
     }
-    
+
     /**
      *  Neither stretch nor stretch rate are used so this method does nothing
      *  @param stretch stretch
@@ -100,7 +100,7 @@ public:
     void SetStretchAndStretchRate(double stretch, double stretchRate)
     {
     }
-    
+
     /**
      *  Get the current active tension
      */
@@ -117,11 +117,11 @@ public:
     {
         return mTemporaryStateVariables[0];
     }
-    
+
 
     /**
      *  This model is stretch-independent
-     */ 
+     */
     bool IsStretchDependent()
     {
         return false;

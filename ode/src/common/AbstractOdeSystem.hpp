@@ -212,12 +212,12 @@ public:
     void SetStateVariables(const std::vector<double>& rStateVariables);
 
     /**
-	 * Set the value of a single state variable in the ODE system.
-	 *
-	 * @param stateVariable index of the state variable to be set
-	 * @param newValue new value of the state variable
-	 */
-	void SetStateVariable(unsigned stateVariable, double newValue);
+     * Set the value of a single state variable in the ODE system.
+     *
+     * @param stateVariable index of the state variable to be set
+     * @param newValue new value of the state variable
+     */
+    void SetStateVariable(unsigned stateVariable, double newValue);
 
     /**
      * Get the values of the state variables in the ODE system.

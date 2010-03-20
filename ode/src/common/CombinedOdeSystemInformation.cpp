@@ -40,9 +40,9 @@ boost::shared_ptr<CombinedOdeSystemInformation> CombinedOdeSystemInformation::In
     {
         info_vec.push_back(rSubsystems[i]->GetSystemInformation());
     }
-    
+
     boost::shared_ptr<CombinedOdeSystemInformation> p_inst;
-    
+
     // Search to see if we have an information object for this sequence of
     // subsystems already.
     for (unsigned i=0; i<msInstances.size(); i++)
@@ -65,7 +65,7 @@ boost::shared_ptr<CombinedOdeSystemInformation> CombinedOdeSystemInformation::In
             }
         }
     }
-    
+
     // Create a new object if needed
     if (!p_inst)
     {
@@ -75,7 +75,7 @@ boost::shared_ptr<CombinedOdeSystemInformation> CombinedOdeSystemInformation::In
         inst.pInfoInstance = p_inst;
         msInstances.push_back(inst);
     }
-    
+
     return p_inst;
 }
 
@@ -90,7 +90,7 @@ CombinedOdeSystemInformation::CombinedOdeSystemInformation(const std::vector<boo
     mVariableNames.reserve(total_system_size);
     mVariableUnits.reserve(total_system_size);
     mInitialConditions.reserve(total_system_size);
-    
+
     // Set up our info from the subsystems
     for (unsigned i=0; i<rSubsystemInfo.size(); i++)
     {
@@ -100,7 +100,7 @@ CombinedOdeSystemInformation::CombinedOdeSystemInformation(const std::vector<boo
         unsigned system_size = names.size();
         assert(inits.size() == system_size);
         assert(units.size() == system_size);
-        
+
         for (unsigned j=0; j<system_size; j++)
         {
             mVariableNames.push_back(names[j]);
@@ -108,7 +108,7 @@ CombinedOdeSystemInformation::CombinedOdeSystemInformation(const std::vector<boo
             mInitialConditions.push_back(inits[j]);
         }
     }
-    
+
     mInitialised = true;
 }
 

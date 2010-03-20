@@ -709,7 +709,7 @@ public:
         // the correct magnitude, which is dependent on whether the params
         // have been entered a Pa or KPa)
         TS_ASSERT_DELTA(T(0,0),2.0902,1e-3);
-        
+
         C(0,0) = 10;
         TS_ASSERT_THROWS_CONTAINS(law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true), "strain unacceptably large");
     }
@@ -729,20 +729,20 @@ public:
         c_matrix<double,2,2> T_Yfibres;
         FourthOrderTensor<2> dTdE_Xfibres;
         FourthOrderTensor<2> dTdE_Yfibres;
-        
+
         double p = 1.0;
         law.ComputeStressAndStressDerivative(C,invC,p,T_Xfibres,dTdE_Xfibres,true); // no change of basis no fibres in X-dir
 
-        // now assume fibres in Y-dir. first set up equivalent C        
+        // now assume fibres in Y-dir. first set up equivalent C
         C(0,0) = 1.1;
         C(1,1) = 1.2;
         invC = Inverse(C);
-        
+
         // change of basis matrix
         c_matrix<double,2,2> P;
         P(0,0) = P(1,1) = 0.0;
         P(1,0) = P(0,1) = 1.0;
-        
+
         law.SetChangeOfBasisMatrix(P);
         law.ComputeStressAndStressDerivative(C,invC,p,T_Yfibres,dTdE_Yfibres,true);
 
@@ -894,7 +894,7 @@ public:
         TS_ASSERT_DELTA(T_base(0,1), 0.0, 1e-9);
         TS_ASSERT_DELTA(T_base(1,1), 0.0, 1e-9);
     }
-    
+
     void TestSchmidCostaChangeOfBasis() throw(Exception)
     {
         SchmidCostaExponentialLaw2d law;
@@ -910,20 +910,20 @@ public:
         c_matrix<double,2,2> T_Yfibres;
         FourthOrderTensor<2> dTdE_Xfibres;
         FourthOrderTensor<2> dTdE_Yfibres;
-        
+
         double p = 1.0;
         law.ComputeStressAndStressDerivative(C,invC,p,T_Xfibres,dTdE_Xfibres,true); // no change of basis no fibres in X-dir
 
-        // now assume fibres in Y-dir. first set up equivalent C        
+        // now assume fibres in Y-dir. first set up equivalent C
         C(0,0) = 1.1;
         C(1,1) = 1.2;
         invC = Inverse(C);
-        
+
         // change of basis matrix
         c_matrix<double,2,2> P;
         P(0,0) = P(1,1) = 0.0;
         P(1,0) = P(0,1) = 1.0;
-        
+
         law.SetChangeOfBasisMatrix(P);
         law.ComputeStressAndStressDerivative(C,invC,p,T_Yfibres,dTdE_Yfibres,true);
 
@@ -946,7 +946,7 @@ public:
                 }
             }
         }
-    }    
+    }
 };
 
 #endif /*TESTMATERIALLAWS_HPP_*/

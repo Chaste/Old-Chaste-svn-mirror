@@ -113,7 +113,7 @@ inline void save_construct_data(
 {
     const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
     ar & p_mesh;
-    
+
     // Don't use the std::vector serialization for cardiac cells, so that we can load them
     // more cleverly when migrating checkpoints.
     t->SaveCardiacCells(ar, file_version);

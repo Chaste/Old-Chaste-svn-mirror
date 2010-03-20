@@ -69,7 +69,7 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
     std::string private_path = ArchiveLocationInfo::GetProcessUniqueFilePath(rFileName, procId);
     std::stringstream common_path;
     common_path << ArchiveLocationInfo::GetArchiveDirectory() << rFileName;
-    
+
     // Try to open the main archive for replicated data
     mpCommonStream = new std::ifstream(common_path.str().c_str(), std::ios::binary);
     if (!mpCommonStream->is_open())
@@ -77,7 +77,7 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
         delete mpCommonStream;
         EXCEPTION("Cannot load main archive file: " + common_path.str());
     }
-    
+
     try
     {
         mpCommonArchive = new boost::archive::text_iarchive(*mpCommonStream);
@@ -94,10 +94,10 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
         else
         {
         // We don't understand the exception, so we shouldn't continue
-#define COVERAGE_IGNORE                 
+#define COVERAGE_IGNORE
             throw boost_exception;
 #undef COVERAGE_IGNORE
-        }                 
+        }
     }
     // Try to open the secondary archive for distributed data
     mpPrivateStream = new std::ifstream(private_path.c_str(), std::ios::binary);
@@ -205,7 +205,7 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::~ArchiveOpener()
     delete mpPrivateStream;
     delete mpCommonArchive;
     delete mpCommonStream;
-    
+
     /* In a parallel setting, make sure all processes have finished writing before
      * continuing, to avoid nasty race conditions.
      * For example, many tests will write an archive then immediately read it back

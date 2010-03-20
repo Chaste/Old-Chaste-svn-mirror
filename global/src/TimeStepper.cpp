@@ -59,7 +59,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
      */
 
     mNextTime = CalculateNextTime();
-    
+
     // if enforceConstantTimeStep check whether the times are such that we won't have a variable dt
     if (enforceConstantTimeStep)
     {
@@ -102,7 +102,7 @@ double TimeStepper::GetNextTime() const
     return mNextTime;
 }
 
-double TimeStepper::GetNextTimeStep() 
+double TimeStepper::GetNextTimeStep()
 {
     double dt = mDt;
     if (mNextTime == mEnd)

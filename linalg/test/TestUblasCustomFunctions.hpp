@@ -70,20 +70,20 @@ public:
         B(1,1) = 6;
         double TwoTwoDeterminant = Determinant(B);
         TS_ASSERT_DELTA( TwoTwoDeterminant, -10.6, 0.0000000001);
-        
+
         c_matrix<double, 2, 1> D;
         D(0, 0) = 3.0;
         D(1, 0) = 4.0;
         double TwoOneDeterminant = Determinant(D);
         TS_ASSERT_DELTA(TwoOneDeterminant, 5.0, 0.000000001);
-        
+
         c_matrix<double, 3, 1> E;
         E(0,0) = 4.0;
         E(1,0) = 4.0;
         E(2,0) = 2.0;
         double ThreeOneDeterminant = Determinant(E);
         TS_ASSERT_DELTA(ThreeOneDeterminant, 6.0, 0.000000001);
-        
+
         c_matrix<double, 3, 2> F;
         F(0,0) = 4;
         F(1,0) = 2;
@@ -91,7 +91,7 @@ public:
         F(0,1) = 3;
         F(1,1) = -2;
         F(2,1) = -1;
-        
+
         double ThreeTwoDeterminant = Determinant(F);
         TS_ASSERT_DELTA(ThreeTwoDeterminant, 14.595, 0.001);
     }
@@ -210,7 +210,7 @@ public:
                 TS_ASSERT_DELTA( invB(i,j), invBMatlab(i,j), 0.0001);
             }
         }
-        
+
         c_matrix<double, 2, 1> D;
         D(0,0) = 2;
         D(1,0) = 1;
@@ -218,7 +218,7 @@ public:
         invD = Inverse(D);
         TS_ASSERT_DELTA(invD(0, 0), 0.4, 0.00000001);
         TS_ASSERT_DELTA(invD(0, 1), 0.2, 0.00000001);
-        
+
         c_matrix<double, 3, 1> E;
         E(0,0) = 3;
         E(1,0) = 4;
@@ -228,7 +228,7 @@ public:
         TS_ASSERT_DELTA(invE(0, 0), 0.06, 0.00000001);
         TS_ASSERT_DELTA(invE(0, 1), 0.08, 0.00000001);
         TS_ASSERT_DELTA(invE(0, 2), 0.1, 0.00000001);
-        
+
         c_matrix<double, 3, 2> F;
         F(0,0) = 4;
         F(1,0) = 2;
@@ -243,7 +243,7 @@ public:
         TS_ASSERT_DELTA(identity(0,0), 1.000, 1e-3);
         TS_ASSERT_DELTA(identity(1,1), 1.000, 1e-3);
         TS_ASSERT_DELTA(identity(0,1), 0.000, 1e-3);
-        TS_ASSERT_DELTA(identity(1,0), 0.000, 1e-3);        
+        TS_ASSERT_DELTA(identity(1,0), 0.000, 1e-3);
     }
 
     void TestTraceAndSecondInvariant()

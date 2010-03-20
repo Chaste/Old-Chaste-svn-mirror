@@ -72,7 +72,7 @@ private:
      * x and current solution computed at the Gauss point. The returned matrix
      * will be multiplied by the gauss weight and jacobian determinent and
      * added to the element stiffness matrix (see AssembleOnElement()).
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -94,7 +94,7 @@ private:
      * x and current solution computed at the Gauss point. The returned vector
      * will be multiplied by the gauss weight and jacobian determinent and
      * added to the element stiffness matrix (see AssembleOnElement()).
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -116,7 +116,7 @@ private:
      * x and current solution computed at the Gauss point. The returned vector
      * will be multiplied by the gauss weight and jacobian determinent and
      * added to the element stiffness matrix (see AssembleOnElement()).
-     * 
+     *
      * @param rSurfaceElement the element which is being considered.
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rX The point in space
@@ -131,7 +131,7 @@ public :
     /**
      * Constructor - takes in the mesh, pde and boundary conditions container to be solved. Can
      * also define the number of quad points (in each dimension), the default value of which is 2.
-     * 
+     *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
      * @param pBoundaryConditions pointer to the boundary conditions

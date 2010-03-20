@@ -59,13 +59,13 @@ private:
     static std::string mDirPath;
 
     /** Whether mDirPath is relative to CHASTE_TEST_OUTPUT
-     *  true if the directory provided lives in CHASTE_TEST_OUTPUT, false if it's relative to CWD 
+     *  true if the directory provided lives in CHASTE_TEST_OUTPUT, false if it's relative to CWD
      */
     static bool mDirIsRelativeToChasteTestOutput;
 
     /** Mesh filename (relative to #mDirPath). */
     static std::string mMeshFilename;
-    
+
 
 public:
     /**
@@ -148,8 +148,8 @@ public:
         {
             mDirPath = mDirPath + "/";
         }
-        
-        mDirIsRelativeToChasteTestOutput = relativeToChasteTestOutput;        
+
+        mDirIsRelativeToChasteTestOutput = relativeToChasteTestOutput;
     }
 
     /**
@@ -170,7 +170,7 @@ public:
                 EXCEPTION("Full path doesn't give a directory relative to CHASTE_TEST_OUTPUT");
             }
             assert(pos == 0); //Expect this as a prefix, not in the middle of the string
-    
+
             return mDirPath.substr(chaste_output.length());
         }
         else
@@ -178,10 +178,10 @@ public:
             return mDirPath;
         }
     }
-    
+
     /**
      *  Get wheter the directory provided is relative to CHASTE_TEST_OUTPUT
-     *  @return true if the directory provided lives in CHASTE_TEST_OUTPUT, false if it's relative to CWD 
+     *  @return true if the directory provided lives in CHASTE_TEST_OUTPUT, false if it's relative to CWD
      */
     static bool GetIsDirRelativeToChasteTestOutput()
     {

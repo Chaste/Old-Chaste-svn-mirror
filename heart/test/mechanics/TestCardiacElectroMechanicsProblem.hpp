@@ -119,12 +119,12 @@ public:
 
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
-        
+
         // coverage
         CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(NONPHYSIOL1,0.05,1,5,&cell_factory,1,0.01,100,0.01,"");
         TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model.Solve(),"Invalid");
     }
-    
+
     void TestWithKerchoffs() throw(Exception)
     {
         HeartEventHandler::Disable();
@@ -145,21 +145,21 @@ public:
         c_vector<double,2> pos;
         pos(0) = 0.05;
         pos(1) = 0.0;
-        
+
         problem.SetWatchedPosition(pos);
         problem.SetNoElectricsOutput();
         problem.Initialise();
 
         problem.Solve();
-        
+
         //visualise to verify
-        
+
         // hardcoded result
         TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0479, 0.0002);
     }
 
-    
+
     void TestExplicitSolverWithNash2004() throw(Exception)
     {
         HeartEventHandler::Disable();
@@ -171,12 +171,12 @@ public:
                                                      1,    /* mech mesh size*/
                                                      5,    /* elec elem each dir */
                                                      &cell_factory,
-                                                     20,    /* end time */  
+                                                     20,    /* end time */
                                                      0.01, /* electrics timestep (ms) */
                                                      100,   /* n times 0.01ms mech dt */
                                                      0.01, /*  ode timestep */
                                                      "TestExplicitWithNash");
-        
+
         // coverage, this file is just X-direction fibres
         problem.SetVariableFibreSheetDirectionsFile("heart/test/data/1by1mesh_fibres.ortho");
 
@@ -184,15 +184,15 @@ public:
         c_vector<double,2> pos;
         pos(0) = 0.05;
         pos(1) = 0.0;
-        
+
         problem.SetWatchedPosition(pos);
         problem.SetNoElectricsOutput();
         problem.Initialise();
 
         problem.Solve();
-        
+
         //visualise to verify
-        
+
         // hardcoded result
         TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0419, 0.0002);

@@ -57,7 +57,7 @@ void OdeSystemInformation<ParameterisedOde>::Initialise()
     this->mVariableNames.push_back("Variable 1");
     this->mVariableUnits.push_back("Units 1");
     this->mInitialConditions.push_back(0.0);
-    
+
     this->mParameterNames.push_back("a");
     this->mParameterUnits.push_back("dimensionless");
 

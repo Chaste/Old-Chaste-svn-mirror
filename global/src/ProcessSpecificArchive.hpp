@@ -43,17 +43,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * and to make it easier to re-load on a different number of processes (in which case the
  * distributed data will need to be re-distributed).  However, the Boost Serialization library
  * expects to be writing to just one archive.
- * 
+ *
  * This class provides access to a secondary archive in which to store the distributed data.
  * When opening an archive in a (potentially) parallel setting, using either the ArchiveOpener
  * or CardiacSimulationArchiver, the Set method will be called to specify the archive.  Classes
  * which need to save distributed data can then use the Get method to access and write to/read
  * from this archive.
- * 
+ *
  * Note that because this class stores just a pointer to the archive, whatever object owns the
  * archive must ensure it exists for the duration of the serialization process, and call
  * Set(NULL) prior to closing the archive for safety.
- * 
+ *
  * Note also that implementations of this templated class only exist for text archives, i.e.
  * Archive = boost::archive::text_iarchive or Archive = boost::archive::text_oarchive.
  */
@@ -74,10 +74,10 @@ public:
         }
         return mpArchive;
     }
-    
+
     /**
      * Set the secondary archive for this process.
-     * 
+     *
      * @param pArchive  the archive to use.
      */
     static void Set(Archive* pArchive)

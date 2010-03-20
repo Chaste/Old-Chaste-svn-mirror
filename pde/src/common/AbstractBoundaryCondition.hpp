@@ -53,7 +53,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
     }
-    
+
 public:
 
     /**

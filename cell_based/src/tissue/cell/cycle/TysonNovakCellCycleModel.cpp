@@ -55,7 +55,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleMode
 
 void TysonNovakCellCycleModel::ResetForDivision()
 {
-	AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
+    AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
 
     assert(mpOdeSystem!=NULL);
 
@@ -138,12 +138,12 @@ double TysonNovakCellCycleModel::GetMDuration()
 
 double TysonNovakCellCycleModel::GetAverageTransitCellCycleTime()
 {
-	return 1.25;
+    return 1.25;
 }
 
 double TysonNovakCellCycleModel::GetAverageStemCellCycleTime()
 {
-	return 1.25;
+    return 1.25;
 }
 
 // Serialization for Boost >= 1.36

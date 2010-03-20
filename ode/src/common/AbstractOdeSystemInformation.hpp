@@ -139,7 +139,7 @@ public:
      * @return the units of the state variable.
      */
     std::string GetStateVariableUnitsByNumber(unsigned varNumber) const;
-    
+
     /**
      * Get the vector of parameter names.
      */

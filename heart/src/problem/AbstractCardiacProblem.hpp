@@ -52,22 +52,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataWriter.hpp"
 
 /*
- * Archiving extravaganza: 
- * 
+ * Archiving extravaganza:
+ *
  * We archive mesh and pde through a pointer to an abstract class. All the potential concrete
  * classes need to be included here, so they are registered with boost. If not, boost won't be
  * able to find the archiving methods of the concrete class and will throw the following
  * exception:
- * 
+ *
  *       terminate called after throwing an instance of 'boost::archive::archive_exception'
  *       what():  unregistered class
- * 
+ *
  * No member variable is defined to be of any of these clases, removing them won't
  * produce any compiler error. The exception above will occur at runtime.
- * 
+ *
  * This might not be even necessary in certain cases, if the file is included implicitely by another header file
- * or by the test itself. It's safer though. 
- * 
+ * or by the test itself. It's safer though.
+ *
  */
 #include "DistributedTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp" //May be needed for unarchiving a mesh
@@ -89,11 +89,11 @@ class AbstractCardiacProblem
     /** To save typing */
     typedef typename boost::shared_ptr<BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> >
         BccType;
-    
+
 private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    
+
     /**
      * Save the member variables.
      *
@@ -121,43 +121,43 @@ private:
         archive & has_solution;
         if (has_solution)
         {
-            /// \todo: code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem                        
+            /// \todo: code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem
             std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
 
             Hdf5DataWriter writer(*mpMesh->GetDistributedVectorFactory(), ArchiveLocationInfo::GetArchiveRelativePath(), "AbstractCardiacProblem_mSolution", false);
             writer.DefineFixedDimension(mpMesh->GetDistributedVectorFactory()->GetProblemSize());
-            
+
             writer.DefineUnlimitedDimension("Time", "msec");
-            int vm_col = writer.DefineVariable("Vm","mV");              
-            
+            int vm_col = writer.DefineVariable("Vm","mV");
+
             if (PROBLEM_DIM==1)
             {
                 writer.EndDefineMode();
-                writer.PutUnlimitedVariable(0.0);           
-                writer.PutVector(vm_col, mSolution);    
+                writer.PutUnlimitedVariable(0.0);
+                writer.PutVector(vm_col, mSolution);
             }
-            
+
             if (PROBLEM_DIM==2)
             {
                 int phie_col = writer.DefineVariable("Phie","mV");
-                writer.EndDefineMode();                           
-                writer.PutUnlimitedVariable(0.0);           
-                writer.PutStripedVector(vm_col, phie_col, mSolution);    
-            }                
-            
-            writer.Close();            
-            
+                writer.EndDefineMode();
+                writer.PutUnlimitedVariable(0.0);
+                writer.PutStripedVector(vm_col, phie_col, mSolution);
+            }
+
+            writer.Close();
+
         }
         archive & mCurrentTime;
-        
+
         // Save boundary conditions
         SaveBoundaryConditions(archive, mpMesh, mpBoundaryConditionsContainer);
         SaveBoundaryConditions(archive, mpMesh, mpDefaultBoundaryConditionsContainer);
     }
-    
+
     /**
      * Load the member variables.
-     * 
+     *
      * @param archive
      * @param version
      */
@@ -182,11 +182,11 @@ private:
         archive & has_solution;
         if (has_solution)
         {
-            /// \todo: code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem                        
+            /// \todo: code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem
             std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
 
             mSolution = mpMesh->GetDistributedVectorFactory()->CreateVec(PROBLEM_DIM);
-            DistributedVector mSolution_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(mSolution);                    
+            DistributedVector mSolution_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(mSolution);
 
             Vec vm = mpMesh->GetDistributedVectorFactory()->CreateVec();
             Vec phie = mpMesh->GetDistributedVectorFactory()->CreateVec();
@@ -198,10 +198,10 @@ private:
             {
                 //reader.Close(); // no need to call close explicitly, done in the destructor
 
-                DistributedVector vm_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(vm);                    
-                
+                DistributedVector vm_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(vm);
+
                 DistributedVector::Stripe mSolution_vm(mSolution_distri,0);
-    
+
                 for (DistributedVector::Iterator index = mSolution_distri.Begin();
                      index != mSolution_distri.End();
                      ++index)
@@ -209,18 +209,18 @@ private:
                     mSolution_vm[index] = vm_distri[index];
                 }
             }
-            
+
             if (PROBLEM_DIM==2)
             {
                 reader.GetVariableOverNodes(phie, "Phie", 0);
                 //reader.Close(); // no need to call close explicitly, done in the destructor
-    
-                DistributedVector vm_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(vm);                    
+
+                DistributedVector vm_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(vm);
                 DistributedVector phie_distri = mpMesh->GetDistributedVectorFactory()->CreateDistributedVector(phie);
-                
+
                 DistributedVector::Stripe mSolution_vm(mSolution_distri,0);
                 DistributedVector::Stripe mSolution_phie(mSolution_distri,1);
-    
+
                 for (DistributedVector::Iterator index = mSolution_distri.Begin();
                      index != mSolution_distri.End();
                      ++index)
@@ -231,20 +231,20 @@ private:
             }
 
             mSolution_distri.Restore();
-            
+
             VecDestroy(vm);
-            VecDestroy(phie);            
+            VecDestroy(phie);
 
         }
         archive & mCurrentTime;
-        
+
         // Load boundary conditions
         mpBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
         mpDefaultBoundaryConditionsContainer = LoadBoundaryConditions(archive, mpMesh);
     }
-    
+
     BOOST_SERIALIZATION_SPLIT_MEMBER()
-    
+
     /**
      * Serialization helper method to save a boundary conditions container.
      *
@@ -259,7 +259,7 @@ private:
     {
         (*ProcessSpecificArchive<Archive>::Get()) & pBcc;
     }
-    
+
     /**
      * Serialization helper method to load a boundary conditions container.
      *
@@ -275,7 +275,7 @@ private:
         // Load pointer from archive
         BccType p_bcc;
         (*ProcessSpecificArchive<Archive>::Get()) & p_bcc;
-        
+
         // Fill in the conditions, if we have a container and it's not already full
         if (p_bcc)
         {
@@ -331,10 +331,10 @@ protected:
     /** The current solution vector, of the form [V_0 .. V_N ] for monodomain and
      *  [V_0 phi_0 .. V_N phi_N] for bidomain */
     Vec mSolution;
-    
+
     /**
      * The current simulation time.
-     * 
+     *
      * This is used to be able to restart simulations at a point other than time zero,
      * either because of repeated calls to Solve (with increased simulation duration)
      * or because of restarting from a checkpoint.
@@ -358,10 +358,10 @@ protected:
 public:
     /**
      * The object to use to write results to disk.
-     * 
+     *
      * This (and things in MonodomainProblem) being public are hacks for
      * CardiacElectroMechanicsProblem to work.
-     * 
+     *
      * \todo CardiacElectroMechanicsProblem should be a friend, but not sure
      * how to get friends to work when both friends are templated and abstract.
      */
@@ -374,12 +374,12 @@ public:
      * create cells.
      */
     AbstractCardiacProblem(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
-    
+
     /**
      * Constructor used by archiving.
      */
     AbstractCardiacProblem();
-    
+
     /**
      *  Destructor
      */
@@ -387,7 +387,7 @@ public:
 
     /**
      * Initialise the system, once parameters have been set up.
-     * 
+     *
      * Must be called before first calling Solve().  If loading from a checkpoint,
      * do NOT call this method, as it can also be used to reset the problem to
      * perform another simulation from time 0.
@@ -396,7 +396,7 @@ public:
 
     /**
      *  Set a file from which the nodes for each processor are read
-     * 
+     *
      * @param rFilename
      */
     void SetNodesPerProcessorFilename(const std::string& rFilename);
@@ -425,21 +425,21 @@ public:
 
     /**
      * This only needs to be called if a mesh filename has not been set.
-     * 
+     *
      * @param pMesh  the mesh object to use
      */
     void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /**
      *  Set whether the simulation will generate results files.
-     * 
+     *
      * @param rPrintOutput
      */
     void PrintOutput(bool rPrintOutput);
 
     /**
      *  Set whether extra info will be written to stdout during computation.
-     * 
+     *
      * @param writeInfo
      */
     void SetWriteInfo(bool writeInfo = true);
@@ -455,10 +455,10 @@ public:
      *  Use with caution since we don't want to alter the state of the PETSc vector.
      */
     Vec GetSolution();
-    
+
     /**
      * Get the solution vector, wrapped in a DistributedVector.
-     * 
+     *
      * See also GetSolution.
      */
     DistributedVector GetSolutionDistributedVector();
@@ -491,9 +491,9 @@ public:
 
     /**
      * Write informative details about the progress of the simulation to standard output.
-     * 
+     *
      * Implemented only in subclasses.
-     * 
+     *
      * @param time  the current time
      */
     virtual void WriteInfo(double time)=0;
@@ -503,7 +503,7 @@ public:
      * @param extending  whether we are extending an existing results file
      */
     virtual void DefineWriterColumns(bool extending);
-    
+
     /**
      * Define the user specified variables to be written to the primary results file
      * @param extending  whether we are extending an existing results file
@@ -512,12 +512,12 @@ public:
 
     /**
      * Write one timestep of output data to the primary results file.
-     * 
+     *
      * @param time  the current time
      * @param voltageVec  the solution vector to write
      */
     virtual void WriteOneStep(double time, Vec voltageVec) = 0;
-    
+
     /**
      * Write one timestep of output data for the extra variables to the primary results file.
      */
@@ -532,7 +532,7 @@ public:
 
     /**
      * Specifies which nodes in the mesh to output.
-     * 
+     *
      * @param rNodesToOutput is a reference to a vector with the indexes of the nodes
      * where the output is desired.
      * If empty, the output will be for all the nodes in the mesh.
@@ -546,7 +546,7 @@ public:
 
     /**
      *  Whether to use matrix-based RHS assembly or not.
-     * 
+     *
      * @param usematrix
      */
     void UseMatrixBasedRhsAssembly(bool usematrix=true);
@@ -555,7 +555,7 @@ public:
      *  Called at beginning of each time step in the main time-loop in
      *  Solve(). Empty implementation but can be overloaded by child
      *  classes.
-     * 
+     *
      * @param time  the current time
      */
     virtual void AtBeginningOfTimestep(double time)
@@ -565,24 +565,24 @@ public:
      *  Called at end of each time step in the main time-loop in
      *  Solve(). Empty implementation but can be overloaded by child
      *  classes.
-     * 
+     *
      * @param time  the current time
      */
     virtual void OnEndOfTimestep(double time)
     {}
-    
+
     /**
      * Used when loading a set of archives written by a parallel simulation onto a single process.
      * Loads data from the given process-specific archive (written by a non-master process) and
      * merges it into our data.
-     * 
+     *
      * @param archive  the archive to load
      * @param version  the archive file version
-     * 
+     *
      * \note The process-specific archives currently contain the following data.  If the layout changes,
      * then this method will need to be altered, since it hard-codes knowledge of the order in
      * which things are archived.
-     * 
+     *
      *  -# (via #mpMesh) DistributedVectorFactory*
      *  -# (via #mpCardiacPde LoadCardiacCells) DistributedVectorFactory*
      *  -# (via #mpCardiacPde LoadCardiacCells) number_of_cells and sequence of AbstractCardiacCell*
@@ -653,10 +653,10 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     archive >> p_default_bcc;
     if (p_default_bcc)
     {
-        // This always holds, so we never need to load the BCs, since they are the last thing in the archive. 
+        // This always holds, so we never need to load the BCs, since they are the last thing in the archive.
         assert(p_bcc == p_default_bcc);
     }
-    
+
     // Are we a bidomain problem?
     if (PROBLEM_DIM == 2)
     {

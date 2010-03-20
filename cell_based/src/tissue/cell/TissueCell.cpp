@@ -61,7 +61,7 @@ TissueCell::TissueCell(CellProliferativeType cellType,
     mCellId = ++ mMaxCellId -1;
     if (!archiving)
     {
-    	mpMutationState->IncrementCellCount();
+        mpMutationState->IncrementCellCount();
     }
 }
 
@@ -112,7 +112,7 @@ TissueCell& TissueCell::operator=(const TissueCell& rOtherCell)
 
 TissueCell::~TissueCell()
 {
-	mpMutationState->DecrementCellCount();
+    mpMutationState->DecrementCellCount();
     delete mpCellCycleModel;
 }
 
@@ -171,7 +171,7 @@ CellProliferativeType TissueCell::GetCellProliferativeType() const
 
 void TissueCell::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
 {
-	mpMutationState->DecrementCellCount();
+    mpMutationState->DecrementCellCount();
     mpMutationState = pMutationState;
     mpMutationState->IncrementCellCount();
 }

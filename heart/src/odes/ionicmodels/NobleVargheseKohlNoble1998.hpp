@@ -60,7 +60,7 @@ namespace boost
             ar << p_solver;
             ar << p_stimulus;
         }
-        
+
         template<class Archive>
         inline void load_construct_data(
             Archive & ar, CML_noble_varghese_kohl_noble_1998_basic * t, const unsigned int fileVersion)
@@ -71,9 +71,9 @@ namespace boost
             ar >> p_stimulus;
             ::new(t)CML_noble_varghese_kohl_noble_1998_basic(p_solver, p_stimulus);
         }
-        
+
     }
-    
+
 }
 
 #endif

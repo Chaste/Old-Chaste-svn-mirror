@@ -76,22 +76,22 @@ private:
     std::vector<ChasteCuboid<SPACE_DIM> > mIonicModelRegions;
     /** List of ionic model (size matches that of mIonicModelRegions)*/
     std::vector<cp::ionic_model_selection_type> mIonicModelsDefined;
-    
+
     /** List of axis-aligned box regions which represent areas to stimulate*/
     std::vector<ChasteCuboid<SPACE_DIM> > mStimulatedAreas;
     /** List of intracellular current stimuli to apply (size matches that of mStimulatedAreas)*/
     std::vector<boost::shared_ptr<SimpleStimulus> > mStimuliApplied;
-    
-    /** 
+
+    /**
      *  List of regions which represent areas in which to give parametric heterogeneity (scaling gating parameters)
      *  This vector will be filled in by the HeartConfig::GetCellHeterogeneity method if the user requested
      *  to specify the heterogeneity areas by cuboids, or, alternatively, by the FillInCellularTransmuralAreas method
-     *  in the cell factory called by the problem class AFTER setting the mesh 
+     *  in the cell factory called by the problem class AFTER setting the mesh
      *  (which is needed for the calculations of the distance maps for the calculations of heterogeneities).
-     *  
-     *  When creating a cardiac cell for each node (CreateCardiacCellForTissueNode) the code will check whether 
-     *  that node is contained in the heterogeneity area or not. 
-     * 
+     *
+     *  When creating a cardiac cell for each node (CreateCardiacCellForTissueNode) the code will check whether
+     *  that node is contained in the heterogeneity area or not.
+     *
      */
     std::vector<AbstractChasteRegion<SPACE_DIM>* > mCellHeterogeneityAreas;
     /** List of scale factors for Gks scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
@@ -100,15 +100,15 @@ private:
     std::vector<double> mScaleFactorIto;
     /** List of scale factors for Gkr scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGkr;
-    
+
     /**
      * Called by the constructor to convert any CellML files used as dynamically loaded cell models to shared libraries.
      * This is necessary since the conversion process must be done collectively.
-     * 
+     *
      * @note Must be called collectively.
      */
     void PreconvertCellmlFiles();
-    
+
     /**
      * Get a loader for the given (dynamically loadable) cell model.
      * @param rModel  model to load
@@ -116,15 +116,15 @@ private:
      */
     DynamicCellModelLoader* LoadDynamicModel(const cp::ionic_model_selection_type& rModel,
                                              bool isCollective);
-    
+
 public:
     /**
      * Constructor reads settings from the configuration file.
-     * 
+     *
      * @note Must be called collectively.
      */
     HeartConfigRelatedCellFactory();
-    
+
     /** Destructor*/
     ~HeartConfigRelatedCellFactory();
 
@@ -139,13 +139,13 @@ public:
 
     /**
      * Create the correct stimulated tissue cell for a given region in the mesh
-     * The stimulus is determined in this method (using the list of stimulation regions).  
-     * The cardiac cell type (and parameters) are 
+     * The stimulus is determined in this method (using the list of stimulation regions).
+     * The cardiac cell type (and parameters) are
      * determined in the CreateCellWithIntracellularStimulus method
      * @param nodeIndex is the global index within the mesh
      */
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned nodeIndex);
-    
+
     /**
      * Helper method to calculate and fill in the heterogeneities areas (mCellHeterogeneityAreas)
      */

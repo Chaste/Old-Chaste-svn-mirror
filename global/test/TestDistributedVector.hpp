@@ -108,7 +108,7 @@ public:
         VecDestroy(petsc_vec);
         VecDestroy(petsc_vec2);
         VecDestroy(petsc_vec_uneven);
-        
+
         // Test static field for archiving
         // (see also heart/src/problem/CardiacSimulationArchiver.hpp)
         TS_ASSERT(DistributedVectorFactory::CheckNumberOfProcessesOnLoad());
@@ -117,7 +117,7 @@ public:
         DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad();
         TS_ASSERT(DistributedVectorFactory::CheckNumberOfProcessesOnLoad());
     }
-    
+
     // For #1199
     void TestFactorySetFromFactory()
     {
@@ -128,12 +128,12 @@ public:
         DistributedVectorFactory uneven_factory(total_elements, my_rank+1);
         DistributedVectorFactory even_factory(total_elements);
         DistributedVectorFactory* p_even_orig = even_factory.GetOriginalFactory();
-        
+
         TS_ASSERT_EQUALS(uneven_factory.GetNumProcs(), even_factory.GetNumProcs());
         TS_ASSERT_EQUALS(uneven_factory.GetProblemSize(), even_factory.GetProblemSize());
         bool any_differ = PetscTools::ReplicateBool(uneven_factory.GetLow() != even_factory.GetLow());
         TS_ASSERT(PetscTools::IsSequential() || any_differ);
-        
+
         // Now make them equal
         even_factory.SetFromFactory(&uneven_factory);
         TS_ASSERT_EQUALS(uneven_factory.GetNumProcs(), even_factory.GetNumProcs());
@@ -141,7 +141,7 @@ public:
         TS_ASSERT_EQUALS(uneven_factory.GetLow(), even_factory.GetLow());
         TS_ASSERT_EQUALS(uneven_factory.GetHigh(), even_factory.GetHigh());
         TS_ASSERT(even_factory.GetOriginalFactory() == p_even_orig);
-        
+
         // Exceptions
         DistributedVectorFactory diff_procs(1, 2, total_elements, num_procs+1);
         TS_ASSERT_THROWS_THIS(even_factory.SetFromFactory(&diff_procs),
@@ -412,13 +412,13 @@ public:
             else
             {
                 //Should not read this archive
-                TS_ASSERT_THROWS_THIS(input_arch >> p_new_factory, 
+                TS_ASSERT_THROWS_THIS(input_arch >> p_new_factory,
                         "This archive was written for a different number of processors");
             }
 
             delete p_new_factory;
         }
-        
+
         // Restore from a 2-process archive without throwing an exception;
         // just set local ownership to PETSC_DECIDE.
         {
@@ -433,13 +433,13 @@ public:
             TS_ASSERT_EQUALS(p_new_factory->GetLow(), lo);
             TS_ASSERT_EQUALS(p_new_factory->GetLocalOwnership(), num_local_items);
             TS_ASSERT_EQUALS(p_new_factory->GetNumProcs(), PetscTools::GetNumProcs());
-            
+
             DistributedVectorFactory* p_orig_factory = p_new_factory->GetOriginalFactory();
             TS_ASSERT(p_orig_factory != NULL);
             TS_ASSERT_EQUALS(p_orig_factory->GetProblemSize(), TOTAL);
             TS_ASSERT_EQUALS(p_orig_factory->GetLocalOwnership(), TOTAL/2);
             TS_ASSERT_EQUALS(p_orig_factory->GetNumProcs(), 2u);
-            
+
             DistributedVectorFactory::SetCheckNumberOfProcessesOnLoad();
             delete p_new_factory;
         }

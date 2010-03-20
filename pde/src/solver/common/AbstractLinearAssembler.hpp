@@ -51,14 +51,14 @@ protected:
 
     /**
      * Hack for dynamic mixin.
-     * 
+     *
      * @param matrixIsConstant defaults to true
      */
     void SetMatrixIsConst(bool matrixIsConstant=true);
 
     /**
      * Apply Dirichlet boundary conditions to the linear system.
-     * 
+     *
      * @param unusedVector
      * @param applyToMatrix
      */
@@ -67,7 +67,7 @@ protected:
     /**
      * Create the linear system object if it hasn't been already.
      * Can use an initial solution as PETSc template, or base it on the mesh size.
-     * 
+     *
      * @param initialSolution an initial guess
      */
     virtual void InitialiseForSolve(Vec initialSolution);
@@ -96,7 +96,7 @@ public:
 
     /**
      * Constructors just call the base class versions.
-     * 
+     *
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     AbstractLinearAssembler(unsigned numQuadPoints=2);
@@ -111,7 +111,7 @@ public:
      *
      * The mesh, pde and boundary conditions container must be set before Solve()
      * is called.
-     * 
+     *
      * @param currentSolutionOrGuess either the current solution or initial guess (defaults to NULL)
      * @param currentTime the current time (defaults to 0.0)
      */

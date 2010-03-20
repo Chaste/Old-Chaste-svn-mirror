@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LabelledCellMutationState.hpp"
 
 LabelledCellMutationState::LabelledCellMutationState()
-	: AbstractCellMutationState(5)
+    : AbstractCellMutationState(5)
 {}
 
 #include "SerializationExportWrapperForCpp.hpp"

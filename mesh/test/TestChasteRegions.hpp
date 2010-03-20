@@ -51,7 +51,7 @@ public:
         ChastePoint<3> point_outside(-4, -4, -4);
 
         ChasteCuboid<3> cuboid_a_b(point_a, point_b);
-        
+
         TS_ASSERT_THROWS_THIS(POINT_3D cuboid_b_a(point_b, point_a),"Attempt to create a cuboid with MinCorner greater than MaxCorner in some dimension");
 
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(point_inside), true);
@@ -66,14 +66,14 @@ public:
         TS_ASSERT_EQUALS(cuboid_a_b.DoesContain(just_outside), true);
 
         // Lower dimensional cases
-        
-        ///\ To do The following test case has been deprecated as of r7769 because the rest of the code assumes that the point are in 3D in a 3D cuboid 
+
+        ///\ To do The following test case has been deprecated as of r7769 because the rest of the code assumes that the point are in 3D in a 3D cuboid
 //        ChastePoint<2> two_d_point_in(0.0, 0.0);
 //        ChastePoint<1> one_d_point_in(0.0);
-//        
+//
 //        ChasteCuboid<3> cuboid_3_2(point_a, point_b);
 //        ChasteCuboid<3> cuboid_3_1(point_a, point_b);
-//        
+//
 //        TS_ASSERT(cuboid_3_2.DoesContain(two_d_point_in));
 //        TS_ASSERT(cuboid_3_1.DoesContain(one_d_point_in));
 //
@@ -81,7 +81,7 @@ public:
 //        ChastePoint<1> one_d_point_out(-4.0);
 //        TS_ASSERT_EQUALS(cuboid_3_2.DoesContain(two_d_point_out), false);
 //        TS_ASSERT_EQUALS(cuboid_3_1.DoesContain(one_d_point_out), false);
-        
+
         ChastePoint<3> upper=cuboid_a_b.rGetUpperCorner();
         c_vector<double, 3> diff_upper = upper.rGetLocation() - point_b.rGetLocation();
         TS_ASSERT_DELTA(norm_2(diff_upper),0.0,1e-10);
@@ -89,32 +89,32 @@ public:
         c_vector<double, 3> diff_lower = lower.rGetLocation() - point_a.rGetLocation();
         TS_ASSERT_DELTA(norm_2(diff_lower),0.0,1e-10);
     }
-    
+
     void TestNodesList() throw(Exception)
     {
         ChastePoint<3> point_a(-3, -3, -3);
         ChastePoint<3> point_b(3, 3, 3);
         ChastePoint<3> point_c(9, 4, 7);
-        
+
         Node<3> first_node(0u,point_a);
         Node<3> second_node(1u,point_b);
         Node<3> third_node(2u,point_c);
-        
+
         std::vector<Node<3u>* > array_of_nodes;
-        
+
         array_of_nodes.push_back(&first_node);
         array_of_nodes.push_back(&second_node);
         array_of_nodes.push_back(&third_node);
-        
+
         //declare the object
         ChasteNodesList<3> nodes_list(array_of_nodes);
-        
+
         ChastePoint<3> test_point_contained(9, 4, 7);
         ChastePoint<3> test_point_non_contained(10, 4, 7);
-        
+
         TS_ASSERT_EQUALS(nodes_list.DoesContain(test_point_contained), true);
         TS_ASSERT_EQUALS(nodes_list.DoesContain(test_point_non_contained), false);
-        
+
     }
 };
 

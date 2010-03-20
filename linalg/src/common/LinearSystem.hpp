@@ -64,7 +64,7 @@ private:
     Vec mRhsVector;  /**< The right-hand side vector. */
     PetscInt mSize;  /**< The size of the linear system. */
 
-    /** 
+    /**
      * \todo Verify claim that ownership range for Vec and Mat is same.
      * This should only matter for efficiency if the claim is false.
      */
@@ -101,7 +101,7 @@ private:
     unsigned mNumSolves;
     unsigned mTotalNumIterations;
     unsigned mMaxNumIterations;
-#endif    
+#endif
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -114,16 +114,16 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         //MatNullSpace mMatNullSpace; ///\todo archive mMatNullSpace.
-  
-        archive & mNonZerosUsed;  
+
+        archive & mNonZerosUsed;
         archive & mMatrixIsConstant;
-        archive & mTolerance; 
+        archive & mTolerance;
         archive & mUseAbsoluteTolerance;
         archive & mKspType;
         archive & mPcType;
 
         //Vec mDirichletBoundaryConditionsVector; ///\todo archive mDirichletBoundaryConditionsVector.
-    }    
+    }
 
 public:
 
@@ -165,7 +165,7 @@ public:
 
     /**
      * Alternative constructor for archiving.
-     * 
+     *
      * @param lhsVectorSize  the size of the LHS vector
      * @param lhsMatrix  the RHS matrix
      * @param rhsVector  the RHS vector
@@ -180,8 +180,8 @@ public:
 
     /**
      * Helper method for the constructor. Initializes the LHS matrix and RHS vector.
-     * 
-     * @param matType  the type of matrix 
+     *
+     * @param matType  the type of matrix
      */
     void SetupVectorAndMatrix(MatType matType);
 
@@ -190,7 +190,7 @@ public:
 
     /**
      * Change one of the entires of the matrix to the specified value.
-     * 
+     *
      * @param row  the row index
      * @param col  the column index
      * @param value  the value for this entry
@@ -199,7 +199,7 @@ public:
 
     /**
      * Add the specified value to an entry of the matrix.
-     * 
+     *
      * @param row  the row index
      * @param col  the column index
      * @param value  the value for this entry
@@ -237,14 +237,14 @@ public:
 
     /**
      * Force PETSc to treat the matrix in this linear system as symmetric from now on.
-     * 
+     *
      * @param isSymmetric  whether the matrix is symmetric or not (defaults to true)
      */
     void SetMatrixIsSymmetric(bool isSymmetric=true);
 
     /**
      * Get whether PETSc considers the matrix in this linear system as symmetric or not.
-     * 
+     *
      * @return whether the matrix is symmetric or not.
      */
     bool IsMatrixSymmetric();
@@ -272,14 +272,14 @@ public:
 
     /**
      * Set the KSP solver type (see PETSc KSPSetType() for valid arguments).
-     * 
+     *
      * @param kspType  the KSP solver type
      */
     void SetKspType(const char* kspType);
 
     /**
      * Set the preconditioner type  (see PETSc PCSetType() for valid arguments).
-     * 
+     *
      * @param pcType  the preconditioner type
      */
     void SetPcType(const char* pcType);
@@ -306,26 +306,26 @@ public:
 
     /**
      * Returns the i-th row of the LHS matrix as a distributed PETSc Vec
-     * 
+     *
      * @param row_index the row index
      * @return i-th row of the matrix in distributed format
      */
     Vec GetMatrixRowDistributed(unsigned row_index);
 
-	/**
-	 *  Zero several rows of the matrix, putting a given value in the diagonal entries.
-	 *  
-	 *  *Massively* less expensive than zeroing each matrix rowindividually
-	 * 
-	 *  @param rRows std::vector of rows to be zeroed
-	 *  @param diagonalValue value to put in the diagonal entries (of the zeroed rows)
-	 */
+    /**
+     *  Zero several rows of the matrix, putting a given value in the diagonal entries.
+     *
+     *  *Massively* less expensive than zeroing each matrix rowindividually
+     *
+     *  @param rRows std::vector of rows to be zeroed
+     *  @param diagonalValue value to put in the diagonal entries (of the zeroed rows)
+     */
     void ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRows, double diagonalValue);
 
 
-    /** 
+    /**
      *  Zero several rows and columns of the matrix, putting a given value on the diagonal.
-     *  @param rRowColIndices A list of indices. All the rows with these indices, and all the columns 
+     *  @param rRowColIndices A list of indices. All the rows with these indices, and all the columns
      *  with these indices, will be zeroed.
      *  @param diagonalValue value to put in the diagonal entries (of the zeroed rows)
      */
@@ -393,10 +393,10 @@ public:
      *  - the directions are mutually orthogonal (to within a tolerance)
      * Note that in NDEBUG (optimised mode) these tests are skipped and the parameters
      * are passed directly into the LinearSystem.
-     * 
+     *
      * @param nullbasis  an array PETSc vectors containing orthogonal directions in the nullspace
      * @param numberOfBases the number of directions (size of nullbasis array)
-     * 
+     *
      */
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
 
@@ -404,17 +404,17 @@ public:
      * Get access to the RHS vector directly. Shouldn't generally need to be called.
      */
     Vec& rGetRhsVector();
-    
+
     /**
      * Get access to the RHS vector for archiving
      */
     Vec GetRhsVector() const;
-    
+
     /**
      * Get access to the LHS matrix directly. Shouldn't generally need to be called.
      */
     Mat& rGetLhsMatrix();
-    
+
     /**
      * Get access to the LHS matrix for archiving
      */
@@ -454,7 +454,7 @@ public:
     double GetRhsVectorElement(PetscInt row);
 
     /**
-     * Return the number of iterations taken by the last Solve()     
+     * Return the number of iterations taken by the last Solve()
      */
     unsigned GetNumIterations() const;
 
@@ -593,12 +593,12 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const LinearSystem * t, const unsigned int file_version)
 {
-    
-    std::string archive_filename_lhs = ArchiveLocationInfo::GetArchiveDirectory() + "lhs.mat";   
-    std::string archive_filename_rhs = ArchiveLocationInfo::GetArchiveDirectory() + "rhs.vec"; 
+
+    std::string archive_filename_lhs = ArchiveLocationInfo::GetArchiveDirectory() + "lhs.mat";
+    std::string archive_filename_rhs = ArchiveLocationInfo::GetArchiveDirectory() + "rhs.vec";
     const unsigned size = t->GetSize();
     ar << size;
-    
+
     PetscTools::DumpPetscObject(t->GetRhsVector(), archive_filename_rhs);
     PetscTools::DumpPetscObject(t->GetLhsMatrix(), archive_filename_lhs);
 
@@ -609,8 +609,8 @@ inline void save_construct_data(
     MatIsSymmetricKnown(t->GetLhsMatrix(), &symm_set, &is_symmetric);
     assert(symm_set == is_symmetric);
     ar << symm_set;
-}    
-    
+}
+
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
  * instantiate an instance (using existing constructor)
@@ -621,16 +621,16 @@ inline void load_construct_data(
 {
      std::string archive_filename_lhs = ArchiveLocationInfo::GetArchiveDirectory() + "lhs.mat";
      std::string archive_filename_rhs = ArchiveLocationInfo::GetArchiveDirectory() + "rhs.vec";
-      
-     PetscInt size; 
+
+     PetscInt size;
      ar >> size;
-     
+
      Vec new_vec;
      PetscTools::ReadPetscObject(new_vec, archive_filename_rhs);
 
      Mat new_mat;
      PetscTools::ReadPetscObject(new_mat, archive_filename_lhs);
-     
+
      //This has to occur after the call to MatLoad as the matrix does not exist until MatLoad is called.
      //The property will be copied & set correctly in the LinearSystem constructor.
      PetscTruth symm_set;

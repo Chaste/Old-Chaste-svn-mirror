@@ -58,7 +58,7 @@ private:
     }
 
     /** Constants for the PeregoLuoRudyIModel1991OdeSystem model */
-    
+
     /** membrane capcaitance*/
     static const double membrane_C;
     /** Faraday constant*/
@@ -95,21 +95,21 @@ private:
      *  are positive
      */
     void VerifyStateVariables();
-    
+
     /**
      * Helper function to compute the state variables according to the Perego scheme.
      * It operates on the state variables of the parent class ma_current and mb_current
-     * 
+     *
      * @param rY a vector of state variables
      * @param currentTime the current time
      */
     void ComputeSystemParameters(const std::vector<double>& rY, double currentTime);
-    
-    
+
+
 public:
     /**
      * Constructor
-     * 
+     *
      * @param pSolver is unused but required to meet the standard constructor form
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      * @param useAdaptTimestep For testing purposes, so we can test the algorithm without adaptivity. To be removed eventually.
@@ -121,17 +121,17 @@ public:
      * Destructor
      */
     ~PeregoLuoRudyIModel1991OdeSystem();
-    
+
     /**
      * Set the weight for the tolerances to errors in the state variables.
-     * 
+     *
      * @param tolerance_weight the tolerance weight to be set. The smaller it is, the less error you will have.
-     */     
+     */
     void SetToleranceWeight (double tolerance_weight);
 
     /**
      * Returns the ionic current
-     * 
+     *
      * @return the total ionic current
      */
     double GetIIonic();

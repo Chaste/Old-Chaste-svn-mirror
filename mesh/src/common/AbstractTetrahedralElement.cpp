@@ -119,7 +119,7 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateJacobian(c_mat
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant)
 {
- 
+
     if (ELEMENT_DIM >= SPACE_DIM)
     {
         assert(ELEMENT_DIM == SPACE_DIM);
@@ -156,7 +156,7 @@ void AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::CalculateWeightedDirect
            ; // Not going to happen
     }
     rJacobianDeterminant = norm_2(rWeightedDirection);
-    
+
     if (rJacobianDeterminant < DBL_EPSILON)
     {
         EXCEPTION("Jacobian determinant is zero");

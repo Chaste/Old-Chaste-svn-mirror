@@ -49,15 +49,15 @@ class AbstractCellMutationState
 {
 private:
 
-	/**
-	 * The number of cells with this mutation state.
-	 */
-	unsigned mCellCount;
+    /**
+     * The number of cells with this mutation state.
+     */
+    unsigned mCellCount;
 
-	/**
-	 * Colour for use by visualizer.
-	 */
-	unsigned mColour;
+    /**
+     * Colour for use by visualizer.
+     */
+    unsigned mColour;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -81,65 +81,65 @@ private:
 
 public:
 
-	/**
-	 * Constructor.
-	 *
-	 * @param colour  what colour cells with this mutation state should be in the visualizer
-	 */
-	AbstractCellMutationState(unsigned colour);
+    /**
+     * Constructor.
+     *
+     * @param colour  what colour cells with this mutation state should be in the visualizer
+     */
+    AbstractCellMutationState(unsigned colour);
 
-	/**
-	 * Virtual destructor, to make this class polymorphic.
-	 */
-	virtual ~AbstractCellMutationState();
+    /**
+     * Virtual destructor, to make this class polymorphic.
+     */
+    virtual ~AbstractCellMutationState();
 
-	/**
-	 * For convenience, wrap the dynamic_cast test for whether an instance is
-	 * of a particular subclass.
-	 *
-	 * This should be called like:
-	 *   bool healthy = p_mutation_state->IsType<HealthyMutationState>();
-	 */
-	template<class SUBCLASS>
-	bool IsType() const
-	{
-		// We put a const_cast in here so users don't have to worry about whether the
-		// mutation object they are testing is const or not.
-		SUBCLASS* p_subclass = dynamic_cast<SUBCLASS*>(const_cast<AbstractCellMutationState*>(this));
-		return (p_subclass != NULL);
-	}
+    /**
+     * For convenience, wrap the dynamic_cast test for whether an instance is
+     * of a particular subclass.
+     *
+     * This should be called like:
+     *   bool healthy = p_mutation_state->IsType<HealthyMutationState>();
+     */
+    template<class SUBCLASS>
+    bool IsType() const
+    {
+        // We put a const_cast in here so users don't have to worry about whether the
+        // mutation object they are testing is const or not.
+        SUBCLASS* p_subclass = dynamic_cast<SUBCLASS*>(const_cast<AbstractCellMutationState*>(this));
+        return (p_subclass != NULL);
+    }
 
-	/**
-	 * Determine whether this mutation state is the same as another.
-	 * @param pOther  the mutation state to compare against.
-	 */
-	bool IsSame(AbstractCellMutationState* pOther);
+    /**
+     * Determine whether this mutation state is the same as another.
+     * @param pOther  the mutation state to compare against.
+     */
+    bool IsSame(AbstractCellMutationState* pOther);
 
-	/**
-	 * Determine whether this mutation state is the same as another.
-	 * @param pOther  the mutation state to compare against.
-	 */
-	bool IsSame(boost::shared_ptr<AbstractCellMutationState> pOther);
+    /**
+     * Determine whether this mutation state is the same as another.
+     * @param pOther  the mutation state to compare against.
+     */
+    bool IsSame(boost::shared_ptr<AbstractCellMutationState> pOther);
 
-	/**
-	 * Increment #mCellCount.
-	 */
-	void IncrementCellCount();
+    /**
+     * Increment #mCellCount.
+     */
+    void IncrementCellCount();
 
-	/**
-	 * Decrement #mCellCount.
-	 */
-	void DecrementCellCount();
+    /**
+     * Decrement #mCellCount.
+     */
+    void DecrementCellCount();
 
-	/**
-	 * Get #mCellCount
-	 */
-	unsigned GetCellCount() const;
+    /**
+     * Get #mCellCount
+     */
+    unsigned GetCellCount() const;
 
-	/**
-	 * Get #mColour.
-	 */
-	unsigned GetColour() const;
+    /**
+     * Get #mColour.
+     */
+    unsigned GetColour() const;
 };
 
 

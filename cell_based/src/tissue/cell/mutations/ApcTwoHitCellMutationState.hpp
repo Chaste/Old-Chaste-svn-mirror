@@ -53,10 +53,10 @@ private:
     }
 
 public:
-	/**
-	 * Constructor.
-	 */
-	ApcTwoHitCellMutationState();
+    /**
+     * Constructor.
+     */
+    ApcTwoHitCellMutationState();
 
 };
 

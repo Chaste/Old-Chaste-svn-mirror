@@ -42,12 +42,12 @@ DistributedVector::DistributedVector(Vec vec, DistributedVectorFactory* pFactory
       mpFactory(pFactory)
 {
     assert(pFactory != NULL);
-    
+
     // Set local copies of problem size, etc.
     mProblemSize = pFactory->GetProblemSize();
     mLo = pFactory->GetLow();
     mHi = pFactory->GetHigh();
-    
+
     // Set mSizeMultiplier by reading the vec size.
     VecGetArray(vec, &mpVec);
     PetscInt size;

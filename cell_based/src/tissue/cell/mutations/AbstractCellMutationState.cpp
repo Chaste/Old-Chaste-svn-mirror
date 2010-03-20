@@ -32,14 +32,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 AbstractCellMutationState::AbstractCellMutationState()
-	: mCellCount(0),
-	  mColour(UINT_MAX) // Will be overwritten in serialize method
+    : mCellCount(0),
+      mColour(UINT_MAX) // Will be overwritten in serialize method
 {
 }
 
 AbstractCellMutationState::AbstractCellMutationState(unsigned colour)
-	: mCellCount(0),
-	  mColour(colour)
+    : mCellCount(0),
+      mColour(colour)
 {
 }
 
@@ -49,36 +49,36 @@ AbstractCellMutationState::~AbstractCellMutationState()
 
 bool AbstractCellMutationState::IsSame(AbstractCellMutationState* pOther)
 {
-	const std::type_info& r_our_info = typeid(*this);
-	const std::type_info& r_their_info = typeid(*pOther);
-	return r_our_info == r_their_info;
+    const std::type_info& r_our_info = typeid(*this);
+    const std::type_info& r_their_info = typeid(*pOther);
+    return r_our_info == r_their_info;
 }
 
 bool AbstractCellMutationState::IsSame(boost::shared_ptr<AbstractCellMutationState> pOther)
 {
-	return IsSame(pOther.get());
+    return IsSame(pOther.get());
 }
 
 void AbstractCellMutationState::IncrementCellCount()
 {
-	mCellCount++;
+    mCellCount++;
 }
 
 void AbstractCellMutationState::DecrementCellCount()
 {
-	if (mCellCount == 0)
-	{
-		EXCEPTION("Cannot decrement cell count: no cells have this mutation state.");
-	}
-	mCellCount--;
+    if (mCellCount == 0)
+    {
+        EXCEPTION("Cannot decrement cell count: no cells have this mutation state.");
+    }
+    mCellCount--;
 }
 
 unsigned AbstractCellMutationState::GetCellCount() const
 {
-	return mCellCount;
+    return mCellCount;
 }
 
 unsigned AbstractCellMutationState::GetColour() const
 {
-	return mColour;
+    return mColour;
 }

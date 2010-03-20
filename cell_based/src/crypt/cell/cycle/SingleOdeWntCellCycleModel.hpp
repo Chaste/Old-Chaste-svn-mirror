@@ -171,26 +171,26 @@ public:
      * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
      * @param useTypeDependentG1 whether to make the duration of G1 phase dependent on the cell's proliferative type (defaults to false)
-	 */
-	SingleOdeWntCellCycleModel(std::vector<double>& rProteinConcs,
-	                           boost::shared_ptr<AbstractCellMutationState> pMutationState, 
+     */
+    SingleOdeWntCellCycleModel(std::vector<double>& rProteinConcs,
+                               boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                unsigned& rDimension,
                                bool useTypeDependentG1 = false);
 
-	/**
-	 * Destructor.
-	 */
-	~SingleOdeWntCellCycleModel();
+    /**
+     * Destructor.
+     */
+    ~SingleOdeWntCellCycleModel();
 
-	/**
-	 * Copy constructor.
-	 *
-	 * This is important to make a copy of the ODE system instead of
-	 * giving the copied cell cycle model a pointer to the same ODE.
-	 * 
+    /**
+     * Copy constructor.
+     *
+     * This is important to make a copy of the ODE system instead of
+     * giving the copied cell cycle model a pointer to the same ODE.
+     *
      * @param rOtherModel  the one to copy
-	 */
-	SingleOdeWntCellCycleModel(const SingleOdeWntCellCycleModel& rOtherModel);
+     */
+    SingleOdeWntCellCycleModel(const SingleOdeWntCellCycleModel& rOtherModel);
 
     /**
      * Initialise the cell cycle model at the start of a simulation.
@@ -201,30 +201,30 @@ public:
      */
     void Initialise();
 
-	/**
+    /**
      * This specialisation updates the beta-catenin level
      */
      void UpdateCellCyclePhase();
 
-	/**
+    /**
      * Overridden builder method to create new copies of
      * this cell cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
 
-	/**
+    /**
      * Return the total beta-catenin concentration
      */
     double GetBetaCateninConcentration();
 
     /**
      * Set #mBetaCateninDivisionThreshold.
-     * 
+     *
      * @param betaCateninDivisionThreshold to be set
      */
-	void SetBetaCateninDivisionThreshold(double betaCateninDivisionThreshold);
+    void SetBetaCateninDivisionThreshold(double betaCateninDivisionThreshold);
 
-	/**
+    /**
      * Get #mBetaCateninDivisionThreshold.
      */
     double GetBetaCateninDivisionThreshold();

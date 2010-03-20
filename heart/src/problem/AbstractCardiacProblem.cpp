@@ -176,7 +176,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         }
     }
     mpCellFactory->SetMesh( mpMesh );
-    
+
     // if the user requested transmural stuff, we fill in the mCellHeterogeneityAreas here.
     if (HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested())
     {
@@ -447,7 +447,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             HeartEventHandler::EndEvent(HeartEventHandler::WRITE_OUTPUT);
         }
 
-		progress_reporter.Update(stepper.GetTime());
+        progress_reporter.Update(stepper.GetTime());
 
         OnEndOfTimestep(stepper.GetTime());
     }

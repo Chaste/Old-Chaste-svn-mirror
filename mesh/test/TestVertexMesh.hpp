@@ -964,15 +964,15 @@ public:
     void TestDivideVertexElementWithBoundaryNodes() throw(Exception)
     {
 
-    	/*
-    	 * This test checks that the new node created in the centre of the mesh is not a boundary node.
-    	 *  _________       _________
-    	 * |    |    |     |    |    |
-    	 * |    |    | --> |____|    |
-    	 * |    |    |     |    |    |
-    	 * |____|____|     |____|____|
-    	 *
-    	 */
+        /*
+         * This test checks that the new node created in the centre of the mesh is not a boundary node.
+         *  _________       _________
+         * |    |    |     |    |    |
+         * |    |    | --> |____|    |
+         * |    |    |     |    |    |
+         * |____|____|     |____|____|
+         *
+         */
 
         // Make five nodes, all boundary nodes.
         std::vector<Node<2>*> nodes;
@@ -1033,14 +1033,14 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(2), 6u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(0)->GetNodeGlobalIndex(3), 7u);
 
-		TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNumNodes(), 5u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(0), 1u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(1), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(2), 5u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(3), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(1)->GetNodeGlobalIndex(4), 6u);
 
-		TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNodeGlobalIndex(0), 6u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNodeGlobalIndex(1), 2u);
         TS_ASSERT_EQUALS(vertex_mesh.GetElement(2)->GetNodeGlobalIndex(2), 3u);
@@ -1054,13 +1054,13 @@ public:
         TS_ASSERT(vertex_mesh.GetNode(4)->IsBoundaryNode());
         TS_ASSERT(vertex_mesh.GetNode(5)->IsBoundaryNode());
         TS_ASSERT(!vertex_mesh.GetNode(6)->IsBoundaryNode());
-		TS_ASSERT(vertex_mesh.GetNode(7)->IsBoundaryNode());
+        TS_ASSERT(vertex_mesh.GetNode(7)->IsBoundaryNode());
 
         // Test ownership of the new nodes
         std::set<unsigned> expected_elements_containing_node_6;
         expected_elements_containing_node_6.insert(0);
         expected_elements_containing_node_6.insert(1);
-		expected_elements_containing_node_6.insert(2);
+        expected_elements_containing_node_6.insert(2);
 
         TS_ASSERT_EQUALS(vertex_mesh.GetNode(6)->rGetContainingElementIndices(), expected_elements_containing_node_6);
 

@@ -63,7 +63,7 @@ public:
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         double x = this->GetMesh()->GetNode(node)->GetPoint()[0];
-        
+
         if (x*x<=1e-10)
         {
             return new CELL(this->mpSolver, mpStimulus);

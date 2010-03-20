@@ -84,7 +84,7 @@ public:
         // the middle 4 elements are 'heart' elements (ie region=0),
         // so the middle 5 nodes should be heart nodes
         unsigned expected_node_regions[11]={ HeartRegionCode::BATH, HeartRegionCode::BATH, HeartRegionCode::BATH,
-                                      HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, 
+                                      HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE,
                                       HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
         for (unsigned i=0; i<11; i++)
         {
@@ -299,7 +299,7 @@ public:
         // a couple of hardcoded value
         TS_ASSERT_DELTA(sol_repl[2*node_50], 28.3912, 1e-3);
         TS_ASSERT_DELTA(sol_repl[2*node_70], 28.3912, 1e-3);
-        
+
         delete p_mesh;
     }
 
@@ -371,14 +371,14 @@ public:
 
         TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
         TS_ASSERT(ap_triggered);
-        
+
         delete p_mesh;
     }
 
     /// \todo: #1215 This test doesn't pass if the electrodes are grounded. System solution diverges in the timestep the electrodes are switched on. Probably we will need to remove the null space from the system.
     void Test2dBathGroundedElectrodeStimulusSwitchesOnOff() throw (Exception)
     {
-        // Total execution time is 5 ms. Electrodes are on in [1.0, 3.0]       
+        // Total execution time is 5 ms. Electrodes are on in [1.0, 3.0]
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dGroundedOnOff");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_grounded_on_off");
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms
@@ -409,16 +409,16 @@ public:
         bidomain_problem.Initialise();
 
         /*
-         *  While t in [0.0, 1.0) electrodes are off 
+         *  While t in [0.0, 1.0) electrodes are off
          */
         {
             HeartConfig::Instance()->SetSimulationDuration(0.5);  //ms
             bidomain_problem.Solve();
-    
+
             /// \todo: we don't need a ReplicatableVector here. Every processor can check locally
             Vec sol = bidomain_problem.GetSolution();
             ReplicatableVector sol_repl(sol);
-    
+
             for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
             {
                 // test phi_e close to 0 for all bath nodes since electrodes are off
@@ -427,8 +427,8 @@ public:
                     TS_ASSERT_DELTA(sol_repl[2*i+1], 0.0, 0.5);
                 }
             }
-            
-            TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..            
+
+            TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
         }
 
 
@@ -438,16 +438,16 @@ public:
         {
             HeartConfig::Instance()->SetSimulationDuration(5.0);  //ms
             bidomain_problem.Solve();
-    
+
             Vec sol = bidomain_problem.GetSolution();
             ReplicatableVector sol_repl(sol);
-    
+
             bool ap_triggered = false;
             /*
              * We are checking the last time step. This test will only make sure that an upstroke is triggered.
              * We ran longer simulation for 350 ms and a nice AP was observed.
              */
-    
+
             for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
             {
                 // test V = 0 for all bath nodes and that an AP is triggered in the tissue
@@ -460,7 +460,7 @@ public:
                     ap_triggered = true;
                 }
             }
-    
+
             TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
             TS_ASSERT(ap_triggered);
         }
@@ -551,11 +551,11 @@ public:
             //TS_ASSERT_DELTA(matrix_based_ex_pot[index], non_matrix_based_ex_pot[index], 1e-7);
             //std::cout << matrix_based_voltage[index] << std::endl;
         }
-        
+
         delete p_mesh;
     }
-    
-    // #1169   
+
+    // #1169
     void TestArchivingBidomainProblemWithElectrodes(void) throw(Exception)
     {
         std::string archive_dir = "BidomainWithElectrodesArchiving";
@@ -563,28 +563,28 @@ public:
         // Create the mesh outside the save scope, so we can compare with the loaded version.
         TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
-        
+
         { // save
             HeartConfig::Instance()->SetSimulationDuration(3.0);  // ms
             HeartConfig::Instance()->SetOutputDirectory(archive_dir + "Output");
             HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_fluxes");
             HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
-    
+
             // need to create a cell factory but don't want any intra stim.
             ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
-    
+
             BidomainProblem<2> bidomain_problem( &cell_factory, true );
-    
+
             //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
             double boundary_flux = -11.0e3;
             double duration = 1.9; // of the stimulus, in ms
-    
+
             boost::shared_ptr<Electrodes<2> > p_electrodes(
                 new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, 0.0, duration));
-                 
+
             bidomain_problem.SetElectrodes(p_electrodes);
             bidomain_problem.SetMesh(p_mesh);
-            bidomain_problem.Initialise();    
+            bidomain_problem.Initialise();
 
             // Save using helper class
             CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, archive_dir, false);
@@ -592,11 +592,11 @@ public:
 
         { // load
             AbstractCardiacProblem<2,2,2>* p_abstract_problem = CardiacSimulationArchiver<BidomainProblem<2> >::Load(archive_dir);
-            
+
             // get the new mesh
             AbstractTetrahedralMesh<2,2>& r_mesh = p_abstract_problem->rGetMesh();
             TS_ASSERT_EQUALS(p_mesh->GetNumElements(), r_mesh.GetNumElements());
-            
+
             // Check that the bath is in the right place
             for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
             {
@@ -615,7 +615,7 @@ public:
                 TS_ASSERT_DELTA(x, p_mesh->GetElement(i)->CalculateCentroid()[0], 1e-12);
                 TS_ASSERT_DELTA(y, p_mesh->GetElement(i)->CalculateCentroid()[1], 1e-12);
             }
-            
+
             // Check that there's an exact correspondence between bath nodes and fake cells
             FakeBathCell* p_fake_cell = NULL;
             for (unsigned i=r_mesh.GetDistributedVectorFactory()->GetLow(); i<r_mesh.GetDistributedVectorFactory()->GetHigh(); i++)
@@ -632,13 +632,13 @@ public:
                     TS_ASSERT(p_fake == NULL);
                 }
             }
-            
+
             // This should only generate action potential if the electrodes were correctly saved and restored.
             p_abstract_problem->Solve();
 
             Vec sol = p_abstract_problem->GetSolution();
             ReplicatableVector sol_repl(sol);
-    
+
             bool ap_triggered = false;
             /*
              * We are checking the last time step. This test will only make sure that an upstroke is triggered.
@@ -656,16 +656,16 @@ public:
                     ap_triggered = true;
                 }
             }
-            
+
             // We can get away with the following line only because this is a friend class and test.
             boost::shared_ptr<Electrodes<2> > p_electrodes = static_cast<BidomainProblem<2>* >(p_abstract_problem)->mpElectrodes;
-            
+
             TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
             TS_ASSERT_EQUALS(ap_triggered, true);
-            
+
             delete p_abstract_problem;
         }
-        
+
         delete p_mesh;
     }
 
@@ -691,11 +691,11 @@ public:
             AbstractCardiacProblem<1,1,2>* p_abstract_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(archive_dir);
 
             AbstractTetrahedralMesh<1,1>* p_mesh = &(p_abstract_problem->rGetMesh());
-            
+
 
             // the middle 4 elements are 'heart' elements (ie region=0),
             unsigned expected_element_regions[10]={ HeartRegionCode::BATH, HeartRegionCode::BATH, HeartRegionCode::BATH,
-                       HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, 
+                       HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE,
                        HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
             for (AbstractTetrahedralMesh<1,1>::ElementIterator iter = p_mesh->GetElementIteratorBegin();
                  iter != p_mesh->GetElementIteratorEnd();
@@ -716,7 +716,7 @@ public:
 //            }
             // so the middle 5 nodes should be heart nodes
             unsigned expected_node_regions[11]={ HeartRegionCode::BATH, HeartRegionCode::BATH, HeartRegionCode::BATH,
-                       HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, 
+                       HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE,
                        HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
             for (unsigned i=0; i<10; i++)
             {

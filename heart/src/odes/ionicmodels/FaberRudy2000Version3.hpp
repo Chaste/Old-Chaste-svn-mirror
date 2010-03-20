@@ -49,7 +49,7 @@ private:
 public:
     /**
      * Constructor
-     * 
+     *
      * @param pSolver is a pointer to the ODE solver
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
@@ -60,7 +60,7 @@ public:
      * Destructor
      */
     ~FaberRudy2000Version3(void);
-    
+
     /**
      * Set the scale factor for Gks
      * @param sfgks
@@ -81,14 +81,14 @@ public:
 
     /**
      * Calculates the ionic current
-     * 
+     *
      * @returns the total ionic current
      */
     double GetIIonic();
 
     /**
      * Evaluate the derivatives of the state variables
-     * 
+     *
      * @param var_Environment__time  the current time, in milliseconds
      * @param rY  current values of the state variables
      * @param rDY  to be filled in with derivatives
@@ -115,7 +115,7 @@ namespace serialization
 template<class Archive>
 inline void save_construct_data(
     Archive & ar, const FaberRudy2000Version3 * t, const unsigned int file_version)
-{    
+{
     const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();
     const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();
     ar << p_solver;

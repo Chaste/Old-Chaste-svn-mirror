@@ -47,35 +47,35 @@ private:
     }
 
 public:
-	/**
-	 *  Default constructor calls base class
-	 */
-	VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo()
-		: AbstractVanLeeuwen2009WntSwatCellCycleModel()
-	{
-	}
-
-	/**
-	 *  Extra constructor for archiving.
-	 */
-	VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo(const std::vector<double>& rParentProteinConcentrations,
-                                                     boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                                                    const unsigned& rDimension);
-	/**
-	 *  Overloaded method which allocates the ode system using HYPOTHESIS TWO
-	 *
-	 *  @param wntConcentration Wnt concentration
-	 *  @param pMutationState Mutation state
-	 */
-	void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)
+    /**
+     *  Default constructor calls base class
+     */
+    VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo()
+        : AbstractVanLeeuwen2009WntSwatCellCycleModel()
     {
-    	mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(2, wntConcentration,  pMutationState);
     }
 
-	/**
-	 * Overridden builder method to create new copies of
-	 * this cell cycle model.
-	 */
+    /**
+     *  Extra constructor for archiving.
+     */
+    VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo(const std::vector<double>& rParentProteinConcentrations,
+                                                     boost::shared_ptr<AbstractCellMutationState> pMutationState,
+                                                    const unsigned& rDimension);
+    /**
+     *  Overloaded method which allocates the ode system using HYPOTHESIS TWO
+     *
+     *  @param wntConcentration Wnt concentration
+     *  @param pMutationState Mutation state
+     */
+    void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)
+    {
+        mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(2, wntConcentration,  pMutationState);
+    }
+
+    /**
+     * Overridden builder method to create new copies of
+     * this cell cycle model.
+     */
     AbstractCellCycleModel* CreateCellCycleModel()
     {
         return new VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo(*this);

@@ -248,7 +248,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
 {
 
-	this->mpMeshReader = NULL;
+    this->mpMeshReader = NULL;
     mpMesh = &rMesh;
 
     this->mNumNodes = mpMesh->GetNumNodes();

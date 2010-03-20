@@ -83,7 +83,7 @@ public:
 
         VecDestroy(result);
     }
-    
+
     void TestWithPoissonsEquation1dMeshIn3dSpace() throw (Exception)
     {
         const unsigned SPACE_DIM = 3;
@@ -92,7 +92,7 @@ public:
         // Create mesh from mesh reader
         TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader("pde/test/data/trivial_1d_in_3d_mesh");
         TetrahedralMesh<ELEMENT_DIM,SPACE_DIM> mesh;
-        
+
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Instantiate PDE object
@@ -119,7 +119,7 @@ public:
 
         VecDestroy(result);
     }
-    
+
     void TestBranchedPoissonsEquation1dMeshIn3dSpace() throw (Exception)
     {
         const unsigned SPACE_DIM = 3;

@@ -65,7 +65,7 @@ private:
      *
      */
     virtual void WriteFilesUsingParallelMesh();
-    
+
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**<Pointer to the mesh (if we are writing from the a mesh)*/
     unsigned mNodesPerElement; /**< Same as (ELEMENT_DIM+1), except when writing a quadratic mesh!*/
     DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpParallelMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
@@ -97,7 +97,7 @@ public:
     /**
      *  Destructor just deletes the node map if memory has been allocated for it
      */
-    ~AbstractTetrahedralMeshWriter();     
+    ~AbstractTetrahedralMeshWriter();
 
     ///\todo Mesh should be const
     /**
@@ -107,15 +107,15 @@ public:
      */
     virtual void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 
-   
+
    /**
-     * @return the coordinates of the next node to be written to file 
+     * @return the coordinates of the next node to be written to file
      */
     std::vector<double> GetNextNode();
 
- 
+
     /**
-     * @return the data (indices/attributes) of the next element to be written to file 
+     * @return the data (indices/attributes) of the next element to be written to file
      */
     ElementData GetNextElement();
 

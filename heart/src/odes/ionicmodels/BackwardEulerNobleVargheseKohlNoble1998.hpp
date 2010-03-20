@@ -18,7 +18,7 @@
 #include "AbstractStimulusFunction.hpp"
 
 class BackwardEulerNobleVargheseKohlNoble1998 : public AbstractBackwardEulerCardiacCell<12>
-{    
+{
     friend class TestFastSlowBackwardEulerNoble98; // Friend class for the purposes of testing
 
 private:
@@ -45,7 +45,7 @@ public:
 
 private:
     void MakeVars();
-    
+
 public:
     ~BackwardEulerNobleVargheseKohlNoble1998(void)
     {
@@ -54,7 +54,7 @@ public:
     void VerifyGatingVariables();
 
     void VerifyStateVariables();
-    
+
     double GetIIonic();
 
     void ComputeResidual(const double rCurrentGuess[12], double rResidual[12]);
@@ -83,7 +83,7 @@ namespace serialization
 template<class Archive>
 inline void save_construct_data(
     Archive & ar, const BackwardEulerNobleVargheseKohlNoble1998 * t, const unsigned int file_version)
-{    
+{
     const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();
     const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();
     ar << p_solver;

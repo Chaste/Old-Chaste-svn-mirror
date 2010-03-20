@@ -133,31 +133,31 @@ protected:
     void PerformT3Swap(Node<SPACE_DIM>* pNode, unsigned elementIndex);
 
     /** Needed for serialization. */
-	friend class boost::serialization::access;
+    friend class boost::serialization::access;
 
-	/**
-	 * Serialize the mesh.
-	 *
-	 * Note that if you are calling this method (from subclasses) you should archive your
-	 * member variables FIRST. So that this method can call a ReMesh
-	 * (to convert from TrianglesMeshReader input format into your native format).
-	 *
-	 * @param archive the archive
-	 * @param version the current version of this class
-	 */
-	template<class Archive>
-	void serialize(Archive & archive, const unsigned int version)
-	{
-		// NOTE - Subclasses must archive their member variables BEFORE calling this method.
-		archive & mCellRearrangementThreshold;
-		archive & mCellRearrangementRatio;
-		archive & mEdgeDivisionThreshold;
-		archive & mT2Threshold;
-		archive & mDeletedNodeIndices;
-		archive & mDeletedElementIndices;
+    /**
+     * Serialize the mesh.
+     *
+     * Note that if you are calling this method (from subclasses) you should archive your
+     * member variables FIRST. So that this method can call a ReMesh
+     * (to convert from TrianglesMeshReader input format into your native format).
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // NOTE - Subclasses must archive their member variables BEFORE calling this method.
+        archive & mCellRearrangementThreshold;
+        archive & mCellRearrangementRatio;
+        archive & mEdgeDivisionThreshold;
+        archive & mT2Threshold;
+        archive & mDeletedNodeIndices;
+        archive & mDeletedElementIndices;
 
-		archive & boost::serialization::base_object<VertexMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
-	}
+        archive & boost::serialization::base_object<VertexMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
+    }
 
 public:
 

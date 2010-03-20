@@ -192,7 +192,7 @@ void TenTusscher2006OdeSystem::EvaluateYDerivatives(double time,
    double reversal_potentials_E_Na = membrane_R*membrane_T/membrane_F*log(sodium_dynamics_Na_o/Y[16]);
    double fast_sodium_current_i_Na = fast_sodium_current_g_Na*pow(Y[10], 3.0)*Y[8]*Y[9]*(Y[11]-reversal_potentials_E_Na);
    double fast_sodium_current_h_gate_h_inf = 1.0/pow(1.0+exp((Y[11]+71.55)/7.43), 2.0);
-    
+
    double fast_sodium_current_h_gate_alpha_h,fast_sodium_current_h_gate_beta_h;
    if (Y[11] < -40.0)
       fast_sodium_current_h_gate_alpha_h = 0.057*exp(-(Y[11]+80.0)/6.8);
@@ -355,12 +355,12 @@ double TenTusscher2006OdeSystem::GetIIonic()
      /*   i_ionic for this model is in pA/pF.
      *    Please note that in the mono/bidomain formulation, i_ionic needs to be in microA/cm2.
      *    We then need to divide by the cell capacitance.
-     *    The cell capacitance of the tenTusscher model is 
-     *    2.0 uF/cm2 in the paper 
+     *    The cell capacitance of the tenTusscher model is
+     *    2.0 uF/cm2 in the paper
      *    0.185 uF/cm2 in this code (membrane_C)
      *    1.0 uF/cm2 in the EvaluateRhsDerivatives method above
-     *    
-     *    For consistency, we choose the last option. 
+     *
+     *    For consistency, we choose the last option.
      *    i_ion*pow(10,-6) will be in microA/pF.
      *    Cm*pow(10,6) will be in pF/cm2.
      *    i_ion*pow(10,-6)*Cm*pow(10,6) = i_ion*Cm is in microA/cm2, the correct units

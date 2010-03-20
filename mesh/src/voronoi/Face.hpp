@@ -45,17 +45,17 @@ class Face
 private:
 
     /**
-     * The vertices of the face, in anticlockwise order. Each vertex 
+     * The vertices of the face, in anticlockwise order. Each vertex
      * must be distinct.
-     * 
-     * This member variable is public as it is accessed directly by 
+     *
+     * This member variable is public as it is accessed directly by
      * VoronoiTessellation methods.
      */
     std::vector< c_vector<double, DIM>* > mVertices;
 
     /**
      * Increment the Face vertex iterator.
-     * 
+     *
      * @param rIterator the Face vertex iterator
      * @param rFace the Face
      */
@@ -65,9 +65,9 @@ private:
 public:
 
     /**
-     * Compare two faces for equality. Two faces are the same if their 
+     * Compare two faces for equality. Two faces are the same if their
      * vertices differ only by cyclic permutation.
-     * 
+     *
      * @param rOtherFace the Face to compare to
      */
     bool operator==(Face<DIM>& rOtherFace);
@@ -86,16 +86,16 @@ public:
 
     /**
      * Get the sum of the length of all edges of the Face.
-     * 
-     * NOTE: Don't use this if you are using a periodic mesh. Use 
+     *
+     * NOTE: Don't use this if you are using a periodic mesh. Use
      * GetFacePerimeter(face_index) to take into account periodicity.
      */
     double GetPerimeter() const;
 
     /**
      * Get the area of the Face (works in 2D only).
-     * 
-     * NOTE: Don't use this if you are using a periodic mesh. Use 
+     *
+     * NOTE: Don't use this if you are using a periodic mesh. Use
      * GetFaceArea(face_index) to takeinto account periodicity.
      */
     double GetArea() const;
@@ -117,7 +117,7 @@ public:
 
     /**
      * Add a vertex to the Face.
-     * 
+     *
      * @param pVertex the location of the new vertex
      */
     void AddVertex(c_vector<double, DIM>* pVertex);
@@ -129,7 +129,7 @@ public:
 
     /**
      * Get the Vertex with a given index.
-     * 
+     *
      * @param index the index of the Vertex in the Face
      */
     c_vector<double, DIM>& rGetVertex(unsigned index);
@@ -141,7 +141,7 @@ public:
 
     /**
      * Reset the location of the Vertex with a given index.
-     * 
+     *
      * @param index the index of the Vertex in the Face
      * @param pNewLocation the new location of the Vertex
      */

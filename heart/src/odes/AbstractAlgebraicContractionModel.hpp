@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Contraction models that give the active tension as an algebraic function
- *  of [Ca] or voltage, stretch, stretch rate and time; with no ODEs to 
+ *  of [Ca] or voltage, stretch, stretch rate and time; with no ODEs to
  *  integrate.
  */
 class AbstractAlgebraicContractionModel : public AbstractContractionModel
@@ -72,7 +72,7 @@ public:
     void RunAndUpdate(double startTime, double endTime, double timestep)
     {
         mTime = endTime;
-    }    
+    }
 
     /**
      *  Same as GetActiveTension() for algebraic models (uses which stretch and

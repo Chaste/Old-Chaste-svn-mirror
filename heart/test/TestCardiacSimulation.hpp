@@ -83,59 +83,59 @@ public:
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "base_bidomain_short_results", false,
                    "BaseBidomainShort", "SimulationResults", true));
     }
-    
+
     void TestCardiacSimulationBasicMonodomainShort() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_short.xml");
         std::string foldername = "BaseMonodomainShort";
-        
-       // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+       // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "base_monodomain_short_results", false,
                    foldername, "SimulationResults", true));
     }
-    
+
     void TestCardiacSimulationPostprocessMonodomain() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/postprocess_monodomain_short.xml");
         std::string foldername = "PostprocessMonodomainShort";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "postprocess_monodomain_short_results", false,
                    foldername, "SimulationResults", true));
     }
-    
+
     void TestCardiacSimulationArchiveBidomain() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/save_bidomain_short.xml");
         std::string foldername = "SaveBidomainShort";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT(CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "save_bidomain_short_results", false,
                                                 foldername, "SimulationResults", true));
 
-        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0"; 
+        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0";
         int return_value = system(command.c_str());
-        TS_ASSERT_EQUALS(return_value,0); 
+        TS_ASSERT_EQUALS(return_value,0);
     }
-    
+
     void TestCardiacSimulationArchiveMonodomain() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/save_monodomain_short.xml");
         std::string foldername = "SaveMonodomainShort";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "save_monodomain_short_results", false,
                    foldername, "SimulationResults", true));
 
-        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0"; 
+        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0";
         int return_value = system(command.c_str());
-        TS_ASSERT_EQUALS(return_value,0); 
+        TS_ASSERT_EQUALS(return_value,0);
     }
-    
+
     // requires TestCardiacSimulationSaveMonodomain() to have been run
     void TestCardiacSimulationResumeMonodomain() throw(Exception)
     {
@@ -143,8 +143,8 @@ public:
         HeartConfig::Instance()->SetSpaceDimension(1);
         CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_short.xml");
         std::string foldername = "SaveMonodomainShort";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_short_results", false,
                    foldername, "SimulationResults", true));
     }
@@ -157,21 +157,21 @@ public:
             CardiacSimulation simulation("heart/test/data/xml/save_monodomain_dynamic.xml");
         }
         std::string foldername = "SaveMonodomainDynamic";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "save_monodomain_dynamic", false,
                    foldername, "SimulationResults", true));
 
-        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0"; 
+        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0";
         int return_value = system(command.c_str());
-        TS_ASSERT_EQUALS(return_value,0); 
-        
+        TS_ASSERT_EQUALS(return_value,0);
+
         //resume the simulation
         {
             CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_dynamic.xml");
         }
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_dynamic", false,
                    foldername, "SimulationResults", true));
 #endif // CHASTE_CAN_CHECKPOINT_DLLS
@@ -184,16 +184,16 @@ public:
         HeartConfig::Instance()->SetSpaceDimension(1);
         CardiacSimulation simulation("heart/test/data/xml/resume_bidomain_short.xml");
         std::string foldername = "SaveBidomainShort";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_bidomain_short_results", false,
                    foldername, "SimulationResults", true));
     }
-    
+
     /**
      * Run TestCardiacSimulationSaveBidomain on 4 processors to create the archive for this test,
      * and copy it to the repository using:
-     * 
+     *
        scons build=GccOpt_hostconfig,boost=1-33-1_4 test_suite=heart/test/TestCardiacSimulation.hpp
        cp -r /tmp/$USER/testoutput/SaveBidomainShort_checkpoints/0.2ms heart/test/data/checkpoint_migration_via_xml/
        rm heart/test/data/checkpoint_migration_via_xml/0.2ms/SaveBidomainShort/progress_status.txt
@@ -212,14 +212,14 @@ public:
             EXPECT0(system, "cp " + source_directory + "SaveBidomainShort_0.2ms/* " + h2.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestCardiacSimulationResumeMigration");
-        
+
         // Resume
         CardiacSimulation simulation("heart/test/data/xml/resume_migration.xml");
         // Compare results
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_bidomain_short_results", false,
                                                  "SaveBidomainShort", "SimulationResults", true));
     }
-    
+
     void TestCardiacSimulationPatchwork() throw(Exception)
     {
         OutputFileHandler handler("DynamicallyLoadedModel");
@@ -230,11 +230,11 @@ public:
             EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestCardiacSimulationPatchwork");
-        
+
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_patchwork.xml");
         std::string foldername = "Patchwork";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT(CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
                                                 foldername, "SimulationResults", true));
     }
@@ -245,16 +245,16 @@ public:
         TS_ASSERT(CompareFilesViaHdf5DataReaderGlobalNorm("heart/test/data/cardiac_simulations", "Kirsten", false,
                                                 foldername, "SimulationResults", true));
     }
-    
+
     void TestTransmuralCellularheterogeneities() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities.xml");
         std::string foldername = "ChasteResults_heterogeneities";
-        
+
         TS_ASSERT( CompareFilesViaHdf5DataReaderGlobalNorm("heart/test/data/cardiac_simulations", "transmural_heterogeneities_results", false,
                    foldername, "SimulationResults", true));
 
-        
+
     }
     void TestExceptions() throw(Exception)
     {
@@ -265,11 +265,11 @@ public:
 
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/base_monodomain_frankenstein.xml"),
                               "XML parsing error in configuration file: heart/test/data/xml/base_monodomain_frankenstein.xml");
-        
+
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("no file"),
                               "Missing file parsing configuration file: no file");
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation(""), "No XML file name given");
-        
+
         FileFinder model("file_does_not_exist.so", cp::relative_to_type::chaste_source_root);
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/missing_dynamic_model.xml"),
                               "Dynamically loadable cell model '" + model.GetAbsolutePath() + "' does not exist.");

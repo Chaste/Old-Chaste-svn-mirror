@@ -56,7 +56,7 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
         //Share information on the number of halo nodes
         unsigned my_size=mHaloNodeIndices.size();
         mNumHalosPerProcess=new unsigned[PetscTools::GetNumProcs()];
-        MPI_Allgather(&my_size, 1, MPI_UNSIGNED, 
+        MPI_Allgather(&my_size, 1, MPI_UNSIGNED,
                      mNumHalosPerProcess, 1, MPI_UNSIGNED, PETSC_COMM_WORLD);
     }
 }
@@ -139,17 +139,17 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
                     witness_exchange[ index*(SPACE_DIM) + j] =  rWitnessPoints[mHaloNodeIndices[index]][j];
                 }
                 dist_exchange[index] = rNodeDistances[mHaloNodeIndices[index]];
-                index_exchange[index] = mHaloNodeIndices[index]; 
+                index_exchange[index] = mHaloNodeIndices[index];
             }
         }
 
         //Broadcast - this is can be done by casting indices to double and packing everything
         //into a single array.  That would be better for latency, but this is probably more readable.
-        MPI_Bcast(witness_exchange, (SPACE_DIM) * mNumHalosPerProcess[bcast_process], MPI_DOUBLE, 
+        MPI_Bcast(witness_exchange, (SPACE_DIM) * mNumHalosPerProcess[bcast_process], MPI_DOUBLE,
                   bcast_process, PETSC_COMM_WORLD);
-        MPI_Bcast(dist_exchange, mNumHalosPerProcess[bcast_process], MPI_DOUBLE, 
+        MPI_Bcast(dist_exchange, mNumHalosPerProcess[bcast_process], MPI_DOUBLE,
                   bcast_process, PETSC_COMM_WORLD);
-        MPI_Bcast(index_exchange, mNumHalosPerProcess[bcast_process], MPI_UNSIGNED, 
+        MPI_Bcast(index_exchange, mNumHalosPerProcess[bcast_process], MPI_UNSIGNED,
                   bcast_process, PETSC_COMM_WORLD);
         if (PetscTools::GetMyRank() != bcast_process)
         {
@@ -189,8 +189,8 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
         // Get the next index in the queue
         unsigned current_node_index = mActiveNodeIndexQueue.front();
         mActiveNodeIndexQueue.pop();
-        
-        try 
+
+        try
         {
             Node<SPACE_DIM>* p_current_node = mrMesh.GetNode(current_node_index);
             // Loop over the elements containing the given node
@@ -200,7 +200,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
             {
                 // Get a pointer to the container element
                 Element<ELEMENT_DIM, SPACE_DIM>* p_containing_element = mrMesh.GetElement(*element_iterator);
-                                
+
                 // Loop over the nodes of the element
                 for(unsigned node_local_index=0;
                    node_local_index<p_containing_element->GetNumNodes();
@@ -208,18 +208,18 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                 {
                     Node<SPACE_DIM>* p_neighbour_node = p_containing_element->GetNode(node_local_index);
                     unsigned neighbour_node_index = p_neighbour_node->GetIndex();
-    
+
                     // Avoid revisiting the active node
                     if(neighbour_node_index != current_node_index)
                     {
-                        
-                        // Test if we have found a shorter path from the witness in the source to the current neighbour through current node  
+
+                        // Test if we have found a shorter path from the witness in the source to the current neighbour through current node
                         //This will save some sqrts later...
                         double updated_distance = norm_2(p_neighbour_node->rGetLocation() - rWitnessPoints[current_node_index]);
                         if ( updated_distance < rNodeDistances[neighbour_node_index] * (1.0-DBL_EPSILON) )
                         {
                             rWitnessPoints[neighbour_node_index] = rWitnessPoints[current_node_index];
-                            rNodeDistances[neighbour_node_index] = updated_distance;                                      
+                            rNodeDistances[neighbour_node_index] = updated_distance;
                             PushLocal(neighbour_node_index);
                         }
                     }

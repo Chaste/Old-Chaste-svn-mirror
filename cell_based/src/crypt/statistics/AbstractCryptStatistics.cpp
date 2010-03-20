@@ -38,7 +38,7 @@ void AbstractCryptStatistics::LabelSPhaseCells()
         {
             // This should only be done for healthy or labelled populations, not mutants (at the moment anyway)
             assert( cell_iter->GetMutationState()->IsType<WildTypeCellMutationState>()
-            		|| cell_iter->GetMutationState()->IsType<LabelledCellMutationState>() );
+                    || cell_iter->GetMutationState()->IsType<LabelledCellMutationState>() );
             boost::shared_ptr<AbstractCellMutationState> p_labelled(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
             cell_iter->SetMutationState(p_labelled);
         }
@@ -47,7 +47,7 @@ void AbstractCryptStatistics::LabelSPhaseCells()
 
 void AbstractCryptStatistics::LabelAllCellsAsHealthy()
 {
-	boost::shared_ptr<AbstractCellMutationState> p_wildtype(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+    boost::shared_ptr<AbstractCellMutationState> p_wildtype(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
     for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)

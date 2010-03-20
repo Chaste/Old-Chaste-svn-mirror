@@ -42,8 +42,8 @@ double NhsModelWithBackwardSolver::ImplicitSolveForQ()
 
     return mTemporaryStateVariables[2] + mTemporaryStateVariables[3] + mTemporaryStateVariables[4];
 }
-    
-void NhsModelWithBackwardSolver::CalculateCaTropAndZDerivatives(double calciumTroponin, double z, double Q, 
+
+void NhsModelWithBackwardSolver::CalculateCaTropAndZDerivatives(double calciumTroponin, double z, double Q,
                                                                 double& dCaTrop, double& dz)
 {
 //As in straight Nhs, we don't cover the exception code
@@ -83,9 +83,9 @@ void NhsModelWithBackwardSolver::CalculateCaTropAndZDerivatives(double calciumTr
          - mAlphaR1 * z
          - mAlphaR2 * pow(z,mNr) / (pow(z,mNr) + pow(mKZ,mNr));
 }
-    
-    
-    
+
+
+
 void NhsModelWithBackwardSolver::CalculateBackwardEulerResidual(double calciumTroponin, double z, double Q,
                                                                 double& residualComponent1, double& residualComponent2)
 {
@@ -103,9 +103,9 @@ NhsModelWithBackwardSolver::NhsModelWithBackwardSolver()
 {
     mTemporaryStateVariables.resize(5);
 }
-        
-        
-        
+
+
+
 void NhsModelWithBackwardSolver::RunDoNotUpdate(double startTime, double endTime, double timestep)
 {
     assert(startTime < endTime);
@@ -123,43 +123,43 @@ void NhsModelWithBackwardSolver::RunDoNotUpdate(double startTime, double endTime
         // Q1,Q2,Q3 using backward euler can solved straightaway
         /////////////////////////////////////////////////////////
         double new_Q = ImplicitSolveForQ();
-        
+
         ////////////////////////////////////////////////////////////////////
         // Solve the 2D nonlinear problem for Backward Euler Ca_trop and z
         ////////////////////////////////////////////////////////////////////
-        
+
         // see what the residual is
         double catrop_guess = mTemporaryStateVariables[0];
         double z_guess = mTemporaryStateVariables[1];
         double f1,f2; // f=[f1,f2]=residual
-        
+
         CalculateBackwardEulerResidual(catrop_guess, z_guess, new_Q, f1, f2);
         double norm_resid = sqrt(f1*f1+f2*f2);
 
         // solve using Newton's method, no damping. Stop if num iterations
         // reaches 15 (very conservative)
-        unsigned counter = 0;   
+        unsigned counter = 0;
         while ((norm_resid>mTolerance) && (counter++<15))
         {
             // numerically approximate the jacobian J
             double j11,j12,j21,j22; // J = [j11, j12; j21 j22]
             double temp1,temp2;
-            
+
             double h = std::max(fabs(catrop_guess/100),1e-8);
             CalculateBackwardEulerResidual(catrop_guess+h, z_guess, new_Q, temp1, temp2);
             j11 = (temp1-f1)/h;
             j21 = (temp2-f2)/h;
-            
+
             h = std::max(fabs(z_guess/100),1e-8);
             CalculateBackwardEulerResidual(catrop_guess, z_guess+h, new_Q, temp1, temp2);
             j12 = (temp1-f1)/h;
             j22 = (temp2-f2)/h;
-    
-            // compute u = J^{-1} f (exactly, as a 2D problem)           
+
+            // compute u = J^{-1} f (exactly, as a 2D problem)
             double one_over_det = 1.0/(j11*j22-j12*j21);
             double u1 = one_over_det*(j22*f1  - j12*f2);
             double u2 = one_over_det*(-j21*f1 + j11*f2);
-            
+
             catrop_guess -= u1;
             z_guess -= u2;
 
@@ -167,7 +167,7 @@ void NhsModelWithBackwardSolver::RunDoNotUpdate(double startTime, double endTime
             norm_resid = sqrt(f1*f1+f2*f2);
         }
         assert(counter<15); // if this fails, see corresponding code in old NhsModelWithImplicitSolver
-        
+
         mTemporaryStateVariables[0] = catrop_guess;
         mTemporaryStateVariables[1] = z_guess;
 
@@ -189,7 +189,7 @@ double NhsModelWithBackwardSolver::GetNextActiveTension()
         return T0*(1+mA*Q)/(1-Q);
     }
 }
- 
+
 void NhsModelWithBackwardSolver::RunAndUpdate(double startTime, double endTime, double timestep)
 {
     RunDoNotUpdate(startTime, endTime, timestep);

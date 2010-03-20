@@ -45,21 +45,21 @@ ProgressReporter::ProgressReporter(std::string outputDirectory, double startTime
     // open the file on the master process only
     if ( PetscTools::AmMaster() )
     {
-    	mpFile = handler.OpenOutputFile("progress_status.txt");
+        mpFile = handler.OpenOutputFile("progress_status.txt");
     }
 }
 
 ProgressReporter::~ProgressReporter()
 {
-	if (PetscTools::AmMaster())
-	{
-		if (mLastPercentage!=100)
-		{
-			*mpFile << "100% completed" << std::endl;
-		}
-		*mpFile << "..done!" << std::endl;
-		mpFile->close();
-	}
+    if (PetscTools::AmMaster())
+    {
+        if (mLastPercentage!=100)
+        {
+            *mpFile << "100% completed" << std::endl;
+        }
+        *mpFile << "..done!" << std::endl;
+        mpFile->close();
+    }
 }
 
 void ProgressReporter::Update(double currentTime)
@@ -67,26 +67,26 @@ void ProgressReporter::Update(double currentTime)
     unsigned percentage = (unsigned)( (currentTime - mStartTime)/(mEndTime - mStartTime)*100 );
     if (mLastPercentage==UINT_MAX || percentage > mLastPercentage)
     {
-    	if ( PetscTools::AmMaster() )
-    	{
-    		*mpFile << percentage << "% completed" << std::endl;
-    	}
+        if ( PetscTools::AmMaster() )
+        {
+            *mpFile << percentage << "% completed" << std::endl;
+        }
         mLastPercentage = percentage;
     }
 }
 
 void ProgressReporter::PrintFinalising()
 {
-	if ( PetscTools::AmMaster() )
-	{
-		*mpFile << "Finalising.." << std::endl;
-	}
+    if ( PetscTools::AmMaster() )
+    {
+        *mpFile << "Finalising.." << std::endl;
+    }
 }
 
 void ProgressReporter::PrintInitialising()
 {
-	if ( PetscTools::AmMaster() )
-	{
-		*mpFile << "Initialising.." << std::endl;
-	}
+    if ( PetscTools::AmMaster() )
+    {
+        *mpFile << "Initialising.." << std::endl;
+    }
 }

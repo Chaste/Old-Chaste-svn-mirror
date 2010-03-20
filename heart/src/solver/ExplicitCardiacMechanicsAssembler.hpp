@@ -35,15 +35,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  Explicit cardiac mechanics assembler for solving electromechanic problems where the
- *  contraction model is not stretch-rate-dependent (for those the implicit assembler is 
- *  needed). 
- *  
+ *  contraction model is not stretch-rate-dependent (for those the implicit assembler is
+ *  needed).
+ *
  *  The general explicit solution procedure is to do, each timestep:
  *  (0) [solve the electrics and interpolate Ca and voltage onto quad points
  *  (i) pass Ca and voltage to the contraction models
  *  (ii) pass the fibre stretch to the contraction models in case this is needed.
  *  (iii) integrate the contraction models in order to get the active tension
- *  (iv) solve for the deformation using this active tension. 
+ *  (iv) solve for the deformation using this active tension.
  */
 template<unsigned DIM>
 class ExplicitCardiacMechanicsAssembler : public AbstractCardiacMechanicsAssembler<DIM>
@@ -62,18 +62,18 @@ private:
 
 
     /**
-     *  Get the active tension and other info at the given quadrature point. This is an explicit 
+     *  Get the active tension and other info at the given quadrature point. This is an explicit
      *  assembler so just sets the active tension, it doesn't set the derivatives. It stores the
      *  stretch for the next timestep.
-     * 
+     *
      *  @param currentFibreStretch The stretch in the fibre direction
      *  @param currentQuadPointGlobalIndex Quadrature point integrand currently being evaluated at in AssembleOnElement.
      *  @param assembleJacobian  A bool stating whether to assemble the Jacobian matrix.
-     *  @param rActiveTension The returned active tension. 
+     *  @param rActiveTension The returned active tension.
      *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch. Unset in this explicit solver.
      *  @param rDerivActiveTensionWrtDLambdaDt The returned dT_dLamDot, derivative of active tension wrt stretch rate. Unset in this explicit solver.
-     */   
-    void GetActiveTensionAndTensionDerivs(double currentFibreStretch, 
+     */
+    void GetActiveTensionAndTensionDerivs(double currentFibreStretch,
                                           unsigned currentQuadPointGlobalIndex,
                                           bool assembleJacobian,
                                           double& rActiveTension,
@@ -96,20 +96,20 @@ public:
                                       std::string outputDirectory,
                                       std::vector<unsigned>& rFixedNodes,
                                       AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
-    
+
     /**
      *  Destructor
      */
     virtual ~ExplicitCardiacMechanicsAssembler();
-        
-    
+
+
     /**
      *  Solve for the deformation using quasi-static nonlinear elasticity.
      *  (not dynamic nonlinear elasticity, despite the times taken in - just ONE
      *  deformation is solved for. The cell models are integrated explicitly
      *  over the time range using the ODE timestep provided then the active tension
      *  used to solve for the deformation
-     * 
+     *
      *  @param time the current time
      *  @param nextTime the next time
      *  @param odeTimestep the ODE timestep

@@ -44,10 +44,10 @@ public:
         mesh.ConstructCuboid(2,2,2);
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory1;
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory2(-100); //  stimulus voltage
-        
+
         //Try getting before setting. It should throw (covers the exception)
         TS_ASSERT_THROWS_THIS(cell_factory1.GetMesh(),"The mesh object has not been set in the cell factory");
-        
+
         cell_factory1.SetMesh(&mesh);
         cell_factory2.SetMesh(&mesh);
 
@@ -93,9 +93,9 @@ public:
         {
             out_stream p_left_file = handler.OpenOutputFile(left_file);
             out_stream p_right_file = handler.OpenOutputFile(right_file);
- 
+
             for (unsigned index=0; index<mesh.GetNumNodes(); index++)
-            {  
+            {
                 // Get the nodes at the left face of the square
                 if (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
                 {
@@ -106,23 +106,23 @@ public:
                 {
                     *p_right_file<< index <<"\n";
                 }
-                
+
             }
-        }           
-        
+        }
+
         HeartGeometryInformation<2> info(mesh, handler.GetOutputDirectoryFullPath()+left_file, handler.GetOutputDirectoryFullPath()+right_file, true);
-        
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory_1;
-        
+
         HeartGeometryInformation<2>* p_info_from_cell_factory = NULL;
         //get it from the cell factory before setting it, it should throw...(covers the exception)
         TS_ASSERT_THROWS_THIS(cell_factory_1.GetHeartGeometryInformation(), "HeartGeometryInformation object has not been set in the cell factory");
-        
+
         //set the heart geometry information
         cell_factory_1.SetHeartGeometryInformation(&info);
         //now we get it from the cell factory
         p_info_from_cell_factory = cell_factory_1.GetHeartGeometryInformation();
-        
+
         //check that the object obtained from the cell factory is the same as the one created above.
         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
         {
@@ -132,7 +132,7 @@ public:
             TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
             TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],p_info_from_cell_factory->rGetDistanceMapEpicardium()[index]);
             TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],(5.0-x));
-            TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],p_info_from_cell_factory->rGetDistanceMapEndocardium()[index]);         
+            TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],p_info_from_cell_factory->rGetDistanceMapEndocardium()[index]);
         }
     }
 };

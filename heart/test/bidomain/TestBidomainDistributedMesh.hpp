@@ -153,7 +153,7 @@ public:
 
     void TestBidomainProblemWithDistributedMesh2DParMetis() throw(Exception)
     {
-#ifdef CHASTE_PARMETIS        
+#ifdef CHASTE_PARMETIS
         HeartConfig::Instance()->SetSimulationDuration(1);  //ms
         HeartConfig::Instance()->SetOutputDirectory("DistributedMesh2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("tetrahedral2d");

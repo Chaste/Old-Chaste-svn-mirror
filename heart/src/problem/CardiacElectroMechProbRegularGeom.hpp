@@ -40,16 +40,16 @@ template<unsigned DIM>
 class CardiacElectroMechProbRegularGeom : public CardiacElectroMechanicsProblem<DIM>
 {
 public:
-   
+
     /**
      * Constructor.
-     * 
+     *
      * @param contractionModel contraction model (see the enum "ContractionModel" for the options).
      * @param width Width and height of the square
      * @param numMechanicsElementsEachDir Number of elements in each direction in the mechanics mesh
      * @param numElectricsElementsEachDir Number of elements in each direction in the electrics mesh
      * @param pCellFactory factory to use to create cells
-     * @param endTime the end time to use 
+     * @param endTime the end time to use
      * @param electricsPdeTimeStep timestep used in solving for the electrical activity
      * @param numElecTimeStepsPerMechTimestep number of electrics timesteps to be used in each mechanics solve
      * @param contractionModelOdeTimeStep Step size for contraction model (of active tension in cardiac cells) being used.
@@ -65,7 +65,7 @@ public:
                                       unsigned numElecTimeStepsPerMechTimestep,
                                       double contractionModelOdeTimeStep,
                                       std::string outputDirectory = "")
-        : CardiacElectroMechanicsProblem<DIM>(contractionModel, 
+        : CardiacElectroMechanicsProblem<DIM>(contractionModel,
                                               NULL, NULL, std::vector<unsigned>(), // all these set below
                                               pCellFactory, endTime,
                                               electricsPdeTimeStep,

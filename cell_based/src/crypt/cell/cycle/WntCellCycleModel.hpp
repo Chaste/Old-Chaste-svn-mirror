@@ -63,31 +63,31 @@ private:
      * @param version the archive version
      */
     template<class Archive>
-	void save(Archive & archive, const unsigned int version) const
-	{
-		assert(mpOdeSystem);
-		archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
-		boost::shared_ptr<AbstractCellMutationState> p_mutation_state = static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->GetMutationState();
-		archive & p_mutation_state;
-	}
-	/**
-	 * Load the cell cycle model and ODE system from archive.
-	 *
-	 * @param archive the archive
-	 * @param version the archive version
-	 */
-	template<class Archive>
-	void load(Archive & archive, const unsigned int version)
-	{
-		// The ODE system is set up by the archiving constructor, so we can set the mutation state
-		// here.  This is a horrible hack, but avoids having to regenerate test archives...
-		assert(mpOdeSystem);
-		archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
-		boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-		archive & p_mutation_state;
-		static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(p_mutation_state);
-	}
-	BOOST_SERIALIZATION_SPLIT_MEMBER()
+    void save(Archive & archive, const unsigned int version) const
+    {
+        assert(mpOdeSystem);
+        archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
+        boost::shared_ptr<AbstractCellMutationState> p_mutation_state = static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->GetMutationState();
+        archive & p_mutation_state;
+    }
+    /**
+     * Load the cell cycle model and ODE system from archive.
+     *
+     * @param archive the archive
+     * @param version the archive version
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+        // The ODE system is set up by the archiving constructor, so we can set the mutation state
+        // here.  This is a horrible hack, but avoids having to regenerate test archives...
+        assert(mpOdeSystem);
+        archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
+        boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
+        archive & p_mutation_state;
+        static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(p_mutation_state);
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     /**
      * Update the cell type according to the current beta catenin
@@ -147,7 +147,7 @@ public:
      * @param rDimension the spatial dimension
      */
     WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-					  boost::shared_ptr<AbstractCellMutationState> pMutationState,
+                      boost::shared_ptr<AbstractCellMutationState> pMutationState,
                       const unsigned& rDimension);
 
     /**

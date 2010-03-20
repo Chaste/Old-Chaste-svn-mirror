@@ -60,7 +60,7 @@ public :
     /**
      * Constructor takes in a mesh and a rule and computes and stores all
      * the quad points in physical space.
-     * 
+     *
      * @param rMesh
      * @param rQuadRule
      */
@@ -69,10 +69,10 @@ public :
 
     /**
      * Access the stored quadrature point by element index and quad index in the element.
-     * 
+     *
      * \todo this method should be renamed rGet() as it returns a reference
-     * \todo also params need comments 
-     * 
+     * \todo also params need comments
+     *
      * @param elementIndex
      * @param quadIndex
      */
@@ -80,11 +80,11 @@ public :
 
     /**
      * Get the i-th stored quadrature point.
-     * 
+     *
      * \todo this method should be renamed rGet() as it returns a reference
      * \todo also params need comments
-     * 
-     * @param i 
+     *
+     * @param i
      */
     c_vector<double,DIM>& Get(unsigned i);
 

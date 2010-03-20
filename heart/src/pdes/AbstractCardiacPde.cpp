@@ -89,7 +89,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<Abstra
 {
     mIionicCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
     mIntracellularStimulusCacheReplicated.Resize(mpDistributedVectorFactory->GetProblemSize());
-    
+
     CreateIntracellularConductivityTensor();
 }
 
@@ -112,7 +112,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::DeleteCells(bool deleteFakeCells
             fake_cells.insert(p_fake);
         }
     }
-    
+
     if (deleteFakeCells)
     {
         // Likewise for fake cells
@@ -131,7 +131,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
     DeleteCells(mMeshUnarchived);
 
     delete mpIntracellularConductivityTensors;
-    
+
     // If the mesh was unarchived we need to free it explicitly.
     if (mMeshUnarchived)
     {
@@ -193,31 +193,31 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
     // this definition must be here (and not inside the if statement) because SetNonConstantConductivities() will keep
     // a pointer to it and we don't want it to go out of scope before Init() is called
     unsigned num_elements = mpMesh->GetNumElements();
-    std::vector<c_vector<double, SPACE_DIM> > hetero_intra_conductivities;        
+    std::vector<c_vector<double, SPACE_DIM> > hetero_intra_conductivities;
 
     if (mpConfig->GetConductivityHeterogeneitiesProvided())
     {
         try
-        {   
+        {
             hetero_intra_conductivities.resize(num_elements);
         }
         catch(std::bad_alloc &badAlloc)
         {
-#define COVERAGE_IGNORE            
+#define COVERAGE_IGNORE
             std::cout << "Failed to allocate std::vector of size " << num_elements << std::endl;
             PetscTools::ReplicateException(true);
             throw badAlloc;
-#undef COVERAGE_IGNORE            
+#undef COVERAGE_IGNORE
         }
-        PetscTools::ReplicateException(false);        
-        
+        PetscTools::ReplicateException(false);
+
         std::vector<ChasteCuboid<SPACE_DIM> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
                                                                 intra_h_conductivities,
                                                                 extra_h_conductivities);
-                                                                
+
         for (unsigned element_index=0; element_index<num_elements; element_index++)
         {
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
@@ -250,7 +250,7 @@ template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::SetCacheReplication(bool doCacheReplication)
 {
     mDoCacheReplication = doCacheReplication;
-    mDoOneCacheReplication = true; //If we have reset to false (even from false) then we may have created a new matrix-based assembler and need to run it once 
+    mDoOneCacheReplication = true; //If we have reset to false (even from false) then we may have created a new matrix-based assembler and need to run it once
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
@@ -297,9 +297,9 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSol
         }
         catch (Exception &e)
         {
-#ifndef NDEBUG            
+#ifndef NDEBUG
             PetscTools::ReplicateException(true);
-#endif            
+#endif
             throw e;
         }
 
@@ -310,7 +310,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSol
 
 #ifndef NDEBUG
     PetscTools::ReplicateException(false);
-#endif    
+#endif
 
     HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     if ( mDoCacheReplication || mDoOneCacheReplication )

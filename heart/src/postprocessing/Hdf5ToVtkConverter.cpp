@@ -44,19 +44,19 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
                           std::string fileBaseName,
                           AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> *pMesh) :
                     AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "vtk_output")
-{   
+{
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
 
     VtkWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(HeartConfig::Instance()->GetOutputDirectory() + "/vtk_output", fileBaseName, false);
-    
+
     unsigned num_nodes = this->mpReader->GetNumberOfRows();
     DistributedVectorFactory factory(num_nodes);
     ///\todo Can we get this as a std::vector?
     Vec data = factory.CreateVec();//for V
-    
+
     unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
-    
+
     // Loop over time steps
     for (unsigned time_step=0; time_step<num_timesteps; time_step++) //num_timesteps; time_step++)
     {
@@ -68,14 +68,14 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
         {
             v_for_vtk[index]  = repl_data[index];
         }
-        
+
         std::ostringstream V_point_data_name;
-        V_point_data_name << "V_" << std::setw(6) << std::setfill('0') << time_step; 
-        
+        V_point_data_name << "V_" << std::setw(6) << std::setfill('0') << time_step;
+
         if (PetscTools::AmMaster())
         {
             // Add V into the node "point" data
-            vtk_writer.AddPointData(V_point_data_name.str(), v_for_vtk);  
+            vtk_writer.AddPointData(V_point_data_name.str(), v_for_vtk);
         }
         if(this->mNumVariables==2)
         {
@@ -87,16 +87,16 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
             {
                 phi_for_vtk[index]  = repl_phi[index];
             }
-            
+
             std::ostringstream Phi_point_data_name;
-            Phi_point_data_name << "Phi_e_" << std::setw(6) << std::setfill('0') << time_step; 
-        
+            Phi_point_data_name << "Phi_e_" << std::setw(6) << std::setfill('0') << time_step;
+
             if (PetscTools::AmMaster())
             {
                 // Add Phi into the node "point" data
                 vtk_writer.AddPointData(Phi_point_data_name.str(), phi_for_vtk);
-            }              
-        }  
+            }
+        }
     }
     VecDestroy(data);
     vtk_writer.WriteFilesUsingMesh( *(this->mpMesh) );

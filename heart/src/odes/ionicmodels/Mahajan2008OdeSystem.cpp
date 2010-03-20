@@ -200,17 +200,17 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolve
         double var_INa__ena = var_reversal_potentials__ena;
         double var_INa__xina = var_INa__gna * var_INa__xh * var_INa__xj * var_INa__xm * var_INa__xm * var_INa__xm * (var_INa__V - var_INa__ena);
         double var_cell__xina = var_INa__xina;
-        
+
         /*
-         * Currents in this model are given in microA/microF (as the results of conductance (mS/microF) times voltage (mV)). 
+         * Currents in this model are given in microA/microF (as the results of conductance (mS/microF) times voltage (mV)).
          * Hence, no conversion factor is necessary because this term will be multiplied by Cm (in microF/cm2)
          * giving rise to mono/bidomain currents in the correct units.
-         * 
+         *
          * Note that the CellML file in the repository was coded up with currents as having "dimensionless" units and therefore Pycml raised a warning about the units of this.
          */
-    	double i_ionic = var_cell__xik1+var_cell__xito+var_cell__xiNaK+var_cell__xiNaCa+var_cell__xica+var_cell__xina+var_cell__xikr+var_cell__xiks;
-    	assert(!std::isnan(i_ionic));
-    	return i_ionic;
+        double i_ionic = var_cell__xik1+var_cell__xito+var_cell__xiNaK+var_cell__xiNaCa+var_cell__xica+var_cell__xina+var_cell__xikr+var_cell__xiks;
+        assert(!std::isnan(i_ionic));
+        return i_ionic;
     }
 
     void Mahajan2008OdeSystem::EvaluateYDerivatives(

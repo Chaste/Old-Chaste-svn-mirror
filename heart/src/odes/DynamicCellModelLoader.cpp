@@ -69,9 +69,9 @@ AbstractCardiacCell* DynamicCellModelLoader::CreateCell(boost::shared_ptr<Abstra
                                                         boost::shared_ptr<AbstractStimulusFunction> pStimulus)
 {
     AbstractCardiacCell* p_cell = (*mpCreationFunction)(pSolver, pStimulus);
-    
+
     AbstractDynamicallyLoadableEntity* p_entity = dynamic_cast<AbstractDynamicallyLoadableEntity*>(p_cell);
-    
+
     if (p_entity != NULL)
     {
         p_entity->SetLoader(this);

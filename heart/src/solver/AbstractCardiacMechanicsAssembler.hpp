@@ -37,11 +37,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  AbstractCardiacMechanicsAssembler
- * 
+ *
  *  Base class to implicit and explicit cardiac mechanics assemblers. Inherits from NonlinearElasticityAssembler
  *  Main method is the overloaded AssembleOnElement which does the extra work needed for cardiac problems. The
- *  child classes hold the contraction models and need to implement a method for getting the active tension from 
- *  the model. 
+ *  child classes hold the contraction models and need to implement a method for getting the active tension from
+ *  the model.
  */
 template<unsigned DIM>
 class AbstractCardiacMechanicsAssembler : public NonlinearElasticityAssembler<DIM>
@@ -53,8 +53,8 @@ protected:
 
     /**
      *  Vector of contraction model (pointers). One for each quadrature point.
-     *  Note the indexing: the i-th entry corresponds to the i-th global quad 
-     *  point, when looping over elements and then quad points 
+     *  Note the indexing: the i-th entry corresponds to the i-th global quad
+     *  point, when looping over elements and then quad points
      */
     std::vector<AbstractContractionModel*> mContractionModelSystems;
 
@@ -63,21 +63,21 @@ protected:
      *  when GetActiveTensionAndTensionDerivs() is called, and can be used either in that
      *  timestep (implicit solver), or the next timestep (explicit solver)
      */
-    std::vector<double> mStretches;    
+    std::vector<double> mStretches;
 
     /** Total number of quad points in the (mechanics) mesh */
     unsigned mTotalQuadPoints;
 
     /** Whether the material law was passed in or the default used */
     bool mAllocatedMaterialLawMemory;
-    
+
     /** Current time */
     double mCurrentTime;
     /** Time to which the solver has been asked to solve to */
     double mNextTime;
     /** Time used to integrate the contraction model */
     double mOdeTimestep;
-    
+
     /** The fibre-sheet-normal directions (in a matrix), if constant (defaults to the identity, ie fibres in the X-direction, sheet in the XY plane) */
     c_matrix<double,DIM,DIM> mConstantFibreSheetDirections;
 
@@ -86,7 +86,7 @@ protected:
      * is called, if not mConstantFibreSheetDirections is used instead
      */
     std::vector<c_matrix<double,DIM,DIM> >* mpVariableFibreSheetDirections;
-    
+
     /** Check whether the given matrix is orthogonal, by computing A^T A and verifying whether each
       * component matches the identity matrix, to a given tolerance.
       * @param rMatrix reference to the matrix being tested
@@ -102,7 +102,7 @@ protected:
             {
                 double val = (i==j ? 1.0 : 0.0);
                 if(fabs(temp(i,j)-val)>tol)
-    	        {
+                {
                     std::stringstream ss;
                     ss << "The given fibre-sheet matrix, " << rMatrix << ", is not orthogonal"
                        << " (A^T A not equal to I to tolerance " << tol << ")";
@@ -112,7 +112,7 @@ protected:
         }
     }
 
-    
+
     /**
      *  Whether the solver is implicit or not (ie whether the contraction model depends on lambda (and depends on
      *  lambda at the current time)). For whether dTa_dLam dependent terms need to be added to the Jacbobian
@@ -125,7 +125,7 @@ protected:
      * different to the base class AssembleOnElement are restricted to two bits
      * (see code): getting Ta and using it to compute the stress, and (in when Ta
      * is a function of the stretch) the addition of extra term to the Jacobian.
-     * 
+     *
      * @param rElement The element to assemble on.
      * @param rAElem The element's contribution to the LHS matrix is returned in this
      *     n by n matrix, where n is the no. of nodes in this element. There is no
@@ -150,7 +150,7 @@ protected:
      *  Pure method called in AbstractCardiacMechanicsAssembler::AssembleOnElement(), which needs to provide
      *  the active tension (and other info if implicit (if the contraction model depends on stretch
      *  or stretch rate)) at a particular quadrature point. Takes in the current fibre stretch.
-     * 
+     *
      *  @param currentFibreStretch The stretch in the fibre direction
      *  @param currentQuadPointGlobalIndex quadrature point integrand currently being evaluated at in AssembleOnElement
      *  @param assembleJacobian  A bool stating whether to assemble the Jacobian matrix.
@@ -158,7 +158,7 @@ protected:
      *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch. Only should be set in implicit assemblers
      *  @param rDerivActiveTensionWrtDLambdaDt The returned dT_dLamDot, derivative of active tension wrt stretch rate.  Only should be set in implicit assemblers
      */
-    virtual void GetActiveTensionAndTensionDerivs(double currentFibreStretch, 
+    virtual void GetActiveTensionAndTensionDerivs(double currentFibreStretch,
                                                   unsigned currentQuadPointGlobalIndex,
                                                   bool assembleJacobian,
                                                   double& rActiveTension,
@@ -194,17 +194,17 @@ public:
         // note that if pMaterialLaw is NULL a new NashHunter law was sent to the
         // NonlinElas constuctor (see above)
         mAllocatedMaterialLawMemory = (pMaterialLaw==NULL);
-        
+
         // initialise the store of fibre stretches
         mStretches.resize(mTotalQuadPoints, 1.0);
-        
-		// initialise fibre/sheet direction matrix to be the identity, fibres in X-direction, and sheet in XY-plane
+
+        // initialise fibre/sheet direction matrix to be the identity, fibres in X-direction, and sheet in XY-plane
         mConstantFibreSheetDirections = zero_matrix<double>(DIM,DIM);
         for(unsigned i=0; i<DIM; i++)
         {
             mConstantFibreSheetDirections(i,i) = 1.0;
         }
-        
+
         mpVariableFibreSheetDirections = NULL;
     }
 
@@ -237,48 +237,48 @@ public:
     {
         return this->mpQuadratureRule;
     }
-    
-    
-    /**  
-     *	Set a constant fibre-sheet-normal direction (a matrix) to something other than the default (fibres in X-direction, 
-     *  sheet in the XY plane) 
+
+
+    /**
+     *    Set a constant fibre-sheet-normal direction (a matrix) to something other than the default (fibres in X-direction,
+     *  sheet in the XY plane)
      *  @param rFibreSheetMatrix The fibre-sheet-normal matrix (fibre dir the first column, normal-to-fibre-in sheet in second
      *  column, sheet-normal in third column).
      */
     void SetConstantFibreSheetDirections(const c_matrix<double,DIM,DIM>& rFibreSheetMatrix)
     {
-        mConstantFibreSheetDirections = rFibreSheetMatrix; 
+        mConstantFibreSheetDirections = rFibreSheetMatrix;
         CheckOrthogonality(mConstantFibreSheetDirections);
     }
-    
-    /** 
-     *	Set a variable fibre-sheet-normal direction (matrices), one for each element, from a file.
+
+    /**
+     *    Set a variable fibre-sheet-normal direction (matrices), one for each element, from a file.
      *  The file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir for that element).
      *  The number of elements must match the number in the MECHANICS mesh!
      *  @param orthoFile the file containing the fibre/sheet directions
      */
     void SetVariableFibreSheetDirections(std::string orthoFile);
-        
+
 
 
     /**
      *  Set the intracellular Calcium concentrations and voltages at each quad point. Pure.
-     * 
-     *  Implicit solvers (for contraction models which are functions of stretch (and maybe 
+     *
+     *  Implicit solvers (for contraction models which are functions of stretch (and maybe
      *  stretch rate) would integrate the contraction model with this Ca/V/t using the current
      *  stretch (ie inside AssembleOnElement, ie inside GetActiveTensionAndTensionDerivs).
      *  Explicit solvers (for contraction models which are NOT functions of stretch can immediately
      *  integrate the contraction models to get the active tension.
-     * 
+     *
      *  @param rCalciumConcentrations Reference to a vector of intracellular calcium concentrations at each quadrature point
      *  @param rVoltages Reference to a vector of voltages at each quadrature point
      */
-    void SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations, 
+    void SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations,
                               std::vector<double>& rVoltages);
 
     /**
      *  Solve for the deformation, integrating the contraction model ODEs.
-     * 
+     *
      *  @param time the current time
      *  @param nextTime the next time
      *  @param odeTimestep the ODE timestep
@@ -289,20 +289,20 @@ public:
 
 
 template<unsigned DIM>
-void AbstractCardiacMechanicsAssembler<DIM>::SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations, 
+void AbstractCardiacMechanicsAssembler<DIM>::SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations,
                                                                   std::vector<double>& rVoltages)
-                                        
+
 {
     assert(rCalciumConcentrations.size() == this->mTotalQuadPoints);
     assert(rVoltages.size() == this->mTotalQuadPoints);
 
     ContractionModelInputParameters input_parameters;
-    
+
     for(unsigned i=0; i<rCalciumConcentrations.size(); i++)
     {
         input_parameters.intracellularCalciumConcentration = rCalciumConcentrations[i];
         input_parameters.voltage = rVoltages[i];
-        
+
         mContractionModelSystems[i]->SetInputParameters(input_parameters);
     }
 }
@@ -460,9 +460,9 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
 
         /*****************************
-         * The cardiac-specific code 
+         * The cardiac-specific code
          *****************************/
-        
+
         // 1. Compute T and dTdE for the PASSIVE part of the strain energy.
         p_material_law->SetChangeOfBasisMatrix(r_fibre_sheet_matrix);
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,this->dTdE,assembleJacobian);
@@ -477,11 +477,11 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
         GetActiveTensionAndTensionDerivs(lambda, current_quad_point_global_index, assembleJacobian,
                                          active_tension, d_act_tension_dlam, d_act_tension_d_dlamdt);
-	
+
         // amend the stress and dTdE using the active tension
         double dTdE_coeff = -2*active_tension/(I4*I4); // note: I4*I4 = lam^4
         if(IsImplicitSolver())
-        {     
+        {
             dTdE_coeff += (d_act_tension_dlam + d_act_tension_d_dlamdt/mech_dt)/(lambda*I4); // note: I4*lam = lam^3
         }
 
@@ -502,19 +502,19 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         }
 
         /*******************************************************************
-         * End of cardiac specific code 
-         * 
-         * The following, excluding the lack of body force term, should be 
+         * End of cardiac specific code
+         *
+         * The following, excluding the lack of body force term, should be
          * identical to NonlinearElasticityAssembler::AssembleOnElement
          *******************************************************************/
-         
-         
+
+
         static FourthOrderTensor<DIM> dTdE_F;
         static FourthOrderTensor<DIM> dTdE_FF1;
         static FourthOrderTensor<DIM> dTdE_FF2;
-  
+
         dTdE_F.SetAsProduct(this->dTdE, F, 1);  // B^{MdPQ}  = F^d_N * dTdE^{MdPQ}
-        dTdE_FF1.SetAsProduct(dTdE_F, F, 3);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ} 
+        dTdE_FF1.SetAsProduct(dTdE_F, F, 3);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ}
         dTdE_FF2.SetAsProduct(dTdE_F, F, 2);    // B2^{MdeQ} = F^d_N * F^e_P * dTdE^{MNPQ}
 
 
@@ -579,7 +579,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                                                      * wJ;
                         }
                     }
-                    
+
                     for (unsigned M=0; M<DIM; M++)
                     {
                         for (unsigned P=0; P<DIM; P++)
@@ -590,7 +590,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                                                       * grad_quad_phi(M,node_index1)
                                                       * wJ;
                         }
-                        
+
                         for (unsigned Q=0; Q<DIM; Q++)
                         {
                            rAElem(index1,index2)  +=   0.5
@@ -663,11 +663,11 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         // This gives the preconditioner to be [ A   B1^T ]
         //                                     [ B2  M    ]
         rAElemPrecond = rAElemPrecond + rAElem;
-        
+
         // To use alternative preconditioners, either P1 = [ A   B1^T ] or P2 = [A  0]
         //                                                 [ 0   M    ]         [0  M]
         // uncomment as appropriate
-        // (If keeping one of these alternatives, also change NonlinearElasticityAssembler.cpp 
+        // (If keeping one of these alternatives, also change NonlinearElasticityAssembler.cpp
         //for(unsigned i=NUM_NODES_PER_ELEMENT*DIM; i<STENCIL_SIZE; i++)
         //{
         //    for(unsigned j=0; j<NUM_NODES_PER_ELEMENT*DIM; j++)
@@ -693,18 +693,18 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std
     {
         EXCEPTION("Could not open file: " + orthoFile);
     }
-    
+
     unsigned num_elem_read_from_file;
     ifs >> num_elem_read_from_file;
     assert(num_elem_read_from_file == this->mpQuadMesh->GetNumElements());
-    
+
     mpVariableFibreSheetDirections = new std::vector<c_matrix<double,DIM,DIM> >(this->mpQuadMesh->GetNumElements(), zero_matrix<double>(DIM,DIM));
     for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
     {
-        for(unsigned j=0; j<DIM*DIM; j++) 
+        for(unsigned j=0; j<DIM*DIM; j++)
         {
             double data;
-            ifs >> data; 
+            ifs >> data;
             if(ifs.fail())
             {
                 std::stringstream error_message;
@@ -712,14 +712,14 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std
                               << ". Expected " << this->mpQuadMesh->GetNumElements() << " rows and "
                               << "three (not DIM!) columns, ie three components for each fibre, whichever "
                               << "dimension you are in";
-                delete mpVariableFibreSheetDirections;           
+                delete mpVariableFibreSheetDirections;
                 EXCEPTION(error_message.str());
             }
-            
+
             (*mpVariableFibreSheetDirections)[elem_index](j/DIM,j%DIM) = data;
         }
     }
-   
+
     ifs.close();
 
     for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)

@@ -903,14 +903,14 @@ public:
     {
         MutableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(1,1,false);
-        
+
         unsigned top_right=3;
         Node<2>* p_node = mesh.GetNode(top_right);
         ChastePoint<2> point = p_node->GetPoint();
         TS_ASSERT_DELTA(point[0], 1.0, 1e-7);
         TS_ASSERT_DELTA(point[1], 1.0, 1e-7);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 1u);
-    
+
         for (double x=1.1; x>=0.9; x-=0.01)
         {
             point.SetCoordinate(0,x);
@@ -1109,7 +1109,7 @@ public:
     {
         std::string archive_dir = "archive";
         std::string archive_file = "mutable_mesh.arch";
-       
+
         unsigned num_nodes;
         unsigned num_elements;
         unsigned total_num_nodes;

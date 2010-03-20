@@ -65,7 +65,7 @@ c_vector<double,2> MyTraction(c_vector<double,2>& location)
         traction(0) =  2*MATERIAL_PARAM * (lam - 1.0/lam);
         traction(1) = -2*MATERIAL_PARAM * location(1)*ALPHA/(lam*lam);
     }
-    else if (fabs(location(1))  <= DBL_EPSILON) //Bottom edge 
+    else if (fabs(location(1))  <= DBL_EPSILON) //Bottom edge
     {
         traction(0) =  2*MATERIAL_PARAM * location(1)*ALPHA/(lam*lam);
         traction(1) = -2*MATERIAL_PARAM * (-lam + 1.0/lam);
@@ -106,8 +106,8 @@ public:
                                                   "",
                                                   fixed_nodes);
         assembler.AssembleSystem(true, true);
-    }                                
-    
+    }
+
     void TestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh;
@@ -387,7 +387,7 @@ public:
         assert( fabs(mesh.GetNode(2)->rGetLocation()[1] - 1) < 1e-9 );
         TS_ASSERT_DELTA( r_solution[2](0), xend,   1e-3 );
         TS_ASSERT_DELTA( r_solution[2](1), 1-yend, 1e-3 );
-        
+
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
     }

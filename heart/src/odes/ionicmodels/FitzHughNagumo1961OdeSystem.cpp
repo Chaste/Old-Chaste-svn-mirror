@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //
 // Model-scope constant parameters
 //
-const double FitzHughNagumo1961OdeSystem::mAlpha = -0.08; 
+const double FitzHughNagumo1961OdeSystem::mAlpha = -0.08;
 const double FitzHughNagumo1961OdeSystem::mGamma = 3.00;
 const double FitzHughNagumo1961OdeSystem::mEpsilon = 0.005;
 
@@ -43,7 +43,7 @@ FitzHughNagumo1961OdeSystem::FitzHughNagumo1961OdeSystem(
     : AbstractCardiacCell(pOdeSolver, 2, 0, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<FitzHughNagumo1961OdeSystem>::Instance();
-    
+
     Init();
 }
 
@@ -55,9 +55,9 @@ void FitzHughNagumo1961OdeSystem::EvaluateYDerivatives(double time, const std::v
 {
     double membrane_V = rY[0]; // v
     double recovery_variable = rY[1]; // w
-    
+
     double i_stim = GetStimulus(time);
-    
+
     // dV/dt
     double membrane_V_prime = membrane_V*(membrane_V-mAlpha)*(1-membrane_V)-recovery_variable+i_stim;
     // do not update voltage if the mSetVoltageDerivativeToZero flag has been set
@@ -65,10 +65,10 @@ void FitzHughNagumo1961OdeSystem::EvaluateYDerivatives(double time, const std::v
     {
         membrane_V_prime = 0;
     }
-    
+
     // dw/dt
     double recovery_variable_prime = mEpsilon*(membrane_V-mGamma*recovery_variable);
-    
+
     rDY[0] = membrane_V_prime;
     rDY[1] = recovery_variable_prime;
 }

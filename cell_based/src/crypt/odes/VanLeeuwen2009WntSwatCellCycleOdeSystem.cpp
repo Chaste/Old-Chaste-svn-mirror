@@ -30,9 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseOdeSystemInformation.hpp"
 
 VanLeeuwen2009WntSwatCellCycleOdeSystem::VanLeeuwen2009WntSwatCellCycleOdeSystem(
-		unsigned hypothesis,
-		double wntLevel,
-		boost::shared_ptr<AbstractCellMutationState> pMutationState)
+        unsigned hypothesis,
+        double wntLevel,
+        boost::shared_ptr<AbstractCellMutationState> pMutationState)
     : AbstractOdeSystem(22),
       mpMutationState(pMutationState),
       mHypothesis(hypothesis)
@@ -82,19 +82,19 @@ VanLeeuwen2009WntSwatCellCycleOdeSystem::VanLeeuwen2009WntSwatCellCycleOdeSystem
 
     if (!mpMutationState)
     {
-    	// No mutations specified
+        // No mutations specified
     }
     else if (mpMutationState->IsType<ApcOneHitCellMutationState>())
     {
-    	sigma_D = 0.5;
+        sigma_D = 0.5;
     }
     else if (mpMutationState->IsType<ApcTwoHitCellMutationState>())
     {
-    	sigma_D = 1.0;
+        sigma_D = 1.0;
     }
     else if (mpMutationState->IsType<BetaCateninOneHitCellMutationState>())
     {
-    	sigma_B = 0.5;
+        sigma_B = 0.5;
     }
     // Other mutations have no effect.
 
@@ -290,19 +290,19 @@ void VanLeeuwen2009WntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, 
 
     if (!mpMutationState)
     {
-    	// No mutations specified
+        // No mutations specified
     }
     else if (mpMutationState->IsType<ApcOneHitCellMutationState>())
     {
-    	sigma_D = 0.5;
+        sigma_D = 0.5;
     }
     else if (mpMutationState->IsType<ApcTwoHitCellMutationState>())
     {
-    	sigma_D = 1.0;
+        sigma_D = 1.0;
     }
     else if (mpMutationState->IsType<BetaCateninOneHitCellMutationState>())
     {
-    	sigma_B = 0.5;
+        sigma_B = 0.5;
     }
     // Other mutations have no effect.
 

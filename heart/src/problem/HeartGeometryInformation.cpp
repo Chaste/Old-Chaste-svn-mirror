@@ -94,7 +94,7 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (std::string nodeH
     heterogeneity_file.open(nodeHeterogeneityFileName.c_str());
 
     if (!(heterogeneity_file.is_open()))
-    {        
+    {
         heterogeneity_file.close();
         std::stringstream ss;
         ss << "Could not open heterogeneities file (" << nodeHeterogeneityFileName << ")";
@@ -107,16 +107,16 @@ HeartGeometryInformation<SPACE_DIM>::HeartGeometryInformation (std::string nodeH
 
         heterogeneity_file >> value;
 
-        // format error (for example read a double), or value not equal to 0, 1, or 2.        
+        // format error (for example read a double), or value not equal to 0, 1, or 2.
         if( (heterogeneity_file.fail() && !heterogeneity_file.eof()) || value < 0 || value > 2)
         {
             heterogeneity_file.close();
             std::stringstream ss;
-            ss << "A value in the heterogeneities file (" << nodeHeterogeneityFileName 
+            ss << "A value in the heterogeneities file (" << nodeHeterogeneityFileName
                << ") is out of range (or not an integer). It should be epi = 0, mid = 1, endo = 2";
             EXCEPTION(ss.str());
         }
-        
+
         if(!heterogeneity_file.eof())
         {
             if(value==0)
@@ -164,7 +164,7 @@ void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
     {
         offset=1;
     }
-    
+
     file_stream.open(surfaceFile.c_str());
     if (!file_stream.is_open())
     {
@@ -336,9 +336,9 @@ void HeartGeometryInformation<SPACE_DIM>::DetermineLayerForEachNode(double epiFr
 {
     if (epiFraction+endoFraction>1)
     {
-        EXCEPTION("The sum of fractions of epicardial and endocardial layers must be lesser than 1"); 
+        EXCEPTION("The sum of fractions of epicardial and endocardial layers must be lesser than 1");
     }
-    
+
     if ((endoFraction<0) || (epiFraction<0))
     {
         EXCEPTION("A fraction of a layer must be positive");
@@ -394,11 +394,11 @@ void HeartGeometryInformation<SPACE_DIM>::WriteLayerForEachNode(std::string outp
     PetscTools::Barrier("HeartGeometryInformation::WriteLayerForEachNode"); // Make other processes wait until we're done
 }
 
- 
+
 template<unsigned SPACE_DIM>
 ChasteCuboid<SPACE_DIM> HeartGeometryInformation<SPACE_DIM>::CalculateBoundingBoxOfSurface(const std::vector<unsigned>& rSurfaceNodes)
 {
-    
+
     assert(rSurfaceNodes.size()>0);
     //Set min to DBL_MAX etc.
     c_vector<double, SPACE_DIM> my_minimum_point;
@@ -407,7 +407,7 @@ ChasteCuboid<SPACE_DIM> HeartGeometryInformation<SPACE_DIM>::CalculateBoundingBo
         my_minimum_point[i]=DBL_MAX; //Start with max and work down to actual
     }
     c_vector<double, SPACE_DIM> my_maximum_point=-my_minimum_point;
-    
+
     //Iterate through the set of points on the surface
     for (unsigned surface_index=0; surface_index<rSurfaceNodes.size(); surface_index++)
     {
@@ -429,17 +429,17 @@ ChasteCuboid<SPACE_DIM> HeartGeometryInformation<SPACE_DIM>::CalculateBoundingBo
             }
         }
     }
-    
+
     //Share the local data and reduce over all processes
     c_vector<double, SPACE_DIM> global_minimum_point;
     c_vector<double, SPACE_DIM> global_maximum_point;
     MPI_Allreduce(&my_minimum_point[0], &global_minimum_point[0], SPACE_DIM, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
     MPI_Allreduce(&my_maximum_point[0], &global_maximum_point[0], SPACE_DIM, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD);
-    
+
 
     ChastePoint<SPACE_DIM> min(global_minimum_point);
     ChastePoint<SPACE_DIM> max(global_maximum_point);
-    
+
     return ChasteCuboid<SPACE_DIM>(min, max);
 }
 

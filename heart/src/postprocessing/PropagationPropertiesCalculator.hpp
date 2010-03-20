@@ -48,9 +48,9 @@ private:
     Hdf5DataReader *mpDataReader;
     /** Name of the variable representing the membrane potential. */
     const std::string mVoltageName;
-    
+
 //    CellProperties GetCellProperties(unsigned globalNodeIndex);
-    
+
 public:
     /**
      * Constructor.
@@ -150,21 +150,21 @@ public:
                                                              double threshold);
      /**
       * Calculates all the depolarisations that occur above threshold at a single cell.
-      * 
+      *
       * @param globalNodeIndex the cell at which to calculate
       * @param threshold the threshold above which the depolarisations are counted
-      * 
-      */                                                    
+      *
+      */
     std::vector<unsigned> CalculateAllAboveThresholdDepolarisations(unsigned globalNodeIndex,
                                                                     double threshold);
 
      /**
       * Calculates the depolarisations that occur above threshold at a single cell during the last recorded Ap
-      * 
+      *
       * @param globalNodeIndex the cell at which to calculate
       * @param threshold the threshold above which the depolarisations are counted
-      * 
-      */     
+      *
+      */
     unsigned CalculateAboveThresholdDepolarisationsForLastAp(unsigned globalNodeIndex,
                                                                     double threshold);
 

@@ -208,7 +208,7 @@ public:
         TS_ASSERT_DELTA(cycle_lengths[8], 2500, 1);
         TS_ASSERT_DELTA(cycle_lengths[size-1], 2500, 1);
      }
-     
+
      void TestEadDetection() throw (Exception)
      {
         //this file contains 4 Aps
@@ -224,16 +224,16 @@ public:
             times[i] = i;
         }
         ead_file.close();
-        
+
         double threshold = -40;
         CellProperties  cell_properties(voltages, times, threshold);
-        
+
         //first, we calculate how many full Aps we have here
         std::vector<double> apds = cell_properties.GetAllActionPotentialDurations(90);
         unsigned size = apds.size();
-        //there should be 4 aps in this file      
+        //there should be 4 aps in this file
         TS_ASSERT_EQUALS(size,4u);
-        
+
         std::vector<unsigned> above_threshold_depo = cell_properties.GetNumberOfAboveThresholdDepolarisationsForAllAps();
         //first AP has just a notch
         TS_ASSERT_EQUALS(above_threshold_depo[0],1u);
@@ -243,7 +243,7 @@ public:
         TS_ASSERT_EQUALS(above_threshold_depo[2],3u);
         //fourth AP has monotonous repolarisation
         TS_ASSERT_EQUALS(above_threshold_depo[3],0u);
-        
+
         unsigned number_of_changes_for_last_ap = cell_properties.GetNumberOfAboveThresholdDepolarisationsForLastAp();
         TS_ASSERT_EQUALS(number_of_changes_for_last_ap, above_threshold_depo[size-1]);
      }

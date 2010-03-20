@@ -84,7 +84,7 @@ protected:
     #define COVERAGE_IGNORE
     /**
      * Hack for dynamic mixin.
-     * 
+     *
      * @param matrixIsConstant defaults to true
      */
     virtual void SetMatrixIsConst(bool matrixIsConstant=true)
@@ -240,7 +240,7 @@ protected:
      * overloaded in the concrete assembler class if there is any work to be done
      * before assembling, for example integrating ODEs such as in the Monodomain
      * assembler.
-     * 
+     *
      * @param currentSolutionOrGuess
      * @param currentTime
      */
@@ -250,7 +250,7 @@ protected:
     /**
      * This method is called at the end of AssembleSystem() and should be overloaded
      * in the concrete assembler class if there is any further work to be done.
-     * 
+     *
      * @param currentSolutionOrGuess
      * @param currentTime
      */
@@ -260,7 +260,7 @@ protected:
     /**
      * Can be overloaded if the user needs to edit the linear system after the boundary
      * conditions have been added but before it is solved.
-     * 
+     *
      * @param currentSolutionOrGuess
      * @param currentTime
      * @param assembleVector
@@ -271,7 +271,7 @@ protected:
 
     /**
      * This method is called by AssembleSystem to apply Dirichlet conditions to the system.
-     * 
+     *
      * @param currentSolutionOrGuess
      * @param applyToMatrix
      */
@@ -299,7 +299,7 @@ protected:
 
     /**
      * Perform any initialisation needed before a sequence of StaticSolve calls.
-     * 
+     *
      * @param initialGuess an initial guess
      */
     virtual void InitialiseForSolve(Vec initialGuess)=0;
@@ -309,8 +309,8 @@ public:
      * Accessor method that subclasses can use to get to useful data.
      */
     virtual LinearSystem** GetLinearSystem()=0;
-    
-protected:   
+
+protected:
     /**
      * Accessor method that subclasses can use to get to useful data.
      */
@@ -339,7 +339,7 @@ public:
 
     /**
      * Set the boundary conditions.
-     * 
+     *
      * @param pBoundaryConditions pointer to a BoundaryConditionsContainer
      */
     void SetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBoundaryConditions);
@@ -366,7 +366,7 @@ public:
      * The concrete subclass can overload this and ResetInterpolatedQuantities()
      * if there are some quantities which need to be computed at each Gauss point.
      * They are called in AssembleOnElement().
-     * 
+     *
      * @param phiI
      * @param pNode pointer to a node
      */

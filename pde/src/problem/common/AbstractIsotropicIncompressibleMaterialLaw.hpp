@@ -51,9 +51,9 @@ protected :
 
     /**
      * Get the first derivative dW/dI1.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -61,9 +61,9 @@ protected :
 
     /**
      * Get the first derivative dW/dI2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -71,9 +71,9 @@ protected :
 
     /**
      * Get the second derivative d^2W/dI1^2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -81,9 +81,9 @@ protected :
 
     /**
      * Get the second derivative d^2W/dI2^2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -91,13 +91,13 @@ protected :
 
     /**
      * Get the second derivative d^2W/dI1dI2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
-    virtual double Get_d2W_dI1I2(double I1, double I2)=0;    
+    virtual double Get_d2W_dI1I2(double I1, double I2)=0;
 
 public :
 
@@ -141,8 +141,8 @@ public :
      *  this is equal to 2*Get_dW_dI1(3,3) + 4*Get_dW_dI2(3,3) in 3D
      */
     double GetZeroStrainPressure();
-    
-    
+
+
     /**
      *  See documentation in AbstractIncompressibleMaterialLaw.
      *  Isotropic materials have no preferred directions so this method does not
@@ -152,7 +152,7 @@ public :
     void SetChangeOfBasisMatrix(c_matrix<double,DIM,DIM>& rChangeOfBasisMatrix)
     {
     }
-    
+
 };
 
 #endif /*ABSTRACTISOTROPICINCOMPRESSIBLEMATERIALLAW_HPP_*/

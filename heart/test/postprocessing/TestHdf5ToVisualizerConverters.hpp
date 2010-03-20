@@ -79,7 +79,7 @@ public :
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         // convert
         HeartConfig::Instance()->SetOutputDirectory("TestHdf5ToMeshalyzerConverter");
         Hdf5ToMeshalyzerConverter<1,1> converter("TestHdf5ToMeshalyzerConverter", "MonodomainLR91_1d", &mesh);

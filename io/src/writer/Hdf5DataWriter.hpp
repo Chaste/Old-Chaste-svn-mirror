@@ -98,7 +98,7 @@ public:
      * @param rBaseName  the name of the file in which to write the data
      * @param cleanDirectory  whether to clean the directory (defaults to true)
      * @param extendData  whether to try opening an existing file and appending to it.
-     * 
+     *
      * The extendData parameter allows us to add to an existing dataset.  It only really makes
      * sense if the existing file has an unlimited dimension which we can extend.  It also only
      * makes sense if cleanDirectory is false, otherwise there won't be a file there to read...
@@ -192,11 +192,11 @@ public:
      * Close any open files.
      */
     void Close();
-    
+
     /**
-     * Get the id of the given variable, the variable must already 
+     * Get the id of the given variable, the variable must already
      * exist or an exception will be thrown.
-     * 
+     *
      * @param rVariableName  variable name to look up
      * @return  HDF5 id for the given variable.
      */

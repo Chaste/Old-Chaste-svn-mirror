@@ -46,20 +46,20 @@ VertexMesh3d::VertexMesh3d(std::vector<Node<3>*> nodes,
     }
     for (unsigned face_index=0; face_index<faces.size(); face_index++)
     {
-    	VertexElement<2,3>* p_temp_face = faces[face_index];
+        VertexElement<2,3>* p_temp_face = faces[face_index];
         mFaces.push_back(p_temp_face);
     }
 
     for (unsigned elem_index=0; elem_index<vertexElements.size(); elem_index++)
     {
-		VertexElement3d* p_temp_vertex_element = vertexElements[elem_index];
-		mElements.push_back(p_temp_vertex_element);
-	}
+        VertexElement3d* p_temp_vertex_element = vertexElements[elem_index];
+        mElements.push_back(p_temp_vertex_element);
+    }
 
     // Register elements with nodes
     for (unsigned index=0; index<mElements.size(); index++)
     {
-    	VertexElement3d* p_temp_vertex_element = mElements[index];
+        VertexElement3d* p_temp_vertex_element = mElements[index];
         for (unsigned node_index=0; node_index<p_temp_vertex_element->GetNumNodes(); node_index++)
         {
             Node<3>* p_temp_node = p_temp_vertex_element->GetNode(node_index);
@@ -108,16 +108,16 @@ unsigned VertexMesh3d::SolveBoundaryElementMapping(unsigned index) const
 
 void VertexMesh3d::Clear()
 {
-	for (unsigned i=0; i<mElements.size(); i++)
+    for (unsigned i=0; i<mElements.size(); i++)
     {
         delete mElements[i];
     }
-	for (unsigned i=0; i<mFaces.size(); i++)
-	{
-		delete mFaces[i];
-	}
+    for (unsigned i=0; i<mFaces.size(); i++)
+    {
+        delete mFaces[i];
+    }
 
-	for (unsigned i=0; i<this->mNodes.size(); i++)
+    for (unsigned i=0; i<this->mNodes.size(); i++)
     {
         delete this->mNodes[i];
     }
@@ -175,7 +175,7 @@ double VertexMesh3d::GetSurfaceAreaOfElement(unsigned index)
 
     for (unsigned local_index=0; local_index<num_faces_in_element; local_index++)
     {
-    	element_surface_area += GetAreaOfFace(p_element->GetFace(local_index)->GetIndex());
+        element_surface_area += GetAreaOfFace(p_element->GetFace(local_index)->GetIndex());
     }
 
     return element_surface_area;

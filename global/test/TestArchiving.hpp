@@ -325,75 +325,75 @@ public:
     }
 
     void TestArchivingBoostSharedPtrToChild() throw (Exception)
-	{
-		OutputFileHandler handler("archive",false);
-		std::string archive_filename;
-		archive_filename = handler.GetOutputDirectoryFullPath() + "shared_ptr.arch";
+    {
+        OutputFileHandler handler("archive",false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "shared_ptr.arch";
 
-		// Save
-		{
-			// Create an output archive
-			std::ofstream ofs(archive_filename.c_str());
-			boost::archive::text_oarchive output_arch(ofs);
+        // Save
+        {
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
 
-			boost::shared_ptr<ChildClass> p_child(new ChildClass);
+            boost::shared_ptr<ChildClass> p_child(new ChildClass);
 
-			p_child->mTag = 11;
-			p_child->mTagInBaseClass = 3;
+            p_child->mTag = 11;
+            p_child->mTagInBaseClass = 3;
 
-			boost::shared_ptr<ChildClass> const p_child_for_archiving = p_child;
+            boost::shared_ptr<ChildClass> const p_child_for_archiving = p_child;
 
-			output_arch << p_child_for_archiving;
-		}
+            output_arch << p_child_for_archiving;
+        }
 
-		// Load
-		{
-			// Create an input archive
-			std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-			boost::archive::text_iarchive input_arch(ifs);
+        // Load
+        {
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
 
-			boost::shared_ptr<ChildClass> p_child;
+            boost::shared_ptr<ChildClass> p_child;
 
-			input_arch >> p_child;
+            input_arch >> p_child;
 
-			TS_ASSERT_EQUALS(p_child->mTag, 11u);
-			TS_ASSERT_EQUALS(p_child->mTagInBaseClass, 3u);
-		}
-	}
+            TS_ASSERT_EQUALS(p_child->mTag, 11u);
+            TS_ASSERT_EQUALS(p_child->mTagInBaseClass, 3u);
+        }
+    }
 
 
     void TestArchivingBoostSharedPtrToChildUsingBaseClass() throw (Exception)
-	{
-		OutputFileHandler handler("archive", false);
-		std::string archive_filename;
-		archive_filename = handler.GetOutputDirectoryFullPath() + "shared_ptr_abs.arch";
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "shared_ptr_abs.arch";
 
-		// Save
-		{
-			// Create an output archive
-			std::ofstream ofs(archive_filename.c_str());
-			boost::archive::text_oarchive output_arch(ofs);
+        // Save
+        {
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
 
-			boost::shared_ptr<BaseClass> p_base(new ChildClass());
+            boost::shared_ptr<BaseClass> p_base(new ChildClass());
 
-			p_base->mTagInBaseClass = 6;
+            p_base->mTagInBaseClass = 6;
 
-			output_arch << p_base;
-		}
+            output_arch << p_base;
+        }
 
-		// Load
-		{
-			// Create an input archive
-			std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-			boost::archive::text_iarchive input_arch(ifs);
+        // Load
+        {
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
 
-			boost::shared_ptr<BaseClass> p_base;
+            boost::shared_ptr<BaseClass> p_base;
 
-			input_arch >> p_base;
+            input_arch >> p_base;
 
-			TS_ASSERT_EQUALS(p_base->mTagInBaseClass, 6u);
-		}
-	}
+            TS_ASSERT_EQUALS(p_base->mTagInBaseClass, 6u);
+        }
+    }
 };
 
 

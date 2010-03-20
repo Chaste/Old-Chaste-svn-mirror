@@ -72,7 +72,7 @@ private:
     std::vector< boost::shared_ptr<SimpleStimulus> > mpStimuli;
     /** Width (x-width) of mesh*/
     double mMeshWidth;
-    /** Step size of mesh is derived from the width and the number of elements across*/ 
+    /** Step size of mesh is derived from the width and the number of elements across*/
     double mStepSize;
     /** The number of stimulated levels covering 0 <= x < mMeshWidth/4.
      * Note that the nodes on the quarter level are not included and are unstimulated
@@ -93,15 +93,15 @@ public:
     {
         assert(numElemAcross%4 == 0); //numElemAcross is supposed to be a multiple of 4
         double full_stim=-1000000;
-        
+
         for (unsigned level=0; level<mLevels; level++)
         {
             double this_stim=full_stim - (level*full_stim)/mLevels;
-            //this_stim is full_stim at the zero level and would be zero at level=mLevels  
+            //this_stim is full_stim at the zero level and would be zero at level=mLevels
             mpStimuli.push_back((boost::shared_ptr<SimpleStimulus>)new SimpleStimulus(this_stim, 0.5));
         }
     }
-        
+
 
     /**
      * Create cell model
@@ -114,7 +114,7 @@ public:
         double d_level=x/mStepSize;
         unsigned level=(unsigned) d_level;
         assert(fabs(level-d_level) < DBL_MAX); //x ought to really be a multiple of the step size
-        
+
         if (level < mLevels)
         {
             return new CELL(this->mpSolver, this->mpStimuli[level]);

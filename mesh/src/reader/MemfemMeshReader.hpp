@@ -80,7 +80,7 @@ public:
      * The constructor takes the base name of a set of Memfem
      * mesh files (ie. the path and name of the files without the suffices)
      * and allows the data to be queried.
-     * 
+     *
      * Typical use:
      *    AbstractMeshReader* pMeshReader = new MemfemMeshReader("pdes/tests/meshdata/Memfem_slab");
      *

@@ -40,7 +40,7 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(C
     c_vector<double,SPACE_DIM> grad_one_over_r = - (r_vector)*SmallPow( (1/norm_2(r_vector)) , 3);
     matrix_row<c_matrix<double, PROBLEM_DIM, SPACE_DIM> > grad_u_row(rGradU, 0);
     double integrand = inner_prod(grad_u_row, grad_one_over_r);
-    
+
     return -mDiffusionCoefficient*integrand;
 }
 
@@ -80,7 +80,7 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetDiffusionCoeff
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputePseudoEcgAtOneTimeStep (unsigned timeStep)
 {
-    Vec solution_at_one_time_step = PetscTools::CreateVec(mNumberOfNodes);           
+    Vec solution_at_one_time_step = PetscTools::CreateVec(mNumberOfNodes);
     mpDataReader->GetVariableOverNodes(solution_at_one_time_step, mVariableName , timeStep);
 
     double pseudo_ecg_at_one_timestep = Calculate(mrMesh, solution_at_one_time_step);

@@ -63,28 +63,28 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
     {
         EXCEPTION("You are asking to delete a file and then extend it, change arguments to constructor.");
     }
-    
+
     if (extendData)
     {
         // Where to find the file
         OutputFileHandler output_file_handler(mDirectory, false);
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
         std::string file_name = results_dir + mBaseName + ".h5";
-        
+
         // Set up a property list saying how we'll open the file
         hid_t property_list_id = H5Pcreate(H5P_FILE_ACCESS);
         H5Pset_fapl_mpio(property_list_id, PETSC_COMM_WORLD, MPI_INFO_NULL);
-    
+
         // Open the file and free the property list
         mFileId = H5Fopen(file_name.c_str(), H5F_ACC_RDWR, property_list_id);
         H5Pclose(property_list_id);
-        
+
         if (mFileId < 0)
         {
             mDatasetId = 0;
             EXCEPTION("Hdf5DataWriter could not open " + file_name);
         }
-        
+
         // Open the main dataset, and figure out its size/shape
         mDatasetId = H5Dopen(mFileId, "Data");
         hid_t variables_dataspace = H5Dget_space(mDatasetId);
@@ -108,7 +108,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         mFileFixedDimensionSize = mDatasetDims[1];
         mIsFixedDimensionSet = true;
         mVariables.reserve(mDatasetDims[2]);
-        
+
         // Figure out what the variables are
         hid_t attribute_id = H5Aopen_name(mDatasetId, "Variable Details");
         hid_t attribute_type  = H5Aget_type(attribute_id);
@@ -139,7 +139,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         H5Tclose(attribute_type);
         H5Sclose(attribute_space);
         H5Aclose(attribute_id);
-        
+
         // Now deal with time
         mUnlimitedDimensionName = "Time"; // Assumed by the reader...
         mTimeDatasetId = H5Dopen(mFileId, mUnlimitedDimensionName.c_str());
@@ -150,7 +150,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         H5Sget_simple_extent_dims(timestep_dataspace, &num_timesteps, NULL);
         H5Sclose(timestep_dataspace);
         mCurrentTimeStep = (long)num_timesteps - 1;
-        
+
         // Incomplete data?
         mIsDataComplete = true; ///\todo
         if (mIsDataComplete)
@@ -164,7 +164,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
             // Incomplete data
             //mIncompleteNodeIndices
         }
-        
+
         // Done!
         AdvanceAlongUnlimitedDimension();
         mIsInDefineMode = false;
@@ -702,7 +702,7 @@ int Hdf5DataWriter::GetVariableByName(const std::string& rVariableName)
     }
     if (id == -1)
     {
-        EXCEPTION("Variable does not exist in hdf5 definitions.");   
-    }        
+        EXCEPTION("Variable does not exist in hdf5 definitions.");
+    }
     return id;
 }

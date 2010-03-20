@@ -170,7 +170,7 @@ void BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatr
         Vec existingSolution)
 {
     DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
-    
+
     // dist stripe for the current Voltage
     DistributedVector distributed_current_solution = p_factory->CreateDistributedVector(existingSolution);
     DistributedVector::Stripe distributed_current_solution_vm(distributed_current_solution, 0);

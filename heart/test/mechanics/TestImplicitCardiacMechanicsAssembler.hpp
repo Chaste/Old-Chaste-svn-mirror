@@ -179,7 +179,7 @@ public:
         // solve for quite a long time to get some deformation
         assembler.Solve(0,10,1);
 
-        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 8u); // hardcoded 8, this check is to make sure the jac is correctly computed 
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 8u); // hardcoded 8, this check is to make sure the jac is correctly computed
 
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 24 is the top-right corner node,
@@ -246,20 +246,20 @@ public:
             // NOTE: test hardcoded for num_elem = 4
             QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
             MooneyRivlinMaterialLaw<2> law(0.02);
-    
+
             // need to leave the mesh as unfixed as possible
             std::vector<unsigned> fixed_nodes(2);
             fixed_nodes[0] = 0;
             fixed_nodes[1] = 1; // was 5 in the above test, {0,1}=small part of X=0 surface, {0,5}=small part of Y=0 surface
-    
+
             ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirection",fixed_nodes,&law);
-            
+
             if(run==1)
             {
                 c_matrix<double,2,2> non_orthogonal_mat = zero_matrix<double>(2,2);
                 non_orthogonal_mat(0,0) = 1.0;
                 TS_ASSERT_THROWS_CONTAINS(assembler.SetConstantFibreSheetDirections(non_orthogonal_mat), "not orthogonal");
-        
+
                 // ortho matrix = [0 1; 1 0], ie fibres in Y direction
                 c_matrix<double,2,2> ortho_matrix = zero_matrix<double>(2,2);
                 ortho_matrix(0,1) = 1.0;
@@ -273,9 +273,9 @@ public:
                 TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("heart/test/data/bad_4by4mesh_fibres.ortho"), "Error occurred when reading file");
                 assembler.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho");
             }
-            
+
             QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
-    
+
             std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints());
             for(unsigned i=0; i<calcium_conc.size(); i++)
             {
@@ -284,22 +284,22 @@ public:
                 // value in one of the Lr91 TestIonicModel tests
                 calcium_conc[i] = 0.0002 + 0.001*X;
             }
-    
+
             std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
             assembler.SetCalciumAndVoltage(calcium_conc, voltages);
-    
+
             // solve for quite a long time to get some deformation
             assembler.Solve(0,10,1);
-    
-            TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 8u); // hardcoded 8, this check is to make sure the jac is correctly computed 
-    
+
+            TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 8u); // hardcoded 8, this check is to make sure the jac is correctly computed
+
             // have visually checked the answer and seen that it looks ok, so have
             // a hardcoded test here. Node that 24 is the top-right corner node,
             TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 0.9413, 1e-3);
             TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 1.0582, 1e-3);
-    
+
             std::vector<double>& lambda = assembler.rGetFibreStretches();
-    
+
             // the lambdas should be less than 1 (ie compression), and also
             // should be near the same for any particular value of Y, ie the
             // same along any fibre. Lambda should decrease nonlinearly.
@@ -310,7 +310,7 @@ public:
             for(unsigned i=0; i<lambda.size(); i++)
             {
                 TS_ASSERT_LESS_THAN(lambda[i], 1.0);
-    
+
                 // Get the value of X for the point
                 double X = quad_points.Get(i)(0);
                 // Lambda should be near a value obtained by fitting a
@@ -327,7 +327,7 @@ public:
                 //  hold on
                 //  plot(yy,fit,'r')
                 double lam_fit = -0.026920*X*X*X + 0.066128*X*X - 0.056929*X + 0.978174;
-    
+
                 if(X>0.6)
                 {
                     double error = 0.0004;
@@ -338,11 +338,11 @@ public:
                     double error = 0.0021;      // **slightly increased the tolerance - attributing the difference in results to the fact mesh isn't rotation-invariant
                     TS_ASSERT_DELTA(lambda[i], lam_fit, error);
                 }
-    
+
                 //// don't delete:
                 //std::cout << quad_points.Get(i)(0) << " " << quad_points.Get(i)(1) << " " << lambda[i] << "\n";
             }
-    
+
             // hardcoded test
             TS_ASSERT_DELTA(lambda[34], 0.9691, 1e-4);  // ** different value to previous test - attributing the difference in results to the fact mesh isn't rotation-invariant
         }
@@ -350,7 +350,7 @@ public:
 
 
 
-    // cover all other contraction model options which are allowed but not been used in a test 
+    // cover all other contraction model options which are allowed but not been used in a test
     // so far (or in TestExplicitCardiacMechanicsAssembler)
     void TestCoverage() throw(Exception)
     {
@@ -369,19 +369,19 @@ public:
 
 
 //    //
-//    // This test compares the implicit solver with the old dead explicit solver in 
-//    // dealii. It was written before the explicit chaste solver. It fails in parallel and 
-//    // can be deleted really, but I'm keeping it here (without ever running it) precisely 
+//    // This test compares the implicit solver with the old dead explicit solver in
+//    // dealii. It was written before the explicit chaste solver. It fails in parallel and
+//    // can be deleted really, but I'm keeping it here (without ever running it) precisely
 //    // because of the strange behaviour in parallel.
 //    //
-//    // This passes in sequential and fails in parallel (newton failing to converge), and 
+//    // This passes in sequential and fails in parallel (newton failing to converge), and
 //    // appears to be because of the first linear system not being solved correctly in parallel.
 //    // In sequential 75 iters are reported on the linear system, in parallel 10000 iters (the max)
-//    // are reported (but no divergence reported?!) (using PCBJACOBI). So something bad goes 
+//    // are reported (but no divergence reported?!) (using PCBJACOBI). So something bad goes
 //    // wrong in parallel. In fact, with PCJACOBI, 10000 iters are reported for sequential.
-//    // It seems to be related to the fixed nodes: changing the fixed nodes from the 5 set below 
+//    // It seems to be related to the fixed nodes: changing the fixed nodes from the 5 set below
 //    // to the entire X=0 edge makes it runs in sequential (~60 iters PCBJACOBI) and parallel
-//    // (~400 iters PCBJACOBI).  
+//    // (~400 iters PCBJACOBI).
 //    //
 //    void strangefailingbehaviourinparallelTestCompareWithDeadExplicitSolver() throw(Exception)
 //    {

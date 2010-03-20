@@ -53,14 +53,14 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initial
 
     if (HeartConfig::Instance()->GetUseAbsoluteTolerance())
     {
-#ifdef TRACE_KSP        
+#ifdef TRACE_KSP
         std::cout << "Using absolute tolerance: " << mpConfig->GetAbsoluteTolerance() <<"\n";
 #endif
         this->mpLinearSystem->SetAbsoluteTolerance(mpConfig->GetAbsoluteTolerance());
     }
     else
     {
-#ifdef TRACE_KSP        
+#ifdef TRACE_KSP
         std::cout << "Using relative tolerance: " << mpConfig->GetRelativeTolerance() <<"\n";
 #endif
         this->mpLinearSystem->SetRelativeTolerance(mpConfig->GetRelativeTolerance());
@@ -70,13 +70,13 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initial
     this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
 
     if (mRowForAverageOfPhiZeroed==INT_MAX)
-    {   
-        // not applying average(phi)=0 constraint, so matrix is symmetric     
+    {
+        // not applying average(phi)=0 constraint, so matrix is symmetric
         this->mpLinearSystem->SetMatrixIsSymmetric(true);
     }
     else
-    {    
-        // applying average(phi)=0 constraint, so matrix is not symmetric      
+    {
+        // applying average(phi)=0 constraint, so matrix is not symmetric
         this->mpLinearSystem->SetMatrixIsSymmetric(false);
     }
 }
@@ -208,7 +208,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Vec BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::GenerateNullBasis() const
 {
     double sqrt_num_nodes = sqrt((double) this->mpMesh->GetNumNodes());
-    
+
     Vec nullbasis;
     DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
     nullbasis=p_factory->CreateVec(2);
@@ -220,11 +220,11 @@ Vec BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::GenerateNullBasis() const
          ++index)
     {
         null_basis_stripe_0[index] = 0.0;
-        null_basis_stripe_1[index] = 1.0/sqrt_num_nodes; // normalised vector        
+        null_basis_stripe_1[index] = 1.0/sqrt_num_nodes; // normalised vector
     }
     dist_null_basis.Restore();
-    
-    return nullbasis;    
+
+    return nullbasis;
 }
 
 
@@ -239,9 +239,9 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec exi
             // We're not using the 'Average phi_e = 0' method, hence use a null space
             if (!mNullSpaceCreated)
             {
-                // No null space set up, so create one and pass it to the linear system                
+                // No null space set up, so create one and pass it to the linear system
                 Vec nullbasis[] = {GenerateNullBasis()};
-                
+
                 this->mpLinearSystem->SetNullBasis(nullbasis, 1);
 
                 VecDestroy(nullbasis[0]);
@@ -251,11 +251,11 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec exi
         else
         {
             // mRowForAverageOfPhiZeroed!=INT_MAX, i.e. we're using the 'Average phi_e = 0' method
-            
+
             // CG (default solver) won't work since the system isn't symmetric anymore. Switch to GMRES
             this->mpLinearSystem->SetKspType("gmres"); // Switches the solver
-            mpConfig->SetKSPSolver("gmres"); // Makes sure this change will be reflected in the XML file written to disk at the end of the simulation.            
-            
+            mpConfig->SetKSPSolver("gmres"); // Makes sure this change will be reflected in the XML file written to disk at the end of the simulation.
+
             // Set average phi_e to zero
             unsigned matrix_size = this->mpLinearSystem->GetSize();
             if (!this->mMatrixIsAssembled)
@@ -271,7 +271,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec exi
                     {
                         this->mpLinearSystem->SetMatrixElement(mRowForAverageOfPhiZeroed, col_index, 1);
                     }
-                    
+
                 }
                 this->mpLinearSystem->AssembleFinalLhsMatrix();
 
@@ -288,7 +288,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::FinaliseAssembleSystem(Vec exi
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
-{    
+{
     if (this->mpBoundaryConditions->HasDirichletBoundaryConditions() || mRowForAverageOfPhiZeroed!=INT_MAX )
     {
         // not a singular system, no compability condition
@@ -303,7 +303,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
     {
         sum += rep[i];
     }
-    
+
     if(fabs(sum)>1e-6) // magic number! sum should really be a sum of zeros and exactly zero though anyway (or a-a+b-b+c-c.. etc in the case of electrodes)
     {
         #define COVERAGE_IGNORE
@@ -365,7 +365,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SetFixedExtracellularPotential
 
     // We will need to recalculate this when HasDirichletBoundaryConditions() is called.
     this->mpBoundaryConditions->ResetDirichletCommunication();
-    
+
     for (unsigned i=0; i<mFixedExtracellularPotentialNodes.size(); i++)
     {
         if (this->mpMesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(mFixedExtracellularPotentialNodes[i]))
@@ -377,7 +377,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::SetFixedExtracellularPotential
             Node<SPACE_DIM>* p_node = this->mpMesh->GetNode(mFixedExtracellularPotentialNodes[i]);
 
             this->mpBoundaryConditions->AddDirichletBoundaryCondition(p_node, p_boundary_condition, 1);
-            
+
         }
     }
 }

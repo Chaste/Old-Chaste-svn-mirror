@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class RungeKutta4IvpOdeSolver : public AbstractOneStepIvpOdeSolver
 {
 private:
-    
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -56,7 +56,7 @@ private:
         // This calls serialize on the base class.
         archive & boost::serialization::base_object<AbstractOneStepIvpOdeSolver>(*this);
     }
-    
+
 protected:
 
     /**

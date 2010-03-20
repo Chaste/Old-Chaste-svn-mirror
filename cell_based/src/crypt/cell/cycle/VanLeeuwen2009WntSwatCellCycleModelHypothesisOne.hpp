@@ -47,33 +47,33 @@ private:
     }
 
 public:
-	/**
-	 *  Default constructor calls base class
-	 */
-	VanLeeuwen2009WntSwatCellCycleModelHypothesisOne()
-		: AbstractVanLeeuwen2009WntSwatCellCycleModel()
-	{
-	}
+    /**
+     *  Default constructor calls base class
+     */
+    VanLeeuwen2009WntSwatCellCycleModelHypothesisOne()
+        : AbstractVanLeeuwen2009WntSwatCellCycleModel()
+    {
+    }
 
-	/**
-	 *  Extra constructor for archiving.
-	 */
-	VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(const std::vector<double>& rParentProteinConcentrations,
+    /**
+     *  Extra constructor for archiving.
+     */
+    VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(const std::vector<double>& rParentProteinConcentrations,
                                                      boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                                      const unsigned& rDimension);
 
-	/**
-	 *  Overloaded method which allocates the ode system using HYPOTHESIS ONE
-	 *
+    /**
+     *  Overloaded method which allocates the ode system using HYPOTHESIS ONE
+     *
      *  @param wntConcentration Wnt concentration
      *  @param pMutationState Mutation state
-	 */
-	void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)
+     */
+    void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)
     {
-    	mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(1, wntConcentration,  pMutationState);
+        mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(1, wntConcentration,  pMutationState);
     }
 
-	/**
+    /**
      * Overridden builder method to create new copies of
      * this cell cycle model.
      */

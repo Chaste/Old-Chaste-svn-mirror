@@ -53,7 +53,7 @@ private:
 public:
     //Pdetime step is (by default) 0.01
     //Odetime step set below to 0.01 as backward Euler should be stable
-    BidomainFaceStimulusCellFactory() 
+    BidomainFaceStimulusCellFactory()
         : AbstractCardiacCellFactory<3>(),
           mpStimulus(new SimpleStimulus(-900.0*1000, 0.5)),
           mpRegStimulus(new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0))

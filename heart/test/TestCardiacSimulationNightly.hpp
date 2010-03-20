@@ -44,62 +44,62 @@ public:
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/base_bidomain.xml");
         std::string foldername = "BaseBidomainNightly/";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "base_bidomain_results", false,
-                   foldername, "SimulationResults", true)); 
+                   foldername, "SimulationResults", true));
     }
-    
+
     void TestCardiacSimulationBasicMonodomain() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain.xml");
         std::string foldername = "BaseMonodomainNightly/";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "base_monodomain_results", false,
-                   foldername, "SimulationResults", true)); 
+                   foldername, "SimulationResults", true));
     }
-    
+
     void TestCardiacSimulationPostprocessMonodomain() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/postprocess_monodomain.xml");
         std::string foldername = "PostprocessMonodomainNightly/";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "postprocess_monodomain_results", false,
-                   foldername, "SimulationResults", true)); 
+                   foldername, "SimulationResults", true));
     }
-    
+
     void TestCardiacSimulationSaveBidomain() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/save_bidomain.xml");
         std::string foldername = "SaveBidomainNightly";
-        
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "save_bidomain_results", false,
-                   foldername, "SimulationResults", true)); 
-                   
-        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/10ms/" + foldername + "_10ms/archive.arch.0"; 
+                   foldername, "SimulationResults", true));
+
+        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/10ms/" + foldername + "_10ms/archive.arch.0";
         int return_value = system(command.c_str());
-        TS_ASSERT_EQUALS(return_value,0); 
+        TS_ASSERT_EQUALS(return_value,0);
     }
-    
+
     void TestCardiacSimulationSaveMonodomain() throw(Exception)
     {
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/save_monodomain.xml");
         std::string foldername = "SaveMonodomainNightly";
 
-        // compare the files, using the CompareFilesViaHdf5DataReader() method  
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "save_monodomain_results", false,
                    foldername, "SimulationResults", true));
-                    
-        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/10ms/" + foldername + "_10ms/archive.arch.0"; 
+
+        std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/10ms/" + foldername + "_10ms/archive.arch.0";
         int return_value = system(command.c_str());
-        TS_ASSERT_EQUALS(return_value,0); 
+        TS_ASSERT_EQUALS(return_value,0);
     }
 };
 

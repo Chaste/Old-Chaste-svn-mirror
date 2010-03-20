@@ -54,11 +54,11 @@ public:
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "ProgressReporter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "progress_status.txt  global/test/data/good_progress_status.txt").c_str()), 0);
     }
-    
+
     void TestBarCleansFilesUpAfterException()
     {
         double smidge = 1e-8;
-        
+
         {
             ProgressReporter progress_bar("ProgressReporterException", 1.0, 10.0);
             try
@@ -78,7 +78,7 @@ public:
         //File should now be closed since  progress_bar is out of scope
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "ProgressReporterException/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "progress_status.txt  global/test/data/bad_progress_status.txt").c_str()), 0);
-    }             
+    }
 };
 
 #endif /*TESTPROGRESSREPORTER_HPP_*/

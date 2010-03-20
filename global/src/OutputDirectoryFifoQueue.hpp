@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  This is a helper class to handle a FIFO collection of subdirectories.
- * 
+ *
  *  All the subdirectories will be created inside a base directory provided
  * in the constructor. The maximum number of concurrent subdirectories is
  * specified in the the constructor. Once this number is reached, the next
@@ -45,22 +45,22 @@ class OutputDirectoryFifoQueue
 private:
     std::string mBaseDirectory; /**< Base directory for all the subdirectories to be created. */
     unsigned mQueueMaxSize; /**< Maximum number of subdirectories*/
-    std::queue<std::string> mQueue;  /**<The queue of names of subdirectories currently on the disk*/  
-    
+    std::queue<std::string> mQueue;  /**<The queue of names of subdirectories currently on the disk*/
+
 public:
 
     /**
      * Constructor
-     * 
+     *
      * @param rBaseDirectory base directory for all the subdirectories to be created
      * @param queueMaxSize maximum number of subdirectories
      */
     OutputDirectoryFifoQueue(const std::string& rBaseDirectory, unsigned queueMaxSize);
-    
+
     /**
      * Creates a subdirectory called rSubdirectoryName deleting the oldest subdirectory
      * if the maximum number has been reached.
-     * 
+     *
      * @note Must be called collectively.
      *
      * @param rSubdirectoryName subdirectory name

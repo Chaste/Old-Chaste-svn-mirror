@@ -66,7 +66,7 @@ bool AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Has
         }
         mHasDirichletBCs = PetscTools::ReplicateBool(i_have_dirichlet);
         mCheckedAndCommunicatedIfDirichletBcs = true;
-    }   
+    }
     return mHasDirichletBCs;
 }
 
@@ -92,7 +92,7 @@ void AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Del
             mpDirichletMap[i] = NULL;
         }
     }
-    
+
     // Recommunicate that Dirichlet BCs have changed (next time we ask)
     ResetDirichletCommunication();
 }

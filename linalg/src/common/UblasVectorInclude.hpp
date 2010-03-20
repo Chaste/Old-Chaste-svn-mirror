@@ -29,10 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define UBLASVECTORINCLUDE_HPP_
 
 /**
- * @file 
+ * @file
  * Convenience header for including ublas vector in default namespace
  */
- 
+
 #include <boost/numeric/ublas/vector.hpp>
 
 using namespace boost::numeric::ublas;

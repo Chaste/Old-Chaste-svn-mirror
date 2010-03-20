@@ -49,14 +49,14 @@ public:
 
     /**
      * The function c(x) in "c(x) du/dt = Grad.(DiffusionTerm(x)*Grad(u))+LinearSourceTerm(x)+NonlinearSourceTerm(x, u)"
-     * 
+     *
      * @param rX the point in space at which the function c is computed
      */
     virtual double ComputeDuDtCoefficientFunction(const ChastePoint<SPACE_DIM>& rX)=0;
 
     /**
      * Compute nonlinear source term.
-     * 
+     *
      * @param rX the point in space at which the nonlinear source term is computed
      * @param u the value of the dependent variable at the point
      */
@@ -64,7 +64,7 @@ public:
 
     /**
      * Compute nonlinear source term at a node.
-     * 
+     *
      * @param rNode the node at which the nonlinear source term is computed
      * @param u the value of the dependent variable at the node
      */
@@ -72,14 +72,14 @@ public:
 
     /**
      * Compute linear source term.
-     * 
+     *
      * @param rX the point in space at which the linear source term is computed
      */
     virtual double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& rX)=0;
 
     /**
      * Compute diffusion term.
-     * 
+     *
      * @param rX The point in space at which the diffusion term is computed.
      * @param pElement The mesh element that x is contained in (optional).
      * @return A matrix.
@@ -88,7 +88,7 @@ public:
 
     /**
      * Compute linear source term at a node.
-     * 
+     *
      * @param rNode the node at which the nonlinear source term is computed
      */
     virtual double ComputeLinearSourceTermAtNode(const Node<SPACE_DIM>& rNode);

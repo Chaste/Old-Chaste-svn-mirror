@@ -61,7 +61,7 @@ public:
     {
         pTester->Stimulus = stimulusType;
         HeartConfig::Instance()->SetUseAbsoluteTolerance(5e-4);
- 
+
         pTester->Converge("Automated_test");
         TS_ASSERT(pTester->Converged);
     }
@@ -133,7 +133,7 @@ public:
     {
         ConvergeInVarious(QUARTER);
     }
-    
+
 
     void TestFullActionPotential() throw(Exception)
     {
@@ -142,13 +142,13 @@ public:
         //Time steps are okay for giving a sensible upstroke
         tester.PdeTimeStep=0.1;
         tester.OdeTimeStep=0.1;
-        
+
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.IsConverged());
-        
-        ///Note that long plateau phase will force convergence to happen earlier 
+
+        ///Note that long plateau phase will force convergence to happen earlier
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
-        
+
         TS_ASSERT_DELTA(329.0, tester.Apd90FirstQn, 1.5);
         TS_ASSERT_DELTA(329.0, tester.Apd90ThirdQn, 1.5);
         TS_ASSERT_DELTA(0.0588, tester.ConductionVelocity, 1e-3);
@@ -162,13 +162,13 @@ public:
         tester.PdeTimeStep=0.1;
         tester.OdeTimeStep=0.1;
         tester.Stimulus = QUARTER;
-        
+
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.IsConverged());
-        
-        ///Note that long plateau phase will force convergence to happen earlier 
+
+        ///Note that long plateau phase will force convergence to happen earlier
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
-        
+
         TS_ASSERT_DELTA(329.0, tester.Apd90FirstQn, 1.5);
         TS_ASSERT_DELTA(329.0, tester.Apd90ThirdQn, 1.5);
         TS_ASSERT_DELTA(0.0588, tester.ConductionVelocity, 1e-3);
@@ -183,7 +183,7 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         //tester.SetKspAbsoluteTolerance(1e-3);
          HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);
-        
+
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
@@ -200,7 +200,7 @@ public:
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2, 2> tester;
         tester.Stimulus = QUARTER;
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);
-        
+
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
@@ -216,7 +216,7 @@ public:
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3, 2> tester;
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-3);
-        
+
         tester.RelativeConvergenceCriterion=4e-2;//Just to prove the thing works
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);

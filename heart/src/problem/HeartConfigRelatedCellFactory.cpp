@@ -65,7 +65,7 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
     {
         // No cell heterogeneities provided
     }
-    
+
     // Do we need to convert any CellML files?
     PreconvertCellmlFiles();
 }
@@ -288,12 +288,12 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
         std::string epi_surface = mesh_file_name + ".epi";
         std::string lv_surface = mesh_file_name + ".lv";
         std::string rv_surface = mesh_file_name + ".rv";
-        
-        
+
+
         //create the HeartGeometryInformation object
         //HeartGeometryInformation<3u> info(mesh, epi_surface, lv_surface, rv_surface, true);
         HeartGeometryInformation<3u> info(*(this->GetMesh()), epi_surface, lv_surface, rv_surface, true);
-        
+
         //We need the fractions of epi and endo layer supplied by the user
         double epi_fraction = HeartConfig::Instance()->GetEpiLayerFraction();
         double endo_fraction = HeartConfig::Instance()->GetEndoLayerFraction();
@@ -306,7 +306,7 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
         {
             heterogeneity_node_list.push_back(info.rGetLayerForEachNode()[index]);
         }
-        
+
         std::vector<Node<3u>*> epi_nodes;
         std::vector<Node<3u>*> mid_nodes;
         std::vector<Node<3u>*> endo_nodes;
@@ -337,39 +337,39 @@ void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
                         break;
                     }
                     default:
-                    NEVER_REACHED;  
+                    NEVER_REACHED;
                 }
             }
         }
         //assert((endo_nodes.size()+epi_nodes.size()+mid_nodes.size())==this->GetMesh()->GetNumNodes());
-        
-        // now the 3 list of pointer to nodes need to be pushed into the mCellHeterogeneityAreas vector, 
-        // IN THE ORDER PRESCRIBED BY THE USER IN THE XML FILE! 
+
+        // now the 3 list of pointer to nodes need to be pushed into the mCellHeterogeneityAreas vector,
+        // IN THE ORDER PRESCRIBED BY THE USER IN THE XML FILE!
         // This is because the corresponding scale factors are already read in that order.
-        
+
         //these three unsigned tell us in which order the user supplied each layer in the XML file
         unsigned user_supplied_epi_index = HeartConfig::Instance()->GetEpiLayerIndex();
         unsigned user_supplied_mid_index = HeartConfig::Instance()->GetMidLayerIndex();
         unsigned user_supplied_endo_index = HeartConfig::Instance()->GetEndoLayerIndex();
-        
+
         //these three should have been set to 0, 1 and 2 by HeartConfig::GetCellHeterogeneities
         assert(user_supplied_epi_index<3);
         assert(user_supplied_mid_index<3);
         assert(user_supplied_endo_index<3);
-        
+
         //pute them in a vector
         std::vector<unsigned> user_supplied_indices;
         user_supplied_indices.push_back(user_supplied_epi_index);
         user_supplied_indices.push_back(user_supplied_mid_index);
         user_supplied_indices.push_back(user_supplied_endo_index);
-        
+
         //figure out who goes first
-    
+
         //loop three times
         for (unsigned layer_index=0; layer_index<3; layer_index++)
         {
             unsigned counter = 0;
-            //find the corresponding index 
+            //find the corresponding index
             for (unsigned supplied_index = 0; supplied_index<user_supplied_indices.size(); supplied_index++)
             {
                 if (user_supplied_indices[supplied_index] == layer_index)

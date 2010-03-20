@@ -97,13 +97,13 @@ private:
         archive & mDoCacheReplication;
         archive & mDoOneCacheReplication;
         (*ProcessSpecificArchive<Archive>::Get()) & mpDistributedVectorFactory;
-        
+
         // Paranoia: check we agree with the mesh on who owns what
         assert(mpDistributedVectorFactory->GetLow()==mpMesh->GetDistributedVectorFactory()->GetLow());
         assert(mpDistributedVectorFactory->GetLocalOwnership()==mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
         // archive & mMeshUnarchived; Not archived since set to true when archiving constructor is called.
     }
-    
+
     /**
      * Convenience method for intracellular conductivity tensor creation
      */
@@ -165,7 +165,7 @@ protected:
      * Local pointer to the distributed vector factory associated with the mesh object used.
      *
      * Used to retrieve node ownership range when needed.
-     * 
+     *
      * NB: This is set from mpMesh->GetDistributedVectorFactory() and thus always equal to
      * that.  We never assume ownership of the object.
      */
@@ -175,7 +175,7 @@ protected:
      * Whether the mesh was unarchived or got from elsewhere.
      */
     bool mMeshUnarchived;
-    
+
     /**
      * Helper method for destructor.
      * @param deleteFakeCells  whether to delete fake bath cells
@@ -208,14 +208,14 @@ public:
 
     /** Virtual destructor */
     virtual ~AbstractCardiacPde();
-    
+
     /**
      * Add more cells to this cardiac PDE.
-     * 
+     *
      * This method is used by the checkpoint migration code to load a simulation checkpointed in parallel onto
      * a single process.  It adds the cells previously contained on one of the non-master processes to this
      * process' collection.
-     * 
+     *
      * @param rOtherCells  the cells to add.  This vector will have the same length as our collection, but
      *   contain non-NULL pointers in (some of) the places we have NULLs.
      */
@@ -290,7 +290,7 @@ public:
 
     /**
      *  Returns a reference to the vector of distributed cells. Needed for archiving.
-     * 
+     *
      * \todo this method should be renamed rGetCellsDistributed() as it returns a reference
      */
     const std::vector<AbstractCardiacCell*>& GetCellsDistributed() const;
@@ -304,12 +304,12 @@ public:
 
     /**
      * Save our collection of cells to an archive.
-     * 
+     *
      * Writes:
      *  -# #mpDistributedVectorFactory
      *  -# number of cells on this process
      *  -# each cell pointer in turn
-     * 
+     *
      * @param archive  the master archive; cells will actually be written to the process-specific archive.
      * @param version
      */
@@ -333,13 +333,13 @@ public:
             r_archive & r_cells_distributed[i];
         }
     }
-    
+
     /**
      * Load our collection of cells from an archive.
-     * 
+     *
      * Handles the checkpoint migration case, deleting loaded cells immediately if they are
      * not local to this process.
-     * 
+     *
      * @param archive  the process-specific archive to load from
      * @param version  archive version
      * @param rCells  vector to fill in with pointers to local cells
@@ -362,16 +362,16 @@ public:
             assert(rCells[i] == NULL);
         }
 #endif
-        
+
         // We don't store a cell index in the archive, so need to work out what global
         // index this collection of cells starts up.  If we're migrating (so have an
         // original factory) we use the original low index; otherwise we use the current
         // low index.
         unsigned index_low = p_factory->GetOriginalFactory() ? p_factory->GetOriginalFactory()->GetLow() : p_factory->GetLow();
-        
+
         // Track fake bath cells to make sure we only delete non-local ones
         std::set<FakeBathCell*> fake_bath_cells_non_local, fake_bath_cells_local;
-        
+
         for (unsigned local_index=0; local_index<num_cells; local_index++)
         {
             // If we're permuting, figure out where this cell goes
@@ -390,7 +390,7 @@ public:
             }
             unsigned new_local_index = new_global_index - p_factory->GetLow();
             bool local = p_factory->IsGlobalIndexLocal(new_global_index);
-            
+
             bool is_dynamic;
             archive & is_dynamic;
             if (is_dynamic)
@@ -425,7 +425,7 @@ public:
                 }
             }
         }
-        
+
         // Delete any unused fake cells
         if (!fake_bath_cells_non_local.empty())
         {

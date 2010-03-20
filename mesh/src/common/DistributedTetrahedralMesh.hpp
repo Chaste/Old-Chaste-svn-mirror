@@ -66,7 +66,7 @@ extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, 
  * A set of nodes (possibly reordered) with contiguous global indices
  * A local copy of all the elements supporting those nodes
  * A local copy of ghost/halo nodes which are all the nodes used in the supporting elements, but not owned outright.
- */ 
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class DistributedTetrahedralMesh : public AbstractTetrahedralMesh< ELEMENT_DIM, SPACE_DIM>
 {
@@ -74,15 +74,15 @@ class DistributedTetrahedralMesh : public AbstractTetrahedralMesh< ELEMENT_DIM, 
 
 public:
 
-     /** Definition of partition types. 
+     /** Definition of partition types.
       * "DUMB" is using natural mesh ordering with PETSC_DECIDE.
       * "PARMETIS_LIBRARY" is a call to the parallel parMETIS library
-      * "METIS_LIBRARY" is a call to the sequential METIS library 
+      * "METIS_LIBRARY" is a call to the sequential METIS library
       * */
     typedef enum
     {
         DUMB=0,
-        PARMETIS_LIBRARY=1, 
+        PARMETIS_LIBRARY=1,
         METIS_LIBRARY=2 ///\todo and replace this one with ParMETIS.  But keep the same numbers for the archives?
     } PartitionType;
 
@@ -114,7 +114,7 @@ private:
 
     /** Partition type (given by enum PartitionType). */
     PartitionType mMetisPartitioning;
-    
+
     /** Needed for serialization.*/
     friend class boost::serialization::access;
     /**
@@ -125,17 +125,17 @@ private:
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
-    {        
+    {
         archive & boost::serialization::base_object<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM> >(*this);
     }
-   
-  
+
+
 
 public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param metisPartitioning defaults to METIS_LIBRARY, but in 1-D is always overridden in this constructor to be the DUMB partition
      */
     DistributedTetrahedralMesh(PartitionType metisPartitioning=METIS_LIBRARY);
@@ -144,11 +144,11 @@ public:
      * Destructor.
      */
     virtual ~DistributedTetrahedralMesh();
-    
+
     /**
      * Specify the node distribution across processes.
      * This also makes sure we don't try to use METIS to partition the mesh.
-     * 
+     *
      * @param pFactory a factory to use for this mesh
      */
     void SetDistributedVectorFactory(DistributedVectorFactory* pFactory);
@@ -165,7 +165,7 @@ public:
      * (Does not include halo nodes).
      */
     unsigned GetNumLocalNodes() const;
-    
+
     /**
      * Get the number of Elements which are owned by this process (have at least one entirely
      * locally-owned node).
@@ -192,14 +192,14 @@ public:
      * Get the total number of elements that are actually in use (globally).
      */
     unsigned GetNumElements() const;
-    
+
     /**
      * Get the type of mesh partition ing that is being used...
-     * 
+     *
      * serialization uses this method.
      */
     PartitionType GetPartitionType() const;
-    
+
     /**
      * Get the total number of boundary elements that are actually in use (globally).
      */
@@ -207,7 +207,7 @@ public:
 
     /**
      * Utility method to give the functionality of iterating through the halo nodes of a process
-     * @param rHaloIndices  A vector to fill with the global indices of the nodes which are locally halos 
+     * @param rHaloIndices  A vector to fill with the global indices of the nodes which are locally halos
      */
     void GetHaloNodeIndices(std::vector<unsigned>& rHaloIndices) const;
 
@@ -226,7 +226,7 @@ public:
     /**
      * Determine whether or not the current process owns node 0 of this element (tie breaker to determine which process writes
      * to file for when two or more share ownership of an element).
-     * 
+     *
      * @param elementIndex is the global index of the element
      */
     bool CalculateDesignatedOwnershipOfElement( unsigned elementIndex );
@@ -234,20 +234,20 @@ public:
     /**
      * Determine whether or not the current process owns node 0 of this boundary element (tie breaker to determine which process writes
      * to file for when two or more share ownership of a face).
-     * 
+     *
      * @param faceIndex is the global index of the face
      */
     bool CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex );
-         
+
     /**
      * Construct a 1D linear grid on [0,width]
-     * 
+     *
      * Throws if there are more processes than the number of nodes (width+1)
-     * 
+     *
      * @param width  width of the mesh (in the x-direction)
      */
      void ConstructLinearMesh(unsigned width);
-     
+
     /**
      * Construct a 2D rectangular grid on [0,width]x[0,height].
      *
@@ -281,40 +281,40 @@ public:
     /**
      * Returns the local pointer to a node which is
      * either owned or in the halo of this process.
-     * 
+     *
      * We first search halo node (as there are fewer),
      * then search totally owned nodes.  Otherwise throw.
      *
      * @param index the global index of the node
      */
     Node<SPACE_DIM>* GetAnyNode(unsigned index) const;
-    
+
 private:
 
     /**
      * Add the most recently constructed node to the global->local node mapping
-     * 
+     *
      * @param index is the global index of node to be registered
      */
     void RegisterNode(unsigned index);
 
     /**
      * Add the most recently constructed halo node to the global->local halo node mapping
-     * 
+     *
      * @param index is the global index of halo node to be registered
      */
     void RegisterHaloNode(unsigned index);
-    
+
     /**
      * Add the most recently constructed element to the global->local element mapping
-     * 
+     *
      * @param index is the global index of element to be registered
      */
     void RegisterElement(unsigned index);
 
      /**
      * Add the most recently constructed boundary element to the global->local boundary element mapping
-     * 
+     *
      * @param index is the global index of boundary element to be registered
      */
     void RegisterBoundaryElement(unsigned index);
@@ -344,7 +344,7 @@ private:
      * Compute a parallel partitioning of a given mesh
      * using specialised methods below based on the value
      * of mMetisPartitioning
-     * 
+     *
      * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
      * @param rNodesOwned is a set to be filled with the indices of nodes owned by this process
      * @param rHaloNodesOwned is a set to be filled with the indices of halo nodes owned by this process
@@ -360,38 +360,38 @@ private:
     /**
      * Specialised method to compute a parallel partitioning of a given mesh
      * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning)
-     * 
+     *
      * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
      * @param rNodesOwned is an empty set to be filled with the indices of nodes owned by this process
      */
     void DumbNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                               std::set<unsigned>& rNodesOwned);
 
-    
+
     /**
      * Specialised method to compute a parallel partitioning of a given mesh
      * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning
-     * 
+     *
      * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
      * @param rNodesOwned is an empty set to be filled with the indices of nodes owned by this process
      * @param rProcessorsOffset a vector of length NumProcs to be filled with the index of the lowest indexed node owned by each process
-     * 
+     *
      */
     void MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
-                                      std::set<unsigned>& rNodesOwned, 
+                                      std::set<unsigned>& rNodesOwned,
                                       std::vector<unsigned>& rProcessorsOffset);
 
 #ifdef CHASTE_PARMETIS
     /**
       * Specialised method to compute a parallel partitioning of a given mesh with the ParMetis library
       * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning)
-      * 
+      *
       * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
       * @param rElementsOwned is an empty set to be filled with the indices of elements owned by this process
       * @param rNodesOwned is an empty set to be filled with the indices of nodes owned by this process
       * @param rHaloNodesOwned is an empty set to be filled with the indices of halo nodes owned by this process
       * @param rProcessorsOffset a vector of length NumProcs to be filled with the index of the lowest indexed node owned by each process
-      * 
+      *
       */
      void ParMetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                           std::set<unsigned>& rElementsOwned,
@@ -399,11 +399,11 @@ private:
                                           std::set<unsigned>& rHaloNodesOwned,
                                           std::vector<unsigned>& rProcessorsOffset);
 #endif //CHASTE_PARMETIS
-    
+
     /**
      * Reorder the node indices in this mesh by applying the permutation
      * give in mNodesPermutation.
-     * 
+     *
      * The node indexed with "i" will be re-assigned with the new index mNodesPermutation[i]
      */
     void ReorderNodes();
@@ -430,7 +430,7 @@ inline void save_construct_data(
 }
 
 /**
- * De-serialize constructor parameters and initialise a DistributedTetrahedralMesh, 
+ * De-serialize constructor parameters and initialise a DistributedTetrahedralMesh,
  * checking the number of processors is the same.
  */
 template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -447,7 +447,7 @@ inline void load_construct_data(
     /// \todo #1199  Lots of stuff can't cope if we re-partition
     //::new(t)DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(partition_type);
     ::new(t)DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>(DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DUMB);
-    
+
     /*
      * The exception needs to be thrown after the call to ::new(t), or Boost will try
      * to free non-allocated memory when the exception is thrown.
@@ -457,7 +457,7 @@ inline void load_construct_data(
     {
         EXCEPTION("This archive was written for a different number of processors");
     }
-    
+
 }
 }
 } // namespace ...

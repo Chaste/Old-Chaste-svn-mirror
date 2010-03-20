@@ -68,9 +68,9 @@ public :
 
     /**
      * Get the first derivative dW/dI1.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -78,9 +78,9 @@ public :
 
     /**
      * Get the first derivative dW/dI2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -88,9 +88,9 @@ public :
 
     /**
      * Get the second derivative d^2W/dI1^2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -98,9 +98,9 @@ public :
 
     /**
      * Get the second derivative d^2W/dI2^2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -108,9 +108,9 @@ public :
 
     /**
      * Get the second derivative d^2W/dI1dI2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -125,7 +125,7 @@ public :
     /**
      * Constructor, Taking in mooney-rivlin parameters c1 and c2.
      * Note: c2 is not used if the dimension is 2. Just pass in c1 if 2d.
-     * 
+     *
      * @param c1 parameter c1
      * @param c2 parameter c2 (defaults to MINUS_LARGE)
      */
@@ -133,7 +133,7 @@ public :
 
     /**
      * Scale the dimensional material parameters.
-     * 
+     *
      * @param scaleFactor
      */
     void ScaleMaterialParameters(double scaleFactor);

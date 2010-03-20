@@ -135,10 +135,10 @@ protected:
      * Compute the derivatives of all basis functions at a point within an element.
      * This method will transform the results, for use within gaussian quadrature
      * for example.
-     * 
+     *
      * This is almost identical to LinearBasisFunction::ComputeTransformedBasisFunctionDerivatives,
      * except that it is also templated over SPACE_DIM and can handle cases such as 1d in 3d space.
-     * 
+     *
      * \todo Template LinearBasisFunction over SPACE_DIM?
      *
      * @param rPoint The point at which to compute the basis functions. The
@@ -241,7 +241,7 @@ protected:
 
     /**
      * Get the value of the current solution (or guess) vector at the given node
-     * 
+     *
      * @param nodeIndex
      * @param indexOfUnknown
      */
@@ -269,7 +269,7 @@ public:
 
     /**
      * Set the mesh.
-     * 
+     *
      * @param pMesh Pointer to a mesh
      */
     void SetMesh(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
@@ -635,7 +635,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
     assert(this->mpBoundaryConditions != NULL);
 
     assert(mpMesh->GetNumNodes() == mpMesh->GetDistributedVectorFactory()->GetProblemSize());
-    
+
     mpMesh->SetElementOwnerships(mpMesh->GetDistributedVectorFactory()->GetLow(),
                                  mpMesh->GetDistributedVectorFactory()->GetHigh());
 }

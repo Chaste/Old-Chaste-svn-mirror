@@ -44,7 +44,7 @@ private:
 public:
     //Pdetime step is (by default) 0.01
     //Odetime step set below to 0.001 (10:1)
-    BidomainFaceStimulusCellFactory() 
+    BidomainFaceStimulusCellFactory()
         : AbstractCardiacCellFactory<3>(),
           mpRegStimulus(new RegularStimulus(-900.0*1000, 0.5, 100.0, 0.0))
     {

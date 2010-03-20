@@ -137,12 +137,12 @@ public:
      * Check whether mesh is conforming
      * Conforming (defn.): the intersection of two elements should be
      * either the empty set, a vertex, an edge or a face.
-     * 
-     * It may be possible to construct non-conforming meshes which contain 
-     * internal faces owned by only one element: two coplanar triangular faces 
+     *
+     * It may be possible to construct non-conforming meshes which contain
+     * internal faces owned by only one element: two coplanar triangular faces
      * of two elements form a square, but the same square on the adjacent pair of
      * elements is formed by splitting the diagonal the other way.
-     * 
+     *
      * @return false if there are any orphaned internal faces
      */
     bool CheckIsConforming();
@@ -255,18 +255,18 @@ public:
      * @param testElements  a set of guesses for the element (a set of element indices), to be checked
      *      first for potential efficiency improvements. (default = empty set)
      * @param onlyTryWithTestElements Do not continue with other elements after trying the with testElements
-     *      (for cases where you know the testPoint must be in the set of test elements or maybe outside 
-     *      the mesh).  
+     *      (for cases where you know the testPoint must be in the set of test elements or maybe outside
+     *      the mesh).
      */
-    unsigned GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint, 
-                                       bool strict=false, 
+    unsigned GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint,
+                                       bool strict=false,
                                        std::set<unsigned> testElements=std::set<unsigned>(),
                                        bool onlyTryWithTestElements = false);
 
 
     /**
      * Return the element index for the first element that contains a test point. Like GetContainingElementIndex
-     * but uses the user given element (M say) as the first element checked, and then checks M+1,M+2,..,Ne,0,1.. 
+     * but uses the user given element (M say) as the first element checked, and then checks M+1,M+2,..,Ne,0,1..
      *
      * @param testPoint
      * @param startingElementGuess Which element to try first.

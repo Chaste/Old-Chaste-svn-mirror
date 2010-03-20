@@ -138,7 +138,7 @@ public:
         TS_ASSERT_DELTA(state_variables[0], 7.0, 1e-12);
         TS_ASSERT_DELTA(state_variables[1], 8.0, 1e-12);
 
-		ode.SetInitialConditionsComponent(1, 9.0);
+        ode.SetInitialConditionsComponent(1, 9.0);
         initial_conditions = ode.GetInitialConditions();
         TS_ASSERT_DELTA(initial_conditions[0], 5.0, 1e-12);
         TS_ASSERT_DELTA(initial_conditions[1], 9.0, 1e-12);
@@ -153,15 +153,15 @@ public:
         output_arch <<  static_cast<const TwoDimOdeSystem&>(ode);
 
         ode.SetStateVariable(0, 2.0);
-		ode.SetStateVariable(1, 5.0);
+        ode.SetStateVariable(1, 5.0);
 
-		TS_ASSERT_THROWS_THIS(ode.SetStateVariable(2, 1.0),
-		        "The index passed in must be less than the number of state variables"); //cover exception
+        TS_ASSERT_THROWS_THIS(ode.SetStateVariable(2, 1.0),
+                "The index passed in must be less than the number of state variables"); //cover exception
 
-		state_variables = ode.rGetStateVariables();
+        state_variables = ode.rGetStateVariables();
 
-		TS_ASSERT_DELTA(state_variables[0], 2.0, 1e-12);
-		TS_ASSERT_DELTA(state_variables[1], 5.0, 1e-12);
+        TS_ASSERT_DELTA(state_variables[0], 2.0, 1e-12);
+        TS_ASSERT_DELTA(state_variables[1], 5.0, 1e-12);
 
     }
     void TestLoadAbstractOdeSystem()

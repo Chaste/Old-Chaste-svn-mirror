@@ -50,7 +50,7 @@ protected: // Give access of these members to subclasses
     std::vector< std::vector<unsigned> > mBoundaryFaceData; /**< Is an array of the nodes on each boundary face ((i,j)th entry is the jth node of face i) */
 
     AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>* mpMeshReader; /**< Writer by default writes from a reader (for conversion).  If this pointer is non-null, data can be copied straight across*/
-    
+
     unsigned mNumNodes; /**< Total number of nodes in mesh/mesh-reader*/
     unsigned mNumElements; /**< Total number of elements in mesh/mesh-reader*/
 
@@ -96,15 +96,15 @@ public:
      * Get the number of boundary faces in the mesh.
      */
     unsigned GetNumBoundaryEdges();
- 
+
     /**
-     * @return the coordinates of the next node to be written to file 
+     * @return the coordinates of the next node to be written to file
      */
     virtual std::vector<double> GetNextNode();
-    
-    
+
+
     /**
-     * @return the data (indices/attributes) of the next element to be written to file 
+     * @return the data (indices/attributes) of the next element to be written to file
      */
     virtual ElementData GetNextElement();
 

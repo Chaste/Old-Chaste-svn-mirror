@@ -99,7 +99,7 @@ public:
         VecDestroy(vec);
         VecDestroy(bad_vec);
     }
-    
+
     void TestWithExampleFunctionals()
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");

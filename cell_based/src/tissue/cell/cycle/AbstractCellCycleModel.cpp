@@ -120,26 +120,26 @@ bool AbstractCellCycleModel::ReadyToDivide()
 
 void AbstractCellCycleModel::SetDimension(unsigned dimension)
 {
-	if (dimension != 1 && dimension !=2 && dimension != 3)
-	{
-	    EXCEPTION("Dimension must be 1, 2 or 3");
-	}
-	mDimension = dimension;
+    if (dimension != 1 && dimension !=2 && dimension != 3)
+    {
+        EXCEPTION("Dimension must be 1, 2 or 3");
+    }
+    mDimension = dimension;
 }
 
 unsigned AbstractCellCycleModel::GetDimension()
 {
-	return mDimension;
+    return mDimension;
 }
 
 double AbstractCellCycleModel::GetAverageTransitCellCycleTime()
 {
-	return TissueConfig::Instance()->GetTransitCellG1Duration()
-			+ TissueConfig::Instance()->GetSG2MDuration();
+    return TissueConfig::Instance()->GetTransitCellG1Duration()
+            + TissueConfig::Instance()->GetSG2MDuration();
 }
 
 double AbstractCellCycleModel::GetAverageStemCellCycleTime()
 {
-	return TissueConfig::Instance()->GetStemCellG1Duration()
-			+ TissueConfig::Instance()->GetSG2MDuration();
+    return TissueConfig::Instance()->GetStemCellG1Duration()
+            + TissueConfig::Instance()->GetSG2MDuration();
 }

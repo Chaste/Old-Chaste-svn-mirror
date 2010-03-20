@@ -61,7 +61,7 @@ private:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
         double end_time = 1000.0; //One second in milliseconds
-        
+
         // Load the cell model dynamically
         AbstractCardiacCell* p_cell = rLoader.CreateCell(p_solver, p_stimulus);
 
@@ -100,12 +100,12 @@ public:
         std::string model_name = "libDynamicallyLoadableLr91.so";
         DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "dynamic/" + model_name);
         RunLr91Test(loader);
-        
+
         // The .so also gets copied into the source folder
         DynamicCellModelLoader loader2(std::string(ChasteBuildRootDir()) + "heart/dynamic/" + model_name);
         RunLr91Test(loader2);
     }
-    
+
     /**
      * Currently the build system will not automatically regenerate the C++ code from CellML, so you
      * need to do that step manually:
@@ -117,12 +117,12 @@ public:
         FileFinder model("heart/dynamic/libluo_rudy_1991.so", cp::relative_to_type::chaste_source_root);
         DynamicCellModelLoader loader(model.GetAbsolutePath());
         RunLr91Test(loader, 0u);
-        
+
         FileFinder model_opt("heart/dynamic/libluo_rudy_1991Opt.so", cp::relative_to_type::chaste_source_root);
         DynamicCellModelLoader loader_opt(model_opt.GetAbsolutePath());
         RunLr91Test(loader_opt, 0u);
     }
-    
+
     void TestExceptions() throw(Exception)
     {
         // Try loading a .so that doesn't exist
@@ -135,7 +135,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "dynamic/" + file_name),
                                   "Failed to load cell creation function from .so file");
     }
-    
+
     void TestLoadingViaXml() throw(Exception)
     {
         // Fake content from an XML file.
@@ -145,7 +145,7 @@ public:
         cp::dynamically_loaded_ionic_model_type dynamic_elt(so_path);
         cp::ionic_model_selection_type ionic_model;
         ionic_model.Dynamic(dynamic_elt);
-        
+
         // Now mock up what HeartConfigRelatedCellFactory will have to do
         TS_ASSERT(ionic_model.Dynamic().present());
         if (ionic_model.Dynamic().present())
@@ -153,12 +153,12 @@ public:
             FileFinder file_finder(ionic_model.Dynamic()->Path());
             TS_ASSERT(file_finder.Exists());
             DynamicCellModelLoader loader(file_finder.GetAbsolutePath());
-            
+
             RunLr91Test(loader);
         }
         // then 'else' what it currently does, more or less...
     }
-    
+
     void TestCellmlConverter() throw(Exception)
     {
         // Copy CellML file into output dir
@@ -170,9 +170,9 @@ public:
             EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestCellmlConverter_cp");
-        
+
         CellMLToSharedLibraryConverter converter;
-        
+
         // Convert a real CellML file
         FileFinder cellml_file(dirname + "/luo_rudy_1991.cellml", cp::relative_to_type::chaste_test_output);
         TS_ASSERT(cellml_file.Exists());
@@ -186,7 +186,7 @@ public:
         TS_ASSERT(so_file.Exists());
         TS_ASSERT(p_loader2 == p_loader);
         RunLr91Test(*p_loader, 0u);
-        
+
         // Cover exceptions
         std::string file_name = "test";
         FileFinder no_ext(dirname + "/" + file_name, cp::relative_to_type::chaste_test_output);

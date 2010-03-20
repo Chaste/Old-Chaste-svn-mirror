@@ -469,13 +469,13 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex ) 
+bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex )
 {
         //This may throw in the distributed parallel case
         unsigned tie_break_index = this->GetBoundaryElement(faceIndex)->GetNodeGlobalIndex(0);
 
         //if it is in my range
-        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index)) 
+        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
         {
             return true;
         }
@@ -492,7 +492,7 @@ bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnersh
         unsigned tie_break_index = this->GetElement(elementIndex)->GetNodeGlobalIndex(0);
 
         //if it is in my range
-        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index)) 
+        if (this->GetDistributedVectorFactory()->IsGlobalIndexLocal(tie_break_index))
         {
             return true;
         }

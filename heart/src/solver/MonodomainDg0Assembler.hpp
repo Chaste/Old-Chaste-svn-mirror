@@ -100,7 +100,7 @@ protected:
      *
      * This method is called by AssembleOnElement() and tells the assembler
      * the contribution to add to the element stiffness matrix.
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -124,7 +124,7 @@ protected:
      *
      * Here, the SimpleDg0ParabolicAssembler version of this method is
      * overloaded using the interpolated source term.
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -175,7 +175,7 @@ protected:
      * overloaded in the concrete assembler class if there is any work to be done
      * before assembling, for example integrating ODEs such as in the Monodomain
      * assembler.
-     * 
+     *
      * @param existingSolutionOrGuess
      * @param time
      */
@@ -184,7 +184,7 @@ protected:
     /**
      * Create the linear system object if it hasn't been already.
      * Can use an initial solution as PETSc template, or base it on the mesh size.
-     * 
+     *
      * @param initialSolution an initial guess
      */
     void InitialiseForSolve(Vec initialSolution);
@@ -194,7 +194,7 @@ public:
 
     /**
      * Constructor stores the mesh and pde and sets up boundary conditions.
-     * 
+     *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
      * @param pBcc pointer to the boundary conditions

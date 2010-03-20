@@ -127,7 +127,7 @@ public:
      * @param pMutationState affects the ODE system
      */
     WntCellCycleOdeSystem(double WntStimulus=0.0,
-    		              boost::shared_ptr<AbstractCellMutationState> pMutationState=boost::shared_ptr<AbstractCellMutationState>());
+                          boost::shared_ptr<AbstractCellMutationState> pMutationState=boost::shared_ptr<AbstractCellMutationState>());
 
     /**
      * Destructor.

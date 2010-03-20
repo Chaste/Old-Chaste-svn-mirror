@@ -49,20 +49,20 @@ public:
             // Check the path is as expected
             std::string abs_path = ChasteBuildRootDir() + file_name;
             TS_ASSERT_EQUALS(file_finder.GetAbsolutePath(), abs_path);
-            
+
             // CWD should be the Chaste source root
             path.relative_to(cp::relative_to_type::cwd);
             FileFinder file_finder2(path);
             TS_ASSERT(file_finder2.Exists());
             // Check the path is as expected
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
-            
+
             // Alternative constructor
             FileFinder file_finder3(file_name, cp::relative_to_type::chaste_source_root);
             TS_ASSERT(file_finder3.Exists());
             TS_ASSERT_EQUALS(file_finder3.GetAbsolutePath(), abs_path);
         }
-        
+
         {
             // Now check a file in the output directory
             std::string dir_name = "TestFileFinder";
@@ -79,21 +79,21 @@ public:
             out_stream fp = handler.OpenOutputFile(file_name);
             fp->close();
             TS_ASSERT(file_finder.Exists());
-            
+
             // Check when providing an absolute path
             cp::path_type path_abs(abs_path);
             path_abs.relative_to(cp::relative_to_type::absolute);
             FileFinder file_finder2(path_abs);
             TS_ASSERT(file_finder2.Exists());
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
-            
+
             // Alternative constructor
             FileFinder file_finder3(abs_path, cp::relative_to_type::absolute);
             TS_ASSERT(file_finder3.Exists());
             TS_ASSERT_EQUALS(file_finder3.GetAbsolutePath(), abs_path);
         }
     }
-    
+
     void TestNewer()
     {
         FileFinder file("heart/src/io/FileFinder.hpp", cp::relative_to_type::chaste_source_root);

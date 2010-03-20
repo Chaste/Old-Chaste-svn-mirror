@@ -40,10 +40,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  by:
  *   w^{n+1}  - dt g(w^{n+1})  =  w^n
  *  where the ODE system is dw/dt = g(w).
- * 
+ *
  *  This would involve solving a 5d nonlinear system at each timestep. However, only g1 and g2
- *  (ie dCatrop/dt and dz/dt) are nonlinear, g3, g4 and g5 (corresponding to dQi/dt) are linear 
- *  and uncoupled. Therefore the backward euler solutions of Q1,Q2,Q3 can be computed immediately, 
+ *  (ie dCatrop/dt and dz/dt) are nonlinear, g3, g4 and g5 (corresponding to dQi/dt) are linear
+ *  and uncoupled. Therefore the backward euler solutions of Q1,Q2,Q3 can be computed immediately,
  *  leaving a 2D nonlinear system to be solved using newton's method
  */
 class NhsModelWithBackwardSolver : public NhsContractionModel
@@ -61,7 +61,7 @@ private:
      *  @return Q=Q1+Q2+Q3
      */
     double ImplicitSolveForQ();
-    
+
     /**
      *  The same as EvaluateYDerivatives in NhsContractionModel, but doesn't use std::vectors (for
      *  efficiency, and because this class is hardcoded and hand-optimised for backward euler),
@@ -73,20 +73,20 @@ private:
      *  @param dz the returned value of dz/dt
      */
     void CalculateCaTropAndZDerivatives(double calciumTroponin, double z, double Q, double& dCaTrop, double& dz);
-    
+
     /**
      *  Compute the residual function for the 2D nonlinear system when Backward Euler is used
      *  The backward Euler discretisation is: w^{n+1}  - dt g(w^{n+1}) =  w^n
      *  where: w = (ca_trop, z)
      *  and the ODE system is: dw/dt = g(w)
-     *  
+     *
      *  so the residual is: f = w^{n+1} - dt g(w^{n+1}) -  w^n
      *  @param calciumTroponin Current guess for Ca_trop value
      *  @param z current guess for z
      *  @param Q = Q1+Q2+Q3, where Qi already computed at next timestep
      *  @param residualComponent1 Returned value - first component of residual
      *  @param residualComponent2 Returned value - second component of residual
-     */ 
+     */
     void CalculateBackwardEulerResidual(double calciumTroponin, double z, double Q,
                                         double& residualComponent1, double& residualComponent2);
 
@@ -95,7 +95,7 @@ public :
      *  Constructor
      */
     NhsModelWithBackwardSolver();
-        
+
 
     /**
      *  Solves for the new state variables at the given end time using the implicit
@@ -106,10 +106,10 @@ public :
      *  The state variables are not updated because this solve will be called as part
      *  of the newton iteration (ie guess stretch, see what the new active tension is)
      *  in a fully implicit method.
-     * 
+     *
      *  Note: overloaded from the method in AbstractOdeBasedContractionModel, which
      *  just does a simple Euler solve
-     * 
+     *
      *  @param startTime
      *  @param endTime
      *  @param timestep
@@ -126,10 +126,10 @@ public :
      *  RunDoNotUpdate() has been called but UpdateStateVariables() has not
      */
     double GetNextActiveTension();
-    
+
     /**
      *  Overload the RunAndUpdate() method too, as that would use the base class's default (euler) solver
-     * 
+     *
      *  @param startTime
      *  @param endTime
      *  @param timestep

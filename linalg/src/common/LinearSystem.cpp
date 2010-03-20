@@ -173,7 +173,7 @@ LinearSystem::~LinearSystem()
     {
         delete mpBlockDiagonalPC;
     }
-    
+
     if (mpLDUFactorisationPC)
     {
         delete mpLDUFactorisationPC;
@@ -311,32 +311,32 @@ void LinearSystem::SetMatrixRow(PetscInt row, double value)
 }
 
 Vec LinearSystem::GetMatrixRowDistributed(unsigned row_index)
-{       
-    Vec lhs_ith_row;    
-    VecDuplicate(mRhsVector, &lhs_ith_row); // Allocate same parallel layout   
-    
+{
+    Vec lhs_ith_row;
+    VecDuplicate(mRhsVector, &lhs_ith_row); // Allocate same parallel layout
+
     PetscInt num_entries;
     const PetscInt *column_indices;
-    const PetscScalar *values;        
+    const PetscScalar *values;
 
     bool am_row_owner = (PetscInt)row_index >= mOwnershipRangeLo && (PetscInt)row_index < mOwnershipRangeHi;
-    
+
     // Am I the owner of the row? If so get the non-zero entries and add them lhs_ith_row.
     // In parallel, VecAssembly{Begin,End} will send values to the rest of processors.
     if (am_row_owner)
-    {            
-        MatGetRow(mLhsMatrix, row_index, &num_entries, &column_indices, &values);            
-        VecSetValues(lhs_ith_row, num_entries, column_indices, values, INSERT_VALUES);            
+    {
+        MatGetRow(mLhsMatrix, row_index, &num_entries, &column_indices, &values);
+        VecSetValues(lhs_ith_row, num_entries, column_indices, values, INSERT_VALUES);
     }
 
     VecAssemblyBegin(lhs_ith_row);
     VecAssemblyEnd(lhs_ith_row);
-    
+
     if (am_row_owner)
-    {            
+    {
         MatRestoreRow(mLhsMatrix, row_index, &num_entries, &column_indices, &values);
     }
-        
+
     return lhs_ith_row;
 }
 
@@ -346,7 +346,7 @@ void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRow
     MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
 
     // Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
-    // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated 
+    // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated
     // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
     // are kept.
 #if PETSC_VERSION_MAJOR == 3
@@ -370,7 +370,7 @@ void LinearSystem::ZeroMatrixRowsWithValueOnDiagonal(std::vector<unsigned>& rRow
 #endif
     delete [] rows;
 }
-    
+
 
 void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsigned>& rRowColIndices, double diagonalValue)
 {
@@ -382,7 +382,7 @@ void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsig
     // for each column: collect all the row indices corresponding to a non-zero entry
     // We do all the columns at once, before doing the zeroing, as otherwise
     // a MatAssemblyBegin() & MatAssemblyEnd() would have to be called
-    // after every MatSetValues and before the below GetMatrixElement()   
+    // after every MatSetValues and before the below GetMatrixElement()
     for(unsigned index=0; index<rRowColIndices.size(); index++)
     {
         unsigned column = rRowColIndices[index];
@@ -400,21 +400,21 @@ void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsig
 
     // Now zero each column in turn
     for(unsigned index=0; index<rRowColIndices.size(); index++)
-    {    
+    {
         // set those rows to be zero by calling MatSetValues
         unsigned size = nonzero_rows_per_column[index].size();
         PetscInt* rows = new PetscInt[size];
         PetscInt cols[1];
         double* zeros = new double[size];
-    
+
         cols[0] = rRowColIndices[index];
-    
+
         for (unsigned i=0; i<size; i++)
         {
             rows[i] = nonzero_rows_per_column[index][i];
             zeros[i] = 0.0;
         }
-    
+
         MatSetValues(mLhsMatrix, size, rows, 1, cols, zeros, INSERT_VALUES);
         delete [] rows;
         delete [] zeros;
@@ -424,7 +424,7 @@ void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsig
     ZeroMatrixRowsWithValueOnDiagonal(rRowColIndices, diagonalValue);
 }
 
-    
+
 
 
 void LinearSystem::ZeroMatrixColumn(PetscInt col)
@@ -601,8 +601,8 @@ Vec& LinearSystem::rGetDirichletBoundaryConditionsVector()
 
 void LinearSystem::SetMatrixIsSymmetric(bool isSymmetric)
 {
-    /// \todo: shall we allow modifying the symmetry flag anytime?    
-    
+    /// \todo: shall we allow modifying the symmetry flag anytime?
+
     if (isSymmetric)
     {
 #if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
@@ -631,11 +631,11 @@ bool LinearSystem::IsMatrixSymmetric()
 {
     PetscTruth symmetry_flag_is_set;
     PetscTruth symmetry_flag;
-    
+
     MatIsSymmetricKnown(mLhsMatrix, &symmetry_flag_is_set, &symmetry_flag);
 
-    // If the flag is not set we assume is a non-symmetric matrix    
-    return symmetry_flag_is_set && symmetry_flag;    
+    // If the flag is not set we assume is a non-symmetric matrix
+    return symmetry_flag_is_set && symmetry_flag;
 }
 
 void LinearSystem::SetMatrixIsConstant(bool matrixIsConstant)
@@ -762,13 +762,13 @@ Vec LinearSystem::Solve(Vec lhsGuess)
         {
 #ifdef TRACE_KSP
             Timer::Reset();
-#endif            
+#endif
             if (mPcType == "blockdiagonal")
             {
                 mpBlockDiagonalPC = new PCBlockDiagonal(mKspSolver);
 #ifdef TRACE_KSP
                 Timer::Print("Purpose-build preconditioner creation");
-#endif            
+#endif
 
             }
             else if (mPcType == "ldufactorisation")
@@ -776,7 +776,7 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 mpLDUFactorisationPC = new PCLDUFactorisation(mKspSolver);
 #ifdef TRACE_KSP
                 Timer::Print("Purpose-build preconditioner creation");
-#endif            
+#endif
             }
             else
             {
@@ -801,11 +801,11 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
 #ifdef TRACE_KSP
         Timer::Reset();
-#endif            
+#endif
         KSPSetUp(mKspSolver);
 #ifdef TRACE_KSP
         Timer::Print("KSPSetUP (contains preconditioner creation for PETSc preconditioners)");
-#endif            
+#endif
 
         mKspIsSetup = true;
 

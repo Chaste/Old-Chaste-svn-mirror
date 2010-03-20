@@ -47,8 +47,8 @@ AbstractPeregoCardiacCell::AbstractPeregoCardiacCell(unsigned numberOfStateVaria
 
     // Give the initial values for two parameters used in the error analysis (these are changed adaptively in AdaptTimestep).
     mThetaP = -0.5;
-    mThetaC = 1.0/3.0; 
-    
+    mThetaC = 1.0/3.0;
+
     // Give initial values for the integration weights in the corrector step (these are changed adaptively in AdaptTimestep).
     mc0 = 8.0/12.0;
     mc1 = -1.0/12.0;
@@ -56,7 +56,7 @@ AbstractPeregoCardiacCell::AbstractPeregoCardiacCell(unsigned numberOfStateVaria
     // Give initial values for the integration weights in the predictor step (these are changed adaptively in AdaptTimestep).
     mc0bar = 3.0/2.0;
     mc1bar = -0.5;
-    
+
     // Initialise the error flag to false:
     mIsThereTooMuchError = false;
     // Initial value for the timestep size:
@@ -74,7 +74,7 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedValues(const std::vector<doubl
     // Ensure it's not set up for the corrector step:
     assert(!mIsTheCorrectorStep);
     assert(!mIsTheErrorEvaluationStep);
-        
+
     mSolutionAtPreviousTimeStep = rSolutionAtPreviousTime;
     //Compute parameters (done in the child class, will modify the member variables here)
     ComputeSystemParameters(rSolutionAtPreviousTime, currentTime);
@@ -96,15 +96,15 @@ void  AbstractPeregoCardiacCell::EvaluatePredictedValues(const std::vector<doubl
 
         if (it_is_a_gating_variable)
         {
-            double gate_derivative = (exp((mc0bar*ma_current[i]+mc1bar*ma_previous[i])*mLocalTimeStep)-1) / 
+            double gate_derivative = (exp((mc0bar*ma_current[i]+mc1bar*ma_previous[i])*mLocalTimeStep)-1) /
                                      ((mc0bar*ma_current[i] + mc1bar * ma_previous[i])*mLocalTimeStep)*((mc0bar*ma_current[i]+mc1bar*ma_previous[i])*rSolutionAtPreviousTime[i]+mc0bar*mb_current[i]+mc1bar*mb_previous[i]);
-                                     
+
             rPredictedSolution[i]=rSolutionAtPreviousTime[i] + mLocalTimeStep*gate_derivative;
         }
         // All other variables are updated by a weighted version of the forward Euler:
         else
         {
-            double variable_derivative = mc0bar * ma_current[i] + mc1bar * ma_previous[i];            
+            double variable_derivative = mc0bar * ma_current[i] + mc1bar * ma_previous[i];
             rPredictedSolution[i] = rSolutionAtPreviousTime[i] + mLocalTimeStep * variable_derivative;
         }
     }
@@ -155,16 +155,16 @@ void  AbstractPeregoCardiacCell::EvaluateCorrectedValues(const std::vector<doubl
 void  AbstractPeregoCardiacCell::EvaluateErrors(std::vector<double>& rErrors, const std::vector<double>& rPredictedSolution, const std::vector<double>& rCorrectedSolution, double currentTime)
 {
     mIsTheErrorEvaluationStep = true;
-    
+
     //Compute parameters (done in the child class, will modify the member variables here)
 
     ComputeSystemParameters(rCorrectedSolution, currentTime);
     mIsTheErrorEvaluationStep = false;
-    
+
     bool it_is_a_gating_variable = false;
-    
+
     double error_weight_factor = (mThetaC - 1.0/3.0) / (mThetaP - mThetaC);
-    
+
     //loop over the state variables to find their error estimates under the Perego scheme.
     for (unsigned i = 0; i<rPredictedSolution.size();i++)
     {
@@ -184,10 +184,10 @@ void  AbstractPeregoCardiacCell::EvaluateErrors(std::vector<double>& rErrors, co
             rErrors[i] =  fabs(error_weight_factor * ( rCorrectedSolution[i] - rPredictedSolution[i]) + (1.0/12.0) * (ma_error[i] * mb_current[i] - ma_current[i] * mb_error[i]) * mLocalTimeStep * mLocalTimeStep);
         }
         else
-        {            
+        {
             rErrors[i] = fabs( error_weight_factor * ( rCorrectedSolution[i] - rPredictedSolution[i] ) );
         }
-        
+
     }
 
 }
@@ -209,7 +209,7 @@ bool AbstractPeregoCardiacCell::IsThereTooMuchError(std::vector<double>& rErrors
 void AbstractPeregoCardiacCell::AdaptTimestep(std::vector<double>& rErrors)
 {
     // Each of the state variables can be used to compute the appropriate timestep size
-    // to be used on the next iteration. Do this for each state variable, and find the 
+    // to be used on the next iteration. Do this for each state variable, and find the
     // smallest such timestep so that we can use it.
     double minimum_value = DBL_MAX;
     for(unsigned index=0; index<rErrors.size(); index++)
@@ -224,7 +224,7 @@ void AbstractPeregoCardiacCell::AdaptTimestep(std::vector<double>& rErrors)
             minimum_value=pow(mWeightedErrorTolerances[index]/rErrors[index],1.0/3.0);
         }
     }
-    
+
     double new_dt = 0.8 * minimum_value * mLocalTimeStep;
 
     ChangeTimestepAndRecomputeParameters(mLocalTimeStep, new_dt);
@@ -242,7 +242,7 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
     OdeSolution solutions;
     solutions.SetNumberOfTimeSteps((unsigned) round((endTime - startTime)/this->mDt));
     solutions.SetOdeSystemInformation(this->mpSystemInfo);
-       
+
     std::vector<double> errors = mStateVariables;
     std::vector<double> previous_yvalues = mStateVariables;
     std::vector<double> predicted_values = mStateVariables;
@@ -251,16 +251,16 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
     // Initialise the previous state variables to be a copy of the current state variables
     previous_yvalues = corrected_values;
     double local_time=startTime;
-    
+
     // boolean used to spot when we've reached the end of the simulation. This is used to adjust
     // the size of the final timestep so not to overshoot the endTime.
     bool final_time_step = false;
 
     solutions.rGetSolutions().push_back(rGetStateVariables());
     solutions.rGetTimes().push_back(startTime);
-    
+
     // Solve the ODE system
-    while (local_time +1e-10< endTime)  
+    while (local_time +1e-10< endTime)
     {
         if (local_time + mLocalTimeStep > endTime)
         {
@@ -268,7 +268,7 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
             ChangeTimestepAndRecomputeParameters(mNewDt,mLocalTimeStep);
             final_time_step = true;
         }
-               
+
         //predict the next value
         EvaluatePredictedValues(previous_yvalues, predicted_values, local_time);
         EvaluateCorrectedValues(predicted_values, corrected_values, local_time);
@@ -289,50 +289,50 @@ OdeSolution AbstractPeregoCardiacCell::Compute(double startTime, double endTime)
 //                    }
 //                }
                 AdaptTimestep(errors);
-    
+
                 mIsThereTooMuchError = IsThereTooMuchError(errors);
-    
+
                 if(!mIsThereTooMuchError)
                 {
                     // Initialise the previous state variables to be a copy of the current state variables
-                    previous_yvalues = corrected_values;                    
+                    previous_yvalues = corrected_values;
                     // Record the state variables after the timestep is taken:
                     solutions.rGetSolutions().push_back(corrected_values);
-                    solutions.rGetTimes().push_back(local_time+mLocalTimeStep);                   
+                    solutions.rGetTimes().push_back(local_time+mLocalTimeStep);
                 }
             }
             else
             {
                     // Initialise the previous state variables to be a copy of the current state variables
-                    previous_yvalues = corrected_values;                    
+                    previous_yvalues = corrected_values;
                     // Record the state variables after the timestep is taken:
                     solutions.rGetSolutions().push_back(corrected_values);
-                    solutions.rGetTimes().push_back(local_time+mLocalTimeStep);   
+                    solutions.rGetTimes().push_back(local_time+mLocalTimeStep);
             }
         }
-        else 
+        else
         {
-            previous_yvalues = corrected_values;                    
+            previous_yvalues = corrected_values;
             // Record the state variables after the timestep is taken:
             // TODO move this so that it's not done in tissue simulations
             // (careful: it's needed for the 0D tests).
             solutions.rGetSolutions().push_back(corrected_values);
-            solutions.rGetTimes().push_back(local_time+mLocalTimeStep);        
+            solutions.rGetTimes().push_back(local_time+mLocalTimeStep);
         }
 
         if(!mIsThereTooMuchError)
         {
                local_time += mLocalTimeStep;
         }
-        
+
         if(mUseAdaptTimestep)
         {
             mLocalTimeStep = mNewDt;
         }
-        
+
     }
     mStateVariables = corrected_values;
- 
+
     return solutions;
 }
 
@@ -347,7 +347,7 @@ void AbstractPeregoCardiacCell::ChangeTimestepAndRecomputeParameters(double oldD
     mThetaP = mc1bar / (nu * nu);
     mThetaC = mcMinus1 + mc1 / (nu * nu);
 
-    mNewDt=newDt;    
+    mNewDt=newDt;
 }
 
 void  AbstractPeregoCardiacCell::SetAdaptivityFlag (bool flag)

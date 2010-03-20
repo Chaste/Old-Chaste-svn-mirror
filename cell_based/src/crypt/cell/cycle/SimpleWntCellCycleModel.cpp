@@ -41,7 +41,7 @@ AbstractCellCycleModel* SimpleWntCellCycleModel::CreateCellCycleModel()
 
 void SimpleWntCellCycleModel::SetUseCellProliferativeTypeDependentG1Duration(bool useCellProliferativeTypeDependentG1Duration)
 {
-	mUseCellProliferativeTypeDependentG1Duration = useCellProliferativeTypeDependentG1Duration;
+    mUseCellProliferativeTypeDependentG1Duration = useCellProliferativeTypeDependentG1Duration;
 }
 
 
@@ -109,7 +109,7 @@ double SimpleWntCellCycleModel::GetWntLevel()
             break;
         }
         default:
-        	NEVER_REACHED;
+            NEVER_REACHED;
     }
     return level;
 }
@@ -158,11 +158,11 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 
     if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
     {
-    	wnt_division_threshold = healthy_threshold;
+        wnt_division_threshold = healthy_threshold;
     }
     else if (mpCell->GetMutationState()->IsType<LabelledCellMutationState>())
     {
-    	wnt_division_threshold = labelled_threshold;
+        wnt_division_threshold = labelled_threshold;
     }
     else if (mpCell->GetMutationState()->IsType<ApcOneHitCellMutationState>())
     {
@@ -171,8 +171,8 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     }
     else if (mpCell->GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
     {
-    	// less than above value
-    	wnt_division_threshold = 0.155*healthy_threshold;
+        // less than above value
+        wnt_division_threshold = 0.155*healthy_threshold;
     }
     else if (mpCell->GetMutationState()->IsType<ApcTwoHitCellMutationState>())
     {
@@ -181,7 +181,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     }
     else
     {
-    	NEVER_REACHED;
+        NEVER_REACHED;
     }
 
     double wnt_level = GetWntLevel();

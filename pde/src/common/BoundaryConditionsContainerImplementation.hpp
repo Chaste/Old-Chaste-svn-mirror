@@ -41,7 +41,7 @@ BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::BoundaryConditio
             : AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>()
 {
     mLoadedFromArchive = false;
-    
+
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
         mpNeumannMap[index_of_unknown] = new std::map< const BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*>;
@@ -225,7 +225,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         bool applyToMatrix)
 {
     HeartEventHandler::BeginEvent(HeartEventHandler::USER1);
-    
+
     if (applyToMatrix)
     {
         if (!this->HasDirichletBoundaryConditions())
@@ -249,7 +249,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
 #else
             VecZeroEntries(rLinearSystem.rGetDirichletBoundaryConditionsVector());
 #endif
-            
+
             // If the matrix is symmetric, calls to GetMatrixRowDistributed() require the matrix to be
             // in assembled state. Otherwise we can defer it.
             rLinearSystem.AssembleFinalLinearSystem();
@@ -281,13 +281,13 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
 
                 unsigned row = PROBLEM_DIM*node_index + index_of_unknown; /// \todo: assumes vm and phie equations are interleaved
                 dirichlet_conditions[row] = value;
-                
+
                 this->mDirichIterator++;
             }
         }
         // And replicate
         dirichlet_conditions.Replicate(lo, hi);
-        
+
         // Which rows have conditions?
         std::vector<unsigned> rows_to_zero;
         for (unsigned i=0; i<dirichlet_conditions.GetSize(); i++)
@@ -297,7 +297,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 rows_to_zero.push_back(i);
             }
         }
-        
+
         if (matrix_is_symmetric)
         {
             // Modify the matrix columns
@@ -331,8 +331,8 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 VecDestroy(matrix_col);
             }
         }
-        
-        // Now zero the appropriate rows and columns of the matrix. If the matrix is symmetric we apply the 
+
+        // Now zero the appropriate rows and columns of the matrix. If the matrix is symmetric we apply the
         // boundary conditions in a way the symmetry isn't lost (rows and columns). If not only the row is
         // zeroed.
         if (matrix_is_symmetric)
@@ -375,7 +375,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
             this->mDirichIterator++;
         }
     }
-    
+
     HeartEventHandler::EndEvent(HeartEventHandler::USER1);
 }
 
@@ -424,7 +424,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     }
 
     PetscInt* rows_to_zero = new PetscInt[num_boundary_conditions];
-    
+
     unsigned counter=0;
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
@@ -442,7 +442,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     MatAssemblyEnd(jacobian, MAT_FINAL_ASSEMBLY);
 
     // Important! Petsc by default will destroy the sparsity structure for this row and deallocate memory
-    // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated 
+    // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated
     // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
     // are kept.
 #if PETSC_VERSION_MAJOR == 3

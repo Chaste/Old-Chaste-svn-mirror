@@ -141,7 +141,7 @@ public:
      * @param archiving  whether this constructor is being called by the archiver - do things slightly differently!
      */
     TissueCell(CellProliferativeType cellType,
-    		   boost::shared_ptr<AbstractCellMutationState> pMutationState,
+               boost::shared_ptr<AbstractCellMutationState> pMutationState,
                AbstractCellCycleModel* pCellCycleModel,
                bool archiving = false);
 
@@ -322,7 +322,7 @@ inline void save_construct_data(
     const CellProliferativeType cell_type = t->GetCellProliferativeType();
     const boost::shared_ptr<AbstractCellMutationState> p_mutation_state = t->GetMutationState();
 
-	const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
+    const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
     ar << cell_type;
     ar << p_mutation_state;
     ar << p_cell_cycle_model;

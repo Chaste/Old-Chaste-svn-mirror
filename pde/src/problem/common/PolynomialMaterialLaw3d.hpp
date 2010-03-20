@@ -68,9 +68,9 @@ public :
 
     /**
      * Get the first derivative dW/dI1.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -78,9 +78,9 @@ public :
 
     /**
      * Get the first derivative dW/dI2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -88,9 +88,9 @@ public :
 
     /**
      * Get the second derivative d^2W/dI1^2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -98,9 +98,9 @@ public :
 
     /**
      * Get the second derivative d^2W/dI2^2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -108,9 +108,9 @@ public :
 
     /**
      * Get the second derivative d^2W/dI1dI2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -118,7 +118,7 @@ public :
 
     /**
      * Get the parameter alpha_{ij}.
-     * 
+     *
      * @param i index i
      * @param j index j
      */
@@ -128,15 +128,15 @@ public :
 
     /**
      * Constructor.
-     * 
-     * @param n the parameter n 
+     *
+     * @param n the parameter n
      * @param alpha the matrix of parameters alpha
      */
     PolynomialMaterialLaw3d(unsigned n, std::vector<std::vector<double> > alpha);
 
     /**
      * Resize the matrix alpha to be of size (n+1)*(n+1) and zero all entries.
-     * 
+     *
      * @param n the parameter n
      */
     static std::vector<std::vector<double> > GetZeroedAlpha(unsigned n);

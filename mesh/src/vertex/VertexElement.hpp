@@ -94,8 +94,8 @@ public:
      * @param orientations vector of orientations of the faces associated with the element
      */
     VertexElement(unsigned index,
-				  std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
-				  std::vector<bool> orientations);
+                  std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
+                  std::vector<bool> orientations);
 
     /**
      * Constructor.
@@ -104,7 +104,7 @@ public:
      * @param nodes vector of Nodes associated with the element
      */
     VertexElement(unsigned index,
-    		      std::vector<Node<SPACE_DIM>*> nodes);
+                  std::vector<Node<SPACE_DIM>*> nodes);
 
     /**
      * Destructor.
@@ -205,7 +205,7 @@ public:
      * @param index  the index of the element in the mesh
      * @param rNodes the nodes owned by the element
      */
-	VertexElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
+    VertexElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 
     /**
      * Virtual destructor, since this class has virtual methods.
@@ -214,27 +214,27 @@ public:
     {}
 
     /**
-	 * Update node at the given index.
-	 *
-	 * @param rIndex is an local index to which node to change
-	 * @param pNode is a pointer to the replacement node
-	 */
-	void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
+     * Update node at the given index.
+     *
+     * @param rIndex is an local index to which node to change
+     * @param pNode is a pointer to the replacement node
+     */
+    void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
 
-	/**
-	 * Overridden RegisterWithNodes() method.
-	 *
-	 * Informs all nodes forming this element that they are in this element.
-	 */
-	void RegisterWithNodes();
+    /**
+     * Overridden RegisterWithNodes() method.
+     *
+     * Informs all nodes forming this element that they are in this element.
+     */
+    void RegisterWithNodes();
 
-	/**
-	 * Overridden MarkAsDeleted() method.
-	 *
-	 * Mark an element as having been removed from the mesh.
-	 * Also notify nodes in the element that it has been removed.
-	 */
-	void MarkAsDeleted();
+    /**
+     * Overridden MarkAsDeleted() method.
+     *
+     * Mark an element as having been removed from the mesh.
+     * Also notify nodes in the element that it has been removed.
+     */
+    void MarkAsDeleted();
 
     /**
      * Reset the global index of the element and update its nodes.
@@ -285,39 +285,39 @@ VertexElement<1, SPACE_DIM>::VertexElement(unsigned index, const std::vector<Nod
 template<unsigned SPACE_DIM>
 void VertexElement<1, SPACE_DIM>::UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
 {
-	assert(rIndex < this->mNodes.size());
+    assert(rIndex < this->mNodes.size());
 
-	// Remove it from the node at this location
-	this->mNodes[rIndex]->RemoveElement(this->mIndex);
+    // Remove it from the node at this location
+    this->mNodes[rIndex]->RemoveElement(this->mIndex);
 
-	// Update the node at this location
-	this->mNodes[rIndex] = pNode;
+    // Update the node at this location
+    this->mNodes[rIndex] = pNode;
 
-	// Add element to this node
-	this->mNodes[rIndex]->AddElement(this->mIndex);
+    // Add element to this node
+    this->mNodes[rIndex]->AddElement(this->mIndex);
 }
 
 template<unsigned SPACE_DIM>
 void VertexElement<1, SPACE_DIM>::RegisterWithNodes()
 {
-	for (unsigned i=0; i<this->mNodes.size(); i++)
-	{
-		this->mNodes[i]->AddElement(this->mIndex);
-	}
+    for (unsigned i=0; i<this->mNodes.size(); i++)
+    {
+        this->mNodes[i]->AddElement(this->mIndex);
+    }
 }
 
 
 template<unsigned SPACE_DIM>
 void VertexElement<1, SPACE_DIM>::MarkAsDeleted()
 {
-	// Mark element as deleted
-	this->mIsDeleted = true;
+    // Mark element as deleted
+    this->mIsDeleted = true;
 
-	// Update nodes in the element so they know they are not contained by it
-	for (unsigned i=0; i<this->GetNumNodes(); i++)
-	{
-		this->mNodes[i]->RemoveElement(this->mIndex);
-	}
+    // Update nodes in the element so they know they are not contained by it
+    for (unsigned i=0; i<this->GetNumNodes(); i++)
+    {
+        this->mNodes[i]->RemoveElement(this->mIndex);
+    }
 }
 
 template <unsigned SPACE_DIM>

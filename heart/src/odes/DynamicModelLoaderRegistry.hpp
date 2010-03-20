@@ -49,19 +49,19 @@ public:
      * Get the single instance of the registry.
      */
     static DynamicModelLoaderRegistry* Instance();
-    
+
     /**
      * Get the loader for the given .so file.
      * @param rPath  absolute path to the .so
      */
     DynamicCellModelLoader* GetLoader(const std::string& rPath);
-    
+
     /**
      * Get the loader for the given .so file.
      * @param rFileFinder  finder for the .so file
      */
     DynamicCellModelLoader* GetLoader(const FileFinder& rFileFinder);
-    
+
     /**
      * Destructor closes all loaded .so files.
      */
@@ -73,10 +73,10 @@ private:
      * Map is from absolute path of the library, to loader object.
      */
     std::map<std::string, DynamicCellModelLoader*> mLoaders;
-    
+
     /** The single instance of this class. */
     static std::auto_ptr<DynamicModelLoaderRegistry> mpInstance;
-    
+
     /**
      * Private constructor; all access should be via Instance().
      */
@@ -91,7 +91,7 @@ private:
      * Overloaded assignment operator.
      */
     DynamicModelLoaderRegistry& operator= (const DynamicModelLoaderRegistry&);
-    
+
 };
 
 #endif /*DYNAMICMODELLOADERREGISTRY_HPP_*/

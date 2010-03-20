@@ -93,19 +93,19 @@ void BidomainPde<SPACE_DIM>::CreateExtracellularConductivityTensors()
     if (this->mpConfig->GetConductivityHeterogeneitiesProvided())
     {
         try
-        {   
+        {
             hetero_extra_conductivities.resize(num_elements);
         }
         catch(std::bad_alloc &badAlloc)
         {
-#define COVERAGE_IGNORE            
+#define COVERAGE_IGNORE
             std::cout << "Failed to allocate std::vector of size " << num_elements << std::endl;
-            PetscTools::ReplicateException(true);            
+            PetscTools::ReplicateException(true);
             throw badAlloc;
-#undef COVERAGE_IGNORE            
+#undef COVERAGE_IGNORE
         }
-        PetscTools::ReplicateException(false);        
-        
+        PetscTools::ReplicateException(false);
+
         std::vector<ChasteCuboid<SPACE_DIM> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;

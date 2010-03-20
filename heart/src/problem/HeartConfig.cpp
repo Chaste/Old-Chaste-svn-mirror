@@ -113,7 +113,7 @@ HeartConfig::HeartConfig()
 
     mpUserParameters = mpDefaultParameters;
     //CheckTimeSteps(); // necessity of this line of code is not tested -- remove with caution!
-    
+
     //initialise the member variable of the layers
     mEpiFraction = -1.0;
     mEndoFraction =  -1.0;
@@ -462,21 +462,21 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedR
                     ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
                     definedRegions.push_back(ChasteCuboid<DIM>( chaste_point_a, chaste_point_b ));
                     break;
-                }    
+                }
                 default:
                     NEVER_REACHED;
                     break;
             }
-            
+
             ionicModels.push_back(ionic_model_region.IonicModel());
         }
         else
         {
-            if(ionic_model_region.Location().EpiLayer().present() || ionic_model_region.Location().MidLayer().present() || ionic_model_region.Location().EndoLayer().present() )   
+            if(ionic_model_region.Location().EpiLayer().present() || ionic_model_region.Location().MidLayer().present() || ionic_model_region.Location().EndoLayer().present() )
             {
                 EXCEPTION("Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");
             }
-        } 
+        }
     }
 }
 
@@ -693,7 +693,7 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rS
                     ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
                     rStimulatedAreas.push_back( ChasteCuboid<DIM>( chaste_point_a, chaste_point_b ) );
                     break;
-                }    
+                }
                 default:
                     NEVER_REACHED;
                     break;
@@ -702,15 +702,15 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rS
             boost::shared_ptr<SimpleStimulus> stim(new SimpleStimulus(stimulus.Strength(),
                                                                       stimulus.Duration(),
                                                                       stimulus.Delay()));
-            rStimuliApplied.push_back( stim );   
+            rStimuliApplied.push_back( stim );
         }
         else
         {
-            if(stimulus.Location().EpiLayer().present() || stimulus.Location().MidLayer().present() || stimulus.Location().EndoLayer().present() )   
+            if(stimulus.Location().EpiLayer().present() || stimulus.Location().MidLayer().present() || stimulus.Location().EndoLayer().present() )
             {
                 EXCEPTION("Definition of transmural layers is not yet supported for specifying stimulated areas, please use cuboids instead");
             }
-        }  
+        }
     }
 }
 
@@ -718,27 +718,27 @@ template<unsigned DIM>
 void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* >& rCellHeterogeneityRegions,
                                          std::vector<double>& rScaleFactorGks,
                                          std::vector<double>& rScaleFactorIto,
-                                         std::vector<double>& rScaleFactorGkr) 
+                                         std::vector<double>& rScaleFactorGkr)
 {
     CheckSimulationIsDefined("CellHeterogeneities");
     XSD_ANON_SEQUENCE_TYPE(cp::simulation_type, CellHeterogeneities, CellHeterogeneity)&
          cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().get().CellHeterogeneities(),
                                                  & mpDefaultParameters->Simulation().get().CellHeterogeneities(),
                                                  "CellHeterogeneities")->get().CellHeterogeneity();
-    
+
     bool user_supplied_negative_value = false;
     bool user_asking_for_transmural_layers = false;
     unsigned counter_of_heterogeneities = 0;
-    
+
     for (XSD_ANON_ITERATOR_TYPE(cp::simulation_type, CellHeterogeneities, CellHeterogeneity) i = cell_heterogeneity.begin();
          i != cell_heterogeneity.end();
          ++i)
     {
         cp::cell_heterogeneity_type ht(*i);
-        
+
         if (ht.Location().Cuboid().present())
         {
-            mUserAskedForCuboidsForCellularHeterogeneities = true;    
+            mUserAskedForCuboidsForCellularHeterogeneities = true;
             cp::point_type point_a = ht.Location().Cuboid()->LowerCoordinates();
             cp::point_type point_b = ht.Location().Cuboid()->UpperCoordinates();
 
@@ -764,59 +764,59 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                     ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
                     rCellHeterogeneityRegions.push_back(new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
                     break;
-                }    
+                }
                 default:
                     NEVER_REACHED;
                     break;
             }
 
         }
-        else                                                                                                                                                  
+        else
         {
-            
-            if(ht.Location().EpiLayer().present())   
-            {                                                                                                                                                                            
+
+            if(ht.Location().EpiLayer().present())
+            {
                 mEpiFraction  =  ht.Location().EpiLayer().get();
-                
+
                 user_asking_for_transmural_layers = true;
                 if (mEpiFraction <0)
                 {
                     user_supplied_negative_value=true;
                 }
                 mIndexEpi = counter_of_heterogeneities;
-            }  
-            if(ht.Location().EndoLayer().present())   
-            {                                                                                                                                                                            
+            }
+            if(ht.Location().EndoLayer().present())
+            {
                 mEndoFraction  =  ht.Location().EndoLayer().get();
-                
+
                 user_asking_for_transmural_layers = true;
                 if (mEndoFraction <0)
                 {
                     user_supplied_negative_value=true;
                 }
                 mIndexEndo = counter_of_heterogeneities;
-            }                                                                                                                              
-            if(ht.Location().MidLayer().present())   
-            {                                                                                                                                                                            
+            }
+            if(ht.Location().MidLayer().present())
+            {
                 mMidFraction  =  ht.Location().MidLayer().get();
-                
+
                 user_asking_for_transmural_layers = true;
                 if (mMidFraction <0)
                 {
                     user_supplied_negative_value=true;
-                }  
+                }
                 mIndexMid =  counter_of_heterogeneities;
-            }   
+            }
         }
         rScaleFactorGks.push_back (ht.ScaleFactorGks());
         rScaleFactorIto.push_back (ht.ScaleFactorIto());
-        rScaleFactorGkr.push_back (ht.ScaleFactorGkr());   
+        rScaleFactorGkr.push_back (ht.ScaleFactorGkr());
         counter_of_heterogeneities++;
     }
-    
-    //set the flag for request of transmural layers    
+
+    //set the flag for request of transmural layers
      mUserAskedForCellularTransmuralHeterogeneities = user_asking_for_transmural_layers;
-     
+
      // cuboids and layers at the same time are not yet supported
      if (mUserAskedForCuboidsForCellularHeterogeneities && mUserAskedForCellularTransmuralHeterogeneities)
      {
@@ -824,29 +824,29 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
         for (unsigned index=0;index < rCellHeterogeneityRegions.size(); index++)
         {
             delete rCellHeterogeneityRegions[index];
-        }    
+        }
         EXCEPTION ("Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");
      }
      //check the user input if the transmural heterogeneities have been requested
      if (mUserAskedForCellularTransmuralHeterogeneities)
      {
-        //check that the user supplied all three layers, the indexes should be 0, 1 and 2. 
-        // As they are initialised to a higher value, if their summation is higher than 3, 
+        //check that the user supplied all three layers, the indexes should be 0, 1 and 2.
+        // As they are initialised to a higher value, if their summation is higher than 3,
         // one (or more) is missing
         if ((mIndexMid+mIndexEndo+mIndexEpi) > 3)
         {
             EXCEPTION ("Three specifications of layers must be supplied");
         }
         if (fabs((mEndoFraction+mMidFraction+mEpiFraction)-1)>1e-2)
-        { 
+        {
             EXCEPTION ("Summation of epicardial, midmyocardial and endocardial fractions should be 1");
-        }                 
+        }
         if (user_supplied_negative_value)
         {
            EXCEPTION ("Fractions must be positive");
         }
-     } 
-}           
+     }
+}
 
 bool HeartConfig::AreCellularTransmuralHeterogeneitiesRequested()
 {
@@ -948,21 +948,21 @@ void HeartConfig::GetConductivityHeterogeneities(
                     ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
                     conductivitiesHeterogeneityAreas.push_back( ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
                     break;
-                }    
+                }
                 default:
                     NEVER_REACHED;
                     break;
             }
 
-            
+
         }
         else
         {
-            if(ht.Location().EpiLayer().present() || ht.Location().MidLayer().present() || ht.Location().EndoLayer().present() )   
+            if(ht.Location().EpiLayer().present() || ht.Location().MidLayer().present() || ht.Location().EndoLayer().present() )
             {
                 EXCEPTION("Definition of transmural layers is not allowed for conductivities heterogeneities, you may use fibre orientation support instead");
             }
-        }  
+        }
 
         if (ht.IntracellularConductivities().present())
         {
@@ -1085,12 +1085,12 @@ double HeartConfig::GetCheckpointTimestep() const
                         "Simulation/SaveSimulation")->get().timestep();
     }
     else
-    {       
-        CheckResumeSimulationIsDefined("GetSaveSimulation"); 
+    {
+        CheckResumeSimulationIsDefined("GetSaveSimulation");
         return DecideLocation( & mpUserParameters->ResumeSimulation().get().CheckpointSimulation(),
                         & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
-                        "ResumeSimulation/SaveSimulation")->get().timestep();            
-    }                        
+                        "ResumeSimulation/SaveSimulation")->get().timestep();
+    }
 }
 
 unsigned HeartConfig::GetMaxCheckpointsOnDisk() const
@@ -1103,12 +1103,12 @@ unsigned HeartConfig::GetMaxCheckpointsOnDisk() const
                         "Simulation/SaveSimulation")->get().max_checkpoints_on_disk();
     }
     else
-    {       
-        CheckResumeSimulationIsDefined("GetSaveSimulation"); 
+    {
+        CheckResumeSimulationIsDefined("GetSaveSimulation");
         return DecideLocation( & mpUserParameters->ResumeSimulation().get().CheckpointSimulation(),
                         & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
-                        "ResumeSimulation/SaveSimulation")->get().max_checkpoints_on_disk();            
-    }                            
+                        "ResumeSimulation/SaveSimulation")->get().max_checkpoints_on_disk();
+    }
 }
 
 
@@ -1357,100 +1357,100 @@ bool HeartConfig::IsAdaptivityParametersPresent() const
 
 double HeartConfig::GetTargetErrorForAdaptivity() const
 {
-	if ( IsAdaptivityParametersPresent() )
-	{
-		return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
-							   & mpDefaultParameters->Numerical().AdaptivityParameters(),
-							   "TargetError")->get().target_error();
-	}
-	else
-	{
-		EXCEPTION("Adaptivity parameters have not been set");
-	}
+    if ( IsAdaptivityParametersPresent() )
+    {
+        return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
+                               & mpDefaultParameters->Numerical().AdaptivityParameters(),
+                               "TargetError")->get().target_error();
+    }
+    else
+    {
+        EXCEPTION("Adaptivity parameters have not been set");
+    }
 }
 
 double HeartConfig::GetSigmaForAdaptivity() const
 {
-	if ( IsAdaptivityParametersPresent() )
-	{
-		return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
-							   & mpDefaultParameters->Numerical().AdaptivityParameters(),
-							   "TargetError")->get().sigma();
-	}
-	else
-	{
-		EXCEPTION("Adaptivity parameters have not been set");
-	}
+    if ( IsAdaptivityParametersPresent() )
+    {
+        return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
+                               & mpDefaultParameters->Numerical().AdaptivityParameters(),
+                               "TargetError")->get().sigma();
+    }
+    else
+    {
+        EXCEPTION("Adaptivity parameters have not been set");
+    }
 }
 
 double HeartConfig::GetMaxEdgeLengthForAdaptivity() const
 {
-	if ( IsAdaptivityParametersPresent() )
-	{
-	return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
+    if ( IsAdaptivityParametersPresent() )
+    {
+    return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
                            & mpDefaultParameters->Numerical().AdaptivityParameters(),
                            "TargetError")->get().max_edge_length();
-	}
-	else
-	{
-		EXCEPTION("Adaptivity parameters have not been set");
-	}
+    }
+    else
+    {
+        EXCEPTION("Adaptivity parameters have not been set");
+    }
 }
 
 double HeartConfig::GetMinEdgeLengthForAdaptivity() const
 {
-	if ( IsAdaptivityParametersPresent() )
-	{
-		return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
-							   & mpDefaultParameters->Numerical().AdaptivityParameters(),
-							   "TargetError")->get().min_edge_length();
-	}
-	else
-	{
-		EXCEPTION("Adaptivity parameters have not been set");
-	}
+    if ( IsAdaptivityParametersPresent() )
+    {
+        return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
+                               & mpDefaultParameters->Numerical().AdaptivityParameters(),
+                               "TargetError")->get().min_edge_length();
+    }
+    else
+    {
+        EXCEPTION("Adaptivity parameters have not been set");
+    }
 }
 
 double HeartConfig::GetGradationForAdaptivity() const
 {
-	if ( IsAdaptivityParametersPresent() )
-	{
-		return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
-							   & mpDefaultParameters->Numerical().AdaptivityParameters(),
-							   "TargetError")->get().gradation();
-	}
-	else
-	{
-		EXCEPTION("Adaptivity parameters have not been set");
-	}
+    if ( IsAdaptivityParametersPresent() )
+    {
+        return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
+                               & mpDefaultParameters->Numerical().AdaptivityParameters(),
+                               "TargetError")->get().gradation();
+    }
+    else
+    {
+        EXCEPTION("Adaptivity parameters have not been set");
+    }
 }
 
 unsigned HeartConfig::GetMaxNodesForAdaptivity() const
 {
-	if ( IsAdaptivityParametersPresent() )
-	{
-		return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
-							   & mpDefaultParameters->Numerical().AdaptivityParameters(),
-							   "TargetError")->get().max_nodes();
-	}
-	else
-	{
-		EXCEPTION("Adaptivity parameters have not been set");
-	}
+    if ( IsAdaptivityParametersPresent() )
+    {
+        return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
+                               & mpDefaultParameters->Numerical().AdaptivityParameters(),
+                               "TargetError")->get().max_nodes();
+    }
+    else
+    {
+        EXCEPTION("Adaptivity parameters have not been set");
+    }
 }
 
 unsigned HeartConfig::GetNumberOfAdaptiveSweeps() const
 {
-	if ( IsAdaptivityParametersPresent() )
-	{
-		return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
-							   & mpDefaultParameters->Numerical().AdaptivityParameters(),
-							   "TargetError")->get().num_sweeps();
-	}
-	else
-	{
-		EXCEPTION("Adaptivity parameters have not been set");
-	}
+    if ( IsAdaptivityParametersPresent() )
+    {
+        return DecideLocation( & mpUserParameters->Numerical().AdaptivityParameters(),
+                               & mpDefaultParameters->Numerical().AdaptivityParameters(),
+                               "TargetError")->get().num_sweeps();
+    }
+    else
+    {
+        EXCEPTION("Adaptivity parameters have not been set");
+    }
 }
 
 /*
@@ -1861,12 +1861,12 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
 }
 
 void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpointTimestep, unsigned maxCheckpointsOnDisk)
-{    
+{
     if (saveSimulation)
     {
         // Make sure values for the optional parameters have been provided
         assert(checkpointTimestep!=-1.0 && maxCheckpointsOnDisk!=UINT_MAX);
-        
+
         XSD_CREATE_WITH_FIXED_ATTR2(cp::simulation_type::XSD_NESTED_TYPE(CheckpointSimulation),
                                     cs,
                                     checkpointTimestep,
@@ -1878,8 +1878,8 @@ void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpoint
     {
         mpUserParameters->Simulation().get().CheckpointSimulation().reset();
     }
-    
-    CheckTimeSteps();        
+
+    CheckTimeSteps();
 }
 
 // Physiological
@@ -2030,7 +2030,7 @@ void HeartConfig::CheckTimeSteps() const
         //If printing divides checkpoint then the floating remainder ought to be close to
         //zero(+a smidge) or pde-a smidge
         double remainder_checkpoint_over_printing=fmod(GetCheckpointTimestep(), GetPrintingTimeStep());
-    
+
         // I (migb) had to scale DBL_EPSILON because the comparison wasn't working properly with GetCheckpointTimestep()=10.0 GetPrintingTimeStep()=0.1
         if ( remainder_checkpoint_over_printing > DBL_EPSILON && remainder_checkpoint_over_printing < GetPrintingTimeStep()-DBL_EPSILON*(1/GetPrintingTimeStep()))
         {
@@ -2129,115 +2129,115 @@ void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
 }
 
 void HeartConfig::SetAdaptivityParameters(double targetError,
-									      double sigma,
-									      double maxEdgeLength,
-									      double minEdgeLength,
-									      double gradation,
-									      unsigned maxNodes,
-									      unsigned numSweeps )
+                                          double sigma,
+                                          double maxEdgeLength,
+                                          double minEdgeLength,
+                                          double gradation,
+                                          unsigned maxNodes,
+                                          unsigned numSweeps )
 {
-	if ( maxEdgeLength < minEdgeLength )
-	{
-		EXCEPTION("AdaptivityParameters: maxEdgeLength must be greater than minEdgeLength.");
-	}
+    if ( maxEdgeLength < minEdgeLength )
+    {
+        EXCEPTION("AdaptivityParameters: maxEdgeLength must be greater than minEdgeLength.");
+    }
     if (!IsAdaptivityParametersPresent())
     {
         cp::adaptivity_parameters_type element(targetError,
-											   sigma,
-											   maxEdgeLength,
-											   minEdgeLength,
-											   gradation,
-											   maxNodes,
-											   numSweeps );
+                                               sigma,
+                                               maxEdgeLength,
+                                               minEdgeLength,
+                                               gradation,
+                                               maxNodes,
+                                               numSweeps );
         mpUserParameters->Numerical().AdaptivityParameters().set(element);
     }
     else
     {
-    	mpUserParameters->Numerical().AdaptivityParameters().get().target_error(targetError);
-    	mpUserParameters->Numerical().AdaptivityParameters().get().sigma(sigma);
-    	mpUserParameters->Numerical().AdaptivityParameters().get().max_edge_length(maxEdgeLength);
-    	mpUserParameters->Numerical().AdaptivityParameters().get().min_edge_length(minEdgeLength);
-    	mpUserParameters->Numerical().AdaptivityParameters().get().gradation(gradation);
-    	mpUserParameters->Numerical().AdaptivityParameters().get().max_nodes(maxNodes);
-    	mpUserParameters->Numerical().AdaptivityParameters().get().num_sweeps(numSweeps);
+        mpUserParameters->Numerical().AdaptivityParameters().get().target_error(targetError);
+        mpUserParameters->Numerical().AdaptivityParameters().get().sigma(sigma);
+        mpUserParameters->Numerical().AdaptivityParameters().get().max_edge_length(maxEdgeLength);
+        mpUserParameters->Numerical().AdaptivityParameters().get().min_edge_length(minEdgeLength);
+        mpUserParameters->Numerical().AdaptivityParameters().get().gradation(gradation);
+        mpUserParameters->Numerical().AdaptivityParameters().get().max_nodes(maxNodes);
+        mpUserParameters->Numerical().AdaptivityParameters().get().num_sweeps(numSweeps);
     }
 }
 
 void HeartConfig::SetTargetErrorForAdaptivity(double targetError)
 {
-	SetAdaptivityParameters( targetError,
-			                 GetSigmaForAdaptivity(),
-			                 GetMaxEdgeLengthForAdaptivity(),
-			                 GetMinEdgeLengthForAdaptivity(),
-			                 GetGradationForAdaptivity(),
-			                 GetMaxNodesForAdaptivity(),
-			                 GetNumberOfAdaptiveSweeps() );
+    SetAdaptivityParameters( targetError,
+                             GetSigmaForAdaptivity(),
+                             GetMaxEdgeLengthForAdaptivity(),
+                             GetMinEdgeLengthForAdaptivity(),
+                             GetGradationForAdaptivity(),
+                             GetMaxNodesForAdaptivity(),
+                             GetNumberOfAdaptiveSweeps() );
 }
 
 void HeartConfig::SetSigmaForAdaptivity(double sigma)
 {
-	SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
-			                 sigma,
-			                 GetMaxEdgeLengthForAdaptivity(),
-			                 GetMinEdgeLengthForAdaptivity(),
-			                 GetGradationForAdaptivity(),
-			                 GetMaxNodesForAdaptivity(),
-			                 GetNumberOfAdaptiveSweeps() );
+    SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
+                             sigma,
+                             GetMaxEdgeLengthForAdaptivity(),
+                             GetMinEdgeLengthForAdaptivity(),
+                             GetGradationForAdaptivity(),
+                             GetMaxNodesForAdaptivity(),
+                             GetNumberOfAdaptiveSweeps() );
 }
 
 void HeartConfig::SetMaxEdgeLengthForAdaptivity(double maxEdgeLength)
 {
-	SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
-			                 GetSigmaForAdaptivity(),
-			                 maxEdgeLength,
-			                 GetMinEdgeLengthForAdaptivity(),
-			                 GetGradationForAdaptivity(),
-			                 GetMaxNodesForAdaptivity(),
-			                 GetNumberOfAdaptiveSweeps() );
+    SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
+                             GetSigmaForAdaptivity(),
+                             maxEdgeLength,
+                             GetMinEdgeLengthForAdaptivity(),
+                             GetGradationForAdaptivity(),
+                             GetMaxNodesForAdaptivity(),
+                             GetNumberOfAdaptiveSweeps() );
 }
 
 void HeartConfig::SetMinEdgeLengthForAdaptivity(double minEdgeLength)
 {
-	SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
-			                 GetSigmaForAdaptivity(),
-			                 GetMaxEdgeLengthForAdaptivity(),
-			                 minEdgeLength,
-			                 GetGradationForAdaptivity(),
-			                 GetMaxNodesForAdaptivity(),
-			                 GetNumberOfAdaptiveSweeps() );
+    SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
+                             GetSigmaForAdaptivity(),
+                             GetMaxEdgeLengthForAdaptivity(),
+                             minEdgeLength,
+                             GetGradationForAdaptivity(),
+                             GetMaxNodesForAdaptivity(),
+                             GetNumberOfAdaptiveSweeps() );
 }
 
 void HeartConfig::SetGradationForAdaptivity(double gradation)
 {
-	SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
-			                 GetSigmaForAdaptivity(),
-			                 GetMaxEdgeLengthForAdaptivity(),
-			                 GetMinEdgeLengthForAdaptivity(),
-			                 gradation,
-			                 GetMaxNodesForAdaptivity(),
-			                 GetNumberOfAdaptiveSweeps() );
+    SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
+                             GetSigmaForAdaptivity(),
+                             GetMaxEdgeLengthForAdaptivity(),
+                             GetMinEdgeLengthForAdaptivity(),
+                             gradation,
+                             GetMaxNodesForAdaptivity(),
+                             GetNumberOfAdaptiveSweeps() );
 }
 
 void HeartConfig::SetMaxNodesForAdaptivity(unsigned maxNodes)
 {
-	SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
-			                 GetSigmaForAdaptivity(),
-			                 GetMaxEdgeLengthForAdaptivity(),
-			                 GetMinEdgeLengthForAdaptivity(),
-			                 GetGradationForAdaptivity(),
-			                 maxNodes,
-			                 GetNumberOfAdaptiveSweeps() );
+    SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
+                             GetSigmaForAdaptivity(),
+                             GetMaxEdgeLengthForAdaptivity(),
+                             GetMinEdgeLengthForAdaptivity(),
+                             GetGradationForAdaptivity(),
+                             maxNodes,
+                             GetNumberOfAdaptiveSweeps() );
 }
 
 void HeartConfig::SetNumberOfAdaptiveSweeps(unsigned numSweeps)
 {
-	SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
-			                 GetSigmaForAdaptivity(),
-			                 GetMaxEdgeLengthForAdaptivity(),
-			                 GetMinEdgeLengthForAdaptivity(),
-			                 GetGradationForAdaptivity(),
-			                 GetMaxNodesForAdaptivity(),
-			                 numSweeps );
+    SetAdaptivityParameters( GetTargetErrorForAdaptivity(),
+                             GetSigmaForAdaptivity(),
+                             GetMaxEdgeLengthForAdaptivity(),
+                             GetMinEdgeLengthForAdaptivity(),
+                             GetGradationForAdaptivity(),
+                             GetMaxNodesForAdaptivity(),
+                             numSweeps );
 }
 
 void HeartConfig::SetApdMaps(const std::vector<std::pair<double,double> >& apdMaps)
@@ -2515,7 +2515,7 @@ xercesc::DOMElement* HeartConfig::AddNamespace(xercesc::DOMDocument* pDocument,
 /**
  *  This is a simple class that lets us do easy (though not terribly efficient)
  *  trancoding of char* data to XMLCh data.
- * 
+ *
  * Taken from Xerces-C samples/CreateDOMDocument/CreateDOMDocument.cpp
  */
 class XStr
@@ -2538,7 +2538,7 @@ public :
     }
 
 
-    /** Get the converted string */ 
+    /** Get the converted string */
     const XMLCh* UnicodeForm() const
     {
         return mUnicodeForm;

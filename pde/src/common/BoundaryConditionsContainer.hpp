@@ -64,13 +64,13 @@ public:
     /** Type of a read-only iterator over Neumann boundary conditions. */
     typedef typename std::map< const BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>*, const AbstractBoundaryCondition<SPACE_DIM>* >::const_iterator
         NeumannMapIterator;
-    
+
     /** Base class type. */
     typedef AbstractBoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM> BaseClassType;
 
 private:
 
-    std::map< const BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >* 
+    std::map< const BoundaryElement<ELEMENT_DIM-1, SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>* >*
         mpNeumannMap[PROBLEM_DIM]; /**< List (map) of Neumann boundary conditions. */
 
     /**
@@ -88,7 +88,7 @@ private:
 
     /** Whether the contents of this container were originally loaded from an archive. */
     bool mLoadedFromArchive;
-    
+
 public:
 
     /**
@@ -272,15 +272,15 @@ public:
      * @return iterator pointing to one past the last Neumann boundary condition
      */
     NeumannMapIterator EndNeumann();
-    
+
     /**
      * Load a collection of boundary conditions from an archive.
-     * 
+     *
      * \todo assumes this collection is empty prior to being called.
      *
      * This method only loads data if #mLoadedFromArchive is false, to allow for multiple pointers
      * to the same container to be handled correctly.  It sets #mLoadedFromArchive when done.
-     * 
+     *
      * @param archive  the archive to load from
      * @param pMesh  the mesh to use to resolve Node and BoundaryElement indices
      */
@@ -291,22 +291,22 @@ public:
         {
             return;
         }
-        
+
         MergeFromArchive(archive, pMesh);
     }
-    
+
     /**
      * Load extra boundary conditions from an archive to add to this collection.
-     * 
+     *
      * Multiple pointers to the same container need to be handled by the caller - we assume there
      * will be conditions to load.  Sets #mLoadedFromArchive when done.
-     * 
+     *
      * @param archive  the archive to load from
      * @param pMesh  the mesh to use to resolve Node and BoundaryElement indices
      */
     template <class Archive>
     void MergeFromArchive(Archive & archive, AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
-    
+
 private:
     /** Needed for serialization. */
     friend class boost::serialization::access;

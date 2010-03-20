@@ -94,7 +94,7 @@ protected:
      * Assemble residual or jacobian on an element, using the current solution
      * stored in mCurrrentSolution. The ordering assumed is (in 2d)
      * rBElem = [u0 v0 u1 v1 .. u5 v5 p0 p1 p2].
-     * 
+     *
      * @param rElement The element to assemble on.
      * @param rAElem The element's contribution to the LHS matrix is returned in this
      *     n by n matrix, where n is the no. of nodes in this element. There is no
@@ -118,7 +118,7 @@ protected:
      * Compute the term from the surface integral of s*phi, where s is
      * a specified non-zero surface traction (ie Neumann boundary condition)
      * to be added to the Rhs vector.
-     * 
+     *
      * @param rBoundaryElement
      * @param rAelem The element's contribution to the LHS matrix is returned in this
      *     n by n matrix, where n is the no. of nodes in this element. There is no
@@ -160,7 +160,7 @@ protected:
      * in mCurrentSolution, output going to mpLinearSystem->rGetRhsVector),
      * or Jacobian matrix (using the current solution stored in
      * mCurrentSolution, output going to mpLinearSystem->rGetLhsMatrix).
-     * 
+     *
      * @param assembleResidual A bool stating whether to assemble the residual vector.
      * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
      */
@@ -168,11 +168,11 @@ protected:
 
     /**
      * Initialise the assembler.
-     * 
+     *
      * @param pFixedNodeLocations
      */
     void Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations);
-    
+
     /**
      * Allocates memory for the Jacobian and preconditioner matrices (larger number of
      * non-zeros per row than with say linear problems)
@@ -185,7 +185,7 @@ public:
      * Constructor taking in mesh, material law (assuming homogeniety at the moment)
      * body force, density, the fixed nodes (all the fixed nodes, including non-vertices),
      * and the output directory.
-     * 
+     *
      * @param pQuadMesh
      * @param pMaterialLaw
      * @param bodyForce
@@ -204,7 +204,7 @@ public:
 
     /**
      * Variant constructor taking a vector of material laws.
-     * 
+     *
      * @param pQuadMesh
      * @param rMaterialLaws
      * @param bodyForce
@@ -228,7 +228,7 @@ public:
      * Specify traction boundary conditions (if this is not called zero surface
      * tractions are assumed. This method takes in a list of boundary elements
      * and a corresponding list of surface tractions.
-     * 
+     *
      * @param rBoundaryElements
      * @param rSurfaceTractions
      */
@@ -238,7 +238,7 @@ public:
     /**
      * Set a function which gives the surface traction as a function of X (undeformed position),
      * together with the surface elements which make up the Neumann part of the boundary.
-     * 
+     *
      * @param rBoundaryElements
      * @param pFunction
      */

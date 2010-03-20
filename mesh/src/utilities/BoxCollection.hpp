@@ -72,7 +72,7 @@ public:
      * @param pNode address of the node to be removed
      */
     void RemoveNode(Node<DIM>* pNode);
-    
+
     /**
      * An element to this box.
      * @param pElement address of the element to be added
@@ -81,7 +81,7 @@ public:
 
     /** Get all the nodes in this box. */
     std::set< Node<DIM>* >& rGetNodesContained();
-       
+
     /** Get all the elements in this box. */
     std::set< Element<DIM,DIM>* >& rGetElementsContained();
 };
@@ -131,7 +131,7 @@ public:
      * @param rLocation The point
      */
     unsigned CalculateContainingBox(c_vector<double, DIM>& rLocation);
-    
+
     /**
      * Get a box.
      * @param boxIndex the index of the box to return
@@ -151,7 +151,7 @@ public:
     std::set<unsigned> GetLocalBoxes(unsigned boxIndex);
 
     /**
-     *  Compute all the pairs of (potentially) connected nodes for cell_based simulations, ie nodes which are in a 
+     *  Compute all the pairs of (potentially) connected nodes for cell_based simulations, ie nodes which are in a
      *  local box to the box containing the first node. **Note: the user still has to check that the node
      *  pairs are less than the cut-off distance apart.** The pairs are checked so that index1 < index2,
      *  so each connected pair of nodes is only in the set once.

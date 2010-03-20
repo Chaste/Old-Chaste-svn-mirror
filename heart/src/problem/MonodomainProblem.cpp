@@ -44,14 +44,14 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateAssembler()
 {
     assert(mpMonodomainPde);
-    /* 
+    /*
      * NOTE: The this->mpBoundaryConditionsContainer.get() lines below convert a
      * boost::shared_ptr to a normal pointer, as this is what the assemblers are
      * expecting. We have to be a bit careful though as boost could decide to delete
      * them whenever it feels like as it won't count the assembers as using them.
-     * 
-     * As long as they are kept as member variables here for as long as they are 
-     * required in the assemblers it should all work OK. 
+     *
+     * As long as they are kept as member variables here for as long as they are
+     * required in the assemblers it should all work OK.
      */
     if(!this->mUseMatrixBasedRhsAssembly)
     {

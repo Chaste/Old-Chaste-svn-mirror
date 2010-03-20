@@ -118,15 +118,15 @@ AbstractCardiacPde<DIM> * BidomainProblem<DIM>::CreateCardiacPde()
 
 template<unsigned DIM>
 AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssembler()
-{    
-    /* 
+{
+    /*
      * NOTE: The this->mpBoundaryConditionsContainer.get() lines below convert a
      * boost::shared_ptr to a normal pointer, as this is what the assemblers are
      * expecting. We have to be a bit careful though as boost could decide to delete
      * them whenever it feels like as it won't count the assembers as using them.
-     * 
-     * As long as they are kept as member variables here for as long as they are 
-     * required in the assemblers it should all work OK. 
+     *
+     * As long as they are kept as member variables here for as long as they are
+     * required in the assemblers it should all work OK.
      */
     if (mHasBath)
     {
@@ -339,10 +339,10 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
 
         // ..but we set mpBcc anyway, so the local mpBcc is
         // the same as the one being used in the assembler...
-        this->mpBoundaryConditionsContainer = mpElectrodes->GetBoundaryConditionsContainer();        
+        this->mpBoundaryConditionsContainer = mpElectrodes->GetBoundaryConditionsContainer();
 
         /// \todo: heart/src/problem/AbstractCardiacProblem.hpp:657 expects both pointing at the same place when unarchiving
-        this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;        
+        this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;
     }
 }
 
@@ -369,7 +369,7 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
         mpAssembler->SetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer.get());
         // ..but we set mpBcc to be mpDefaultBcc anyway, so the local mpBcc is
         // the same as the one being used in the assembler...
-        this->mpBoundaryConditionsContainer = this->mpDefaultBoundaryConditionsContainer;        
+        this->mpBoundaryConditionsContainer = this->mpDefaultBoundaryConditionsContainer;
     }
 }
 

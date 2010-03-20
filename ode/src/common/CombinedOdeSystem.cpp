@@ -42,7 +42,7 @@ CombinedOdeSystem::CombinedOdeSystem(std::vector<AbstractOdeSystem*> odeSystems)
     }
     mpSystemInfo = CombinedOdeSystemInformation::Instance(odeSystems);
     SetStateVariables(GetInitialConditions());
-    
+
     // Set up working memory
     unsigned num_systems = odeSystems.size();
     mWorkingStateVars.resize(num_systems);
@@ -111,7 +111,7 @@ void CombinedOdeSystem::EvaluateYDerivatives(
     {
         mOdeSystems[i]->EvaluateYDerivatives(time, mWorkingStateVars[i], mWorkingDerivs[i]);
     }
-    
+
     // Copy derivatives to rDY
     for (unsigned i=0; i<mOdeSystems.size(); i++)
     {

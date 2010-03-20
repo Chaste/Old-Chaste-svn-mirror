@@ -59,7 +59,7 @@ public :
      *  dTdE is a fourth-order tensor, where dTdE(M,N,P,Q) = dT^{MN}/dE_{PQ}
      *
      *  @param rC The Lagrangian deformation tensor (F^T F)
-     *  @param rInvC The inverse of C. Should be computed by the user. 
+     *  @param rInvC The inverse of C. Should be computed by the user.
      *  @param pressure the current pressure
      *  @param rT the stress will be returned in this parameter
      *  @param rDTdE the stress derivative will be returned in this parameter, assuming
@@ -147,10 +147,10 @@ public :
      *  @param scaleFactor  the scale factor
      */
     virtual void ScaleMaterialParameters(double scaleFactor);
-    
+
     /**
-     *  Some material laws (eg pole-zero) may have prefered directions (eg fibre direction), 
-     *  but be implemented to assume the prefered directions are parallel to the X-axis etc. 
+     *  Some material laws (eg pole-zero) may have prefered directions (eg fibre direction),
+     *  but be implemented to assume the prefered directions are parallel to the X-axis etc.
      *  Call this with the change of basis matrix and C will be transformed from the Euclidean
      *  coordinate system to the appropriate coordinate system before used to calculate T, which
      *  will then be transformed from the appropriate coordinate system back to the Euclidean

@@ -38,13 +38,13 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
                             double magnitude,
                             double startTime,
                             double duration)
-    : mStartTime(startTime), 
+    : mStartTime(startTime),
       mpMesh(&rMesh),
       mLeftElectrodeArea(0.0),
-      mRightElectrodeArea(0.0)            
+      mRightElectrodeArea(0.0)
 {
     /// \todo what on earth is this for???
-    DistributedVectorFactory factory(mpMesh->GetDistributedVectorFactory()->GetProblemSize(), 
+    DistributedVectorFactory factory(mpMesh->GetDistributedVectorFactory()->GetProblemSize(),
                                      mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
     assert(index < DIM);
     mGroundSecondElectrode = groundSecondElectrode;
@@ -55,7 +55,7 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
     // check min x_i = a and max x_i = b, where i = index
     double local_min = DBL_MAX;
     double local_max = -DBL_MAX;
-    
+
     for (typename AbstractTetrahedralMesh<DIM,DIM>::NodeIterator iter=mpMesh->GetNodeIteratorBegin();
          iter != mpMesh->GetNodeIteratorEnd();
          ++iter)
@@ -68,8 +68,8 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
         if (value > local_max)
         {
            local_max = value;
-        }        
-    }    
+        }
+    }
 
     double global_min;
     double global_max;
@@ -90,23 +90,23 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
 
     mpBoundaryConditionsContainer.reset(new BoundaryConditionsContainer<DIM,DIM,2>);
 
-    
+
     double input_flux;
     double output_flux;
-    
+
     try
     {
-        ComputeElectrodesAreasAndCheckEquality(index, lowerValue, upperValue);        
+        ComputeElectrodesAreasAndCheckEquality(index, lowerValue, upperValue);
         input_flux = magnitude;
         output_flux = -input_flux;
-    
+
     }
     catch (Exception& e)
     {
-        // magnitude of second electrode scaled so that left_area*magnitude_left = -right_area*magnitude_right    
+        // magnitude of second electrode scaled so that left_area*magnitude_left = -right_area*magnitude_right
         input_flux = magnitude;
         output_flux = -input_flux*mLeftElectrodeArea/mRightElectrodeArea;
-        
+
         // Paranoia. In case one of the areas is 0
         assert( ! std::isnan(output_flux));
         assert( output_flux != 0.0);
@@ -143,7 +143,7 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
         ConstBoundaryCondition<DIM>* p_zero_bc = new ConstBoundaryCondition<DIM>(0.0);
         // We will need to recalculate this when HasDirichletBoundaryConditions() is called.
         this->mpBoundaryConditionsContainer->ResetDirichletCommunication();
-  
+
         for (typename AbstractTetrahedralMesh<DIM,DIM>::NodeIterator iter=mpMesh->GetNodeIteratorBegin();
              iter != mpMesh->GetNodeIteratorEnd();
              ++iter)
@@ -217,7 +217,7 @@ void Electrodes<DIM>::ComputeElectrodesAreasAndCheckEquality(unsigned dimensionI
                 mpMesh->GetWeightedDirectionForBoundaryElement((*iter)->GetIndex(), weighted_direction, jacobian_determinant);
                 local_left_area += jacobian_determinant;
             }
-    
+
             if (fabs((*iter)->CalculateCentroid()[dimensionIndex] - upperValue) < 1e-6)
             {
                 mpMesh->GetWeightedDirectionForBoundaryElement((*iter)->GetIndex(), weighted_direction, jacobian_determinant);
@@ -228,10 +228,10 @@ void Electrodes<DIM>::ComputeElectrodesAreasAndCheckEquality(unsigned dimensionI
 
     if(DIM==3)
     {
-        // if the dimension of the face is 1, the mapping is from the face to the canonical element [0,1], so the 
+        // if the dimension of the face is 1, the mapping is from the face to the canonical element [0,1], so the
         // jacobian_determinants used above will be exactly the areas of the faces
-        // if the dimension of the face is 1, the mapping is from the face to the canonical element, the triangle 
-        // with nodes (0,0), (0,1), (1,0), which has area 0.5, so scale the jacobian_determinants by 0.5 to 
+        // if the dimension of the face is 1, the mapping is from the face to the canonical element, the triangle
+        // with nodes (0,0), (0,1), (1,0), which has area 0.5, so scale the jacobian_determinants by 0.5 to
         // get the face areas, ie scale the total area by 0.5:
         // (Not technically needed as it is only the ratio of these that is used but since we are calling the variables
         // 'area's we ought to be correct).
@@ -243,12 +243,12 @@ void Electrodes<DIM>::ComputeElectrodesAreasAndCheckEquality(unsigned dimensionI
     assert(mpi_ret == MPI_SUCCESS);
 
     mpi_ret = MPI_Allreduce(&local_right_area, &mRightElectrodeArea, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
-    assert(mpi_ret == MPI_SUCCESS);    
+    assert(mpi_ret == MPI_SUCCESS);
 
     if (mLeftElectrodeArea != mRightElectrodeArea)
     {
         EXCEPTION("Electrodes have different area");
-    }         
+    }
 }
 
 

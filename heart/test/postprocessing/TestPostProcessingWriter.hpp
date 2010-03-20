@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestPostProcessingWriter : public CxxTest::TestSuite
 {
-    
+
 public:
 // These things are available in the XML output requests
 //    <ActionPotentialDurationMap threshold="-30.0" threshold_unit="mV" repolarisation_percentage="90"/>
@@ -52,74 +52,74 @@ public:
 //    <MaxUpstrokeVelocityMap/>
 //    <ConductionVelocityMap origin_node="10"/>
 //    <ConductionVelocityMap origin_node="20"/>
-        
+
     void TestWriterMethods() throw(Exception)
     {
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements"); 
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
         PostProcessingWriter<1,1> writer(mesh, "heart/test/data", "postprocessingapd", false);
-        
+
         writer.WriteApdMapFile(60.0, -30.0);
-                                   
+
         std::string command;
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory()
                                     + output_dir + "/Apd_60_-30_Map.dat "
                                     + "heart/test/data/PostProcessorWriter/good_apd_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        
+
         writer.WriteUpstrokeTimeMap(-30.0);
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory()
                                     + output_dir + "/UpstrokeTimeMap_-30.dat "
                                     + "heart/test/data/PostProcessorWriter/good_upstroke_time_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        
+
         writer.WriteMaxUpstrokeVelocityMap(-30.0);
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory()
                                     + output_dir + "/MaxUpstrokeVelocityMap_-30.dat "
                                     + "heart/test/data/PostProcessorWriter/good_upstroke_velocity_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         DistanceMapCalculator<1,1> dist_calculator(mesh);
-        
+
         std::vector<unsigned> origin_node;
         origin_node.push_back(0);
         std::vector<double> distance_map_from_0;
-        
+
         dist_calculator.ComputeDistanceMap(origin_node, distance_map_from_0);
 
         writer.WriteConductionVelocityMap(0u, distance_map_from_0);
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory()
                                     + output_dir + "/ConductionVelocityFromNode0.dat "
                                     + "heart/test/data/PostProcessorWriter/conduction_velocity_10_nodes_from_node_0.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
-    
+
     void TestApdWritingWithNoApdsPresent() throw(Exception)
     {
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements"); 
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
         DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
         PostProcessingWriter<1,1> writer(mesh, "heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);
-        
+
         writer.WriteApdMapFile(90.0, -30.0);
-        
-        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-30_Map.dat " 
+
+        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-30_Map.dat "
                                    + "heart/test/data/101_zeroes.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        
+
     }
-    
+
     void TestPostProcessWriting() throw (Exception)
     {
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_10_100_elements"); 
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_10_100_elements");
         DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         std::vector<std::pair<double,double> > apd_maps;
         apd_maps.push_back(std::pair<double, double>(80,-30));//reploarisation percentage first, as per schema
         apd_maps.push_back(std::pair<double, double>(90,-20));//reploarisation percentage first, as per schema
@@ -129,71 +129,71 @@ public:
         upstroke_time_map.push_back(-70.0);
         upstroke_time_map.push_back( 20.0);
         HeartConfig::Instance()->SetUpstrokeTimeMaps(upstroke_time_map);
- 
+
         std::vector<double> upstroke_velocity_map;
         upstroke_velocity_map.push_back(-50.0);
         upstroke_velocity_map.push_back(50.0);
-        HeartConfig::Instance()->SetMaxUpstrokeVelocityMaps(upstroke_velocity_map);                                                
-        
+        HeartConfig::Instance()->SetMaxUpstrokeVelocityMaps(upstroke_velocity_map);
+
         std::vector<unsigned> conduction_velocity_map;
         conduction_velocity_map.push_back(0u);
-        HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map); 
-                                                                            
-        PostProcessingWriter<1,1> writer(mesh, "heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);  
+        HeartConfig::Instance()->SetConductionVelocityMaps(conduction_velocity_map);
+
+        PostProcessingWriter<1,1> writer(mesh, "heart/test/data/Monodomain1d", "MonodomainLR91_1d", false);
 
         writer.WritePostProcessingFiles();
-        
+
         writer.WriteAboveThresholdDepolarisationFile(-40.0);
-        
+
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
-        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_80_-30_Map.dat " 
+        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_80_-30_Map.dat "
                                    + "heart/test/data/101_zeroes.dat";
-        TS_ASSERT_EQUALS(system(command.c_str()), 0);                         
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-20_Map.dat " 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-20_Map.dat "
                   + "heart/test/data/101_zeroes.dat";
-        TS_ASSERT_EQUALS(system(command.c_str()), 0);      
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/UpstrokeTimeMap_-70.dat " 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/UpstrokeTimeMap_-70.dat "
                   + "heart/test/data/PostProcessorWriter/UpstrokeTimeMap_-70.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/UpstrokeTimeMap_20.dat " 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/UpstrokeTimeMap_20.dat "
                   + "heart/test/data/PostProcessorWriter/UpstrokeTimeMap_20.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_-50.dat " 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_-50.dat "
                   + "heart/test/data/PostProcessorWriter/MaxUpstrokeVelocityMap_-50.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_50.dat " 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_50.dat "
                   + "heart/test/data/PostProcessorWriter/MaxUpstrokeVelocityMap_50.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/ConductionVelocityFromNode0.dat " 
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/ConductionVelocityFromNode0.dat "
                   + "heart/test/data/PostProcessorWriter/conduction_velocity_100_nodes_from_node_0.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-40.dat " 
+
+        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-40.dat "
                   + "heart/test/data/PostProcessorWriter/AboveThresholdDepolarisations-40.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-             
+
     }
-    
+
     void TestWritingEads() throw (Exception)
     {
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_10_100_elements"); 
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_10_100_elements");
         DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         PostProcessingWriter<1,1> writer(mesh, "heart/test/data", "Ead", false);
-        
+
         writer.WriteAboveThresholdDepolarisationFile(-30.0);
-        
+
         std::string output_dir = "ChasteResults/output";
-        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-30.dat " 
+        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-30.dat "
                   + "heart/test/data/PostProcessorWriter/AboveThresholdDepolarisations-30.dat";
-        TS_ASSERT_EQUALS(system(command.c_str()), 0); 
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
 };
 

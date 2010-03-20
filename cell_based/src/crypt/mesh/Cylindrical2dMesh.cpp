@@ -613,7 +613,7 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
     }
     else
     {
-    	assert(temp_right_hand_side_elements.size() == 2 && temp_left_hand_side_elements.size() == 2);
+        assert(temp_right_hand_side_elements.size() == 2 && temp_left_hand_side_elements.size() == 2);
         if (temp_right_hand_side_elements.size() == 2)
         {
             // Use the right hand side meshing and map to left
@@ -740,13 +740,13 @@ void Cylindrical2dMesh::GenerateVectorsOfElementsStraddlingPeriodicBoundaries()
         // Elements on the left hand side (images of right nodes)
         if (number_of_right_image_nodes == 1 || number_of_right_image_nodes == 2)
         {
-        	mLeftPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
+            mLeftPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
         }
 
         // Elements on the right (images of left nodes)
         if (number_of_left_image_nodes == 1 || number_of_left_image_nodes == 2)
         {
-        	mRightPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
+            mRightPeriodicBoundaryElementIndices.insert(elem_iter->GetIndex());
         }
     }
     // Every boundary element on the left should have a corresponding element on

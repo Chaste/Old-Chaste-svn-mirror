@@ -31,19 +31,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TimeStepper.hpp"
 #include <iostream>
 
-const double Kerchoffs2003ContractionModel::a6 = 2.0; // 1/um 
-const double Kerchoffs2003ContractionModel::a7 = 1.5; // um 
-const double Kerchoffs2003ContractionModel::T0 = 180; // kPa 
-const double Kerchoffs2003ContractionModel::Ea = 20;  // 1/um 
-const double Kerchoffs2003ContractionModel::v0 = 0.0075; // um/ms 
-const double Kerchoffs2003ContractionModel::ls0 = 1.9; // um  
-const double Kerchoffs2003ContractionModel::tr = 75; // ms 
-const double Kerchoffs2003ContractionModel::td = 75; // ms 
-const double Kerchoffs2003ContractionModel::b = 150; // ms/um 
+const double Kerchoffs2003ContractionModel::a6 = 2.0; // 1/um
+const double Kerchoffs2003ContractionModel::a7 = 1.5; // um
+const double Kerchoffs2003ContractionModel::T0 = 180; // kPa
+const double Kerchoffs2003ContractionModel::Ea = 20;  // 1/um
+const double Kerchoffs2003ContractionModel::v0 = 0.0075; // um/ms
+const double Kerchoffs2003ContractionModel::ls0 = 1.9; // um
+const double Kerchoffs2003ContractionModel::tr = 75; // ms
+const double Kerchoffs2003ContractionModel::td = 75; // ms
+const double Kerchoffs2003ContractionModel::b = 150; // ms/um
 const double Kerchoffs2003ContractionModel::ld = -0.4; // um
 
-Kerchoffs2003ContractionModel::Kerchoffs2003ContractionModel() 
-    : AbstractOdeBasedContractionModel(1) 
+Kerchoffs2003ContractionModel::Kerchoffs2003ContractionModel()
+    : AbstractOdeBasedContractionModel(1)
 {
     mpSystemInfo = OdeSystemInformation<Kerchoffs2003ContractionModel>::Instance();
 
@@ -57,8 +57,8 @@ Kerchoffs2003ContractionModel::Kerchoffs2003ContractionModel()
 }
 
 
-void Kerchoffs2003ContractionModel::EvaluateYDerivatives(double time, 
-                                                         const std::vector<double>& rY, 
+void Kerchoffs2003ContractionModel::EvaluateYDerivatives(double time,
+                                                         const std::vector<double>& rY,
                                                          std::vector<double>& rDY)
 {
     double lc = rY[0];
@@ -75,7 +75,7 @@ void Kerchoffs2003ContractionModel::SetInputParameters(ContractionModelInputPara
         // inactive (resting)
         mIsActivated = false;
     }
-    
+
     if (!mIsActivated && (rInputParameters.voltage > mActivationVoltage))
     {
         // activated
@@ -97,7 +97,7 @@ double Kerchoffs2003ContractionModel::GetActiveTension(double lc)
     {
         f_iso = T0 * pow((tanh(a6*(lc-a7))),2);
     }
-    
+
     double f_twitch = 0;
     double t_max = b*(mSarcomereLength - ld);
     if(mIsActivated)
@@ -109,7 +109,7 @@ double Kerchoffs2003ContractionModel::GetActiveTension(double lc)
             f_twitch = pow( tanh(t_a/tr)*tanh((t_max-t_a)/td), 2);
         }
     }
-    
+
     // expl is unstable for dt = 0.01, 0.001, impl is fine
     return (mSarcomereLength/ls0)*f_iso*f_twitch*(mSarcomereLength-lc)*Ea;
 }
@@ -119,7 +119,7 @@ double Kerchoffs2003ContractionModel::GetActiveTension()
 {
     return GetActiveTension(mStateVariables[0]);
 }
- 
+
 double Kerchoffs2003ContractionModel::GetNextActiveTension()
 {
     return GetActiveTension(mTemporaryStateVariables[0]);

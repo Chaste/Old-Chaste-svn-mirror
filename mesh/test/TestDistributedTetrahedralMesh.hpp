@@ -63,7 +63,7 @@ private:
 
             for (unsigned node_id=0; node_id<num_global_nodes;  node_id++)
             {
-                
+
                 try
                 {
                      unsigned node_index = rMesh.GetNode(node_id)->GetIndex();
@@ -78,7 +78,7 @@ private:
             }
 
             TS_ASSERT_EQUALS(rMesh.GetNumLocalNodes(), total_nodes_this_process);
-            
+
             // Combine all the local maps by adding them up in the master process
             unsigned nodes_reduction[num_global_nodes];
             MPI_Reduce(&nodes_owned, &nodes_reduction, num_global_nodes, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
@@ -91,7 +91,7 @@ private:
                     TS_ASSERT(nodes_reduction[node_id] > 0u);
                 }
             }
-            
+
         }
 
         /*
@@ -121,7 +121,7 @@ private:
             }
 
             TS_ASSERT_EQUALS(rMesh.GetNumLocalElements(), total_elements_this_process);
-            
+
             // Combine all the local maps by adding them up in the master process
             unsigned elements_reduction[num_global_elements];
             MPI_Reduce(&elements_owned, &elements_reduction, num_global_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
@@ -153,7 +153,7 @@ private:
                     TS_ASSERT_EQUALS(b_element_id, b_element_index);
 
                     b_elements_owned[b_element_index] = 1;
-                    
+
                     total_b_elements_this_process++;
                 }
                 catch(Exception& e)
@@ -163,7 +163,7 @@ private:
             }
 
             TS_ASSERT_EQUALS(rMesh.GetNumLocalBoundaryElements(), total_b_elements_this_process);
-            
+
             // Combine all the local maps by adding them up in the master process
             unsigned b_elements_reduction[num_global_b_elements];
             MPI_Reduce(&b_elements_owned, &b_elements_reduction, num_global_b_elements, MPI_UNSIGNED, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
@@ -191,7 +191,7 @@ private:
             TS_ASSERT( 0u == total_elements_this_process );
             TS_ASSERT( 0u == total_b_elements_this_process );
         }
-            
+
 
 
     }
@@ -357,7 +357,7 @@ public:
             local_nodes = total_nodes - (PetscTools::GetNumProcs()-1);
             local_nodes_wrong = total_nodes_wrong - (PetscTools::GetNumProcs()-1);
         }
-        
+
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         DistributedTetrahedralMesh<2,2> mesh(DistributedTetrahedralMesh<2,2>::DUMB); // No reordering
 
@@ -367,7 +367,7 @@ public:
         TS_ASSERT_THROWS_THIS(mesh.SetDistributedVectorFactory(p_wrong_factory1),
                               "The distributed vector factory provided to the mesh is for the wrong number of processes.");
         delete p_wrong_factory1;
-        
+
         DistributedVectorFactory* p_wrong_factory2 = new DistributedVectorFactory(total_nodes_wrong, local_nodes_wrong);
         mesh.SetDistributedVectorFactory(p_wrong_factory2);
         TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader),
@@ -389,12 +389,12 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 984u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 100u);
         TS_ASSERT_EQUALS(mesh.GetNumLocalNodes(), local_nodes);
-        
+
         // Another exception
         TS_ASSERT_THROWS_THIS(mesh.SetDistributedVectorFactory(p_uneven_factory),
                               "Cannot change the mesh's distributed vector factory once it has been set.");
     }
-    
+
     void TestConstructFromMeshReader3D()
     {
         /*
@@ -494,7 +494,7 @@ public:
 //                    TS_ASSERT_EQUALS(iter->GetNode(node_local_index)->GetPoint()[dim],
 //                                     p_ascii_element->GetNode(node_local_index)->GetPoint()[dim]);
 //                }
-                TS_ASSERT_DELTA( norm_2( iter->GetNode(node_local_index)->rGetLocation() - 
+                TS_ASSERT_DELTA( norm_2( iter->GetNode(node_local_index)->rGetLocation() -
                                      p_ascii_element->GetNode(node_local_index)->rGetLocation() ), 0.0, 1e-10 );
             }
         }
@@ -516,7 +516,7 @@ public:
 
     void TestEverythingIsAssignedParMetisLibrary()
     {
-#ifdef CHASTE_PARMETIS  
+#ifdef CHASTE_PARMETIS
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PARMETIS_LIBRARY);
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -525,7 +525,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
 
-        CheckEverythingIsAssigned<3,3>(mesh);     
+        CheckEverythingIsAssigned<3,3>(mesh);
 #endif //CHASTE_PARMETIS
     }
 
@@ -593,10 +593,10 @@ public:
             TS_ASSERT_EQUALS(local_nodes, mesh.GetNumLocalNodes());
         }
     }
-    
+
     void TestPartitioningOfEmbeddedDimensionMesh()
     {
-        //Shouldn't ever use a partition other than DUMB because it's 1-D 
+        //Shouldn't ever use a partition other than DUMB because it's 1-D
         TrianglesMeshReader<1,3> mesh_reader("mesh/test/data/branched_1d_in_3d_mesh");
         DistributedTetrahedralMesh<1,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -875,7 +875,7 @@ public:
         TS_ASSERT_EQUALS(small_mesh.GetNumElements(), 2u);
         //See logic in earlier test
         unsigned expected_elements=owned+1;
-        
+
         std::vector<unsigned> halo_indices;
         small_mesh.GetHaloNodeIndices(halo_indices);
         /**
@@ -888,7 +888,7 @@ public:
          * p0:  0 Ow 1 Ha
          * p1:  0 Ha 1 Ow 2 Ha
          * p2:       2 Ha 3 Ow
-         */ 
+         */
         if (PetscTools::AmMaster())
         {
             expected_elements--;
@@ -936,7 +936,7 @@ public:
             TS_ASSERT_EQUALS(owned, 0u);
             TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), 0u);
             TS_ASSERT_EQUALS(halo_indices.size(), 0u);
-        }    
+        }
     }
 
     void TestConstructLinearMeshSmall()
@@ -1260,7 +1260,7 @@ public:
         }
         delete p_mesh;
     }
-    
+
 //    {
 //
 //        TetrahedralMesh<3,3> cuboid_mesh;
@@ -1268,10 +1268,10 @@ public:
 //        TS_ASSERT_EQUALS(cuboid_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
 //        TS_ASSERT_EQUALS(cuboid_mesh.GetNumElements(), 48000u);
 //        TS_ASSERT_EQUALS(cuboid_mesh.GetNumBoundaryElements(), 4800u);
-//        
+//
 //        cuboid_mesh.Translate(-10,-10,-10);
 //        cuboid_mesh.Scale(0.25/10.0,0.25/10.0,0.25/10.0);
-//        
+//
 //        TrianglesMeshWriter<3,3> mesh_writer("", "Cube21");
 //        mesh_writer.WriteFilesUsingMesh(cuboid_mesh);
 //    }
@@ -1294,14 +1294,14 @@ public:
         {
             TS_ASSERT_THROWS_CONTAINS(distributed_mesh_bad.ConstructFromMeshReader(mesh_reader_bad), "Face does not appear in element file (Face ");
         }
-        
+
         DistributedTetrahedralMesh<3,3> distributed_mesh_good;
         TrianglesMeshReader<3,3> mesh_reader_good("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
         distributed_mesh_good.ConstructFromMeshReader(mesh_reader_good);
         TS_ASSERT_EQUALS(distributed_mesh_good.GetNumNodes(), 9261u); // 21x21x21 nodes
         TS_ASSERT_EQUALS(distributed_mesh_good.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(distributed_mesh_good.GetNumBoundaryElements(), 4800u);
-    }    
+    }
 
 };
 #endif /*TESTDISTRIBUTEDTETRAHEDRALMESH_HPP_*/

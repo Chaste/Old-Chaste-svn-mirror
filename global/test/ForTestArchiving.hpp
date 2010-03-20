@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class BaseClass
 {
 public :
-	unsigned mTagInBaseClass;
-	BaseClass();
+    unsigned mTagInBaseClass;
+    BaseClass();
     virtual ~BaseClass();
     virtual void Hello()=0;
     template<class Archive>
@@ -67,10 +67,10 @@ public:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-    	// If Archive is an output archive, then & resolves to <<
+        // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
-    	archive & boost::serialization::base_object<BaseClass>(*this);
-    	archive & mTag;
+        archive & boost::serialization::base_object<BaseClass>(*this);
+        archive & mTag;
     }
 };
 

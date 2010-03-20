@@ -141,8 +141,8 @@ public:
      * @param vertexElements vector of pointers to VertexElement3ds
      */
     VertexMesh3d(std::vector<Node<3>*> nodes,
-				 std::vector<VertexElement<2,3>*> faces,
-				 std::vector<VertexElement3d*> vertexElements);
+                 std::vector<VertexElement<2,3>*> faces,
+                 std::vector<VertexElement3d*> vertexElements);
 
     /**
      * Default constructor for use by serializer.
@@ -206,16 +206,16 @@ public:
     double GetSurfaceAreaOfElement(unsigned index);
 
     /**
-	 * Compute the area of a face.
-	 *
-	 * This needs to be overridden
-	 * in daughter classes for non-Euclidean metrics.
-	 *
-	 * @param index  the global index of a specified face
-	 *
-	 * @return the area of the face
-	 */
-	virtual double GetAreaOfFace(unsigned index);
+     * Compute the area of a face.
+     *
+     * This needs to be overridden
+     * in daughter classes for non-Euclidean metrics.
+     *
+     * @param index  the global index of a specified face
+     *
+     * @return the area of the face
+     */
+    virtual double GetAreaOfFace(unsigned index);
 
     /**
      * Compute the centroid of an element.

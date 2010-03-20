@@ -238,7 +238,7 @@ std::vector<unsigned> PropagationPropertiesCalculator::CalculateAllAboveThreshol
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
     CellProperties cell_props(voltages, times, threshold);
-    return cell_props.GetNumberOfAboveThresholdDepolarisationsForAllAps();   
+    return cell_props.GetNumberOfAboveThresholdDepolarisationsForAllAps();
 }
 
 
@@ -247,5 +247,5 @@ unsigned PropagationPropertiesCalculator::CalculateAboveThresholdDepolarisations
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
     std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
     CellProperties cell_props(voltages, times, threshold);
-    return cell_props.GetNumberOfAboveThresholdDepolarisationsForLastAp();   
+    return cell_props.GetNumberOfAboveThresholdDepolarisationsForLastAp();
 }

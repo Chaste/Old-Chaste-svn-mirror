@@ -130,7 +130,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 3, 3>& rM)
 
 /**
  * Calculate the generalized determinant of a 2x1 matrix.
- * 
+ *
  * The generalized determinant is given by det(T) = sqrt(det(T'T));
  */
 template<class T>
@@ -143,7 +143,7 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 2, 1>& rM)
 
 /**
  * Calculate the generalized determinant of a 3x1 matrix.
- * 
+ *
  * The generalized determinant is given by det(T) = sqrt(det(T'T));
  */
 template<class T>
@@ -156,24 +156,24 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 3, 1>& rM)
 
 /**
  * Calculate the generalized determinant of a 3x2 matrix.
- * 
+ *
  * The generalized determinant is given by det(T) = sqrt(det(T'T));
  */
 template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T, 3, 2>& rM)
 {
     using namespace boost::numeric::ublas;
-    
+
     c_matrix<T,2,2> product = prod(trans(rM), rM);
-    
+
     return std::sqrt(Determinant(product));
 }
 
 /**
  * Calculate the generalized determinant of a 3x0 matrix.
- * 
+ *
  * The generalized determinant is given by det(T) = sqrt(det(T'T));
- * 
+ *
  * \todo not implemented yet
  */
 template<class T>
@@ -184,9 +184,9 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 3, 0>& rM)
 
 /**
  * Calculate the generalized determinant of a 2x0 matrix.
- * 
+ *
  * The generalized determinant is given by det(T) = sqrt(det(T'T));
- * 
+ *
  * \todo not implemented yet
  */
 template<class T>
@@ -197,9 +197,9 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 2, 0>& rM)
 
 /**
  * Calculate the generalized determinant of a 1x0 matrix.
- * 
+ *
  * The generalized determinant is given by det(T) = sqrt(det(T'T));
- * 
+ *
  * \todo not implemented yet
  */
 template<class T>
@@ -311,33 +311,33 @@ template<class T>
 boost::numeric::ublas::c_matrix<T, 2, 3> Inverse(const boost::numeric::ublas::c_matrix<T, 3, 2>& rM)
 {
     using namespace boost::numeric::ublas;
-    
+
     c_matrix<T, 2, 3> inverse;
-    
+
     //
-    // calculate (T'T)^-1, where T'T = (a b) 
+    // calculate (T'T)^-1, where T'T = (a b)
     //                                 (c d)
 
     T a = rM(0,0)*rM(0,0) + rM(1,0)*rM(1,0) + rM(2,0)*rM(2,0);
     T b = rM(0,0)*rM(0,1) + rM(1,0)*rM(1,1) + rM(2,0)*rM(2,1);
     T c = b;
     T d = rM(0,1)*rM(0,1) + rM(1,1)*rM(1,1) + rM(2,1)*rM(2,1);
-    
+
     T det = a*d - b*c;
-    
+
     T a_inv =  d/det;
     T b_inv = -b/det;
     T c_inv = -c/det;
     T d_inv =  a/det;
-    
+
     inverse(0,0) = a_inv*rM(0,0) + b_inv*rM(0,1);
     inverse(1,0) = c_inv*rM(0,0) + d_inv*rM(0,1);
     inverse(0,1) = a_inv*rM(1,0) + b_inv*rM(1,1);
     inverse(1,1) = c_inv*rM(1,0) + d_inv*rM(1,1);
     inverse(0,2) = a_inv*rM(2,0) + b_inv*rM(2,1);
     inverse(1,2) = c_inv*rM(2,0) + d_inv*rM(2,1);
-    
-    return inverse;    
+
+    return inverse;
 }
 
 template<class T>
@@ -380,7 +380,7 @@ boost::numeric::ublas::c_matrix<T, 3, 3> Inverse(const boost::numeric::ublas::c_
 
 /**
  * Calculates the pseudo-inverse of a 2x1 matrix.
- * 
+ *
  * The pseudo inverse is given by pinv(T) = (T'T)^(-1)*T'
  */
 template<class T>
@@ -393,13 +393,13 @@ boost::numeric::ublas::c_matrix<T, 1, 2> Inverse(const boost::numeric::ublas::c_
 
     inverse(0,0) = rM(0,0)/det/det;
     inverse(0,1) = rM(1,0)/det/det;
-    
+
     return inverse;
 }
 
 /**
  * Calculates the pseudo-inverse of a 3x1 matrix.
- * 
+ *
  * The pseudo inverse is given by pinv(T) = (T'T)^(-1)*T'
  */
 template<class T>
@@ -413,7 +413,7 @@ boost::numeric::ublas::c_matrix<T, 1, 3> Inverse(const boost::numeric::ublas::c_
     inverse(0,0) = rM(0,0)/det/det;
     inverse(0,1) = rM(1,0)/det/det;
     inverse(0,2) = rM(2,0)/det/det;
-    
+
     return inverse;
 }
 
@@ -422,7 +422,7 @@ c_vector<T, 3> VectorProduct(const c_vector<T, 3>& rA, const c_vector<T, 3>& rB)
 {
     /// This is a cross-product, only implemented for 3-vectors
     /// What do you get when you cross an elephant with a banana?
-	/// \todo remove Joe's awful joke
+    /// \todo remove Joe's awful joke
 
     c_vector<T, 3> result;
 
@@ -507,7 +507,7 @@ c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<dou
 
 /**
  * Replacement "pow" function
- * @param x  
+ * @param x
  * @param a  exponent
  * @return x^a, x**a.
  */

@@ -37,9 +37,9 @@ std::string FormDebugHead()
         return ret;
     }
     else
-    {   
+    {
         std::stringstream stringstream;
         stringstream << "DEBUG: proc " << PetscTools::GetMyRank() << ": ";
         return stringstream.str();
     }
-} 
+}

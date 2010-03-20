@@ -40,7 +40,7 @@ class TenTusscher2006OdeSystem : public AbstractCardiacCell
 {
 private:
 
-    
+
     double mScaleFactorGks;/**< Scale factor for Gks*/
     double mScaleFactorIto;/**< Scale factor for Gto*/
     double mScaleFactorGkr;/**< Scale factor for Gkr*/
@@ -106,7 +106,7 @@ private:
 public:
     /**
      * Constructor
-     * 
+     *
      * @param pSolver is a pointer to the ODE solver
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
@@ -131,28 +131,28 @@ public:
 
     /**
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
-     * 
+     *
      * @param sfgks is the scale factor for Gks conductance
      */
     void SetScaleFactorGks(double sfgks);
 
     /**
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
-     * 
+     *
      * @param sfito is the scale factor for Ito current
      */
     void SetScaleFactorIto(double sfito);
 
     /**
      * Set the scale factor for Gks in order to differentiate epi M and endo cells
-     * 
+     *
      * @param sfgkr is the scale factor for Gkr conductance
      */
     void SetScaleFactorGkr(double sfgkr);
 
      /**
      * Returns the ionic current
-     * 
+     *
      * @return the total ionic current
      */
     double GetIIonic();

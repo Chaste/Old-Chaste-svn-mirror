@@ -27,7 +27,7 @@ public:
 
     /**
      * Constructor
-     * 
+     *
      * @param pSolver is a pointer to the ODE solver
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
@@ -41,14 +41,14 @@ public:
 
     /**
      * Calculates the ionic current
-     * 
+     *
      * @returns the total ionic current
      */
     double GetIIonic();
 
     /**
      * Evaluate the derivatives of the state variables
-     * 
+     *
      * @param var_Environment__time  the current time, in milliseconds
      * @param rY  current values of the state variables
      * @param rDY  to be filled in with derivatives

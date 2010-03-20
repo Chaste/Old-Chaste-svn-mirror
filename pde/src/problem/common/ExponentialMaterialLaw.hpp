@@ -66,9 +66,9 @@ public :
 
     /**
      * Get the first derivative dW/dI1.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -76,9 +76,9 @@ public :
 
     /**
      * Get the first derivative dW/dI2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -86,9 +86,9 @@ public :
 
     /**
      * Get the second derivative d^2W/dI1^2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -96,9 +96,9 @@ public :
 
     /**
      * Get the second derivative d^2W/dI2^2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -106,9 +106,9 @@ public :
 
     /**
      * Get the second derivative d^2W/dI1dI2.
-     * 
-     * \todo The name of this method should not include underscores. 
-     * 
+     *
+     * \todo The name of this method should not include underscores.
+     *
      * @param I1 first principal invariant of C
      * @param I2 second principal invariant of C
      */
@@ -124,7 +124,7 @@ public :
 
     /**
      * Constructor, taking in the parameters a and b. a must be positive.
-     * 
+     *
      * @param a the parameter a
      * @param b the parameter b
      */

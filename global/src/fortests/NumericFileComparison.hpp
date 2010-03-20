@@ -46,7 +46,7 @@ public:
     /**
      * Specify two files to compare, and open them for reading.
      * Actual comparison is done by calling CompareFiles.
-     * 
+     *
      * @param fileName1  first file
      * @param fileName2  second file
      */
@@ -90,10 +90,10 @@ public:
     }
     /**
      * Compare the files.
-     * 
+     *
      * @param absTolerance  absolute tolerance on difference between numbers.
      * @param ignoreFirstFewLines  How many lines to ignore from the comparison
-     * 
+     *
      */
     bool CompareFiles(double absTolerance=DBL_EPSILON, unsigned ignoreFirstFewLines=0)
     {
@@ -102,7 +102,7 @@ public:
         unsigned failures = 0;
         double max_error = 0.0;
         unsigned max_failures = 10;
-        
+
         for (unsigned line_number=0; line_number<ignoreFirstFewLines; line_number++)
         {
             char buffer[256];
@@ -111,8 +111,8 @@ public:
             TS_ASSERT(!mpFile1->fail()); //Here we are assuming that there a least "ignoreFirstFewLines" lines
             TS_ASSERT(!mpFile2->fail()); // and that they are lines of no more than 256 characters
         }
-        
-        do 
+
+        do
         {
             if (!(*mpFile1>>data1))
             {
@@ -126,7 +126,7 @@ public:
                 else
                 {
                     mpFile1->clear();//reset the "failbit"
-                    data1=NOTHING_TO_READ;          
+                    data1=NOTHING_TO_READ;
                 }
             }
             if (!(*mpFile2>>data2))
@@ -141,10 +141,10 @@ public:
                 else
                 {
                     mpFile2->clear();//reset the "failbit"
-                    data2=NOTHING_TO_READ;          
+                    data2=NOTHING_TO_READ;
                 }
             }
-            
+
             double error = fabs(data1 - data2);
             if ( error > absTolerance )
             {
@@ -168,10 +168,10 @@ public:
         //If that assertion tripped...
         if (max_error >= absTolerance)
         {
-#define COVERAGE_IGNORE            
+#define COVERAGE_IGNORE
             //Report the paths to the files
             TS_TRACE("Files " + mFilename1 + " and " + mFilename2 + " numerically differ.");
-#undef COVERAGE_IGNORE            
+#undef COVERAGE_IGNORE
         }
         return (failures==0);
     }

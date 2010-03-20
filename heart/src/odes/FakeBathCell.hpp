@@ -62,7 +62,7 @@ private:
 public:
     /**
      * Constructor uses the same signature as normal cells, for convenience.
-     * 
+     *
      * @param pSolver  unused
      * @param pIntracellularStimulus  unused
      */

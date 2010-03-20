@@ -64,7 +64,7 @@ std::string GetCurrentWorkingDirectory()
         }
 #undef COVERAGE_IGNORE
     }
-    
+
     std::string cwd(p_buffer);
     free(p_buffer);
     return cwd;

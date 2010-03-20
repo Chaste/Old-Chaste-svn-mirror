@@ -159,7 +159,7 @@ public:
     }
 
 /// Note: Neumann intracellular stimuli won't work with bidomain (no solution to PDEs) (unless nodes are grounded)
-  
+
     // Same as the first test, except uses matrix-based RHS asembly
     void TestMonodomainConstantStimulusWithMatrixBasedRhsAssembly() throw(Exception)
     {

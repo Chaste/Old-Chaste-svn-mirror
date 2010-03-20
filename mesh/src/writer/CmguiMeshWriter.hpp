@@ -48,15 +48,15 @@ static const char CmguiNodeFileHeader2D[] = " #Fields=1\n\
  1) coordinates, coordinate, rectangular cartesian, #Components=2\n\
    x.  Value index= 1, #Derivatives= 0\n\
    y.  Value index= 2, #Derivatives= 0\n";
-   
-   
+
+
 /**
  * Header for node base file in 1D (.exnode)
  */
 static const char CmguiNodeFileHeader1D[] = " #Fields=1\n\
  1) coordinates, coordinate, rectangular cartesian, #Components=1\n\
    x.  Value index= 1, #Derivatives= 0\n";
-   
+
 /**
  * Header for element base file in 3D (.exelem)
  */
@@ -70,7 +70,7 @@ static const char CmguiElementFileHeader3D[] = "Shape.  Dimension=3, simplex(2;3
 static const char CmguiElementFileHeader2D[] = "Shape.  Dimension=2, simplex(2)*simplex\n\
  #Scale factor sets= 0\n\
  #Nodes= 3\n";
- 
+
  /**
  * Header for element base file in 1D (.exelem)
  */
@@ -166,10 +166,10 @@ static const char CmguiCoordinatesFileHeader1D[] = " 1) coordinates, coordinate,
        Scale factor indices:   1\n\
       2.  #Values=1\n\
        Value indices:     1\n\
-       Scale factor indices:   2\n";    
-            
+       Scale factor indices:   2\n";
+
 /**
- * Header for additional fields in the element base file in 3D (.exelem), 
+ * Header for additional fields in the element base file in 3D (.exelem),
  * Here we assume all additional fields will be interpolated by cmgui in the same way
  */
 static const char CmguiAdditonalFieldHeader3D[] = " field, rectangular cartesian, #Components=1\n\
@@ -189,7 +189,7 @@ static const char CmguiAdditonalFieldHeader3D[] = " field, rectangular cartesian
        Scale factor indices:   4\n";
 
 /**
- * Header for additional fields in the element base file in 2D (.exelem), 
+ * Header for additional fields in the element base file in 2D (.exelem),
  * Here we assume all additional fields will be interpolated by cmgui in the same way
  */
 static const char CmguiAdditonalFieldHeader2D[] = " field, rectangular cartesian, #Components=1\n\
@@ -206,7 +206,7 @@ static const char CmguiAdditonalFieldHeader2D[] = " field, rectangular cartesian
        Scale factor indices:   3\n";
 
 /**
- * Header for additional fields in the element base file in 1D (.exelem), 
+ * Header for additional fields in the element base file in 1D (.exelem),
  * Here we assume all additional fields will be interpolated by cmgui in the same way
  */
 static const char CmguiAdditonalFieldHeader1D[] = " field, rectangular cartesian, #Components=1\n\
@@ -218,7 +218,7 @@ static const char CmguiAdditonalFieldHeader1D[] = " field, rectangular cartesian
       2.  #Values=1\n\
        Value indices:     1\n\
        Scale factor indices:   2\n";
-       
+
 /**
  *  CmguiMeshWriter
  *
@@ -234,12 +234,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class CmguiMeshWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>
 {
 protected:
-    
+
     /**
      * For storage of names of additional fields.
      */
     std::vector<std::string> mAdditionalFieldNames;
-    
+
     /**
      * The group name to give in the output files. Defaults to the same as the
      * base name. The CmguiDeformedSolutionsWriter prepends a counter to the base name
@@ -247,15 +247,15 @@ protected:
      * the group name to stay as "solution", hence this separate variable
      */
     std::string mGroupName;
-    
+
     /**
-     *  Write the header part of a node file, depending on the dimension. Short helper method, 
-     *  also called in CmguiDeformedSolutionsWriter. (Note, without the & below this method 
+     *  Write the header part of a node file, depending on the dimension. Short helper method,
+     *  also called in CmguiDeformedSolutionsWriter. (Note, without the & below this method
      *  seg faults).
      *  @param rpNodeFile reference to the out_stream used for the node file
      */
     void WriteNodeFileHeader(out_stream& rpNodeFile);
-    
+
 public:
 
     /**
@@ -273,10 +273,10 @@ public:
      * Write mesh data to files.
      */
     void WriteFiles();
-    
+
     /**
      * Set any additional field that we want cmgui to visualize (interpolated over) elements and surfaces
-     * 
+     *
      * @param rFieldNames is a reference to a vector of string containing the names of each additional field name
      */
     void SetAdditionalFieldNames(std::vector<std::string>& rFieldNames);

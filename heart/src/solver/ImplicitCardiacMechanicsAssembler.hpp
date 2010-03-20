@@ -72,11 +72,11 @@ private:
     }
     /**
      *  A method called by AbstractCardiacMechanicsAssembler::AssembleOnElement(), providing
-     *  the active tension (and other info) at a particular quadrature point. This version uses C to 
+     *  the active tension (and other info) at a particular quadrature point. This version uses C to
      *  determine the current stretch and stretch rate, and integrates the contraction model ODEs to determine
      *  the active tension, and derivatives of the active tension with respect to stretch and
      *  stretch rate.
-     * 
+     *
      *  @param currentFibreStretch The stretch in the fibre direction
      *  @param currentQuadPointGlobalIndex Quadrature point integrand currently being evaluated at in AssembleOnElement.
      *  @param assembleJacobian  A bool stating whether to assemble the Jacobian matrix.
@@ -84,7 +84,7 @@ private:
      *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch
      *  @param rDerivActiveTensionWrtDLambdaDt The returned dT_dLamDot, derivative of active tension wrt stretch rate
      */
-    void GetActiveTensionAndTensionDerivs(double currentFibreStretch,  
+    void GetActiveTensionAndTensionDerivs(double currentFibreStretch,
                                           unsigned currentQuadPointGlobalIndex,
                                           bool assembleJacobian,
                                           double& rActiveTension,
@@ -129,7 +129,7 @@ public:
      *  deformation is solved for. The cell models are integrated implicitly
      *  over the time range using the ODE timestep provided, as part of the solve,
      *  and updated at the end once the solution has been found, as is lambda.
-     * 
+     *
      *  @param time the current time
      *  @param nextTime the next time
      *  @param odeTimestep the ODE timestep

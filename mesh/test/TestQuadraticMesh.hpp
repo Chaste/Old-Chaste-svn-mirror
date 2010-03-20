@@ -425,20 +425,20 @@ public:
 
     void TestExceptions() throw(Exception)
     {
-        
+
         QuadraticMesh<1> mesh;
-        
+
         //Bad data
         TrianglesMeshReader<1,1> mesh_reader1("mesh/test/data/baddata/bad_1D_0_to_1_10_elements_quadratic",2,1, false);
         TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader1),
                 "The quadratic mesh doesn\'t appear to have all vertices before the rest of the nodes");
-                
-                 
+
+
         //Linear mesh
         TrianglesMeshReader<1,1> mesh_reader2("mesh/test/data/1D_0_to_1_10_elements");
         TS_ASSERT_THROWS_THIS(mesh.ConstructFromMeshReader(mesh_reader2),
                 "Supplied mesh reader is reading a linear mesh into quadratic mesh");
-   
+
     }
 
     void TestArchiving() throw(Exception)
@@ -448,7 +448,7 @@ public:
         ArchiveLocationInfo::SetMeshFilename("quadratic_mesh");
 
         AbstractTetrahedralMesh<3,3>* const p_mesh = new QuadraticMesh<3>;
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements_fully_quadratic", 2, 2, false);        
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements_fully_quadratic", 2, 2, false);
         static_cast<QuadraticMesh<3>*>(p_mesh)->ConstructFromMeshReader(mesh_reader);
 
         {

@@ -44,8 +44,8 @@ class TestCheckpointing : public CxxTest::TestSuite
 public:
 
     /*
-     *  This test makes sure that a simulation of x seconds can be run in multiple steps (SetSimulationTime() 
-     * plus Solve()) and return the same results that a single call to Solve()  
+     *  This test makes sure that a simulation of x seconds can be run in multiple steps (SetSimulationTime()
+     * plus Solve()) and return the same results that a single call to Solve()
      */
     void TestMultipleCallsToProblemSolve()
     {
@@ -73,7 +73,7 @@ public:
 
         BidomainProblem<3> bidomain_problem_single( &cell_factory );
         bidomain_problem_single.Initialise();
-        HeartConfig::Instance()->SetSimulationDuration(0.2);        
+        HeartConfig::Instance()->SetSimulationDuration(0.2);
         bidomain_problem_single.Solve();
 
         ///////////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ public:
             TS_ASSERT_DELTA(single_vm[index], multiple_vm[index], 1e-8);
             TS_ASSERT_DELTA(single_phie[index], multiple_phie[index], 1e-8);
         }
-        
+
     }
 
     void TestCheckpointingGeneratesMultipleDirectories() throw(Exception)
@@ -120,7 +120,7 @@ public:
         EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/mesh.node");
         EXPECT0(system, "test -e " + handler.GetOutputDirectoryFullPath() + "/SaveBi2DCheckPoint_checkpoints/0.2ms/SaveBi2DCheckPoint_0.2ms/archive.arch");
     }
-    
+
     void TestCheckpointingGeneratesSameResults()
     {
         CardiacSimulation simulation("heart/test/data/xml/bidomain2d_checkpoint.xml");
@@ -128,10 +128,10 @@ public:
 
         CardiacSimulation simulation_compare("heart/test/data/xml/bidomain2d_compare_with_checkpoint.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputDirectory(), "SaveBi2DCheckPointCompare");
-        
+
         TS_ASSERT( CompareFilesViaHdf5DataReader("SaveBi2DCheckPoint", "bidomain2d", true,
                                                  "SaveBi2DCheckPointCompare", "bidomain2d", true));
-    }    
+    }
 };
 
 #endif /*TESTCHECKPOINTING_HPP_*/

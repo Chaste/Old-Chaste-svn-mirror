@@ -58,7 +58,7 @@ PeregoLuoRudyIModel1991OdeSystem::PeregoLuoRudyIModel1991OdeSystem(
     bool useAdaptTimestep)
         : AbstractPeregoCardiacCell(8, 4, pIntracellularStimulus, useAdaptTimestep)
 {
-    
+
     assert(mGatingVariableIndices.size() == 0);
     mGatingVariableIndices.push_back(0);
     mGatingVariableIndices.push_back(1);
@@ -67,13 +67,13 @@ PeregoLuoRudyIModel1991OdeSystem::PeregoLuoRudyIModel1991OdeSystem(
     mGatingVariableIndices.push_back(6);
     mGatingVariableIndices.push_back(7);
     assert(mGatingVariableIndices.size() == 6);
-    
+
     mpSystemInfo = OdeSystemInformation<PeregoLuoRudyIModel1991OdeSystem>::Instance();
     // set the final paramter
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
                                log(ionic_concentrations_Nao / ionic_concentrations_Nai);
-                       
-    
+
+
     ma_current.resize(8);
     mb_current.resize(8);
     ma_predicted.resize(8);
@@ -81,10 +81,10 @@ PeregoLuoRudyIModel1991OdeSystem::PeregoLuoRudyIModel1991OdeSystem(
     ma_error.resize(8);
     mb_error.resize(8);
     mWeightedErrorTolerances.resize(8);
-    
+
     //set the tolerance weight to the default value. Can be modified by set method.
     double tolerance_weight = 1e-2;
-    
+
     mWeightedErrorTolerances[0] = 1 * tolerance_weight; // Gate h error
     mWeightedErrorTolerances[1] = 1 * tolerance_weight; // Gate j error
     mWeightedErrorTolerances[2] = 1 * tolerance_weight; // Gate m error
@@ -95,7 +95,7 @@ PeregoLuoRudyIModel1991OdeSystem::PeregoLuoRudyIModel1991OdeSystem(
     mWeightedErrorTolerances[7] = 1 * tolerance_weight; // Gate X error
 
     Init();
-    
+
     mCorrectedSolution = mStateVariables;
 }
 
@@ -122,20 +122,20 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     {
         assert(!std::isnan(rY[i]));
     }
-    
+
     if (mIsTheCorrectorStep == false && mIsTheErrorEvaluationStep == false && mIsThereTooMuchError == false)
     {
         ma_previous = ma_current;
         mb_previous = mb_current;
     }
-    
-    
+
+
     VerifyStateVariables();
 
     double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
 
     double fast_sodium_current_h_gate_alpha_h;
-    
+
     if (membrane_V < -40.0)
     {
         fast_sodium_current_h_gate_alpha_h = 0.135*exp((80.0+membrane_V)/-6.8);
@@ -225,7 +225,7 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     double plateau_potassium_current_Kp = 1.0/(1.0+exp((7.488-membrane_V)/5.98));
     double plateau_potassium_current_E_Kp = time_independent_potassium_current_E_K1;
     double plateau_potassium_current_i_Kp = plateau_potassium_current_g_Kp*plateau_potassium_current_Kp*(membrane_V-plateau_potassium_current_E_Kp);
-    
+
 
     double i_stim;
     if (mIsTheCorrectorStep == false)
@@ -236,7 +236,7 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     {
         i_stim = GetStimulus(currentTime+mLocalTimeStep);
     };
-    
+
 
     //calculate dV
     assert(!std::isnan(i_stim));
@@ -248,7 +248,7 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
     assert(!std::isnan(background_current_i_b));
     double membrane_V_prime = (-1.0/membrane_C)*(fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b + i_stim);
     assert(!std::isnan(membrane_V_prime));
-    
+
     if (mIsTheCorrectorStep == false && mIsTheErrorEvaluationStep == false)
     {
         // Compute the parameters for the gating variable updates...
@@ -258,15 +258,15 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         ma_current[5]= - slow_inward_current_d_gate_alpha_d - slow_inward_current_d_gate_beta_d;
         ma_current[6]= - slow_inward_current_f_gate_alpha_f - slow_inward_current_f_gate_beta_f;
         ma_current[7]= - time_dependent_potassium_current_X_gate_alpha_X - time_dependent_potassium_current_X_gate_beta_X;
-    
+
         mb_current[0] = fast_sodium_current_h_gate_alpha_h;
         mb_current[1] = fast_sodium_current_j_gate_alpha_j;
         mb_current[2] = fast_sodium_current_m_gate_alpha_m;
         mb_current[5] = slow_inward_current_d_gate_alpha_d;
         mb_current[6] = slow_inward_current_f_gate_alpha_f;
         mb_current[7] = time_dependent_potassium_current_X_gate_alpha_X;
-        
-        // ...and add to ma_current the derivatives of the voltage and the calcium concentration    
+
+        // ...and add to ma_current the derivatives of the voltage and the calcium concentration
         ma_current[4] = membrane_V_prime;
         ma_current[3] = intracellular_calcium_concentration_Cai_prime;
     }
@@ -280,20 +280,20 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         ma_predicted[5]= - slow_inward_current_d_gate_alpha_d - slow_inward_current_d_gate_beta_d;
         ma_predicted[6]= - slow_inward_current_f_gate_alpha_f - slow_inward_current_f_gate_beta_f;
         ma_predicted[7]= - time_dependent_potassium_current_X_gate_alpha_X - time_dependent_potassium_current_X_gate_beta_X;
-    
+
         mb_predicted[0] = fast_sodium_current_h_gate_alpha_h;
         mb_predicted[1] = fast_sodium_current_j_gate_alpha_j;
         mb_predicted[2] = fast_sodium_current_m_gate_alpha_m;
         mb_predicted[5] = slow_inward_current_d_gate_alpha_d;
         mb_predicted[6] = slow_inward_current_f_gate_alpha_f;
         mb_predicted[7] = time_dependent_potassium_current_X_gate_alpha_X;
-        
-        // ...and add to ma_predicted the derivatives of the voltage and the calcium concentration    
+
+        // ...and add to ma_predicted the derivatives of the voltage and the calcium concentration
         ma_predicted[4] = membrane_V_prime;
-        ma_predicted[3] = intracellular_calcium_concentration_Cai_prime;      
+        ma_predicted[3] = intracellular_calcium_concentration_Cai_prime;
     }
     if (mIsTheErrorEvaluationStep==true)
-    {       
+    {
         // Compute the parameters for the gating variable updates...
         ma_error[0]= - fast_sodium_current_h_gate_alpha_h - fast_sodium_current_h_gate_beta_h;
         ma_error[1]= - fast_sodium_current_j_gate_alpha_j - fast_sodium_current_j_gate_beta_j;
@@ -301,31 +301,31 @@ void PeregoLuoRudyIModel1991OdeSystem::ComputeSystemParameters(const std::vector
         ma_error[5]= - slow_inward_current_d_gate_alpha_d - slow_inward_current_d_gate_beta_d;
         ma_error[6]= - slow_inward_current_f_gate_alpha_f - slow_inward_current_f_gate_beta_f;
         ma_error[7]= - time_dependent_potassium_current_X_gate_alpha_X - time_dependent_potassium_current_X_gate_beta_X;
-    
+
         mb_error[0] = fast_sodium_current_h_gate_alpha_h;
         mb_error[1] = fast_sodium_current_j_gate_alpha_j;
         mb_error[2] = fast_sodium_current_m_gate_alpha_m;
         mb_error[5] = slow_inward_current_d_gate_alpha_d;
         mb_error[6] = slow_inward_current_f_gate_alpha_f;
         mb_error[7] = time_dependent_potassium_current_X_gate_alpha_X;
-        
-        // ...and add to ma_error the derivatives of the voltage and the calcium concentration    
+
+        // ...and add to ma_error the derivatives of the voltage and the calcium concentration
         ma_error[4] = membrane_V_prime;
         ma_error[3] = intracellular_calcium_concentration_Cai_prime;
     }
-    
+
     if (mIsTheFirstStep == true)
     {
         ma_previous = ma_current;
         mb_previous = mb_current;
-        
+
         mIsTheFirstStep = false;
     }
-    
+
 }
 
-void PeregoLuoRudyIModel1991OdeSystem::SetToleranceWeight (double tolerance_weight) 
-{   
+void PeregoLuoRudyIModel1991OdeSystem::SetToleranceWeight (double tolerance_weight)
+{
     mWeightedErrorTolerances[0] = 1 * tolerance_weight; // Gate h error
     mWeightedErrorTolerances[1] = 1 * tolerance_weight; // Gate j error
     mWeightedErrorTolerances[2] = 1 * tolerance_weight; // Gate m error

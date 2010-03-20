@@ -51,13 +51,13 @@ FileFinder::FileFinder(const std::string& rPath, cp::relative_to_type relativeTo
 void FileFinder::SetAbsolutePath(const cp::path_type& rPath)
 {
     std::string leaf_path(rPath);
-    
+
     switch (rPath.relative_to())
     {
         case cp::relative_to_type::chaste_source_root:
             mAbsPath = ChasteBuildRootDir() + leaf_path;
             break;
-        
+
         case cp::relative_to_type::chaste_test_output:
             mAbsPath = OutputFileHandler::GetChasteTestOutputDirectory() + leaf_path;
             break;
@@ -69,7 +69,7 @@ void FileFinder::SetAbsolutePath(const cp::path_type& rPath)
         case cp::relative_to_type::absolute:
             mAbsPath = leaf_path;
             break;
-        
+
         default:
             // Getting here is impossible due to the schema
             NEVER_REACHED;
@@ -82,12 +82,12 @@ bool FileFinder::Exists() const
     std::ifstream file(mAbsPath.c_str());
     bool exists = file.is_open();
     file.close();
-    
+
     return exists;
 }
-    
+
 std::string FileFinder::GetAbsolutePath() const
-{    
+{
     return mAbsPath;
 }
 

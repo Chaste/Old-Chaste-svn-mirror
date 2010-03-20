@@ -60,7 +60,7 @@ protected:
 
     /** Name of fibre orienation file (see SetFibreOrientationFile)*/
     std::string mFibreOrientationFilename;
-    
+
     /** File stream to use for GetTokensAtNextLine*/
     std::ifstream mDataFile;
 

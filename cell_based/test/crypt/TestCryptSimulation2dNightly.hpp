@@ -393,7 +393,7 @@ public:
         std::vector<TissueCell> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
-        
+
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
@@ -469,11 +469,11 @@ public:
             boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
             if (dist_from_3_6 < 1.1)
             {
-            	cells[i].SetMutationState(p_apc2);
+                cells[i].SetMutationState(p_apc2);
             }
             else
             {
-            	cells[i].SetMutationState(p_healthy);
+                cells[i].SetMutationState(p_healthy);
             }
         }
 

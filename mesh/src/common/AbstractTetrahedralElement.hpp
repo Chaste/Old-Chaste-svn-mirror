@@ -110,7 +110,7 @@ public:
                                   double& rJacobianDeterminant,
                                   c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian); /// \todo make this argument const?
 
-    /** Get the volume of an element (or area in 2d, or length in 1d) 
+    /** Get the volume of an element (or area in 2d, or length in 1d)
      * @param determinant a pre-calculated Jacobian determinant for this element.
      * @return volume (which is simply the determinant weighted by the SPACE_DIM)
      */
@@ -205,7 +205,7 @@ AbstractTetrahedralElement<0, SPACE_DIM>::AbstractTetrahedralElement(unsigned in
     ///\todo We don't want to create new data, calculation and throw the answer away
     c_vector<double, SPACE_DIM> weighted_direction;
     double det;
-    
+
     CalculateWeightedDirection(weighted_direction, det);
 
     // If determinant < 0 then element nodes are listed clockwise.

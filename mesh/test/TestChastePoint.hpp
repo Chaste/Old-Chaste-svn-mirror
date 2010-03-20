@@ -103,16 +103,16 @@ public:
 
         for (int i=0; i<3; i++)
         {
-        	TS_ASSERT_DELTA(const_point_location[i], point[i], 1e-7);
+            TS_ASSERT_DELTA(const_point_location[i], point[i], 1e-7);
         }
     }
-    
-    void TestSameChastePoints() 
+
+    void TestSameChastePoints()
     {
         ChastePoint<3> point1(4,5,6);
         ChastePoint<3> point2(4,5,6);
         ChastePoint<3> point3(12,5,6);
-        
+
         TS_ASSERT(point1.IsSamePoint(point2));
         TS_ASSERT(!point1.IsSamePoint(point3));
     }

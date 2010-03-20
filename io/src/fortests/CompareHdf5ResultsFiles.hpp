@@ -32,13 +32,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1, bool makeAbsolute1,
                                    std::string pathname2, std::string filename2, bool makeAbsolute2);
-                                   
-/** 
- * Alternative, weaker, method for comparing two files. It computes the global norms of the two data 
- * vectors and checks whether the difference is less than 1e-10 
- * 
+
+/**
+ * Alternative, weaker, method for comparing two files. It computes the global norms of the two data
+ * vectors and checks whether the difference is less than 1e-10
+ *
  * @return true if the global norms differ by less than 1e-10 for each time step
- * */          
+ * */
 bool CompareFilesViaHdf5DataReaderGlobalNorm(std::string pathname1, std::string filename1, bool makeAbsolute1,
                                              std::string pathname2, std::string filename2, bool makeAbsolute2);
 

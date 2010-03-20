@@ -71,12 +71,12 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(std::vector<double>& rPar
                                      bool useTypeDependentG1)
     : mLastTime(DBL_MAX)
 {
-	SetDimension(rDimension),
-	SetUseCellProliferativeTypeDependentG1Duration(useTypeDependentG1);
+    SetDimension(rDimension),
+    SetUseCellProliferativeTypeDependentG1Duration(useTypeDependentG1);
 #ifdef CHASTE_CVODE
         msSolver.SetMaxSteps(10000);
 #endif // CHASTE_CVODE
-	// Set the other initial conditions to be the same as the parent cell
+    // Set the other initial conditions to be the same as the parent cell
     mpOdeSystem = new Mirams2010WntOdeSystem(rParentProteinConcentrations[2], pMutationState);
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }

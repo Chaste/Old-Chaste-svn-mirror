@@ -50,10 +50,10 @@ public:
 
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
-          
+
         // NONPHYSIOL1 => NonphysiologicalContractionModel 1
         ExplicitCardiacMechanicsAssembler<2> assembler(NONPHYSIOL1,&mesh,"TestExplicitCardiacMech",fixed_nodes,&law);
-        
+
         // coverage
         QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
 
@@ -63,17 +63,17 @@ public:
         assembler.SetCalciumAndVoltage(calcium_conc, voltages);
 
         // solve UP TO t=0. So Ta(lam_n,t_{n+1})=5*sin(0)=0, ie no deformation
-        assembler.Solve(-0.01,0.0,0.01);        
+        assembler.Solve(-0.01,0.0,0.01);
         TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(),0u);
 
         assembler.Solve(0.24,0.25,0.01);
-        
+
         TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[4](0),  0.8730, 1e-2);
         TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[4](1), -0.0867, 1e-2);
     }
-    
-    // with stretch (and stretch-rate) independent contraction models the implicit and explicit schemes 
-    // are identical 
+
+    // with stretch (and stretch-rate) independent contraction models the implicit and explicit schemes
+    // are identical
     void TestCompareImplicitAndExplicitWithStretchIndependentContractionModel() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
@@ -93,17 +93,17 @@ public:
             impl_solver.Solve(t,t+dt,dt);
 
             // computations should be identical
-            TS_ASSERT_EQUALS(expl_solver.GetNumNewtonIterations(), impl_solver.GetNumNewtonIterations()); 
+            TS_ASSERT_EQUALS(expl_solver.GetNumNewtonIterations(), impl_solver.GetNumNewtonIterations());
             for(unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 TS_ASSERT_DELTA(expl_solver.rGetDeformedPosition()[i](0),  impl_solver.rGetDeformedPosition()[i](0), 1e-10);
                 TS_ASSERT_DELTA(expl_solver.rGetDeformedPosition()[i](1),  impl_solver.rGetDeformedPosition()[i](1), 1e-10);
             }
         }
-    }    
+    }
 
 
-    // with stretch-dependent contraction models the implicit and explicit schemes can be similar 
+    // with stretch-dependent contraction models the implicit and explicit schemes can be similar
     void TestCompareImplicitAndExplicitWithStretchDependentContractionModel() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
@@ -128,7 +128,7 @@ public:
         for(double t=t0; t<t1; t+=dt)
         {
             std::cout << "\n **** t = " << t << " ****\n" << std::flush;
-            
+
             expl_solver.SetWriteOutput(false);
             expl_solver.Solve(t,t+dt,dt);
             expl_solver.SetWriteOutput();
@@ -138,14 +138,14 @@ public:
             impl_solver.Solve(t,t+dt,dt);
             impl_solver.SetWriteOutput();
             impl_solver.WriteOutput(counter);
-            
+
             // the solutions turn out to be very close to each other
             for(unsigned i=0; i<mesh.GetNumNodes(); i++)
             {
                 TS_ASSERT_DELTA(expl_solver.rGetDeformedPosition()[i](0),  impl_solver.rGetDeformedPosition()[i](0), 2e-3);
                 TS_ASSERT_DELTA(expl_solver.rGetDeformedPosition()[i](1),  impl_solver.rGetDeformedPosition()[i](1), 2e-3);
             }
-            
+
             // visualisation in matlab or octave
             // run from CHASTETESTOUTPUT
             //
@@ -155,15 +155,15 @@ public:
             //
             // close all; figure; hold on
             // for i=0:10, x2 = load(['TestCompareExplAndImplCardiacSolversStretch_Imp/solution_',num2str(i),'.nodes']); plot(x2(:,1),x2(:,2),'r*'); end
-            
+
             counter++;
         }
-        
+
         // check there was significant deformation - node 4 is (1,0)
         TS_ASSERT_DELTA(mesh.GetNode(4)->rGetLocation()[0], 1.0, 1e-12);
         TS_ASSERT_LESS_THAN(impl_solver.rGetDeformedPosition()[4](0), 0.9);
     }
-    
+
     // cover all other contraction model options which are allowed but not been used in a test so far
     void TestCoverage() throw(Exception)
     {

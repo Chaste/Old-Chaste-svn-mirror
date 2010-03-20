@@ -105,14 +105,14 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
     }
-    
+
     void TestTrianglesToMeshalyzer1dIn3d()
     {
         TrianglesMeshReader<1,3> import_mesh_reader("mesh/test/data/trivial_1d_in_3d_mesh");
         MeshalyzerMeshWriter<1,3> mesh_writer("", "Mesh");
 
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMeshReader(import_mesh_reader));
-    }    
+    }
 
     void TestTrianglesToCoolGraphics()
     {
@@ -144,7 +144,7 @@ public:
         TrianglesMeshReader<2,2>* p_new_mesh_reader;
         p_new_mesh_reader = new TrianglesMeshReader<2,2>(output_dir + "MeshFromFemlabViaMesh");
         TS_ASSERT_EQUALS(p_new_mesh_reader->GetNumFaces(), 40U); //Internal faces have been culled
-        
+
         delete p_new_mesh_reader;
     }
 
@@ -222,7 +222,7 @@ public:
 
         TrianglesMeshWriter<1,2> mesh_writer("", "1dMeshIn2dSpace");
         mesh_writer.SetWriteFilesAsBinary();
-        
+
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
 
         std::string output_dir = mesh_writer.GetOutputDirectory();
@@ -253,7 +253,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader2.GetNumNodes(), 50u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 49u);
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 2u);
-        
+
         TrianglesMeshReader<1,2> mesh_reader3(output_dir + "1dMeshIn2dSpaceWithDeletedNodeConst");
         TS_ASSERT_EQUALS(mesh_reader3.GetNumNodes(), 50u);
         TS_ASSERT_EQUALS(mesh_reader3.GetNumElements(), 49u);
@@ -288,7 +288,7 @@ public:
 
         TrianglesMeshWriter<2,3> mesh_writer("", "2dMeshIn3dSpace");
         mesh_writer.SetWriteFilesAsBinary();
-        
+
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
 
         std::string output_dir = mesh_writer.GetOutputDirectory();
@@ -303,7 +303,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 100u); // culling now occurs in the reader
         TS_ASSERT_EQUALS(mesh_reader2.GetNumFaces(), 100u);
     }
-    
+
     void TestQuadratic1D() throw (Exception)
     {
         QuadraticMesh<1> mesh;
@@ -314,12 +314,12 @@ public:
 
         std::string output_dir = mesh_writer.GetOutputDirectory();
         TrianglesMeshReader<1,1> mesh_reader(output_dir + "1d_quadratic", 2, 2);
-        
+
         //Test that reader is reading correctly
         TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 1u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 3u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 1u);
-        
+
         //Test that mesh can be reconstructed
         QuadraticMesh<1> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
@@ -343,7 +343,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 2u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 6u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 3u);
-        
+
         //Test that mesh can be reconstructed
         QuadraticMesh<2> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
@@ -367,7 +367,7 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNextNode().size(), 3u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextElementData().NodeIndices.size(), 10u);
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices.size(), 6u);
-        
+
         //Test that mesh can be reconstructed
         QuadraticMesh<3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
@@ -375,7 +375,7 @@ public:
         TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNumNodes(), 6U);
         TS_ASSERT_EQUALS(mesh2.GetBoundaryElement(0)->GetNodeGlobalIndex(5), mesh.GetBoundaryElement(0)->GetNodeGlobalIndex(5));
     }
-    
+
     void TestCmguiMeshWriter3D() throw(Exception)
     {
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
@@ -389,10 +389,10 @@ public:
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiMeshWriter3D/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exnode mesh/test/data/TestCmguiMeshWriter/cube_2mm_12_elements.exnode").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiMeshWriter/cube_2mm_12_elements.exelem").c_str()), 0);
-        
+
         //now test the set method for additional fields. We set two fields.
         CmguiMeshWriter<3,3> writer2("TestCmguiMeshWriterAdditionalHeaders3D", "cube_2mm_12_elements");
-        
+
         std::vector<std::string> field_names;
         field_names.push_back("V");
         field_names.push_back("Phi_e");
@@ -401,7 +401,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(writer2.WriteFilesUsingMesh(mesh));
         TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/cube_2mm_12_elements.exelem mesh/test/data/TestCmguiMeshWriter/cube_2mm_12_elements_additional_fields.exelem").c_str()), 0);
     }
-    
+
     void TestCmguiMeshWriter2D() throw(Exception)
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
@@ -415,10 +415,10 @@ public:
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiMeshWriter2D/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/square_128_elements.exnode mesh/test/data/TestCmguiMeshWriter/square_128_elements.exnode").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/square_128_elements.exelem mesh/test/data/TestCmguiMeshWriter/square_128_elements.exelem").c_str()), 0);
-        
+
         //now test the set method for additional fields. We set two fields.
         CmguiMeshWriter<2,2> writer2("TestCmguiMeshWriterAdditionalHeaders2D", "square_128_elements");
-        
+
         std::vector<std::string> field_names;
         field_names.push_back("V");
         field_names.push_back("Phi_e");
@@ -441,10 +441,10 @@ public:
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiMeshWriter1D/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/1D_0_to_1_100_elements.exnode mesh/test/data/TestCmguiMeshWriter/1D_0_to_1_100_elements.exnode").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/1D_0_to_1_100_elements.exelem mesh/test/data/TestCmguiMeshWriter/1D_0_to_1_100_elements.exelem").c_str()), 0);
-        
+
         //now test the set method for additional fields. We set two fields.
         CmguiMeshWriter<1,1> writer2("TestCmguiMeshWriterAdditionalHeaders1D", "1D_0_to_1_100_elements");
-        
+
         std::vector<std::string> field_names;
         field_names.push_back("V");
         field_names.push_back("Phi_e");
@@ -453,16 +453,16 @@ public:
         TS_ASSERT_THROWS_NOTHING(writer2.WriteFilesUsingMesh(mesh));
         TS_ASSERT_EQUALS(system(("cmp " + results_dir2 + "/1D_0_to_1_100_elements.exelem mesh/test/data/TestCmguiMeshWriter/1D_0_to_1_100_elements_additional_fields.exelem").c_str()), 0);
     }
-    
+
     void TestCmguiDeformedSolutionsWriter() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
-       
+
         CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter", "solution", mesh);
-        
+
         // writes solution_0.exnode and solution_1.node using the mesh
         writer.WriteInitialMesh();
-        
+
         // set up a deformed positions vector
         std::vector<c_vector<double,2> > deformed_positions(mesh.GetNumNodes(), zero_vector<double>(2));
         for(unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -483,11 +483,11 @@ public:
         writer.WriteDeformationPositions(deformed_positions, 2);
         // write LoadSolutions.com
         writer.WriteCmguiScript();
-        
+
         deformed_positions.push_back(zero_vector<double>(2));
-        
+
         TS_ASSERT_THROWS_CONTAINS(writer.WriteDeformationPositions(deformed_positions, 3), "The size of rDeformedPositions does not match the number of nodes in the mesh");
-        
+
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiDeformedSolutionsWriter";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_0.exelem mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_0.exelem").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_0.exnode mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_0.exnode").c_str()), 0);
@@ -495,13 +495,13 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_2.exnode mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_2.exnode").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
     }
-    
+
     void TestCmguiDeformedSolutionsWriterConvertOutput() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
         CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter_ConvertOutput", "solution", mesh);
 
-        // throws as file doesn't exist        
+        // throws as file doesn't exist
         TS_ASSERT_THROWS_CONTAINS(writer.ConvertOutput("blahblahblah", "blah", 1), "Could not open file:");
 
         // convert some files
@@ -517,10 +517,10 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/solution_2.exnode mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_2.exnode").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
 
-        // throws as is incomplete    
+        // throws as is incomplete
         TS_ASSERT_THROWS_CONTAINS(writer.ConvertOutput("mesh/test/data/TestCmguiDeformedSolutionsWriter", "bad_myoldsolution", 1), "Error occurred when reading file");
-    } 
-    
+    }
+
     void TestVtkWriter() throw(Exception)
     {
 #ifdef CHASTE_VTK
@@ -556,7 +556,7 @@ public:
             distance.push_back(norm_2(mesh.GetNode(i)->rGetLocation()));
         }
         writer.AddPointData("Distance from origin", distance);
-        
+
         // Add element quality into the element "cell" data
         std::vector<double> quality;
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
@@ -602,7 +602,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
-        
+
         //32K uncompressed, 19K compressed
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/heart_decimation.vtu mesh/test/data/TestVtkWriter/heart_decimation.vtu").c_str()), 0);
@@ -619,27 +619,27 @@ public:
         std::string file_from_reader = "from_reader";
         std::string file_from_mesh = "from_mesh";
         std::string file_from_mesh_bin = "from_mesh_binary";
-        
+
         // Firstly, write directly from a mesh reader
         {
             TrianglesMeshReader<1,1> mesh_reader(source_mesh);
             TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
             TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
-            
+
             TrianglesMeshWriter<1,1> mesh_writer(output_dir, file_from_reader, true);
             mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
         }
-        
+
 
         // Next, write using a mesh object
         {
             TrianglesMeshReader<1,1> mesh_reader(source_mesh);
             TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
             TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
-            
+
             TetrahedralMesh<1,1> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
-            
+
             TrianglesMeshWriter<1,1> mesh_writer(output_dir, file_from_mesh, false);
             mesh_writer.WriteFilesUsingMesh(mesh);
         }
@@ -649,15 +649,15 @@ public:
             TrianglesMeshReader<1,1> mesh_reader(source_mesh);
             TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 10u);
             TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 1u);
-            
+
             TetrahedralMesh<1,1> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
-            
+
             TrianglesMeshWriter<1,1> mesh_writer(output_dir, file_from_mesh_bin, false);
             mesh_writer.SetWriteFilesAsBinary();
             mesh_writer.WriteFilesUsingMesh(mesh);
         }
-        
+
         // Now check the written meshes
         OutputFileHandler handler(output_dir, false);
         TrianglesMeshReader<1,1> reader1(handler.GetOutputDirectoryFullPath() + file_from_reader);
@@ -675,7 +675,7 @@ public:
             std::vector<unsigned> nodes = next_element_info.NodeIndices;
             TS_ASSERT_EQUALS(nodes.size(), 2u);
             TS_ASSERT_EQUALS(next_element_info.AttributeValue, i%5 + 1);
-            
+
             next_element_info = reader2.GetNextElementData();
             nodes = next_element_info.NodeIndices;
             TS_ASSERT_EQUALS(nodes.size(), 2u);
@@ -695,14 +695,14 @@ public:
         TrianglesMeshWriter<3,3> writer_from_reader("TestMeshWriter", "simple_cube_binary_from_reader", false);
         writer_from_reader.SetWriteFilesAsBinary();
         writer_from_reader.WriteFilesUsingMeshReader(reader);
-        
+
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
         TrianglesMeshWriter<3,3> writer_from_mesh("TestMeshWriter", "simple_cube_binary_from_mesh", false);
         writer_from_mesh.SetWriteFilesAsBinary();
         writer_from_mesh.WriteFilesUsingMesh(mesh);
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestMeshWriter/";
-        
+
         //This test is too stringent at the moment, but we'll do something better later
         // -n options ensure that we don't get to the provenance data
         TS_ASSERT_EQUALS(system(("cmp -n 267 " + results_dir + "/simple_cube_binary_from_reader.node mesh/test/data/simple_cube_binary.node").c_str()), 0);
@@ -712,7 +712,7 @@ public:
         TS_ASSERT_EQUALS(system(("cmp -n 267 " + results_dir + "/simple_cube_binary_from_mesh.node mesh/test/data/simple_cube_binary.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp -n 290 " + results_dir + "/simple_cube_binary_from_mesh.ele mesh/test/data/simple_cube_binary.ele").c_str()), 0);
         TS_ASSERT_EQUALS(system(("cmp -n 192 " + results_dir + "/simple_cube_binary_from_mesh.face mesh/test/data/simple_cube_binary.face").c_str()), 0);
-        
+
         /* Looking for beginning of provenance line: "#Created by Chaste"
          *          Ascii   Binary
          *  .node   182     267
@@ -727,7 +727,7 @@ public:
             TS_ASSERT_EQUALS(sizeof(double), 8u);
          */
     }
- 
+
 };
 
 #endif //_TESTMEMFEMMESHREADER_HPP_

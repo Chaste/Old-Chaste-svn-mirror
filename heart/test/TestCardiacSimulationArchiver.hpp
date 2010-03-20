@@ -76,8 +76,8 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
-        HeartConfig::Instance()->SetCapacitance(1.0);        
-        
+        HeartConfig::Instance()->SetCapacitance(1.0);
+
         HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainSimple1d");
@@ -101,13 +101,13 @@ public:
         TS_ASSERT_DELTA(solution_replicated[7], -16.6761, atol);
         TS_ASSERT_DELTA(solution_replicated[9], -16.8344, atol);
         TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);
-        
+
         for (unsigned index=0; index<solution_replicated.GetSize(); index++)
         {
             mSolutionReplicated1d2ms.push_back(solution_replicated[index]);
         }
     }
-   
+
     void TestArchivingWithHelperClass()
     {
         // Save
@@ -119,7 +119,7 @@ public:
             HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
             HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
             HeartConfig::Instance()->SetCapacitance(1.0);
-    
+
             PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
             BidomainProblem<1> bidomain_problem( &cell_factory );
 
@@ -128,7 +128,7 @@ public:
             DistributedTetrahedralMesh<1,1> mesh;
             mesh.ConstructFromMeshReader(mesh_reader);
             bidomain_problem.SetMesh(&mesh);
-    
+
             bidomain_problem.Initialise();
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
             bidomain_problem.Solve();
@@ -138,7 +138,7 @@ public:
 
         // Load
         {
-            BidomainProblem<1> *p_bidomain_problem;            
+            BidomainProblem<1> *p_bidomain_problem;
             p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load("bidomain_problem_archive_helper");
 
             HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
@@ -153,7 +153,7 @@ public:
             TS_ASSERT_DELTA(solution_replicated[5], -16.5617, atol);
             TS_ASSERT_DELTA(solution_replicated[7], -16.6761, atol);
             TS_ASSERT_DELTA(solution_replicated[9], -16.8344, atol);
-            TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);        
+            TS_ASSERT_DELTA(solution_replicated[10], 25.3148, atol);
 
             for (unsigned index=0; index<solution_replicated.GetSize(); index++)
             {
@@ -163,34 +163,34 @@ public:
             // check output file contains results for the whole simulation
             TS_ASSERT(CompareFilesViaHdf5DataReader("BiProblemArchiveHelper", "BidomainLR91_1d", true,
                                                     "BidomainSimple1d", "BidomainLR91_1d", true));
-            
+
             // Free memory
-            delete p_bidomain_problem;            
+            delete p_bidomain_problem;
         }
-        
+
         {
             // Coverage of "couldn't find file" exception
-            BidomainProblem<1> *p_bidomain_problem;            
+            BidomainProblem<1> *p_bidomain_problem;
             TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load("missing_directory"),
                                       "Unable to open archive information file:");
         }
     }
-    
+
     /**
      *  Test used to generate data for the acceptance test resume_bidomain. We run the same simulation as in save_bidomain
      *  and archive it. resume_bidomain will load it and resume the simulation.
-     * 
-     *  If the archiving format changes, both acceptance tests (save_bidomain and resume_bidomain) and the second part of this 
+     *
+     *  If the archiving format changes, both acceptance tests (save_bidomain and resume_bidomain) and the second part of this
      *  test will fail. Do the following to fix them.
-     * 
+     *
      *  Updated save_bidomain/ChasteResults_10ms_arch_0.chaste
      *    This can be easily done with texttest GUI. Run save_bidomain test to find that ChasteResults_10ms_arch_0.chaste
-     *    contains differences (but NO other file). Highlight it and use the Save button on the window top left part.    
-     * 
+     *    contains differences (but NO other file). Highlight it and use the Save button on the window top left part.
+     *
 scons build=GccOpt_hostconfig,boost=1-33-1  test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp -r /tmp/$USER/testoutput/save_bidomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_bidomain/
 cp -r /tmp/$USER/testoutput/SaveBidomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_bidomain/
-     */      
+     */
     void TestGenerateResultsForResumeBidomain()
     {
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
@@ -216,7 +216,7 @@ cp -r /tmp/$USER/testoutput/SaveBidomain/ ~/eclipse/workspace/Chaste/apps/textte
         bidomain_problem.Solve();
 
         CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, "save_bidomain", false);
-        
+
         if (PetscTools::IsSequential())
         {
             // We can't use CardiacSimulationArchiver::Load for this, as it can't read files in the repository
@@ -225,7 +225,7 @@ cp -r /tmp/$USER/testoutput/SaveBidomain/ ~/eclipse/workspace/Chaste/apps/textte
                 "archive.arch",
                 false);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
-            
+
             BidomainProblem<3> *p_bidomain_problem;
             TS_ASSERT_THROWS_NOTHING((*p_arch) >> p_bidomain_problem);
             //Double check that the acceptance test archive really is valid
@@ -235,24 +235,24 @@ cp -r /tmp/$USER/testoutput/SaveBidomain/ ~/eclipse/workspace/Chaste/apps/textte
             TS_ASSERT_EQUALS(p_bidomain_problem->mCurrentTime, 10.0);
             delete p_bidomain_problem;
         }
-    }    
+    }
 
 
     /**
      *  Test used to generate data for the acceptance test resume_monodomain. We run the same simulation as in save_monodomain
      *  and archive it. resume_monodomain will load it and resume the simulation.
-     * 
-     *  If the archiving format changes, both acceptance tests (save_monodomain and resume_monodomain) and the second part of this 
+     *
+     *  If the archiving format changes, both acceptance tests (save_monodomain and resume_monodomain) and the second part of this
      *  test will fail. Do the following to fix them.
-     * 
+     *
      *  Updated save_monodomain/ChasteResults_10ms_arch_0.chaste
      *    This can be easily done with texttest GUI. Run save_monodomain test to find that ChasteResults_10ms_arch_0.chaste
-     *    contains differences (but NO other file). Highlight it and use the Save button on the window top left part.    
-     * 
+     *    contains differences (but NO other file). Highlight it and use the Save button on the window top left part.
+     *
 scons build=GccOpt_hostconfig,boost=1-33-1  test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp -r /tmp/$USER/testoutput/save_monodomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_monodomain/
 cp -r /tmp/$USER/testoutput/SaveMonodomain/ ~/eclipse/workspace/Chaste/apps/texttest/chaste/resume_monodomain/
- */      
+ */
     void TestGenerateResultsForResumeMonodomain()
     {
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
@@ -274,7 +274,7 @@ cp -r /tmp/$USER/testoutput/SaveMonodomain/ ~/eclipse/workspace/Chaste/apps/text
         monodomain_problem.Solve();
 
         CardiacSimulationArchiver<MonodomainProblem<2> >::Save(monodomain_problem, "save_monodomain", false);
-        
+
         if (PetscTools::IsSequential())
         {
             // We can't use CardiacSimulationArchiver::Load for this, as it can't read files in the repository
@@ -283,7 +283,7 @@ cp -r /tmp/$USER/testoutput/SaveMonodomain/ ~/eclipse/workspace/Chaste/apps/text
                 "archive.arch",
                 false);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
-            
+
             MonodomainProblem<2> *p_monodomain_problem;
             TS_ASSERT_THROWS_NOTHING((*p_arch) >> p_monodomain_problem);
             //Double check that the acceptance test archive really is valid
@@ -294,7 +294,7 @@ cp -r /tmp/$USER/testoutput/SaveMonodomain/ ~/eclipse/workspace/Chaste/apps/text
             delete p_monodomain_problem;
         }
     }
-    
+
     /***********************************************************************
      *                                                                     *
      *         Below this point are the checkpoint migration tests         *
@@ -341,7 +341,7 @@ private:
         {
             TS_ASSERT(p_par_mesh == NULL);
         }
-        
+
         // All real cells should be at initial conditions if we're starting at t=0.
         if (currentTime == 0.0)
         {
@@ -378,7 +378,7 @@ private:
 #ifndef BOOST_VERSION
             TS_FAIL("This test needs to know the version of Boost with which it was compiled.");
 #endif
-#if BOOST_VERSION >= 103400 && BOOST_VERSION < 103500 
+#if BOOST_VERSION >= 103400 && BOOST_VERSION < 103500
         if (PetscTools::IsSequential())
         {
             /*
@@ -388,13 +388,13 @@ private:
              * (running with Boost 1.34 - this code isn't executed otherwise!)
              * but do check that's the case!
              *
-             * (Assuming 1.34) 
+             * (Assuming 1.34)
 scons test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestLoadAsSequential/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration/reference_0_archive
 cp /tmp/$USER/testoutput/TestLoadAsSequentialWithBath/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_with_bath/reference_0_archive
 cp /tmp/$USER/testoutput/TestBcsOnNonMasterOnly/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_bcs_on_non_master_only/reference_0_archive
 cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_after_solve/reference_0_archive
-             */  
+             */
             EXPECT0(system, "cmp " + rSourceDir + "reference_0_archive " + my_archive + ".0");
         }
 #endif
@@ -402,11 +402,11 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
         // Return the problem for further tests
         return p_problem;
     }
-    
+
     /**
      * Write results to a subfolder of the original output dir, to avoid over-writing
      * original results & archives.
-     * 
+     *
      * Also change the end time if we're resuming a simulation, and copy the previous
      * results h5 file into the new subfolder in that case, so that it can be extended.
      */
@@ -432,7 +432,7 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
             }
         }
     }
-    
+
     template<class Problem>
     void DoSimulationsAfterMigrationAndCompareResults(Problem* pProblem,
                                                       const std::string& rArchiveDirectory,
@@ -526,12 +526,12 @@ public:
      *
 scons build=GccOpt_hostconfig,boost=1-33-1_3 test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/data/checkpoint_migration/
-     * 
+     *
      * Sets up a simulation and archives it without solving at all.
-     * 
+     *
      * When running sequentially, this creates an archive we can compare with
      * that produced by the next test.
-     * 
+     *
      * Generates a 3d cube mesh with 125 nodes, corners at (0,0,0) and (1,1,1)
      * with nodal spacing of 0.25cm.
      */
@@ -544,14 +544,14 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
-        
+
         PlaneStimulusCellFactory<BackwardEulerFoxModel2002Modified, 3> cell_factory(-80000.0, 1.0);
         BidomainProblem<3> bidomain_problem( &cell_factory );
-        
+
         bidomain_problem.Initialise();
-        
+
         CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, directory);
-        
+
         // This is quite a nasty exception to cover, as you need to be able to write to all files
         // in the directory exception archive.info.  It also has to be done in parallel too, to
         // cover the exception replication.
@@ -588,7 +588,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
             EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestLoadAsSequential");
-        
+
         // Do the migration
         const unsigned num_cells = 125u;
         BidomainProblem<3>* p_problem = DoMigrateAndBasicTests<BidomainProblem<3>,3>(archive_directory, ref_archive_dir, source_directory, num_cells);
@@ -624,16 +624,16 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
 
         DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
     }
-    
-    
+
+
     /**
      * Run this in parallel (build=_3) to create the archive for TestLoadAsSequentialWithBath.
-     * 
-scons build=GccOpt_hostconfig,boost=1-33-1_3 test_suite=heart/test/TestCardiacSimulationArchiver.hpp 
+     *
+scons build=GccOpt_hostconfig,boost=1-33-1_3 test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./heart/test/data/checkpoint_migration_with_bath/
-     * 
+     *
      * Sets up a simulation and archives it without solving at all.
-     * 
+     *
      * When running sequentially, this creates an archive we can compare with
      * that produced by the next test.
      */
@@ -645,7 +645,7 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./hear
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
-        
+
         TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
@@ -661,20 +661,20 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./hear
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
         bidomain_problem.SetElectrodes(p_electrodes);
         bidomain_problem.SetMesh(p_mesh);
-        
-	    // We solve for a small period of time so BCCs are created (next test wants to check it)
+
+        // We solve for a small period of time so BCCs are created (next test wants to check it)
         HeartConfig::Instance()->SetSimulationDuration(0.1);
         bidomain_problem.Initialise();
-        bidomain_problem.Solve();  
+        bidomain_problem.Solve();
 
-	    // We increase the simulation time so next test finds something left to simulate in the archive
+        // We increase the simulation time so next test finds something left to simulate in the archive
         HeartConfig::Instance()->SetSimulationDuration(0.2);
 
         CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
-        
+
         delete p_mesh;
     }
-    
+
     void TestLoadAsSequentialWithBath() throw (Exception)
     {
         // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
@@ -687,7 +687,7 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./hear
             EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestLoadAsSequentialWithBath");
-        
+
         BidomainProblem<2>* p_problem;
         // Do the migration to sequential
         const unsigned num_cells = 221u;
@@ -794,20 +794,20 @@ private:
             TS_ASSERT(p_par_mesh == NULL);
         }
 
-	    if (currentTime == 0.0)
-	    {
+        if (currentTime == 0.0)
+        {
             // All cells should be at initial conditions.
-    	    if (p_factory->GetHigh() > p_factory->GetLow())
-    	    {
-    	        std::vector<double> inits;
-        		for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
-        		{
-        		    AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
-        		    FakeBathCell* p_fake_cell = dynamic_cast<FakeBathCell*>(p_cell);
-        		    if (p_fake_cell == NULL)
+            if (p_factory->GetHigh() > p_factory->GetLow())
+            {
+                std::vector<double> inits;
+                for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
+                {
+                    AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+                    FakeBathCell* p_fake_cell = dynamic_cast<FakeBathCell*>(p_cell);
+                    if (p_fake_cell == NULL)
                     {
-        		        if (inits.empty())
-        			    {
+                        if (inits.empty())
+                        {
                             inits = p_cell->GetInitialConditions();
                         }
                         std::vector<double>& r_state = p_cell->rGetStateVariables();
@@ -818,8 +818,8 @@ private:
                         }
                     }
                 }
-    	    }
-    	}
+            }
+        }
 
         // Save it to a normal archive
         CardiacSimulationArchiver<Problem>::Save(*p_problem, rArchiveDirectory + "/new_archive");
@@ -845,13 +845,13 @@ private:
             //EXPECT0(system, "diff -I 'serialization::archive' " + ref_archive + suffix + " " + my_archive + suffix);
             // because we may have done a little simulation already, so there may be differences
             // between serial and parallel results, below the numerical solver tolerance.
-                        
+
             std::string file1 = ref_archive + suffix;
             std::string file2 = my_archive + suffix;
             NumericFileComparison same_data(file1, file2);
             TS_ASSERT(same_data.CompareFiles(ABS_TOL, 1)); //Tolerance of comparison.  Ignore first line (first 1 lines).
         }
-        
+
         return p_problem;
     }
 
@@ -860,12 +860,12 @@ public:
      * Run this in sequential to create the archive for TestLoadFromSequential.
 scons build=GccOpt_hostconfig,boost=1-33-1 test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/data/checkpoint_migration_from_seq/
-     * 
+     *
      * Sets up a simulation and archives it without solving at all.
-     * 
+     *
      * When running in parallel, this creates an archive we can compare with
      * that produced by the next test.
-     * 
+     *
      * Generates a 3d cube mesh with 125 nodes, corners at (0,0,0) and (1,1,1)
      * with nodal spacing of 0.25cm.
      */
@@ -878,12 +878,12 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
-        
+
         PlaneStimulusCellFactory<FaberRudy2000Version3, 3> cell_factory(-25500.0, 2.0);
         MonodomainProblem<3> monodomain_problem( &cell_factory );
-        
+
         monodomain_problem.Initialise();
-        
+
         CardiacSimulationArchiver<MonodomainProblem<3> >::Save(monodomain_problem, directory);
     }
 
@@ -914,7 +914,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
         {
             AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
             double x = p_problem->rGetMesh().GetNode(i)->GetPoint()[0];
-            
+
             if (x*x < 1e-10)
             {
                 // Stim exists
@@ -932,21 +932,21 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
                 TS_ASSERT_DELTA(p_cell->GetStimulus(-1e-10), 0.0, 1e-10);
             }
         }
-        
+
         // Test bccs - none defined in this problem
         TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
         TS_ASSERT(! p_problem->mpBoundaryConditionsContainer);
-        
+
         DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 1);
     }
-    
+
     /**
      * Run this in sequential to create the archive for TestLoadFromSequentialWithBath.
 scons build=GccOpt_hostconfig,boost=1-33-1  test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./heart/test/data/checkpoint_migration_from_seq_with_bath/
-     * 
+     *
      * Sets up a simulation and archives it, solving for one PDE step first to set up default BCs.
-     * 
+     *
      * When running in parallel, this creates an archive we can compare directly with
      * that produced by the next test.
      */
@@ -958,7 +958,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
-        
+
         DistributedTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<DistributedTetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
@@ -974,17 +974,17 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
         bidomain_problem.SetElectrodes(p_electrodes);
         bidomain_problem.SetMesh(p_mesh);
-        
+
         // We solve for a small period of time so BCCs are created (next test wants to check it)
         HeartConfig::Instance()->SetSimulationDuration(0.1);
         bidomain_problem.Initialise();
-        bidomain_problem.Solve();  
+        bidomain_problem.Solve();
 
         // We increase the simulation time so next test finds something left to simulate in the archive
         HeartConfig::Instance()->SetSimulationDuration(0.2);
 
         CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
-        
+
         delete p_mesh;
     }
 
@@ -1000,7 +1000,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
             EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestLoadFromSequentialWithBath");
-        
+
         // Loading from a sequential archive should work just as well running sequentially as in parallel -
         // if running sequentially it's essentially just the same as a normal load.
         const unsigned num_cells = 221u;
@@ -1017,7 +1017,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
             TS_ASSERT_DELTA(p_cell->GetStimulus(0.0), 0.0, 1e-10);
             TS_ASSERT_DELTA(p_cell->GetStimulus(1.0), 0.0, 1e-10);
         }
-        
+
         // Test bccs
         TS_ASSERT(p_problem->mpDefaultBoundaryConditionsContainer); /// \todo: see todo in BidomainProblem.cpp:344
         TS_ASSERT(p_problem->mpBoundaryConditionsContainer);
@@ -1079,20 +1079,20 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
             // No dirichlet condition on V
             TS_ASSERT(!p_bcc->HasDirichletBoundaryCondition(p_node, 0));
         }
-        
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2, 0.2); 
+
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2, 0.2);
     }
-    
+
     /**
      * The next pair of tests cover the case where the master process (that creates the archive)
      * has no boundary conditions, but at least one other process does.
      * We set a zero dirichlet boundary condition on the right end of a parallel 1d mesh.
-     * 
+     *
 scons build=GccOpt_hostconfig,boost=1-33-1_2  test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/data/checkpoint_migration_bcs_on_non_master_only/
-     * 
+     *
      * Sets up a simulation and archives it without solving at all.
-     * 
+     *
      * When running sequentially, this creates an archive we can compare with
      * that produced by the next test.
      */
@@ -1104,7 +1104,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
-        
+
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_10_elements");
         DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(reader);
@@ -1121,12 +1121,12 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
             it->SetRegion(HeartRegionCode::BATH);
         }
         mesh.SetMeshHasChangedSinceLoading();
-        
+
         ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
 
         BidomainProblem<1> bidomain_problem( &cell_factory, true );
         bidomain_problem.SetMesh(&mesh);
-        
+
         // Boundary condition - fix phi=0 on RHS
         unsigned rhs_index = 10u;
         if (p_factory->IsGlobalIndexLocal(rhs_index))
@@ -1137,13 +1137,13 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
             p_bcc->AddDirichletBoundaryCondition(p_node, p_zero_stim, 1u);
             bidomain_problem.SetBoundaryConditionsContainer(p_bcc);
         }
-        
+
         bidomain_problem.Initialise();
 
         // And Save
         CardiacSimulationArchiver<BidomainProblem<1> >::Save(bidomain_problem, directory);
     }
-   
+
     void TestBcsOnNonMasterOnly() throw (Exception)
     {
         // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
@@ -1156,10 +1156,10 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
             EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestBcsOnNonMasterOnly");
-        
+
         const unsigned num_nodes = 11u;
         BidomainProblem<1>* p_problem = DoMigrateAndBasicTests<BidomainProblem<1>,1>(archive_directory, ref_archive_dir, source_directory, num_nodes, true);
-        
+
         // Test the bccs - zero dirichlet on RHS only
         TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
         boost::shared_ptr<BoundaryConditionsContainer<1,1,2> > p_bcc = p_problem->mpBoundaryConditionsContainer;
@@ -1188,19 +1188,19 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
 
         DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
     }
-    
+
     /**
      * The next pair of tests covers the case where we migrate after a solve.
      * This means we will have default boundary conditions included in the archive.
      * Saving the simulation in parallel, and using a parallel mesh, means we also cover the
      * direct call of mpBoundaryConditionsContainer->MergeFromArchive in LoadExtraArchive.
-     * 
+     *
      * Run this in parallel (build=_2) to create the archive for TestMigrateAfterSolve.
 scons build=GccOpt_hostconfig,boost=1-33-1_2 test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestCreateArchiveForMigrateAfterSolve/archive/?* ./heart/test/data/checkpoint_migration_after_solve/
-     * 
+     *
      * Sets up a simulation and archives it without solving at all.
-     * 
+     *
      * When running sequentially, this creates an archive we can compare with
      * that produced by the next test.
      */
@@ -1212,24 +1212,24 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForMigrateAfterSolve/archive/?* ./hear
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
-        
+
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
         DistributedTetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(reader);
-        
+
         // Stimulate at LHS
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
 
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         monodomain_problem.SetMesh(&mesh);
         monodomain_problem.Initialise();
-        
+
         // Solve...
         monodomain_problem.Solve();
 
         // ...and Save
         CardiacSimulationArchiver<MonodomainProblem<1> >::Save(monodomain_problem, directory + "/archive");
-        
+
         // Copy the simulation.h5 file into the archive folder, for convenience
         OutputFileHandler handler(directory, false);
         if (PetscTools::AmMaster())
@@ -1238,7 +1238,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForMigrateAfterSolve/archive/?* ./hear
             EXPECT0(system, "cp " + path + "simulation.h5 " + path + "archive/");
         }
     }
-    
+
     void TestMigrateAfterSolve() throw (Exception)
     {
         // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
@@ -1251,10 +1251,10 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForMigrateAfterSolve/archive/?* ./hear
             EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestMigrateAfterSolve");
-        
+
         const unsigned num_nodes = 101u;
         MonodomainProblem<1>* p_problem = DoMigrateAndBasicTests<MonodomainProblem<1>,1>(archive_directory, ref_archive_dir, source_directory, num_nodes, true, 0.1);
-        
+
         // Test the bccs - zero neumann on the boundary
         TS_ASSERT( p_problem->mpDefaultBoundaryConditionsContainer);
         boost::shared_ptr<BoundaryConditionsContainer<1,1,1> > p_bcc = p_problem->mpBoundaryConditionsContainer;

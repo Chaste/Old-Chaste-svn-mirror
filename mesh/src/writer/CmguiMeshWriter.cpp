@@ -49,14 +49,14 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     //////////////////////////
     std::string node_file_name = this->mBaseName + ".exnode";
     out_stream p_node_file = this->mpOutputFileHandler->OpenOutputFile(node_file_name);
-    
+
     WriteNodeFileHeader(p_node_file);
 
     // Write each node's data
     for (unsigned item_num=0; item_num<this->GetNumNodes(); item_num++)
     {
         std::vector<double> current_item = this->GetNextNode();
-        
+
         *p_node_file << "Node:\t" << item_num+1 << "\t";
         for (unsigned i=0; i<ELEMENT_DIM; i++)
         {

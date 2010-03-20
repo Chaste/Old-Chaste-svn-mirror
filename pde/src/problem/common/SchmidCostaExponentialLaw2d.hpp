@@ -42,10 +42,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  where the parameters are taken from the fitting in Schmid,Nash,Young,Hunter
  *  "Myocardial Material Parameter Estimation - A Comparative Study for Simple
  *  Shear" Transactions of the ASME.
- * 
+ *
  *  Note, by default, the fibre direction is assumed to be THE X-DIRECTION,
  *  and the sheet direction the Y-DIRECTION (ie sheets in the XY plane). Call
- *  SetChangeOfBasisMatrix() before ComputeStressAndStressDerivative(), with 
+ *  SetChangeOfBasisMatrix() before ComputeStressAndStressDerivative(), with
  *  the matrix P = [fibre_vec, sheet_vec, normal_vec] if this is not the case.
  */
 class SchmidCostaExponentialLaw2d : public AbstractIncompressibleMaterialLaw<2>
@@ -61,7 +61,7 @@ private :
     /** 2D identity matrix. */
     c_matrix<double,2,2> mIdentity;
 
-    /** Change of basis matrix. See SetChangeOfBasisMatrix() documentation */ 
+    /** Change of basis matrix. See SetChangeOfBasisMatrix() documentation */
     c_matrix<double,2,2>* mpChangeOfBasisMatrix;
 
 public :
@@ -110,13 +110,13 @@ public :
     double GetZeroStrainPressure();
 
     /**
-     *  Some material laws (eg pole-zero) may have prefered directions (eg fibre direction), 
-     *  but be implemented to assume the prefered directions are parallel to the X-axis etc. 
+     *  Some material laws (eg pole-zero) may have prefered directions (eg fibre direction),
+     *  but be implemented to assume the prefered directions are parallel to the X-axis etc.
      *  Call this with the change of basis matrix and C will be transformed from the Euclidean
      *  coordinate system to the appropriate coordinate system before used to calculate T, which
      *  will then be transformed from the appropriate coordinate system back to the Euclidean
      *  coordinate system before being returned, as will dTdE.
-     * 
+     *
      *  The change of basis matrix for schmid-costa should be of the form: [ fibre_vec  sheet_vec  normal_vec ]
      *  @param rChangeOfBasisMatrix Change of basis matrix.
      */

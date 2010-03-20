@@ -74,7 +74,7 @@ protected:
      *
      *   grad_phi[row] . ( pde_diffusion_term * grad_phi[col]) +
      *  (1.0/mDt) * pPde->ComputeDuDtCoefficientFunction(rX) * rPhi[row] * rPhi[col]
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -92,7 +92,7 @@ protected:
 
     /**
      * The term to be added to the element stiffness vector.
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -111,7 +111,7 @@ protected:
     /**
      * The term arising from boundary conditions to be added to the element
      * stiffness vector.
-     * 
+     *
      * @param rSurfaceElement the element which is being considered.
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rX The point in space
@@ -126,7 +126,7 @@ public:
 
     /**
      * Constructor stores the mesh, pde and boundary conditons, and calls base constructor.
-     * 
+     *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
      * @param pBoundaryConditions pointer to the boundary conditions
@@ -147,7 +147,7 @@ public:
      *
      * The mesh, pde and boundary conditions container must be set before Solve()
      * is called.
-     * 
+     *
      * @param currentSolutionOrGuess either the current solution or initial guess (defaults to NULL)
      * @param currentTime the current time (defaults to 0.0)
      */

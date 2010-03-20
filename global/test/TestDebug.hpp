@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Debug.hpp"
 
 // interestingly, this test won't fork if you attempt to run in parallel unless this is included
-#include "PetscSetupAndFinalize.hpp"                                       
+#include "PetscSetupAndFinalize.hpp"
 
 class TestDebug : public CxxTest::TestSuite
 {
@@ -84,14 +84,14 @@ public:
         {
             TRACE_FROM_NTH_VISIT("hello",2);
         }
-        
+
         std::vector<double> vec(4);
         vec[0] = 0.0;
         vec[1] = 1.0;
         vec[2] = 2.7;
         vec[3] = 3.1;
-        PRINT_VECTOR(vec); 
-        
+        PRINT_VECTOR(vec);
+
         MARK; //Something like: "DEBUG: ./global/test/TestDebug.hpp at line 95"
     }
 };

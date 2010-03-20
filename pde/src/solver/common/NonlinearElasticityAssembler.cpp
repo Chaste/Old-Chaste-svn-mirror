@@ -75,13 +75,13 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
          iter != mpQuadMesh->GetElementIteratorEnd();
          ++iter)
     {
-        #ifdef MECH_VERBOSE    
+        #ifdef MECH_VERBOSE
         if (assembleJacobian) // && ((*iter).GetIndex()%500==0))
         {
             std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
         }
         #endif
-    
+
         Element<DIM, DIM>& element = *iter;
 
         if (element.GetOwnership() == true)
@@ -345,9 +345,9 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         static FourthOrderTensor<DIM> dTdE_F;
         static FourthOrderTensor<DIM> dTdE_FF1;
         static FourthOrderTensor<DIM> dTdE_FF2;
-  
+
         dTdE_F.SetAsProduct(this->dTdE, F, 1);  // B^{MdPQ}  = F^d_N * dTdE^{MdPQ}
-        dTdE_FF1.SetAsProduct(dTdE_F, F, 3);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ} 
+        dTdE_FF1.SetAsProduct(dTdE_F, F, 3);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ}
         dTdE_FF2.SetAsProduct(dTdE_F, F, 2);    // B2^{MdeQ} = F^d_N * F^e_P * dTdE^{MNPQ}
 
 
@@ -415,7 +415,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                                                      * wJ;
                         }
                     }
-                    
+
                     for (unsigned M=0; M<DIM; M++)
                     {
                         for (unsigned P=0; P<DIM; P++)
@@ -426,7 +426,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                                                       * grad_quad_phi(M,node_index1)
                                                       * wJ;
                         }
-                        
+
                         for (unsigned Q=0; Q<DIM; Q++)
                         {
                            rAElem(index1,index2)  +=   0.5
@@ -635,18 +635,18 @@ template<size_t DIM>
 void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
 {
 
-    //// If linear system was type MATMPIAIJ, would need to reallocate, but can't pre-allocate twice on the same matrix 
-    // without leaking memory. This is the call to preallocate an MPI AIJ matrix: 
+    //// If linear system was type MATMPIAIJ, would need to reallocate, but can't pre-allocate twice on the same matrix
+    // without leaking memory. This is the call to preallocate an MPI AIJ matrix:
     // MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
 
     this->mpLinearSystem = new LinearSystem(this->mNumDofs, (MatType)MATAIJ); // default Mat type is MATMPIAIJ, see above
     this->mpPreconditionMatrixLinearSystem = new LinearSystem(this->mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work
 
     // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
-    
+
     if(DIM==2)
     {
-        // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.  
+        // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.
         unsigned num_non_zeros = 75;
 
         if(PetscTools::GetNumProcs()==1)
@@ -663,10 +663,10 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
     else
     {
         assert(DIM==3);
-        
-        // in 3d we get the number of containing elements for each node and use that to obtain an upper bound 
-        // for the number of non-zeros for each DOF associated with that node.    
-    
+
+        // in 3d we get the number of containing elements for each node and use that to obtain an upper bound
+        // for the number of non-zeros for each DOF associated with that node.
+
         int* num_non_zeros_each_row = new int[this->mNumDofs];
         for(unsigned i=0; i<this->mNumDofs; i++)
         {
@@ -679,7 +679,7 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
             // 4 = max num dofs associated with this node
             // 30 = 3*9+3 = 3 dimensions x 9 other nodes on this element   +  3 vertices with a pressure unknown
             unsigned num_non_zeros_upper_bound = 4 + 30*mpQuadMesh->GetNode(i)->GetNumContainingElements();
-            
+
             num_non_zeros_each_row[DIM*i + 0] = num_non_zeros_upper_bound;
             num_non_zeros_each_row[DIM*i + 1] = num_non_zeros_upper_bound;
             num_non_zeros_each_row[DIM*i + 2] = num_non_zeros_upper_bound;
@@ -704,7 +704,7 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
             {
                 num_non_zeros_each_row_this_proc[i] = num_non_zeros_each_row[lo+i];
             }
-    
+
             MatMPIAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
             MatMPIAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
         }
@@ -713,7 +713,7 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
         //for(unsigned i=0; i<this->mNumDofs; i++)
         //{
         //   total_non_zeros += num_non_zeros_each_row[i];
-        //}    
+        //}
         //std::cout << total_non_zeros << " versus " << 500*this->mNumDofs << "\n" << std::flush;
 
         delete [] num_non_zeros_each_row;

@@ -78,7 +78,7 @@ protected:
      *
      * @param rFileName  the name of the file to read from, relative to the output directory
      */
-    std::vector<std::string> GetRawDataFromFile(const std::string& rFileName); 
+    std::vector<std::string> GetRawDataFromFile(const std::string& rFileName);
 
 public:
 

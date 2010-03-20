@@ -53,7 +53,7 @@ private:
     {
         archive & boost::serialization::base_object<AbstractBoundaryCondition<SPACE_DIM> >(*this);
     }
-    
+
     /** The constant value of the boundary condition. */
     double mValue;
 

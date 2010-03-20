@@ -49,15 +49,15 @@ class DistributedVector
 {
 private:
     friend class TestDistributedVector;
-    
+
     // Data global to all vectors.
-    
+
     /** The first entry owned by the current processor. */
     unsigned mLo;
-    
+
     /** One above the last entry owned by the current processor. */
     unsigned mHi;
-    
+
     /** The problem size, i.e. the length of the vector of unknowns. */
     unsigned mProblemSize;
 
@@ -68,10 +68,10 @@ private:
     Vec mVec;
     /** The local part of the underlying PETSc vector. */
     double* mpVec;
-    
-    /** 
-     * Pointer to the factory that created this DistributedVector. 
-     * Gives access to local and global sizes 
+
+    /**
+     * Pointer to the factory that created this DistributedVector.
+     * Gives access to local and global sizes
      */
     DistributedVectorFactory* mpFactory;
 
@@ -102,7 +102,7 @@ public:
     {
         return mHi;
     }
-    
+
     /**
      * @return #mLo - The lowest index owned by the process.
      */
@@ -110,7 +110,7 @@ public:
     {
         return mLo;
     }
-    
+
     /**
      * @return  the factory used to create this vector.
      */
@@ -189,7 +189,7 @@ public:
             mHi = parallelVec.GetHigh();
             mpFactory = parallelVec.GetFactory();
         }
-        
+
         /**
          * @return  the factory used to create this vector.
          */

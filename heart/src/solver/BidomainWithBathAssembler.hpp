@@ -56,7 +56,7 @@ public:
      *
      * This method is called by AssembleOnElement() and tells the assembler
      * the contribution to add to the element stiffness matrix.
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -74,7 +74,7 @@ public:
 
     /**
      * The term to be added to the element stiffness vector.
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -95,7 +95,7 @@ public:
      *  bath nodes voltages are zero, except for the diagonal (set to 1). The
      *  corresponding rhs vector entry is also set to 0, so the equation for the
      *  bath node voltage is 1*V = 0.
-     * 
+     *
      * @param existingSolutionOrGuess voltages (not used)
      * @param time
      * @param assembleVector If set, then RHS corresponding to bath nodes are affected as described
@@ -105,7 +105,7 @@ public:
 
     /**
      * Constructor calls base constructor and creates and stores rhs-matrix.
-     * 
+     *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
      * @param pBcc pointer to the boundary conditions

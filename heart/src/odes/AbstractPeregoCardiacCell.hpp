@@ -64,7 +64,7 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
         // This calls serialize on the base class.
         archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
     }
-    
+
     /**
      * This function should never be called - the cell class incorporates its own solver.
      *
@@ -73,7 +73,7 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
      * @param rDY
      */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-    
+
      /**
      * Computes the predictor step of the scheme
      *
@@ -82,113 +82,113 @@ class AbstractPeregoCardiacCell : public AbstractCardiacCell
      * @param currentTime is the current time
      */
     void EvaluatePredictedValues(const std::vector<double>& rSolutionAtPreviousTime, std::vector<double>& rPredictedSolution, double currentTime);
-    
+
     /**
      * Computes the corrector step of the scheme
      *
-     * @param rPredictedSolution is input vector with the predicted values of the gates and other state variables 
+     * @param rPredictedSolution is input vector with the predicted values of the gates and other state variables
      * @param rCorrectedSolution is the corrected solution of the state variables at the previous time step (this is assumed to be initialised to the correct size)
      * @param currentTime is the current time
      */
     void EvaluateCorrectedValues(const std::vector<double>& rPredictedSolution, std::vector<double>& rCorrectedSolution, double currentTime);
-    
+
     /**
      * Computes the error between the predicted solution and the corrected solution
      *
      * @param rErrors is the outpue errors (assumed to be initialised to the correct size)
-     * @param rPredictedSolution is the predicted values of the gates and other state variables 
+     * @param rPredictedSolution is the predicted values of the gates and other state variables
      * @param rCorrectedSolution is the corrected solution of the state variables at the previous time step
      * @param currentTime is the current time
      */
     void EvaluateErrors(std::vector<double>& rErrors, const std::vector<double>& rPredictedSolution, const std::vector<double>& rCorrectedSolution, double currentTime);
-    
-   
+
+
   protected:
-    
-    /** 
-     * 
+
+    /**
+     *
      * The local time step
      * Initially set to the mDt in the AbstractOdeSystem class.
-     * It is then adjusted in the adaptive part of the algorithm 
+     * It is then adjusted in the adaptive part of the algorithm
      * and used to calculate the gates at the following time step
-     * 
+     *
      * */
     double mLocalTimeStep;
-    
+
     std::vector<unsigned> mGatingVariableIndices; /**< Indices of those variables associated with gates (not concentrations or voltages etc.) */
     std::vector<double> mSolutionAtPreviousTimeStep; /**< Cache of previous solution */
-    //Nomenclature of variables is based on the paper (see class documentation for reference) 
-    
+    //Nomenclature of variables is based on the paper (see class documentation for reference)
+
     std::vector<double> mCorrectedSolution;/**< Variable to store the corrected solution. It's needed by the compute method that will use it as "previous" solution */
-    
+
     double mc0bar;/**< weights for Adams-Bashforth integration*/
     double mc1bar;/**< weights for Adams-Bashforth integration*/
-    
+
     double mc0;/**< weights for Adams-Moulton integration*/
     double mc1;/**< weights for Adams-Moulton integration*/
     double mcMinus1;/**< weights for Adams-Moulton integration*/
-            
+
     std::vector<double> ma_current;/**< current value for system variables, first part*/
     std::vector<double> ma_predicted;/**< predicted value for system variables, first part*/
     std::vector<double> ma_previous;/**< value for system variables, first part, from previous time step*/
     std::vector<double> mb_current;/**< current value for system variables, second part*/
     std::vector<double> mb_predicted;/**< predicted value for system variables, second part*/
     std::vector<double> mb_previous;/**< value for system variables, second part, from previous time step*/
-    
+
     std::vector<double> ma_error;/**< value for system variables needed for error evaluation, first part*/
     std::vector<double> mb_error;/**< value for system variables needed for error evaluation, second part*/
-    
+
     bool mIsTheCorrectorStep; /**< An helper boolean to flag whether we are in the corrector step*/
     bool mIsTheFirstStep; /**< A helper boolean to indicate whether we have taken any timesteps yet*/
     bool mIsTheErrorEvaluationStep; /**< A helper boolean to flag whether we're in the error evaluation step*/
-    
+
     double mThetaP; /**< A numerical solver parameter which changes as dt does*/
     double mThetaC; /**< Another numerical solver parameter which changes as dt does*/
-    
+
     double mNewDt;  /**< Variable to store the new timestep size until it is copied into mLocalTimestep*/
-    double mNewDtFromEndOfPreviousPdeStep; /**< Variable to store the timestep that would've been used at the end of the last PDE timestep if it hadn't caused overshoot of endTime. */ 
-    
+    double mNewDtFromEndOfPreviousPdeStep; /**< Variable to store the timestep that would've been used at the end of the last PDE timestep if it hadn't caused overshoot of endTime. */
+
     std::vector<double> mWeightedErrorTolerances; /**< Vector of tolerances to error in each of the system variables, will be weighted by a small tolerance factor*/
-    
+
     bool mUseAdaptTimestep; /**< For testing purposes, so we can test the algorithm without adaptivity. To be removed eventually. */
-    
-    unsigned mNumberOfStateVariables; /**< stores the number of state variables (for memory allocation)*/ 
+
+    unsigned mNumberOfStateVariables; /**< stores the number of state variables (for memory allocation)*/
     /**
      * Return true if the error in any variable exceeds tolerances
-     * 
+     *
      * @param rErrors vector of the errors that will be checked against the tolerances
-     * 
+     *
      */
     bool IsThereTooMuchError(std::vector<double>& rErrors);
-     
+
     bool mIsThereTooMuchError; /**< To hold the return value of IsThereTooMuchError as it is required multiple times.*/
-    
-    /** 
+
+    /**
      * Change the timestep size for the next step based upon the a posteriori errors
-     * 
+     *
      * @param rErrors a vector of errors on which the error analysis to determine whether to adapt or not is performed
-     * 
-     */ 
-    void AdaptTimestep(std::vector<double>& rErrors); 
-      
+     *
+     */
+    void AdaptTimestep(std::vector<double>& rErrors);
+
     /**
      * Computes some parameters needed by the Perego Veneziani algorithm.
-     * Implemented in the child class. 
+     * Implemented in the child class.
      *
      * @param stateVariablesAtPrevousTime is the solution of the state variables at the previous time step
      * @param currentTime is the current time
      */
     virtual void ComputeSystemParameters(const std::vector<double>& stateVariablesAtPrevousTime, double currentTime)=0;
-    
+
     /**
      * Adjusts the system parameters after a change in the timestep size. This depends on the ratio
      * of the old timestep to the new.
-     * 
+     *
      * @param oldDt is the old timestep
      * @param newDt is the new timestep to be set
-     */ 
-    void ChangeTimestepAndRecomputeParameters(double oldDt, double newDt);    
-         
+     */
+    void ChangeTimestepAndRecomputeParameters(double oldDt, double newDt);
+
 public:
 
     /**
@@ -208,11 +208,11 @@ public:
 
     /** Virtual destructor */
     virtual ~AbstractPeregoCardiacCell();
-   
-    
+
+
     /**
      * Overloaded Compute method.
-     * 
+     *
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep #mDt.
      *
@@ -223,7 +223,7 @@ public:
 
     /**
      * Overloaded ComputeExceptVoltage method.
-     * 
+     *
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep #mDt, but does not update the voltage.
      *
@@ -239,23 +239,23 @@ public:
         mNewDt = mNewDtFromEndOfPreviousPdeStep;
         Compute(tStart, tEnd);
 //        mSetVoltageDerivativeToZero = false;
-    
+
         SetVoltage(saved_voltage);
-        
+
       //  PRINT_VECTOR(this->mStateVariables);
-    
-        VerifyStateVariables();        
+
+        VerifyStateVariables();
 //        NEVER_REACHED;
         // not tested in tissue yet
     }
-    
+
     /**
      * Set method to switch on and off the time adaptivity
-     * 
+     *
      * @param flag is true if you want adaptivity to be on, false otherwise
      */
     void  SetAdaptivityFlag (bool flag);
-    
+
 };
 
 

@@ -41,7 +41,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class TrianglesMeshWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 private:
-    bool mFilesAreBinary;  /**< Whether all data is to be written as binary */  
+    bool mFilesAreBinary;  /**< Whether all data is to be written as binary */
 public:
 
     /**
@@ -56,11 +56,11 @@ public:
                         const bool clearOutputDir=true);
     /**
      * Switch this mesh write to write binary files
-     * 
+     *
      * (set to write ascii files in the constructor)
      */
      void SetWriteFilesAsBinary();
-     
+
     /**
      * Write mesh data to files.
      */

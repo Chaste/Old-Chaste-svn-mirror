@@ -178,10 +178,10 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
         WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
-		p_cell_cycle_model1->SetDimension(2);
-		boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
-		TissueCell wnt_cell(TRANSIT, p_apc1, p_cell_cycle_model1);
-		wnt_cell.InitialiseCellCycleModel();
+        p_cell_cycle_model1->SetDimension(2);
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        TissueCell wnt_cell(TRANSIT, p_apc1, p_cell_cycle_model1);
+        wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
@@ -251,10 +251,10 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
         WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
-		p_cell_cycle_model1->SetDimension(2);
-		boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
-		TissueCell wnt_cell(TRANSIT, p_bcat1, p_cell_cycle_model1);
-		wnt_cell.InitialiseCellCycleModel();
+        p_cell_cycle_model1->SetDimension(2);
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        TissueCell wnt_cell(TRANSIT, p_bcat1, p_cell_cycle_model1);
+        wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
@@ -325,16 +325,16 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
         WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
-		p_cell_cycle_model1->SetDimension(2);
-		boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
-		TissueCell wnt_cell(TRANSIT, p_apc2, p_cell_cycle_model1);
-		wnt_cell.InitialiseCellCycleModel();
+        p_cell_cycle_model1->SetDimension(2);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        TissueCell wnt_cell(TRANSIT, p_apc2, p_cell_cycle_model1);
+        wnt_cell.InitialiseCellCycleModel();
 
-		boost::shared_ptr<AbstractCellMutationState> p_this_state = wnt_cell.GetMutationState();
+        boost::shared_ptr<AbstractCellMutationState> p_this_state = wnt_cell.GetMutationState();
 
         TS_ASSERT_EQUALS(p_this_state->IsType<ApcTwoHitCellMutationState>(), true);
 
-		boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
 
         wnt_cell.SetMutationState(p_apc1);
 

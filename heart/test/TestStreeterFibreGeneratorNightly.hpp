@@ -61,7 +61,7 @@ public:
         NumericFileComparison comp(fibre_file,"heart/test/data/point50_heart_mesh/point50.ortho");
         TS_ASSERT(comp.CompareFiles(1e-11));
     }
-    
+
     void TestSimpleOrthotropicNotDistributed() throw (Exception)
     {
         MemfemMeshReader<3,3> mesh_reader("heart/test/data/point50_heart_mesh/point50");

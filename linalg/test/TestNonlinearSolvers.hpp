@@ -50,7 +50,7 @@ PetscErrorCode ComputeTestJacobian3d(SNES snes,Vec input,Mat* pJacobian ,Mat* pP
 class TestNonlinearSolvers : public CxxTest::TestSuite
 {
 public:
-	void TestNonlinearProblemException() throw (Exception)
+    void TestNonlinearProblemException() throw (Exception)
     {
         SimpleNewtonNonlinearSolver solver_newton;
 

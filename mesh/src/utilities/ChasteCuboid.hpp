@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * if a given point is contained in the volume.
  */
 
-template <unsigned SPACE_DIM> 
+template <unsigned SPACE_DIM>
 class ChasteCuboid : public AbstractChasteRegion<SPACE_DIM>
 {
 private:
@@ -71,7 +71,7 @@ public:
         }
     }
 
- 
+
     /**
      * Checks if a given 3D point is contained in the cuboid.
      *
@@ -90,7 +90,7 @@ public:
         }
         return true;
     }
-    
+
     /** @return the upper vertex of the cuboid */
     const ChastePoint<SPACE_DIM>& rGetUpperCorner() const
     {
@@ -101,7 +101,7 @@ public:
     {
         return mLowerCorner;
     }
-        
+
 };
 
 #endif /*CHASTECUBOID_HPP_*/

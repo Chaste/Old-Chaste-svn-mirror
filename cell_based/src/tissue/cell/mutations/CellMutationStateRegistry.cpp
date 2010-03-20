@@ -34,58 +34,58 @@ CellMutationStateRegistry* CellMutationStateRegistry::mpInstance = NULL;
 
 CellMutationStateRegistry* CellMutationStateRegistry::Instance()
 {
-	if (mpInstance == NULL)
-	{
-		mpInstance = new CellMutationStateRegistry;
-	}
-	return mpInstance;
+    if (mpInstance == NULL)
+    {
+        mpInstance = new CellMutationStateRegistry;
+    }
+    return mpInstance;
 }
 
 const std::vector<boost::shared_ptr<AbstractCellMutationState> >& CellMutationStateRegistry::rGetAllMutationStates()
 {
-	return mMutationStates;
+    return mMutationStates;
 }
 
 void CellMutationStateRegistry::Clear()
 {
-	mMutationStates.clear();
-	mOrderingHasBeenSpecified = false;
+    mMutationStates.clear();
+    mOrderingHasBeenSpecified = false;
 }
 
 CellMutationStateRegistry::CellMutationStateRegistry()
-	: mOrderingHasBeenSpecified(false)
+    : mOrderingHasBeenSpecified(false)
 {
 }
 
 
 CellMutationStateRegistry* CellMutationStateRegistry::TakeOwnership()
 {
-	mpInstance = NULL;
-	return this;
+    mpInstance = NULL;
+    return this;
 }
 
 void CellMutationStateRegistry::SpecifyOrdering(const std::vector<boost::shared_ptr<AbstractCellMutationState> >& rOrdering)
 {
-	if (mOrderingHasBeenSpecified)
-	{
-		EXCEPTION("An ordering has already been specified.");
-	}
-	for (unsigned i=0; i<mMutationStates.size(); i++)
-	{
-		std::vector<boost::shared_ptr<AbstractCellMutationState> >::const_iterator it
-			= find(rOrdering.begin(), rOrdering.end(), mMutationStates[i]);
-		if (it == rOrdering.end())
-		{
-			EXCEPTION("The given ordering doesn't include all mutation states in the registry.");
-		}
-	}
-	mMutationStates = rOrdering;
+    if (mOrderingHasBeenSpecified)
+    {
+        EXCEPTION("An ordering has already been specified.");
+    }
+    for (unsigned i=0; i<mMutationStates.size(); i++)
+    {
+        std::vector<boost::shared_ptr<AbstractCellMutationState> >::const_iterator it
+            = find(rOrdering.begin(), rOrdering.end(), mMutationStates[i]);
+        if (it == rOrdering.end())
+        {
+            EXCEPTION("The given ordering doesn't include all mutation states in the registry.");
+        }
+    }
+    mMutationStates = rOrdering;
 
-	mOrderingHasBeenSpecified = true;
+    mOrderingHasBeenSpecified = true;
 }
 
 bool CellMutationStateRegistry::HasOrderingBeenSpecified()
 {
-	return mOrderingHasBeenSpecified;
+    return mOrderingHasBeenSpecified;
 }
 

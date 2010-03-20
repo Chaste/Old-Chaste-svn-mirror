@@ -80,9 +80,9 @@ public:
      * @param rMesh  Input a blank mesh in which to construct the result
      * @param meshRefinementNum  Index for the mesh starting at 0 (4 elements in each space dimension)
      * @param meshWidth  Width of the mesh (in cm)
-     * 
+     *
      * (used to return a path to the mesh stored on the disk)
-     * 
+     *
      */
     void Construct(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, unsigned meshRefinementNum, double meshWidth);
 

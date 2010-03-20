@@ -46,7 +46,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A cardiac cell that is designed to be simulated using CVODE.
  * It uses CVODE's vector type natively.
- * 
+ *
  * Functionality is similar to that provided by AbstractCardiacCell and AbstractOdeSystem,
  * but not identical.  It also includes a direct interface to the CVODE solver, via the
  * Solve methods, since the CvodeAdaptor class doesn't work for us.
@@ -58,7 +58,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * \todo Add an option to just initialise once, and assume subsequent Solve
  *   calls are continuing from where we left off.
- * 
+ *
  * \todo Integrate this better into the main hierarchy?
  */
 class AbstractCvodeCell
@@ -78,15 +78,15 @@ protected:
      * of a suitable class.  See for example the OdeSystemInformation class.
      */
     boost::shared_ptr<AbstractOdeSystemInformation> mpSystemInfo;
-    
+
     /** The intracellular stimulus current. */
     boost::shared_ptr<AbstractStimulusFunction> mpIntracellularStimulus;
-    
+
     /** Relative tolerance for solver. */
     double mRelTol;
     /** Absolute tolerance for solver. */
     double mAbsTol;
-    
+
     /** CVODE's internal data. */
     void* mpCvodeMem;
     /**
@@ -97,7 +97,7 @@ protected:
 
     /** The size of the previous timestep. */
     double mLastInternalStepSize;
-    
+
     /**
      * Whether to clamp the voltage by setting dV/dt to zero.
      */
@@ -175,7 +175,7 @@ public:
 
     /** Get the names of this cell's state variables. */
     const std::vector<std::string>& rGetVariableNames() const;
-    
+
     /** Get the units of this cell's state variables. */
     const std::vector<std::string>& rGetVariableUnits() const;
 
@@ -229,7 +229,7 @@ public:
      *
      * The cell takes responsibility for freeing this vector when it
      * is destroyed.  If the cell already has state, it will be freed.
-     * 
+     *
      * @param stateVars  new state variables vector
      */
     void SetStateVariables(N_Vector stateVars);
@@ -261,7 +261,7 @@ public:
 
     /**
      * RHS evaluation function, to be provided by subclasses.
-     * 
+     *
      * @param t  the time at which to evaluate the RHS
      * @param y  the values of the state variables at time t
      * @param ydot  to be filled in with the derivatives of the state variables
@@ -280,11 +280,11 @@ public:
     virtual void VerifyStateVariables()
     {
     }
-    
+
     //
     // Solver methods
     //
-    
+
     /**
      * Set whether to clamp the voltage by setting its derivative to zero.
      * @param clamp whether to clamp
@@ -293,14 +293,14 @@ public:
 
     /**
      * Simulate the cell, returning a sampling of the state variables.
-     * 
+     *
      * Uses the current values of the state variables at initial conditions.
      * If the state variables have not been set (either by a prior solve, or
      * a call to SetStateVariables) the initial conditions (given by
      * GetInitialConditions) will be used.
-     * 
+     *
      * The final values of the state variables will also be stored in this object.
-     * 
+     *
      * @param tStart  start time of simulation
      * @param tEnd  end time of simulation
      * @param maxDt  maximum time step to be taken by the adaptive solver
@@ -314,12 +314,12 @@ public:
 
     /**
      * Simulate the cell, updating its internal state variables.
-     * 
+     *
      * Uses the current values of the state variables at initial conditions.
      * If the state variables have not been set (either by a prior solve, or
      * a call to SetStateVariables) the initial conditions (given by
      * GetInitialConditions) will be used.
-     * 
+     *
      * @param tStart  start time of simulation
      * @param tEnd  end time of simulation
      * @param maxDt  maximum time step to be taken by the adaptive solver
@@ -369,7 +369,7 @@ private:
 
     /**
      * Set up the CVODE data structures needed to solve the given system.
-     * 
+     *
      * @param initialConditions  initial conditions
      * @param tStart  start time of simulation
      * @param maxDt  maximum time step to take
@@ -383,7 +383,7 @@ private:
 
     /**
      * Report an error from CVODE.
-     * 
+     *
      * @param flag  CVODE error code
      * @param msg  Our description of the error
      */
@@ -391,7 +391,7 @@ private:
 
     /**
      * Copy an N_Vector into a std::vector<double>
-     * 
+     *
      * @param v  vector to copy
      */
     std::vector<double> MakeStdVec(N_Vector v);

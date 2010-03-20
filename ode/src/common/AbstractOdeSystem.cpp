@@ -133,11 +133,11 @@ void AbstractOdeSystem::SetStateVariables(const std::vector<double>& rStateVaria
 
 void AbstractOdeSystem::SetStateVariable(unsigned stateVariable, double newValue)
 {
-	if ( mNumberOfStateVariables <= stateVariable )
-	{
-		EXCEPTION("The index passed in must be less than the number of state variables");
-	}
-	mStateVariables[stateVariable] = newValue;
+    if ( mNumberOfStateVariables <= stateVariable )
+    {
+        EXCEPTION("The index passed in must be less than the number of state variables");
+    }
+    mStateVariables[stateVariable] = newValue;
 }
 
 

@@ -429,7 +429,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::ReadHeaders()
                 mNodesPerBoundaryElement = 2;
             }
             if ( ELEMENT_DIM == 3 )
-	        {
+            {
                 mNodesPerElement = 8;
                 mNodesPerBoundaryElement = 4;
             }

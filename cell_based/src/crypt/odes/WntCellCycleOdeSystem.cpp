@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 WntCellCycleOdeSystem::WntCellCycleOdeSystem(
-		double wntLevel,
-		boost::shared_ptr<AbstractCellMutationState> pMutationState)
+        double wntLevel,
+        boost::shared_ptr<AbstractCellMutationState> pMutationState)
     : AbstractOdeSystem(9),
       mpMutationState(pMutationState)
 {
@@ -60,30 +60,30 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(
 
     if (!mpMutationState)
     {
-    	// No mutations specified
+        // No mutations specified
     }
     else if (mpMutationState && mpMutationState->IsType<ApcOneHitCellMutationState>())
     {
-    	// APC +/- : only half are active
+        // APC +/- : only half are active
         beta_cat_level_1 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level);
         beta_cat_level_2 = 0.5*ma2d/(ma2d+0.5*ma3d*destruction_level);
     }
     else if (mpMutationState && mpMutationState->IsType<ApcTwoHitCellMutationState>())
     {
-    	// APC -/-
+        // APC -/-
         destruction_level = 0.0; // no active destruction complex
         beta_cat_level_1 = 0.5; // fully active beta-catenin
         beta_cat_level_2 = 0.5; // fully active beta-catenin
     }
     else if (mpMutationState && mpMutationState->IsType<BetaCateninOneHitCellMutationState>())
     {
-    	// Beta-cat delta 45
+        // Beta-cat delta 45
         beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
         beta_cat_level_2 = 0.5;
     }
     else
     {
-    	// healthy cells
+        // healthy cells
         beta_cat_level_1 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
         beta_cat_level_2 = 0.5*ma2d/(ma2d+ma3d*destruction_level);
     }
@@ -209,7 +209,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     // Mutations take effect by altering the level of beta-catenin
     if (!mpMutationState)
     {
-    	// No mutations specified
+        // No mutations specified
     }
     else if (mpMutationState->IsType<ApcOneHitCellMutationState>()) // APC +/-
     {

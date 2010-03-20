@@ -45,14 +45,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class CellMutationStateRegistry
 {
 public:
-	/**
-	 * The main interface to this class: get a particular mutation state object.
-	 * Use like:
-	 *    boost::shared_ptr<AbstractCellMutationState> p_state(
-				CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-	 */
-	template<class SUBCLASS>
-	boost::shared_ptr<AbstractCellMutationState> Get();
+    /**
+     * The main interface to this class: get a particular mutation state object.
+     * Use like:
+     *    boost::shared_ptr<AbstractCellMutationState> p_state(
+                CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+     */
+    template<class SUBCLASS>
+    boost::shared_ptr<AbstractCellMutationState> Get();
 
     /**
      * Get the single instance of the registry.
@@ -99,17 +99,17 @@ private:
     /**
      * Default constructor.
      */
-	CellMutationStateRegistry();
+    CellMutationStateRegistry();
 
     /**
      * Copy constructor.
      */
-	CellMutationStateRegistry(const CellMutationStateRegistry&);
+    CellMutationStateRegistry(const CellMutationStateRegistry&);
 
     /**
      * Overloaded assignment operator.
      */
-	CellMutationStateRegistry& operator= (const CellMutationStateRegistry&);
+    CellMutationStateRegistry& operator= (const CellMutationStateRegistry&);
 
     /**
      * A pointer to the singleton instance of this class.
@@ -143,29 +143,29 @@ private:
 template<class SUBCLASS>
 boost::shared_ptr<AbstractCellMutationState> CellMutationStateRegistry::Get()
 {
-	boost::shared_ptr<AbstractCellMutationState> p_state;
-	for (unsigned i=0; i<mMutationStates.size(); i++)
-	{
-		if (mMutationStates[i]->IsType<SUBCLASS>())
-		{
-			p_state = mMutationStates[i];
-			break;
-		}
-	}
-	if (!p_state)
-	{
-		if (mOrderingHasBeenSpecified)
-		{
-			EXCEPTION("Cannot add a new mutation state not specified in the ordering.");
-		}
-		else
-		{
-			// Create a new mutation state
-			p_state.reset(new SUBCLASS);
-			mMutationStates.push_back(p_state);
-		}
-	}
-	return p_state;
+    boost::shared_ptr<AbstractCellMutationState> p_state;
+    for (unsigned i=0; i<mMutationStates.size(); i++)
+    {
+        if (mMutationStates[i]->IsType<SUBCLASS>())
+        {
+            p_state = mMutationStates[i];
+            break;
+        }
+    }
+    if (!p_state)
+    {
+        if (mOrderingHasBeenSpecified)
+        {
+            EXCEPTION("Cannot add a new mutation state not specified in the ordering.");
+        }
+        else
+        {
+            // Create a new mutation state
+            p_state.reset(new SUBCLASS);
+            mMutationStates.push_back(p_state);
+        }
+    }
+    return p_state;
 }
 
 

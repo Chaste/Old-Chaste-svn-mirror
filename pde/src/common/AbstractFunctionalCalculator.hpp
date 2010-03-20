@@ -86,9 +86,9 @@ public:
      * Calculate the integral over the given mesh, using the given solution
      * vector on the mesh.
      *
-     * Note that, in parallel, this method uses a collective reduction step and 
+     * Note that, in parallel, this method uses a collective reduction step and
      * should therefore always be called collectively.
-     * 
+     *
      * @param rMesh  The mesh
      * @param solution  The solution vector
      */

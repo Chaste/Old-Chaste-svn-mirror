@@ -80,7 +80,7 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
         delete mpOutputFileHandler;
         EXCEPTION("Mesh and HDF5 file have a different number of nodes");
     }
-    
+
     //Write an info file
     if (PetscTools::AmMaster())
     {
@@ -100,7 +100,7 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
     }
     //Write the parameters out
     HeartConfig::Instance()->Write(false, subdirectoryName);
-    
+
 }
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>::~AbstractHdf5Converter()

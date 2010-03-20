@@ -78,7 +78,7 @@ namespace serialization
 template<class Archive>
 inline void save_construct_data(
     Archive & ar, const BackwardEulerFoxModel2002Modified * t, const unsigned int file_version)
-{    
+{
     const boost::shared_ptr<AbstractIvpOdeSolver> p_solver = t->GetSolver();
     const boost::shared_ptr<AbstractStimulusFunction> p_stimulus = t->GetStimulusFunction();
     ar << p_solver;

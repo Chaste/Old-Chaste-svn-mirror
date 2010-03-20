@@ -71,7 +71,7 @@ public:
 
         // Set up cells
         std::vector<TissueCell> cells;
-    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
@@ -198,7 +198,7 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<TissueCell> cells;
-    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -277,7 +277,7 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<TissueCell> cells;
-    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -342,7 +342,7 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<TissueCell> cells;
-    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -435,7 +435,7 @@ public:
         // Set up cells by iterating through the nodes
         unsigned num_cells_at_start = mesh.GetNumNodes();
         std::vector<TissueCell> cells;
-    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -530,7 +530,7 @@ public:
         // Set up cells by iterating through the nodes
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<TissueCell> cells;
-    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<num_cells; i++)
         {
@@ -637,15 +637,15 @@ public:
         // (don't use any stem cells as we want to test the jiggling)
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<TissueCell> cells;
-    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         for (unsigned i=0; i<num_cells; i++)
         {
             WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
-			p_cell_cycle_model1->SetDimension(1);
-			boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-			TissueCell cell(TRANSIT, p_state, p_cell_cycle_model1);
-			cell.SetBirthTime(0.0);
+            p_cell_cycle_model1->SetDimension(1);
+            boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+            TissueCell cell(TRANSIT, p_state, p_cell_cycle_model1);
+            cell.SetBirthTime(0.0);
             cells.push_back(cell);
         }
 
@@ -730,7 +730,7 @@ public:
 
         // Set up cells by iterating through the nodes
         std::vector<TissueCell> cells;
-    	boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {

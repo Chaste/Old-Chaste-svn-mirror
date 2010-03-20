@@ -155,10 +155,10 @@ public:
         {
             my_flag=true;
         }
-            
+
         TS_ASSERT(PetscTools::ReplicateBool(my_flag));
     }
-    
+
     void TestReplicateException()
     {
         DistributedVectorFactory factory(1);

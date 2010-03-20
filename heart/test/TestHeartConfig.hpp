@@ -111,8 +111,8 @@ public :
         TS_ASSERT(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().present());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetDefaultIonicModel().Hardcoded().get(),
                          cp::ionic_models_available_type::FaberRudy2000);
-        
-        
+
+
         TS_ASSERT(HeartConfig::Instance()->GetCreateMesh());
         TS_ASSERT(!HeartConfig::Instance()->GetLoadMesh());
 
@@ -135,7 +135,7 @@ public :
 
         TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0), -25500.0);
         TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0.6), 0.0);
-        
+
         //covering the 2D case
         std::vector<ChasteCuboid<2> > stimulated_areas_2D;
         std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied_2D;
@@ -143,7 +143,7 @@ public :
 
         TS_ASSERT_EQUALS(stimuli_applied_2D.size(), 2u);
         TS_ASSERT_EQUALS(stimulated_areas_2D.size(), 2u);
-        
+
         //covering the 1D case
         std::vector<ChasteCuboid<1> > stimulated_areas_1D;
         std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied_1D;
@@ -225,7 +225,7 @@ public :
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
     }
-    
+
     void TestGetHeterogeneities()
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
@@ -263,7 +263,7 @@ public :
         TS_ASSERT_EQUALS(ionic_models_defined_2D[0].Dynamic().get().Path(), model_zero);
         TS_ASSERT(ionic_models_defined_2D[1].Hardcoded().present());
         TS_ASSERT_EQUALS(ionic_models_defined_2D[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
-        
+
         //cover the 1D case
         std::vector<ChasteCuboid<1> > ionic_model_regions_1D;
         std::vector<cp::ionic_model_selection_type> ionic_models_defined_1D;
@@ -279,23 +279,23 @@ public :
         TS_ASSERT_EQUALS(ionic_models_defined_1D[0].Dynamic().get().Path(), model_zero);
         TS_ASSERT(ionic_models_defined_1D[1].Hardcoded().present());
         TS_ASSERT_EQUALS(ionic_models_defined_1D[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
-        
+
         ///////////////
         //Cell heterogeneities
         //////////////
-        
+
         std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas_3D;
         std::vector<double> scale_factor_gks_3D;
         std::vector<double> scale_factor_ito_3D;
-        std::vector<double> scale_factor_gkr_3D;  
-        
+        std::vector<double> scale_factor_gkr_3D;
+
         TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), false);
-        
+
         HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas_3D,
                                                         scale_factor_gks_3D,
                                                         scale_factor_ito_3D,
                                                         scale_factor_gkr_3D);
-                                                        
+
         TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), true);
         TS_ASSERT(cell_heterogeneity_areas_3D[0]->DoesContain(ChastePoint<3>(-1.0, 0, 0)));
         TS_ASSERT_EQUALS(scale_factor_gks_3D[0], 0.462);
@@ -304,13 +304,13 @@ public :
         TS_ASSERT_EQUALS(scale_factor_gks_3D[1], 1.154);
         TS_ASSERT_EQUALS(scale_factor_ito_3D[1], 0.85);
         TS_ASSERT_EQUALS(scale_factor_gkr_3D[1], 1.0);
-        
+
         for (unsigned i = 0; i<cell_heterogeneity_areas_3D.size();i++)
         {
             delete cell_heterogeneity_areas_3D[i];
         }
 
-        //cover the 2D case 
+        //cover the 2D case
         std::vector<AbstractChasteRegion<2>* > cell_heterogeneity_areas_2D;
         std::vector<double> scale_factor_gks_2D;
         std::vector<double> scale_factor_ito_2D;
@@ -327,13 +327,13 @@ public :
         TS_ASSERT_EQUALS(scale_factor_gks_2D[1], 1.154);
         TS_ASSERT_EQUALS(scale_factor_ito_2D[1], 0.85);
         TS_ASSERT_EQUALS(scale_factor_gkr_2D[1], 1.0);
-        
+
         for (unsigned i = 0; i<cell_heterogeneity_areas_2D.size();i++)
         {
             delete cell_heterogeneity_areas_2D[i];
         }
-        
-         //cover the 1D case 
+
+         //cover the 1D case
         std::vector<AbstractChasteRegion<1>* > cell_heterogeneity_areas_1D;
         std::vector<double> scale_factor_gks_1D;
         std::vector<double> scale_factor_ito_1D;
@@ -350,16 +350,16 @@ public :
         TS_ASSERT_EQUALS(scale_factor_gks_1D[1], 1.154);
         TS_ASSERT_EQUALS(scale_factor_ito_1D[1], 0.85);
         TS_ASSERT_EQUALS(scale_factor_gkr_1D[1], 1.0);
-        
+
         for (unsigned i = 0; i<cell_heterogeneity_areas_1D.size();i++)
         {
             delete cell_heterogeneity_areas_1D[i];
         }
-   
+
         ///////////////
         //Conductivity heterogeneities
-        //////////////     
-        
+        //////////////
+
         std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
@@ -371,7 +371,7 @@ public :
         TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.0);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 0.75);
-        
+
         //cover the 2D case
         std::vector<ChasteCuboid<2> > conductivities_heterogeneity_areas_2D;
         std::vector< c_vector<double,3> > intra_h_conductivities_2D;
@@ -384,7 +384,7 @@ public :
         TS_ASSERT_EQUALS(intra_h_conductivities_2D[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities_2D[0][0], 8.0);
         TS_ASSERT_EQUALS(intra_h_conductivities_2D[1][0], 0.75);
-        
+
         //cover the 1D case
         std::vector<ChasteCuboid<1> > conductivities_heterogeneity_areas_1D;
         std::vector< c_vector<double,3> > intra_h_conductivities_1D;
@@ -396,16 +396,16 @@ public :
         TS_ASSERT(conductivities_heterogeneity_areas_1D[0].DoesContain(ChastePoint<1>(1.95)));
         TS_ASSERT_EQUALS(intra_h_conductivities_1D[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities_1D[0][0], 8.0);
-        TS_ASSERT_EQUALS(intra_h_conductivities_1D[1][0], 0.75);    
-        
+        TS_ASSERT_EQUALS(intra_h_conductivities_1D[1][0], 0.75);
+
         //extracellular conductivities
         c_vector<double, 3> extra_conductivities;
         HeartConfig::Instance()->GetExtracellularConductivities(extra_conductivities);
-        TS_ASSERT_EQUALS(extra_h_conductivities[1][0], extra_conductivities[0]); 
-        
+        TS_ASSERT_EQUALS(extra_h_conductivities[1][0], extra_conductivities[0]);
+
         TS_ASSERT_EQUALS(extra_conductivities[0], 7.0);
         TS_ASSERT_EQUALS(extra_conductivities[1], 7.0);
-        TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);  
+        TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);
     }
 
     void TestIsMeshProvided()
@@ -420,49 +420,49 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetLoadMesh(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateMesh(), false);
     }
-    
+
     void TestTransmuralHeterogeneities()
     {
         {
             HeartConfig::Reset();
             //the _unsupported file has valid transmural heterogeneity definition for cellular heterogeneities, but transmural heterogeneities defined for other things we don't support yet.
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_unsupported.xml");
-            
+
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
             std::vector<double> scale_factor_ito;
             std::vector<double> scale_factor_gkr;
-            
+
             //before we call GetCellHeterogeneities, the flag should be false
             TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), false);
-            
+
             //and the indices with their initial values
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerIndex(), UINT_MAX-3u);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerIndex(), UINT_MAX-3u);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerIndex(), UINT_MAX-3u);
-            
+
             HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                             scale_factor_gks,
                                                             scale_factor_ito,
                                                             scale_factor_gkr);
-                                                            
+
             //in this file, they are supplied as epi first, then endo, then mid
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerIndex(), 0u);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerIndex(), 2u);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerIndex(), 1u);
-            
-                                                                       
+
+
             //now the flag for transmural cellular heterogeneities should be true
             TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), true);
-                                                          
+
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerFraction(),0.3);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerFraction(),0.3);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerFraction(),0.4);
             TS_ASSERT_EQUALS(scale_factor_gks[0], 0.462);
             TS_ASSERT_EQUALS(scale_factor_ito[0], 0.0);
             TS_ASSERT_EQUALS(scale_factor_gkr[0], 1.0);
-            
-            //covering the case when the user specify transmural layers for conductivities (not supported and probably not worth considering)... 
+
+            //covering the case when the user specify transmural layers for conductivities (not supported and probably not worth considering)...
             std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
             std::vector< c_vector<double,3> > intra_h_conductivities;
             std::vector< c_vector<double,3> > extra_h_conductivities;
@@ -470,14 +470,14 @@ public :
                                                                                           intra_h_conductivities,
                                                                                           extra_h_conductivities),
                                   "Definition of transmural layers is not allowed for conductivities heterogeneities, you may use fibre orientation support instead");
-             
-             //covering the case when the user specify transmural layers for stimulated areas (not yet supported)... 
+
+             //covering the case when the user specify transmural layers for stimulated areas (not yet supported)...
             std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
             std::vector<ChasteCuboid<3> > stimulated_area;
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area),
                                   "Definition of transmural layers is not yet supported for specifying stimulated areas, please use cuboids instead");
-            
-            //covering the case when the user specify transmural layers for ionic model heterogeneities (not yet supported)... 
+
+            //covering the case when the user specify transmural layers for ionic model heterogeneities (not yet supported)...
             std::vector<ChasteCuboid<3> > ionic_model_regions;
             std::vector<cp::ionic_model_selection_type> ionic_models;
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetIonicModelRegions(ionic_model_regions, ionic_models),
@@ -487,59 +487,59 @@ public :
         {
             HeartConfig::Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_inconsistent.xml");
-            
+
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
             std::vector<double> scale_factor_ito;
             std::vector<double> scale_factor_gkr;
-            
+
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
                                                                                   scale_factor_gkr),
                                   "Summation of epicardial, midmyocardial and endocardial fractions should be 1");
-                                                            
+
         }
         //covers the case when the user supplies negative numbers
         {
             HeartConfig::Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_negative.xml");
-            
+
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
             std::vector<double> scale_factor_ito;
             std::vector<double> scale_factor_gkr;
-            
+
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
                                                                                   scale_factor_gkr),
                                   "Fractions must be positive");
-                                                            
+
         }
         //covers the case when the user supplies negative numbers
         //this second test of supplied negative values is for coverage. As we first check that the summation is 1, it was impossible to have 3 negative values in one file.
         {
             HeartConfig::Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_negative_2.xml");
-            
+
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
             std::vector<double> scale_factor_ito;
             std::vector<double> scale_factor_gkr;
-            
+
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
                                                                                   scale_factor_gkr),
                                   "Fractions must be positive");
-                                                            
+
         }
         //covers the case when the user supplies only two layers
         {
             HeartConfig::Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_incomplete.xml");
-            
+
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
             std::vector<double> scale_factor_ito;
@@ -550,35 +550,35 @@ public :
                                                                                   scale_factor_ito,
                                                                                   scale_factor_gkr),
                                   "Three specifications of layers must be supplied");
-            
- 
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), true);           
+
+
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), true);
             //only epi and endo, in this order, are supplied in this file
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerIndex(), 0u);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMidLayerIndex(), UINT_MAX-3u);
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerIndex(), 1u);           
-                                                            
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEndoLayerIndex(), 1u);
+
         }
         //cuboids and layers together are not yet supported
         {
             HeartConfig::Reset();
             HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_cuboids_and_layers.xml");
-            
+
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
             std::vector<double> scale_factor_ito;
             std::vector<double> scale_factor_gkr;
-            
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), false);        
+
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), false);
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
                                                                                   scale_factor_gkr),
                                   "Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");
-                                  
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), true);           
+
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), true);
         }
-        
+
     }
     void Test2dProblems()
     {
@@ -814,7 +814,7 @@ public :
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3), "Printing time-step should be a multiple of PDE time step");
 
         /*
-         *  Set ODE, PDE, and printing timestep to something meaningful and test SetCheckpointSimulation() exceptions. 
+         *  Set ODE, PDE, and printing timestep to something meaningful and test SetCheckpointSimulation() exceptions.
          */
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.4);
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetCheckpointSimulation(true, 1.0, 3), "Checkpoint time-step should be a multiple of printing time-step");
@@ -1005,9 +1005,9 @@ public :
             TS_ASSERT(p_heart_config->GetDefaultIonicModel().Hardcoded().present());
             TS_ASSERT_EQUALS( user_ionic, p_heart_config->GetDefaultIonicModel().Hardcoded().get());
         }
-        
+
         {
-            // Try a correct load without checkpointing to make sure it's not inherited 
+            // Try a correct load without checkpointing to make sure it's not inherited
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             HeartConfig* p_heart_config = HeartConfig::Instance();
@@ -1214,7 +1214,7 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetArchivedSimulationDir(), "ChasteResults_10ms");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
         TS_ASSERT(HeartConfig::Instance()->GetCheckpointSimulation());
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMaxCheckpointsOnDisk(),3u);        
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMaxCheckpointsOnDisk(),3u);
 
         // Cover loads of methods where we ask for information that is not present in a ResumedSimulation
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetDefaultIonicModel(), "DefaultIonicModel information is not available in a resumed simulation.")

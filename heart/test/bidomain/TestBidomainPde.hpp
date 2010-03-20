@@ -150,7 +150,7 @@ public:
         // Archive settings
         std::string archive_dir = "archive";
         std::string archive_file = "bidomain_pde.arch";
-        
+
         bool cache_replication_saved = false;
         double saved_printing_timestep = 2.0;
         double default_printing_timestep = HeartConfig::Instance()->GetPrintingTimeStep();
@@ -174,7 +174,7 @@ public:
 
             intra_tensor_before_archiving = bidomain_pde.rGetIntracellularConductivityTensor(1);
             extra_tensor_before_archiving = bidomain_pde.rGetExtracellularConductivityTensor(1);
-            
+
             // Save
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();

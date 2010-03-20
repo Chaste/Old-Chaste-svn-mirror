@@ -46,12 +46,12 @@ public:
      * The file can be a .so, in which case there isn't much to do, just create
      * the loader.  The interesting case comes when it is a .cellml file.  If
      * the file has any other extension, an exception is thrown.
-     * 
+     *
      * @param rFilePath  the model to load
      * @param isCollective  whether this method is being called collectively.
      *   If it is not, then we require the .so to already exist, rather than
      *   trying to avoid race conditions.
-     * 
+     *
      * @note If you do not pass isCollective=false, must be called collectively.
      */
     DynamicCellModelLoader* Convert(const FileFinder& rFilePath,
@@ -60,9 +60,9 @@ public:
 private:
     /**
      * Helper method performing the actual conversion of a .cellml file to a .so.
-     * 
+     *
      * @note Must be called collectively.
-     * 
+     *
      * @param rCellmlFullPath  full path to the .cellml file
      * @param rCellmlFolder  folder containing the CellML file, with trailing slash
      * @param rModelLeafName  leaf name of the CellML file, minus extension (but including the .)

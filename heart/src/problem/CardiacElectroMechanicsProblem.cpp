@@ -149,9 +149,9 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
     ReplicatableVector voltage_replicated(voltage);
     double V = voltage_replicated[mWatchedElectricsNodeIndex];
 
-    //// Removed the following which also took this nodes calcium concentration and printing, because (it isn't that 
-    //// important and) it won't work in parallel and has the hardcoded index issue described below. 
-    //     // \todo: NOTE!!! HARDCODED state variable index - assumes Lr91. 
+    //// Removed the following which also took this nodes calcium concentration and printing, because (it isn't that
+    //// important and) it won't work in parallel and has the hardcoded index issue described below.
+    //     // \todo: NOTE!!! HARDCODED state variable index - assumes Lr91.
     //     // Metadata is currently being added to CellML models and then this will be avoided by asking for Calcium.
     //    double Ca = mpMonodomainProblem->GetMonodomainPde()->GetCardiacCell(mWatchedElectricsNodeIndex)->rGetStateVariables()[3];
 
@@ -187,7 +187,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     // events in AbstractCardiacProblem::Solve() (esp. calling EndEvent(EVERYTHING))
     // if we didn't disable it.
     HeartEventHandler::Disable();
-    
+
     mContractionModel = contractionModel;
 
     // create the monodomain problem. Note the we use this to set up the cells,
@@ -256,13 +256,13 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mIsWatchedLocation = false;
     mWatchedElectricsNodeIndex = UNSIGNED_UNSET;
     mWatchedMechanicsNodeIndex = UNSIGNED_UNSET;
-    
+
     mFibreSheetDirectionsFile = "";
 }
 
 template<unsigned DIM>
 CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
-{   /** 
+{   /**
      * NOTE if SetWatchedLocation but not Initialise has been
      * called, mpWatchedLocationFile will be uninitialised and
      * using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
@@ -276,7 +276,7 @@ CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
     delete mpMonodomainProblem;
 
     delete mpCardiacMechAssembler;
-    
+
     delete mpMeshPair;
 
     LogFile::Close();
@@ -303,7 +303,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMonodomainProblem->Initialise();
 
     // Construct mechanics assembler
-    // Here we pick the best solver for each particular contraction model. Commented out versions are 
+    // Here we pick the best solver for each particular contraction model. Commented out versions are
     // for experimentation.
     switch(mContractionModel)
     {
@@ -322,7 +322,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
         default:
             EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");
     }
-    
+
     if(mFibreSheetDirectionsFile!="")
     {
        mpCardiacMechAssembler->SetVariableFibreSheetDirections(mFibreSheetDirectionsFile);
@@ -359,7 +359,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::Solve()
 {
-    
+
     // initialise the meshes and mechanics assembler
     if(mpCardiacMechAssembler==NULL)
     {
@@ -458,22 +458,22 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         // compute Ca_I at each quad point (by interpolation, using the info on which
         // electrics element the quad point is in. Then set Ca_I on the mechanics solver
         LOG(2, "  Interpolating Ca_I and voltage");
-        
+
         ReplicatableVector voltage_repl(voltage);
-        
+
         // collect all the calcium concentrations (from the cells, which are
         // distributed) in one (replicated) vector
         ReplicatableVector calcium_repl(mpElectricsMesh->GetNumNodes());
         PetscInt lo, hi;
-        VecGetOwnershipRange(voltage, &lo, &hi);        
+        VecGetOwnershipRange(voltage, &lo, &hi);
         for(int index=lo; index<hi; index++)
         {
             calcium_repl[index] = mpMonodomainProblem->GetPde()->GetCardiacCell(index)->GetIntracellularCalciumConcentration();
         }
         PetscTools::Barrier();
         calcium_repl.Replicate(lo,hi);
-        
-        
+
+
         for(unsigned i=0; i<mpMeshPair->rGetElementsAndWeights().size(); i++)
         {
             double interpolated_CaI = 0;
@@ -483,7 +483,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             for(unsigned node_index = 0; node_index<element.GetNumNodes(); node_index++)
             {
                 unsigned global_node_index = element.GetNodeGlobalIndex(node_index);
-                double CaI_at_node =  calcium_repl[global_node_index]; 
+                double CaI_at_node =  calcium_repl[global_node_index];
                 interpolated_CaI += CaI_at_node*mpMeshPair->rGetElementsAndWeights()[i].Weights(node_index);
                 interpolated_voltage += voltage_repl[global_node_index]*mpMeshPair->rGetElementsAndWeights()[i].Weights(node_index);
             }
@@ -570,7 +570,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         HeartConfig::Instance()->SetOutputDirectory(input_dir);
         Hdf5ToMeshalyzerConverter<DIM,DIM> meshalyzer_converter(input_dir, "voltage", mpElectricsMesh);
         Hdf5ToCmguiConverter<DIM,DIM> cmgui_converter(input_dir,"voltage",mpElectricsMesh);
-        
+
         // Write mesh in a suitable form for meshalyzer
         std::string output_directory =  mOutputDirectory + "/electrics/output";
         // Write the mesh
@@ -578,10 +578,10 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
         // Write the parameters out
         HeartConfig::Instance()->Write();
-        
+
         // reset to the default value
         HeartConfig::Instance()->SetOutputDirectory(config_directory);
-        
+
     }
 
     if(p_cmgui_writer)

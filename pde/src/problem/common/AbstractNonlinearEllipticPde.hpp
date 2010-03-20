@@ -48,14 +48,14 @@ public:
 
     /**
      * Compute linear source term.
-     * 
+     *
      * @param rX the point in space at which the linear source term is computed
      */
     virtual double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& rX)=0;
 
     /**
      * Compute nonlinear source term.
-     * 
+     *
      * @param rX the point in space at which the nonlinear source term is computed
      * @param u the value of the dependent variable at the point
      */
@@ -63,7 +63,7 @@ public:
 
     /**
      * Compute diffusion term.
-     * 
+     *
      * @param rX the point in space at which the diffusion term is computed.
      * @param u the value of the dependent variable at the point
      */
@@ -71,7 +71,7 @@ public:
 
     /**
      * Compute derivative of diffusion term.
-     * 
+     *
      * @param rX the point in space at which the diffusion term is computed.
      * @param u the value of the dependent variable at the point
      */
@@ -79,7 +79,7 @@ public:
 
     /**
      * Compute derivative of nonlinear source term.
-     * 
+     *
      * @param rX the point in space at which the nonlinear source term is computed
      * @param u the value of the dependent variable at the point
      */

@@ -278,7 +278,7 @@ public:
         TS_ASSERT_DELTA(tessellation.rGetFace(0).GetPerimeter(), 2.0 + pow(3, 0.5), 1e-6);
         TS_ASSERT_DELTA(tessellation.GetFaceArea(0),  pow(3, 0.5)/4.0+0.5, 1e-6);
         TS_ASSERT_DELTA(tessellation.GetFacePerimeter(0), 2.0 + pow(3, 0.5), 1e-6);
-   
+
     }
 
     void TestOrderVerticesAntiClockwise()
@@ -307,8 +307,8 @@ public:
         //std::cout<< "\n Before " << *(p_reordered_face->mVertices[1]);
         //std::cout<< "\n"<< *(original_face.mVertices[1]);
 
-		/*
-         * Note that we can only access mVertices directly as 
+        /*
+         * Note that we can only access mVertices directly as
          * this test class is a friend of VoronoiTessellation
          */
         p_reordered_face->SetVertex(0, &(p_reordered_face->rGetVertex(1)));

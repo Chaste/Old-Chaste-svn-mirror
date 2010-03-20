@@ -45,52 +45,52 @@ public:
     void TestBasicFunctionality() throw (Exception)
     {
         EXIT_IF_PARALLEL
-        
+
         unsigned system_size = 2662;
-        
+
         Mat system_matrix;
         PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
-                
-        // Set b = A * [1 0 1 0 ... 1 0]'        
-        std::vector<double> values;        
+
+        // Set b = A * [1 0 1 0 ... 1 0]'
+        std::vector<double> values;
         for (unsigned node_index=0; node_index<system_size/2; node_index++)
         {
             values.push_back(1.0);
-            values.push_back(0.0);            
-        } 
-        
+            values.push_back(0.0);
+        }
+
         Vec one_zeros = PetscTools::CreateVec(values);
         Vec rhs = PetscTools::CreateVec(system_size);
         MatMult(system_matrix, one_zeros, rhs);
-        VecDestroy(one_zeros);        
+        VecDestroy(one_zeros);
 
         LinearSystem ls = LinearSystem(rhs, system_matrix);
-        
+
         ls.SetAbsoluteTolerance(1e-9);
         ls.SetKspType("cg");
         ls.SetPcType("ldufactorisation");
 
         ls.AssembleFinalLinearSystem();
-        
+
         Vec solution = ls.Solve();
-        
+
         DistributedVectorFactory factory(system_size/2);
         DistributedVector distributed_solution = factory.CreateDistributedVector(solution);
         DistributedVector::Stripe phi_i(distributed_solution,0);
         DistributedVector::Stripe phi_e(distributed_solution,1);
-        
+
         for (DistributedVector::Iterator index = distributed_solution.Begin();
              index!= distributed_solution.End();
              ++index)
         {
             /*
              * Although we're trying to enforce the solution to be [1 0 ... 1 0], the system is singular and
-             * therefore it has infinite solutions. I've (migb) found thatn the use of different preconditioners 
+             * therefore it has infinite solutions. I've (migb) found thatn the use of different preconditioners
              * lead to different solutions ([0.8 -0.2 ... 0.8 -0.2], [0.5 -0.5 ... 0.5 -0.5], ...)
-             * 
+             *
              * If we were using PETSc null space, it would find the solution that satisfies x'*v=0,
              * being v the null space of the system (v=[1 1 ... 1])
-             */            
+             */
             TS_ASSERT_DELTA(phi_i[index] - phi_e[index], 1.0, 1e-6);
         }
 
@@ -111,70 +111,70 @@ public:
         PCGetType(prec, &pc);
         // Although we call it "blockdiagonal", PETSc considers this PC a generic SHELL preconditioner
         TS_ASSERT( strcmp(pc,"shell")==0 );
-        
+
     }
-    
+
     void TestBetterThanNoPreconditioning()
     {
         EXIT_IF_PARALLEL
-        
+
         unsigned point_jacobi_its;
         unsigned block_diag_its;
-        
-        Timer::Reset();        
+
+        Timer::Reset();
         {
             Mat system_matrix;
             //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
-            
+
             Vec system_rhs;
             //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
 
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
-            
+
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("cg");
-            ls.SetPcType("none");            
-            
+            ls.SetPcType("none");
+
             Vec solution = ls.Solve();
 
             point_jacobi_its = ls.GetNumIterations();
-            
+
             MatDestroy(system_matrix);
             VecDestroy(system_rhs);
-            VecDestroy(solution);            
-        }        
+            VecDestroy(solution);
+        }
         Timer::PrintAndReset("No preconditioning");
-        
+
         {
             Mat system_matrix;
             //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
-            
+
             Vec system_rhs;
             //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
 
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
-            
+
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("cg");
             ls.SetPcType("ldufactorisation");
-                        
+
             Vec solution = ls.Solve();
 
             block_diag_its = ls.GetNumIterations();
 
             MatDestroy(system_matrix);
             VecDestroy(system_rhs);
-            VecDestroy(solution);                        
+            VecDestroy(solution);
         }
         Timer::Print("LDU factorisation preconditioner");
 
         std::cout << block_diag_its << " " << point_jacobi_its << std::endl;
         TS_ASSERT_LESS_THAN_EQUALS(block_diag_its, point_jacobi_its);
-        
+
     }
 };
 

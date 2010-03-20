@@ -63,15 +63,15 @@ private:
     std::set<unsigned> mLocationIndices;
 
     /**
-     * Generate the vertices of the tessellation using the 
+     * Generate the vertices of the tessellation using the
      * circumcentres of the mesh elements.
      */
     void GenerateVerticesFromElementCircumcentres();
 
     /**
-     * Use a tetrahedral mesh to initialise the faces and vertices 
+     * Use a tetrahedral mesh to initialise the faces and vertices
      * of the tessellation.
-     * 
+     *
      * @param rMesh the mesh
      */
     void Initialise(TetrahedralMesh<DIM, DIM>& rMesh);

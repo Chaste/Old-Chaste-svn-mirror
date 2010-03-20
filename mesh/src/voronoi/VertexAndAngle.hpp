@@ -33,10 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 /**
- * Helper class containing a pointer to a vertex of the face 
- * and the polar angle from the centre of the face to this 
+ * Helper class containing a pointer to a vertex of the face
+ * and the polar angle from the centre of the face to this
  * vertex.
- * 
+ *
  * \todo does this really need to be templated?
  */
 template<unsigned DIM>
@@ -53,9 +53,9 @@ private:
 public:
 
     /**
-     * Compute the polar angle of the point (x,y)  in the interval (-PI, PI] 
+     * Compute the polar angle of the point (x,y)  in the interval (-PI, PI]
      * and use this to set mAngle.
-     * 
+     *
      * @param x x-coordinate
      * @param y y-coordinate
      */
@@ -63,14 +63,14 @@ public:
 
     /**
      * Set mpVertex.
-     * 
+     *
      * @param pVertex location of the vertex
      */
     void SetVertex(c_vector<double, DIM>* pVertex);
 
     /**
      * Less-than angle comparison operator.
-     * 
+     *
      * @param rOther the VertexAndAngle object to compare to
      */
     bool operator<(const VertexAndAngle& rOther) const;

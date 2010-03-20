@@ -47,14 +47,14 @@ ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(Contra
 {
 //    // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
 //    mStretchesLastTimestep.resize(this->mTotalQuadPoints, 1.0);
-    
+
     switch(contractionModel)
     {
         case NONPHYSIOL1:
         case NONPHYSIOL2:
         case NONPHYSIOL3:
         {
-            unsigned option = (contractionModel==NONPHYSIOL1 ? 1 : (contractionModel==NONPHYSIOL2? 2 : 3)); 
+            unsigned option = (contractionModel==NONPHYSIOL1 ? 1 : (contractionModel==NONPHYSIOL2? 2 : 3));
             for(unsigned i=0; i<this->mTotalQuadPoints; i++)
             {
                 this->mContractionModelSystems.push_back(new NonPhysiologicalContractionModel(option));
@@ -76,7 +76,7 @@ ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(Contra
                 this->mContractionModelSystems.push_back(new Kerchoffs2003ContractionModel);
             }
             break;
-        }        
+        }
 //        // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
 //        case NHS:
 //        {
@@ -89,30 +89,30 @@ ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(Contra
         default:
         {
             EXCEPTION("Unknown or stretch-rate-dependent contraction model");
-        } 
+        }
     }
-       
+
     assert(!(this->mContractionModelSystems[0]->IsStretchRateDependent()));
 }
 
 template<unsigned DIM>
 ExplicitCardiacMechanicsAssembler<DIM>::~ExplicitCardiacMechanicsAssembler()
-{        
+{
     for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
         delete this->mContractionModelSystems[i];
     }
-}        
-    
+}
+
 template<unsigned DIM>
-void ExplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch, 
+void ExplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch,
                                                                               unsigned currentQuadPointGlobalIndex,
                                                                               bool assembleJacobian,
                                                                               double& rActiveTension,
                                                                               double& rDerivActiveTensionWrtLambda,
                                                                               double& rDerivActiveTensionWrtDLambdaDt)
 {
-    // the active tensions have already been computed for each contraction model, so can 
+    // the active tensions have already been computed for each contraction model, so can
     // return it straightaway..
     rActiveTension = this->mContractionModelSystems[currentQuadPointGlobalIndex]->GetActiveTension();
 
@@ -120,7 +120,7 @@ void ExplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
     rDerivActiveTensionWrtLambda = 0.0;
     rDerivActiveTensionWrtDLambdaDt = 0.0;
 
-    // store the value of given for this quad point, so that it can be used when computing 
+    // store the value of given for this quad point, so that it can be used when computing
     // the active tension at the next timestep
     this->mStretches[currentQuadPointGlobalIndex] = currentFibreStretch;
 }
@@ -131,22 +131,22 @@ void ExplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
     assert(time < nextTime);
     this->mCurrentTime = time;
     this->mNextTime = nextTime;
-    this->mOdeTimestep = odeTimestep;        
+    this->mOdeTimestep = odeTimestep;
 
     // assemble the residual again so that mStretches is set (in GetActiveTensionAndTensionDerivs)
     // using the current deformation.
     this->AssembleSystem(true,false);
-            
+
     // integrate contraction models
     for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
 //        // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
 //        double dlam_dt = (this->mStretches[i] - mStretchesLastTimestep[i])/(nextTime-time);
-        
+
         this->mContractionModelSystems[i]->SetStretchAndStretchRate(this->mStretches[i], 0.0 /*dlam_dt*/);
         this->mContractionModelSystems[i]->RunAndUpdate(time, nextTime, odeTimestep);
-    }   
-    
+    }
+
     // solve
     NonlinearElasticityAssembler<DIM>::Solve();
 

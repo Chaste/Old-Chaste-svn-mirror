@@ -32,21 +32,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * @file
- * 
+ *
  * Defines some macros to register versions of templated classes with the
  * serialization library, for all space dimensions.  Also contains wrappers
  * around BOOST_CLASS_EXPORT and related functionality, which take care of
  * the differences introduced in new versions of Boost.
- * 
+ *
  * In Boost 1.33.1 and 1.34, BOOST_CLASS_EXPORT should be placed in the .hpp
  * file for each class, and archive headers included only in tests, or special
  * 'archiver' class header files (e.g. CardiacSimulationArchiver.hpp).
- * 
+ *
  * Serialization is broken in Boost 1.35 and 1.36.
- * 
+ *
  * In Boost 1.37 (and newer, I think) both the archive header includes and the
  * BOOST_CLASS_EXPORT should go in .cpp files.
- * 
+ *
  * To handle both situations in Chaste:
  *   1. In .hpp files, include this header after the class definition.
  *   2. In .cpp files, after any other includes, include SerializationExportWrapperForCpp.hpp.
@@ -85,7 +85,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Deal with buggy versions
 #if (BOOST_VERSION == 103500)
 #error "Chaste won't work with Boost 1-35 due to a bug in its serialization library"
-/* There's a bug in 1-35 which involves a 
+/* There's a bug in 1-35 which involves a
  * #include <boost/serialization/extended_type_info_typeid.hpp>
  * missing at the end of <boost/serialization/export.hpp>
  * It's probably not worth fixing.
@@ -94,7 +94,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-// Handle broken BOOST_CLASS_EXPORT in Boost 1.36 & 1.37 
+// Handle broken BOOST_CLASS_EXPORT in Boost 1.36 & 1.37
 #if BOOST_VERSION >= 103600 && BOOST_VERSION < 103800
 
 /**

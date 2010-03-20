@@ -91,15 +91,15 @@ public:
             X = group.Get(1, quad_index);
             TS_ASSERT_LESS_THAN(1.0, X(0)+X(1)); // quad point in elem 0, so x+y>1
         }
-         
+
         TS_ASSERT_EQUALS(group.Size(), 8u);
         for (unsigned index=0; index<group.Size(); index++)
         {
             TS_ASSERT_LESS_THAN(group.Get(index)[0], 0.8);
             TS_ASSERT_LESS_THAN(0.2, group.Get(index)[0]);
         }
-        
-        
+
+
     }
 };
 

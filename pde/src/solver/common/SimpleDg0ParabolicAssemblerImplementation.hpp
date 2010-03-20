@@ -51,10 +51,10 @@ SimpleDg0ParabolicAssembler<ELEMENT_DIM, SPACE_DIM, NON_HEART, CONCRETE>::Simple
     this->SetMesh(pMesh);
     this->SetBoundaryConditionsContainer(pBoundaryConditions);
 
-    // the solver could solve problems where the matrix is non-constant, but currently 
-    // AbstractLinearParabolicPde can't be used to define such problems, so we will assume 
-    // the matrix is constant. 
-    this->SetMatrixIsConstant();    
+    // the solver could solve problems where the matrix is non-constant, but currently
+    // AbstractLinearParabolicPde can't be used to define such problems, so we will assume
+    // the matrix is constant.
+    this->SetMatrixIsConstant();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, bool NON_HEART, class CONCRETE>

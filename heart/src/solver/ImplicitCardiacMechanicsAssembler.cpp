@@ -49,7 +49,7 @@ ImplicitCardiacMechanicsAssembler<DIM>::ImplicitCardiacMechanicsAssembler(
         case NONPHYSIOL2:
         case NONPHYSIOL3:
         {
-            unsigned option = (contractionModel==NONPHYSIOL1 ? 1 : (contractionModel==NONPHYSIOL2? 2 : 3)); 
+            unsigned option = (contractionModel==NONPHYSIOL1 ? 1 : (contractionModel==NONPHYSIOL2? 2 : 3));
             for(unsigned i=0; i<this->mTotalQuadPoints; i++)
             {
                 this->mContractionModelSystems.push_back(new NonPhysiologicalContractionModel(option));
@@ -74,10 +74,10 @@ ImplicitCardiacMechanicsAssembler<DIM>::ImplicitCardiacMechanicsAssembler(
         }
         default:
         {
-            #define COVERAGE_IGNORE // currently all available contraction models are acceptable for implicit  
+            #define COVERAGE_IGNORE // currently all available contraction models are acceptable for implicit
             EXCEPTION("Unknown or disallowed contraction model");
             #undef COVERAGE_IGNORE
-        } 
+        }
     }
 
     // initialise stores
@@ -133,7 +133,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
 
 
 template<unsigned DIM>
-void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch, 
+void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch,
                                                                               unsigned currentQuadPointGlobalIndex,
                                                                               bool assembleJacobian,
                                                                               double& rActiveTension,
@@ -160,7 +160,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
     catch (Exception& e)
     {
         #define COVERAGE_IGNORE
-        // if this failed during assembling the Jacobian this is a fatal error. 
+        // if this failed during assembling the Jacobian this is a fatal error.
         if(assembleJacobian)
         {
             // probably shouldn't be able to get here
@@ -170,7 +170,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
         // set the active tension to infinity so that the residual will be infinite
         rActiveTension = DBL_MAX;
         std::cout << "WARNING: could not solve contraction model with this stretch and stretch rate. "
-                  << "Setting active tension to infinity (DBL_MAX) so that the residual(-norm) is also infinite\n" << std::flush; 
+                  << "Setting active tension to infinity (DBL_MAX) so that the residual(-norm) is also infinite\n" << std::flush;
         assert(0); // just to see if we ever get here, can be removed..
         return;
         #undef COVERAGE_IGNORE
@@ -207,7 +207,7 @@ void ImplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
     //p_contraction_model->SetActiveTensionInitialGuess(rActiveTension);   // this line would now need a cast
     //p_contraction_model->RunDoNotUpdate(this->mCurrentTime,this->mNextTime,this->mOdeTimestep);
     //assert( fabs(p_contraction_model->GetNextActiveTension()-rActiveTension)<1e-8);
-}    
+}
 
 
 

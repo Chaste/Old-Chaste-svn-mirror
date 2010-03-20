@@ -58,7 +58,7 @@ protected:
      * Most tet meshes are linear (set to true).  Set to false in quadratics.
      */
     bool mMeshIsLinear;
-    
+
 private:
     /**
      * Pure virtual solve element mapping method. For an element with a given
@@ -103,7 +103,7 @@ private:
                                                                false);
         /**
          * Always write the in-memory mesh to disk, to make sure we have a properly permuted version of it.
-         * 
+         *
          * \todo  This is bad for very large meshes.  Consider making a symlink and just writing the permutation.
          * Perhaps even copy the permutation file from an earlier checkpoint?
          */
@@ -123,7 +123,7 @@ private:
     {
         archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
         archive & mMeshIsLinear;
-        
+
         // Store the DistributedVectorFactory loaded from the archive
         DistributedVectorFactory* p_factory = this->mpDistributedVectorFactory;
         this->mpDistributedVectorFactory = NULL;
@@ -144,7 +144,7 @@ private:
             /// \todo #1199  make this work for everything else...
             p_our_factory = NULL;
         }
-        
+
         if (mMeshIsLinear)
         {
             //I am a linear mesh
@@ -157,7 +157,7 @@ private:
             TrianglesMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename(), 2, 2);
             this->ConstructFromMeshReader(mesh_reader);
         }
-        
+
         // Make sure we're using the correct vector factory
         if (p_factory)
         {
@@ -323,10 +323,10 @@ public:
                                                         double& rJacobianDeterminant) const;
 
 
-     
+
     /**
      * Construct a 1D linear grid on [0,width]
-     * 
+     *
      * If SPACE_DIM > 1 then the y & z default to 0.0 for every node.
      *
      * @param width  width of the mesh (in the x-direction)
@@ -356,24 +356,24 @@ public:
      * Overridden in DistributedTetrahedralMesh
      */
     virtual void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
-    
+
     /**
      * Determine whether or not the current process owns node 0 of this boundary element (tie breaker to determine which process writes
      * to file for when two or more share ownership of a face).
-     * 
+     *
      * @param faceIndex is the global index of the face
      */
     virtual bool CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex );
-    
+
     /**
      * Determine whether or not the current process owns node 0 of this element (tie breaker to determine which process writes
      * to file for when two or more share ownership of an element).
-     * 
+     *
      * @param elementIndex is the global index of the element
      */
     virtual bool CalculateDesignatedOwnershipOfElement( unsigned elementIndex );
-    
-    
+
+
     //////////////////////////////////////////////////////////////////////
     //                         Nested classes                           //
     //////////////////////////////////////////////////////////////////////

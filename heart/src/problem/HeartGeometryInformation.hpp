@@ -52,7 +52,7 @@ typedef enum HeartLayerType_
 template<unsigned SPACE_DIM>
 class HeartGeometryInformation
 {
-private:  
+private:
 
     /** Area of the septum considered to belong to the left septum (relative to 1)*/
     static const double LEFT_SEPTUM_SIZE;
@@ -72,14 +72,14 @@ private:
     std::vector<unsigned> mRVSurface;
 
     /**
-     *  Takes in a file of all the surface elements on ONE PARTICULAR surface of the 
+     *  Takes in a file of all the surface elements on ONE PARTICULAR surface of the
      *  mesh (eg the right ventricular endo-cardial surface) and collects all the nodes
      *  on that surface in one vector
-     * 
+     *
      *  @param surfaceFile The surface file
      *  @param rSurfaceNodes The returned vector of nodes indices on this surface
      *  @param indexFromZero  true for native triangles files. false for Memfem files which are indexed from 1.
-     */ 
+     */
     void GetNodesAtSurface(const std::string& surfaceFile, std::vector<unsigned>& rSurfaceNodes, bool indexFromZero=true) const;
 
     /**
@@ -89,56 +89,56 @@ private:
      *  @param offset is the lowest index of a node in the original mesh (0 for native triangles or 1 for MEMFEM)
      */
     void ProcessLine(const std::string& line, std::set<unsigned>& rSurfaceNodeIndexSet, unsigned offset) const;
-    
+
     /**
      * Helper method to calculate the distance between the node and the Endocardial surface
      * as defined to be the closest surface to the node out of left ventricle and right ventricle.
-     * 
+     *
      * @param nodeIndex is the index of the node in the mesh
-     * @returns the distance 
+     * @returns the distance
      */
     double GetDistanceToEndo(unsigned nodeIndex);
-    
+
      /**
      * Helper method to calculate the distance between the node and the Epicardial surface
-     * 
+     *
      * @param nodeIndex is the index of the node in the mesh
-     * @returns the distance 
+     * @returns the distance
      */
     double GetDistanceToEpi(unsigned nodeIndex);
 
     /** The mesh of the problem*/
     AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* mpMesh;
-    
+
     /** Vector to store the distance map to epicardium*/
     std::vector<double> mDistMapEpicardium;
-    
+
     /** Vector to store the distance map to endocardium*/
     std::vector<double> mDistMapEndocardium;
-    
+
     /** Vector to store the distance map to the right ventricle surface*/
     std::vector<double> mDistMapRightVentricle;
-    
+
     /** Vector to store the distance map to the left ventricle surface*/
     std::vector<double> mDistMapLeftVentricle;
-    
+
     /** Flag used to tell the methods whether two or three surfaces have been supplied*/
     unsigned mNumberOfSurfacesProvided;
-    
+
     /** Vector to store the layer for each node*/
     std::vector<HeartLayerType> mLayerForEachNode;
 
     /**
      * Get a bounding box for a group of node indices (such as the epi-surface)
-     * 
+     *
      * @param rSurfaceNodes The indices of the nodes which represent this surface
      */
     ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfSurface(const std::vector<unsigned>& rSurfaceNodes);
-        
+
 public:
     /**
      * Constructor for a two surface mesh
-     * 
+     *
      * @param rMesh: reference to the mesh
      * @param rEpiFile: file of elements on the epicardial surface
      * @param rEndoFile: file of elements on the endocardial surface
@@ -152,7 +152,7 @@ public:
 
     /**
      * Constructor for a three surface mesh
-     * 
+     *
      * @param rMesh: reference to the mesh
      * @param rEpiFile: file of elements on the epicardial surface
      * @param rRVFile: file of elements on the endocardial right ventricular surface
@@ -168,33 +168,33 @@ public:
     /**
      * Alternative constructor that takes in the file containing a list of numbers (as many as the number of nodes).
      * Each number specifies the layer for the corresponding node.
-     * 
-     * This constructor should be called if the heterogeneities have /already/ been computed 
+     *
+     * This constructor should be called if the heterogeneities have /already/ been computed
      * by an instance of this class and written to file by the WriteLayerForEachNode() method.
-     * 
+     *
      * @param nodeHeterogeneityFileName the file name.
      */
     HeartGeometryInformation (std::string nodeHeterogeneityFileName);
-    
+
     /**
      * @param nodeIndex index is the index of the node in the mesh
-     * @returns the region type based on the relative distances to epi and endocardial surfaces 
+     * @returns the region type based on the relative distances to epi and endocardial surfaces
      */
     HeartRegionType GetHeartRegion (unsigned nodeIndex) const;
-      
+
     /**
-     * 
-     * @returns the distance map to the epicardium 
-     */  
+     *
+     * @returns the distance map to the epicardium
+     */
     std::vector<double>& rGetDistanceMapEpicardium()
     {
         return mDistMapEpicardium;
     }
 
     /**
-     * 
-     * @returns the distance map to the endocardium 
-     */     
+     *
+     * @returns the distance map to the endocardium
+     */
     std::vector<double>& rGetDistanceMapEndocardium()
     {
         assert(mNumberOfSurfacesProvided==2);
@@ -202,9 +202,9 @@ public:
     }
 
     /**
-     * 
-     * @returns the distance map to the right ventricle 
-     */    
+     *
+     * @returns the distance map to the right ventricle
+     */
     std::vector<double>& rGetDistanceMapRightVentricle()
     {
         assert(mNumberOfSurfacesProvided==3);
@@ -212,9 +212,9 @@ public:
     }
 
     /**
-     * 
-     * @returns the distance map to the left ventricle 
-     */ 
+     *
+     * @returns the distance map to the left ventricle
+     */
     std::vector<double>& rGetDistanceMapLeftVentricle()
     {
         assert(mNumberOfSurfacesProvided==3);
@@ -256,36 +256,36 @@ public:
     {
         assert(mLayerForEachNode.size()>0);
         return mLayerForEachNode;
-    }    
-    
+    }
+
     /**
      * Calculates the relative position within the wall thickness (normalised to [0,1])
      * @param nodeIndex index is the index of the node in the mesh
      * @returns the relative position
      */
     double CalculateRelativeWallPosition(unsigned nodeIndex);
-        
+
     /**
      *  Compute which layer (endocardial, midmyocardial or epicardial) each node is in
      *  @param epiFraction is the fraction of wall designed to be epicardial layer
      *  @param endoFraction is the fraction of wall designed to be endocardial layer
      */
     void DetermineLayerForEachNode(double epiFraction, double endoFraction);
-    
+
     /**
      *  Write the layer for each node. DetermineLayerForEachNode() must have been
      *  called first.
-     * 
+     *
      *  @param outputDir Output directory - note not cleaned
      *  @param file Output file
      */
     void WriteLayerForEachNode(std::string outputDir, std::string file);
-    
+
     /**
      * Uses CalculateBoundingBoxOfSurface to calculate an
-     * axis-aligned bounding box of the nodes in the input 
+     * axis-aligned bounding box of the nodes in the input
      * epicardial surface
-     * 
+     *
      */
     inline ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfEpi()
     {
@@ -293,9 +293,9 @@ public:
     }
     /**
      * Uses CalculateBoundingBoxOfSurface to calculate an
-     * axis-aligned bounding box of the nodes in the input 
+     * axis-aligned bounding box of the nodes in the input
      * endocardial surface
-     * 
+     *
      */
     inline ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfEndo()
     {
@@ -303,9 +303,9 @@ public:
     }
     /**
      * Uses CalculateBoundingBoxOfSurface to calculate an
-     * axis-aligned bounding box of the nodes in the input 
+     * axis-aligned bounding box of the nodes in the input
      * endocardial left ventricular surface
-     * 
+     *
      */
     inline ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfLV()
     {
@@ -313,9 +313,9 @@ public:
     }
     /**
      * Uses CalculateBoundingBoxOfSurface to calculate an
-     * axis-aligned bounding box of the nodes in the input 
+     * axis-aligned bounding box of the nodes in the input
      * endocardial left ventricular surface
-     * 
+     *
      */
      inline ChasteCuboid<SPACE_DIM> CalculateBoundingBoxOfRV()
     {

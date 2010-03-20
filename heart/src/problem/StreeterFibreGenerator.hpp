@@ -36,9 +36,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartGeometryInformation.hpp"
 
 /**
- * Generate fibre in a ventricular mesh using the formulae from 
- * Streeter DD, Jr, Spotnitz HM, Patel DP, Ross J, Jr, Sonnenblick EH. 
- * Fiber orientation in the canine left ventricle during diastole and systole. 
+ * Generate fibre in a ventricular mesh using the formulae from
+ * Streeter DD, Jr, Spotnitz HM, Patel DP, Ross J, Jr, Sonnenblick EH.
+ * Fiber orientation in the canine left ventricle during diastole and systole.
  * Circ Res. 1969 Mar;24(3):339–347.
  */
 template<unsigned SPACE_DIM>
@@ -46,41 +46,41 @@ class StreeterFibreGenerator
 {
 private:
     AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& mrMesh; /**< Reference to the mesh (used for calculating distances to epi and endo surfaces)*/
-    
+
     HeartGeometryInformation<SPACE_DIM>* mpGeometryInfo; /**< Provides a method to calculate the relative position of a node with respect to two (or three) given surfaces*/
 
-    /** 
+    /**
      * Compute the wallthickness of a given node based on a
      * neighbourhood average of its thickness and of those in the forward star.
-     * 
+     *
      * @param nodeIndex  The index of the node in question
      * @param wallThickness  vector of thickness of all nodes in node index order
      * @return Neighbourhood average thickness (will return 0 if the node is not local to this process)
      */
     double GetAveragedThicknessLocalNode(const unsigned nodeIndex, const std::vector<double>& wallThickness) const;
 
-    /**    
+    /**
      * R is the maximum angle between the fibre and the v axis (heart region dependant)
      * @param  nodesRegionsForElement is a small vector containing the region tags of the element's nodes
      * @return  Pi/4 (if the element is in RV), Pi/3 otherwise
      */
    double GetFibreMaxAngle(const c_vector<HeartRegionType, SPACE_DIM+1>& nodesRegionsForElement) const;
-   
+
 public:
-    /** 
+    /**
      * Constructor
-     * 
+     *
      * @param  rMesh reference to the tetrahedral mesh of the ventricles
      */
     StreeterFibreGenerator(AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>& rMesh);
 
-    /** 
+    /**
      * Destructor
      */
     ~StreeterFibreGenerator();
 
     /**
-     * Uses the names of files defining the diferent surfaces of the mesh to construct the geometry information class 
+     * Uses the names of files defining the diferent surfaces of the mesh to construct the geometry information class
      * File format: list of triangles
      *
      * @param epicardiumFile Epicardium surface

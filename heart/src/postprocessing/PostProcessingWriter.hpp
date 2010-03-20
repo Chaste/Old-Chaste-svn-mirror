@@ -41,8 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * - Upstroke time map
  * - Upstroke Velocity map
  * - Conduction Velocity map
- * 
- */ 
+ *
+ */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class PostProcessingWriter
 {
@@ -84,15 +84,15 @@ public:
      * line 2: <number of upstrokes for node 1> <number of above-threshold depolarisations for node 1>
      * etc.
      *
-     * For the nodes where the threshold isn't crossed, the 'number of upstrokes' will be 0 
+     * For the nodes where the threshold isn't crossed, the 'number of upstrokes' will be 0
      * (so will the number of above-threshold depolarisations for that node)
-     * 
+     *
      * \todo This method ought to be private and called by the  WritePostProcessingFiles method if the user requests for it.
-     *       This will be possible after modifying the schema and specifying Get and Set methods in HeartConfig 
+     *       This will be possible after modifying the schema and specifying Get and Set methods in HeartConfig
      *       to check whetehr the user wants this file or not
-     * 
+     *
      * @param  threshold - used to signify the upstroke (mV) AND to specify above which voltage value the depolarisations are counted
-     */    
+     */
     void WriteAboveThresholdDepolarisationFile(double threshold);
 
 private:
@@ -155,7 +155,7 @@ private:
      * line 1: <first scalar data for node 0> <second scalar data for node 0> ...
      * line 2: <first scalar data for node 1> <second scalar data for node 1> ...
      * etc.
-     * @param  rDataPayload vector data for each node.  Each node's data are represented by a vector of scalars (variable length)  
+     * @param  rDataPayload vector data for each node.  Each node's data are represented by a vector of scalars (variable length)
      * @param  fileName where to put the data.
      */
     void WriteGenericFile(std::vector<std::vector<double> >& rDataPayload, std::string fileName);

@@ -41,7 +41,7 @@ template<class CELL, class CARDIAC_PROBLEM, unsigned DIM, unsigned PROBLEM_DIM>
 class SpaceConvergenceTester : public AbstractConvergenceTester<CELL, CARDIAC_PROBLEM, DIM, PROBLEM_DIM>
 {
 public:
-    /** 
+    /**
      * The intial mesh is mesh 0 which has a space-step of 0.05cm on a 0.2cm mesh
      */
     void SetInitialConvergenceParameters()
@@ -49,9 +49,9 @@ public:
         this->MeshNum=0;
     }
     /**
-     * Each new run has an increased the mesh number. This halves the space step and increased 
+     * Each new run has an increased the mesh number. This halves the space step and increased
      * the complexity of the simulation by 2^DIM
-     */ 
+     */
     void UpdateConvergenceParameters()
     {
         this->MeshNum++;
@@ -60,7 +60,7 @@ public:
     /**
      * @return true to give up convergence when the number of unknowns becomes too high (either
      * from memory or CPU perspective).
-     */ 
+     */
     bool GiveUpConvergence()
     {
         switch(DIM)

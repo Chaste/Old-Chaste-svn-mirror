@@ -200,7 +200,7 @@ public:
         bool cache_replication_saved = false;
         double saved_printing_timestep = 2.0;
         double default_printing_timestep = HeartConfig::Instance()->GetPrintingTimeStep();
-        
+
         // Info about the first cell on this process (if any)
         bool has_cell = false;
         unsigned cell_v_index = (unsigned)(-1);
@@ -219,7 +219,7 @@ public:
             monodomain_pde.SetCacheReplication(cache_replication_saved); // Not the default to check it is archived...
 
             tensor_before_archiving = monodomain_pde.rGetIntracellularConductivityTensor(1);
-            
+
             // Get some info about the first cell on this process (if any)
             const std::vector<AbstractCardiacCell*>& r_cells = monodomain_pde.GetCellsDistributed();
             has_cell = !r_cells.empty();
@@ -236,7 +236,7 @@ public:
             // Save
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
-            
+
             AbstractCardiacPde<1>* const p_archive_monodomain_pde = &monodomain_pde;
             (*p_arch) << p_archive_monodomain_pde;
 

@@ -132,7 +132,7 @@ void NhsContractionModel::SetIntracellularCalciumConcentration(double calciumCon
     assert(calciumConcentration > 0.0);
     mCalciumI = calciumConcentration;
 }
-    
+
 double NhsContractionModel::GetCalciumTroponinValue()
 {
     return mStateVariables[0];
@@ -143,7 +143,7 @@ void NhsContractionModel::EvaluateYDerivatives(double time,
                                                std::vector<double> &rDY)
 {
     //// if making changes here, see also NhsModelWithBackwardSolver::CalculateCaTropAndZDerivatives()
-    
+
     const double& calcium_troponin = rY[0];
     const double& z = rY[1];
     const double& Q1 = rY[2];

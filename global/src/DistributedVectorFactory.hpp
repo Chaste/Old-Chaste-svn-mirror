@@ -61,7 +61,7 @@ private:
     unsigned mNumProcs;
     /** Whether we've checked that PETSc is initialised. */
     bool mPetscStatusKnown;
-    
+
     /**
      * Whether, when loading an instance from an archive, to check that the
      * current number of processes matches that used in creating the archive.
@@ -73,22 +73,22 @@ private:
      * archive, which may not be the same as this instance.
      */
     DistributedVectorFactory* mpOriginalFactory;
-    
+
     /**
      * Double check (in debug code) that PETSc has been initialised properly
      */
-    void CheckForPetsc();  
-    
+    void CheckForPetsc();
+
     /**
      * Helper method for the constructors
-     * 
-     * @param vec the sample PETSc vector from which to calculate ownerships 
+     *
+     * @param vec the sample PETSc vector from which to calculate ownerships
      */
     void CalculateOwnership(Vec vec);
-    
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
-    
+
     /**
      * Archive the member variables.
      *
@@ -100,7 +100,7 @@ private:
     {
         // Nothing to do - all done in load_construct_data
     }
-    
+
 public:
     /**
      * Set the problem with an existing PETSc vector -- must have stride=1.
@@ -122,28 +122,28 @@ public:
      * @param pOriginalFactory  see #mpOriginalFactory
      */
     DistributedVectorFactory(DistributedVectorFactory* pOriginalFactory);
-    
+
     /**
      * Constructor intended for use in archiving.  Allows complete manual
      * specification of the factory.
-     * 
+     *
      * @param lo  first index owned by this process
      * @param hi  one beyond last index owned by this process
      * @param size  total size of vectors
      * @param numProcs  the number of processes expected (defaults to the current number)
      */
     DistributedVectorFactory(unsigned lo, unsigned hi, unsigned size, unsigned numProcs=PetscTools::GetNumProcs());
-    
+
     /** Destructor deletes #mpOriginalFactory if it exists */
     ~DistributedVectorFactory();
-    
+
     /**
      * Create a PETSc vector of the problem size
-     * 
+     *
      * @return the created vector
-     */    
+     */
     Vec CreateVec();
-    
+
     /**
      * Create a striped PETSc vector of size: stride * problem size
      *
@@ -153,9 +153,9 @@ public:
 
     /**
      * Create a distributed vector which wraps a given petsc vector
-     * 
+     *
      * @param vec is the vector
-     * @return the distributed vector 
+     * @return the distributed vector
      */
     DistributedVector CreateDistributedVector(Vec vec);
 
@@ -197,7 +197,7 @@ public:
     {
         return mProblemSize;
     }
-    
+
     /**
      * @return #mNumProcs - how many processes this factory is expecting.
      */
@@ -205,18 +205,18 @@ public:
     {
         return mNumProcs;
     }
-    
+
     /**
      * Set whether, when loading an instance from an archive, to check that the
      * current number of processes matches that used in creating the archive.
-     * 
+     *
      * @param checkNumberOfProcessesOnLoad
      */
     static void SetCheckNumberOfProcessesOnLoad(bool checkNumberOfProcessesOnLoad=true)
     {
         msCheckNumberOfProcessesOnLoad = checkNumberOfProcessesOnLoad;
     }
-    
+
     /**
      * Determine whether, when loading an instance from an archive, to check that the
      * current number of processes matches that used in creating the archive.
@@ -225,7 +225,7 @@ public:
     {
         return msCheckNumberOfProcessesOnLoad;
     }
-    
+
     /**
      * If #msCheckNumberOfProcessesOnLoad is not set, and this factory was loaded from
      * an archive, then return a factory with the settings from the archive, which may
@@ -236,13 +236,13 @@ public:
     {
         return mpOriginalFactory;
     }
-    
+
     /**
      * Set #mLo and #mHi from another vector factory.  Used by archiving.
      * @param pFactory  the factory to set from.
      */
     void SetFromFactory(DistributedVectorFactory* pFactory);
-    
+
 //    /**
 //     * For debugging.
 //     */
@@ -290,7 +290,7 @@ inline void load_construct_data(
     ar >> lo;
     ar >> size;
     ar >> num_procs;
-    
+
     if (!DistributedVectorFactory::CheckNumberOfProcessesOnLoad())
     {
         DistributedVectorFactory* p_original_factory = new DistributedVectorFactory(lo, hi, size, num_procs);

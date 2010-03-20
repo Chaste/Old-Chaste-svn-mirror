@@ -32,19 +32,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractHdf5Converter.hpp"
 
 /**
- *  This class converts from Hdf5 format to Cmgui format. 
+ *  This class converts from Hdf5 format to Cmgui format.
  *  The output will be one .exnode file per time step.
  *  The format that cmgui accepts is (after the headers):
- *  
+ *
  *   Node: 1
  *   Value_at_node_1
  *   Node:2
  *   Value_at_node_2
  *   .....
- *   
+ *
  *   For bidomain simulations, we will have two fields, one for Vm and one for Phie.
- *   The Cmgui format for two fields is as follows: 
- *   
+ *   The Cmgui format for two fields is as follows:
+ *
  *   Node: 1
  *   Vm_node_1
  *   Phie_at_node_1

@@ -219,13 +219,13 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[last][0], 0, 2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[last][1], 0, 2);
     }
-    
+
     void TestArchivingSolver() throw(Exception)
     {
         OutputFileHandler handler("archive",false);
         std::string archive_filename;
         archive_filename = handler.GetOutputDirectoryFullPath() + "backward_euler_solver.arch";
-        
+
         VanDerPolOde ode_system;
 
         double h_value = 0.01;
@@ -235,42 +235,42 @@ public:
         {
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            
+
             // Set up a solver
             AbstractIvpOdeSolver* const p_backward_euler_solver = new BackwardEulerIvpOdeSolver(ode_system.GetNumberOfStateVariables());
-            
+
             // Should always archive a pointer
             output_arch << p_backward_euler_solver;
-            
-            // Change stimulus a bit           
+
+            // Change stimulus a bit
             delete p_backward_euler_solver;
         }
 
         // Restore
         {
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-            boost::archive::text_iarchive input_arch(ifs);            
-            
+            boost::archive::text_iarchive input_arch(ifs);
+
             // Create a pointer
             AbstractIvpOdeSolver* p_backward_euler;
             input_arch >> p_backward_euler;
             OdeSolution solutions;
 
             std::vector<double> state_variables = ode_system.GetInitialConditions();
-    
+
             solutions = p_backward_euler->Solve(&ode_system, state_variables, 0.0, end_time, h_value, 5*h_value);
             unsigned last = solutions.GetNumberOfTimeSteps();
-    
+
             double numerical_solution;
             numerical_solution = solutions.rGetSolutions()[last][0];
-    
+
             // assert that we are within a [-2,2] in x and [-2,2] in y (on limit cycle)
             TS_ASSERT_DELTA(solutions.rGetSolutions()[last][0], 0, 2);
             TS_ASSERT_DELTA(solutions.rGetSolutions()[last][1], 0, 2);
-            
+
             delete p_backward_euler;
         }
-    } 
+    }
 
 };
 

@@ -98,7 +98,7 @@ protected:
 
     /**
      * Apply Dirichlet boundary conditions to either the residual or Jacobian.
-     * 
+     *
      * @param currentGuess  the solution guess for the current iteration
      * @param applyToMatrix  whether to apply the boundary conditions to the Jacobian matrix
      */
@@ -178,7 +178,7 @@ protected:
     /**
      * No separate initialisation is needed in the nonlinear case; PrepareForSolve does
      * everything.  We just check the size of the initial guess.
-     * 
+     *
      * @param initialGuess an initial guess
      */
     void InitialiseForSolve(Vec initialGuess);
@@ -201,7 +201,7 @@ public:
 
     /**
      * Constructors just call the base class versions.
-     * 
+     *
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     AbstractNonlinearAssembler(unsigned numQuadPoints = 2);
@@ -218,7 +218,7 @@ public:
      * any user call to this method.
      *
      * If this method is not called the default is false i.e. numerical jacobian.
-     * 
+     *
      * @param useAnalyticalJacobian Set to true to use an analytically calculated
       *     jacobian matrix rather than a numerically approximated one.
      */
@@ -238,14 +238,14 @@ public:
      * SetNonlinearSolver - by default a SimplePetscNonlinearSolver is created
      * and used in this class, this method can be called to use a different
      * AbstractNonlinearSolver.
-     * 
+     *
      * @param pNonlinearSolver a nonlinear solver
      */
     void SetNonlinearSolver(AbstractNonlinearSolver* pNonlinearSolver);
 
     /**
      * A helpful method for creating an initial guess vector.
-     * 
+     *
      * @param value constant value of the initial guess
      */
     Vec CreateConstantInitialGuess(double value);

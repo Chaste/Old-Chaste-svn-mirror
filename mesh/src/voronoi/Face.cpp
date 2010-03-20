@@ -186,7 +186,7 @@ template<unsigned DIM>
 void Face<DIM>::AddVertex(c_vector<double, DIM>* pVertex)
 {
     mVertices.push_back(pVertex);
-}   
+}
 
 template<unsigned DIM>
 unsigned Face<DIM>::GetNumVertices()

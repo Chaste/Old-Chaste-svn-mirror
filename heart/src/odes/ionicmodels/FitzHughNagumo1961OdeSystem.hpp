@@ -45,30 +45,30 @@ private:
 public:
     /**
      * Constructor
-     * 
+     *
      * @param pOdeSolver is a pointer to the ODE solver
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
     FitzHughNagumo1961OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
                                 boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
-                                
+
     /**
      * Destructor
      */
     ~FitzHughNagumo1961OdeSystem();
-    
+
     /**
      * Compute the RHS of the FitHugh-Nagumo system of ODEs
-     * 
+     *
      * @param time  the current time, in milliseconds
      * @param rY  current values of the state variables
      * @param rDY  to be filled in with derivatives
      */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY);
-    
+
     /**
      * Calculates the ionic current
-     * 
+     *
      * @returns the total ionic current
      */
     double GetIIonic();

@@ -675,7 +675,7 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         if (PetscTools::GetNumProcs() == 2)
         {
             mesh.ReadNodesPerProcessorFile("mesh/test/data/nodes_per_processor_1.txt");

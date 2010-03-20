@@ -48,13 +48,13 @@ private:
     std::vector< Face<3>* > mFaces;
 
     /**
-     * How each face is oriented. From the perspective of the centre 
-     * of the VoronoiCell, the vertices of each face should be ordered 
-     * clockwise. If and only if this is false, the order of vertices 
+     * How each face is oriented. From the perspective of the centre
+     * of the VoronoiCell, the vertices of each face should be ordered
+     * clockwise. If and only if this is false, the order of vertices
      * in the corresponding face should be reversed.
      *
-     * N.B. Most faces belong to two VoronoiCell, but with opposite 
-     * orientations. This allows us to reuse the face data across the 
+     * N.B. Most faces belong to two VoronoiCell, but with opposite
+     * orientations. This allows us to reuse the face data across the
      * two cells.
      */
     std::vector<bool> mOrientations;
@@ -66,7 +66,7 @@ private:
 
     /**
      * Return whether two faces are equal.
-     * 
+     *
      * @param face1 the first face
      * @param orientation1 whether the first face is oriented
      * @param face2 the second face
@@ -79,9 +79,9 @@ public:
     /**
      * Test whether two VoronoiCells are equal.
      *
-     * Two VoronoiCells are equal if their set of faces are equal 
+     * Two VoronoiCells are equal if their set of faces are equal
      * (including whether the faces have the same orientations).
-     * 
+     *
      * @param rOtherCell the VoronoiCell to compare to
      */
     bool operator==(VoronoiCell& rOtherCell);
@@ -98,35 +98,35 @@ public:
 
     /**
      * Get the face with a given index.
-     * 
+     *
      * @param index the index of the face in the VoronoiCell
      */
     const Face<3>& rGetFace(unsigned index) const;
 
     /**
      * Get whether the face with a given index is oriented clockwise.
-     * 
+     *
      * @param index the index of the face in the VoronoiCell
      */
     bool FaceIsOrientatedClockwise(unsigned index) const;
 
     /**
      * Add an entry to the end of mFaces.
-     * 
+     *
      * @param pFace pointer to the new Face
      */
     void AddFace(Face<3>* pFace);
 
     /**
      * Add an entry to the end of mOrientations.
-     * 
+     *
      * @param isOrientedClockwise whether the new Face is oriented clockwise
      */
     void AddOrientation(bool isOrientedClockwise);
 
     /**
      * Set the centre of the VoronoiCell.
-     * 
+     *
      * @param cellCentre the cell centre
      */
     void SetCellCentre(c_vector<double, 3> cellCentre);

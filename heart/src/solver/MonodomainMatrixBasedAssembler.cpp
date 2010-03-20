@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //
 //
 //
-//   NOTE: The main class in this file, MonodomainMatrixBasedAssembler, is defined at the 
+//   NOTE: The main class in this file, MonodomainMatrixBasedAssembler, is defined at the
 //   bottom, after MonodomainRhsMatrixAssembler
 //
 //
@@ -210,7 +210,7 @@ void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMa
         Vec existingSolution)
 {
     DistributedVectorFactory* p_factory = this->mpMesh->GetDistributedVectorFactory();
-    
+
     // dist stripe for the current Voltage
     DistributedVector distributed_current_solution = p_factory->CreateDistributedVector(existingSolution);
 

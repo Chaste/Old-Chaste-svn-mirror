@@ -114,7 +114,7 @@ public:
                 TS_ASSERT_DELTA(voltage_replicated[2*it->GetIndex()], 20.0755, 1.3);
             }
         }
-        
+
         HeartEventHandler::Headings();
         HeartEventHandler::Report();
 

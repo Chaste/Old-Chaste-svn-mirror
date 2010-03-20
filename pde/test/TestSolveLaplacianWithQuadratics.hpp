@@ -365,7 +365,7 @@ public:
         QuadraticMesh<3> quad_mesh;
         TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/cube_1626_elements_quadratic",2,1,false);
         quad_mesh.ConstructFromMeshReader(mesh_reader1);
-        
+
         BoundaryConditionsContainer<3,3,1> bcc_quads;
         bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
 

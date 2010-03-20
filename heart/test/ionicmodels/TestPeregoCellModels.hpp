@@ -197,7 +197,7 @@ public:
         double magnitude = -25.5;
         double duration  = 2.00; //ms
         double when = 0.0;
-        
+
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver()); // Not actually used; just for compliance with the standard Chaste AbstractCardiacCell
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
 
@@ -321,7 +321,7 @@ public:
         previous_corrected_solution[5] = 0.003163567176509;
         previous_corrected_solution[6] = 0.994279658014422;
         previous_corrected_solution[7] = 0.166470067496488;
-        
+
 
         double current_time = 0.02;
 
@@ -343,7 +343,7 @@ public:
         TS_ASSERT_DELTA(lr91_perego.ma_current[0], -0.23399, 1e-5);
 
         TS_ASSERT_EQUALS(lr91_perego.ma_error.size(), lr91_perego.ma_current.size());
-        
+
         std::vector<double> matlab_ma_error(8);
         std::vector<double> matlab_ma_current(8);
         matlab_ma_error[0] = -0.18480;
@@ -354,7 +354,7 @@ public:
         matlab_ma_error[5] = -0.11642;
         matlab_ma_error[6] = -0.01847;
         matlab_ma_error[7] = -0.00417;
-        
+
         matlab_ma_current[0] = -0.23399;
         matlab_ma_current[1] = -0.05668;
         matlab_ma_current[2] = -1.60144412e2;
@@ -362,9 +362,9 @@ public:
         matlab_ma_current[4] = 0; //not a gating variable
         matlab_ma_current[5] = -0.12097;
         matlab_ma_current[6] = -0.01872;
-        matlab_ma_current[7] = -0.00433;       
-        
-        
+        matlab_ma_current[7] = -0.00433;
+
+
         for(unsigned i=0; i<lr91_perego.ma_error.size();i++)
         {
             if(i!=3 && i!=4) // test is only run the gating variables; 3=calcium, 4=voltage
@@ -373,7 +373,7 @@ public:
                 TS_ASSERT_DELTA(lr91_perego.ma_current[i], matlab_ma_current[i], 1e-5);
             }
         }
-        
+
         lr91_perego.mThetaP = -3.309930740729620;
         lr91_perego.mThetaC = -0.134988456788270;
         lr91_perego.mLocalTimeStep = 0.066198614814592;
@@ -402,7 +402,7 @@ public:
     void TestAdaptiveTimesteps(void) throw(Exception)
     {
         std::cout << std::setprecision(8);
-        
+
         // Set stimulus
         double magnitude = -25.5;
         double duration  = 1.99; //ms
@@ -443,7 +443,7 @@ public:
             TS_ASSERT_DELTA(matlab_timesteps[i],solutions_perego.rGetTimes()[i],1e-5);
         }
         TS_ASSERT_DELTA(solutions_perego.rGetTimes().back(),10.0,1e-9);
-        
+
     }
 
     void TestFullActionPotential(void) throw(Exception)
@@ -463,19 +463,19 @@ public:
         PeregoLuoRudyIModel1991OdeSystem lr91_perego(p_solver, p_stimulus, true);
         lr91_perego.SetToleranceWeight(1e-2);
         OdeSolution solutions_perego = lr91_perego.Compute(0.0, 350.0);
-        
+
         solutions_perego.WriteToFile("TestPeregoFullAp", "results","ms");
-        
+
         unsigned final_time = solutions_perego.rGetTimes().size()-2u;
         //we check that the time step before the last one is the same as in the matlab code.
         TS_ASSERT_DELTA(solutions_perego.rGetTimes()[final_time],3.497529355*1e2,1e-6);
-        
+
         PeregoLuoRudyIModel1991OdeSystem lr91_perego_2(p_solver, p_stimulus, true);
 
         lr91_perego_2.SetToleranceWeight(1e-3);
         OdeSolution solutions_perego_2 = lr91_perego_2.Compute(0.0, 350.0);
         final_time = solutions_perego_2.rGetTimes().size()-2u;
-        
+
         TS_ASSERT_DELTA(solutions_perego_2.rGetTimes()[final_time],3.499228143*1e2,1e-6);
     }
 

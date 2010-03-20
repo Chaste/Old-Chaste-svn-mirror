@@ -42,7 +42,7 @@ private:
                            const std::vector<unsigned>& rNodeLayers, unsigned spaceDim)
     {
         OutputFileHandler handler(rOutputDir, false);
-        
+
         if (PetscTools::AmMaster())
         {
             out_stream p_file = handler.OpenOutputFile(rFilename);
@@ -50,11 +50,11 @@ private:
         }
         //Each process may have a small number of the nodes
         for (unsigned proc_turn=0; proc_turn<PetscTools::GetNumProcs(); proc_turn++)
-        {    
+        {
             if (PetscTools::GetMyRank()==proc_turn)
             {
                 out_stream p_file = handler.OpenOutputFile(rFilename, std::ios::app);
-                
+
                 for (unsigned i=0; i<rNodeLayers.size(); i++)
                 {
                     for (unsigned j=0; j<spaceDim; j++)
@@ -71,19 +71,19 @@ private:
 
 public:
     void TestCalculateRelativeWallPositionSimple2dMesh() throw(Exception)
-    {   
+    {
         DistributedTetrahedralMesh<2,2> mesh;
         //This mesh will have 6 nodes per face, spaced by 1
         mesh.ConstructRectangularMesh(5, 5);
 
         std::vector<unsigned> left_face;
         std::vector<unsigned> right_face;
-        
+
         unsigned low_index=mesh.GetDistributedVectorFactory()->GetLow();
         unsigned high_index=mesh.GetDistributedVectorFactory()->GetHigh();
-        
+
         for (unsigned index=low_index; index<high_index; index++)
-        {  
+        {
             // Get the nodes at the left face of the square
             if (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
             {
@@ -94,8 +94,8 @@ public:
             {
                 right_face.push_back(index);
             }
-            
-        }           
+
+        }
         // Write our fake face files
         std::string output_dir = "HeartGeom2d";
         WriteFakeFaceFile(output_dir, "epi.tri", left_face, 2u);
@@ -109,7 +109,7 @@ public:
         //call the constructor that takes in the surface files...
         HeartGeometryInformation<2> info(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri", false);
 
-        
+
         //and then we test the method to evaluate the position in the wall (again)
         for (unsigned index=low_index; index<high_index; index++)
         {
@@ -117,7 +117,7 @@ public:
             TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(5.0-x)/5.0);
             TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
             TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],(5.0-x));
-        } 
+        }
     }
 
     void TestCalculateRelativeWallPositionSimple3dMesh() throw(Exception)
@@ -132,7 +132,7 @@ public:
         unsigned low_index=mesh.GetDistributedVectorFactory()->GetLow();
         unsigned high_index=mesh.GetDistributedVectorFactory()->GetHigh();
         for (unsigned index=low_index; index<high_index; index++)
-        {  
+        {
             // Get the nodes at the left face of the cube
             if (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
             {
@@ -143,29 +143,29 @@ public:
             {
                 right_face.push_back(index);
             }
-            
+
         }
         std::string output_dir = "HeartGeom3d";
         WriteFakeFaceFile(output_dir, "epi.tri", left_face, 3u);
-        WriteFakeFaceFile(output_dir, "endo.tri", right_face, 3u);          
+        WriteFakeFaceFile(output_dir, "endo.tri", right_face, 3u);
         OutputFileHandler handler(output_dir, false);
         std::string dir_path = handler.GetOutputDirectoryFullPath();
         //call the constructor that takes in the surface files...
         HeartGeometryInformation<3> info(mesh, dir_path + "/epi.tri", dir_path + "/endo.tri", false);
-         
+
         //Check get methods
         std::vector<unsigned> nodes_on_endo = info.rGetNodesOnEndoSurface();
         TS_ASSERT_EQUALS(nodes_on_endo.size(),  36u);
         std::vector<unsigned> nodes_on_epi = info.rGetNodesOnEpiSurface();
         TS_ASSERT_EQUALS(nodes_on_epi.size(),  36u);
-        
+
         for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
             TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(5-x)/5);
             TS_ASSERT_EQUALS(info.rGetDistanceMapEpicardium()[index],x);
             TS_ASSERT_EQUALS(info.rGetDistanceMapEndocardium()[index],(5.0-x));
-        } 
+        }
         ChasteCuboid<3> epi_bounding_box=info.CalculateBoundingBoxOfEpi();
         ChasteCuboid<3> endo_bounding_box=info.CalculateBoundingBoxOfEndo();
         for (unsigned i=0; i<3; i++)
@@ -174,20 +174,20 @@ public:
             {
                 TS_ASSERT_DELTA(epi_bounding_box.rGetUpperCorner()[i], 0.0, 1e-10);
                 TS_ASSERT_DELTA(endo_bounding_box.rGetLowerCorner()[i], 5.0, 1e-10);
-            } 
+            }
             else
             {
                 TS_ASSERT_DELTA(epi_bounding_box.rGetUpperCorner()[i], 5.0, 1e-10);
                 TS_ASSERT_DELTA(endo_bounding_box.rGetLowerCorner()[i], 0.0, 1e-10);
-            } 
+            }
             TS_ASSERT_DELTA(epi_bounding_box.rGetLowerCorner()[i], 0.0, 1e-10);
             TS_ASSERT_DELTA(endo_bounding_box.rGetUpperCorner()[i], 5.0, 1e-10);
         }
-         
+
 
 
     }
-    
+
     void TestCalculateRelativeWallPositionWithThreeSurfaces() throw(Exception)
     {
         DistributedTetrahedralMesh<3,3> mesh;
@@ -201,7 +201,7 @@ public:
         unsigned low_index=mesh.GetDistributedVectorFactory()->GetLow();
         unsigned high_index=mesh.GetDistributedVectorFactory()->GetHigh();
         for (unsigned index=low_index; index<high_index; index++)
-        {  
+        {
             // Get the nodes at cube face considered to be epi (at both external faces)
             if (  (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
                 ||(fabs(mesh.GetNode(index)->rGetLocation()[0]-8.0) < 1e-6))
@@ -218,10 +218,10 @@ public:
             {
                 rv_face.push_back(index);
             }
-            
-        }           
-        
-        
+
+        }
+
+
         // Write our fake face files
         std::string output_dir = "HeartGeom3d";
         WriteFakeFaceFile(output_dir, "epi.tri", epi_face, 3u);
@@ -234,7 +234,7 @@ public:
         OutputFileHandler handler(output_dir, false);
         std::string dir_path = handler.GetOutputDirectoryFullPath();
         HeartGeometryInformation<3> info(mesh, dir_path + "/epi.tri", dir_path + "/lv.tri", dir_path + "/rv.tri", false);
-        
+
         //first we test the get methods for the nodes on the surfaces
         std::vector<unsigned> nodes_on_lv = info.rGetNodesOnLVSurface();
         std::vector<unsigned> nodes_on_rv = info.rGetNodesOnRVSurface();
@@ -263,7 +263,7 @@ public:
                 TS_ASSERT_EQUALS(info.CalculateRelativeWallPosition(index),(x-5.0)/3.0);
             }
         }
-        
+
         ChasteCuboid<3> epi_bounding_box=info.CalculateBoundingBoxOfEpi();
         for (unsigned i=0; i<3; i++)
         {
@@ -276,9 +276,9 @@ public:
         ChasteCuboid<3> rv_bounding_box=info.CalculateBoundingBoxOfRV();
         TS_ASSERT_DELTA(rv_bounding_box.rGetUpperCorner()[0], 5.0, 1e-10);
         TS_ASSERT_DELTA(rv_bounding_box.rGetLowerCorner()[0], 5.0, 1e-10);
-         
+
     }
-    
+
     void TestDetermineLayerForEachNodeWritingAndReading() throw (Exception)
     {
         DistributedTetrahedralMesh<3,3> mesh;
@@ -292,7 +292,7 @@ public:
         std::vector<unsigned> rv_face;
         //Define three surfaces, epi, lv and rv.
         for (unsigned index=low_index; index<high_index; index++)
-        {  
+        {
             // Get the nodes at cube face considered to be epi (at both external faces)
             if (  (fabs(mesh.GetNode(index)->rGetLocation()[0]) < 1e-6)
                 ||(fabs(mesh.GetNode(index)->rGetLocation()[0]-30.0) < 1e-6))
@@ -309,9 +309,9 @@ public:
             {
                 rv_face.push_back(index);
             }
-            
-        }  
-        
+
+        }
+
         // Write our fake face files
         std::string output_dir = "HeartGeom3d";
         WriteFakeFaceFile(output_dir, "epi.tri", epi_face, 3u);
@@ -329,15 +329,15 @@ public:
         TS_ASSERT_THROWS_THIS(info.DetermineLayerForEachNode(0.9, 0.9), "The sum of fractions of epicardial and endocardial layers must be lesser than 1");
         TS_ASSERT_THROWS_THIS(info.DetermineLayerForEachNode(0.9, -1.0), "A fraction of a layer must be positive");
         TS_ASSERT_THROWS_THIS(info.DetermineLayerForEachNode(-2.0, 1.0), "A fraction of a layer must be positive");
-        
+
 
         info.DetermineLayerForEachNode(0.29, 0.51);
         info.WriteLayerForEachNode("TestHeartGeom","layers.het");
-        
+
         for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
-            
+
             if (x < 3 || x > 27)
             {
                 TS_ASSERT_EQUALS(info.rGetLayerForEachNode()[index],EPI);
@@ -349,19 +349,19 @@ public:
             else
             {
                 TS_ASSERT_EQUALS(info.rGetLayerForEachNode()[index],ENDO);
-            }            
+            }
         }
 
         //now we test the constructor that takes in the node heterogeneity file
         std::string file = OutputFileHandler::GetChasteTestOutputDirectory() + "TestHeartGeom/layers.het";
         HeartGeometryInformation<3> info_2(file);
-        
+
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), info_2.rGetLayerForEachNode().size());
-        
+
         for (unsigned index=low_index; index<high_index; index++)
         {
             double x = mesh.GetNode(index)->rGetLocation()[0];
-            
+
             if (x < 3 || x > 27)
             {
                 TS_ASSERT_EQUALS(info_2.rGetLayerForEachNode()[index],EPI);
@@ -373,14 +373,14 @@ public:
             else
             {
                 TS_ASSERT_EQUALS(info_2.rGetLayerForEachNode()[index],ENDO);
-            }   
+            }
         }
-        
+
         //covering exceptions
         TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> info_non_existent_file("rubbish"), "Could not open heterogeneities file (rubbish)");
         TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> info_bad_file("heart/test/data/ValidPseudoEcg1D.dat"), "A value in the heterogeneities file (heart/test/data/ValidPseudoEcg1D.dat) is out of range (or not an integer). It should be epi = 0, mid = 1, endo = 2");
     }
-    
+
     void TestHeartGeometryTakingMeshFromFile() throw (Exception)
     {
         //files containing list of nodes on each surface
@@ -388,20 +388,20 @@ public:
         std::string lv_surface = "apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles.lv";
         std::string rv_surface = "apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles.rv";
 
-               
+
         //read in the mesh
         TrianglesMeshReader<3,3> mesh_reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
         //DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::DUMB);
         DistributedTetrahedralMesh<3,3> mesh;
         //TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         //calculate the geometry informations
         HeartGeometryInformation<3> info(mesh, epi_surface, lv_surface, rv_surface, true);
         info.DetermineLayerForEachNode(0.25,0.375);
         //and write them out to file
         OutputFileHandler results_handler("CellularHeterogeneity", false);
-        
+
 
         std::vector<double> relative_wall_position;
         for (unsigned index=0; index<mesh.GetNumNodes(); index++)
@@ -411,9 +411,9 @@ public:
 
 //        //This only needs to be done when we are regenerating the output
 //        if (PetscTools::IsSequential())
-//        {        
-//            out_stream p_file = results_handler.OpenOutputFile("heart_geometry_layers.dat");        
-//            
+//        {
+//            out_stream p_file = results_handler.OpenOutputFile("heart_geometry_layers.dat");
+//
 //            for (unsigned index=0; index<mesh.GetNumNodes(); index++)
 //            {
 //                (*p_file)<<info.rGetLayerForEachNode()[index]<<std::endl;
@@ -423,8 +423,8 @@ public:
 //
 //        //This only needs to be done when we are regenerating the output
 //        if (PetscTools::IsSequential())
-//        {        
-//            out_stream p_file = results_handler.OpenOutputFile("heart_relative_wall_position.dat");        
+//        {
+//            out_stream p_file = results_handler.OpenOutputFile("heart_relative_wall_position.dat");
 //            *p_file << std::setprecision(20);//Slightly more than machine precision...
 //            for (unsigned index=0; index<mesh.GetNumNodes(); index++)
 //            {
@@ -455,7 +455,7 @@ public:
             }
             file_stream.close();
         }
-            
+
         TS_ASSERT_EQUALS(sequential_layers.size(), info.rGetLayerForEachNode().size());
         TS_ASSERT_EQUALS(sequential_layers.size(), sequential_relative_wall_position.size());
 
@@ -496,7 +496,7 @@ public:
             //In parallel we need to apply the permuation to original data
             //Node i in the original data has moved to index mesh.rGetNodePermutation()[i]
             //therefore we will find its data in rGetLayerForEachNode()[ permutation...]
-            
+
             TS_ASSERT(mesh.rGetNodePermutation().empty() == false );
             for (unsigned i=0;i<sequential_layers.size();i++)
             {
@@ -504,7 +504,7 @@ public:
                 {
                     misclassified++;
                 }
-                
+
                 ///\todo TS_ASSERT_DELTA(sequential_relative_wall_position[i], relative_wall_position[mesh.rGetNodePermutation()[i]], 4e-2); //This is quite sloppy: 4%
             }
         }

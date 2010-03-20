@@ -142,7 +142,7 @@ protected :
 
     /**
      *  Calculate T0. This is a function of constants, lambda and z
-     * 
+     *
      *  @param z
      */
     double CalculateT0(double z);
@@ -156,7 +156,7 @@ public :
 
     /**
      *  Set the current stretch and the stretch rate of the cell/fibre
-     * 
+     *
      * @param lambda  current stretch
      * @param dlambdaDt  current stretch rate
      */
@@ -164,11 +164,11 @@ public :
 
     /**
      *  Set the current intracellular calcium concentration
-     * 
+     *
      *  @param rInputParameters input parameters (calcium, voltage, time, of which only calcium is used)
      */
     void SetInputParameters(ContractionModelInputParameters& rInputParameters);
-        
+
     /**
      *  Directly set the intracellular calcium concentration.
      *  @param calciumConcentration calcium concentration.
@@ -183,7 +183,7 @@ public :
 
     /**
      * Evaluate the derivatives of the state variables
-     * 
+     *
      * @param time  the current time, in milliseconds
      * @param rY  current values of the state variables
      * @param rDY  to be filled in with derivatives
@@ -204,19 +204,19 @@ public :
     {
         EXCEPTION("If using this in an 'explicit manner' call UpdateStateVariables() and then GetActiveTension(), otherwise use NhsModelWithBackwardSolver");
     }
-        
-   /** 
+
+   /**
     *  This model is stretch-dependent
     */
-    bool IsStretchDependent() 
+    bool IsStretchDependent()
     {
         return true;
     }
 
-   /** 
+   /**
     *  This model is stretch-rate-dependent
     */
-    bool IsStretchRateDependent() 
+    bool IsStretchRateDependent()
     {
         return true;
     }

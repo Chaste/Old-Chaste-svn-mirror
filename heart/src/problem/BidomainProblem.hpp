@@ -181,7 +181,7 @@ public:
      * Set which row of the linear system should be used to enforce the
      * condition that the average of phi_e is zero.  If not called, this
      * condition will not be used.
-     * 
+     *
      * @param node  the mesh node index giving the row at which to impose the constraint
      */
     void SetNodeForAverageOfPhiZeroed(unsigned node);
@@ -207,7 +207,7 @@ public:
     /**
      * Write one timestep of output data to the primary results file.
      * Adds the extracellular potential to the results.
-     * 
+     *
      * @param time  the current time
      * @param voltageVec  the solution vector to write
      */
@@ -222,7 +222,7 @@ public:
     /**
      *  Set an electrode object (which provides boundary conditions). Only
      *  valid if there is a bath.
-     * 
+     *
      * @param pElectrodes
      */
     void SetElectrodes(boost::shared_ptr<Electrodes<DIM> > pElectrodes);
@@ -231,7 +231,7 @@ public:
      *  Called at beginning of each time step in the main time-loop in
      *  AbstractCardiacProblem::Solve(). Overloaded here to switch on
      *  the electrodes (if there are any).
-     * 
+     *
      * @param time  the current time
      */
     void AtBeginningOfTimestep(double time);
@@ -240,26 +240,26 @@ public:
      *  Called at end of each time step in the main time-loop in
      *  AbstractCardiacProblem::Solve(). Overloaded here to switch off
      *  the electrodes (if there are any).
-     * 
+     *
      * @param time  the current time
      */
     void OnEndOfTimestep(double time);
-    
+
     /**
      * Used when loading a set of archives written by a parallel simulation onto a single process.
      * Loads data from the given process-specific archive (written by a non-master process) and
      * merges it into our data.
-     * 
+     *
      * @param archive  the archive to load
      * @param version  the archive file version
-     * 
+     *
      * \note The process-specific archives currently contain the following data.  If the layout changes,
      * then this method will need to be altered, since it hard-codes knowledge of the order in
      * which things are archived.
-     * 
+     *
      *  -# Stuff known by AbstractCardiacProblem
      *  -# #mpElectrodes->mpBoundaryConditionsContainer
-     * 
+     *
      * This gets called by AbstractCardiacProblem::LoadExtraArchive when it's done the generic stuff.
      */
     template<class Archive>

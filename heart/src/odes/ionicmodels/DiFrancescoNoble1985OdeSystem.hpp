@@ -84,19 +84,19 @@ private:
     static const double Ca_up_max; /**< mM */
     static const double pf; /**< per millisecond */
     static const double Vecs; /**< dimensionless */
-    
+
     /** total intracellular volume*/
     double Vi;
-    /** uptake volume (of the SR)*/ 
+    /** uptake volume (of the SR)*/
     double Vup;
-    /** release volume (of the SR)*/ 
+    /** release volume (of the SR)*/
     double Vrel;
-    /** extracellular volume*/ 
+    /** extracellular volume*/
     double Ve;
-    /** cell volume*/  
+    /** cell volume*/
     double Vcell;
     /** R times T over F*/
-    double RToNF; 
+    double RToNF;
     /**
      *  Range-checking on the current values of the state variables. Make sure
      *  all gating variables have are within zero and one, and all concentrations
@@ -107,7 +107,7 @@ private:
 public:
     /**
      * Constructor
-     * 
+     *
      * @param pSolver is a pointer to the ODE solver
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
@@ -129,10 +129,10 @@ public:
      * @param rDY  to be filled in with derivatives
      */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double> &rDY);
-    
+
     /**
      * Returns the ionic current
-     * 
+     *
      * @return the total ionic current
      */
     double GetIIonic();

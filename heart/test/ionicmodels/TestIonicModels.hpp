@@ -629,7 +629,7 @@ public:
 
     void TestOdeSolveForTT06WithSimpleStimulus(void)
     {
-        
+
         // This is a shortened test. Longer tests correctly produced AP
         // Full testing for AP in the nightly build
         double simulation_end=40;//end time, in milliseconds for this model
@@ -645,12 +645,12 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.001);// with Forward Euler, this must be as small as 0.001.
         TenTusscher2006OdeSystem TT_model(p_solver, p_stimulus);
-        
+
         //Default values for the scale factors, other values tested in the nightly build
         TT_model.SetScaleFactorGks(1.0);
         TT_model.SetScaleFactorIto(1.0);
         TT_model.SetScaleFactorGkr(1.0);
-        
+
         // Solve and write to file
         RunOdeSolverWithIonicModel(&TT_model,
                                    simulation_end,
@@ -669,7 +669,7 @@ public:
         //(mainly for coverage of different if conditions in sodium channel gates for different voltages)
         TenTusscher2006OdeSystem TT_model_initial(p_solver, p_stimulus);
         TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0012 , 1e-3);
-    } 
+    }
 
     void TestDifrancescoNoble1985(void) throw (Exception)
     {
@@ -710,7 +710,7 @@ public:
         rabbit_ode_system.SetScaleFactorGks(1.0);
         rabbit_ode_system.SetScaleFactorIto(1.0);
         rabbit_ode_system.SetScaleFactorGkr(1.0);
-        
+
         //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA(rabbit_ode_system.GetIIonic(), 0.0027, 1e-3);
 
@@ -741,7 +741,7 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
         // Solve using backward euler
-        BackwardEulerMahajanModel2008 mahajan_backward_euler(p_solver, p_stimulus);                        
+        BackwardEulerMahajanModel2008 mahajan_backward_euler(p_solver, p_stimulus);
 
         ck_start = clock();
         RunOdeSolverWithIonicModel(&mahajan_backward_euler,
@@ -749,8 +749,8 @@ public:
                                    "MahajanBackwardEuler");
         ck_end = clock();
         double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-        
-        TS_ASSERT_DELTA( mahajan_backward_euler.GetIIonic(), 0.0140, 1e-3);        
+
+        TS_ASSERT_DELTA( mahajan_backward_euler.GetIIonic(), 0.0140, 1e-3);
 
         // Solve using forward euler
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.05, 0.05);
@@ -765,7 +765,7 @@ public:
 
         // Compare results
         CompareCellModelResults("MahajanForward", "MahajanBackwardEuler", 0.03, true);
-        
+
         std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
           << backward << std::endl;
     }
@@ -780,7 +780,7 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
         Maleckar2009OdeSystem atrial_ode_system(p_solver, p_stimulus);
-        
+
         //default values, other values tested in the nightly build
         atrial_ode_system.SetScaleFactorGks(1.0);
         atrial_ode_system.SetScaleFactorIto(1.0);
@@ -793,16 +793,16 @@ public:
         atrial_ode_system.SetScaleFactorGK1(1.0);
         atrial_ode_system.SetScaleFactorGCaL(1.0);
         atrial_ode_system.SetScaleFactorAZD(0.0);
-        
+
         // Solve and write to file for a short time
         RunOdeSolverWithIonicModel(&atrial_ode_system,
                                    25,/*end time*/
                                    "Maleckar2009",
                                    1000);
-                                   
+
         // Check against validated data(The full AP is attached to ticket 1194)
         CheckCellModelResults("Maleckar2009");
-              
+
         //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA(atrial_ode_system.GetIIonic(), 1.4426, 1e-3);
     }
@@ -949,7 +949,7 @@ public:
 
             output_arch <<  p_maleckar_cell;
 
-             //These results have been copied in the repository 
+             //These results have been copied in the repository
              // after running this line and should be replicated after the load below
 //            RunOdeSolverWithIonicModel(p_maleckar_cell,
 //                           20.0,
@@ -1001,9 +1001,9 @@ public:
             AbstractCardiacCell* const p_backward_cell1 = new BackwardEulerLuoRudyIModel1991(p_stimulus);
             AbstractCardiacCell* const p_backward_cell2 = new BackwardEulerFoxModel2002Modified(p_stimulus);
             AbstractCardiacCell* const p_backward_cell3 = new BackwardEulerNobleVargheseKohlNoble1998(p_stimulus);
-            
+
             /// \todo: required by the constructor but never used ???
-            boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);            
+            boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
             AbstractCardiacCell* const p_backward_cell4 = new BackwardEulerMahajanModel2008(p_solver, p_stimulus);
 
             std::ofstream ofs(archive_filename.c_str());
@@ -1030,7 +1030,7 @@ public:
             delete p_backward_cell1;
             delete p_backward_cell2;
             delete p_backward_cell3;
-            delete p_backward_cell4;            
+            delete p_backward_cell4;
         }
         // Load
         {

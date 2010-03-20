@@ -287,7 +287,7 @@ public:
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 100u);
         // These are the 100 edges around the perimeter of the circle
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 100u);
-        
+
         TS_ASSERT( mesh.CheckIsConforming() );
     }
 
@@ -455,10 +455,10 @@ public:
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        
+
         unsigned local_faces = 0;
         for (unsigned index = 0; index < mesh.GetNumBoundaryElements(); index++)
-        {          
+        {
             if (mesh.CalculateDesignatedOwnershipOfBoundaryElement(index))
             {
                 local_faces++;
@@ -467,10 +467,10 @@ public:
         unsigned total_num_faces;
         MPI_Allreduce(&local_faces, &total_num_faces, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
         TS_ASSERT_EQUALS(total_num_faces, mesh.GetNumBoundaryElements());
-        
+
         unsigned local_elements = 0;
         for (unsigned index = 0; index < mesh.GetNumElements(); index++)
-        {          
+        {
             if (mesh.CalculateDesignatedOwnershipOfElement(index))
             {
                 local_elements++;
@@ -479,9 +479,9 @@ public:
         unsigned total_num_elements;
         MPI_Allreduce(&local_elements, &total_num_elements, 1, MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
         TS_ASSERT_EQUALS(total_num_elements, mesh.GetNumElements());
-        
+
     }
-        
+
     void TestNodePermutation()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
@@ -555,14 +555,14 @@ public:
         TS_ASSERT_EQUALS(p_node->rGetLocation()[0], width);
         TS_ASSERT_EQUALS(p_node->rGetLocation()[1], 0.0);
         TS_ASSERT_EQUALS(p_node->GetNumContainingElements(), 2u);
-        
+
 //      Index with down-loop
 //        //Verify some element indices -- top left diagonal goes NW-SE (normal)
 //        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[0],            2.0/3.0, 1e-5);
 //        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[1], (height-1)+2.0/3.0, 1e-5);
 //        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
 //        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
-// 
+//
 //        //Verify some element indices -- bottom left diagonal goes SW-NE (stagger)
 //        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[0], 1.0/3.0, 1e-5);
 //        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1], 2.0/3.0, 1e-5);
@@ -573,7 +573,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1], (height-1)+2.0/3.0, 1e-5);
         TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
         TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
- 
+
         //Verify some element indices -- bottom left diagonal goes SW-NE (stagger)
         TS_ASSERT_EQUALS(height%2, 0u);//If height is even the bottom left is staggered
         TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[0], 1.0/3.0, 1e-5);
@@ -627,7 +627,7 @@ public:
 //        TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[1], (height-1)+2.0/3.0, 1e-5);
 //        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
 //        TS_ASSERT_DELTA(mesh.GetElement(1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
-// 
+//
 //        //Verify some element indices -- bottom left diagonal goes NW-SE (normal)
 //        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[0], 2.0/3.0, 1e-5);
 //        TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1], 2.0/3.0, 1e-5);
@@ -638,7 +638,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1))->CalculateCentroid()[1], (height-1)+2.0/3.0, 1e-5);
         TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[0],            1.0/3.0, 1e-5);
         TS_ASSERT_DELTA(mesh.GetElement(2*(width)*(height-1)+1)->CalculateCentroid()[1], (height-1)+1.0/3.0, 1e-5);
- 
+
         //Verify some element indices -- bottom left diagonal goes NW-SE (normal)
         TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[0], 2.0/3.0, 1e-5);
         TS_ASSERT_DELTA(mesh.GetElement(0)->CalculateCentroid()[1], 2.0/3.0, 1e-5);
@@ -672,7 +672,7 @@ public:
         TrianglesMeshWriter<1,1> mesh_writer("","LineMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
-    
+
     void TestConstructLineIn3D()
     {
         TetrahedralMesh<1,3> mesh;
@@ -687,7 +687,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), width);
 
         TrianglesMeshWriter<1,3> mesh_writer("","LineMeshIn3D");
-        mesh_writer.WriteFilesUsingMesh(mesh);        
+        mesh_writer.WriteFilesUsingMesh(mesh);
     }
 
     void TestSetOwnerships()
@@ -958,7 +958,7 @@ public:
         mesh.GetElement(0)->Flag();
         mesh.GetElement(9)->Flag();
         mesh.GetElement(2)->Flag();
-       
+
         std::set<unsigned> correct_boundary;
         correct_boundary.insert(1);
         correct_boundary.insert(4);
@@ -1542,7 +1542,7 @@ public:
         TetrahedralMesh<3,3> mesh3;
         constructor3.Construct(mesh3, 1, 1.0);
         TS_ASSERT_EQUALS(mesh3.GetNumNodes(), 9u*9u*9u);
-        
+
         CuboidMeshConstructor<1,3> constructor4;
         TetrahedralMesh<1,3> mesh4;
         constructor4.Construct(mesh4, 1, 1.0);

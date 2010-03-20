@@ -289,7 +289,7 @@ void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
 
 void PetscTools::SetMaxNumNonzerosIfMatMpiAij(unsigned maxColsPerRowIfMatMpiAij)
 {
-	mMaxNumNonzerosIfMatMpiAij = maxColsPerRowIfMatMpiAij;
+    mMaxNumNonzerosIfMatMpiAij = maxColsPerRowIfMatMpiAij;
 }
 
 #endif //SPECIAL_SERIAL

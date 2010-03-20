@@ -77,13 +77,13 @@ private:
      * @param version the archive version
      */
     template<class Archive>
-	void load(Archive & archive, const unsigned int version)
+    void load(Archive & archive, const unsigned int version)
     {
-    	// The ODE system is set up by the archiving constructor, so we can set the mutation state
-    	// here.  This is a horrible hack, but avoids having to regenerate test archives...
-    	boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-    	InitialiseOdeSystem(0.0, p_mutation_state);
-    	assert(mpOdeSystem);
+        // The ODE system is set up by the archiving constructor, so we can set the mutation state
+        // here.  This is a horrible hack, but avoids having to regenerate test archives...
+        boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
+        InitialiseOdeSystem(0.0, p_mutation_state);
+        assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
 //        boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
         archive & p_mutation_state;

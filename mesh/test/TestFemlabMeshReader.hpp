@@ -214,7 +214,7 @@ public:
                                                        "femlab_lshape_edges.dat");
 
         std::vector<unsigned> first_face;
-        
+
         first_face = mpFemlabMeshReader->GetNextFaceData().NodeIndices;
 
         TS_ASSERT_EQUALS(first_face[0], 0u);

@@ -55,7 +55,7 @@ private:
 public:
     /**
      * Constructor
-     * 
+     *
      * @param pOdeSolver is a pointer to the ODE solver
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
@@ -66,18 +66,18 @@ public:
      */
     ~HodgkinHuxleySquidAxon1952OriginalOdeSystem();
 
-    /** 
+    /**
      * This method will compute the RHS of the HodgkinHuxleySquidAxon1952OriginalOdeSystem model
-     * 
+     *
      * @param time  the current time, in milliseconds
      * @param rY  current values of the state variables
      * @param rDY  to be filled in with derivatives
      */
     void EvaluateYDerivatives(double time, const std::vector<double> &rY, std::vector<double>& rDY);
-    
+
     /**
      * Calculates the ionic current
-     * 
+     *
      * @returns the total ionic current
      */
     double GetIIonic();

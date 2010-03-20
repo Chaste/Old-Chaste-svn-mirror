@@ -123,31 +123,31 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
     /// \todo: #1215 this seems not to be an issue anymore. Document and remove code.
     // CG (default solver) won't work since the system is indefinite. Switch to SYMMLQ
 //    this->mpLinearSystem->SetKspType("symmlq"); // Switches the solver
-//    this->mpConfig->SetKSPSolver("symmlq"); // Makes sure this change will be reflected in the XML file written to disk at the end of the simulation.            
+//    this->mpConfig->SetKSPSolver("symmlq"); // Makes sure this change will be reflected in the XML file written to disk at the end of the simulation.
 
     unsigned* is_node_bath = new unsigned[this->mpMesh->GetNumNodes()];
     for(unsigned i = 0; i < this->mpMesh->GetNumNodes(); ++i)
     {
         is_node_bath[i] = 0;
     }
-    
+
     for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
          iter != this->mpMesh->GetNodeIteratorEnd();
          ++iter)
-    {        
+    {
         /**\todo This code may no longer be needed since all the operations in the following loop may
          * apply only to local elements. MatSetValue and VecSetValue are not collective...
-         */        
+         */
 
         if ((*iter).GetRegion() == HeartRegionCode::BATH)
         {
             is_node_bath[(*iter).GetIndex()] = 1;
         }
     }
-    
+
     unsigned* is_node_bath_reduced = new unsigned[this->mpMesh->GetNumNodes()];
-    MPI_Allreduce(is_node_bath, is_node_bath_reduced, this->mpMesh->GetNumNodes(), MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);    
-    
+    MPI_Allreduce(is_node_bath, is_node_bath_reduced, this->mpMesh->GetNumNodes(), MPI_UNSIGNED, MPI_SUM, PETSC_COMM_WORLD);
+
     for(unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
     {
         if(is_node_bath_reduced[i] > 0) // ie is a bath node
@@ -160,17 +160,17 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
                 /*
                  *  Before revision 6516, we used to zero out i-th row and column here. It seems to be redundant because they are already zero after assembly.
                  *  When assembling a bath element you get a matrix subblock that looks like (2D example):
-                 * 
-                 *     Vm   0 0 0 0 0 0 
-                 *     Vm   0 0 0 0 0 0 
-                 *     Vm   0 0 0 0 0 0 
+                 *
+                 *     Vm   0 0 0 0 0 0
+                 *     Vm   0 0 0 0 0 0
+                 *     Vm   0 0 0 0 0 0
                  *     Phie 0 0 0 x x x
                  *     Phie 0 0 0 x x x  -> the x subblock is assembled from div(grad_phi) = 0
                  *     Phie 0 0 0 x x x
                  *
                  *  Therefore, all the Vm entries of this node are already 0.
-                 * 
-                 *  Explicitly checking it in non-production builds.  
+                 *
+                 *  Explicitly checking it in non-production builds.
                  */
 #ifndef NDEBUG
                 int num_equation = 2*i; /// \todo: assumes Vm and Phie are interleaved
@@ -178,23 +178,23 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
                 // Matrix need to be assembled in order to use GetMatrixElement()
                 MatAssemblyBegin((*this->GetLinearSystem())->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
                 MatAssemblyEnd((*this->GetLinearSystem())->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
-    
+
                 PetscInt local_lo, local_hi;
                 (*this->GetLinearSystem())->GetOwnershipRange(local_lo, local_hi);
-                
+
                 // If this processor owns i-th row, check it.
                 if ((local_lo <= (int)num_equation) && ((int)num_equation < local_hi))
                 {
                     for (unsigned column=0; column < (*this->GetLinearSystem())->GetSize(); column++)
                     {
-                        assert((*this->GetLinearSystem())->GetMatrixElement(num_equation, column)==0.0);                                        
+                        assert((*this->GetLinearSystem())->GetMatrixElement(num_equation, column)==0.0);
                     }
                 }
-                
+
                 // Check the local entries of the i-th column
                 for (int row=local_lo; row<local_hi; row++)
                 {
-                    assert((*this->GetLinearSystem())->GetMatrixElement(row, num_equation)==0);                                                        
+                    assert((*this->GetLinearSystem())->GetMatrixElement(row, num_equation)==0);
                 }
 #endif
                 // put 1.0 on the diagonal
@@ -209,7 +209,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
             }
         }
     }
-    
+
     delete[] is_node_bath;
     delete[] is_node_bath_reduced;
 }

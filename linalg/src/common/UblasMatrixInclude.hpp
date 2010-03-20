@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define UBLASMATRIXINCLUDE_HPP_
 
 /**
- * @file 
+ * @file
  * Convenience header for including ublas matrix in default namespace
  */
 

@@ -78,7 +78,7 @@ private:
      * @param row  the row number
      */
     void ReadValueFromFile(const std::string& rFilename, int col, int row);
-    
+
 
 public:
 
@@ -86,7 +86,7 @@ public:
      * Read data from the given files into memory.  The files should be formatted as if
      * written by ColumnDataWriter, with fixed width columns (except for the header line)
      * and fields in scientific notation.
-     * 
+     *
      * This will attempt to determine the field width from the input file.  However, it
      * needs some data to work with in order to do so.  Provided at least one correctly
      * formatted entry exists, it will be able to determine the field width, assuming
@@ -147,7 +147,7 @@ public:
      * @param rVariableName
      */
     bool HasValues(const std::string& rVariableName);
-    
+
     /**
      *  Get the field width (the number of characters (excl. preceding '+' or '-') printed for each data entry in the file).
      */

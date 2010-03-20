@@ -52,72 +52,72 @@ class TestCellMutationStates : public AbstractCellBasedTestSuite
 {
 public:
 
-	void TestCellMutationStateMethods() throw(Exception)
-	{
-		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-		TS_ASSERT_EQUALS(p_state->GetCellCount(), 0u);
-		p_state->IncrementCellCount();
-		TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-		p_state->DecrementCellCount();
-		TS_ASSERT_EQUALS(p_state->GetCellCount(), 0u);
-		TS_ASSERT_THROWS_THIS(p_state->DecrementCellCount(),
-				"Cannot decrement cell count: no cells have this mutation state.");
-		TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
+    void TestCellMutationStateMethods() throw(Exception)
+    {
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TS_ASSERT_EQUALS(p_state->GetCellCount(), 0u);
+        p_state->IncrementCellCount();
+        TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
+        p_state->DecrementCellCount();
+        TS_ASSERT_EQUALS(p_state->GetCellCount(), 0u);
+        TS_ASSERT_THROWS_THIS(p_state->DecrementCellCount(),
+                "Cannot decrement cell count: no cells have this mutation state.");
+        TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
 
-		TS_ASSERT_EQUALS(p_state->IsType<WildTypeCellMutationState>(), true);
-		TS_ASSERT_EQUALS(p_state->IsType<ApcOneHitCellMutationState>(), false);
+        TS_ASSERT_EQUALS(p_state->IsType<WildTypeCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_state->IsType<ApcOneHitCellMutationState>(), false);
 
-		boost::shared_ptr<AbstractCellMutationState> p_wt_state(new WildTypeCellMutationState);
-		boost::shared_ptr<AbstractCellMutationState> p_l_state(new LabelledCellMutationState);
-		TS_ASSERT(p_wt_state->IsSame(p_state.get()));
-		TS_ASSERT(p_state->IsSame(p_wt_state));
-		TS_ASSERT(! p_wt_state->IsSame(p_l_state.get()));
-		TS_ASSERT(! p_l_state->IsSame(p_wt_state));
-	}
+        boost::shared_ptr<AbstractCellMutationState> p_wt_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_l_state(new LabelledCellMutationState);
+        TS_ASSERT(p_wt_state->IsSame(p_state.get()));
+        TS_ASSERT(p_state->IsSame(p_wt_state));
+        TS_ASSERT(! p_wt_state->IsSame(p_l_state.get()));
+        TS_ASSERT(! p_l_state->IsSame(p_wt_state));
+    }
 
-	void TestRegistry() throw(Exception)
-	{
-		boost::shared_ptr<AbstractCellMutationState> p_state1(
-				CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-		boost::shared_ptr<AbstractCellMutationState> p_state2(
-				CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-		TS_ASSERT(p_state1 == p_state2);
-		TS_ASSERT_EQUALS(p_state1->GetCellCount(), 0u);
-		p_state2->IncrementCellCount();
-		TS_ASSERT_EQUALS(p_state1->GetCellCount(), 1u);
+    void TestRegistry() throw(Exception)
+    {
+        boost::shared_ptr<AbstractCellMutationState> p_state1(
+                CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_state2(
+                CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        TS_ASSERT(p_state1 == p_state2);
+        TS_ASSERT_EQUALS(p_state1->GetCellCount(), 0u);
+        p_state2->IncrementCellCount();
+        TS_ASSERT_EQUALS(p_state1->GetCellCount(), 1u);
 
-		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-		TS_ASSERT_EQUALS(p_state->GetCellCount(), 0u);
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TS_ASSERT_EQUALS(p_state->GetCellCount(), 0u);
 
-		std::vector<boost::shared_ptr<AbstractCellMutationState> > states =
-			CellMutationStateRegistry::Instance()->rGetAllMutationStates();
-		TS_ASSERT_EQUALS(states.size(), 1u);
-		TS_ASSERT(states[0] == p_state1);
+        std::vector<boost::shared_ptr<AbstractCellMutationState> > states =
+            CellMutationStateRegistry::Instance()->rGetAllMutationStates();
+        TS_ASSERT_EQUALS(states.size(), 1u);
+        TS_ASSERT(states[0] == p_state1);
 
-		CellMutationStateRegistry::Instance()->Clear();
-		states = CellMutationStateRegistry::Instance()->rGetAllMutationStates();
-		TS_ASSERT_EQUALS(states.size(), 0u);
+        CellMutationStateRegistry::Instance()->Clear();
+        states = CellMutationStateRegistry::Instance()->rGetAllMutationStates();
+        TS_ASSERT_EQUALS(states.size(), 0u);
 
-		// The taking-ownership functionality
-		p_state1 = CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>();
-		CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>();
-		TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->rGetAllMutationStates().size(), 2u);
-		CellMutationStateRegistry* p_instance = CellMutationStateRegistry::Instance();
-		CellMutationStateRegistry* p_registry = CellMutationStateRegistry::Instance()->TakeOwnership();
-		TS_ASSERT_EQUALS(p_instance, p_registry);
-		TS_ASSERT_EQUALS(p_registry->rGetAllMutationStates().size(), 2u);
-		TS_ASSERT_DIFFERS(CellMutationStateRegistry::Instance(), p_registry);
-		TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->rGetAllMutationStates().size(), 0u);
-		TS_ASSERT_EQUALS(p_registry->rGetAllMutationStates().size(), 2u);
-		delete p_registry;
-	}
+        // The taking-ownership functionality
+        p_state1 = CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>();
+        CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>();
+        TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->rGetAllMutationStates().size(), 2u);
+        CellMutationStateRegistry* p_instance = CellMutationStateRegistry::Instance();
+        CellMutationStateRegistry* p_registry = CellMutationStateRegistry::Instance()->TakeOwnership();
+        TS_ASSERT_EQUALS(p_instance, p_registry);
+        TS_ASSERT_EQUALS(p_registry->rGetAllMutationStates().size(), 2u);
+        TS_ASSERT_DIFFERS(CellMutationStateRegistry::Instance(), p_registry);
+        TS_ASSERT_EQUALS(CellMutationStateRegistry::Instance()->rGetAllMutationStates().size(), 0u);
+        TS_ASSERT_EQUALS(p_registry->rGetAllMutationStates().size(), 2u);
+        delete p_registry;
+    }
 
-	void TestMutationStateOrdering() throw(Exception)
-	{
+    void TestMutationStateOrdering() throw(Exception)
+    {
         // Ordering of mutation states matters for output at present, so we need a way of specifying it
-		CellMutationStateRegistry* p_instance = CellMutationStateRegistry::Instance();
-		p_instance->Clear();
-		p_instance->Get<ApcOneHitCellMutationState>();
+        CellMutationStateRegistry* p_instance = CellMutationStateRegistry::Instance();
+        p_instance->Clear();
+        p_instance->Get<ApcOneHitCellMutationState>();
         std::vector<boost::shared_ptr<AbstractCellMutationState> > mutations;
         mutations.push_back(p_instance->Get<WildTypeCellMutationState>());
         mutations.push_back(p_instance->Get<LabelledCellMutationState>());
@@ -127,9 +127,9 @@ public:
         TS_ASSERT(p_instance->HasOrderingBeenSpecified());
 
         TS_ASSERT_THROWS_THIS(p_instance->SpecifyOrdering(mutations),
-							  "An ordering has already been specified.");
+                              "An ordering has already been specified.");
 
-        std::vector<boost::shared_ptr<AbstractCellMutationState> > states =	p_instance->rGetAllMutationStates();
+        std::vector<boost::shared_ptr<AbstractCellMutationState> > states =    p_instance->rGetAllMutationStates();
         TS_ASSERT_EQUALS(states.size(), 3u);
         TS_ASSERT(states[0]->IsType<WildTypeCellMutationState>());
         TS_ASSERT(states[1]->IsType<LabelledCellMutationState>());
@@ -137,99 +137,99 @@ public:
 
         // The ordering must be complete
         TS_ASSERT_THROWS_THIS(p_instance->Get<BetaCateninOneHitCellMutationState>(),
-        		"Cannot add a new mutation state not specified in the ordering.");
+                "Cannot add a new mutation state not specified in the ordering.");
         p_instance->Clear();
         p_instance->Get<BetaCateninOneHitCellMutationState>();
         TS_ASSERT_THROWS_THIS(p_instance->SpecifyOrdering(mutations),
-        		"The given ordering doesn't include all mutation states in the registry.");
-	}
+                "The given ordering doesn't include all mutation states in the registry.");
+    }
 
-	void TestArchiveCellMutationState() throw(Exception)
-	{
-		OutputFileHandler handler("archive", false);
-		std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mutation.arch";
+    void TestArchiveCellMutationState() throw(Exception)
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mutation.arch";
 
-		// Archive a mutation state
-		{
-			AbstractCellMutationState* p_state = new ApcOneHitCellMutationState();
-			p_state->IncrementCellCount();
+        // Archive a mutation state
+        {
+            AbstractCellMutationState* p_state = new ApcOneHitCellMutationState();
+            p_state->IncrementCellCount();
 
-			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-			TS_ASSERT_EQUALS(p_state->GetColour(), 3u);
+            TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
+            TS_ASSERT_EQUALS(p_state->GetColour(), 3u);
 
-			// Create an output archive
-			std::ofstream ofs(archive_filename.c_str());
-			boost::archive::text_oarchive output_arch(ofs);
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
 
-			// Write the cell to the archive
-			const AbstractCellMutationState* const p_const_state = p_state;
-			output_arch << p_const_state;
+            // Write the cell to the archive
+            const AbstractCellMutationState* const p_const_state = p_state;
+            output_arch << p_const_state;
 
-			delete p_state;
-		}
+            delete p_state;
+        }
 
-		// Restore mutation state
-		{
-			AbstractCellMutationState* p_state;
+        // Restore mutation state
+        {
+            AbstractCellMutationState* p_state;
 
-			// Restore the mutation state
-			std::ifstream ifs(archive_filename.c_str());
-			boost::archive::text_iarchive input_arch(ifs);
+            // Restore the mutation state
+            std::ifstream ifs(archive_filename.c_str());
+            boost::archive::text_iarchive input_arch(ifs);
 
-			input_arch >> p_state;
+            input_arch >> p_state;
 
-			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-			TS_ASSERT_EQUALS(p_state->GetColour(), 3u);
+            TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
+            TS_ASSERT_EQUALS(p_state->GetColour(), 3u);
 
-			ApcOneHitCellMutationState* p_real_state = dynamic_cast<ApcOneHitCellMutationState*>(p_state);
-			TS_ASSERT(p_real_state != NULL);
+            ApcOneHitCellMutationState* p_real_state = dynamic_cast<ApcOneHitCellMutationState*>(p_state);
+            TS_ASSERT(p_real_state != NULL);
 
-			// Tidy up
-			delete p_state;
-		}
-	}
+            // Tidy up
+            delete p_state;
+        }
+    }
 
-	void TestArchiveRegistry() throw(Exception)
-	{
-		OutputFileHandler handler("archive", false);
-		std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mutation.arch";
+    void TestArchiveRegistry() throw(Exception)
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mutation.arch";
 
-		// Save
-		{
-			boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-			p_state->IncrementCellCount();
+        // Save
+        {
+            boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+            p_state->IncrementCellCount();
 
-			const CellMutationStateRegistry* const p_registry = CellMutationStateRegistry::Instance()->TakeOwnership();
+            const CellMutationStateRegistry* const p_registry = CellMutationStateRegistry::Instance()->TakeOwnership();
 
-			// Create an output archive
-			std::ofstream ofs(archive_filename.c_str());
-			boost::archive::text_oarchive output_arch(ofs);
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
 
-			// Write the cell to the archive
-			output_arch << p_registry;
+            // Write the cell to the archive
+            output_arch << p_registry;
 
-			delete p_registry;
-		}
+            delete p_registry;
+        }
 
-		// Restore boost::shared_ptr to mutation state
-		{
-			// Initialize a mutation state
-			CellMutationStateRegistry* p_registry;
+        // Restore boost::shared_ptr to mutation state
+        {
+            // Initialize a mutation state
+            CellMutationStateRegistry* p_registry;
 
-			// Restore the mutation state
-			std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-			boost::archive::text_iarchive input_arch(ifs);
+            // Restore the mutation state
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
 
-			input_arch >> p_registry;
+            input_arch >> p_registry;
 
-			boost::shared_ptr<AbstractCellMutationState> p_state = p_registry->Get<WildTypeCellMutationState>();
+            boost::shared_ptr<AbstractCellMutationState> p_state = p_registry->Get<WildTypeCellMutationState>();
 
-			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-			TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
-			
-			delete p_registry;
-		}
-	}
+            TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
+            TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
+
+            delete p_registry;
+        }
+    }
 };
 
 #endif /* TESTCELLMUTATIONSTATES_HPP_ */

@@ -45,28 +45,28 @@ public:
 
         // coarse mesh is has h=1 on unit cube (so 6 elements)
         QuadraticMesh<3> coarse_mesh(1.0, 1.0, 1.0, 1, 1, 1);
-        
+
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
-        
+
         // check min values on fine mesh have been computed correctly
         TS_ASSERT_DELTA(mesh_pair.mMinValuesFine(0), 0.0, 1e-8);
         TS_ASSERT_DELTA(mesh_pair.mMinValuesFine(1), 0.0, 1e-8);
         TS_ASSERT_DELTA(mesh_pair.mMinValuesFine(2), 0.0, 1e-8);
         TS_ASSERT_DELTA(mesh_pair.mMaxValuesFine(0), 1.0, 1e-8);
         TS_ASSERT_DELTA(mesh_pair.mMaxValuesFine(1), 1.0, 1e-8);
-        TS_ASSERT_DELTA(mesh_pair.mMaxValuesFine(2), 1.0, 1e-8);       
+        TS_ASSERT_DELTA(mesh_pair.mMaxValuesFine(2), 1.0, 1e-8);
 
         mesh_pair.SetUpBoxesOnFineMesh(0.3);
 
         TS_ASSERT_EQUALS(mesh_pair.mpFineMeshBoxCollection->GetNumBoxes(), 4*4*4u);
-        
+
         // For each node, find containing box. That box should contain any element that node is in.
         for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
         {
             unsigned box_index = mesh_pair.mpFineMeshBoxCollection->CalculateContainingBox(fine_mesh.GetNode(i));
-            
+
             assert(fine_mesh.GetNode(i)->rGetContainingElementIndices().size() > 0);
-            
+
             for(std::set<unsigned>::iterator iter = fine_mesh.GetNode(i)->rGetContainingElementIndices().begin();
                 iter != fine_mesh.GetNode(i)->rGetContainingElementIndices().end();
                 ++iter)
@@ -78,26 +78,26 @@ public:
 
         GaussianQuadratureRule<3> quad_rule(3);
         mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule);
-        
+
         // all coarse quadrature points should have been found in the fine mesh
         TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
         TS_ASSERT_EQUALS(mesh_pair.mNotInMeshNearestElementWeights.size(), 0u);
 
-        // check the elements and weights have been set up correctly        
+        // check the elements and weights have been set up correctly
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights().size(), 6*3*3*3u);
-        
-        // some hardcoded values, just to check element_nums not all zero        
+
+        // some hardcoded values, just to check element_nums not all zero
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[0].ElementNum, 4846u);
-        TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[10].ElementNum, 3149u); 
+        TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[10].ElementNum, 3149u);
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[20].ElementNum, 1209u);
 
         for(unsigned i=0; i<mesh_pair.rGetElementsAndWeights().size(); i++)
         {
             TS_ASSERT_LESS_THAN(mesh_pair.rGetElementsAndWeights()[i].ElementNum, fine_mesh.GetNumElements());
 
-            // as all the quadrature points should have been found in the fine mesh, all the weights 
+            // as all the quadrature points should have been found in the fine mesh, all the weights
             // should be between 0 and 1.
-            // Note weights = (1-psi_x-psi_y-psi_z, psi_x, psi_y, psi_z), where psi is the position of the 
+            // Note weights = (1-psi_x-psi_y-psi_z, psi_x, psi_y, psi_z), where psi is the position of the
             // point in that element when transformed to the canonical element
             for(unsigned j=0; j<4; j++)
             {
@@ -105,12 +105,12 @@ public:
                 TS_ASSERT_LESS_THAN(mesh_pair.rGetElementsAndWeights()[i].Weights(j), 1.0+1e-14);
             }
         }
-        
+
         TS_ASSERT_EQUALS(mesh_pair.mCounters[0], 6*3*3*3u);
         TS_ASSERT_EQUALS(mesh_pair.mCounters[1], 0u);
         TS_ASSERT_EQUALS(mesh_pair.mCounters[2], 0u);
         mesh_pair.PrintStatistics();
-        
+
         mesh_pair.DeleteBoxCollection();
         TS_ASSERT(mesh_pair.mpFineMeshBoxCollection==NULL);
     }
@@ -124,7 +124,7 @@ public:
 
         // coarse mesh is slightly bigger than in previous test
         QuadraticMesh<3> coarse_mesh(1.03, 1.0, 1.0, 1, 1, 1); // xmax > 1.0
-        
+
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
 
         GaussianQuadratureRule<3> quad_rule(3);
@@ -135,10 +135,10 @@ public:
         TS_ASSERT_EQUALS(mesh_pair.mpFineMeshBoxCollection->GetNumBoxes(), 4*4*4u);
 
         mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule);
-        
-        TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 16u); // hardcoded 
+
+        TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 16u); // hardcoded
         TS_ASSERT_EQUALS(mesh_pair.mNotInMeshNearestElementWeights.size(), 16u);
-        
+
         TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights().size(), 6*3*3*3u);
 
         for(unsigned i=0; i<mesh_pair.rGetElementsAndWeights().size(); i++)
@@ -152,7 +152,7 @@ public:
             //    TS_ASSERT_LESS_THAN(mesh_pair.rGetElementsAndWeights()[i].Weights(j), 1.0+1e-14);
             //}
         }
-        
+
         // for each quadrature point that was not found in the fine mesh, check that it's x-value is greater
         // than one - this is the only way it could be outside the fine mesh
         QuadraturePointsGroup<3> quad_point_posns(coarse_mesh, quad_rule);
@@ -161,8 +161,8 @@ public:
             double x = quad_point_posns.Get(mesh_pair.mNotInMesh[i])(0);
             TS_ASSERT_LESS_THAN(1.0, x);
         }
-            
-        
+
+
         mesh_pair.PrintStatistics();
     }
 
@@ -175,19 +175,19 @@ public:
 
         // coarse mesh is has h=1 on unit cube (so 6 elements)
         QuadraticMesh<3> coarse_mesh(1.0, 1.0, 1.0, 1, 1, 1);
-        
+
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
-        
+
         mesh_pair.SetUpBoxesOnFineMesh();
-        
+
         TS_ASSERT_EQUALS(mesh_pair.mpFineMeshBoxCollection->GetNumBoxes(), 15*15*15u);
     }
 
 
-////    // Uncomment this test and stick in your own two meshes to see if they will be suitable for 
+////    // Uncomment this test and stick in your own two meshes to see if they will be suitable for
 ////    // an electromechanics simulation. There shouldn't be two many quadrature points reported to
 ////    // be outside the fine mesh, and for those that are, the weights (corresponding to the nearest
-////    // elements) shouldn't be too far away from the interval [0,1] 
+////    // elements) shouldn't be too far away from the interval [0,1]
 ////    void longrunningTestExperiment() throw(Exception)
 ////    {
 ////        TetrahedralMesh<3,3> electrics_mesh;
@@ -200,9 +200,9 @@ public:
 ////            TrianglesMeshReader<3,3> reader2("/home/chaste/Desktop/rat_8125nodes_quadratic",2,2);
 ////            mechanics_mesh.ConstructFromMeshReader(reader2);
 ////        }
-////        
+////
 ////        FineCoarseMeshPair<3> mesh_pair(electrics_mesh,mechanics_mesh);
-////        
+////
 ////        std::cout << "Min & max x = " << mesh_pair.mMinValuesFine(0) << " " << mesh_pair.mMaxValuesFine(0) << "\n";
 ////
 ////        mesh_pair.SetUpBoxesOnFineMesh();
@@ -211,7 +211,7 @@ public:
 ////
 ////        GaussianQuadratureRule<3> quad_rule(3);
 ////        mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule);
-////        
+////
 ////        mesh_pair.PrintStatistics();
 ////    }
 

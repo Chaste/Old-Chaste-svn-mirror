@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * to the Boost Serialization library when a class is abstract.
  * The interface for doing this changed in Boost 1.36.0, hence this
  * wrapper.
- * 
+ *
  * The easy case is for a non-templated class.  For example, if you
  * have a class called AbstractClass, use
  *     CLASS_IS_ABSTRACT(AbstractClass)

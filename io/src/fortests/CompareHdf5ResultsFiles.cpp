@@ -117,7 +117,7 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
             {
                 reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
                 reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
-                
+
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
                 double minus_one = -1.0;
                 VecAXPY(&minus_one, data2, data1);
@@ -125,10 +125,10 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
                 //[note: VecAXPY(y,a,x) computes y = ax+y]
                 VecAXPY(data1, -1.0, data2);
 #endif
-                
+
                 PetscReal difference_norm;
                 VecNorm(data1, NORM_2, &difference_norm);
-                
+
                 if (difference_norm > 1e-10)
                 {
                     std::cout << "Vectors differ in NORM_2 by " << difference_norm << std::endl;
@@ -189,7 +189,7 @@ bool CompareFilesViaHdf5DataReaderGlobalNorm(std::string pathname1, std::string 
 {
         Hdf5DataReader reader1(pathname1, filename1, makeAbsolute1);
         Hdf5DataReader reader2(pathname2, filename2, makeAbsolute2);
-        
+
         unsigned number_nodes1 = reader1.GetNumberOfRows();
         bool is_the_same = true;
         std::vector<std::string> variable_names1 = reader1.GetVariableNames();
@@ -200,29 +200,29 @@ bool CompareFilesViaHdf5DataReaderGlobalNorm(std::string pathname1, std::string 
 
         Vec data1 = factory.CreateVec();
         Vec data2 = factory.CreateVec();
-        
+
         for (unsigned timestep=0; timestep<times1.size(); timestep++)
         {
             for (unsigned var=0; var<num_vars; var++)
             {
                 reader1.GetVariableOverNodes(data1, variable_names1[var], timestep);
                 reader2.GetVariableOverNodes(data2, variable_names2[var], timestep);
-                
+
                 PetscReal data1_norm;
                 PetscReal data2_norm;
                 VecNorm(data1, NORM_2, &data1_norm);
                 VecNorm(data2, NORM_2, &data2_norm);
                 PetscReal norm = fabs(data1_norm-data2_norm);
-                if (norm > 1e-10) 
+                if (norm > 1e-10)
                 {
                     is_the_same = false;
                     std::cout << "Vectors differ in global NORM_2 by " << norm << std::endl;
                 }
             }
         }
-        
+
         VecDestroy(data1);
         VecDestroy(data2);
-        
+
         return is_the_same;
 }

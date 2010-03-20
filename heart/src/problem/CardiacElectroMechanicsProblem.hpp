@@ -133,7 +133,7 @@ protected :
 
     /** Nodes for which the deformation is fixed to zero */
     std::vector<unsigned> mFixedNodes;
-	/** .ortho file from which to read element-wise fibre-sheet-normal-directions */
+    /** .ortho file from which to read element-wise fibre-sheet-normal-directions */
     std::string mFibreSheetDirectionsFile;
 
     /**
@@ -146,7 +146,7 @@ protected :
     /**
      *  Write info (x, y, V, and Ca) for the watched node. Note: the Ca is written,
      *  but this ASSUMES LUO-RUDY IS USED
-     * 
+     *
      * @param time  Time-step now, to write out
      * @param voltage  Vm vector (this is Monodomain)
      */
@@ -180,7 +180,7 @@ public :
 
     /**
      *  Delete allocated memory and close the watched location file
-     * 
+     *
      *  NOTE if SetWatchedLocation but not Initialise has been
      *  called, mpWatchedLocationFile will be uninitialised and
      *  using it will cause a seg fault. Hence the mpMechanicsMesh!=NULL
@@ -220,9 +220,9 @@ public :
      *  @param watchedLocation  location (x,y,z) in space.  Watched node is the closest to this point.
      */
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation);
-    
-    /**  
-     *  Set fibre/sheet directions for each element from a file. 
+
+    /**
+     *  Set fibre/sheet directions for each element from a file.
      *  The file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir for that element).
      *  The number of elements must match the number in the MECHANICS mesh!
      *  @param orthoFile the file containing the fibre/sheet directions

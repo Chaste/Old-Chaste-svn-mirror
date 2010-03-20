@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/shared_ptr.hpp>
 #include "ChasteSerialization.hpp"
-#include <boost/serialization/split_member.hpp> 
+#include <boost/serialization/split_member.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
 #include "AbstractTetrahedralMesh.hpp"
@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  This class assumes the given mesh is cuboid, and the electrodes are taken to be
  *  the specified opposite surfaces.
- * 
+ *
  *  Note the class now includes a pointer to the mesh as a member variable, as this
  *  is required to archive (reconstruct) itself. Because boost is clever it will
  *  still only archive one copy of the mesh.
@@ -79,14 +79,14 @@ private:
     AbstractTetrahedralMesh<DIM,DIM>* mpMesh;
 
     /** Left electrode area*/
-    double mLeftElectrodeArea;    
+    double mLeftElectrodeArea;
 
     /** Right electrode area*/
-    double mRightElectrodeArea;    
-    
+    double mRightElectrodeArea;
+
     /**
      * Helper method to compute electrodes area and check they are equal. Throws if they are not.
-     * 
+     *
      *  @param index The value i when applying the electrodes to x_i=a and x_i=b (a<b)
      *  @param lowerValue The value a when applying the electrodes to x_i=a and x_i=b (a<b) (should
      *    be the minimum value of x_i for the given mesh)
@@ -94,7 +94,7 @@ private:
      *    be the maximum value of x_i for the given mesh)
      */
     void ComputeElectrodesAreasAndCheckEquality(unsigned index, double lowerValue, double upperValue);
-    
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -125,7 +125,7 @@ private:
         archive & mGroundSecondElectrode;
         archive & mStartTime;
         archive & mEndTime;
-        archive & mAreActive; 
+        archive & mAreActive;
         archive & mpMesh;
 
         (*ProcessSpecificArchive<Archive>::Get()) & mpBoundaryConditionsContainer;
@@ -134,7 +134,7 @@ private:
         mpBoundaryConditionsContainer->LoadFromArchive(*ProcessSpecificArchive<Archive>::Get(), mpMesh);
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
-    
+
     /**
      * Private default constructor for archiving only.
      */
@@ -151,7 +151,7 @@ public:
      *    be the maximum value of x_i for the given mesh)
      *  @param magnitude Magnitude of the stimulus
      *  @param startTime Switch on time
-     *  @param duration Duration of the stimulus. 
+     *  @param duration Duration of the stimulus.
      */
     Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
                bool groundSecondElectrode,
@@ -164,12 +164,12 @@ public:
      *  electrode if the the second electrode isn't grounded
      */
     boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > GetBoundaryConditionsContainer();
-    
+
     /**
      *  Whether it is time to switch off the electrodes yet. THIS ONLY RETURNS
      *  TRUE ONCE - the first appropriate time. After that the electrodes assume
      *  they have been switched off and therefore this returns false.
-     * 
+     *
      * @param time  the current time
      */
     bool SwitchOff(double time);
@@ -178,7 +178,7 @@ public:
      *  Whether it is time to switch on the electrodes yet. THIS ONLY RETURNS
      *  TRUE ONCE - the first appropriate time. After that the electrodes assume
      *  they have been switched on and therefore this returns false.
-     * 
+     *
      * @param time  the current time
      */
     bool SwitchOn(double time);

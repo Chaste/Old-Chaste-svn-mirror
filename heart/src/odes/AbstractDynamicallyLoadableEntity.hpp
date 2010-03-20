@@ -32,31 +32,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DynamicCellModelLoader.hpp"
 
 /**
- * A mixin class for things that get loaded dynamically to maintain an association between instance objects and the shared library 
- * they have been loaded from 
+ * A mixin class for things that get loaded dynamically to maintain an association between instance objects and the shared library
+ * they have been loaded from
  */
-class AbstractDynamicallyLoadableEntity 
+class AbstractDynamicallyLoadableEntity
 {
 private:
-    
+
     /** The loader for our shared object file */
     DynamicCellModelLoader* mpLoader;
 
 public:
-    
-    /** 
+
+    /**
      * @return a shared pointer to the loader
      */
     const DynamicCellModelLoader* GetLoader() const;
 
-    /** 
+    /**
      * Should only be called by a dynamic cell model loader
-     * 
+     *
      * @param pLoader a shared pointer to the loader
-     */   
+     */
     void SetLoader(DynamicCellModelLoader* pLoader);
-            
-}; 
+
+};
 
 
 #endif /*ABSTRACTDYNAMICALLYLOADABLEENTITY_HPP_*/

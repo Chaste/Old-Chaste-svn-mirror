@@ -43,7 +43,7 @@ class Lr91Cvode : public AbstractCvodeCell
 private:
 
     /** Constants for the LuoRudyIModel1991OdeSystem model */
-    
+
     /** membrane capcaitance*/
     static const double membrane_C;
     /** Faraday constant*/
@@ -84,7 +84,7 @@ private:
 public:
     /**
      * Constructor
-     * 
+     *
      * @param pOdeSolver  unused
      * @param pIntracellularStimulus is a pointer to the intracellular stimulus
      */
@@ -109,14 +109,14 @@ public:
 
     /**
      * Returns the ionic current
-     * 
+     *
      * @return the total ionic current
      */
     double GetIIonic();
-    
+
     /**
      * Get the intracellular calcium concentration
-     * 
+     *
      * @return the intracellular calcium concentration
      */
     double GetIntracellularCalciumConcentration();

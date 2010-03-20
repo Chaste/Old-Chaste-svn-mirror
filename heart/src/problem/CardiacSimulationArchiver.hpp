@@ -45,8 +45,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  CardiacSimulationArchiver is a helper class for checkpointing of cardiac simulations.
- * 
- *  The class is templated over the class defining the simulation (i.e. MonodomainProblem) 
+ *
+ *  The class is templated over the class defining the simulation (i.e. MonodomainProblem)
  */
 template<class PROBLEM_CLASS>
 class CardiacSimulationArchiver
@@ -54,7 +54,7 @@ class CardiacSimulationArchiver
 public:
     /**
      * Archives a simulation in the directory specified.
-     * 
+     *
      * @note Must be called collectively, i.e. by all processes.
      *
      * @param simulationToArchive object defining the simulation to archive
@@ -70,29 +70,29 @@ public:
      *
      * Does a migrate if necessary (this is actually just a wrapper around the
      * Migrate method now).
-     * 
+     *
      * @note Must be called collectively, i.e. by all processes.
      *
      * @param rDirectory directory where the multiple files defining the checkpoint are located
      *     (relative to CHASTE_TEST_OUTPUT)
      */
     static PROBLEM_CLASS* Load(const std::string& rDirectory);
-    
-    
+
+
     /**
      * Load a simulation, saved by any number of processes, into the correct
      * number of processes for those currently launched.
-     * 
+     *
      * @note Must be called collectively, i.e. by all processes.
      *
      * Uses the DistributedVectorFactory saved in the process 0 archive to work out
      * how many secondary archive files to read, and loads the cells and boundary
      * conditions from these too.
-     * 
+     *
      * Uses a dumb partition to work out how to distribute the mesh and cells over
      * the processes.
      * \todo Allow the use of METIS to give a better partitioning
-     * 
+     *
      * @param rDirectory directory where the multiple files defining the checkpoint are located
      *     (relative to CHASTE_TEST_OUTPUT)
      */
@@ -107,7 +107,7 @@ void CardiacSimulationArchiver<PROBLEM_CLASS>::Save(PROBLEM_CLASS& simulationToA
 {
     // Clear directory if requested (and make sure it exists)
     OutputFileHandler handler(rDirectory, clearDirectory);
-    
+
     // Nest the archive writing, so the ArchiveOpener goes out of scope before
     // the method ends.
     {
@@ -169,7 +169,7 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
     info_file >> num_procs >> archive_version;
 
     PROBLEM_CLASS *p_unarchived_simulation;
-    
+
     // Avoid the DistributedVectorFactory throwing a 'wrong number of processes' exception when loading,
     // and make it get the original DistributedVectorFactory from the archive so we can compare against
     // num_procs.
@@ -186,7 +186,7 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true);
             boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
             (*p_main_archive) >> p_unarchived_simulation;
-            
+
             // Paranoia checks
             DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
             assert(p_factory != NULL);
@@ -206,13 +206,13 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true, 0u);
             boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
             (*p_main_archive) >> p_unarchived_simulation;
-    
+
             // Work out how many more files to load
             DistributedVectorFactory* p_factory = p_unarchived_simulation->rGetMesh().GetDistributedVectorFactory();
             assert(p_factory != NULL);
             unsigned original_num_procs = p_factory->GetOriginalFactory()->GetNumProcs();
             assert(original_num_procs == num_procs); // Paranoia
-    
+
             // Merge in the extra data
             for (unsigned archive_num=1; archive_num<original_num_procs; archive_num++)
             {

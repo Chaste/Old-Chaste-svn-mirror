@@ -56,10 +56,10 @@ private:
     }
 
 public:
-	/**
-	 * Constructor.
-	 */
-	LabelledCellMutationState();
+    /**
+     * Constructor.
+     */
+    LabelledCellMutationState();
 };
 
 #include "SerializationExportWrapper.hpp"

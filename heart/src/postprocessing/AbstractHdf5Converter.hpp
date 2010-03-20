@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  *  This derived children of this class convert from Hdf5 format to
- *  a range of other formats for postprocessing 
+ *  a range of other formats for postprocessing
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractHdf5Converter
@@ -46,7 +46,7 @@ protected:
     unsigned mNumVariables; /**< Read from the reader -- ought to be 1 (mono) or 2 (bi)*/
     std::string mFileBaseName; /**< Base name for the files [basename].vtu, [basename].dat etc.*/
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**< Pointer to the mesh. */
-    OutputFileHandler* mpOutputFileHandler; /**< Intialised as directory in whicht to store the results*/ 
+    OutputFileHandler* mpOutputFileHandler; /**< Intialised as directory in whicht to store the results*/
 
 public:
     /** Constructor, which does the conversion and writes the .vtu file.

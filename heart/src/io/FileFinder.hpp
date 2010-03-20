@@ -43,11 +43,11 @@ class FileFinder
 private:
     /** The absolute path to our file */
     std::string mAbsPath;
-    
+
     /**
      * Determine the absolute path to this file.
      * Used by constructors.
-     * 
+     *
      * @param rPath  the path to the file to find
      */
     void SetAbsolutePath(const cp::path_type& rPath);
@@ -56,28 +56,28 @@ public:
      * Create a file finder for the given path.
      * This type includes both a path name, and an attribute specifying how this
      * should be interpreted.  See the XML schema for details.
-     * 
+     *
      * @param rPath  the path to the file to find
      */
     FileFinder(const cp::path_type& rPath);
-    
+
     /**
      * Alternative constructor, taking the components of a cp::path_type.
      * @param rPath  the path to the file to find
      * @param relativeTo  how to interpret this path
      */
     FileFinder(const std::string& rPath, cp::relative_to_type relativeTo);
-    
+
     /**
      * Test whether our file exists.
      */
     bool Exists() const;
-    
+
     /**
      * Get the absolute path to this file.
      */
     std::string GetAbsolutePath() const;
-    
+
     /**
      * Test whether this file is newer than another file.
      * Compares modification times.

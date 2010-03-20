@@ -36,12 +36,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * An ODE system formed by combining several subsystems.
- * 
+ *
  * Instances of this class are formed by passing other ODE system instances
  * to our constructor, and then calling Configure to set up any coupling
  * between subsystems.  This allows state variables from one system to be
  * used as parameters in other systems.
- * 
+ *
  * This allows us to set up coupled systems such as
  *   \f$dy/dt = f(y, t)\f$
  * from subsystems
@@ -50,7 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *   \f$dy_2/dt = f_2(y_2, t; y_1)\f$
  * where
  *   \f$y = (y_1, y_2)\f$.
- * 
+ *
  * The vector of state variables for the combined system is formed as the
  * concatenation of the state variable vectors of the subsystem.  This
  * class also makes use of the CombinedOdeSystemInformation class to
@@ -59,7 +59,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class CombinedOdeSystem : public AbstractOdeSystem
 {
 private:
-    
+
     /** The subsystems forming this combined system. */
     std::vector<AbstractOdeSystem*> mOdeSystems;
 
@@ -72,7 +72,7 @@ private:
      * is located within the combined state variable vector.
      */
     std::vector<unsigned> mOffsets;
-    
+
     /**
      * A convenience structure for recording the information passed
      * to Configure calls.
@@ -92,14 +92,14 @@ private:
         /** The ODE system whose parameters #theMap refers to. */
         AbstractOdeSystem* pParameterOdeSystem;
     };
-    
+
     /** Stores the information passed to Configure calls. */
     std::vector<struct VariableParameterMap> mVariableParameterMaps;
-    
+
 public:
     /**
      * Create a combined ODE system from a vector of subsystems.
-     * 
+     *
      * @param odeSystems  the subsystems.
      */
     CombinedOdeSystem(std::vector<AbstractOdeSystem*> odeSystems);
@@ -107,7 +107,7 @@ public:
     /**
      * Configure a mapping between the state variables of one subsystem and
      * the parameters of another.
-     * 
+     *
      * @param rVariableParameterMap  a map specifying which state variables (keys)
      *    are mapped to which parameters (values).
      * @param pVariableOdeSystem  the ODE subsystem providing state variable values.
@@ -119,11 +119,11 @@ public:
 
     /**
      * Evaluate the right-hand side of the combined system.
-     * 
+     *
      * This calls EvaluateYDerivatives for each subsystem with the appropriate
      * portion of rY and rDY, having set parameters from values in rY according
      * to the configured maps.
-     * 
+     *
      * @param time  the current time
      * @param rY  the current values of the state variables
      * @param rDY  storage for the derivatives of the system; will be filled in on return

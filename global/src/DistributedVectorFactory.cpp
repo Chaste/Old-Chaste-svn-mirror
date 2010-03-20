@@ -160,7 +160,7 @@ Vec DistributedVectorFactory::CreateVec(unsigned stride)
 
 DistributedVector DistributedVectorFactory::CreateDistributedVector(Vec vec)
 {
-    DistributedVector dist_vector(vec, this); 
+    DistributedVector dist_vector(vec, this);
     return dist_vector;
 }
 

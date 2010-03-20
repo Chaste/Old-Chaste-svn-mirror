@@ -35,16 +35,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A convenience class to assist with managing archives for parallel checkpointing.
- * 
+ *
  * When checkpointing a parallel simulation, there are two kinds of data that need to be saved:
  * replicated (same for every process) and distributed (different on each process).  We wish to
  * write these to separate archive files.  This class hides the complexity of doing so, such
  * that all a user needs to do is create an instance of this class, call GetCommonArchive, and
  * read from/write to the returned archive.  When done, just destroy the instance (e.g. by
  * closing the scope).
- * 
+ *
  * Internally the class uses ProcessSpecificArchive<Archive> to store the secondary archive.
- * 
+ *
  * Note also that implementations of this templated class only exist for text archives, i.e.
  * Archive = boost::archive::text_iarchive (with Stream = std::ifstream), or
  * Archive = boost::archive::text_oarchive (with Stream = std::ofstream).
@@ -58,10 +58,10 @@ public:
     /**
      * Open the archives for this process, either for reading or writing depending on the
      * template parameter Archive.
-     * 
+     *
      * Note that when writing, only the master process writes to the main archive.  For other
      * processes the main archive is a dummy, writing to /dev/null.
-     * 
+     *
      * @note Must be called collectively, i.e. by all processes!
      *
      * @param rDirectory  folder containing archive files.
@@ -77,12 +77,12 @@ public:
                   const std::string& rFileName,
                   bool relativeToChasteTestOutput=true,
                   unsigned procId=PetscTools::GetMyRank());
-    
+
     /**
      * Close the opened archives.
      */
     ~ArchiveOpener();
-    
+
     /**
      * Get the main archive for replicated data.
      */

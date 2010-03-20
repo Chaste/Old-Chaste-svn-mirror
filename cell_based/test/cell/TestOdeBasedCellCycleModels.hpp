@@ -523,65 +523,65 @@ public:
     }
 
     void TestVanLeeuwen2009WntSwatCellCycleModelHypothesisTwo() throw(Exception)
-	{
-		// Set up simulation time
-		SimulationTime* p_simulation_time = SimulationTime::Instance();
-		double end_time = 1; // hours
-		unsigned num_timesteps = 100*(unsigned)end_time;
-		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps); // 15.971 hours to go into S phase
+    {
+        // Set up simulation time
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        double end_time = 1; // hours
+        unsigned num_timesteps = 100*(unsigned)end_time;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps); // 15.971 hours to go into S phase
 
-		// Set up Wnt concentration
-		double wnt_level = 1.0;
-		WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
+        // Set up Wnt concentration
+        double wnt_level = 1.0;
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-		// Create cell cycle model and associated cell
-		VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo();
-		p_cell_model->SetDimension(2);
+        // Create cell cycle model and associated cell
+        VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo();
+        p_cell_model->SetDimension(2);
 
-		// Test that member variables are set correctly
-		boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-		TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
+        // Test that member variables are set correctly
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
 
-		// Coverage of cell cycle model copying without an ODE system set up
-		TissueCell stem_cell2 = stem_cell;
-		TS_ASSERT_EQUALS(stem_cell2.GetMutationState(), p_healthy_state);
+        // Coverage of cell cycle model copying without an ODE system set up
+        TissueCell stem_cell2 = stem_cell;
+        TS_ASSERT_EQUALS(stem_cell2.GetMutationState(), p_healthy_state);
 
-		stem_cell.InitialiseCellCycleModel();
+        stem_cell.InitialiseCellCycleModel();
 
-		// When using a WntCellCycleModel, there is no such thing as
-		// a 'stem cell'. Cell type is changed to transit or
-		// differentiated, depending on the Wnt concentration, when
-		// InitialiseCellCycleModel() is called.
-		TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), TRANSIT);
+        // When using a WntCellCycleModel, there is no such thing as
+        // a 'stem cell'. Cell type is changed to transit or
+        // differentiated, depending on the Wnt concentration, when
+        // InitialiseCellCycleModel() is called.
+        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), TRANSIT);
 
-		WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
+        WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
-		// These numbers (below) have been lifted from the above test for hypothesis one -
-		// and so are probably not correct for hypothesis two if run for long enough
+        // These numbers (below) have been lifted from the above test for hypothesis one -
+        // and so are probably not correct for hypothesis two if run for long enough
 
 #ifdef CHASTE_CVODE
-		const double expected_g1_duration = 6.18252;
+        const double expected_g1_duration = 6.18252;
 #else
-		const double expected_g1_duration = 6.1959;
+        const double expected_g1_duration = 6.1959;
 #endif //CHASTE_CVODE
 
-		// Progress through the cell cycle under a constant Wnt concentration
-		for (unsigned i=0; i<num_timesteps; i++)
-		{
-			p_simulation_time->IncrementTimeOneStep();
+        // Progress through the cell cycle under a constant Wnt concentration
+        for (unsigned i=0; i<num_timesteps; i++)
+        {
+            p_simulation_time->IncrementTimeOneStep();
 
-			// Call ReadyToDivide on the cell, then test the results
-			// of calling ReadyToDivide on the model and test (in
-			// CheckReadyToDivideAndPhaseIsUpdated).
-			stem_cell.ReadyToDivide();
-			CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, expected_g1_duration);
-		}
+            // Call ReadyToDivide on the cell, then test the results
+            // of calling ReadyToDivide on the model and test (in
+            // CheckReadyToDivideAndPhaseIsUpdated).
+            stem_cell.ReadyToDivide();
+            CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, expected_g1_duration);
+        }
 
-		// Tidy up
-		WntConcentration<1>::Destroy();
-		WntConcentration<2>::Destroy();
-		WntConcentration<3>::Destroy();
-	}
+        // Tidy up
+        WntConcentration<1>::Destroy();
+        WntConcentration<2>::Destroy();
+        WntConcentration<3>::Destroy();
+    }
 
 
     void TestWntCellCycleModelForAPCSingleHit() throw(Exception)

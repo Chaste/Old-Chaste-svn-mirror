@@ -29,12 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 
 VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo(const std::vector<double>& rParentProteinConcentrations,
-												 boost::shared_ptr<AbstractCellMutationState> pMutationState,
-												const unsigned& rDimension)
+                                                 boost::shared_ptr<AbstractCellMutationState> pMutationState,
+                                                const unsigned& rDimension)
 {
-	InitialiseOdeSystem(rParentProteinConcentrations[21], pMutationState);
-	// Set the model to be the same as the parent cell
-	mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
+    InitialiseOdeSystem(rParentProteinConcentrations[21], pMutationState);
+    // Set the model to be the same as the parent cell
+    mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
 
 // Declare identifier for the serializer

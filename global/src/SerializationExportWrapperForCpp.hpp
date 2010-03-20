@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * @file
- * 
+ *
  * Companion file to SerializationExportWrapper.hpp, for inclusion
  * in .cpp files.  See SerializationExportWrapper.hpp for more information.
  */

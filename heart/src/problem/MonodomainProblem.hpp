@@ -60,7 +60,7 @@ class MonodomainProblem : public AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 
         archive & boost::serialization::base_object<AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1> >(*this);
         archive & mpMonodomainPde;
     }
-    
+
 protected:
     /** The monodomain PDE object */
     MonodomainPde<ELEMENT_DIM,SPACE_DIM>* mpMonodomainPde;
@@ -95,11 +95,11 @@ public:
 
     /**
      *  Print out time and max/min voltage values at current time.
-     * 
+     *
      * @param time  the current time
      */
     void WriteInfo(double time);
-    
+
     /**
      * Define what variables are written to the primary results file.
      * @param extending  whether we are extending an existing results file
@@ -109,12 +109,12 @@ public:
     /**
      * Write one timestep of output data to the primary results file.
      * Adds the extracellular potential to the results.
-     * 
+     *
      * @param time  the current time
      * @param voltageVec  the solution vector to write
      */
     virtual void WriteOneStep(double time, Vec voltageVec);
-    
+
 };
 
 #include "SerializationExportWrapper.hpp" // Must be last

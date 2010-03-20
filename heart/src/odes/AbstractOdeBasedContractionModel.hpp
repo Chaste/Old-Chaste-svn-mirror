@@ -35,18 +35,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 
 /**
- *  Abstract base class for ODE-based contraction models. Inherits from AbstractOdeSystem 
+ *  Abstract base class for ODE-based contraction models. Inherits from AbstractOdeSystem
  *  and AbstractContractionModel and deals with the ODE solving.
- * 
+ *
  *  Usage is either:
- *   // for the explicit electromechanics algorithm 
+ *   // for the explicit electromechanics algorithm
  *   RunAndUpdate(); // solves and updates state variables to the solution
- *  
+ *
  *  or
- *   // for the implicit electromechanics algorithm 
+ *   // for the implicit electromechanics algorithm
  *   RunDoNotUpdate();
  *   // ..
- *   UpdateStateVariables(); // if keeping this solution 
+ *   UpdateStateVariables(); // if keeping this solution
  */
 class AbstractOdeBasedContractionModel : public AbstractOdeSystem, public AbstractContractionModel
 {
@@ -60,7 +60,7 @@ protected:
     double mTime;
 
 public:
-    /** 
+    /**
      *  Constructor
      *  @param numStateVariables number of state variables
      */
@@ -72,13 +72,13 @@ public:
         // note mTemporaryStateVariables not resized here - only resized if needed
     }
 
-    
+
     /**
      *  Solves the ODEs, but doesn't update the state variables, instead keeps them in
-     *  a temporary store. Call UpdateStateVariables() to save the new values. Call 
+     *  a temporary store. Call UpdateStateVariables() to save the new values. Call
      *  GetNextActiveTension() to get the active tension corresponding to the new values (if
      *  UpdateStateVariables() has not been called). Also saves the time (using endTime).
-     * 
+     *
      *  @param startTime start time
      *  @param endTime end time
      *  @param timeStep timestep for integrating ODEs
@@ -89,13 +89,13 @@ public:
         if(mTemporaryStateVariables.size()>0)
         {
             mTemporaryStateVariables.resize(mStateVariables.size());
-        } 
+        }
         mTemporaryStateVariables = mStateVariables;
-        
+
         // solve (RunAndUpdate just calls SolveAndUpdateStateVariable() using an euler solver)
         RunAndUpdate(startTime, endTime, timeStep);
-        
-        // put the solution in mTemporaryStateVariables and return the state variables to its 
+
+        // put the solution in mTemporaryStateVariables and return the state variables to its
         // original state
         for(unsigned i=0; i<mStateVariables.size(); i++)
         {
@@ -103,31 +103,31 @@ public:
             mStateVariables[i] = mTemporaryStateVariables[i];
             mTemporaryStateVariables[i] = soln;
         }
-        
+
         // note that the end time was saved in RunAndUpdate(): mTime = endTime;
     }
-    
-    /** 
+
+    /**
      *  After RunDoNotUpdate() has been called, this call be used to update the state
      *  variables to the new (saved) values
      */
     void UpdateStateVariables()
     {
-        // save the state variables 
+        // save the state variables
         for(unsigned i=0; i<mStateVariables.size(); i++)
         {
             mStateVariables[i] = mTemporaryStateVariables[i];
         }
     }
-    
+
     /**
      *  Solves the ODEs and updates the state variable to the new solution
-     * 
-     *  Alternative usage: 
+     *
+     *  Alternative usage:
      *   RunDoNotUpdate();
      *   // ..
-     *   UpdateStateVariables(); // if keeping this solution 
-     * 
+     *   UpdateStateVariables(); // if keeping this solution
+     *
      *  @param startTime start time
      *  @param endTime end time
      *  @param timeStep timestep for integrating ODEs

@@ -58,7 +58,7 @@ class SimpleStimulus : public AbstractStimulusFunction
         archive & mDuration;
         archive & mTimeOfStimulus;
     }
-    
+
 private:
     /** The stimulus magnitude, typically in microA/cm^2 */
     double mMagnitudeOfStimulus;
@@ -71,7 +71,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param magnitudeOfStimulus  The stimulus magnitude
      * @param duration  Duration of initial stimulus milliseconds
      * @param timeOfStimulus  The time at which the stimulus starts (defaults to 0.0) milliseconds
@@ -85,7 +85,7 @@ public:
 
     /**
      * Returns the stimulus at a given time.
-     * 
+     *
      * @param time  time at which to return the stimulus
      */
     double GetStimulus(double time);
@@ -113,7 +113,7 @@ inline void load_construct_data(
      * It doesn't actually matter what values we pass to our standard constructor,
      * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
-     */   
+     */
      ::new(t)SimpleStimulus(0.0, 0.0, 0.0);
 }
 }

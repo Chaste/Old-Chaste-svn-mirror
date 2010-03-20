@@ -114,7 +114,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteApdMapFile(double repolarisationPercentage, double threshold)
 {
     std::vector<std::vector<double> > output_data;
-    //Fill in data 
+    //Fill in data
     for (unsigned node_index = mLo; node_index < mHi; node_index++)
     {
         std::vector<double> apds;
@@ -141,7 +141,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteUpstrokeTimeMap(double threshold)
 {
     std::vector<std::vector<double> > output_data;
-    //Fill in data 
+    //Fill in data
     for (unsigned node_index = mLo; node_index < mHi; node_index++)
     {
         std::vector<double> upstroke_times;
@@ -166,7 +166,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(double threshold)
 {
     std::vector<std::vector<double> > output_data;
-    //Fill in data 
+    //Fill in data
     for (unsigned node_index = mLo; node_index < mHi; node_index++)
     {
         std::vector<double> upstroke_velocities;
@@ -190,7 +190,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteMaxUpstrokeVelocityMap(d
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteConductionVelocityMap(unsigned originNode, std::vector<double> distancesFromOriginNode)
 {
-    //Fill in data 
+    //Fill in data
     std::vector<std::vector<double> > output_data;
     for (unsigned dest_node = mLo; dest_node < mHi; dest_node++)
     {
@@ -216,15 +216,15 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteAboveThresholdDepolarisationFile(double threshold )
 {
     std::vector<std::vector<double> > output_data;
-      
-    //Fill in data 
+
+    //Fill in data
     for (unsigned node_index = mLo; node_index < mHi; node_index++)
     {
         std::vector<double> upstroke_velocities;
         std::vector<unsigned> above_threshold_depolarisations;
         std::vector<double> output_item;
         bool no_upstroke_occurred = false;
-        
+
         try
         {
             upstroke_velocities = mpCalculator->CalculateAllMaximumUpstrokeVelocities(node_index, threshold);
@@ -238,14 +238,14 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteAboveThresholdDepolarisa
         }
         //this method won't throw any exception, so there is no need to put it into the try/catch
         above_threshold_depolarisations =  mpCalculator->CalculateAllAboveThresholdDepolarisations(node_index, threshold);
-        
+
         //count the total above threshold depolarisations
         unsigned total_number_of_above_threshold_depolarisations = 0;
         for (unsigned ead_index = 0; ead_index< above_threshold_depolarisations.size();ead_index++)
         {
             total_number_of_above_threshold_depolarisations = total_number_of_above_threshold_depolarisations + above_threshold_depolarisations[ead_index];
         }
-        
+
         //for this item, puch back the number of upstrokes...
         if (no_upstroke_occurred)
         {
@@ -257,7 +257,7 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteAboveThresholdDepolarisa
         }
         //... and the number of above thrshold depolarisations
         output_item.push_back((double) total_number_of_above_threshold_depolarisations);
-        
+
         output_data.push_back(output_item);
     }
     std::stringstream filename_stream;

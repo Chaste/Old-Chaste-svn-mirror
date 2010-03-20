@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractHdf5Converter.hpp"
 
 /**
- *  This class converts from Hdf5 format to Vtk format. 
+ *  This class converts from Hdf5 format to Vtk format.
  *  The output will be one .vtu file with separate vtkPointData for each time step.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

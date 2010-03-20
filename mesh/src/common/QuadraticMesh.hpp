@@ -100,7 +100,7 @@ private:
      * element nodes.
      *
      * \todo document these parameters
-     * 
+     *
      * @param boundaryElemNode0
      * @param boundaryElemNode1
      * @param pElement
@@ -125,7 +125,7 @@ private:
      * It then calls AddNodeToBoundaryElement with each of the three internal nodes.
      *
      * \todo document these parameters
-     * 
+     *
      * @param pBoundaryElement
      * @param pElement
      * @param internalNode0
@@ -143,7 +143,7 @@ private:
     /**
      * Helper method which runs triangle or tetgen and reads in the created mesh files.
      * This method is collective (must be called by all processes).
-     * 
+     *
      * @param binary "triangle" or "tetgen" etc
      * @param outputDir Where to write the temporary files
      * @param fileStem File stem to use for the temporary files
@@ -160,10 +160,10 @@ private:
      */
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
-    {        
+    {
         archive & boost::serialization::base_object<TetrahedralMesh<DIM, DIM> >(*this);
     }
-   
+
 public:
 
     /**
@@ -181,12 +181,12 @@ public:
      * @param rMeshReader the mesh reader
      */
     void ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader);
-    
+
     /**
      * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (xEnd,yEnd)
      * with the given number of elements in each direction. This writes
      * a temporary node file and uses triangle to mesh this nodefile.
-     * 
+     *
      * @param xEnd the width of the rectangle
      * @param yEnd the breadth of the rectangle
      * @param numElemX the number of elements in the x direction
@@ -209,14 +209,14 @@ public:
     QuadraticMesh(double xEnd, double yEnd, double zEnd,
                   unsigned numElemX, unsigned numElemY, unsigned numElemZ);
 
-    /** 
-     *  Write the boundary elements to file (in case the boundary elements were linear when read and the 
-     *  quadratic versions have been computed. 
-     * 
+    /**
+     *  Write the boundary elements to file (in case the boundary elements were linear when read and the
+     *  quadratic versions have been computed.
+     *
      *  @param directory Directory relative to CHASTE_TEST_OUTPUT. Not cleaned
      *  @param fileName Boundary element file name.
-     */ 
-    void WriteBoundaryElementFile(std::string directory, std::string fileName); 
+     */
+    void WriteBoundaryElementFile(std::string directory, std::string fileName);
 
     /**
      *  Get the number of vertices, ie non-internal (non-quadratic), nodes.

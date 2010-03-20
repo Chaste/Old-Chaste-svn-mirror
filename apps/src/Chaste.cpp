@@ -74,7 +74,7 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
             }
             PetscTools::Barrier();
         }
-    }    
+    }
     try
     {
         if (argc<2)

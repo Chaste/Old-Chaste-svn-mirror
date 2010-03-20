@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BetaCateninOneHitCellMutationState.hpp"
 
 BetaCateninOneHitCellMutationState::BetaCateninOneHitCellMutationState()
-	: AbstractCellMutationState(4)
+    : AbstractCellMutationState(4)
 {}
 
 

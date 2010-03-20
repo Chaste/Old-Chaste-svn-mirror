@@ -50,7 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-/** 
+/**
  *  Small helper method, which returns whether the two classes given as the template parameters
  *  are identical or not
  */
@@ -113,15 +113,15 @@ public:
 
 template<class CELL_CYCLE_MODEL>
 void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
-									  std::vector<TissueCell>& rCells,
-									  AbstractMesh<2,2>* pMesh,
-									  const std::vector<unsigned> locationIndices,
-									  bool randomBirthTimes,
-									  double y0,
-									  double y1,
-									  double y2,
-									  double y3,
-									  bool initialiseCells)
+                                      std::vector<TissueCell>& rCells,
+                                      AbstractMesh<2,2>* pMesh,
+                                      const std::vector<unsigned> locationIndices,
+                                      bool randomBirthTimes,
+                                      double y0,
+                                      double y1,
+                                      double y2,
+                                      double y3,
+                                      bool initialiseCells)
 {
     CellMutationStateRegistry::Instance()->Clear();
 
@@ -153,7 +153,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
 
     for (unsigned i=0; i<mesh_size; i++)
     {
-    	CellProliferativeType cell_type;
+        CellProliferativeType cell_type;
         unsigned generation;
 
         double y = 0.0;
@@ -229,7 +229,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
 
         if (dynamic_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model))
         {
-        	dynamic_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model)->SetGeneration(generation);
+            dynamic_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model)->SetGeneration(generation);
         }
 
         boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
@@ -271,11 +271,11 @@ bool CryptCellsGenerator<CELL_CYCLE_MODEL>::CanCellsTerminallyDifferentiate()
         // Wnt cells don't differentiate
         return false;
     }
-    else 
+    else
     {
         // if this exception fails with a new cell cycle model, it needs to be added to one of the
         // appropriate if statements above..
-        EXCEPTION("Using an invalid cell cycle model for crypt simulations"); 
+        EXCEPTION("Using an invalid cell cycle model for crypt simulations");
     }
 }
 

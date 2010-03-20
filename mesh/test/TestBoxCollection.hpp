@@ -85,7 +85,7 @@ public:
         domain_size(1) = 20.15;
 
         BoxCollection<1> box_collection(cut_off_length, domain_size);
-    
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             unsigned box_index = box_collection.CalculateContainingBox(mesh.GetNode(i));
@@ -129,10 +129,10 @@ public:
         std::set<unsigned> correct_answer_4;
         correct_answer_4.insert(4);
         TS_ASSERT_EQUALS(local_boxes_to_box_4, correct_answer_4);
-        
+
         c_vector<double,1> miles_away;
         miles_away(0) = 47323854;
-        TS_ASSERT_THROWS_CONTAINS(box_collection.CalculateContainingBox(miles_away), "The point provided in outside all of the boxes");        
+        TS_ASSERT_THROWS_CONTAINS(box_collection.CalculateContainingBox(miles_away), "The point provided in outside all of the boxes");
     }
 
     // very simple test
@@ -160,9 +160,9 @@ public:
     //
     //  Cancer/cell_based tests
     //  The following are tests written from this BoxCollection used to be
-    //  cell_based/src/tissue/NodeBoxCollection and test the cancer related 
+    //  cell_based/src/tissue/NodeBoxCollection and test the cancer related
     //  functionality
-    //  
+    //
     /////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////
     void TestPairsReturned1d() throw (Exception)
@@ -187,7 +187,7 @@ public:
         domain_size(1) = 7.0;
 
         BoxCollection<1> box_collection(cut_off_length, domain_size);
-    
+
         for (unsigned i=0; i<nodes.size(); i++)
         {
             unsigned box_index = box_collection.CalculateContainingBox(nodes[i]);
@@ -228,7 +228,7 @@ public:
         domain_size(3) = 1.15;
 
         BoxCollection<2> box_collection(cut_off_length, domain_size);
-    
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             unsigned box_index = box_collection.CalculateContainingBox(mesh.GetNode(i));
@@ -322,13 +322,13 @@ public:
         domain_size(3) = 4.0;
 
         BoxCollection<2> box_collection(cut_off_length, domain_size);
-    
+
         for (unsigned i=0; i<nodes.size(); i++)
         {
             unsigned box_index = box_collection.CalculateContainingBox(nodes[i]);
             box_collection.rGetBox(box_index).AddNode(nodes[i]);
         }
-        
+
         std::set< std::pair<Node<2>*, Node<2>* > > pairs_returned;
         box_collection.CalculateNodePairs(nodes,pairs_returned);
 
@@ -381,7 +381,7 @@ public:
 
 
         BoxCollection<3> box_collection(cut_off_length, domain_size);
-    
+
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             unsigned box_index = box_collection.CalculateContainingBox(mesh.GetNode(i));

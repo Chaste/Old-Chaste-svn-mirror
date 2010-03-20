@@ -190,7 +190,7 @@ public:
         wnt_level = 1.0;
         WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
-        // Create cell cycle model and cell and test behaviour 
+        // Create cell cycle model and cell and test behaviour
         SingleOdeWntCellCycleModel* p_cell_model_1d = new SingleOdeWntCellCycleModel;
         p_cell_model_1d->SetDimension(1);
         p_cell_model_1d->SetUseCellProliferativeTypeDependentG1Duration();

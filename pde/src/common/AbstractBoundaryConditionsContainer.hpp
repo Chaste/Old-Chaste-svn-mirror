@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "PetscException.hpp"
 
 /**
- * Helper struct storing an operator for computing whether one node 
+ * Helper struct storing an operator for computing whether one node
  * has a lower index than another.
  */
 template<unsigned SPACE_DIM>
@@ -46,7 +46,7 @@ struct LessThanNode
 {
     /**
      * Less-then node index comparison operator.
-     * 
+     *
      * @param n1 pointer to a node
      * @param n2 pointer to a node
      */
@@ -72,7 +72,7 @@ protected:
     typedef typename std::map< const Node<SPACE_DIM> *, const AbstractBoundaryCondition<SPACE_DIM>*, LessThanNode<SPACE_DIM> >::const_iterator
         DirichletIteratorType;
     DirichletIteratorType mDirichIterator; /**< Internal iterator over Dirichlet boundary conditions */
-    
+
     /** Whether there are any Dirichlet BCs anywhere on the mesh*/
     bool mHasDirichletBCs;
     /** Have we calculated mHasDirichletBCs */
@@ -82,10 +82,10 @@ protected:
      * Delete the list of Dirichlet boundary conditions.
      * @note This should stay as a protected method to avoid it being called with default arguments and causing seg faults
      *  (requires careful bookkeeping when calling this method).
-     * @param alreadyDeletedConditions  This is a set of BCs that have already been deleted that we should avoid trying 
+     * @param alreadyDeletedConditions  This is a set of BCs that have already been deleted that we should avoid trying
      *  to delete inside this method. (defaults to empty = delete everything)
      */
-    void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> alreadyDeletedConditions 
+    void DeleteDirichletBoundaryConditions(std::set<const AbstractBoundaryCondition<SPACE_DIM>*> alreadyDeletedConditions
                                             = std::set<const AbstractBoundaryCondition<SPACE_DIM>*>());
 
 public:
@@ -99,10 +99,10 @@ public:
      */
     ~AbstractBoundaryConditionsContainer();
 
-    /** 
+    /**
      * Return whether any Dirichlet conditions are defined (for ANY of the unknowns, on ANY of the processes).
      * Must be called collectively. The first time this is called, the result is communicated to all processes
-     * and then cached locally (the bool mHasDirichletBCs). If this needs recalculating 
+     * and then cached locally (the bool mHasDirichletBCs). If this needs recalculating
      * mCheckedAndCommunicatedIfDirichletBcs must be reset to zero.
      */
     bool HasDirichletBoundaryConditions();
@@ -113,7 +113,7 @@ public:
      * This is unlikely to be needed by the user, the methods ApplyDirichletToLinearProblem or
      * ApplyDirichletToNonlinearProblem can be called instead to apply all Dirichlet boundary conditions
      * at the same time.
-     * 
+     *
      * @param pBoundaryNode pointer to a boundary node
      * @param indexOfUnknown index of the unknown for which to obtain the value of the boundary condition (defaults to 0)
      */
@@ -121,12 +121,12 @@ public:
 
     /**
      * Test if there is a Dirichlet boundary condition defined on the given node.
-     * 
+     *
      * @param pNode pointer to a node
      * @param indexOfUnknown index of the unknown for which to obtain the value of the boundary condition (defaults to 0)
      */
     bool HasDirichletBoundaryCondition(const Node<SPACE_DIM>* pNode, unsigned indexOfUnknown = 0);
-    
+
     /**
      * When Dirichlet boundary conditions are likely to be added on one or more processes then we should call this
      * method collectively in order to ensure that all processes do a collective communication on the next call

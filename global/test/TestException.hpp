@@ -66,13 +66,13 @@ public:
         TS_ASSERT_THROWS_CONTAINS(NEVER_REACHED, "Should");
 
     }
-    
+
     void TestCheckMethods()
     {
         std::string msg("This is our message");
         // If another process threw an exception, this is what this process will actually throw
         std::string parallel_msg("Another process threw an exception; bailing out.");
-        
+
         try
         {
             EXCEPTION(msg);
@@ -82,11 +82,11 @@ public:
             TS_ASSERT_EQUALS(e.CheckShortMessage(msg), "");
             TS_ASSERT_DIFFERS(e.CheckShortMessage("This is not our message"), "");
         }
-        
+
         TS_ASSERT_THROWS_THIS(EXCEPTION(msg), msg);
         TS_ASSERT_THROWS_THIS(EXCEPTION(parallel_msg), msg);
         TS_ASSERT_THROWS_THIS(EXCEPTION(parallel_msg), "Anything you like will work here");
-        
+
         try
         {
             EXCEPTION(parallel_msg);
@@ -97,7 +97,7 @@ public:
             // Of course, in this case we don't know what the real message would have been...
             TS_ASSERT_EQUALS(e.CheckShortMessage("This is not our message"), "");
         }
-        
+
         // Now check for messages containing a string
         try
         {
@@ -108,13 +108,13 @@ public:
             TS_ASSERT_EQUALS(e.CheckShortMessageContains(msg), "");
             TS_ASSERT_DIFFERS(e.CheckShortMessageContains("This is not our message"), "");
         }
-        
+
         TS_ASSERT_THROWS_CONTAINS(EXCEPTION(msg + " extra bit"), msg);
         TS_ASSERT_THROWS_CONTAINS(EXCEPTION("Prefix " + msg + " extra bit"), msg);
         TS_ASSERT_THROWS_CONTAINS(EXCEPTION(msg), msg);
         TS_ASSERT_THROWS_CONTAINS(EXCEPTION(parallel_msg), msg);
         TS_ASSERT_THROWS_CONTAINS(EXCEPTION(parallel_msg), "Anything you like will work here");
-        
+
         try
         {
             EXCEPTION(parallel_msg);

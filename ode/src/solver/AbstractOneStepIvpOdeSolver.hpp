@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 class AbstractOneStepIvpOdeSolver : public AbstractIvpOdeSolver
 {
-    
+
 private:
 
     /** Needed for serialization. */
@@ -58,7 +58,7 @@ private:
         // This calls serialize on the base class.
         archive & boost::serialization::base_object<AbstractIvpOdeSolver>(*this);
     }
-    
+
     /**
      * Working memory
      */

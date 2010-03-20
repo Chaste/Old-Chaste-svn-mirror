@@ -42,7 +42,7 @@ class PapillaryFibreCalculator
 friend class TestPapillaryFibreCalculator;
 
 private:
-    /** Reference to the ventricular/papillary mesh*/ 
+    /** Reference to the ventricular/papillary mesh*/
     TetrahedralMesh<3,3>& mrMesh;
     /** vectors from the centre of each element to the nearest boundary node */
     std::vector< c_vector<double, 3> > mRadiusVectors;

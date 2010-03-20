@@ -61,7 +61,7 @@ VoronoiTessellation<DIM>::VoronoiTessellation(TetrahedralMesh<DIM,DIM>& rMesh, c
 
 /**
  * 1D version of Initialise method (not implemented).
- * 
+ *
  * @param rMesh a tetrahedral mesh
  */
 template<>
@@ -73,7 +73,7 @@ void VoronoiTessellation<1>::Initialise(TetrahedralMesh<1,1>& rMesh)
 
 /**
  * 2D version of Initialise method.
- * 
+ *
  * @param rMesh a tetrahedral mesh
  */
 template<>
@@ -155,7 +155,7 @@ void VoronoiTessellation<2>::Initialise(TetrahedralMesh<2,2>& rMesh)
 
 /**
  * 3D version of Initialise method.
- * 
+ *
  * @param rMesh a tetrahedral mesh
  */
 template<>

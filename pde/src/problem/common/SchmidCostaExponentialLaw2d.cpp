@@ -53,26 +53,26 @@ SchmidCostaExponentialLaw2d::SchmidCostaExponentialLaw2d()
             mIdentity(M,N) = M==N ? 1.0 : 0.0;
         }
     }
-    
+
     mpChangeOfBasisMatrix = NULL;
 }
 
 void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<double,2,2>& rC,
-						                                           c_matrix<double,2,2>& rInvC,
-						                                           double                pressure,
-						                                           c_matrix<double,2,2>& rT,
-						                                           FourthOrderTensor<2>& rDTdE,
-						                                           bool                  computeDTdE)
+                                                                   c_matrix<double,2,2>& rInvC,
+                                                                   double                pressure,
+                                                                   c_matrix<double,2,2>& rT,
+                                                                   FourthOrderTensor<2>& rDTdE,
+                                                                   bool                  computeDTdE)
 {
     static c_matrix<double,2,2> C_transformed;
     static c_matrix<double,2,2> invC_transformed;
 
     // The material law parameters are set up assuming the fibre direction is (1,0,0)
     // and sheet direction is (0,1,0), so we have to transform C,inv(C),and T.
-    // Let P be the change-of-basis matrix P = (\mathbf{m}_f, \mathbf{m}_s, \mathbf{m}_n). 
-    // The transformed C for the fibre/sheet basis is C* = P^T C P. 
+    // Let P be the change-of-basis matrix P = (\mathbf{m}_f, \mathbf{m}_s, \mathbf{m}_n).
+    // The transformed C for the fibre/sheet basis is C* = P^T C P.
     // We then compute T* = T*(C*), and then compute T = P T* P^T.
- 
+
     if(mpChangeOfBasisMatrix)
     {
         // C* = P^T C P, and ditto inv(C)
@@ -128,10 +128,10 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
     {
         static c_matrix<double,2,2> T_transformed_times_Ptrans;
         T_transformed_times_Ptrans = prod(rT, trans(*mpChangeOfBasisMatrix));
-        
+
         rT = prod(*mpChangeOfBasisMatrix, T_transformed_times_Ptrans);  // T = P T* P^T
 
-        // dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}     
+        // dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
         if (computeDTdE)
         {
             static FourthOrderTensor<2> temp;
@@ -140,7 +140,7 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
             temp.SetAsProduct(rDTdE, *mpChangeOfBasisMatrix, 2);
             rDTdE.SetAsProduct(temp, *mpChangeOfBasisMatrix, 3);
         }
-    } 
+    }
 }
 
 double SchmidCostaExponentialLaw2d::GetA()

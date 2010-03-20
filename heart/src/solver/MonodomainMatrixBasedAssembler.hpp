@@ -61,7 +61,7 @@ public:
 public:
     /**
      *  Integrand in matrix definition integral (see class documentation).
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -80,7 +80,7 @@ public:
     /**
      * The term to be added to the element stiffness vector - except this class
      * is only used for constructing a matrix so this is never called.
-     * 
+     *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
@@ -100,7 +100,7 @@ public:
      * The term arising from boundary conditions to be added to the element
      * stiffness vector - except this class is only used for constructing a matrix
      * so this is never called.
-     * 
+     *
      * @param rSurfaceElement the element which is being considered.
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rX The point in space
@@ -114,7 +114,7 @@ public:
 
     /**
      * Constructor takes in a mesh and calls AssembleSystem to construct the matrix.
-     * 
+     *
      * @param pMesh Pointer to a mesh
      */
     MonodomainRhsMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
@@ -176,7 +176,7 @@ public:
 
     /**
      * Constructor calls base constructor and creates and stores rhs-matrix.
-     * 
+     *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
      * @param pBcc pointer to the boundary conditions
@@ -195,7 +195,7 @@ public:
     /**
      * This constructs the vector z such that b (in Ax=b) is given by Bz = b. See class
      * documentation.
-     * 
+     *
      * @param existingSolution the current solution
      */
     void ConstructVectorForMatrixBasedRhsAssembly(Vec existingSolution);

@@ -45,8 +45,8 @@ double StreeterFibreGenerator<SPACE_DIM>::GetAveragedThicknessLocalNode(
         nodeIndex >= mrMesh.GetDistributedVectorFactory()->GetHigh() )
     {
         return 0.0;  //Don't calculate this for nodes which aren't local
-    }  
-        
+    }
+
     // Initialise the average with the value corresponding to the current node
     double average = wallThickness[nodeIndex];
     unsigned nodes_visited = 1;
@@ -166,7 +166,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
     OutputFileHandler handler(outputDirectory, false);
     out_stream p_fibre_file, p_regions_file, p_thickness_file, p_ave_thickness_file;
 
-    //Make sure that only the master process makes an empty output file 
+    //Make sure that only the master process makes an empty output file
     //and writes the log files
     if (PetscTools::AmMaster())
     {
@@ -180,7 +180,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
     {
         logInfo=false;
     }
-    
+
     if (logInfo)
     {
         p_regions_file  = handler.OpenOutputFile("node_regions.data");
@@ -272,7 +272,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
     {
         my_averaged_wall_thickness[node_index] = GetAveragedThicknessLocalNode(node_index, wall_thickness);
     }
-    
+
     //Non-local information appear as zeros in the vector
     MPI_Allreduce(&my_averaged_wall_thickness[0], &averaged_wall_thickness[0], num_nodes,
                   MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
@@ -299,9 +299,9 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
             //PRINT_VARIABLE(element_index);
             //Locally own this element
             //Make sure that writing will proceed
-            //The same file is written to by multiple processes, therefore we need 
+            //The same file is written to by multiple processes, therefore we need
             //this barrier - Barrier happens BEFORE opening and AFTER closing
-            
+
             PetscTools::Barrier("GenerateOrthotropicFibreOrientation");
             if (fibre_file_is_open != true)
             {
@@ -310,9 +310,9 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
                 fibre_file_is_open=true;
             }
 
-            
+
             Element<SPACE_DIM,SPACE_DIM>* p_element = mrMesh.GetElement(element_index);
-    
+
             /*
              *  The gradient of the averaged thickness at the element is:
              *
@@ -327,38 +327,38 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
              *
              *  Defined as u in Streeter paper
              */
-    
+
             c_vector<double, SPACE_DIM+1> elem_nodes_ave_thickness;
             double element_averaged_thickness = 0.0;
             c_vector<HeartRegionType, SPACE_DIM+1> elem_nodes_region;
-    
+
             for (unsigned local_node_index=0; local_node_index<SPACE_DIM+1; local_node_index++)
             {
                 // Get node's global index
                 unsigned global_node_index = p_element->GetNode(local_node_index)->GetIndex();
-    
+
                 elem_nodes_ave_thickness[local_node_index] = averaged_wall_thickness[global_node_index];
                 elem_nodes_region[local_node_index] = mpGeometryInfo->GetHeartRegion(global_node_index);
-    
+
                 // Calculate wall thickness averaged value for the element
                 element_averaged_thickness +=  wall_thickness[global_node_index];
             }
-    
+
             element_averaged_thickness /= SPACE_DIM+1;
-        
+
             c_matrix<double, SPACE_DIM+1, SPACE_DIM> basis_functions( zero_matrix<double>(4u,3u) );
             basis_functions(0,0) = basis_functions(0,1) = basis_functions(0,2) = -1.0;
             basis_functions(1,0) = basis_functions(2,1) = basis_functions(3,2) =  1.0;
-    
+
             c_matrix<double, SPACE_DIM+1, SPACE_DIM> temp;
             c_matrix<double, SPACE_DIM, SPACE_DIM> jacobian, inverse_jacobian;
             double jacobian_det;
             mrMesh.GetInverseJacobianForElement(element_index, jacobian, jacobian_det, inverse_jacobian);
             noalias(temp) = prod (basis_functions, inverse_jacobian);
             noalias(grad_ave_wall_thickness) = prod(elem_nodes_ave_thickness, temp);
-    
+
             grad_ave_wall_thickness /= norm_2(grad_ave_wall_thickness);
-        
+
             /*
              *   Normal to the gradient (v in Streeter paper) which is then the circumferential direction
              * (it will be the fibre direction after rotation)
@@ -368,12 +368,12 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
              */
             c_vector<double, SPACE_DIM> fibre_direction = VectorProduct(grad_ave_wall_thickness, Create_c_vector(1.0, 0.0, 0.0));
             fibre_direction /= norm_2(fibre_direction);
-    
+
             /*
              *  Longitude direction (w in Streeter paper)
              */
             c_vector<double, SPACE_DIM> longitude_direction = VectorProduct(grad_ave_wall_thickness, fibre_direction);
-    
+
             /*
              *  Compute fibre to v angle: alpha = R*(1-2e)^3
              *
@@ -382,7 +382,7 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
              *       on the position in the wall
              */
             double alpha = GetFibreMaxAngle(elem_nodes_region) * SmallPow( (1 - 2*element_averaged_thickness), 3 );
-    
+
             /*
              *  Apply alpha rotation about the u axis to the orthonormal basis
              *
@@ -409,19 +409,19 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
              */
             c_vector<double, SPACE_DIM> rotated_fibre_direction = fibre_direction*cos(alpha) + longitude_direction*sin(alpha);
             c_vector<double, SPACE_DIM> rotated_longitude_direction = -fibre_direction*sin(alpha) + longitude_direction*cos(alpha);
-    
-    
+
+
             /*
              * Test the orthonormality of the basis
              */
             assert( fabs(norm_2(rotated_fibre_direction) - 1) < 100*DBL_EPSILON );
             assert( fabs(norm_2(grad_ave_wall_thickness) - 1) < 100*DBL_EPSILON );
             assert( fabs(norm_2(rotated_longitude_direction) - 1) < 100*DBL_EPSILON );
-    
+
             assert( fabs(inner_prod(rotated_fibre_direction, grad_ave_wall_thickness)) < 100*DBL_EPSILON );
             assert( fabs(inner_prod(rotated_fibre_direction, rotated_longitude_direction)) < 100*DBL_EPSILON);
             assert( fabs(inner_prod(grad_ave_wall_thickness, rotated_longitude_direction)) < 100*DBL_EPSILON);
-    
+
             /*
              *  Output the direction of the myofibre, the transverse to it in the plane of the myocite laminae and the normal to this laminae (in that order)
              *
@@ -442,10 +442,10 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
                 fibre_file_is_open=false;
             }
             PetscTools::Barrier("GenerateOrthotropicFibreOrientation");
-            
+
         }
     }
-    
+
     if (fibre_file_is_open)
     {
         p_fibre_file->close();
@@ -457,17 +457,17 @@ void StreeterFibreGenerator<SPACE_DIM>::GenerateOrthotropicFibreOrientation(
         p_thickness_file->close();
         p_ave_thickness_file->close();
     }
-    
+
 }
 
 template<unsigned SPACE_DIM>
 void StreeterFibreGenerator<SPACE_DIM>::CheckVentricleAlignment()
 {
-    assert(SPACE_DIM == 3); 
-    
+    assert(SPACE_DIM == 3);
+
     ChasteCuboid<SPACE_DIM> lv_bounds=mpGeometryInfo->CalculateBoundingBoxOfLV();
     ChasteCuboid<SPACE_DIM> rv_bounds=mpGeometryInfo->CalculateBoundingBoxOfRV();
-        
+
     //Check that LV midway point is not inside the RV interval
     double lv_y_midway=lv_bounds.rGetUpperCorner()[1] + lv_bounds.rGetLowerCorner()[1];
     lv_y_midway /= 2.0;

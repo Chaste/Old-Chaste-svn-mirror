@@ -208,17 +208,17 @@ public:
         TS_ASSERT_DELTA(ppc_bw.CalculateMaximumUpstrokeVelocity(14895U), 174.9, 4.0);
         TS_ASSERT_DELTA(ppc_bw.CalculateActionPotentialDuration(90, 14895U), 230.25, 1.0);
      }
-     
+
      void TestEadCalculation() throw(Exception)
      {
         Hdf5DataReader ead_file("heart/test/data", "Ead", false);
         PropagationPropertiesCalculator ead_calc(&ead_file);
-        
+
         TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[0],1u);
         TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[1],0u);
         TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[2],3u);
         TS_ASSERT_EQUALS(ead_calc.CalculateAllAboveThresholdDepolarisations(97u,-40.0)[3],0u);
-        
+
         TS_ASSERT_EQUALS(ead_calc.CalculateAboveThresholdDepolarisationsForLastAp(97u,-40.0), 0u);
      }
 };

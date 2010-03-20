@@ -61,12 +61,12 @@ public:
         FixedDurationGenerationBasedCellCycleModel fixed_model;
         SimulationTime::Destroy();
 
-		boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         TS_ASSERT_THROWS_THIS(TissueCell bad_cell(STEM, p_healthy_state, &fixed_model),
-        		              "TissueCell is setting up a cell cycle model but SimulationTime has not been set up");
+                              "TissueCell is setting up a cell cycle model but SimulationTime has not been set up");
 
-		// Cell wasn't created - count should be zero
+        // Cell wasn't created - count should be zero
         TS_ASSERT_EQUALS(p_healthy_state->GetCellCount(), 0u);
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -74,15 +74,15 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
         TS_ASSERT_THROWS_THIS(TissueCell stem_cell(STEM, p_healthy_state, NULL),
-        		              "Cell cycle model is null");
+                              "Cell cycle model is null");
 
-		// Cell wasn't created - count should be zero
+        // Cell wasn't created - count should be zero
         TS_ASSERT_EQUALS(p_healthy_state->GetCellCount(), 0u);
 
         TissueCell stem_cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
 
-		// Cell was created - count should be one
+        // Cell was created - count should be one
         TS_ASSERT_EQUALS(p_healthy_state->GetCellCount(), 1u);
 
         p_simulation_time->IncrementTimeOneStep();
@@ -124,7 +124,7 @@ public:
 
         // Cover bad cell cycle model
 
-		boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         TS_ASSERT_THROWS_THIS(TissueCell bad_cell2(STEM, p_healthy_state, NULL),"Cell cycle model is null");
 
@@ -204,7 +204,7 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         // SimulationTime returns 6 hours
 
-		boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         TissueCell stem_cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
@@ -307,7 +307,7 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200, 20);
-		boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         TissueCell stem_cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
@@ -325,8 +325,8 @@ public:
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(0.0);
 
         WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
-		p_cell_cycle_model1->SetDimension(2);
-		TissueCell wnt_cell(TRANSIT, p_healthy_state, p_cell_cycle_model1);
+        p_cell_cycle_model1->SetDimension(2);
+        TissueCell wnt_cell(TRANSIT, p_healthy_state, p_cell_cycle_model1);
 
         TS_ASSERT_EQUALS(wnt_cell.GetCellProliferativeType(),TRANSIT);
 
@@ -361,7 +361,7 @@ public:
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
-		boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         TissueCell stem_cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
         stem_cell.InitialiseCellCycleModel();
@@ -442,7 +442,7 @@ public:
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
 
         p_simulation_time->IncrementTimeOneStep();
-		boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         //  Creating different types of cells with different cell cycle models at SimulationTime = 6 hours.
         TissueCell stem_cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
@@ -767,9 +767,9 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
-		p_cell_cycle_model1->SetDimension(2);
-		TissueCell wnt_cell(TRANSIT, p_healthy_state, p_cell_cycle_model1);
-		wnt_cell.InitialiseCellCycleModel();
+        p_cell_cycle_model1->SetDimension(2);
+        TissueCell wnt_cell(TRANSIT, p_healthy_state, p_cell_cycle_model1);
+        wnt_cell.InitialiseCellCycleModel();
 
 #ifdef CHASTE_CVODE
         const double expected_g1_duration = 5.96441;
@@ -853,7 +853,7 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
-		p_cell_model->SetDimension(2);
+        p_cell_model->SetDimension(2);
         TissueCell wnt_cell(TRANSIT, p_healthy_state, p_cell_model);
         wnt_cell.InitialiseCellCycleModel();
 

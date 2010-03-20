@@ -1534,7 +1534,7 @@ public:
         cells[3].SetMutationState(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
         cells[4].SetMutationState(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
         cells[2].SetBirthTime(1.5-(TissueConfig::Instance()->GetStemCellG1Duration()
-    			                   + TissueConfig::Instance()->GetSG2MDuration()));
+                                   + TissueConfig::Instance()->GetSG2MDuration()));
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);

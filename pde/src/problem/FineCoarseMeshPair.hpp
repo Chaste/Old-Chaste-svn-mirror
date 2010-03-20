@@ -65,34 +65,34 @@ private:
     /** Coarse mesh (usually be a quadratic mesh) */
     QuadraticMesh<DIM>& mrCoarseMesh;
 
-    /** The min values of the nodes, for each dimension, in the fine mesh, for creating the boxes */    
+    /** The min values of the nodes, for each dimension, in the fine mesh, for creating the boxes */
     c_vector<double,DIM> mMinValuesFine;
-    /** The max values of the nodes, for each dimension, in the fine mesh, for creating the boxes */    
+    /** The max values of the nodes, for each dimension, in the fine mesh, for creating the boxes */
     c_vector<double,DIM> mMaxValuesFine;
 
     /** Boxes on the fine mesh domain, for easier determination of containing element for a given point */
     BoxCollection<DIM>* mpFineMeshBoxCollection;
     /** The containing elements and corresponding weights in the fine mesh for the set of points given.
-     *  The points may have been quadrature points in the coarse mesh, or nodes in coarse mesh, etc. 
+     *  The points may have been quadrature points in the coarse mesh, or nodes in coarse mesh, etc.
      */
     std::vector<ElementAndWeights<DIM> > mElementsAndWeights;
-    
-    /** Indices of the points which were found to be outside the fine mesh */ 
+
+    /** Indices of the points which were found to be outside the fine mesh */
     std::vector<unsigned> mNotInMesh;
-    /** The corresponding weights, for the nearest elements, of the points which were found 
-     *  to be outside the fine mesh */ 
+    /** The corresponding weights, for the nearest elements, of the points which were found
+     *  to be outside the fine mesh */
     std::vector<c_vector<double,DIM+1> > mNotInMeshNearestElementWeights;
-    
+
     /** 3 values, (0) number of points for which the containing element was found quickly (the element was
-     *  in the same box as the point, (1) number of points for which the containing element was found 
+     *  in the same box as the point, (1) number of points for which the containing element was found
      *  slowly (the element was not the same box as the point, (2) num points outside the fine mesh.
      *  Note mCounters[2] = mNotInMesh.size() = mNotInMeshNearestElementWeights.size();
      */
     std::vector<unsigned> mCounters;
-    
-////////////// only implement if going to be needed   
+
+////////////// only implement if going to be needed
 //////    /** In some simulations the coarse and fine meshes will turn out to be the same (the vertices of the
-//////     *  coarse quadratic mesh will match the vertices of the fine mesh), we should figure out if this 
+//////     *  coarse quadratic mesh will match the vertices of the fine mesh), we should figure out if this
 //////     *  is the case and do things differently if so
 //////     */
 //////    bool mIdenticalMeshes;
@@ -103,51 +103,51 @@ public:
      *  @param rCoarseMesh Coarse mesh (reference)
      */
     FineCoarseMeshPair(TetrahedralMesh<DIM,DIM>& rFineMesh, QuadraticMesh<DIM>& rCoarseMesh);
-    
+
     /**
      *  Destructor just deletes the box collection
      */
     ~FineCoarseMeshPair();
-    
+
     /**
      *  Set up boxes on fine mesh. The elements contained in each box is stored, which makes
      *  finding the containing element for a given point much faster.
      *  This should be called before ComputeFineElementsAndWeightsForCoarseQuadPoints() etc
-     * 
+     *
      *  @param boxWidth width to use for the boxes (which will be cubes). Note that a domain
      *    which is a touch larger than the smallest containing cuboid of the fine mesh is used.
      *    boxWidth defaults to a negative value, in which case a box width such that there are
      *    approximately 15 boxes in the x-direction.
      */
     void SetUpBoxesOnFineMesh(double boxWidth = -1);
-    
+
     /**
-     * Set up the containing (fine) elements and corresponding weights for all the  
+     * Set up the containing (fine) elements and corresponding weights for all the
      * quadrature points in the coarse mesh. Call GetElementsAndWeights() after calling this
      * with the index of the quad point (=the index of the quad point in a QuadraturePointsGroup=
      * the index if the quad points were listed by looping over all the element and then
-     * looping over all the quad points). 
+     * looping over all the quad points).
      * @param rQuadRule The quadrature rule, used to determine the number of quadrature points per element.
      */
     void ComputeFineElementsAndWeightsForCoarseQuadPoints(GaussianQuadratureRule<DIM>& rQuadRule);
-    
+
     /**
      *  Print the number of points for which the containing element was found quickly, the number
-     *  for which the containing element was found slowly, and the number for which no containing 
+     *  for which the containing element was found slowly, and the number for which no containing
      *  element was found (with the values of the weights for the latter).
      */
     void PrintStatistics();
-    
+
     /**
      * @return  A reference to the elements/weights information
-     */ 
+     */
     std::vector<ElementAndWeights<DIM> >& rGetElementsAndWeights()
     {
         return mElementsAndWeights;
     }
-    
+
     /**
-     *  Destroy the box collection - can be used to free memory once 
+     *  Destroy the box collection - can be used to free memory once
      *  ComputeFineElementsAndWeightsForCoarseQuadPoints has been called.
      */
     void DeleteBoxCollection();

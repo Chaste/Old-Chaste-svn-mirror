@@ -45,20 +45,20 @@ public:
         // Remove directory in case it was there from previous executions.
         if (PetscTools::AmMaster())
         {
-            EXPECT0(system, "rm -rf " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");        
+            EXPECT0(system, "rm -rf " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
         }
-        PetscTools::Barrier();     
+        PetscTools::Barrier();
         EXPECTNON0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
 
         OutputDirectoryFifoQueue fifo_queue("checkpoints",2);
         EXPECT0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
-        
+
         fifo_queue.CreateNextDir("0.1");
         EXPECT0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.1");
 
         fifo_queue.CreateNextDir("0.2");
         EXPECT0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.2");
-        
+
     }
 
     void TestQueueRemovesAndCreatesDirectories() throw (Exception)
@@ -67,14 +67,14 @@ public:
         OutputFileHandler handler("");
         if (PetscTools::AmMaster())
         {
-            EXPECT0(system, "rm -rf " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");        
+            EXPECT0(system, "rm -rf " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
         }
-        PetscTools::Barrier();     
+        PetscTools::Barrier();
         EXPECTNON0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
 
         OutputDirectoryFifoQueue fifo_queue("checkpoints",2);
         EXPECT0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints");
-        
+
         fifo_queue.CreateNextDir("0.1");
         EXPECT0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.1");
 
@@ -89,12 +89,12 @@ public:
 
         fifo_queue.CreateNextDir("0.4");
         EXPECTNON0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.1");
-        EXPECTNON0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.2");        
+        EXPECTNON0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.2");
         EXPECT0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.3");
         EXPECT0(system, "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "/checkpoints/0.4");
     }
 
-    
+
 };
 
 #endif /*TESTOUTPUTDIRECTORYFIFOQUEUE_HPP_*/

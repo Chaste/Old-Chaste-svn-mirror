@@ -129,7 +129,7 @@ public:
 
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
-        
+
         bidomain_problem.Solve();
 
         Vec sol = bidomain_problem.GetSolution();

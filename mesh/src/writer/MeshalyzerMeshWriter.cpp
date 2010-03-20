@@ -118,7 +118,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
         ElementData element_data = this->GetNextElement();
-        
+
         std::vector<unsigned> current_item = element_data.NodeIndices;
         for (unsigned i=0; i<nodes_per_element; i++)
         {
@@ -130,7 +130,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
             {
                 *p_element_file << current_item[i]+1 << "\t";
             }
-        }        
+        }
 
         *p_element_file << element_data.AttributeValue << "\n";
     }

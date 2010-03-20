@@ -182,7 +182,7 @@ public:
             TS_ASSERT_EQUALS(ls.GetMatrixElement(2, 1), 125.0);
         }
     }
-    
+
     void TestZeroMatrixRowsWithValueOnDiagonal()
     {
         LinearSystem ls(5);
@@ -192,7 +192,7 @@ public:
             ls.SetRhsVectorElement(i, (double)i);
         }
         ls.AssembleFinalLinearSystem();
-        
+
         std::vector<unsigned> rows;
         rows.push_back(2);
         rows.push_back(3);
@@ -214,9 +214,9 @@ public:
             }
         }
     }
-        
-    
-    
+
+
+
     void TestZeroingLinearSystemByColumn()
     {
         LinearSystem ls(5);
@@ -268,9 +268,9 @@ public:
         rows[0] = 2;
         rows[1] = 3;
         rows[2] = 4;
-        
+
         ls.ZeroMatrixRowsAndColumnsWithValueOnDiagonal(rows, 3.1);
-        
+
         int lo, hi;
         ls.GetOwnershipRange(lo, hi);
         for (int row=lo; row<hi; row++)
@@ -317,8 +317,8 @@ public:
              ++index)
         {
             TS_ASSERT_EQUALS(distributed_third_row[index], 3);
-        }                
-        
+        }
+
         VecDestroy(third_row);
     }
 
@@ -674,7 +674,7 @@ public:
 
         // coverage
         ls.SetMatrixIsSymmetric(false);
-        TS_ASSERT(!ls.IsMatrixSymmetric());        
+        TS_ASSERT(!ls.IsMatrixSymmetric());
     }
 
     void TestNonSymmetricMatrix()
@@ -1071,34 +1071,34 @@ public:
             Mat system_matrix;
             //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
-            
+
             Vec system_rhs;
             //Note that this test deadlocks if the file's not on the disk
             PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
 
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
-            
+
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("cg");
 
-            ls.SetPcType("bjacobi");                        
+            ls.SetPcType("bjacobi");
             Vec solution = ls.Solve(/*no guess provided*/);
             unsigned block_jacobi_its = ls.GetNumIterations();
             VecDestroy(solution);
 
-            ls.SetPcType("ldufactorisation");                        
+            ls.SetPcType("ldufactorisation");
             solution = ls.Solve(/*no guess provided*/);
             unsigned ldu_its = ls.GetNumIterations();
             VecDestroy(solution);
 
-            ls.SetPcType("bjacobi");                        
+            ls.SetPcType("bjacobi");
             solution = ls.Solve(/*no guess provided*/);
             unsigned second_block_jacobi_its = ls.GetNumIterations();
             VecDestroy(solution);
 
-            TS_ASSERT_DIFFERS(block_jacobi_its, ldu_its)            
+            TS_ASSERT_DIFFERS(block_jacobi_its, ldu_its)
             TS_ASSERT_DIFFERS(ldu_its, second_block_jacobi_its)
-            
+
             MatDestroy(system_matrix);
             VecDestroy(system_rhs);
     }

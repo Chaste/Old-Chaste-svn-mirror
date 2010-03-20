@@ -121,7 +121,7 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string inputDirectory,
                           std::string fileBaseName,
-                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) : 
+                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) :
                     AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "cmgui_output")
 {
     //Used to inform the mesh of the data names
@@ -133,7 +133,7 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
         Write("Bi");
         field_names.push_back("Phi_e");
     }
-    
+
     //Write mesh in a suitable form for cmgui
     std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
     CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);

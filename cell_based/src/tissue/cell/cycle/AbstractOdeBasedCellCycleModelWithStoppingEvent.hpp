@@ -82,7 +82,7 @@ public:
      *
      * @param lastTime  The birth time of the cell / last time model was evaluated (defaults to the current SimulationTime)
      */
-	AbstractOdeBasedCellCycleModelWithStoppingEvent(double lastTime = SimulationTime::Instance()->GetTime());
+    AbstractOdeBasedCellCycleModelWithStoppingEvent(double lastTime = SimulationTime::Instance()->GetTime());
 
     /**
      * Copy constructor.
@@ -94,7 +94,7 @@ public:
      *
      * @param rOtherModel the cell cycle model being copied.
      */
-	AbstractOdeBasedCellCycleModelWithStoppingEvent(const AbstractOdeBasedCellCycleModelWithStoppingEvent& rOtherModel);
+    AbstractOdeBasedCellCycleModelWithStoppingEvent(const AbstractOdeBasedCellCycleModelWithStoppingEvent& rOtherModel);
 
     /**
      * This destructor deletes the mpOdeSystem.

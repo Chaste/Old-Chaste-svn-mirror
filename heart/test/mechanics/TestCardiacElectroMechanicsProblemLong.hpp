@@ -84,7 +84,7 @@ public:
                                                      100,  /* 100*0.01ms mech dt */
                                                      1.0,  /* contraction model ode dt */
                                                      "TestCardiacEmVaryingFibres");
-        
+
         // fibres going from (1,0) at X=0 to (1,1)-direction at X=1
         /* the fibres file was created with the code (inside a class that owns a mesh)
         for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
@@ -104,7 +104,7 @@ public:
         std::vector<c_vector<double,2> >& r_deformed_position = problem.rGetDeformedPosition();
         TS_ASSERT_DELTA(r_deformed_position[5](0), 0.9017, 2e-3); // visualised, looks good
         //IntelProduction differs by about 1.6e-3...
-        
+
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
     }

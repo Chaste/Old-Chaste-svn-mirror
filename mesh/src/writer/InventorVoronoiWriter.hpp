@@ -146,7 +146,7 @@ public:
 
     /**
      *  Write the Voronoi tessellation in Inventor format.
-     * 
+     *
      * @param rTessellation the Voronoi tessellation
      */
     void Write(const VoronoiTessellation<3>& rTessellation);
@@ -154,7 +154,7 @@ public:
     /**
      *  Scale the vertex of each cell toward the centre of that cell by the given scaleFactor
      *  and write.
-     * 
+     *
      * @param rTessellation the Voronoi tessellation
      * @param scaleFactor the scale factor
      */

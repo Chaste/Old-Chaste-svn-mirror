@@ -69,7 +69,7 @@ private:
      * @param rRawData  the element, face or edge data to be read
      * @param dimensionOfObject  the number of lines of data to be read
      */
-    std::vector<std::vector<unsigned> > TokenizeStringsToInts(const std::vector<std::string>& rRawData, 
+    std::vector<std::vector<unsigned> > TokenizeStringsToInts(const std::vector<std::string>& rRawData,
                                                               unsigned dimensionOfObject);
 
 public:

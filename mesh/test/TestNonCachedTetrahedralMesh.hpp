@@ -56,20 +56,20 @@ private:
             EXPECT0(system, ps_command.str().c_str());
         }
         PetscTools::Barrier("GetMemoryUsage-1");
-    
+
         std::ifstream mem_file;
         mem_file.open(file_name.c_str());
         assert(mem_file.is_open());
         unsigned vsize;
         mem_file >> vsize;
-    
+
         PetscTools::Barrier("GetMemoryUsage-2");
         if (PetscTools::AmMaster())
         {
             std::string rm_command = "rm -rf " + file_name;
             EXPECT0(system, rm_command.c_str());
         }
-    
+
         return vsize;
 #else
         return 0;

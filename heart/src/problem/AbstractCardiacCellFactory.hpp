@@ -60,7 +60,7 @@ private:
      *  This member variable should be accessed through GetMesh(), which will check if it has been set before
      *  and throw an exception otherwise.*/
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
-    
+
     /**
      * A pointer to an HeartGeometryInformation information object
      * Can be accessed via get and set methods in this class.
@@ -110,11 +110,11 @@ public:
      */
     virtual void FinaliseCellCreation(std::vector< AbstractCardiacCell* >* pCellsDistributed,
                                       unsigned lo, unsigned hi);
-    
+
     /**
-     * Method that fills in the vector of heterogeneity areas with the NodesLists 
+     * Method that fills in the vector of heterogeneity areas with the NodesLists
      * that correspond to a given layer (implemented in subclasses)
-     */                                 
+     */
     virtual void FillInCellularTransmuralAreas();
 
     /**
@@ -142,16 +142,16 @@ public:
      * @return  the mesh used to create the cells.
      */
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* GetMesh();
-    
+
     /**
      * Set the HeartGeometryInformation object
-     * 
+     *
      * @param pHeartGeometryInformation the HeartGeometryInformation object that is to be set
      */
     void SetHeartGeometryInformation(HeartGeometryInformation<SPACE_DIM>* pHeartGeometryInformation);
-    
+
     /**
-     * @return the HeartGeometryInformation object 
+     * @return the HeartGeometryInformation object
      */
     HeartGeometryInformation<SPACE_DIM>* GetHeartGeometryInformation();
 

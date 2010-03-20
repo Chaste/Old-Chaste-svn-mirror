@@ -85,27 +85,27 @@ private:
     }
 
 public:
-	/**
-	 * Default constructor.
-	 *
-	 * @param index global index of the element
-	 * @param nodes vector of pointers to nodes
-	 * @param faces vector of pointers to VertexElements
-	 * @param orientations vector of how each face is oriented
-	 */
-	VertexElement3d(unsigned index,
-			        std::vector<VertexElement<2, 3>*> faces,
-					std::vector<bool> orientations);
+    /**
+     * Default constructor.
+     *
+     * @param index global index of the element
+     * @param nodes vector of pointers to nodes
+     * @param faces vector of pointers to VertexElements
+     * @param orientations vector of how each face is oriented
+     */
+    VertexElement3d(unsigned index,
+                    std::vector<VertexElement<2, 3>*> faces,
+                    std::vector<bool> orientations);
 
-	/**
-	 * Default constructor for use by serializer.
-	 */
-	VertexElement3d();
+    /**
+     * Default constructor for use by serializer.
+     */
+    VertexElement3d();
 
-	/**
-	 * Destructor.
-	 */
-	virtual ~VertexElement3d();
+    /**
+     * Destructor.
+     */
+    virtual ~VertexElement3d();
 
     /**
      * Get the number of faces in the VoronoiCell.
@@ -127,27 +127,27 @@ public:
     bool FaceIsOrientatedClockwise(unsigned index) const;
 
     /**
-	 * Overridden RegisterWithNodes() method.
-	 *
-	 * Informs all nodes forming this element that they are in this element.
-	 */
-	void RegisterWithNodes();
+     * Overridden RegisterWithNodes() method.
+     *
+     * Informs all nodes forming this element that they are in this element.
+     */
+    void RegisterWithNodes();
 
-	/**
-	 * Overridden MarkAsDeleted() method.
-	 *
-	 * Mark an element as having been removed from the mesh.
-	 * Also notify nodes in the element that it has been removed.
-	 */
-	void MarkAsDeleted();
+    /**
+     * Overridden MarkAsDeleted() method.
+     *
+     * Mark an element as having been removed from the mesh.
+     * Also notify nodes in the element that it has been removed.
+     */
+    void MarkAsDeleted();
 
-	/**
-	 * Update node at the given index.
-	 *
-	 * @param rIndex is an local index to which node to change
-	 * @param pNode is a pointer to the replacement node
-	 */
-	void UpdateNode(const unsigned& rIndex, Node<3>* pNode);
+    /**
+     * Update node at the given index.
+     *
+     * @param rIndex is an local index to which node to change
+     * @param pNode is a pointer to the replacement node
+     */
+    void UpdateNode(const unsigned& rIndex, Node<3>* pNode);
 };
 
 #endif /*VERTEXELEMENT3D_HPP_*/

@@ -46,7 +46,7 @@ AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel()
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& rOtherModel)
     : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
 {
-	mDimension = rOtherModel.mDimension;
+    mDimension = rOtherModel.mDimension;
 }
 
 double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
@@ -88,7 +88,7 @@ double AbstractWntOdeBasedCellCycleModel::GetWntLevel()
 
 void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
 {
-	AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
+    AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
 
     assert(mpOdeSystem!=NULL);
 
@@ -116,10 +116,10 @@ void AbstractWntOdeBasedCellCycleModel::UpdateCellProliferativeType()
 
 double AbstractWntOdeBasedCellCycleModel::GetAverageTransitCellCycleTime()
 {
-	return 16.0;
+    return 16.0;
 }
 
 double AbstractWntOdeBasedCellCycleModel::GetAverageStemCellCycleTime()
 {
-	return 16.0;
+    return 16.0;
 }

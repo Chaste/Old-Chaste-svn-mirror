@@ -35,8 +35,8 @@ AbstractIncompressibleMaterialLaw<DIM>::~AbstractIncompressibleMaterialLaw()
 
 template<unsigned DIM>
 void AbstractIncompressibleMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double,DIM,DIM>& rF,
-		                                                         double pressure,
-		                                                         c_matrix<double,DIM,DIM>& rSigma)
+                                                                 double pressure,
+                                                                 c_matrix<double,DIM,DIM>& rSigma)
 {
     double detF = Determinant(rF);
 
@@ -61,7 +61,7 @@ void AbstractIncompressibleMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double
             {
                 for (unsigned N=0; N<DIM; N++)
                 {
-                	rSigma(i,j) += rF(i,M)*T(M,N)*rF(j,N);
+                    rSigma(i,j) += rF(i,M)*T(M,N)*rF(j,N);
                 }
             }
             rSigma(i,j) /= detF;
@@ -71,8 +71,8 @@ void AbstractIncompressibleMaterialLaw<DIM>::ComputeCauchyStress(c_matrix<double
 
 template<unsigned DIM>
 void AbstractIncompressibleMaterialLaw<DIM>::Compute1stPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rF,
-		                                                                   double pressure,
-		                                                                   c_matrix<double,DIM,DIM>& rS)
+                                                                           double pressure,
+                                                                           c_matrix<double,DIM,DIM>& rS)
 {
     c_matrix<double,DIM,DIM> C = prod(trans(rF), rF);
     c_matrix<double,DIM,DIM> invC = Inverse(C);
@@ -88,8 +88,8 @@ void AbstractIncompressibleMaterialLaw<DIM>::Compute1stPiolaKirchoffStress(c_mat
 
 template<unsigned DIM>
 void AbstractIncompressibleMaterialLaw<DIM>::Compute2ndPiolaKirchoffStress(c_matrix<double,DIM,DIM>& rC,
-		                                                                   double pressure,
-		                                                                   c_matrix<double,DIM,DIM>& rT)
+                                                                           double pressure,
+                                                                           c_matrix<double,DIM,DIM>& rT)
 {
     c_matrix<double,DIM,DIM> invC = Inverse(rC);
 

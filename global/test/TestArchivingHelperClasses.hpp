@@ -87,7 +87,7 @@ public:
         expected_filepath << "." << PetscTools::GetMyRank();
 
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetProcessUniqueFilePath("fred"), expected_filepath.str());
-        
+
         std::string expected2 = ArchiveLocationInfo::GetArchiveDirectory() + "fred.12";
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetProcessUniqueFilePath("fred", 12), expected2);
     }
@@ -129,7 +129,7 @@ public:
         //Should this test fail with an exception involving
         // apps/texttest/chaste/resume_bidomain/save_bidomain
         // then look at TestCardiacSimulationArchiver
-        
+
         std::string archive_dir = "archive";
         std::string archive_file = "archive_opener.arch";
         const unsigned test_int = 123;
@@ -143,7 +143,7 @@ public:
             (*p_arch) & test_int; // All can write to the common archive - non-masters will write to /dev/null.
             (*p_process_arch) & test_int;
 
-            // archive_opener_out will do a PetscTools::Barrier when it is destructed 
+            // archive_opener_out will do a PetscTools::Barrier when it is destructed
         }
 
         // Read
@@ -160,7 +160,7 @@ public:
             unsigned test_int1, test_int2;
             (*p_arch) & test_int1;
             (*p_process_arch) & test_int2;
-    
+
             TS_ASSERT_EQUALS(test_int1, test_int);
             TS_ASSERT_EQUALS(test_int2, test_int);
         }
@@ -179,7 +179,7 @@ public:
             }
             // Remove the file
             EXPECT0(system, "rm -f testoutput/archive_opener.arch*");
-            
+
             { // Read
                 InputArchiveOpener archive_opener_relative("apps/texttest/chaste/resume_bidomain/save_bidomain", "archive.arch", false);
             }
@@ -241,20 +241,20 @@ public:
         }
         PetscTools::Barrier();
     }
-    
+
     void TestSpecifyingSecondaryArchive() throw (Exception)
     {
         std::string archive_dir = "archive";
         std::string archive_file = "specific_secondary.arch";
         const unsigned test_int = 321;
         const unsigned proc_id = PetscTools::GetMyRank();
-        
+
         // Writing when specifying the secondary archive doesn't make sense
         {
             TS_ASSERT_THROWS_THIS(OutputArchiveOpener archive_opener_out(archive_dir, archive_file, true, UINT_MAX),
                                   "Specifying the secondary archive file ID doesn't make sense when writing.");
         }
-        
+
         // Write normally so we can test reading
         {
             OutputArchiveOpener archive_opener_out(archive_dir, archive_file);
@@ -264,7 +264,7 @@ public:
             (*p_arch) & test_int; // All can write to the common archive - non-masters will write to /dev/null.
             (*p_process_arch) & proc_id;
 
-            // archive_opener_out will do a PetscTools::Barrier when it is destructed 
+            // archive_opener_out will do a PetscTools::Barrier when it is destructed
         }
 
         // Read
@@ -281,22 +281,22 @@ public:
             unsigned test_int1, test_int2;
             (*p_arch) & test_int1;
             (*p_process_arch) & test_int2;
-    
+
             TS_ASSERT_EQUALS(test_int1, test_int);
             TS_ASSERT_EQUALS(test_int2, 0u);
         }
     }
-    
+
     void TestOpenFutureBoostArchive() throw (Exception)
     {
-        
+
         std::string archive_dir = "global/test/data";
         std::string archive_file = "future_boost.arch";
         //   future_boost has got archive version 5 in it
-        // 33 => 3     
-        // 34 => 4     
-        // 36 => 5     
-        // 37 => 5     
+        // 33 => 3
+        // 34 => 4
+        // 36 => 5
+        // 37 => 5
 #ifndef BOOST_VERSION
         TS_FAIL("This test needs to know the version of Boost with which it was compiled.");
         return;
@@ -310,13 +310,13 @@ public:
         unsigned test_int1, test_int2;
         (*p_arch) & test_int1;
         (*p_process_arch) & test_int2;
-    
+
         TS_ASSERT_EQUALS(test_int1, test_int);
         TS_ASSERT_EQUALS(test_int2, 0u);
 #else
         //Current version is running with Boost-33-1 or Boost-34 so we can't read this archive...
         TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir, archive_file, false, 0), "Could not open Boost archive 'global/test/data/future_boost.arch'");
-#endif        
+#endif
     }
 };
 

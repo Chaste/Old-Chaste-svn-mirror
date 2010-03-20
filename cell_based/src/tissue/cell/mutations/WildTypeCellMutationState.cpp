@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 
 WildTypeCellMutationState::WildTypeCellMutationState()
-	: AbstractCellMutationState(0)
+    : AbstractCellMutationState(0)
 {}
 
 

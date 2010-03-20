@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Abstract base class for Chaste regions.
  */
 
-template <unsigned SPACE_DIM> 
+template <unsigned SPACE_DIM>
 class AbstractChasteRegion
 {
 
@@ -49,7 +49,7 @@ public:
      */
     AbstractChasteRegion()
     {}
-    
+
     /**
      * Virtual functions, so virtual destructor.
      */
@@ -59,7 +59,7 @@ public:
 
     /**
      * Checks whether the Chaste point is contained in the region. implemented in the concrete classes
-     * 
+     *
      * @param rPointToCheck Point to be checked to be contained in the region
      * @return true if the point is contained, false otherwise
      */

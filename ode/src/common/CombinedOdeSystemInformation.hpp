@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class CombinedOdeSystemInformation : public AbstractOdeSystemInformation
 {
 private:
-    
+
     /**
      * A convenience structure to keep track of 'singleton' instances.
      */
@@ -66,7 +66,7 @@ protected:
      * Main constructor.
      *
      * Not user accessible - to obtain an instance of this class use the Instance method.
-     * 
+     *
      * @param rSubsystemInfo  the information objects of the ODE systems used to construct
      *     the system we are providing information about.
      */
@@ -92,7 +92,7 @@ public:
 
     /**
      * Return a pointer to the singleton instance, creating it if necessary.
-     * 
+     *
      * @param rSubsystems  the ODE systems used to construct the system we are providing information about.
      */
     static boost::shared_ptr<CombinedOdeSystemInformation> Instance(const std::vector<AbstractOdeSystem*>& rSubsystems);

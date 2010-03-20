@@ -120,13 +120,13 @@ private:
         HeartConfig::Instance()->SetDefaultsFile(defaults_filename_xml);
 
         /*
-         *  When we unarchive a simulation, we load the old parameters file in order to inherit things such 
-         *  as default cell model, stimuli, heterogeneities, ... This has the side effect of inheriting the 
+         *  When we unarchive a simulation, we load the old parameters file in order to inherit things such
+         *  as default cell model, stimuli, heterogeneities, ... This has the side effect of inheriting the
          *  <CheckpointSimulation> element (if defined).
-         * 
+         *
          *  We disable checkpointing definition coming from the unarchived config file. We will enable it again
          *  if defined in the resume config file.
-         */                
+         */
         std::string parameters_filename_xml = ArchiveLocationInfo::GetArchiveDirectory() + "ChasteParameters.xml";
         HeartConfig::Instance()->SetParametersFile(parameters_filename_xml);
 
@@ -140,7 +140,7 @@ private:
             {
                 EXCEPTION("Problem type and space dimension should match when restarting a simulation.");
             }
-            
+
             HeartConfig::Instance()->SetSimulationDuration(p_new_parameters->ResumeSimulation().get().SimulationDuration());
 
             if (p_new_parameters->ResumeSimulation().get().CheckpointSimulation().present())
@@ -149,11 +149,11 @@ private:
                                                                  p_new_parameters->ResumeSimulation().get().CheckpointSimulation().get().timestep(),
                                                                  p_new_parameters->ResumeSimulation().get().CheckpointSimulation().get().max_checkpoints_on_disk());
             }
-            
+
             //Visualization parameters are compulsory
             HeartConfig::Instance()->SetVisualizeWithVtk(p_new_parameters->ResumeSimulation().get().OutputVisualizer().vtk() == cp::yesno_type::yes);
             HeartConfig::Instance()->SetVisualizeWithCmgui(p_new_parameters->ResumeSimulation().get().OutputVisualizer().cmgui() == cp::yesno_type::yes);
-            HeartConfig::Instance()->SetVisualizeWithMeshalyzer(p_new_parameters->ResumeSimulation().get().OutputVisualizer().meshalyzer() == cp::yesno_type::yes);       
+            HeartConfig::Instance()->SetVisualizeWithMeshalyzer(p_new_parameters->ResumeSimulation().get().OutputVisualizer().meshalyzer() == cp::yesno_type::yes);
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -235,7 +235,7 @@ private:
     /**
      * Backwards compatibility transformation method: edits the DOM tree to wrap ionic model
      * definitions from old (release 1 or 1.1) configuration files in a 'Hardcoded' element.
-     * 
+     *
      * @param pDocument  the DOM document containing the tree to be transformed
      * @param pRootElement  the root of the tree to be transformed
      */
@@ -244,7 +244,7 @@ private:
 
     /**
      * Used by TransformIonicModelDefinitions to do the actual wrapping of an element's content.
-     * 
+     *
      * @param pDocument  the DOM document containing the tree to be transformed
      * @param pElement  the element whose content is to be wrapped
      * @param pNewElementLocalName  the local name (i.e. without namespace prefix) of the wrapping element
@@ -294,7 +294,7 @@ public:
      * @param useArchiveLocationInfo  if false, then use self's GetOutputDirectory() and open in *named* subfolder
      *                                if true, then use ArchiveLocationInfo
      * @param subfolderName -- where to store with respect to GetOutputDirectory()
-     * 
+     *
      * @note This method is collective if useArchiveLocationInfo is false
      */
     void Write(bool useArchiveLocationInfo=false, std::string subfolderName="output");
@@ -416,7 +416,7 @@ public:
     void GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied, std::vector<ChasteCuboid<DIM> >& rStimulatedAreas) const;
 
     /**
-     * Reads from the XML file the cellular hetrogeneities. It fugures out whether the user specified a cuboid 
+     * Reads from the XML file the cellular hetrogeneities. It fugures out whether the user specified a cuboid
      * or a transmural-type of hetrogeneities. In the latter case, it stores the percentage values of Epi and Endo layers
      * in two member variables, accessible via get methods. It also checks if the user-supplied numbers are consistent (i.e., positive and add up to less than 1)
      * Return a number of heterogeneous regions for special gating variable changes
@@ -434,17 +434,17 @@ public:
                                  std::vector<double>& rScaleFactorIto,
                                  std::vector<double>& rScaleFactorGkr);
     bool GetConductivityHeterogeneitiesProvided() const; /**< @return  true if there are conductivity heterogeneities for GetConductivityHeterogeneities to return*/
-    
+
     /**
      * @return the value of the flag that tells whether the user asked for cellular transmural heterogeneities
      */
     bool AreCellularTransmuralHeterogeneitiesRequested();
-    
+
     /**
      * @return the value of the flag that tells whether the user asked for cellular heterogeneities with cuboids
      */
     bool AreCellularlHeterogeneitiesSpecifiedByCuboids();
-    
+
     /**
      * @return the fraction of epicardial layer
      */
@@ -454,28 +454,28 @@ public:
      * @return the fraction of endocardial layer
      */
     double GetEndoLayerFraction();
-    
+
     /**
      * @return the fraction of endocardial layer
      */
     double GetMidLayerFraction();
- 
+
     /**
      * @return the index with which the epicardial layer is supplied (i.e., the order it comes in the XML file)
-     */   
+     */
     unsigned GetEpiLayerIndex();
-    
+
     /**
      * @return the index with which the endocardial layer is supplied (i.e., the order it comes in the XML file)
-     */ 
+     */
     unsigned GetEndoLayerIndex();
 
     /**
      * @return the index with which the midmyocardial layer is supplied (i.e., the order it comes in the XML file)
-     */ 
+     */
     unsigned GetMidLayerIndex();
 
-        
+
     /**
      * Return a number of heterogeneous regions (Axis-aligned boxes)
      * \todo - do we assume the vectors are initially empty?
@@ -520,17 +520,17 @@ public:
      * @return archive simulation
      */
     bool GetCheckpointSimulation() const;
-    
+
     /**
      * Get checkpointing timestep
-     * 
+     *
      * @return checkpointing timestep
      */
     double GetCheckpointTimestep() const;
 
     /**
      * Get number of checkpoints to keep on disk
-     * 
+     *
      * @return checkpointing timestep
      */
     unsigned GetMaxCheckpointsOnDisk() const;
@@ -926,7 +926,7 @@ public:
      * @param numSweeps  is the number of adaptive sweeps through the mesh performed by the adaptivity library
      */
     void SetAdaptivityParameters(double targetError, double sigma, double maxEdgeLength, double minEdgeLength,
-    							 double gradation, unsigned maxNodes, unsigned numSweeps );
+                                 double gradation, unsigned maxNodes, unsigned numSweeps );
 
     /**
      * Set the target error to be used during mesh adaptation.
@@ -1054,47 +1054,47 @@ private:
      * located at heart/src/io/ChasteParameters.xsd in the Chaste source tree (true).
      */
     bool mUseFixedSchemaLocation;
-    
+
     /**
      * Fraction of epicardial layer
-     */                               
+     */
     double mEpiFraction;
-    
+
     /**
      * Fraction of endocardial layer
-     */ 
-    double mEndoFraction;  
-    
+     */
+    double mEndoFraction;
+
     /**
      * Fraction of midmyocardial layer
-     */ 
+     */
     double mMidFraction;
-    
+
     /**
      * Order index in which the midmyocardial heterogeneities are supplied
      */
     unsigned mIndexMid;
-    
+
     /**
      * Order index in which the epicardial heterogeneities are supplied
      */
     unsigned mIndexEpi;
-    
+
     /**
      * Order index in which the endocardial heterogeneities are supplied
      */
     unsigned mIndexEndo;
-    
+
     /**
      * Flag to check whether the user asked for cellular transmural heterogeneities
-     */    
+     */
     bool mUserAskedForCellularTransmuralHeterogeneities;
-    
+
    /**
      * Flag to check whether the user asked for cellular heterogeneities with cuboids
-     */    
+     */
     bool mUserAskedForCuboidsForCellularHeterogeneities;
-    
+
     /**
      * DecideLocation is a convenience method used to get the correct parameter value
      * from the defaults/parameters files.  It checks if the first value  is present and (if not)

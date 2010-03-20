@@ -29,14 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Nash2004ContractionModel.hpp"
 
 const double Nash2004ContractionModel::e0ByT0 = 1.0/100; //EMTODO: what is the correct value for this - see class doxygen
-const double Nash2004ContractionModel::kTa = 47.9; 
+const double Nash2004ContractionModel::kTa = 47.9;
 
 template<>
 void OdeSystemInformation<Nash2004ContractionModel>::Initialise()
 {
-    // this is definitely (currently) covered [put an assert(0) in here and run 
-    // TestContractionModels and it will fail] [also see the call of 
-    //   this->mpSystemInfo = OdeSystemInformation<Nash2004ContractionModel>::Instance() 
+    // this is definitely (currently) covered [put an assert(0) in here and run
+    // TestContractionModels and it will fail] [also see the call of
+    //   this->mpSystemInfo = OdeSystemInformation<Nash2004ContractionModel>::Instance()
     // in this class' constructor], but for some reason gcov doesn't see it.
     #define COVERAGE_IGNORE
     this->mVariableNames.push_back("Ta");

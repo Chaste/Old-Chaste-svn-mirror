@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#define MECH_VERBOSE
 
 #ifdef MECH_VERBOSE
-#include "Timer.hpp" 
+#include "Timer.hpp"
 #endif
 
 /**
@@ -178,7 +178,7 @@ protected:
      * or Jacobian matrix (using the current solution stored in
      * mCurrentSolution, output going to mpLinearSystem->rGetLhsMatrix).
      * Must be overridden in concrete derived classes.
-     * 
+     *
      * @param assembleResidual A bool stating whether to assemble the residual vector.
      * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
      */
@@ -192,12 +192,12 @@ protected:
 
     /**
      * Apply the Dirichlet boundary conditions to the linear system.
-     * 
+     *
      * @param applyToMatrix
      */
     void ApplyBoundaryConditions(bool applyToMatrix);
 
-    /** 
+    /**
      *  Set up the residual vector (using the current solution), and get its
      *  scaled norm (Calculate |r|_2 / length(r), where r is residual vector)
      */
@@ -212,15 +212,15 @@ protected:
      *  @param rY Y (replicatable vector)
      *  @param a a
      *  @param rZ Z the returned vector
-     */     
+     */
     void VectorSum(std::vector<double>& rX, ReplicatableVector& rY, double a, std::vector<double>& rZ);
 
     /**
      *  Print to std::cout the residual norm for this s, ie ||f(x+su)|| where f is the residual vector,
-     *  x the current solution and u the update vector 
+     *  x the current solution and u the update vector
      *  @param s s
      *  @param residNorm residual norm.
-     */ 
+     */
     void PrintLineSearchResult(double s, double residNorm);
 
 
@@ -232,13 +232,13 @@ protected:
      *  @return The current norm of the residual after the newton step.
      */
     double TakeNewtonStep();
-    
+
     /**
-     *  Using the update vector (of Newton's method), choose s such that ||f(x+su)|| is most decreased, 
+     *  Using the update vector (of Newton's method), choose s such that ||f(x+su)|| is most decreased,
      *  where f is the residual vector, x the current solution (mCurrentSolution) and u the update vector.
      *  This checks s=1 first (most likely to be the current solution, then 0.9, 0.8.. until ||f|| starts
-     *  increasing. 
-     *  @param solution The solution of the linear solve in newton's method, ie the update vector u. 
+     *  increasing.
+     *  @param solution The solution of the linear solve in newton's method, ie the update vector u.
      */
     double UpdateSolutionUsingLineSearch(Vec solution);
 
@@ -246,7 +246,7 @@ protected:
     /**
      * This function may be overloaded by subclasses. It is called after each Newton
      * iteration.
-     * 
+     *
      * @param counter
      * @param normResidual
      */
@@ -256,7 +256,7 @@ public:
 
     /**
      * Constructor.
-     * 
+     *
      * @param numDofs
      * @param pMaterialLaw
      * @param bodyForce
@@ -273,7 +273,7 @@ public:
 
     /**
      * Variant constructor taking a vector of material laws.
-     * 
+     *
      * @param numDofs
      * @param rMaterialLaws
      * @param bodyForce
@@ -295,7 +295,7 @@ public:
 
     /**
      * Solve the problem.
-     * 
+     *
      * @param tol (defaults to -1.0)
      * @param offset (defaults to 0)
      * @param maxNumNewtonIterations (defaults to INT_MAX)
@@ -308,7 +308,7 @@ public:
 
     /**
      * Write the current solution for the file outputdir/solution_[counter].nodes
-     * 
+     *
      * @param counter
      */
     void WriteOutput(unsigned counter);
@@ -321,14 +321,14 @@ public:
     /**
      * Set a function which gives body force as a function of X (undeformed position)
      * Whatever body force was provided in the constructor will now be ignored.
-     * 
+     *
      * @param pFunction
      */
     void SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&));
 
     /**
      * Set whether to write any output.
-     * 
+     *
      * @param writeOutput (defaults to true)
      */
     void SetWriteOutput(bool writeOutput=true);
@@ -351,15 +351,15 @@ void AbstractNonlinearElasticityAssembler<DIM>::ApplyBoundaryConditions(bool app
     // The boundary conditions on the LINEAR SYSTEM  Ju=f, where J is the
     // u the negative update vector and f is the residual is
     // u=current_soln-boundary_values on the boundary nodes
-    
+
     std::vector<unsigned> rows;
     if(applyToMatrix)
     {
         rows.resize(DIM*mFixedNodes.size());
     }
-    
+
     for (unsigned i=0; i<mFixedNodes.size(); i++)
-    {        
+    {
         unsigned node_index = mFixedNodes[i];
         for (unsigned j=0; j<DIM; j++)
         {
@@ -384,7 +384,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::ApplyBoundaryConditions(bool app
 
 template<unsigned DIM>
 double AbstractNonlinearElasticityAssembler<DIM>::ComputeResidualAndGetNorm()
-{    
+{
       AssembleSystem(true, false);
 
 //// in the future might want this method to do the following..
@@ -420,9 +420,9 @@ double AbstractNonlinearElasticityAssembler<DIM>::CalculateResidualNorm()
 }
 
 template<unsigned DIM>
-void AbstractNonlinearElasticityAssembler<DIM>::VectorSum(std::vector<double>& rX, 
+void AbstractNonlinearElasticityAssembler<DIM>::VectorSum(std::vector<double>& rX,
                                                           ReplicatableVector& rY,
-                                                          double a, 
+                                                          double a,
                                                           std::vector<double>& rZ)
 {
     assert(rX.size()==rY.GetSize());
@@ -494,7 +494,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     KSPGetIterationNumber(solver, &num_iters);
     std::cout << "[" << PetscTools::GetMyRank() << "]: Num iterations = " << num_iters << "\n" << std::flush;
     #endif
-    
+
 
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
 
@@ -563,9 +563,9 @@ double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(
     VectorSum(old_solution, update, -damping_values[index], mCurrentSolution);
     double next_resid_norm = ComputeResidualAndGetNorm();
     PrintLineSearchResult(damping_values[index], next_resid_norm);
-    
+
     index = 2;
-    // While f(s_next) < f(s_current), [f = residnorm], keep trying new damping values, 
+    // While f(s_next) < f(s_current), [f = residnorm], keep trying new damping values,
     // ie exit thus loop when next norm of the residual first increases
     while ( (next_resid_norm < current_resid_norm)  && index<damping_values.size())
     {
@@ -578,18 +578,18 @@ double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(
 
         index++;
     }
-    
+
     unsigned best_index;
-    
+
     if(index==damping_values.size() && (next_resid_norm < current_resid_norm))
     {
         // Difficult to come up with large forces/tractions such that it had to
         // test right down to s=0.05, but overall doesn't fail.
         // The possible damping values have been manually temporarily altered to
         // get this code to be called, it appears to work correctly. Even if it
-        // didn't tests wouldn't fail, they would just be v. slightly less efficient. 
-        #define COVERAGE_IGNORE 
-        // if we exited because we got to the end of the possible damping values, the 
+        // didn't tests wouldn't fail, they would just be v. slightly less efficient.
+        #define COVERAGE_IGNORE
+        // if we exited because we got to the end of the possible damping values, the
         // best one was the last one (excl the final index++ at the end)
         current_resid_norm = next_resid_norm;
         best_index = index-1;
@@ -598,17 +598,17 @@ double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(
     else
     {
         // else the best one must have been the second last one (excl the final index++ at the end)
-        // (as we would have exited when the resid norm first increased) 
+        // (as we would have exited when the resid norm first increased)
         best_index = index-2;
     }
-    
+
     // check out best was better than the original residual-norm
     if (initial_norm_resid < current_resid_norm)
     {
         #define COVERAGE_IGNORE
-        // Have to use an assert/exit here as the following exception causes a seg fault (in cardiac mech problems?) 
+        // Have to use an assert/exit here as the following exception causes a seg fault (in cardiac mech problems?)
         // Don't know why
-        std::cout << "CHASTE ERROR: (AbstractNonlinearElasticityAssembler.hpp): Residual does not appear to decrease in newton direction, quitting.\n" << std::flush;        
+        std::cout << "CHASTE ERROR: (AbstractNonlinearElasticityAssembler.hpp): Residual does not appear to decrease in newton direction, quitting.\n" << std::flush;
         exit(0);
         //EXCEPTION("Residual does not appear to decrease in newton direction, quitting");
         #undef COVERAGE_IGNORE
@@ -618,7 +618,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(
     std::cout << "\tBest s = " << damping_values[best_index] << "\n"  << std::flush;
     #endif
     VectorSum(old_solution, update, -damping_values[best_index], mCurrentSolution);
- 
+
     return current_resid_norm;
 
 //// old (standard) version - check all s=0.05,0.1,0.2,..,0.9,1,1.1; and pick the best
@@ -796,7 +796,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
 
         #ifdef MECH_VERBOSE
         std::cout << "Norm of residual is " << norm_resid << "\n";
-        #endif        
+        #endif
         if (mWriteOutput)
         {
             WriteOutput(counter+offset);

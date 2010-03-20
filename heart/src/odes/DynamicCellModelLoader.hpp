@@ -48,7 +48,7 @@ public:
     /**
      * Create a cell model loader by opening a loadable module (.so file) containing
      * a cell model.
-     * 
+     *
      * @note This loader object must remain alive for as long as you want to use cells
      * created with it, or you'll get a segfault.
      *
@@ -65,7 +65,7 @@ public:
      * Create a new cardiac cell from this dynamic module.
      *
      * The caller takes responsibility for deleting the cell when it's finished with.
-     * 
+     *
      * @note This loader object must remain alive for as long as you want to use the cell,
      * or you'll get a segfault.
      *
@@ -74,17 +74,17 @@ public:
      */
     AbstractCardiacCell* CreateCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                     boost::shared_ptr<AbstractStimulusFunction> pStimulus);
-    
+
     /**
      * @return the absolute path to the .so file we have loaded
-     */                              
+     */
     const std::string GetLoadableModulePath() const;
 
 private:
     /** Handle for the loaded .so file */
     void* mpDynamicModule;
 
-    /** Type of the cell creation function in the .so files 
+    /** Type of the cell creation function in the .so files
      *
      * @param pSolver  ODE solver used to simulate the cell
      * @param pStimulus  intracellular stimulus
@@ -94,7 +94,7 @@ private:
 
     /** Our cell creation function */
     CellCreationFunctionType* mpCreationFunction;
-    
+
     /** Absolute path to the .so file we have loaded. */
     std::string mLoadableModulePath;
 };

@@ -42,19 +42,19 @@ public:
     {
         std::string base_file = "./global/test/data/random_data.txt";
         std::string noised_file = "./global/test/data/same_random_data_with_1e-4_noise.txt";
-        
+
         NumericFileComparison same_data(base_file, base_file);
         TS_ASSERT(same_data.CompareFiles());
 
         NumericFileComparison different_data(base_file, noised_file);
-        TS_ASSERT(different_data.CompareFiles(1e-4));        
+        TS_ASSERT(different_data.CompareFiles(1e-4));
     }
 
     void TestIgnoreHeader()
     {
         std::string boost_33_file = "./global/test/data/fake_archive_boost_1_33.txt";
         std::string boost_34_file = "./global/test/data/fake_archive_boost_1_34.txt";
-        
+
         NumericFileComparison same_data(boost_33_file, boost_34_file);
         TS_ASSERT(same_data.CompareFiles(5.1e-6, 1));
     }

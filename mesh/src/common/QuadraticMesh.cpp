@@ -47,7 +47,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
     assert(yEnd>0);
     assert(numElemX>0);
     assert(numElemY>0);
-    
+
     this->mMeshIsLinear=false;
     unsigned num_nodes=(numElemX+1)*(numElemY+1);
     struct triangulateio triangle_input;
@@ -247,12 +247,12 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     if(PetscTools::AmMaster())
     {
         std::string args = "-Qo2";
-    
+
         std::string command =  binary + " " + args + " " + outputDir
                            + "/" + fileStem + ".node" + " > /dev/null";
-    
+
         int return_value = system(command.c_str());
-    
+
         if (return_value != 0)
         {
             #define COVERAGE_IGNORE
@@ -260,18 +260,18 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
             "The quadratic mesh relies on functionality from tetgen (http://tetgen.berlios.de/).");
             #undef COVERAGE_IGNORE
         }
-    
+
         // move the output files to the chaste directory
         command =   "mv " + outputDir + "/"
                   + fileStem + ".1.* .";
-    
+
         // NOTE: we don't check whether the return value here is zero, because if CHASTE_TESTOUTPUT
         // is "." (ie if it hasn't been exported), then the mv will fail (source and destination files
         // are the same), but this isn't a problem.
         return_value = system(command.c_str());
     }
     PetscTools::Barrier();
-    
+
     // load
     TrianglesMeshReader<DIM,DIM> mesh_reader(fileStem + ".1", 2, 1, false); // false as tetgen/triangle has been used and therefore boundary elems will be linear;
     ConstructFromMeshReader(mesh_reader);
@@ -295,14 +295,14 @@ template<unsigned DIM>
 void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rAbsMeshReader)
 {
     TrianglesMeshReader<DIM, DIM>* p_mesh_reader=dynamic_cast<TrianglesMeshReader<DIM, DIM>*>(&rAbsMeshReader);
-    assert(p_mesh_reader != NULL); 
-    
-    
+    assert(p_mesh_reader != NULL);
+
+
     if (p_mesh_reader->GetOrderOfElements() == 1)
     {
         EXCEPTION("Supplied mesh reader is reading a linear mesh into quadratic mesh");
     }
-    
+
     TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(*p_mesh_reader);
     assert(this->GetNumBoundaryElements()>0);
 
@@ -382,7 +382,7 @@ void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& r
             AddNodesToBoundaryElements(p_mesh_reader);
         }
     }
-        
+
     // Check each boundary element has a quadratic number of nodes
 #ifndef NDEBUG
     unsigned expected_num_nodes = DIM*(DIM+1)/2;
@@ -402,12 +402,12 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements(TrianglesMeshReader<DIM,DIM>
     // Loop over all boundary elements, find the equivalent face from all
     // the elements, and add the extra nodes to the boundary element
     bool boundary_element_file_has_containing_element_info=false;
-    
+
     if (pMeshReader)
     {
         boundary_element_file_has_containing_element_info=pMeshReader->GetReadContainingElementOfBoundaryElement();
     }
-    
+
     if (DIM>1)
     {
         if(boundary_element_file_has_containing_element_info)

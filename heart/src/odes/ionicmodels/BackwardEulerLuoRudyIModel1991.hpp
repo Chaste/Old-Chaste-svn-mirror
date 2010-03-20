@@ -77,72 +77,72 @@ private:
     /** another parameter, which is a function of the above */
     double fast_sodium_current_E_Na;
 
-    
+
 public:
     /**
      * Constructor
-     * 
+     *
      * @param pIntracellularStimulus a pointer to the intracellular stimulus
      */
     BackwardEulerLuoRudyIModel1991(boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
-                                   
+
     /**
      * Constructor with the same signature as the forward cell models
-     * 
+     *
      * @param pIntracellularStimulus a pointer to the intracellular stimulus
      */
     BackwardEulerLuoRudyIModel1991(boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
                                    boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
-                                   
+
     /**
      *  Destructor
      */
     ~BackwardEulerLuoRudyIModel1991();
-    
+
     /**
      *  Calculates the remaining parameters and calls the base class Init method.
      */
     void Init();
-    
+
 protected:
     /**
-     * Compute the values of all state variables except the voltage for one 
+     * Compute the values of all state variables except the voltage for one
      * timestep.
-     * 
+     *
      * @param tStart  start of the timestep
      */
     void ComputeOneStepExceptVoltage(double tStart);
-    
+
     /**
      * Perform a forward Euler step to update the transmembrane potential.
-     * 
+     *
      * @param time start of the timestep
      */
     void UpdateTransmembranePotential(double time);
-    
+
 public:
     /**
      * Compute the residual for the Newton iteration for the non-linear system portion of the model.
-     * 
+     *
      * @param rCurrentGuess  current values of the non-linear system variables
      * @param rResidual  to be filled in with the residual vector
      */
     void ComputeResidual(const double rCurrentGuess[1], double rResidual[1]);
-    
+
     /**
      * Compute the Jacobian for the Newton iteration for the non-linear system portion of the model.
-     * 
+     *
      * @param rCurrentGuess  current values of the non-linear system variables
      * @param rJacobian  to be filled in with the jacobian matrix
      */
     void ComputeJacobian(const double rCurrentGuess[1], double rJacobian[1][1]);
-    
+
     /**
      * Compute the ionic current at the current instant in time
      * (i.e. using the current values of the state variables).
      */
     double GetIIonic();
-    
+
     /**
      *  Check that none of the gating variables have gone out of range. Throws an
      *  Exception if any have.

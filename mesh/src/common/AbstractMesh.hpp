@@ -83,7 +83,7 @@ protected:  // Give access of these variables to subclasses
     /** DistributedVectorFactory capable of reproducing the given number of nodes owned by each processor. */
     DistributedVectorFactory* mpDistributedVectorFactory;
 
-    /** Vector containing node permutation information. 
+    /** Vector containing node permutation information.
      *  When empty (most meshes) there is no node permutation
      *  When non-empty (parallel distributed meshes) then for a given original_index
      *  #mNodesPermutation[original_index] holds the new assigned index of that node in memory
@@ -168,11 +168,11 @@ public:
      * Get the node with a given index in the mesh, prior to any node permutation
      * being applied.  For non-permuted meshes, this will have the same effect
      * as GetNode.
-     * 
+     *
      * This method is intended for use by the archiving code, to enable checkpoint
      * migration, so that we can load the correct cells and boundary conditions
      * after the mesh has been re-partitioned.
-     * 
+     *
      * If unsure, use GetNode in preference to this method!
      *
      * @param index the global index of the node prior to a permutation being applied
@@ -197,7 +197,7 @@ public:
      * Must be called before the mesh is used for anything.  This only actually
      * impacts the DistributedTetrahedralMesh subclass, in which the supplied factory
      * is then used to specify the node distribution among the processes.
-     * 
+     *
      * @param pFactory a factory to use for this mesh
      */
     virtual void SetDistributedVectorFactory(DistributedVectorFactory* pFactory);
@@ -230,7 +230,7 @@ public:
      *  When empty (most meshes) there is no node permutation
      *  When non-empty (parallel distributed meshes) then for a given original_index
      *  #mNodesPermutation[original_index] holds the new assigned index of that node in memory
-     * 
+     *
      */
     const std::vector<unsigned>& rGetNodePermutation() const;
 

@@ -39,19 +39,19 @@ using namespace std;
 /**
  * This class defines a 3D cuboid and provides a method to check
  */
-template <unsigned SPACE_DIM> 
+template <unsigned SPACE_DIM>
 class ChasteNodesList : public AbstractChasteRegion<SPACE_DIM>
 {
 private:
 
     /** A vector to store the list of nodes*/
     std::vector< Node<SPACE_DIM>*> mListOfNodes;
-    
+
 public:
 
     /**
      * Constructor
-     * 
+     *
      * @param rNodesList a standard vector of (pointer to) nodes
      */
     ChasteNodesList(const std::vector<Node<SPACE_DIM>*> rNodesList) :
@@ -59,7 +59,7 @@ public:
     {
     }
 
- 
+
     /**
      * Checks if a given point is contained in the ndoe list.
      *
@@ -77,11 +77,11 @@ public:
                 break;
             }
         }
-        
+
         return returned_value;
     }
-    
-        
+
+
 };
 
 #endif /*CHASTENODESLIST_HPP_*/

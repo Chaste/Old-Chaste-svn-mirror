@@ -54,7 +54,7 @@ public:
      * @param rCells  An empty vector of cells to fill up.
      * @param numCells  The number of cells to generate.
      * @param locationIndices is used when a birth-time hint is needed for individual cell.
-     * 			Defaults to an empty vector -- otherwise must be of length numCells
+     *             Defaults to an empty vector -- otherwise must be of length numCells
      *
      */
     void GenerateBasic(std::vector<TissueCell>& rCells,
@@ -68,48 +68,48 @@ public:
      * @param locationIndices  The indices of the tissue to assign real cells to.
      */
     void GenerateGivenLocationIndices(std::vector<TissueCell>& rCells,
-    		                          const std::vector<unsigned> locationIndices);
+                                      const std::vector<unsigned> locationIndices);
 
 };
 
 template<class CELL_CYCLE_MODEL, unsigned DIM>
 void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCell>& rCells,
-											             unsigned numCells,
-											             const std::vector<unsigned> locationIndices)
+                                                         unsigned numCells,
+                                                         const std::vector<unsigned> locationIndices)
 {
-	CellMutationStateRegistry::Instance()->Clear();
-	rCells.clear();
-	if (!locationIndices.empty())
-	{
-		// If location indices is given, then it needs to match the number of output cells
-		if (numCells != locationIndices.size())
-		{
-			EXCEPTION("The size of the locationIndices vector must match the required number of output cells");
-		}
-	}
-	rCells.reserve(numCells);
+    CellMutationStateRegistry::Instance()->Clear();
+    rCells.clear();
+    if (!locationIndices.empty())
+    {
+        // If location indices is given, then it needs to match the number of output cells
+        if (numCells != locationIndices.size())
+        {
+            EXCEPTION("The size of the locationIndices vector must match the required number of output cells");
+        }
+    }
+    rCells.reserve(numCells);
 
-	// Create cells
-	for (unsigned i=0; i<numCells; i++)
-	{
-		CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
+    // Create cells
+    for (unsigned i=0; i<numCells; i++)
+    {
+        CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
         p_cell_cycle_model->SetDimension(DIM);
 
-		boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-		TissueCell cell(STEM, p_state, p_cell_cycle_model);
+        boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        TissueCell cell(STEM, p_state, p_cell_cycle_model);
 
-		double birth_time;
-		if (!locationIndices.empty())
-		{
-			birth_time = 0.0 - locationIndices[i];
-		}
-		else
-		{
-			birth_time = 0.0 - i;
-		}
-		cell.SetBirthTime(birth_time);
-		rCells.push_back(cell);
-	}
+        double birth_time;
+        if (!locationIndices.empty())
+        {
+            birth_time = 0.0 - locationIndices[i];
+        }
+        else
+        {
+            birth_time = 0.0 - i;
+        }
+        cell.SetBirthTime(birth_time);
+        rCells.push_back(cell);
+    }
 }
 
 template<class CELL_CYCLE_MODEL, unsigned DIM>
@@ -126,14 +126,14 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vec
 
     for (unsigned i=0; i<num_cells; i++)
     {
-    	CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
+        CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
         p_cell_cycle_model->SetDimension(DIM);
 
-    	boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 
-    	TissueCell cell(STEM, p_state, p_cell_cycle_model);
+        TissueCell cell(STEM, p_state, p_cell_cycle_model);
 
-    	double birth_time = 0.0 - locationIndices[i];
+        double birth_time = 0.0 - locationIndices[i];
         cell.SetBirthTime(birth_time);
         rCells.push_back(cell);
     }

@@ -53,10 +53,10 @@ private:
     }
 
 public:
-	/**
-	 * Constructor.
-	 */
-	ApcOneHitCellMutationState();
+    /**
+     * Constructor.
+     */
+    ApcOneHitCellMutationState();
 
 };
 

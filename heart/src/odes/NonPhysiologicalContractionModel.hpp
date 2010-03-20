@@ -47,9 +47,9 @@ private:
     unsigned mOption;
     /** Fibre stretch */
     double mStretch;
-    
+
 public:
-    /** Constructor. 
+    /** Constructor.
      *  @param option Number between 1 and 3 which determines which model is used. See class documentations
      */
     NonPhysiologicalContractionModel(unsigned option);
@@ -59,19 +59,19 @@ public:
      *  @param rInputParameters Structure containing voltage, [Ca]_i.
      */
     void SetInputParameters(ContractionModelInputParameters& rInputParameters);
-    
+
     /** Set the fibre stretch and stretch-rate (only stretch is used)
      *  @param stretch stretch in the fibre direction
      *  @param stretchRate rate of change of stretch in the fibre direction (not used in this model).
      */
     void SetStretchAndStretchRate(double stretch, double stretchRate);
-    
-    /** 
+
+    /**
      *  Get the active tension given the current stretch and time
      */
     double GetActiveTension();
-    
-    /** 
+
+    /**
      *  This model is stretch-rate-independent
      */
     bool IsStretchDependent()
@@ -79,7 +79,7 @@ public:
         return true;
     }
 
-    /** 
+    /**
      *  This model is stretch-rate-independent
      */
     bool IsStretchRateDependent()

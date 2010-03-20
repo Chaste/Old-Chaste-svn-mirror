@@ -123,7 +123,7 @@ public:
         // Fails as no cell corresponding to node 4
         std::vector<TissueCell> cells_copy(cells);
         TS_ASSERT_THROWS_THIS(MeshBasedTissue<2> tissue2(mesh, cells_copy),
-        		              "Node 4 does not appear to have a cell associated with it");
+                              "Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
         AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -194,10 +194,10 @@ public:
 
         // Bestow mutations on some cells
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-		boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-		boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
-		boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
-		boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
 
         cells[0].SetMutationState(p_state);
         cells[1].SetMutationState(p_apc1);
@@ -459,10 +459,10 @@ public:
 
         // Cover mutation state reporting
         boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-		boost::shared_ptr<AbstractCellMutationState> p_labelled(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
-		boost::shared_ptr<AbstractCellMutationState> p_apc1(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>());
-		boost::shared_ptr<AbstractCellMutationState> p_apc2(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
-		boost::shared_ptr<AbstractCellMutationState> p_bcat1(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_labelled(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc1(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc2(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
 
         cells[0].SetMutationState(p_state);
         cells[1].SetMutationState(p_apc1);
