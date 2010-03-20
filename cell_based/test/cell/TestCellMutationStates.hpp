@@ -189,12 +189,12 @@ public:
 		}
 	}
 
-	void TestArchiveBoostSharedPointer() throw(Exception)
+	void TestArchiveRegistry() throw(Exception)
 	{
 		OutputFileHandler handler("archive", false);
 		std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mutation.arch";
 
-		// Archive a boost::shared_ptr to a mutation state
+		// Save
 		{
 			boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 			p_state->IncrementCellCount();
@@ -226,6 +226,8 @@ public:
 
 			TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
 			TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
+			
+			delete p_registry;
 		}
 	}
 };
