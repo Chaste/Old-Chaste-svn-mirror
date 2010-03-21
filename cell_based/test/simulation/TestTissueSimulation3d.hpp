@@ -302,7 +302,7 @@ public:
     void TestLoadOf3DSimulation() throw (Exception)
     {
         {
-            // With ghost nodes - 56 ghosts 8 real cells.
+            // With ghost nodes - 56 ghosts 8 real cells
             TissueSimulation<3>* p_simulator = TissueSimulationArchiver<3, TissueSimulation<3> >::Load("TestGhostNodesSpheroidSimulation3D", 0.1);
             unsigned num_cells = p_simulator->rGetTissue().GetNumRealCells();
 

@@ -607,7 +607,7 @@ private:
     double mWntStemThreshold;
 
     /**
-     * Non-dimensionalized Wnt threshold, above which LABELLED cells progress through the cell cycle.
+     * Non-dimensionalized Wnt threshold, above which labelled cells progress through the cell cycle.
      */
     double mWntLabelledThreshold;
 

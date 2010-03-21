@@ -45,7 +45,7 @@ class CryptSimulation2d : public TissueSimulation<2>
     // private functions eg. DoCellBirth
     friend class TestCryptSimulation2d;
 
-private :
+protected:
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
