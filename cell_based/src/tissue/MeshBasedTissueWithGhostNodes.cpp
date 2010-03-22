@@ -271,7 +271,6 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateNodeLocations(const std::vector< 
 template<unsigned DIM>
 void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResults(unsigned locationIndex,
                                               std::vector<unsigned>& rCellProliferativeTypeCounter,
-                                              std::vector<unsigned>& rCellMutationStateCounter,
                                               std::vector<unsigned>& rCellCyclePhaseCounter)
 {
     if (IsGhostNode(locationIndex) == true)
@@ -282,10 +281,8 @@ void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResults(unsigned locationIn
     {
         AbstractTissue<DIM>::GenerateCellResults(locationIndex,
                                                  rCellProliferativeTypeCounter,
-                                                 rCellMutationStateCounter,
                                                  rCellCyclePhaseCounter);
     }
-
 }
 
 template<unsigned DIM>
@@ -297,14 +294,6 @@ void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResultsAndWriteToFiles()
     for (unsigned i=0; i<num_cell_types; i++)
     {
         cell_type_counter[i] = 0;
-    }
-
-    // Set up cell mutation state counter
-    unsigned num_mutation_states = this->mCellMutationStateCount.size();
-    std::vector<unsigned> cell_mutation_state_counter(num_mutation_states);
-    for (unsigned i=0; i<num_mutation_states; i++)
-    {
-        cell_mutation_state_counter[i] = 0;
     }
 
     // Set up cell cycle phase counter
@@ -319,15 +308,10 @@ void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResultsAndWriteToFiles()
          node_iter != this->mrMesh.GetNodeIteratorEnd();
          ++node_iter)
     {
-        this->GenerateCellResults(node_iter->GetIndex(),
-                                  cell_type_counter,
-                                  cell_mutation_state_counter,
-                                  cell_cycle_phase_counter);
+        this->GenerateCellResults(node_iter->GetIndex(), cell_type_counter, cell_cycle_phase_counter);
     }
 
-    this->WriteCellResultsToFiles(cell_type_counter,
-                                  cell_mutation_state_counter,
-                                  cell_cycle_phase_counter);
+    this->WriteCellResultsToFiles(cell_type_counter, cell_cycle_phase_counter);
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -193,12 +193,10 @@ public:
      *
      * @param locationIndex location index of the cell
      * @param rCellProliferativeTypeCounter cell type counter
-     * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
      */
     void GenerateCellResults(unsigned locationIndex,
                              std::vector<unsigned>& rCellProliferativeTypeCounter,
-                             std::vector<unsigned>& rCellMutationStateCounter,
                              std::vector<unsigned>& rCellCyclePhaseCounter);
 
     /**

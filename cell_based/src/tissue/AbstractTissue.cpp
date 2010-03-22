@@ -61,15 +61,9 @@ AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCell>& rCells,
 
     // Initialise cell counts to zero
     /**
-     * \todo remove explicit use of NUM_CRYPT_CELL_MUTATION_STATES, NUM_CELL_PROLIFERATIVE_TYPES
+     * \todo remove explicit use of NUM_CELL_PROLIFERATIVE_TYPES
      *       and NUM_CELL_CYCLE_PHASES as these may eventually differ between simulations (see #1145)
      */
-    mCellMutationStateCount = std::vector<unsigned>(5); ///\todo magic number! #1145
-    for (unsigned i=0; i<mCellMutationStateCount.size(); i++)
-    {
-        mCellMutationStateCount[i] = 0;
-    }
-
     mCellProliferativeTypeCount = std::vector<unsigned>(NUM_CELL_PROLIFERATIVE_TYPES);
     for (unsigned i=0; i<mCellProliferativeTypeCount.size(); i++)
     {
@@ -136,13 +130,25 @@ std::set<unsigned> AbstractTissue<DIM>::GetCellAncestors()
 }
 
 template<unsigned DIM>
-const std::vector<unsigned>& AbstractTissue<DIM>::rGetCellMutationStateCount() const
+std::vector<unsigned> AbstractTissue<DIM>::GetCellMutationStateCount()
 {
     if (TissueConfig::Instance()->GetOutputCellMutationStates()==false)
     {
         EXCEPTION("Call TissueConfig::Instance()->SetOutputCellMutationStates(true) before using this function");
     }
-    return mCellMutationStateCount;
+
+    // An ordering must have been specified for cell mutation states
+    SetDefaultMutationStateOrdering();
+
+    const std::vector<boost::shared_ptr<AbstractCellMutationState> >& r_mutation_states
+        = GetMutationRegistry()->rGetAllMutationStates();
+
+    std::vector<unsigned> cell_mutation_state_count(r_mutation_states.size());
+    for (unsigned i=0; i<r_mutation_states.size(); i++)
+    {
+        cell_mutation_state_count[i] =  r_mutation_states[i]->GetCellCount();
+    }
+    return cell_mutation_state_count;
 }
 
 template<unsigned DIM>
@@ -300,7 +306,6 @@ void AbstractTissue<DIM>::CloseOutputFiles()
 template<unsigned DIM>
 void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
                                               std::vector<unsigned>& rCellProliferativeTypeCounter,
-                                              std::vector<unsigned>& rCellMutationStateCounter,
                                               std::vector<unsigned>& rCellCyclePhaseCounter)
 {
     // Helper pointer
@@ -390,18 +395,6 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         {
             colour = p_cell->GetMutationState()->GetColour();
         }
-
-        // This should really go outside the cell loop!
-        SetDefaultMutationStateOrdering();
-        const std::vector<boost::shared_ptr<AbstractCellMutationState> >& r_mutation_states
-            = GetMutationRegistry()->rGetAllMutationStates();
-        // Should be redundant when #1145 is done
-        assert(rCellMutationStateCounter.size() == r_mutation_states.size());
-        rCellMutationStateCounter.resize(r_mutation_states.size());
-        for (unsigned i=0; i<r_mutation_states.size(); i++)
-        {
-            rCellMutationStateCounter[i] = r_mutation_states[i]->GetCellCount();
-        }
     }
 
     if (p_cell->HasApoptosisBegun())
@@ -447,7 +440,6 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
 
 template<unsigned DIM>
 void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellProliferativeTypeCounter,
-                                                  std::vector<unsigned>& rCellMutationStateCounter,
                                                   std::vector<unsigned>& rCellCyclePhaseCounter)
 {
     // Helper pointer
@@ -463,10 +455,15 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellPr
     // Write cell mutation state data to file if required
     if (p_config->GetOutputCellMutationStates())
     {
-        for (unsigned i=0; i<mCellMutationStateCount.size(); i++)
+        // An ordering must have been specified for cell mutation states
+        assert(GetMutationRegistry()->HasOrderingBeenSpecified());
+
+        const std::vector<boost::shared_ptr<AbstractCellMutationState> >& r_mutation_states
+            = GetMutationRegistry()->rGetAllMutationStates();
+
+        for (unsigned i=0; i<r_mutation_states.size(); i++)
         {
-            mCellMutationStateCount[i] = rCellMutationStateCounter[i];
-            *mpCellMutationStatesFile << rCellMutationStateCounter[i] << "\t";
+            *mpCellMutationStatesFile << r_mutation_states[i]->GetCellCount() << "\t";
         }
         *mpCellMutationStatesFile << "\n";
     }
@@ -575,6 +572,8 @@ void AbstractTissue<DIM>::WriteResultsToFiles()
     {
         *mpCellAgesFile << time << "\t";
     }
+
+    SetDefaultMutationStateOrdering();
     GenerateCellResultsAndWriteToFiles();
 
     // Write logged cell data if required

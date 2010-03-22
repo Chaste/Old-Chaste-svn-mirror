@@ -100,7 +100,6 @@ private:
         TS_ASSERT_EQUALS(counter, node_based_tissue.GetNumRealCells());
     }
 
-
 public:
 
     // Test construction, accessors and Iterator
@@ -582,7 +581,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellages.dat     cell_based/test/data/TestNodeBasedTissueWriters/cellages.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function
-        std::vector<unsigned> cell_mutation_states = node_based_tissue.rGetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_states = node_based_tissue.GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
         TS_ASSERT_EQUALS(cell_mutation_states[0], 1u);
         for (unsigned i=1; i<cell_mutation_states.size(); i++)
@@ -767,8 +766,6 @@ public:
             delete p_tissue;
         }
     }
-
-
 
 };
 

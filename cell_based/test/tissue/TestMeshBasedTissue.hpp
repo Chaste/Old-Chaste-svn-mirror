@@ -503,7 +503,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestTissueWriters/cellareas.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function: there should only be healthy cells
-        std::vector<unsigned> cell_mutation_states = tissue.rGetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_states = tissue.GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
         for (unsigned i=0; i<cell_mutation_states.size(); i++)
         {   // There should be one of each kind of mutation in the results files.

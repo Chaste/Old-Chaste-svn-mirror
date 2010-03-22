@@ -695,7 +695,7 @@ public:
             TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(*cell_iter)[0]);
         }
 
-        std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().rGetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 5u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[0], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);

@@ -75,7 +75,6 @@ private:
         archive & mCells;
         archive & mLocationCellMap;
         archive & mCellLocationMap;
-        archive & mCellMutationStateCount;
         archive & mCellProliferativeTypeCount;
         archive & mCellCyclePhaseCount;
         archive & mTissueContainsMesh;
@@ -92,9 +91,6 @@ protected:
 
     /** Map cells to location (node or VertexElement) indices */
     std::map<TissueCell*, unsigned> mCellLocationMap;
-
-    /** Current cell mutation state counts */
-    std::vector<unsigned> mCellMutationStateCount;
 
     /** Current cell type counts */
     std::vector<unsigned> mCellProliferativeTypeCount;
@@ -329,7 +325,7 @@ public:
      * [3] = APC two hit
      * [4] = beta catenin one hit
      */
-    const std::vector<unsigned>& rGetCellMutationStateCount() const;
+    std::vector<unsigned> GetCellMutationStateCount();
 
     /**
      * Find out how many cells of each type there are
@@ -442,23 +438,19 @@ public:
      *
      * @param locationIndex location index of the cell
      * @param rCellProliferativeTypeCounter cell type counter
-     * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
      */
     virtual void GenerateCellResults(unsigned locationIndex,
                              std::vector<unsigned>& rCellProliferativeTypeCounter,
-                             std::vector<unsigned>& rCellMutationStateCounter,
                              std::vector<unsigned>& rCellCyclePhaseCounter);
 
     /**
      * Write the current state of each cell to output files.
 
      * @param rCellProliferativeTypeCounter cell type counter
-     * @param rCellMutationStateCounter cell mutation state counter
      * @param rCellCyclePhaseCounter cell cycle phase counter
      */
     void WriteCellResultsToFiles(std::vector<unsigned>& rCellProliferativeTypeCounter,
-                                 std::vector<unsigned>& rCellMutationStateCounter,
                                  std::vector<unsigned>& rCellCyclePhaseCounter);
 
     /**

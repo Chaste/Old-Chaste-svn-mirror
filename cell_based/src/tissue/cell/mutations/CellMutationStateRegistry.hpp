@@ -70,8 +70,8 @@ public:
     void Clear();
 
     /**
-     * Take ownership of the current registry.  Calling Instance after this will
-     * create a new registry.  The caller takes responsibility for freeing the
+     * Take ownership of the current registry. Calling Instance after this will
+     * create a new registry. The caller takes responsibility for freeing the
      * returned registry when finished with it.
      *
      * This method is intended for use by TissueSimulation, so that we can have
