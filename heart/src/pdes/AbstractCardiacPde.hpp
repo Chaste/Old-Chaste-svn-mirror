@@ -328,7 +328,12 @@ public:
             r_archive & is_dynamic;
             if (is_dynamic)
             {
+#ifdef CHASTE_CAN_CHECKPOINT_DLLS
                 r_archive & p_entity->GetLoader()->GetLoadableModulePath();
+#else
+                // We should have thrown an exception before this point
+                NEVER_REACHED;
+#endif // CHASTE_CAN_CHECKPOINT_DLLS
             }
             r_archive & r_cells_distributed[i];
         }
@@ -395,10 +400,19 @@ public:
             archive & is_dynamic;
             if (is_dynamic)
             {
-                // Ensure the shared object file for this cell model is loaded
+#ifdef CHASTE_CAN_CHECKPOINT_DLLS
+                // Ensure the shared object file for this cell model is loaded.
+                // We need to do this here, rather than in the class' serialization code,
+                // because that code won't be available until this is done...
                 std::string shared_object_path;
                 archive & shared_object_path;
                 DynamicModelLoaderRegistry::Instance()->GetLoader(shared_object_path);
+#else
+                // Since checkpoints with dynamically loadable cells can only be
+                // created on Boost>=1.37, trying to load such a checkpoint on an
+                // earlier Boost would give an error when first opening the archive.
+                NEVER_REACHED;
+#endif // CHASTE_CAN_CHECKPOINT_DLLS
             }
             AbstractCardiacCell* p_cell;
             archive & p_cell;

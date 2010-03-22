@@ -30,6 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTDYNAMICALLYLOADABLEENTITY_HPP_
 
 #include "DynamicCellModelLoader.hpp"
+#include "DynamicModelLoaderRegistry.hpp"
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/split_member.hpp>
 
 /**
  * A mixin class for things that get loaded dynamically to maintain an association between instance objects and the shared library
@@ -41,8 +44,38 @@ private:
 
     /** The loader for our shared object file */
     DynamicCellModelLoader* mpLoader;
+    
+    friend class boost::serialization::access;
+    /**
+     * Save the path to the loadable module.
+     *
+     * @param archive the archive
+     * @param version the archive version
+     */
+    template<class Archive>
+    void save(Archive & archive, const unsigned int version) const
+    {
+        const std::string so_path = GetLoader()->GetLoadableModulePath();
+        archive & so_path;
+    }
+    /**
+     * Load the path to the loadable module, and set our loader from the registry.
+     *
+     * @param archive the archive
+     * @param version the archive version
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+        std::string so_path;
+        archive & so_path;
+        SetLoader(DynamicModelLoaderRegistry::Instance()->GetLoader(so_path));
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 public:
+    /** Virtual destructor to ensure we're polymorphic */
+    virtual ~AbstractDynamicallyLoadableEntity();
 
     /**
      * @return a shared pointer to the loader
@@ -55,9 +88,7 @@ public:
      * @param pLoader a shared pointer to the loader
      */
     void SetLoader(DynamicCellModelLoader* pLoader);
-
 };
-
 
 #endif /*ABSTRACTDYNAMICALLYLOADABLEENTITY_HPP_*/
 

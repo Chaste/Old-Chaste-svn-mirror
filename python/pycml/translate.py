@@ -1311,8 +1311,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
         If base_class is not None (and self.use_backward_euler isn't set)
         then includes that class' header instead of AbstractCardiacCell.
         
+        If self.dynamically_loadable is set, includes extra headers needed
+        for that case.
+        
         Reads self.include_serialization and self.use_backward_euler.
-        Sets self.base_class_name.
+        Sets self.base_class_name and self.class_inheritance.
         """
         self.writeln_hpp('#ifndef ', self.include_guard)
         self.writeln_hpp('#define ', self.include_guard, '\n')
@@ -1346,6 +1349,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln_hpp('#include "AbstractCardiacCellWithModifiers.hpp"')
             # Modify the base class name
             self.base_class_name = 'AbstractCardiacCellWithModifiers<' + self.base_class_name + ' >'
+        self.class_inheritance = ' : public ' + self.base_class_name
+        if self.dynamically_loadable:
+            self.writeln_hpp('#include "AbstractDynamicallyLoadableEntity.hpp"')
+            self.class_inheritance += ', public AbstractDynamicallyLoadableEntity'
         self.writeln('#include "Exception.hpp"')
         self.writeln('#include "OdeSystemInformation.hpp"')
         self.writeln_hpp('#include "AbstractStimulusFunction.hpp"')
@@ -1457,7 +1464,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         class, and also lookup table declarations and lookup methods.
         It also outputs a blank VerifyStateVariables method.
         """
-        self.include_serialization = not (self.use_metadata or self.dynamically_loadable) # TODO: Implement
+        self.include_serialization = not self.use_metadata # TODO: Implement
         self.check_time_units()
         # Check if we're generating a Backward Euler model
         if hasattr(self.model, u'solver_info') and \
@@ -1490,8 +1497,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.output_lut_class()
 
         # Cell model class
-        self.writeln_hpp('class ', self.class_name,
-                         ' : public ', self.base_class_name)
+        self.writeln_hpp('class ', self.class_name, self.class_inheritance)
         self.open_block(subsidiary=True)
         # Serialization
         if self.include_serialization:
@@ -1501,6 +1507,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.open_block(subsidiary=True)
             self.writeln_hpp('archive & boost::serialization::base_object<', self.base_class_name,
                              ' >(*this);')
+            if self.dynamically_loadable:
+                self.writeln_hpp('archive & boost::serialization::base_object<AbstractDynamicallyLoadableEntity>(*this);')
             self.close_block(subsidiary=True)
         # Parameter declarations, and set & get methods (#666)
         param_vars = self.output_cell_parameters()
@@ -2204,7 +2212,7 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         if self.use_lookup_tables and self.separate_lut_class:
             self.output_lut_class()
         # Start cell model class
-        self.writeln_hpp('class ', self.class_name, ' : public ', self.base_class_name)
+        self.writeln_hpp('class ', self.class_name, self.class_inheritance)
         self.open_block(subsidiary=True)
         # Parameter declarations, and set & get methods (#666)
         self.output_cell_parameters()

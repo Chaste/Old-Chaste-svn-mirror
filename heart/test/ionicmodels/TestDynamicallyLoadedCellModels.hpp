@@ -33,15 +33,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/shared_ptr.hpp>
 
+#include "ChasteSerialization.hpp"
+#ifdef CHASTE_CAN_CHECKPOINT_DLLS
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#endif // CHASTE_CAN_CHECKPOINT_DLLS
+
 #include "RunAndCheckIonicModels.hpp"
-//#include "LuoRudyIModel1991OdeSystem.hpp"
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "DynamicCellModelLoader.hpp"
+#include "DynamicModelLoaderRegistry.hpp"
 #include "ChasteBuildRoot.hpp"
 #include "HeartConfig.hpp"
 #include "FileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
+#include "AbstractDynamicallyLoadableEntity.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -50,27 +57,19 @@ class TestDynamicallyLoadedCellModels : public CxxTest::TestSuite
 private:
 
     void RunLr91Test(DynamicCellModelLoader& rLoader,
-                     unsigned v_index=4u)
+                     unsigned vIndex=4u)
     {
-        // Set stimulus
-        double magnitude = -25.5;
-        double duration  = 2.0 ;  // ms
-        double when = 50.0; // ms
+        AbstractCardiacCell* p_cell = CreateLr91CellFromLoader(rLoader, vIndex);
+        SimulateLr91AndCompare(p_cell);
+        delete p_cell;
+    }
 
-        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
-        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-
+    void SimulateLr91AndCompare(AbstractCardiacCell* pCell)
+    {
         double end_time = 1000.0; //One second in milliseconds
-
-        // Load the cell model dynamically
-        AbstractCardiacCell* p_cell = rLoader.CreateCell(p_solver, p_stimulus);
-
-        // Simple sanity check
-        TS_ASSERT_EQUALS(p_cell->GetVoltageIndex(), v_index);
-
         // Solve and write to file
         clock_t ck_start = clock();
-        RunOdeSolverWithIonicModel(p_cell,
+        RunOdeSolverWithIonicModel(pCell,
                                    end_time,
                                    "DynamicallyLoadableLr91");
         clock_t ck_end = clock();
@@ -81,14 +80,38 @@ private:
         CheckCellModelResults("DynamicallyLoadableLr91", "Lr91DelayedStim");
 
         // Test GetIIonic against hardcoded result from TestIonicModels.hpp
-        RunOdeSolverWithIonicModel(p_cell,
+        RunOdeSolverWithIonicModel(pCell,
                                    60.0,
                                    "DynamicallyLoadableLr91GetIIonic");
-        TS_ASSERT_DELTA(p_cell->GetIIonic(), 1.9411, 1e-3);
-
-        // Need to delete cell model
-        delete p_cell;
+        TS_ASSERT_DELTA(pCell->GetIIonic(), 1.9411, 1e-3);
     }
+    
+    AbstractCardiacCell* CreateLr91CellFromLoader(DynamicCellModelLoader& rLoader,
+                                                  unsigned vIndex=4u)
+    {
+        // Set stimulus
+        double magnitude = -25.5;
+        double duration  = 2.0 ;  // ms
+        double when = 50.0; // ms
+
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+
+        // Load the cell model dynamically
+        AbstractCardiacCell* p_cell = rLoader.CreateCell(p_solver, p_stimulus);
+
+        // Simple sanity checks
+        TS_ASSERT_EQUALS(p_cell->GetVoltageIndex(), vIndex);
+        AbstractDynamicallyLoadableEntity* p_entity = dynamic_cast<AbstractDynamicallyLoadableEntity*>(p_cell);
+        if (p_entity != NULL)
+        {
+            TS_ASSERT_EQUALS(&rLoader, p_entity->GetLoader());
+            std::cout << "Cell inherits from AbstractDynamicallyLoadableEntity" << std::endl;
+        }
+        
+        return p_cell;
+    }
+    
 public:
     /**
      * This is based on TestOdeSolverForLR91WithDelayedSimpleStimulus from
@@ -98,12 +121,15 @@ public:
     {
         // Load the cell model dynamically
         std::string model_name = "libDynamicallyLoadableLr91.so";
-        DynamicCellModelLoader loader(ChasteComponentBuildDir("heart") + "dynamic/" + model_name);
-        RunLr91Test(loader);
+        // All tests use the registry, as not doing so can lead to segfaults...
+        DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::Instance()->GetLoader(
+            ChasteComponentBuildDir("heart") + "dynamic/" + model_name);
+        RunLr91Test(*p_loader);
 
         // The .so also gets copied into the source folder
-        DynamicCellModelLoader loader2(std::string(ChasteBuildRootDir()) + "heart/dynamic/" + model_name);
-        RunLr91Test(loader2);
+        DynamicCellModelLoader* p_loader2 = DynamicModelLoaderRegistry::Instance()->GetLoader(
+            std::string(ChasteBuildRootDir()) + "heart/dynamic/" + model_name);
+        RunLr91Test(*p_loader2);
     }
 
     /**
@@ -115,12 +141,15 @@ public:
     void TestLr91FromCellML() throw(Exception)
     {
         FileFinder model("heart/dynamic/libluo_rudy_1991.so", cp::relative_to_type::chaste_source_root);
-        DynamicCellModelLoader loader(model.GetAbsolutePath());
-        RunLr91Test(loader, 0u);
+        DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::Instance()->GetLoader(model);
+        RunLr91Test(*p_loader, 0u);
 
         FileFinder model_opt("heart/dynamic/libluo_rudy_1991Opt.so", cp::relative_to_type::chaste_source_root);
-        DynamicCellModelLoader loader_opt(model_opt.GetAbsolutePath());
-        RunLr91Test(loader_opt, 0u);
+        DynamicCellModelLoader* p_loader_opt = DynamicModelLoaderRegistry::Instance()->GetLoader(model_opt);
+        RunLr91Test(*p_loader_opt, 0u);
+        
+        // Coverage
+        TS_ASSERT_EQUALS(p_loader->GetLoadableModulePath(), model.GetAbsolutePath());
     }
 
     void TestExceptions() throw(Exception)
@@ -146,17 +175,15 @@ public:
         cp::ionic_model_selection_type ionic_model;
         ionic_model.Dynamic(dynamic_elt);
 
-        // Now mock up what HeartConfigRelatedCellFactory will have to do
+        // Now mock up what HeartConfigRelatedCellFactory does
         TS_ASSERT(ionic_model.Dynamic().present());
         if (ionic_model.Dynamic().present())
         {
             FileFinder file_finder(ionic_model.Dynamic()->Path());
             TS_ASSERT(file_finder.Exists());
-            DynamicCellModelLoader loader(file_finder.GetAbsolutePath());
-
-            RunLr91Test(loader);
+            DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::Instance()->GetLoader(file_finder);
+            RunLr91Test(*p_loader);
         }
-        // then 'else' what it currently does, more or less...
     }
 
     void TestCellmlConverter() throw(Exception)
@@ -217,6 +244,76 @@ public:
                               "Unable to convert .cellml to .so unless called collectively, due to possible race conditions.");
         TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),"Conversion of CellML to Chaste shared object failed.");
         EXPECT0(chdir, "..");
+    }
+    
+    void TestArchiving() throw(Exception)
+    {
+#ifdef CHASTE_CAN_CHECKPOINT_DLLS
+        // Copy CellML file into output dir
+        std::string dirname = "TestDynamicallyLoadedCellModelsArchiving";
+        OutputFileHandler handler(dirname);
+        if (PetscTools::AmMaster())
+        {
+            FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", cp::relative_to_type::chaste_source_root);
+            EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
+        }
+        PetscTools::Barrier("TestArchiving_cp");
+
+        // Convert to .so
+        CellMLToSharedLibraryConverter converter;
+        FileFinder cellml_file(dirname + "/luo_rudy_1991.cellml", cp::relative_to_type::chaste_test_output);
+        TS_ASSERT(cellml_file.Exists());
+        FileFinder so_file(dirname + "/libluo_rudy_1991.so", cp::relative_to_type::chaste_test_output);
+        TS_ASSERT(!so_file.Exists());
+        DynamicCellModelLoader* p_loader = converter.Convert(cellml_file);
+        
+        // Load a cell model from the .so
+        AbstractCardiacCell* p_cell = CreateLr91CellFromLoader(*p_loader, 0u);
+        
+        // Archive it
+        ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
+        std::string archive_filename1 = ArchiveLocationInfo::GetProcessUniqueFilePath("first-save.arch");
+        {
+            AbstractCardiacCell* const p_const_cell = p_cell;
+            std::ofstream ofs(archive_filename1.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            output_arch << p_const_cell;
+        }
+        
+        // Load from archive
+        AbstractCardiacCell* p_loaded_cell1;
+        {
+            std::ifstream ifs(archive_filename1.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            input_arch >> p_loaded_cell1;
+        }
+        
+        // Archive the un-archived model
+        std::string archive_filename2 = ArchiveLocationInfo::GetProcessUniqueFilePath("second-save.arch");
+        {
+            AbstractCardiacCell* const p_const_cell = p_loaded_cell1;
+            std::ofstream ofs(archive_filename2.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            output_arch << p_const_cell;
+        }
+            
+        // Load from the new archive
+        AbstractCardiacCell* p_loaded_cell2;
+        {
+            std::ifstream ifs(archive_filename2.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            input_arch >> p_loaded_cell2;
+        }
+        
+        // Check simulations of both loaded cells
+        SimulateLr91AndCompare(p_loaded_cell1);
+        delete p_loaded_cell1;
+        SimulateLr91AndCompare(p_loaded_cell2);
+        delete p_loaded_cell2;
+        delete p_cell;
+#else
+        std::cout << "Note: this test can only actually test anything on Boost>=1.37." << std::endl;
+#endif // CHASTE_CAN_CHECKPOINT_DLLS
     }
 };
 

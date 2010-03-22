@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * This class represents the Luo-Rudy 1991 system of equations,
  * with support for being compiled into a .so and loaded at run-time.
  */
-class DynamicallyLoadableLr91 : public AbstractCardiacCell, AbstractDynamicallyLoadableEntity
+class DynamicallyLoadableLr91 : public AbstractCardiacCell, public AbstractDynamicallyLoadableEntity
 {
 private:
     /** Needed for serialization. */
@@ -55,6 +55,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
+        archive & boost::serialization::base_object<AbstractDynamicallyLoadableEntity>(*this);
     }
 
     /* Constants for the model */

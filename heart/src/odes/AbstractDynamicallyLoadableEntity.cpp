@@ -38,5 +38,6 @@ const DynamicCellModelLoader* AbstractDynamicallyLoadableEntity::GetLoader() con
     return mpLoader;
 }
 
-
-
+AbstractDynamicallyLoadableEntity::~AbstractDynamicallyLoadableEntity()
+{
+}

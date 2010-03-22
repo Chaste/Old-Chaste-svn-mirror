@@ -322,8 +322,17 @@ private:
 
     /**
      * Load this container, but not its content.
+     * 
      * Objects loading a boundary conditions container should call LoadFromArchive
      * on the new object immediately after loading it from the archive.
+     * 
+     * Note that boundary conditions should be saved to the ProcessSpecificArchive,
+     * since if a DistributedTetrahedralMesh is used each process will only know a
+     * portion of the mesh, and hence a portion of the boundary conditions.
+     * 
+     * Extra care needs to be taken when migrating to ensure that boundary conditions
+     * are loaded appropriately.  See BidomainProblem::LoadExtraArchiveForBidomain
+     * and AbstractCardiacProblem::LoadExtraArchive for examples.
      *
      * @param archive
      * @param version
