@@ -26,12 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "PetscArguments.hpp"
+#include "CommandLineArguments.hpp"
 
 #include <cstddef>
 #include <cassert>
 
-PetscArguments::PetscArguments()
+CommandLineArguments::CommandLineArguments()
     : p_argc(NULL),
       p_argv(NULL)
 {
@@ -39,14 +39,14 @@ PetscArguments::PetscArguments()
     assert(mpInstance == NULL);
 }
 
-PetscArguments* PetscArguments::Instance()
+CommandLineArguments* CommandLineArguments::Instance()
 {
     if (mpInstance == NULL)
     {
-        mpInstance = new PetscArguments;
+        mpInstance = new CommandLineArguments;
     }
     return mpInstance;
 
 }
 
-PetscArguments* PetscArguments::mpInstance = NULL;
+CommandLineArguments* CommandLineArguments::mpInstance = NULL;

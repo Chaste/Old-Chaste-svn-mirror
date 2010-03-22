@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef PETSCARGUMENTS_HPP_
-#define PETSCARGUMENTS_HPP_
+#ifndef COMMANDLINEARGUMENTS_HPP_
+#define COMMANDLINEARGUMENTS_HPP_
 
 /**
  * A convenient holder for the command line arguments.
@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The cxxtest harness will fill in the member variables when a test is
  * started.  They can then be read by PETSc when it is initialised.
  */
-class PetscArguments
+class CommandLineArguments
 {
 public:
 
@@ -46,21 +46,21 @@ public:
     char*** p_argv;
 
     /** Get the single instance of this class. */
-    static PetscArguments* Instance();
+    static CommandLineArguments* Instance();
 
 private:
 
-    /** Default constructor. Should never be called directly, call PetscArguments::Instance() instead.*/
-    PetscArguments();
+    /** Default constructor. Should never be called directly, call CommandLineArguments::Instance() instead.*/
+    CommandLineArguments();
 
     /** Copy constructor. */
-    PetscArguments(const PetscArguments&);
+    CommandLineArguments(const CommandLineArguments&);
 
     /** Overloaded assignment operator. */
-    PetscArguments& operator= (const PetscArguments&);
+    CommandLineArguments& operator= (const CommandLineArguments&);
 
     /** The single instance of the class. */
-    static PetscArguments* mpInstance;
+    static CommandLineArguments* mpInstance;
 };
 
-#endif // PETSCARGUMENTS_HPP_
+#endif // COMMANDLINEARGUMENTS_HPP_

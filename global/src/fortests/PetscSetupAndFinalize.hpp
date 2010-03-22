@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include "Exception.hpp"
 #include "PetscException.hpp"
-#include "PetscArguments.hpp"
+#include "CommandLineArguments.hpp"
 #include "ChasteBuildRoot.hpp"
 #include "GetCurrentWorkingDirectory.hpp"
 
@@ -81,7 +81,7 @@ public:
          * The cxxtest_argc and cxxtest_argv variables are global, and filled in
          * from the arguments passed to the cxxtest test suite runner.
          */
-        PetscArguments* p_args = PetscArguments::Instance();
+        CommandLineArguments* p_args = CommandLineArguments::Instance();
         PETSCEXCEPT(PetscInitialize(p_args->p_argc, p_args->p_argv,
                                     PETSC_NULL, PETSC_NULL) );
 

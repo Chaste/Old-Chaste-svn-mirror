@@ -435,10 +435,10 @@ def writeMain( output ):
         output.write( ' return CxxTest::GuiTuiRunner<CxxTest::%s, CxxTest::%s>( argc, argv ).run();\n' % (gui, runner) )
         output.write( '}\n' )
     elif runner:
-    	output.write( '#include "PetscArguments.hpp"\n' )
+    	output.write( '#include "CommandLineArguments.hpp"\n' )
         output.write( 'int main( int argc, char *argv[] ) {\n' )
-        output.write( ' PetscArguments::Instance()->p_argc = &argc;\n' )
-        output.write( ' PetscArguments::Instance()->p_argv = &argv;\n' )
+        output.write( ' CommandLineArguments::Instance()->p_argc = &argc;\n' )
+        output.write( ' CommandLineArguments::Instance()->p_argv = &argv;\n' )
         if noStaticInit:
             output.write( ' CxxTest::initialize();\n' )
         output.write( ' return CxxTest::%s().run();\n' % runner )
