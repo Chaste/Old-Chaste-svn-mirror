@@ -455,8 +455,8 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellPr
     // Write cell mutation state data to file if required
     if (p_config->GetOutputCellMutationStates())
     {
-        // An ordering must have been specified for cell mutation states
-        assert(GetMutationRegistry()->HasOrderingBeenSpecified());
+        // An ordering must be specified for cell mutation states
+        SetDefaultMutationStateOrdering();
 
         const std::vector<boost::shared_ptr<AbstractCellMutationState> >& r_mutation_states
             = GetMutationRegistry()->rGetAllMutationStates();
@@ -573,7 +573,6 @@ void AbstractTissue<DIM>::WriteResultsToFiles()
         *mpCellAgesFile << time << "\t";
     }
 
-    SetDefaultMutationStateOrdering();
     GenerateCellResultsAndWriteToFiles();
 
     // Write logged cell data if required
