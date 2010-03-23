@@ -243,7 +243,7 @@ public:
 
     // This test currently fails as archiving is not yet correctly implemented for SingleOdeWntCellCycleModel
     // (see #1239)
-    void DONTTestArchiving()
+    void TestArchiving()
     {
         TissueConfig* p_params = TissueConfig::Instance();
 
@@ -267,9 +267,12 @@ public:
             WntConcentration<1>::Instance()->SetConstantWntValueForTesting(0.7);
 
             // Create cell cycle model and associated cell
-            SimpleWntCellCycleModel* p_cell_model = new SingleOdeWntCellCycleModel;
+            SingleOdeWntCellCycleModel* p_cell_model = new SingleOdeWntCellCycleModel;
             p_cell_model->SetDimension(1);
             p_cell_model->SetBirthTime(-1.0);
+            p_cell_model->SetBetaCateninDivisionThreshold(0.76);
+
+            TS_ASSERT_DELTA(p_cell_model->GetBetaCateninDivisionThreshold(), 0.76, 1e-12);
 
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
@@ -337,6 +340,9 @@ public:
 
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
+
+            // mBetaCateninDivisionThreshold is set to the magic number 100 in the Initialise method
+            TS_ASSERT_DELTA((static_cast<SingleOdeWntCellCycleModel*>(p_cell_model))->GetBetaCateninDivisionThreshold(), 100, 1e-12);
 
             TS_ASSERT_DELTA(p_gen->ranf(), random_number_test, 1e-7);
             TS_ASSERT_EQUALS((static_cast<SingleOdeWntCellCycleModel*>(p_cell_model))->GetDimension(), 1u);

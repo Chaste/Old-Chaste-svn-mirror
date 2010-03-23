@@ -53,7 +53,7 @@ public:
     VanLeeuwen2009WntSwatCellCycleModelHypothesisOne();
 
     /**
-     * Overloaded method which allocates the ode system using HYPOTHESIS ONE
+     * Overloaded method which allocates the ODE system using HYPOTHESIS ONE.
      *
      * @param wntConcentration Wnt concentration
      * @param pMutationState Mutation state

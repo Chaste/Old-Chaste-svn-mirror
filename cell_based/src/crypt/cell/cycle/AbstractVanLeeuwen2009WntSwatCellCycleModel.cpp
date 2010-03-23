@@ -45,8 +45,6 @@ AbstractVanLeeuwen2009WntSwatCellCycleModel::AbstractVanLeeuwen2009WntSwatCellCy
 }
 
 
-
-
 void AbstractVanLeeuwen2009WntSwatCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
 {
     assert(mpOdeSystem!=NULL);
@@ -75,7 +73,6 @@ void AbstractVanLeeuwen2009WntSwatCellCycleModel::Initialise()
 
     double wnt_level = GetWntLevel();
 
-    //mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(mHypothesis, wnt_level, mpCell->GetMutationState());
     InitialiseOdeSystem(wnt_level, mpCell->GetMutationState());
 
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());

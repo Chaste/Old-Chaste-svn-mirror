@@ -79,13 +79,14 @@ private:
     template<class Archive>
     void load(Archive & archive, const unsigned int version)
     {
-        // The ODE system is set up by the archiving constructor, so we can set the mutation state
-        // here.  This is a horrible hack, but avoids having to regenerate test archives...
+        /*
+         * The ODE system is set up by the archiving constructor, so we can set the mutation state
+         * here. This is a horrible hack, but avoids having to regenerate test archives.
+         */
         boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
         InitialiseOdeSystem(0.0, p_mutation_state);
         assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
-//        boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
         archive & p_mutation_state;
         static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(p_mutation_state);
     }
@@ -149,69 +150,17 @@ public:
     double GetNuclearBetaCateninLevel();
 
     /**
-     *  Pure virtual method to be implemented in concrete classes, which
-     *  should should allocate the mOdeSystem variable using the appropriate
-     *  hypothesis (one or two).
-     *  @param wntConcentration Wnt concentration
-     *  @param pMutationState Mutation state
+     * Pure virtual method to be implemented in concrete classes, which
+     * should should allocate the mOdeSystem variable using the appropriate
+     * hypothesis (one or two).
+     *
+     * @param wntConcentration Wnt concentration
+     * @param pMutationState Mutation state
      */
     virtual void InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)=0;
 };
 
-
-//#include "SerializationExportWrapper.hpp"
-// Declare identifier for the serializer
 CLASS_IS_ABSTRACT(AbstractVanLeeuwen2009WntSwatCellCycleModel)
-
-
-//
-//namespace boost
-//{
-//namespace serialization
-//{
-///**
-// * Allow us to not need a default constructor, by specifying how Boost should
-// * instantiate a AbstractVanLeeuwen2009WntSwatCellCycleModel instance.
-// */
-//template<class Archive>
-//inline void save_construct_data(
-//    Archive & ar, const AbstractVanLeeuwen2009WntSwatCellCycleModel * t, const unsigned int file_version)
-//{
-////    const unsigned hypothesis = t->GetHypothesis();
-////    ar & hypothesis;
-//}
-//
-///**
-// * Allow us to not need a default constructor, by specifying how Boost should
-// * instantiate a AbstractVanLeeuwen2009WntSwatCellCycleModel instance.
-// */
-//template<class Archive>
-//inline void load_construct_data(
-//    Archive & ar, AbstractVanLeeuwen2009WntSwatCellCycleModel * t, const unsigned int file_version)
-//{
-//    /**
-//     * Invoke inplace constructor to initialise an instance of AbstractVanLeeuwen2009WntSwatCellCycleModel.
-//     * It doesn't actually matter what values we pass to our standard constructor,
-//     * provided they are valid parameter values, since the state loaded later
-//     * from the archive will overwrite their effect in this case.
-//     */
-//
-//    std::vector<double> state_vars;
-//    for (unsigned i=0; i<22; i++)
-//    {
-//        state_vars.push_back(0.0);
-//    }
-//
-//    boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-//    unsigned dimension = UINT_MAX;
-//
-////    unsigned hypothesis;
-////    ar & hypothesis;
-//
-//    ::new(t)AbstractVanLeeuwen2009WntSwatCellCycleModel(state_vars, p_mutation_state, dimension);
-//}
-//}
-//} // namespace ...
 
 #endif /*ABSTRACTVANLEEUWEN2009WNTSWATCELLCYCLEMODEL_HPP_*/
 

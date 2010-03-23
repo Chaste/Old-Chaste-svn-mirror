@@ -75,13 +75,11 @@ private:
          * Note mpOdeSystem itself is not archived just the current values of the
          * state variables...
          */
-        archive & mpOdeSystem->rGetStateVariables();
-
         boost::shared_ptr<AbstractCellMutationState> p_mutation_state = static_cast<Mirams2010WntOdeSystem*>(mpOdeSystem)->GetMutationState();
         archive & p_mutation_state;
-
         archive & mBetaCateninDivisionThreshold;
         archive & mLastTime;
+        archive & mpOdeSystem->rGetStateVariables();
     }
     /**
      * Load the cell cycle model and ODE system from archive.
@@ -97,16 +95,14 @@ private:
          * here. This is a horrible hack, but avoids having to regenerate test archives.
          */
         assert(mpOdeSystem);
-
         archive & boost::serialization::base_object<SimpleWntCellCycleModel>(*this);
-
         boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
         archive & p_mutation_state;
-
         static_cast<Mirams2010WntOdeSystem*>(mpOdeSystem)->SetMutationState(p_mutation_state);
 
         archive & mBetaCateninDivisionThreshold;
         archive & mLastTime;
+        archive & mpOdeSystem->rGetStateVariables();
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
@@ -240,7 +236,7 @@ namespace serialization
 {
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a SingleOdeWntCellCycleModel instance.
+ * instantiate a WntCellCycleModel instance.
  */
 template<class Archive>
 inline void save_construct_data(
@@ -250,25 +246,28 @@ inline void save_construct_data(
 
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a SingleOdeWntCellCycleModel instance.
+ * instantiate a WntCellCycleModel instance.
  */
 template<class Archive>
 inline void load_construct_data(
     Archive & ar, SingleOdeWntCellCycleModel * t, const unsigned int file_version)
 {
     /**
-     * Invoke inplace constructor to initialise an instance of SingleOdeWntCellCycleModel.
+     * Invoke inplace constructor to initialise an instance of WntCellCycleModel.
      * It doesn't actually matter what values we pass to our standard constructor,
      * provided they are valid parameter values, since the state loaded later
      * from the archive will overwrite their effect in this case.
      */
 
     std::vector<double> state_vars;
-    state_vars.push_back(0.0);
+    for (unsigned i=0; i<3; i++)
+    {
+        state_vars.push_back(0.0);
+    }
 
-    boost::shared_ptr<AbstractCellMutationState> p_state;
+    boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
     unsigned dimension = 1;
-    ::new(t)SingleOdeWntCellCycleModel(state_vars, p_state, dimension);
+    ::new(t)SingleOdeWntCellCycleModel(state_vars, p_mutation_state, dimension);
 }
 }
 } // namespace
