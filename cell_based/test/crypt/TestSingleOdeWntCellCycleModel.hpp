@@ -252,6 +252,8 @@ public:
 
         double random_number_test = 0;
 
+        double beta_catenin_threshold = 0.76;
+
         // Create an output archive
         {
             // The number for the G1 duration is taken from the first random number generated
@@ -264,15 +266,12 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
 
             // Set up the Wnt concentration for testing
-            WntConcentration<1>::Instance()->SetConstantWntValueForTesting(0.7);
+            WntConcentration<2>::Instance()->SetConstantWntValueForTesting(0.7);
 
             // Create cell cycle model and associated cell
             SingleOdeWntCellCycleModel* p_cell_model = new SingleOdeWntCellCycleModel;
-            p_cell_model->SetDimension(1);
+            p_cell_model->SetDimension(2);
             p_cell_model->SetBirthTime(-1.0);
-            p_cell_model->SetBetaCateninDivisionThreshold(0.76);
-
-            TS_ASSERT_DELTA(p_cell_model->GetBetaCateninDivisionThreshold(), 0.76, 1e-12);
 
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
@@ -290,6 +289,9 @@ public:
             TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), TRANSIT);
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->ReadyToDivide(), false);
             TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCurrentCellCyclePhase(), G_TWO_PHASE);
+
+            p_cell_model->SetBetaCateninDivisionThreshold(beta_catenin_threshold);
+            TS_ASSERT_DELTA(p_cell_model->GetBetaCateninDivisionThreshold(), beta_catenin_threshold, 1e-12);
 
             // Archive the cell
             std::ofstream ofs(archive_filename.c_str());
@@ -329,10 +331,11 @@ public:
 
             // Restore from the archive
             input_arch >> p_cell;
-
             // Check
             AbstractCellCycleModel* p_cell_model = p_cell->GetCellCycleModel();
             TS_ASSERT_EQUALS(p_cell, p_cell_model->GetCell());
+
+            TS_ASSERT_DELTA((static_cast<SingleOdeWntCellCycleModel*>(p_cell_model))->GetBetaCateninDivisionThreshold(), beta_catenin_threshold, 1e-12);
 
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
             p_simulation_time->IncrementTimeOneStep();
@@ -341,11 +344,8 @@ public:
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
 
-            // mBetaCateninDivisionThreshold is set to the magic number 100 in the Initialise method
-            TS_ASSERT_DELTA((static_cast<SingleOdeWntCellCycleModel*>(p_cell_model))->GetBetaCateninDivisionThreshold(), 100, 1e-12);
-
             TS_ASSERT_DELTA(p_gen->ranf(), random_number_test, 1e-7);
-            TS_ASSERT_EQUALS((static_cast<SingleOdeWntCellCycleModel*>(p_cell_model))->GetDimension(), 1u);
+            TS_ASSERT_EQUALS((static_cast<SingleOdeWntCellCycleModel*>(p_cell_model))->GetDimension(), 2u);
 
             // Tidy up
             delete p_cell;
