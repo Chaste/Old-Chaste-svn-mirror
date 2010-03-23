@@ -216,8 +216,12 @@ public:
     /**
      * Virtual destructor, since this class has virtual methods.
      */
-    virtual ~VertexElement()
-    {}
+    virtual ~VertexElement();
+
+    /**
+     * Get the number of faces owned by this element.
+     */
+    unsigned GetNumFaces() const;
 
     /**
      * Update node at the given index.
@@ -275,6 +279,20 @@ public:
      */
     unsigned GetNodeLocalIndex(unsigned globalIndex);
 
+    /**
+     * @param index the global index of a specified face
+     *
+     * @return a pointer to the face
+     */
+    VertexElement<0,SPACE_DIM>* GetFace(unsigned index) const;
+
+    /**
+     * Get whether the face with a given index is oriented clockwise.
+     *
+     * @param index the index of the face
+     */
+    bool FaceIsOrientatedClockwise(unsigned index) const;
+
 };
 
 #include <cassert>
@@ -289,18 +307,14 @@ VertexElement<1, SPACE_DIM>::VertexElement(unsigned index, const std::vector<Nod
 }
 
 template<unsigned SPACE_DIM>
-void VertexElement<1, SPACE_DIM>::UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
+VertexElement<1, SPACE_DIM>::~VertexElement()
 {
-    assert(rIndex < this->mNodes.size());
+}
 
-    // Remove it from the node at this location
-    this->mNodes[rIndex]->RemoveElement(this->mIndex);
-
-    // Update the node at this location
-    this->mNodes[rIndex] = pNode;
-
-    // Add element to this node
-    this->mNodes[rIndex]->AddElement(this->mIndex);
+template<unsigned SPACE_DIM>
+unsigned VertexElement<1, SPACE_DIM>::GetNumFaces() const
+{
+    return 0;
 }
 
 template<unsigned SPACE_DIM>
@@ -311,7 +325,6 @@ void VertexElement<1, SPACE_DIM>::RegisterWithNodes()
         this->mNodes[i]->AddElement(this->mIndex);
     }
 }
-
 
 template<unsigned SPACE_DIM>
 void VertexElement<1, SPACE_DIM>::MarkAsDeleted()
@@ -335,6 +348,21 @@ void VertexElement<1, SPACE_DIM>::ResetIndex(unsigned index)
     }
     this->mIndex = index;
     RegisterWithNodes();
+}
+
+template<unsigned SPACE_DIM>
+void VertexElement<1, SPACE_DIM>::UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
+{
+    assert(rIndex < this->mNodes.size());
+
+    // Remove it from the node at this location
+    this->mNodes[rIndex]->RemoveElement(this->mIndex);
+
+    // Update the node at this location
+    this->mNodes[rIndex] = pNode;
+
+    // Add element to this node
+    this->mNodes[rIndex]->AddElement(this->mIndex);
 }
 
 template<unsigned SPACE_DIM>
@@ -364,7 +392,7 @@ void VertexElement<1, SPACE_DIM>::AddNode(const unsigned& rIndex, Node<SPACE_DIM
 template<unsigned SPACE_DIM>
 unsigned VertexElement<1, SPACE_DIM>::GetNodeLocalIndex(unsigned globalIndex)
 {
-    unsigned local_index= UINT_MAX;
+    unsigned local_index = UINT_MAX;
     for (unsigned i=0; i<this->mNodes.size(); i++)
     {
         if (this->GetNodeGlobalIndex(i) == globalIndex)
@@ -375,5 +403,16 @@ unsigned VertexElement<1, SPACE_DIM>::GetNodeLocalIndex(unsigned globalIndex)
     return local_index;
 }
 
+template<unsigned SPACE_DIM>
+VertexElement<0, SPACE_DIM>* VertexElement<1, SPACE_DIM>::GetFace(unsigned index) const
+{
+    return NULL;
+}
+
+template<unsigned SPACE_DIM>
+bool VertexElement<1, SPACE_DIM>::FaceIsOrientatedClockwise(unsigned index) const
+{
+    return false;
+}
 
 #endif /*VERTEXELEMENT_HPP_*/

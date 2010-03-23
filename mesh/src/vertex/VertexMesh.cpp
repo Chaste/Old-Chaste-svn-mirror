@@ -244,6 +244,59 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_D
     return fabs(face_area);
 }
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVolumeOfElement(unsigned index)
+{
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM == 3);
+    #undef COVERAGE_IGNORE
+
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
+
+    // Loop over faces and add up pyramid volumes
+    double volume = 0.0;
+    c_vector<double, SPACE_DIM> pyramid_apex = p_element->GetNodeLocation(0);
+    for (unsigned face_index=0; face_index<p_element->GetNumFaces(); face_index++)
+    {
+        // Get unit normal to this face
+        c_vector<double, SPACE_DIM> unit_normal = GetUnitNormalToFace(p_element->GetFace(face_index));
+
+        // Calculate the perpendicular distance from the plane of the face to the chosen apex
+        c_vector<double, SPACE_DIM> base_to_apex = GetVectorFromAtoB(p_element->GetFace(face_index)->GetNodeLocation(0),
+                                                                     pyramid_apex);
+
+        double perpendicular_distance = inner_prod(base_to_apex, unit_normal);
+
+        // Calculate the area of the face
+        double face_area = GetAreaOfFace(p_element->GetFace(face_index));
+
+        // Use these to calculate the volume of the pyramid formed by the face and the point pyramid_apex
+        volume += face_area * perpendicular_distance / 3;
+    }
+    return volume;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceAreaOfElement(unsigned index)
+{
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM == 3);
+    #undef COVERAGE_IGNORE
+
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
+
+    // Loop over faces and add up areas
+    double surface_area = 0.0;
+    for (unsigned face_index=0; face_index<p_element->GetNumFaces(); face_index++)
+    {
+        surface_area += GetAreaOfFace(p_element->GetFace(face_index));
+    }
+    return surface_area;
+}
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
 {
@@ -304,37 +357,55 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterOfElement(unsigned index)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfElement(unsigned index)
 {
-    #define COVERAGE_IGNORE
-    assert(SPACE_DIM == 2);
-    #undef COVERAGE_IGNORE
-
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
-
-    c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
-    c_vector<double, SPACE_DIM> current_node;
-    c_vector<double, SPACE_DIM> anticlockwise_node;
-
-    double temp_centroid_x = 0;
-    double temp_centroid_y = 0;
-
     unsigned num_nodes_in_element = p_element->GetNumNodes();
 
-    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
+    c_vector<double, SPACE_DIM> centroid = zero_vector<double>(SPACE_DIM);
+
+    switch (SPACE_DIM)
     {
-        // Find locations of current node and anticlockwise node
-        current_node = p_element->GetNodeLocation(local_index);
-        anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
+        case 1:
+        {
+            centroid = 0.5*(p_element->GetNodeLocation(0) + p_element->GetNodeLocation(0));
+        }
+        break;
+        case 2: ///\todo Why isn't this just the centre of mass? (#1284)
+        {
+            c_vector<double, SPACE_DIM> current_node;
+            c_vector<double, SPACE_DIM> anticlockwise_node;
 
-        temp_centroid_x += (current_node[0]+anticlockwise_node[0])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
-        temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
+            double temp_centroid_x = 0;
+            double temp_centroid_y = 0;
+
+            for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
+            {
+                // Find locations of current node and anticlockwise node
+                current_node = p_element->GetNodeLocation(local_index);
+                anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
+
+                temp_centroid_x += (current_node[0]+anticlockwise_node[0])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
+                temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
+            }
+
+            double vertex_area = GetAreaOfElement(index);
+            double centroid_coefficient = 1.0/(6.0*vertex_area);
+
+            centroid(0) = centroid_coefficient*temp_centroid_x;
+            centroid(1) = centroid_coefficient*temp_centroid_y;
+        }
+        break;
+        case 3:
+        {
+            for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
+            {
+                centroid += p_element->GetNodeLocation(local_index);
+            }
+            centroid /= ((double) num_nodes_in_element);
+        }
+        break;
+        default:
+            NEVER_REACHED;
     }
-
-    double vertex_area = GetAreaOfElement(index);
-    double centroid_coefficient = 1.0/(6.0*vertex_area);
-
-    centroid(0) = centroid_coefficient*temp_centroid_x;
-    centroid(1) = centroid_coefficient*temp_centroid_y;
-
     return centroid;
 }
 

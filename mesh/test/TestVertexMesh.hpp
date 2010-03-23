@@ -341,7 +341,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(0), 4.0, 1e-6);
     }
 
-    void TestGetUnitNormalToFaceAndGetAreaOfFaceWithPrism()
+    void Test3dMethodsWithPrism()
     {
         // Create nodes
         std::vector<Node<3>*> nodes;
@@ -448,6 +448,16 @@ public:
         TS_ASSERT_DELTA(unit_normal_4[1], 0.0, 1e-6);
         TS_ASSERT_DELTA(unit_normal_4[2], -1.0, 1e-6);
         TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_4), 2.0, 1e-6);
+
+        // The volume of the prism should be 0.5 * 3 * 2 * 1 = 3
+        TS_ASSERT_DELTA(mesh.GetVolumeOfElement(0), 3.0, 1e-6);
+
+        // The volume of the prism should be the sum of the face areas
+        TS_ASSERT_DELTA(mesh.GetSurfaceAreaOfElement(0), 11 + sqrt(13), 1e-6);
+
+        // By symmetry, the centroid of the prism should lie in the plane x=0.5 
+        c_vector<double, 3> centroid = mesh.GetCentroidOfElement(0);
+        TS_ASSERT_DELTA(centroid(0), 0.5, 1e-5);
     }
 
     void TestGetPerimeterGradientAtNode()

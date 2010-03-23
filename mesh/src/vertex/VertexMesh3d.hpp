@@ -134,28 +134,26 @@ public:
     VertexElement<3,3>* GetElement(unsigned index) const;
 
     /**
-     * Compute the volume of an element.
+     * Compute the volume of a 3D element.
      *
-     * This needs to be overridden
-     * in daughter classes for non-Euclidean metrics.
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
      *
      * @param index  the global index of a specified vertex element
      *
-     * @return the area of the element
+     * @return the volume of the element
      */
     virtual double GetVolumeOfElement(unsigned index);
 
     /**
-     * Compute the surface area of an element.
+     * Compute the surface area of a 3D element.
      *
-     * N.B. This calls GetVectorFromAtoB(), which can be overridden
-     * in daughter classes for non-Euclidean metrics.
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
      *
-     * @param index the global index of a specified vertex element
+     * @param index  the global index of a specified vertex element
      *
-     * @return the surface area of the element
+     * @return the surfacearea of the element
      */
-    double GetSurfaceAreaOfElement(unsigned index);
+    virtual double GetSurfaceAreaOfElement(unsigned index);
 
     /**
      * Compute the unit normal vector to a given face in 3D. This is achieved from a triangle

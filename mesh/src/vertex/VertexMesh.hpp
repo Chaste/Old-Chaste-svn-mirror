@@ -235,7 +235,29 @@ public:
      * 
      * @return the area
      */
-    double GetAreaOfFace(VertexElement<ELEMENT_DIM-1, SPACE_DIM>* pFace);
+    virtual double GetAreaOfFace(VertexElement<ELEMENT_DIM-1, SPACE_DIM>* pFace);
+
+    /**
+     * Compute the volume of a 3D element.
+     *
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
+     *
+     * @param index  the global index of a specified vertex element
+     *
+     * @return the volume of the element
+     */
+    virtual double GetVolumeOfElement(unsigned index);
+
+    /**
+     * Compute the surface area of a 3D element.
+     *
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
+     *
+     * @param index  the global index of a specified vertex element
+     *
+     * @return the surfacearea of the element
+     */
+    virtual double GetSurfaceAreaOfElement(unsigned index);
 
     /**
      * @param index  the global index of a specified vertex element
@@ -245,7 +267,7 @@ public:
     VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
 
     /**
-     * Compute the area of an element.
+     * Compute the area of a 2D element.
      *
      * This needs to be overridden in daughter classes for non-Euclidean metrics.
      *
@@ -256,7 +278,7 @@ public:
     virtual double GetAreaOfElement(unsigned index);
 
     /**
-     * Compute the perimeter of an element.
+     * Compute the perimeter of a 2D element.
      *
      * N.B. This calls GetVectorFromAtoB(), which can be overridden
      * in daughter classes for non-Euclidean metrics.
@@ -270,10 +292,7 @@ public:
     /**
      * Compute the centroid of an element.
      *
-     * This needs to be overridden
-     * in daughter classes for non-Euclidean metrics.
-     *
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
      *
      * @param index  the global index of a specified vertex element
      *

@@ -71,13 +71,6 @@ VertexMesh3d::VertexMesh3d(std::vector<Node<3>*> nodes,
 }
 
 
-//VertexMesh3d::VertexMesh3d()
-//{
-//    this->mMeshChangesDuringSimulation = false;
-//    Clear();
-//}
-
-
 VertexMesh3d::~VertexMesh3d()
 {
     Clear();
@@ -161,24 +154,43 @@ VertexElement<3,3>* VertexMesh3d::GetElement(unsigned index) const
 
 double VertexMesh3d::GetVolumeOfElement(unsigned index)
 {
-    return 0.0;
+    VertexElement<3, 3>* p_element = GetElement(index);
+
+    // Loop over faces and add up pyramid volumes
+    double volume = 0.0;
+    c_vector<double, 3> pyramid_apex = p_element->GetNodeLocation(0);
+    for (unsigned face_index=0; face_index<p_element->GetNumFaces(); face_index++)
+    {
+        // Get unit normal to this face
+        c_vector<double, 3> unit_normal = GetUnitNormalToFace(p_element->GetFace(face_index));
+
+        // Calculate the perpendicular distance from the plane of the face to the chosen apex
+        c_vector<double, 3> base_to_apex = GetVectorFromAtoB(p_element->GetFace(face_index)->GetNodeLocation(0),
+                                                             pyramid_apex);
+
+        double perpendicular_distance = inner_prod(base_to_apex, unit_normal);
+
+        // Calculate the area of the face
+        double face_area = GetAreaOfFace(p_element->GetFace(face_index));
+
+        // Use these to calculate the volume of the pyramid formed by the face and the point pyramid_apex
+        volume += face_area * perpendicular_distance / 3;
+    }
+    return volume;
 }
 
 
 double VertexMesh3d::GetSurfaceAreaOfElement(unsigned index)
 {
     VertexElement<3,3>* p_element = GetElement(index);
-
-    double element_surface_area = 0;
-
-    unsigned num_faces_in_element = p_element->GetNumFaces();
-
-    for (unsigned local_index=0; local_index<num_faces_in_element; local_index++)
+    
+    // Loop over faces and add up areas
+    double surface_area = 0.0;
+    for (unsigned face_index=0; face_index<p_element->GetNumFaces(); face_index++)
     {
-        element_surface_area += GetAreaOfFace(p_element->GetFace(local_index));
+        surface_area += GetAreaOfFace(p_element->GetFace(face_index));
     }
-
-    return element_surface_area;
+    return surface_area;
 }
 
 
@@ -274,59 +286,18 @@ double VertexMesh3d::GetAreaOfFace(VertexElement<2,3>* pFace)
 
 c_vector<double, 3> VertexMesh3d::GetCentroidOfElement(unsigned index)
 {
-    return zero_vector<double>(3);
-}
+    VertexElement<3, 3>* p_element = GetElement(index);
 
+    c_vector<double, 3> centroid = zero_vector<double>(3);
 
-void VertexMesh3d::ConstructFromMeshReader(AbstractMeshReader<3,3>& rMeshReader)
-{
-//    // Store numbers of nodes and elements
-//    unsigned num_nodes = rMeshReader.GetNumNodes();
-//    unsigned num_elements = rMeshReader.GetNumElements();
-//
-//    // Reserve memory for nodes
-//    this->mNodes.reserve(num_nodes);
-//
-//    rMeshReader.Reset();
-//
-//    // Add nodes
-//    std::vector<double> node_data;
-//    for (unsigned i=0; i<num_nodes; i++)
-//    {
-//        node_data = rMeshReader.GetNextNode();
-//        unsigned is_boundary_node = (unsigned) node_data[2];
-//        node_data.pop_back();
-//        this->mNodes.push_back(new Node<SPACE_DIM>(i, node_data, is_boundary_node));
-//    }
-//
-//    rMeshReader.Reset();
-//
-//    // Reserve memory for nodes
-//    mElements.reserve(rMeshReader.GetNumElements());
-//
-//    // Add elements
-//    for (unsigned elem_index=0; elem_index<num_elements; elem_index++)
-//    {
-//        ElementData element_data = rMeshReader.GetNextElementData();
-//        std::vector<Node<SPACE_DIM>*> nodes;
-//
-//        unsigned num_nodes_in_element = element_data.NodeIndices.size();
-//        for (unsigned j=0; j<num_nodes_in_element; j++)
-//        {
-//            assert(element_data.NodeIndices[j] < this->mNodes.size());
-//            nodes.push_back(this->mNodes[element_data.NodeIndices[j]]);
-//        }
-//
-//        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(elem_index, nodes);
-//        mElements.push_back(p_element);
-//
-//        if (rMeshReader.GetNumElementAttributes() > 0)
-//        {
-//            assert(rMeshReader.GetNumElementAttributes() == 1);
-//            unsigned attribute_value = element_data.AttributeValue;
-//            p_element->SetRegion(attribute_value);
-//        }
-//    }
+    unsigned num_nodes_in_element = p_element->GetNumNodes();
+    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
+    {
+        centroid += p_element->GetNodeLocation(local_index);
+    }
+    centroid /= ((double) num_nodes_in_element);
+
+    return centroid;
 }
 
 
