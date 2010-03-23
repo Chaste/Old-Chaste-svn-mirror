@@ -369,7 +369,7 @@ public:
         nodes_face_2.push_back(nodes[2]);
         nodes_face_2.push_back(nodes[5]);
         nodes_face_2.push_back(nodes[4]);
-        
+
         std::vector<Node<3>*> nodes_face_3;
         nodes_face_3.push_back(nodes[1]);
         nodes_face_3.push_back(nodes[5]);
@@ -405,7 +405,7 @@ public:
 
         // Face 0 has four vertices, is perpendicular to the y axis, and has area 1*3 = 3
         VertexElement<2,3>* p_face_0 = mesh.GetElement(0)->GetFace(0);
-        TS_ASSERT_EQUALS(p_face_0->GetNumNodes(), 4u); 
+        TS_ASSERT_EQUALS(p_face_0->GetNumNodes(), 4u);
         c_vector<double, 3> unit_normal_0 = mesh.GetUnitNormalToFace(p_face_0);
         TS_ASSERT_DELTA(unit_normal_0[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(unit_normal_0[1], 1.0, 1e-6);
@@ -414,7 +414,7 @@ public:
 
         // Face 1 has three vertices, is perpendicular to the x axis, and has area 0.5*2*3 = 3
         VertexElement<2,3>* p_face_1 = mesh.GetElement(0)->GetFace(1);
-        TS_ASSERT_EQUALS(p_face_1->GetNumNodes(), 3u); 
+        TS_ASSERT_EQUALS(p_face_1->GetNumNodes(), 3u);
         c_vector<double, 3> unit_normal_1 = mesh.GetUnitNormalToFace(p_face_1);
         TS_ASSERT_DELTA(unit_normal_1[0], 1.0, 1e-6);
         TS_ASSERT_DELTA(unit_normal_1[1], 0.0, 1e-6);
@@ -424,7 +424,7 @@ public:
         // Face 2 has four vertices, is at an angle theta to the y axis where tan(theta) = 2/3,
         // and has area 1*sqrt(2^2 + 3^2) = sqrt(13)
         VertexElement<2,3>* p_face_2 = mesh.GetElement(0)->GetFace(2);
-        TS_ASSERT_EQUALS(p_face_2->GetNumNodes(), 4u); 
+        TS_ASSERT_EQUALS(p_face_2->GetNumNodes(), 4u);
         c_vector<double, 3> unit_normal_2 = mesh.GetUnitNormalToFace(p_face_2);
         TS_ASSERT_DELTA(unit_normal_2[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(unit_normal_2[1], -sin(atan2(3,2)), 1e-6);
@@ -433,7 +433,7 @@ public:
 
         // Face 1 has three vertices, is perpendicular to the x axis, and has area 0.5*2*3 = 3
         VertexElement<2,3>* p_face_3 = mesh.GetElement(0)->GetFace(3);
-        TS_ASSERT_EQUALS(p_face_3->GetNumNodes(), 3u); 
+        TS_ASSERT_EQUALS(p_face_3->GetNumNodes(), 3u);
         c_vector<double, 3> unit_normal_3 = mesh.GetUnitNormalToFace(p_face_3);
         TS_ASSERT_DELTA(unit_normal_3[0], -1.0, 1e-6);
         TS_ASSERT_DELTA(unit_normal_3[1], 0.0, 1e-6);
@@ -442,7 +442,7 @@ public:
 
         // Face 4 has four vertices, is perpendicular to the z axis, and has area 1*2 = 2
         VertexElement<2,3>* p_face_4 = mesh.GetElement(0)->GetFace(4);
-        TS_ASSERT_EQUALS(p_face_4->GetNumNodes(), 4u); 
+        TS_ASSERT_EQUALS(p_face_4->GetNumNodes(), 4u);
         c_vector<double, 3> unit_normal_4 = mesh.GetUnitNormalToFace(p_face_4);
         TS_ASSERT_DELTA(unit_normal_4[0], 0.0, 1e-6);
         TS_ASSERT_DELTA(unit_normal_4[1], 0.0, 1e-6);
@@ -455,7 +455,7 @@ public:
         // The volume of the prism should be the sum of the face areas
         TS_ASSERT_DELTA(mesh.GetSurfaceAreaOfElement(0), 11 + sqrt(13), 1e-6);
 
-        // By symmetry, the centroid of the prism should lie in the plane x=0.5 
+        // By symmetry, the centroid of the prism should lie in the plane x=0.5
         c_vector<double, 3> centroid = mesh.GetCentroidOfElement(0);
         TS_ASSERT_DELTA(centroid(0), 0.5, 1e-5);
     }

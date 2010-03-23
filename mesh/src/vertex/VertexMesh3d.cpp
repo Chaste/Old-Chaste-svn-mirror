@@ -183,7 +183,7 @@ double VertexMesh3d::GetVolumeOfElement(unsigned index)
 double VertexMesh3d::GetSurfaceAreaOfElement(unsigned index)
 {
     VertexElement<3,3>* p_element = GetElement(index);
-    
+
     // Loop over faces and add up areas
     double surface_area = 0.0;
     for (unsigned face_index=0; face_index<p_element->GetNumFaces(); face_index++)

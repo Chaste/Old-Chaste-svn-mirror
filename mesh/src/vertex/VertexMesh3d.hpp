@@ -159,9 +159,9 @@ public:
      * Compute the unit normal vector to a given face in 3D. This is achieved from a triangle
      * of vertices of the face. Note: this may return the outward or inward normal, depending
      * on your point of view.
-     * 
+     *
      * @param pFace a face in the mesh
-     * 
+     *
      * @return the unit normal
      */
     c_vector<double,3> GetUnitNormalToFace(VertexElement<2, 3>* pFace);
@@ -170,11 +170,11 @@ public:
      * Get the area of a given face in 3D. This is achieved by projecting the face onto a 2D plane.
      * To avoid degeneracy and optimize robustness, we choose to ignore the dimension of the component
      * of the unit normal to the plane with the greatest absolute value.
-     * 
+     *
      * This needs to be overridden in daughter classes for non-Euclidean metrics.
-     * 
+     *
      * @param pFace a face in the mesh
-     * 
+     *
      * @return the area
      */
     double GetAreaOfFace(VertexElement<2, 3>* pFace);
