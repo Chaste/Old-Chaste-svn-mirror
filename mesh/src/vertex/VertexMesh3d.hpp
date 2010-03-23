@@ -37,10 +37,6 @@ class VertexMeshWriter;
 #include <algorithm>
 
 #include <climits> // Work around Boost bug
-#include "ChasteSerialization.hpp"
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/split_member.hpp>
 
 #include "AbstractMesh.hpp"
 #include "ArchiveLocationInfo.hpp"
@@ -88,44 +84,6 @@ protected:
      */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
 
-//    /** Needed for serialization. */
-//    friend class boost::serialization::access;
-//
-//    /**
-//     * Archive the VertexMesh3d and its member variables. Note that this will
-//     * write out a VertexMeshWriter file to wherever ArchiveLocationInfo has specified.
-//     *
-//    DOX param archive the archive
-//    DOX param version the current version of this class
-//     */
-//    template<class Archive>
-//    void save(Archive & archive, const unsigned int version) const
-//    {
-//        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
-//
-//        // Create a mesh writer pointing to the correct file and directory
-//        VertexMeshWriter<ELEMENT_DIM, SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
-//                                                             ArchiveLocationInfo::GetMeshFilename(),
-//                                                             false);
-//        mesh_writer.WriteFilesUsingMesh(*(const_cast<VertexMesh3d<ELEMENT_DIM, SPACE_DIM>*>(this)));
-//    }
-//
-//    /**
-//     * Loads a mesh by using VertexMeshReader and the location in ArchiveLocationInfo.
-//     *
-//    DOX param archive the archive
-//    DOX param version the current version of this class
-//     */
-//    template<class Archive>
-//    void load(Archive & archive, const unsigned int version)
-//    {
-//        archive & boost::serialization::base_object<AbstractMesh<ELEMENT_DIM,SPACE_DIM> >(*this);
-//
-//        VertexMeshReader<ELEMENT_DIM,SPACE_DIM> mesh_reader(ArchiveLocationInfo::GetArchiveDirectory() + ArchiveLocationInfo::GetMeshFilename());
-//        this->ConstructFromMeshReader(mesh_reader);
-//    }
-//    BOOST_SERIALIZATION_SPLIT_MEMBER()
-
 public:
 
     //////////////////////////////////////////////////////////////////////
@@ -142,11 +100,6 @@ public:
     VertexMesh3d(std::vector<Node<3>*> nodes,
                  std::vector<VertexElement<2,3>*> faces,
                  std::vector<VertexElement<3,3>*> vertexElements);
-
-    /**
-     * Default constructor for use by serializer.
-     */
-    VertexMesh3d();
 
     /**
      * Destructor.
@@ -205,16 +158,28 @@ public:
     double GetSurfaceAreaOfElement(unsigned index);
 
     /**
-     * Compute the area of a face.
-     *
-     * This needs to be overridden
-     * in daughter classes for non-Euclidean metrics.
-     *
-     * @param index  the global index of a specified face
-     *
-     * @return the area of the face
+     * Compute the unit normal vector to a given face in 3D. This is achieved from a triangle
+     * of vertices of the face. Note: this may return the outward or inward normal, depending
+     * on your point of view.
+     * 
+     * @param pFace a face in the mesh
+     * 
+     * @return the unit normal
      */
-    virtual double GetAreaOfFace(unsigned index);
+    c_vector<double,3> GetUnitNormalToFace(VertexElement<2, 3>* pFace);
+
+    /**
+     * Get the area of a given face in 3D. This is achieved by projecting the face onto a 2D plane.
+     * To avoid degeneracy and optimize robustness, we choose to ignore the dimension of the component
+     * of the unit normal to the plane with the greatest absolute value.
+     * 
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
+     * 
+     * @param pFace a face in the mesh
+     * 
+     * @return the area
+     */
+    double GetAreaOfFace(VertexElement<2, 3>* pFace);
 
     /**
      * Compute the centroid of an element.
@@ -240,8 +205,5 @@ public:
     virtual void Clear();
 };
 
-#include "SerializationExportWrapper.hpp"
-// Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(VertexMesh3d);
 
 #endif /*VERTEXMESH3D_HPP_*/

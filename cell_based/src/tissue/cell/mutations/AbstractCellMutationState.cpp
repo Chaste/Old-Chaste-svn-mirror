@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 AbstractCellMutationState::AbstractCellMutationState()
     : mCellCount(0),
-      mColour(UINT_MAX) // Will be overwritten in serialize method
+      mColour(UNSIGNED_UNSET) // Will be overwritten in serialize method
 {
 }
 

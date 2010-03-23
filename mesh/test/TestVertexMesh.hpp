@@ -88,7 +88,6 @@ public:
         // as we only have a NOT-equals operator defined on the iterator).
         bool iter_is_not_at_end = (iter != empty_mesh.GetNodeIteratorEnd());
         TS_ASSERT_EQUALS(iter_is_not_at_end, false);
-
     }
 
     void TestVertexElementIterator() throw (Exception)
@@ -128,54 +127,54 @@ public:
     }
 
     void TestMutableVertexElementIterator() throw (Exception)
+    {
+        // Create mesh
+        HoneycombVertexMeshGenerator generator(3, 3);
+        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+
+        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);
+
+        unsigned counter = 0;
+        for (MutableVertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
+             iter != p_mesh->GetElementIteratorEnd();
+             ++iter)
         {
-            // Create mesh
-            HoneycombVertexMeshGenerator generator(3, 3);
-            MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
-
-            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);
-
-            unsigned counter = 0;
-            for (MutableVertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
-                 iter != p_mesh->GetElementIteratorEnd();
-                 ++iter)
-            {
-                unsigned element_index = iter->GetIndex();
-                TS_ASSERT_EQUALS(counter, element_index); // assumes the iterator will give elements 0,1..,N in that order
-                counter++;
-            }
-
-            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
-
-            // For coverage, test with an empty mesh
-            MutableVertexMesh<2,2> empty_mesh;
-
-            // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed
-            MutableVertexMesh<2,2>::VertexElementIterator iter = empty_mesh.GetElementIteratorBegin();
-
-            // Check that the iterator is now at the end (we need to check this as a double-negative,
-            // as we only have a NOT-equals operator defined on the iterator).
-            bool iter_is_not_at_end = (iter != empty_mesh.GetElementIteratorEnd());
-            TS_ASSERT_EQUALS(iter_is_not_at_end, false);
-
-
-            // Delete an element from mesh and test the iterator
-            p_mesh->DeleteElementPriorToReMesh(0);
-
-            counter = 0;
-            for (MutableVertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
-                 iter != p_mesh->GetElementIteratorEnd();
-                 ++iter)
-            {
-                unsigned element_index = iter->GetIndex();
-                TS_ASSERT_EQUALS(counter+1, element_index); // assumes the iterator will give elements 1..,N in that order
-                counter++;
-            }
-
-            TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
-            TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), counter+1);
-            TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), true);
+            unsigned element_index = iter->GetIndex();
+            TS_ASSERT_EQUALS(counter, element_index); // assumes the iterator will give elements 0,1..,N in that order
+            counter++;
         }
+
+        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
+
+        // For coverage, test with an empty mesh
+        MutableVertexMesh<2,2> empty_mesh;
+
+        // Since the mesh is empty, the iterator should be set to mrMesh.mNodes.end() when constructed
+        MutableVertexMesh<2,2>::VertexElementIterator iter = empty_mesh.GetElementIteratorBegin();
+
+        // Check that the iterator is now at the end (we need to check this as a double-negative,
+        // as we only have a NOT-equals operator defined on the iterator).
+        bool iter_is_not_at_end = (iter != empty_mesh.GetElementIteratorEnd());
+        TS_ASSERT_EQUALS(iter_is_not_at_end, false);
+
+
+        // Delete an element from mesh and test the iterator
+        p_mesh->DeleteElementPriorToReMesh(0);
+
+        counter = 0;
+        for (MutableVertexMesh<2,2>::VertexElementIterator iter = p_mesh->GetElementIteratorBegin();
+             iter != p_mesh->GetElementIteratorEnd();
+             ++iter)
+        {
+            unsigned element_index = iter->GetIndex();
+            TS_ASSERT_EQUALS(counter+1, element_index); // assumes the iterator will give elements 1..,N in that order
+            counter++;
+        }
+
+        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
+        TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), counter+1);
+        TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), true);
+    }
 
 
     void TestBasicVertexMesh() throw(Exception)
@@ -340,6 +339,115 @@ public:
         // Test area and perimeter calculations
         TS_ASSERT_DELTA(mesh.GetAreaOfElement(0), 1.0, 1e-6);
         TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(0), 4.0, 1e-6);
+    }
+
+    void TestGetUnitNormalToFaceAndGetAreaOfFaceWithPrism()
+    {
+        // Create nodes
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, false, 1.0, 2.0, 0.0));
+        nodes.push_back(new Node<3>(3, false, 0.0, 2.0, 0.0));
+        nodes.push_back(new Node<3>(4, false, 0.0, 0.0, 3.0));
+        nodes.push_back(new Node<3>(5, false, 1.0, 0.0, 3.0));
+
+        // Make five faces out of these nodes
+        std::vector<Node<3>*> nodes_face_0;
+        nodes_face_0.push_back(nodes[0]);
+        nodes_face_0.push_back(nodes[4]);
+        nodes_face_0.push_back(nodes[5]);
+        nodes_face_0.push_back(nodes[1]);
+
+        std::vector<Node<3>*> nodes_face_1;
+        nodes_face_1.push_back(nodes[0]);
+        nodes_face_1.push_back(nodes[3]);
+        nodes_face_1.push_back(nodes[4]);
+
+        std::vector<Node<3>*> nodes_face_2;
+        nodes_face_2.push_back(nodes[3]);
+        nodes_face_2.push_back(nodes[2]);
+        nodes_face_2.push_back(nodes[5]);
+        nodes_face_2.push_back(nodes[4]);
+        
+        std::vector<Node<3>*> nodes_face_3;
+        nodes_face_3.push_back(nodes[1]);
+        nodes_face_3.push_back(nodes[5]);
+        nodes_face_3.push_back(nodes[2]);
+
+        std::vector<Node<3>*> nodes_face_4;
+        nodes_face_4.push_back(nodes[3]);
+        nodes_face_4.push_back(nodes[2]);
+        nodes_face_4.push_back(nodes[1]);
+        nodes_face_4.push_back(nodes[0]);
+
+        std::vector<VertexElement<2,3>*> faces;
+        faces.push_back(new VertexElement<2,3>(0, nodes_face_0));
+        faces.push_back(new VertexElement<2,3>(1, nodes_face_1));
+        faces.push_back(new VertexElement<2,3>(2, nodes_face_2));
+        faces.push_back(new VertexElement<2,3>(3, nodes_face_3));
+        faces.push_back(new VertexElement<2,3>(4, nodes_face_4));
+
+        std::vector<bool> orientations(faces.size());
+        for (unsigned i=0; i<faces.size(); i++)
+        {
+            orientations[i] = true;
+        }
+
+        // Create cuboidal element
+        std::vector<VertexElement<3,3>*> elements;
+        elements.push_back(new VertexElement<3,3>(0, faces, orientations));
+
+        // Create mesh
+        MutableVertexMesh<3,3> mesh(nodes, elements);
+
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumFaces(), 5u);
+
+        // Face 0 has four vertices, is perpendicular to the y axis, and has area 1*3 = 3
+        VertexElement<2,3>* p_face_0 = mesh.GetElement(0)->GetFace(0);
+        TS_ASSERT_EQUALS(p_face_0->GetNumNodes(), 4u); 
+        c_vector<double, 3> unit_normal_0 = mesh.GetUnitNormalToFace(p_face_0);
+        TS_ASSERT_DELTA(unit_normal_0[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(unit_normal_0[1], 1.0, 1e-6);
+        TS_ASSERT_DELTA(unit_normal_0[2], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_0), 3.0, 1e-6);
+
+        // Face 1 has three vertices, is perpendicular to the x axis, and has area 0.5*2*3 = 3
+        VertexElement<2,3>* p_face_1 = mesh.GetElement(0)->GetFace(1);
+        TS_ASSERT_EQUALS(p_face_1->GetNumNodes(), 3u); 
+        c_vector<double, 3> unit_normal_1 = mesh.GetUnitNormalToFace(p_face_1);
+        TS_ASSERT_DELTA(unit_normal_1[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(unit_normal_1[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(unit_normal_1[2], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_1), 3.0, 1e-6);
+
+        // Face 2 has four vertices, is at an angle theta to the y axis where tan(theta) = 2/3,
+        // and has area 1*sqrt(2^2 + 3^2) = sqrt(13)
+        VertexElement<2,3>* p_face_2 = mesh.GetElement(0)->GetFace(2);
+        TS_ASSERT_EQUALS(p_face_2->GetNumNodes(), 4u); 
+        c_vector<double, 3> unit_normal_2 = mesh.GetUnitNormalToFace(p_face_2);
+        TS_ASSERT_DELTA(unit_normal_2[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(unit_normal_2[1], -sin(atan2(3,2)), 1e-6);
+        TS_ASSERT_DELTA(unit_normal_2[2], -cos(atan2(3,2)), 1e-6);
+        TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_2), sqrt(13), 1e-6);
+
+        // Face 1 has three vertices, is perpendicular to the x axis, and has area 0.5*2*3 = 3
+        VertexElement<2,3>* p_face_3 = mesh.GetElement(0)->GetFace(3);
+        TS_ASSERT_EQUALS(p_face_3->GetNumNodes(), 3u); 
+        c_vector<double, 3> unit_normal_3 = mesh.GetUnitNormalToFace(p_face_3);
+        TS_ASSERT_DELTA(unit_normal_3[0], -1.0, 1e-6);
+        TS_ASSERT_DELTA(unit_normal_3[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(unit_normal_3[2], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_3), 3.0, 1e-6);
+
+        // Face 4 has four vertices, is perpendicular to the z axis, and has area 1*2 = 2
+        VertexElement<2,3>* p_face_4 = mesh.GetElement(0)->GetFace(4);
+        TS_ASSERT_EQUALS(p_face_4->GetNumNodes(), 4u); 
+        c_vector<double, 3> unit_normal_4 = mesh.GetUnitNormalToFace(p_face_4);
+        TS_ASSERT_DELTA(unit_normal_4[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(unit_normal_4[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(unit_normal_4[2], -1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_4), 2.0, 1e-6);
     }
 
     void TestGetPerimeterGradientAtNode()
@@ -656,7 +764,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 7u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 3u);
 
-        //Tidy up
+        // Tidy up
         delete p_replaced_vertex_element;
     }
 

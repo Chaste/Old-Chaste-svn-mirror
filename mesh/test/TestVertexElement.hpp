@@ -39,7 +39,7 @@ class TestVertexElement : public CxxTest::TestSuite
 {
 public:
 
-    void Test1dVertexElement()
+    void Test1dVertexElementIn2d()
     {
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
@@ -47,10 +47,57 @@ public:
 
         VertexElement<1,2> element(0, nodes);
 
-        TS_ASSERT_EQUALS(element.GetNumNodes(),2u);
-        TS_ASSERT_EQUALS(element.GetNode(0)->GetIndex(),0u);
-        TS_ASSERT_EQUALS(element.GetNode(1)->GetIndex(),1u);
+        // Test RegisterWithNodes()
+        element.RegisterWithNodes();
 
+        for (unsigned node_index=0; node_index<element.GetNumNodes(); node_index++)
+        {
+            TS_ASSERT_EQUALS(element.GetNode(node_index)->GetNumContainingElements(), 1u);
+        }
+
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 2u);
+        TS_ASSERT_EQUALS(element.GetNode(0)->GetIndex(), 0u);
+        TS_ASSERT_EQUALS(element.GetNode(1)->GetIndex(), 1u);
+
+        // Test UpdateNode()
+        Node<2>* p_node_2 = new Node<2>(2, false, 1.2, 1.3);
+        element.UpdateNode(0, p_node_2);
+
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[0], 1.2, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[1], 1.3, 1e-12);
+
+        // Test ResetIndex()
+        TS_ASSERT_EQUALS(element.GetIndex(), 0u);
+        element.ResetIndex(5);
+        TS_ASSERT_EQUALS(element.GetIndex(), 5u);
+
+        // Test DeleteNode() and AddNode()
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 2u);
+        element.DeleteNode(1);
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 1u);
+
+        Node<2>* p_node_3 = new Node<2>(3, false, 0.1, 0.4);
+        element.AddNode(0, p_node_3);
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 2u);
+
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[0], 1.2, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(0)->rGetLocation()[1], 1.3, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(1)->rGetLocation()[0], 0.1, 1e-12);
+        TS_ASSERT_DELTA(element.GetNode(1)->rGetLocation()[1], 0.4, 1e-12);
+
+        // Test GetNodeLocalIndex()
+        TS_ASSERT_EQUALS(element.GetNodeLocalIndex(0), UINT_MAX);
+        TS_ASSERT_EQUALS(element.GetNodeLocalIndex(1), UINT_MAX);
+
+        // Test MarkAsDeleted()
+        element.MarkAsDeleted();
+
+        for (unsigned node_index=0; node_index<element.GetNumNodes(); node_index++)
+        {
+            TS_ASSERT_EQUALS(element.GetNode(node_index)->GetNumContainingElements(), 0u);
+        }
+
+        // Tidy up
         for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
@@ -111,51 +158,35 @@ public:
         faces.push_back(new VertexElement<2,3>(4, nodes_face_4));
         faces.push_back(new VertexElement<2,3>(5, nodes_face_5));
 
-        std::vector<bool> orientations;
-        orientations.push_back(true);
-        orientations.push_back(true);
-        orientations.push_back(true);
-        orientations.push_back(true);
-        orientations.push_back(true);
-        orientations.push_back(true);
+        std::vector<bool> orientations(faces.size());
+        for (unsigned i=0; i<faces.size(); i++)
+        {
+            orientations[i] = true;
+        }
 
         ///\todo Temporary test with hard-coded class
+
+        // Make a cube element out of these faces
+        VertexElement<3,3> element(0, faces, orientations);
+
+        TS_ASSERT_EQUALS(element.GetNumNodes(),8u);
+        TS_ASSERT_EQUALS(element.GetNumFaces(),6u);
+
+        TS_ASSERT_EQUALS(element.GetIndex(),0u);
+
+        // Test the position of some random nodes
+        TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[2], 0.0, 1e-6);
+
+        TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[2], 1.0, 1e-6);
+
+        // Test orientations
+        for (unsigned face_index=0; face_index<element.GetNumFaces(); face_index++)
         {
-            // Make a cube element out of these faces
-            VertexElement<3,3> element(0, faces, orientations);
-
-            TS_ASSERT_EQUALS(element.GetNumNodes(),8u);
-            TS_ASSERT_EQUALS(element.GetNumFaces(),6u);
-
-            TS_ASSERT_EQUALS(element.GetIndex(),0u);
-
-            // Test the position of some nodes
-            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
-            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
-            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[2], 0.0, 1e-6);
-
-            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[0], 0.0, 1e-6);
-            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[1], 0.0, 1e-6);
-            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[2], 1.0, 1e-6);
-        }
-        // Test with generic class
-        {
-            // Make a cube element out of these faces
-            VertexElement<3,3> element(0, faces, orientations);
-
-            TS_ASSERT_EQUALS(element.GetNumNodes(),8u);
-            TS_ASSERT_EQUALS(element.GetNumFaces(),6u);
-
-            TS_ASSERT_EQUALS(element.GetIndex(),0u);
-
-            // Test the position of some random nodes
-            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
-            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[1], 0.0, 1e-6);
-            TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[2], 0.0, 1e-6);
-
-            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[0], 0.0, 1e-6);
-            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[1], 0.0, 1e-6);
-            TS_ASSERT_DELTA(element.GetFace(5)->GetNode(2)->rGetLocation()[2], 1.0, 1e-6);
+            TS_ASSERT_EQUALS(element.FaceIsOrientatedClockwise(face_index), true);
         }
 
         // Tidy up
@@ -354,7 +385,7 @@ public:
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[0], 1.2, 1e-12);
         TS_ASSERT_DELTA(vertex_element.GetNode(2)->rGetLocation()[1], 1.3, 1e-12);
 
-         // Tidy up
+        // Tidy up
         for (unsigned i=0; i<nodes.size(); ++i)
         {
             delete nodes[i];
@@ -405,10 +436,10 @@ public:
         // Create element
         VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, nodes);
 
-        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(0),3u);
-        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(1),2u);
-        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(2),1u);
-        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(3),0u);
+        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(0), 3u);
+        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(1), 2u);
+        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(2), 1u);
+        TS_ASSERT_EQUALS(vertex_element.GetNodeLocalIndex(3), 0u);
 
         vertex_element.DeleteNode(3); // Removes (1,1) node
 

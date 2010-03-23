@@ -146,6 +146,103 @@ VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEle
     return mElements[index];
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetUnitNormalToFace(VertexElement<ELEMENT_DIM-1, SPACE_DIM>* pFace)
+{
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM == 3);
+    #undef COVERAGE_IGNORE
+
+    // As we are in 3D, the face must have at least three vertices, so use its first three vertices
+    c_vector<double, SPACE_DIM> v0 = pFace->GetNode(0)->rGetLocation();
+    c_vector<double, SPACE_DIM> v1 = pFace->GetNode(1)->rGetLocation();
+    c_vector<double, SPACE_DIM> v2 = pFace->GetNode(2)->rGetLocation();
+
+    c_vector<double, SPACE_DIM> v1_minus_v0 = this->GetVectorFromAtoB(v0, v1);
+    c_vector<double, SPACE_DIM> v2_minus_v0 = this->GetVectorFromAtoB(v0, v2);
+
+    c_vector<double, SPACE_DIM> unit_normal = zero_vector<double>(SPACE_DIM);
+    unit_normal(0) = v1_minus_v0(1)*v2_minus_v0(2) - v1_minus_v0(2)*v2_minus_v0(1);
+    unit_normal(1) = v1_minus_v0(2)*v2_minus_v0(0) - v1_minus_v0(0)*v2_minus_v0(2);
+    unit_normal(2) = v1_minus_v0(0)*v2_minus_v0(1) - v1_minus_v0(1)*v2_minus_v0(0);
+
+    // Normalize the normal vector
+    unit_normal /= norm_2(unit_normal);
+
+    return unit_normal;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_DIM-1, SPACE_DIM>* pFace)
+{
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM == 3);
+    #undef COVERAGE_IGNORE
+
+    // Get the unit normal to the plane of this face
+    c_vector<double, SPACE_DIM> unit_normal = GetUnitNormalToFace(pFace);
+
+    // Select the largest absolute coordinate to ignore for planar projection
+    double abs_x = unit_normal[0]>0 ? unit_normal[0]>0 : -unit_normal[0];
+    double abs_y = unit_normal[1]>0 ? unit_normal[1]>0 : -unit_normal[1];
+    double abs_z = unit_normal[2]>0 ? unit_normal[2]>0 : -unit_normal[2];
+
+    unsigned dim_to_ignore = 2; // ignore z coordinate
+    if (abs_x > abs_y)
+    {
+        if (abs_x > abs_z)
+        {
+            dim_to_ignore = 0; // ignore x coordinate
+        }
+    }
+    else if (abs_y > abs_z)
+    {
+        dim_to_ignore = 1; // ignore y coordinate
+    }
+
+    // Compute area of the 2D projection
+    ///\todo reduce code duplication with GetAreaOfElement() method (see #1283 and #1276)
+
+    double face_area = 0.0;
+
+    c_vector<double, SPACE_DIM-1> current_vertex;
+    c_vector<double, SPACE_DIM-1> anticlockwise_vertex;
+
+    unsigned num_nodes_in_face = pFace->GetNumNodes();
+
+    for (unsigned local_index=0; local_index<num_nodes_in_face; local_index++)
+    {
+        unsigned dim1 = dim_to_ignore==0 ? 1 : 0;
+        unsigned dim2 = dim_to_ignore==2 ? 1 : 2;
+
+        // Find locations of current vertex and anticlockwise vertex
+        current_vertex[0] = pFace->GetNodeLocation(local_index, dim1);
+        current_vertex[1] = pFace->GetNodeLocation(local_index, dim2);
+        anticlockwise_vertex[0] = pFace->GetNodeLocation((local_index+1)%num_nodes_in_face, dim1);
+        anticlockwise_vertex[1] = pFace->GetNodeLocation((local_index+1)%num_nodes_in_face, dim2);
+
+        // It doesn't matter if the face is oriented clockwise or not, since we area only interested in the area
+        face_area += 0.5*(current_vertex[0]*anticlockwise_vertex[1] - anticlockwise_vertex[0]*current_vertex[1]);
+    }
+
+    // Scale to get area before projection
+    switch (dim_to_ignore)
+    {
+        case 0:
+            face_area /= abs_x;
+            break;
+        case 1:
+            face_area /= abs_y;
+            break;
+        case 2:
+            face_area /= abs_z;
+            break;
+        default:
+            NEVER_REACHED;
+    }
+
+    return fabs(face_area);
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
@@ -156,7 +253,6 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
-    c_vector<double, SPACE_DIM> first_node;
     c_vector<double, SPACE_DIM> current_node;
     c_vector<double, SPACE_DIM> anticlockwise_node;
 

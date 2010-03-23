@@ -54,17 +54,6 @@ public:
     VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo();
 
     /**
-     * Extra constructor for archiving.
-     *
-     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
-     * @param pMutationState the mutation state of the cell (used by ODEs)
-     * @param rDimension the spatial dimension
-     */
-    VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo(const std::vector<double>& rParentProteinConcentrations,
-                                                     boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                                                    const unsigned& rDimension);
-
-    /**
      *  Overloaded method which allocates the ode system using HYPOTHESIS TWO
      *
      *  @param wntConcentration Wnt concentration

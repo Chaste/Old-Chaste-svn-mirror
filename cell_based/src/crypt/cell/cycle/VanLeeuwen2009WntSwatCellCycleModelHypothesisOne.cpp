@@ -33,15 +33,6 @@ VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::VanLeeuwen2009WntSwatCellCycle
 {
 }
 
-VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(const std::vector<double>& rParentProteinConcentrations,
-                                                 boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                                                 const unsigned& rDimension)
-{
-    InitialiseOdeSystem(rParentProteinConcentrations[21], pMutationState);
-    // Set the model to be the same as the parent cell
-    mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
-}
-
 void VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)
 {
     mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(1, wntConcentration,  pMutationState);

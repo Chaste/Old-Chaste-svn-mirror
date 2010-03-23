@@ -214,6 +214,30 @@ public:
     unsigned GetNumAllElements() const;
 
     /**
+     * Compute the unit normal vector to a given face in 3D. This is achieved from a triangle
+     * of vertices of the face. Note: this may return the outward or inward normal, depending
+     * on your point of view.
+     * 
+     * @param pFace a face in the mesh
+     * 
+     * @return the unit normal
+     */
+    c_vector<double, SPACE_DIM> GetUnitNormalToFace(VertexElement<ELEMENT_DIM-1, SPACE_DIM>* pFace);
+
+    /**
+     * Get the area of a given face in 3D. This is achieved by projecting the face onto a 2D plane.
+     * To avoid degeneracy and optimize robustness, we choose to ignore the dimension of the component
+     * of the unit normal to the plane with the greatest absolute value.
+     * 
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
+     * 
+     * @param pFace a face in the mesh
+     * 
+     * @return the area
+     */
+    double GetAreaOfFace(VertexElement<ELEMENT_DIM-1, SPACE_DIM>* pFace);
+
+    /**
      * @param index  the global index of a specified vertex element
      *
      * @return a pointer to the vertex element
@@ -223,8 +247,7 @@ public:
     /**
      * Compute the area of an element.
      *
-     * This needs to be overridden
-     * in daughter classes for non-Euclidean metrics.
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
      *
      * @param index  the global index of a specified vertex element
      *
