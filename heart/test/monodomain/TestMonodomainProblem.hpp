@@ -104,6 +104,56 @@ public:
         HeartConfig::Reset();
     }
 
+    // This is a test on a very small mesh (where there may be more processes than there are nodes)
+    void TestMonodomainProblemSimplestMesh1D() throw(Exception)
+    {
+        DistributedTetrahedralMesh<1,1> mesh;
+        //TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_1_element");
+        mesh.ConstructLinearMesh(1);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 2u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+        if (!PetscTools::IsSequential())
+        {
+            if (PetscTools::GetMyRank() < 2)
+            {
+                TS_ASSERT_EQUALS(mesh.GetNumLocalNodes(),1u);
+                TS_ASSERT_EQUALS(mesh.GetNumLocalElements(),1u);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(mesh.GetNumLocalNodes(),0u);
+                TS_ASSERT_EQUALS(mesh.GetNumLocalElements(),0u);
+            }
+        }            
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
+        HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dSimplest");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
+        //HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_1_element");
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        MonodomainProblem<1> monodomain_problem( &cell_factory );
+        monodomain_problem.SetMesh(&mesh);
+        
+        monodomain_problem.Initialise();
+
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(10.0);
+
+        monodomain_problem.Solve();
+
+        // test whether voltages and gating variables are in correct ranges
+        CheckMonoLr91Vars<1>(monodomain_problem);
+
+        // check some voltages
+        ReplicatableVector voltage_replicated(monodomain_problem.GetSolution());
+
+        double atol=5e-3;
+
+        TS_ASSERT_DELTA(voltage_replicated[0], -52.1698, atol);
+        TS_ASSERT_DELTA(voltage_replicated[1], -83.8381, atol);
+    }
+
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
     void TestMonodomainProblem1D() throw(Exception)
     {

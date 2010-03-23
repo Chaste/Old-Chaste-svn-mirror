@@ -864,6 +864,7 @@ public:
         DistributedTetrahedralMesh<1,1> small_mesh;
         //Coverage hack
         TS_ASSERT_THROWS_THIS(small_mesh.ConstructLinearMesh(0), "There aren't enough nodes to make parallelisation worthwhile");
+        
         //Works with up to 3 processes
         small_mesh.ConstructLinearMesh(2);
         //Scale it
@@ -925,6 +926,11 @@ public:
                 TS_ASSERT_DELTA(small_mesh.GetAnyNode(2)->rGetLocation()[0], 20.0, 1e-5);
             }
         }
+        if (PetscTools::GetNumProcs() > 3 && PetscTools::GetMyRank()==2)
+        {   
+            //This is the equivalent to "top most"
+            expected_elements--;
+        }
         if (PetscTools::GetMyRank() < 3)
         {
             TS_ASSERT_EQUALS(small_mesh.GetNumLocalElements(), expected_elements);
@@ -938,6 +944,7 @@ public:
             TS_ASSERT_EQUALS(halo_indices.size(), 0u);
         }
     }
+
 
     void TestConstructLinearMeshSmall()
     {
@@ -1101,6 +1108,104 @@ public:
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
     }
 
+    void TestConstructLinearMeshSmallest()
+    {
+        DistributedTetrahedralMesh<1,1> smallest_mesh;
+        smallest_mesh.ConstructLinearMesh(1);
+        
+        TS_ASSERT_EQUALS(smallest_mesh.GetNumNodes(), 2u);
+        TS_ASSERT_EQUALS(smallest_mesh.GetNumBoundaryElements(),  2u);
+        TS_ASSERT_EQUALS(smallest_mesh.GetNumElements(), 1u);
+        unsigned owned=smallest_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 2u);
+            TS_ASSERT_EQUALS(owned, 2u);
+            TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalElements(), 1u);
+        }
+        else
+        {
+            if (PetscTools::GetMyRank() < 2u)
+            {
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 1u);
+                TS_ASSERT_EQUALS(owned, 1u);
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalElements(), 1u);
+            }
+            else
+            {
+                //Own nothing
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 0u);
+                TS_ASSERT_EQUALS(owned, 0u);
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalElements(), 0u);
+            }
+        }
+    }
+
+    void TestConstructRectangularMeshSmallest()
+    {
+        DistributedTetrahedralMesh<2,2> smallest_mesh;
+        smallest_mesh.ConstructRectangularMesh(1,1);
+        
+        TS_ASSERT_EQUALS(smallest_mesh.GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(smallest_mesh.GetNumBoundaryElements(),  4u);
+        TS_ASSERT_EQUALS(smallest_mesh.GetNumElements(), 2u);
+        unsigned owned=smallest_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 4u);
+            TS_ASSERT_EQUALS(owned, 4u);
+            TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalElements(), 2u);
+        }
+        else
+        {
+            if (PetscTools::GetMyRank() < 2u)
+            {
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 2u);
+                TS_ASSERT_EQUALS(owned, 2u);
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalElements(), 2u);
+            }
+            else
+            {
+                //Own nothing
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 0u);
+                TS_ASSERT_EQUALS(owned, 0u);
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalElements(), 0u);
+            }
+        }
+    }
+
+    void TestConstructCuboidMeshSmallest()
+    {
+        DistributedTetrahedralMesh<3,3> smallest_mesh;
+        smallest_mesh.ConstructCuboid(1,1,1);
+        
+        TS_ASSERT_EQUALS(smallest_mesh.GetNumNodes(), 8u);
+        TS_ASSERT_EQUALS(smallest_mesh.GetNumBoundaryElements(),  12u);
+        TS_ASSERT_EQUALS(smallest_mesh.GetNumElements(), 6u);
+        unsigned owned=smallest_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 8u);
+            TS_ASSERT_EQUALS(owned, 8u);
+            TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalElements(), 6u);
+        }
+        else
+        {
+            if (PetscTools::GetMyRank() < 2u)
+            {
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 4u);
+                TS_ASSERT_EQUALS(owned, 4u);
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalElements(), 6u);
+            }
+            else
+            {
+                //Own nothing
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalNodes(), 0u);
+                TS_ASSERT_EQUALS(owned, 0u);
+                TS_ASSERT_EQUALS(smallest_mesh.GetNumLocalElements(), 0u);
+            }
+        }
+    }
     void TestParallelWriting1D()
     {
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");

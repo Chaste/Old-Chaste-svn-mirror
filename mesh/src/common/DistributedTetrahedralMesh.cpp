@@ -766,7 +766,13 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(uns
         //It's a short mesh and this process owns no nodes
         return;
     }
-
+    
+    /* am_top_most is like PetscTools::AmTopMost() but accounts for the fact that a
+     * higher numbered process may have dropped out of this construction altogether
+     * (because is has no local ownership)
+     */ 
+    bool am_top_most = (this->mpDistributedVectorFactory->GetHigh() == mTotalNumNodes);
+    
     unsigned lo_node=this->mpDistributedVectorFactory->GetLow();
     unsigned hi_node=this->mpDistributedVectorFactory->GetHigh();
     if (!PetscTools::AmMaster())
@@ -774,7 +780,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(uns
         //Allow for a halo node
         lo_node--;
     }
-    if (!PetscTools::AmTopMost())
+    if (!am_top_most)
     {
         //Allow for a halo node
         hi_node++;
@@ -853,13 +859,19 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
         //It's a short mesh and this process owns no nodes
         return;
     }
+    /* am_top_most is like PetscTools::AmTopMost() but accounts for the fact that a
+     * higher numbered process may have dropped out of this construction altogether
+     * (because is has no local ownership)
+     */ 
+    bool am_top_most = (this->mpDistributedVectorFactory->GetHigh() == mTotalNumNodes);
+    
 
     if (!PetscTools::AmMaster())
     {
         //Allow for a halo node
         lo_y--;
     }
-    if (!PetscTools::AmTopMost())
+    if (!am_top_most)
     {
         //Allow for a halo node
         hi_y++;
@@ -898,7 +910,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
     //Construct the boundary elements
     unsigned belem_index;
     //Top
-    if (PetscTools::AmTopMost())
+    if (am_top_most)
     {
        for (unsigned i=0; i<width; i++)
        {
@@ -1024,6 +1036,11 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
         //It's a short mesh and this process owns no nodes
        return;
     }
+    /* am_top_most is like PetscTools::AmTopMost() but accounts for the fact that a
+     * higher numbered process may have dropped out of this construction altogether
+     * (because is has no local ownership)
+     */ 
+    bool am_top_most = (this->mpDistributedVectorFactory->GetHigh() == mTotalNumNodes);
 
 
 
@@ -1032,7 +1049,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
         //Allow for a halo node
         lo_z--;
     }
-    if (!PetscTools::AmTopMost())
+    if (!am_top_most)
     {
         //Allow for a halo node
         hi_z++;
