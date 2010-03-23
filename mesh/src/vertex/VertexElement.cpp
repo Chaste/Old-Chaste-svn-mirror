@@ -39,7 +39,7 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
 {
     assert(mFaces.size() == mOrientations.size());
 
-    //Make a set of nodes with mFaces
+    // Make a set of nodes with mFaces
     std::set<Node<SPACE_DIM>* > nodes_set;
     for (unsigned face_index=0; face_index<faces.size(); face_index++)
     {

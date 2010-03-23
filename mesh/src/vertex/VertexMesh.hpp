@@ -63,34 +63,8 @@ protected:
     /** Vector of pointers to VertexElements. */
     std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> mElements;
 
-    /**
-     * Test whether a given point lies inside a given element.
-     *
-     * We use a ray-casting algorithm, which relies on the following result:
-     * if the point in question is not on the boundary of the element, then
-     * the number of intersections is an even number if the point is outside,
-     * and it is odd if inside.
-     *
-     * Currently the method is coded 'strictly', such that points lying on
-     * an edge or at a vertex are considered to lie outside the element.
-     *
-     * @param rTestPoint the point to test
-     * @param elementIndex global index of the element in the mesh
-     *
-     * @return if the point is included in the element.
-     */
-    bool ElementIncludesPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex);
-
-    /**
-     * Get the local index of a given element which is the start vertex of the edge
-     * of the element that the overlapping point rTestPoint is closest to.
-     *
-     * @param rTestPoint the point to test
-     * @param elementIndex global index of the element in the mesh
-     *
-     * @return the local index
-     */
-    unsigned GetLocalIndexForElementEdgeClosestToPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex);
+    /** Vector of pointers to VertexElements. */
+    std::vector<VertexElement<ELEMENT_DIM-1, SPACE_DIM>*> mFaces;
 
     /**
      * Solve node mapping method. This overridden method is required
@@ -154,6 +128,39 @@ protected:
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
+    //////////////////////////////////////////////////////////////////////
+    //                        2D-specific methods                       //
+    //////////////////////////////////////////////////////////////////////
+
+    /**
+     * Test whether a given point lies inside a given element.
+     *
+     * We use a ray-casting algorithm, which relies on the following result:
+     * if the point in question is not on the boundary of the element, then
+     * the number of intersections is an even number if the point is outside,
+     * and it is odd if inside.
+     *
+     * Currently the method is coded 'strictly', such that points lying on
+     * an edge or at a vertex are considered to lie outside the element.
+     *
+     * @param rTestPoint the point to test
+     * @param elementIndex global index of the element in the mesh
+     *
+     * @return if the point is included in the element.
+     */
+    bool ElementIncludesPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex);
+
+    /**
+     * Get the local index of a given element which is the start vertex of the edge
+     * of the element that the overlapping point rTestPoint is closest to.
+     *
+     * @param rTestPoint the point to test
+     * @param elementIndex global index of the element in the mesh
+     *
+     * @return the local index
+     */
+    unsigned GetLocalIndexForElementEdgeClosestToPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex);
+
 public:
 
     //////////////////////////////////////////////////////////////////////
@@ -189,6 +196,17 @@ public:
                std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements);
 
     /**
+     * Constructor.
+     *
+     * @param nodes vector of pointers to nodes
+     * @param faces vector of pointer to VertexElements
+     * @param vertexElements vector of pointers to VertexElement<3,3>s
+     */
+    VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
+                 std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
+                 std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements);
+
+    /**
      * Default constructor for use by serializer.
      */
     VertexMesh();
@@ -212,6 +230,148 @@ public:
      * @return the number of VertexElements in the mesh, including those marked as deleted.
      */
     unsigned GetNumAllElements() const;
+
+    /**
+     * @return the number of Faces in the mesh.
+     */
+    virtual unsigned GetNumFaces() const;
+
+    /**
+     * @param index  the global index of a specified vertex element
+     *
+     * @return a pointer to the vertex element
+     */
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
+
+    /**
+     * Compute the centroid of an element.
+     *
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
+     *
+     * @param index  the global index of a specified vertex element
+     *
+     * @return (centroid_x,centroid_y).
+     */
+    virtual c_vector<double, SPACE_DIM> GetCentroidOfElement(unsigned index);
+
+    /**
+     * Construct the mesh using a MeshReader.
+     *
+     * @param rMeshReader the mesh reader
+     */
+    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);
+
+    /**
+     * Delete mNodes, mFaces and mElements.
+     */
+    virtual void Clear();
+
+    /**
+     * Translate the mesh given the displacement vector.
+     * This is the translation method that actually does the work.
+     *
+     * @param rDisplacement is a translation vector of the correct size
+     */
+    void Translate(c_vector<double, SPACE_DIM>& rDisplacement);
+
+    /**
+     * Translate the mesh given the coordinate displacements separately.
+     *
+     * @param xMovement is the x-displacement (defaults to 0.0)
+     * @param yMovement is the y-displacement (defaults to 0.0)
+     * @param zMovement is the z-displacement (defaults to 0.0)
+     */
+    void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
+
+    //////////////////////////////////////////////////////////////////////
+    //                        2D-specific methods                       //
+    //////////////////////////////////////////////////////////////////////
+
+    /**
+     * Compute the area of a 2D element.
+     *
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
+     *
+     * @param index  the global index of a specified vertex element
+     *
+     * @return the area of the element
+     */
+    virtual double GetAreaOfElement(unsigned index);
+
+    /**
+     * Compute the perimeter of a 2D element.
+     *
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden
+     * in daughter classes for non-Euclidean metrics.
+     *
+     * @param index  the global index of a specified vertex element
+     *
+     * @return the perimeter of the element
+     */
+    double GetPerimeterOfElement(unsigned index);
+
+    /**
+     * Compute the area gradient of a 2D element at one of its nodes.
+     *
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden
+     * in daughter classes for non-Euclidean metrics.
+     *
+     * @param pElement  pointer to a specified vertex element
+     * @param localIndex  local index of a node in this element
+     *
+     * @return the gradient of the area of the element, evaluated at this node.
+     */
+    c_vector<double, SPACE_DIM> GetAreaGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
+
+    /**
+     * Compute the gradient of the edge of a 2D element ending at its nodes.
+     *
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden
+     * in daughter classes for non-Euclidean metrics.
+     *
+     * @param pElement  pointer to a specified vertex element
+     * @param localIndex  local index of a node in this element
+     *
+     * @return the gradient of the edge of the element that ends at this node.
+     */
+    c_vector<double, SPACE_DIM> GetPreviousEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
+
+    /**
+     * Compute the gradient of the edge of a 2D element starting at its nodes.
+     *
+     * N.B. This calls GetVectorFromAtoB(), which can be overridden
+     * in daughter classes for non-Euclidean metrics.
+     *
+     * @param pElement  pointer to a specified vertex element
+     * @param localIndex  local index of a node in this element
+     *
+     * @return the gradient of the edge of the element that starts at this node.
+     */
+    c_vector<double, SPACE_DIM> GetNextEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
+
+    /**
+     * Compute the gradient of the perimeter of a 2D element at its nodes.
+     * This returns the sum of GetPreviousEdgeGradientAtNode() and GetNextEdgeGradientAtNode().
+     *
+     * @param pElement  pointer to a specified vertex element
+     * @param localIndex  local index of a node in this element
+     *
+     * @return the gradient of the perimeter of the element, evaluated at this node.
+     */
+    c_vector<double, SPACE_DIM> GetPerimeterGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
+
+    /**
+     * Compute the second moments of area of a given 2D element.
+     *
+     * @param index  the global index of a specified vertex element
+     *
+     * @return (Ixx,Iyy,Ixy).
+     */
+    virtual c_vector<double, 3> CalculateMomentsOfElement(unsigned index);
+
+    //////////////////////////////////////////////////////////////////////
+    //                        3D-specific methods                       //
+    //////////////////////////////////////////////////////////////////////
 
     /**
      * Compute the unit normal vector to a given face in 3D. This is achieved from a triangle
@@ -260,114 +420,10 @@ public:
     virtual double GetSurfaceAreaOfElement(unsigned index);
 
     /**
-     * @param index  the global index of a specified vertex element
-     *
-     * @return a pointer to the vertex element
-     */
-    VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
-
-    /**
-     * Compute the area of a 2D element.
-     *
-     * This needs to be overridden in daughter classes for non-Euclidean metrics.
-     *
-     * @param index  the global index of a specified vertex element
-     *
-     * @return the area of the element
-     */
-    virtual double GetAreaOfElement(unsigned index);
-
-    /**
-     * Compute the perimeter of a 2D element.
-     *
-     * N.B. This calls GetVectorFromAtoB(), which can be overridden
-     * in daughter classes for non-Euclidean metrics.
-     *
-     * @param index  the global index of a specified vertex element
-     *
-     * @return the perimeter of the element
-     */
-    double GetPerimeterOfElement(unsigned index);
-
-    /**
-     * Compute the centroid of an element.
-     *
-     * This needs to be overridden in daughter classes for non-Euclidean metrics.
-     *
-     * @param index  the global index of a specified vertex element
-     *
-     * @return (centroid_x,centroid_y).
-     */
-    virtual c_vector<double, SPACE_DIM> GetCentroidOfElement(unsigned index);
-
-    /**
-     * Compute the area gradient of an element at one of its nodes.
-     *
-     * N.B. This calls GetVectorFromAtoB(), which can be overridden
-     * in daughter classes for non-Euclidean metrics.
-     *
-     * @param pElement  pointer to a specified vertex element
-     * @param localIndex  local index of a node in this element
-     *
-     * @return the gradient of the area of the element, evaluated at this node.
-     */
-    c_vector<double, SPACE_DIM> GetAreaGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
-
-    /**
-     * Compute the gradient of the edge of an element ending at its nodes.
-     *
-     * N.B. This calls GetVectorFromAtoB(), which can be overridden
-     * in daughter classes for non-Euclidean metrics.
-     *
-     * @param pElement  pointer to a specified vertex element
-     * @param localIndex  local index of a node in this element
-     *
-     * @return the gradient of the edge of the element that ends at this node.
-     */
-    c_vector<double, SPACE_DIM> GetPreviousEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
-
-    /**
-     * Compute the gradient of the edge of an element starting at its nodes.
-     *
-     * N.B. This calls GetVectorFromAtoB(), which can be overridden
-     * in daughter classes for non-Euclidean metrics.
-     *
-     * @param pElement  pointer to a specified vertex element
-     * @param localIndex  local index of a node in this element
-     *
-     * @return the gradient of the edge of the element that starts at this node.
-     */
-    c_vector<double, SPACE_DIM> GetNextEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
-
-    /**
-     * Compute the gradient of the perimeter of an element at its nodes.
-     * This returns the sum of GetPreviousEdgeGradientAtNode() and GetNextEdgeGradientAtNode().
-     *
-     * @param pElement  pointer to a specified vertex element
-     * @param localIndex  local index of a node in this element
-     *
-     * @return the gradient of the perimeter of the element, evaluated at this node.
-     */
-    c_vector<double, SPACE_DIM> GetPerimeterGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex);
-
-    /**
-     * Compute the second moments of area of a given (polygonal) element.
-     *
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
-     *
-     * @param index  the global index of a specified vertex element
-     *
-     * @return (Ixx,Iyy,Ixy).
-     */
-    virtual c_vector<double, 3> CalculateMomentsOfElement(unsigned index);
-
-    /**
-     * Calculate the vector of the shortest axis of a given element.
+     * Calculate the vector of the shortest axis of a given 2D element.
      * This is the eigenvector associated with the largest eigenvalue
      * of the inertial tensor. If the polygon is regular then the
      * eigenvalues are the same, so we return a random unit vector.
-     *
-     * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      *
      * \todo This method is only called inside DivideElementAlongShortAxis() -
      *       get rid of it and move the code into that method?
@@ -399,35 +455,6 @@ public:
      * @return its neighbouring nodes that are not in the element
      */
     std::set<unsigned> GetNeighbouringNodeNotAlsoInElement(unsigned nodeIndex, unsigned elemIndex);
-
-    /**
-     * Construct the mesh using a MeshReader.
-     *
-     * @param rMeshReader the mesh reader
-     */
-    void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);
-
-    /**
-     * Delete mNodes and mElements.
-     */
-    virtual void Clear();
-
-    /**
-     * Translate the mesh given the displacement vector.
-     * This is the translation method that actually does the work.
-     *
-     * @param rDisplacement is a translation vector of the correct size
-     */
-    void Translate(c_vector<double, SPACE_DIM>& rDisplacement);
-
-    /**
-     * Translate the mesh given the coordinate displacements separately.
-     *
-     * @param xMovement is the x-displacement (defaults to 0.0)
-     * @param yMovement is the y-displacement (defaults to 0.0)
-     * @param zMovement is the z-displacement (defaults to 0.0)
-     */
-    void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
 
     //////////////////////////////////////////////////////////////////////
     //                         Nested classes                           //
