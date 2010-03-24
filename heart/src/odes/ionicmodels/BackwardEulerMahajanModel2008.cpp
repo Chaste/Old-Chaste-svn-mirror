@@ -870,15 +870,8 @@
         const double var_cell__Itotal = -(var_cell__xina + var_cell__xik1 + var_cell__xikr + var_cell__xiks + var_cell__xito + var_cell__xiNaCa + var_cell__xica + var_cell__xiNaK + var_cell__i_Stim);
 
         double d_dt_cell__V;
-        if (mSetVoltageDerivativeToZero)
-        {
-            d_dt_cell__V = 0.0;
-        }
-        else
-        {
-            d_dt_cell__V = var_cell__Itotal;
-        }
 
+        d_dt_cell__V = var_cell__Itotal;
 
         rY[0] += mDt * 1.0*d_dt_cell__V;
     }
