@@ -462,6 +462,11 @@ public:
      * See also GetSolution.
      */
     DistributedVector GetSolutionDistributedVector();
+    
+    /**
+     * @return the current time of the simulation
+     */
+    double GetCurrentTime();
 
     /**
      * @return the mesh used

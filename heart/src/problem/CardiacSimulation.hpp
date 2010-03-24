@@ -113,7 +113,7 @@ private:
             OutputDirectoryFifoQueue directory_queue(HeartConfig::Instance()->GetOutputDirectory() + "_checkpoints/",
                                                      HeartConfig::Instance()->GetMaxCheckpointsOnDisk());
 
-            TimeStepper checkpoint_stepper(0.0, HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());
+            TimeStepper checkpoint_stepper(p_problem->GetCurrentTime(), HeartConfig::Instance()->GetSimulationDuration(), HeartConfig::Instance()->GetCheckpointTimestep());
             while ( !checkpoint_stepper.IsTimeAtEnd() )
             {
                 // Solve checkpoint timestep
@@ -137,6 +137,9 @@ private:
                 {
                     EXPECT0(system, "cp -r " + partial_output_dir_handler.GetOutputDirectoryFullPath() + " " + checkpoint_dir_basename_handler.GetOutputDirectoryFullPath());
                 }
+                
+                // Create an XML file to help in resuming
+                CreateResumeXmlFile(checkpoint_dir_basename, archive_foldername.str());
 
                 // Advance time stepper
                 checkpoint_stepper.AdvanceOneTimeStep();
@@ -154,7 +157,23 @@ private:
      * and calls CreateAndRun() to do the work.
      */
     void Run();
+    
+    /**
+     * Write a ResumeParameters.xml file to the checkpoint directory, to help users in resuming
+     * a checkpointed simulation.  If the contents of rOutputDirectory are copied to CHASTE_TEST_OUTPUT,
+     * and ResumeParameters.xml edited to specify a sensible simulation duration, then it can be used
+     * as the input parameters file to resume from the given checkpoint.
+     * 
+     * @param rOutputDirectory  the directory to put the XML file in
+     * @param rArchiveDirectory  the relative path from this directory to the archive directory
+     */
+    void CreateResumeXmlFile(const std::string& rOutputDirectory, const std::string& rArchiveDirectory);
 
+    /**
+     * Convert a boolean to a "yes" or "no" string.
+     * @param yesNo
+     */
+    std::string BoolToString(bool yesNo);
 public:
     /**
      * Constructor
@@ -169,6 +188,47 @@ public:
 //
 // Implementation must remain in this file (see comment by #include "CardiacSimulationArchiver.hpp").
 //
+
+std::string CardiacSimulation::BoolToString(bool yesNo)
+{
+    std::string result;
+    if (yesNo)
+    {
+        result = "yes";
+    }
+    else
+    {
+        result = "no";
+    }
+    return result;
+}
+
+void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory, const std::string& rArchiveDirectory)
+{
+    OutputFileHandler handler(rOutputDirectory, false);
+    out_stream p_file = handler.OpenOutputFile("ResumeParameters.xml");
+    (*p_file) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
+    (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_0'>" << std::endl;
+    (*p_file) << std::endl;
+    (*p_file) << "    <ResumeSimulation>" << std::endl;
+    (*p_file) << "        <ArchiveDirectory>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;
+    (*p_file) << "        <SpaceDimension>" << HeartConfig::Instance()->GetSpaceDimension() << "</SpaceDimension>" << std::endl;
+    (*p_file) << "        <SimulationDuration unit='ms'>0.0</SimulationDuration>" << std::endl;
+    (*p_file) << "        <Domain>" << HeartConfig::Instance()->GetDomain() << "</Domain>" << std::endl;
+    (*p_file) << "        <CheckpointSimulation timestep='" << HeartConfig::Instance()->GetCheckpointTimestep()
+              << "' unit='ms' max_checkpoints_on_disk='" << HeartConfig::Instance()->GetMaxCheckpointsOnDisk()
+              << "'/> <!-- This is optional; if not given, the loaded simulation will NOT itself be checkpointed -->" << std::endl;
+    (*p_file) << "        <OutputVisualizer meshalyzer='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithMeshalyzer())
+              << "' vtk='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithVtk())
+              << "' cmgui='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithCmgui()) << "'/>" << std::endl;
+    (*p_file) << "    </ResumeSimulation>" << std::endl;
+    (*p_file) << std::endl; 
+    (*p_file) << "    <!-- These elements must exist, but their contents are ignored -->" << std::endl;
+    (*p_file) << "    <Physiological/>" << std::endl;
+    (*p_file) << "    <Numerical/>" << std::endl;
+    (*p_file) << "</ChasteParameters>" << std::endl;
+    p_file->close();
+}
 
 CardiacSimulation::CardiacSimulation(std::string parameterFileName)
 {

@@ -303,6 +303,12 @@ DistributedVector AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Get
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+double AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::GetCurrentTime()
+{
+    return mCurrentTime;
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> & AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::rGetMesh()
 {
     assert (mpMesh);

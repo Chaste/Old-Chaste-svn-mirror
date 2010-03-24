@@ -796,9 +796,11 @@ public:
 
         HeartConfig::Instance()->SetSimulationDuration(1.0);
         bidomain_problem.Solve();
+        TS_ASSERT_DELTA(bidomain_problem.GetCurrentTime(), 1.0, 1e-12);
 
         HeartConfig::Instance()->SetSimulationDuration(2.0);
         bidomain_problem.Solve();
+        TS_ASSERT_DELTA(bidomain_problem.GetCurrentTime(), 2.0, 1e-12);
 
 
         // check some voltages
