@@ -1281,18 +1281,16 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
     idxtype element_count[num_procs];
 
     element_distribution[0]=0;
-    for (unsigned proc_index=1; proc_index<=num_procs; proc_index++)
+
+    for (unsigned proc_index=1; proc_index<num_procs; proc_index++)
     {
         element_distribution[proc_index] = element_distribution[proc_index-1] + num_elements/num_procs;
-        if (proc_index-1 < num_elements%num_procs)
-        {
-            element_distribution[proc_index]++;
-        }
-
         element_count[proc_index-1] = element_distribution[proc_index] - element_distribution[proc_index-1];
     }
-    assert((unsigned)element_distribution[num_procs]==num_elements);
-
+    
+    element_distribution[num_procs] = num_elements;
+    element_count[num_procs-1] = element_distribution[num_procs] - element_distribution[num_procs-1];
+    
     /*
      *  Create distributed mesh data structure
      */
