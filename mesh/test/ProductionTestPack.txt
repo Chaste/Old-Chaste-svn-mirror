@@ -9,7 +9,7 @@ TestElement.hpp
 TestNode.hpp
 TestChastePoint.hpp
 TestTransformations.hpp
-TestRemesh.hpp
+TestMutableMeshRemesh.hpp
 TestVertexAndAngle.hpp
 TestVoronoiCell.hpp
 TestVoronoiTessellation.hpp

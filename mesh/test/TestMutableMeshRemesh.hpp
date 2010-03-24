@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTREMESH_HPP_
-#define TESTREMESH_HPP_
+#ifndef TESTMUTABLEMESHREMESH_HPP_
+#define TESTMUTABLEMESHREMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <cmath>
@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #undef REAL
 #undef VOID
 
-class TestRemesh : public CxxTest::TestSuite
+class TestMutableMeshRemesh : public CxxTest::TestSuite
 {
 public:
 
@@ -643,4 +643,4 @@ public:
 
 };
 
-#endif /*TESTREMESH_HPP_*/
+#endif /*TESTMUTABLEMESHREMESH_HPP_*/

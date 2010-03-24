@@ -51,8 +51,8 @@ class VertexMeshWriter;
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MutableVertexMesh : public VertexMesh<ELEMENT_DIM, SPACE_DIM>
 {
-    friend class TestVertexMesh;
-    friend class TestVertexMeshReMesh;
+    friend class TestMutableVertexMesh;
+    friend class TestMutableVertexMeshReMesh;
 
 protected:
 

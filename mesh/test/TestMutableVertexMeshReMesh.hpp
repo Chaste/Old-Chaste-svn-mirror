@@ -26,15 +26,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTVERTEXMESHREMESH_HPP_
-#define TESTVERTEXMESHREMESH_HPP_
+#ifndef TESTMUTABLEVERTEXMESHREMESH_HPP_
+#define TESTMUTABLEVERTEXMESHREMESH_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 #include "VertexMeshWriter.hpp"
 #include "MutableVertexMesh.hpp"
 
-class TestVertexMeshReMesh : public CxxTest::TestSuite
+class TestMutableVertexMeshReMesh : public CxxTest::TestSuite
 {
 public:
 
@@ -2606,8 +2606,9 @@ public:
 
         // Call IdentifySwapType on nodes 6 and 7  (originaly nodes 8 and 9)
         VertexElementMap map_2(vertex_mesh.GetNumElements());
-        TS_ASSERT_THROWS_THIS(vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(6),vertex_mesh.GetNode(7),map_2), "Triangular element next to triangular void, not implemented yet.");
+        TS_ASSERT_THROWS_THIS(vertex_mesh.IdentifySwapType(vertex_mesh.GetNode(6), vertex_mesh.GetNode(7), map_2),
+                              "Triangular element next to triangular void, not implemented yet.");
     }
 };
 
-#endif /*TESTVERTEXMESHREMESH_HPP_*/
+#endif /*TESTMUTABLEVERTEXMESHREMESH_HPP_*/
