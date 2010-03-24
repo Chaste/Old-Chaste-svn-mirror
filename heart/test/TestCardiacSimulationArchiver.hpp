@@ -650,14 +650,7 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./hear
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
         bidomain_problem.SetElectrodes(p_electrodes);
         bidomain_problem.SetMesh(p_mesh);
-
-        // We solve for a small period of time so BCCs are created (next test wants to check it)
-        HeartConfig::Instance()->SetSimulationDuration(0.1);
         bidomain_problem.Initialise();
-        bidomain_problem.Solve();
-
-        // We increase the simulation time so next test finds something left to simulate in the archive
-        HeartConfig::Instance()->SetSimulationDuration(0.2);
 
         CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
 
@@ -680,7 +673,7 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./hear
         BidomainProblem<2>* p_problem;
         // Do the migration to sequential
         const unsigned num_cells = 221u;
-        p_problem = DoMigrateAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, source_directory, num_cells, false, 0.1);
+        p_problem = DoMigrateAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, source_directory, num_cells, false);
 
         // All cells should have no stimulus.
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
@@ -695,9 +688,11 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./hear
         }
 
         // Test bccs
-        TS_ASSERT( p_problem->mpDefaultBoundaryConditionsContainer); /// \todo: see todo in BidomainProblem.cpp:344
-        TS_ASSERT( p_problem->mpBoundaryConditionsContainer); // BC will be created first time BidomainProblem::Solve() is called
-        boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = p_problem->mpBoundaryConditionsContainer;
+        TS_ASSERT( ! p_problem->mpDefaultBoundaryConditionsContainer);
+        TS_ASSERT( ! p_problem->mpBoundaryConditionsContainer);
+        // Problem's BCC will be created first time BidomainProblem::Solve() is called,
+        // so check the Electrodes' BCC directly
+        boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = p_problem->mpElectrodes->GetBoundaryConditionsContainer();
         // We have neumann boundary conditions from the electrodes
         TS_ASSERT(p_bcc->AnyNonZeroNeumannConditions());
         for (BoundaryConditionsContainer<2,2,2>::NeumannMapIterator it = p_bcc->BeginNeumann();

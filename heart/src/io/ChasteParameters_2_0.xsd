@@ -741,8 +741,7 @@ www.vtk.org</xs:documentation>
       <xs:element name="Domain" type="domain_type"/>
       <xs:element name="SimulationDuration" type="time_type"/>
       <xs:element name="CheckpointSimulation" type="checkpoint_type" minOccurs="0"/>
-      <xs:element name="OutputVisualizer" type="output_visualizer_type" minOccurs="1" maxOccurs="1"
-      />
+      <xs:element name="OutputVisualizer" type="output_visualizer_type" minOccurs="1" maxOccurs="1"/>
     </xs:all>
   </xs:complexType>
   <xs:complexType name="physiological_type">

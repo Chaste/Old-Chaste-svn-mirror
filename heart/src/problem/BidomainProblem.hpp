@@ -102,6 +102,7 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     friend class TestBidomainWithBathAssembler;
+    friend class TestCardiacSimulationArchiver;
 
 protected:
     /** The bidomain PDE */
