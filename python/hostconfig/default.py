@@ -78,8 +78,6 @@ other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z', 'parmetis', '
 # use_vtk set to false initially. Change to True if VTK development libraries are 
 # available.
 use_vtk = False
-# use_parmetis set to false initially. Change to True if parMETIS is available.
-use_parmetis = False
 
 
 tools = {'mpirun': chaste_libs_path+'mpi/bin/mpirun',
