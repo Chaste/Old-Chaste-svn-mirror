@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CmguiDeformedSolutionsWriter.hpp"
 #include "VtkWriter.hpp"
 #include "QuadraticMesh.hpp"
+#include <iostream>
 
 class TestMeshWriters : public CxxTest::TestSuite
 {
@@ -179,6 +180,21 @@ public:
         mesh.ConstructFromMeshReader(import_mesh_reader);
 
         TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(mesh));
+        
+        unsigned num_nodes = mesh.GetNumNodes();
+        unsigned num_nodes_from_file;
+        
+        std::string filename = OutputFileHandler::GetChasteTestOutputDirectory() + "MeshFromTetgenViaMesh.pts";
+        std::ifstream meshalyzer_output_file;
+        meshalyzer_output_file.open(filename.c_str());
+        assert(meshalyzer_output_file.is_open());
+        meshalyzer_output_file >> num_nodes_from_file;
+        
+        TS_ASSERT_EQUALS(num_nodes,num_nodes_from_file);
+        
+        std::string command = "wc -l " + filename;
+        int result = system(command.c_str());
+        std::cout<<result<<std::endl;
     }
 
     void TestTrianglesToCoolGraphicsViaMesh()

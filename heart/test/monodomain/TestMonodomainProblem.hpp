@@ -697,7 +697,7 @@ public:
             }
             else
             {
-                std::string compare_command = "diff --ignore-matching-lines=\"<cp20:ChasteParameters\" ";
+                std::string compare_command = "diff --ignore-matching-lines=\"<cp20:ChasteParameters\" --ignore-matching-lines=\"<cp20: Created by Chaste version\" ";
                 compare_command += handler.GetOutputDirectoryFullPath()+"/"+test_file_names[i];
                 compare_command += " ";
                 compare_command += "heart/test/data/Monodomain2d/";
@@ -713,7 +713,7 @@ public:
                  * but we can live with that if the XSD 2-3 users can.
                  */
 
-                if (diff_result != 0)
+                if ((diff_result != 0) && (i==3|| i==4))
                 {
                     compare_command += "_alt";
                     TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
