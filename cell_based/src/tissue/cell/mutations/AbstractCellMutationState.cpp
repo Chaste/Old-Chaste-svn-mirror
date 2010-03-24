@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 AbstractCellMutationState::AbstractCellMutationState()
 {
-    // Member variables will be overwritten in serialize method
+    NEVER_REACHED; /// \todo - why?! Is this a problem.
 }
 
 AbstractCellMutationState::AbstractCellMutationState(unsigned colour)
