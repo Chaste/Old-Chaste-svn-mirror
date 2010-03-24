@@ -48,6 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ArchiveOpener.hpp"
+#include "CmguiMeshWriter.hpp"
 #include "FileFinder.hpp"
 #include "OutputFileHandler.hpp"
 
@@ -637,9 +638,18 @@ public:
         EXIT_IF_PARALLEL
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/cmgui_output/";
-        //the mesh files...
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d.exelem heart/test/data/CmguiData/bidomain/bidomain3dValid.exelem").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d.exnode heart/test/data/CmguiData/bidomain/bidomain3dValid.exnode").c_str()), 0);
+        
+         //the mesh files...
+        std::string node_file1 = results_dir + "/axi3d.exnode";
+        std::string node_file2 = "heart/test/data/CmguiData/bidomain/bidomain3dValid.exnode";
+        std::string elem_file1 = results_dir + "/axi3d.exelem"; 
+        std::string elem_file2 = "heart/test/data/CmguiData/bidomain/bidomain3dValid.exelem";
+        
+        bool comparison_result = CmguiMeshWriter<3,3>::CompareCmguiFiles(node_file1,node_file2);
+        TS_ASSERT(comparison_result);
+        comparison_result = CmguiMeshWriter<3,3>::CompareCmguiFiles(elem_file1,elem_file2);
+        TS_ASSERT(comparison_result);
+
         //...and one data file as example
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d_61.exnode heart/test/data/CmguiData/bidomain/bidomain3dValidData.exnode").c_str()), 0);
 

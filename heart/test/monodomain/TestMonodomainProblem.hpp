@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ArchiveOpener.hpp"
-
+#include "CmguiMeshWriter.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 
 /*
@@ -697,7 +697,7 @@ public:
             }
             else
             {
-                std::string compare_command = "diff --ignore-matching-lines=\"<cp20:ChasteParameters\" --ignore-matching-lines=\"<cp20: Created by Chaste version\" ";
+                std::string compare_command = "diff --ignore-matching-lines=\"<cp20:ChasteParameters\" --ignore-matching-lines=\"# \" ";
                 compare_command += handler.GetOutputDirectoryFullPath()+"/"+test_file_names[i];
                 compare_command += " ";
                 compare_command += "heart/test/data/Monodomain2d/";
@@ -705,7 +705,6 @@ public:
 
                 //Compare the new test file with one from the repository
                 unsigned diff_result=system(compare_command.c_str());
-                //TS_ASSERT_EQUALS(diff_result, 0U);
 
                 /* In case of failure, compare with known working alternative.
                  * This is for backward compatibility with XSD 2-3, in which case the
@@ -717,6 +716,10 @@ public:
                 {
                     compare_command += "_alt";
                     TS_ASSERT_EQUALS(system(compare_command.c_str()), 0);
+                }
+                else
+                {
+                    TS_ASSERT_EQUALS(diff_result, 0U);
                 }
             }
         }
@@ -810,8 +813,21 @@ public:
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/cmgui_output/";
         //the mesh files...
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exelem heart/test/data/CmguiData/monodomain/monodomain3dValid.exelem").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exnode heart/test/data/CmguiData/monodomain/monodomain3dValid.exnode").c_str()), 0);
+        
+        std::string node_file1 = results_dir + "/monodomain3d.exnode";
+        std::string node_file2 = "heart/test/data/CmguiData/monodomain/monodomain3dValid.exnode";
+        std::string elem_file1 = results_dir + "/monodomain3d.exelem";
+        std::string elem_file2 = "heart/test/data/CmguiData/monodomain/monodomain3dValid.exelem";
+        
+        bool comparison_result = CmguiMeshWriter<3,3>::CompareCmguiFiles(node_file1,node_file2);
+        TS_ASSERT(comparison_result);
+        comparison_result = CmguiMeshWriter<3,3>::CompareCmguiFiles(elem_file1,elem_file2);
+        TS_ASSERT(comparison_result);
+        //TS_ASSERT(CompareCmguiFiles(node_file1,node_file2));
+        //TS_ASSERT(CompareCmguiFiles(elem_file1,elem_file2));
+        
+        //TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exelem heart/test/data/CmguiData/monodomain/monodomain3dValid.exelem").c_str()), 0);
+        //TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exnode heart/test/data/CmguiData/monodomain/monodomain3dValid.exnode").c_str()), 0);
         //...and one data file as example
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_43.exnode heart/test/data/CmguiData/monodomain/monodomain3dValidData.exnode").c_str()), 0);
         //Info file

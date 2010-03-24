@@ -1,3 +1,5 @@
+! Ignored line in test comparison 
+! They will contain provenance data
 Group name: cube_2mm_12_elements
 Shape.  Dimension=3, simplex(2;3)*simplex*simplex
  #Scale factor sets= 0

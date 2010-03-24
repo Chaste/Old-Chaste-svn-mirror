@@ -88,7 +88,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         *p_node_file << "\n";
 
     }
-    *p_node_file << comment << "\n";
+    *p_node_file << comment;
     p_node_file->close();
 
     // Write element file
@@ -135,7 +135,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
         *p_element_file << element_data.AttributeValue << "\n";
     }
-    *p_element_file << comment << "\n";
+    *p_element_file << comment;
     p_element_file->close();
 
     if (ELEMENT_DIM==3)
@@ -167,7 +167,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
             }
             *p_face_file << material_property << "\n";
         }
-        *p_face_file << comment << "\n";
+        *p_face_file << comment;
         p_face_file->close();
 
         if (this->mWriteMetaFile)
@@ -177,7 +177,7 @@ void MeshalyzerMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
             *p_meta_file << "1\n" << "0\n";
             *p_meta_file << face_file_name <<"\n";
-            *p_meta_file << comment << "\n";
+            *p_meta_file << comment;
             p_meta_file->close();
         }
     }
