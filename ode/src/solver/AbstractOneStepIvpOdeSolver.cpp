@@ -79,7 +79,7 @@ OdeSolution AbstractOneStepIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
     }
 
     // stepper.EstimateTimeSteps may have been an overestimate...
-    solutions.SetNumberOfTimeSteps(stepper.GetTimeStepsElapsed());
+    solutions.SetNumberOfTimeSteps(stepper.GetTotalTimeStepsTaken());
     return solutions;
 }
 

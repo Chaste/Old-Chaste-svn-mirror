@@ -260,9 +260,9 @@ OdeSolution CvodeAdaptor::Solve(AbstractOdeSystem* pOdeSystem,
     }
 
     // stepper.EstimateTimeSteps may have been an overestimate...
-    solutions.SetNumberOfTimeSteps(stepper.GetTimeStepsElapsed());
+    solutions.SetNumberOfTimeSteps(stepper.GetTotalTimeStepsTaken());
 
-//    std::cout << " Solved to " << stepper.GetTime() << " in " << stepper.GetTimeStepsElapsed() << " samples.\n" << std::flush;
+//    std::cout << " Solved to " << stepper.GetTime() << " in " << stepper.GetTotalTimeStepsTaken() << " samples.\n" << std::flush;
     int ierr = CVodeGetLastStep(mpCvodeMem, &mLastInternalStepSize);
     assert(ierr == CV_SUCCESS); ierr=ierr; // avoid unused var warning
     FreeCvodeMemory();

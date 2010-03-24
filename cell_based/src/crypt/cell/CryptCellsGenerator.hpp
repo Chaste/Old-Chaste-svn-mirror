@@ -73,8 +73,8 @@ class CryptCellsGenerator : public CellsGenerator<CELL_CYCLE_MODEL,2>
 {
 public:
     /**
-     * Whether cells are able to fully differentiate.
-     * Defaults to false unless overridden.
+     * Whether cells are able to fully (terminally) differentiate. Depends on cell-type,
+     * see implementation for which types of cell can terminally differentiate.
      */
     bool CanCellsTerminallyDifferentiate();
 

@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TIMESTEPPER_HPP_
 #define TIMESTEPPER_HPP_
 
+#include <vector>
+
 /**
  * A helper class that provides a robust way to deal with time loops.
  *
@@ -47,9 +49,12 @@ public:
      * @param endTime  the end of the interval
      * @param dt  the time step to use.
      * @param enforceConstantTimeStep If this is true the stepper estimates whether non-constant
-     * timesteps will be used and quits if so.
+     *  timesteps will be used and quits if so.
+     * @param additionalTimes If the timestepper needs to stop at certain additional times, that aren't (necessarily) 
+     *  multiples of dt, they can be passed in in this std::vector. Defaults to empty. These times must be in ascending
+     *  order and lie between the start and end times. 
      */
-    TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep=false);
+    TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep=false, std::vector<double> additionalTimes=std::vector<double> ());
 
     /**
      * Step forward one step in time and update member variables.
@@ -86,7 +91,7 @@ public:
     /**
      * The number of time AdvanceOneTimeStep() has been called.
      */
-    unsigned GetTimeStepsElapsed() const;
+    unsigned GetTotalTimeStepsTaken() const;
 
 private:
     friend class TestTimeStepper;
@@ -100,8 +105,11 @@ private:
     /** The size of time step. */
     double mDt;
 
-    /** The number of time steps elapsed. */
-    unsigned mTimeStep;
+    /** The total number of time steps taken, including those to get one of the 'additional times'. */
+    unsigned mTotalTimeStepsTaken;
+
+    /** The number of times one of the 'additional times' has been passed. */    
+    unsigned mAdditionalTimesReached;
 
     /** The current time. */
     double mTime;
@@ -110,7 +118,10 @@ private:
     double mNextTime;
 
     /** Compute what the time will be after the next time step. */
-    double CalculateNextTime() const;
+    double CalculateNextTime();
+    
+    /** Vector to store the additional times the stepper must stop at. */
+    std::vector<double> mAdditionalTimes;
 };
 
 #endif /*TIMESTEPPER_HPP_*/

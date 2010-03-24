@@ -35,11 +35,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 const double SMIDGE = 1e-10;
 
-TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep)
+TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep, std::vector<double> additionalTimes)
     : mStart(startTime),
       mEnd(endTime),
       mDt(dt),
-      mTimeStep(0),
+      mTotalTimeStepsTaken(0),
+      mAdditionalTimesReached(0),
       mTime(startTime)
 {
     if (startTime > endTime)
@@ -47,6 +48,33 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
         EXCEPTION("The simulation duration must be positive");
     }
 
+    // Remove any additionalTimes entries which fall too close to a time when the stepper would stop anyway
+    for(unsigned i=0;i<additionalTimes.size();i++)
+    {
+        if(i>0)
+        {
+            if(additionalTimes[i-1] >= additionalTimes[i])
+            {
+                EXCEPTION("The additional times vector should be in ascending numerical order");
+            }
+        }
+        
+        if(additionalTimes[0]<mStart)
+        {
+            EXCEPTION("The first additional time should not fall before the simulation start time");
+        }
+        if(additionalTimes.back()>mEnd)
+        {
+            EXCEPTION("The last additional time should not fall after the simulation end time");
+        }        
+        
+        double test_value=(additionalTimes[i]-startTime)/mDt;
+        if(fabs(round(test_value)-test_value)>1e-12)
+        {
+            mAdditionalTimes.push_back(additionalTimes[i]);
+        }
+    }
+    
     /**
      * \todo This assertion breaks several tests
      *
@@ -65,30 +93,39 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
     {
         if ( fabs(mDt*EstimateTimeSteps()-mEnd+mStart) > SMIDGE )
         {
-            //PRINT_4_VARIABLES(mDt, EstimateTimeSteps(), mDt*EstimateTimeSteps(), mEnd-mStart);
             EXCEPTION("TimeStepper estimate non-constant timesteps will need to be used: check timestep divides (end_time-start_time) (or divides printing timestep)");
         }
     }
 }
 
-double TimeStepper::CalculateNextTime() const
+double TimeStepper::CalculateNextTime() 
 {
-    double next_time = mStart + (mTimeStep+1) * mDt;
+    double next_time = mStart + (mTotalTimeStepsTaken-mAdditionalTimesReached+1) * mDt;
     if ((next_time) + SMIDGE*(mDt) >= mEnd)
     {
         next_time = mEnd;
     }
+    
+    if (    (mAdditionalTimes.size()>0)                          // any additional times given  
+         && (mAdditionalTimesReached<mAdditionalTimes.size())    // not yet done all the additional times
+         && ((next_time) + SMIDGE*(mDt) >= mAdditionalTimes[mAdditionalTimesReached]) ) // this next step takes us over an additional time
+    {
+        next_time = mAdditionalTimes[mAdditionalTimesReached];
+        mAdditionalTimesReached++;
+    }
+    
     return next_time;
 }
 
 void TimeStepper::AdvanceOneTimeStep()
 {
-    mTimeStep++;
-    if (mTimeStep == 0)
+    mTotalTimeStepsTaken++;
+    if (mTotalTimeStepsTaken == 0)
     {
         EXCEPTION("Time step counter has overflowed.");
     }
     mTime = mNextTime;
+
     mNextTime = CalculateNextTime();
 }
 
@@ -105,9 +142,18 @@ double TimeStepper::GetNextTime() const
 double TimeStepper::GetNextTimeStep()
 {
     double dt = mDt;
+    
     if (mNextTime == mEnd)
     {
         dt = mEnd - mTime;
+    }
+
+    // if the next time or the current time is one of the additional times, the timestep will not be mDt    
+    if ((mAdditionalTimesReached>0)  &&  
+        ( (mNextTime == mAdditionalTimes[mAdditionalTimesReached-1]) || (mTime == mAdditionalTimes[mAdditionalTimesReached-1]) ) )
+    {
+        dt = mNextTime - mTime;
+        assert(dt>0);
     }
 
     return dt;
@@ -120,10 +166,10 @@ bool TimeStepper::IsTimeAtEnd() const
 
 unsigned TimeStepper::EstimateTimeSteps() const
 {
-    return (unsigned) round((mEnd - mStart)/mDt);
+    return (unsigned) round((mEnd - mStart)/mDt) + mAdditionalTimes.size();
 }
 
-unsigned TimeStepper::GetTimeStepsElapsed() const
+unsigned TimeStepper::GetTotalTimeStepsTaken() const
 {
-    return mTimeStep;
+    return mTotalTimeStepsTaken;
 }

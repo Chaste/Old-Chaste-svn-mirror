@@ -279,7 +279,7 @@ OdeSolution AbstractCvodeCell::Solve(realtype tStart,
     }
 
     // stepper.EstimateTimeSteps may have been an overestimate...
-    solutions.SetNumberOfTimeSteps(stepper.GetTimeStepsElapsed());
+    solutions.SetNumberOfTimeSteps(stepper.GetTotalTimeStepsTaken());
 
     int ierr = CVodeGetLastStep(mpCvodeMem, &mLastInternalStepSize);
     assert(ierr == CV_SUCCESS); ierr=ierr; // avoid unused var warning
