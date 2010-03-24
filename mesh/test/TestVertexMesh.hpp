@@ -458,6 +458,12 @@ public:
         // By symmetry, the centroid of the prism should lie in the plane x=0.5
         c_vector<double, 3> centroid = mesh.GetCentroidOfElement(0);
         TS_ASSERT_DELTA(centroid(0), 0.5, 1e-5);
+
+        // Tidy up
+        for (unsigned i=0; i<faces.size(); i++)
+        {
+            delete faces[i];
+        }
     }
 
     void TestGetPerimeterGradientAtNode()

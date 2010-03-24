@@ -90,7 +90,6 @@ MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::MutableVertexMesh()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::~MutableVertexMesh()
 {
-//    TRACE("MutableVertexMesh Destructor");
     Clear();
 }
 

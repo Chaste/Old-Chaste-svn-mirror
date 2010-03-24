@@ -108,6 +108,8 @@ public:
         {
             delete nodes[i];
         }
+        delete p_node_2;
+        delete p_node_3;
     }
 
     void TestCreateVertexElement()
@@ -208,7 +210,7 @@ public:
 
     void TestVertexElementFaceConstructor()
     {
-        // Create nodes and Faces
+        // Create a regular hexagon
         std::vector<Node<2>*> nodes;
         std::vector<VertexElement<1,2>*> faces;
         std::vector<Node<2>*> face_nodes;
@@ -229,7 +231,8 @@ public:
             faces.push_back(new VertexElement<1,2>(i, face_nodes));
             orientations.push_back(true);
         }
-        //Create a face with negative orientation.
+
+        // Create a face with negative orientation
         face_nodes.clear();
         face_nodes.push_back(nodes[0]);
         face_nodes.push_back(nodes[num_nodes-1]);
@@ -242,25 +245,14 @@ public:
         TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 6u);
         TS_ASSERT_EQUALS(vertex_element.GetNumFaces(), 6u);
 
-        // Test nodes are correct.
-        // Note that this ordering depends on std::set insertion and iteration
-        //TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[0], 0.5, 1e-9);
-        //TS_ASSERT_DELTA(vertex_element.GetNode(0)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
+        // Test that each face has the correct orientation and number of nodes
+        for (unsigned face_index=0; face_index<6; face_index++)
+        {
+            TS_ASSERT_EQUALS(vertex_element.GetFace(face_index)->GetNumNodes(), 2u);
 
-        //TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[0], 1.0, 1e-9);
-        //TS_ASSERT_DELTA(vertex_element.GetNode(1)->GetPoint()[1], 0.0, 1e-9);
-
-        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[0], -0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(2)->GetPoint()[1], 0.5*sqrt(3.0), 1e-9);
-
-        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[0], -1.0, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(3)->GetPoint()[1], 0.0, 1e-9);
-
-        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[0], -0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(4)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
-
-        TS_ASSERT_DELTA(vertex_element.GetNode(5)->GetPoint()[0], 0.5, 1e-9);
-        TS_ASSERT_DELTA(vertex_element.GetNode(5)->GetPoint()[1], -0.5*sqrt(3.0), 1e-9);
+            bool is_clockwise = (face_index==5) ? false : true;
+            TS_ASSERT_EQUALS(vertex_element.FaceIsOrientatedClockwise(face_index), is_clockwise);
+        }
 
         // Tidy up
         for (unsigned i=0; i<nodes.size(); i++)
