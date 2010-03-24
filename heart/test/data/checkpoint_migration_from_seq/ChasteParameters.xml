@@ -6,7 +6,7 @@
     <cp20:SimulationDuration unit="ms">0.2</cp20:SimulationDuration>
     <cp20:Domain>Mono</cp20:Domain>
     <cp20:Mesh unit="cm">
-      <cp20:Slab inter_node_space="0.25" x="1" y="1" z="1"/>
+      <cp20:Slab inter_node_space="0.2" x="1" y="1" z="1"/>
     </cp20:Mesh>
     <cp20:IonicModels>
       <cp20:Default>

@@ -456,9 +456,18 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
         TS_ASSERT_EQUALS(migrated_soln_1.GetSize(), orig_soln.GetSize());
         for (unsigned i=0; i<migrated_soln_1.GetSize(); i++)
         {
-            // This is horrible, but it seems that the change in partitioning when using a constructed
-            // mesh leads to slight differences in PETSc's linear solve (we think)...
-            TS_ASSERT_DELTA(orig_soln[i], migrated_soln_1[i], 300*ABS_TOL);
+            double tol;
+            if (PetscTools::GetNumProcs() < 4)
+            {
+                tol = ABS_TOL;
+            }
+            else
+            {
+                // This is horrible, but it seems that the change in partitioning when using a constructed
+                // mesh leads to slight differences in PETSc's linear solve (we think)...
+                tol = 300*ABS_TOL;
+            }
+            TS_ASSERT_DELTA(orig_soln[i], migrated_soln_1[i], tol);
         }
         delete p_orig_problem;
 
@@ -519,7 +528,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
     {
         std::string directory = "TestCreateArchiveForLoadAsSequential";
         HeartConfig::Instance()->Reset();
-        HeartConfig::Instance()->SetSlabDimensions(1, 1, 1, 0.25);
+        HeartConfig::Instance()->SetSlabDimensions(1, 1, 1, 0.2);
         HeartConfig::Instance()->SetSimulationDuration(0.2);
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
@@ -570,7 +579,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
         PetscTools::Barrier("TestLoadAsSequential");
 
         // Do the migration
-        const unsigned num_cells = 125u;
+        const unsigned num_cells = 216u;
         BidomainProblem<3>* p_problem = DoMigrateAndBasicTests<BidomainProblem<3>,3>(archive_directory, ref_archive_dir, source_directory, num_cells, true);
 
         // All cells at x=0 should have a SimpleStimulus(-80000, 1).
@@ -816,11 +825,12 @@ private:
             // DistributedTetrahedralMesh::mMetisPartitioning !
             EXPECT0(system, "diff " + ref_archive + " " + my_archive);
 //        }
-        if (!isConstructedMesh)
+        if (!isConstructedMesh || PetscTools::GetNumProcs() < 4)
         {
             // This works because the original archive was created by a single process,
             // but only if the mesh was read from disk: a constructed mesh doesn't use
-            // a DUMB partition, so the archives differ.
+            // a DUMB partition, so the archives differ if the number of processes doesn't
+            // divide the number of rows in the mesh.
             std::stringstream proc_id;
             proc_id << PetscTools::GetMyRank();
             std::string suffix = "." + proc_id.str();
@@ -856,7 +866,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
     {
         std::string directory = "TestCreateArchiveForLoadFromSequential";
         HeartConfig::Instance()->Reset();
-        HeartConfig::Instance()->SetSlabDimensions(1, 1, 1, 0.25);
+        HeartConfig::Instance()->SetSlabDimensions(1, 1, 1, 0.2);
         HeartConfig::Instance()->SetSimulationDuration(0.2);
         HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
@@ -888,7 +898,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
 
         // Loading from a sequential archive should work just as well running sequentially as in parallel -
         // if running sequentially it's essentially just the same as a normal load.
-        const unsigned num_cells = 125u;
+        const unsigned num_cells = 216u;
         MonodomainProblem<3>* p_problem = DoMigrateFromSequentialAndBasicTests<MonodomainProblem<3>,3>(archive_directory, ref_archive_dir, num_cells, true, true);
 
         // All cells at x=0 should have a SimpleStimulus(-25500, 2).
