@@ -157,7 +157,6 @@ public:
         bool iter_is_not_at_end = (iter != empty_mesh.GetElementIteratorEnd());
         TS_ASSERT_EQUALS(iter_is_not_at_end, false);
 
-
         // Delete an element from mesh and test the iterator
         p_mesh->DeleteElementPriorToReMesh(0);
 
@@ -176,10 +175,62 @@ public:
         TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), true);
     }
 
-
-    void TestBasicVertexMesh() throw(Exception)
+    void TestBasic1dVertexMesh() throw(Exception)
     {
-        // Make four nodes to assign to two elements
+        // Make four nodes to assign to three elements
+        std::vector<Node<1>*> nodes;
+        nodes.push_back(new Node<1>(0, false, 0.0));
+        nodes.push_back(new Node<1>(1, false, 0.5));
+        nodes.push_back(new Node<1>(2, false, 1.0));
+        nodes.push_back(new Node<1>(3, false, 1.5));
+
+        // Make three elements out of these nodes
+        std::vector<Node<1>*> nodes_elem_0;
+        nodes_elem_0.push_back(nodes[0]);
+        nodes_elem_0.push_back(nodes[1]);
+
+        std::vector<Node<1>*> nodes_elem_1;
+        nodes_elem_1.push_back(nodes[1]);
+        nodes_elem_1.push_back(nodes[2]);
+
+        std::vector<Node<1>*> nodes_elem_2;
+        nodes_elem_2.push_back(nodes[2]);
+        nodes_elem_2.push_back(nodes[3]);
+
+        std::vector<VertexElement<1,1>*> elements;
+        elements.push_back(new VertexElement<1,1>(0, nodes_elem_0));
+        elements.push_back(new VertexElement<1,1>(1, nodes_elem_1));
+        elements.push_back(new VertexElement<1,1>(2, nodes_elem_2));
+
+        // Make a vertex mesh
+        VertexMesh<1,1> mesh(nodes, elements);
+
+        // Test the mesh has the correct number of nodes and elements
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 3u);
+
+        // Test the elements have the correct nodes
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 2u);
+        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNodeLocation(0)[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetElement(0)->GetNodeLocation(1)[0], 0.5, 1e-6);
+
+        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 2u);
+        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNodeLocation(0)[0], 0.5, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetElement(1)->GetNodeLocation(1)[0], 1.0, 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 2u);
+
+        TS_ASSERT_DELTA(mesh.GetElement(2)->GetNodeLocation(0)[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetElement(2)->GetNodeLocation(1)[0], 1.5, 1e-6);
+
+        // Test GetCentroidOfElement method
+        TS_ASSERT_DELTA(mesh.GetCentroidOfElement(0)[0], 0.25, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetCentroidOfElement(1)[0], 0.75, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetCentroidOfElement(2)[0], 1.25, 1e-6);
+    }
+
+    void TestBasic2dVertexMesh() throw(Exception)
+    {
+        // Make seven nodes to assign to two elements
         std::vector<Node<2>*> basic_nodes;
         basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
         basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));

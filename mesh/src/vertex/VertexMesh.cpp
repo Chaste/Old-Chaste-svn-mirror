@@ -219,7 +219,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfEle
     {
         case 1:
         {
-            centroid = 0.5*(p_element->GetNodeLocation(0) + p_element->GetNodeLocation(0));
+            centroid = 0.5*(p_element->GetNodeLocation(0) + p_element->GetNodeLocation(1));
         }
         break;
         case 2: ///\todo Why isn't this just the centre of mass? (#1284)

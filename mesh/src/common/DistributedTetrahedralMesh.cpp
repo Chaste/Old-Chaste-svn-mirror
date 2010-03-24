@@ -761,13 +761,13 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(uns
         //It's a short mesh and this process owns no nodes
         return;
     }
-    
+
     /* am_top_most is like PetscTools::AmTopMost() but accounts for the fact that a
      * higher numbered process may have dropped out of this construction altogether
      * (because is has no local ownership)
-     */ 
+     */
     bool am_top_most = (this->mpDistributedVectorFactory->GetHigh() == mTotalNumNodes);
-    
+
     unsigned lo_node=this->mpDistributedVectorFactory->GetLow();
     unsigned hi_node=this->mpDistributedVectorFactory->GetHigh();
     if (!PetscTools::AmMaster())
@@ -857,9 +857,9 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
     /* am_top_most is like PetscTools::AmTopMost() but accounts for the fact that a
      * higher numbered process may have dropped out of this construction altogether
      * (because is has no local ownership)
-     */ 
+     */
     bool am_top_most = (this->mpDistributedVectorFactory->GetHigh() == mTotalNumNodes);
-    
+
 
     if (!PetscTools::AmMaster())
     {
@@ -1034,7 +1034,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
     /* am_top_most is like PetscTools::AmTopMost() but accounts for the fact that a
      * higher numbered process may have dropped out of this construction altogether
      * (because is has no local ownership)
-     */ 
+     */
     bool am_top_most = (this->mpDistributedVectorFactory->GetHigh() == mTotalNumNodes);
 
 
@@ -1287,10 +1287,10 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
         element_distribution[proc_index] = element_distribution[proc_index-1] + num_elements/num_procs;
         element_count[proc_index-1] = element_distribution[proc_index] - element_distribution[proc_index-1];
     }
-    
+
     element_distribution[num_procs] = num_elements;
     element_count[num_procs-1] = element_distribution[num_procs] - element_distribution[num_procs-1];
-    
+
     /*
      *  Create distributed mesh data structure
      */
