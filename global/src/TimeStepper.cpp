@@ -57,15 +57,6 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
             {
                 EXCEPTION("The additional times vector should be in ascending numerical order");
             }
-        }
-        
-        if(additionalTimes[0]<mStart)
-        {
-            EXCEPTION("The first additional time should not fall before the simulation start time");
-        }
-        if(additionalTimes.back()>mEnd)
-        {
-            EXCEPTION("The last additional time should not fall after the simulation end time");
         }        
         
         double test_value=(additionalTimes[i]-startTime)/mDt;

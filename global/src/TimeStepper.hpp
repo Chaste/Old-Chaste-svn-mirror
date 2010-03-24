@@ -52,7 +52,7 @@ public:
      *  timesteps will be used and quits if so.
      * @param additionalTimes If the timestepper needs to stop at certain additional times, that aren't (necessarily) 
      *  multiples of dt, they can be passed in in this std::vector. Defaults to empty. These times must be in ascending
-     *  order and lie between the start and end times. 
+     *  order. 
      */
     TimeStepper(double startTime, double endTime, double dt, bool enforceConstantTimeStep=false, std::vector<double> additionalTimes=std::vector<double> ());
 

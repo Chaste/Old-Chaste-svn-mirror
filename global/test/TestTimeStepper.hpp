@@ -150,15 +150,7 @@ public:
         additional_times_bad_order.push_back(0.25);
         
         TS_ASSERT_THROWS_THIS(TimeStepper stepper(0.0, 1.0, 0.1, false, additional_times_bad_order),"The additional times vector should be in ascending numerical order");
-        
-        std::vector<double> additional_times_bad_first_time;
-        additional_times_bad_first_time.push_back(-0.1);
-        TS_ASSERT_THROWS_THIS(TimeStepper stepper(0.0, 1.0, 0.1, false, additional_times_bad_first_time),"The first additional time should not fall before the simulation start time");
-        
-        std::vector<double> additional_times_bad_last_time;
-        additional_times_bad_last_time.push_back(1.1);
-        TS_ASSERT_THROWS_THIS(TimeStepper stepper(0.0, 1.0, 0.1, false, additional_times_bad_last_time),"The last additional time should not fall after the simulation end time");
-        
+                      
         std::vector<double> additional_times;
         additional_times.push_back(0.03);
         additional_times.push_back(0.25);
