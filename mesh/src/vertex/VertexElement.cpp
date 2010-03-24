@@ -31,17 +31,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
-                                                     std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
-                                                     std::vector<bool> orientations)
-      :AbstractElement<ELEMENT_DIM, SPACE_DIM>(index),
-      mFaces(faces),
-      mOrientations(orientations)
+                                                     const std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*>& rFaces,
+                                                     const std::vector<bool>& rOrientations)
+    : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index),
+      mFaces(rFaces),
+      mOrientations(rOrientations)
 {
     assert(mFaces.size() == mOrientations.size());
 
     // Make a set of nodes with mFaces
     std::set<Node<SPACE_DIM>* > nodes_set;
-    for (unsigned face_index=0; face_index<faces.size(); face_index++)
+    for (unsigned face_index=0; face_index<mFaces.size(); face_index++)
     {
         for (unsigned node_index=0; node_index<mFaces[face_index]->GetNumNodes(); node_index++)
         {
@@ -51,8 +51,8 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
 
     // Populate mNodes
     for (typename std::set< Node<SPACE_DIM>* >::iterator node_iter = nodes_set.begin();
-                 node_iter != nodes_set.end();
-                ++node_iter)
+         node_iter != nodes_set.end();
+         ++node_iter)
     {
          this->mNodes.push_back(*node_iter);
     }
@@ -64,13 +64,9 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
-                                                     std::vector<Node<SPACE_DIM>*> nodes)
-    : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
+                                                     const std::vector<Node<SPACE_DIM>*>& rNodes)
+    : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes)
 {
-//    #define COVERAGE_IGNORE
-//    assert(SPACE_DIM == 2);
-//    #undef COVERAGE_IGNORE
-
     // \todo this would stop 2d meshes in 3d space
     if (SPACE_DIM == ELEMENT_DIM)
     {

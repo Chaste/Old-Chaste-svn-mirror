@@ -90,21 +90,21 @@ public:
      * Constructor.
      *
      * @param index global index of the element
-     * @param faces vector of faces associated with the element
-     * @param orientations vector of orientations of the faces associated with the element
+     * @param rFaces vector of faces associated with the element
+     * @param rOrientations vector of orientations of the faces associated with the element
      */
     VertexElement(unsigned index,
-                  std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
-                  std::vector<bool> orientations);
+                  const std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*>& rFaces,
+                  const std::vector<bool>& rOrientations);
 
     /**
      * Constructor.
      *
      * @param index global index of the element
-     * @param nodes vector of Nodes associated with the element
+     * @param rNodes vector of Nodes associated with the element
      */
     VertexElement(unsigned index,
-                  std::vector<Node<SPACE_DIM>*> nodes);
+                  const std::vector<Node<SPACE_DIM>*>& rNodes);
 
     /**
      * Destructor.
