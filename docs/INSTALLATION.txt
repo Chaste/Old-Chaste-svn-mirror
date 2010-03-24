@@ -145,22 +145,8 @@ rm -f ParMetis-3.1.tar.gz
 
 
 ================METIS:==================
-This step is unnecessary since the functionality is provided by parMETIS.
-
-cd $CHASTE_LIBS
-wget http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/metis-4.0.tar.gz
-tar -zxf metis-4.0.tar.gz
-cd metis-4.0
-make
-cd ..
-rm -f metis-4.0.tar.gz
-
-If you have a problem compiling with a recent gcc compiler involving
-"conflicting types for ‘__log2’" then a solution is to edit the final
-line of Lib/rename.h
--#define log2				__log2
-+#define log2				__Log2
-
+From release 2.0 METIS dependencies are handled by parMETIS, so separate installation is no
+longer required.
 
 ============= XSD and XML =============
 Installing Apache Xerces XML libraries:
