@@ -48,6 +48,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "ArchiveOpener.hpp"
+#include "FileFinder.hpp"
+#include "OutputFileHandler.hpp"
 
 #include "CompareHdf5ResultsFiles.hpp"
 
@@ -819,7 +821,15 @@ public:
         // check output file contains results for the whole simulation and agree with normal test
         TS_ASSERT(CompareFilesViaHdf5DataReader("BidomainSimple1dInTwoHalves", "BidomainLR91_1d", true,
                                                 "BidomainSimple1d", "BidomainLR91_1d", true));
-
+                                                
+        // Test that we can keep solving even if the results have been deleted (i.e. by creating a new
+        // .h5 file when we realize that there isn't one to extend)
+        OutputFileHandler file_handler("BidomainSimple1dInTwoHalves", true);
+        FileFinder h5_file("BidomainSimple1dInTwoHalves/BidomainLR91_1d.h5", cp::relative_to_type::chaste_test_output);
+        TS_ASSERT(!h5_file.Exists());
+        HeartConfig::Instance()->SetSimulationDuration(3.0);
+        TS_ASSERT_THROWS_NOTHING( bidomain_problem.Solve() );
+        TS_ASSERT(h5_file.Exists());
     }
 
 

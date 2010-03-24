@@ -594,11 +594,31 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter
 {
     bool extend_file = (mSolution != NULL);
 
-    mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(),
-                                  HeartConfig::Instance()->GetOutputDirectory(),
-                                  HeartConfig::Instance()->GetOutputFilenamePrefix(),
-                                  !extend_file, // don't clear directory if extension requested
-                                  extend_file);
+    try
+    {
+        mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(),
+                                      HeartConfig::Instance()->GetOutputDirectory(),
+                                      HeartConfig::Instance()->GetOutputFilenamePrefix(),
+                                      !extend_file, // don't clear directory if extension requested
+                                      extend_file);
+    }
+    catch (Exception& e)
+    {
+        if (extend_file)
+        {
+            // Tried to extend and failed, so just create from scratch
+            extend_file = false;
+            mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(),
+                                          HeartConfig::Instance()->GetOutputDirectory(),
+                                          HeartConfig::Instance()->GetOutputFilenamePrefix(),
+                                          !extend_file,
+                                          extend_file);
+        }
+        else
+        {
+            throw e;
+        }
+    }
 
     // Define columns, or get the variable IDs from the writer
     DefineWriterColumns(extend_file);

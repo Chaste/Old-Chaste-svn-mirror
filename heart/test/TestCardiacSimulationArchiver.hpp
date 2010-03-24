@@ -739,7 +739,7 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./hear
             TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,0), 0, 1e-10);
         }
 
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2, 0.2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
     }
 
 private:
@@ -972,7 +972,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
         HeartConfig::Instance()->SetSimulationDuration(0.2);
 
         CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
-
+        
         delete p_mesh;
     }
 

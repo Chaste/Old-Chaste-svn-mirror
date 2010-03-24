@@ -121,6 +121,19 @@ public:
         TS_ASSERT_EQUALS(return_value,0);
     }
 
+    // requires TestCardiacSimulationArchiveBidomain() to have been run
+    void TestCardiacSimulationResumeBidomain() throw(Exception)
+    {
+        // run a bidomain simulation
+        HeartConfig::Instance()->SetSpaceDimension(1);
+        CardiacSimulation simulation("heart/test/data/xml/resume_bidomain_short.xml");
+        std::string foldername = "SaveBidomainShort";
+
+        // compare the files, using the CompareFilesViaHdf5DataReader() method
+        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_bidomain_short_results", false,
+                   foldername, "SimulationResults", true));
+    }
+
     void TestCardiacSimulationArchiveMonodomain() throw(Exception)
     {
         // run a bidomain simulation
@@ -136,7 +149,7 @@ public:
         TS_ASSERT_EQUALS(return_value,0);
     }
 
-    // requires TestCardiacSimulationSaveMonodomain() to have been run
+    // requires TestCardiacSimulationArchiveMonodomain() to have been run
     void TestCardiacSimulationResumeMonodomain() throw(Exception)
     {
         // run a monodomain simulation
@@ -177,21 +190,8 @@ public:
 #endif // CHASTE_CAN_CHECKPOINT_DLLS
     }
 
-    // requires TestCardiacSimulationSaveBidomain() to have been run
-    void TestCardiacSimulationResumeBidomain() throw(Exception)
-    {
-        // run a bidomain simulation
-        HeartConfig::Instance()->SetSpaceDimension(1);
-        CardiacSimulation simulation("heart/test/data/xml/resume_bidomain_short.xml");
-        std::string foldername = "SaveBidomainShort";
-
-        // compare the files, using the CompareFilesViaHdf5DataReader() method
-        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_bidomain_short_results", false,
-                   foldername, "SimulationResults", true));
-    }
-
     /**
-     * Run TestCardiacSimulationSaveBidomain on 4 processors to create the archive for this test,
+     * Run TestCardiacSimulationArchiveBidomain on 4 processors to create the archive for this test,
      * and copy it to the repository using:
      *
        scons build=GccOpt_hostconfig,boost=1-33-1_4 test_suite=heart/test/TestCardiacSimulation.hpp
