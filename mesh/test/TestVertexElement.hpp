@@ -59,6 +59,10 @@ public:
         TS_ASSERT_EQUALS(element.GetNode(0)->GetIndex(), 0u);
         TS_ASSERT_EQUALS(element.GetNode(1)->GetIndex(), 1u);
 
+        // Test GetNodeLocalIndex()
+        TS_ASSERT_EQUALS(element.GetNodeLocalIndex(0), 0u);
+        TS_ASSERT_EQUALS(element.GetNodeLocalIndex(1), 1u);
+
         // Test Face methods
         TS_ASSERT_EQUALS(element.GetNumFaces(), 0u);
         VertexElement<0,2>* p_face = element.GetFace(0);
