@@ -516,7 +516,6 @@ public:
 
     void TestEverythingIsAssignedParMetisLibrary()
     {
-#ifdef CHASTE_PARMETIS
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PARMETIS_LIBRARY);
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -526,7 +525,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
 
         CheckEverythingIsAssigned<3,3>(mesh);
-#endif //CHASTE_PARMETIS
     }
 
     void TestConstruct3DWithRegions() throw (Exception)

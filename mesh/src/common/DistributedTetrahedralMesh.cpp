@@ -93,12 +93,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
          *  With ParMetisLibraryNodePartitioning we compute the element partition first
          *  and then we work out the node ownership.
          */
-#ifdef CHASTE_PARMETIS
         ParMetisLibraryNodePartitioning(rMeshReader, rElementsOwned, rNodesOwned, rHaloNodesOwned, rProcessorsOffset);
-#else
-        // If you hit this line of code is because you are trying to use ParMETIS-based partitioning and you didn't install it.
-        NEVER_REACHED;
-#endif //CHASTE_PARMETIS
     }
     else
     {
@@ -1265,7 +1260,6 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xFac
 }
 
 
-#ifdef CHASTE_PARMETIS
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
                                                                                        std::set<unsigned>& rElementsOwned,
@@ -1508,7 +1502,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
     }
 
 }
-#endif //CHASTE_PARMETIS
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

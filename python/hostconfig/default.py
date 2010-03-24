@@ -51,7 +51,6 @@ petsc_build_name = 'linux-gnu'
 petsc_build_name_profile = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = ''
-metis_path = chaste_libs_path+'/metis-4.0/'
 parmetis_path = chaste_libs_path+'/ParMetis-3.1/'
 intel_path = '/opt/intel/cc/9.1.039/lib'
 icpc = 'icpc'
@@ -59,19 +58,21 @@ icpc = 'icpc'
 other_includepaths = [chaste_libs_path+'hdf5/include',
                       chaste_libs_path+'xerces/include',
                       chaste_libs_path+'boost/include/boost-1_34_1',
-                      chaste_libs_path+'xsd-3.2.0-i686-linux-gnu/libxsd']
+                      chaste_libs_path+'xsd-3.2.0-i686-linux-gnu/libxsd',
+                      parmetis_path]
 
 other_libpaths = [chaste_libs_path+'lib',
                   chaste_libs_path+'boost/lib', 
                   chaste_libs_path+'xerces/lib',
                   chaste_libs_path+'hdf5/lib',
-                  os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu')]
+                  os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu'),
+                  parmetis_path]
 
 
 blas_lapack = ['f2clapack', 'f2cblas']
-other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z']
+other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z', 'parmetis', 'metis']
 # Note that boost serialization sometimes has a different name:
-# other_libraries = ['boost_serialization-gcc41', 'xerces-c', 'hdf5', 'z', 'metis']
+# other_libraries = ['boost_serialization-gcc41', 'xerces-c', 'hdf5', 'z', 'parmetis', 'metis']
 
 
 # use_vtk set to false initially. Change to True if VTK development libraries are 
@@ -91,14 +92,4 @@ if use_vtk:
     other_libpaths.append(chaste_libs_path+'/Vtk5/lib/vtk-5.2')
     other_libraries.extend(['vtkFiltering','vtkIO',  'vtkCommon', 'vtksys', 'vtkzlib'])
 
-# We need to make sure that we pick the right library since ParMETIS 3.1 requires a symbol not defined 
-# in METIS 4.0.
-if use_parmetis:
-    other_includepaths.append(parmetis_path)
-    other_libpaths.append(parmetis_path)
-    other_libraries.extend(['parmetis', 'metis'])
-else:
-    other_includepaths.append(os.path.join(metis_path,'Lib'))
-    other_libpaths.append(metis_path)
-    other_libraries.extend(['metis'])
 
