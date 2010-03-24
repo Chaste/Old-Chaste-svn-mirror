@@ -32,9 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 AbstractCellMutationState::AbstractCellMutationState()
-    : mCellCount(0),
-      mColour(UNSIGNED_UNSET) // Will be overwritten in serialize method
 {
+    // Member variables will be overwritten in serialize method
 }
 
 AbstractCellMutationState::AbstractCellMutationState(unsigned colour)

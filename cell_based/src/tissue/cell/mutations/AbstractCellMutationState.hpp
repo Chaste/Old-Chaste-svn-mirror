@@ -76,7 +76,9 @@ private:
         archive & mColour;
     }
 
-    /** Private default constructor for archiving */
+    /**
+     * Private default constructor for archiving.
+     */
     AbstractCellMutationState();
 
 public:
