@@ -120,12 +120,16 @@ public:
      */
     virtual AbstractCellCycleModel* CreateCellCycleModel();
 
-
     /**
      * Set whether Whether the duration of the G1 phase is dependent on cell type
      * @param useCellProliferativeTypeDependentG1Duration - boolean, defaults to true.
      */
     void SetUseCellProliferativeTypeDependentG1Duration(bool useCellProliferativeTypeDependentG1Duration=true);
+
+    /**
+     * Overridden CanCellTerminallyDifferentiate() method.
+     */
+    virtual bool CanCellTerminallyDifferentiate();
 };
 
 #include "SerializationExportWrapper.hpp"

@@ -345,31 +345,6 @@ public:
         }
     }
 
-
-
-    void TestCanDifferentiate() throw(Exception)
-    {
-        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> gen1;
-        CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> gen2;
-        CryptCellsGenerator<TysonNovakCellCycleModel> gen3;
-        CryptCellsGenerator<WntCellCycleModel> gen4;
-        CryptCellsGenerator<SimpleWntCellCycleModel> gen5;
-        CryptCellsGenerator<StochasticWntCellCycleModel> gen6;
-        CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> gen7;
-        CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo> gen8;
-
-        TS_ASSERT_EQUALS(gen1.CanCellsTerminallyDifferentiate(), true);
-        TS_ASSERT_EQUALS(gen2.CanCellsTerminallyDifferentiate(), true);
-        TS_ASSERT_EQUALS(gen3.CanCellsTerminallyDifferentiate(), false);
-        TS_ASSERT_EQUALS(gen4.CanCellsTerminallyDifferentiate(), false);
-        TS_ASSERT_EQUALS(gen5.CanCellsTerminallyDifferentiate(), false);
-        TS_ASSERT_EQUALS(gen6.CanCellsTerminallyDifferentiate(), false);
-        TS_ASSERT_EQUALS(gen7.CanCellsTerminallyDifferentiate(), false);
-        TS_ASSERT_EQUALS(gen8.CanCellsTerminallyDifferentiate(), false);
-
-        CryptCellsGenerator<Alarcon2004OxygenBasedCellCycleModel> gen9;
-        TS_ASSERT_THROWS_THIS( gen9.CanCellsTerminallyDifferentiate(), "Using an invalid cell cycle model for crypt simulations");
-    }
 };
 
 #endif /*TESTCELLSGENERATOR_HPP_*/

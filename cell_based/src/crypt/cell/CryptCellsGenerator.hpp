@@ -72,11 +72,6 @@ template<class CELL_CYCLE_MODEL>
 class CryptCellsGenerator : public CellsGenerator<CELL_CYCLE_MODEL,2>
 {
 public:
-    /**
-     * Whether cells are able to fully (terminally) differentiate. Depends on cell-type,
-     * see implementation for which types of cell can terminally differentiate.
-     */
-    bool CanCellsTerminallyDifferentiate();
 
     /**
      * Generates cells of a specified cell cycle type under the correct
@@ -218,7 +213,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
         }
         else
         {
-            cell_type = this->CanCellsTerminallyDifferentiate() ? DIFFERENTIATED : TRANSIT;
+            cell_type = p_cell_cycle_model->CanCellTerminallyDifferentiate() ? DIFFERENTIATED : TRANSIT;
             generation = 4;
             birth_time *= typical_transit_cycle_time; // hours
         }
@@ -245,33 +240,6 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
         {
             rCells.push_back(cell);
         }
-    }
-}
-
-
-template<class CELL_CYCLE_MODEL>
-bool CryptCellsGenerator<CELL_CYCLE_MODEL>::CanCellsTerminallyDifferentiate()
-{
-    if (   ClassesAreSame<CELL_CYCLE_MODEL,FixedDurationGenerationBasedCellCycleModel>()
-        || ClassesAreSame<CELL_CYCLE_MODEL,StochasticDurationGenerationBasedCellCycleModel>() )
-    {
-        return true;
-    }
-    else if (   ClassesAreSame<CELL_CYCLE_MODEL,TysonNovakCellCycleModel>()
-             || ClassesAreSame<CELL_CYCLE_MODEL,WntCellCycleModel>()
-             || ClassesAreSame<CELL_CYCLE_MODEL,SimpleWntCellCycleModel>()
-             || ClassesAreSame<CELL_CYCLE_MODEL,StochasticWntCellCycleModel>()
-             || ClassesAreSame<CELL_CYCLE_MODEL,VanLeeuwen2009WntSwatCellCycleModelHypothesisOne>()
-             || ClassesAreSame<CELL_CYCLE_MODEL,VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo>() )
-    {
-        // Wnt cells don't differentiate
-        return false;
-    }
-    else
-    {
-        // if this exception fails with a new cell cycle model, it needs to be added to one of the
-        // appropriate if statements above..
-        EXCEPTION("Using an invalid cell cycle model for crypt simulations");
     }
 }
 

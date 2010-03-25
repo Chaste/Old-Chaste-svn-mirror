@@ -123,3 +123,8 @@ double AbstractWntOdeBasedCellCycleModel::GetAverageStemCellCycleTime()
 {
     return 16.0;
 }
+
+bool AbstractWntOdeBasedCellCycleModel::CanCellTerminallyDifferentiate()
+{
+    return false;
+}

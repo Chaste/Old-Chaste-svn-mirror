@@ -310,6 +310,11 @@ public:
      * This method is overridden in some subclasses.
      */
     virtual double GetAverageStemCellCycleTime();
+
+    /**
+     * Whether a cell with this cell cyclde model is able to fully (terminally) differentiate.
+     */
+    virtual bool CanCellTerminallyDifferentiate();
 };
 
 

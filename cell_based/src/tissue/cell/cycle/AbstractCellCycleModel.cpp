@@ -143,3 +143,8 @@ double AbstractCellCycleModel::GetAverageStemCellCycleTime()
     return TissueConfig::Instance()->GetStemCellG1Duration()
             + TissueConfig::Instance()->GetSG2MDuration();
 }
+
+bool AbstractCellCycleModel::CanCellTerminallyDifferentiate()
+{
+    return true;
+}

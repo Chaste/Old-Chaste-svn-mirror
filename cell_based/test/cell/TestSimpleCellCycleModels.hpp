@@ -71,6 +71,7 @@ public:
 
         TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M_PHASE);
         TS_ASSERT_EQUALS(p_stem_model->GetGeneration(), 0u);
+        TS_ASSERT_EQUALS(p_stem_model->CanCellTerminallyDifferentiate(), true);
 
         TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(),STEM);
 
@@ -186,6 +187,7 @@ public:
 
         SimpleWntCellCycleModel* p_cycle_model = new SimpleWntCellCycleModel;
         TS_ASSERT_EQUALS(p_cycle_model->GetDimension(), 0u);
+        TS_ASSERT_EQUALS(p_cycle_model->CanCellTerminallyDifferentiate(), false);
 
         // Test the dimension must be 1, 2 or 3
         TS_ASSERT_THROWS_THIS(p_cycle_model->SetDimension(4), "Dimension must be 1, 2 or 3");

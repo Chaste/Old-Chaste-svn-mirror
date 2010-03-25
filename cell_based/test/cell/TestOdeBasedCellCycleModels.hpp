@@ -70,6 +70,8 @@ public:
         // Test TysonNovakCellCycleModel methods for a healthy cell
         TysonNovakCellCycleModel* p_cell_model = new TysonNovakCellCycleModel;
         p_cell_model->SetBirthTime(p_simulation_time->GetTime());
+        TS_ASSERT_EQUALS(p_cell_model->CanCellTerminallyDifferentiate(), false);
+
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
         TissueCell cell(STEM, p_healthy_state, p_cell_model);
 
@@ -219,6 +221,9 @@ public:
         // Create cell cycle model and associated cell
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         p_cell_model->SetDimension(2);
+
+        TS_ASSERT_EQUALS(p_cell_model->CanCellTerminallyDifferentiate(), false);
+
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
         TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
         stem_cell.InitialiseCellCycleModel();

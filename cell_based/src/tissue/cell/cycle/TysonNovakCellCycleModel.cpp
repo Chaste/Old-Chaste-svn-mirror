@@ -146,6 +146,12 @@ double TysonNovakCellCycleModel::GetAverageStemCellCycleTime()
     return 1.25;
 }
 
+
+bool TysonNovakCellCycleModel::CanCellTerminallyDifferentiate()
+{
+    return false;
+}
+
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(TysonNovakCellCycleModel)

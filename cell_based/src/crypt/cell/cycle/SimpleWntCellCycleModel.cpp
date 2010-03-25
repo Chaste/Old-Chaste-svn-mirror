@@ -221,6 +221,10 @@ void SimpleWntCellCycleModel::InitialiseDaughterCell()
     AbstractSimpleCellCycleModel::InitialiseDaughterCell();
 }
 
+bool SimpleWntCellCycleModel::CanCellTerminallyDifferentiate()
+{
+    return false;
+}
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

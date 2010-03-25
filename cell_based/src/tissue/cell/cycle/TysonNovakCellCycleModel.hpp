@@ -150,6 +150,11 @@ public:
      * Overridden GetAverageStemCellCycleTime() method.
      */
     double GetAverageStemCellCycleTime();
+
+    /**
+     * Overridden CanCellTerminallyDifferentiate() method.
+     */
+    virtual bool CanCellTerminallyDifferentiate();
 };
 
 
