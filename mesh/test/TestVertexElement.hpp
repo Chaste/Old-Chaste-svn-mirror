@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VertexElement.hpp"
 #include "Element.hpp"
-#include "Debug.hpp"
 
 class TestVertexElement : public CxxTest::TestSuite
 {
@@ -264,6 +263,17 @@ public:
             delete nodes[i];
             delete faces[i];
         }
+    }
+
+    void TestAltenativeConstructor()
+    {
+        // Create element
+        VertexElement<2,2> vertex_element(5);
+
+        // Test member variables
+        TS_ASSERT_EQUALS(vertex_element.GetIndex(), 5u);
+        TS_ASSERT_EQUALS(vertex_element.GetNumNodes(), 0u);
+        TS_ASSERT_EQUALS(vertex_element.GetNumFaces(), 0u);
     }
 
     void TestVertexElementDeleteAndAddNode()

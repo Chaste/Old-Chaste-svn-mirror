@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexElement.hpp"
 #include "RandomNumberGenerator.hpp"
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
                                                      const std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*>& rFaces,
@@ -61,6 +60,12 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
     RegisterWithNodes();
 }
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index)
+    : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index)
+{
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
@@ -156,13 +161,29 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::DeleteNode(const unsigned& rIndex)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexElement<ELEMENT_DIM, SPACE_DIM>::AddNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode)
 {
-    assert(rIndex < this->mNodes.size());
+    /**
+     * When constructing a VertexMesh as the Voronoi dual to a Delaunay mesh,
+     * each VertexElement is initially constructed without nodes. We therefore
+     * require the two cases below.
+     */
+    if (this->mNodes.size() > 0)
+    {
+        assert(rIndex < this->mNodes.size());
 
-    // Add pNode to rIndex+1 element of mNodes pushing the others up
-    this->mNodes.insert(this->mNodes.begin() + rIndex+1,  pNode);
+        // Add pNode to rIndex+1 element of mNodes pushing the others up
+        this->mNodes.insert(this->mNodes.begin() + rIndex+1,  pNode);
 
-    // Add element to this node
-    this->mNodes[rIndex+1]->AddElement(this->mIndex);
+        // Add element to this node
+        this->mNodes[rIndex+1]->AddElement(this->mIndex);
+    }
+    else
+    {
+        // Populate mNodes with pNode
+        this->mNodes.push_back(pNode);
+
+        // Add element to this node
+        this->mNodes[0]->AddElement(this->mIndex);
+    }
 }
 
 

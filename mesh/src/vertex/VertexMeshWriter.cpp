@@ -319,18 +319,17 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
     *p_element_file << num_elements << "\t";
     *p_element_file << num_attr << "\n";
-//TRACE("B");
+
     // Write each element's data
     /// \todo need to think about how best to do this in 3D (see #866)
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
         std::vector<unsigned> current_item = this->GetNextElement().NodeIndices;
-//PRINT_2_VARIABLES(item_num,current_item.size());
+
         *p_element_file << item_num <<  "\t" << current_item.size();
         for (unsigned i=0; i<current_item.size(); i++)
         {
             *p_element_file << "\t" << current_item[i];
-//PRINT_2_VARIABLES(i,current_item[i]);
         }
         *p_element_file << "\n";
     }

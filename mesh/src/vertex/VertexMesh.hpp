@@ -48,6 +48,7 @@ class VertexMeshWriter;
 #include "VertexMeshWriter.hpp"
 #include "VertexElement.hpp"
 #include "VertexElementMap.hpp"
+#include "TetrahedralMesh.hpp"
 
 /**
  * A vertex-based mesh class, for use in vertex-based tissue simulations.
@@ -204,6 +205,16 @@ public:
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
                  std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
                  std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements);
+
+    /**
+     * Alternative constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
+     * which must be Delaunay (see TetrahedralMesh::CheckIsVoronoi).
+     *
+     * @param rMesh a tetrahedral mesh
+     * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
+     */
+    VertexMesh(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+               const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * Default constructor for use by serializer.

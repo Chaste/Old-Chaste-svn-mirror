@@ -105,6 +105,143 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 }
 
 
+/**
+ * This VertexMesh constructor is currently only defined for 2D meshes.
+ *
+ * @param rMesh a tetrahedral mesh
+ * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
+ */
+template<>
+VertexMesh<2, 2>::VertexMesh(TetrahedralMesh<2, 2>& rMesh,
+                             const std::vector<unsigned> locationIndices)
+{
+    // Reset member variables and clear mNodes, mFaces and mElements
+    Clear();
+
+    unsigned num_elements = locationIndices.empty() ? rMesh.GetNumAllNodes() : locationIndices.size();
+
+    std::set<unsigned> location_indices;
+    if (!locationIndices.empty())
+    {
+        for (unsigned i=0; i<locationIndices.size(); i++)
+        {
+            location_indices.insert(locationIndices[i]);
+        }
+    }
+
+    // Allocate memory for elements and nodes
+    this->mNodes.reserve(rMesh.GetNumAllElements());
+
+    // Create as many Faces as there are nodes in the mesh
+    mElements.reserve(num_elements);
+    for (unsigned i=0; i<num_elements; i++)
+    {
+        unsigned element_index = locationIndices.empty() ? i : locationIndices[i];
+        VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index);
+        mElements.push_back(p_element);
+    }
+
+    // Loop over elements of the Delaunay mesh
+    c_matrix<double, 2, 2> jacobian, inverse_jacobian;
+    double jacobian_det;
+    for (unsigned i=0; i<rMesh.GetNumElements(); i++)
+    {
+        // Calculate the circumcentre of this element in the Delaunay mesh
+        rMesh.GetInverseJacobianForElement(i, jacobian, jacobian_det, inverse_jacobian);
+        c_vector<double, 3> circumsphere = rMesh.GetElement(i)->CalculateCircumsphere(jacobian, inverse_jacobian);
+        c_vector<double, 2> circumcentre;
+        for (unsigned j=0; j<2; j++)
+        {
+            circumcentre(j) = circumsphere(j);
+        }
+
+        // Create a node in the Voronoi mesh at the location of this circumcentre
+        this->mNodes.push_back(new Node<2>(i, circumcentre));
+
+        // Loop over nodes owned by this element in the Delaunay mesh
+        for (unsigned local_index=0; local_index<3; local_index++)
+        {
+            unsigned global_index = rMesh.GetElement(i)->GetNodeGlobalIndex(local_index);
+            unsigned element_index = global_index;
+
+            bool add_node_to_element = true;
+
+            // If there are ghost nodes...            
+            if (!location_indices.empty())
+            {
+                // ...and this node is one...
+                if (location_indices.find(global_index) == location_indices.end())
+                {
+                    // ...then don't add it to the element in the Voronoi mesh...
+                    add_node_to_element = false;
+                }
+                else
+                {
+                    // ...otherwise find the appropriate entry of mElements to which it should be added
+                     for (unsigned j=0; j<num_elements; j++)
+                     {
+                        if (mElements[j]->GetIndex() == global_index)
+                        {
+                            element_index = j;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (add_node_to_element)
+            {
+                unsigned num_nodes_in_elem = mElements[element_index]->GetNumNodes();
+                unsigned end_index = num_nodes_in_elem>0 ? num_nodes_in_elem-1 : 0;
+
+                mElements[element_index]->AddNode(end_index, this->mNodes[i]);
+            }
+        }
+    }
+
+    // Reorder mNodes anticlockwise
+    for (unsigned i=0; i<mElements.size(); i++)
+    {
+        unsigned element_index = locationIndices.empty() ? i : locationIndices[i];
+
+        /*
+         * Create a std::map that associates the angle between the centre of the Voronoi element
+         * and each node with that node's global index in the Voronoi mesh. The map automatically
+         * sorts itself in order of increasing angle.
+         */
+        std::map<double, unsigned> angle_global_index_map;
+        for (unsigned j=0; j<mElements[i]->GetNumNodes(); j++)
+        {
+            c_vector<double, 2> centre_to_vertex = GetVectorFromAtoB(rMesh.GetNode(element_index)->rGetLocation(),
+                                                                     mElements[i]->GetNodeLocation(j));
+
+            double angle = atan2(centre_to_vertex(1), centre_to_vertex(0));
+            unsigned global_index = mElements[i]->GetNodeGlobalIndex(j);
+
+            angle_global_index_map[angle] = global_index;
+        }
+
+        // Create a new Voronoi element and pass in the appropriate Nodes, ordered anticlockwise
+        VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index);
+        unsigned count = 0;
+        for (std::map<double, unsigned>::iterator map_iter = angle_global_index_map.begin();
+             map_iter != angle_global_index_map.end();
+             ++map_iter)
+        {
+            unsigned local_index = count>1 ? count-1 : 0;
+            p_element->AddNode(local_index, mNodes[map_iter->second]);
+            count++;
+        }
+
+        // Replace the relevant member of mElements with this Voronoi element
+        delete mElements[i];
+        mElements[i] = p_element;
+    }
+
+    this->mMeshChangesDuringSimulation = false;
+}
+
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh()
 {

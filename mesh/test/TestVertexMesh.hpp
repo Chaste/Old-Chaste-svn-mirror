@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMeshWriter.hpp"
 #include "VertexMesh.hpp"
 #include "ArchiveOpener.hpp"
+#include "MutableMesh.hpp"
 
 class TestVertexMesh : public CxxTest::TestSuite
 {
@@ -1254,6 +1255,101 @@ public:
         TS_ASSERT_DELTA(original_coordinate[1], new_coordinate[1] - y_movement, 1e-6);
     }
 
+    void TestTessellationConstructor2d() throw (Exception)
+    {
+        // Create a simple tetrahedral mesh, the Delaunay triangulation
+        std::vector<Node<2> *> delaunay_nodes;
+        delaunay_nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+        delaunay_nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+        delaunay_nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
+        delaunay_nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
+        delaunay_nodes.push_back(new Node<2>(4, false, 0.5, 0.5));
+
+        MutableMesh<2,2> delaunay_mesh(delaunay_nodes);
+        TS_ASSERT(delaunay_mesh.CheckIsVoronoi());
+
+        TS_ASSERT_EQUALS(delaunay_mesh.GetNumElements(), 4u);
+        TS_ASSERT_EQUALS(delaunay_mesh.GetNumNodes(), 5u);
+
+        // Create a vertex mesh, the Voronoi tessellation, using the tetrahedral mesh
+        VertexMesh<2,2> voronoi_mesh(delaunay_mesh);
+
+        // Test the Voronoi tessellation has the correct number of nodes and elements
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumElements(), 5u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumNodes(), 4u);
+
+        ///\todo These tests may not pass on other machines - check build and alter as required (#1276)
+
+        // Test the location of the Voronoi nodes
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[1], 0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(1)->rGetLocation()[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(1)->rGetLocation()[1], 0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(2)->rGetLocation()[0], 0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(2)->rGetLocation()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[0], 0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[1], 1.0, 1e-6);
+
+        // Test the number of nodes owned by each Voronoi element
+        TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumNodes(), 2u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetElement(1)->GetNumNodes(), 2u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetElement(2)->GetNumNodes(), 2u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetElement(3)->GetNumNodes(), 2u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetElement(4)->GetNumNodes(), 4u);
+
+        // Test element areas
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(0), 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(1), 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(2), 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(3), 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(4), 0.5, 1e-6);
+    }
+
+    void TestTessellationConstructor2dWithGhostNodes() throw (Exception)
+    {
+        // Create a simple tetrahedral mesh, the Delaunay triangulation
+        std::vector<Node<2> *> delaunay_nodes;
+        delaunay_nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+        delaunay_nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+        delaunay_nodes.push_back(new Node<2>(2, true, 1.0, 1.0));
+        delaunay_nodes.push_back(new Node<2>(3, true, 0.0, 1.0));
+        delaunay_nodes.push_back(new Node<2>(4, false, 0.5, 0.5));
+
+        MutableMesh<2,2> delaunay_mesh(delaunay_nodes);
+        TS_ASSERT(delaunay_mesh.CheckIsVoronoi());
+
+        TS_ASSERT_EQUALS(delaunay_mesh.GetNumElements(), 4u);
+        TS_ASSERT_EQUALS(delaunay_mesh.GetNumNodes(), 5u);
+
+        // Ignore the centre node
+        std::vector<unsigned> location_indices;
+        location_indices.push_back(4);
+
+        // Create a vertex mesh, the Voronoi tessellation, using the tetrahedral mesh and the 'real' nodes
+        VertexMesh<2,2> voronoi_mesh(delaunay_mesh, location_indices);
+
+        // Test the Voronoi tessellation has the correct number of nodes and elements
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumNodes(), 4u);
+
+        ///\todo These tests may not pass on other machines - check build and alter as required (#1276 and #1075)
+
+        // Test the location of the Voronoi nodes
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[1], 0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(1)->rGetLocation()[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(1)->rGetLocation()[1], 0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(2)->rGetLocation()[0], 0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(2)->rGetLocation()[1], 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[0], 0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[1], 1.0, 1e-6);
+
+        // Test the number of nodes owned by each Voronoi element
+        TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumNodes(), 4u);
+
+        // Test element areas
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(0), 0.5, 1e-6);
+    }
 };
 
 #endif /*TESTVERTEXMESH_HPP_*/
