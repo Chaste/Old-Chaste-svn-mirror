@@ -16,6 +16,7 @@ The following new files/directories were created:
 --------.chaste_deletable_folder
 --------10ms
 ------------.chaste_deletable_folder
+------------ResumeParameters.xml
 ------------ChasteResults
 ----------------.chaste_deletable_folder
 ----------------SimulationResults.h5
@@ -41,6 +42,7 @@ The following new files/directories were created:
 ----------------mesh.node
 --------6ms
 ------------.chaste_deletable_folder
+------------ResumeParameters.xml
 ------------ChasteResults
 ----------------.chaste_deletable_folder
 ----------------SimulationResults.h5
@@ -66,6 +68,7 @@ The following new files/directories were created:
 ----------------mesh.node
 --------8ms
 ------------.chaste_deletable_folder
+------------ResumeParameters.xml
 ------------ChasteResults
 ----------------.chaste_deletable_folder
 ----------------SimulationResults.h5
