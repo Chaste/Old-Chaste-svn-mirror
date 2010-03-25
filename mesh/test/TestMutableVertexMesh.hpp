@@ -222,7 +222,7 @@ public:
         TS_ASSERT_DELTA(point3[0], 1.1, 1e-6);
         TS_ASSERT_DELTA(point3[1], 1.9, 1e-6);
     }
-    
+
     void TestAddNodeAndReMesh() throw (Exception)
     {
         // Create mesh
@@ -369,7 +369,7 @@ public:
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumNodes(), 4u);
 
         // Divide element using two given nodes
-        unsigned new_element_index = basic_vertex_mesh.DivideElement(basic_vertex_mesh.GetElement(0), 2, 0);
+        unsigned new_element_index = basic_vertex_mesh.DivideElement(basic_vertex_mesh.GetElement(0), 2, 0, true);
 
         TS_ASSERT_EQUALS(new_element_index, 1u);
         TS_ASSERT_EQUALS(basic_vertex_mesh.GetNumElements(), 2u);
@@ -387,7 +387,7 @@ public:
 
         // For coverage, divide an element when mDeletedElementIndices is not empty
         basic_vertex_mesh.DeleteElementPriorToReMesh(0);
-        new_element_index = basic_vertex_mesh.DivideElement(basic_vertex_mesh.GetElement(1), 2, 3);
+        new_element_index = basic_vertex_mesh.DivideElement(basic_vertex_mesh.GetElement(1), 2, 3, true);
 
         TS_ASSERT_EQUALS(new_element_index, 0u);
     }
@@ -431,7 +431,7 @@ public:
         axis_of_division(1) = 0.0;
 
         // Divide element 0 along given axis
-        unsigned new_element_index = vertex_mesh.DivideElementAlongGivenAxis(vertex_mesh.GetElement(0), axis_of_division);
+        unsigned new_element_index = vertex_mesh.DivideElementAlongGivenAxis(vertex_mesh.GetElement(0), axis_of_division, true);
 
         TS_ASSERT_EQUALS(new_element_index, vertex_mesh.GetNumElements()-1);
 
@@ -538,7 +538,7 @@ public:
         axis_of_division(1) = 0.0;
 
         // Divide element 0 along given axis
-        unsigned new_element_index = vertex_mesh.DivideElementAlongGivenAxis(vertex_mesh.GetElement(0), axis_of_division);
+        unsigned new_element_index = vertex_mesh.DivideElementAlongGivenAxis(vertex_mesh.GetElement(0), axis_of_division, true);
 
         TS_ASSERT_EQUALS(new_element_index, vertex_mesh.GetNumElements()-1);
 
@@ -631,7 +631,7 @@ public:
         axis_of_division(1) = 0.0;
 
         // Divide element 0 along given axis
-        TS_ASSERT_THROWS_THIS(vertex_mesh.DivideElementAlongGivenAxis(vertex_mesh.GetElement(0), axis_of_division),
+        TS_ASSERT_THROWS_THIS(vertex_mesh.DivideElementAlongGivenAxis(vertex_mesh.GetElement(0), axis_of_division, true),
                               "Cannot proceed with element division: the given axis of division does not cross two edges of the element");
     }
 
@@ -669,7 +669,7 @@ public:
         TS_ASSERT_EQUALS(vertex_mesh.GetNumNodes(), 5u);
 
         // Divide element 0 along short axis
-        unsigned new_element_index = vertex_mesh.DivideElementAlongShortAxis(vertex_mesh.GetElement(0));
+        unsigned new_element_index = vertex_mesh.DivideElementAlongShortAxis(vertex_mesh.GetElement(0), true);
 
         TS_ASSERT_EQUALS(new_element_index, vertex_mesh.GetNumElements()-1);
 
@@ -746,7 +746,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 5u);
 
         // Divide element using two given nodes
-        unsigned new_element_index = mesh.DivideElementAlongShortAxis(mesh.GetElement(0));
+        unsigned new_element_index = mesh.DivideElementAlongShortAxis(mesh.GetElement(0), true);
 
         TS_ASSERT_EQUALS(new_element_index, 1u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
@@ -803,7 +803,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
 
         // Divide element
-        unsigned new_element_index = mesh.DivideElementAlongShortAxis(mesh.GetElement(0));
+        unsigned new_element_index = mesh.DivideElementAlongShortAxis(mesh.GetElement(0), true);
 
         TS_ASSERT_EQUALS(new_element_index, 1u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
@@ -861,7 +861,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 6u);
 
         // Divide element
-        unsigned new_element_index = mesh.DivideElementAlongShortAxis(mesh.GetElement(0));
+        unsigned new_element_index = mesh.DivideElementAlongShortAxis(mesh.GetElement(0), true);
 
         TS_ASSERT_EQUALS(new_element_index, 1u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);

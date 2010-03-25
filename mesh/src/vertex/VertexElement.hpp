@@ -98,12 +98,12 @@ public:
                   const std::vector<bool>& rOrientations);
 
     /**
-     * 
+     *
      * Alternative constructor.
-     * 
+     *
      * When constructing a VertexMesh as the Voronoi dual to a Delaunay mesh,
      * each VertexElement is initially constructed without nodes.
-     * 
+     *
      * @param index global index of the element
      */
     VertexElement(unsigned index);

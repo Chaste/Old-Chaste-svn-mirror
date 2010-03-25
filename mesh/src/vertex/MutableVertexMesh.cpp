@@ -1240,7 +1240,8 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT2Swap(VertexElement<ELEM
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongGivenAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> axisOfDivision)
+unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongGivenAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> axisOfDivision,
+                                                                                bool placeOriginalElementBelow)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -1396,12 +1397,16 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongGivenAxis(
     }
 
     // Now call DivideElement() to divide the element using the new nodes
-    unsigned new_element_index = DivideElement(pElement, pElement->GetNodeLocalIndex(division_node_global_indices[0]), pElement->GetNodeLocalIndex(division_node_global_indices[1]));
+    unsigned new_element_index = DivideElement(pElement,
+                                               pElement->GetNodeLocalIndex(division_node_global_indices[0]),
+                                               pElement->GetNodeLocalIndex(division_node_global_indices[1]),
+                                               placeOriginalElementBelow);
     return new_element_index;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongShortAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement)
+unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongShortAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement,
+                                                                                bool placeOriginalElementBelow)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -1412,13 +1417,16 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElementAlongShortAxis(
     // Find the short axis of the element
     c_vector<double, SPACE_DIM> short_axis = GetShortAxisOfElement(pElement->GetIndex());
 
-    unsigned new_element_index = DivideElementAlongGivenAxis(pElement, short_axis);
+    unsigned new_element_index = DivideElementAlongGivenAxis(pElement, short_axis, placeOriginalElementBelow);
     return new_element_index;
 }
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned nodeAIndex, unsigned nodeBIndex)
+unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement,
+                                                                  unsigned nodeAIndex,
+                                                                  unsigned nodeBIndex,
+                                                                  bool placeOriginalElementBelow)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
     #define COVERAGE_IGNORE
@@ -1459,12 +1467,9 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<
     AddElement(new VertexElement<ELEMENT_DIM,SPACE_DIM>(new_element_index, nodes_elem));
 
     /**
-     * Remove the correct nodes from each element. Choose the
-     * original element to be below (in the y direction) the
-     * new element, so as to keep stem cells at the bottom.
-     *
-     * \todo Woah! Why does this comment refer to stem cells?
-     * Is this code crypt-dependent? It shouldn't be... see also #1099
+     * Remove the correct nodes from each element. If placeOriginalElementBelow is true,
+     * place the original element below (in the y direction) the new element; otherwise,
+     * place it above.
      */
 
     /// Find lowest element \todo this could be more efficient
@@ -1495,22 +1500,50 @@ unsigned MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::DivideElement(VertexElement<
         {
             if (height_midpoint_1 < height_midpoint_2)
             {
-                pElement->DeleteNode(i-1);
+                if (placeOriginalElementBelow)
+                {
+                    pElement->DeleteNode(i-1);
+                }
+                else
+                {
+                    this->mElements[new_element_index]->DeleteNode(i-1);
+                }
             }
             else
             {
-                this->mElements[new_element_index]->DeleteNode(i-1);
+                if (placeOriginalElementBelow)
+                {
+                    this->mElements[new_element_index]->DeleteNode(i-1);
+                }
+                else
+                {
+                    pElement->DeleteNode(i-1);
+                }
             }
         }
         else if (i-1 > node1_index && i-1 < node2_index)
         {
             if (height_midpoint_1 < height_midpoint_2)
             {
-                this->mElements[new_element_index]->DeleteNode(i-1);
+                if (placeOriginalElementBelow)
+                {
+                    this->mElements[new_element_index]->DeleteNode(i-1);
+                }
+                else
+                {
+                    pElement->DeleteNode(i-1);
+                }
             }
             else
             {
-                pElement->DeleteNode(i-1);
+                if (placeOriginalElementBelow)
+                {
+                    pElement->DeleteNode(i-1);
+                }
+                else
+                {
+                    this->mElements[new_element_index]->DeleteNode(i-1);
+                }
             }
         }
     }

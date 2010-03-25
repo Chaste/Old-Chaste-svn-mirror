@@ -117,10 +117,14 @@ protected:
      * @param pElement the element to divide
      * @param nodeAIndex the local index of one node within this element
      * @param nodeBIndex the local index of another node within this element
+     * @param placeOriginalElementBelow whether to place the original element below (in the y direction) the new element (defaults to false)
      *
      * @return the index of the new element
      */
-    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned nodeAIndex, unsigned nodeBIndex);
+    unsigned DivideElement(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement,
+                           unsigned nodeAIndex,
+                           unsigned nodeBIndex,
+                           bool placeOriginalElementBelow=false);
 
     /**
      * Called by ReMesh(). Moves a node, which has been found to overlap an element,
@@ -278,10 +282,12 @@ public:
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
      *
      * @param pElement the element to divide
+     * @param placeOriginalElementBelow whether to place the original element below (in the y direction) the new element (defaults to false)
      *
      * @return the index of the new element
      */
-    unsigned DivideElementAlongShortAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement);
+    unsigned DivideElementAlongShortAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement,
+                                         bool placeOriginalElementBelow=false);
 
     /**
      * Divide an element along a specified axis.
@@ -294,10 +300,13 @@ public:
      *
      * @param pElement the element to divide
      * @param axisOfDivision axis to divide the element by
+     * @param placeOriginalElementBelow whether to place the original element below (in the y direction) the new element (defaults to false)
      *
      * @return the index of the new element
      */
-    unsigned DivideElementAlongGivenAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, c_vector<double, SPACE_DIM> axisOfDivision);
+    unsigned DivideElementAlongGivenAxis(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement,
+                                         c_vector<double, SPACE_DIM> axisOfDivision,
+                                         bool placeOriginalElementBelow=false);
 
     /**
      * Add an element to the mesh.

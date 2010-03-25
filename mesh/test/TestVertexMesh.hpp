@@ -804,8 +804,8 @@ public:
 
         // Create an output archive
         {
-            TS_ASSERT_EQUALS( (static_cast<VertexMesh<2,2>* >(p_mesh))->GetNumNodes(), 46u);
-            TS_ASSERT_EQUALS( (static_cast<VertexMesh<2,2>* >(p_mesh))->GetNumElements(), 15u);
+            TS_ASSERT_EQUALS((static_cast<VertexMesh<2,2>* >(p_mesh))->GetNumNodes(), 46u);
+            TS_ASSERT_EQUALS((static_cast<VertexMesh<2,2>* >(p_mesh))->GetNumElements(), 15u);
 
             // Create output archive
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
