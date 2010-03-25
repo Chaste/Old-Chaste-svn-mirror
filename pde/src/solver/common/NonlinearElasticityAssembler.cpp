@@ -75,7 +75,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
          iter != mpQuadMesh->GetElementIteratorEnd();
          ++iter)
     {
-        #ifdef MECH_VERBOSE
+        #ifdef MECH_VERY_VERBOSE
         if (assembleJacobian) // && ((*iter).GetIndex()%500==0))
         {
             std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
@@ -489,13 +489,24 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         }
     }
 
-
     if (assembleJacobian)
     {
-        // Fill in the other blocks of the preconditioner matrix. (This doesn't
-        // effect the pressure-pressure block of the rAElemPrecond as the
-        // pressure-pressure block of rAElem is zero
+        // Fill in the other blocks of the preconditioner matrix, by adding 
+        // the jacobian matrix (this doesn't effect the pressure-pressure block 
+        // of rAElemPrecond as the pressure-pressure block of rAElem is zero),
+        // and the zero a block.
+        //
+        // The following altogether gives the preconditioner  [ A  B1^T ]
+        //                                                    [ 0  M    ]
+
         rAElemPrecond = rAElemPrecond + rAElem;
+        for(unsigned i=NUM_NODES_PER_ELEMENT*DIM; i<STENCIL_SIZE; i++)
+        {
+            for(unsigned j=0; j<NUM_NODES_PER_ELEMENT*DIM; j++)
+            {
+                rAElemPrecond(i,j) = 0.0;
+            }
+        }
     }
 }
 

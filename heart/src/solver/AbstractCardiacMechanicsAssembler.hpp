@@ -656,26 +656,22 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
     if (assembleJacobian)
     {
-        // Fill in the other blocks of the preconditioner matrix. (This doesn't
-        // effect the pressure-pressure block of the rAElemPrecond as the
-        // pressure-pressure block of rAElem is zero)
+        // Fill in the other blocks of the preconditioner matrix, by adding 
+        // the jacobian matrix (this doesn't effect the pressure-pressure block 
+        // of rAElemPrecond as the pressure-pressure block of rAElem is zero),
+        // and the zero a block.
         //
-        // This gives the preconditioner to be [ A   B1^T ]
-        //                                     [ B2  M    ]
-        rAElemPrecond = rAElemPrecond + rAElem;
+        // The following altogether gives the preconditioner  [ A  B1^T ]
+        //                                                    [ 0  M    ]
 
-        // To use alternative preconditioners, either P1 = [ A   B1^T ] or P2 = [A  0]
-        //                                                 [ 0   M    ]         [0  M]
-        // uncomment as appropriate
-        // (If keeping one of these alternatives, also change NonlinearElasticityAssembler.cpp
-        //for(unsigned i=NUM_NODES_PER_ELEMENT*DIM; i<STENCIL_SIZE; i++)
-        //{
-        //    for(unsigned j=0; j<NUM_NODES_PER_ELEMENT*DIM; j++)
-        //    {
-        //        //rAElemPrecond(i,j) = 0.0;
-        //        //rAElemPrecond(j,i) = 0.0;
-        //    }
-        //}
+        rAElemPrecond = rAElemPrecond + rAElem;
+        for(unsigned i=NUM_NODES_PER_ELEMENT*DIM; i<STENCIL_SIZE; i++)
+        {
+            for(unsigned j=0; j<NUM_NODES_PER_ELEMENT*DIM; j++)
+            {
+                rAElemPrecond(i,j) = 0.0;
+            }
+        }
     }
 }
 

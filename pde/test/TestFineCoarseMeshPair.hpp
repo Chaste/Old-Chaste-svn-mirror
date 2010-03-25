@@ -48,6 +48,8 @@ public:
 
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
 
+        TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, false);
+
         // check min values on fine mesh have been computed correctly
         TS_ASSERT_DELTA(mesh_pair.mMinValuesFine(0), 0.0, 1e-8);
         TS_ASSERT_DELTA(mesh_pair.mMinValuesFine(1), 0.0, 1e-8);
@@ -127,6 +129,8 @@ public:
 
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
 
+        TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, false);
+
         GaussianQuadratureRule<3> quad_rule(3);
         // need to call SetUpBoxesOnFineMesh first
         TS_ASSERT_THROWS_CONTAINS(mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule), "Call");
@@ -164,6 +168,27 @@ public:
 
 
         mesh_pair.PrintStatistics();
+    }
+    
+    void TestWithIdenticalMeshes() throw(Exception)
+    {
+        TrianglesMeshReader<1,1> reader1("mesh/test/data/1D_0_to_1_10_elements");
+        TetrahedralMesh<1,1> fine_mesh;
+        fine_mesh.ConstructFromMeshReader(reader1);
+        
+        TrianglesMeshReader<1,1> reader2("mesh/test/data/1D_0_to_1_10_elements_quadratic",2);
+        QuadraticMesh<1> coarse_mesh;
+        coarse_mesh.ConstructFromMeshReader(reader2);
+        
+        FineCoarseMeshPair<1> mesh_pair(fine_mesh,coarse_mesh);
+        TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, true);
+
+        GaussianQuadratureRule<1> quad_rule(1);
+        mesh_pair.SetUpBoxesOnFineMesh(0.3);
+
+        // Covers the mIdenticalMeshes=true part of this method. Would throw exception if can't find
+        // quad point in first choice of element.
+        TS_ASSERT_THROWS_NOTHING(mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule));
     }
 
     void TestWithDefaultBoxWidth() throw(Exception)

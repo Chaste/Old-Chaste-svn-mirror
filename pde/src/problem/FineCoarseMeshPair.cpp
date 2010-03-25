@@ -61,26 +61,25 @@ FineCoarseMeshPair<DIM>::FineCoarseMeshPair(TetrahedralMesh<DIM,DIM>& rFineMesh,
     mpFineMeshBoxCollection = NULL;
     mCounters.resize(3,0);
 
-//////// only implement if going to be needed
-//////        mIdenticalMeshes = false;
-//////        if(mrFineMesh.GetNumElements()==mrCoarseMesh.GetNumElements())
-//////        {
-//////            if(mrFineMesh.GetNumNodes()==mrCoarseMesh.GetNumVertices())
-//////            {
-//////                mIdenticalMeshes = true;
-//////                for(unsigned i=0; i<mrFineMesh.GetNumNodes(); i++)
-//////                {
-//////                    for(unsigned j=0; j<DIM; j++)
-//////                    {
-//////                        if(fabs(mrFineMesh.GetNode(i)->rGetLocation()[j] - mrCoarseMesh.GetNode(i)->rGetLocation()[j]) > 1e-4)
-//////                        {
-//////                            mIdenticalMeshes = false;
-//////                            break;
-//////                        }
-//////                    }
-//////                }
-//////            }
-//////        }
+    // check whether the two meshes are the same (ie the linear part of the quad mesh is the
+    // linear mesh, by checking whether the number of elements match and the vertex indices of
+    // each element match.
+    mIdenticalMeshes = false;
+    if(mrFineMesh.GetNumElements()==mrCoarseMesh.GetNumElements())
+    {
+        mIdenticalMeshes = true;
+        for (unsigned i=0; i<mrFineMesh.GetNumElements(); i++)
+        {
+            for (unsigned j=0; j<mrFineMesh.GetElement(i)->GetNumNodes(); j++)
+            {
+                if (mrFineMesh.GetElement(i)->GetNodeGlobalIndex(j)!=mrCoarseMesh.GetElement(i)->GetNodeGlobalIndex(j) )
+                {
+                    mIdenticalMeshes = false;
+                    break;
+                }
+            }
+        }
+    }
 }
 
 
@@ -145,90 +144,121 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
     // resize the elements and weights vector.
     mElementsAndWeights.resize(quad_point_posns.Size());
 
-    for(unsigned i=0; i<quad_point_posns.Size(); i++)
+    if (mIdenticalMeshes)
     {
-        //std::cout << "\r " << i << " of " << quad_point_posns.Size();
-        // get the box this point is in
-        unsigned box_for_this_point = mpFineMeshBoxCollection->CalculateContainingBox( quad_point_posns.Get(i) );
-
-        // a chaste point version of the c-vector is needed for the GetContainingElement call.
-        ChastePoint<DIM> point;
-        for(unsigned j=0; j<DIM; j++)
+        for(unsigned i=0; i<quad_point_posns.Size(); i++)
         {
-            point.rGetLocation()[j]=quad_point_posns.Get(i)[j];
-        }
+            //std::cout << "\r (Identical meshes) " << i << " of " << quad_point_posns.Size();
 
-        std::set<unsigned> test_element_indices;
-
-        // the elements to try (initially) are those contained in the box the point is in
-        // NOTE: it is possible the point to be in an element inot 'in' this box, as it is possible
-        // for all element nodes to be in different boxes.
-        for(typename std::set<Element<DIM,DIM>*>::iterator elem_iter = mpFineMeshBoxCollection->rGetBox(box_for_this_point).rGetElementsContained().begin();
-            elem_iter != mpFineMeshBoxCollection->rGetBox(box_for_this_point).rGetElementsContained().end();
-            ++elem_iter)
-        {
-            test_element_indices.insert((*elem_iter)->GetIndex());
-        }
-
-        unsigned elem_index;
-        c_vector<double,DIM+1> weight;
-
-        try
-        {
-            // try these elements only, initially
-            elem_index = mrFineMesh.GetContainingElementIndex(point,
-                                                              false,
-                                                              test_element_indices,
-                                                              true /* quit if not in test_elements */);
-            weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
-
-            mCounters[0]++;
-        }
-        catch(Exception& e)
-        {
-            // now try all the elements, but trying the elements contained in the boxes locals to this
-            // element first
-            std::set<unsigned> test_element_indices;
-
-            std::set<unsigned> local_boxes = mpFineMeshBoxCollection->GetLocalBoxes(box_for_this_point);
-            for(std::set<unsigned>::iterator local_box_iter = local_boxes.begin();
-                local_box_iter != local_boxes.end();
-                ++local_box_iter)
+            ChastePoint<DIM> point;
+            for(unsigned j=0; j<DIM; j++)
             {
-                for(typename std::set<Element<DIM,DIM>*>::iterator elem_iter = mpFineMeshBoxCollection->rGetBox(*local_box_iter).rGetElementsContained().begin();
-                    elem_iter != mpFineMeshBoxCollection->rGetBox(*local_box_iter).rGetElementsContained().end();
-                    ++elem_iter)
-                {
-                    test_element_indices.insert((*elem_iter)->GetIndex());
-                }
+                point.rGetLocation()[j]=quad_point_posns.Get(i)[j];
             }
-
+            
+            unsigned num_quad_points_per_element = quad_point_posns.Size() / mrCoarseMesh.GetNumElements(); 
+            
+            std::set<unsigned> test_element;
+            test_element.insert( i/num_quad_points_per_element /* integer division */ );
+    
+            unsigned elem_index = mrFineMesh.GetContainingElementIndex(point,
+                                                                       false,
+                                                                       test_element,
+                                                                       true /* quit if not in test_element */);
+            c_vector<double,DIM+1> weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
+                
+                
+            mElementsAndWeights[i].ElementNum = elem_index;
+            mElementsAndWeights[i].Weights = weight;
+        }
+    }
+    else
+    {
+        for(unsigned i=0; i<quad_point_posns.Size(); i++)
+        {
+            //std::cout << "\r " << i << " of " << quad_point_posns.Size();
+            // get the box this point is in
+            unsigned box_for_this_point = mpFineMeshBoxCollection->CalculateContainingBox( quad_point_posns.Get(i) );
+    
+            // a chaste point version of the c-vector is needed for the GetContainingElement call.
+            ChastePoint<DIM> point;
+            for(unsigned j=0; j<DIM; j++)
+            {
+                point.rGetLocation()[j]=quad_point_posns.Get(i)[j];
+            }
+    
+            std::set<unsigned> test_element_indices;
+    
+            // the elements to try (initially) are those contained in the box the point is in
+            // NOTE: it is possible the point to be in an element inot 'in' this box, as it is possible
+            // for all element nodes to be in different boxes.
+            for(typename std::set<Element<DIM,DIM>*>::iterator elem_iter = mpFineMeshBoxCollection->rGetBox(box_for_this_point).rGetElementsContained().begin();
+                elem_iter != mpFineMeshBoxCollection->rGetBox(box_for_this_point).rGetElementsContained().end();
+                ++elem_iter)
+            {
+                test_element_indices.insert((*elem_iter)->GetIndex());
+            }
+    
+            unsigned elem_index;
+            c_vector<double,DIM+1> weight;
+    
             try
             {
+                // try these elements only, initially
                 elem_index = mrFineMesh.GetContainingElementIndex(point,
                                                                   false,
                                                                   test_element_indices,
-                                                                  false /* quit if not in test_elements */);
+                                                                  true /* quit if not in test_elements */);
                 weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
-
-                mCounters[1]++;
-
+    
+                mCounters[0]++;
             }
             catch(Exception& e)
             {
-                // the point is not in ANY element, store the nearest element and corresponding weights,
-                // and save some information
-                elem_index = mrFineMesh.GetNearestElementIndex(point);
-                weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
-
-                mNotInMesh.push_back(i);
-                mNotInMeshNearestElementWeights.push_back(weight);
-                mCounters[2]++;
+                // now try all the elements, but trying the elements contained in the boxes locals to this
+                // element first
+                std::set<unsigned> test_element_indices;
+    
+                std::set<unsigned> local_boxes = mpFineMeshBoxCollection->GetLocalBoxes(box_for_this_point);
+                for(std::set<unsigned>::iterator local_box_iter = local_boxes.begin();
+                    local_box_iter != local_boxes.end();
+                    ++local_box_iter)
+                {
+                    for(typename std::set<Element<DIM,DIM>*>::iterator elem_iter = mpFineMeshBoxCollection->rGetBox(*local_box_iter).rGetElementsContained().begin();
+                        elem_iter != mpFineMeshBoxCollection->rGetBox(*local_box_iter).rGetElementsContained().end();
+                        ++elem_iter)
+                    {
+                        test_element_indices.insert((*elem_iter)->GetIndex());
+                    }
+                }
+    
+                try
+                {
+                    elem_index = mrFineMesh.GetContainingElementIndex(point,
+                                                                      false,
+                                                                      test_element_indices,
+                                                                      false);
+                    weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
+    
+                    mCounters[1]++;
+    
+                }
+                catch(Exception& e)
+                {
+                    // the point is not in ANY element, store the nearest element and corresponding weights,
+                    // and save some information
+                    elem_index = mrFineMesh.GetNearestElementIndex(point);
+                    weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
+    
+                    mNotInMesh.push_back(i);
+                    mNotInMeshNearestElementWeights.push_back(weight);
+                    mCounters[2]++;
+                }
             }
+    
+            mElementsAndWeights[i].ElementNum = elem_index;
+            mElementsAndWeights[i].Weights = weight;
         }
-
-        mElementsAndWeights[i].ElementNum = elem_index;
-        mElementsAndWeights[i].Weights = weight;
     }
 }
 

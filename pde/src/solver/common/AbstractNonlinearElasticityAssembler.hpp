@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 
 //#define MECH_VERBOSE
+//#define MECH_VERY_VERBOSE
 
 #ifdef MECH_VERBOSE
 #include "Timer.hpp"
@@ -470,10 +471,12 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 
     KSPSetOperators(solver, r_jac, r_precond_jac, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
 
+    double ksp_relative_error_tol = 1e-6;
+    unsigned num_restarts = 100;
     // set max iterations
-    KSPSetTolerances(solver, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT, 10000); //hopefully with the preconditioner this max is way too high
+    KSPSetTolerances(solver, ksp_relative_error_tol, PETSC_DEFAULT, PETSC_DEFAULT, 10000); //hopefully with the preconditioner this max is way too high
     KSPSetType(solver,KSPGMRES);
-    KSPGMRESSetRestart(solver,100); // gmres num restarts
+    KSPGMRESSetRestart(solver,num_restarts); // gmres num restarts
 
     KSPSetFromOptions(solver);
     KSPSetUp(solver);
@@ -483,11 +486,19 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 
     PC pc;
     KSPGetPC(solver, &pc);
-    PCSetType(pc, PCBJACOBI);
+    PCSetType(pc, PCJACOBI);
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Speed up linear solve time massively for larger simulations (in fact GMRES may stagnate without
+    // this for larger problems), by using a AMG preconditioner -- needs HYPRE installed 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    //PCSetType(pc, PCHYPRE);
+    //KSPSetPreconditionerSide(solver, PC_RIGHT);    
 
     KSPSetFromOptions(solver);
+    
     KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
-
+    
     #ifdef MECH_VERBOSE
     Timer::PrintAndReset("KSP Solve");
     int num_iters;
@@ -881,10 +892,10 @@ void AbstractNonlinearElasticityAssembler<DIM>::SetWriteOutput(bool writeOutput)
 // Constant setting definitions
 //
 template<unsigned DIM>
-const double AbstractNonlinearElasticityAssembler<DIM>::MAX_NEWTON_ABS_TOL = 1e-8;
+const double AbstractNonlinearElasticityAssembler<DIM>::MAX_NEWTON_ABS_TOL = 1e-7;
 
 template<unsigned DIM>
-const double AbstractNonlinearElasticityAssembler<DIM>::MIN_NEWTON_ABS_TOL = 1e-12;
+const double AbstractNonlinearElasticityAssembler<DIM>::MIN_NEWTON_ABS_TOL = 1e-10;
 
 template<unsigned DIM>
 const double AbstractNonlinearElasticityAssembler<DIM>::NEWTON_REL_TOL = 1e-4;
