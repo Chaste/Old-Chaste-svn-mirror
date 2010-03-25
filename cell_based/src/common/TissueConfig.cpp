@@ -125,7 +125,7 @@ void TissueConfig::Reset()
 
     mAreaBasedDampingConstantParameter = 0.1;
 
-    mMatureCellTargetArea = 1.0;
+    mMatureCellTargetArea =  1.0; //0.785398163;//pi/4.0; used to be 1
 
     // These Vertex model parameters are rescalled so that mDampingConstantNormal (nu) = 1 where as its 0.01 in Nagai & Honda.
     mDeformationEnergyParameter = 100.0; // This is 1.0 in Nagai & Honda.
