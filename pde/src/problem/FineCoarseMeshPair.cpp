@@ -59,7 +59,7 @@ FineCoarseMeshPair<DIM>::FineCoarseMeshPair(TetrahedralMesh<DIM,DIM>& rFineMesh,
     }
 
     mpFineMeshBoxCollection = NULL;
-    mCounters.resize(3,0);
+    mCounters.resize(4,0);
 
     // check whether the two meshes are the same (ie the linear part of the quad mesh is the
     // linear mesh, by checking whether the number of elements match and the vertex indices of
@@ -102,9 +102,36 @@ void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
 
     if(boxWidth < 0)
     {
-        boxWidth = (min_and_max(1) - min_and_max(0))/14; // BoxCollection creates an extra box so divide by 14 not 15
+        // use default value = max( max_edge_length, w20),  where w20 is the width corresponding to 
+        // 20 boxes in the x-direction 
+
+        boxWidth = (min_and_max(1) - min_and_max(0))/19; // BoxCollection creates an extra box so divide by 19 not 20
+
+        // determine the maximum edge length
+        double max_edge_length = -1;
+
+        for (typename TetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator=mrFineMesh.EdgesBegin();
+             edge_iterator!=mrFineMesh.EdgesEnd();
+             ++edge_iterator)
+        {
+            c_vector<double, 3> location1 = edge_iterator.GetNodeA()->rGetLocation();
+            c_vector<double, 3> location2 = edge_iterator.GetNodeB()->rGetLocation();
+            double edge_length = norm_2(location1-location2);
+
+            if(edge_length>max_edge_length)
+            {
+                max_edge_length = edge_length;
+            }
+        }
+        
+        if(boxWidth < max_edge_length)
+        {
+            boxWidth = 1.1*max_edge_length;
+        }
     }
+ 
     mpFineMeshBoxCollection = new BoxCollection<DIM>(boxWidth, min_and_max);
+    mpFineMeshBoxCollection->SetupAllLocalBoxes();
 
     // for each element, if ANY of its nodes are physically in a box, put that element
     // in that box
@@ -131,7 +158,8 @@ void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
 
 
 template<unsigned DIM>
-void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(GaussianQuadratureRule<DIM>& rQuadRule)
+void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(GaussianQuadratureRule<DIM>& rQuadRule,
+                                                                               bool safe)
 {
     if(mpFineMeshBoxCollection==NULL)
     {
@@ -177,6 +205,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
         for(unsigned i=0; i<quad_point_posns.Size(); i++)
         {
             //std::cout << "\r " << i << " of " << quad_point_posns.Size();
+            
             // get the box this point is in
             unsigned box_for_this_point = mpFineMeshBoxCollection->CalculateContainingBox( quad_point_posns.Get(i) );
     
@@ -204,6 +233,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
     
             try
             {
+                //std::cout << "\n" << "# test elements initially " << test_element_indices.size() << "\n";
                 // try these elements only, initially
                 elem_index = mrFineMesh.GetContainingElementIndex(point,
                                                                   false,
@@ -215,7 +245,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
             }
             catch(Exception& e)
             {
-                // now try all the elements, but trying the elements contained in the boxes locals to this
+                // now try all the elements, but trying the elements contained in the boxes local to this
                 // element first
                 std::set<unsigned> test_element_indices;
     
@@ -231,13 +261,14 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
                         test_element_indices.insert((*elem_iter)->GetIndex());
                     }
                 }
-    
+
                 try
                 {
+                    //std::cout << "\n -- # extra test elements " << test_element_indices.size() << "\n";
                     elem_index = mrFineMesh.GetContainingElementIndex(point,
                                                                       false,
                                                                       test_element_indices,
-                                                                      false);
+                                                                      true);
                     weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
     
                     mCounters[1]++;
@@ -245,14 +276,40 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
                 }
                 catch(Exception& e)
                 {
-                    // the point is not in ANY element, store the nearest element and corresponding weights,
-                    // and save some information
-                    elem_index = mrFineMesh.GetNearestElementIndex(point);
-                    weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
+                    if(!safe)
+                    {
+                        // try the remaining elements
+                        try
+                        {
+                            elem_index = mrFineMesh.GetContainingElementIndex(point,
+                                                                              false);
+                            weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
+                            mCounters[2]++;
     
-                    mNotInMesh.push_back(i);
-                    mNotInMeshNearestElementWeights.push_back(weight);
-                    mCounters[2]++;
+                        }
+                        catch (Exception& e)
+                        {
+                            // the point is not in ANY element, store the nearest element and corresponding weights
+                            elem_index = mrFineMesh.GetNearestElementIndexFromTestElements(point,test_element_indices);
+                            weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
+        
+                            mNotInMesh.push_back(i);
+                            mNotInMeshNearestElementWeights.push_back(weight);
+                            mCounters[3]++;
+                        }
+                    }
+                    else
+                    {
+                        // immediately assume it isn't in the rest of the mesh - this should be the 
+                        // case assuming the box width was chosen suitably.
+                        // Store the nearest element and corresponding weights
+                        elem_index = mrFineMesh.GetNearestElementIndexFromTestElements(point,test_element_indices);
+                        weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
+        
+                        mNotInMesh.push_back(i);
+                        mNotInMeshNearestElementWeights.push_back(weight);
+                        mCounters[3]++;
+                    }
                 }
             }
     
@@ -265,12 +322,13 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
 template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::PrintStatistics()
 {
-    assert(mNotInMesh.size()==mCounters[2]);
+    assert(mNotInMesh.size()==mCounters[3]);
     assert(mNotInMesh.size()==mNotInMeshNearestElementWeights.size());
     std::cout << "\nFineCoarseMeshPair statistics:\n";
-    std::cout << "\tNum points for which containing (fine) element was found, using box containing that point, = " << mCounters[0] << "\n";
-    std::cout << "\tNum points for which containing (fine) element elsewhere = " << mCounters[1] << "\n";
-    std::cout << "\tNum points for which no containing element was found in fine mesh = " << mCounters[2] << "\n";
+    std::cout << "\tNum points for which containing (fine) element was found, using box containing that point = " << mCounters[0] << "\n";
+    std::cout << "\tNum points for which containing (fine) element was in local box = " << mCounters[1] << "\n";
+    std::cout << "\tNum points for which containing (fine) element was in non-local element = " << mCounters[2] << "\n";
+    std::cout << "\tNum points for which no containing element was found in fine mesh = " << mCounters[3] << "\n";
     if(mCounters[2]>0)
     {
         std::cout << "\tIndices and weights for points for which no containing element was found:\n";

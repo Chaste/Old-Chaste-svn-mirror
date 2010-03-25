@@ -1249,6 +1249,17 @@ public:
         TS_ASSERT_EQUALS(indices[0], 89u);
         TS_ASSERT_EQUALS(indices[1], 90u);
         TS_ASSERT_EQUALS(indices[5], 110u);
+        
+        
+        std::set<unsigned> test_elements;
+        test_elements.insert(0);
+        TS_ASSERT_EQUALS(mesh.GetNearestElementIndexFromTestElements(point1, test_elements), 0u);
+        test_elements.insert(107);
+        test_elements.insert(1);
+        test_elements.insert(2);
+        TS_ASSERT_EQUALS(mesh.GetNearestElementIndexFromTestElements(point1, test_elements), 107u);
+        test_elements.insert(110);
+        TS_ASSERT_EQUALS(mesh.GetNearestElementIndexFromTestElements(point1, test_elements), 110u);
     }
 
     void TestPointInElement3D()

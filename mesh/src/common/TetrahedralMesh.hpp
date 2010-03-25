@@ -285,6 +285,14 @@ public:
      */
     unsigned GetNearestElementIndex(ChastePoint<SPACE_DIM> testPoint);
 
+    /** As with GetNearestElementIndex() except only searches in the given set of elements.
+     *  @param testPoint the point
+     *  @param testElements a set of elements (element indices) to look in
+     */
+    unsigned GetNearestElementIndexFromTestElements(ChastePoint<SPACE_DIM> testPoint,
+                                                    std::set<unsigned> testElements);
+
+
     /**
      * Return all element indices for elements that are known to contain a test point.
      *

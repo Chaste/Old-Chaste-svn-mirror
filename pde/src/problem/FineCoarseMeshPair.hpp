@@ -116,7 +116,8 @@ public:
      *  @param boxWidth width to use for the boxes (which will be cubes). Note that a domain
      *    which is a touch larger than the smallest containing cuboid of the fine mesh is used.
      *    boxWidth defaults to a negative value, in which case a box width such that there are
-     *    approximately 15 boxes in the x-direction.
+     *    approximately 20 boxes in the x-direction, unless this width is less than maximum (fine
+     *    mesh edge length), in which case it is chosen accordingly.
      */
     void SetUpBoxesOnFineMesh(double boxWidth = -1);
 
@@ -126,9 +127,16 @@ public:
      * with the index of the quad point (=the index of the quad point in a QuadraturePointsGroup=
      * the index if the quad points were listed by looping over all the element and then
      * looping over all the quad points).
-     * @param rQuadRule The quadrature rule, used to determine the number of quadrature points per element.
+     * 
+     *  @param rQuadRule The quadrature rule, used to determine the number of quadrature points per element.
+     *  @param safe This method uses the elements in the boxes to guess which element a quad point is in. If a 
+     *   quad point is in none of these elements, then if safe==true, it will then search the whole mesh.
+     *   If safe==false it will assume the immediately the quad point isn't in the mesh at all. Safe=false is
+     *   will far more efficient with big meshes, but should be fine to use if SetUpBoxesOnFineMesh() is 
+     *   called with default values). 
      */
-    void ComputeFineElementsAndWeightsForCoarseQuadPoints(GaussianQuadratureRule<DIM>& rQuadRule);
+    void ComputeFineElementsAndWeightsForCoarseQuadPoints(GaussianQuadratureRule<DIM>& rQuadRule,
+                                                          bool safe);
 
     /**
      *  Print the number of points for which the containing element was found quickly, the number

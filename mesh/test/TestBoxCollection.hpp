@@ -85,6 +85,8 @@ public:
         domain_size(1) = 20.15;
 
         BoxCollection<1> box_collection(cut_off_length, domain_size);
+        
+        box_collection.SetupAllLocalBoxes();
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -121,12 +123,14 @@ public:
 
         std::set<unsigned> local_boxes_to_box_1 = box_collection.GetLocalBoxes(1);
         std::set<unsigned> correct_answer_1;
+        correct_answer_1.insert(0);
         correct_answer_1.insert(1);
         correct_answer_1.insert(2);
         TS_ASSERT_EQUALS(local_boxes_to_box_1, correct_answer_1);
 
         std::set<unsigned> local_boxes_to_box_4 = box_collection.GetLocalBoxes(4);
         std::set<unsigned> correct_answer_4;
+        correct_answer_4.insert(3);
         correct_answer_4.insert(4);
         TS_ASSERT_EQUALS(local_boxes_to_box_4, correct_answer_4);
 
@@ -153,6 +157,166 @@ public:
         TS_ASSERT_EQUALS(box_collection.rGetBox(1).rGetElementsContained().size(), 0u);
         TS_ASSERT_EQUALS(box_collection.rGetBox(2).rGetElementsContained().size(), 0u);
         TS_ASSERT_EQUALS(*(box_collection.rGetBox(0).rGetElementsContained().begin()), mesh.GetElement(0));
+    }
+    
+
+    void TestSetupAllLocalBoxes2d() throw(Exception)
+    {
+        double width = 1.0;
+
+        c_vector<double, 2*2> domain_size;
+        domain_size(0) = 0;
+        domain_size(1) = 4-0.01;
+        domain_size(2) = 0;
+        domain_size(3) = 3-0.01;
+
+        BoxCollection<2> box_collection(width, domain_size);
+
+        assert(box_collection.GetNumBoxes()==12); // 4 * 3 boxes altogether
+
+        box_collection.SetupAllLocalBoxes();
+        
+        std::set<unsigned> local_boxes_to_box_0 = box_collection.GetLocalBoxes(0);
+
+        std::set<unsigned> correct_answer_0;
+        correct_answer_0.insert(0);
+        correct_answer_0.insert(1);
+        correct_answer_0.insert(4);
+        correct_answer_0.insert(5);
+        TS_ASSERT_EQUALS(local_boxes_to_box_0, correct_answer_0);
+
+        std::set<unsigned> local_boxes_to_box_3 = box_collection.GetLocalBoxes(3);
+        std::set<unsigned> correct_answer_3;
+        correct_answer_3.insert(3);
+        correct_answer_3.insert(2);
+        correct_answer_3.insert(6);
+        correct_answer_3.insert(7);
+        TS_ASSERT_EQUALS(local_boxes_to_box_3, correct_answer_3);
+
+        std::set<unsigned> local_boxes_to_box_5 = box_collection.GetLocalBoxes(5);
+        std::set<unsigned> correct_answer_5;
+        correct_answer_5.insert(0);
+        correct_answer_5.insert(1);
+        correct_answer_5.insert(2);
+        correct_answer_5.insert(4);
+        correct_answer_5.insert(5);
+        correct_answer_5.insert(6);
+        correct_answer_5.insert(8);
+        correct_answer_5.insert(9);
+        correct_answer_5.insert(10);
+        TS_ASSERT_EQUALS(local_boxes_to_box_5, correct_answer_5);
+
+        std::set<unsigned> local_boxes_to_box_10 = box_collection.GetLocalBoxes(10);
+        std::set<unsigned> correct_answer_10;
+        correct_answer_10.insert(5);
+        correct_answer_10.insert(6);
+        correct_answer_10.insert(7);
+        correct_answer_10.insert(9);
+        correct_answer_10.insert(10);
+        correct_answer_10.insert(11);
+        TS_ASSERT_EQUALS(local_boxes_to_box_10, correct_answer_10);
+    }
+
+
+
+    void TestSetupAllLocalBoxes3d() throw(Exception)
+    {
+        double width = 1.0;
+
+        c_vector<double, 2*3> domain_size;
+        domain_size(0) = 0;
+        domain_size(1) = 4-0.01;
+        domain_size(2) = 0;
+        domain_size(3) = 3-0.01;
+        domain_size(4) = 0;
+        domain_size(5) = 2-0.01;
+
+        BoxCollection<3> box_collection(width, domain_size);
+
+        assert(box_collection.GetNumBoxes()==24); // 4 * 3 * 2 boxes altogether
+
+        box_collection.SetupAllLocalBoxes();
+        
+        std::set<unsigned> local_boxes_to_box_0 = box_collection.GetLocalBoxes(0);
+
+        std::set<unsigned> correct_answer_0;
+        correct_answer_0.insert(0);
+        correct_answer_0.insert(1);
+        correct_answer_0.insert(4);
+        correct_answer_0.insert(5);
+        correct_answer_0.insert(12);
+        correct_answer_0.insert(13);
+        correct_answer_0.insert(16);
+        correct_answer_0.insert(17);
+        TS_ASSERT_EQUALS(local_boxes_to_box_0, correct_answer_0);
+
+        std::set<unsigned> local_boxes_to_box_3 = box_collection.GetLocalBoxes(3);
+        std::set<unsigned> correct_answer_3;
+        correct_answer_3.insert(3);
+        correct_answer_3.insert(2);
+        correct_answer_3.insert(6);
+        correct_answer_3.insert(7);
+        correct_answer_3.insert(14);
+        correct_answer_3.insert(15);
+        correct_answer_3.insert(18);
+        correct_answer_3.insert(19);
+        TS_ASSERT_EQUALS(local_boxes_to_box_3, correct_answer_3);
+
+        std::set<unsigned> local_boxes_to_box_5 = box_collection.GetLocalBoxes(5);
+        std::set<unsigned> correct_answer_5;
+        correct_answer_5.insert(0);
+        correct_answer_5.insert(1);
+        correct_answer_5.insert(2);
+        correct_answer_5.insert(4);
+        correct_answer_5.insert(5);
+        correct_answer_5.insert(6);
+        correct_answer_5.insert(8);
+        correct_answer_5.insert(9);
+        correct_answer_5.insert(10);
+        correct_answer_5.insert(12);
+        correct_answer_5.insert(13);
+        correct_answer_5.insert(14);
+        correct_answer_5.insert(16);
+        correct_answer_5.insert(17);
+        correct_answer_5.insert(18);
+        correct_answer_5.insert(20);
+        correct_answer_5.insert(21);
+        correct_answer_5.insert(22);
+
+        TS_ASSERT_EQUALS(local_boxes_to_box_5, correct_answer_5);
+
+        std::set<unsigned> local_boxes_to_box_19 = box_collection.GetLocalBoxes(19);
+        std::set<unsigned> correct_answer_19;
+        correct_answer_19.insert(2);
+        correct_answer_19.insert(3);
+        correct_answer_19.insert(6);
+        correct_answer_19.insert(7);
+        correct_answer_19.insert(10);
+        correct_answer_19.insert(11);
+        correct_answer_19.insert(14);
+        correct_answer_19.insert(15);
+        correct_answer_19.insert(18);
+        correct_answer_19.insert(19);
+        correct_answer_19.insert(22);
+        correct_answer_19.insert(23);
+        TS_ASSERT_EQUALS(local_boxes_to_box_19, correct_answer_19);
+        
+        std::set<unsigned> local_boxes_to_box_22 = box_collection.GetLocalBoxes(22);
+        std::set<unsigned> correct_answer_22;
+        correct_answer_22.insert(5);
+        correct_answer_22.insert(6);
+        correct_answer_22.insert(7);
+        correct_answer_22.insert(9);
+        correct_answer_22.insert(10);
+        correct_answer_22.insert(11);
+        correct_answer_22.insert(17);
+        correct_answer_22.insert(18);
+        correct_answer_22.insert(19);
+        correct_answer_22.insert(21);
+        correct_answer_22.insert(22);
+        correct_answer_22.insert(23);
+        TS_ASSERT_EQUALS(local_boxes_to_box_22, correct_answer_22);
+        
     }
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -187,6 +351,8 @@ public:
         domain_size(1) = 7.0;
 
         BoxCollection<1> box_collection(cut_off_length, domain_size);
+        
+        box_collection.SetupLocalBoxesHalfOnly();
 
         for (unsigned i=0; i<nodes.size(); i++)
         {
@@ -228,6 +394,8 @@ public:
         domain_size(3) = 1.15;
 
         BoxCollection<2> box_collection(cut_off_length, domain_size);
+
+        box_collection.SetupLocalBoxesHalfOnly();
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -323,6 +491,9 @@ public:
 
         BoxCollection<2> box_collection(cut_off_length, domain_size);
 
+        box_collection.SetupLocalBoxesHalfOnly();
+
+
         for (unsigned i=0; i<nodes.size(); i++)
         {
             unsigned box_index = box_collection.CalculateContainingBox(nodes[i]);
@@ -379,8 +550,9 @@ public:
         domain_size(4) = -0.1;
         domain_size(5) = 6.15;
 
-
         BoxCollection<3> box_collection(cut_off_length, domain_size);
+
+        box_collection.SetupLocalBoxesHalfOnly();
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {

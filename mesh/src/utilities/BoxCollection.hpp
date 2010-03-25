@@ -141,8 +141,14 @@ public:
     /** Get the number of boxes. */
     unsigned GetNumBoxes();
 
+    /** Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes. 
+     *  Just set up half of the local boxes (for example, in 1D, local boxes for box0 = {1}
+     *  local boxes for box1 = {2} not {0,2}, and so on. Similar to 2d, 3d.
+     */
+    void SetupLocalBoxesHalfOnly();
+
     /** Set up the local boxes (ie itself and its nearest-neighbours) for each of the boxes. */
-    void CalculateLocalBoxes();
+    void SetupAllLocalBoxes();
 
     /**
      * Get the set of all the local boxes, i.e. itself and its nearest-neighbours.

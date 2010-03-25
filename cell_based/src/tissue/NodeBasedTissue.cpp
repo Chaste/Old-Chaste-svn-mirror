@@ -146,6 +146,7 @@ template<unsigned DIM>
 void NodeBasedTissue<DIM>::SplitUpIntoBoxes(double cutOffLength, c_vector<double, 2*DIM> domainSize)
 {
     mpBoxCollection = new BoxCollection<DIM>(cutOffLength, domainSize);
+    mpBoxCollection->SetupLocalBoxesHalfOnly();
 
     for (unsigned i=0; i<mNodes.size(); i++)
     {

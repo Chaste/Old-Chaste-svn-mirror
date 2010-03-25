@@ -733,12 +733,47 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(ChasteP
         if (neg_weight_sum > max_min_weight)
         {
             max_min_weight = neg_weight_sum;
-            closest_index=i;
+            closest_index = i;
         }
 
     }
     return closest_index;
 }
+
+
+
+///todo refactor common code with GetNearestElementIndex 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndexFromTestElements(ChastePoint<SPACE_DIM> testPoint,
+                                                                                         std::set<unsigned> testElements)
+{
+    assert(testElements.size()>0);
+    
+    double max_min_weight = -INFINITY;
+    unsigned closest_index = 0;
+    for(std::set<unsigned>::iterator iter = testElements.begin();
+        iter != testElements.end();
+        iter++)
+    {
+        c_vector<double, ELEMENT_DIM+1> weight=this->mElements[*iter]->CalculateInterpolationWeights(testPoint);
+        double neg_weight_sum=0.0;
+        for (unsigned j=0; j<=ELEMENT_DIM; j++)
+        {
+            if (weight[j] < 0.0)
+            {
+                neg_weight_sum += weight[j];
+            }
+        }
+        if (neg_weight_sum > max_min_weight)
+        {
+            max_min_weight = neg_weight_sum;
+            closest_index = *iter;
+        }
+
+    }
+    return closest_index;
+}
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint)

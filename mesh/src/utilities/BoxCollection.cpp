@@ -153,8 +153,6 @@ BoxCollection<DIM>::BoxCollection(double boxWidth, c_vector<double, 2*DIM> domai
 
     // Check that we have the correct number of boxes
     assert(num_boxes == mBoxes.size());
-
-    CalculateLocalBoxes();
 }
 
 template<unsigned DIM>
@@ -217,7 +215,7 @@ unsigned BoxCollection<DIM>::GetNumBoxes()
 }
 
 template<unsigned DIM>
-void BoxCollection<DIM>::CalculateLocalBoxes()
+void BoxCollection<DIM>::SetupLocalBoxesHalfOnly()
 {
     switch (DIM)
     {
@@ -378,6 +376,300 @@ void BoxCollection<DIM>::CalculateLocalBoxes()
             NEVER_REACHED;
     }
 }
+
+
+
+template<unsigned DIM>
+void BoxCollection<DIM>::SetupAllLocalBoxes()
+{
+    switch (DIM)
+    {
+        case 1:
+        {
+            for (unsigned i=0; i<mBoxes.size(); i++)
+            {
+                std::set<unsigned> local_boxes;
+
+                local_boxes.insert(i);
+             
+                // add the two neighbours   
+                if(i!=0)
+                {
+                    local_boxes.insert(i-1);
+                }
+                if(i+1 != mNumBoxesEachDirection(0))
+                {
+                    local_boxes.insert(i+1);
+                }
+                
+                mLocalBoxes.push_back(local_boxes);
+            }
+            break;
+        }
+        case 2:
+        {
+            mLocalBoxes.clear();
+            
+            unsigned M = mNumBoxesEachDirection(0);
+            unsigned N = mNumBoxesEachDirection(1);
+
+            std::vector<bool> is_xmin(N*M); // far left
+            std::vector<bool> is_xmax(N*M); // far right
+            std::vector<bool> is_ymin(N*M); // bottom
+            std::vector<bool> is_ymax(N*M); // top
+            
+            for(unsigned i=0; i<M*N; i++)
+            {
+                is_xmin[i] = (i%M==0);
+                is_xmax[i] = ((i+1)%M==0);
+                is_ymin[i] = (i%(M*N)<M);
+                is_ymax[i] = (i%(M*N)>=(N-1)*M);
+            }
+
+            for (unsigned i=0; i<mBoxes.size(); i++)
+            {
+                std::set<unsigned> local_boxes;
+
+                local_boxes.insert(i);
+                
+                // add the box to the left
+                if(!is_xmin[i])
+                {
+                    local_boxes.insert(i-1);
+                }
+        
+                // add the box to the right
+                if(!is_xmax[i])
+                {
+                    local_boxes.insert(i+1);
+                }
+                
+                // add the one below
+                if(!is_ymin[i])
+                {
+                    local_boxes.insert(i-M);
+                }
+                
+                // add the one above
+                if(!is_ymax[i])
+                {
+                    local_boxes.insert(i+M);
+                }
+                
+                // add the four corner boxes
+        
+                if( (!is_xmin[i]) && (!is_ymin[i]) )
+                {
+                    local_boxes.insert(i-1-M);
+                }
+        
+                if( (!is_xmin[i]) && (!is_ymax[i]) )
+                {
+                    local_boxes.insert(i-1+M);
+                }
+        
+                if( (!is_xmax[i]) && (!is_ymin[i]) )
+                {
+                    local_boxes.insert(i+1-M);
+                }
+        
+                if( (!is_xmax[i]) && (!is_ymax[i]) )
+                {
+                    local_boxes.insert(i+1+M);
+                }
+
+                mLocalBoxes.push_back(local_boxes);
+            }
+            break;
+        }
+        case 3:
+        {
+            mLocalBoxes.clear();
+            
+            unsigned M = mNumBoxesEachDirection(0);
+            unsigned N = mNumBoxesEachDirection(1);
+            unsigned P = mNumBoxesEachDirection(2);
+
+            std::vector<bool> is_xmin(N*M*P); // far left
+            std::vector<bool> is_xmax(N*M*P); // far right
+            std::vector<bool> is_ymin(N*M*P); // nearest
+            std::vector<bool> is_ymax(N*M*P); // furthest
+            std::vector<bool> is_zmin(N*M*P); // bottom layer
+            std::vector<bool> is_zmax(N*M*P); // top layer
+    
+            for(unsigned i=0; i<M*N*P; i++)
+            {
+                is_xmin[i] = (i%M==0);
+                is_xmax[i] = ((i+1)%M==0);
+                is_ymin[i] = (i%(M*N)<M);
+                is_ymax[i] = (i%(M*N)>=(N-1)*M);
+                is_zmin[i] = (i<M*N);
+                is_zmax[i] = (i>=M*N*(P-1));
+            }
+
+            for (unsigned i=0; i<mBoxes.size(); i++)
+            {
+                std::set<unsigned> local_boxes;
+
+                // add itself as a local box
+                local_boxes.insert(i);
+                
+                // now add all 26 other neighbours.....
+                
+                // add the box left
+                if(!is_xmin[i])
+                {
+                    local_boxes.insert(i-1);
+                    
+                    // plus some others towards the left
+                    if(!is_ymin[i])
+                    {
+                        local_boxes.insert(i-1-M);
+                    }
+        
+                    if(!is_ymax[i])
+                    {
+                        local_boxes.insert(i-1+M);
+                    }
+        
+                    if(!is_zmin[i])
+                    {
+                        local_boxes.insert(i-1-M*N);
+                    }
+        
+                    if(!is_zmax[i])
+                    {
+                        local_boxes.insert(i-1+M*N);
+                    }
+                }
+        
+                // add the box to the right
+                if(!is_xmax[i])
+                {
+                    local_boxes.insert(i+1);
+
+                    // plus some others towards the right
+                    if(!is_ymin[i])
+                    {
+                        local_boxes.insert(i+1-M);
+                    }
+        
+                    if(!is_ymax[i])
+                    {
+                        local_boxes.insert(i+1+M);
+                    }
+        
+                    if(!is_zmin[i])
+                    {
+                        local_boxes.insert(i+1-M*N);
+                    }
+        
+                    if(!is_zmax[i])
+                    {
+                        local_boxes.insert(i+1+M*N);
+                    }
+                }
+                
+                // add the boxes next along the y axis
+                if(!is_ymin[i])
+                {
+                    local_boxes.insert(i-M);
+                    
+                    // and more in this plane
+                    if(!is_zmin[i])
+                    {
+                        local_boxes.insert(i-M-M*N);
+                    }
+        
+                    if(!is_zmax[i])
+                    {
+                        local_boxes.insert(i-M+M*N);
+                    }
+                }
+                
+                // add the boxes next along the y axis
+                if(!is_ymax[i])
+                {
+                    local_boxes.insert(i+M);
+        
+                    // and more in this plane
+                    if(!is_zmin[i])
+                    {
+                        local_boxes.insert(i+M-M*N);
+                    }
+        
+                    if(!is_zmax[i])
+                    {
+                        local_boxes.insert(i+M+M*N);
+                    }
+                }
+                
+                // add the box directly above
+                if(!is_zmin[i])
+                {
+                    local_boxes.insert(i-N*M);
+                }            
+                
+                // add the box directly below
+                if(!is_zmax[i])
+                {
+                    local_boxes.insert(i+N*M);
+                }
+        
+                // finally, the 8 corners are left
+        
+                if( (!is_xmin[i]) && (!is_ymin[i]) && (!is_zmin[i]) )
+                {
+                    local_boxes.insert(i-1-M-M*N);
+                }
+        
+                if( (!is_xmin[i]) && (!is_ymin[i]) && (!is_zmax[i]) )
+                {
+                    local_boxes.insert(i-1-M+M*N);
+                }
+        
+                if( (!is_xmin[i]) && (!is_ymax[i]) && (!is_zmin[i]) )
+                {
+                    local_boxes.insert(i-1+M-M*N);
+                }
+        
+                if( (!is_xmin[i]) && (!is_ymax[i]) && (!is_zmax[i]) )
+                {
+                    local_boxes.insert(i-1+M+M*N);
+                }
+        
+                if( (!is_xmax[i]) && (!is_ymin[i]) && (!is_zmin[i]) )
+                {
+                    local_boxes.insert(i+1-M-M*N);
+                }
+        
+                if( (!is_xmax[i]) && (!is_ymin[i]) && (!is_zmax[i]) )
+                {
+                    local_boxes.insert(i+1-M+M*N);
+                }
+        
+                if( (!is_xmax[i]) && (!is_ymax[i]) && (!is_zmin[i]) )
+                {
+                    local_boxes.insert(i+1+M-M*N);
+                }
+        
+                if( (!is_xmax[i]) && (!is_ymax[i]) && (!is_zmax[i]) )
+                {
+                    local_boxes.insert(i+1+M+M*N);
+                }
+
+                mLocalBoxes.push_back(local_boxes);
+            }
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
+}
+
+
+
+
 
 template<unsigned DIM>
 std::set<unsigned> BoxCollection<DIM>::GetLocalBoxes(unsigned boxIndex)

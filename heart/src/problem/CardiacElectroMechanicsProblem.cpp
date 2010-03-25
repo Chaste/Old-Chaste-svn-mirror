@@ -332,7 +332,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     // quadrature point in the coarse mesh
     mpMeshPair = new FineCoarseMeshPair<DIM>(*mpElectricsMesh, *mpMechanicsMesh);
     mpMeshPair->SetUpBoxesOnFineMesh();
-    mpMeshPair->ComputeFineElementsAndWeightsForCoarseQuadPoints(*(mpCardiacMechAssembler->GetQuadratureRule()));
+    mpMeshPair->ComputeFineElementsAndWeightsForCoarseQuadPoints(*(mpCardiacMechAssembler->GetQuadratureRule()), false);
     mpMeshPair->DeleteBoxCollection();
 
     if(mWriteOutput)
