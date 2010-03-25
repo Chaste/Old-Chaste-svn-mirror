@@ -127,7 +127,7 @@ public:
 
         for(double t=t0; t<t1; t+=dt)
         {
-            std::cout << "\n **** t = " << t << " ****\n" << std::flush;
+            //std::cout << "\n **** t = " << t << " ****\n" << std::flush;
 
             expl_solver.SetWriteOutput(false);
             expl_solver.Solve(t,t+dt,dt);

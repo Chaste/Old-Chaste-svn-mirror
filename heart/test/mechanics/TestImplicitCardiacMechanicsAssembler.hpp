@@ -179,12 +179,12 @@ public:
         // solve for quite a long time to get some deformation
         assembler.Solve(0,10,1);
 
-        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 8u); // hardcoded 8, this check is to make sure the jac is correctly computed
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 7u); // hardcoded 7, this check is to make sure the jac is correctly computed
 
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 24 is the top-right corner node,
-        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 0.9413, 1e-3);
-        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 1.0582, 1e-3);
+        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 0.9480, 1e-3);
+        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 1.0516, 1e-3);
 
         std::vector<double>& lambda = assembler.rGetFibreStretches();
 
@@ -218,12 +218,12 @@ public:
 
             if(Y>0.6)
             {
-                double error = 0.0004;
+                double error = 0.0005;
                 TS_ASSERT_DELTA(lambda[i], lam_fit, error);
             }
             else if(Y>0.15)
             {
-                double error = 0.0015;
+                double error = 0.0024;
                 TS_ASSERT_DELTA(lambda[i], lam_fit, error);
             }
 
@@ -232,7 +232,7 @@ public:
         }
 
         // hardcoded test
-        TS_ASSERT_DELTA(lambda[34], 0.9753, 1e-4);
+        TS_ASSERT_DELTA(lambda[34], 0.9737, 1e-4);
     }
 
     // Same as above test but has fibres in Y-direction (and bottom surface fixed - so results are the same),
@@ -291,12 +291,12 @@ public:
             // solve for quite a long time to get some deformation
             assembler.Solve(0,10,1);
 
-            TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 8u); // hardcoded 8, this check is to make sure the jac is correctly computed
+            TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 7u); // hardcoded 7, this check is to make sure the jac is correctly computed
 
             // have visually checked the answer and seen that it looks ok, so have
             // a hardcoded test here. Node that 24 is the top-right corner node,
-            TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 0.9413, 1e-3);
-            TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 1.0582, 1e-3);
+            TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 0.9429, 1e-3);
+            TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 1.0565, 1e-3);
 
             std::vector<double>& lambda = assembler.rGetFibreStretches();
 
@@ -335,7 +335,7 @@ public:
                 }
                 else if(X>0.15)
                 {
-                    double error = 0.0021;      // **slightly increased the tolerance - attributing the difference in results to the fact mesh isn't rotation-invariant
+                    double error = 0.0024;      // **slightly increased the tolerance - attributing the difference in results to the fact mesh isn't rotation-invariant
                     TS_ASSERT_DELTA(lambda[i], lam_fit, error);
                 }
 
@@ -344,7 +344,7 @@ public:
             }
 
             // hardcoded test
-            TS_ASSERT_DELTA(lambda[34], 0.9691, 1e-4);  // ** different value to previous test - attributing the difference in results to the fact mesh isn't rotation-invariant
+            TS_ASSERT_DELTA(lambda[34], 0.9693, 1e-4);  // ** different value to previous test - attributing the difference in results to the fact mesh isn't rotation-invariant
         }
     }
 
