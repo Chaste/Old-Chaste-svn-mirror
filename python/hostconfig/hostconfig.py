@@ -128,7 +128,10 @@ def AddBoost(basePath, version):
     RemoveFromPath(conf.other_includepaths, 'boost')
     RemoveFromPath(conf.other_libpaths, 'boost')
     # Add libs from new location
-    inc = 'boost-' + version.replace('.', '_')
+    if float(version) >= 1.40:
+        inc = ''
+    else:
+        inc = 'boost-' + version.replace('.', '_')
     conf.other_includepaths.append(os.path.join(basePath, 'include', inc))
     libpath = os.path.join(basePath, 'lib')
     conf.other_libpaths.append(libpath)

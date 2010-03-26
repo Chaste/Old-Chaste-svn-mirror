@@ -33,8 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 
 // Must be included before any other serialisation headers
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include "CheckpointArchiveTypes.hpp"
 
 #include "Exception.hpp"
 #include "ArchiveOpener.hpp"

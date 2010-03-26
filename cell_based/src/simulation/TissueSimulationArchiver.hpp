@@ -30,8 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TISSUESIMULATIONARCHIVER_HPP_
 
 // Must be included before any other serialisation headers
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include "CheckpointArchiveTypes.hpp"
 
 #include <string>
 #include <iostream>

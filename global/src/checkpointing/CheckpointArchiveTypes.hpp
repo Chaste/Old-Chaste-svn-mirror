@@ -26,18 +26,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef SERIALIZATIONEXPORTWRAPPERFORCPP_HPP_
-#define SERIALIZATIONEXPORTWRAPPERFORCPP_HPP_
+#ifndef CHECKPOINTARCHIVETYPES_HPP_
+#define CHECKPOINTARCHIVETYPES_HPP_
 
 /**
  * @file
  *
- * Companion file to SerializationExportWrapper.hpp, for inclusion
- * in .cpp files.  See SerializationExportWrapper.hpp for more information.
+ * Boost library includes for the archive types used by Chaste.
+ *
+ * Intended for use by SerializationExportWrapper.hpp, by tests of
+ * archiving, and by CheckpointArchiveTypesIfNeeded.hpp.
  */
 
-#define CHASTE_SERIALIZATION_CPP
-#include "SerializationExportWrapper.hpp"
-#undef CHASTE_SERIALIZATION_CPP
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
-#endif /*SERIALIZATIONEXPORTWRAPPERFORCPP_HPP_*/
+#endif /*CHECKPOINTARCHIVETYPES_HPP_*/

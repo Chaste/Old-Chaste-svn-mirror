@@ -69,8 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #else
 // Boost 1.36 and newer - export goes in .cpp, along with archive includes
 #ifdef CHASTE_SERIALIZATION_CPP
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
+#include "CheckpointArchiveTypes.hpp"
 #include <boost/serialization/export.hpp>
 #endif // CHASTE_SERIALIZATION_CPP
 

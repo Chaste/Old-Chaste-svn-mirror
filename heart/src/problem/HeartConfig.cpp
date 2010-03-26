@@ -26,6 +26,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+// Work-around for newer Boost versions
+#include "CheckpointArchiveTypesIfNeeded.hpp"
+
 #include "UblasCustomFunctions.hpp"
 
 #include "HeartConfig.hpp"
@@ -2642,7 +2645,6 @@ template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<Chaste
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
  */
 #undef COVERAGE_IGNORE //These methods are covered above with DIM=1,2,3 but the instantiations may fail spuriously
-
 
 
 // Serialization for Boost >= 1.36

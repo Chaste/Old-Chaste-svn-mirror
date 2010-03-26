@@ -26,18 +26,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef SERIALIZATIONEXPORTWRAPPERFORCPP_HPP_
-#define SERIALIZATIONEXPORTWRAPPERFORCPP_HPP_
+#ifndef CHECKPOINTARCHIVETYPESIFNEEDED_HPP_
+#define CHECKPOINTARCHIVETYPESIFNEEDED_HPP_
 
 /**
  * @file
  *
- * Companion file to SerializationExportWrapper.hpp, for inclusion
- * in .cpp files.  See SerializationExportWrapper.hpp for more information.
+ * Include CheckpointArchiveTypes.hpp only on Boost >= 1.40.
+ *
+ * Intended for use by source files that would otherwise trigger compilation
+ * failures on Boost >= 1.40 due to header include order problems.
  */
 
-#define CHASTE_SERIALIZATION_CPP
-#include "SerializationExportWrapper.hpp"
-#undef CHASTE_SERIALIZATION_CPP
+#include <boost/version.hpp>
+#if (BOOST_VERSION >= 104000)
+#include "CheckpointArchiveTypes.hpp"
+#endif
 
-#endif /*SERIALIZATIONEXPORTWRAPPERFORCPP_HPP_*/
+#endif /*CHECKPOINTARCHIVETYPESIFNEEDED_HPP_*/
