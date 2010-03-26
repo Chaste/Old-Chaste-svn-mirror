@@ -72,13 +72,13 @@ std::string FormDebugHead();
 /** Prints the given message, but only from the n-th time that line is reached, for the given n */
 #define TRACE_FROM_NTH_VISIT(stuff,n) { \
     static unsigned counter=0; \
-     if (++counter>=(n)) {TRACE(stuff<<" (visit "<<counter<<")");} }
+    if (++counter>=(n)) {TRACE(stuff<<" (visit "<<counter<<")");} }
 
 /** Display a vector */
 #define PRINT_VECTOR(v) \
     { std::cout << FormDebugHead() << #v " = {"; \
-        for (unsigned _i=0; _i<v.size(); _i++) { \
-            std::cout << (_i==0?"":",") << v[_i]; } \
-        std::cout << "}" << std::endl << std::flush; }
+      for (unsigned _i=0; _i<v.size(); _i++) { \
+          std::cout << (_i==0?"":",") << v[_i]; } \
+      std::cout << "}" << std::endl << std::flush; }
 
 #endif /*DEBUG_HPP_*/

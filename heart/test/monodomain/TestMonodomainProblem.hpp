@@ -50,6 +50,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CmguiMeshWriter.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 
+#include <sys/stat.h> // For chmod()
+
 /*
  *  This cell factory introduces a stimulus in the very centre of mesh/test/data/2D_0_to_1mm_400_elements.
  *  This is node 60 at (0.5, 0.5)
@@ -938,6 +940,22 @@ public:
         TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),
                 "Either explicitly specify not to print output (call PrintOutput(false)) or "
                 "specify the output directory and filename prefix");
+        
+        // Throws because can't open the results file
+        std::string directory("UnwriteableFolder");
+        HeartConfig::Instance()->SetOutputDirectory(directory);
+        HeartConfig::Instance()->SetOutputFilenamePrefix("results");
+        OutputFileHandler handler(directory, false);
+        if (PetscTools::AmMaster())
+        {
+            chmod(handler.GetOutputDirectoryFullPath().c_str(), 0555);
+        }
+        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),
+                              "Hdf5DataWriter could not create " + handler.GetOutputDirectoryFullPath() + "results.h5");
+        if (PetscTools::AmMaster())
+        {
+            chmod(handler.GetOutputDirectoryFullPath().c_str(), 0755);
+        }
     }
 
     /**
