@@ -206,6 +206,14 @@ public:
      */
     double GetCellBoundaryAdhesionEnergyParameter();
     /**
+     * @return mWelikyOsterAreaParameter.
+     */
+    double GetWelikyOsterAreaParameter();
+    /**
+     * @return mWelikyOsterPerimeterParameter.
+     */
+    double GetWelikyOsterPerimeterParameter();
+    /**
      * @return mOutputCellIdData
      */
     bool GetOutputCellIdData();
@@ -402,6 +410,14 @@ public:
      * Set mCellBoundaryAdhesionEnergyParameter.
      */
     void SetCellBoundaryAdhesionEnergyParameter(double);
+    /**
+     * Set mWelikyOsterAreaParameter.
+     */
+    void SetWelikyOsterAreaParameter(double);
+    /**
+     * Set mWelikyOsterPerimeterParameter.
+     */
+    void SetWelikyOsterPerimeterParameter(double);
     /**
      * Set mOutputCellIdData.
      */
@@ -672,27 +688,39 @@ private:
 
     /**
      * Cell deformation energy parameter.
-     * For use in vertex-based models.
+     * For use in Nagai and Honda type vertex-based models.
      */
     double mDeformationEnergyParameter;
 
     /**
      * Cell membrane energy parameter.
-     * For use in vertex-based models.
+     * For use in Nagai and Honda type vertex-based models.
      */
     double mMembraneSurfaceEnergyParameter;
 
     /**
      * Cell-cell adhesion energy parameter.
-     * For use in vertex-based models.
+     * For use in Nagai and Honda type vertex-based models.
      */
     double mCellCellAdhesionEnergyParameter;
 
     /**
      * Cell-boundary adhesion energy parameter.
-     * For use in vertex-based models.
+     * For use in Nagai and Honda type vertex-based models.
      */
     double mCellBoundaryAdhesionEnergyParameter;
+
+    /**
+     * Area parameter. 
+     * For use in Weliky and Oster type vertex-based models.
+     */
+    double mWelikyOsterAreaParameter;
+    
+    /**
+     * Perimeter parameter. 
+     * For use in Weliky and Oster type vertex-based models.
+     */
+    double mWelikyOsterPerimeterParameter;
 
     /** Whether to write cell ID data to file. */
     bool mOutputCellIdData;
@@ -786,6 +814,8 @@ private:
         archive & mMembraneSurfaceEnergyParameter;
         archive & mCellCellAdhesionEnergyParameter;
         archive & mCellBoundaryAdhesionEnergyParameter;
+        archive & mWelikyOsterAreaParameter;
+        archive & mWelikyOsterPerimeterParameter;
         archive & mOutputCellIdData;
         archive & mOutputCellMutationStates;
         archive & mOutputCellAncestors;

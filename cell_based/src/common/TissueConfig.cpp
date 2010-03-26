@@ -84,6 +84,8 @@ TissueConfig::TissueConfig()
  * mMembraneSurfaceEnergyParameter has ? units \todo Fix this comment
  * mCellCellAdhesionEnergyParameter has ? units \todo Fix this comment
  * mCellBoundaryAdhesionEnergyParameter has ? units \todo Fix this comment
+ * mWelikyOsterAreaParameter has ? units \todo Fix this comment
+ * mWelikyOsterPerimeterParameter has ? units \todo Fix this comment
  */
 void TissueConfig::Reset()
 {
@@ -132,7 +134,10 @@ void TissueConfig::Reset()
     mMembraneSurfaceEnergyParameter = 10.0;  // This is 0.1 in Nagai & Honda.
     mCellCellAdhesionEnergyParameter = 1.0; // This is 0.01 in Nagai & Honda.
     mCellBoundaryAdhesionEnergyParameter = 1.0; // This is 0.01 in Nagai & Honda.
-
+    
+    mWelikyOsterAreaParameter = 1.0; // Estimate as not in Weliky and Oster (1990) paper
+    mWelikyOsterPerimeterParameter = 1.0; // Estimate as not in Weliky and Oster (1990) paper
+    
     mOutputCellIdData = false;
     mOutputCellMutationStates = false;
     mOutputCellAncestors = false;
@@ -301,6 +306,14 @@ double TissueConfig::GetCellCellAdhesionEnergyParameter()
 double TissueConfig::GetCellBoundaryAdhesionEnergyParameter()
 {
     return mCellBoundaryAdhesionEnergyParameter;
+}
+double TissueConfig::GetWelikyOsterAreaParameter()
+{
+    return mWelikyOsterAreaParameter;
+}
+double TissueConfig::GetWelikyOsterPerimeterParameter()
+{
+    return mWelikyOsterPerimeterParameter;
 }
 bool TissueConfig::GetOutputCellIdData()
 {
@@ -545,6 +558,14 @@ void TissueConfig::SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEne
 void TissueConfig::SetCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdhesionEnergyParameter)
 {
     mCellBoundaryAdhesionEnergyParameter = cellBoundaryAdhesionEnergyParameter;
+}
+void TissueConfig::SetWelikyOsterAreaParameter(double welikyOsterAreaParameter)
+{
+    mWelikyOsterAreaParameter = welikyOsterAreaParameter;
+}
+void TissueConfig::SetWelikyOsterPerimeterParameter(double welikyOsterPerimeterParameter)
+{
+    mWelikyOsterPerimeterParameter = welikyOsterPerimeterParameter;
 }
 void TissueConfig::SetOutputCellIdData(bool writeCellIdData)
 {

@@ -88,6 +88,8 @@ private:
         TS_ASSERT_DELTA(p_inst->GetMembraneSurfaceEnergyParameter(), 10.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCellCellAdhesionEnergyParameter(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCellBoundaryAdhesionEnergyParameter(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetWelikyOsterAreaParameter(), 1.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetWelikyOsterPerimeterParameter(), 1.0, 1e-12);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellIdData(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellMutationStates(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellAncestors(), false);
@@ -144,6 +146,8 @@ public:
         p_inst->SetMembraneSurfaceEnergyParameter(17.9);
         p_inst->SetCellCellAdhesionEnergyParameter(0.5);
         p_inst->SetCellBoundaryAdhesionEnergyParameter(0.6);
+        p_inst->SetWelikyOsterAreaParameter(0.7);
+        p_inst->SetWelikyOsterPerimeterParameter(0.8);
         p_inst->SetOutputCellIdData(true);
         p_inst->SetOutputCellMutationStates(true);
         p_inst->SetOutputCellAncestors(true);
@@ -199,6 +203,8 @@ public:
         p_inst1->SetMembraneSurfaceEnergyParameter(17.9);
         p_inst1->SetCellCellAdhesionEnergyParameter(0.5);
         p_inst1->SetCellBoundaryAdhesionEnergyParameter(0.6);
+        p_inst1->SetWelikyOsterAreaParameter(0.7);
+        p_inst1->SetWelikyOsterPerimeterParameter(0.8);
         p_inst1->SetOutputCellIdData(true);
         p_inst1->SetOutputCellMutationStates(true);
         p_inst1->SetOutputCellAncestors(true);
@@ -247,6 +253,8 @@ public:
         TS_ASSERT_DELTA(p_inst2->GetMembraneSurfaceEnergyParameter(), 17.9, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
+        TS_ASSERT_DELTA(p_inst2->GetWelikyOsterAreaParameter(), 0.7, 1e-12);
+        TS_ASSERT_DELTA(p_inst2->GetWelikyOsterPerimeterParameter(), 0.8, 1e-12);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellIdData(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellMutationStates(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellAncestors(), true);
@@ -304,6 +312,8 @@ public:
             p_inst1->SetMembraneSurfaceEnergyParameter(17.9);
             p_inst1->SetCellCellAdhesionEnergyParameter(0.5);
             p_inst1->SetCellBoundaryAdhesionEnergyParameter(0.6);
+            p_inst1->SetWelikyOsterAreaParameter(0.7);
+        	p_inst1->SetWelikyOsterPerimeterParameter(0.8);
             p_inst1->SetOutputCellIdData(true);
             p_inst1->SetOutputCellMutationStates(true);
             p_inst1->SetOutputCellAncestors(true);
@@ -358,10 +368,12 @@ public:
             p_inst1->SetSymmetricDivisionProbability(0.0);
             p_inst1->SetAreaBasedDampingConstantParameter(0.1);
             p_inst1->SetMatureCellTargetArea(1.0);
-            p_inst1->SetDeformationEnergyParameter(1.0);
-            p_inst1->SetMembraneSurfaceEnergyParameter(1.0);
-            p_inst1->SetCellCellAdhesionEnergyParameter(0.01);
-            p_inst1->SetCellBoundaryAdhesionEnergyParameter(0.01);
+            p_inst1->SetDeformationEnergyParameter(100.0);
+            p_inst1->SetMembraneSurfaceEnergyParameter(10.0);
+            p_inst1->SetCellCellAdhesionEnergyParameter(1.0);
+            p_inst1->SetCellBoundaryAdhesionEnergyParameter(1.0);
+            p_inst1->SetWelikyOsterAreaParameter(1.0);
+        	p_inst1->SetWelikyOsterPerimeterParameter(1.0);
             p_inst1->SetOutputCellIdData(false);
             p_inst1->SetOutputCellMutationStates(false);
             p_inst1->SetOutputCellAncestors(false);
@@ -416,6 +428,8 @@ public:
             TS_ASSERT_DELTA(p_inst1->GetMembraneSurfaceEnergyParameter(), 17.9, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetCellCellAdhesionEnergyParameter(), 0.5, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetCellBoundaryAdhesionEnergyParameter(), 0.6, 1e-12);
+            TS_ASSERT_DELTA(p_inst1->GetWelikyOsterAreaParameter(), 0.7, 1e-12);
+        	TS_ASSERT_DELTA(p_inst1->GetWelikyOsterPerimeterParameter(), 0.8, 1e-12);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellIdData(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellMutationStates(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellAncestors(), true);
