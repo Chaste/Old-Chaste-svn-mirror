@@ -42,12 +42,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * file for each class, and archive headers included only in tests, or special
  * 'archiver' class header files (e.g. CardiacSimulationArchiver.hpp).
  *
- * Serialization is broken in Boost 1.35 and 1.36.
+ * Serialization is broken in Boost 1.35.
  *
- * In Boost 1.37 (and newer, I think) both the archive header includes and the
+ * In Boost 1.36 (and up to 1.40) both the archive header includes and the
  * BOOST_CLASS_EXPORT should go in .cpp files.
+ * 
+ * We don't yet support 1.41 and above, which introduce BOOST_CLASS_EXPORT_KEY
+ * and BOOST_CLASS_EXPORT_IMPLEMENT.
  *
- * To handle both situations in Chaste:
+ * To handle all situations in Chaste:
  *   1. In .hpp files, include this header after the class definition.
  *   2. In .cpp files, after any other includes, include SerializationExportWrapperForCpp.hpp.
  * In both cases, CHASTE_CLASS_EXPORT should be used instead of BOOST_CLASS_EXPORT.
@@ -89,6 +92,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * missing at the end of <boost/serialization/export.hpp>
  * It's probably not worth fixing.
  */
+#endif
+
+// We don't yet support >= 1.41
+#if BOOST_VERSION >= 104100
+#error "Chaste doesn't yet support Boost versions >= 1.41"
 #endif
 
 
@@ -148,10 +156,14 @@ namespace                                                                       
  */
 #define CHASTE_CLASS_EXPORT_INTERNAL(T)                   \
    BOOST_CLASS_EXPORT(T)
-#endif
+#endif // BOOST_VERSION >= 103600 && BOOST_VERSION < 103800
+
+
 
 template<class> struct pack;
-/** Argument pack for macros. */
+/** Argument pack for macros.
+ * \todo Check if we need this on Boost>=1.38.  Even if it's not needed there, we might still need it to load 1.33.1 archives.
+ */
 template<class T> struct pack<void (T)> {
     typedef T type; /**< Type definition. */
 };
