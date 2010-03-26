@@ -29,8 +29,12 @@ import os
 
 # Check which version of Ubuntu this is
 fp = open('/etc/issue')
-ubuntu_ver = float(fp.read().split()[1])
+ubuntu_ver = fp.read().split()[1]
 fp.close()
+if ubuntu_ver == 'lucid':
+    ubuntu_ver = '10.04'
+else:
+    ubuntu_ver = float(ubuntu_ver)
 
 if ubuntu_ver >= 9.10:
     petsc_ver = 3
@@ -65,7 +69,7 @@ else:
 other_libraries = libs_for_petsc + \
                   ['boost_serialization'+boost_suffix, 'xerces-c',
                    'hdf5', 'z',
-                   'metis']
+                   'parmetis', 'metis']
 
 # Figure out which lapack/blas packages are actually installed!
 if os.path.exists('/usr/lib/liblapack-3.so'):
