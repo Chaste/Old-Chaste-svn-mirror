@@ -107,35 +107,6 @@ public:
 #endif //CHASTE_VTK
     }
 
-    void TestMeshWriterWithDeletedNode() throw (Exception)
-    {
-        // Create mesh
-        HoneycombVertexMeshGenerator generator(3, 3, false, 0.1, 2.0);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
-
-        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 30u);
-        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);
-
-        /*
-         * Delete element 0. This element contains 3 nodes that are
-         * not contained in any other element and so will be marked
-         * as deleted.
-         */
-        p_mesh->DeleteElementPriorToReMesh(0);
-
-        // Write mesh to file
-        VertexMeshWriter<2,2> mesh_writer("TestMeshWriterWithDeletedNode", "vertex_mesh");
-        TS_ASSERT_THROWS_NOTHING(mesh_writer.WriteFilesUsingMesh(*p_mesh));
-
-        // Read mesh back in from file
-        std::string output_dir = mesh_writer.GetOutputDirectory();
-        VertexMeshReader<2,2> mesh_reader(output_dir + "vertex_mesh");
-
-        // We should have one less element and three less nodes
-        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 27u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 8u);
-    }
-
     void TestMeshVtkWriter3D() throw(Exception)
     {
         // Create 3D mesh

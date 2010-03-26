@@ -54,7 +54,7 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 30u);
 
         unsigned counter = 0;
-        for (MutableVertexMesh<2,2>::NodeIterator iter = p_mesh->GetNodeIteratorBegin();
+        for (VertexMesh<2,2>::NodeIterator iter = p_mesh->GetNodeIteratorBegin();
              iter != p_mesh->GetNodeIteratorEnd();
              ++iter)
         {
@@ -68,7 +68,7 @@ public:
         p_mesh->GetNode(0)->MarkAsDeleted();
 
         counter = 0;
-        for (MutableVertexMesh<2,2>::NodeIterator iter = p_mesh->GetNodeIteratorBegin();
+        for (VertexMesh<2,2>::NodeIterator iter = p_mesh->GetNodeIteratorBegin();
              iter != p_mesh->GetNodeIteratorEnd();
              ++iter)
         {
@@ -95,7 +95,7 @@ public:
     {
         // Create mesh
         HoneycombVertexMeshGenerator generator(3, 3);
-        MutableVertexMesh<2,2>* p_mesh = generator.GetMesh();
+        VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 9u);
 
@@ -124,7 +124,7 @@ public:
 
         TS_ASSERT_EQUALS(p_mesh->GetNumElements(), counter);
         TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), counter);
-        TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), true);
+        TS_ASSERT_EQUALS(p_mesh->IsMeshChanging(), false);
     }
 
     void TestBasic1dVertexMesh() throw(Exception)
@@ -950,7 +950,7 @@ public:
         elements.push_back(new VertexElement<2,2>(0, nodes));
 
         // Create mesh
-        MutableVertexMesh<2,2> small_mesh(nodes, elements);
+        VertexMesh<2,2> small_mesh(nodes, elements);
 
         // Test CalculateMomentOfElement() method
         c_vector<double, 3> moments = small_mesh.CalculateMomentsOfElement(0);
@@ -960,7 +960,7 @@ public:
         TS_ASSERT_DELTA(moments(2), -5.0/90.0, 1e-6); // Ixy
 
         // Hexagonal mesh from mesh generator
-        HoneycombVertexMeshGenerator generator(4, 4, false, 0.01, 2.0);
+        HoneycombVertexMeshGenerator generator(4, 4);
         VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 48u);
@@ -1180,7 +1180,7 @@ public:
         }
 
         // Create a mesh with some interior nodes
-        HoneycombVertexMeshGenerator generator1(2, 2, false, 0.01, 2.0);
+        HoneycombVertexMeshGenerator generator1(2, 2);
         VertexMesh<2,2>* p_mesh1 = generator1.GetMesh();
 
         // Test boundary property of nodes
@@ -1191,7 +1191,7 @@ public:
         }
 
         // Create a larger mesh with some interior nodes
-        HoneycombVertexMeshGenerator generator2(3, 3, false, 0.01, 2.0);
+        HoneycombVertexMeshGenerator generator2(3, 3);
         VertexMesh<2,2>* p_mesh2 = generator2.GetMesh();
 
         // Test boundary property of nodes
@@ -1210,7 +1210,7 @@ public:
     void TestTranslation2DWithUblas()
     {
         // Create 2D mesh
-        HoneycombVertexMeshGenerator generator(3, 3, false, 0.01, 2.0);
+        HoneycombVertexMeshGenerator generator(3, 3);
         VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
         c_vector<double, 2> old_location1 = p_mesh->GetNode(4)->rGetLocation();

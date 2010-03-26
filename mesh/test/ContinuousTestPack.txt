@@ -11,8 +11,6 @@ TestMemfemMeshReader.hpp
 TestMeshWriters.hpp
 TestMutableMesh.hpp
 TestMutableMeshRemesh.hpp
-TestMutableVertexMesh.hpp
-TestMutableVertexMeshReMesh.hpp
 TestNode.hpp
 TestNonCachedTetrahedralMesh.hpp
 TestQuadraticMesh.hpp
