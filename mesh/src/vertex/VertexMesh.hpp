@@ -207,13 +207,13 @@ public:
                  std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements);
 
     /**
-     * Alternative constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
+     * Alternative 2D constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
      * which must be Delaunay (see TetrahedralMesh::CheckIsVoronoi).
      *
      * @param rMesh a tetrahedral mesh
      * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
      */
-    VertexMesh(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh,
+    VertexMesh(TetrahedralMesh<2, 2>& rMesh,
                const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**

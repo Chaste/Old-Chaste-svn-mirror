@@ -27,6 +27,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Face.hpp"
+#include <list>
+
+/**
+ * Global method allowing alist of pairs (c_vector<double, DIM>*, double) to be compared
+ * in terms of their second entry and std::list.sort() to be called.
+ */
+template<unsigned DIM>
+bool VertexAngleComparison(const std::pair<c_vector<double, DIM>*, double> lhs, const std::pair<c_vector<double, DIM>*, double> rhs)
+{
+    return lhs.second < rhs.second;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -105,44 +116,9 @@ Face<DIM> Face<DIM>::operator-()
 }
 
 template<unsigned DIM>
-double Face<DIM>::GetPerimeter() const
-{
-    double perimeter_return = 0;
-    for (unsigned i=0; i<mVertices.size(); i++)
-    {
-        perimeter_return += norm_2(*mVertices[i]-*mVertices[(i+1)%mVertices.size()]);
-    }
-    return perimeter_return;
-}
-
-template<unsigned DIM>
-double Face<DIM>::GetArea() const
-{
-    #define COVERAGE_IGNORE
-    assert(DIM==2);
-    #undef COVERAGE_IGNORE
-
-    double area_return = 0;
-    for (unsigned i=0; i<mVertices.size(); i++)
-    {
-        //  Area = sum ( x_i * y_i+1 - y_i * x_i+1 )/2.0 over all vertices,
-        //      assuming vertices are ordered anti-clockwise
-        area_return += ( (*mVertices[i])(0) * (*mVertices[(i+1)%mVertices.size()])(1)
-                        -(*mVertices[i])(1) * (*mVertices[(i+1)%mVertices.size()])(0) ) / 2.0;
-    }
-    return area_return;
-}
-
-template<unsigned DIM>
 unsigned Face<DIM>::GetNumVertices() const
 {
     return mVertices.size();
-}
-
-template<unsigned DIM>
-std::vector< c_vector<double, DIM>* > Face<DIM>::GetVertices() const
-{
-    return mVertices;
 }
 
 template<unsigned DIM>
@@ -159,26 +135,26 @@ void Face<DIM>::OrderVerticesAntiClockwise()
     centre /= mVertices.size();
 
     // Compute and store the polar angle from the centre to each vertex
-    std::vector<VertexAndAngle<DIM> > vertices_and_angles;
+    std::list<std::pair<c_vector<double, DIM>*, double> > vertex_angle_list;
     for (unsigned j=0; j<mVertices.size(); j++)
     {
         c_vector<double, DIM> centre_to_vertex = *(mVertices[j]) - centre;
+        double angle = atan2(centre_to_vertex(1), centre_to_vertex(0));
 
-        VertexAndAngle<DIM> va;
-        va.ComputeAndSetAngle(centre_to_vertex(0), centre_to_vertex(1));
-        va.SetVertex(mVertices[j]);
-
-        vertices_and_angles.push_back(va);
+        std::pair<c_vector<double, DIM>*, double> pair(mVertices[j], angle);
+        vertex_angle_list.push_back(pair);
     }
 
+    // Sort the list in order of increasing angle
+    vertex_angle_list.sort(VertexAngleComparison<DIM>);
+
     // Use polar angles to reorder mVertices anticlockwise
-    std::sort(vertices_and_angles.begin(), vertices_and_angles.end());
     mVertices.clear();
-    for (typename std::vector<VertexAndAngle<DIM> >::iterator vertex_iterator = vertices_and_angles.begin();
-         vertex_iterator !=vertices_and_angles.end();
-         vertex_iterator++)
+    for (typename std::list<std::pair<c_vector<double, DIM>*, double> >::iterator list_iter = vertex_angle_list.begin();
+         list_iter != vertex_angle_list.end();
+         ++list_iter)
     {
-        mVertices.push_back(vertex_iterator->GetVertex());
+        mVertices.push_back(list_iter->first);
     }
 }
 
@@ -198,12 +174,6 @@ template<unsigned DIM>
 c_vector<double, DIM>& Face<DIM>::rGetVertex(unsigned index)
 {
     return *(mVertices[index]);
-}
-
-template<unsigned DIM>
-std::vector< c_vector<double, DIM>* >& Face<DIM>::rGetVertices()
-{
-    return mVertices;
 }
 
 template<unsigned DIM>

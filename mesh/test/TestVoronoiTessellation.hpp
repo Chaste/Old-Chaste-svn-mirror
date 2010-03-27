@@ -242,9 +242,9 @@ public:
         TS_ASSERT_DELTA(tessellation.GetFaceArea(4), 0.5, 1e-4);
         TS_ASSERT_DELTA(tessellation.GetFacePerimeter(4), 2*sqrt(2), 1e-4);
 
-        std::vector< c_vector<double, 2>*> vertices_of_face4 = tessellation.rGetFace(4).GetVertices();
-        c_vector<double, 2> first_vertex_of_face4 = *(vertices_of_face4[0]);
-        TS_ASSERT_DELTA( first_vertex_of_face4(0), 0.5, 1e-4);
+        Face<2> face4 = tessellation.rGetFace(4);
+        c_vector<double, 2> first_vertex_of_face4 = face4.rGetVertex(0);
+        TS_ASSERT_DELTA(first_vertex_of_face4(0), 0.5, 1e-4);
 
         // Calculate length of Voronoi edge between nodes 4 and 2
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(4u, 2u), pow(2.0, -0.5), 1e-7);
@@ -274,8 +274,6 @@ public:
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 4u), pow(3,-0.5), 1e-6);
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 5u), pow(3,-0.5), 1e-6);
 
-        TS_ASSERT_DELTA(tessellation.rGetFace(0).GetArea(), pow(3, 0.5)/4.0+0.5, 1e-6);
-        TS_ASSERT_DELTA(tessellation.rGetFace(0).GetPerimeter(), 2.0 + pow(3, 0.5), 1e-6);
         TS_ASSERT_DELTA(tessellation.GetFaceArea(0),  pow(3, 0.5)/4.0+0.5, 1e-6);
         TS_ASSERT_DELTA(tessellation.GetFacePerimeter(0), 2.0 + pow(3, 0.5), 1e-6);
 

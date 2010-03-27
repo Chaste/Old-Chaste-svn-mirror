@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "TetrahedralMesh.hpp"
 #include "VoronoiCell.hpp"
-#include "VertexAndAngle.hpp"
 
 
 /**

@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
-#include "MeshBasedTissue.hpp"
+#include "AbstractTissue.hpp"
 
 /**
  * Possible types of WntConcentration, currently:

@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "UblasCustomFunctions.hpp"
 #include "Exception.hpp"
-#include "VertexAndAngle.hpp"
 #include <vector>
 
 
@@ -85,30 +84,9 @@ public:
     Face<DIM> operator-();
 
     /**
-     * Get the sum of the length of all edges of the Face.
-     *
-     * NOTE: Don't use this if you are using a periodic mesh. Use
-     * GetFacePerimeter(face_index) to take into account periodicity.
-     */
-    double GetPerimeter() const;
-
-    /**
-     * Get the area of the Face (works in 2D only).
-     *
-     * NOTE: Don't use this if you are using a periodic mesh. Use
-     * GetFaceArea(face_index) to takeinto account periodicity.
-     */
-    double GetArea() const;
-
-    /**
      * Return number of vertices of the Face.
      */
     unsigned GetNumVertices() const;
-
-    /**
-     * Return a vector of vertices owned by the Face.
-     */
-    std::vector< c_vector<double, DIM>* > GetVertices() const;
 
     /**
      * Reorder the vertices of the Face anticlockwise.
@@ -133,11 +111,6 @@ public:
      * @param index the index of the Vertex in the Face
      */
     c_vector<double, DIM>& rGetVertex(unsigned index);
-
-    /**
-     * Get the vertices in the Face.
-     */
-    std::vector< c_vector<double, DIM>* >& rGetVertices();
 
     /**
      * Reset the location of the Vertex with a given index.

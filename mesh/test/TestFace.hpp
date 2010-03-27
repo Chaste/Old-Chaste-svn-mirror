@@ -144,9 +144,6 @@ public:
         face.AddVertex(&vertex2);
         face.AddVertex(&vertex3);
 
-        TS_ASSERT_DELTA(face.GetPerimeter(), 4.0, 1e-12);
-        TS_ASSERT_DELTA(face.GetArea(), 1.0, 1e-12);
-
         // Test the reorder method
 
         Face<2> reordered_face = -face;

@@ -29,6 +29,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VertexMesh.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "UblasCustomFunctions.hpp"
+#include <list>
+
+/**
+ * Global method allowing alist of pairs (unsigned, double) to be compared
+ * in terms of their second entry and std::list.sort() to be called.
+ */
+bool IndexAngleComparison(const std::pair<unsigned, double> lhs, const std::pair<unsigned, double> rhs)
+{
+    return lhs.second < rhs.second;
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
@@ -204,12 +214,12 @@ VertexMesh<2, 2>::VertexMesh(TetrahedralMesh<2, 2>& rMesh,
     {
         unsigned element_index = locationIndices.empty() ? i : locationIndices[i];
 
-        /*
-         * Create a std::map that associates the angle between the centre of the Voronoi element
-         * and each node with that node's global index in the Voronoi mesh. The map automatically
-         * sorts itself in order of increasing angle.
+        /**
+         * Create a std::list of pairs, where each pair comprises the angle
+         * between the centre of the Voronoi element and each node with that
+         * node's global index in the Voronoi mesh.
          */
-        std::map<double, unsigned> angle_global_index_map;
+        std::list<std::pair<unsigned, double> > index_angle_list;
         for (unsigned j=0; j<mElements[i]->GetNumNodes(); j++)
         {
             c_vector<double, 2> centre_to_vertex = GetVectorFromAtoB(rMesh.GetNode(element_index)->rGetLocation(),
@@ -218,18 +228,22 @@ VertexMesh<2, 2>::VertexMesh(TetrahedralMesh<2, 2>& rMesh,
             double angle = atan2(centre_to_vertex(1), centre_to_vertex(0));
             unsigned global_index = mElements[i]->GetNodeGlobalIndex(j);
 
-            angle_global_index_map[angle] = global_index;
+            std::pair<unsigned, double> pair(global_index, angle);
+            index_angle_list.push_back(pair);
         }
+
+        // Sort the list in order of increasing angle
+        index_angle_list.sort(IndexAngleComparison);
 
         // Create a new Voronoi element and pass in the appropriate Nodes, ordered anticlockwise
         VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index);
         unsigned count = 0;
-        for (std::map<double, unsigned>::iterator map_iter = angle_global_index_map.begin();
-             map_iter != angle_global_index_map.end();
-             ++map_iter)
+        for (std::list<std::pair<unsigned, double> >::iterator list_iter = index_angle_list.begin();
+             list_iter != index_angle_list.end();
+             ++list_iter)
         {
             unsigned local_index = count>1 ? count-1 : 0;
-            p_element->AddNode(local_index, mNodes[map_iter->second]);
+            p_element->AddNode(local_index, mNodes[list_iter->first]);
             count++;
         }
 

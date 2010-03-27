@@ -54,24 +54,12 @@ public:
         TS_ASSERT(p_mesh->CheckIsVoronoi());
         TS_ASSERT_DELTA(p_params->GetCryptWidth(),6.0,1e-6);
 
-        // Create Voronoi Tesselation
+        // Create Voronoi tessellation
         VoronoiTessellation<2> tessellation(*p_mesh);
 
         //  Get two neighbouring nodes on boundary 48 and 53.
         //  Check that they have a common edge
         //  check it is a reasonable length (O(1)?)
-        const Face<2> cell_48 = tessellation.rGetFace(48);
-        for (unsigned i=0; i<cell_48.GetNumVertices(); i++)
-        {
-            std::vector< c_vector<double, 2>*> vertices_of_face_48 = cell_48.GetVertices();
-            c_vector<double, 2> vertex_of_face_48 = *(vertices_of_face_48[i]);
-        }
-        const Face<2> cell_53 = tessellation.rGetFace(53);
-        for (unsigned i=0; i<cell_53.GetNumVertices(); i++)
-        {
-            std::vector< c_vector<double, 2>*> vertices_of_face_53 = cell_53.GetVertices();
-            c_vector<double, 2> vertex_of_face_53 = *(vertices_of_face_53[i]);
-        }
 
         c_vector<double, 2> location_48 = p_mesh->GetNode(48)->rGetLocation();
         double common_edge_between_48_and_53 = tessellation.GetEdgeLength(48, 53);
