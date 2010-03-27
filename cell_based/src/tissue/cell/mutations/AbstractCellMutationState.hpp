@@ -77,7 +77,8 @@ private:
     }
 
     /**
-     * Private default constructor for archiving.
+     * Default constructor needs to be defined for archiving, but never actually used,
+     * since subclasses call the normal constructor.
      */
     AbstractCellMutationState();
 

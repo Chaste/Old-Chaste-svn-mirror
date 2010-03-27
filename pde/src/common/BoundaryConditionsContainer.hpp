@@ -394,6 +394,10 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
     mLoadedFromArchive = true;
 
     typedef typename std::map<unsigned, AbstractBoundaryCondition<SPACE_DIM>*> archive_map_type;
+    // Keep track of conditions that might need deleting
+    std::set<const AbstractBoundaryCondition<SPACE_DIM>*> maybe_unused_bcs;
+    std::set<const AbstractBoundaryCondition<SPACE_DIM>*> used_bcs;
+    
     // Load Dirichlet conditions
     for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
     {
@@ -412,10 +416,12 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
             }
             catch (Exception& e)
             {
-                // It's a parallel mesh and we don't own this node - skip to the next BC
+                // It's a distributed mesh and we don't own this node - skip to the next BC
+                maybe_unused_bcs.insert(it->second);
                 continue;
             }
             AddDirichletBoundaryCondition(p_node, it->second, index_of_unknown, false);
+            used_bcs.insert(it->second);
         }
     }
     this->mCheckedAndCommunicatedIfDirichletBcs=true; // Whether the Dirichlet BCC was empty or not, all processes know the status.
@@ -437,11 +443,25 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::MergeFromAr
             }
             catch (Exception& e)
             {
-                // It's a parallel mesh and we don't own this element
+                // It's a distributed mesh and we don't own this element - skip to the next BC
+                maybe_unused_bcs.insert(it->second);
                 continue;
             }
             AddNeumannBoundaryCondition(p_boundary_element, it->second, index_of_unknown);
+            used_bcs.insert(it->second);
         }
+    }
+    
+    // Free any unused BCs
+    for (typename std::set<const AbstractBoundaryCondition<SPACE_DIM>*>::iterator it=maybe_unused_bcs.begin();
+         it != maybe_unused_bcs.end();
+         ++it)
+    {
+    	typename std::set<const AbstractBoundaryCondition<SPACE_DIM>*>::iterator used = used_bcs.find(*it);
+    	if (used == used_bcs.end())
+    	{
+            delete (*it);
+    	}
     }
 }
 

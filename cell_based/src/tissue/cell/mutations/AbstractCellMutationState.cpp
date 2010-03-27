@@ -33,7 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 AbstractCellMutationState::AbstractCellMutationState()
 {
-    NEVER_REACHED; /// \todo - why?! Is this a problem.
+    // Subclasses should always call the other constructor.
+    NEVER_REACHED;
 }
 
 AbstractCellMutationState::AbstractCellMutationState(unsigned colour)

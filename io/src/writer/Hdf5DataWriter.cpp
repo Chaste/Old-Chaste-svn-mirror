@@ -166,13 +166,14 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         }
 
         // Done!
-        AdvanceAlongUnlimitedDimension();
         mIsInDefineMode = false;
+        AdvanceAlongUnlimitedDimension();
     }
 }
 
 Hdf5DataWriter::~Hdf5DataWriter()
 {
+    Close();
 }
 
 void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
@@ -393,7 +394,7 @@ void Hdf5DataWriter::EndDefineMode()
     attr = H5Acreate(mDatasetId, "IsDataComplete", H5T_NATIVE_UINT, colspace, H5P_DEFAULT);
 
     // Write to the attribute - note that the native boolean is not predictable
-    unsigned is_data_complete= mIsDataComplete ? 1 : 0;
+    unsigned is_data_complete = mIsDataComplete ? 1 : 0;
     H5Awrite(attr, H5T_NATIVE_UINT, &is_data_complete);
 
     H5Sclose(colspace);
@@ -634,16 +635,18 @@ void Hdf5DataWriter::Close()
 {
     if (mIsInDefineMode)
     {
-        return; // Should this throw an exception?  Is it an error to begin defining a writer and then to attempt to close it properly?
+        return; // Nothing to do...
     }
+    
     H5Dclose(mDatasetId);
-
     if (mIsUnlimitedDimensionSet)
     {
         H5Dclose(mTimeDatasetId);
     }
-
     H5Fclose(mFileId);
+    
+    // Cope with being called twice (e.g. if a user calls Close then the destructor)
+    mIsInDefineMode = true;
 }
 
 void Hdf5DataWriter::DefineUnlimitedDimension(const std::string& rVariableName,

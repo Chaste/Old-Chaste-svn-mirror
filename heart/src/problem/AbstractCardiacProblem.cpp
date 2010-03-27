@@ -360,7 +360,21 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     if (mPrintOutput)
     {
         HeartEventHandler::BeginEvent(HeartEventHandler::WRITE_OUTPUT);
-        InitialiseWriter();
+        try
+        {
+            InitialiseWriter();
+        }
+        catch (Exception& e)
+        {
+            delete mpWriter;
+            mpWriter = NULL;
+            delete mpAssembler;
+            if (mSolution != initial_condition)
+            {
+                VecDestroy(initial_condition);
+            }
+            throw e;
+        }
 
         // If we are resuming a simulation (i.e. mSolution already exists) there's no need
         // of writing the initial timestep,
@@ -411,7 +425,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
             // Re-throw
             HeartEventHandler::Reset();//EndEvent(HeartEventHandler::EVERYTHING);
 
-            CloseFilesAndPostProcess();
+            CloseFilesAndPostProcess();///\todo check there isn't anything collective in here
             throw e;
         }
 #ifndef NDEBUG
@@ -473,8 +487,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         //Nothing to do
         return;
     }
-    mpWriter->Close();
     delete mpWriter;
+    mpWriter = NULL;
 
     HeartEventHandler::BeginEvent(HeartEventHandler::USER2); //Temporarily using USER2 to instrument post-processing
     // Only if results files were written and we are outputting all nodes
@@ -599,6 +613,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter()
 {
     bool extend_file = (mSolution != NULL);
+    
+    if (mpWriter)
+    {
+        delete mpWriter;
+        mpWriter = NULL;
+    }
 
     try
     {
@@ -610,20 +630,15 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter
     }
     catch (Exception& e)
     {
-        if (extend_file)
-        {
-            // Tried to extend and failed, so just create from scratch
-            extend_file = false;
-            mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(),
-                                          HeartConfig::Instance()->GetOutputDirectory(),
-                                          HeartConfig::Instance()->GetOutputFilenamePrefix(),
-                                          !extend_file,
-                                          extend_file);
-        }
-        else
-        {
-            throw e;
-        }
+        // The constructor only throws an Exception if we're extending
+        assert(extend_file);
+        // Tried to extend and failed, so just create from scratch
+        extend_file = false;
+        mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(),
+                                      HeartConfig::Instance()->GetOutputDirectory(),
+                                      HeartConfig::Instance()->GetOutputFilenamePrefix(),
+                                      !extend_file,
+                                      extend_file);
     }
 
     // Define columns, or get the variable IDs from the writer
