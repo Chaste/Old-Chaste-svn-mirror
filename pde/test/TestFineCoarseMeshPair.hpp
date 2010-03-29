@@ -228,16 +228,18 @@ public:
         TS_ASSERT_EQUALS(mesh_pair2.mpFineMeshBoxCollection->GetNumBoxes(), 20*20u);
     }
 
-    // test when calling ComputeFineElementsAndWeightsForCoarseQuadPoints() in non-safe mode,
-    // but using the default value of box width
-    void TestWithCoarseSlightlyOutsideFineNonSafeMode() throw(Exception)
+    // Test when calling ComputeFineElementsAndWeightsForCoarseQuadPoints() in non-safe mode,
+    // but using the default value of box width.
+    // It is difficult to get the class to run incorrectly (ie fail without an assertion failing)
+    // in non-safe mode (ie we can't just specify boxes that are too small), so we just test we
+    // get the same results as in safe mode.
+    void TestNonSafeMode() throw(Exception)
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
         fine_mesh.ConstructCuboid(10,10,10);
         fine_mesh.Scale(0.1, 0.1, 0.1);
 
-        // coarse mesh is slightly bigger than in earlier test
         QuadraticMesh<3> coarse_mesh(1.03, 1.0, 1.0, 1, 1, 1); // xmax > 1.0
 
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
@@ -274,37 +276,37 @@ public:
     }
 
 
-
-////    // Uncomment this test and stick in your own two meshes to see if they will be suitable for
-////    // an electromechanics simulation. There shouldn't be two many quadrature points reported to
-////    // be outside the fine mesh, and for those that are, the weights (corresponding to the nearest
-////    // elements) shouldn't be too far away from the interval [0,1]
-////    void verylongTestExperiment() throw(Exception)
-////    {
-////        TetrahedralMesh<3,3> electrics_mesh;
-////        QuadraticMesh<3> mechanics_mesh;
-////
-////        {
-////            TrianglesMeshReader<3,3> reader1("/home/chaste/Desktop/heartmeshes/pras_rat_mesh/heart_d1_16_i_triangles");
-////            electrics_mesh.ConstructFromMeshReader(reader1);
-////
-////            TrianglesMeshReader<3,3> reader2("projects/pras/test/data/Rat/rat_d1_quadratic",2,2);
-////            mechanics_mesh.ConstructFromMeshReader(reader2);
-////        }
-////
-////        FineCoarseMeshPair<3> mesh_pair(electrics_mesh,mechanics_mesh);
-////
-////        std::cout << "Min & max x = " << mesh_pair.mMinValuesFine(0) << " " << mesh_pair.mMaxValuesFine(0) << "\n";
-////
-////        mesh_pair.SetUpBoxesOnFineMesh();
-////
-////        std::cout << "Num boxes = " << mesh_pair.mpFineMeshBoxCollection->GetNumBoxes() << "\n";
-////
-////        GaussianQuadratureRule<3> quad_rule(3);
-////        mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, false);
-////
-////        mesh_pair.PrintStatistics();
-////    }
+//
+//    // Uncomment this test and stick in your own two meshes to see if they will be suitable for
+//    // an electromechanics simulation. There shouldn't be two many quadrature points reported to
+//    // be outside the fine mesh, and for those that are, the weights (corresponding to the nearest
+//    // elements) shouldn't be too far away from the interval [0,1]
+//    void verylongTestExperiment() throw(Exception)
+//    {
+//        TetrahedralMesh<3,3> electrics_mesh;
+//        QuadraticMesh<3> mechanics_mesh;
+//
+//        {
+//            TrianglesMeshReader<3,3> reader1("/home/chaste/Desktop/heartmeshes/pras_rat_mesh/heart_d1_16_i_triangles");
+//            electrics_mesh.ConstructFromMeshReader(reader1);
+//
+//            TrianglesMeshReader<3,3> reader2("projects/pras/test/data/Rat/rat_d1_quadratic",2,2);
+//            mechanics_mesh.ConstructFromMeshReader(reader2);
+//        }
+//
+//        FineCoarseMeshPair<3> mesh_pair(electrics_mesh,mechanics_mesh);
+//
+//        std::cout << "Min & max x = " << mesh_pair.mMinValuesFine(0) << " " << mesh_pair.mMaxValuesFine(0) << "\n";
+//
+//        mesh_pair.SetUpBoxesOnFineMesh();
+//
+//        std::cout << "Num boxes = " << mesh_pair.mpFineMeshBoxCollection->GetNumBoxes() << "\n";
+//
+//        GaussianQuadratureRule<3> quad_rule(3);
+//        mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, false);
+//
+//        mesh_pair.PrintStatistics();
+//    }
 
 };
 

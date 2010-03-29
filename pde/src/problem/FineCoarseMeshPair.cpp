@@ -159,7 +159,7 @@ void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
 
 template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(GaussianQuadratureRule<DIM>& rQuadRule,
-                                                                               bool safe)
+                                                                               bool safeMode)
 {
     if(mpFineMeshBoxCollection==NULL)
     {
@@ -176,7 +176,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
     {
         for(unsigned i=0; i<quad_point_posns.Size(); i++)
         {
-            //std::cout << "\r (Identical meshes) " << i << " of " << quad_point_posns.Size();
+            //std::cout << "\r (Identical meshes) " << i << " of " << quad_point_posns.Size() << std::flush;
 
             ChastePoint<DIM> point;
             for(unsigned j=0; j<DIM; j++)
@@ -204,7 +204,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
     {
         for(unsigned i=0; i<quad_point_posns.Size(); i++)
         {
-            //std::cout << "\r " << i << " of " << quad_point_posns.Size();
+            //std::cout << "\r " << i << " of " << quad_point_posns.Size() << std::flush;
             
             // get the box this point is in
             unsigned box_for_this_point = mpFineMeshBoxCollection->CalculateContainingBox( quad_point_posns.Get(i) );
@@ -264,7 +264,6 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
 
                 try
                 {
-                    //std::cout << "\n -- # extra test elements " << test_element_indices.size() << "\n";
                     elem_index = mrFineMesh.GetContainingElementIndex(point,
                                                                       false,
                                                                       test_element_indices,
@@ -276,7 +275,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
                 }
                 catch(Exception& e)
                 {
-                    if(!safe)
+                    if(safeMode)
                     {
                         // try the remaining elements
                         try
@@ -300,6 +299,8 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
                     }
                     else
                     {
+                        assert(test_element_indices.size()>0); // boxes probably too small if this fails
+                        
                         // immediately assume it isn't in the rest of the mesh - this should be the 
                         // case assuming the box width was chosen suitably.
                         // Store the nearest element and corresponding weights
@@ -329,7 +330,7 @@ void FineCoarseMeshPair<DIM>::PrintStatistics()
     std::cout << "\tNum points for which containing (fine) element was in local box = " << mCounters[1] << "\n";
     std::cout << "\tNum points for which containing (fine) element was in non-local element = " << mCounters[2] << "\n";
     std::cout << "\tNum points for which no containing element was found in fine mesh = " << mCounters[3] << "\n";
-    if(mCounters[2]>0)
+    if(mCounters[3]>0)
     {
         std::cout << "\tIndices and weights for points for which no containing element was found:\n";
         for(unsigned i=0; i<mNotInMesh.size(); i++)

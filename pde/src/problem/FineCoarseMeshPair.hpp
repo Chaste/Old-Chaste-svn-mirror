@@ -129,14 +129,14 @@ public:
      * looping over all the quad points).
      * 
      *  @param rQuadRule The quadrature rule, used to determine the number of quadrature points per element.
-     *  @param safe This method uses the elements in the boxes to guess which element a quad point is in. If a 
-     *   quad point is in none of these elements, then if safe==true, it will then search the whole mesh.
-     *   If safe==false it will assume the immediately the quad point isn't in the mesh at all. Safe=false is
-     *   will far more efficient with big meshes, but should be fine to use if SetUpBoxesOnFineMesh() is 
-     *   called with default values). 
+     *  @param safeMode This method uses the elements in the boxes to guess which element a quad point is in. If a 
+     *   quad point is in none of these elements, then if safeMode==true, it will then search the whole mesh.
+     *   If safeMode==false it will assume the immediately the quad point isn't in the mesh at all. safeMode=false is
+     *   will far more efficient with big meshes. It should be fine to use safeMode=false if SetUpBoxesOnFineMesh() is 
+     *   called with default values. 
      */
     void ComputeFineElementsAndWeightsForCoarseQuadPoints(GaussianQuadratureRule<DIM>& rQuadRule,
-                                                          bool safe);
+                                                          bool safeMode);
 
     /**
      *  Print the number of points for which the containing element was found quickly, the number
