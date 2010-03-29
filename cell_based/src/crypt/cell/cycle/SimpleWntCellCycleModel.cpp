@@ -199,14 +199,13 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
         }
 
         mpCell->SetCellProliferativeType(cell_type);
-        AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
     }
     else
     {
         // The cell is DIFFERENTIATED and so in G0 phase
         mpCell->SetCellProliferativeType(DIFFERENTIATED);
-        mCurrentCellCyclePhase = G_ZERO_PHASE;
     }
+    AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
 }
 
 void SimpleWntCellCycleModel::InitialiseDaughterCell()

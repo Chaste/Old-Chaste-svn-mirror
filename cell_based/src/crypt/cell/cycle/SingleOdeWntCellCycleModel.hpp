@@ -48,9 +48,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * to finish G1 phase then adds time for S and G2 phases. The CellProliferativeType is
  * updated dependent on the concentration of beta-catenin (given by one
  * of the ODEs).
- *
- * Note that this class uses C++'s default copying semantics, and so
- * doesn't implement a copy constructor or operator=.
  */
 class SingleOdeWntCellCycleModel : public SimpleWntCellCycleModel
 {

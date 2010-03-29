@@ -46,9 +46,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  *  Time taken to progress through the cycle is deterministic and given by
  *  an ODE system independent of external factors.
- *
- *  Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
- *  or operator=.
  */
 class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModelWithStoppingEvent
 {
