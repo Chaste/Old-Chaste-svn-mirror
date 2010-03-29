@@ -47,6 +47,8 @@ from the 64-bit library.  Do so like this:
 cd $CHASTE_LIBS
 ln -s lib64 lib
 
+Note: we have had reports that Chaste does not yet work with SCons 1.3.0.
+
 
 ========MPI and PETSC:=======
 

@@ -14,5 +14,5 @@ Add
   #undef SEEK_CUR
 before
   #include "mpi.h"
-in $HOME/hdf5/include/H5public.h
+in $CHASTE_LIBS/hdf5/include/H5public.h
 
