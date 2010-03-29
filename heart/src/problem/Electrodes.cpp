@@ -43,9 +43,6 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
       mLeftElectrodeArea(0.0),
       mRightElectrodeArea(0.0)
 {
-    /// \todo what on earth is this for???
-    DistributedVectorFactory factory(mpMesh->GetDistributedVectorFactory()->GetProblemSize(),
-                                     mpMesh->GetDistributedVectorFactory()->GetLocalOwnership());
     assert(index < DIM);
     mGroundSecondElectrode = groundSecondElectrode;
     assert(duration > 0);

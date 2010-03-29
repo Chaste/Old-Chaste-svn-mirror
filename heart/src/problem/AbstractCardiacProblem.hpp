@@ -640,9 +640,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
         }
         else
         {
-            // The BCs will only actually be different if using a parallel tetrahedral mesh
-            DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_para_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>*>(mpMesh);
-            if (p_para_mesh)
+            // The BCs will only actually be different if using a distributed tetrahedral mesh
+            DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_dist_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>*>(mpMesh);
+            if (p_dist_mesh)
             {
                 mpBoundaryConditionsContainer->MergeFromArchive(archive, mpMesh);
             }
@@ -658,7 +658,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     archive >> p_default_bcc;
     if (p_default_bcc)
     {
-        // This always holds, so we never need to load the BCs, since they are the last thing in the archive.
+        // This always holds, so we never need to load the default BCs
         assert(p_bcc == p_default_bcc);
     }
 

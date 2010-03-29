@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainPde.hpp"
 #include "BidomainDg0Assembler.hpp"
 #include "HeartRegionCodes.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 
 /**
  * Class which specifies and solves a bidomain problem.
@@ -287,7 +288,18 @@ void BidomainProblem<DIM>::LoadExtraArchiveForBidomain(Archive & archive, unsign
         archive >> p_bcc;
         if (mpElectrodes->GetBoundaryConditionsContainer() != this->mpBoundaryConditionsContainer)
         {
-            mpElectrodes->GetBoundaryConditionsContainer()->MergeFromArchive(archive, this->mpMesh);
+            // The BCs will only actually be different if using a distributed tetrahedral mesh
+            DistributedTetrahedralMesh<DIM,DIM>* p_dist_mesh = dynamic_cast<DistributedTetrahedralMesh<DIM,DIM>*>(this->mpMesh);
+            if (p_dist_mesh)
+            {
+                mpElectrodes->GetBoundaryConditionsContainer()->MergeFromArchive(archive, this->mpMesh);
+            }
+            else
+            {
+                // Load into the temporary container, which will get thrown away shortly
+                p_bcc->LoadFromArchive(archive, this->mpMesh);
+                /// \todo sanity check that the contents of p_bcc and mpElectrodes->GetBoundaryConditionsContainer() match.
+            }
         }
     }
 }
