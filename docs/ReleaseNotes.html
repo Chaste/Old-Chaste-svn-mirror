@@ -7,7 +7,19 @@
 
 <h1>Chaste Release Notes</h1>
 
-<h2>THIS_RELEASE (changes since Release 1.1)</h2>
+<h2>Release 2.0 (changes since Release 1.1)</h2>
+
+<h3>Headline features</h3>
+
+<ul>
+  <li>Support for more versions of our library dependencies.</li>
+  <li>Cancer component renamed to cell_based.</li>
+  <li>Checkpointing of cardiac simulations now supported.</li>
+  <li>Cardiac simulation post-processing functionality now available in the executable.</li>
+  <li>Dynamic loading of cell models defined in CellML (using a source release of Chaste).</li>
+  <li>Improved documentation of the parameters file XML schema.</li>
+  <li>Use of parMETIS for partitioning in parallel cardiac simulations.</li>
+</ul>
 
 <h3>Library compatibility</h3>
 We have improved Chaste compatibility with its library dependencies:
@@ -19,38 +31,191 @@ Chaste configuration.</li>
 <li> HDF5 - Chaste is known to work with version 1.6.6 (recommended) and
 version 1.8.3.</li>
 <li> PETSc - Chaste is known to work with version 2.2.1, version 2.3.2
-(recommended), version 2.3.2 and version 3.0.</li>
-<li> Boost - Chaste is known to work with Boost 1_33 (where there may be
-back-compatibility issues with minor tests), Boost 1_34 (recommended) and
-Boost 1_37.  Chaste DOES NOT WORK with Boost 1_35 due to a known bug in that 
-version of Boost.</li>
+(recommended), version 2.3.3 and version 3.0.</li>
+<li> Boost - Chaste is regularly tested with Boost 1.33.1, Boost 1.34 (recommended) and Boost 1.37.
+Chaste also supports Boost 1.36, 1.38 and 1.40, although these versions are not regularly tested.
+Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boost)
+ nor with version 1.41 and above (due to changes in the serialization library API).
+</li>
 </ul>
 
 <h3>Code changes</h3>
 
-<li>New functionality.
-  <ul>
-  <li>RegionAttributes can be added to Triangle/Tetgen element and face/edge files.  
-  These should be non-negative and can be retrieved with <tt>mesh.GetBoundaryElement(i)->GetRegion()</tt>
-  or similar.  Note that (due to the default behaviour of Triangle) edges with a region attribute of zero 
-  are ignored.</li>
-  </ul>
-</li>
+<h4>New functionality</h4>
 
-<li>Some behaviour corrections.
-  <ul>
-  <li>An indexing error in previous release meant that mesh produced by Chaste on the fly (slab/cuboid meshes) were not conforming.  That is, the faces did not meet correctly and the finite element approximation was discontinuous.  This behaviour has been fixed</li>
-  </ul></li>
+<ul>
+  <li>
+    Region attributes can be added to Triangle/Tetgen element and face/edge files.  
+    These should be non-negative and can be retrieved with <tt>mesh.GetBoundaryElement(i)->GetRegion()</tt>
+    or similar.  Note that (due to the default behaviour of Triangle) edges with a region attribute of zero 
+    are ignored.
+  </li>
+  
+  <li>
+    To support ongoing extensions to the executable functionality, the Chaste parameters file now uses an XML
+    namespace to indicate which version of Chaste it is for.
+    This means that there are now multiple schemas in <tt>heart/src/io</tt>, one for release 1.1 and one for release 2.0.
+    To update your parameters XML files, simply add a namespace declaration by adding the following attributes to the root
+    <tt>ChasteParameters</tt> element:
+    <pre>
+       xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 ChasteParameters_2_0.xsd"</pre>
+    See <tt>ChasteParameters.xml</tt> in the Chaste source folder for an example.  Make sure to use the correct path to the
+    <tt>ChasteParameters_2_0.xsd</tt> file.
+    Chaste should still be able to read old parameters files, but you will need to use the new version to take advantage of new features
+    (such as postprocessing and checkpointing).
+  </li>
+  
+  <li>
+    What format to convert HDF5 output to can now be specified in the XML configuration file (using the <tt>OutputVisualizer</tt> element),
+    and hence via <tt>HeartConfig</tt>.  As part of this change, the default behaviour has also changed to outputting meshalyzer data;
+    if you don't want this you have to explicitly turn it off.  There is an unfortunate conflict between visualizer output and outputting
+    cell model state variables - you can't do both!  Calling <tt>SetOutputVariables</tt> on <tt>HeartConfig</tt> will automatically turn off
+    visualizer output.  If you specify <tt>OutputVariables</tt> in the XML configuration file, however, you are responsible for also including
+    an <tt>&lt;OutputVisualizer meshalyzer="no"/&gt;</tt> element.
+  </li>
+  
+  <li>
+    The cardiac executable has gained the ability to automatically load cell models encoded as CellML files at run-time, rather than needing
+    them to be incorporated within Chaste when it is compiled.  In order to take advantage of this, you need (at present) to have built the
+    executable from source yourself, as it uses your Chaste source tree to convert the CellML file into runnable code.
+    
+    <br />This change means that the definition of ionic models within the parameters file has changed.  To specify one of the models
+    included within Chaste, you now need to wrap it in a <tt>&lt;Hardcoded&gt;</tt> element, e.g.
+        <pre>    &lt;Hardcoded&gt;FaberRudy2000&lt;/Hardcoded&gt;</pre>
+    Specify a dynamically loaded model using the <tt>&lt;Dynamic&gt;</tt> element instead, e.g.
+        <pre>
+    &lt;Dynamic&gt;
+        &lt;Path relative_to="chaste_source_root"&gt;heart/dynamic/libDynamicallyLoadableLr91.so&lt;/Path&gt;
+    &lt;/Dynamic&gt;</pre>
+    The path may either point to a pre-compiled shared library (as in the example), or a CellML file.  If the latter, a shared library will
+    be created in the same folder as the CellML file, and loaded by the executable at run-time.
+    See <tt>heart/test/data/xml/ChasteParametersFullFormat.xml</tt> for a full example parameters file.
+    
+    <b>TODO</b>: Update CodeGenerationFromCellML.
+    
+    <br />Another side effect of this
+    is that the continuous test pack now requires the prerequisites for PyCml to be installed in order for the tests of this new functionality
+    to pass.  See <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallPyCml">InstallPyCml</a> for installation instructions.
+  </li>
+  
+  <li>
+    Checkpointing functionality has now been added to the cardiac executable.  This is activated by including a <tt>CheckpointSimulation</tt>
+    element within the <tt>Simulation</tt> element, e.g.
+    <pre>    &lt;CheckpointSimulation timestep="0.2" unit="ms" max_checkpoints_on_disk="3"/&gt;</pre>
+    The <tt>timestep</tt> specifies how frequently to checkpoint, and must be a multiple of the printing timestep.  You can, optionally,
+    specify the maximum number of checkpoints to keep on disk; when this limit is reached, the oldest checkpoint will be deleted before a new
+    checkpoint is made.
+    <br />Note that making a checkpoint does add a significant overhead at present, in particular because the mesh is written out to disk at
+    each checkpoint.  This is to ensure that each checkpoint directory contains everything needed to resume the simulation.  In particular,
+    the mesh written out will be in permuted form if it was partitioned for a parallel simulation.
+    <br />Checkpoints will be written to a tree of folders adjacent to the main test output, as shown here (where &lt;OutputDirectory&gt; is
+    the folder specified by the &lt;OutputDirectory&gt; element):
+    <pre>
+        CHASTE_TEST_OUTPUT
+            &lt;OutputDirectory&gt;
+            &lt;OutputDirectory&gt;_checkpoints
+                0.2ms                        (or whatever the timestep is set to)
+                    &lt;OutputDirectory&gt;        (a copy of the simulation output so far)
+                    &lt;OutputDirectory&gt;_0.2ms  (the checkpoint data itself)
+                    ResumeParameters.xml     (a parameters file for easy resuming from this checkpoint)
+                0.4ms
+                ...</pre>
+    To resume from a checkpoint, copy the contents of the relevant folder (e.g. <tt>0.2ms</tt>) into the <tt>CHASTE_TEST_OUTPUT</tt> folder,
+    edit the <tt>ResumeParameters.xml</tt> file to set the <tt>ArchiveDirectory</tt> correctly, and run the executable with that parameters
+    file.
+    <br />Checkpoints may be resumed on any number of processes &mdash; you are not restricted to the number on which it was saved.  However,
+    the mesh will <b>not</b> be re-partitioned if loaded on a different number of processes, so the parallel efficiency of the simulation may
+    be significantly reduced in this case.
+    <br />Resuming a checkpoint will attempt to extend the original results h5 file, if present, so that the file contains the complete
+    simulation results.  If this file does not exist, a new file will be created to contain just the results from the resume point.
+  </li>
+  
+  <li><b>TODO</b>: Use of CVODE for single-cell cardiac simulations</li>
+  
+  <li><b>TODO</b>: Post-processing</li>
+</ul>
+
+<h4>Some behaviour corrections</h4>
+
+<ul>
+  <li>
+    An indexing error in previous release meant that mesh produced by Chaste on the fly (slab/cuboid meshes) were not conforming.
+    That is, the faces did not meet correctly and the finite element approximation was discontinuous.  This behaviour has been fixed.
+  </li>
+</ul>
 
 <h4>Interface changes that may require changes to user code</h4>
 
 <ul>
-
-<li>General:<ul>
-<li><tt>LinearSystem::ZeroMatrixRow</tt> is deprecated due to inefficiency. 
-Use <tt>LinearSystem::ZeroMatrixRowsWithValueOnDiagonal</tt> to modify
-multiple rows instead.</li>
-</ul></li>
+  <li>General:<ul>
+    <li>
+      <tt>LinearSystem::ZeroMatrixRow</tt> is deprecated due to inefficiency. 
+      Use <tt>LinearSystem::ZeroMatrixRowsWithValueOnDiagonal</tt> to modify multiple rows instead.
+    </li>
+    <li>
+      In the <tt>AssemblerTraits</tt> struct, the typenames '<tt>CVT_CLS</tt>', '<tt>CMT_CLS</tt>' and '<tt>INTERPOLATE_CLS</tt>'
+      have been renamed to '<tt>CVT_CLASS</tt>', '<tt>CMT_CLASS</tt>' and '<tt>INTERPOLATE_CLASS</tt>'.
+      These stand for 'ComputeVectorTerm class', 'ComputeMatrixTerm class' and 'Interpolate class' in case you are wondering,
+      and the <tt>AssemblerTraits</tt> struct is used to state which classes these methods are implemented in. 
+    </li>
+    <li>
+      Changed <tt>OdeSolution::WriteToFile()</tt> so that it no longer takes the <tt>AbstractOdeSystem</tt> as an argument.
+    </li>
+    <li>
+      If you were implementing serialization for classes, note that the interface has changed, in order to better support different Boost
+      versions.  You should include <tt>ChasteSerialization.hpp</tt> rather than <tt>boost/serialization/access.hpp</tt>.
+      Also, the file <tt>TemplatedExport.hpp</tt>
+      has been replaced with two files: <tt>SerializationExportWrapper.hpp</tt> and <tt>SerializationExportWrapperForCpp.hpp</tt>.
+      You should include the first in .hpp files, after the class definition.  The second should be included in .cpp files, after any
+      other includes (I suggest putting it at the end of the file for consistency).  In both cases, a suitable <tt>CHASTE_CLASS_EXPORT</tt>
+      line should be used, the same in both .hpp and .cpp.  (There are also the usual variant macros for common cases of templated classes.)
+      See <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/BoostSerialization">BoostSerialization</a> for more info. 
+    </li>
+  </ul></li>
+  
+  <li>Cardiac:<ul>
+    <li>
+      The boundary conditions container in cardiac problem classes is now accessed via a <tt>boost::shared_ptr</tt> (rather than a raw pointer).
+      The PDE assembler hierarchy is still using normal pointers, however, so this should only affect people creating cardiac problem subclasses,
+      or setting their own boundary conditions for cardiac problems: if you do these, you'll need to use a shared pointer now.
+    </li>
+    <li>
+      The methods <tt>ConvertOutputToMeshalyzerFormat</tt>, <tt>ConvertOutputToCmguiFormat</tt> and <tt>ConvertOutputToVtkFormat</tt>
+      have been removed from <tt>AbstractCardiacProblem</tt>.  Code using these should change to use the methods
+      <tt>SetVisualizeWithMeshalyzer</tt>, <tt>SetVisualizeWithCmgui</tt> or <tt>SetVisualizeWithVtk</tt> on <tt>HeartConfig</tt>.
+    </li>
+    <li>TODO: Any changes due to parMETIS?</li>
+  </ul></li>
+  
+  <li>Cancer:<ul>
+    <li>
+      The <tt>cancer</tt> folder has been renamed to <tt>cell_based</tt> to reflect the more general nature of the code.
+      There is a subfolder called <tt>crypt</tt> containing crypt-specific functionality.
+      If you have a user project using the cancer code, a search &amp; replace from <tt>cancer</tt> to <tt>cell_based</tt> should suffice,
+      especially in your project <tt>SConscript</tt> file.
+    </li>
+    <li>
+      <tt>TissueConfig::Get/SetTopOfLinearWntGradient()</tt> have been renamed to <tt>Get/SetWntConcentrationParameter()</tt>,
+      so that an exponential Wnt concentration could be added.
+    </li>
+    <li>
+      The <tt>CryptCellMutationState</tt> enumeration has been replaced by a hierarchy of classes inheriting from
+      <tt>AbstractCellMutationState</tt>.  <tt>TissueCell</tt>s now have a shared pointer to a mutation state.  To ensure proper counting
+      of cells with each mutation, make sure that you give a cell a mutation state from its tissue's registry
+      (<tt>AbstractTissue::GetMutationRegistry</tt>).  Also, when passing a vector of cells to a tissue constructor, the passed-in vector
+      is now cleared, to emphasize that these cells become owned by the tissue.  Also removed <tt>AbstractTissue::mCellMutationStateCount</tt>
+      and, as a result, changed <tt>rGetCellMutationStateCount()</tt> to <tt>GetCellMutationStateCount()</tt>.
+    </li>
+    <li>
+      The <tt>CellsGenerator</tt> class hierarchy has been refactored to reduce code duplication.  There is now a base class
+      <tt>CellsGenerator</tt>, which is templated over cell cycle model classes and dimension, and comprises <tt>GenerateBasic()</tt> and
+      <tt>GenerateGivenLocationIndices()</tt> methods; and a subclass <tt>CryptCellsGenerator</tt>, which has an additional method
+      <tt>Generate()</tt> that sets up cells for a crypt simulation.
+    </li>
+  </ul></li>
+</li>
 </ul>
 
 
