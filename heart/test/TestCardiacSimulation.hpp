@@ -215,7 +215,7 @@ public:
      * Run TestCardiacSimulationArchiveBidomain on 4 processors to create the archive for this test,
      * and copy it to the repository using:
      *
-       scons build=GccOpt_hostconfig,boost=1-33-1_4 test_suite=heart/test/TestCardiacSimulation.hpp
+       scons build=GccOpt_hostconfig,boost=1-33_4 test_suite=heart/test/TestCardiacSimulation.hpp
        cp -r /tmp/$USER/testoutput/SaveBidomainShort_checkpoints/0.2ms heart/test/data/checkpoint_migration_via_xml/
        rm heart/test/data/checkpoint_migration_via_xml/0.2ms/SaveBidomainShort/progress_status.txt
        rm -rf heart/test/data/checkpoint_migration_via_xml/0.2ms/SaveBidomainShort/output

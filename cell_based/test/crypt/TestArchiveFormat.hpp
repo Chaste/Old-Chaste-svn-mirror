@@ -66,7 +66,7 @@ public:
      * with build=GccOpt to speed up the test.
      *
      * NB: Produce archives with
-       scons build=GccOpt_hostconfig,boost=1-33-1  test_suite=cell_based/test/crypt/TestGenerateSteadyStateCrypt.hpp
+       scons build=GccOpt_hostconfig,boost=1-33  test_suite=cell_based/test/crypt/TestGenerateSteadyStateCrypt.hpp
        cp /tmp/$USER/testoutput/SteadyStateCrypt/archive/?*_150.* cell_based/test/data/SteadyStateCrypt/archive/
      *
      */
