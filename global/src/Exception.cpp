@@ -31,15 +31,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 //#include "LogFile.hpp"
 
-Exception::Exception(std::string message,
-                     std::string filename, const unsigned rLineNumber)
-    : mShortMessage(message)
+Exception::Exception(const std::string& rMessage,
+                     const std::string& rFilename, unsigned lineNumber)
+    : mShortMessage(rMessage)
 {
-    std::stringstream line_number;
-    line_number << rLineNumber;
-
-    mMessage = std::string("\nChaste error: ") + filename + ":"  + line_number.str()  + ": " + mShortMessage;
-
+    std::stringstream line_number_stream;
+    line_number_stream << lineNumber;
+    mMessage = std::string("\nChaste error: ") + rFilename + ":"  + line_number_stream.str()  + ": " + mShortMessage;
     ///// The following would write the error message to the log file, if one exists.
     ///// It's commented out because you end up with 100s of errors in the log from
     ///// element nodes being swapped around when the mesh is read in.

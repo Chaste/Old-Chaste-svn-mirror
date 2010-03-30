@@ -63,7 +63,7 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index)
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ReplaceNode(Node<SPACE_DIM>* pOldNode, Node<SPACE_DIM>* pNewNode)
 {
-    //assert(pOldNode != pNewNode); /// \todo this will sometimes trip; is it a logic error?
+    assert(pOldNode != pNewNode); /// \todo this will sometimes trip; is it a logic error?
     for (unsigned i=0; i<this->mNodes.size(); i++)
     {
         if (this->mNodes[i] == pOldNode)

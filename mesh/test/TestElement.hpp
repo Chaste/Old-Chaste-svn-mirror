@@ -463,8 +463,10 @@ public:
         TS_ASSERT_THROWS_THIS(element.CalculateWeightedDirection(weighted_direction, det),"Attempting to Refresh a deleted element");
 
         Node<3>* p_fake_node = new Node<3>(0, false, 0.0, 0.0, 0.0);
-        TS_ASSERT_THROWS_THIS(element.ReplaceNode(p_fake_node, p_fake_node),"You didn\'t have that node to start with.");
+        Node<3>* p_fake_node2 = new Node<3>(0, false, 0.0, 0.0, 0.0);
+        TS_ASSERT_THROWS_THIS(element.ReplaceNode(p_fake_node, p_fake_node2),"You didn\'t have that node to start with.");
         delete p_fake_node;
+        delete p_fake_node2;
 
         for (unsigned i=0; i<nodes.size(); i++)
         {

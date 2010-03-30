@@ -66,7 +66,7 @@ unsigned LogFile::Level()
 }
 
 
-void LogFile::Set(unsigned level, std::string directory, std::string fileName)
+void LogFile::Set(unsigned level, const std::string& rDirectory, const std::string& rFileName)
 {
     if (level > mMaxLoggingLevel)
     {
@@ -83,8 +83,8 @@ void LogFile::Set(unsigned level, std::string directory, std::string fileName)
 //    out_stream p_file(new std::ofstream(file.c_str()));
 //    mpOutStream = p_file;
 
-    OutputFileHandler handler(directory, false);
-    mpOutStream = handler.OpenOutputFile(fileName);
+    OutputFileHandler handler(rDirectory, false);
+    mpOutStream = handler.OpenOutputFile(rFileName);
     mFileSet = true;
 
     // write header in the log file..?

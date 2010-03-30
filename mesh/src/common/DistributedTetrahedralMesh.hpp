@@ -79,7 +79,7 @@ public:
     {
         DUMB=0,
         PARMETIS_LIBRARY=1,
-        METIS_LIBRARY=2 ///\todo and replace this one with ParMETIS.  But keep the same numbers for the archives?
+        METIS_LIBRARY=2 
     } PartitionType;
 
 private:

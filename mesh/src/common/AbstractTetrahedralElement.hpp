@@ -100,15 +100,15 @@ public:
     void CalculateWeightedDirection(c_vector<double, SPACE_DIM>& rWeightedDirection, double& rJacobianDeterminant);
 
     /**
-     * Compute the inverse Jacobian for this element.
+     * Compute the Jacobian and the inverse Jacobian for this element.
      *
-     * @param rJacobian  the Jacobian matrix
-     * @param rJacobianDeterminant  the determinant of the Jacobian
-     * @param rInverseJacobian  the inverse Jacobian matrix
+     * @param rJacobian  the Jacobian matrix (output)
+     * @param rJacobianDeterminant  the determinant of the Jacobian (output)
+     * @param rInverseJacobian  the inverse Jacobian matrix (output)
      */
     void CalculateInverseJacobian(c_matrix<double, SPACE_DIM, ELEMENT_DIM>& rJacobian,
                                   double& rJacobianDeterminant,
-                                  c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian); /// \todo make this argument const?
+                                  c_matrix<double, ELEMENT_DIM, SPACE_DIM>& rInverseJacobian);
 
     /** Get the volume of an element (or area in 2d, or length in 1d)
      * @param determinant a pre-calculated Jacobian determinant for this element.

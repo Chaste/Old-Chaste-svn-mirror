@@ -316,7 +316,6 @@ public:
      * @param rWeightedDirection the weighted direction vector
      * @param rJacobianDeterminant  the determinant of the Jacobian matrix
      *
-     * \todo: this method doesn't seem to be used anywhere but in the test. Consider removing it.
      */
     virtual void GetWeightedDirectionForBoundaryElement(unsigned elementIndex,
                                                         c_vector<double, SPACE_DIM>& rWeightedDirection,

@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-BoundaryElement<ELEMENT_DIM, SPACE_DIM>::BoundaryElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
-    : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
+BoundaryElement<ELEMENT_DIM, SPACE_DIM>::BoundaryElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes)
+    : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes)
 {
     RegisterWithNodes();
 }
@@ -50,12 +50,6 @@ BoundaryElement<ELEMENT_DIM, SPACE_DIM>::BoundaryElement(unsigned index, Node<SP
 
     // Store Node pointer
     this->mNodes.push_back(pNode);
-
-//        this->mJacobian(0,0) = 1.0;
-//        this->mInverseJacobian(0,0) = 1.0;
-//        this->mWeightedDirection(0) = 1.0;
-//        this->mJacobianDeterminant = 1.0;
-
     RegisterWithNodes();
 }
 

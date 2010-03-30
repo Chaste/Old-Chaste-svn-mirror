@@ -39,8 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Element<ELEMENT_DIM, SPACE_DIM>::Element(unsigned index, std::vector<Node<SPACE_DIM>*> nodes)
-    : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>(index, nodes)
+Element<ELEMENT_DIM, SPACE_DIM>::Element(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes)
+    : AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes)
 {
     RegisterWithNodes();
 }

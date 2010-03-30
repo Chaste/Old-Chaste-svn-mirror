@@ -120,10 +120,10 @@ public:
      *  The directory is never cleaned.
      *
      *  @param level  the logging level
-     *  @param directory  the directory in which to write the data to file \todo make this argument a reference?
-     *  @param fileName  the name of the file to write to, relative to the output directory
+     *  @param rDirectory  the directory in which to write the data to file
+     *  @param rFileName  the name of the file to write to, relative to the output directory
      */
-    void Set(unsigned level, std::string directory, std::string fileName="log.txt");
+    void Set(unsigned level, const std::string& rDirectory, const std::string& rFileName="log.txt");
 
     /**
      *  Get the maximum allowed logging level.

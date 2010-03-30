@@ -325,14 +325,14 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_DIM> transVec)
+void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::Translate(const c_vector<double, SPACE_DIM>& rTransVec)
 {
     unsigned num_nodes = this->GetNumAllNodes();
 
     for (unsigned i=0; i<num_nodes; i++)
     {
         c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
-        r_location += transVec;
+        r_location += rTransVec;
     }
 
     RefreshMesh();

@@ -162,10 +162,9 @@ public:
      * Translate the mesh given the displacement vector.
      * This is the translation method that actually does the work.
      *
-     * @param displacement is a translation vector of the correct size
-     * \todo pass by const reference?
+     * @param rDisplacement is a translation vector of the correct size
      */
-    void Translate(c_vector<double, SPACE_DIM> displacement);
+    void Translate(const c_vector<double, SPACE_DIM>& rDisplacement);
 
     /**
      * Translate the mesh given the coordinate displacements separately.
@@ -337,10 +336,9 @@ public:
     /**
      * Flag all elements not containing ANY of the given nodes
      *
-     * @param nodes  set of nodes to check for
-     * \todo pass by const reference?
+     * @param rNodes  set of nodes to check for
      */
-    void FlagElementsNotContainingNodes(std::set<unsigned> nodes);
+    void FlagElementsNotContainingNodes(const std::set<unsigned> rNodes);
 
     /** Update mElementJacobians, mElementWeightedDirections and mBoundaryElementWeightedDirections. */
     virtual void RefreshJacobianCachedData();
@@ -428,9 +426,7 @@ public:
         unsigned mElemIndex;       /**< Element index. */
         unsigned mNodeALocalIndex; /**< Index of one node on the edge. */
         unsigned mNodeBLocalIndex; /**< Index of the other node on the edge. */
-        unsigned mCellIndex;       /**< Cell index. \todo This doesn't appear to be used anywhere - remove it? */
-        unsigned mNodeIndex;       /**< Node index. \todo This doesn't appear to be used anywhere - remove it? */
-
+    
     };
 
     /**

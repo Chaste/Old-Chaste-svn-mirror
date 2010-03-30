@@ -60,7 +60,6 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
 {
     // Sanity checking
     unsigned num_vectices = ELEMENT_DIM+1;
-//    assert(this->mNodes.size() == total_nodes);
 
     // This is so we know it's the first time of asking
     // Create Jacobian

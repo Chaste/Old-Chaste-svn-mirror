@@ -47,9 +47,9 @@ public:
      * Constructor which takes in a vector of nodes.
      *
      * @param index  the index of the element in the mesh
-     * @param nodes  the nodes owned by the element \todo make rNodes like in AbstractTetrahedralElement? (#991)
+     * @param rNodes  the nodes owned by the element 
      */
-    BoundaryElement(unsigned index, std::vector<Node<SPACE_DIM>*> nodes);
+    BoundaryElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 
     /**
      * Create a new boundary element from a Node.
