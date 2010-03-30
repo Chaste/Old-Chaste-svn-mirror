@@ -695,19 +695,16 @@ class MemoryTesting(GccDebug):
                 lineno += 1
                 match = lost.match(outputLines[lineno])
                 while match:
-                    blocks = match.group(3).replace(',', '')
-                    if int(blocks) > 0:
-                        # Hack for chaste-bob
-                        bytes = match.group(2).replace(',', '')
+                    blocks = int(match.group(3).replace(',', ''))
+                    if blocks > 0:
+                        # Hack for chaste-bob; also HDF5 tests which
+                        # fail to open a file.
+                        bytes = int(match.group(2).replace(',', ''))
                         if match.group(1) == 'indirectly' and \
-                           int(bytes) == 240 and \
-                           int(blocks) == 10:
+                           ((bytes == 240 and blocks == 10) or
+                            (bytes == 248 and blocks == 12) or
+                            (bytes == 256 and blocks == 14)):
                             status = 'Warn'
-                        #HDF5 Test giving unexpected indirect loss
-                        elif match.group(1) == 'indirectly' and \
-                           int(bytes) == 256 and \
-                           int(blocks) == 14:
-                            status = 'Warn'   
                         else:
                             status = 'Leaky'
                         break
