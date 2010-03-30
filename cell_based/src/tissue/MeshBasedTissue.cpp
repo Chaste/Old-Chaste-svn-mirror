@@ -421,12 +421,12 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
 
     *mpElementFile <<  SimulationTime::Instance()->GetTime() << "\t";
 
-    bool element_contains_dead_cells_or_deleted_nodes = false;
-
     for (typename MutableMesh<DIM,DIM>::ElementIterator elem_iter = mrMesh.GetElementIteratorBegin();
          elem_iter != mrMesh.GetElementIteratorEnd();
          ++elem_iter)
     {
+        bool element_contains_dead_cells_or_deleted_nodes = false;
+
         // Hack that covers the case where the element contains a node that is associated with a cell that has just been killed (#1129)
         for (unsigned i=0; i<DIM+1; i++)
         {

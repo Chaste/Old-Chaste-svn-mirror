@@ -132,6 +132,24 @@ bool AbstractCellCentreBasedTissue<DIM>::IsGhostNode(unsigned index)
 
 
 template<unsigned DIM>
+void AbstractCellCentreBasedTissue<DIM>::GenerateCellResults(unsigned locationIndex,
+                                                             std::vector<unsigned>& rCellProliferativeTypeCounter,
+                                                             std::vector<unsigned>& rCellCyclePhaseCounter)
+{
+    if (IsGhostNode(locationIndex) == true)
+    {
+        *(this->mpVizCellProliferativeTypesFile) << INVISIBLE_COLOUR << " ";
+    }
+    else
+    {
+        AbstractTissue<DIM>::GenerateCellResults(locationIndex,
+                                                 rCellProliferativeTypeCounter,
+                                                 rCellCyclePhaseCounter);
+    }
+}
+
+
+template<unsigned DIM>
 void AbstractCellCentreBasedTissue<DIM>::GenerateCellResultsAndWriteToFiles()
 {
     // Set up cell type counter
@@ -150,7 +168,7 @@ void AbstractCellCentreBasedTissue<DIM>::GenerateCellResultsAndWriteToFiles()
         cell_cycle_phase_counter[i] = 0;
     }
 
-    // Write node data to file
+    // Write cell data to file
     for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
     {
         // Hack that covers the case where the node is associated with a cell that has just been killed (#1129)
@@ -160,7 +178,7 @@ void AbstractCellCentreBasedTissue<DIM>::GenerateCellResultsAndWriteToFiles()
             node_corresponds_to_dead_cell = this->mLocationCellMap[node_index]->IsDead();
         }
 
-        // Write node data to file
+        // Write cell data to file
         if ( !(this->GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
         {
             this->GenerateCellResults(node_index, cell_type_counter, cell_cycle_phase_counter);

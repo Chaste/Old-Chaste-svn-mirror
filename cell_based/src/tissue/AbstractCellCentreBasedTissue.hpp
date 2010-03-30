@@ -141,6 +141,18 @@ public:
     virtual double GetDampingConstant(unsigned nodeIndex);
 
     /**
+     * Overridden GenerateCellResults() method.
+     *  Generate results for a given cell in the current tissue state to output files.
+     *
+     * @param locationIndex location index of the cell
+     * @param rCellProliferativeTypeCounter cell type counter
+     * @param rCellCyclePhaseCounter cell cycle phase counter
+     */
+    void GenerateCellResults(unsigned locationIndex,
+                             std::vector<unsigned>& rCellProliferativeTypeCounter,
+                             std::vector<unsigned>& rCellCyclePhaseCounter);
+
+    /**
      * Overridden GenerateCellResultsAndWriteToFiles() method.
      */
     virtual void GenerateCellResultsAndWriteToFiles();

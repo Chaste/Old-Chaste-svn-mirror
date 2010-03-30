@@ -188,18 +188,6 @@ public:
     TissueCell* AddCell(TissueCell& rNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCell* pParentCell=NULL);
 
     /**
-     * Overridden GenerateCellResults() method.
-     *  Generate results for a given cell in the current tissue state to output files.
-     *
-     * @param locationIndex location index of the cell
-     * @param rCellProliferativeTypeCounter cell type counter
-     * @param rCellCyclePhaseCounter cell cycle phase counter
-     */
-    void GenerateCellResults(unsigned locationIndex,
-                             std::vector<unsigned>& rCellProliferativeTypeCounter,
-                             std::vector<unsigned>& rCellCyclePhaseCounter);
-
-    /**
      * Overridden GenerateCellResultsAndWriteToFiles() method.
      *
      * Call GenerateCellResults() on each cell then call WriteCellResultsToFiles().
