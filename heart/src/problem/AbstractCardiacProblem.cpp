@@ -614,11 +614,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter
 {
     bool extend_file = (mSolution != NULL);
     
-    if (mpWriter)
-    {
-        delete mpWriter;
-        mpWriter = NULL;
-    }
+    // I think this is impossible to trip; certainly it's very difficult!
+    assert(!mpWriter);
 
     try
     {

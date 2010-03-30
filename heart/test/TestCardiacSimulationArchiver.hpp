@@ -625,6 +625,9 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./hear
      *
      * When running sequentially, this creates an archive we can compare with
      * that produced by the next test.
+     *
+     * \todo An identical test to this (probably include in these methods)
+     * using a DistributedTetrahedralMesh, for coverage of BidomainProblem::LoadExtraArchiveForBidomain.
      */
     void TestCreateArchiveForLoadAsSequentialWithBath() throw (Exception)
     {
