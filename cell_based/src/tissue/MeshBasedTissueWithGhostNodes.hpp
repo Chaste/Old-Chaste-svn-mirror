@@ -186,14 +186,6 @@ public:
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
     TissueCell* AddCell(TissueCell& rNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCell* pParentCell=NULL);
-
-    /**
-     * Overridden GenerateCellResultsAndWriteToFiles() method.
-     *
-     * Call GenerateCellResults() on each cell then call WriteCellResultsToFiles().
-     * Also accounts for ghost nodes.
-     */
-    virtual void GenerateCellResultsAndWriteToFiles();
 };
 
 

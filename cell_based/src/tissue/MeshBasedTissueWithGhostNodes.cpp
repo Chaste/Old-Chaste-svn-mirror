@@ -268,46 +268,6 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateNodeLocations(const std::vector< 
     AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(rNodeForces, dt);
 }
 
-template<unsigned DIM>
-void MeshBasedTissueWithGhostNodes<DIM>::GenerateCellResultsAndWriteToFiles()
-{
-    // Set up cell type counter
-    unsigned num_cell_types = this->mCellProliferativeTypeCount.size();
-    std::vector<unsigned> cell_type_counter(num_cell_types);
-    for (unsigned i=0; i<num_cell_types; i++)
-    {
-        cell_type_counter[i] = 0;
-    }
-
-    // Set up cell cycle phase counter
-    unsigned num_cell_cycle_phases = this->mCellCyclePhaseCount.size();
-    std::vector<unsigned> cell_cycle_phase_counter(num_cell_cycle_phases);
-    for (unsigned i=0; i<num_cell_cycle_phases; i++)
-    {
-        cell_cycle_phase_counter[i] = 0;
-    }
-
-    for (typename AbstractMesh<DIM,DIM>::NodeIterator node_iter = this->mrMesh.GetNodeIteratorBegin();
-         node_iter != this->mrMesh.GetNodeIteratorEnd();
-         ++node_iter)
-    {
-        // Hack that covers the case where the node is associated with a cell that has just been killed (#1129)
-        unsigned node_index = node_iter->GetIndex();
-        bool node_corresponds_to_dead_cell = false;
-        if (this->mLocationCellMap[node_index])
-        {
-            node_corresponds_to_dead_cell = this->mLocationCellMap[node_index]->IsDead();
-        }
-
-        // Write cell data to file
-        if ( !(this->GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
-        {
-            this->GenerateCellResults(node_index, cell_type_counter, cell_cycle_phase_counter);
-        }
-    }
-
-    this->WriteCellResultsToFiles(cell_type_counter, cell_cycle_phase_counter);
-}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
