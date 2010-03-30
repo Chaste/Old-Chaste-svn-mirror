@@ -775,7 +775,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             }
             catch (Exception e) 
         	{
-            	System.out.println("Error occurred. Exception message: "+e.getMessage());
+            	System.out.println("Error occurred attempting to process results.vizsetup file");
         	}
         }             
         
@@ -1188,24 +1188,24 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 
                 if (elementFilePresent)
                 {
+                	int scale_factor = 3;
                 	if (isSparseMesh)
-                    {
-	                	for (int i = 0; i < 2*numElements[row]; i++) 
-	                    {
-	                        int node = Integer.parseInt(st_element.nextToken());
-	                        element_nodes[row][i] = node;
-	                    }
-                    }
-                	else
                 	{
-	                	for (int i = 0; i < 3*numElements[row]; i++) 
-	                    {
-	                        int node = Integer.parseInt(st_element.nextToken());
-	                        element_nodes[row][i] = node;
-	                    }
+                		scale_factor = 2;
                 	}
+                	for (int i=0; i<scale_factor*numElements[row]; i++) 
+                    {
+                        int node = Integer.parseInt(st_element.nextToken());
+
+                        if (node >= numCells[row])
+                        {
+                        	System.out.println("Warning: at time "+times[row]+", an element contains a node whose index exceeds the number of nodes present");
+                        	break;
+                        }
+                        element_nodes[row][i] = node;
+                    }
                 }
-                
+
                 // Read next line of each file
 
                 line_node = in_node_file.readLine();
@@ -1266,7 +1266,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         } 
         catch (Exception e) 
         {
-            System.out.println("Error occurred. Exception message: "+e.getMessage());
+            System.out.println("Error occurred attempting to call LoadAllFiles method");
         }
     	    	
     }
@@ -1274,150 +1274,178 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     
     public static void CalculateCanvasDimensions()
     {
-        max_x = -1e12;
-        max_y = -1e12;
-        min_x =  1e12;
-        min_y =  1e12;
-        for (int row=0; row<numSteps; row++)
-        {
-            for (int i=0; i < numCells[row]; i++) 
-            {
-                if (positions[row][i].x > max_x) 
-                {
-                    max_x = positions[row][i].x;
-                }   
-                if (positions[row][i].y > max_y) 
-                {
-                    max_y = positions[row][i].y;
-                } 
-                if (positions[row][i].x < min_x) 
-                {
-                    min_x = positions[row][i].x;
-                }
-                if (positions[row][i].y < min_y) 
-                {
-                    min_y = positions[row][i].y;
-                }
-            }
-        }
+    	try
+    	{
+	        max_x = -1e12;
+	        max_y = -1e12;
+	        min_x =  1e12;
+	        min_y =  1e12;
+	        for (int row=0; row<numSteps; row++)
+	        {
+	            for (int i=0; i < numCells[row]; i++) 
+	            {
+	                if (positions[row][i].x > max_x) 
+	                {
+	                    max_x = positions[row][i].x;
+	                }   
+	                if (positions[row][i].y > max_y) 
+	                {
+	                    max_y = positions[row][i].y;
+	                } 
+	                if (positions[row][i].x < min_x) 
+	                {
+	                    min_x = positions[row][i].x;
+	                }
+	                if (positions[row][i].y < min_y) 
+	                {
+	                    min_y = positions[row][i].y;
+	                }
+	            }
+	        }
+    	}
+    	catch (Exception e)
+    	{
+    		System.out.println("Error occurred attempting to call CalculateCanvasDimensions method");
+    	}
     }
     
     public static void ConvertCylindricalDataToPlane()
     {
-        // Scan through each element
-        for (int time_index=0; time_index<numSteps; time_index++)
-        {
-            image_cells[time_index] = new int[memory_factor*numCells[time_index]]; // reserve plenty of memory
-            
-            // Fill image_nodes with an identity map (at each time step each node maps to itself)            
-            for (int i=0; i<numCells[time_index]; i++) 
-            {
-                image_cells[time_index][i] = i;
-            }
-            
-            if ( (elementFilePresent) && (!isSparseMesh) )
-            {
-                // Draw elements first
-                for (int i=0; i<numElements[time_index]; i++)
-                {   
-                    // What nodes are we joining up?
-                    int indexA = element_nodes[time_index][3*i];
-                    int indexB = element_nodes[time_index][3*i+1];
-                    int indexC = element_nodes[time_index][3*i+2];
-                    
-                    // Find the x-co-ords of each node
-                    RealPoint rA = positions[time_index][indexA];
-                    RealPoint rB = positions[time_index][indexB];
-                    RealPoint rC = positions[time_index][indexC];
-                    
-                    // Identify edges that are oversized
-                    if ((Math.abs(rA.x - rB.x) > 0.75*crypt_width)
-                        ||(Math.abs(rB.x - rC.x) > 0.75*crypt_width)
-                        ||(Math.abs(rA.x - rC.x) > 0.75*crypt_width))
-                    {
-                        MakeNewImageCell(time_index,indexA);
-                        MakeNewImageCell(time_index,indexB);
-                        MakeNewImageCell(time_index,indexC);
-                        
-                        // Break those elements into two separate elements
-                        SplitElement(time_index,i);
-                    }
-                }
-            }            
-        }
+    	try
+    	{
+    		// Scan through each element
+	        for (int time_index=0; time_index<numSteps; time_index++)
+	        {
+	            image_cells[time_index] = new int[memory_factor*numCells[time_index]]; // reserve plenty of memory
+	            
+	            // Fill image_nodes with an identity map (at each time step each node maps to itself)            
+	            for (int i=0; i<numCells[time_index]; i++) 
+	            {
+	                image_cells[time_index][i] = i;
+	            }
+	            
+	            if ( (elementFilePresent) && (!isSparseMesh) )
+	            {
+	                // Draw elements first
+	                for (int i=0; i<numElements[time_index]; i++)
+	                {   
+	                    // What nodes are we joining up?
+	                    int indexA = element_nodes[time_index][3*i];
+	                    int indexB = element_nodes[time_index][3*i+1];
+	                    int indexC = element_nodes[time_index][3*i+2];
+	                    
+	                    // Find the x-co-ords of each node
+	                    RealPoint rA = positions[time_index][indexA];
+	                    RealPoint rB = positions[time_index][indexB];
+	                    RealPoint rC = positions[time_index][indexC];
+	                    
+	                    // Identify edges that are oversized
+	                    if ((Math.abs(rA.x - rB.x) > 0.75*crypt_width)
+	                        ||(Math.abs(rB.x - rC.x) > 0.75*crypt_width)
+	                        ||(Math.abs(rA.x - rC.x) > 0.75*crypt_width))
+	                    {
+	                        MakeNewImageCell(time_index,indexA);
+	                        MakeNewImageCell(time_index,indexB);
+	                        MakeNewImageCell(time_index,indexC);
+	                        
+	                        // Break those elements into two separate elements
+	                        SplitElement(time_index,i);
+	                    }
+	                }
+	            }            
+	        }
+    	}
+    	catch (Exception e)
+    	{
+    		System.out.println("Error occurred attempting to call ConvertCylindricalDataToPlane method");
+    	}
     }
 
     public static void SplitElement(int time_index,int element_index)
     {
-        int indexA = element_nodes[time_index][3*element_index];
-        int indexB = element_nodes[time_index][3*element_index+1];
-        int indexC = element_nodes[time_index][3*element_index+2];
-
-        // Find the x-co-ords of each node
-        RealPoint rA = positions[time_index][indexA];
-        RealPoint rB = positions[time_index][indexB];
-        RealPoint rC = positions[time_index][indexC];
-        
-        // Create a new element which contains the image of node A.
-        element_nodes[time_index][3*numElements[time_index]] = image_cells[time_index][indexA];
-        
-        // Leave Node A in this element
-        
-        // If node B is far away 
-        if (Math.abs(rA.x - rB.x) > 0.75*crypt_width)
-        {
-            // Add node B to new element and add image of B to this element.
-            element_nodes[time_index][3*numElements[time_index]+1] = indexB;
-            element_nodes[time_index][3*element_index+1] = image_cells[time_index][indexB];
-        }
-        else
-        {   
-        	// Node B is still in this element - add its image to new element
-            element_nodes[time_index][3*numElements[time_index]+1] = image_cells[time_index][indexB];
-        }
-        
-        // If node C is far away 
-        if (Math.abs(rA.x - rC.x) > 0.75*crypt_width)
-        {   
-        	// Add it to new element and add image of C to this element.
-            element_nodes[time_index][3*numElements[time_index]+2] = indexC;
-            element_nodes[time_index][3*element_index+2] = image_cells[time_index][indexC];
-        }
-        else
-        {   
-        	// Node C is still in this element - add its image to new element
-            element_nodes[time_index][3*numElements[time_index]+2] = image_cells[time_index][indexC];
-        }       
-        numElements[time_index]++;
+    	try
+    	{
+	        int indexA = element_nodes[time_index][3*element_index];
+	        int indexB = element_nodes[time_index][3*element_index+1];
+	        int indexC = element_nodes[time_index][3*element_index+2];
+	
+	        // Find the x-co-ords of each node
+	        RealPoint rA = positions[time_index][indexA];
+	        RealPoint rB = positions[time_index][indexB];
+	        RealPoint rC = positions[time_index][indexC];
+	        
+	        // Create a new element which contains the image of node A.
+	        element_nodes[time_index][3*numElements[time_index]] = image_cells[time_index][indexA];
+	        
+	        // Leave Node A in this element
+	        
+	        // If node B is far away 
+	        if (Math.abs(rA.x - rB.x) > 0.75*crypt_width)
+	        {
+	            // Add node B to new element and add image of B to this element.
+	            element_nodes[time_index][3*numElements[time_index]+1] = indexB;
+	            element_nodes[time_index][3*element_index+1] = image_cells[time_index][indexB];
+	        }
+	        else
+	        {   
+	        	// Node B is still in this element - add its image to new element
+	            element_nodes[time_index][3*numElements[time_index]+1] = image_cells[time_index][indexB];
+	        }
+	        
+	        // If node C is far away 
+	        if (Math.abs(rA.x - rC.x) > 0.75*crypt_width)
+	        {   
+	        	// Add it to new element and add image of C to this element.
+	            element_nodes[time_index][3*numElements[time_index]+2] = indexC;
+	            element_nodes[time_index][3*element_index+2] = image_cells[time_index][indexC];
+	        }
+	        else
+	        {   
+	        	// Node C is still in this element - add its image to new element
+	            element_nodes[time_index][3*numElements[time_index]+2] = image_cells[time_index][indexC];
+	        }       
+	        numElements[time_index]++;
+    	}
+    	catch (Exception e)
+    	{
+    		System.out.println("Error occurred attempting to call SplitElement method");
+    	}
     }
     
     public static void MakeNewImageCell(int time_index, int node_index)
-    {   
-    	// Only make a new cell if one hasn't already been made
-        if (image_cells[time_index][node_index] == node_index)
-        {	
-        	// Make a new image of Cell A       
-            RealPoint new_point = positions[time_index][node_index];
-            RealPoint new_point2 = new RealPoint(0.0,0.0);
-            new_point2.y = new_point.y;
-            
-            if (new_point.x < half_width)
-            {
-                new_point2.x = new_point.x + crypt_width;
-            }
-            if (new_point.x > half_width)
-            {
-                new_point2.x = new_point.x - crypt_width;
-            }
-
-            // New ghost node
-            positions[time_index][numCells[time_index]] = new_point2;
-            cell_type[time_index][numCells[time_index]] = canvas.INVISIBLE_COLOUR;
-            
-            // Update the image record
-            image_cells[time_index][node_index] = numCells[time_index]; 
-            numCells[time_index]++;
-        }    
+    {
+    	try
+    	{
+	    	// Only make a new cell if one hasn't already been made
+	        if (image_cells[time_index][node_index] == node_index)
+	        {	
+	        	// Make a new image of Cell A       
+	            RealPoint new_point = positions[time_index][node_index];
+	            RealPoint new_point2 = new RealPoint(0.0,0.0);
+	            new_point2.y = new_point.y;
+	            
+	            if (new_point.x < half_width)
+	            {
+	                new_point2.x = new_point.x + crypt_width;
+	            }
+	            if (new_point.x > half_width)
+	            {
+	                new_point2.x = new_point.x - crypt_width;
+	            }
+	
+	            // New ghost node
+	            positions[time_index][numCells[time_index]] = new_point2;
+	            cell_type[time_index][numCells[time_index]] = canvas.INVISIBLE_COLOUR;
+	            
+	            // Update the image record
+	            image_cells[time_index][node_index] = numCells[time_index]; 
+	            numCells[time_index]++;
+	        }
+    	}
+    	catch (Exception e)
+    	{
+    		System.out.println("Error occurred attempting to call MakeNewImageCell method");
+    	}
     }
 }
 
