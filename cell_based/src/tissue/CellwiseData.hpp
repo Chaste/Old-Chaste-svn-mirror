@@ -90,14 +90,14 @@ private:
 protected:
 
     /**
-     *  Protected constuctor. Not to be called, use Instance() instead.
+     * Protected constuctor. Not to be called, use Instance() instead.
      */
     CellwiseData();
 
 public:
 
     /**
-     *  Get an instance of the object
+     * Get an instance of the object
      */
     static CellwiseData* Instance();
 
@@ -123,7 +123,7 @@ public:
     double GetValue(TissueCell& rCell, unsigned variableNumber=0);
 
     /**
-     *  Set the value for a given node and variable number.
+     * Set the value for a given node and variable number.
      *
      * @param value the value to set
      * @param pNode pointer to the Node
@@ -132,20 +132,20 @@ public:
     void SetValue(double value, Node<DIM>* pNode, unsigned variableNumber=0);
 
     /**
-     *  Set the Tissue. Must be called before GetValue().
+     * Set the Tissue. Must be called before GetValue().
      *
      * @param rTissue reference to the Tissue
      */
     void SetTissue(MeshBasedTissue<DIM>& rTissue);
 
     /**
-     *  @return reference to the Tissue.
+     * @return reference to the Tissue.
      */
     MeshBasedTissue<DIM>& rGetTissue();
 
     /**
-     *  Set the number of variables to be stored per cell. The constructor
-     *  assumes 1 variable so only really needs to be called if numVars > 1.
+     * Set the number of variables to be stored per cell. The constructor
+     * assumes 1 variable so only really needs to be called if numVars > 1.
      *
      * @param numNodes number of nodes in the tissue
      * @param numVars number of variables
@@ -153,20 +153,20 @@ public:
     void SetNumNodesAndVars(unsigned numNodes, unsigned numVars);
 
     /**
-     *  Force the data to return given values for all cells (only for testing).
+     * Force the data to return given values for all cells (only for testing).
      *
-     * @param values vector of CellwiseData values
+     * @param rValues vector of CellwiseData values
      */
-    void SetConstantDataForTesting(std::vector<double> values);
+    void SetConstantDataForTesting(std::vector<double>& rValues);
 
     /**
-     *  Is the instance in existence and fully set up
+     * Is the instance in existence and fully set up
      */
     bool IsSetUp();
 
     /**
-     *  Reallocate size of mData. Needed because of growth/death. Reallocates
-     *  according to the number of nodes in the mesh in the Tissue member variable
+     * Reallocate size of mData. Needed because of growth/death. Reallocates
+     * according to the number of nodes in the mesh in the Tissue member variable
      */
     void ReallocateMemory();
 

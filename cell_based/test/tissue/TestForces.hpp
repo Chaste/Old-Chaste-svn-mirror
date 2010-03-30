@@ -404,15 +404,14 @@ public:
         linear_force.SetBetaCateninSprings(true);
         crypt.CreateVoronoiTessellation(location_indices);  // this method is normally called in a simulation loop
 
-        /// \todo this is currently a rather poor test - it just checks that
-        /// there is SOME dependency of the spring constant on the beta catenin level
-        /// experienced by both cells (see #627) - we need to get rid of the magic numbers!
+        /// \todo Improve test by removing magic numbers below
 
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.5*8.59312/18.14, 1e-5);
 
         TissueConfig::Instance()->SetBetaCatSpringScaler(20/6.0);
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.5*8.59312/20.0, 1e-5);
 
+        // Tidy up
         WntConcentration<2>::Destroy();
     }
 

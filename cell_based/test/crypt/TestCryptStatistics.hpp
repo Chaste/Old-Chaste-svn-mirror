@@ -291,7 +291,7 @@ public:
         simulator.SetEndTime(2*time_of_each_run);
         simulator.Solve();
 
-        // TEST CryptStatistics::GetWhetherCryptSectionCellsAreLabelled
+        // TEST CryptStatistics::AreCryptSectionCellsLabelled
 
         // Set cells which are not in the crypt section to be in state APC +/-, so that we can
         // see the section
@@ -320,7 +320,7 @@ public:
         simulator.Solve();
 
         std::vector<TissueCell*> crypt_section = crypt_statistics.GetCryptSection(8.0,8.0);
-        std::vector<bool> labelled = crypt_statistics.GetWhetherCryptSectionCellsAreLabelled(crypt_section);
+        std::vector<bool> labelled = crypt_statistics.AreCryptSectionCellsLabelled(crypt_section);
 
         // Test that the vector of booleans corresponds with a visualisation of the data -
         // only the third cell had been labelled
@@ -447,7 +447,7 @@ public:
             simulator.Solve();
 
             std::vector<TissueCell*> crypt_section = p_crypt_statistics->GetCryptSection(8.0, 8.0);
-            labelled = p_crypt_statistics->GetWhetherCryptSectionCellsAreLabelled(crypt_section);
+            labelled = p_crypt_statistics->AreCryptSectionCellsLabelled(crypt_section);
 
             // Store information from this simulation in a global vector.
             for (unsigned cell_index=0; cell_index < labelled.size(); cell_index++)

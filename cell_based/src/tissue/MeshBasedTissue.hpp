@@ -420,9 +420,9 @@ public:
     void CheckTissueCellPointers();
 
     /**
-     * Helper method that returns a set of pointers to two given TissueCells. 
+     * Helper method that returns a set of pointers to two given TissueCells.
      * Used by the spring marking routines.
-     * 
+     *
      * @param rCell1 a TissueCell
      * @param rCell2 a TissueCell
      */
@@ -430,21 +430,21 @@ public:
 
     /**
      * @param rCellPair a set of pointers to TissueCells
-     * 
+     *
      * @return whether the spring between two given cells is marked.
      */
     bool IsMarkedSpring(const std::set<TissueCell*>& rCellPair);
 
     /**
      * Mark the spring between the given cells.
-     * 
+     *
      * @param rCellPair a set of pointers to TissueCells
      */
     void MarkSpring(std::set<TissueCell*>& rCellPair);
 
     /**
      * Stop marking the spring between the given cells.
-     * 
+     *
      * @param rCellPair a set of pointers to TissueCells
      */
     void UnmarkSpring(std::set<TissueCell*>& rCellPair);

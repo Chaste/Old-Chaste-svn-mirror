@@ -134,10 +134,10 @@ void TissueConfig::Reset()
     mMembraneSurfaceEnergyParameter = 10.0;  // This is 0.1 in Nagai & Honda.
     mCellCellAdhesionEnergyParameter = 1.0; // This is 0.01 in Nagai & Honda.
     mCellBoundaryAdhesionEnergyParameter = 1.0; // This is 0.01 in Nagai & Honda.
-    
+
     mWelikyOsterAreaParameter = 1.0; // Estimate as not in Weliky and Oster (1990) paper
     mWelikyOsterPerimeterParameter = 1.0; // Estimate as not in Weliky and Oster (1990) paper
-    
+
     mOutputCellIdData = false;
     mOutputCellMutationStates = false;
     mOutputCellAncestors = false;

@@ -110,7 +110,7 @@ public:
         // Test the simulation is ending at the right time (going into S phase at 7.8 hours)
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 100, 1e-2);
 
-        // Decent results
+        // Check results are correct
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 433.1155, 1e-4);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 433.1155, 1e-4);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], wnt_level, 1e-4);
@@ -145,7 +145,7 @@ public:
         // Tests the simulation is ending at the right time (going into S phase at 7.8 hours)
         TS_ASSERT_DELTA(solutions.rGetTimes()[end], 100, 1e-2);
 
-        ///\todo check results are decent (#
+        // Check results are correct
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 67.5011, 1e-4);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 824.0259, 1e-4);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], wnt_level, 1e-4);

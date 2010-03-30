@@ -711,13 +711,13 @@ private:
     double mCellBoundaryAdhesionEnergyParameter;
 
     /**
-     * Area parameter. 
+     * Area parameter.
      * For use in Weliky and Oster type vertex-based models.
      */
     double mWelikyOsterAreaParameter;
-    
+
     /**
-     * Perimeter parameter. 
+     * Perimeter parameter.
      * For use in Weliky and Oster type vertex-based models.
      */
     double mWelikyOsterPerimeterParameter;

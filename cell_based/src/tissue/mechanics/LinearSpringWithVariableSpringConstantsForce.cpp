@@ -199,9 +199,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 }
 
 template<unsigned DIM>
-void LinearSpringWithVariableSpringConstantsForce<DIM>::AddForceContribution(
-    std::vector<c_vector<double, DIM> >& rForces,
-    AbstractTissue<DIM>& rTissue)
+void LinearSpringWithVariableSpringConstantsForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
+                                                                             AbstractTissue<DIM>& rTissue)
 {
     MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
 

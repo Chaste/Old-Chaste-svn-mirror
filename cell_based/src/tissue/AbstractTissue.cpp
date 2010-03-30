@@ -38,6 +38,7 @@ AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCell>& rCells,
 {
     // There must be at least one cell
     assert(mCells.size() > 0);
+
     // To avoid double-counting problems, clear the passed-in cells vector
     rCells.clear();
 
@@ -62,7 +63,7 @@ AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCell>& rCells,
     // Initialise cell counts to zero
     /**
      * \todo remove explicit use of NUM_CELL_PROLIFERATIVE_TYPES
-     *       and NUM_CELL_CYCLE_PHASES as these may eventually differ between simulations (see #1145)
+     *       and NUM_CELL_CYCLE_PHASES as these may eventually differ between simulations (see #1285)
      */
     mCellProliferativeTypeCount = std::vector<unsigned>(NUM_CELL_PROLIFERATIVE_TYPES);
     for (unsigned i=0; i<mCellProliferativeTypeCount.size(); i++)

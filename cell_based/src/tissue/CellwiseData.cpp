@@ -163,9 +163,9 @@ void CellwiseData<DIM>::ReallocateMemory()
 
 
 template<unsigned DIM>
-void CellwiseData<DIM>::SetConstantDataForTesting(std::vector<double> values)
+void CellwiseData<DIM>::SetConstantDataForTesting(std::vector<double>& rValues)
 {
-    mConstantDataForTesting = values;
+    mConstantDataForTesting = rValues;
     mUseConstantDataForTesting = true;
 }
 
