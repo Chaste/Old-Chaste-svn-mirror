@@ -123,9 +123,6 @@ protected:
     /** Results file for cell area data. */
     out_stream mpCellAreasFile;
 
-    /** Helper method used by the spring marking routines */
-    std::set<TissueCell*> CreateCellPair(TissueCell&, TissueCell&);
-
     /** Whether to use a viscosity that is linear in the cell area, rather than constant. */
     bool mUseAreaBasedDampingConstant;
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
@@ -309,8 +306,6 @@ public:
      */
     unsigned GetNumNodes();
 
-
-
     /**
      * Write current results to mpVoronoiFile.
      */
@@ -425,19 +420,34 @@ public:
     void CheckTissueCellPointers();
 
     /**
+     * Helper method that returns a set of pointers to two given TissueCells. 
+     * Used by the spring marking routines.
+     * 
+     * @param rCell1 a TissueCell
+     * @param rCell2 a TissueCell
+     */
+    std::set<TissueCell*> CreateCellPair(TissueCell& rCell1, TissueCell& rCell2);
+
+    /**
+     * @param rCellPair a set of pointers to TissueCells
+     * 
      * @return whether the spring between two given cells is marked.
      */
-    bool IsMarkedSpring(TissueCell&, TissueCell&);
+    bool IsMarkedSpring(const std::set<TissueCell*>& rCellPair);
 
     /**
      * Mark the spring between the given cells.
+     * 
+     * @param rCellPair a set of pointers to TissueCells
      */
-    void MarkSpring(TissueCell&, TissueCell&);
+    void MarkSpring(std::set<TissueCell*>& rCellPair);
 
     /**
      * Stop marking the spring between the given cells.
+     * 
+     * @param rCellPair a set of pointers to TissueCells
      */
-    void UnmarkSpring(TissueCell&, TissueCell&);
+    void UnmarkSpring(std::set<TissueCell*>& rCellPair);
 
 };
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov

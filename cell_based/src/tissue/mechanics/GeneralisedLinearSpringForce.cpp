@@ -125,7 +125,9 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         {
             MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
 
-            if (p_static_cast_tissue->IsMarkedSpring(r_cell_A, r_cell_B))
+            std::set<TissueCell*> cell_pair = p_static_cast_tissue->CreateCellPair(r_cell_A, r_cell_B);
+
+            if (p_static_cast_tissue->IsMarkedSpring(cell_pair))
             {
                 // Spring rest length increases from a small value to the normal rest length over 1 hour
                 double lambda = p_config->GetDivisionRestingSpringLength();
@@ -134,7 +136,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
             if (ageA + SimulationTime::Instance()->GetTimeStep() >= m_duration)
             {
                 // This spring is about to go out of scope
-                p_static_cast_tissue->UnmarkSpring(r_cell_A, r_cell_B);
+                p_static_cast_tissue->UnmarkSpring(cell_pair);
             }
         }
         else

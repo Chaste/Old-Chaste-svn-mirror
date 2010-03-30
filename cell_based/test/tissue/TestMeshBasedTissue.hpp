@@ -589,7 +589,8 @@ public:
                 cell_locations.push_back(p_tissue->GetLocationOfCellCentre(*cell_iter));
             }
 
-            p_tissue->MarkSpring(p_tissue->rGetCellUsingLocationIndex(0), p_tissue->rGetCellUsingLocationIndex(1));
+            std::set<TissueCell*> cell_pair_0_1 = p_tissue->CreateCellPair(p_tissue->rGetCellUsingLocationIndex(0), p_tissue->rGetCellUsingLocationIndex(1));
+            p_tissue->MarkSpring(cell_pair_0_1);
 
             // Set area-based viscosity
             p_tissue->SetAreaBasedDampingConstant(true);
@@ -637,18 +638,19 @@ public:
             }
 
             // Check the marked spring
-            TS_ASSERT(p_tissue->IsMarkedSpring(p_tissue->rGetCellUsingLocationIndex(0), p_tissue->rGetCellUsingLocationIndex(1)));
+            std::set<TissueCell*> cell_pair_0_1 = p_tissue->CreateCellPair(p_tissue->rGetCellUsingLocationIndex(0), p_tissue->rGetCellUsingLocationIndex(1));
+            TS_ASSERT_EQUALS(p_tissue->IsMarkedSpring(cell_pair_0_1), true);
 
             // Check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 0.0);
 
             // Check the tissue has been restored
-            TS_ASSERT_EQUALS(p_tissue->rGetCells().size(),5u);
+            TS_ASSERT_EQUALS(p_tissue->rGetCells().size(), 5u);
 
             // Check area-based viscosity is still true
             TS_ASSERT_EQUALS(p_tissue->UseAreaBasedDampingConstant(), true);
 
-            TS_ASSERT_EQUALS(p_tissue->rGetMesh().GetNumNodes(),5u);
+            TS_ASSERT_EQUALS(p_tissue->rGetMesh().GetNumNodes(), 5u);
 
             delete p_tissue;
         }
@@ -672,28 +674,33 @@ public:
 
         MeshBasedTissue<2> tissue(mesh, cells);
 
+        std::set<TissueCell*> cell_pair_1_2 = tissue.CreateCellPair(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));
+        std::set<TissueCell*> cell_pair_3_4 = tissue.CreateCellPair(tissue.rGetCellUsingLocationIndex(3), tissue.rGetCellUsingLocationIndex(4));
+        std::set<TissueCell*> cell_pair_1_4 = tissue.CreateCellPair(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(4));
+        std::set<TissueCell*> cell_pair_0_2 = tissue.CreateCellPair(tissue.rGetCellUsingLocationIndex(0), tissue.rGetCellUsingLocationIndex(2));
+
         // Mark some springs
-        tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));
+        tissue.MarkSpring(cell_pair_1_2);
 
         // Unmark and re-mark spring (for coverage)
-        tissue.UnmarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));
-        tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2));
+        tissue.UnmarkSpring(cell_pair_1_2);
+        tissue.MarkSpring(cell_pair_1_2);
 
-        tissue.MarkSpring(tissue.rGetCellUsingLocationIndex(3), tissue.rGetCellUsingLocationIndex(4));
+        tissue.MarkSpring(cell_pair_3_4);
 
         // Check if springs are marked
-        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2)));
-        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(3), tissue.rGetCellUsingLocationIndex(4)));
+        TS_ASSERT_EQUALS(tissue.IsMarkedSpring(cell_pair_1_2), true);
+        TS_ASSERT_EQUALS(tissue.IsMarkedSpring(cell_pair_3_4), true);
 
-        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(4)));
-        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(0), tissue.rGetCellUsingLocationIndex(2)));
+        TS_ASSERT_EQUALS(tissue.IsMarkedSpring(cell_pair_1_4), false);
+        TS_ASSERT_EQUALS(tissue.IsMarkedSpring(cell_pair_0_2), false);
 
         // Delete cell 4
         tissue.rGetCellUsingLocationIndex(4).Kill();
         tissue.RemoveDeadCells();
 
         // Check springs with non-deleted cells are still marked
-        TS_ASSERT(tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2)));
+        TS_ASSERT_EQUALS(tissue.IsMarkedSpring(cell_pair_1_2), true);
         tissue.CheckTissueCellPointers();
 
         // Move cell 2
@@ -710,7 +717,7 @@ public:
         tissue.CheckTissueCellPointers();
 
         // Check there is no marked spring between nodes 1 & 2
-        TS_ASSERT(!tissue.IsMarkedSpring(tissue.rGetCellUsingLocationIndex(1), tissue.rGetCellUsingLocationIndex(2)));
+        TS_ASSERT_EQUALS(tissue.IsMarkedSpring(cell_pair_1_2), false);
     }
 
     void TestSettingCellAncestors() throw (Exception)

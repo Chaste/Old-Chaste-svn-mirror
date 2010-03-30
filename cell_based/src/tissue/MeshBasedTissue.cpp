@@ -357,7 +357,8 @@ TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell& rNewCell, const c_vector<d
     TissueCell* p_created_cell = AbstractCellCentreBasedTissue<DIM>::AddCell(rNewCell, rCellDivisionVector, pParentCell);
 
     // Mark spring between parent cell and new cell
-    MarkSpring(*pParentCell, *p_created_cell);
+    std::set<TissueCell*> cell_pair = CreateCellPair(*pParentCell, *p_created_cell);
+    MarkSpring(cell_pair);
 
     // Return pointer to new cell
     return p_created_cell;
@@ -782,24 +783,21 @@ std::set<TissueCell*> MeshBasedTissue<DIM>::CreateCellPair(TissueCell& rCell1, T
 }
 
 template<unsigned DIM>
-bool MeshBasedTissue<DIM>::IsMarkedSpring(TissueCell& rCell1, TissueCell& rCell2)
+bool MeshBasedTissue<DIM>::IsMarkedSpring(const std::set<TissueCell*>& rCellPair)
 {
-    std::set<TissueCell*> cell_pair = CreateCellPair(rCell1, rCell2);
-    return mMarkedSprings.find(cell_pair) != mMarkedSprings.end();
+    return mMarkedSprings.find(rCellPair) != mMarkedSprings.end();
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::MarkSpring(TissueCell& rCell1, TissueCell& rCell2)
+void MeshBasedTissue<DIM>::MarkSpring(std::set<TissueCell*>& rCellPair)
 {
-    std::set<TissueCell*> cell_pair = CreateCellPair(rCell1, rCell2);
-    mMarkedSprings.insert(cell_pair);
+    mMarkedSprings.insert(rCellPair);
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::UnmarkSpring(TissueCell& rCell1, TissueCell& rCell2)
+void MeshBasedTissue<DIM>::UnmarkSpring(std::set<TissueCell*>& rCellPair)
 {
-    std::set<TissueCell*> cell_pair = CreateCellPair(rCell1, rCell2);
-    mMarkedSprings.erase(cell_pair);
+    mMarkedSprings.erase(rCellPair);
 }
 
 
