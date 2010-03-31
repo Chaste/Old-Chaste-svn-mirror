@@ -327,7 +327,7 @@ private:
         TS_ASSERT(p_factory->GetOriginalFactory());
         TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetProblemSize(), totalNumCells);
         unsigned local_num_cells = p_factory->GetLocalOwnership();
-        TS_ASSERT_EQUALS(p_problem->GetPde()->GetCellsDistributed().size(), local_num_cells);
+        TS_ASSERT_EQUALS(p_problem->GetPde()->rGetCellsDistributed().size(), local_num_cells);
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumAllNodes(), totalNumCells);
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), totalNumCells);
         TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
@@ -809,7 +809,7 @@ private:
         TS_ASSERT(p_factory->GetOriginalFactory());
         TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetProblemSize(), totalNumCells);
         TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetNumProcs(), 1u);
-        TS_ASSERT_EQUALS(p_problem->GetPde()->GetCellsDistributed().size(), p_factory->GetLocalOwnership());
+        TS_ASSERT_EQUALS(p_problem->GetPde()->rGetCellsDistributed().size(), p_factory->GetLocalOwnership());
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumAllNodes(), totalNumCells);
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), totalNumCells);
         TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());

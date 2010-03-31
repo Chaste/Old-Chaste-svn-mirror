@@ -221,7 +221,7 @@ public:
             tensor_before_archiving = monodomain_pde.rGetIntracellularConductivityTensor(1);
 
             // Get some info about the first cell on this process (if any)
-            const std::vector<AbstractCardiacCell*>& r_cells = monodomain_pde.GetCellsDistributed();
+            const std::vector<AbstractCardiacCell*>& r_cells = monodomain_pde.rGetCellsDistributed();
             has_cell = !r_cells.empty();
             if (has_cell)
             {
@@ -261,7 +261,7 @@ public:
             TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep); // Test we are testing something in case default changes
 
             // Test cardiac cells have also been archived
-            const std::vector<AbstractCardiacCell*>& r_cells = p_monodomain_pde->GetCellsDistributed();
+            const std::vector<AbstractCardiacCell*>& r_cells = p_monodomain_pde->rGetCellsDistributed();
             TS_ASSERT_EQUALS(has_cell, !r_cells.empty());
             if (has_cell)
             {

@@ -42,7 +42,7 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
     // store directory, mesh and filenames and create the reader
     this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
     //Create new directory in which to store everything
-    mpOutputFileHandler  = new  OutputFileHandler(HeartConfig::Instance()->GetOutputDirectory() + "/" + subdirectoryName, false);
+    mpOutputFileHandler = new OutputFileHandler(HeartConfig::Instance()->GetOutputDirectory() + "/" + subdirectoryName, false);
     // check the data file read has one or two variables (ie V; or V and PhiE)
     std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
     mNumVariables = variable_names.size();

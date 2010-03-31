@@ -69,12 +69,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A class which encapsulates the executable functionality.
  *
- * Takes in a chaste parameters xml file and runs the relevant simulation.
- *
- * \todo High level user documentation.
- * This should describe the functionality available from the XML file.
- * It should include information on the structure of the output directory, especially when checkpointing,
- * and how to resume a simulation.
+ * Takes in a chaste parameters XML file and runs the relevant simulation.
+ * 
+ * The XML Schema, which describes what is allowed in the XML configuration file,
+ * can be found at heart/src/io/ChasteParameters_2_0.xsd (for Chaste release 2.0).
+ * It contains documentation describing what settings are available.  The
+ * documentation of the HeartConfig class may also be of use.
  */
 class CardiacSimulation
 {

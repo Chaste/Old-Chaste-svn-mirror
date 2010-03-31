@@ -290,10 +290,8 @@ public:
 
     /**
      *  Returns a reference to the vector of distributed cells. Needed for archiving.
-     *
-     * \todo this method should be renamed rGetCellsDistributed() as it returns a reference
      */
-    const std::vector<AbstractCardiacCell*>& GetCellsDistributed() const;
+    const std::vector<AbstractCardiacCell*>& rGetCellsDistributed() const;
 
     /**
      *  Returns a pointer to the mesh object
@@ -317,7 +315,7 @@ public:
     void SaveCardiacCells(Archive & archive, const unsigned int version) const
     {
         Archive& r_archive = *ProcessSpecificArchive<Archive>::Get();
-        const std::vector<AbstractCardiacCell*> & r_cells_distributed = GetCellsDistributed();
+        const std::vector<AbstractCardiacCell*> & r_cells_distributed = rGetCellsDistributed();
         r_archive & mpDistributedVectorFactory; // Needed when loading
         const unsigned num_cells = r_cells_distributed.size();
         r_archive & num_cells;

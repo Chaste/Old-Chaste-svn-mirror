@@ -82,6 +82,7 @@ public:
             
             PetscTools::Barrier("TestBi1dSmall-b");
             setenv("CHASTE_TEST_OUTPUT", normal_output_dir.c_str(), 1/*Overwrite*/);
+            HeartEventHandler::Reset();
         }
     }
     void TestBi2dSmall() throw(Exception)

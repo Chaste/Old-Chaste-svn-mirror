@@ -963,7 +963,7 @@ public:
 //            HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
 //            monodomain_problem.Solve();
 //
-//            num_cells = monodomain_problem.GetPde()->GetCellsDistributed().size();
+//            num_cells = monodomain_problem.GetPde()->rGetCellsDistributed().size();
 //
 //            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
 //            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
@@ -981,7 +981,7 @@ public:
 //            (*p_arch) >> p_monodomain_problem;
 //
 //            // Check values
-//            TS_ASSERT_EQUALS(p_monodomain_problem->GetPde()->GetCellsDistributed().size(),
+//            TS_ASSERT_EQUALS(p_monodomain_problem->GetPde()->rGetCellsDistributed().size(),
 //                             num_cells);
 //
 //            HeartConfig::Instance()->SetSimulationDuration(2.0); //ms

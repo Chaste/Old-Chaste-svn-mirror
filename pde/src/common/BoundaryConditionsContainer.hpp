@@ -276,7 +276,9 @@ public:
     /**
      * Load a collection of boundary conditions from an archive.
      *
-     * \todo assumes this collection is empty prior to being called.
+     * @note We assume this collection is empty prior to being called.  If it is not, any boundary
+     * conditions already present may get replaced by conditions loaded from the archive, which may
+     * lead to a memory leak.
      *
      * This method only loads data if #mLoadedFromArchive is false, to allow for multiple pointers
      * to the same container to be handled correctly.  It sets #mLoadedFromArchive when done.

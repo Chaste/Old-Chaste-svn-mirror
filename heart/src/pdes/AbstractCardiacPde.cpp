@@ -67,9 +67,10 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
                                        mpDistributedVectorFactory->GetLow(),
                                        mpDistributedVectorFactory->GetHigh());
 
-
+    HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     mIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
     mIntracellularStimulusCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
+    HeartEventHandler::EndEvent(HeartEventHandler::COMMUNICATION);
 
     CreateIntracellularConductivityTensor();
 }
@@ -156,6 +157,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::MergeCells(const std::vector<Abs
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityTensor()
 {
+    HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
     mpConfig = HeartConfig::Instance();
 
     if (mpConfig->IsMeshProvided() && mpConfig->GetLoadMesh())
@@ -243,6 +245,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
     }
 
     mpIntracellularConductivityTensors->Init();
+    HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 }
 
 
@@ -348,7 +351,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::ReplicateCaches()
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-const std::vector<AbstractCardiacCell*>& AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::GetCellsDistributed() const
+const std::vector<AbstractCardiacCell*>& AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::rGetCellsDistributed() const
 {
     return mCellsDistributed;
 }

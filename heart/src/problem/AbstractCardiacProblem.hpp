@@ -182,7 +182,8 @@ private:
         archive & has_solution;
         if (has_solution)
         {
-            /// \todo: code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem
+            /// \todo code for saving/loading mSolution is PROBLEM_DIM specific, move it into the save/load methods fo Mono and BidomainProblem
+            /// \todo is there a reason we can't use PETSc's load/save vector functionality?
             std::string filename = ArchiveLocationInfo::GetArchiveDirectory() + "AbstractCardiacProblem_mSolution.vec";
 
             mSolution = mpMesh->GetDistributedVectorFactory()->CreateVec(PROBLEM_DIM);
@@ -355,15 +356,14 @@ protected:
      */
     virtual AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 
-public:
+protected:
+	/**
+	 * CardiacElectroMechanicsProblem needs access to #mpWriter.
+	 */
+	template<unsigned DIM>
+	friend class CardiacElectroMechanicsProblem;
     /**
      * The object to use to write results to disk.
-     *
-     * This (and things in MonodomainProblem) being public are hacks for
-     * CardiacElectroMechanicsProblem to work.
-     *
-     * \todo CardiacElectroMechanicsProblem should be a friend, but not sure
-     * how to get friends to work when both friends are templated and abstract.
      */
     Hdf5DataWriter* mpWriter;
 
@@ -484,6 +484,8 @@ public:
      *  (otherwise it passes the defauls bcc).
      *   It then calls the Solve method in the assembler class.
      *   It also handles the output, if necessary.
+     * 
+     * @note This method is collective, and hence must be called by all processes.
      */
     void Solve();
 
@@ -491,6 +493,8 @@ public:
      * Closes the files where the solution is stored and,
      * if specified so (as it is by default), converts the output to Meshalyzer format
      * by calling the WriteFilesUsingMesh method in the MeshalyzerWriter class.
+     * 
+     * @note This method is collective, and hence must be called by all processes.
      */
     void CloseFilesAndPostProcess();
 

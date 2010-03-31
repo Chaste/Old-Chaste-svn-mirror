@@ -876,7 +876,7 @@ public:
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
             bidomain_problem.Solve();
 
-            num_cells = bidomain_problem.GetPde()->GetCellsDistributed().size();
+            num_cells = bidomain_problem.GetPde()->rGetCellsDistributed().size();
 
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
@@ -894,7 +894,7 @@ public:
             (*p_arch) >> p_bidomain_problem;
 
             // Check values
-            TS_ASSERT_EQUALS(p_bidomain_problem->GetPde()->GetCellsDistributed().size(),
+            TS_ASSERT_EQUALS(p_bidomain_problem->GetPde()->rGetCellsDistributed().size(),
                              num_cells);
 
             HeartConfig::Instance()->SetSimulationDuration(2.0); //ms

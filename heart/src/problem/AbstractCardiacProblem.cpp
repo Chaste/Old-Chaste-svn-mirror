@@ -180,10 +180,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     }
     HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
-    ///\todo Should this method be rolled into the Solve() method or the PreSolveChecks()?
     delete mpCardiacPde; // In case we're called twice
     mpCardiacPde = CreateCardiacPde();
-    ///\todo The above line isn't accounted for by the event handler, and can be expensive (e.g. conductivity tensors)
 
     // Delete any previous solution, so we get a fresh initial condition
     if (mSolution)
@@ -431,8 +429,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 #endif
             // Re-throw
             HeartEventHandler::Reset();//EndEvent(HeartEventHandler::EVERYTHING);
-
-            CloseFilesAndPostProcess();///\todo check there isn't anything collective in here
+            ///\todo the following line will deadlock if not every process throws in the Solve call
+            CloseFilesAndPostProcess();
             throw e;
         }
 #ifndef NDEBUG

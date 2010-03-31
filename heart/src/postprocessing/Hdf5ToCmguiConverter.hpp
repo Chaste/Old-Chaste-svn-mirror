@@ -66,10 +66,14 @@ private:
 
 
 public:
-    /** Constructor, which does the conversion.
-     *  @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
-     *  @param fileBaseName The base name of the data file.
-     *  @param pMesh Pointer to the mesh.
+    /**
+     * Constructor, which does the conversion.
+     * 
+     * @note This method is collective, and hence must be called by all processes.
+     * 
+     * @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
+     * @param fileBaseName The base name of the data file.
+     * @param pMesh Pointer to the mesh.
      */
     Hdf5ToCmguiConverter(std::string inputDirectory,
                               std::string fileBaseName,

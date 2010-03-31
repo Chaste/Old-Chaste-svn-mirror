@@ -49,11 +49,15 @@ protected:
     OutputFileHandler* mpOutputFileHandler; /**< Intialised as directory in whicht to store the results*/
 
 public:
-    /** Constructor, which does the conversion and writes the .vtu file.
-     *  @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
-     *  @param fileBaseName The base name of the data file.
-     *  @param pMesh Pointer to the mesh.
-     *  @param subdirectoryName name for the output directory to be created (relative to HeartConfig::Instance()->GetOutputDirectory())
+    /**
+     * Constructor, which does the conversion and writes the .info file.
+     * 
+     * @note This method is collective, and must be called by al processes.
+     * 
+     * @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
+     * @param fileBaseName The base name of the data file.
+     * @param pMesh Pointer to the mesh.
+     * @param subdirectoryName name for the output directory to be created (relative to HeartConfig::Instance()->GetOutputDirectory())
      */
     AbstractHdf5Converter(std::string inputDirectory,
                               std::string fileBaseName,

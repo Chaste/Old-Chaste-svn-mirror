@@ -143,7 +143,6 @@ void BidomainPde<SPACE_DIM>::CreateExtracellularConductivityTensors()
 template <unsigned SPACE_DIM>
 BidomainPde<SPACE_DIM>::~BidomainPde()
 {
-    /// \todo: #98 once the archiving constructor is creating the conductivity tensors properly we won't need this if statement
     if (mpExtracellularConductivityTensors)
     {
         delete mpExtracellularConductivityTensors;

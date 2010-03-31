@@ -39,10 +39,14 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class Hdf5ToVtkConverter : AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>
 {
 public:
-    /** Constructor, which does the conversion and writes the .vtu file.
-     *  @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
-     *  @param fileBaseName The base name of the data file.
-     *  @param pMesh Pointer to the mesh.
+    /**
+     * Constructor, which does the conversion and writes the .vtu file.
+     * 
+     * @note This method is collective, and hence must be called by all processes.
+     * 
+     * @param inputDirectory The input directory, relative to CHASTE_TEST_OUTPUT, where the .h5 file has been written
+     * @param fileBaseName The base name of the data file.
+     * @param pMesh Pointer to the mesh.
      */
     Hdf5ToVtkConverter(std::string inputDirectory,
                               std::string fileBaseName,

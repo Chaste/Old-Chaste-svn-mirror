@@ -683,8 +683,7 @@
     </xs:annotation>
     <xs:attribute name="timestep" type="xs:double" use="required">
       <xs:annotation>
-        <xs:documentation>Specifies at which timestep of the simulation the checkpoint is
-          requested.</xs:documentation>
+        <xs:documentation>Specifies how frequently to checkpoint.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="max_checkpoints_on_disk" type="xs:unsignedInt" use="required">
@@ -851,7 +850,14 @@ Note that in parallel the output meshes may be renumbered from the original inpu
       </xs:element>
       <xs:element name="CheckpointSimulation" type="checkpoint_type" minOccurs="0">
         <xs:annotation>
-          <xs:documentation>Specification of a checkpoint in a simulation. It stores information on when to checkpoint (timestep), its units (fixed to ms) and the maximum number of checkpoints.   Note that the checkpoint timestep should be a multiple of the printing step.</xs:documentation>
+          <xs:documentation>
+            Tell Chaste to checkpoint the simulation at regular intervals.
+            It stores information on how frequently to checkpoint (timestep),
+            and the maximum number of checkpoints to keep on disk.
+            Note that the checkpoint timestep should be a multiple of the printing step.
+            
+            See the release notes for more information on checkpointing.
+          </xs:documentation>
         </xs:annotation>
       </xs:element>
     </xs:all>

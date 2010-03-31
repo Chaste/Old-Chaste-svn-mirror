@@ -260,8 +260,7 @@ public:
      * Set the number of quadrature points to use, per dimension.
      *
      * This method will throw an exception if the requested number of quadrature
-     * points is not supported. (///\todo: There may be a small memory leak if this
-     * occurs.)
+     * points is not supported.
      *
      * @param numQuadPoints Number of quadrature points to use per dimension (defaults to 2)
      */

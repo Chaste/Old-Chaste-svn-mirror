@@ -263,7 +263,9 @@ CellML.  This allows Chaste to make use of any such model.
 
 Starting with release 2.0, PyCml is now run in the default build of Chaste.
 You thus need to install its pre-requisites if you wish the relevant tests
-to pass.  See also README_CELLML.txt for more information about PyCml.
+to pass.  You can still use Chaste without installing these packages, but
+some tests will fail.  See also README_CELLML.txt for more information about
+PyCml.
 
 PyCml is a python tool, and also requires Amara, RNV, and the Redland RDF
 library.  All of these in turn require the expat library to parse XML.

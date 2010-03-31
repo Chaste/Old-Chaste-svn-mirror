@@ -95,8 +95,9 @@ private:
         archive & mStateVariables;
         archive & mParameters;
 
-//        archive &mpSystemInfo;
-        /// \todo archive mpSystemInfo
+		// This is always set up by subclass constructors, and is essentially
+		// 'static' data, so shouldn't go in the archive.
+		//archive &mpSystemInfo;
     }
 
 protected:
