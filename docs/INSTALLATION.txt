@@ -7,6 +7,11 @@ https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/DeveloperInstallGuide
 For a guest login, use the username "anonymous", and your email address as
 the password.
 
+There are many dependencies, so if you are running the Ubuntu Linux
+distribution we strongly recommend using our Ubuntu package of Chaste.
+See https://chaste.comlab.ox.ac.uk/chaste/Inc/download.php?file=Ubuntu_package.html
+for details.
+
 
 First define the folder where you want to install the libraries which Chaste depends on, for example,
 export CHASTE_LIBS=/home/scratch/chaste-libs
@@ -250,26 +255,112 @@ tar xvfz paraview-3.6.2-Linux64-x86.tar.gz
 export PATH=${PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-x86_64/bin/
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-x86_64/lib/paraview-3.6/
 
+=============== PyCml dependencies ===============
+
+There is a companion tool to Chaste, named PyCml, which can generate
+Chaste-compatible C++ code from cardiac ionic cell models described in
+CellML.  This allows Chaste to make use of any such model.
+
+Starting with release 2.0, PyCml is now run in the default build of Chaste.
+You thus need to install its pre-requisites if you wish the relevant tests
+to pass.  See also README_CELLML.txt for more information about PyCml.
+
+PyCml is a python tool, and also requires Amara, RNV, and the Redland RDF
+library.  All of these in turn require the expat library to parse XML.
+This is available in most Linux distributions, e.g.
+  sudo aptitude install expat libexpat1-dev
+You will also need the Python header files:
+  sudo aptitude install python-dev
+
+To install Python libraries without root access, you need to create a
+file .pydistutils.cfg in your home directory, with the following content:
+
+[install]
+install_lib = /home/scratch/chaste-libs/python
+install_scripts = /home/scratch/chaste-libs/bin
+
+This assumes that you have installed chaste libraries in /home/scratch/chaste-libs;
+edit the path if not.
+
+Amara
+-----
+
+wget http://peak.telecommunity.com/dist/ez_setup.py
+python ez_setup.py
+easy_install "Amara==1.2.0.2"
+
+RNV
+---
+
+wget "http://ftp.davidashen.net/PreTI/RNV/RNV.ZIP"
+unzip RNV.ZIP
+cd rnv-*
+make -f Makefile.gnu
+cp rvp $CHASTE_LIBS/bin/
+cd ..
+rm RNV.ZIP
+
+Redland RDF library
+-------------------
+
+The installation of this is not straightforward, so if it is included
+in your distribution it is worthwhile to install from there, e.g.
+  sudo aptitude install python-librdf
+
+Otherwise, the following will hopefully work...
+
+wget http://download.librdf.org/source/redland-1.0.10.tar.gz http://download.librdf.org/source/redland-bindings-1.0.10.1.tar.gz http://download.librdf.org/source/rasqal-0.9.19.tar.gz http://download.librdf.org/source/raptor-1.4.21.tar.gz
+
+tar -zxf raptor-1.4.21.tar.gz
+cd raptor-1.4.21/
+./configure --prefix=$CHASTE_LIBS/rdf
+make install
+cd ..
+
+export PKG_CONFIG_PATH=$CHASTE_LIBS/rdf/lib/pkgconfig/
+
+tar -zxf rasqal-0.9.19.tar.gz
+cd rasqal-0.9.19/
+./configure --prefix=$CHASTE_LIBS/rdf
+make install
+cd ..
+
+tar -zxf redland-1.0.10.tar.gz
+cd redland-1.0.10
+./configure --prefix=$CHASTE_LIBS/rdf
+cd ..
+
+tar -zxf redland-bindings-1.0.10.1.tar.gz
+cd redland-bindings-1.0.10.1
+./configure --with-python --prefix=$CHASTE_LIBS/rdf --without-perl --without-php --without-ruby
+make
+mkdir -p $CHASTE_LIBS/rdf/python
+cp python/RDF.py python/Redland.so $CHASTE_LIBS/python/
+
 ===========SET ENVIRONMENTAL VARIABLES AND PATHS:===================
 
-If you always use Chaste from within the Eclipse IDE, this step is
-probably not needed.  If you ever wish to use Chaste from the command
-line, however, you will need these configuration settings.
+If you always use Chaste from within the Eclipse IDE, and do not wish
+to use PyCml, this step is probably not needed.  If you ever wish to
+use Chaste from the command line, however, you will need these
+configuration settings.
 
 Edit the ~/.bashrc file in the home directory and append the following:
 
 export CHASTE_LIBS=<THE FOLDER YOU CALLED $CHASTE_LIBS ABOVE>
 export PATH=$CHASTE_LIBS/bin:$PATH
-export LD_LIBRARY_PATH=$CHASTE_LIBS/petsc-2.3.3-p15/lib/linux-gnu
+export LD_LIBRARY_PATH=$CHASTE_LIBS/petsc-2.3.3-p15/lib/linux-gnu:$CHASTE_LIBS/rdf/lib
+export PYTHONPATH=$CHASTE_LIBS/python
 
 Note that the above settings assume that PATH already has a value but that
 LD_LIBRARY_PATH has not.  If LD_LIBRARY_PATH is set elsewhere in ~/.bashrc
-or in system-wide configuration then you will need:
+or in system-wide configuration then you will need the following instead of
+the LD_LIBRARY_PATH line above:
 
-export CHASTE_LIBS=<THE FOLDER YOU CALLED $CHASTE_LIBS ABOVE>
-export PATH=$CHASTE_LIBS/bin:$PATH
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/petsc-2.3.3-p15/lib/linux-gnu
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/petsc-2.3.3-p15/lib/linux-gnu:$CHASTE_LIBS/rdf/lib
 
+Similarly if PYTHONPATH is already set in your .bashrc, use
+
+export PYTHONPATH=$PYTHONPATH:$CHASTE_LIBS/python
 
 Note that test output will be put in the folder given by the environment variable CHASTE_TEST_OUTPUT. 
 If this has not been assigned to anything, it will be (temporarily) set to be the directory 

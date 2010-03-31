@@ -6,9 +6,7 @@ Chaste-compatible C++ code from cardiac ionic cell models described in
 CellML.  This allows Chaste to make use of any such model.  It also
 applies some optimisations to improve the speed of simulations.
 
-Since PyCml generates C++ source code (as opposed to a library which
-could be directly loaded by the standalone executable; this
-functionality is planned for a future release) the source code release
+Since PyCml generates C++ source code, the source code release
 of Chaste is required to make use of CellML models.
 
 Relevant information can also be found on the developers' wiki at
@@ -27,44 +25,9 @@ Amara and RNV.
 If you install the Ubuntu Chaste package, this should pull in everything
 needed.
 
-(Note: if upgrading from a pre-release version of the Ubuntu package,
- you may need to install recommended packages manually.)
-
-Instructions for manually installing the dependencies follow.
-
-Amara
------
-
-This may be available in your Linux distribution, but some versions
-(e.g. Fedora Core 6) are broken, so installing it yourself is probably
-safer. In this case, make sure you don't have a system wide version
-installed to reduce opportunities for confusion (e.g. do
-  yum remove python-4Suite-XML python-amara
-on Fedora).
-
-Amara and RNV require the expat library to parse XML:
-  sudo aptitude install expat libexpat1-dev
-You will also need the Python header files:
-  sudo aptitude install python-dev
-
-  sudo su -
-  wget http://peak.telecommunity.com/dist/ez_setup.py
-  python ez_setup.py
-  easy_install "Amara==1.2.0.2"
-
-RNV
----
-
-RNV needs to be downloaded from
-http://ftp.davidashen.net/PreTI/RNV/RNV.ZIP and built from source:
-
-  unzip RNV.ZIP
-  cd rnv-*
-  make -f Makefile.gnu
-  cp rvp ~/bin
-
-The last line ensures that the tool is available on your path and so
-can be found by PyCml.
+Instructions for manually installing the dependencies can be found in
+INSTALLATION.txt, and also online at
+https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/InstallPyCml
 
 
 Using PyCml

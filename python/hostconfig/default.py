@@ -68,9 +68,10 @@ other_libpaths = [chaste_libs_path+'lib',
                   os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu'),
                   parmetis_path]
 
-
-blas_lapack = ['f2clapack', 'f2cblas']
+# The order of libraries in these lists matters!
+blas_lapack = ['f2clapack', 'f2cblas'] # Note: Lapack before BLAS
 other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z', 'parmetis', 'metis']
+  # Note: parmetis before metis, hdf5 before z.
 # Note that boost serialization sometimes has a different name:
 # other_libraries = ['boost_serialization-gcc41', 'xerces-c', 'hdf5', 'z', 'parmetis', 'metis']
 
