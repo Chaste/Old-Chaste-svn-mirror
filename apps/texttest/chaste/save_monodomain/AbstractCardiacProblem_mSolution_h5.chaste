@@ -1,4 +1,4 @@
-HDF5 "/home/chaste/texttesttmp/chaste.10Dec160038/chaste/save_monodomain/ChasteResults_10ms/AbstractCardiacProblem_mSolution.h5" {
+HDF5 "/home/jmpf/texttesttmp/chaste.31Mar170950/chaste/save_monodomain/ChasteResults_checkpoints/10ms/ChasteResults_10ms/AbstractCardiacProblem_mSolution.h5" {
 GROUP "/" {
    DATASET "Data" {
       DATATYPE  H5T_IEEE_F64LE
@@ -463,6 +463,19 @@ GROUP "/" {
          DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
          DATA {
          (0): 1
+         }
+      }
+      ATTRIBUTE "Chaste Provenance" {
+         DATATYPE  H5T_STRING {
+               STRSIZE 365;
+               STRPAD H5T_STR_NULLTERM;
+               CSET H5T_CSET_ASCII;
+               CTYPE H5T_C_S1;
+            }
+         DATASPACE  SIMPLE { ( 1 ) / ( 1 ) }
+         DATA {
+         (0): "Created by Chaste version 1.1.8463 on Wed, 31 Mar 2010 16:14:22 +0000.  Chaste was built on Thu, 25 Mar 2010 09:38:58 +0000 by machine (uname) 'Linux chaste-bob 2.6.24-25-server #1 SMP Tue Oct 20 07:20:02 UTC 2009 x86_64' using settings: GccOpt, shared libraries.
+           "
          }
       }
    }

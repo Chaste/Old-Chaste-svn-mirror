@@ -73,9 +73,13 @@ output:from revision number
 mesh_tri:Created by Chaste
 mesh_pts:Created by Chaste
 mesh_tetras:Created by Chaste
+#Ignore provenance in HDF5 h5dump files
+results_h5:Created by Chaste
+AbstractCardiacProblem_mSolution_h5:Created by Chaste
 #Ignore warnings about rounded results
 results_phi_e_dat:Warning: These have been
 results_h5:Warning: These have been
+#Ignore path to original HDF5 file in h5dump files
 results_h5:HDF5
 AbstractCardiacProblem_mSolution_h5:HDF5
 resumed_h5:HDF5
