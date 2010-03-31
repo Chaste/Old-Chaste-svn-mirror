@@ -12,13 +12,14 @@
 <h3>Headline features</h3>
 
 <ul>
-  <li>Support for more versions of our library dependencies.</li>
-  <li>Cancer component renamed to cell_based.</li>
-  <li>Checkpointing of cardiac simulations now supported.</li>
-  <li>Cardiac simulation post-processing functionality now available in the executable.</li>
   <li>Dynamic loading of cell models defined in CellML (using a source release of Chaste).</li>
+  <li>Checkpointing of cardiac simulations now supported.</li>
+  <li>Support for open-source visualisation of cardiac simulations via VTK or cmgui.</li>
+  <li>More cardiac simulation post-processing functionality now available in the executable.</li>
+  <li>Support for more versions of our library dependencies.</li>
   <li>Improved documentation of the parameters file XML schema.</li>
   <li>Use of parMETIS for partitioning in parallel cardiac simulations.</li>
+  <li>Cancer component renamed to cell_based to reflect the increasing generality of the code.</li>
 </ul>
 
 <h3>Library compatibility</h3>
@@ -32,8 +33,8 @@ Chaste configuration.</li>
 version 1.8.3.</li>
 <li> PETSc - Chaste is known to work with version 2.2.1, version 2.3.2
 (recommended), version 2.3.3 and version 3.0.</li>
-<li> Boost - Chaste is regularly tested with Boost 1.33.1, Boost 1.34 (recommended) and Boost 1.37.
-Chaste also supports Boost 1.36, 1.38 and 1.40, although these versions are not regularly tested.
+<li> Boost - Chaste is regularly tested with Boost 1.33.1, Boost 1.34 (recommended), Boost 1.37 and Boost 1.40.
+Chaste also supports Boost 1.36, 1.38 and 1.39, although these versions are not regularly tested.
 Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boost)
  nor with version 1.41 and above (due to changes in the serialization library API).
 </li>
@@ -44,13 +45,6 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
 <h4>New functionality</h4>
 
 <ul>
-  <li>
-    Region attributes can be added to Triangle/Tetgen element and face/edge files.  
-    These should be non-negative and can be retrieved with <tt>mesh.GetBoundaryElement(i)->GetRegion()</tt>
-    or similar.  Note that (due to the default behaviour of Triangle) edges with a region attribute of zero 
-    are ignored.
-  </li>
-  
   <li>
     To support ongoing extensions to the executable functionality, the Chaste parameters file now uses an XML
     namespace to indicate which version of Chaste it is for.
@@ -64,16 +58,7 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
     See <tt>ChasteParameters.xml</tt> in the Chaste source folder for an example.  Make sure to use the correct path to the
     <tt>ChasteParameters_2_0.xsd</tt> file.
     Chaste should still be able to read old parameters files, but you will need to use the new version to take advantage of new features
-    (such as postprocessing and checkpointing).
-  </li>
-  
-  <li>
-    What format to convert HDF5 output to can now be specified in the XML configuration file (using the <tt>OutputVisualizer</tt> element),
-    and hence via <tt>HeartConfig</tt>.  As part of this change, the default behaviour has also changed to outputting meshalyzer data;
-    if you don't want this you have to explicitly turn it off.  There is an unfortunate conflict between visualizer output and outputting
-    cell model state variables - you can't do both!  Calling <tt>SetOutputVariables</tt> on <tt>HeartConfig</tt> will automatically turn off
-    visualizer output.  If you specify <tt>OutputVariables</tt> in the XML configuration file, however, you are responsible for also including
-    an <tt>&lt;OutputVisualizer meshalyzer="no"/&gt;</tt> element.
+    (such as post-processing and checkpointing).
   </li>
   
   <li>
@@ -130,9 +115,43 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
     simulation results.  If this file does not exist, a new file will be created to contain just the results from the resume point.
   </li>
   
-  <li><b>TODO</b>: Use of CVODE for single-cell cardiac simulations</li>
+  <li>
+    What format to convert HDF5 output to can now be specified in the XML configuration file (using the <tt>OutputVisualizer</tt> element),
+    and hence via <tt>HeartConfig</tt>.  As part of this change, the default behaviour has also changed to outputting meshalyzer data;
+    if you don't want this you have to explicitly turn it off.  There is an unfortunate conflict between visualizer output and outputting
+    cell model state variables - you can't do both!  Calling <tt>SetOutputVariables</tt> on <tt>HeartConfig</tt> will automatically turn off
+    visualizer output.  If you specify <tt>OutputVariables</tt> in the XML configuration file, however, you are responsible for also including
+    an <tt>&lt;OutputVisualizer meshalyzer="no"/&gt;</tt> element.
+  </li>
   
-  <li><b>TODO</b>: Post-processing</li>
+  <li>
+    Some post-processing functionality may now be specified in the XML file, using the <tt>PostProcessing</tt> element within
+    <tt>ChasteParameters</tt>.  Four post-processing outputs are possible, corresponding to 4 child elements:
+    <ol>
+      <li><tt>ActionPotentialDurationMap</tt></li>
+      <li><tt>UpstrokeTimeMap</tt></li>
+      <li><tt>MaxUpstrokeVelocityMap</tt></li>
+      <li><tt>ConductionVelocityMap</tt></li>
+    </ol>
+    See the XML Schema documentation for more information on each of these.
+  </li>
+  
+  <li>
+    Chaste can optionally use the CVODE library of ODE solvers for performing single cell cardiac simulations, and also more generally
+    for solving ODEs.  This requires a change to your hostconfig file to specify the location of the CVODE libraries; see default.py for
+    an example.  The <tt>CvodeAdaptor</tt> class presents the same interface as other Chaste ODE solvers, but uses CVODE.
+    
+    <br />There is also a specialised cardiac cell base class <tt>AbstractCvodeCell</tt> which uses CVODE's vector type natively for better
+    performance.  Due to this it cannot be used in tissue simulations.  PyCml can generate subclasses of this class; use the --cvode option
+    to the helper script (python/ConvertCellModel.py) in order to do so.
+  </li>
+  
+  <li>
+    Region attributes can be added to Triangle/Tetgen element and face/edge files.  
+    These should be non-negative and can be retrieved with <tt>mesh.GetBoundaryElement(i)->GetRegion()</tt>
+    or similar.  Note that (due to the default behaviour of Triangle) edges with a region attribute of zero 
+    are ignored.
+  </li>  
 </ul>
 
 <h4>Some behaviour corrections</h4>
@@ -171,6 +190,8 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
       line should be used, the same in both .hpp and .cpp.  (There are also the usual variant macros for common cases of templated classes.)
       See <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/BoostSerialization">BoostSerialization</a> for more info. 
     </li>
+    <li>The dependency on the METIS library has been replaced by one on parMETIS. This will require a small edit of the hostconfig file (see 
+      INSTALLATION.t for details).</li>
   </ul></li>
   
   <li>Cardiac:<ul>
@@ -184,7 +205,6 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
       have been removed from <tt>AbstractCardiacProblem</tt>.  Code using these should change to use the methods
       <tt>SetVisualizeWithMeshalyzer</tt>, <tt>SetVisualizeWithCmgui</tt> or <tt>SetVisualizeWithVtk</tt> on <tt>HeartConfig</tt>.
     </li>
-    <li>TODO: Any changes due to parMETIS?</li>
   </ul></li>
   
   <li>Cancer:<ul>
@@ -211,6 +231,19 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
       <tt>CellsGenerator</tt>, which is templated over cell cycle model classes and dimension, and comprises <tt>GenerateBasic()</tt> and
       <tt>GenerateGivenLocationIndices()</tt> methods; and a subclass <tt>CryptCellsGenerator</tt>, which has an additional method
       <tt>Generate()</tt> that sets up cells for a crypt simulation.
+    </li>
+    <li>
+      To reduce the number of calls to <tt>CreateCellPair</tt>, the <tt>MeshBasedTissue</tt> methods <tt>IsMarkedSpring</tt>,
+      <tt>MarkSpring</tt> and <tt>UnmarkSpring</tt> no longer call the <tt>CreateCellPair</tt> method, and now take in a reference to a
+      <tt>std::set&lt;TissueCell*&gt;</tt> instead of two <tt>TissueCell</tt> references.
+    </li>
+    <li>
+      The <tt>mesh</tt> component now contains an extra folder <tt>vertex</tt>, which includes classes for the construction and
+      reading/writing of 'vertex meshes' (these are meshes in which the number of nodes per element is unrestricted) as well as associated
+      tests.
+    </li>
+    <li>
+      <tt>AbstractCryptStatistics::GetWhetherCryptSectionCellsAreLabelled</tt> has been renamed to <tt>AreCryptSectionCellsLabelled</tt>.
     </li>
     <li>
       Changes to the archive format mean that checkpoint archives created with earlier versions of Chaste will not load in the new version.
