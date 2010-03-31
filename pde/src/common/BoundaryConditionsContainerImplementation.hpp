@@ -222,7 +222,8 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::DefineZeroN
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToLinearProblem(
         LinearSystem& rLinearSystem,
-        bool applyToMatrix)
+        bool applyToMatrix,
+        bool applyToRhsVector)
 {
     HeartEventHandler::BeginEvent(HeartEventHandler::USER1);
 
@@ -345,34 +346,36 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         }
     }
 
-
-    //Apply the RHS boundary conditions modification if required.
-    if (rLinearSystem.rGetDirichletBoundaryConditionsVector())
+    if(applyToRhsVector)
     {
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-        double one = 1.0;
-        VecAXPY(&one, rLinearSystem.rGetDirichletBoundaryConditionsVector(), rLinearSystem.rGetRhsVector());
-#else
-        VecAXPY(rLinearSystem.rGetRhsVector(), 1.0, rLinearSystem.rGetDirichletBoundaryConditionsVector());
-#endif
-    }
-
-    //Apply the actual boundary condition to the RHS, note this must be done after the modification to the
-    //RHS vector.
-    for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
-    {
-        this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
-
-        while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
+        //Apply the RHS boundary conditions modification if required.
+        if (rLinearSystem.rGetDirichletBoundaryConditionsVector())
         {
-            unsigned node_index = this->mDirichIterator->first->GetIndex();
-            double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
-
-            unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
-
-            rLinearSystem.SetRhsVectorElement(row, value);
-
-            this->mDirichIterator++;
+    #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+            double one = 1.0;
+            VecAXPY(&one, rLinearSystem.rGetDirichletBoundaryConditionsVector(), rLinearSystem.rGetRhsVector());
+    #else
+            VecAXPY(rLinearSystem.rGetRhsVector(), 1.0, rLinearSystem.rGetDirichletBoundaryConditionsVector());
+    #endif
+        }
+    
+        //Apply the actual boundary condition to the RHS, note this must be done after the modification to the
+        //RHS vector.
+        for (unsigned index_of_unknown=0; index_of_unknown<PROBLEM_DIM; index_of_unknown++)
+        {
+            this->mDirichIterator = this->mpDirichletMap[index_of_unknown]->begin();
+    
+            while (this->mDirichIterator != this->mpDirichletMap[index_of_unknown]->end() )
+            {
+                unsigned node_index = this->mDirichIterator->first->GetIndex();
+                double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
+    
+                unsigned row = PROBLEM_DIM*node_index + index_of_unknown;
+    
+                rLinearSystem.SetRhsVectorElement(row, value);
+    
+                this->mDirichIterator++;
+            }
         }
     }
 

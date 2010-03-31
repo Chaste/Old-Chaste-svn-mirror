@@ -186,9 +186,11 @@ public:
      *  @param applyToMatrix This optional parameter can be set as false to
      *  ensure that the matrix of the linear system is not updated. To
      *  be used when the matrix does not change between time steps.
+     *  @param applyToRhsVector Similarly, whether to apply the changes to the RHS vector (b in Ax=b).
      */
     void ApplyDirichletToLinearProblem(LinearSystem& rLinearSystem,
-                                       bool applyToMatrix = true);
+                                       bool applyToMatrix = true,
+                                       bool applyToRhsVector = true);
 
     /**
      * Alter the residual vector for a nonlinear system to satisfy

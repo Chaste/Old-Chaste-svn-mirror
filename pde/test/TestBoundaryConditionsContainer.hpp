@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ConstBoundaryCondition.hpp"
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
-
+#include "ReplicatableVector.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 class TestBoundaryConditionsContainer : public CxxTest::TestSuite
@@ -241,9 +241,28 @@ public:
                 new ConstBoundaryCondition<3>(-1);
             bcc3.AddDirichletBoundaryCondition(nodes_array[i], p_boundary_condition);
         }
-        bcc3.ApplyDirichletToLinearProblem(some_system);
+    
+        //////////////////////////
+        // 2010 AD code from here
+        //////////////////////////
+        
+        // apply dirichlet bcs to matrix but not rhs vector
+        bcc3.ApplyDirichletToLinearProblem(some_system, true, false);
+        ReplicatableVector vec_repl(some_system.GetRhsVector());
+        for(unsigned i=0; i<(unsigned)SIZE; i++)
+        {
+            TS_ASSERT_EQUALS(vec_repl[i], 2.0);
+        }
+
+        // now apply to the rhs vector
+        bcc3.ApplyDirichletToLinearProblem(some_system, false, true);
 
         some_system.AssembleFinalLinearSystem();
+
+        //////////////////////////
+        // 2007 AD code from here 
+        //////////////////////////
+
 
         /*
          *  Based on the original system and the boundary conditions applied in a non-symmetric
