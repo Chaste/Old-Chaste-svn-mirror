@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp" //For common definitions
 #include "DataWriterVariable.hpp"
 #include "DistributedVectorFactory.hpp"
+#include "Version.hpp"
 
 
 

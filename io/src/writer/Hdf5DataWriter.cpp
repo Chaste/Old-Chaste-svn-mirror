@@ -450,6 +450,30 @@ void Hdf5DataWriter::EndDefineMode()
         H5Aclose(unit_attr);
         H5Sclose(time_filespace);
     }
+
+    /*
+     * Create the provenance attribute
+     */
+    // Create a longer type for 'string'
+    const unsigned MAX_PROVENANCE_STRING_SIZE = 365;
+    hid_t long_string_type = H5Tcopy(H5T_C_S1);
+    H5Tset_size(long_string_type, MAX_PROVENANCE_STRING_SIZE );
+    hsize_t prov_columns[1] = {1};
+    hid_t provenance_space = H5Screate_simple(1, prov_columns, NULL);
+    char* provenance_data = (char*) malloc(sizeof(char) * MAX_PROVENANCE_STRING_SIZE);
+    assert( ChasteBuildInfo::GetProvenanceString().length() < MAX_PROVENANCE_STRING_SIZE);
+    
+    strcpy(provenance_data,  ChasteBuildInfo::GetProvenanceString().c_str());
+    hid_t prov_attr = H5Acreate(mDatasetId, "Chaste Provenance", long_string_type, provenance_space, H5P_DEFAULT);
+
+    // Write to the attribute
+    H5Awrite(prov_attr, long_string_type, provenance_data);
+
+    // Close dataspace & attribute
+    free(provenance_data);
+    H5Sclose(provenance_space);
+    H5Aclose(prov_attr);
+
 }
 
 void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)

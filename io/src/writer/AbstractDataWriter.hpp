@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTDATAWRITER_HPP
 
 #include <string>
+#include "Version.hpp"
 
 /**
  * An abstract base class for data output.

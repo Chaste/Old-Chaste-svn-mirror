@@ -919,7 +919,7 @@ Since the data from the original simulation will be included in the output, this
       </xs:element>
       <xs:element name="SurfaceAreaToVolumeRatio" type="inverse_length_type" minOccurs="0">
         <xs:annotation>
-          <xs:documentation>Surface area to volume ratio (usually denoted Am in mono-/bidomain PDEs).</xs:documentation>
+          <xs:documentation>Surface area to volume ratio (usually denoted Chi or Am in mono-/bidomain PDEs).</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element name="Capacitance" type="capacitance_type" minOccurs="0">
