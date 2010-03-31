@@ -81,7 +81,7 @@ GaussianQuadratureRule<1>::GaussianQuadratureRule(unsigned numPointsInEachDimens
     {
         case 1: // 1d, 1 point
             mWeights.push_back(1);
-            mPoints.push_back(ChastePoint<1>(0.5)); ///\todo check
+            mPoints.push_back(ChastePoint<1>(0.5));
             break;
 
         case 2: // 1d, 2 points

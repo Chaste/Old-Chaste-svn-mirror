@@ -85,7 +85,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
     std::set<unsigned>& rElementsOwned,
     std::vector<unsigned>& rProcessorsOffset)
 {
-    ///\todo: add a timing event for the partitioning
+    ///\todo #1293 add a timing event for the partitioning
 
     if (mMetisPartitioning==PARMETIS_LIBRARY && !PetscTools::IsSequential())
     {

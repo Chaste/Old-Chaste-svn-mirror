@@ -35,8 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::CmguiMeshWriter(const std::string &rDirectory,
                                                         const std::string &rBaseName,
-                                                        const bool &rCleanDirectory)
-        : AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
+                                                        bool cleanDirectory)
+        : AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>(rDirectory, rBaseName, cleanDirectory)
 {
     this->mIndexFromZero = false;
     mGroupName = this->mBaseName;

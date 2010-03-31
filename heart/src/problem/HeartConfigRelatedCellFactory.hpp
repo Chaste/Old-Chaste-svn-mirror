@@ -64,7 +64,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  \todo: dox, coverage, maybe own tests
+ * This is a cardiac cell factory which uses the settings from HeartConfig to set up the cells.
+ * 
+ * It thus supports such features as heterogeneities (in both the type of cell, and for some cells,
+ * cell model parameters), and the ability to dynamically convert CellML files into C++ code,
+ * compile this, and load the resulting model.
  */
 template<unsigned SPACE_DIM>
 class HeartConfigRelatedCellFactory : public AbstractCardiacCellFactory<SPACE_DIM>

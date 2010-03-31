@@ -106,24 +106,12 @@ public:
     /**
      * Get the entries for a given variable.
      *
-     * \todo This method returns a copy of ColumnDataReader::mValues - would it make
-     * more sense to change the semantics and return by reference?
-     * The only downside is that users would need to copy the result
-     * before calling  ColumnDataReader::GetValues again, if they wanted to keep the
-     * original results, which might cause head scratching!
-     *
      * @param rVariableName
      */
     std::vector<double> GetValues(const std::string& rVariableName);
 
     /**
      * Get the entries for a given variable with fixed dimension.
-     *
-     * \todo This method returns a copy of ColumnDataReader::mValues - would it make
-     * more sense to change the semantics and return by reference?
-     * The only downside is that users would need to copy the result
-     * before calling ColumnDataReader::GetValues again, if they wanted to keep the
-     * original results, which might cause head scratching!
      *
      * @param rVariableName
      * @param fixedDimension
@@ -132,12 +120,6 @@ public:
 
     /**
      * Get the entries for a given variable with unlimited dimension.
-     *
-     * \todo This method returns a copy of ColumnDataReader::mValues - would it make
-     * more sense to change the semantics and return by reference?
-     * The only downside is that users would need to copy the result
-     * before calling ColumnDataReader::GetValues again, if they wanted to keep the
-     * original results, which might cause head scratching!
      */
     std::vector<double> GetUnlimitedDimensionValues();
 

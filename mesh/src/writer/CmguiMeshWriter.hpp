@@ -263,11 +263,11 @@ public:
      *
      * @param rDirectory  the directory in which to write the mesh to file
      * @param rBaseName  the base name of the files in which to write the mesh data
-     * @param rCleanDirectory  whether to clean the directory (defaults to true) \todo make this cleanDirectory to be consistent with other writers? (#991)
+     * @param cleanDirectory  whether to clean the directory (defaults to true)
      */
     CmguiMeshWriter(const std::string& rDirectory,
                     const std::string& rBaseName,
-                    const bool& rCleanDirectory=true);
+                    bool cleanDirectory=true);
 
     /**
      * Write mesh data to files.

@@ -89,8 +89,8 @@ public:
      * conditions from these too.
      *
      * Uses a dumb partition to work out how to distribute the mesh and cells over
-     * the processes.
-     * \todo Allow the use of METIS to give a better partitioning
+     * the processes.  If we are loading on the same number of processes as the
+     * simulation was saved on, it uses exactly the same distribution as before.
      *
      * @param rDirectory directory where the multiple files defining the checkpoint are located
      *     (relative to CHASTE_TEST_OUTPUT)
