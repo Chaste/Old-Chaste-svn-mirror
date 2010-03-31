@@ -15,6 +15,35 @@ For a guest login, use the username "anonymous", and your email address as
 the password.
 
 
+Use of CellML in the cardiac executable
+=======================================
+
+As of release 2.0 of Chaste, the cardiac executable has gained the ability to
+automatically load cell models encoded as CellML files at run-time, rather than
+needing them to be incorporated within Chaste when it is compiled.  In order to
+take advantage of this, you need (at present) to have built the executable from
+source yourself, as it uses your Chaste source tree to convert the CellML file
+into runnable code.
+
+This change means that the definition of ionic models within the parameters file
+has changed.  To specify one of the models included within Chaste, you now need to
+wrap it in a <Hardcoded> element, e.g.
+
+    <Hardcoded>FaberRudy2000</Hardcoded>
+
+Specify a dynamically loaded model using the <Dynamic> element instead, e.g.
+
+    <Dynamic>
+        <Path relative_to="chaste_source_root">heart/dynamic/libDynamicallyLoadableLr91.so</Path>
+    </Dynamic>
+
+The path may either point to a pre-compiled shared library (as in the example),
+or a CellML file.  If the latter, a shared library will be created in the same
+folder as the CellML file, and loaded by the executable at run-time. See
+heart/test/data/xml/ChasteParametersFullFormat.xml for a full example parameters
+file.
+
+
 Installing PyCml
 ================
 
