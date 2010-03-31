@@ -729,6 +729,82 @@ public:
             delete p_abstract_problem;
         }
     }
+    
+    void TestSwitchesOffAtCorrectTime() throw(Exception)
+    {        
+        // zero stim cell factory
+        c_vector<double,2> centre;
+        centre(0) = 0.05; // cm
+        centre(1) = 0.05; // cm
+        BathCellFactory<2> cell_factory( 0.0, centre);
+
+        // boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
+        //
+        // Will use printing dt = 1 in second run below, so choose start and end times of the 
+        // electrode which don't coincide with printing times
+        double boundary_flux = -11.0e3;
+        double start_time = 0.5;
+        double duration = 2.0; // of the stimulus, in ms
+
+        HeartConfig::Instance()->SetOutputDirectory("fu");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("fu");
+        HeartConfig::Instance()->SetSimulationDuration(5.0);  //ms
+
+        //////////////////////////////////////////////////////
+        // solve with printing_dt = 0.01
+        //////////////////////////////////////////////////////
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.01, 0.01);  //ms
+        
+        BidomainProblem<2> bidomain_problem1( &cell_factory, true );
+        TetrahedralMesh<2,2>* p_mesh1 = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+           "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+    
+        boost::shared_ptr<Electrodes<2> > p_electrodes1(
+           new Electrodes<2>(*p_mesh1,false,0,0.0,0.1,boundary_flux, start_time, duration));
+    
+        bidomain_problem1.SetElectrodes(p_electrodes1);
+        bidomain_problem1.SetMesh(p_mesh1);
+        bidomain_problem1.PrintOutput(false);
+        bidomain_problem1.Initialise();
+ 
+        bidomain_problem1.Solve();
+        Vec sol1 = bidomain_problem1.GetSolution();
+            
+        ReplicatableVector sol_small_repl(sol1);                
+        delete p_mesh1;
+            
+        //////////////////////////////////////////////////////
+        // solve with printing_dt = 1.0
+        //////////////////////////////////////////////////////
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.01, 1.0);  //ms
+                                
+        BidomainProblem<2> bidomain_problem2( &cell_factory, true );
+
+        TetrahedralMesh<2,2>* p_mesh2 = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+   
+        boost::shared_ptr<Electrodes<2> > p_electrodes2(
+            new Electrodes<2>(*p_mesh2,false,0,0.0,0.1,boundary_flux, start_time, duration));
+    
+        bidomain_problem2.SetElectrodes(p_electrodes2);
+        bidomain_problem2.SetMesh(p_mesh2);
+        bidomain_problem2.PrintOutput(false);
+        bidomain_problem2.Initialise();
+
+        bidomain_problem2.Solve();
+        Vec sol2 = bidomain_problem2.GetSolution();
+
+        ReplicatableVector sol_large_repl(sol2);       
+        delete p_mesh2; 
+        
+        //////////////////////////////////////////////////////
+        // compare
+        //////////////////////////////////////////////////////
+        for(unsigned i=0; i<sol_small_repl.GetSize(); i++)
+        {
+            TS_ASSERT_DELTA(sol_small_repl[i], sol_large_repl[i], 1e-6);
+        }
+    }
 };
 
 #endif /*TESTBIDOMAINWITHBATHASSEMBLER_HPP_*/

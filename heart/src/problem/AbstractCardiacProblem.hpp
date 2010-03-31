@@ -575,6 +575,10 @@ public:
      */
     virtual void OnEndOfTimestep(double time)
     {}
+    
+    
+    virtual void SetUpAdditionalStoppingTimes(std::vector<double>& rAdditionalStoppingTimes)
+    {}
 
     /**
      * Used when loading a set of archives written by a parallel simulation onto a single process.

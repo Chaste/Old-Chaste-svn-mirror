@@ -168,7 +168,9 @@ boost::shared_ptr<BoundaryConditionsContainer<DIM,DIM,2> > Electrodes<DIM>::GetB
 template<unsigned DIM>
 bool Electrodes<DIM>::SwitchOff(double time)
 {
-    if (mAreActive && time>mEndTime)
+    // This smidge has to be the same as the one below.
+    double smidge = 1e-10;
+    if (mAreActive && time>mEndTime-smidge)
     {
         mAreActive = false;
         return true;
@@ -180,7 +182,9 @@ bool Electrodes<DIM>::SwitchOff(double time)
 template<unsigned DIM>
 bool Electrodes<DIM>::SwitchOn(double time)
 {
-    if (!mAreActive && time>=mStartTime && time<=mEndTime)
+    // This smidge has to be the same as the one above.
+    double smidge = 1e-10;
+    if (!mAreActive && time>=mStartTime && time<=mEndTime - smidge)
     {
         mAreActive = true;
         return true;

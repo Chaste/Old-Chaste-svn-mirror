@@ -246,6 +246,15 @@ public:
      * @param time  the current time
      */
     void OnEndOfTimestep(double time);
+    
+    /**
+     * Method to fill in a vector of additional stopping times consisting of the times when
+     * the electrodes are to be turned on and off
+     * 
+     * @param rAdditionalStoppingTimes reference to vector that will contain the on and off times
+     *  for the electrodes
+     */
+    void SetUpAdditionalStoppingTimes(std::vector<double>& rAdditionalStoppingTimes);
 
     /**
      * Used when loading a set of archives written by a parallel simulation onto a single process.

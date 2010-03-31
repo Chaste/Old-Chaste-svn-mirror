@@ -182,7 +182,18 @@ public:
      * @param time  the current time
      */
     bool SwitchOn(double time);
-
+    
+    /** Get the time the electrodes are switched on */
+    double GetSwitchOnTime()
+    {
+        return mStartTime;
+    }
+    
+    /** Get the time the electrodes are switched off */
+    double GetSwitchOffTime()
+    {
+        return mEndTime;
+    }
 };
 
 #include "SerializationExportWrapper.hpp"

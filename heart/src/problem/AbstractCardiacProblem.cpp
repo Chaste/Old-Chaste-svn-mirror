@@ -351,9 +351,14 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         initial_condition = CreateInitialCondition();
     }
 
+    std::vector<double> additional_stopping_times;
+    SetUpAdditionalStoppingTimes(additional_stopping_times);
+
     TimeStepper stepper(mCurrentTime,
                         HeartConfig::Instance()->GetSimulationDuration(),
-                        HeartConfig::Instance()->GetPrintingTimeStep());
+                        HeartConfig::Instance()->GetPrintingTimeStep(),
+                        false,
+                        additional_stopping_times);
 
     std::string progress_reporter_dir;
 
@@ -403,6 +408,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 
     while ( !stepper.IsTimeAtEnd() )
     {
+        // std::cout << stepper.GetTime() << "\n";
+        
         // solve from now up to the next printing time
         mpAssembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), HeartConfig::Instance()->GetPdeTimeStep());
         mpAssembler->SetInitialCondition( initial_condition );

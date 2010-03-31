@@ -373,6 +373,18 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
     }
 }
 
+
+
+template<unsigned DIM>
+void BidomainProblem<DIM>::SetUpAdditionalStoppingTimes(std::vector<double>& rAdditionalStoppingTimes)
+{
+    if ( mpElectrodes )
+    {
+        rAdditionalStoppingTimes.push_back( mpElectrodes->GetSwitchOnTime() );
+        rAdditionalStoppingTimes.push_back( mpElectrodes->GetSwitchOffTime() );
+    }
+}
+
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

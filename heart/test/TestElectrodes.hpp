@@ -55,6 +55,9 @@ public:
         double start_time = 1.0; //ms
         double duration = 2.0; //ms
         Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,start_time,duration);
+        
+        TS_ASSERT_DELTA(electrodes.GetSwitchOnTime(), start_time, 1e-12);
+        TS_ASSERT_DELTA(electrodes.GetSwitchOffTime(), start_time+duration, 1e-12);
 
         boost::shared_ptr<BoundaryConditionsContainer<2,2,2> > p_bcc = electrodes.GetBoundaryConditionsContainer();
 
@@ -106,12 +109,12 @@ public:
         TS_ASSERT_EQUALS(electrodes.SwitchOn(1.0), true); // true as t>start time
 
         // Implemented to switch off at times extrictly bigger than starting point + duration
-        TS_ASSERT_EQUALS(electrodes.SwitchOff(3.0), false); // false as t<end time
-        TS_ASSERT_EQUALS(electrodes.SwitchOn(3.0),false); // false as electrode already switched on
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(3.0-1e-10), false); // false as t<end time
+        TS_ASSERT_EQUALS(electrodes.SwitchOn(3.0-1e-10),false); // false as electrode already switched on
 
         // Time to switch off
-        TS_ASSERT_EQUALS(electrodes.SwitchOff(3.0+1e-12), true); // true as t>end_time
-        TS_ASSERT_EQUALS(electrodes.SwitchOn(3.0+1e-12), false); // false as electrode already switched on
+        TS_ASSERT_EQUALS(electrodes.SwitchOff(3.0), true); // true as t>end_time - smidge
+        TS_ASSERT_EQUALS(electrodes.SwitchOn(3.0), false); // false as electrode already switched on
 
         // Everything is over now...
         TS_ASSERT_EQUALS(electrodes.SwitchOff(4.0), false); // false as electrodes has been switched off
