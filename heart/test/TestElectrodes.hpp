@@ -108,7 +108,7 @@ public:
         TS_ASSERT_EQUALS(electrodes.SwitchOff(1.0), false); // false as t<end time
         TS_ASSERT_EQUALS(electrodes.SwitchOn(1.0), true); // true as t>start time
 
-        // Implemented to switch off at times extrictly bigger than starting point + duration
+        // Implemented to switch off at times strictly bigger than starting point + duration
         TS_ASSERT_EQUALS(electrodes.SwitchOff(3.0-1e-10), false); // false as t<end time
         TS_ASSERT_EQUALS(electrodes.SwitchOn(3.0-1e-10),false); // false as electrode already switched on
 

@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Exception.hpp"
 #include "CmguiMeshWriter.hpp"
+#include "Version.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation

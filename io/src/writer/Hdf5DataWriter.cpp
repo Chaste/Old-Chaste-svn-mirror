@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "OutputFileHandler.hpp"
 #include "PetscTools.hpp"
-
+#include "Version.hpp"
 
 Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
                                const std::string& rDirectory,

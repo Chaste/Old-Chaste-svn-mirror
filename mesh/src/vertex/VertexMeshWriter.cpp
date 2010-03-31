@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "VertexMeshWriter.hpp"
+#include "Version.hpp"
 
 /**
  * Convenience collection of iterators, primarily to get compilation to happen.

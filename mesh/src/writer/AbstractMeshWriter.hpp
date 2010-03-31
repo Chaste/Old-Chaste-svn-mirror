@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "OutputFileHandler.hpp"
 #include "AbstractMeshReader.hpp"
-#include "Version.hpp"
 
 /**
  * An abstract mesh writer class.
