@@ -49,7 +49,7 @@ public:
 
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
 
-        TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, false);
+        //TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, false);
 
         // check min values on fine mesh have been computed correctly
         TS_ASSERT_DELTA(mesh_pair.mMinValuesFine(0), 0.0, 1e-8);
@@ -130,7 +130,7 @@ public:
 
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
 
-        TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, false);
+        //TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, false);
 
         GaussianQuadratureRule<3> quad_rule(3);
         // need to call SetUpBoxesOnFineMesh first
@@ -170,27 +170,28 @@ public:
 
         mesh_pair.PrintStatistics();
     }
-    
-    void TestWithIdenticalMeshes() throw(Exception)
-    {
-        TrianglesMeshReader<1,1> reader1("mesh/test/data/1D_0_to_1_10_elements");
-        TetrahedralMesh<1,1> fine_mesh;
-        fine_mesh.ConstructFromMeshReader(reader1);
-        
-        TrianglesMeshReader<1,1> reader2("mesh/test/data/1D_0_to_1_10_elements_quadratic",2);
-        QuadraticMesh<1> coarse_mesh;
-        coarse_mesh.ConstructFromMeshReader(reader2);
-        
-        FineCoarseMeshPair<1> mesh_pair(fine_mesh,coarse_mesh);
-        TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, true);
 
-        GaussianQuadratureRule<1> quad_rule(1);
-        mesh_pair.SetUpBoxesOnFineMesh(0.3);
-
-        // Covers the mIdenticalMeshes=true part of this method. Would throw exception if can't find
-        // quad point in first choice of element.
-        TS_ASSERT_THROWS_NOTHING(mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true));
-    }
+////bring back this functionality if needed    
+//    void dontTestWithIdenticalMeshes() throw(Exception)
+//    {
+//        TrianglesMeshReader<1,1> reader1("mesh/test/data/1D_0_to_1_10_elements");
+//        TetrahedralMesh<1,1> fine_mesh;
+//        fine_mesh.ConstructFromMeshReader(reader1);
+//        
+//        TrianglesMeshReader<1,1> reader2("mesh/test/data/1D_0_to_1_10_elements_quadratic",2);
+//        QuadraticMesh<1> coarse_mesh;
+//        coarse_mesh.ConstructFromMeshReader(reader2);
+//        
+//        FineCoarseMeshPair<1> mesh_pair(fine_mesh,coarse_mesh);
+//        TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, true);
+//
+//        GaussianQuadratureRule<1> quad_rule(1);
+//        mesh_pair.SetUpBoxesOnFineMesh(0.3);
+//
+//        // Covers the mIdenticalMeshes=true part of this method. Would throw exception if can't find
+//        // quad point in first choice of element.
+//        TS_ASSERT_THROWS_NOTHING(mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true));
+//    }
 
     void TestWithDefaultBoxWidth() throw(Exception)
     {
@@ -273,6 +274,42 @@ public:
         }
 
         mesh_pair.PrintStatistics();
+    }
+    
+    // covers some bits that aren't covered in the tests above, 
+    void TestOtherCoverage() throw(Exception)
+    {
+        TetrahedralMesh<2,2> fine_mesh;
+        fine_mesh.ConstructRectangularMesh(10,10);
+        fine_mesh.Scale(0.1, 0.1);
+
+        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1);
+    
+        // rotate the mesh by 45 degrees, makes it possible (since boxes no longer lined up with elements)
+        // for the containing element of a quad point to be in a *local* box, ie not an element 
+        // contained in the box containing this point 
+        c_matrix<double,2,2> rotation_mat;
+        rotation_mat(0,0) = 1.0/sqrt(2);
+        rotation_mat(1,0) = -1.0/sqrt(2);
+        rotation_mat(0,1) = 1.0/sqrt(2);
+        rotation_mat(1,1) = 1.0/sqrt(2);
+        
+        fine_mesh.Rotate(rotation_mat);
+        coarse_mesh.Rotate(rotation_mat);
+
+        GaussianQuadratureRule<2> quad_rule(3);
+
+        FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
+        mesh_pair.SetUpBoxesOnFineMesh();
+        mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true);
+        TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
+
+        // repeat again with smaller boxes, covers the bit requiring the whole mesh to be searched to
+        // find an element for a particular quad point
+        FineCoarseMeshPair<2> mesh_pair2(fine_mesh,coarse_mesh);
+        mesh_pair2.SetUpBoxesOnFineMesh(0.01);
+        mesh_pair2.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true);
+        TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
     }
 
 

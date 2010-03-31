@@ -90,11 +90,12 @@ private:
      */
     std::vector<unsigned> mCounters;
 
-    /** In some simulations the coarse and fine meshes will turn out to be the same (the vertices of the
-      * coarse quadratic mesh will match the vertices of the fine mesh, though the coarse quad mesh
-      * will have extra nodes), we should figure out if this is the case and do things differently if so
-      */
-    bool mIdenticalMeshes;
+//// bring back this functionality if needed
+//    /** In some simulations the coarse and fine meshes will turn out to be the same (the vertices of the
+//      * coarse quadratic mesh will match the vertices of the fine mesh, though the coarse quad mesh
+//      * will have extra nodes), we should figure out if this is the case and do things differently if so
+//      */
+//    bool mIdenticalMeshes;
 
 public:
     /** Constructor sets up domain size
