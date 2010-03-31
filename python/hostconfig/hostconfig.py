@@ -116,7 +116,7 @@ def AddBoost(basePath, version):
     """Use Boost installed in a non-standard location.
 
     Expects basePath to point to a folder containing include and lib folders,
-    and version to be of the form '1.36'.
+    and version to be of the form '1.36' or '1.33.1'.
 
     Will automatically account for extended Boost library naming schemes.
     Can also handle boost libraries already appearing in other_libpaths etc.
@@ -128,7 +128,8 @@ def AddBoost(basePath, version):
     RemoveFromPath(conf.other_includepaths, 'boost')
     RemoveFromPath(conf.other_libpaths, 'boost')
     # Add libs from new location
-    if float(version) >= 1.40:
+    if float(version[:4]) >= 1.40:
+        # The [:4] is to cope with versions like '1.33.1'
         inc = ''
     else:
         inc = 'boost-' + version.replace('.', '_')
