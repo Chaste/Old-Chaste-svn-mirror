@@ -392,6 +392,7 @@ private:
 scons test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestLoadAsSequential/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration/reference_0_archive
 cp /tmp/$USER/testoutput/TestLoadAsSequentialWithBath/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_with_bath/reference_0_archive
+cp /tmp/chaste/testoutput/TestLoadAsSequentialWithBathAndDistributedMesh/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/reference_0_archive
 cp /tmp/$USER/testoutput/TestBcsOnNonMasterOnly/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_bcs_on_non_master_only/reference_0_archive
 cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_after_solve/reference_0_archive
              */
@@ -620,44 +621,69 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
      *
 scons build=GccOpt_hostconfig,boost=1-33-1_3 test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./heart/test/data/checkpoint_migration_with_bath/
+cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistributedMesh/?* ./heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/
      *
      * Sets up a simulation and archives it without solving at all.
      *
      * When running sequentially, this creates an archive we can compare with
      * that produced by the next test.
-     *
-     * \todo An identical test to this (probably include in these methods)
-     * using a DistributedTetrahedralMesh, for coverage of BidomainProblem::LoadExtraArchiveForBidomain.
      */
     void TestCreateArchiveForLoadAsSequentialWithBath() throw (Exception)
     {
-        std::string directory = "TestCreateArchiveForLoadAsSequentialWithBath";
         HeartConfig::Instance()->Reset();
         HeartConfig::Instance()->SetSimulationDuration(0.2);
-        HeartConfig::Instance()->SetOutputDirectory(directory);
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
-
-        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
-            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
-        ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
-
+        
         // boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
         double boundary_flux = -11.0e3;
         double duration = 1.9; // of the stimulus, in ms
-        boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(*p_mesh, false/*don't ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
-                              boundary_flux, 0.0, duration));
-
-        BidomainProblem<2> bidomain_problem( &cell_factory, true );
-        bidomain_problem.SetElectrodes(p_electrodes);
-        bidomain_problem.SetMesh(p_mesh);
-        bidomain_problem.Initialise();
-
-        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
-
-        delete p_mesh;
+	        
+        {
+		    std::string directory = "TestCreateArchiveForLoadAsSequentialWithBath";
+		    HeartConfig::Instance()->SetOutputDirectory(directory);
+        
+	        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+	            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+	        ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+	        
+	        boost::shared_ptr<Electrodes<2> > p_electrodes(
+	            new Electrodes<2>(*p_mesh, false/*don't ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
+	                              boundary_flux, 0.0, duration));
+	
+	        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+	        bidomain_problem.SetElectrodes(p_electrodes);
+	        bidomain_problem.SetMesh(p_mesh);
+	        bidomain_problem.Initialise();
+	
+	        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
+	
+	        delete p_mesh;
+        }
+        
+        // And now with a distributed mesh, for coverage
+        {
+		    std::string directory = "TestCreateArchiveForLoadAsSequentialWithBathAndDistributedMesh";
+		    HeartConfig::Instance()->SetOutputDirectory(directory);
+		    
+	        DistributedTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<DistributedTetrahedralMesh<2,2> >(
+	            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+	        ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+	
+	        boost::shared_ptr<Electrodes<2> > p_electrodes(
+	            new Electrodes<2>(*p_mesh, false/*don't ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
+	                              boundary_flux, 0.0, duration));
+	
+	        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+	        bidomain_problem.SetElectrodes(p_electrodes);
+	        bidomain_problem.SetMesh(p_mesh);
+	        bidomain_problem.Initialise();
+	
+	        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
+	
+	        delete p_mesh;
+        }
     }
 
     void TestLoadAsSequentialWithBath() throw (Exception)
@@ -743,6 +769,22 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./hear
         }
 
         DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
+        
+        // And now a shorter test with a distributed mesh, for coverage
+        source_directory = "heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/";
+        archive_directory = "TestLoadAsSequentialWithBathAndDistributedMesh";
+        ref_archive_dir = "TestCreateArchiveForLoadAsSequentialWithBathAndDistributedMesh";
+        OutputFileHandler handler2(archive_directory); // Clear the target directory
+        if (PetscTools::AmMaster())
+        {
+            EXPECT0(system, "cp " + source_directory + "* " + handler2.GetOutputDirectoryFullPath());
+        }
+        PetscTools::Barrier("TestLoadAsSequentialWithBathAndDistributedMesh");
+        
+        BidomainProblem<2>* p_problem2;
+        // Do the migration to sequential
+        p_problem2 = DoMigrateAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, source_directory, num_cells, true);
+        delete p_problem2;
     }
 
 private:
