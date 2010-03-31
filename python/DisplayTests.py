@@ -738,6 +738,7 @@ def _getTestSummary(test_set_dir, build):
 
 def _checkBuildFailure(test_set_dir, overall_status, colour):
   """Check whether the build failed, and return a new status if it did."""
+  found_semget = False
   try:
     log = file(os.path.join(test_set_dir, 'build.log'), 'r')
     for line in log:
@@ -747,6 +748,11 @@ def _checkBuildFailure(test_set_dir, overall_status, colour):
         overall_status = 'Build failed.  ' + overall_status
         colour = 'red'
         break
+      if not found_semget and 'semget failed for setnum' in line:
+        overall_status = 'Semaphore error.  ' + overall_status
+        if colour == 'green':
+          colour = 'orange'
+        found_semget = True
     log.close()
   except:
     # Build log may not exists for old builds
