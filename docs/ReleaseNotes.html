@@ -18,6 +18,7 @@
   <li>More cardiac simulation post-processing functionality now available in the executable.</li>
   <li>Support for more versions of our library dependencies.</li>
   <li>Improved documentation of the parameters file XML schema.</li>
+  <li>Use of a distributed mesh in the cardiac executable.</li>
   <li>Use of parMETIS for partitioning in parallel cardiac simulations.</li>
   <li>Cancer component renamed to cell_based to reflect the increasing generality of the code.</li>
 </ul>
@@ -190,8 +191,14 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
       line should be used, the same in both .hpp and .cpp.  (There are also the usual variant macros for common cases of templated classes.)
       See <a href="https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/BoostSerialization">BoostSerialization</a> for more info. 
     </li>
-    <li>The dependency on the METIS library has been replaced by one on parMETIS. This will require a small edit of the hostconfig file (see 
-      INSTALLATION.t for details).</li>
+    <li>
+      The dependency on the METIS library has been replaced by one on parMETIS. This will require a small edit of the hostconfig file (see 
+      INSTALLATION.txt for details).
+    </li>
+    <li>
+      <tt>ParallelTetrahedralMesh</tt> has been renamed to
+      <tt>DistributedTetrahedralMesh</tt>.
+    </li>
   </ul></li>
   
   <li>Cardiac:<ul>
