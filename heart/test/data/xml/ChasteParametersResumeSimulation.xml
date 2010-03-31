@@ -3,18 +3,33 @@
     xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 ../../../src/io/ChasteParameters_2_0.xsd">
-       
+
+    <!-- See also ChasteParametersFullFormat.xml -->       
 	<ResumeSimulation>
+	    <!-- Input directory for checkpoint archive-->
         <ArchiveDirectory>ChasteResults_10ms</ArchiveDirectory>
+        
+        <!-- This must match the dimension of the original archive -->
         <SpaceDimension>3</SpaceDimension>
+	    
+	    <!-- This simulation time is measured from the start of the *original* simulation so must be greater than the checkpoint time -->
 	    <SimulationDuration unit="ms">20.0</SimulationDuration>
+
+        <!-- This must match the domain-type of the original archive -->
 	    <Domain>Mono</Domain>
+	    
+	    <!-- When to write future checkpoints (Optional) -->
         <CheckpointSimulation timestep="20.0" unit="ms" max_checkpoints_on_disk="3"/>
+        
+        <!-- Postprocess to visualizers (Compulsory but the options may be all set to "no") -->
         <OutputVisualizer meshalyzer="yes" vtk="no" cmgui="no"/>
 	</ResumeSimulation>
 
     <!-- These elements must exist, but their contents are ignored -->	
     <Physiological/>
     <Numerical/>
+    
+    <!-- This element is optional, but in a resumed simulation its contents are ignored -->
+    <PostProcessing/>
 
 </ChasteParameters>

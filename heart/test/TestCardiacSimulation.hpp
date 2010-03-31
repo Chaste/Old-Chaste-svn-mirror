@@ -269,7 +269,7 @@ public:
 
     void TestTransmuralCellularheterogeneities() throw(Exception)
     {
-        CardiacSimulation simulation("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities.xml");
+        CardiacSimulation simulation("heart/test/data/xml/ChasteParametersCellHeterogeneities.xml");
         std::string foldername = "ChasteResults_heterogeneities";
 
         TS_ASSERT( CompareFilesViaHdf5DataReaderGlobalNorm("heart/test/data/cardiac_simulations", "transmural_heterogeneities_results", false,

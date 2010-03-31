@@ -3,27 +3,39 @@
     xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 ../../../src/io/ChasteParameters_2_0.xsd">
+ 
+    <!-- See also ChasteParametersResumeSimulation.xml -->       
        
 	<Simulation>
 		<!-- 
 			Problem definition 
 		-->
-		<SpaceDimension>3</SpaceDimension>
+		<SpaceDimension>3</SpaceDimension> <!-- 1, 2 or 3 -->
 	    <SimulationDuration unit="ms">10.0</SimulationDuration>
-	    <Domain>Mono</Domain>
+	    <Domain>Mono</Domain> <!-- Mono or Bi -->
 	    
 		<!-- 
 			Mesh definition 
 		-->
 		<Mesh unit="cm">
-			<Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>    
+			<!-- Create a Fibre (1D), Sheet (2D) or Slab (3D) mesh in memory -->
+			<Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>  
+            
+            <!-- Alternatively, load a mesh from disk -->
+            <!-- <LoadMesh name="mesh/test/data/1D_0_to_1mm_10_elements" conductivity_media="NoFibreOrientation"/> -->
+            <!-- <LoadMesh name="mesh/test/data/1D_0_to_1mm_10_elements" conductivity_media="Axisymmetric"/>  Requires .axi file -->
+            <!-- <LoadMesh name="mesh/test/data/1D_0_to_1mm_10_elements" conductivity_media="Orthotropic"/> Requires .ortho  file -->  		  
 	  	</Mesh>
 	
 		<!--
 			Ionic models	
 		-->
 		<IonicModels>
+			<!-- Specify a default cell model (compulsory) and any number of regional models (optional) -->
+			<!-- Can be hardcoded models, e.g. -->
 			<Default><Hardcoded>FaberRudy2000</Hardcoded></Default>
+
+			<!-- Dynamically linked in a cuboid region -->
 			<Region>
 				<IonicModel>
 					<Dynamic>
@@ -37,6 +49,8 @@
 					</Cuboid>
 				</Location>				
 			</Region>
+			
+			<!-- Hardcoded in a cuboid region -->
 			<Region>
 				<IonicModel><Hardcoded>DifrancescoNoble</Hardcoded></IonicModel>
 				<Location unit="cm">
@@ -46,16 +60,20 @@
 					</Cuboid>
 				</Location>				
 			</Region>
+			
+			<!-- Cell models in transmural regions are valid XML but are not implemented -->
+			
 		</IonicModels>
 	
 	    <!-- 
 	    	Stimuli (as many <Stimulus> definitions as needed) 
 	   	-->
    		<Stimuli>
+   		    <!-- Specify some intracellular current stimuli -->
 		  	<Stimulus> <!-- #1 -->
 				<Strength unit="uA/cm^3">-25500.0</Strength>
 				<Duration unit="ms">0.5</Duration>
-				<Delay unit="ms">0</Delay>
+				<Delay unit="ms">0</Delay> <!-- Start time of stimulus (measured from beginning of simulation) -->
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="-5.0"  y="-0.125" z="-5.0"/>
@@ -74,12 +92,20 @@
 					</Cuboid>
 				</Location>
 			</Stimulus>	
+
+			<!-- Stimuli in transmural regions are valid XML but are not implemented -->
+
 		</Stimuli>
 
 	    <!-- 
 	    	Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
 	   	-->
 		<CellHeterogeneities>
+		    <!-- Specify scaling factors for some cell model parameters in heterogeneous regions -->
+		    <!-- Works with cell models that allow scale factors (FaberRudy2000, MahajanShiferaw, Maleckar, tenTusscher) -->
+		    <!-- The values of Gks, Ito, Gkr can be scaled -->
+		    
+		    <!-- Heterogeneities in a cuboid region -->
 		  	<CellHeterogeneity> <!-- #1 -->
 				<ScaleFactorGks unit="dimensionless">0.462</ScaleFactorGks>
 				<ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
@@ -92,6 +118,7 @@
 				</Location>
 			</CellHeterogeneity>	
 		
+		    <!-- More heterogeneities in a cuboid region -->
 		  	<CellHeterogeneity> <!-- #2 -->
 				<ScaleFactorGks unit="dimensionless">1.154</ScaleFactorGks>
 				<ScaleFactorIto unit="dimensionless">0.85</ScaleFactorIto>
@@ -103,9 +130,40 @@
 					</Cuboid>
 				</Location>
 			</CellHeterogeneity>	
+
+		    <!-- Heterogeneities in a transmural region -->
+            <!-- Note that 0.375 + 0.375 + 0.25 = 1.0 -->
+		  	<!-- <CellHeterogeneity> (Epi)
+				     <ScaleFactorGks unit="dimensionless">0.0</ScaleFactorGks>
+				     <ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
+				     <ScaleFactorGkr unit="dimensionless">0.0</ScaleFactorGkr>
+				     <Location unit="cm">
+					     <EpiLayer unit="dimensionless">0.375</EpiLayer>
+				     </Location>
+			     </CellHeterogeneity>	
+		         <CellHeterogeneity> (Endo)
+				     <ScaleFactorGks unit="dimensionless">1000</ScaleFactorGks>
+				     <ScaleFactorIto unit="dimensionless">1000</ScaleFactorIto>
+				     <ScaleFactorGkr unit="dimensionless">1000</ScaleFactorGkr>
+				     <Location unit="cm">
+					     <EndoLayer unit="dimensionless">0.375</EndoLayer>
+				     </Location>
+			     </CellHeterogeneity>	
+		         <CellHeterogeneity> (Mid)
+				     <ScaleFactorGks unit="dimensionless">500</ScaleFactorGks>
+				     <ScaleFactorIto unit="dimensionless">500</ScaleFactorIto>
+				     <ScaleFactorGkr unit="dimensionless">500</ScaleFactorGkr>
+				     <Location unit="cm">
+					     <MidLayer unit="dimensionless">0.25</MidLayer>
+				     </Location>
+			     </CellHeterogeneity>	-->
+		    
 		</CellHeterogeneities>		
 		
 		<ConductivityHeterogeneities>
+		    <!-- Specify scaling factors for conductivities in heterogeneous regions -->
+
+		    <!-- Heterogeneities in both conductivities a cuboid region -->
 			<ConductivityHeterogeneity> <!-- #1 -->
 			    <IntracellularConductivities longi="2.75" trans="2.75" normal="2.75" unit="mS/cm"/>
 	    		<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" unit="mS/cm"/>				
@@ -117,7 +175,8 @@
 				</Location>				
 			</ConductivityHeterogeneity>		
 
-			<ConductivityHeterogeneity> <!-- #2 -->
+		    <!-- Intracellular conductivity heterogeneities in a cuboid region -->
+		    <ConductivityHeterogeneity> <!-- #2 -->
 			    <IntracellularConductivities longi="0.75" trans="0.75" normal="0.75" unit="mS/cm"/>
 				<Location unit="cm">
 					<Cuboid>
@@ -127,6 +186,7 @@
 				</Location>				
 			</ConductivityHeterogeneity>		
 
+		    <!-- Extracellular conductivity heterogeneities in a cuboid region -->
 			<ConductivityHeterogeneity> <!-- #3 -->
 				<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" unit="mS/cm"/>				
 				<Location unit="cm">
@@ -136,51 +196,82 @@
 					</Cuboid>
 				</Location>				
 			</ConductivityHeterogeneity>		
+
+ 		<!-- Conductivity heterogeneities in transmural regions are valid XML but are not implemented -->
+
 		</ConductivityHeterogeneities>		
 
 		<!-- 
 			Output 
 		-->
+		<!-- Where to store the output (relative to CHASTE_TEST_OUTPUT) -->
 		<OutputDirectory>ChasteResults</OutputDirectory>
+		<!-- Prefix for output files -->
+		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
 		
+		<!-- Optional list of variables to output alongside Vm etc.  These names should match those in the CellML -->  
 		<OutputVariables>
 		    <Var name="CaI"/>
 		    <Var name="Nai"/>
 		    <Var name="Ki"/>
 		</OutputVariables>
 		
+		<!-- Optionally specify post-processing to visualizer(s) -->
 		<OutputVisualizer meshalyzer="no" vtk="yes" cmgui="no"/>
 
+		<!-- Optionally specify a frequency for checkpointing -->
 		<CheckpointSimulation timestep="20.0" unit="ms" max_checkpoints_on_disk="3"/>
 				
 	</Simulation>
 	
 	<Physiological>
 	    <!--
-	        Conductivities
+	        Conductivities: Longitudinal (along fibre), Transverse (in sheet), Normal (between sheets)
 	    -->
 	    <IntracellularConductivities longi="1.75" trans="1.75" normal="1.75" unit="mS/cm"/>
 	    <ExtracellularConductivities longi="7.0"  trans="7.0"  normal="7.0" unit="mS/cm"/>
 	    <BathConductivity unit="mS/cm"> 7.0 </BathConductivity>
-	    <SurfaceAreaToVolumeRatio unit="1/cm"> 1400 </SurfaceAreaToVolumeRatio>
-	    <Capacitance unit="uF/cm^2"> 1.0 </Capacitance>
+	    
+	    <!-- PDE reaction/diffusion parameters -->
+	    <SurfaceAreaToVolumeRatio unit="1/cm"> 1400 </SurfaceAreaToVolumeRatio> <!-- usually denoted Chi or A_m in mono-/bidomain PDEs -->
+	    <Capacitance unit="uF/cm^2"> 1.0 </Capacitance> <!-- usually denoted C_m in mono-/bidomain PDEs -->
 	</Physiological>
 
 	<Numerical>
+	    <!-- ode is time-step used in cell-models, pde is time-step used in PDE solution, printing is timestep used for writing output to HDF5 file -->
+		<!-- Note that ode<=pde<=printing. ode must divide pde and pde must divide printing. -->
 		<TimeSteps ode="0.025" pde="0.05" printing="1.0" unit="ms"/>
+		
+		<!-- Tolerance for PETSc Krylov (linear system) solver -->
 		<KSPTolerances>
 			<KSPRelative>1e-6</KSPRelative>
+			<!-- Or absolute <KSPAbsolute>1e-8</KSPAbsolute> -->
 		</KSPTolerances>
+		<!-- KSP solver type "cg" for Conjugate Gradient -->
 		<KSPSolver>gmres</KSPSolver>
+		<!-- KSP preconditioner type -->
 		<KSPPreconditioner>ilu</KSPPreconditioner>
+		
+		<!-- Optional.  These parameters are for use with a particular adaptivity library -->
 		<AdaptivityParameters target_error="2.0" sigma="0.01" max_edge_length="0.04" min_edge_length="0.005" gradation="1.3" max_nodes="1000" num_sweeps="5" />
 	</Numerical>
 	
+	<!-- Optional postprocessing parameters -->
 	<PostProcessing>
+	        
+	        <!-- Calculate all APD90s for all nodes -->
 	        <ActionPotentialDurationMap threshold="-30.0" threshold_unit="mV" repolarisation_percentage="90"/>
+	        
+	        <!-- Calculate all upstroke times for all nodes (activation map) -->
 	        <UpstrokeTimeMap threshold="-30.0" threshold_unit="mV"/>
+	        
+	        <!-- Calculate all upstroke velocities for all nodes -->
 	        <MaxUpstrokeVelocityMap threshold="-30.0" threshold_unit="mV"/>
+	        
+	        <!-- Calculate conduction velocity from node indexed 10 to all nodes in mesh --> 
 	        <ConductionVelocityMap origin_node="10"/>
+
+	        <!-- Calculate conduction velocity from node indexed 20 to all nodes in mesh --> 
 	        <ConductionVelocityMap origin_node="20"/>
 	</PostProcessing>
 

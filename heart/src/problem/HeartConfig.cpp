@@ -477,6 +477,7 @@ void HeartConfig::GetIonicModelRegions(std::vector<ChasteCuboid<DIM> >& definedR
         {
             if(ionic_model_region.Location().EpiLayer().present() || ionic_model_region.Location().MidLayer().present() || ionic_model_region.Location().EndoLayer().present() )
             {
+                ///\todo When this is implemented, then we require an example in ChasteParametersFullFormat.xml
                 EXCEPTION("Definition of transmural layers is not yet supported for defining different ionic models, please use cuboids instead");
             }
         }
@@ -963,6 +964,7 @@ void HeartConfig::GetConductivityHeterogeneities(
         {
             if(ht.Location().EpiLayer().present() || ht.Location().MidLayer().present() || ht.Location().EndoLayer().present() )
             {
+                ///\todo When this is implemented, then we require an example in ChasteParametersFullFormat.xml
                 EXCEPTION("Definition of transmural layers is not allowed for conductivities heterogeneities, you may use fibre orientation support instead");
             }
         }

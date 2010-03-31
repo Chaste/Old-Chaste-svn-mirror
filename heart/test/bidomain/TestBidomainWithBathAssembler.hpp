@@ -67,7 +67,7 @@ public:
         // type of assembler
         HeartConfig::Instance()->SetSimulationDuration(0.01);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_10_elements_with_two_attributes");
-        HeartConfig::Instance()->SetOutputDirectory("bidomainDg01d");
+        HeartConfig::Instance()->SetOutputDirectory("bidomain_bath");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
@@ -104,7 +104,7 @@ public:
         // type of assembler
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
-        HeartConfig::Instance()->SetOutputDirectory("bidomainDg01d");
+        HeartConfig::Instance()->SetOutputDirectory("bidomain_bath");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;

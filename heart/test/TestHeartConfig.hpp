@@ -426,7 +426,7 @@ public :
         {
             HeartConfig::Reset();
             //the _unsupported file has valid transmural heterogeneity definition for cellular heterogeneities, but transmural heterogeneities defined for other things we don't support yet.
-            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_unsupported.xml");
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_unsupported.xml");
 
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
@@ -486,7 +486,7 @@ public :
         //covers the case when the user supplies numbers that do not add up to 1
         {
             HeartConfig::Reset();
-            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_inconsistent.xml");
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_inconsistent.xml");
 
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
@@ -503,7 +503,7 @@ public :
         //covers the case when the user supplies negative numbers
         {
             HeartConfig::Reset();
-            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_negative.xml");
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_negative.xml");
 
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
@@ -521,7 +521,7 @@ public :
         //this second test of supplied negative values is for coverage. As we first check that the summation is 1, it was impossible to have 3 negative values in one file.
         {
             HeartConfig::Reset();
-            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_negative_2.xml");
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_negative_2.xml");
 
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
@@ -538,7 +538,7 @@ public :
         //covers the case when the user supplies only two layers
         {
             HeartConfig::Reset();
-            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_incomplete.xml");
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_incomplete.xml");
 
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
@@ -562,7 +562,7 @@ public :
         //cuboids and layers together are not yet supported
         {
             HeartConfig::Reset();
-            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/Transmural_heterogeneities/ChasteParametersCellHeterogeneities_cuboids_and_layers.xml");
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersCellHeterogeneities_cuboids_and_layers.xml");
 
             std::vector<AbstractChasteRegion<3>* > cell_heterogeneity_areas;
             std::vector<double> scale_factor_gks;
