@@ -529,6 +529,18 @@ void LinearSystem::SetNullBasis(Vec nullBasis[], unsigned numberOfBases)
     PETSCEXCEPT( MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, numberOfBases, nullBasis, &mMatNullSpace) );
 }
 
+void LinearSystem::RemoveNullSpace()
+{
+    // Only remove if previously set
+    if (mMatNullSpace)
+    {
+        PETSCEXCEPT( MatNullSpaceDestroy(mMatNullSpace) );
+        PETSCEXCEPT( MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, 0, NULL, &mMatNullSpace) );
+        mKspIsSetup = false;        
+    }
+}
+
+
 void LinearSystem::GetOwnershipRange(PetscInt& lo, PetscInt& hi)
 {
     lo = mOwnershipRangeLo;

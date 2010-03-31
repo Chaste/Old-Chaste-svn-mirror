@@ -401,6 +401,14 @@ public:
     void SetNullBasis(Vec nullbasis[], unsigned numberOfBases);
 
     /**
+     * Remove the null space from the linear system. 
+     * 
+     * Use for example if Dirichlet BC are applied to a singular system and, therefore, there's 
+     * no null space anymore.
+     */
+    void RemoveNullSpace();
+
+    /**
      * Get access to the RHS vector directly. Shouldn't generally need to be called.
      */
     Vec& rGetRhsVector();

@@ -437,6 +437,50 @@ public:
         }
 #endif
     }
+    
+   void TestRemoveNullSpace()
+    {
+        LinearSystem ls(3);
+        ls.SetMatrixIsConstant(true);
+
+        TS_ASSERT_EQUALS(ls.GetSize(), 3U);
+
+        for (int row=0; row<3; row++)
+        {
+            ls.SetMatrixElement(row, row, (double) row+1);
+        }
+        ls.AssembleFinalLinearSystem();
+
+        ls.SetRhsVectorElement(0, 1.0);
+        ls.SetRhsVectorElement(1, 2.0);
+        ls.SetRhsVectorElement(2, 3.0);
+
+        std::vector<double> data(3,0.0);
+        data[0] = 1.0;
+        Vec one_zeros = PetscTools::CreateVec(data);
+
+        Vec null_basis[] = {one_zeros};
+
+        ls.SetNullBasis(null_basis, 1);
+
+        Vec wrong_solution = ls.Solve();
+        ReplicatableVector replicated_wrong_solution(wrong_solution);
+
+        // Wrong solution since wrong null space was provided.
+        TS_ASSERT_DELTA(replicated_wrong_solution[0], 0.0, 1e-8);
+        TS_ASSERT_DELTA(replicated_wrong_solution[1], 1.0, 1e-8);
+        TS_ASSERT_DELTA(replicated_wrong_solution[2], 1.0, 1e-8);
+        
+        // Now remove the null space and we will hopefully get the right solution
+        ls.RemoveNullSpace();
+        Vec solution = ls.Solve();
+        ReplicatableVector replicated_solution(solution);
+
+        TS_ASSERT_DELTA(replicated_solution[0], 1.0, 1e-8);
+        TS_ASSERT_DELTA(replicated_solution[1], 1.0, 1e-8);
+        TS_ASSERT_DELTA(replicated_solution[2], 1.0, 1e-8);
+
+    }    
 
     // Test the 3rd constructor
     void TestCreateWithPetscObjects()
