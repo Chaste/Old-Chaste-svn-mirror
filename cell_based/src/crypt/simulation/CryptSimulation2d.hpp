@@ -110,7 +110,7 @@ protected:
      * Write initial beta catenin results to file if required.
      */
     void SetupSolve();
-    
+
     /**
      * Helper method to output all the simulations parameters to file
      */

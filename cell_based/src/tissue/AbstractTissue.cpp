@@ -147,7 +147,7 @@ std::vector<unsigned> AbstractTissue<DIM>::GetCellMutationStateCount()
     std::vector<unsigned> cell_mutation_state_count(r_mutation_states.size());
     for (unsigned i=0; i<r_mutation_states.size(); i++)
     {
-        cell_mutation_state_count[i] =  r_mutation_states[i]->GetCellCount();
+        cell_mutation_state_count[i] = r_mutation_states[i]->GetCellCount();
     }
     return cell_mutation_state_count;
 }

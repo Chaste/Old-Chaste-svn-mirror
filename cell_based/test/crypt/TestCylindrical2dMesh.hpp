@@ -549,7 +549,7 @@ public:
     void TestArchiving() throw (Exception)
     {
         std::string archive_dir = "archive";
-        std::string archive_file =  "cylindrical_mesh_base.arch";
+        std::string archive_file = "cylindrical_mesh_base.arch";
         ArchiveLocationInfo::SetMeshFilename("cylindrical_mesh");
 
         // Set up a mesh
@@ -561,13 +561,15 @@ public:
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         AbstractTetrahedralMesh<2,2>* const p_mesh = generator.GetCylindricalMesh();
 
-        // You need the const above to stop a BOOST_STATIC_ASSERTION failure.
-        // This is because the serialization library only allows you to save tracked
-        // objects while the compiler considers them const, to prevent the objects changing
-        // during the save, and so object tracking leading to wrong results.
-        // (e.g. A is saved once via pointer, then changed, then saved again.  The second
-        //  save notes that A was saved before, so doesn't write its data again, and the
-        //  change is lost.)
+        /*
+         * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
+         * This is because the serialization library only allows you to save tracked
+         * objects while the compiler considers them const, to prevent the objects
+         * changing during the save, and so object tracking leading to wrong results.
+         * (e.g. A is saved once via pointer, then changed, then saved again. The second
+         * save notes that A was saved before, so doesn't write its data again, and the
+         * change is lost.)
+         */
 
         {
             // Serialize the mesh

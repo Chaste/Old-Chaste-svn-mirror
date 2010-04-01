@@ -129,7 +129,7 @@ public:
         TS_ASSERT_THROWS_THIS(p_instance->SpecifyOrdering(mutations),
                               "An ordering has already been specified.");
 
-        std::vector<boost::shared_ptr<AbstractCellMutationState> > states =    p_instance->rGetAllMutationStates();
+        std::vector<boost::shared_ptr<AbstractCellMutationState> > states = p_instance->rGetAllMutationStates();
         TS_ASSERT_EQUALS(states.size(), 3u);
         TS_ASSERT(states[0]->IsType<WildTypeCellMutationState>());
         TS_ASSERT(states[1]->IsType<LabelledCellMutationState>());
