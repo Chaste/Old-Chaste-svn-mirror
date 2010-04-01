@@ -536,7 +536,11 @@ void LinearSystem::RemoveNullSpace()
     {
         PETSCEXCEPT( MatNullSpaceDestroy(mMatNullSpace) );
         PETSCEXCEPT( MatNullSpaceCreate(PETSC_COMM_WORLD, PETSC_FALSE, 0, NULL, &mMatNullSpace) );
-        mKspIsSetup = false;        
+        if (mKspIsSetup)
+        {
+            PETSCEXCEPT( KSPSetNullSpace(mKspSolver, mMatNullSpace) );
+        }
+        //else: it will be set next time Solve() is called
     }
 }
 
