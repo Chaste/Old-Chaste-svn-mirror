@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 //#define MECH_VERBOSE
 //#define MECH_VERY_VERBOSE
+//#define MECH_USE_HYPRE
 
 #ifdef MECH_VERBOSE
 #include "Timer.hpp"
@@ -486,14 +487,17 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 
     PC pc;
     KSPGetPC(solver, &pc);
-    PCSetType(pc, PCJACOBI);
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Speed up linear solve time massively for larger simulations (in fact GMRES may stagnate without
-    // this for larger problems), by using a AMG preconditioner -- needs HYPRE installed 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    //PCSetType(pc, PCHYPRE);
-    //KSPSetPreconditionerSide(solver, PC_RIGHT);    
+    #ifndef MECH_USE_HYPRE    
+        PCSetType(pc, PCJACOBI);
+    #else
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+        // Speed up linear solve time massively for larger simulations (in fact GMRES may stagnate without
+        // this for larger problems), by using a AMG preconditioner -- needs HYPRE installed 
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+        PCSetType(pc, PCHYPRE);
+        KSPSetPreconditionerSide(solver, PC_RIGHT);
+    #endif     
 
     KSPSetFromOptions(solver);
     
