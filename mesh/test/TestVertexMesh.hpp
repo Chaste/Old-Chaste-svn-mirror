@@ -584,9 +584,10 @@ public:
         VertexMesh<3,3> mesh(nodes, elements);
 
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumFaces(), 5u);
+        TS_ASSERT_EQUALS(mesh.GetNumFaces(), 5u);
 
         // Face 0 has four vertices, is perpendicular to the y axis, and has area 1*3 = 3
-        VertexElement<2,3>* p_face_0 = mesh.GetElement(0)->GetFace(0);
+        VertexElement<2,3>* p_face_0 = mesh.GetFace(0);
         TS_ASSERT_EQUALS(p_face_0->GetNumNodes(), 4u);
         c_vector<double, 3> unit_normal_0 = mesh.GetUnitNormalToFace(p_face_0);
         TS_ASSERT_DELTA(unit_normal_0[0], 0.0, 1e-6);
@@ -595,7 +596,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_0), 3.0, 1e-6);
 
         // Face 1 has three vertices, is perpendicular to the x axis, and has area 0.5*2*3 = 3
-        VertexElement<2,3>* p_face_1 = mesh.GetElement(0)->GetFace(1);
+        VertexElement<2,3>* p_face_1 = mesh.GetFace(1);
         TS_ASSERT_EQUALS(p_face_1->GetNumNodes(), 3u);
         c_vector<double, 3> unit_normal_1 = mesh.GetUnitNormalToFace(p_face_1);
         TS_ASSERT_DELTA(unit_normal_1[0], 1.0, 1e-6);
@@ -605,7 +606,7 @@ public:
 
         // Face 2 has four vertices, is at an angle theta to the y axis where tan(theta) = 2/3,
         // and has area 1*sqrt(2^2 + 3^2) = sqrt(13)
-        VertexElement<2,3>* p_face_2 = mesh.GetElement(0)->GetFace(2);
+        VertexElement<2,3>* p_face_2 = mesh.GetFace(2);
         TS_ASSERT_EQUALS(p_face_2->GetNumNodes(), 4u);
         c_vector<double, 3> unit_normal_2 = mesh.GetUnitNormalToFace(p_face_2);
         TS_ASSERT_DELTA(unit_normal_2[0], 0.0, 1e-6);
@@ -614,7 +615,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_2), sqrt(13), 1e-6);
 
         // Face 1 has three vertices, is perpendicular to the x axis, and has area 0.5*2*3 = 3
-        VertexElement<2,3>* p_face_3 = mesh.GetElement(0)->GetFace(3);
+        VertexElement<2,3>* p_face_3 = mesh.GetFace(3);
         TS_ASSERT_EQUALS(p_face_3->GetNumNodes(), 3u);
         c_vector<double, 3> unit_normal_3 = mesh.GetUnitNormalToFace(p_face_3);
         TS_ASSERT_DELTA(unit_normal_3[0], -1.0, 1e-6);
@@ -623,7 +624,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_3), 3.0, 1e-6);
 
         // Face 4 has four vertices, is perpendicular to the z axis, and has area 1*2 = 2
-        VertexElement<2,3>* p_face_4 = mesh.GetElement(0)->GetFace(4);
+        VertexElement<2,3>* p_face_4 = mesh.GetFace(4);
         TS_ASSERT_EQUALS(p_face_4->GetNumNodes(), 4u);
         c_vector<double, 3> unit_normal_4 = mesh.GetUnitNormalToFace(p_face_4);
         TS_ASSERT_DELTA(unit_normal_4[0], 0.0, 1e-6);
@@ -640,12 +641,6 @@ public:
         // By symmetry, the centroid of the prism should lie in the plane x=0.5
         c_vector<double, 3> centroid = mesh.GetCentroidOfElement(0);
         TS_ASSERT_DELTA(centroid(0), 0.5, 1e-5);
-
-        // Tidy up
-        for (unsigned i=0; i<faces.size(); i++)
-        {
-            delete faces[i];
-        }
     }
 
     void TestGetPerimeterGradientAtNode()
@@ -1255,9 +1250,60 @@ public:
         TS_ASSERT_DELTA(original_coordinate[1], new_coordinate[1] - y_movement, 1e-6);
     }
 
+    void TestGenerateVerticesFromElementCircumcentres() throw (Exception)
+    {
+        // Create a simple 3D tetrahedral mesh, the Delaunay triangulation
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
+        nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
+        nodes.push_back(new Node<3>(2, true, -1.0,  1.0, -1.0));
+        nodes.push_back(new Node<3>(3, true,  1.0, -1.0, -1.0));
+        nodes.push_back(new Node<3>(4, false, 0.0,  0.0,  0.0));
+
+        MutableMesh<3,3> delaunay_mesh(nodes);
+
+        /*
+         * The Voronoi tessellation is not unique for this mesh, since four points are co-spherical.
+         * We need to check how the mesher is breaking ties.
+         */
+        Element<3,3>* p_element = delaunay_mesh.GetElement(0);
+
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(0), 4u);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(2), 0u);
+        TS_ASSERT_EQUALS(p_element->GetNodeGlobalIndex(3), 2u);
+
+        // Create Voronoi tessellation mesh
+        VertexMesh<3,3> tessellation(delaunay_mesh);
+
+        tessellation.GenerateVerticesFromElementCircumcentres(delaunay_mesh);
+
+        TS_ASSERT_EQUALS(tessellation.GetNumNodes(), 8u);
+
+        c_vector<double,3> this_vertex = tessellation.GetNode(2)->rGetLocation();
+        TS_ASSERT_DELTA(this_vertex[0],  1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1],  1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
+
+        this_vertex = tessellation.GetNode(3)->rGetLocation();
+        TS_ASSERT_DELTA(this_vertex[0],  1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2],  1.5, 1e-7);
+
+        this_vertex = tessellation.GetNode(0)->rGetLocation();
+        TS_ASSERT_DELTA(this_vertex[0], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1],  1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2],  1.5, 1e-7);
+
+        this_vertex = tessellation.GetNode(1)->rGetLocation();
+        TS_ASSERT_DELTA(this_vertex[0], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[1], -1.5, 1e-7);
+        TS_ASSERT_DELTA(this_vertex[2], -1.5, 1e-7);
+    }
+
     void TestTessellationConstructor2d() throw (Exception)
     {
-        // Create a simple tetrahedral mesh, the Delaunay triangulation
+        // Create a simple 2D tetrahedral mesh, the Delaunay triangulation
         std::vector<Node<2> *> delaunay_nodes;
         delaunay_nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
         delaunay_nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
@@ -1266,7 +1312,7 @@ public:
         delaunay_nodes.push_back(new Node<2>(4, false, 0.5, 0.5));
 
         MutableMesh<2,2> delaunay_mesh(delaunay_nodes);
-        TS_ASSERT(delaunay_mesh.CheckIsVoronoi());
+        TS_ASSERT_EQUALS(delaunay_mesh.CheckIsVoronoi(), true);
 
         TS_ASSERT_EQUALS(delaunay_mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(delaunay_mesh.GetNumNodes(), 5u);
@@ -1277,8 +1323,6 @@ public:
         // Test the Voronoi tessellation has the correct number of nodes and elements
         TS_ASSERT_EQUALS(voronoi_mesh.GetNumElements(), 5u);
         TS_ASSERT_EQUALS(voronoi_mesh.GetNumNodes(), 4u);
-
-        ///\todo These tests may not pass on other machines - check build and alter as required (#1276)
 
         // Test the location of the Voronoi nodes
         TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
@@ -1307,7 +1351,7 @@ public:
 
     void TestTessellationConstructor2dWithGhostNodes() throw (Exception)
     {
-        // Create a simple tetrahedral mesh, the Delaunay triangulation
+        // Create a simple 2D tetrahedral mesh, the Delaunay triangulation
         std::vector<Node<2> *> delaunay_nodes;
         delaunay_nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
         delaunay_nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
@@ -1316,7 +1360,7 @@ public:
         delaunay_nodes.push_back(new Node<2>(4, false, 0.5, 0.5));
 
         MutableMesh<2,2> delaunay_mesh(delaunay_nodes);
-        TS_ASSERT(delaunay_mesh.CheckIsVoronoi());
+        TS_ASSERT_EQUALS(delaunay_mesh.CheckIsVoronoi(), true);
 
         TS_ASSERT_EQUALS(delaunay_mesh.GetNumElements(), 4u);
         TS_ASSERT_EQUALS(delaunay_mesh.GetNumNodes(), 5u);
@@ -1331,8 +1375,6 @@ public:
         // Test the Voronoi tessellation has the correct number of nodes and elements
         TS_ASSERT_EQUALS(voronoi_mesh.GetNumElements(), 1u);
         TS_ASSERT_EQUALS(voronoi_mesh.GetNumNodes(), 4u);
-
-        ///\todo These tests may not pass on other machines - check build and alter as required (#1276 and #1075)
 
         // Test the location of the Voronoi nodes
         TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[0], 0.0, 1e-6);
@@ -1349,6 +1391,101 @@ public:
 
         // Test element areas
         TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(0), 0.5, 1e-6);
+    }
+
+    void TestGetEdgeLength() throw (Exception)
+    {
+        // Create a simple 2D tetrahedral mesh, the Delaunay triangulation
+        std::vector<Node<2> *> nodes;
+        nodes.push_back(new Node<2>(0, true,  0.0, 0));
+        nodes.push_back(new Node<2>(0, true,  0.0, 1));
+        nodes.push_back(new Node<2>(0, true, -1.0, 0));
+        nodes.push_back(new Node<2>(0, true,  1.0, 0));
+        nodes.push_back(new Node<2>(0, true,  0.5, -pow(3,0.5)/2.0));
+        nodes.push_back(new Node<2>(0, true, -0.5, -pow(3,0.5)/2.0));
+
+        MutableMesh<2,2> delaunay_mesh(nodes);
+        TS_ASSERT_EQUALS(delaunay_mesh.CheckIsVoronoi(), true);
+
+        // Create Voronoi tessellation
+        VertexMesh<2,2> voronoi_mesh(delaunay_mesh);
+
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumElements(), 6u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumNodes(), 5u);
+
+        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,1), 1.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,2), 0.5 + pow(3,-0.5)/2.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,3), 0.5 + pow(3,-0.5)/2.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,4), pow(3,-0.5), 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,5), pow(3,-0.5), 1e-6);
+
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(0),  pow(3, 0.5)/4.0+0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetPerimeterOfElement(0), 2.0 + pow(3, 0.5), 1e-6);
+    }
+
+    void TestTessellationConstructor3d() throw (Exception)
+    {
+        // Create a simple 3D tetrahedral mesh, the Delaunay triangulation
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, true,  1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(2, true,  1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(3, true,  0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
+
+        MutableMesh<3,3> delaunay_mesh(nodes);
+        TS_ASSERT_EQUALS(delaunay_mesh.CheckIsVoronoi(), true);
+
+        // Create Voronoi tessellation
+        VertexMesh<3,3> voronoi_mesh(delaunay_mesh);
+
+        // Check there are as many nodes in the Voronoi mesh as there are elements in the Delaunay mesh
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumNodes(), 4u);
+
+        // Check there are as many elements in the Voronoi mesh as there are non-boundary nodes in the Delaunay mesh
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumElements(), 1u);
+
+        // Check there are as many faces in the Voronoi mesh as there are boundary nodes in the Delaunay mesh
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumFaces(), 4u);
+
+        // Check Voronoi nodes are correct
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[0], 1.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[1], -0.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[2], -0.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(1)->rGetLocation()[0], -0.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(1)->rGetLocation()[1], -0.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(1)->rGetLocation()[2], 1.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(2)->rGetLocation()[0], 1.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(2)->rGetLocation()[1], 1.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(2)->rGetLocation()[2], 1.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[0], -0.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[1], 1.25, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[2], -0.25, 1e-6);
+
+        // Check Voronoi faces are correct
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(0)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(0)->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(0)->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(0)->GetNodeGlobalIndex(2), 2u);
+
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(1)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(1)->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(1)->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(1)->GetNodeGlobalIndex(2), 1u);
+
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(2)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(2)->GetNodeGlobalIndex(0), 1u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(2)->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(2)->GetNodeGlobalIndex(2), 2u);
+
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(3)->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(3)->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(3)->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(3)->GetNodeGlobalIndex(2), 2u);
+
+        // Check Voronoi element is correct
+        TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumFaces(), 4u);
     }
 };
 

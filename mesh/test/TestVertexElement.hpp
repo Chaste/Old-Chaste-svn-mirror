@@ -405,34 +405,81 @@ public:
         delete p_node;
     }
 
-//     void xTestAnticlockwisenessOfNodes() throw(Exception)
-//     {
-//        // Tests to check that the nodes are anticlockwise when we create element
-//        std::vector<Node<2>*> corner_nodes;
-//        corner_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-//        corner_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
-//        corner_nodes.push_back(new Node<2>(2, false, 1.0, 1.0));
-//        corner_nodes.push_back(new Node<2>(3, false, 0.0, 1.0));
-//
-//        VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, corner_nodes);
-//
-//        std::vector<Node<2>*> corner_nodes2;
-//        corner_nodes2.push_back(new Node<2>(0, false, 0.0, 0.0));
-//        corner_nodes2.push_back(new Node<2>(2, false, 1.0, 1.0));
-//        corner_nodes2.push_back(new Node<2>(1, false, 1.0, 0.0));
-//        corner_nodes2.push_back(new Node<2>(3, false, 0.0, 1.0));
-//
-//        VertexElement<2,2> vertex_element2(INDEX_IS_NOT_USED, corner_nodes2);
-//
-//        for (unsigned i=0; i<corner_nodes.size(); ++i)
-//        {
-//            delete corner_nodes[i];
-//        }
-//        for (unsigned i=0; i<corner_nodes2.size(); ++i)
-//        {
-//            delete corner_nodes2[i];
-//        }
-//     }
+    void TestAddFace()
+    {
+        // Create nodes
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, true, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, true, 2.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, true, 2.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(3, true, 0.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(4, true, 0.0, 0.0, 3.0));
+        nodes.push_back(new Node<3>(5, true, 2.0, 0.0, 3.0));
+
+        // Create faces
+        std::vector<VertexElement<2,3>*> faces;
+
+        std::vector<Node<3>*> nodes_face_0;
+        nodes_face_0.push_back(nodes[0]);
+        nodes_face_0.push_back(nodes[1]);
+        nodes_face_0.push_back(nodes[2]);
+        nodes_face_0.push_back(nodes[3]);
+        faces.push_back(new VertexElement<2,3>(0, nodes_face_0));
+
+        std::vector<Node<3>*> nodes_face_1;
+        nodes_face_1.push_back(nodes[0]);
+        nodes_face_1.push_back(nodes[3]);
+        nodes_face_1.push_back(nodes[4]);
+        faces.push_back(new VertexElement<2,3>(1, nodes_face_1));
+
+        std::vector<Node<3>*> nodes_face_2;
+        nodes_face_2.push_back(nodes[1]);
+        nodes_face_2.push_back(nodes[2]);
+        nodes_face_2.push_back(nodes[5]);
+        faces.push_back(new VertexElement<2,3>(2, nodes_face_2));
+
+        std::vector<Node<3>*> nodes_face_3;
+        nodes_face_3.push_back(nodes[4]);
+        nodes_face_3.push_back(nodes[5]);
+        nodes_face_3.push_back(nodes[2]);
+        nodes_face_3.push_back(nodes[3]);
+        faces.push_back(new VertexElement<2,3>(3, nodes_face_3));
+
+        // Create element
+        VertexElement<3,3> element(0);
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 0u);
+        TS_ASSERT_EQUALS(element.GetNumFaces(), 0u);
+
+        // Add first face to element
+        element.AddFace(faces[0]);
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(element.GetNumFaces(), 1u);
+
+        // Add second face to element
+        element.AddFace(faces[1]);
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(element.GetNumFaces(), 2u);
+
+        // Add third face to element
+        element.AddFace(faces[2]);
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(element.GetNumFaces(), 3u);
+
+        // Add fourth face to element
+        element.AddFace(faces[3]);
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 6u);
+        TS_ASSERT_EQUALS(element.GetNumFaces(), 4u);
+
+        // Tidy up
+        for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
+        for (unsigned i=0; i<faces.size(); i++)
+        {
+            delete faces[i];
+        }
+    }
 
     void TestGetNodeLocalIndex()
     {

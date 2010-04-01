@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 #include "UblasCustomFunctions.hpp"
 #include <list>
+#include "Debug.hpp"
 
 /**
  * Global method allowing alist of pairs (unsigned, double) to be compared
@@ -55,14 +56,38 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     }
     for (unsigned elem_index=0; elem_index<vertexElements.size(); elem_index++)
     {
-        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_temp_vertex_element = vertexElements[elem_index];
+        VertexElement<ELEMENT_DIM, SPACE_DIM>* p_temp_vertex_element = vertexElements[elem_index];
         mElements.push_back(p_temp_vertex_element);
+    }
+
+    // In 3D, populate mFaces
+    if (SPACE_DIM == 3)
+    {
+        // Use a std::set to keep track of which faces have been added to mFaces 
+        std::set<unsigned> faces_counted;
+
+        // Loop over mElements
+        for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
+        {
+            // Loop over faces of this element
+            for (unsigned face_index=0; face_index<mElements[elem_index]->GetNumFaces(); face_index++)
+            {
+                VertexElement<ELEMENT_DIM-1, SPACE_DIM>* p_face = mElements[elem_index]->GetFace(face_index);
+
+                // If this face is not already contained in mFaces, add it, and update faces_counted
+                if (faces_counted.find(p_face->GetIndex()) == faces_counted.end())
+                {
+                    mFaces.push_back(p_face);
+                    faces_counted.insert(p_face->GetIndex());
+                }
+            }
+        }
     }
 
     // Register elements with nodes
     for (unsigned index=0; index<mElements.size(); index++)
     {
-        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_temp_vertex_element = mElements[index];
+        VertexElement<ELEMENT_DIM, SPACE_DIM>* p_temp_vertex_element = mElements[index];
         for (unsigned node_index=0; node_index<p_temp_vertex_element->GetNumNodes(); node_index++)
         {
             Node<SPACE_DIM>* p_temp_node = p_temp_vertex_element->GetNode(node_index);
@@ -88,22 +113,23 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
         Node<SPACE_DIM>* p_temp_node = nodes[node_index];
         this->mNodes.push_back(p_temp_node);
     }
+
     for (unsigned face_index=0; face_index<faces.size(); face_index++)
     {
-        VertexElement<ELEMENT_DIM-1,SPACE_DIM>* p_temp_face = faces[face_index];
+        VertexElement<ELEMENT_DIM-1, SPACE_DIM>* p_temp_face = faces[face_index];
         mFaces.push_back(p_temp_face);
     }
 
     for (unsigned elem_index=0; elem_index<vertexElements.size(); elem_index++)
     {
-        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_temp_vertex_element = vertexElements[elem_index];
+        VertexElement<ELEMENT_DIM, SPACE_DIM>* p_temp_vertex_element = vertexElements[elem_index];
         mElements.push_back(p_temp_vertex_element);
     }
 
     // Register elements with nodes
     for (unsigned index=0; index<mElements.size(); index++)
     {
-        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_temp_vertex_element = mElements[index];
+        VertexElement<ELEMENT_DIM, SPACE_DIM>* p_temp_vertex_element = mElements[index];
         for (unsigned node_index=0; node_index<p_temp_vertex_element->GetNumNodes(); node_index++)
         {
             Node<SPACE_DIM>* p_temp_node = p_temp_vertex_element->GetNode(node_index);
@@ -122,8 +148,8 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
  * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
  */
 template<>
-VertexMesh<2, 2>::VertexMesh(TetrahedralMesh<2, 2>& rMesh,
-                             const std::vector<unsigned> locationIndices)
+VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh,
+                            const std::vector<unsigned> locationIndices)
 {
     // Reset member variables and clear mNodes, mFaces and mElements
     Clear();
@@ -139,10 +165,10 @@ VertexMesh<2, 2>::VertexMesh(TetrahedralMesh<2, 2>& rMesh,
         }
     }
 
-    // Allocate memory for elements and nodes
+    // Allocate memory for mNodes and mElements
     this->mNodes.reserve(rMesh.GetNumAllElements());
 
-    // Create as many Faces as there are nodes in the mesh
+    // Create as many elements as there are nodes in the mesh
     mElements.reserve(num_elements);
     for (unsigned i=0; i<num_elements; i++)
     {
@@ -151,23 +177,12 @@ VertexMesh<2, 2>::VertexMesh(TetrahedralMesh<2, 2>& rMesh,
         mElements.push_back(p_element);
     }
 
+    // Populate mNodes
+    GenerateVerticesFromElementCircumcentres(rMesh);
+
     // Loop over elements of the Delaunay mesh
-    c_matrix<double, 2, 2> jacobian, inverse_jacobian;
-    double jacobian_det;
     for (unsigned i=0; i<rMesh.GetNumElements(); i++)
     {
-        // Calculate the circumcentre of this element in the Delaunay mesh
-        rMesh.GetInverseJacobianForElement(i, jacobian, jacobian_det, inverse_jacobian);
-        c_vector<double, 3> circumsphere = rMesh.GetElement(i)->CalculateCircumsphere(jacobian, inverse_jacobian);
-        c_vector<double, 2> circumcentre;
-        for (unsigned j=0; j<2; j++)
-        {
-            circumcentre(j) = circumsphere(j);
-        }
-
-        // Create a node in the Voronoi mesh at the location of this circumcentre
-        this->mNodes.push_back(new Node<2>(i, circumcentre));
-
         // Loop over nodes owned by this element in the Delaunay mesh
         for (unsigned local_index=0; local_index<3; local_index++)
         {
@@ -253,6 +268,232 @@ VertexMesh<2, 2>::VertexMesh(TetrahedralMesh<2, 2>& rMesh,
     }
 
     this->mMeshChangesDuringSimulation = false;
+}
+
+
+/**
+ * This VertexMesh constructor is currently only defined for 3D meshes.
+ *
+ * @param rMesh a tetrahedral mesh
+ * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
+ */
+template<>
+VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh,
+                            const std::vector<unsigned> locationIndices)
+{
+    // Reset member variables and clear mNodes, mFaces and mElements
+    Clear();
+
+    std::set<unsigned> location_indices;
+    if (!locationIndices.empty())
+    {
+        for (unsigned i=0; i<locationIndices.size(); i++)
+        {
+            location_indices.insert(locationIndices[i]);
+        }
+    }
+
+    // Allocate memory for mNodes
+    this->mNodes.reserve(rMesh.GetNumAllElements());
+
+    // Populate mNodes
+    GenerateVerticesFromElementCircumcentres(rMesh);
+
+    std::map<unsigned, VertexElement<3,3>*> index_element_map;
+    unsigned face_index = 0;
+    unsigned element_index = 0;
+
+    // Loop over each edge of the Delaunay mesh and populate mFaces and mElements
+    for (TetrahedralMesh<3,3>::EdgeIterator edge_iterator = rMesh.EdgesBegin();
+         edge_iterator != rMesh.EdgesEnd();
+         ++edge_iterator)
+    {
+        Node<3>* p_node_a = edge_iterator.GetNodeA();
+        Node<3>* p_node_b = edge_iterator.GetNodeB();
+
+        if ( !(p_node_a->IsBoundaryNode() && p_node_b->IsBoundaryNode()) )
+        {
+            std::set<unsigned>& node_a_element_indices = p_node_a->rGetContainingElementIndices();
+            std::set<unsigned>& node_b_element_indices = p_node_b->rGetContainingElementIndices();
+            std::set<unsigned> edge_element_indices;
+
+            std::set_intersection(node_a_element_indices.begin(),
+                                  node_a_element_indices.end(),
+                                  node_b_element_indices.begin(),
+                                  node_b_element_indices.end(),
+                                  std::inserter(edge_element_indices, edge_element_indices.begin()));
+
+            c_vector<double,3> edge_vector = p_node_b->rGetLocation() - p_node_a->rGetLocation();
+            c_vector<double,3> mid_edge = edge_vector*0.5 + p_node_a->rGetLocation();
+
+            unsigned element0_index = *(edge_element_indices.begin());
+
+            c_vector<double,3> basis_vector1 = mNodes[element0_index]->rGetLocation() - mid_edge;
+
+            c_vector<double,3> basis_vector2;
+            basis_vector2[0] = edge_vector[1]*basis_vector1[2] - edge_vector[2]*basis_vector1[1];
+            basis_vector2[1] = edge_vector[2]*basis_vector1[0] - edge_vector[0]*basis_vector1[2];
+            basis_vector2[2] = edge_vector[0]*basis_vector1[1] - edge_vector[1]*basis_vector1[0];
+
+            /**
+             * Create a std::list of pairs, where each pair comprises the angle
+             * between the centre of the Voronoi element and each node with that
+             * node's global index in the Voronoi mesh.
+             */
+            std::list<std::pair<unsigned, double> > index_angle_list;
+
+            // Loop over each element containing this edge (i.e. those containing both nodes of the edge)
+            for (std::set<unsigned>::iterator index_iter = edge_element_indices.begin();
+                 index_iter != edge_element_indices.end();
+                 index_iter++)
+            {
+                // Calculate angle
+                c_vector<double, 3> vertex_vector =  mNodes[*index_iter]->rGetLocation() - mid_edge;
+    
+                double local_vertex_dot_basis_vector1 = inner_prod(vertex_vector, basis_vector1);
+                double local_vertex_dot_basis_vector2 = inner_prod(vertex_vector, basis_vector2);
+
+                double angle = atan2(local_vertex_dot_basis_vector2, local_vertex_dot_basis_vector1);
+
+                std::pair<unsigned, double> pair(*index_iter, angle);
+                index_angle_list.push_back(pair);
+            }
+
+            // Sort the list in order of increasing angle
+            index_angle_list.sort(IndexAngleComparison);
+
+            // Create face
+            VertexElement<2,3>* p_face = new VertexElement<2,3>(face_index);
+            face_index++;
+            unsigned count = 0;
+            for (std::list<std::pair<unsigned, double> >::iterator list_iter = index_angle_list.begin();
+                 list_iter != index_angle_list.end();
+                 ++list_iter)
+            {
+                unsigned local_index = count>1 ? count-1 : 0;
+                p_face->AddNode(local_index, mNodes[list_iter->first]);
+                count++;
+            }
+
+            // Add face to list of faces
+            mFaces.push_back(p_face);
+
+            // Add face to appropriate elements
+            if (!p_node_a->IsBoundaryNode())
+            {
+                if (index_element_map[p_node_a->GetIndex()])
+                {
+                    // If there is already an element with this index, add the face to it...
+                    index_element_map[p_node_a->GetIndex()]->AddFace(p_face);
+                }
+                else
+                {
+                    // ...otherwise create an element, add the face to it, and add to the map
+                    unsigned this_element_index = locationIndices.empty() ? element_index : locationIndices[element_index];
+                    VertexElement<3,3>* p_element = new VertexElement<3,3>(this_element_index);
+                    element_index++;
+                    p_element->AddFace(p_face);
+                    index_element_map[p_node_a->GetIndex()] = p_element;
+                }
+            }
+            if (!p_node_b->IsBoundaryNode())
+            {
+                if (index_element_map[p_node_b->GetIndex()])
+                {
+                    // If there is already an element with this index, add the face to it...
+                    index_element_map[p_node_b->GetIndex()]->AddFace(p_face);
+                }
+                else
+                {
+                    // ...otherwise create an element, add the face to it, and add to the map
+                    unsigned this_element_index = locationIndices.empty() ? element_index : locationIndices[element_index];
+                    VertexElement<3,3>* p_element = new VertexElement<3,3>(this_element_index);
+                    element_index++;
+                    p_element->AddFace(p_face);
+                    index_element_map[p_node_b->GetIndex()] = p_element;
+                }
+            }
+        }
+    }
+
+    // Populate mElements
+    for (std::map<unsigned, VertexElement<3,3>*>::iterator element_iter = index_element_map.begin();
+         element_iter != index_element_map.end();
+         ++element_iter)
+    {
+        mElements.push_back(element_iter->second);
+    }
+
+    this->mMeshChangesDuringSimulation = false;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexMesh<ELEMENT_DIM, SPACE_DIM>::GenerateVerticesFromElementCircumcentres(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh)
+{
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
+    c_matrix<double, ELEMENT_DIM, SPACE_DIM> inverse_jacobian;
+    double jacobian_det;
+
+    // Loop over elements of the Delaunay mesh and populate mNodes
+    for (unsigned i=0; i<rMesh.GetNumElements(); i++)
+    {
+        // Calculate the circumcentre of this element in the Delaunay mesh
+        rMesh.GetInverseJacobianForElement(i, jacobian, jacobian_det, inverse_jacobian);
+        c_vector<double, SPACE_DIM+1> circumsphere = rMesh.GetElement(i)->CalculateCircumsphere(jacobian, inverse_jacobian);
+
+        c_vector<double, SPACE_DIM> circumcentre;
+        for (unsigned j=0; j<SPACE_DIM; j++)
+        {
+            circumcentre(j) = circumsphere(j);
+        }
+
+        // Create a node in the Voronoi mesh at the location of this circumcentre
+        this->mNodes.push_back(new Node<SPACE_DIM>(i, circumcentre));
+    }
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeLength(unsigned elementIndex1, unsigned elementIndex2)
+{
+    #define COVERAGE_IGNORE
+    assert(SPACE_DIM==2);
+    #undef COVERAGE_IGNORE
+
+///\todo Move this bit of code into LinearSpringWithVariableSpringConstantsForce::VariableSpringConstantMultiplicationFactor() and make use of IsGhostNode()
+//    if (!mLocationIndices.empty())
+//    {
+//        if (   mLocationIndices.find(nodeIndex1) == mLocationIndices.end()
+//            || mLocationIndices.find(nodeIndex2) == mLocationIndices.end() )
+//        {
+//            EXCEPTION("Attempting to get the tessellation edge between two nodes, at least one of which is a ghost node");
+//        }
+//    }
+
+    std::set<unsigned> node_indices_1;
+    for (unsigned i=0; i<mElements[elementIndex1]->GetNumNodes(); i++)
+    {
+        node_indices_1.insert(mElements[elementIndex1]->GetNodeGlobalIndex(i));
+    }
+    std::set<unsigned> node_indices_2;
+    for (unsigned i=0; i<mElements[elementIndex2]->GetNumNodes(); i++)
+    {
+        node_indices_2.insert(mElements[elementIndex2]->GetNodeGlobalIndex(i));
+    }
+
+    std::set<unsigned> shared_nodes;
+    std::set_intersection(node_indices_1.begin(), node_indices_1.end(),
+                          node_indices_2.begin(), node_indices_2.end(),
+                          std::inserter(shared_nodes, shared_nodes.begin()));
+
+    assert(shared_nodes.size() == 2);
+
+    unsigned index1 = *(shared_nodes.begin());
+    unsigned index2 = *(++(shared_nodes.begin()));
+
+    double edge_length = this->GetDistanceBetweenNodes(index1, index2);
+    return edge_length;
 }
 
 
@@ -351,10 +592,18 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNumFaces() const
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VertexElement<ELEMENT_DIM,SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
+VertexElement<ELEMENT_DIM, SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetElement(unsigned index) const
 {
     assert(index < mElements.size());
     return mElements[index];
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexElement<ELEMENT_DIM-1, SPACE_DIM>* VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetFace(unsigned index) const
+{
+    assert(index < mFaces.size());
+    return mFaces[index];
 }
 
 

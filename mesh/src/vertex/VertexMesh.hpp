@@ -90,6 +90,48 @@ protected:
      */
     unsigned SolveBoundaryElementMapping(unsigned index) const;
 
+    /**
+     * Populate mNodes with locations corresponding to the element
+     * circumcentres of a given TetrahedralMesh. Used by 'Voronoi'
+     * constructors.
+     * 
+     * @param rMesh a tetrahedral mesh
+     */
+    void GenerateVerticesFromElementCircumcentres(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+
+    //////////////////////////////////////////////////////////////////////
+    //                        2D-specific methods                       //
+    //////////////////////////////////////////////////////////////////////
+
+    /**
+     * Test whether a given point lies inside a given element.
+     *
+     * We use a ray-casting algorithm, which relies on the following result:
+     * if the point in question is not on the boundary of the element, then
+     * the number of intersections is an even number if the point is outside,
+     * and it is odd if inside.
+     *
+     * Currently the method is coded 'strictly', such that points lying on
+     * an edge or at a vertex are considered to lie outside the element.
+     *
+     * @param rTestPoint the point to test
+     * @param elementIndex global index of the element in the mesh
+     *
+     * @return if the point is included in the element.
+     */
+    bool ElementIncludesPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex);
+
+    /**
+     * Get the local index of a given element which is the start vertex of the edge
+     * of the element that the overlapping point rTestPoint is closest to.
+     *
+     * @param rTestPoint the point to test
+     * @param elementIndex global index of the element in the mesh
+     *
+     * @return the local index
+     */
+    unsigned GetLocalIndexForElementEdgeClosestToPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex);
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
 
@@ -127,39 +169,6 @@ protected:
         this->ConstructFromMeshReader(mesh_reader);
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
-
-    //////////////////////////////////////////////////////////////////////
-    //                        2D-specific methods                       //
-    //////////////////////////////////////////////////////////////////////
-
-    /**
-     * Test whether a given point lies inside a given element.
-     *
-     * We use a ray-casting algorithm, which relies on the following result:
-     * if the point in question is not on the boundary of the element, then
-     * the number of intersections is an even number if the point is outside,
-     * and it is odd if inside.
-     *
-     * Currently the method is coded 'strictly', such that points lying on
-     * an edge or at a vertex are considered to lie outside the element.
-     *
-     * @param rTestPoint the point to test
-     * @param elementIndex global index of the element in the mesh
-     *
-     * @return if the point is included in the element.
-     */
-    bool ElementIncludesPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex);
-
-    /**
-     * Get the local index of a given element which is the start vertex of the edge
-     * of the element that the overlapping point rTestPoint is closest to.
-     *
-     * @param rTestPoint the point to test
-     * @param elementIndex global index of the element in the mesh
-     *
-     * @return the local index
-     */
-    unsigned GetLocalIndexForElementEdgeClosestToPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex);
 
 public:
 
@@ -203,17 +212,27 @@ public:
      * @param vertexElements vector of pointers to VertexElement<3,3>s
      */
     VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
-                 std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
-                 std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements);
+               std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
+               std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements);
 
     /**
-     * Alternative 2D constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
+     * Alternative 2D 'Voronoi' constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
      * which must be Delaunay (see TetrahedralMesh::CheckIsVoronoi).
      *
      * @param rMesh a tetrahedral mesh
      * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
      */
-    VertexMesh(TetrahedralMesh<2, 2>& rMesh,
+    VertexMesh(TetrahedralMesh<2,2>& rMesh,
+               const std::vector<unsigned> locationIndices=std::vector<unsigned>());
+
+    /**
+     * Alternative 3D 'Voronoi' constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
+     * which must be Delaunay (see TetrahedralMesh::CheckIsVoronoi).
+     *
+     * @param rMesh a tetrahedral mesh
+     * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
+     */
+    VertexMesh(TetrahedralMesh<3,3>& rMesh,
                const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
@@ -247,11 +266,18 @@ public:
     virtual unsigned GetNumFaces() const;
 
     /**
-     * @param index  the global index of a specified vertex element
+     * @param index  the global index of a specified vertex element.
      *
      * @return a pointer to the vertex element
      */
     VertexElement<ELEMENT_DIM, SPACE_DIM>* GetElement(unsigned index) const;
+
+    /**
+     * @param index  the global index of a specified face.
+     *
+     * @return a pointer to the face
+     */
+    VertexElement<ELEMENT_DIM-1, SPACE_DIM>* GetFace(unsigned index) const;
 
     /**
      * Compute the centroid of an element.
@@ -378,6 +404,14 @@ public:
      * @return (Ixx,Iyy,Ixy).
      */
     virtual c_vector<double, 3> CalculateMomentsOfElement(unsigned index);
+
+    /**
+     * Get the length of the edge separating two given elements in 2D.
+     *
+     * @param elementIndex1 index of an element in the mesh
+     * @param elementIndex2 index of an element in the mesh
+     */
+    double GetEdgeLength(unsigned elementIndex1, unsigned elementIndex2);
 
     //////////////////////////////////////////////////////////////////////
     //                        3D-specific methods                       //

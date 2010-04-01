@@ -172,6 +172,13 @@ public:
     void AddNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
 
     /**
+     * Add a face to the element.
+     *
+     * @param pFace a pointer to the new face
+     */
+    void AddFace(VertexElement<ELEMENT_DIM-1,SPACE_DIM>* pFace);
+
+    /**
      * Calculate the local index of a node given a global index
      * if node is not contained in element return UINT_MAX
      *

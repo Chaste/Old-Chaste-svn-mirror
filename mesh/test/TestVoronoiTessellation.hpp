@@ -47,7 +47,7 @@ public:
 
     void TestGenerateVerticesFromElementCircumcentres() throw (Exception)
     {
-        // Create mutable tetrahedral mesh which is Delauny
+        // Create mutable tetrahedral mesh which is Delaunay
         std::vector<Node<3> *> nodes;
         nodes.push_back(new Node<3>(0, true,  1.0,  1.0,  1.0));
         nodes.push_back(new Node<3>(1, true, -1.0, -1.0,  1.0));
@@ -57,7 +57,7 @@ public:
 
         MutableMesh<3,3> mesh(nodes);
 
-        // Note that the Voronois tessellation is not unique for this
+        // Note that the Voronoi tessellation is not unique for this
         // mesh since 4 points are co-spherical.  We need to check
         // how the mesher is breaking ties.
         Element<3,3>* p_element = mesh.GetElement(0);
@@ -111,7 +111,7 @@ public:
 
     void TestSimpleTessellation() throw (Exception)
     {
-        // Create mutable tetrahedral mesh which is Delauny
+        // Create mutable tetrahedral mesh which is Delaunay
         std::vector<Node<3> *> nodes;
 
         nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));

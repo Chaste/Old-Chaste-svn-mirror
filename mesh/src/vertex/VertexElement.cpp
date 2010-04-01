@@ -188,6 +188,35 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::AddNode(const unsigned& rIndex, Node
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VertexElement<ELEMENT_DIM, SPACE_DIM>::AddFace(VertexElement<ELEMENT_DIM-1,SPACE_DIM>* pFace)
+{
+    // Add pFace to the end of mFaces
+    this->mFaces.push_back(pFace);
+
+    // Create a set of indices of nodes currently owned by this element
+    std::set<unsigned> node_indices;
+    for (unsigned local_index=0; local_index<this->GetNumNodes(); local_index++)
+    {
+        node_indices.insert(this->GetNodeGlobalIndex(local_index));
+    }
+
+    // Loop over nodes owned by pFace
+    unsigned end_index = this->GetNumNodes()-1;
+    for (unsigned local_index=0; local_index<pFace->GetNumNodes(); local_index++)
+    {
+        // If this node is not already owned by this element...
+        if (std::find(node_indices.begin(), node_indices.end(), pFace->GetNodeGlobalIndex(local_index))
+            == node_indices.end())
+        {
+            // ... then add it to the element (and vice versa)
+            this->AddNode(end_index, pFace->GetNode(local_index));
+            end_index++;
+        }
+    }
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocalIndex(unsigned globalIndex)
 {
     unsigned local_index= UINT_MAX;
