@@ -103,27 +103,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::WriteInfo(double time)
 {
     std::cout << "Solved to time " << time << "\n" << std::flush;
-    ReplicatableVector voltage_replicated;
-    voltage_replicated.ReplicatePetscVector(this->mSolution);
-    double v_max = -DBL_MAX, v_min = DBL_MAX;
-    for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
-    {
-        double v=voltage_replicated[i];
-        #define COVERAGE_IGNORE
-        if (std::isnan(v))
-        {
-            EXCEPTION("Not-a-number encountered");
-        }
-        #undef COVERAGE_IGNORE
-        if ( v > v_max)
-        {
-            v_max = v;
-        }
-        if ( v < v_min)
-        {
-            v_min = v;
-        }
-    }
+
+    double v_max, v_min;
+
+    VecMax( this->mSolution, PETSC_NULL, &v_max );
+    VecMin( this->mSolution, PETSC_NULL, &v_min );
+
     std::cout << " V = " << "[" <<v_min << ", " << v_max << "]" << "\n" << std::flush;
 }
 

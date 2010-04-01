@@ -233,38 +233,18 @@ template<unsigned DIM>
 void BidomainProblem<DIM>::WriteInfo(double time)
 {
     std::cout << "Solved to time " << time << "\n" << std::flush;
-    ReplicatableVector voltage_replicated;
-    voltage_replicated.ReplicatePetscVector(this->mSolution);
-    double v_max = -1e5, v_min = 1e5, phi_max = -1e5, phi_min = 1e5;
 
-    for (unsigned i=0; i<this->mpMesh->GetNumNodes(); i++)
-    {
-        double v=voltage_replicated[2*i];
-        double phi=voltage_replicated[2*i+1];
+    double v_max, v_min, phi_max, phi_min;
+    int index;
 
-        #define COVERAGE_IGNORE
-        if (std::isnan(v) || std::isnan(phi))
-        {
-            EXCEPTION("Not-a-number encountered");
-        }
-        #undef COVERAGE_IGNORE
-        if ( v > v_max)
-        {
-            v_max = v;
-        }
-        if ( v < v_min)
-        {
-            v_min = v;
-        }
-        if ( phi > phi_max)
-        {
-            phi_max = phi;
-        }
-        if ( phi < phi_min)
-        {
-            phi_min = phi;
-        }
-    }
+    VecSetBlockSize( this->mSolution, 2 );
+
+    VecStrideMax( this->mSolution, 0, PETSC_NULL, &v_max );
+    VecStrideMin( this->mSolution, 0, PETSC_NULL, &v_min );
+
+    VecStrideMax( this->mSolution, 1, PETSC_NULL, &phi_max );
+    VecStrideMin( this->mSolution, 1, PETSC_NULL, &phi_min );
+
     std::cout << " V; phi_e = " << "[" <<v_min << ", " << v_max << "]" << ";\t"
               << "[" <<phi_min << ", " << phi_max << "]" << "\n"
               << std::flush;
