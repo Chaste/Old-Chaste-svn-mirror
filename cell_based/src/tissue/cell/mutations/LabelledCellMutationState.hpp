@@ -36,7 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Subclass of AbstractCellMutationState defining a labelled mutation state.
  * This isn't really a mutation state, but a hack to get the visualizer to
  * use a different colour.
- * \todo Fix this!
+ * 
+ * \todo Fixing this is part of #1285.
  */
 class LabelledCellMutationState : public AbstractCellMutationState
 {

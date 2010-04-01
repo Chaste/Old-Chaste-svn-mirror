@@ -57,7 +57,7 @@ TissueConfig::TissueConfig()
  * mMaxTransitGenerations has no units
  * mCryptWidth has units of cell size at equilibrium rest length
  * mCryptLength has units of cell size at equilibrium rest length
- * mSpringStiffness has units of N/m  = kg s^-2
+ * mSpringStiffness has units of N/m = kg s^-2
  * mMechanicsCutOffLength has units of cell size at equilibrium rest length
  * mDampingConstantNormal has units of kg s^-1
  * mDampingConstantMutant has units of kg s^-1
@@ -127,16 +127,30 @@ void TissueConfig::Reset()
 
     mAreaBasedDampingConstantParameter = 0.1;
 
-    mMatureCellTargetArea =  1.0; //0.785398163;//pi/4.0; used to be 1
+    mMatureCellTargetArea = 1.0; //0.785398163;//pi/4.0; used to be 1
 
-    // These Vertex model parameters are rescalled so that mDampingConstantNormal (nu) = 1 where as its 0.01 in Nagai & Honda.
-    mDeformationEnergyParameter = 100.0; // This is 1.0 in Nagai & Honda.
-    mMembraneSurfaceEnergyParameter = 10.0;  // This is 0.1 in Nagai & Honda.
-    mCellCellAdhesionEnergyParameter = 1.0; // This is 0.01 in Nagai & Honda.
-    mCellBoundaryAdhesionEnergyParameter = 1.0; // This is 0.01 in Nagai & Honda.
+    /*
+     * The following four parameters are used in vertex-based tissue simulations
+     * based on the mechanical model proposed by T. Nagai and H. Honda ("A dynamic
+     * cell model for the formation of epithelial tissues", Philosophical Magazine
+     * Part B 81:699-719). They are rescaled such that mDampingConstantNormal takes
+     * the default value 1, whereas Nagai and Honda (who denote the parameter by nu)
+     * take the value 0.01.
+     */
+    mDeformationEnergyParameter = 100.0; // This is 1.0 in the Nagai & Honda paper
+    mMembraneSurfaceEnergyParameter = 10.0;  // This is 0.1 the Nagai & Honda paper
+    mCellCellAdhesionEnergyParameter = 1.0; // This is 0.01 the Nagai & Honda paper
+    mCellBoundaryAdhesionEnergyParameter = 1.0; // This is 0.01 the Nagai & Honda paper
 
-    mWelikyOsterAreaParameter = 1.0; // Estimate as not in Weliky and Oster (1990) paper
-    mWelikyOsterPerimeterParameter = 1.0; // Estimate as not in Weliky and Oster (1990) paper
+    /**
+     * The following two parameters are used in vertex-based tissue simulations
+     * based on the mechanical model proposed by M. Weliky and G. Oster ("The
+     * mechanical basis of cell rearrangement. I. Epithelial morphogenesis during
+     * Fundulus epiboly", Development 109:373-386). Their default values are our
+     * estimates, since they are not given in the Weliky & Oster paper.
+     */
+    mWelikyOsterAreaParameter = 1.0;
+    mWelikyOsterPerimeterParameter = 1.0;
 
     mOutputCellIdData = false;
     mOutputCellMutationStates = false;
