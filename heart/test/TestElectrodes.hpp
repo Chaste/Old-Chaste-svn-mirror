@@ -56,6 +56,7 @@ public:
         double duration = 2.0; //ms
         Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,start_time,duration);
         
+        TS_ASSERT_EQUALS(electrodes.HasGroundedElectrode(), true);
         TS_ASSERT_DELTA(electrodes.GetSwitchOnTime(), start_time, 1e-12);
         TS_ASSERT_DELTA(electrodes.GetSwitchOffTime(), start_time+duration, 1e-12);
 
@@ -131,6 +132,8 @@ public:
         double magnitude = 543.324;
         double duration = 2.0;
         Electrodes<2> electrodes(mesh,false,0,0,10,magnitude,0.0,duration);
+
+        TS_ASSERT_EQUALS(electrodes.HasGroundedElectrode(), false);
 
         boost::shared_ptr<BoundaryConditionsContainer<2,2,2> >  p_bcc = electrodes.GetBoundaryConditionsContainer();
 

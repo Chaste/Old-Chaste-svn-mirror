@@ -335,7 +335,7 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
 
         // Note, no point calling this->SetBoundaryConditionsContainer() as the
         // assembler has already been created..
-        mpAssembler->SetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer().get());
+        mpAssembler->SetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer().get());        
 
         // ..but we set mpBcc anyway, so the local mpBcc is
         // the same as the one being used in the assembler...
@@ -343,6 +343,24 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
 
         /// \todo: heart/src/problem/AbstractCardiacProblem.hpp:657 expects both pointing at the same place when unarchiving
         this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;
+
+        // At t==0, BC will be applied once the matrix is assembled and no null space will be created.        
+        if ( *mpAssembler->GetLinearSystem() != NULL )
+        {
+            // System matrix is assembled once at the beginning of the simulation. After that, nobody will take care
+            // of applying new BC to the system matrix. Must be triggered explicitly.
+            if (mpElectrodes->HasGroundedElectrode() && mpAssembler->GetLinearSystem())
+            {
+                this->mpBoundaryConditionsContainer->ApplyDirichletToLinearProblem( ** mpAssembler->GetLinearSystem(), 
+                                                                                   true, false);
+            }
+    
+            // If a grounded electrode is switched on, the linear system is not singular anymore. Remove the null space.
+            if (mpElectrodes->HasGroundedElectrode())
+            {
+                (*(mpAssembler->GetLinearSystem()))->RemoveNullSpace();
+            }
+        }        
     }
 }
 

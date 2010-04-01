@@ -375,7 +375,6 @@ public:
         delete p_mesh;
     }
 
-    /// \todo: #1215 This test doesn't pass if the electrodes are grounded. System solution diverges in the timestep the electrodes are switched on. Probably we will need to remove the null space from the system.
     void Test2dBathGroundedElectrodeStimulusSwitchesOnOff() throw (Exception)
     {
         // Total execution time is 5 ms. Electrodes are on in [1.0, 3.0]
@@ -401,7 +400,7 @@ public:
         double duration = 2.0; // of the stimulus, in ms
 
         boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, start_time, duration));
+            new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, start_time, duration));
 
         bidomain_problem.SetElectrodes(p_electrodes);
 

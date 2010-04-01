@@ -194,6 +194,12 @@ public:
     {
         return mEndTime;
     }
+    
+    /** Whether the second electrode is grounded or not */
+    bool HasGroundedElectrode()
+    {
+        return mGroundSecondElectrode;
+    }
 };
 
 #include "SerializationExportWrapper.hpp"
