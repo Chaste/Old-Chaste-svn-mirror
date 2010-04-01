@@ -479,6 +479,10 @@ public:
         TS_ASSERT_DELTA(replicated_solution[0], 1.0, 1e-8);
         TS_ASSERT_DELTA(replicated_solution[1], 1.0, 1e-8);
         TS_ASSERT_DELTA(replicated_solution[2], 1.0, 1e-8);
+        
+        VecDestroy(one_zeros);
+        VecDestroy(wrong_solution);
+        VecDestroy(solution);
 
     }    
 
