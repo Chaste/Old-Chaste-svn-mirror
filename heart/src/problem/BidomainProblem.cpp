@@ -344,12 +344,13 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
         /// \todo: heart/src/problem/AbstractCardiacProblem.hpp:657 expects both pointing at the same place when unarchiving
         this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;
 
-        // At t==0, BC will be applied once the matrix is assembled and no null space will be created.        
+        // At t==0 or after checkpointing we won't have a system assembled at this stage: BCs will be applied once the matrix 
+        // is assembled. Dirichlet BCs will be present at the time of assembly and no null space will be created either.        
         if ( *mpAssembler->GetLinearSystem() != NULL )
         {
             // System matrix is assembled once at the beginning of the simulation. After that, nobody will take care
             // of applying new BC to the system matrix. Must be triggered explicitly.
-            if (mpElectrodes->HasGroundedElectrode() && mpAssembler->GetLinearSystem())
+            if (mpElectrodes->HasGroundedElectrode())
             {
                 this->mpBoundaryConditionsContainer->ApplyDirichletToLinearProblem( ** mpAssembler->GetLinearSystem(), 
                                                                                    true, false);
@@ -380,6 +381,14 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
         for (unsigned problem_index=0; problem_index<2; problem_index++)
         {
             this->mpDefaultBoundaryConditionsContainer->DefineZeroNeumannOnMeshBoundary(this->mpMesh, problem_index);
+        }
+
+        // If there's a grounded electrode, we must remove BC from linear system. At the moment, we don't
+        // have a sensible way of doing this, therefore we reassemble the system.
+        if (mpElectrodes->HasGroundedElectrode())
+        {
+            delete mpAssembler;
+            AbstractCardiacProblem<DIM,DIM,2>::mpAssembler = CreateAssembler();
         }
 
         // Note, no point calling this->SetBoundaryConditionsContainer() as the

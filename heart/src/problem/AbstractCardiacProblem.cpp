@@ -406,8 +406,6 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 
     while ( !stepper.IsTimeAtEnd() )
     {
-        // std::cout << stepper.GetTime() << "\n";
-        
         // solve from now up to the next printing time
         mpAssembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), HeartConfig::Instance()->GetPdeTimeStep());
         mpAssembler->SetInitialCondition( initial_condition );

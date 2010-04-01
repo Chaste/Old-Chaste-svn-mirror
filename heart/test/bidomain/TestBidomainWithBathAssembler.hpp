@@ -460,6 +460,12 @@ public:
                 }
             }
 
+            // Check that grounded electrode has been successfully removed and therefore phi_e !=0.
+            // Nodes defining grounded electrode are 10, 21, 32, 43, 54, ... , 120
+            TS_ASSERT_DELTA(sol_repl[21], -80.2794, 1e-4);
+            TS_ASSERT_DELTA(sol_repl[43], -80.2794, 1e-4);
+            TS_ASSERT_DELTA(sol_repl[241], -80.2794, 1e-4);
+
             TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
             TS_ASSERT(ap_triggered);
         }
