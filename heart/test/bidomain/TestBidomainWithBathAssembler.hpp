@@ -164,8 +164,8 @@ public:
         for(unsigned i=0; i<=(mesh.GetNumNodes()-1)/2; i++)
         {
             unsigned opposite = mesh.GetNumNodes()-i-1;
-            TS_ASSERT_DELTA(sol_repl[2*i], sol_repl[2*opposite], 1e-4);      // V
-            TS_ASSERT_DELTA(sol_repl[2*i+1], sol_repl[2*opposite+1], 1e-4);  // phi_e
+            TS_ASSERT_DELTA(sol_repl[2*i], sol_repl[2*opposite], 2e-3);      // V
+            TS_ASSERT_DELTA(sol_repl[2*i+1], sol_repl[2*opposite+1], 2e-3);  // phi_e
         }
 
         // a couple of hardcoded values
@@ -462,9 +462,9 @@ public:
 
             // Check that grounded electrode has been successfully removed and therefore phi_e !=0.
             // Nodes defining grounded electrode are 10, 21, 32, 43, 54, ... , 120
-            TS_ASSERT_DELTA(sol_repl[21], -80.2794, 1e-4);
-            TS_ASSERT_DELTA(sol_repl[43], -80.2794, 1e-4);
-            TS_ASSERT_DELTA(sol_repl[241], -80.2794, 1e-4);
+            TS_ASSERT_DELTA(sol_repl[21], -80.2794, 1e-3);
+            TS_ASSERT_DELTA(sol_repl[43], -80.2794, 1e-3);
+            TS_ASSERT_DELTA(sol_repl[241], -80.2794, 1e-3);
 
             TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
             TS_ASSERT(ap_triggered);
