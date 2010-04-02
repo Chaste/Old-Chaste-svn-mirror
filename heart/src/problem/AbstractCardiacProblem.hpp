@@ -580,7 +580,13 @@ public:
     virtual void OnEndOfTimestep(double time)
     {}
     
-    
+    /**
+     * Allow subclasses to define additional 'stopping times' for the printing
+     * time step loop.  This allows bidomain simulations to specify exactly
+     * when the Electrodes should be turned on or off.
+     * 
+     * @param rAdditionalStoppingTimes  to be filled in with the additional stopping times
+     */
     virtual void SetUpAdditionalStoppingTimes(std::vector<double>& rAdditionalStoppingTimes)
     {}
 

@@ -235,7 +235,6 @@ void BidomainProblem<DIM>::WriteInfo(double time)
     std::cout << "Solved to time " << time << "\n" << std::flush;
 
     double v_max, v_min, phi_max, phi_min;
-    int index;
 
     VecSetBlockSize( this->mSolution, 2 );
 
