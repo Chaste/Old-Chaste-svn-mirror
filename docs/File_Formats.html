@@ -4,25 +4,93 @@
     <title>Chaste File Formats</title>
   </head>
   <body>
-	<h1>Chaste File Formats</h1>
- <ul>
- 	<li> <b> .axi </b>
- 	<li> <b> .dat </b>
- 	<li> <b> .edge </b>
- 	<li> <b> .ele </b>
- 	<li> <b> .epi </b> used to specify a list of node numbers (one column) of the nodes belonging to the epicardial surface.
- 	<li> <b> .endo </b> used to specify a list of node numbers (one column) of the nodes belonging to the endocardial surface.
-	<li> <b> .exnode</b>, <b>.exelem </b>  are CMGUI node and element formats respectively, see  <a href="http://www.cmiss.org/cmgui/wiki/TheCmguiEXFormatGuideExnodeAndExelemFiles"> Cmgui guide </a>
- 	<li> <b> .face </b>
- 	<li> <b> .h5 </b>
- 	<li> <b> .info </b>
- 	<li> <b> .log </b>
- 	<li> <b> .mid </b> used to specify a list of node numbers (one column) of the nodes belonging to the midmyocardial surface.
- 	<li> <b> .node </b>
-	<li> <b> .ortho </b>
- 	<li> <b> .times </b>
- 	<li> <b> .viz* </b> Results written by <t>cell_based</t> chaste for the <t>Visualize2dCells.java</t> program.
- </ul>
+
+<h1>Chaste File Formats</h1>
+
+<dl>
+  <dt>.axi</dt>
+  <dd>
+  </dd>
+  <dt>.dat</dt>
+  <dd>
+  </dd>
+  <dt>.edge</dt>
+  <dd>
+    Edge file for <a href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
+    <ul>
+    <li>First line: <tt>&lt;# of edges&gt; &lt;# of boundary markers (0 or 1)&gt;</tt></li>
+    <li>Following lines: <tt>&lt;edge #&gt; &lt;endpoint node&gt; &lt;endpoint node&gt; [boundary marker]</tt></li>
+    <li>Lines starting with a hash (#) are comments</li>
+    </ul>
+  </dd>
+  <dt>.ele</dt>
+  <dd>
+    Element file for <a href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
+    <ul>
+    <li>First line: <tt>&lt;# of elements&gt; &lt;nodes per element&gt; &lt;# of attributes&gt;</tt></li>
+    <li>Remaining lines: <tt>&lt;element #&gt; &lt;node&gt; &lt;node&gt; &lt;node&gt; ... [attributes]</tt></li>
+    <li>Lines starting with a hash (#) are comments</li>
+    </ul>
+  </dd>
+  <dt>.epi</dt>
+  <dd>
+    Used to specify a list of node numbers (one column) of the nodes belonging to the epicardial surface.
+  </dd>
+  <dt>.endo</dt>
+  <dd>
+    Used to specify a list of node numbers (one column) of the nodes belonging to the endocardial surface.
+  </dd>
+  <dt>.exnode</dt>
+  <dt>.exelem</dt>
+  <dd>
+    CMGUI node and element formats respectively, see the <a href="http://www.cmiss.org/cmgui/wiki/TheCmguiEXFormatGuideExnodeAndExelemFiles">Cmgui guide</a>.
+  </dd>
+  <dt>.face</dt>
+  <dd>
+    Faces file for <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
+    <ul>
+    <li>First line: <tt>&lt;# of faces&gt; &lt;boundary marker (0 or 1)&gt;</tt></li>
+    <li>Remaining lines: <tt>&lt;face #&gt; &lt;node&gt; &lt;node&gt; &lt;node&gt; [boundary marker]</tt></li>
+    <li>Lines starting with a hash (#) are comments</li>
+    </ul>
+  </dd>
+  <dt>.h5</dt>
+  <dd>
+    <a href="http://www.hdfgroup.org/HDF5/doc/">HDF5</a> format used for cardiac simulation results.
+    TODO: More detail on contents.
+  </dd>
+  <dt>.info</dt>
+  <dd>
+  </dd>
+  <dt>.log</dt>
+  <dd>
+  </dd>
+  <dt>.mid</dt>
+  <dd>
+    Used to specify a list of node numbers (one column) of the nodes belonging to the midmyocardial surface.
+  </dd>
+  <dt>.node</dt>
+  <dd>
+    Nodes file for <a href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
+    <ul>
+    <li>First line: <tt>&lt;# of vertices&gt; &lt;space dimension&gt; &lt;# of attributes&gt; &lt;# of boundary markers (0 or 1)&gt;</tt></li>
+    <li>Remaining lines: <tt>&lt;vertex #&gt; &lt;x&gt; [&lt;y&gt;] [&lt;z&gt;] [attributes] [boundary marker]</tt></li>
+    <li>Lines starting with a hash (#) are comments</li>
+    </ul>
+  </dd>
+  <dt>.ortho</dt>
+  <dd>
+  </dd>
+  <dt>.times</dt>
+  <dd>
+  </dd>
+  <dt>.viz*</dt>
+  <dd>
+    Results written by <tt>cell_based</tt> chaste for the <tt>Visualize2dCells.java</tt> program.
+    TODO: More detail.
+  </dd>
+</dl>
+
   </body>
 </html>
  
