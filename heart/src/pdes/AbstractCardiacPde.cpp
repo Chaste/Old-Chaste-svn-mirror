@@ -300,20 +300,15 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSol
         }
         catch (Exception &e)
         {
-#ifndef NDEBUG
             PetscTools::ReplicateException(true);
-#endif
             throw e;
         }
 
         // update the Iionic and stimulus caches
         UpdateCaches(index.Global, index.Local, nextTime);
     }
-    HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_ODES);
-
-#ifndef NDEBUG
     PetscTools::ReplicateException(false);
-#endif
+    HeartEventHandler::EndEvent(HeartEventHandler::SOLVE_ODES);
 
     HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     if ( mDoCacheReplication || mDoOneCacheReplication )
