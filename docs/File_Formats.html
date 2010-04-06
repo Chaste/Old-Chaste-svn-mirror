@@ -13,6 +13,11 @@
   </dd>
   <dt>.dat</dt>
   <dd>
+    Fixed-width space-separated column data file format, written by the <tt>ColumnDataWriter</tt> class, and compatible with <a href="http://www.gnuplot.info/">Gnuplot</a>.
+    <ul>
+    <li>First line is a header, of the form <tt>Name1(units1) Name2(units2) ... NameN(unitsN)</tt>.</li>
+    <li>Subsequent lines give the data. Columns are padded with spaces to a fixed width, determined by the <tt>precision</tt> argument to the writer constructor.</li>
+    </ul>
   </dd>
   <dt>.edge</dt>
   <dd>
