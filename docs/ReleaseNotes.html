@@ -199,6 +199,15 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
       <tt>ParallelTetrahedralMesh</tt> has been renamed to
       <tt>DistributedTetrahedralMesh</tt>.
     </li>
+    <li>
+      The logic for project <tt>SConscript</tt> files has been moved into
+      <tt>python/SConsTools.py</tt>.  This allows project
+      <tt>SConscript</tt> files to be very short, and makes it easier to
+      enhance or modify the build system logic in the future.  See the
+      template project's <tt>SConscript</tt> file for an example; you will
+      need to update your <tt>SConscript</tt> file, since the logic has
+      changed since release 1.1.
+    </li>
   </ul></li>
   
   <li>Cardiac:<ul>
