@@ -102,14 +102,20 @@ MonodomainPde<ELEMENT_DIM,SPACE_DIM> * MonodomainProblem<ELEMENT_DIM, SPACE_DIM>
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::WriteInfo(double time)
 {
-    std::cout << "Solved to time " << time << "\n" << std::flush;
+    if (PetscTools::AmMaster())
+    {
+        std::cout << "Solved to time " << time << "\n" << std::flush;
+    }
 
     double v_max, v_min;
 
     VecMax( this->mSolution, PETSC_NULL, &v_max );
     VecMin( this->mSolution, PETSC_NULL, &v_min );
 
-    std::cout << " V = " << "[" <<v_min << ", " << v_max << "]" << "\n" << std::flush;
+    if (PetscTools::AmMaster())
+    {
+        std::cout << " V = " << "[" <<v_min << ", " << v_max << "]" << "\n" << std::flush;
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

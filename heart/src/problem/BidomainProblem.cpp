@@ -232,7 +232,10 @@ BidomainPde<DIM>* BidomainProblem<DIM>::GetBidomainPde()
 template<unsigned DIM>
 void BidomainProblem<DIM>::WriteInfo(double time)
 {
-    std::cout << "Solved to time " << time << "\n" << std::flush;
+    if (PetscTools::AmMaster())
+    {
+        std::cout << "Solved to time " << time << "\n" << std::flush;
+    }
 
     double v_max, v_min, phi_max, phi_min;
 
@@ -244,9 +247,12 @@ void BidomainProblem<DIM>::WriteInfo(double time)
     VecStrideMax( this->mSolution, 1, PETSC_NULL, &phi_max );
     VecStrideMin( this->mSolution, 1, PETSC_NULL, &phi_min );
 
-    std::cout << " V; phi_e = " << "[" <<v_min << ", " << v_max << "]" << ";\t"
-              << "[" <<phi_min << ", " << phi_max << "]" << "\n"
-              << std::flush;
+    if (PetscTools::AmMaster())
+    {
+        std::cout << " V; phi_e = " << "[" <<v_min << ", " << v_max << "]" << ";\t"
+                  << "[" <<phi_min << ", " << phi_max << "]" << "\n"
+                  << std::flush;
+    }
 }
 
 template<unsigned DIM>
@@ -314,7 +320,7 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
 
         // Note, no point calling this->SetBoundaryConditionsContainer() as the
         // assembler has already been created..
-        mpAssembler->SetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer().get());        
+        mpAssembler->SetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer().get());
 
         // ..but we set mpBcc anyway, so the local mpBcc is
         // the same as the one being used in the assembler...
@@ -323,24 +329,24 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
         /// \todo: heart/src/problem/AbstractCardiacProblem.hpp:657 expects both pointing at the same place when unarchiving
         this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;
 
-        // At t==0 or after checkpointing we won't have a system assembled at this stage: BCs will be applied once the matrix 
-        // is assembled. Dirichlet BCs will be present at the time of assembly and no null space will be created either.        
+        // At t==0 or after checkpointing we won't have a system assembled at this stage: BCs will be applied once the matrix
+        // is assembled. Dirichlet BCs will be present at the time of assembly and no null space will be created either.
         if ( *mpAssembler->GetLinearSystem() != NULL )
         {
             // System matrix is assembled once at the beginning of the simulation. After that, nobody will take care
             // of applying new BC to the system matrix. Must be triggered explicitly.
             if (mpElectrodes->HasGroundedElectrode())
             {
-                this->mpBoundaryConditionsContainer->ApplyDirichletToLinearProblem( ** mpAssembler->GetLinearSystem(), 
+                this->mpBoundaryConditionsContainer->ApplyDirichletToLinearProblem( ** mpAssembler->GetLinearSystem(),
                                                                                    true, false);
             }
-    
+
             // If a grounded electrode is switched on, the linear system is not singular anymore. Remove the null space.
             if (mpElectrodes->HasGroundedElectrode())
             {
                 (*(mpAssembler->GetLinearSystem()))->RemoveNullSpace();
             }
-        }        
+        }
     }
 }
 
