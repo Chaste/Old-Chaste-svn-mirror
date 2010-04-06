@@ -592,7 +592,25 @@ BackwardEulerTenTusscher2006_LookupTables* BackwardEulerTenTusscher2006_LookupTa
         const double var_calcium_pump_current__i_p_Ca = (0.1238 * var_calcium_dynamics__Ca_i) / (var_calcium_dynamics__Ca_i + 0.0005);
         var_membrane__i_p_Ca = var_calcium_pump_current__i_p_Ca;
         
-        return (var_membrane__i_K1+var_membrane__i_to+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_CaL+var_membrane__i_NaK+var_membrane__i_Na+var_membrane__i_b_Na+var_membrane__i_NaCa+var_membrane__i_b_Ca+var_membrane__i_p_K+var_membrane__i_p_Ca);
+        double i_ionic =  (var_membrane__i_K1+var_membrane__i_to+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_CaL+var_membrane__i_NaK+var_membrane__i_Na+var_membrane__i_b_Na+var_membrane__i_NaCa+var_membrane__i_b_Ca+var_membrane__i_p_K+var_membrane__i_p_Ca);
+        
+        double i_ionic_in_microA_per_cm2=i_ionic*1.0;
+        return i_ionic_in_microA_per_cm2;
+    
+         /*   i_ionic for this model is in pA/pF.
+         *    Please note that in the mono/bidomain formulation, i_ionic needs to be in microA/cm2.
+         *    We then need to divide by the cell capacitance.
+         *    The cell capacitance of the tenTusscher model is
+         *    2.0 uF/cm2 in the paper
+         *    0.185 uF/cm2 in this code (membrane_C)
+         *    1.0 uF/cm2 in the EvaluateRhsDerivatives method above
+         *
+         *    For consistency, we choose the last option.
+         *    i_ion*pow(10,-6) will be in microA/pF.
+         *    Cm*pow(10,6) will be in pF/cm2.
+         *    i_ion*pow(10,-6)*Cm*pow(10,6) = i_ion*Cm is in microA/cm2, the correct units
+         */
+        
     }
     
     void BackwardEulerTenTusscher2006::ComputeResidual(const double rCurrentGuess[7], double rResidual[7])
