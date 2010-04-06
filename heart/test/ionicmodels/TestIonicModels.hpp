@@ -71,6 +71,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Mahajan2008OdeSystem.hpp"
 #include "BackwardEulerMahajanModel2008.hpp"
 #include "TenTusscher2006OdeSystem.hpp"
+#include "BackwardEulerTenTusscher2006.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 #include "Maleckar2009OdeSystem.hpp"
 #include "ArchiveLocationInfo.hpp"
@@ -670,6 +671,52 @@ public:
         TenTusscher2006OdeSystem TT_model_initial(p_solver, p_stimulus);
         TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0012 , 1e-3);
     }
+    
+    void TestBackwardEulerTenTusscher06(void) throw (Exception)
+    {
+        clock_t ck_start, ck_end;
+        // Set stimulus
+        double magnitude = -1800;
+        double duration  = 0.05 ;  // ms
+        double when = 5.0; // ms
+
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+        double end_time = 50.0;
+
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);
+
+        // Define solver passed in both constructor but used only by forward Euler
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+
+        // Solve using backward euler
+        BackwardEulerTenTusscher2006 tt06_backward_euler(p_solver, p_stimulus);
+
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&tt06_backward_euler,
+                                   end_time,
+                                   "TenTusscherBackwardEuler");
+        ck_end = clock();
+        double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+
+        TS_ASSERT_DELTA( tt06_backward_euler.GetIIonic(), -0.0413, 1e-3);
+
+        // Solve using forward euler
+        HeartConfig::Instance()->SetOdeTimeStep(0.001);// with Forward Euler, this must be as small as 0.001.        
+
+        TenTusscher2006OdeSystem tt06_ode_system(p_solver, p_stimulus);
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&tt06_ode_system,
+                                   end_time,
+                                   "TenTusscherForward");
+        ck_end = clock();
+        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+
+        // Compare results
+        CompareCellModelResults("TenTusscherForward", "TenTusscherBackwardEuler", 0.03, true);
+
+        std::cout << "Run times:\n\tForward: " << forward << "\n\tBackward: "
+          << backward << std::endl;
+    }    
 
     void TestDifrancescoNoble1985(void) throw (Exception)
     {
