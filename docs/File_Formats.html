@@ -10,6 +10,11 @@
 <dl>
   <dt>.axi</dt>
   <dd>
+    Defines axisymmetric conductivity tensors.
+    <ul>
+    <li>First line: <tt>&lt;# of elements&gt;</tt></li>
+    <li>Following lines give the primary (longitudinal) fibre direction vector for each element.</li>
+    </ul>
   </dd>
   <dt>.dat</dt>
   <dd>
@@ -66,9 +71,16 @@
   </dd>
   <dt>.info</dt>
   <dd>
+    There are 3 different sorts of .info file:
+    <ol>
+    <li>archive.info is read and written by the cardiac archiving code, and is not for user consumption.</li>
+    <li>The <tt>ColumnDataWriter</tt> also creates a .info file, to tell it how many variables of different types there are.</li>
+    <li>The final kind, named &quot;<em>something</em>_times.info&quot;, is created by the cardiac post-processing code, to give a human readable summary of the timesteps used.</li>
+    </ol>
   </dd>
   <dt>.log</dt>
   <dd>
+    Used for test output.
   </dd>
   <dt>.mid</dt>
   <dd>
@@ -85,14 +97,21 @@
   </dd>
   <dt>.ortho</dt>
   <dd>
-  </dd>
-  <dt>.times</dt>
-  <dd>
+    Defines orthotropic conductivity tensors.
+    <ul>
+    <li>First line: <tt>&lt;# of elements&gt;</tt></li>
+    <li>Following lines give the fibre direction vectors for each element,
+        primary/longitudinal direction, then transverse/laminar direction, then normal.</li>
+    </ul>
   </dd>
   <dt>.viz*</dt>
   <dd>
     Results written by <tt>cell_based</tt> chaste for the <tt>Visualize2dCells.java</tt> program.
     TODO: More detail.
+  </dd>
+  <dt>.vtu</dt>
+  <dd>
+    TODO
   </dd>
 </dl>
 
