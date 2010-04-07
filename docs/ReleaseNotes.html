@@ -16,6 +16,7 @@
   <li>Checkpointing of cardiac simulations now supported.</li>
   <li>Support for open-source visualisation of cardiac simulations via VTK or cmgui.</li>
   <li>More cardiac simulation post-processing functionality now available in the executable.</li>
+  <li>Support for transmural cellular heterogeneities definition in the XML parameters file.</li>
   <li>Support for more versions of our library dependencies.</li>
   <li>Improved documentation of the parameters file XML schema.</li>
   <li>Use of a distributed mesh in the cardiac executable.</li>
@@ -135,6 +136,12 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
       <li><tt>ConductionVelocityMap</tt></li>
     </ol>
     See the XML Schema documentation for more information on each of these.
+  </li>
+
+  <li>
+    The cardiac executable has gained the ability to specify cellular transmural heterogeneities in 3D cardiac geometries as an alternative to the heterogeneity definition with cuboids (note that the two methods cannot be used simultaneously at the moment). To take advantage of this feature the user must provide three files defining left ventricular surface (LV), right ventricular surface (RV) and epicardial surface (EPI). These three files must have the same base name as the mesh in use and must contain a list of those node indices belonging to each surface. See <a href="File_Formats.html"> documentation on file formats </a> and the XML Schema documentation for more information.
+
+Within the CellHeterogeneities element, the user has now the ability to specify three CellHeterogeneity elements, one for the epicardial layer, one for the midmyocardial layer and one for the endocardial layer. For each layer, it is possible to define the relative thickness of it (summation of the three relative thicknesses must be one) as well as a set of three scale factors for ionic conductances (Gks, Ito and Gkr). This feature is currently supported for the following cell models: tenTusscher2006, Maleckar2009 and FaberRudy2000. 
   </li>
   
   <li>
