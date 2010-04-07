@@ -852,7 +852,7 @@ public:
         /// /tmp/jmpf/testoutput/MonodomainCreatesGeometry/vtk_output/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu differ: byte 49361, line 221
         TS_ASSERT_EQUALS(system(("cmp -n 49360 " + results_dir + "/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu").c_str()), 0);
         //Info file
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_times.info heart/test/data/VtkData/monodomain/monodomain3dValidData_times.info").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/monodomain3d_times.info heart/test/data/VtkData/monodomain/monodomain3dValidData_times.info").c_str()), 0);
         //HeartConfig XML
         filename_param = results_dir + "ChasteParameters.xml";
         std::ifstream file_param2(filename_param.c_str());

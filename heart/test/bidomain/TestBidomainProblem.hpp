@@ -671,7 +671,7 @@ public:
         results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/vtk_output/";
         TS_ASSERT_EQUALS(system(("cmp -n 23332 " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
         //info file
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d_times.info heart/test/data/CmguiData/bidomain/axi3d_times.info").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/axi3d_times.info heart/test/data/CmguiData/bidomain/axi3d_times.info").c_str()), 0);
         //HeartConfig XML
         filename_param = results_dir + "ChasteParameters.xml";
         std::ifstream file_param2(filename_param.c_str());
