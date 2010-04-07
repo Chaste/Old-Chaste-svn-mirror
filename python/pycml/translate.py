@@ -1735,7 +1735,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 assigned_var = None # We don't store derivatives as members
                 #907: Check if this is the derivative of the transmembrane
                 # potential.
-                if expr.eq.lhs.diff.dependent_variable == self.v_variable:
+                if not self.use_backward_euler and expr.eq.lhs.diff.dependent_variable == self.v_variable:
                     # Declare the variable for the derivative
                     self.writeln()
                     self.writeln(self.TYPE_DOUBLE, nl=False)
