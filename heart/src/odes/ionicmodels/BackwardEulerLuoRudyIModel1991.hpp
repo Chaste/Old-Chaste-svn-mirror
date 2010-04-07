@@ -127,7 +127,7 @@ public:
      * @param rCurrentGuess  current values of the non-linear system variables
      * @param rResidual  to be filled in with the residual vector
      */
-    void ComputeResidual(const double rCurrentGuess[1], double rResidual[1]);
+    void ComputeResidual(double var_environment__time, const double rCurrentGuess[1], double rResidual[1]);
 
     /**
      * Compute the Jacobian for the Newton iteration for the non-linear system portion of the model.
@@ -135,7 +135,7 @@ public:
      * @param rCurrentGuess  current values of the non-linear system variables
      * @param rJacobian  to be filled in with the jacobian matrix
      */
-    void ComputeJacobian(const double rCurrentGuess[1], double rJacobian[1][1]);
+    void ComputeJacobian(double var_environment__time, const double rCurrentGuess[1], double rJacobian[1][1]);
 
     /**
      * Compute the ionic current at the current instant in time

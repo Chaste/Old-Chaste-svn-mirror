@@ -218,7 +218,7 @@ double BackwardEulerFoxModel2002Modified::GetIIonic()
     return var_membrane__i_Na+var_membrane__i_Ca+var_membrane__i_CaK+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_to+var_membrane__i_K1+var_membrane__i_Kp+var_membrane__i_NaCa+var_membrane__i_NaK+var_membrane__i_p_Ca+var_membrane__i_Ca_b+var_membrane__i_Na_b;
 }
 
-void BackwardEulerFoxModel2002Modified::ComputeResidual(const double rCurrentGuess[3], double rResidual[3])
+void BackwardEulerFoxModel2002Modified::ComputeResidual(double var_environment__time, const double rCurrentGuess[3], double rResidual[3])
 {
     std::vector<double>& rY = rGetStateVariables();
     double var_membrane__V = rY[0];
@@ -319,7 +319,7 @@ void BackwardEulerFoxModel2002Modified::ComputeResidual(const double rCurrentGue
     rResidual[1] = rCurrentGuess[1] - rY[12] - mDt*d_dt_calcium_dynamics__Ca_SR;
 }
 
-void BackwardEulerFoxModel2002Modified::ComputeJacobian(const double rCurrentGuess[3], double rJacobian[3][3])
+void BackwardEulerFoxModel2002Modified::ComputeJacobian(double var_environment__time, const double rCurrentGuess[3], double rJacobian[3][3])
 {
     std::vector<double>& rY = rGetStateVariables();
     double var_membrane__V = rY[0];
@@ -629,7 +629,7 @@ void BackwardEulerFoxModel2002Modified::ComputeOneStepExceptVoltage(double var_e
 
     double _guess[3] = {rY[10],rY[11],rY[12]};
     CardiacNewtonSolver<3> *_solver = CardiacNewtonSolver<3>::Instance();
-    _solver->Solve(*this, _guess);
+    _solver->Solve(*this, var_environment__time, _guess);
     rY[10] = _guess[0];
     rY[12] = _guess[1];
     rY[11] = _guess[2];

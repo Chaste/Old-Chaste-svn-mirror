@@ -1060,8 +1060,10 @@ class CellMLTranslator(object):
                          self.lut_access_code(idx, num_tables, table_size),
                          self.STMT_END)
             if indexes_as_member:
-                self.writeln('unsigned _table_index_', idx, ';')
-                self.writeln('double _factor_', idx, ';')
+                self.writeln('unsigned _table_index_', idx, self.STMT_END)
+                self.writeln('double _factor_', idx, self.STMT_END)
+                if self.row_lookup_method:
+                    self.writeln('double* _lt_', idx, '_row', self.STMT_END)
         self.writeln()
         return
 
@@ -1071,6 +1073,8 @@ class CellMLTranslator(object):
         for key, idx in self.doc.lookup_table_indexes.iteritems():
             self.writeln('unsigned _table_index_', idx, self.STMT_END)
             self.writeln('double _factor_', idx, self.STMT_END)
+            if self.row_lookup_method:
+                self.writeln('double* _lt_', idx, '_row', self.STMT_END)
         self.writeln()
         return
     
@@ -1156,9 +1160,11 @@ class CellMLTranslator(object):
         if indexes_as_member:
             index_type = ''
             factor_type = ''
+            row_type = ''
         else:
             index_type = 'unsigned '
             factor_type = 'double '
+            row_type = 'double* '
         for key, i in self.doc.lookup_table_indexes.iteritems():
             min, max, step, var = key
             step_inverse = unicode(1 / float(step))
@@ -1189,7 +1195,7 @@ class CellMLTranslator(object):
             self.writeln(factor_type, '_factor_', i, ' = ', offset_over_step,
                          ' - _table_index_', i, ';')
             if self.row_lookup_method:
-                self.writeln('double* _lt_', i, '_row = ',
+                self.writeln(row_type, '_lt_', i, '_row = ',
                              self.lookup_method_prefix, '_lookup_', i,
                              '_row(_table_index_', i, ', _factor_', i, ');')
         self.writeln()
@@ -1387,7 +1393,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 ret_type = ret_type + ' '
         else:
             ret_type = ''
-        args_string = ', '.join(args)
+        args_string = ', '.join(filter(None, map(str, args)))
         self.writeln_hpp(ret_type, method_name, '(', args_string, ')', self.STMT_END)
         self.writeln(ret_type, self.class_name, '::', method_name, '(', args_string, ')')
 
@@ -1525,7 +1531,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.send_main_output_to_subsidiary()
             if self.separate_lut_class:
                 if self.use_backward_euler:
+                    self.set_access('private')
                     self.output_lut_indices()
+                    self.set_access('public')
             else:
                 self.output_lut_declarations()
                 self.output_lut_row_lookup_memory()
@@ -1548,6 +1556,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """
         self.output_method_start(self.class_name, params, '', access='public')
         self.writeln('    : ', self.base_class_name, '(')
+        # Filter out empty params, to make backward Euler happy
+        base_class_params = filter(None, map(str, base_class_params))
         for i, param in enumerate(base_class_params):
             if i == len(base_class_params)-1: comma = ')'
             else: comma = ','
@@ -1680,7 +1690,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if self.use_chaste_stimulus:
                 if isinstance(expr, cellml_variable) and \
                         expr is self.doc._cml_config.i_stim_var:
-                    self.writeln(self.TYPE_DOUBLE, nl=False)
+                    clear_type = (self.kept_vars_as_members and expr.pe_keep)
+                    if clear_type:
+                        self.TYPE_CONST_DOUBLE = ''
+                    self.writeln(self.TYPE_CONST_DOUBLE, nl=False)
                     self.write(self.code_name(expr))
                     self.write(self.EQ_ASSIGN)
                     #621: convert if free var is not in milliseconds
@@ -1691,6 +1704,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     self.writeln('GetStimulus(', conv,
                                  self.code_name(self.free_vars[0]), ')',
                                  self.STMT_END, indent=False)
+                    if clear_type:
+                        # Remove the instance attribute, thus reverting to the class member
+                        del self.TYPE_CONST_DOUBLE
                 elif not (isinstance(expr, mathml_apply) and
                           isinstance(expr.operator(), mathml_eq) and
                           isinstance(expr.eq.lhs, mathml_ci) and
@@ -1870,7 +1886,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         ##########
         argsize = '[' + str(self.nonlinear_system_size) + ']'
         self.output_method_start('ComputeResidual',
-                                 [self.TYPE_CONST_DOUBLE + 'rCurrentGuess' + argsize,
+                                 [self.TYPE_DOUBLE + self.code_name(self.free_vars[0]),
+                                  self.TYPE_CONST_DOUBLE + 'rCurrentGuess' + argsize,
                                   self.TYPE_DOUBLE + 'rResidual' + argsize],
                                  'void', access='public')
         self.open_block()
@@ -1903,7 +1920,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Jacobian
         ##########
         self.output_method_start('ComputeJacobian',
-                                 [self.TYPE_CONST_DOUBLE + 'rCurrentGuess' + argsize,
+                                 [self.TYPE_DOUBLE + self.code_name(self.free_vars[0]),
+                                  self.TYPE_CONST_DOUBLE + 'rCurrentGuess' + argsize,
                                   self.TYPE_DOUBLE + 'rJacobian' + argsize + argsize],
                                  'void', access='public')
         self.open_block()
@@ -1938,7 +1956,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln(self.STMT_END, indent=False)
         self.close_block()
         # The other methods are protected
-        self.writeln('protected:', indent_offset=-1)
+        self.writeln_hpp('protected:', indent_offset=-1)
         # UpdateTransmembranePotential
         ##############################
         self.output_method_start('UpdateTransmembranePotential',
@@ -2054,7 +2072,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('CardiacNewtonSolver<', self.nonlinear_system_size,
                      '> *_solver = CardiacNewtonSolver<',
                      self.nonlinear_system_size, '>::Instance();')
-        self.writeln('_solver->Solve(*this, _guess);')
+        self.writeln('_solver->Solve(*this, ', self.code_name(self.free_vars[0]), ', _guess);')
         # Update state
         for j, i in enumerate(idx_map):
             self.writeln('rY[', i, '] = _guess[', j, '];')

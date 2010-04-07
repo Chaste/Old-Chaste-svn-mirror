@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "luo_rudy_1991.hpp"
 #include "luo_rudy_1991Opt.hpp"
+#include "luo_rudy_1991BackwardEuler.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
 #ifdef CHASTE_CVODE
@@ -97,6 +98,10 @@ public:
       *     ./python/ConvertCellModel.py --normal --opt --cvode heart/src/odes/cellml/luo_rudy_1991.cellml
       * Or, if you don't have CVODE:
       *     ./python/ConvertCellModel.py heart/src/odes/cellml/luo_rudy_1991.cellml
+      * 
+      * For the Backward Euler model, do
+      *     cd python/pycml
+      *     ./translate.py -j ../../heart/src/odes/cellml/luo_rudy_1991.out --conf=config.xml --use-chaste-stimulus --convert-interfaces -a -p -l --row-lookup-method ../../heart/src/odes/cellml/luo_rudy_1991.cellml -o ../../heart/src/odes/cellml/luo_rudy_1991BackwardEuler.cpp
       *
       * \todo #1030 run PyCml automatically, rather than having to generate the .hpp files by hand.
       */
@@ -122,12 +127,20 @@ public:
         // Optimised model
         Cellluo_rudy_1991FromCellMLOpt opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
+        
+        // Backward Euler optimised model
+        CML_luo_rudy_1991_pe_lut_be be(p_solver, p_stimulus);
+        TS_ASSERT_EQUALS(be.GetVoltageIndex(), 0u);
 
         // Check that the tables exist!
         double v = opt.GetVoltage();
         opt.SetVoltage(-100000);
         TS_ASSERT_THROWS_CONTAINS(opt.GetIIonic(), "V outside lookup table range");
         opt.SetVoltage(v);
+        
+        be.SetVoltage(-100000);
+        TS_ASSERT_THROWS_CONTAINS(be.GetIIonic(), "V outside lookup table range");
+        be.SetVoltage(v);
 
 #ifdef CHASTE_CVODE
         // CVODE version
@@ -148,16 +161,18 @@ public:
         ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
         std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("lr91-pycml.arch");
 
-        // Save both (non-CVODE) cells at initial state
+        // Save all (non-CVODE) cells at initial state
         {
             AbstractCardiacCell* const p_normal_cell = &normal;
             AbstractCardiacCell* const p_opt_cell = &opt;
+            AbstractCardiacCell* const p_be_cell = &be;
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             output_arch << p_normal_cell;
             output_arch << p_opt_cell;
+            output_arch << p_be_cell;
         }
 
         //
@@ -195,6 +210,22 @@ public:
                                    i_ionic_end_time,
                                    "Lr91GetIIonicOpt", 1000, false);
         TS_ASSERT_DELTA( opt.GetIIonic(), normal.GetIIonic(), 1e-3);
+        
+        // Backward Euler
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&be,
+                                   end_time,
+                                   "Lr91FromPyCmlBackwardEuler");
+        ck_end = clock();
+        double be_time = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tBackward Euler: " << be_time << std::endl;
+
+        CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlBackwardEuler", 1e-2, true);
+
+        RunOdeSolverWithIonicModel(&be,
+                                   i_ionic_end_time,
+                                   "Lr91GetIIonicBackwardEuler", 1000, false);
+        TS_ASSERT_DELTA( be.GetIIonic(), normal.GetIIonic(), 1e-3);
 
 #ifdef CHASTE_CVODE
         // CVODE
@@ -244,11 +275,14 @@ public:
 
             AbstractCardiacCell* p_normal_cell;
             AbstractCardiacCell* p_opt_cell;
+            AbstractCardiacCell* p_be_cell;
             input_arch >> p_normal_cell;
             input_arch >> p_opt_cell;
+            input_arch >> p_be_cell;
 
             TS_ASSERT_EQUALS( p_normal_cell->GetNumberOfStateVariables(), 8u );
             TS_ASSERT_EQUALS( p_opt_cell->GetNumberOfStateVariables(), 8u );
+            TS_ASSERT_EQUALS( p_be_cell->GetNumberOfStateVariables(), 8u );
 
             RunOdeSolverWithIonicModel(p_normal_cell,
                                        end_time,
@@ -260,8 +294,14 @@ public:
                                        "Lr91FromPyCmlOptAfterArchive");
             CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlOptAfterArchive", 1e-4, true);
 
+            RunOdeSolverWithIonicModel(p_be_cell,
+                                       end_time,
+                                       "Lr91FromPyCmlBackwardEulerAfterArchive");
+            CompareCellModelResults("Lr91DelayedStim", "Lr91FromPyCmlBackwardEulerAfterArchive", 1e-2, true);
+
             delete p_normal_cell;
             delete p_opt_cell;
+            delete p_be_cell;
         }
      }
 };

@@ -63,9 +63,11 @@ public:
      * Use Newton's method to solve the given cell for the next timestep.
      *
      * @param rCell  the cell to solve
-     * @param rCurrentGuess  the current guess at a solution.  Will be mUpdated on exit.
+     * @param time  the current time
+     * @param rCurrentGuess  the current guess at a solution.  Will be updated on exit.
      */
     void Solve(AbstractBackwardEulerCardiacCell<SIZE> &rCell,
+               double time,
                double rCurrentGuess[SIZE])
     {
         unsigned counter = 0;
@@ -74,7 +76,7 @@ public:
         double norm = 2*eps;
 
         // check that the initial guess that was given gives a valid residual
-        rCell.ComputeResidual(rCurrentGuess, mResidual);
+        rCell.ComputeResidual(time, rCurrentGuess, mResidual);
         for (unsigned i=0; i<SIZE; i++)
         {
             assert(!std::isnan(mResidual[i]));
@@ -83,7 +85,7 @@ public:
         while (norm > eps)
         {
             // Calculate Jacobian for current guess
-            rCell.ComputeJacobian(rCurrentGuess, mJacobian);
+            rCell.ComputeJacobian(time, rCurrentGuess, mJacobian);
 
 //            // Update norm (our style)
 //            norm = ComputeNorm(mResidual);
@@ -99,7 +101,7 @@ public:
             {
                 rCurrentGuess[i] -= mUpdate[i];
             }
-            rCell.ComputeResidual(rCurrentGuess, mResidual);
+            rCell.ComputeResidual(time, rCurrentGuess, mResidual);
 
             counter++;
             assert(counter < 15); // avoid infinite loops
@@ -112,12 +114,13 @@ public:
 /////// with above solve before use.
 ////
 ////    void Solve(AbstractBackwardEulerCardiacCell<SIZE> &rCell,
+////               double time,
 ////               double rCurrentGuess[SIZE])
 ////    {
 ////        unsigned counter = 0;
 ////        double TOL = 1e-3;// * rCurrentGuess[0]; // Our tolerance (should use min(guess) perhaps?)
 ////
-////        rCell.ComputeResidual(rCurrentGuess, mResidual);
+////        rCell.ComputeResidual(time, rCurrentGuess, mResidual);
 ////        for (unsigned i=0; i<SIZE; i++)
 ////        {
 ////            assert(!std::isnan(mResidual[i]));
@@ -136,7 +139,7 @@ public:
 ////        while (norm > TOL)
 ////        {
 ////            // Calculate Jacobian and mResidual for current guess
-////            rCell.ComputeJacobian(rCurrentGuess, mJacobian);
+////            rCell.ComputeJacobian(time, rCurrentGuess, mJacobian);
 ////
 ////            // Solve Newton linear system
 ////            SolveLinearSystem();
@@ -154,7 +157,7 @@ public:
 ////                    test_vec[i] = rCurrentGuess[i] - damping_values[j]*mUpdate[i];
 ////                }
 ////                double test_resid[SIZE];
-////                rCell.ComputeResidual(test_vec, test_resid);
+////                rCell.ComputeResidual(time, test_vec, test_resid);
 ////                double test_vec_residual_norm = ComputeNorm(test_resid);
 ////                // std::cout << "s,|r|,|old resid|= " << damping_values[j] << " " << test_vec_residual_norm << " " << norm << std::endl;
 ////                if(test_vec_residual_norm <= best_residual_norm)
@@ -174,7 +177,7 @@ public:
 ////                rCurrentGuess[i] -= best_damping_value*mUpdate[i];
 ////            }
 ////            norm = best_residual_norm;
-////            rCell.ComputeResidual(rCurrentGuess, mResidual);
+////            rCell.ComputeResidual(time, rCurrentGuess, mResidual);
 ////
 ////            counter++;
 ////            assert(counter < 15); // avoid infinite loops

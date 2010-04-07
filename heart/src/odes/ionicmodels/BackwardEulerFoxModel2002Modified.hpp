@@ -53,9 +53,9 @@ public:
 
     double GetIIonic();
 
-    void ComputeResidual(const double rCurrentGuess[3], double rResidual[3]);
+    void ComputeResidual(double var_environment__time, const double rCurrentGuess[3], double rResidual[3]);
 
-    void ComputeJacobian(const double rCurrentGuess[3], double rJacobian[3][3]);
+    void ComputeJacobian(double var_environment__time, const double rCurrentGuess[3], double rJacobian[3][3]);
 
 protected:
     void UpdateTransmembranePotential(double var_environment__time);

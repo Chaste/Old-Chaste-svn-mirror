@@ -33,8 +33,8 @@ public:
     ~BackwardEulerMahajanModel2008();
     void VerifyStateVariables();
     double GetIIonic();
-    void ComputeResidual(const double rCurrentGuess[15], double rResidual[15]);
-    void ComputeJacobian(const double rCurrentGuess[15], double rJacobian[15][15]);
+    void ComputeResidual(double var_environment__time, const double rCurrentGuess[15], double rResidual[15]);
+    void ComputeJacobian(double var_environment__time, const double rCurrentGuess[15], double rJacobian[15][15]);
     void UpdateTransmembranePotential(double var_Environment__time);
     void ComputeOneStepExceptVoltage(double var_Environment__time);
 };

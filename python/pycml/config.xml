@@ -56,6 +56,16 @@
   </transmembrane_potential>
 </global>
 
+<for_model id="tentusscher_model_2006_epi">
+  <lookup_tables>
+    <lookup_table>
+      <var type='config-name'>transmembrane_potential</var>
+      <min>-250.0001</min>
+      <max>349.9999</max>
+    </lookup_table>
+  </lookup_tables>
+</for_model>
+
 <for_model id="wiggle">
   <lookup_tables>
     <lookup_table>

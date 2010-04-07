@@ -199,7 +199,7 @@
         return (var_cell__xik1+var_cell__xito+var_cell__xiNaK+var_cell__xiNaCa+var_cell__xica+var_cell__xina+var_cell__xikr+var_cell__xiks);
     }
 
-    void BackwardEulerMahajanModel2008::ComputeResidual(const double rCurrentGuess[15], double rResidual[15])
+    void BackwardEulerMahajanModel2008::ComputeResidual(double var_environment__time, const double rCurrentGuess[15], double rResidual[15])
     {
         std::vector<double>& rY = rGetStateVariables();
         double var_cell__V = rY[0];
@@ -433,7 +433,7 @@
         rResidual[5] = rCurrentGuess[5] - rY[25] - mDt*1.0*d_dt_Ca__trops;
     }
 
-    void BackwardEulerMahajanModel2008::ComputeJacobian(const double rCurrentGuess[15], double rJacobian[15][15])
+    void BackwardEulerMahajanModel2008::ComputeJacobian(double var_environment__time, const double rCurrentGuess[15], double rJacobian[15][15])
     {
         std::vector<double>& rY = rGetStateVariables();
         double var_cell__V = rY[0];
@@ -951,7 +951,7 @@
 
         double _guess[15] = {rY[23],rY[20],rY[22],rY[21],rY[24],rY[25],rY[4],rY[5],rY[7],rY[6],rY[9],rY[8],rY[17],rY[18],rY[19]};
         CardiacNewtonSolver<15> *_solver = CardiacNewtonSolver<15>::Instance();
-        _solver->Solve(*this, _guess);
+        _solver->Solve(*this, var_Environment__time, _guess);
         rY[23] = _guess[0];
         rY[20] = _guess[1];
         rY[22] = _guess[2];

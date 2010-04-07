@@ -283,7 +283,7 @@ double BackwardEulerNobleVargheseKohlNoble1998::GetIIonic()
     return value_in_microA_per_cm_squared;
 }
 
-void BackwardEulerNobleVargheseKohlNoble1998::ComputeResidual(const double rCurrentGuess[12], double rResidual[12])
+void BackwardEulerNobleVargheseKohlNoble1998::ComputeResidual(double var_environment__time, const double rCurrentGuess[12], double rResidual[12])
 {
     std::vector<double>& rY = rGetStateVariables();
     double var_membrane__V = rY[0];
@@ -542,7 +542,7 @@ void BackwardEulerNobleVargheseKohlNoble1998::ComputeResidual(const double rCurr
     rResidual[5] = rCurrentGuess[5] - rY[21] - mDt*0.001*d_dt_intracellular_calcium_concentration__Ca_Trop;
 }
 
-void BackwardEulerNobleVargheseKohlNoble1998::ComputeJacobian(const double rCurrentGuess[12], double rJacobian[12][12])
+void BackwardEulerNobleVargheseKohlNoble1998::ComputeJacobian(double var_environment__time, const double rCurrentGuess[12], double rJacobian[12][12])
 {
     std::vector<double>& rY = rGetStateVariables();
     double var_membrane__V = rY[0];
@@ -1040,7 +1040,7 @@ void BackwardEulerNobleVargheseKohlNoble1998::ComputeOneStepExceptVoltage(double
 
     double _guess[12] = {rY[8],rY[9],rY[12],rY[13],rY[20],rY[21],rY[17],rY[16],rY[19],rY[18],rY[15],rY[14]};
     CardiacNewtonSolver<12> *_solver = CardiacNewtonSolver<12>::Instance();
-    _solver->Solve(*this, _guess);
+    _solver->Solve(*this, var_environment__time, _guess);
     rY[8] = _guess[0];
     rY[9] = _guess[1];
     rY[12] = _guess[2];

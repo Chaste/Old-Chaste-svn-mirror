@@ -286,7 +286,7 @@ void BackwardEulerLuoRudyIModel1991::ComputeOneStepExceptVoltage(double tStart)
     double guess[1] = {rY[3]};
 
     CardiacNewtonSolver<1> *solver = CardiacNewtonSolver<1>::Instance();
-    solver->Solve(*this, guess);
+    solver->Solve(*this, tStart, guess);
 
     rY[3] = guess[0];
 
@@ -315,7 +315,7 @@ void BackwardEulerLuoRudyIModel1991::ComputeOneStepExceptVoltage(double tStart)
     // The choice of norm also seems immaterial for this problem.
 }
 
-void BackwardEulerLuoRudyIModel1991::ComputeResidual(const double rCurrentGuess[1], double rResidual[1])
+void BackwardEulerLuoRudyIModel1991::ComputeResidual(double var_environment__time, const double rCurrentGuess[1], double rResidual[1])
 {
     std::vector<double>& rY = rGetStateVariables();
     double membrane_V = rY[4];
@@ -330,7 +330,7 @@ void BackwardEulerLuoRudyIModel1991::ComputeResidual(const double rCurrentGuess[
     rResidual[0] = rCurrentGuess[0] - rY[3] - mDt*dCdt_using_current_guess;
 }
 
-void BackwardEulerLuoRudyIModel1991::ComputeJacobian(const double rCurrentGuess[1], double rJacobian[1][1])
+void BackwardEulerLuoRudyIModel1991::ComputeJacobian(double var_environment__time, const double rCurrentGuess[1], double rJacobian[1][1])
 {
     std::vector<double>& rY = rGetStateVariables();
     double slow_inward_current_d_gate_d = rY[5];

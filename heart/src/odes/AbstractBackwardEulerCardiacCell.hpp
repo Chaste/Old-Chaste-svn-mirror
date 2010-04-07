@@ -99,18 +99,20 @@ public:
     /**
      * Compute the residual of the nonlinear system portion of the cell model.
      *
+     * @param time  the current time
      * @param rCurrentGuess  the current guess for \f$U_n\f$
      * @param rResidual  to be filled in with the residual vector
      */
-    virtual void ComputeResidual(const double rCurrentGuess[SIZE], double rResidual[SIZE])=0;
+    virtual void ComputeResidual(double time, const double rCurrentGuess[SIZE], double rResidual[SIZE])=0;
 
     /**
      * Compute the Jacobian matrix for the nonlinear system portion of the cell model.
      *
+     * @param time  the current time
      * @param rCurrentGuess  the current guess for \f$U_n\f$
      * @param rJacobian  to be filled in with the Jacobian matrix
      */
-    virtual void ComputeJacobian(const double rCurrentGuess[SIZE], double rJacobian[SIZE][SIZE])=0;
+    virtual void ComputeJacobian(double time, const double rCurrentGuess[SIZE], double rJacobian[SIZE][SIZE])=0;
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
