@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractHdf5Converter.hpp"
 #include "HeartConfig.hpp"
+#include "Version.hpp"
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -88,13 +89,13 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
 
         out_stream p_file = this->mpOutputFileHandler->OpenOutputFile(this->mFileBaseName + "_times.info");
         unsigned num_timesteps = this->mpReader->GetUnlimitedDimensionValues().size();
-       * p_file << "Number of timesteps "<<num_timesteps<<"\n";
-       * p_file << "timestep "<<HeartConfig::Instance()->GetPrintingTimeStep()<<"\n";
+        *p_file << "Number of timesteps " << num_timesteps << std::endl;
+        *p_file << "timestep " << HeartConfig::Instance()->GetPrintingTimeStep() << std::endl;
         double first_timestep=this->mpReader->GetUnlimitedDimensionValues().front();
-       * p_file << "First timestep "<<first_timestep<<"\n";
+        *p_file << "First timestep " << first_timestep << std::endl;
         double last_timestep=this->mpReader->GetUnlimitedDimensionValues().back();
-       * p_file << "Last timestep "<<last_timestep<<"\n";
-
+        *p_file << "Last timestep " << last_timestep << std::endl;
+		*p_file << ChasteBuildInfo::GetProvenanceString();
         p_file->close();
 
     }

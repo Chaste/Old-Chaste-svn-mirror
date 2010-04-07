@@ -156,7 +156,7 @@ public:
         delete mpParallelWriter;
 
         MPI_Barrier(PETSC_COMM_WORLD);
-        TS_ASSERT_EQUALS(system(("diff "+output_dir+"ParallelColumnWriter.info io/test/data/ColumnWriter.info").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" "+output_dir+"ParallelColumnWriter.info io/test/data/ColumnWriter.info").c_str()), 0);
 
         TS_ASSERT_EQUALS(system(("diff "+output_dir+"ParallelColumnWriter_000000.dat io/test/data/ColumnWriter_000000.dat").c_str()), 0);
 
@@ -207,7 +207,7 @@ public:
         // Check file
         MPI_Barrier(PETSC_COMM_WORLD);
 
-        TS_ASSERT_EQUALS(system(("diff "+output_dir+"Stripe.info io/test/data/Stripe.info").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" "+output_dir+"Stripe.info io/test/data/Stripe.info").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff "+output_dir+"Stripe_000000.dat io/test/data/Stripe_000000.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff "+output_dir+"Stripe_unlimited.dat io/test/data/Stripe_unlimited.dat").c_str()), 0);
 

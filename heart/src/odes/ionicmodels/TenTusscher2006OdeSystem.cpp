@@ -352,7 +352,7 @@ double TenTusscher2006OdeSystem::GetIIonic()
     double i_ionic_in_microA_per_cm2=i_ionic*1.0;
     return i_ionic_in_microA_per_cm2;
 
-     /*   i_ionic for this model is in pA/pF.
+    /*   i_ionic for this model is in pA/pF.
      *    Please note that in the mono/bidomain formulation, i_ionic needs to be in microA/cm2.
      *    We then need to divide by the cell capacitance.
      *    The cell capacitance of the tenTusscher model is
@@ -365,7 +365,6 @@ double TenTusscher2006OdeSystem::GetIIonic()
      *    Cm*pow(10,6) will be in pF/cm2.
      *    i_ion*pow(10,-6)*Cm*pow(10,6) = i_ion*Cm is in microA/cm2, the correct units
      */
-
 }
 
 void TenTusscher2006OdeSystem::VerifyStateVariables()

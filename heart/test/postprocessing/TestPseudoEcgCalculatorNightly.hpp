@@ -78,7 +78,7 @@ public:
         //now compare it with a valid pseudo-ecg file (see above).
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
 
-        std::string command_second_time_step = "cmp " + test_output_directory + pseudo_ecg_output_dir + "/output/PseudoEcg.dat"
+        std::string command_second_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + pseudo_ecg_output_dir + "/output/PseudoEcg.dat"
                                      + " heart/test/data/PseudoEcg/ValidPseudoEcg.dat";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
 
@@ -109,7 +109,7 @@ public:
         //now compare it with a valid pseudo-ecg file (see above).
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
 
-        std::string command_second_time_step = "cmp " + test_output_directory + pseudo_ecg_output_dir + "/output/PseudoEcg.dat"
+        std::string command_second_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + pseudo_ecg_output_dir + "/output/PseudoEcg.dat"
                                      + " heart/test/data/PseudoEcg/ValidPseudoEcg.dat";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
 

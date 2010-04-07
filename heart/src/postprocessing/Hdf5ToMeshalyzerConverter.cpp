@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
+#include "Version.hpp"
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
@@ -74,6 +75,8 @@ void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     VecDestroy(data);
     if(PetscTools::AmMaster())
     {
+    	std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
+    	*p_file << comment;
         p_file->close();
     }
 }

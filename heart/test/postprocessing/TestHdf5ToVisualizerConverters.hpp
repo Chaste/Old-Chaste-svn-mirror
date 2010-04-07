@@ -86,10 +86,10 @@ public :
 
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/MonodomainLR91_1d_V.dat "
+        std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/MonodomainLR91_1d_V.dat "
                                      + "heart/test/data/Monodomain1d/MonodomainLR91_1d_V.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
-        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/MonodomainLR91_1d_times.info "
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/MonodomainLR91_1d_times.info "
                                      + "heart/test/data/Monodomain1d/MonodomainLR91_1d_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
@@ -113,17 +113,17 @@ public :
 
         // compare the voltage file
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_V.dat "
+        std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_V.dat "
                                      + "heart/test/data/Bidomain1d/bidomain_V.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         // compare the Phi_e file
-        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_Phi_e.dat "
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_Phi_e.dat "
                          + "heart/test/data/Bidomain1d/bidomain_Phi_e.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
        // compare the time information file
-        command = "cmp " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_times.info "
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_times.info "
                          + "heart/test/data/Bidomain1d/bidomain_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
@@ -149,11 +149,11 @@ public :
 
         // compare the voltage file with a correct version
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_0.exnode"
+        std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_0.exnode"
                                      + " heart/test/data/CmguiData/monodomain/cube_2mm_12_elements_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 
-        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_1.exnode"
+        std::string command_second_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_1.exnode"
                                      + " heart/test/data/CmguiData/monodomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
@@ -179,11 +179,11 @@ public :
 
         // compare the voltage file with a correct version that is known to visualize correctly in Cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_0.exnode"
+        std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_0.exnode"
                                      + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 
-        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_1.exnode"
+        std::string command_second_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/cube_2mm_12_elements_1.exnode"
                                      + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
@@ -209,11 +209,11 @@ public :
 
         // compare the voltage file with a correct version that visualizes Vm correctly in cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/2D_0_to_1mm_400_elements_0.exnode"
+        std::string command_first_time_step = "diff -a -I \"Created by Chaste\"  " + test_output_directory + working_directory +"/cmgui_output/2D_0_to_1mm_400_elements_0.exnode"
                                      + " heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 
-        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/2D_0_to_1mm_400_elements_1.exnode"
+        std::string command_second_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/2D_0_to_1mm_400_elements_1.exnode"
                                      + " heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
@@ -238,11 +238,11 @@ public :
 
         // compare the voltage file with a correct version that visualizes both Vm and Phie correctly in cmgui
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/1D_0_to_1_100_elements_0.exnode"
+        std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/1D_0_to_1_100_elements_0.exnode"
                                      + " heart/test/data/CmguiData/bidomain/1D_0_to_1_100_elements_0.exnode";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 
-        std::string command_second_time_step = "cmp " + test_output_directory + working_directory +"/cmgui_output/1D_0_to_1_100_elements_1.exnode"
+        std::string command_second_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/1D_0_to_1_100_elements_1.exnode"
                                      + " heart/test/data/CmguiData/bidomain/1D_0_to_1_100_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }

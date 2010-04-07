@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
+#include "Version.hpp"
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
@@ -81,6 +82,9 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 
         if(PetscTools::AmMaster())
         {
+        	//write provenance info
+		    std::string comment = "! " + ChasteBuildInfo::GetProvenanceString();
+		    *p_file << comment;
             //The header first
             *p_file << "Group name: " << this->mFileBaseName << "\n";
 

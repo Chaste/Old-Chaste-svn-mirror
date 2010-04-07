@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "OutputFileHandler.hpp"
 #include "DistanceMapCalculator.hpp"
+#include "Version.hpp"
 
 #include <iostream>
 
@@ -278,6 +279,9 @@ void PostProcessingWriter<ELEMENT_DIM, SPACE_DIM>::WriteGenericFile(std::vector<
             {
                 //Open the file for the first time
                 p_file = output_file_handler.OpenOutputFile(fileName);
+                //write provenance info
+			    std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
+			    *p_file << comment;
             }
             else
             {

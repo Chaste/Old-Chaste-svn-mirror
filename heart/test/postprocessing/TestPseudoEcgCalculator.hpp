@@ -131,7 +131,7 @@ public:
 
         std::string output_dir = "ChasteResults/output";//default value
         std::string command;
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/PseudoEcg.dat "
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/PseudoEcg.dat "
                   + "heart/test/data/ValidPseudoEcg1D.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 

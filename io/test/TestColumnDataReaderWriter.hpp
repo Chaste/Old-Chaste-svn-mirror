@@ -65,7 +65,10 @@ private:
             getline(goodfile, goodstring);
             if (teststring != goodstring)
             {
-                matching = false;
+            	if (teststring.substr(0, 17) != "Created by Chaste")
+            	{
+                	matching = false;
+            	}
             }
         }
 

@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PseudoEcgCalculator.hpp"
 #include "HeartConfig.hpp"
 #include "PetscTools.hpp"
+#include "Version.hpp"
 #include <iostream>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -98,7 +99,7 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
     out_stream p_file=out_stream(NULL);
     if (PetscTools::AmMaster())
     {
-         p_file = output_file_handler.OpenOutputFile(stream.str());
+        p_file = output_file_handler.OpenOutputFile(stream.str());
     }
     for (unsigned i = 0; i < mNumTimeSteps; i++)
     {
@@ -110,7 +111,10 @@ void PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::WritePseudoEcg ()
     }
     if (PetscTools::AmMaster())
     {
-         p_file->close();
+        //write provenance info
+	    std::string comment = "# " + ChasteBuildInfo::GetProvenanceString();
+	    *p_file << comment;
+        p_file->close();
     }
 }
 /////////////////////////////////////////////////////////////////////

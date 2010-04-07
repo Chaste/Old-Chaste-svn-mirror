@@ -831,9 +831,9 @@ public:
         //TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exelem heart/test/data/CmguiData/monodomain/monodomain3dValid.exelem").c_str()), 0);
         //TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d.exnode heart/test/data/CmguiData/monodomain/monodomain3dValid.exnode").c_str()), 0);
         //...and one data file as example
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_43.exnode heart/test/data/CmguiData/monodomain/monodomain3dValidData.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/monodomain3d_43.exnode heart/test/data/CmguiData/monodomain/monodomain3dValidData.exnode").c_str()), 0);
         //Info file
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/monodomain3d_times.info heart/test/data/CmguiData/monodomain/monodomain3dValidData_times.info").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/monodomain3d_times.info heart/test/data/CmguiData/monodomain/monodomain3dValidData_times.info").c_str()), 0);
         //HeartConfig XML
         std::string filename_param = results_dir + "ChasteParameters.xml";
         std::ifstream file_param(filename_param.c_str());

@@ -409,7 +409,7 @@ BackwardEulerTenTusscher2006_LookupTables* BackwardEulerTenTusscher2006_LookupTa
         double i_ionic_in_microA_per_cm2=i_ionic*1.0;
         return i_ionic_in_microA_per_cm2;
     
-         /*   i_ionic for this model is in pA/pF.
+        /*   i_ionic for this model is in pA/pF.
          *    Please note that in the mono/bidomain formulation, i_ionic needs to be in microA/cm2.
          *    We then need to divide by the cell capacitance.
          *    The cell capacitance of the tenTusscher model is

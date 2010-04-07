@@ -65,19 +65,19 @@ public:
         writer.WriteApdMapFile(60.0, -30.0);
 
         std::string command;
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory()
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory()
                                     + output_dir + "/Apd_60_-30_Map.dat "
                                     + "heart/test/data/PostProcessorWriter/good_apd_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         writer.WriteUpstrokeTimeMap(-30.0);
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory()
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory()
                                     + output_dir + "/UpstrokeTimeMap_-30.dat "
                                     + "heart/test/data/PostProcessorWriter/good_upstroke_time_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         writer.WriteMaxUpstrokeVelocityMap(-30.0);
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory()
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory()
                                     + output_dir + "/MaxUpstrokeVelocityMap_-30.dat "
                                     + "heart/test/data/PostProcessorWriter/good_upstroke_velocity_postprocessing.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
@@ -91,7 +91,7 @@ public:
         dist_calculator.ComputeDistanceMap(origin_node, distance_map_from_0);
 
         writer.WriteConductionVelocityMap(0u, distance_map_from_0);
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory()
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory()
                                     + output_dir + "/ConductionVelocityFromNode0.dat "
                                     + "heart/test/data/PostProcessorWriter/conduction_velocity_10_nodes_from_node_0.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
@@ -108,7 +108,7 @@ public:
 
         writer.WriteApdMapFile(90.0, -30.0);
 
-        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-30_Map.dat "
+        std::string command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-30_Map.dat "
                                    + "heart/test/data/101_zeroes.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
@@ -146,35 +146,35 @@ public:
         writer.WriteAboveThresholdDepolarisationFile(-40.0);
 
         std::string output_dir = "ChasteResults/output"; // default given by HeartConfig
-        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_80_-30_Map.dat "
+        std::string command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_80_-30_Map.dat "
                                    + "heart/test/data/101_zeroes.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-20_Map.dat "
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/Apd_90_-20_Map.dat "
                   + "heart/test/data/101_zeroes.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/UpstrokeTimeMap_-70.dat "
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/UpstrokeTimeMap_-70.dat "
                   + "heart/test/data/PostProcessorWriter/UpstrokeTimeMap_-70.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/UpstrokeTimeMap_20.dat "
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/UpstrokeTimeMap_20.dat "
                   + "heart/test/data/PostProcessorWriter/UpstrokeTimeMap_20.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_-50.dat "
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_-50.dat "
                   + "heart/test/data/PostProcessorWriter/MaxUpstrokeVelocityMap_-50.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_50.dat "
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/MaxUpstrokeVelocityMap_50.dat "
                   + "heart/test/data/PostProcessorWriter/MaxUpstrokeVelocityMap_50.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/ConductionVelocityFromNode0.dat "
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/ConductionVelocityFromNode0.dat "
                   + "heart/test/data/PostProcessorWriter/conduction_velocity_100_nodes_from_node_0.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-        command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-40.dat "
+        command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-40.dat "
                   + "heart/test/data/PostProcessorWriter/AboveThresholdDepolarisations-40.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
@@ -191,7 +191,7 @@ public:
         writer.WriteAboveThresholdDepolarisationFile(-30.0);
 
         std::string output_dir = "ChasteResults/output";
-        std::string command = "cmp " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-30.dat "
+        std::string command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/AboveThresholdDepolarisations-30.dat "
                   + "heart/test/data/PostProcessorWriter/AboveThresholdDepolarisations-30.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }

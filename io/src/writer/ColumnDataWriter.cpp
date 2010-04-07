@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ColumnDataWriter.hpp"
 #include "ColumnDataConstants.hpp"
 #include "Exception.hpp"
+#include "Version.hpp"
 
 #include <ctype.h>
 #include <sstream>
@@ -345,6 +346,7 @@ void ColumnDataWriter::CreateInfoFile(const std::string& rFileName)
     (*p_info_file) << "FIXED " << mFixedDimensionSize << std::endl;
     (*p_info_file) << "UNLIMITED " << mIsUnlimitedDimensionSet << std::endl;
     (*p_info_file) << "VARIABLES " << mVariables.size() << std::endl;
+    *p_info_file << ChasteBuildInfo::GetProvenanceString();
     p_info_file->close();
 }
 

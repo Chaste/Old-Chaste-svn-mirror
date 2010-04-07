@@ -651,10 +651,10 @@ public:
         TS_ASSERT(comparison_result);
 
         //...and one data file as example
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d_61.exnode heart/test/data/CmguiData/bidomain/bidomain3dValidData.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/axi3d_61.exnode heart/test/data/CmguiData/bidomain/bidomain3dValidData.exnode").c_str()), 0);
 
         //info file
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/axi3d_times.info heart/test/data/CmguiData/bidomain/axi3d_times.info").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/axi3d_times.info heart/test/data/CmguiData/bidomain/axi3d_times.info").c_str()), 0);
         //HeartConfig XML
         std::string filename_param = results_dir + "ChasteParameters.xml";
         std::ifstream file_param(filename_param.c_str());
