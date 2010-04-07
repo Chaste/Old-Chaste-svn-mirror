@@ -751,8 +751,8 @@ public:
         double start_time = 0.5;
         double duration = 2.0; // of the stimulus, in ms
 
-        HeartConfig::Instance()->SetOutputDirectory("fu");
-        HeartConfig::Instance()->SetOutputFilenamePrefix("fu");
+        HeartConfig::Instance()->SetOutputDirectory("ElectrodesSwitchOffAtCorrectTime");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("results");
         HeartConfig::Instance()->SetSimulationDuration(5.0);  //ms
 
         //////////////////////////////////////////////////////
@@ -807,7 +807,7 @@ public:
         //////////////////////////////////////////////////////
         for(unsigned i=0; i<sol_small_repl.GetSize(); i++)
         {
-            TS_ASSERT_DELTA(sol_small_repl[i], sol_large_repl[i], 1e-6);
+            TS_ASSERT_DELTA(sol_small_repl[i], sol_large_repl[i], 1e-4);
         }
     }
 };
