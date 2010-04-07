@@ -413,7 +413,6 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
             static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLASS *>(this)->IncrementInterpolatedQuantities(phi(i), p_node);
         }
 
-        //HeartEventHandler::BeginEvent(HeartEventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
         double wJ = jacobian_determinant * quad_rule.GetWeight(quad_index);
 
         ////////////////////////////////////////////////////////////
@@ -428,7 +427,6 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
         {
             noalias(rBElem) += static_cast<typename AssemblerTraits<CONCRETE>::CVT_CLASS *>(this)->ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
         }
-        //HeartEventHandler::EndEvent(HeartEventHandler::USER1); //Temporarily using USER1 to instrument the Compute.. terms
     }
 }
 

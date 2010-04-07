@@ -38,17 +38,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * It also contains events suitable to most generic PDE solvers too.
  */
-class HeartEventHandler : public GenericEventHandler<11, HeartEventHandler>
+class HeartEventHandler : public GenericEventHandler<13, HeartEventHandler>
 {
 public:
 
     /** Character array holding heart event names. There are eleven heart events. */
-    const static char* EventName[11];
+    const static char* EventName[13];
 
     /** Definition of heart event types. */
     typedef enum
     {
         READ_MESH=0,
+        INITIALISE,
         ASSEMBLE_SYSTEM,
         SOLVE_ODES,
         COMMUNICATION,
@@ -58,6 +59,7 @@ public:
         SOLVE_LINEAR_SYSTEM,
         WRITE_OUTPUT,
         POST_PROC,
+        USER1,
         EVERYTHING
     } EventType;
 };

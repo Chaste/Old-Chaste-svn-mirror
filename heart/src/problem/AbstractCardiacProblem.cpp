@@ -172,16 +172,19 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         }
     }
     mpCellFactory->SetMesh( mpMesh );
+    HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
+    HeartEventHandler::BeginEvent(HeartEventHandler::INITIALISE);
     // if the user requested transmural stuff, we fill in the mCellHeterogeneityAreas here.
     if (HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested())
     {
         mpCellFactory->FillInCellularTransmuralAreas();
     }
-    HeartEventHandler::EndEvent(HeartEventHandler::READ_MESH);
 
     delete mpCardiacPde; // In case we're called twice
     mpCardiacPde = CreateCardiacPde();
+
+    HeartEventHandler::EndEvent(HeartEventHandler::INITIALISE);
 
     // Delete any previous solution, so we get a fresh initial condition
     if (mSolution)
