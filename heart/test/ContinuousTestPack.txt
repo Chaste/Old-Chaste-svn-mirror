@@ -7,7 +7,6 @@ ionicmodels/TestCvodeCells.hpp
 ionicmodels/TestDynamicallyLoadedCellModels.hpp
 ionicmodels/TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 ionicmodels/TestIonicModels.hpp
-ionicmodels/TestPeregoCellModels.hpp
 ionicmodels/TestPyCml.hpp
 mechanics/TestCardiacElectroMechanicsProblem.hpp
 mechanics/TestContractionModels.hpp
@@ -15,7 +14,6 @@ mechanics/TestImplicitCardiacMechanicsAssembler.hpp
 mechanics/TestExplicitCardiacMechanicsAssembler.hpp
 mechanics/TestNhsModelWithBackwardSolver.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
-monodomain/TestMonodomainPerego.hpp
 monodomain/TestMonodomainProblem.hpp
 monodomain/TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
 monodomain/TestMonodomainPde.hpp
