@@ -54,10 +54,10 @@ public:
         COMMUNICATION,
         ASSEMBLE_RHS,
         NEUMANN_BCS,
+        DIRICHLET_BCS,
         SOLVE_LINEAR_SYSTEM,
         WRITE_OUTPUT,
-        USER1,
-        USER2,
+        POST_PROC,
         EVERYTHING
     } EventType;
 };

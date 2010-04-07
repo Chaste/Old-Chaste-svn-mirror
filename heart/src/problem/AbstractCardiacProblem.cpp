@@ -493,7 +493,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
     delete mpWriter;
     mpWriter = NULL;
 
-    HeartEventHandler::BeginEvent(HeartEventHandler::USER2); //Temporarily using USER2 to instrument post-processing
+    HeartEventHandler::BeginEvent(HeartEventHandler::POST_PROC);
     // Only if results files were written and we are outputting all nodes
     if (mNodesToOutput.empty())
     {
@@ -523,7 +523,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         post_writer.WritePostProcessingFiles();
     }
 
-    HeartEventHandler::EndEvent(HeartEventHandler::USER2); //Temporarily using USER2 to instrument post-processing
+    HeartEventHandler::EndEvent(HeartEventHandler::POST_PROC);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>

@@ -225,14 +225,14 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         bool applyToMatrix,
         bool applyToRhsVector)
 {
-    HeartEventHandler::BeginEvent(HeartEventHandler::USER1);
+    HeartEventHandler::BeginEvent(HeartEventHandler::DIRICHLET_BCS);
 
     if (applyToMatrix)
     {
         if (!this->HasDirichletBoundaryConditions())
         {
             // Short-circuit the replication if there are no conditions
-            HeartEventHandler::EndEvent(HeartEventHandler::USER1);
+            HeartEventHandler::EndEvent(HeartEventHandler::DIRICHLET_BCS);
             return;
         }
 
@@ -379,7 +379,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         }
     }
 
-    HeartEventHandler::EndEvent(HeartEventHandler::USER1);
+    HeartEventHandler::EndEvent(HeartEventHandler::DIRICHLET_BCS);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
