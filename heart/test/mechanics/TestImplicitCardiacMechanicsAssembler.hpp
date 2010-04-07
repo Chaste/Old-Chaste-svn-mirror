@@ -183,8 +183,8 @@ public:
 
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 24 is the top-right corner node,
-        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 0.9480, 3e-3);
-        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 1.0516, 3e-3);
+        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 0.9480, 5e-3);
+        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 1.0516, 5e-3);
 
         std::vector<double>& lambda = assembler.rGetFibreStretches();
 
@@ -232,7 +232,7 @@ public:
         }
 
         // hardcoded test
-        TS_ASSERT_DELTA(lambda[34], 0.9737, 1e-3);
+        TS_ASSERT_DELTA(lambda[34], 0.9737, 2e-3);
     }
 
     // Same as above test but has fibres in Y-direction (and bottom surface fixed - so results are the same),
