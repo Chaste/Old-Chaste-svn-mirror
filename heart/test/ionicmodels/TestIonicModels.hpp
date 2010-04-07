@@ -1049,9 +1049,10 @@ public:
             AbstractCardiacCell* const p_backward_cell2 = new BackwardEulerFoxModel2002Modified(p_stimulus);
             AbstractCardiacCell* const p_backward_cell3 = new BackwardEulerNobleVargheseKohlNoble1998(p_stimulus);
 
-            /// \todo: required by the constructor but never used ???
             boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
             AbstractCardiacCell* const p_backward_cell4 = new BackwardEulerMahajanModel2008(p_solver, p_stimulus);
+
+            AbstractCardiacCell* const p_backward_cell5 = new BackwardEulerTenTusscher2006(p_solver, p_stimulus);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -1060,6 +1061,7 @@ public:
             output_arch <<  p_backward_cell2;
             output_arch <<  p_backward_cell3;
             output_arch <<  p_backward_cell4;
+            output_arch <<  p_backward_cell5;
 
             // These results are in the repository and should be replicated after the load below
 //            RunOdeSolverWithIonicModel(p_backward_cell1,
@@ -1078,6 +1080,7 @@ public:
             delete p_backward_cell2;
             delete p_backward_cell3;
             delete p_backward_cell4;
+            delete p_backward_cell5;
         }
         // Load
         {
@@ -1088,15 +1091,18 @@ public:
             AbstractCardiacCell* p_backward_cell2;
             AbstractCardiacCell* p_backward_cell3;
             AbstractCardiacCell* p_backward_cell4;
+            AbstractCardiacCell* p_backward_cell5;
             input_arch >> p_backward_cell1;
             input_arch >> p_backward_cell2;
             input_arch >> p_backward_cell3;
             input_arch >> p_backward_cell4;
+            input_arch >> p_backward_cell5;
 
             TS_ASSERT_EQUALS( p_backward_cell1->GetNumberOfStateVariables(), 8U );
             TS_ASSERT_EQUALS( p_backward_cell2->GetNumberOfStateVariables(), 13U );
             TS_ASSERT_EQUALS( p_backward_cell3->GetNumberOfStateVariables(), 22U );
             TS_ASSERT_EQUALS( p_backward_cell4->GetNumberOfStateVariables(), 26U );
+            TS_ASSERT_EQUALS( p_backward_cell5->GetNumberOfStateVariables(), 19U );
 
             RunOdeSolverWithIonicModel(p_backward_cell1,
                                        50.0,
@@ -1114,16 +1120,22 @@ public:
                                        50.0,
                                        "Backward4AfterArchive");
 
+            RunOdeSolverWithIonicModel(p_backward_cell5,
+                                       50.0,
+                                       "Backward5AfterArchive");
+
 
             CheckCellModelResults("Backward1AfterArchive");
             CheckCellModelResults("Backward2AfterArchive");
             CheckCellModelResults("Backward3AfterArchive");
             CheckCellModelResults("Backward4AfterArchive");
+            CheckCellModelResults("Backward5AfterArchive");
 
             delete p_backward_cell1;
             delete p_backward_cell2;
             delete p_backward_cell3;
             delete p_backward_cell4;
+            delete p_backward_cell5;
         }
      }
 

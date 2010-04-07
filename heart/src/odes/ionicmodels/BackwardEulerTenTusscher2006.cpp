@@ -672,15 +672,7 @@ BackwardEulerTenTusscher2006_LookupTables* BackwardEulerTenTusscher2006_LookupTa
         var_membrane__i_p_Ca = var_calcium_pump_current__i_p_Ca;
         var_membrane__i_Stim = GetStimulus((1.0/1)*var_environment__time);
         
-        double d_dt_membrane__V;
-        if (mSetVoltageDerivativeToZero)
-        {
-            d_dt_membrane__V = 0.0;
-        }
-        else
-        {
-            d_dt_membrane__V =  -1.0 * (var_membrane__i_K1 + var_membrane__i_to + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_CaL + var_membrane__i_NaK + var_membrane__i_Na + var_membrane__i_b_Na + var_membrane__i_NaCa + var_membrane__i_b_Ca + var_membrane__i_p_K + var_membrane__i_p_Ca + var_membrane__i_Stim);
-        }
+        double d_dt_membrane__V = -1.0 * (var_membrane__i_K1 + var_membrane__i_to + var_membrane__i_Kr + var_membrane__i_Ks + var_membrane__i_CaL + var_membrane__i_NaK + var_membrane__i_Na + var_membrane__i_b_Na + var_membrane__i_NaCa + var_membrane__i_b_Ca + var_membrane__i_p_K + var_membrane__i_p_Ca + var_membrane__i_Stim);
         
         
         rY[0] += mDt * 1.0*d_dt_membrane__V;
