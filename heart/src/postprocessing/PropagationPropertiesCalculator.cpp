@@ -43,16 +43,6 @@ PropagationPropertiesCalculator::~PropagationPropertiesCalculator()
     // We don't own the data reader, so we don't destroy it.
 }
 
-/// \todo the following helper method, when used, causes seg faults. Mend it and use to reduce
-/// repeated code.
-//CellProperties PropagationPropertiesCalculator::GetCellProperties(unsigned globalNodeIndex)
-//{
-//    std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);
-//    std::vector<double> times = mpDataReader->GetUnlimitedDimensionValues();
-//    CellProperties cell_props(voltages, times);
-//    return cell_props;
-//}
-
 double PropagationPropertiesCalculator::CalculateMaximumUpstrokeVelocity(unsigned globalNodeIndex)
 {
     std::vector<double> voltages = mpDataReader->GetVariableOverTime(mVoltageName, globalNodeIndex);

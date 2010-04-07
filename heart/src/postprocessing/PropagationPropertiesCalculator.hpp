@@ -49,8 +49,6 @@ private:
     /** Name of the variable representing the membrane potential. */
     const std::string mVoltageName;
 
-//    CellProperties GetCellProperties(unsigned globalNodeIndex);
-
 public:
     /**
      * Constructor.
