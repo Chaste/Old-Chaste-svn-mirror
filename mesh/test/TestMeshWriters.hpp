@@ -569,7 +569,7 @@ public:
         comparison_result = CmguiMeshWriter<2,2>::CompareCmguiFiles(elem_file1,elem_file2);
         TS_ASSERT(comparison_result);
 
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
     }
 
     void TestCmguiDeformedSolutionsWriterConvertOutput() throw(Exception)
@@ -607,7 +607,7 @@ public:
         comparison_result = CmguiMeshWriter<2,2>::CompareCmguiFiles(elem_file1,elem_file2);
         TS_ASSERT(comparison_result);
 
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
         // throws as is incomplete
         TS_ASSERT_THROWS_CONTAINS(writer.ConvertOutput("mesh/test/data/TestCmguiDeformedSolutionsWriter", "bad_myoldsolution", 1), "Error occurred when reading file");
     }
@@ -626,7 +626,7 @@ public:
 
         //1.6K uncompressed, 1.3K compressed
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkWriter/cube_2mm_12_elements.vtu").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkWriter/cube_2mm_12_elements.vtu").c_str()), 0);
 #endif //CHASTE_VTK
     }
 
@@ -660,7 +660,7 @@ public:
         writer.WriteFilesUsingMesh(mesh);
         //13K uncompressed, 3.7K compressed
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/2D_0_to_1mm_200_elements.vtu mesh/test/data/TestVtkWriter/2D_0_to_1mm_200_elements.vtu").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/2D_0_to_1mm_200_elements.vtu mesh/test/data/TestVtkWriter/2D_0_to_1mm_200_elements.vtu").c_str()), 0);
 #endif //CHASTE_VTK
     }
 
@@ -696,7 +696,7 @@ public:
 
         //32K uncompressed, 19K compressed
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
-        TS_ASSERT_EQUALS(system(("cmp " + results_dir + "/heart_decimation.vtu mesh/test/data/TestVtkWriter/heart_decimation.vtu").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/heart_decimation.vtu mesh/test/data/TestVtkWriter/heart_decimation.vtu").c_str()), 0);
 #endif //CHASTE_VTK
     }
 

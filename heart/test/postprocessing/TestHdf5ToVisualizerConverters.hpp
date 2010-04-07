@@ -274,7 +274,7 @@ public :
 
         // compare the voltage file with a correct version that is known to visualize correctly in Vtk
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/vtk_output/cube_2mm_12_elements.vtu"
+        std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/vtk_output/cube_2mm_12_elements.vtu"
                                      + " heart/test/data/VtkData/bidomain/cube_2mm_12_elements.vtu";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 #endif //CHASTE_VTK
@@ -303,7 +303,7 @@ public :
 
         // compare the voltage file with a correct version that visualizes Vm correctly in VTK
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command_first_time_step = "cmp " + test_output_directory + working_directory +"/vtk_output/2D_0_to_1mm_400_elements.vtu"
+        std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/vtk_output/2D_0_to_1mm_400_elements.vtu"
                                      + " heart/test/data/VtkData/monodomain/2D_0_to_1mm_400_elements.vtu";
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 #endif //CHASTE_VTK
