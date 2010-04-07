@@ -65,7 +65,7 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)>
 {
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret;
 
-///\todo: Should these be SPACE_DIM??
+///\todo #1298 Should these be SPACE_DIM??
     c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX, rU(0));
     c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> f_of_u_prime = mpNonlinearEllipticPde->ComputeDiffusionTermPrime(rX, rU(0));
 

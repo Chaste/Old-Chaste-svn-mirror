@@ -109,7 +109,7 @@ public:
                 }
             }
         }
-        MPI_Barrier(PETSC_COMM_WORLD);
+        PetscTools::Barrier("TestCompareJacobians");
 
         // coverage - test default material law works ok
         ImplicitCardiacMechanicsAssembler<2> another_assembler(NHS, &mesh,"",fixed_nodes);

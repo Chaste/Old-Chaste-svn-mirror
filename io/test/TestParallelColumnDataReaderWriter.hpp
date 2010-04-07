@@ -64,7 +64,7 @@ public:
 
         TS_ASSERT_THROWS_NOTHING(mpParallelWriter->EndDefineMode());
 
-        MPI_Barrier(PETSC_COMM_WORLD);
+        PetscTools::Barrier("TestParallelColumnWriter1");
 
         std::string output_dir = mpParallelWriter->GetOutputDirectory();
 
@@ -155,7 +155,7 @@ public:
         //delete mpParallelWriter;
         delete mpParallelWriter;
 
-        MPI_Barrier(PETSC_COMM_WORLD);
+        PetscTools::Barrier("TestParallelColumnWriter2");
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" "+output_dir+"ParallelColumnWriter.info io/test/data/ColumnWriter.info").c_str()), 0);
 
         TS_ASSERT_EQUALS(system(("diff "+output_dir+"ParallelColumnWriter_000000.dat io/test/data/ColumnWriter_000000.dat").c_str()), 0);
@@ -197,7 +197,7 @@ public:
         unsigned var1_id = p_parallel_writer->DefineVariable("Var1","LightYears");
         p_parallel_writer->DefineFixedDimension("Node","dimensionless", problem_size);
         p_parallel_writer->EndDefineMode();
-        MPI_Barrier(PETSC_COMM_WORLD);
+        PetscTools::Barrier("TestPutSlice1");
         std::string output_dir = p_parallel_writer->GetOutputDirectory();
 
         p_parallel_writer->PutVariable(time_var_id, 0.1);
@@ -205,7 +205,7 @@ public:
         p_parallel_writer->AdvanceAlongUnlimitedDimension();
 
         // Check file
-        MPI_Barrier(PETSC_COMM_WORLD);
+        PetscTools::Barrier("TestPutSlice2");
 
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" "+output_dir+"Stripe.info io/test/data/Stripe.info").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff "+output_dir+"Stripe_000000.dat io/test/data/Stripe_000000.dat").c_str()), 0);

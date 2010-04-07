@@ -151,21 +151,20 @@ ParallelColumnDataWriter::~ParallelColumnDataWriter()
 
 void ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension()
 {
-    // Make sure that everyone has queued their messages
-    MPI_Barrier(PETSC_COMM_WORLD);
+    // Paranoia
+    PetscTools::Barrier("ParallelColumnDataWriter::AdvanceAlongUnlimitedDimension");
 
     if (PetscTools::AmMaster())
     {
-        /// \todo This is where the master is going to take messages from the slaves and write them.
         ColumnDataWriter::DoAdvanceAlongUnlimitedDimension();
     }
 }
 
 void ParallelColumnDataWriter::Close()
 {
-    MPI_Barrier(PETSC_COMM_WORLD);
+    // Paranoia
+    PetscTools::Barrier("ParallelColumnDataWriter::Close");
 
-    ///\todo we may still have queued messages at this point - force their output.
     if (PetscTools::AmMaster())
     {
         ColumnDataWriter::Close();

@@ -71,7 +71,7 @@ public:
     {
         std::cout.flush();
         std::cerr.flush();
-        MPI_Barrier(PETSC_COMM_WORLD);
+        PetscTools::Barrier("TestParallelPrinting");
         std::cout.flush();
         std::cerr.flush();
 

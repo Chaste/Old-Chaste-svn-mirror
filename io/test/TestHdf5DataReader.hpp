@@ -114,7 +114,7 @@ private :
         H5Tclose(datatype);
         H5Dclose(dataset);
         H5Fclose(file);
-        MPI_Barrier(PETSC_COMM_WORLD);
+        PetscTools::Barrier("WriteDataTestSimpleReadDirectlyWithHdf5");
     }
 
 public :
