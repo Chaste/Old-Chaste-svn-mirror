@@ -124,8 +124,24 @@
   <dt>.viz*</dt>
   <dd>
     Results written by <tt>cell_based</tt> chaste for the <tt>Visualize2dCells.java</tt> program.
-    TODO: More detail.
   </dd>
+   <dt>.vizcelltypes</dt>
+  <dd>
+    The cell type of cells in <tt>cell_based</tt> simulation, each line has the form <tt> time c_1 c_2 ... c_n</tt>.
+  </dd>
+   <dt>.vizelements</dt>
+  <dd>
+    Elements in the <tt>cell_based</tt> simulation, each line has the form <tt> time element1_node1 element1_node2 element1_node3 ... elementn_node1 elementn_node2 elementn_node3</tt>.
+  </dd>
+  <dt>.viznodes</dt>
+  <dd>
+    Position of the nodes in the <tt>cell_based</tt> simulation, each line has the form <tt> time x_1 y_1 z_1... x_n y_n z_n</tt>.
+  </dd>
+  <dt>.vizsetup</dt>
+  <dd>
+	The <tt>cell_based</tt> visualiser setup file, contains such things as <tt>mesh_width</tt> for periodic simulations.
+  </dd>
+  
   <dt>.vtu</dt>
   <dd>
     An XML file format used to visualize simulation results in a <a href="http://www.vtk.org">VTK</a> visualizer. The file format represents a Chaste mesh as a vtkUnstructuredGrid, with each variable represented as point data. The file consists of:
