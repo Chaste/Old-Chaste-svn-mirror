@@ -14,6 +14,8 @@ You should have received a copy of the Lesser GNU General Public License
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>.
 
 This version of Chaste was compiled on:
+Wed, 07 Apr 2010 10:24:32 +0000 by Linux userpc59.comlab.ox.ac.uk 2.6.24-27-generic #1 SMP Fri Mar 12 00:52:19 UTC 2010 x86_64 (uname)
+from revision number 8571 with build type default, shared libraries.
 
-         InMesh           AssSys              Ode            Comms           AssRhs           NeuBCs              Ksp           Output            User1            User2            Total  
-Blah blah	(seconds) 
+         InMesh             Init           AssSys              Ode            Comms           AssRhs           NeuBCs           DirBCs              Ksp           Output         PostProc            User1            Total  
+   0.000 (  0%)     0.000 (  0%)     0.240 (  1%)    24.670 ( 96%)     0.030 (  0%)     0.020 (  0%)     0.000 (  0%)     0.000 (  0%)     0.250 (  1%)     0.070 (  0%)     0.360 (  1%)     0.000 (  0%)    25.680 (100%)  (seconds) 
