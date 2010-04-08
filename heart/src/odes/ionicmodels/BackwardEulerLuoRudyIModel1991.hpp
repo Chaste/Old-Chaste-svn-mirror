@@ -124,6 +124,7 @@ public:
     /**
      * Compute the residual for the Newton iteration for the non-linear system portion of the model.
      *
+     * @param var_environment__time  the current time
      * @param rCurrentGuess  current values of the non-linear system variables
      * @param rResidual  to be filled in with the residual vector
      */
@@ -132,6 +133,7 @@ public:
     /**
      * Compute the Jacobian for the Newton iteration for the non-linear system portion of the model.
      *
+     * @param var_environment__time  the current time
      * @param rCurrentGuess  current values of the non-linear system variables
      * @param rJacobian  to be filled in with the jacobian matrix
      */
