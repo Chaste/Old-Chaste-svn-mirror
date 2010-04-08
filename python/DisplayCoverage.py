@@ -208,12 +208,15 @@ for src_file in src_files:
                              src_line_stripped.startswith('assert(ELEM_DIM') or
                              src_line_stripped.startswith('assert(SPACE_DIM') or
                              src_line_stripped.startswith('assert(ELEMENT_DIM')) or
-                            src_line_stripped.startswith('#include ') or
+                            src_line_stripped.startswith('#include ') or #gcov bug
                             src_line_stripped.startswith('EXPORT_TEMPLATE') or
                             src_line_stripped.startswith('template class ') or #gcov bug
                             (src_line_stripped.startswith('catch ') and #Line is catch(...)
-                             src_line_stripped[-1] == ')')
-                             or (len(src_line_stripped)>0 and src_line_stripped[-1] == ')') ): #Method definition (possibly). Currently overlaps with previous 'catch' ignore
+                             src_line_stripped[-1] == ')') or
+                            #Method definition (possibly). Currently overlaps with previous 'catch' ignore
+                            (len(src_line_stripped) > 0 and
+                             (src_line_stripped[-1] == ')' or src_line_stripped.endswith(') const')))
+                           ):
                         warn = False
                         aggregated_count = '#####'
                         #print 'Full details of coverage: ', src_line_stripped,'\t',src_file,'\t',aggregated_count,'\t', line_no,'\t', src_line
