@@ -140,8 +140,8 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
 
   <li>
     The cardiac executable has gained the ability to specify cellular transmural heterogeneities in 3D cardiac geometries as an alternative to the heterogeneity definition with cuboids (note that the two methods cannot be used simultaneously at the moment). To take advantage of this feature the user must provide three files defining left ventricular surface (LV), right ventricular surface (RV) and epicardial surface (EPI). These three files must have the same base name as the mesh in use and must contain a list of those node indices belonging to each surface. See <a href="File_Formats.html"> documentation on file formats </a> and the XML Schema documentation for more information.
-
-Within the CellHeterogeneities element, the user has now the ability to specify three CellHeterogeneity elements, one for the epicardial layer, one for the midmyocardial layer and one for the endocardial layer. For each layer, it is possible to define the relative thickness of it (summation of the three relative thicknesses must be one) as well as a set of three scale factors for ionic conductances (Gks, Ito and Gkr). This feature is currently supported for the following cell models: tenTusscher2006, Maleckar2009 and FaberRudy2000. 
+    <br />
+    Within the CellHeterogeneities element, the user has now the ability to specify three CellHeterogeneity elements, one for the epicardial layer, one for the midmyocardial layer and one for the endocardial layer. For each layer, it is possible to define the relative thickness of it (summation of the three relative thicknesses must be one) as well as a set of three scale factors for ionic conductances (Gks, Ito and Gkr). This feature is currently supported for the following cell models: tenTusscher2006, Maleckar2009 and FaberRudy2000. 
   </li>
   
   <li>
@@ -159,7 +159,12 @@ Within the CellHeterogeneities element, the user has now the ability to specify 
     These should be non-negative and can be retrieved with <tt>mesh.GetBoundaryElement(i)->GetRegion()</tt>
     or similar.  Note that (due to the default behaviour of Triangle) edges with a region attribute of zero 
     are ignored.
-  </li>  
+  </li>
+  
+  <li>
+    The majority of the output files now include a comment detailing the
+    version of Chaste that produced them.
+  </li>
 </ul>
 
 <h4>Some behaviour corrections</h4>

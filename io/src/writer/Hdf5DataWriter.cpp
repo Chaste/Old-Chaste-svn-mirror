@@ -152,7 +152,7 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         mCurrentTimeStep = (long)num_timesteps - 1;
 
         // Incomplete data?
-        mIsDataComplete = true; ///\todo
+        mIsDataComplete = true; ///\todo #1300
         if (mIsDataComplete)
         {
             mNumberOwned = mrVectorFactory.GetLocalOwnership();
