@@ -73,6 +73,9 @@ output:from revision number
 mesh_tri:Created by Chaste
 mesh_pts:Created by Chaste
 mesh_tetras:Created by Chaste
+#Ignore provenance in Meshalyzer data output
+results_v_dat: Created by Chaste
+results_phi_e_dat: Created by Chaste
 #Ignore provenance in HDF5 h5dump files
 results_h5:Created by Chaste
 AbstractCardiacProblem_mSolution_h5:Created by Chaste
