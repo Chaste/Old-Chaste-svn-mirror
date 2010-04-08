@@ -1493,6 +1493,40 @@ public:
         TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumFaces(), 4u);
     }
+    
+    void TestTessellationConstructor3dWithGhostNodeforCoverage() throw (Exception)
+    {
+        // Create a simple 3D tetrahedral mesh, the Delaunay triangulation
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, true,  1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(2, true,  1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(3, true,  0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
+        nodes.push_back(new Node<3>(5, true, 2.0, 2.0, 2.0));
+             
+        MutableMesh<3,3> delaunay_mesh(nodes);
+        TS_ASSERT_EQUALS(delaunay_mesh.CheckIsVoronoi(), true);
+
+        // Create Voronoi tessellation
+        std::vector<unsigned> location_indices;
+        location_indices.push_back(0);
+        location_indices.push_back(1);
+        location_indices.push_back(2);
+        location_indices.push_back(3);
+        location_indices.push_back(4);
+        location_indices.push_back(5);
+        VertexMesh<3,3> voronoi_mesh(delaunay_mesh, location_indices);
+
+        // Check there are as many nodes in the Voronoi mesh as there are elements in the Delaunay mesh
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumNodes(), 5u);
+
+        // Check there are as many elements in the Voronoi mesh as there are non-boundary nodes in the Delaunay mesh
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumElements(), 1u);
+
+        // Check there are as many faces in the Voronoi mesh as there are boundary nodes in the Delaunay mesh - 1 as node 5 is to far away for the faces to intersect.
+        TS_ASSERT_EQUALS(voronoi_mesh.GetNumFaces(), 4u);
+    }
 };
 
 #endif /*TESTVERTEXMESH_HPP_*/
