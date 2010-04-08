@@ -460,7 +460,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
     {
         case 1:
         {
-            ///\todo implement writing of tissue/cell lengths in 1D
+            ///\todo implement writing of tissue/cell lengths in 1D (see also #738)
             break;
         }
         case 2:

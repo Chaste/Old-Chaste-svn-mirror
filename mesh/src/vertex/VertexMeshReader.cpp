@@ -66,14 +66,14 @@ unsigned VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElementAttributes() con
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaces() const
 {
-    /// \todo Implement this method
+    /// \todo Implement this method (#1076)
     return 0;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 {
-    /// \todo Implement this method
+    /// \todo Implement this method (#1076)
     ElementData ret;
     ret.NodeIndices = std::vector<unsigned>();
     ret.AttributeValue = 0;
@@ -83,7 +83,7 @@ ElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextFaceData()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumEdges() const
 {
-    /// \todo Implement this method
+    /// \todo Implement this method (#1076)
     return 0;
 }
 

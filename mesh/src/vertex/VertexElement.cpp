@@ -72,7 +72,7 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
                                                      const std::vector<Node<SPACE_DIM>*>& rNodes)
     : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes)
 {
-    // \todo this would stop 2d meshes in 3d space
+    // \todo this would stop 2d meshes in 3d space (#1304)
     if (SPACE_DIM == ELEMENT_DIM)
     {
         RegisterWithNodes();

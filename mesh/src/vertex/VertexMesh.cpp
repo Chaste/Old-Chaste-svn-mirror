@@ -461,7 +461,10 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeLength(unsigned elementIndex1,
     assert(SPACE_DIM==2);
     #undef COVERAGE_IGNORE
 
-///\todo Move this bit of code into LinearSpringWithVariableSpringConstantsForce::VariableSpringConstantMultiplicationFactor() and make use of IsGhostNode()
+/**
+ * \todo Move this bit of code into LinearSpringWithVariableSpringConstantsForce::VariableSpringConstantMultiplicationFactor()
+ * and make use of IsGhostNode() (#1075)
+ */
 //    if (!mLocationIndices.empty())
 //    {
 //        if (   mLocationIndices.find(nodeIndex1) == mLocationIndices.end()
@@ -531,7 +534,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveElementMapping(unsigned index)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigned index) const
 {
-    /// \todo sort out boundary elements in a vertex mesh
+    /// \todo sort out boundary elements in a vertex mesh (#943)
 //    assert(index < this->mBoundaryElements.size() );
     return index;
 }
@@ -622,7 +625,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfEle
             centroid = 0.5*(p_element->GetNodeLocation(0) + p_element->GetNodeLocation(1));
         }
         break;
-        case 2: ///\todo Why isn't this just the centre of mass? (#1284)
+        case 2: ///\todo Why isn't this just the centre of mass? (#1075)
         {
             c_vector<double, SPACE_DIM> current_node;
             c_vector<double, SPACE_DIM> anticlockwise_node;
@@ -697,7 +700,7 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeIndice
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAlsoInElement(unsigned nodeIndex, unsigned elemIndex)
 {
-    /// \todo We should probably assert here that the node is in fact contained in the element
+    /// \todo We should probably assert here that the node is in fact contained in the element (#1305)
 
     // Create a set of neighbouring node indices
     std::set<unsigned> neighbouring_node_indices_not_in_this_element;
@@ -873,8 +876,6 @@ bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::ElementIncludesPoint(const c_vector<dou
                 return false;
             }
         }
-
-        /// \todo Need to carefully check all pathological cases (see #933)
 
         // Non-pathological case
         // A and B on different sides of the line y = test_point[1]

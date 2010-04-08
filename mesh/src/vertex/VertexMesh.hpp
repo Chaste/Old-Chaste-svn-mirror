@@ -470,7 +470,7 @@ public:
      * eigenvalues are the same, so we return a random unit vector.
      *
      * \todo This method is only called inside DivideElementAlongShortAxis() -
-     *       get rid of it and move the code into that method?
+     *       get rid of it and move the code into that method? (#1276)
      *
      * @param index  the global index of a specified vertex element
      *
@@ -505,7 +505,7 @@ public:
     //////////////////////////////////////////////////////////////////////
 
     /**
-     * A smart iterator over the elements in the mesh.\todo This is the same as in AbstractTetrahedralMesh
+     * A smart iterator over the elements in the mesh. \todo This is the same as in AbstractTetrahedralMesh (#1276)
      */
     class VertexElementIterator
     {

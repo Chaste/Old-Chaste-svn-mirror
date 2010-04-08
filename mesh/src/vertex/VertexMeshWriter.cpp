@@ -127,7 +127,7 @@ ElementData VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
             unsigned old_index = (*(mpIters->pElemIter))->GetNodeGlobalIndex(j);
             elem_data.NodeIndices[j] = mpMesh->IsMeshChanging() ? mpNodeMap->GetNewIndex(old_index) : old_index;
         }
-// \todo: set attribute
+// \todo: set attribute (#1076)
 
         ++(*(mpIters->pElemIter));
 
@@ -244,7 +244,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::AddPointData(std::string dataName
     p_scalars->Delete(); //Reference counted
 #endif //CHASTE_VTK
 }
-///\todo Mesh should be const
+///\todo Mesh should be const (#1076)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
 {
@@ -322,7 +322,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     *p_element_file << num_attr << "\n";
 
     // Write each element's data
-    /// \todo need to think about how best to do this in 3D (see #866)
+    /// \todo need to think about how best to do this in 3D (#866, #1076)
     for (unsigned item_num=0; item_num<num_elements; item_num++)
     {
         std::vector<unsigned> current_item = this->GetNextElement().NodeIndices;

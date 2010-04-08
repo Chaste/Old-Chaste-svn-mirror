@@ -80,29 +80,30 @@ TissueConfig::TissueConfig()
  * mSymmetricDivisionProbability has no units
  * mAreaBasedDampingConstantParameter has no units
  * mMatureCellTargetArea has no units
- * mDeformationEnergyParameter has ? units \todo Fix this comment
- * mMembraneSurfaceEnergyParameter has ? units \todo Fix this comment
- * mCellCellAdhesionEnergyParameter has ? units \todo Fix this comment
- * mCellBoundaryAdhesionEnergyParameter has ? units \todo Fix this comment
- * mWelikyOsterAreaParameter has ? units \todo Fix this comment
- * mWelikyOsterPerimeterParameter has ? units \todo Fix this comment
+ * mDeformationEnergyParameter has ? units \todo Fix this comment (see also #1294)
+ * mMembraneSurfaceEnergyParameter has ? units \todo Fix this comment (see also #1294)
+ * mCellCellAdhesionEnergyParameter has ? units \todo Fix this comment (see also #1294)
+ * mCellBoundaryAdhesionEnergyParameter has ? units \todo Fix this comment (see also #1294)
+ * mWelikyOsterAreaParameter has ? units \todo Fix this comment (see also #1294)
+ * mWelikyOsterPerimeterParameter has ? units \todo Fix this comment (see also #1294)
  */
 void TissueConfig::Reset()
 {
     // Default parameter values
     mStemCellG1Duration = 14.0;
     mTransitCellG1Duration = 2.0;
-    mHepaOneCellG1Duration = 8.0;   // taken from Owen et al (2004)
+    mHepaOneCellG1Duration = 8.0;   // taken from Owen et al, 2004 (doi:10.1016/j.jtbi.2003.09.004)
     mMinimumGapDuration = 0.01;     // educated guess
     mSDuration = 5.0;               // apparently between 5-6 hours normally
     mG2Duration = 4.0;              // apparently 3-4 hours normally
-    mMDuration = 1.0;               // this is Meineke's approximation for cell division time
-    mMaxTransitGenerations = 3u;
+    mMDuration = 1.0;               // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
+
+    mMaxTransitGenerations = 3u;    // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mCryptWidth = 10.0;
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
-    mSpringStiffness = 15.0;        // this is mu in Meineke
+    mSpringStiffness = 15.0;        // denoted by mu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mMechanicsCutOffLength = DBL_MAX; // This needs to be set by a caller
-    mDampingConstantNormal = 1.0;   // this is nu in Meineke
+    mDampingConstantNormal = 1.0;   // denoted by nu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mDampingConstantMutant = 1.0;
     mBetaCatSpringScaler = 18.14 / 6.0; // this scales the spring constant with the amount of beta-catenin
                                         // (divided by 6 as a cell normally is a hexagon)

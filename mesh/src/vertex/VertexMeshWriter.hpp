@@ -80,7 +80,7 @@ private:
 
 #ifdef CHASTE_VTK
 //Requires  "sudo aptitude install libvtk5-dev" or similar
-///\todo Merge into VtkWriter
+///\todo Merge into VtkWriter (#1076)
     vtkUnstructuredGrid* mpVtkUnstructedMesh;
 #endif //CHASTE_VTK
 
@@ -102,7 +102,7 @@ public:
      */
     ~VertexMeshWriter();
 
-    ///\todo Mesh should be const
+    ///\todo Mesh should be const (#1076)
     /**
      * Write files using a mesh.
      *

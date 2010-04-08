@@ -182,7 +182,7 @@ public:
      * Calculate the local index of a node given a global index
      * if node is not contained in element return UINT_MAX
      *
-     * \todo This method could be moved to the AbstactElement class
+     * \todo This method could be moved to the AbstactElement class (#1304)
      *
      * @param globalIndex the global index of the node in the mesh
      * @return local_index.
@@ -211,7 +211,7 @@ public:
 //                 1d elements are just edges (lines)               //
 //////////////////////////////////////////////////////////////////////
 
-/// \todo Move implementation into .cpp file? (#847)
+/// \todo Move implementation into .cpp file? (#1304)
 
 /**
  * Specialization for 1d elements so we don't get errors from Boost on some
@@ -289,7 +289,7 @@ public:
      * Calculate the local index of a node given a global index
      * if node is not contained in element return UINT_MAX
      *
-     * \todo This method could be moved to the AbstactElement class
+     * \todo This method could be moved to the AbstactElement class (#1304)
      *
      * @param globalIndex the global index of the node in the mesh
      * @return local_index.

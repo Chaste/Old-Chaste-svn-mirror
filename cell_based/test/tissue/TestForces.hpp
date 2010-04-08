@@ -375,7 +375,6 @@ public:
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(3, 0, tissue)), 45.0, 1e-10);
     }
 
-
     void TestGeneralisedLinearSpringForceWithSpringConstantsForIngeBCatCells()
     {
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
@@ -403,8 +402,6 @@ public:
 
         linear_force.SetBetaCateninSprings(true);
         crypt.CreateVoronoiTessellation(location_indices);  // this method is normally called in a simulation loop
-
-        /// \todo Improve test by removing magic numbers below
 
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.5*8.59312/18.14, 1e-5);
 
@@ -469,7 +466,6 @@ public:
 
         TS_ASSERT_DELTA( norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_tissue)), 2.8125, 1e-4);
     }
-
 
     void TestGeneralisedLinearSpringForceCalculationIn1d() throw (Exception)
     {
@@ -578,7 +574,6 @@ public:
 
         TS_ASSERT_DELTA(node_forces2[2](0), -p_params->GetSpringStiffness(), 1e-6);
     }
-
 
     void TestGeneralisedLinearSpringForceCalculationIn3d() throw (Exception)
     {
@@ -698,7 +693,6 @@ public:
             TS_ASSERT_DELTA(node_forces2[0](i),p_params->GetSpringStiffness()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
     }
-
 
     void TestGeneralisedLinearSpringForceArchiving() throw (Exception)
     {
