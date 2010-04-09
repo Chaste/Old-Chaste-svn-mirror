@@ -63,33 +63,39 @@ default:$CHASTE_TEST_OUTPUT/texttest_output
 default:$CHASTE_TEST_OUTPUT/texttest_reports
 
 [run_dependent_text]
-#Filter out lines with timing information
+# Filter out lines with timing information
 output:(seconds)
-#Filter out uname
+# Filter out uname
 output:(uname)
-#Filter out revision and build details
+# Filter out revision and build details
 output:from revision number
-#Ignore provenance in Meshalyzer mesh output
+# Ignore provenance in Meshalyzer mesh output
 mesh_tri:Created by Chaste
 mesh_pts:Created by Chaste
 mesh_tetras:Created by Chaste
-#Ignore provenance in Meshalyzer data output
+# Ignore provenance in Meshalyzer data output
 results_v_dat: Created by Chaste
 results_phi_e_dat: Created by Chaste
-#Ignore provenance in HDF5 h5dump files
+# Ignore provenance in HDF5 h5dump files
 results_h5:Created by Chaste
 AbstractCardiacProblem_mSolution_h5:Created by Chaste
-#Ignore warnings about rounded results
+# Ignore provenance in postprocessing output
+Apd_90_minus_30_Map_dat: Created by Chaste
+ConductionVelocityFromNode10_dat: Created by Chaste
+ConductionVelocityFromNode20_dat: Created by Chaste
+MaxUpstrokeVelocityMap_minus_30_dat: Created by Chaste
+UpstrokeTimeMap_minus_30_dat: Created by Chaste
+# Ignore warnings about rounded results
 results_phi_e_dat:Warning: These have been
 results_h5:Warning: These have been
-#Ignore path to original HDF5 file in h5dump files
+# Ignore path to original HDF5 file in h5dump files
 results_h5:HDF5
 AbstractCardiacProblem_mSolution_h5:HDF5
 resumed_h5:HDF5
 resumed_mono_h5:HDF5
 resumed_bi_h5:HDF5
-#Handle absolute paths in error messages
+# Handle absolute paths in error messages
 errors:{INTERNAL writedir}{REPLACE <texttest_dir>}
-#Handle source code line numbers
+# Handle source code line numbers
 errors:Chaste error: ([a-zA-Z./]+):([0-9]+):{REPLACE Chaste error: \1:line:}
 
