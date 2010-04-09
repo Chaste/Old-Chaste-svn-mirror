@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticWntCellCycleModel.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-#include "Alarcon2004OxygenBasedCellCycleModel.hpp"
 
 class TestCellsGenerator : public AbstractCellBasedTestSuite
 {
