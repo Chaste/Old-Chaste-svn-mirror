@@ -104,7 +104,14 @@ public:
             rCell.ComputeResidual(time, rCurrentGuess, mResidual);
 
             counter++;
-            assert(counter < 15); // avoid infinite loops
+             
+            // avoid infinite loops
+            if (counter > 15)
+            {
+#define COVERAGE_IGNORE
+                EXCEPTION("Newton method diverged in CardiacNewtonSolver::Solve()");
+#undef COVERAGE_IGNORE
+            }
         }
     }
 
