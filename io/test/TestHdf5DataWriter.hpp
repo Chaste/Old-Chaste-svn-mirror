@@ -995,10 +995,12 @@ public:
         //Re-instate permission to overwrite file
         system(("chmod u+w "+ handler.GetOutputDirectoryFullPath()+"empty.h5").c_str());
     }
+    
     /**
      * Test the functionality for adding further data to an existing file.
      *
-     * This test must come after TestHdf5DataWriterFullFormat, as we extend that file.
+     * This test must come after TestHdf5DataWriterFullFormat and TestHdf5DataWriterFullFormatStripedIncomplete,
+     * as we extend their files.
      */
     void TestWriteToExistingFile(void)
     {
@@ -1065,6 +1067,9 @@ public:
 
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format", true,
                                                 "io/test/data", "hdf5_test_full_format_extended", false));
+
+        TS_ASSERT_THROWS_THIS(Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format_striped_incomplete", false, true),
+                              "Unable to extend an incomplete data file at present.");
     }
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/

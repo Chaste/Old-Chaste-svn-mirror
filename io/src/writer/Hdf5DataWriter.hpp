@@ -61,7 +61,7 @@ private:
     unsigned mOffset; /**< mOffset=#mLo; except with incomplete data*/
     bool mIsDataComplete; /**< Whether the data file is complete. */
     bool mNeedExtend; /**< Used so that the data set is only extended when data is written*/
-    std::vector<unsigned> mIncompleteNodeIndices; /**< Vector of node indices for which the data file does not contain data. */
+    std::vector<unsigned> mIncompleteNodeIndices; /**< Vector of node indices for which the data file does contain data. */
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
 
@@ -87,6 +87,11 @@ private:
 
     const static unsigned DATASET_DIMS=3; /**< Defined in HDF5 reader too. \todo: define it once */
     hsize_t mDatasetDims[DATASET_DIMS]; /**< The sizes of each variable data set. */
+    
+    /**
+     * Compute #mOffset and #mNumberOwned from #mIncompleteNodeIndices when we have incomplete data.
+     */
+    void ComputeIncompleteOffset();
 
 public:
 

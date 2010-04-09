@@ -152,7 +152,25 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         mCurrentTimeStep = (long)num_timesteps - 1;
 
         // Incomplete data?
-        mIsDataComplete = true; ///\todo #1300
+        attribute_id = H5Aopen_name(mDatasetId, "IsDataComplete");
+        if (attribute_id < 0)
+        {
+#define COVERAGE_IGNORE
+            // Old format, before we added the attribute.
+            EXCEPTION("Extending old-format files isn't supported.");
+#undef COVERAGE_IGNORE
+        }
+        else
+        {
+            attribute_type = H5Aget_type(attribute_id);
+            attribute_space = H5Aget_space(attribute_id);
+            unsigned is_data_complete;
+            H5Aread(attribute_id, H5T_NATIVE_UINT, &is_data_complete);
+            mIsDataComplete = (is_data_complete == 1) ? true : false;
+            H5Tclose(attribute_type);
+		    H5Sclose(attribute_space);
+		    H5Aclose(attribute_id);
+        }
         if (mIsDataComplete)
         {
             mNumberOwned = mrVectorFactory.GetLocalOwnership();
@@ -161,8 +179,31 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
         }
         else
         {
-            // Incomplete data
-            //mIncompleteNodeIndices
+            // Read which nodes appear in the file (mIncompleteNodeIndices)
+		    attribute_id = H5Aopen_name(mDatasetId, "NodeMap");
+		    attribute_type  = H5Aget_type(attribute_id);
+		    attribute_space = H5Aget_space(attribute_id);
+		    // Get the dataset/dataspace dimensions
+		    unsigned num_node_indices = H5Sget_simple_extent_npoints(attribute_space);
+		    // Read data from hyperslab in the file into the hyperslab in memory
+		    mIncompleteNodeIndices.clear();
+		    mIncompleteNodeIndices.resize(num_node_indices);
+		    H5Aread(attribute_id, H5T_NATIVE_UINT, &mIncompleteNodeIndices[0]);
+            // Release ids
+		    H5Tclose(attribute_type);
+		    H5Sclose(attribute_space);
+		    H5Aclose(attribute_id);
+            // Set up what data we can
+            mNumberOwned = mrVectorFactory.GetLocalOwnership();
+            ComputeIncompleteOffset();
+            /// \todo 1300 We can't set mDataFixedDimensionSize, because the information isn't
+            /// in the input file.  This means that checking the size of input vectors in PutVector
+            /// and PutStripedVector is impossible.
+            mDataFixedDimensionSize = UINT_MAX;
+            H5Dclose(mDatasetId);
+            H5Dclose(mTimeDatasetId);
+            H5Fclose(mFileId);
+            EXCEPTION("Unable to extend an incomplete data file at present.");
         }
 
         // Done!
@@ -223,10 +264,13 @@ void Hdf5DataWriter::DefineFixedDimension(const std::vector<unsigned>& rNodesToO
     mFileFixedDimensionSize = vector_size;
     mIsDataComplete = false;
     mIncompleteNodeIndices = rNodesToOuput;
+    ComputeIncompleteOffset();
+}
+
+void Hdf5DataWriter::ComputeIncompleteOffset()
+{
     mOffset = 0;
     mNumberOwned = 0;
-
-    // Compute the offset for writing the data
     for (unsigned i=0; i<mIncompleteNodeIndices.size(); i++)
     {
         if (mIncompleteNodeIndices[i] < mLo)
