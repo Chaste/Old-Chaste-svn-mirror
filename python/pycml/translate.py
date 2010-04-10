@@ -29,9 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
 """
-This part of PyCml deals with converting CellML models into programming
-language code, primary C++ compatible with Chaste, but supporting a few
-other languages also (and easily extensible).
+This part of PyCml deals with converting CellML models into
+programming language code, primarily C++ compatible with Chaste, but
+supporting a few other languages also (and easily extensible).
 
 It also controls applying various optimising transformations to CellML
 models, in particular partial evaluation and the use of lookup tables.
@@ -517,7 +517,6 @@ class CellMLTranslator(object):
             # This may be the assignment of a mapped variable, or a constant
             t = expr.get_type()
             if t == VarTypes.Mapped:
-                # TODO: Use const double instead of double?
                 self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(expr),
                              self.EQ_ASSIGN,
                              self.code_name(expr.get_source_variable()),
@@ -529,7 +528,6 @@ class CellMLTranslator(object):
                 self.writeln(self.STMT_END, indent=False)
         else:
             # This is a mathematical expression
-            # TODO: Use const double instead of double?
             self.writeln(self.TYPE_CONST_DOUBLE, nl=False)
             opers = expr.operands()
             self.output_lhs(opers.next())
