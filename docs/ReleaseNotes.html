@@ -21,6 +21,7 @@
   <li>Improved documentation of the parameters file XML schema.</li>
   <li>Use of a distributed mesh in the cardiac executable.</li>
   <li>Use of parMETIS for partitioning in parallel cardiac simulations.</li>
+  <li>Introduction of binary form of Triangle/Tetgen mesh format.</li>
   <li>Cancer component renamed to cell_based to reflect the increasing generality of the code.</li>
 </ul>
 
@@ -95,6 +96,8 @@ Chaste DOES NOT WORK with Boost 1.35 (due to a known bug in that version of Boos
     <br />Note that making a checkpoint does add a significant overhead at present, in particular because the mesh is written out to disk at
     each checkpoint.  This is to ensure that each checkpoint directory contains everything needed to resume the simulation.  In particular,
     the mesh written out will be in permuted form if it was partitioned for a parallel simulation.
+    <br />Meshes written in checkpoints use a binary form of the Triangle/Tetgen mesh format.  This makes checkpoints significantly smaller but 
+    will cause portability problems if checkpoints are moved between little-endian systems (e.g. x86) and big-endian systems (e.g. PowerPC).
     <br />Checkpoints will be written to a tree of folders adjacent to the main test output, as shown here (where &lt;OutputDirectory&gt; is
     the folder specified by the &lt;OutputDirectory&gt; element):
     <pre>

@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include "TrianglesMeshReader.hpp"
+#include "TrianglesMeshWriter.hpp"
 
 // these typedefs are just because can't have lines such as
 //  TS_ASSERT_THROWS_NOTHING(p_mesh_reader=new TrianglesMeshReader<2,2>(name));
@@ -431,6 +432,22 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 74u); //face 3
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().NodeIndices[2], 16u);    //face 4
         TS_ASSERT_EQUALS(mesh_reader.GetNextFaceData().ContainingElement, 4u);  //face 5
+    }
+
+    void TestReadingBinary1D() throw(Exception)
+    {
+        TrianglesMeshReader<1,1> mesh_reader_ascii("mesh/test/data/trivial_1d_mesh");
+        //TrianglesMeshWriter<1,1> writer("","trivial_1d_mesh_binary");
+        //writer.SetWriteFilesAsBinary();
+        //writer.WriteFilesUsingMeshReader(mesh_reader_ascii);
+        TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumFaces(), 2u);
+        TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(mesh_reader_ascii.GetNumNodes(), 11u);
+
+        TrianglesMeshReader<1,1> mesh_reader_bin("mesh/test/data/trivial_1d_mesh_binary");
+        TS_ASSERT_EQUALS(mesh_reader_bin.GetNumFaces(), 2u);
+        TS_ASSERT_EQUALS(mesh_reader_bin.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(mesh_reader_bin.GetNumNodes(), 11u);
     }
 
     void TestReadingBinary() throw(Exception)

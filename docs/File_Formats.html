@@ -24,6 +24,9 @@
     Edge file for <a href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
     <ul>
     <li>First line: <tt>&lt;number of edges&gt; &lt;number of boundary markers (0 or 1)&gt;</tt></li>
+    <li>Optional marker <tt>BIN</tt> at the end of the first line indicates
+    that all following data are presented as raw binary data with no
+    whitespace (this is a Chaste modification of the Triangle format)</li>
     <li>Following lines: <tt>&lt;edge number&gt; &lt;endpoint node&gt; &lt;endpoint node&gt; [boundary marker]</tt></li>
     <li>Lines starting with a hash (#) are comments</li>
     </ul>
@@ -33,6 +36,9 @@
     Element file for <a href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
     <ul>
     <li>First line: <tt>&lt;number of elements&gt; &lt;nodes per element&gt; &lt;# of attributes&gt;</tt></li>
+    <li>Optional marker <tt>BIN</tt> at the end of the first line indicates
+    that all following data are presented as raw binary data with no
+    whitespace (this is a Chaste modification of the Triangle format)</li>
     <li>Remaining lines: <tt>&lt;element #&gt; &lt;node&gt; &lt;node&gt; &lt;node&gt; ... [attributes]</tt></li>
     <li>Lines starting with a hash (#) are comments</li>
     </ul>
@@ -50,6 +56,9 @@
     Faces file for <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
     <ul>
     <li>First line: <tt>&lt;number of faces&gt; &lt;boundary marker (0 or 1)&gt;</tt></li>
+    <li>Optional marker <tt>BIN</tt> at the end of the first line indicates
+    that all following data are presented as raw binary data with no
+    whitespace (this is a Chaste modification of the Triangle format)</li>
     <li>Remaining lines: <tt>&lt;face number&gt; &lt;node&gt; &lt;node&gt; &lt;node&gt; [boundary marker]</tt></li>
     <li>Lines starting with a hash (#) are comments</li>
     </ul>
@@ -90,9 +99,13 @@
   </dd>
   <dt>.node</dt>
   <dd>
-    Nodes file for <a href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
+    Nodes file for <a
+  href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
     <ul>
     <li>First line: <tt>&lt;number of nodes&gt; &lt;space dimension&gt; &lt;number of attributes&gt; &lt;number of boundary markers (0 or 1)&gt;</tt></li>
+    <li>Optional marker <tt>BIN</tt> at the end of the first line indicates
+    that all following data are presented as raw binary data with no
+    whitespace (this is a Chaste modification of the Triangle format)</li>
     <li>Remaining lines: <tt>&lt;node number&gt; &lt;x&gt; [&lt;y&gt;] [&lt;z&gt;] [attributes] [boundary marker]</tt></li>
     <li>Lines starting with a hash (#) are comments</li>
     </ul>

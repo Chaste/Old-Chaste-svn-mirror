@@ -101,6 +101,8 @@ private:
         TrianglesMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(ArchiveLocationInfo::GetArchiveRelativePath(),
                                                                ArchiveLocationInfo::GetMeshFilename(),
                                                                false);
+        //Binary meshes have similar content to the original Triangle/Tetgen format, but take up less space on disk
+        mesh_writer.SetWriteFilesAsBinary();
         /**
          * Always write the in-memory mesh to disk, to make sure we have a properly permuted version of it.
          *

@@ -647,7 +647,7 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetOneDimBoundary()
     std::vector<unsigned> node_count(mNumNodes);//Covers the case if it's indexed from 1
     for (unsigned element_index=0; element_index<mNumElements;element_index++)
     {
-        GetNextItemFromStream(mElementsFile, element_index, node_indices, 0, dummy_attribute);
+        GetNextItemFromStream(mElementsFile, element_index, node_indices, mNumElementAttributes, dummy_attribute);
         if (!mIndexFromZero)
         {
             //Adjust so we are indexing from zero
