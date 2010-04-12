@@ -32,7 +32,7 @@
   <dd>
     Element file for <a href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
     <ul>
-    <li>First line: <tt>&lt;# of elements&gt; &lt;nodes per element&gt; &lt;# of attributes&gt;</tt></li>
+    <li>First line: <tt>&lt;number of elements&gt; &lt;nodes per element&gt; &lt;# of attributes&gt;</tt></li>
     <li>Remaining lines: <tt>&lt;element #&gt; &lt;node&gt; &lt;node&gt; &lt;node&gt; ... [attributes]</tt></li>
     <li>Lines starting with a hash (#) are comments</li>
     </ul>
@@ -113,7 +113,7 @@
   <dd>
     Defines axisymmetric (transversely isotropic) conductivity tensors, for each element.
     <ul>
-    <li>First line: <tt>&lt;Number of elements&gt;</tt></li>
+    <li>First line: <tt>&lt;number of elements&gt;</tt></li>
     <li>Following lines give the primary (longitudinal) fibre direction vector for each element</li>
     </ul>
   </dd>
@@ -137,6 +137,18 @@
     <li>Following lines give the fibre direction vectors for each element,
         primary/longitudinal direction, then transverse/laminar direction, then normal, i.e. <tt>fibre1 fibre2 fibre3 sheet1 sheet2 sheet3 normal1 normal2 normal3</tt></li>
     </ul>
+  </dd>
+  <dt>.pts</dt>
+  <dd>
+    Meshalyzer (used for visualisation) nodes format. First line is <tt>&lt;number of nodes&gt</tt>. Following lines are the nodal coordinates.
+  </dd>
+  <dt>.tri</dt>
+  <dd>
+    Meshalyzer (used for visualisation) triangles format. Represents elements in 2D, and boundary elements in 3D.
+  </dd>
+  <dt>.tetra</dt>
+  <dd>
+    Meshalyzer (used for visualisation) elements format.
   </dd>
 </dl>
 
