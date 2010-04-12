@@ -144,24 +144,38 @@
 <dl>
   <dt>.viz*</dt>
   <dd>
-    Results written by <tt>cell_based</tt> chaste for the <tt>Visualize2dCells.java</tt> program.
+    General format of results files written by <tt>cell_based</tt> chaste for the <tt>Visualize2dCells.java</tt> program.
+  </dd>
+   <dt>.vizancestors</dt>
+  <dd>
+    The ancestor index of each cell at each time step in a <tt>TissueSimulation</tt>. Each line has the form <tt>time ancestor_1 ancestor_2 ... ancestor_n</tt>.
+  </dd>
+   <dt>.vizbetacatenin</dt>
+  <dd>
+   The levels of membrane-bound, cytoplasmic and nuclear beta-catenin in each cell at each time step in a <tt>CryptSimulation2d</tt>.
+   Each line has the form <tt> time location_index_1 x_1 y_1 b_cat_membrane_1 b_cat_cytoplasm_1 b_cat_nuclear_1 ... 
+   location_index_n x_n y_n b_cat_membrane_n b_cat_cytoplasm_n b_cat_nuclear_n</tt>.
+  </dd>
+   <dt>.vizboundarynodes</dt>
+  <dd>
+    Whether each node at each time step in a <tt>TissueSimulation</tt> is a boundary node. Each line has the form <tt>time bool_1 bool_2 ... bool_n</tt>.
   </dd>
    <dt>.vizcelltypes</dt>
   <dd>
-    The cell type of cells in <tt>cell_based</tt> simulation, each line has the form <tt> time c_1 c_2 ... c_n</tt>.
+    The cell type of each cell at each time step in a <tt>TissueSimulation</tt>. Each line has the form <tt>time c_1 c_2 ... c_n</tt>.
   </dd>
    <dt>.vizelements</dt>
   <dd>
-    Elements in the <tt>cell_based</tt> simulation, each line has the form <tt> time element1_node1 element1_node2 element1_node3 ... elementn_node1 elementn_node2 elementn_node3</tt>.
+    The nodes associated with each element at each time step in a <tt>TissueSimulation</tt>. Each line has the form <tt>time element1_node1 element1_node2 element1_node3 ... elementn_node1 elementn_node2 elementn_node3</tt>.
   </dd>
   <dt>.viznodes</dt>
   <dd>
-    Position of the nodes in the <tt>cell_based</tt> simulation, each line has the form <tt> time x_1 y_1 ... x_n y_n</tt>.
+    The position of each node at each time step in a <tt>TissueSimulation</tt>. Each line has the form <tt>time x_1 ... x_n</tt> in 1D, <tt>time x_1 y_1 ... x_n y_n</tt> in 2D and <tt>time x_1 y_1 z_1... x_n y_n z_n</tt> in 3D.
   </dd>
   <dt>.vizsetup</dt>
   <dd>
-	The <tt>cell_based</tt> visualiser setup file, contains such things as <tt>mesh_width</tt> for periodic simulations.
-  </dd>  
+	The <tt>cell_based</tt> visualiser setup file. This contains such things as <tt>mesh_width</tt> for periodic simulations.
+  </dd>
 </dl>
 
   </body>
