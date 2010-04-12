@@ -7,15 +7,8 @@
 
 <h1>Chaste File Formats</h1>
 
+<h2>General</h2>
 <dl>
-  <dt>.axi</dt>
-  <dd>
-    Defines axisymmetric conductivity tensors.
-    <ul>
-    <li>First line: <tt>&lt;# of elements&gt;</tt></li>
-    <li>Following lines give the primary (longitudinal) fibre direction vector for each element. Assuming transverse isotropy.</li>
-    </ul>
-  </dd>
   <dt>.dat</dt>
   <dd>
     Primarily used for the fixed-width space-separated column data file format, written by the <tt>ColumnDataWriter</tt> class, and compatible with <a href="http://www.gnuplot.info/">Gnuplot</a>.
@@ -30,8 +23,8 @@
   <dd>
     Edge file for <a href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
     <ul>
-    <li>First line: <tt>&lt;# of edges&gt; &lt;# of boundary markers (0 or 1)&gt;</tt></li>
-    <li>Following lines: <tt>&lt;edge #&gt; &lt;endpoint node&gt; &lt;endpoint node&gt; [boundary marker]</tt></li>
+    <li>First line: <tt>&lt;number of edges&gt; &lt;number of boundary markers (0 or 1)&gt;</tt></li>
+    <li>Following lines: <tt>&lt;edge number&gt; &lt;endpoint node&gt; &lt;endpoint node&gt; [boundary marker]</tt></li>
     <li>Lines starting with a hash (#) are comments</li>
     </ul>
   </dd>
@@ -44,25 +37,20 @@
     <li>Lines starting with a hash (#) are comments</li>
     </ul>
   </dd>
-  <dt>.epi</dt>
-  <dd>
-    Used to specify a list of node numbers (one column) of the nodes belonging to the epicardial surface.
-  </dd>
-  <dt>.endo</dt>
-  <dd>
-    Used to specify a list of node numbers (one column) of the nodes belonging to the endocardial surface.
-  </dd>
   <dt>.exnode</dt>
+  <dd>
+    CMGUI node format, see the <a href="http://www.cmiss.org/cmgui/wiki/TheCmguiEXFormatGuideExnodeAndExelemFiles">Cmgui guide</a>.
+  </dd>
   <dt>.exelem</dt>
   <dd>
-    CMGUI node and element formats respectively, see the <a href="http://www.cmiss.org/cmgui/wiki/TheCmguiEXFormatGuideExnodeAndExelemFiles">Cmgui guide</a>.
+    CMGUI element format, see the <a href="http://www.cmiss.org/cmgui/wiki/TheCmguiEXFormatGuideExnodeAndExelemFiles">Cmgui guide</a>.
   </dd>
   <dt>.face</dt>
   <dd>
     Faces file for <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
     <ul>
-    <li>First line: <tt>&lt;# of faces&gt; &lt;boundary marker (0 or 1)&gt;</tt></li>
-    <li>Remaining lines: <tt>&lt;face #&gt; &lt;node&gt; &lt;node&gt; &lt;node&gt; [boundary marker]</tt></li>
+    <li>First line: <tt>&lt;number of faces&gt; &lt;boundary marker (0 or 1)&gt;</tt></li>
+    <li>Remaining lines: <tt>&lt;face number&gt; &lt;node&gt; &lt;node&gt; &lt;node&gt; [boundary marker]</tt></li>
     <li>Lines starting with a hash (#) are comments</li>
     </ul>
   </dd>
@@ -77,7 +65,6 @@
 	  <li><i>IsDataComplete</i>: attribute to say whether the file contains information for all the nodes in the mesh or only for a subset.</li>
 	  <li><i>Chaste Provenance</i>: attribute giving provenance information (Chaste release, time, OS and machine built on).</li>
 	</ul>
-
       </li>
       <li> <i>Time</i>, containing:
 	<ul>
@@ -86,7 +73,7 @@
 	</ul>
       </li>
     </ul>
-
+    The program <tt>h5dump</tt> (if installed) can be used to view small <tt>HDF5</tt> datasets. Larger datasets can be converted to Meshalyzer, CMGUI or VTK readable files using the classes <tt>Hdf5ToMeshalyzerConverter</tt>, <tt>Hdf5ToCmguiConverter</tt> or <tt>Hdf5ToVtkConverter</tt>. One of these is generally called at the end of a cardiac simulation that writes HDF5 data.
   </dd>
   <dt>.info</dt>
   <dd>
@@ -101,28 +88,60 @@
   <dd>
     Used for test output.
   </dd>
-  <dt>.mid</dt>
-  <dd>
-    Used to specify a list of node numbers (one column) of the nodes belonging to the midmyocardial surface.
-  </dd>
   <dt>.node</dt>
   <dd>
     Nodes file for <a href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
     <ul>
-    <li>First line: <tt>&lt;# of vertices&gt; &lt;space dimension&gt; &lt;# of attributes&gt; &lt;# of boundary markers (0 or 1)&gt;</tt></li>
-    <li>Remaining lines: <tt>&lt;vertex #&gt; &lt;x&gt; [&lt;y&gt;] [&lt;z&gt;] [attributes] [boundary marker]</tt></li>
+    <li>First line: <tt>&lt;number of nodes&gt; &lt;space dimension&gt; &lt;number of attributes&gt; &lt;number of boundary markers (0 or 1)&gt;</tt></li>
+    <li>Remaining lines: <tt>&lt;node number&gt; &lt;x&gt; [&lt;y&gt;] [&lt;z&gt;] [attributes] [boundary marker]</tt></li>
     <li>Lines starting with a hash (#) are comments</li>
     </ul>
   </dd>
-  <dt>.ortho</dt>
+  <dt>.vtu</dt>
   <dd>
-    Defines orthotropic conductivity tensors.
+    An XML file format used to visualize simulation results in a <a href="http://www.vtk.org">VTK</a> visualizer. The file format represents a Chaste mesh as a vtkUnstructuredGrid, with each variable represented as point data. The file consists of:
     <ul>
-    <li>First line: <tt>&lt;# of elements&gt;</tt></li>
-    <li>Following lines give the fibre direction vectors for each element,
-        primary/longitudinal direction, then transverse/laminar direction, then normal.</li>
+      <li>XML headers that define the data structure (vtkUnstructuredGrid), the number of nodes (called points in VTK) and elements (called cells in VTK) in the grid and the point data defined on it.</li>
+      <li>Data as a sequence of ASCII characters.</li>
     </ul>
   </dd>
+</dl>
+
+<h2>Cardiac</h2>
+<dl>
+  <dt>.axi</dt>
+  <dd>
+    Defines axisymmetric (transversely isotropic) conductivity tensors, for each element.
+    <ul>
+    <li>First line: <tt>&lt;Number of elements&gt;</tt></li>
+    <li>Following lines give the primary (longitudinal) fibre direction vector for each element</li>
+    </ul>
+  </dd>
+  <dt>.epi</dt>
+  <dd>
+    Used to specify a list of node numbers (one column) of the nodes belonging to the epicardial surface.
+  </dd>
+  <dt>.endo</dt>
+  <dd>
+    Used to specify a list of node numbers (one column) of the nodes belonging to the endocardial surface.
+  </dd>
+  <dt>.mid</dt>
+  <dd>
+    Used to specify a list of node numbers (one column) of the nodes belonging to the midmyocardial surface.
+  </dd>
+  <dt>.ortho</dt>
+  <dd>
+    Defines orthotropic conductivity tensors, for each element.
+    <ul>
+    <li>First line: <tt>&lt;number of elements&gt;</tt></li>
+    <li>Following lines give the fibre direction vectors for each element,
+        primary/longitudinal direction, then transverse/laminar direction, then normal, i.e. <tt>fibre1 fibre2 fibre3 sheet1 sheet2 sheet3 normal1 normal2 normal3</tt></li>
+    </ul>
+  </dd>
+</dl>
+
+<h2>Cell-based</h2>
+<dl>
   <dt>.viz*</dt>
   <dd>
     Results written by <tt>cell_based</tt> chaste for the <tt>Visualize2dCells.java</tt> program.
@@ -137,21 +156,12 @@
   </dd>
   <dt>.viznodes</dt>
   <dd>
-    Position of the nodes in the <tt>cell_based</tt> simulation, each line has the form <tt> time x_1 y_1 z_1... x_n y_n z_n</tt>.
+    Position of the nodes in the <tt>cell_based</tt> simulation, each line has the form <tt> time x_1 y_1 ... x_n y_n</tt>.
   </dd>
   <dt>.vizsetup</dt>
   <dd>
 	The <tt>cell_based</tt> visualiser setup file, contains such things as <tt>mesh_width</tt> for periodic simulations.
-  </dd>
-  
-  <dt>.vtu</dt>
-  <dd>
-    An XML file format used to visualize simulation results in a <a href="http://www.vtk.org">VTK</a> visualizer. The file format represents a Chaste mesh as a vtkUnstructuredGrid, with each variable represented as point data. The file consists of:
-    <ul>
-      <li>XML headers that define the data structure (vtkUnstructuredGrid), the number of nodes (called points in VTK) and elements (called cells in VTK) in the grid and the point data defined on it.</li>
-      <li>Data as a sequence of ASCII characters.</li>
-    </ul>
-  </dd>
+  </dd>  
 </dl>
 
   </body>
