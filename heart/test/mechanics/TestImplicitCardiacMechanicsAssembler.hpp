@@ -223,7 +223,7 @@ public:
             }
             else if(Y>0.15)
             {
-                double error = 0.0024;
+                double error = 0.0025;
                 TS_ASSERT_DELTA(lambda[i], lam_fit, error);
             }
 
