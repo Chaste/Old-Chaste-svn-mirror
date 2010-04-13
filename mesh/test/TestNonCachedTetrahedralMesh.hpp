@@ -105,6 +105,7 @@ public:
         double non_cached_construction_time = (non_cached_finish-non_cached_start)/(double)CLOCKS_PER_SEC;
 
         // Constructing the non cached object should be quicker
+        // Note: this does occasionally fail, due to other activity on the machine
         TS_ASSERT_LESS_THAN( non_cached_construction_time, cached_construction_time );
 
         // compare mem usage
@@ -158,6 +159,7 @@ public:
         }
 
         // Retrieving the cached jacobians should be quicker
+        // Note: this does occasionally fail, due to other activity on the machine
         TS_ASSERT(cached_access_time < non_cached_access_time);
 
         /*
