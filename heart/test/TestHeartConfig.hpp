@@ -999,7 +999,7 @@ public :
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
             HeartConfig* p_heart_config = HeartConfig::Instance();
-            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");
+            HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulationFullFormat.xml");
             input_arch >> (*p_heart_config);
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
             TS_ASSERT(p_heart_config->GetDefaultIonicModel().Hardcoded().present());
@@ -1207,7 +1207,7 @@ public :
         // Get the singleton in a clean state
         HeartConfig::Reset();
 
-        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulation.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersResumeSimulationFullFormat.xml");
         TS_ASSERT(!HeartConfig::Instance()->IsSimulationDefined());
         TS_ASSERT(HeartConfig::Instance()->IsSimulationResumed());
 

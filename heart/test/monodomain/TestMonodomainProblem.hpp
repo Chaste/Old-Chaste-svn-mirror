@@ -850,7 +850,7 @@ public:
         results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "MonodomainCreatesGeometry/vtk_output/";
         ///\todo Intel compiler has:
         /// /tmp/jmpf/testoutput/MonodomainCreatesGeometry/vtk_output/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu differ: byte 49361, line 221
-        TS_ASSERT_EQUALS(system(("cmp -n 49360 " + results_dir + "/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp -n 35145 " + results_dir + "/monodomain3d.vtu heart/test/data/VtkData/monodomain/monodomain3d.vtu").c_str()), 0);
         //Info file
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/monodomain3d_times.info heart/test/data/VtkData/monodomain/monodomain3dValidData_times.info").c_str()), 0);
         //HeartConfig XML

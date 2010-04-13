@@ -86,11 +86,11 @@ public:
         time_t cached_start = std::clock();
         {
             TetrahedralMesh<3,3> mesh;
-            mesh.ConstructCuboid(20,20,20);
+            mesh.ConstructCuboid(25,25,25);
             cached_mem_usage = GetMemoryUsage();
         }
         time_t cached_finish = std::clock();
-        double cached_construction_time = (cached_finish-cached_start)/(double)CLOCKS_PER_SEC;
+        unsigned cached_construction_time = (cached_finish-cached_start);
 
 
         // No caching
@@ -98,15 +98,15 @@ public:
         time_t non_cached_start = std::clock();
         {
             NonCachedTetrahedralMesh<3,3> mesh;
-            mesh.ConstructCuboid(20,20,20);
+            mesh.ConstructCuboid(25,25,25);
             non_cached_mem_usage = GetMemoryUsage();
         }
         time_t non_cached_finish = std::clock();
-        double non_cached_construction_time = (non_cached_finish-non_cached_start)/(double)CLOCKS_PER_SEC;
+        unsigned non_cached_construction_time = (non_cached_finish-non_cached_start);
 
         // Constructing the non cached object should be quicker
         // Note: this does occasionally fail, due to other activity on the machine
-        TS_ASSERT_LESS_THAN( non_cached_construction_time, cached_construction_time );
+        TS_ASSERT_LESS_THAN( (double) non_cached_construction_time/CLOCKS_PER_SEC, (double) cached_construction_time/CLOCKS_PER_SEC );
 
         // compare mem usage
         TS_ASSERT( cached_mem_usage >= non_cached_mem_usage );
@@ -127,24 +127,18 @@ public:
         /*
          *  Check element jacobian data is consistent
          */
-        double cached_access_time = 0.0;
-        double non_cached_access_time = 0.0;
 
         for (unsigned element_index = 0; element_index < cached_mesh.GetNumElements(); element_index++)
         {
-            time_t cached_start = std::clock();
             c_matrix<double, 3, 3> j_cached;
             c_matrix<double, 3, 3> ij_cached;
             double det_cached;
             cached_mesh.GetInverseJacobianForElement(element_index, j_cached,det_cached,ij_cached);
-            cached_access_time += (std::clock()-cached_start)/(double)CLOCKS_PER_SEC;
 
-            time_t non_cached_start = std::clock();
             c_matrix<double, 3, 3> j_non_cached;
             c_matrix<double, 3, 3> ij_non_cached;
             double det_non_cached;
             non_cached_mesh.GetInverseJacobianForElement(element_index, j_non_cached,det_non_cached,ij_non_cached);
-            non_cached_access_time += (std::clock()-non_cached_start)/(double)CLOCKS_PER_SEC;
 
             TS_ASSERT_EQUALS(det_cached, det_non_cached);
 
@@ -158,9 +152,30 @@ public:
             }
         }
 
+        //Check timings
+        time_t cached_start = std::clock();
+        for (unsigned element_index = 0; element_index < cached_mesh.GetNumElements(); element_index++)
+        {
+            c_matrix<double, 3, 3> j_cached;
+            c_matrix<double, 3, 3> ij_cached;
+            double det_cached;
+            cached_mesh.GetInverseJacobianForElement(element_index, j_cached,det_cached,ij_cached);
+        }
+        unsigned cached_access_time = (std::clock()-cached_start);
+        
+        time_t non_cached_start = std::clock();
+        for (unsigned element_index = 0; element_index < non_cached_mesh.GetNumElements(); element_index++)
+        {
+            c_matrix<double, 3, 3> j_non_cached;
+            c_matrix<double, 3, 3> ij_non_cached;
+            double det_non_cached;
+            non_cached_mesh.GetInverseJacobianForElement(element_index, j_non_cached,det_non_cached,ij_non_cached);
+        }
+        unsigned non_cached_access_time = (std::clock()-non_cached_start);
+
         // Retrieving the cached jacobians should be quicker
         // Note: this does occasionally fail, due to other activity on the machine
-        TS_ASSERT(cached_access_time < non_cached_access_time);
+        TS_ASSERT_LESS_THAN((double) cached_access_time/CLOCKS_PER_SEC, (double) non_cached_access_time/CLOCKS_PER_SEC);
 
         /*
          *  Check boundary element jacobian data is consistent
