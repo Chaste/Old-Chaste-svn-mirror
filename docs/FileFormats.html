@@ -35,11 +35,11 @@
   <dd>
     Element file for <a href="http://www.cs.cmu.edu/~quake/triangle.html">Triangle</a> or <a href="http://tetgen.berlios.de/">Tetgen</a> format meshes.
     <ul>
-    <li>First line: <tt>&lt;number of elements&gt; &lt;nodes per element&gt; &lt;# of attributes&gt;</tt></li>
+    <li>First line: <tt>&lt;number of elements&gt; &lt;nodes per element&gt; &lt;numer of attributes&gt;</tt></li>
     <li>Optional marker <tt>BIN</tt> at the end of the first line indicates
     that all following data are presented as raw binary data with no
     whitespace (this is a Chaste modification of the Triangle format)</li>
-    <li>Remaining lines: <tt>&lt;element #&gt; &lt;node&gt; &lt;node&gt; &lt;node&gt; ... [attributes]</tt></li>
+    <li>Remaining lines: <tt>&lt;element number&gt; &lt;node&gt; &lt;node&gt; &lt;node&gt; ... [attributes]</tt></li>
     <li>Lines starting with a hash (#) are comments</li>
     </ul>
   </dd>
@@ -124,7 +124,7 @@
 <dl>
   <dt>.axi</dt>
   <dd>
-    Defines axisymmetric (transversely isotropic) conductivity tensors, for each element.
+    Defines the fibre direction for each element (used for setting up axisymmetric (transversely isotropic) conductivity tensors).
     <ul>
     <li>First line: <tt>&lt;number of elements&gt;</tt></li>
     <li>Following lines give the primary (longitudinal) fibre direction vector for each element</li>
@@ -144,7 +144,7 @@
   </dd>
   <dt>.ortho</dt>
   <dd>
-    Defines orthotropic conductivity tensors, for each element.
+    Defines the fibre, sheet and normal directions for each element (used for setting up orthotropic (anisotropic) conductivity tensors).
     <ul>
     <li>First line: <tt>&lt;number of elements&gt;</tt></li>
     <li>Following lines give the fibre direction vectors for each element,
