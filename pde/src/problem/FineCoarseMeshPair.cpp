@@ -106,7 +106,9 @@ void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
         // use default value = max( max_edge_length, w20),  where w20 is the width corresponding to 
         // 20 boxes in the x-direction 
 
-        boxWidth = (min_and_max(1) - min_and_max(0))/19; // BoxCollection creates an extra box so divide by 19 not 20
+        // BoxCollection creates an extra box so divide by 19 not 20.  Add a little bit on to ensure
+        // minor numerical fluctuations don't change the answer.
+        boxWidth = (min_and_max(1) - min_and_max(0))/19.000000001;
 
         // determine the maximum edge length
         double max_edge_length = -1;
