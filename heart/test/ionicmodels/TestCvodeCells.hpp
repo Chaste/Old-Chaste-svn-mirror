@@ -127,7 +127,7 @@ public:
 
         // Solve and write to file
         double max_timestep = 1.0;
-        double sampling_time = 1.0;
+        double sampling_time = 0.5;
 
         OdeSolution solution_cvode = lr91_cvode_system.Solve(start_time, end_time, max_timestep, sampling_time);
         OdeSolution solution_chaste = lr91_ode_system.Compute(start_time, end_time);
