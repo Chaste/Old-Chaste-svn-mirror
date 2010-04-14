@@ -52,7 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * boundary conditions, and a list of surface elements on the Neumann boundary and associated
  * Neumann boundary conditions.
  *
- * \todo
+ * \todo #1321
  * Various operations are currently very inefficient - there is certainly scope for
  * optimisation here!
  */
@@ -251,7 +251,7 @@ public:
      * Test if there is a Neumann boundary condition defined on the given element.
      * Used by SimpleLinearEllipticAssembler.
      *
-     * \todo
+     * \todo #1321
      * This is a horrendously inefficient fix. Perhaps have flag in element object?
      *
      * @param pSurfaceElement pointer to a boundary element

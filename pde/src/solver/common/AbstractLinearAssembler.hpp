@@ -216,9 +216,6 @@ AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool NON_HEART, class CONCRETE>
 Vec AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE>::Solve(Vec currentSolutionOrGuess, double currentTime)
 {
-    /// \todo move the asserts into PrepareForSolve()
-    assert(this->mpMesh!=NULL);
-
     // have to comment this out because the flagged mesh assembler uses a different
     // bcc and so this is null.
     //assert(this->mpBoundaryConditions!=NULL);

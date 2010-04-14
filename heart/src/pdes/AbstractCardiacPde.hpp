@@ -157,7 +157,7 @@ protected:
     /**
      * This is to mark the conventional assembly on the first time step.
      *
-     * \todo maybe we don't want the conventional assembly even in the first time step.
+     * \todo #1063 maybe we don't want the conventional assembly even in the first time step.
      */
     bool mDoOneCacheReplication;
 
@@ -186,8 +186,6 @@ public:
     /**
      * This constructor is called from the Initialise() method of the CardiacProblem class.
      * It creates all the cell objects, and sets up the conductivities.
-     *
-     * \todo tidy up using extract method refactoring
      *
      * @param pCellFactory  factory to use to create cells.
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).

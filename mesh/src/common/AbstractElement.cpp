@@ -63,7 +63,7 @@ AbstractElement<ELEMENT_DIM, SPACE_DIM>::AbstractElement(unsigned index)
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractElement<ELEMENT_DIM, SPACE_DIM>::ReplaceNode(Node<SPACE_DIM>* pOldNode, Node<SPACE_DIM>* pNewNode)
 {
-    assert(pOldNode != pNewNode); /// \todo this will sometimes trip; is it a logic error?
+    assert(pOldNode != pNewNode);
     for (unsigned i=0; i<this->mNodes.size(); i++)
     {
         if (this->mNodes[i] == pOldNode)
@@ -83,6 +83,11 @@ double AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocation(unsigned localIn
     return mNodes[localIndex]->rGetLocation()[dimension];
 }
 
+/*
+ * Note for future reference: this used to return a reference to a c_vector, in which case a
+ * weird error arose where it compiled, ran and passed on some machines but failed the tests
+ * (bad_size errors) on another machine.  So be careful if you think about changing it!
+ */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> AbstractElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocation(unsigned localIndex) const
 {

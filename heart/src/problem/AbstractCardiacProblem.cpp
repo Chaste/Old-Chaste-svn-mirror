@@ -430,7 +430,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
 #endif
             // Re-throw
             HeartEventHandler::Reset();//EndEvent(HeartEventHandler::EVERYTHING);
-            ///\todo the following line will deadlock if not every process throws in the Solve call
+            ///\todo #1318 the following line will deadlock if not every process throws in the Solve call
             CloseFilesAndPostProcess();
             throw e;
         }

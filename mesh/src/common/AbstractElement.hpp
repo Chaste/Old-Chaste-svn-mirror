@@ -135,10 +135,6 @@ public:
      *
      * @param localIndex  the index of the node to query, in [0,N) where N
      *   is the number of nodes in this element.
-     *
-     * \todo this used to return a reference to a c_vector, in which case a
-     * weird error arose where it compiled, ran and passed on some machines
-     * but failed the tests (bad_size errors) on another machine.
      */
     c_vector<double, SPACE_DIM> GetNodeLocation(unsigned localIndex) const;
 

@@ -111,7 +111,6 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
 
     /// NOTE: This assumes that the Jacobian is constant on an element, ie
     /// no curvilinear bases were used for position
-    /// \todo Check if we are using a mesh with cached Jacobians, if so, get it from the mesh rather than calling the calculate method.
     double jacobian_determinant;
     c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
     c_matrix<double, ELEMENT_DIM, SPACE_DIM> inverse_jacobian;
@@ -182,9 +181,6 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
          iter != rMesh.GetElementIteratorEnd();
          ++iter)
     {
-        //// the following if statement is for parallelisation, but doesn't
-        //// work yet as multiple processes can own the same elements, so
-        //// the if is commented out
         if (rMesh.CalculateDesignatedOwnershipOfElement((*iter).GetIndex()) == true)
         {
             local_result += CalculateOnElement(*iter);

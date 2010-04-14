@@ -307,7 +307,7 @@ void BidomainProblem<DIM>::LoadExtraArchiveForBidomain(Archive & archive, unsign
             {
                 // Load into the temporary container, which will get thrown away shortly
                 p_bcc->LoadFromArchive(archive, this->mpMesh);
-                /// \todo sanity check that the contents of p_bcc and mpElectrodes->GetBoundaryConditionsContainer() match.
+                /// \todo #1159 sanity check that the contents of p_bcc and mpElectrodes->GetBoundaryConditionsContainer() match.
             }
         }
     }

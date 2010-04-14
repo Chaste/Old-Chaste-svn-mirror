@@ -139,7 +139,7 @@ protected:
      * This is almost identical to LinearBasisFunction::ComputeTransformedBasisFunctionDerivatives,
      * except that it is also templated over SPACE_DIM and can handle cases such as 1d in 3d space.
      *
-     * \todo Template LinearBasisFunction over SPACE_DIM?
+     * \todo #1319 Template LinearBasisFunction over SPACE_DIM and remove this method?
      *
      * @param rPoint The point at which to compute the basis functions. The
      *     results are undefined if this is not within the canonical element.
@@ -311,7 +311,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
         *(AbstractStaticAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM, NON_HEART, CONCRETE>::mpQuadRule);
 
     /**
-     * \todo This assumes that the Jacobian is constant on an element.
+     * \todo #1320 This assumes that the Jacobian is constant on an element.
      * This is true for linear basis functions, but not for any other type of
      * basis function.
      */
@@ -480,7 +480,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
         ////////////////////////////////////////////////////////////
         // create rAElem and rBElem
         ////////////////////////////////////////////////////////////
-        ///\todo Improve efficiency of Neumann BC implementation.
+        ///\todo #1321 Improve efficiency of Neumann BC implementation.
         noalias(rBSurfElem) += ComputeVectorSurfaceTerm(rSurfaceElement, phi, x) * wJ;
     }
 }
