@@ -39,8 +39,8 @@
                 <Delay unit="ms">0</Delay>
                 <Location unit="cm">
                     <Cuboid>
-                        <LowerCoordinates x="-2.0" y="-0.1" z="-1.0"/>
-                        <UpperCoordinates x="-1.9" y="0.1" z="1.0"/>
+                        <LowerCoordinates x="0" y="0" z="0"/>
+                        <UpperCoordinates x="0.1" y="0.1" z="2.0"/>
                     </Cuboid>
                 </Location>
             </Stimulus>    
@@ -56,8 +56,8 @@
                 <ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
                 <Location unit="cm">
                     <Cuboid>
-                        <LowerCoordinates x="-2.0" y="-0.1" z="-1.0"/>
-                        <UpperCoordinates x="-0.5" y="0.1" z="1.0"/>
+                        <LowerCoordinates x="0" y="0" z="0"/>
+                        <UpperCoordinates x="1.5" y="0.1" z="2.0"/>
                     </Cuboid>
                 </Location>
             </CellHeterogeneity>    
@@ -68,8 +68,8 @@
                 <ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
                 <Location unit="cm">
                     <Cuboid>
-                        <LowerCoordinates x="-0.5" y="-0.1" z="-1.0"/>
-                        <UpperCoordinates x="0.5" y="0.1" z="1.0"/>
+                        <LowerCoordinates x="1.5" y="0" z="0"/>
+                        <UpperCoordinates x="2.5" y="0.1" z="2.0"/>
                     </Cuboid>
                 </Location>
             </CellHeterogeneity>    
@@ -80,8 +80,8 @@
                 <ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
                 <Location unit="cm">
                     <Cuboid>
-                        <LowerCoordinates x="0.5" y="-0.1" z="-1.0"/>
-                        <UpperCoordinates x="2.0" y="0.1" z="1.0"/>
+                        <LowerCoordinates x="1.5" y="0" z="0"/>
+                        <UpperCoordinates x="4.0" y="0.1" z="2.0"/>
                     </Cuboid>
                 </Location>
             </CellHeterogeneity>
