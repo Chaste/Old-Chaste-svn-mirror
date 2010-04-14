@@ -53,12 +53,12 @@ std::string ChasteBuildInfo::GetVersionString()
 
 unsigned ChasteBuildInfo::GetMajorReleaseNumber()
 {
-    return 1u;
+    return 2u;
 }
 
 unsigned ChasteBuildInfo::GetMinorReleaseNumber()
 {
-    return 1u;
+    return 0u;
 }
 
 unsigned ChasteBuildInfo::GetRevisionNumber()
