@@ -404,7 +404,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     // InitialiseWriter above (if mPrintOutput==true)
     ProgressReporter progress_reporter(progress_reporter_dir, mCurrentTime,
                                        HeartConfig::Instance()->GetSimulationDuration());
-    progress_reporter.Update(0);
+    progress_reporter.Update(mCurrentTime);
 
 
     while ( !stepper.IsTimeAtEnd() )
