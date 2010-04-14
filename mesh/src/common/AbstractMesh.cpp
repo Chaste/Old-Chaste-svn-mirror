@@ -191,7 +191,7 @@ c_vector<double,2> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const 
 
     assert(mNodes.size() > 0u);
 
-    /// \todo use NodeIterator here?
+    /// \todo #1322 use a const version of NodeIterator here
     for (unsigned i=0; i<mNodes.size(); i++)
     {
         if (!mNodes[i]->IsDeleted())

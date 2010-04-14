@@ -100,7 +100,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::SetNextBoundaryFace(std::vector
 {
     mBoundaryFaceData.push_back(nextFace);
 }
-///\todo Mesh should be const
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
         AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)

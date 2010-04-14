@@ -224,7 +224,8 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_node = mesh_reader.GetNextNode());
         }
 
-        TS_ASSERT_THROWS_THIS(next_node = mesh_reader.GetNextNode(),"File contains incomplete data");
+        TS_ASSERT_THROWS_THIS(next_node = mesh_reader.GetNextNode(),
+                              "File contains incomplete data: unexpected end of file.");
     }
 
     /**
@@ -243,7 +244,8 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_element = mesh_reader.GetNextElementData().NodeIndices);
         }
 
-        TS_ASSERT_THROWS_THIS(next_element = mesh_reader.GetNextElementData().NodeIndices,"File contains incomplete data");
+        TS_ASSERT_THROWS_THIS(next_element = mesh_reader.GetNextElementData().NodeIndices,
+                              "File contains incomplete data: unexpected end of file.");
     }
 
     /**
@@ -265,7 +267,8 @@ public:
             TS_ASSERT_THROWS_NOTHING(next_edge = mesh_reader.GetNextEdgeData().NodeIndices);
         }
 
-        TS_ASSERT_THROWS_THIS(next_edge = mesh_reader.GetNextEdgeData().NodeIndices,"File contains incomplete data");
+        TS_ASSERT_THROWS_THIS(next_edge = mesh_reader.GetNextEdgeData().NodeIndices,
+                              "File contains incomplete data: unexpected end of file.");
     }
 
     /**

@@ -84,7 +84,7 @@ public:
      * Typical use:
      *    AbstractMeshReader* pMeshReader = new MemfemMeshReader("pdes/tests/meshdata/Memfem_slab");
      *
-     * @param rPathBaseName  the base name of the files from which to read the mesh data \todo make this a reference?
+     * @param rPathBaseName  the base name of the files from which to read the mesh data
      */
     MemfemMeshReader(const std::string& rPathBaseName);
 

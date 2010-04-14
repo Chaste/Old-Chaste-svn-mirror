@@ -65,17 +65,6 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
             mAdditionalTimes.push_back(additionalTimes[i]);
         }
     }
-    
-    /**
-     * \todo This assertion breaks several tests
-     *
-    if (endTime-startTime < dt-SMIDGE)
-    {
-       std::cout<<"Span is "<<endTime-startTime<<"\n";
-       std::cout<<"Delta is "<<dt<<"\n";
-       assert(0);
-    }
-     */
 
     mNextTime = CalculateNextTime();
 

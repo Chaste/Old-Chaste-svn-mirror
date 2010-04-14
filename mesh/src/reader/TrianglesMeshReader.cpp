@@ -552,18 +552,17 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::CloseFiles()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifstream& fileStream, std::string& rRawLine)
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifstream& rFileStream, std::string& rRawLine)
 {
     bool line_is_blank;
     mEofException = false;
     do
     {
-        getline(fileStream, rRawLine);
-        if (fileStream.eof())
+        getline(rFileStream, rRawLine);
+        if (rFileStream.eof())
         {
             mEofException = true;
-            /// \todo: improve this error message
-            EXCEPTION("File contains incomplete data");
+            EXCEPTION("File contains incomplete data: unexpected end of file.");
         }
 
         // Get rid of any comment
@@ -576,22 +575,22 @@ void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextLineFromStream(std::ifs
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 template<class T>
-void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber,
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextItemFromStream(std::ifstream& rFileStream, unsigned expectedItemNumber,
                                std::vector<T>& rDataPacket, const unsigned& rNumAttributes, unsigned& rAttribute)
 {
     if (mFilesAreBinary)
     {
-        fileStream.read((char*)&rDataPacket[0], rDataPacket.size()*sizeof(T));
+        rFileStream.read((char*)&rDataPacket[0], rDataPacket.size()*sizeof(T));
         if (rNumAttributes>0)
         {
             assert(rNumAttributes == 1);
-            fileStream.read((char*) &rAttribute, sizeof(unsigned));
+            rFileStream.read((char*) &rAttribute, sizeof(unsigned));
         }
     }
     else
     {
         std::string buffer;
-        GetNextLineFromStream(fileStream,buffer);
+        GetNextLineFromStream(rFileStream,buffer);
         std::stringstream buffer_stream(buffer);
 
         unsigned item_index;

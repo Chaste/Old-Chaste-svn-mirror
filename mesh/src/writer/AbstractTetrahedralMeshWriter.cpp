@@ -217,7 +217,7 @@ ElementData AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElemen
 }
 
 
-///\todo Mesh should be const
+///\todo #1322 Mesh should be const
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
       AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
@@ -241,7 +241,7 @@ void AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(
     }
 
     //Have we got a parallel mesh?
-    ///\todo This should be const too
+    ///\todo #1322 This should be const too
     mpParallelMesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* >(&rMesh);
 
     if (mpParallelMesh != NULL)

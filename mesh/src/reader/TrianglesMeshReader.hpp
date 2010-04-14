@@ -217,22 +217,22 @@ private:
     /**
      * Read in the next line.
      *
-     * @param fileStream
-     * @param rRawLine
+     * @param rFileStream  The file to read from
+     * @param rRawLine  Will be filled in with the next line
      */
-    void GetNextLineFromStream(std::ifstream& fileStream, std::string& rRawLine);
+    void GetNextLineFromStream(std::ifstream& rFileStream, std::string& rRawLine);
 
     /**
      * Returns the Item details from the next line via a call to GetNextLineFromStream()
      *
-     * @param fileStream
-     * @param expectedItemNumber
+     * @param rFileStream  The file to read from
+     * @param expectedItemNumber  To check file syntax, what item is expected to be on the next line.
      * @param rDataPacket  Assumed to be of the right size but is allowed to contain dirty data on entry.
-     * @param rNumAttributes  The number of attributes per item that we expect to read. Either mNumFaceAttributes or mNumElemAttributes.
+     * @param rNumAttributes  The number of attributes per item that we expect to read. Either #mNumFaceAttributes or #mNumElemAttributes.
      * @param rAttribute  Will be given the attribute value if rNumAttributes > 0, otherwise UNSET.
      */
     template<class T>
-    void GetNextItemFromStream(std::ifstream& fileStream, unsigned expectedItemNumber,
+    void GetNextItemFromStream(std::ifstream& rFileStream, unsigned expectedItemNumber,
                                std::vector<T>& rDataPacket, const unsigned& rNumAttributes, unsigned& rAttribute);
 
     /** Get method for mFilesBaseName. */

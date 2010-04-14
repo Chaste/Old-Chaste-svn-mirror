@@ -71,7 +71,6 @@ public :
      * Access the stored quadrature point by element index and quad index in the element.
      *
      * \todo this method should be renamed rGet() as it returns a reference
-     * \todo also params need comments
      *
      * @param elementIndex
      * @param quadIndex
@@ -82,7 +81,6 @@ public :
      * Get the i-th stored quadrature point.
      *
      * \todo this method should be renamed rGet() as it returns a reference
-     * \todo also params need comments
      *
      * @param i
      */

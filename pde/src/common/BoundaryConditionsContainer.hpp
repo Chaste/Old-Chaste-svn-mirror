@@ -226,9 +226,6 @@ public:
      * associated Neumann condition, or that each node in the element has an
      * associated Dirichlet condition.
      *
-     * \todo Might we want to throw an exception specifying which node failed?
-     * What about checking for multiple conditions at a point (might be intentional)?
-     *
      * @param pMesh Pointer to the mesh to check for validity.
      * @return true iff all boundaries have boundary conditions defined.
      */

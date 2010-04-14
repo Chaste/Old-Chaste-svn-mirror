@@ -99,11 +99,12 @@ public:
      */
     ~AbstractTetrahedralMeshWriter();
 
-    ///\todo Mesh should be const
     /**
      * Write a const mesh to file. Used by the serialization methods and avoids iterators...
      *
      * @param rMesh the mesh
+     * 
+     * \todo #1322 Mesh should really be const!
      */
     virtual void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
 

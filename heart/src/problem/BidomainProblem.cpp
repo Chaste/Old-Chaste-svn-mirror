@@ -326,7 +326,7 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
         // the same as the one being used in the assembler...
         this->mpBoundaryConditionsContainer = mpElectrodes->GetBoundaryConditionsContainer();
 
-        /// \todo: heart/src/problem/AbstractCardiacProblem.hpp:657 expects both pointing at the same place when unarchiving
+        /// \todo #1159 #1324 heart/src/problem/AbstractCardiacProblem.hpp:657 expects both pointing at the same place when unarchiving
         this->mpDefaultBoundaryConditionsContainer = this->mpBoundaryConditionsContainer;
 
         // At t==0 or after checkpointing we won't have a system assembled at this stage: BCs will be applied once the matrix

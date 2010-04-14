@@ -122,7 +122,6 @@ public:
      */
     virtual void WriteFiles()=0;
 
-    ///\todo Mesh should be const
     /**
      * Read in a mesh and write it to file.
      *
