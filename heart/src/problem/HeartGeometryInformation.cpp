@@ -148,6 +148,10 @@ void HeartGeometryInformation<SPACE_DIM>::ProcessLine(
         unsigned item;
         line_stream >> item;
         // If offset==1 then shift the nodes, since we are assuming MEMFEM format (numbered from 1 on)
+        if (item == 0 && offset != 0) 
+        {
+            EXCEPTION("Error when reading surface file.  It was assumed not to be indexed from zero, but zero appeared in the list.");
+        }
         rSurfaceNodeIndexSet.insert(item-offset);
     }
 }
@@ -174,7 +178,7 @@ void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
     // Temporary storage for the nodes, helps discarding repeated values
     std::set<unsigned> surface_original_node_index_set;
 
-    // Loop over all the triangles and add node indexes to the set
+// Loop over all the triangles and add node indexes to the set
     std::string line;
     getline(file_stream, line);
     do

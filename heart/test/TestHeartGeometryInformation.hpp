@@ -396,6 +396,10 @@ public:
         //TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
+        //Check the indexing exception
+        TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> info2(mesh, epi_surface, lv_surface, rv_surface, false),
+                              "Error when reading surface file.  It was assumed not to be indexed from zero, but zero appeared in the list.");
+        
         //calculate the geometry informations
         HeartGeometryInformation<3> info(mesh, epi_surface, lv_surface, rv_surface, true);
         info.DetermineLayerForEachNode(0.25,0.375);
