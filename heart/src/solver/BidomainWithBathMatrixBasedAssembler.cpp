@@ -147,7 +147,7 @@ BidomainWithBathMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainWithBathMat
     mpBidomainWithBathRhsMatrixAssembler = new BidomainWithBathRhsMatrixAssembler<SPACE_DIM>(pMesh);
     this->mpMatrixForMatrixBasedRhsAssembly = mpBidomainWithBathRhsMatrixAssembler->GetMatrix();
 
-    /// \todo: at this point we'll have a BidomainWithBathRhsMatrixAssembler object and a BidomainRhsMatrixAssembler
+    /// \todo #1063 at this point we'll have a BidomainWithBathRhsMatrixAssembler object and a BidomainRhsMatrixAssembler
     /// object in memory. This is a waste of memory since both construct and store a matrix for RHS assembly.
 }
 

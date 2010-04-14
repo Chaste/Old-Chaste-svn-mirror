@@ -228,7 +228,7 @@ private:
      * @param rFileStream  The file to read from
      * @param expectedItemNumber  To check file syntax, what item is expected to be on the next line.
      * @param rDataPacket  Assumed to be of the right size but is allowed to contain dirty data on entry.
-     * @param rNumAttributes  The number of attributes per item that we expect to read. Either #mNumFaceAttributes or #mNumElemAttributes.
+     * @param rNumAttributes  The number of attributes per item that we expect to read. Either #mNumFaceAttributes or #mNumElementAttributes.
      * @param rAttribute  Will be given the attribute value if rNumAttributes > 0, otherwise UNSET.
      */
     template<class T>

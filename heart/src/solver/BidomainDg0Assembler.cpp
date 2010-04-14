@@ -296,7 +296,7 @@ void BidomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
     }
 
 #ifndef NDEBUG
-    ///\todo This could be a collective MPI-like operation
+    ///\todo #1327 This could be a collective MPI-like operation
     ReplicatableVector rep(this->mpLinearSystem->rGetRhsVector());
     double sum = 0;
     for(unsigned i=1; i<rep.GetSize(); i+=2) // i=1,3,5,..  ie all the phi_e components

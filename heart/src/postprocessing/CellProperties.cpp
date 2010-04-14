@@ -219,7 +219,7 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
             //and we are told this apd is not calculated yet.
             if ( prev_v>v && prev_v>=target && v<=target && apd_is_calculated==false)
             {
-                apds.push_back (t - mOnsets[APcounter]); ///\todo linear interpolation here too?
+                apds.push_back (t - mOnsets[APcounter]); ///\todo #913 linear interpolation here too?
                 APcounter++;
                 apd_is_calculated = true;
             }

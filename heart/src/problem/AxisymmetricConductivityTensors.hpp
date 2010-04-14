@@ -34,10 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * The class is templated over SPACE_DIM to keep compatibility with the abstract class.
  * However axisymmetric conductivity only makes sense in 3D, so we check in the constructor
  * for SPACE_DIM to be 3.
- *
- * \todo is the compatibility argument above really worthwhile?  We could just inherit from
- *       AbstractConductivityTensors<3>.  This would however require changes to the
- *       constructors of AbstractCardiacPde and BidomainPde.
  */
 template<unsigned SPACE_DIM>
 class AxisymmetricConductivityTensors : public AbstractConductivityTensors<SPACE_DIM>

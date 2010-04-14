@@ -63,7 +63,6 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
 
     // This is so we know it's the first time of asking
     // Create Jacobian
-    ///\todo We don't want to create new data, calculation and throw the answer away
     c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
 
     if (SPACE_DIM == ELEMENT_DIM)
@@ -295,7 +294,6 @@ AbstractTetrahedralElement<0, SPACE_DIM>::AbstractTetrahedralElement(unsigned in
 
     // This is so we know it's the first time of asking
     // Create Jacobian
-    ///\todo We don't want to create new data, calculation and throw the answer away
     c_vector<double, SPACE_DIM> weighted_direction;
     double det;
 

@@ -280,7 +280,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
                 double value = this->mDirichIterator->second->GetValue(this->mDirichIterator->first->GetPoint());
                 assert(value != DBL_MAX);
 
-                unsigned row = PROBLEM_DIM*node_index + index_of_unknown; /// \todo: assumes vm and phie equations are interleaved
+                unsigned row = PROBLEM_DIM*node_index + index_of_unknown; // assumes vm and phie equations are interleaved
                 dirichlet_conditions[row] = value;
 
                 this->mDirichIterator++;
@@ -416,7 +416,6 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     }
 }
 
-/// \todo this might not work with a DistributedTetrahedralMesh!
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirichletToNonlinearJacobian(Mat jacobian)
 {

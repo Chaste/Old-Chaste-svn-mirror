@@ -106,7 +106,7 @@ private:
         /**
          * Always write the in-memory mesh to disk, to make sure we have a properly permuted version of it.
          *
-         * \todo  This is bad for very large meshes.  Consider making a symlink and just writing the permutation.
+         * \todo #1200 This is bad for very large meshes.  Consider making a symlink and just writing the permutation.
          * Perhaps even copy the permutation file from an earlier checkpoint?
          */
         mesh_writer.WriteFilesUsingMesh(*(const_cast<AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(this)));

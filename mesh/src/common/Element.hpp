@@ -57,9 +57,7 @@ public:
     Element(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
 
     /**
-     * Copy constructor which allows a new index to be specified.
-     *
-     * \todo this is rather dubious; a factory method might be better.
+     * "Copy" constructor which allows a new index to be specified.
      *
      * @param rElement  an element to copy
      * @param index the index of the new element

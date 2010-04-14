@@ -56,7 +56,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class BidomainWithBathRhsMatrixAssembler
     : public AbstractLinearAssembler<DIM, DIM, 2, false, BidomainWithBathRhsMatrixAssembler<DIM> >
-    /// \todo: make this class inherit from BidomainRhsMatrixAssembler
+    /// \todo #1063  make this class inherit from BidomainRhsMatrixAssembler
     //    : public BidomainRhsMatrixAssembler<DIM>
 {
 public:
@@ -141,7 +141,7 @@ class BidomainWithBathMatrixBasedAssembler
       public BidomainWithBathAssembler<ELEMENT_DIM, SPACE_DIM>
 {
 protected:
-    /// \todo: Once BidomainWithBathRhsMatrixAssembler inherits from BidomainRhsMatrixAssembler we'll be able to reuse the pointer in BidomainMatrixBasedAssembler
+    /// \todo  #1063 Once BidomainWithBathRhsMatrixAssembler inherits from BidomainRhsMatrixAssembler we'll be able to reuse the pointer in BidomainMatrixBasedAssembler
     BidomainWithBathRhsMatrixAssembler<SPACE_DIM>* mpBidomainWithBathRhsMatrixAssembler;
 
 public:

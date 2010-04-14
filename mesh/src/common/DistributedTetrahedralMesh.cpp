@@ -190,7 +190,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
         for (unsigned node_index=0; node_index < mTotalNumNodes; node_index++)
         {
             std::vector<double> coords;
-            /// \todo: assert the node is not considered both owned and halo-owned. Remove continue statement few lines below then.
+            /// \todo #1289 assert the node is not considered both owned and halo-owned.
             coords = rMeshReader.GetNextNode();
 
             // The node is owned by the processor

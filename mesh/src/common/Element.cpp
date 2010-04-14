@@ -273,7 +273,7 @@ c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(Chaste
     c_matrix<double, ELEMENT_DIM, SPACE_DIM> inverse_jacobian;
     double jacobian_determinant;
 
-    ///\todo This method shouldn't need a new Jacobian inverse for every Psi
+    ///\todo #1326 This method shouldn't need a new Jacobian inverse for every Psi
     CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
 
     return prod(inverse_jacobian, test_location);

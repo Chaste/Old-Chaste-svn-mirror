@@ -120,7 +120,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
             double time,
             bool assembleVector, bool assembleMatrix)
 {
-    /// \todo: #1215 this seems not to be an issue anymore. Document and remove code.
+    /// \todo: #1215 #1328 this seems not to be an issue anymore. Document and remove code.
     // CG (default solver) won't work since the system is indefinite. Switch to SYMMLQ
 //    this->mpLinearSystem->SetKspType("symmlq"); // Switches the solver
 //    this->mpConfig->SetKSPSolver("symmlq"); // Makes sure this change will be reflected in the XML file written to disk at the end of the simulation.
@@ -135,7 +135,8 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
          iter != this->mpMesh->GetNodeIteratorEnd();
          ++iter)
     {
-        /**\todo This code may no longer be needed since all the operations in the following loop may
+        /**
+         * \todo #1328 This code may no longer be needed since all the operations in the following loop may
          * apply only to local elements. MatSetValue and VecSetValue are not collective...
          */
 
@@ -153,7 +154,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
         if(is_node_bath_reduced[i] > 0) // ie is a bath node
         {
             PetscInt index[1];
-            index[0] = 2*i; /// \todo: assumes Vm and Phie are interleaved
+            index[0] = 2*i; // assumes Vm and Phie are interleaved
 
             if(assembleMatrix)
             {
@@ -173,7 +174,7 @@ void BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(
                  *  Explicitly checking it in non-production builds.
                  */
 #ifndef NDEBUG
-                int num_equation = 2*i; /// \todo: assumes Vm and Phie are interleaved
+                int num_equation = 2*i; // assumes Vm and Phie are interleaved
 
                 // Matrix need to be assembled in order to use GetMatrixElement()
                 MatAssemblyBegin((*this->GetLinearSystem())->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
