@@ -345,7 +345,7 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh,
             // Loop over each element containing this edge (i.e. those containing both nodes of the edge)
             for (std::set<unsigned>::iterator index_iter = edge_element_indices.begin();
                  index_iter != edge_element_indices.end();
-                 index_iter++)
+                 ++index_iter)
             {
                 // Calculate angle
                 c_vector<double, 3> vertex_vector =  mNodes[*index_iter]->rGetLocation() - mid_edge;
@@ -457,9 +457,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::GenerateVerticesFromElementCircumcentre
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeLength(unsigned elementIndex1, unsigned elementIndex2)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-    #undef COVERAGE_IGNORE
 
 /**
  * \todo Move this bit of code into LinearSpringWithVariableSpringConstantsForce::VariableSpringConstantMultiplicationFactor()
@@ -828,10 +826,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool VertexMesh<ELEMENT_DIM, SPACE_DIM>::ElementIncludesPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2); // only works in 2D at present
     assert(ELEMENT_DIM == SPACE_DIM);
-    #undef COVERAGE_IGNORE
 
     // Initialise boolean
     bool element_includes_point = false;
@@ -896,10 +892,8 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestToPoint(const c_vector<double, SPACE_DIM>& rTestPoint, unsigned elementIndex)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2); // only works in 2D at present
     assert(ELEMENT_DIM == SPACE_DIM);
-    #undef COVERAGE_IGNORE
 
     // Get the element
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(elementIndex);
@@ -939,9 +933,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetLocalIndexForElementEdgeClosestT
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElement(unsigned index)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-    #undef COVERAGE_IGNORE
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
     unsigned num_nodes_in_element = p_element->GetNumNodes();
@@ -998,9 +990,7 @@ c_vector<double, 3> VertexMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMomentsOfElemen
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfElement(unsigned index)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-    #undef COVERAGE_IGNORE
 
     c_vector<double, SPACE_DIM> short_axis = zero_vector<double>(SPACE_DIM);
     c_vector<double, 3> moments = CalculateMomentsOfElement(index);
@@ -1041,9 +1031,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetShortAxisOfEl
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-    #undef COVERAGE_IGNORE
 
     unsigned num_nodes_in_element = pElement->GetNumNodes();
     unsigned next_local_index = (localIndex+1)%num_nodes_in_element;
@@ -1067,9 +1055,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaGradientO
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPreviousEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-    #undef COVERAGE_IGNORE
 
     unsigned num_nodes_in_element = pElement->GetNumNodes();
 
@@ -1091,9 +1077,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPreviousEdgeG
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-    #undef COVERAGE_IGNORE
 
     unsigned next_local_index = (localIndex+1)%(pElement->GetNumNodes());
 
@@ -1112,9 +1096,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNextEdgeGradi
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGradientOfElementAtNode(VertexElement<ELEMENT_DIM,SPACE_DIM>* pElement, unsigned localIndex)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM==2);
-    #undef COVERAGE_IGNORE
 
     c_vector<double, SPACE_DIM> previous_edge_gradient = GetPreviousEdgeGradientOfElementAtNode(pElement, localIndex);
     c_vector<double, SPACE_DIM> next_edge_gradient = GetNextEdgeGradientOfElementAtNode(pElement, localIndex);
@@ -1126,9 +1108,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGrad
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-    #undef COVERAGE_IGNORE
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
@@ -1155,9 +1135,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterOfElement(unsigned index)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 2);
-    #undef COVERAGE_IGNORE
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
@@ -1188,9 +1166,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterOfElement(unsigned index)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetUnitNormalToFace(VertexElement<ELEMENT_DIM-1, SPACE_DIM>* pFace)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 3);
-    #undef COVERAGE_IGNORE
 
     // As we are in 3D, the face must have at least three vertices, so use its first three vertices
     c_vector<double, SPACE_DIM> v0 = pFace->GetNode(0)->rGetLocation();
@@ -1215,9 +1191,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetUnitNormalToF
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_DIM-1, SPACE_DIM>* pFace)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 3);
-    #undef COVERAGE_IGNORE
 
     // Get the unit normal to the plane of this face
     c_vector<double, SPACE_DIM> unit_normal = GetUnitNormalToFace(pFace);
@@ -1228,16 +1202,20 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_D
     double abs_z = unit_normal[2]>0 ? unit_normal[2]>0 : -unit_normal[2];
 
     unsigned dim_to_ignore = 2; // ignore z coordinate
+    double abs = abs_z;
+
     if (abs_x > abs_y)
     {
         if (abs_x > abs_z)
         {
             dim_to_ignore = 0; // ignore x coordinate
+            abs = abs_x;
         }
     }
     else if (abs_y > abs_z)
     {
         dim_to_ignore = 1; // ignore y coordinate
+        abs = abs_y;
     }
 
     // Compute area of the 2D projection
@@ -1250,11 +1228,11 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_D
 
     unsigned num_nodes_in_face = pFace->GetNumNodes();
 
+    unsigned dim1 = dim_to_ignore==0 ? 1 : 0;
+    unsigned dim2 = dim_to_ignore==2 ? 1 : 2;
+
     for (unsigned local_index=0; local_index<num_nodes_in_face; local_index++)
     {
-        unsigned dim1 = dim_to_ignore==0 ? 1 : 0;
-        unsigned dim2 = dim_to_ignore==2 ? 1 : 2;
-
         // Find locations of current vertex and anticlockwise vertex
         current_vertex[0] = pFace->GetNodeLocation(local_index, dim1);
         current_vertex[1] = pFace->GetNodeLocation(local_index, dim2);
@@ -1266,21 +1244,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_D
     }
 
     // Scale to get area before projection
-    switch (dim_to_ignore)
-    {
-        case 0:
-            face_area /= abs_x;
-            break;
-        case 1:
-            face_area /= abs_y;
-            break;
-        case 2:
-            face_area /= abs_z;
-            break;
-        default:
-            NEVER_REACHED;
-    }
-
+    face_area /= abs;
     return fabs(face_area);
 }
 
@@ -1288,9 +1252,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_D
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVolumeOfElement(unsigned index)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 3);
-    #undef COVERAGE_IGNORE
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
@@ -1321,9 +1283,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVolumeOfElement(unsigned index)
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceAreaOfElement(unsigned index)
 {
-    #define COVERAGE_IGNORE
     assert(SPACE_DIM == 3);
-    #undef COVERAGE_IGNORE
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 

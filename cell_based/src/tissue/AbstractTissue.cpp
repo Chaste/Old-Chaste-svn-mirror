@@ -37,7 +37,7 @@ AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCell>& rCells,
       mpMutationStateRegistry(CellMutationStateRegistry::Instance()->TakeOwnership())
 {
     // There must be at least one cell
-    assert(mCells.size() > 0);
+    assert(!mCells.empty());
 
     // To avoid double-counting problems, clear the passed-in cells vector
     rCells.clear();
@@ -230,12 +230,12 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool 
 
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpVizNodesFile = output_file_handler.OpenOutputFile("results.viznodes");
-    mpBoundaryNodesFile = output_file_handler.OpenOutputFile("results.vizboundarynodes");
+    mpVizBoundaryNodesFile = output_file_handler.OpenOutputFile("results.vizboundarynodes");
     mpVizCellProliferativeTypesFile = output_file_handler.OpenOutputFile("results.vizcelltypes");
 
     if (p_config->GetOutputCellAncestors())
     {
-        mpCellAncestorsFile = output_file_handler.OpenOutputFile("results.vizancestors");
+        mpVizCellAncestorsFile = output_file_handler.OpenOutputFile("results.vizancestors");
     }
     if (p_config->GetOutputCellMutationStates())
     {
@@ -271,7 +271,7 @@ void AbstractTissue<DIM>::CloseOutputFiles()
     TissueConfig* p_config = TissueConfig::Instance();
 
     mpVizNodesFile->close();
-    mpBoundaryNodesFile->close();
+    mpVizBoundaryNodesFile->close();
     mpVizCellProliferativeTypesFile->close();
 
     if (p_config->GetOutputCellMutationStates())
@@ -292,7 +292,7 @@ void AbstractTissue<DIM>::CloseOutputFiles()
     }
     if (p_config->GetOutputCellAncestors())
     {
-        mpCellAncestorsFile->close();
+        mpVizCellAncestorsFile->close();
     }
     if (p_config->GetOutputCellAges())
     {
@@ -349,9 +349,9 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         {
             // Set the file to -1 to mark this case.
             colour = 1;
-            *mpCellAncestorsFile << "-";
+            *mpVizCellAncestorsFile << "-";
         }
-        *mpCellAncestorsFile << colour << " ";
+        *mpVizCellAncestorsFile << colour << " ";
     }
 
     // Set colour dependent on cell type
@@ -450,7 +450,7 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellPr
 
     if (p_config->GetOutputCellAncestors())
     {
-        *mpCellAncestorsFile << "\n";
+        *mpVizCellAncestorsFile << "\n";
     }
 
     // Write cell mutation state data to file if required
@@ -509,7 +509,7 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
     double time = SimulationTime::Instance()->GetTime();
 
     *mpVizNodesFile << time << "\t";
-    *mpBoundaryNodesFile << time << "\t";
+    *mpVizBoundaryNodesFile << time << "\t";
 
     // Write node data to file
     for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
@@ -530,11 +530,11 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
             {
                 *mpVizNodesFile << position[i] << " ";
             }
-            *mpBoundaryNodesFile << GetNode(node_index)->IsBoundaryNode() << " ";
+            *mpVizBoundaryNodesFile << GetNode(node_index)->IsBoundaryNode() << " ";
         }
     }
     *mpVizNodesFile << "\n";
-    *mpBoundaryNodesFile << "\n";
+    *mpVizBoundaryNodesFile << "\n";
 }
 
 template<unsigned DIM>
@@ -551,7 +551,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles()
 
     if (p_config->GetOutputCellAncestors())
     {
-        *mpCellAncestorsFile << time << "\t";
+        *mpVizCellAncestorsFile << time << "\t";
     }
     if (p_config->GetOutputCellMutationStates())
     {

@@ -118,7 +118,7 @@ public:
                 {
                     newly_born.push_back(cell_iterator->Divide());
                 }
-                cell_iterator++;
+                ++cell_iterator;
                 j++;
             }
             // copy offspring in newly_born vector to cells vector
@@ -126,7 +126,7 @@ public:
             while (cell_iterator < newly_born.end())
             {
                 cells.push_back(*cell_iterator);
-                cell_iterator++;
+                ++cell_iterator;
             }
             newly_born.clear();
 
@@ -147,7 +147,7 @@ public:
                         break;
                 }
 
-                cell_iterator++;
+                ++cell_iterator;
             }
 
             i++;

@@ -95,7 +95,7 @@ public:
 
         // Test ODE solution
         std::vector<double> proteins = p_cell_model->GetProteinConcentrations();
-        TS_ASSERT(proteins.size()==6);
+        TS_ASSERT_EQUALS(proteins.size(), 6u);
         TS_ASSERT_DELTA(proteins[0], 0.10000000000000, 1e-2);
         TS_ASSERT_DELTA(proteins[1], 0.98913684535843, 1e-2);
         TS_ASSERT_DELTA(proteins[2], 1.54216806705641, 1e-1);

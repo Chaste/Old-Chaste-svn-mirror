@@ -112,7 +112,7 @@ protected:
     std::set<std::set<TissueCell*> > mMarkedSprings;
 
     /** Results file for elements. */
-    out_stream mpElementFile;
+    out_stream mpVizElementsFile;
 
     /** Results file for Voronoi data. */
     out_stream mpVoronoiFile;

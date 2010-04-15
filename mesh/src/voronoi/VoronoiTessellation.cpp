@@ -203,7 +203,7 @@ void VoronoiTessellation<3>::Initialise(TetrahedralMesh<3,3>& rMesh)
             // the elements are those containing both nodes of the edge
             for (std::set<unsigned>::iterator element_index_iterator = edge_element_indices.begin();
                  element_index_iterator != edge_element_indices.end();
-                 element_index_iterator++)
+                 ++element_index_iterator)
             {
                 // Calculate angle
                 c_vector<double, 3> vertex_vector = *(mVertices[*element_index_iterator]) - mid_edge;
@@ -255,14 +255,14 @@ VoronoiTessellation<DIM>::~VoronoiTessellation()
     // Delete faces
     for (typename std::vector< Face<DIM>* >::iterator face_iterator = mFaces.begin();
          face_iterator != mFaces.end();
-         face_iterator++)
+         ++face_iterator)
     {
         delete *face_iterator;
     }
     // Delete vertices
     for (typename std::vector< c_vector<double,DIM>* >::iterator vertex_iterator = mVertices.begin();
          vertex_iterator != mVertices.end();
-         vertex_iterator++)
+         ++vertex_iterator)
     {
         delete *vertex_iterator;
     }

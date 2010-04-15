@@ -97,7 +97,7 @@ protected:
     std::string mSimulationOutputDirectory;
 
     /** Visualiser setup file */
-    out_stream mpSetupFile;
+    out_stream mpVizSetupFile;
 
     /** Results file node velocities */
     out_stream mpNodeVelocitiesFile;

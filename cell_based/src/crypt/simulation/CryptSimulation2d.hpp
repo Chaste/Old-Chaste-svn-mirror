@@ -68,7 +68,7 @@ protected:
     bool mUseJiggledBottomCells;
 
     /** The file that the values of beta catenin is written out to. */
-    out_stream mBetaCatResultsFile;
+    out_stream mVizBetaCateninResultsFile;
 
     /** Helper member that is a static cast of the tissue. */
     MeshBasedTissueWithGhostNodes<2>* mpStaticCastTissue;

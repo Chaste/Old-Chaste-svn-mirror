@@ -65,7 +65,7 @@ bool Face<DIM>::operator==(Face<DIM>& rOtherFace)
             other_iterator != rOtherFace.mVertices.end() &&
             norm_2(**this_iterator - **other_iterator) >1e-10 )
     {
-        this_iterator++;
+        ++this_iterator;
     }
     if (this_iterator==mVertices.end() || other_iterator==rOtherFace.mVertices.end())
     {

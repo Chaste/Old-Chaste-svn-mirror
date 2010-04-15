@@ -69,15 +69,15 @@ bool VoronoiCell::operator==(VoronoiCell& rOtherCell)
                 && !EqualFaces(**this_face_iterator, *this_orientation_iterator,
                                  **other_face_iterator, *other_orientation_iterator) )
         {
-            other_face_iterator++;
-            other_orientation_iterator++;
+            ++other_face_iterator;
+            ++other_orientation_iterator;
         }
         if (other_face_iterator == rOtherCell.mFaces.end())
         {
             return false;
         }
-        this_face_iterator++;
-        this_orientation_iterator++;
+        ++this_face_iterator;
+        ++this_orientation_iterator;
     }
     return true;
 }

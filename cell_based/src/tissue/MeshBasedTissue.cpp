@@ -80,9 +80,7 @@ bool MeshBasedTissue<DIM>::UseAreaBasedDampingConstant()
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::SetAreaBasedDampingConstant(bool useAreaBasedDampingConstant)
 {
-    #define COVERAGE_IGNORE
     assert(DIM==2);
-    #undef COVERAGE_IGNORE
     mUseAreaBasedDampingConstant = useAreaBasedDampingConstant;
 }
 
@@ -114,9 +112,7 @@ double MeshBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
          * is the damping constant if not using mUseAreaBasedDampingConstant
          */
 
-        #define COVERAGE_IGNORE
         assert(DIM==2);
-        #undef COVERAGE_IGNORE
 
         double rest_length = 1.0;
         double d0 = TissueConfig::Instance()->GetAreaBasedDampingConstantParameter();
@@ -375,11 +371,11 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool
     AbstractTissue<DIM>::CreateOutputFiles(rDirectory, cleanOutputDirectory);
 
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
-    mpElementFile = output_file_handler.OpenOutputFile("results.vizelements");
+    mpVizElementsFile = output_file_handler.OpenOutputFile("results.vizelements");
 
     if (TissueConfig::Instance()->GetOutputVoronoiData())
     {
-        mpVoronoiFile = output_file_handler.OpenOutputFile("results.vizvoronoi");
+        mpVoronoiFile = output_file_handler.OpenOutputFile("voronoi.dat");
     }
     if (TissueConfig::Instance()->GetOutputTissueAreas())
     {
@@ -396,7 +392,7 @@ void MeshBasedTissue<DIM>::CloseOutputFiles()
 {
     AbstractTissue<DIM>::CloseOutputFiles();
 
-    mpElementFile->close();
+    mpVizElementsFile->close();
 
     if (TissueConfig::Instance()->GetOutputVoronoiData())
     {
@@ -419,7 +415,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
 
     // Write element data to file
 
-    *mpElementFile <<  SimulationTime::Instance()->GetTime() << "\t";
+    *mpVizElementsFile <<  SimulationTime::Instance()->GetTime() << "\t";
 
     for (typename MutableMesh<DIM,DIM>::ElementIterator elem_iter = mrMesh.GetElementIteratorBegin();
          elem_iter != mrMesh.GetElementIteratorEnd();
@@ -450,11 +446,11 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
         {
             for (unsigned i=0; i<DIM+1; i++)
             {
-                *mpElementFile << elem_iter->GetNodeGlobalIndex(i) << " ";
+                *mpVizElementsFile << elem_iter->GetNodeGlobalIndex(i) << " ";
             }
         }
     }
-    *mpElementFile << "\n";
+    *mpVizElementsFile << "\n";
 
     switch (DIM)
     {
@@ -519,9 +515,7 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
 {
-    #define COVERAGE_IGNORE
     assert(DIM==2);
-    #undef COVERAGE_IGNORE
 
     // Write time to file
     *mpTissueAreasFile << SimulationTime::Instance()->GetTime() << " ";
@@ -549,9 +543,7 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::WriteCellAreaResultsToFile()
 {
-    #define COVERAGE_IGNORE
     assert(DIM==2);
-    #undef COVERAGE_IGNORE
 
     // Write time to file
     *mpCellAreasFile << SimulationTime::Instance()->GetTime() << " ";

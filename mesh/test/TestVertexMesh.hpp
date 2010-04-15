@@ -131,28 +131,21 @@ public:
     {
         // Make four nodes to assign to three elements
         std::vector<Node<1>*> nodes;
-        nodes.push_back(new Node<1>(0, false, 0.0));
-        nodes.push_back(new Node<1>(1, false, 0.5));
-        nodes.push_back(new Node<1>(2, false, 1.0));
-        nodes.push_back(new Node<1>(3, false, 1.5));
+        for (unsigned i=0; i<4; i++)
+        {
+            nodes.push_back(new Node<1>(i, false, 0.5*(double)i));
+        }
 
         // Make three elements out of these nodes
-        std::vector<Node<1>*> nodes_elem_0;
-        nodes_elem_0.push_back(nodes[0]);
-        nodes_elem_0.push_back(nodes[1]);
-
-        std::vector<Node<1>*> nodes_elem_1;
-        nodes_elem_1.push_back(nodes[1]);
-        nodes_elem_1.push_back(nodes[2]);
-
-        std::vector<Node<1>*> nodes_elem_2;
-        nodes_elem_2.push_back(nodes[2]);
-        nodes_elem_2.push_back(nodes[3]);
-
+        std::vector<std::vector<Node<1>*> > nodes_elements(3);
         std::vector<VertexElement<1,1>*> elements;
-        elements.push_back(new VertexElement<1,1>(0, nodes_elem_0));
-        elements.push_back(new VertexElement<1,1>(1, nodes_elem_1));
-        elements.push_back(new VertexElement<1,1>(2, nodes_elem_2));
+        for (unsigned i=0; i<3; i++)
+        {
+            nodes_elements[i].push_back(nodes[i]);
+            nodes_elements[i].push_back(nodes[i+1]);
+
+            elements.push_back(new VertexElement<1,1>(i, nodes_elements[i]));
+        }
 
         // Make a vertex mesh
         VertexMesh<1,1> mesh(nodes, elements);
@@ -169,8 +162,8 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 2u);
         TS_ASSERT_DELTA(mesh.GetElement(1)->GetNodeLocation(0)[0], 0.5, 1e-6);
         TS_ASSERT_DELTA(mesh.GetElement(1)->GetNodeLocation(1)[0], 1.0, 1e-6);
-        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 2u);
 
+        TS_ASSERT_EQUALS(mesh.GetElement(2)->GetNumNodes(), 2u);
         TS_ASSERT_DELTA(mesh.GetElement(2)->GetNodeLocation(0)[0], 1.0, 1e-6);
         TS_ASSERT_DELTA(mesh.GetElement(2)->GetNodeLocation(1)[0], 1.5, 1e-6);
 
@@ -192,22 +185,19 @@ public:
         basic_nodes.push_back(new Node<2>(5, false, 2.0, 0.0));
         basic_nodes.push_back(new Node<2>(6, false, 2.0, 3.0));
 
-        std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
-
         // Make two triangular elements out of these nodes
-        nodes_elem_0.push_back(basic_nodes[0]);
-        nodes_elem_0.push_back(basic_nodes[1]);
-        nodes_elem_0.push_back(basic_nodes[2]);
-        nodes_elem_0.push_back(basic_nodes[3]);
-        nodes_elem_0.push_back(basic_nodes[4]);
-
-        nodes_elem_1.push_back(basic_nodes[2]);
-        nodes_elem_1.push_back(basic_nodes[5]);
-        nodes_elem_1.push_back(basic_nodes[6]);
+        std::vector<std::vector<Node<2>*> > nodes_elements(2);
+        for (unsigned i=0; i<5; i++)
+        {
+            nodes_elements[0].push_back(basic_nodes[i]);
+        }
+        nodes_elements[1].push_back(basic_nodes[2]);
+        nodes_elements[1].push_back(basic_nodes[5]);
+        nodes_elements[1].push_back(basic_nodes[6]);
 
         std::vector<VertexElement<2,2>*> basic_vertex_elements;
-        basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elem_0));
-        basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elem_1));
+        basic_vertex_elements.push_back(new VertexElement<2,2>(0, nodes_elements[0]));
+        basic_vertex_elements.push_back(new VertexElement<2,2>(1, nodes_elements[1]));
 
         // Make a vertex mesh
         VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
@@ -255,101 +245,82 @@ public:
         nodes.push_back(new Node<3>(7, false, 1.0, 1.0, 1.0));
         nodes.push_back(new Node<3>(8, false, 0.5, 0.5, 1.5));
 
-        std::vector<Node<3>*> nodes_face_0, nodes_face_1, nodes_face_2, nodes_face_3, nodes_face_4, nodes_face_5,
-                              nodes_face_6, nodes_face_7, nodes_face_8, nodes_face_9;
+        std::vector<std::vector<Node<3>*> > nodes_faces(10);
 
         // Make 6 square faces out of these nodes
-        nodes_face_0.push_back(nodes[0]);
-        nodes_face_0.push_back(nodes[2]);
-        nodes_face_0.push_back(nodes[4]);
-        nodes_face_0.push_back(nodes[1]);
+        nodes_faces[0].push_back(nodes[0]);
+        nodes_faces[0].push_back(nodes[2]);
+        nodes_faces[0].push_back(nodes[4]);
+        nodes_faces[0].push_back(nodes[1]);
 
-        nodes_face_1.push_back(nodes[4]);
-        nodes_face_1.push_back(nodes[7]);
-        nodes_face_1.push_back(nodes[5]);
-        nodes_face_1.push_back(nodes[2]);
+        nodes_faces[1].push_back(nodes[4]);
+        nodes_faces[1].push_back(nodes[7]);
+        nodes_faces[1].push_back(nodes[5]);
+        nodes_faces[1].push_back(nodes[2]);
 
-        nodes_face_2.push_back(nodes[7]);
-        nodes_face_2.push_back(nodes[6]);
-        nodes_face_2.push_back(nodes[1]);
-        nodes_face_2.push_back(nodes[4]);
+        nodes_faces[2].push_back(nodes[7]);
+        nodes_faces[2].push_back(nodes[6]);
+        nodes_faces[2].push_back(nodes[1]);
+        nodes_faces[2].push_back(nodes[4]);
 
-        nodes_face_3.push_back(nodes[0]);
-        nodes_face_3.push_back(nodes[3]);
-        nodes_face_3.push_back(nodes[5]);
-        nodes_face_3.push_back(nodes[2]);
+        nodes_faces[3].push_back(nodes[0]);
+        nodes_faces[3].push_back(nodes[3]);
+        nodes_faces[3].push_back(nodes[5]);
+        nodes_faces[3].push_back(nodes[2]);
 
-        nodes_face_4.push_back(nodes[1]);
-        nodes_face_4.push_back(nodes[6]);
-        nodes_face_4.push_back(nodes[3]);
-        nodes_face_4.push_back(nodes[0]);
+        nodes_faces[4].push_back(nodes[1]);
+        nodes_faces[4].push_back(nodes[6]);
+        nodes_faces[4].push_back(nodes[3]);
+        nodes_faces[4].push_back(nodes[0]);
 
-        nodes_face_5.push_back(nodes[7]);
-        nodes_face_5.push_back(nodes[6]);
-        nodes_face_5.push_back(nodes[3]);
-        nodes_face_5.push_back(nodes[5]);
+        nodes_faces[5].push_back(nodes[7]);
+        nodes_faces[5].push_back(nodes[6]);
+        nodes_faces[5].push_back(nodes[3]);
+        nodes_faces[5].push_back(nodes[5]);
 
         // Make 4 triangular faces out of these nodes
-        nodes_face_6.push_back(nodes[6]);
-        nodes_face_6.push_back(nodes[7]);
-        nodes_face_6.push_back(nodes[8]);
+        nodes_faces[6].push_back(nodes[6]);
+        nodes_faces[6].push_back(nodes[7]);
+        nodes_faces[6].push_back(nodes[8]);
 
-        nodes_face_7.push_back(nodes[6]);
-        nodes_face_7.push_back(nodes[8]);
-        nodes_face_7.push_back(nodes[3]);
+        nodes_faces[7].push_back(nodes[6]);
+        nodes_faces[7].push_back(nodes[8]);
+        nodes_faces[7].push_back(nodes[3]);
 
-        nodes_face_8.push_back(nodes[3]);
-        nodes_face_8.push_back(nodes[8]);
-        nodes_face_8.push_back(nodes[5]);
+        nodes_faces[8].push_back(nodes[3]);
+        nodes_faces[8].push_back(nodes[8]);
+        nodes_faces[8].push_back(nodes[5]);
 
-        nodes_face_9.push_back(nodes[5]);
-        nodes_face_9.push_back(nodes[8]);
-        nodes_face_9.push_back(nodes[7]);
+        nodes_faces[9].push_back(nodes[5]);
+        nodes_faces[9].push_back(nodes[8]);
+        nodes_faces[9].push_back(nodes[7]);
 
         // Make the faces
         std::vector<VertexElement<2,3>*> faces;
 
-        faces.push_back(new VertexElement<2,3>(0, nodes_face_0));
-        faces.push_back(new VertexElement<2,3>(1, nodes_face_1));
-        faces.push_back(new VertexElement<2,3>(2, nodes_face_2));
-        faces.push_back(new VertexElement<2,3>(3, nodes_face_3));
-        faces.push_back(new VertexElement<2,3>(4, nodes_face_4));
-        faces.push_back(new VertexElement<2,3>(5, nodes_face_5));
-        faces.push_back(new VertexElement<2,3>(6, nodes_face_6));
-        faces.push_back(new VertexElement<2,3>(7, nodes_face_7));
-        faces.push_back(new VertexElement<2,3>(8, nodes_face_8));
-        faces.push_back(new VertexElement<2,3>(9, nodes_face_9));
+        for (unsigned i=0; i<10; i++)
+        {
+            faces.push_back(new VertexElement<2,3>(i, nodes_faces[i]));
+        }
 
         // Make the elements
         std::vector<VertexElement<2,3>*> faces_element_0, faces_element_1;
         std::vector<bool> orientations_0, orientations_1;
 
         // Cube element
-        faces_element_0.push_back(faces[0]);
-        faces_element_0.push_back(faces[1]);
-        faces_element_0.push_back(faces[2]);
-        faces_element_0.push_back(faces[3]);
-        faces_element_0.push_back(faces[4]);
-        faces_element_0.push_back(faces[5]);
-
-        orientations_0.push_back(true);
-        orientations_0.push_back(true);
-        orientations_0.push_back(true);
-        orientations_0.push_back(true);
-        orientations_0.push_back(true);
-        orientations_0.push_back(true);
+        for (unsigned i=0; i<6; i++)
+        {
+            faces_element_0.push_back(faces[i]);
+            orientations_0.push_back(true);
+        }
 
         // Pyramid element
-        faces_element_1.push_back(faces[6]);
-        faces_element_1.push_back(faces[7]);
-        faces_element_1.push_back(faces[8]);
-        faces_element_1.push_back(faces[9]);
+        for (unsigned i=6; i<10; i++)
+        {
+            faces_element_1.push_back(faces[6]);
+            orientations_1.push_back(true);
+        }
         faces_element_1.push_back(faces[5]);
-
-        orientations_1.push_back(true);
-        orientations_1.push_back(true);
-        orientations_1.push_back(true);
-        orientations_1.push_back(true);
         orientations_1.push_back(false);
 
         std::vector<VertexElement<3,3>*> elements;
@@ -535,44 +506,36 @@ public:
         nodes.push_back(new Node<3>(5, false, 1.0, 0.0, 3.0));
 
         // Make five faces out of these nodes
-        std::vector<Node<3>*> nodes_face_0;
-        nodes_face_0.push_back(nodes[0]);
-        nodes_face_0.push_back(nodes[4]);
-        nodes_face_0.push_back(nodes[5]);
-        nodes_face_0.push_back(nodes[1]);
+        std::vector<std::vector<Node<3>*> > nodes_faces(5);
 
-        std::vector<Node<3>*> nodes_face_1;
-        nodes_face_1.push_back(nodes[0]);
-        nodes_face_1.push_back(nodes[3]);
-        nodes_face_1.push_back(nodes[4]);
+        nodes_faces[0].push_back(nodes[0]);
+        nodes_faces[0].push_back(nodes[4]);
+        nodes_faces[0].push_back(nodes[5]);
+        nodes_faces[0].push_back(nodes[1]);
 
-        std::vector<Node<3>*> nodes_face_2;
-        nodes_face_2.push_back(nodes[3]);
-        nodes_face_2.push_back(nodes[2]);
-        nodes_face_2.push_back(nodes[5]);
-        nodes_face_2.push_back(nodes[4]);
+        nodes_faces[1].push_back(nodes[0]);
+        nodes_faces[1].push_back(nodes[3]);
+        nodes_faces[1].push_back(nodes[4]);
 
-        std::vector<Node<3>*> nodes_face_3;
-        nodes_face_3.push_back(nodes[1]);
-        nodes_face_3.push_back(nodes[5]);
-        nodes_face_3.push_back(nodes[2]);
+        nodes_faces[2].push_back(nodes[3]);
+        nodes_faces[2].push_back(nodes[2]);
+        nodes_faces[2].push_back(nodes[5]);
+        nodes_faces[2].push_back(nodes[4]);
 
-        std::vector<Node<3>*> nodes_face_4;
-        nodes_face_4.push_back(nodes[3]);
-        nodes_face_4.push_back(nodes[2]);
-        nodes_face_4.push_back(nodes[1]);
-        nodes_face_4.push_back(nodes[0]);
+        nodes_faces[3].push_back(nodes[1]);
+        nodes_faces[3].push_back(nodes[5]);
+        nodes_faces[3].push_back(nodes[2]);
 
-        std::vector<VertexElement<2,3>*> faces;
-        faces.push_back(new VertexElement<2,3>(0, nodes_face_0));
-        faces.push_back(new VertexElement<2,3>(1, nodes_face_1));
-        faces.push_back(new VertexElement<2,3>(2, nodes_face_2));
-        faces.push_back(new VertexElement<2,3>(3, nodes_face_3));
-        faces.push_back(new VertexElement<2,3>(4, nodes_face_4));
+        nodes_faces[4].push_back(nodes[3]);
+        nodes_faces[4].push_back(nodes[2]);
+        nodes_faces[4].push_back(nodes[1]);
+        nodes_faces[4].push_back(nodes[0]);
 
-        std::vector<bool> orientations(faces.size());
-        for (unsigned i=0; i<faces.size(); i++)
+        std::vector<VertexElement<2,3>*> faces(5);
+        std::vector<bool> orientations(5);
+        for (unsigned i=0; i<5; i++)
         {
+            faces[i] = new VertexElement<2,3>(i, nodes_faces[i]);
             orientations[i] = true;
         }
 
@@ -777,7 +740,7 @@ public:
     }
 
     // This tests that a 'dummy' archive function does not throw any errors
-    void TestArchiveVertexMesh()
+    void TestArchive2dVertexMesh()
     {
         std::string archive_dir = "archive";
         std::string archive_file = "vertex_mesh_base.arch";
@@ -799,8 +762,8 @@ public:
 
         // Create an output archive
         {
-            TS_ASSERT_EQUALS((static_cast<VertexMesh<2,2>* >(p_mesh))->GetNumNodes(), 46u);
-            TS_ASSERT_EQUALS((static_cast<VertexMesh<2,2>* >(p_mesh))->GetNumElements(), 15u);
+            TS_ASSERT_EQUALS((static_cast<VertexMesh<2,2>*>(p_mesh))->GetNumNodes(), 46u);
+            TS_ASSERT_EQUALS((static_cast<VertexMesh<2,2>*>(p_mesh))->GetNumElements(), 15u);
 
             // Create output archive
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);

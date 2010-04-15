@@ -110,21 +110,21 @@ c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(TissueCell& r
 
 void CryptSimulation2d::WriteVisualizerSetupFile()
 {
-    *mpSetupFile << "MeshWidth\t" << mpStaticCastTissue->rGetMesh().GetWidth(0u) << "\n";// get furthest distance between nodes in the x-direction
+    *mpVizSetupFile << "MeshWidth\t" << mpStaticCastTissue->rGetMesh().GetWidth(0u) << "\n";// get furthest distance between nodes in the x-direction
 }
 
 
 void CryptSimulation2d::SetupWriteBetaCatenin()
 {
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory + "/", false);
-    mBetaCatResultsFile = output_file_handler.OpenOutputFile("results.vizbetacatenin");
-    *mpSetupFile << "BetaCatenin\n";
+    mVizBetaCateninResultsFile = output_file_handler.OpenOutputFile("results.vizbetacatenin");
+    *mpVizSetupFile << "BetaCatenin\n";
 }
 
 
 void CryptSimulation2d::WriteBetaCatenin(double time)
 {
-    *mBetaCatResultsFile <<  time << "\t";
+    *mVizBetaCateninResultsFile <<  time << "\t";
 
     unsigned global_index;
     double x;
@@ -149,10 +149,10 @@ void CryptSimulation2d::WriteBetaCatenin(double time)
         b_cat_cytoplasm = p_model->GetCytoplasmicBetaCateninLevel();
         b_cat_nuclear = p_model->GetNuclearBetaCateninLevel();
 
-        *mBetaCatResultsFile << global_index << " " << x << " " << y << " " << b_cat_membrane << " " << b_cat_cytoplasm << " " << b_cat_nuclear << " ";
+        *mVizBetaCateninResultsFile << global_index << " " << x << " " << y << " " << b_cat_membrane << " " << b_cat_cytoplasm << " " << b_cat_nuclear << " ";
     }
 
-    *mBetaCatResultsFile << "\n";
+    *mVizBetaCateninResultsFile << "\n";
 }
 
 
@@ -209,10 +209,10 @@ void CryptSimulation2d::OutputParameters()
     *ParameterFile << "WntChemotaxisStrength \t" << p_inst->GetWntChemotaxisStrength() << " \n";
     *ParameterFile << "SymmetricDivisionProbability \t" << p_inst->GetSymmetricDivisionProbability() << " \n";
     *ParameterFile << "AreaBasedDampingConstantParameter \t" << p_inst->GetAreaBasedDampingConstantParameter() << " \n";
-    *ParameterFile << "DeformationEnergyParameter \t" << p_inst->GetDeformationEnergyParameter() << " \n";
-    *ParameterFile << "MembraneSurfaceEnergyParameter \t" << p_inst->GetMembraneSurfaceEnergyParameter() << " \n";
-    *ParameterFile << "CellCellAdhesionEnergyParameter \t" << p_inst->GetCellCellAdhesionEnergyParameter() << " \n";
-    *ParameterFile << "CellBoundaryAdhesionEnergyParameter \t" << p_inst->GetCellBoundaryAdhesionEnergyParameter() << " \n";
+    *ParameterFile << "NagaiHondaDeformationEnergyParameter \t" << p_inst->GetNagaiHondaDeformationEnergyParameter() << " \n";
+    *ParameterFile << "NagaiHondaMembraneSurfaceEnergyParameter \t" << p_inst->GetNagaiHondaMembraneSurfaceEnergyParameter() << " \n";
+    *ParameterFile << "NagaiHondaCellCellAdhesionEnergyParameter \t" << p_inst->GetNagaiHondaCellCellAdhesionEnergyParameter() << " \n";
+    *ParameterFile << "NagaiHondaCellBoundaryAdhesionEnergyParameter \t" << p_inst->GetNagaiHondaCellBoundaryAdhesionEnergyParameter() << " \n";
     *ParameterFile << "WelikyOsterAreaParameter \t" << p_inst->GetWelikyOsterAreaParameter() << " \n";
     *ParameterFile << "WelikyOsterPerimeterParameter \t" << p_inst->GetWelikyOsterPerimeterParameter() << " \n";
     *ParameterFile << "OutputCellIdData \t" << p_inst->GetOutputCellIdData() << " \n";
@@ -252,7 +252,7 @@ void CryptSimulation2d::AfterSolve()
     if (   (mrTissue.Begin() != mrTissue.End()) // there are any cells
         && (dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(mrTissue.Begin()->GetCellCycleModel())) ) // assume all the cells are the same
     {
-        mBetaCatResultsFile->close();
+        mVizBetaCateninResultsFile->close();
     }
 }
 

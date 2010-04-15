@@ -190,21 +190,21 @@ public:
      */
     double GetMatureCellTargetArea();
     /**
-     * @return mDeformationEnergyParameter
+     * @return mNagaiHondaDeformationEnergyParameter
      */
-    double GetDeformationEnergyParameter();
+    double GetNagaiHondaDeformationEnergyParameter();
     /**
-     * @return mMembraneSurfaceEnergyParameter
+     * @return mNagaiHondaMembraneSurfaceEnergyParameter
      */
-    double GetMembraneSurfaceEnergyParameter();
+    double GetNagaiHondaMembraneSurfaceEnergyParameter();
     /**
      * @return mCellCellAdhesionEnergyParameter
      */
-    double GetCellCellAdhesionEnergyParameter();
+    double GetNagaiHondaCellCellAdhesionEnergyParameter();
     /**
-     * @return mCellBoundaryAdhesionEnergyParameter
+     * @return mNagaiHondaCellBoundaryAdhesionEnergyParameter
      */
-    double GetCellBoundaryAdhesionEnergyParameter();
+    double GetNagaiHondaCellBoundaryAdhesionEnergyParameter();
     /**
      * @return mWelikyOsterAreaParameter.
      */
@@ -395,21 +395,21 @@ public:
      */
     void SetMatureCellTargetArea(double);
     /**
-     * Set mDeformationEnergyParameter.
+     * Set mNagaiHondaDeformationEnergyParameter.
      */
-    void SetDeformationEnergyParameter(double);
+    void SetNagaiHondaDeformationEnergyParameter(double);
     /**
-     * Set mMembraneSurfaceEnergyParameter.
+     * Set mNagaiHondaMembraneSurfaceEnergyParameter.
      */
-    void SetMembraneSurfaceEnergyParameter(double);
+    void SetNagaiHondaMembraneSurfaceEnergyParameter(double);
     /**
-     * Set mCellCellAdhesionEnergyParameter.
+     * Set mNagaiHondaCellCellAdhesionEnergyParameter.
      */
-    void SetCellCellAdhesionEnergyParameter(double);
+    void SetNagaiHondaCellCellAdhesionEnergyParameter(double);
     /**
-     * Set mCellBoundaryAdhesionEnergyParameter.
+     * Set mNagaiHondaCellBoundaryAdhesionEnergyParameter.
      */
-    void SetCellBoundaryAdhesionEnergyParameter(double);
+    void SetNagaiHondaCellBoundaryAdhesionEnergyParameter(double);
     /**
      * Set mWelikyOsterAreaParameter.
      */
@@ -690,25 +690,25 @@ private:
      * Cell deformation energy parameter.
      * For use in Nagai and Honda type vertex-based models.
      */
-    double mDeformationEnergyParameter;
+    double mNagaiHondaDeformationEnergyParameter;
 
     /**
      * Cell membrane energy parameter.
      * For use in Nagai and Honda type vertex-based models.
      */
-    double mMembraneSurfaceEnergyParameter;
+    double mNagaiHondaMembraneSurfaceEnergyParameter;
 
     /**
      * Cell-cell adhesion energy parameter.
      * For use in Nagai and Honda type vertex-based models.
      */
-    double mCellCellAdhesionEnergyParameter;
+    double mNagaiHondaCellCellAdhesionEnergyParameter;
 
     /**
      * Cell-boundary adhesion energy parameter.
      * For use in Nagai and Honda type vertex-based models.
      */
-    double mCellBoundaryAdhesionEnergyParameter;
+    double mNagaiHondaCellBoundaryAdhesionEnergyParameter;
 
     /**
      * Area parameter.
@@ -810,10 +810,10 @@ private:
         archive & mSymmetricDivisionProbability;
         archive & mAreaBasedDampingConstantParameter;
         archive & mMatureCellTargetArea;
-        archive & mDeformationEnergyParameter;
-        archive & mMembraneSurfaceEnergyParameter;
-        archive & mCellCellAdhesionEnergyParameter;
-        archive & mCellBoundaryAdhesionEnergyParameter;
+        archive & mNagaiHondaDeformationEnergyParameter;
+        archive & mNagaiHondaMembraneSurfaceEnergyParameter;
+        archive & mNagaiHondaCellCellAdhesionEnergyParameter;
+        archive & mNagaiHondaCellBoundaryAdhesionEnergyParameter;
         archive & mWelikyOsterAreaParameter;
         archive & mWelikyOsterPerimeterParameter;
         archive & mOutputCellIdData;

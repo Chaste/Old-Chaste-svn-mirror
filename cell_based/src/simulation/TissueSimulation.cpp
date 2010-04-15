@@ -245,13 +245,15 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueC
 template<unsigned DIM>
 void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<double, DIM> >& rNodeForces)
 {
+    unsigned num_nodes = mrTissue.GetNumNodes();
+
     /*
      * Get the previous node positions (these may be needed when applying boundary conditions,
      * e.g. in the case of immotile cells)
      */
     std::vector<c_vector<double, DIM> > old_node_locations;
-    old_node_locations.reserve(mrTissue.GetNumNodes());
-    for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
+    old_node_locations.reserve(num_nodes);
+    for (unsigned node_index=0; node_index<num_nodes; node_index++)
     {
         old_node_locations[node_index] = mrTissue.GetNode(node_index)->rGetLocation();
     }
@@ -268,7 +270,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
         if (SimulationTime::Instance()->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
             *mpNodeVelocitiesFile << SimulationTime::Instance()->GetTime() << "\t";
-            for (unsigned node_index=0; node_index<mrTissue.GetNumNodes(); node_index++)
+            for (unsigned node_index=0; node_index<num_nodes; node_index++)
             {
                 // We should never encounter deleted nodes due to where this method is called by Solve()
                 assert(!mrTissue.GetNode(node_index)->IsDeleted());
@@ -412,7 +414,7 @@ std::vector<double> TissueSimulation<DIM>::GetNodeLocation(const unsigned& rNode
     std::vector<double> location;
     for (unsigned i=0; i<DIM; i++)
     {
-        location.push_back( mrTissue.GetNode(rNodeIndex)->rGetLocation()[i] );
+        location.push_back(mrTissue.GetNode(rNodeIndex)->rGetLocation()[i]);
     }
     return location;
 }
@@ -460,7 +462,7 @@ void TissueSimulation<DIM>::Solve()
 
     mrTissue.CreateOutputFiles(results_directory+"/", false);
 
-    mpSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
+    mpVizSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
 
     if (TissueConfig::Instance()->GetOutputNodeVelocities())
     {
@@ -486,14 +488,14 @@ void TissueSimulation<DIM>::Solve()
     // Write initial conditions to file for the visualizer
     WriteVisualizerSetupFile();
 
-    *mpSetupFile << std::flush;
+    *mpVizSetupFile << std::flush;
 
     mrTissue.WriteResultsToFiles();
 
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::SETUP);
 
     // Initialise a vector of forces on node
-    std::vector<c_vector<double, DIM> > forces(mrTissue.GetNumNodes(),zero_vector<double>(DIM));
+    std::vector<c_vector<double, DIM> > forces(mrTissue.GetNumNodes(), zero_vector<double>(DIM));
 
     /////////////////////////////////////////////////////////////////////
     // Main time loop
@@ -524,15 +526,16 @@ void TissueSimulation<DIM>::Solve()
 
         // Then resize the std::vector if the number of cells has increased or decreased
         // (note this should be done after the above zeroing)
-        if (mrTissue.GetNumNodes()!=forces.size())
+        unsigned num_nodes = mrTissue.GetNumNodes();
+        if (num_nodes != forces.size())
         {
-            forces.resize(mrTissue.GetNumNodes(), zero_vector<double>(DIM));
+            forces.resize(num_nodes, zero_vector<double>(DIM));
         }
 
         // Now add force contributions from each AbstractForce
         for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
-             iter !=mForceCollection.end();
-             iter++)
+             iter != mForceCollection.end();
+             ++iter)
         {
             (*iter)->AddForceContribution(forces, mrTissue);
         }
@@ -584,8 +587,8 @@ void TissueSimulation<DIM>::Solve()
         mpNodeVelocitiesFile->close();
     }
 
-    *mpSetupFile << "Complete\n";
-    mpSetupFile->close();
+    *mpVizSetupFile << "Complete\n";
+    mpVizSetupFile->close();
 
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::OUTPUT);
 

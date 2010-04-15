@@ -63,9 +63,11 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
       mpBoxCollection(NULL),
       mDeleteNodes(true)
 {
-    mNodes.reserve(rMesh.GetNumNodes());
+    unsigned num_nodes = rMesh.GetNumNodes();
+
+    mNodes.reserve(num_nodes);
     // Copy the actual node objects from mesh to this (mesh-less) tissue.
-    for (unsigned i=0; i<rMesh.GetNumNodes(); i++)
+    for (unsigned i=0; i<num_nodes; i++)
     {
         Node<DIM>* p_node = new Node<DIM>(*(rMesh.GetNode(i)));
         mNodes.push_back(p_node);
@@ -169,15 +171,17 @@ void NodeBasedTissue<DIM>::FindMaxAndMin()
 
     for (unsigned i=0; i<mNodes.size(); i++)
     {
+        c_vector<double, DIM> posn = this->GetNode(i)->rGetLocation();
+
         for (unsigned j=0; j<DIM; j++)
         {
-            if (this->GetNode(i)->rGetLocation()[j] > max_posn(j))
+            if (posn(j) > max_posn(j))
             {
-                max_posn(j) = this->GetNode(i)->rGetLocation()[j];
+                max_posn(j) = posn(j);
             }
-            if (this->GetNode(i)->rGetLocation()[j] < min_posn(j))
+            if (posn(j) < min_posn(j))
             {
-                min_posn(j) = this->GetNode(i)->rGetLocation()[j];
+                min_posn(j) = posn(j);
             }
         }
     }
@@ -287,8 +291,6 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     SplitUpIntoBoxes(TissueConfig::Instance()->GetMechanicsCutOffLength(), domain_size);
 
     mpBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
-
-    //assert(mNodePairs.size() > 0); // should be possible to have nodes with no connections
 }
 
 
@@ -353,7 +355,7 @@ BoxCollection<DIM>* NodeBasedTissue<DIM>::GetBoxCollection()
 template<unsigned DIM>
 std::set< std::pair<Node<DIM>*, Node<DIM>* > >& NodeBasedTissue<DIM>::rGetNodePairs()
 {
-    if (mNodePairs.size()==0)
+    if (mNodePairs.empty())
     {
         EXCEPTION("No node pairs set up, rGetNodePairs probably called before Update");
     }

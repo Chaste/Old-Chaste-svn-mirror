@@ -487,8 +487,8 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsigned numProcs)
 {
     assert(ELEMENT_DIM==2 || ELEMENT_DIM==3);
-    assert( this->GetNumAllElements() == this->GetNumElements());
-    assert( this->GetNumAllNodes() == this->GetNumNodes());
+    assert(this->GetNumAllElements() == this->GetNumElements());
+    assert(this->GetNumAllNodes() == this->GetNumNodes());
 
     // Open a file for the elements
     OutputFileHandler handler("");
@@ -983,6 +983,8 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
     std::set<unsigned> current_node_pair;
     std::set<std::set<unsigned> >::iterator set_iter;
 
+    unsigned num_elements = mrMesh.GetNumAllElements();
+
     do
     {
         // Advance to the next edge in the mesh.
@@ -998,13 +1000,13 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
         {
             mElemIndex++;
             // ...skipping deleted ones
-            while (mElemIndex!=mrMesh.GetNumAllElements() && mrMesh.GetElement(mElemIndex)->IsDeleted())
+            while (mElemIndex!=num_elements && mrMesh.GetElement(mElemIndex)->IsDeleted())
             {
                 mElemIndex++;
             }
         }
 
-        if (mElemIndex != mrMesh.GetNumAllElements())
+        if (mElemIndex != num_elements)
         {
             unsigned node_a_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeALocalIndex);
             unsigned node_b_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
@@ -1094,19 +1096,22 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(un
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::RefreshJacobianCachedData()
 {
+    unsigned num_elements = this->GetNumAllElements();
+    unsigned num_boundary_elements = this->GetNumAllBoundaryElements();
+
     // Make sure we have enough space
-    this->mElementJacobians.resize(this->GetNumAllElements());
-    this->mElementInverseJacobians.resize(this->GetNumAllElements());
+    this->mElementJacobians.resize(num_elements);
+    this->mElementInverseJacobians.resize(num_elements);
 
     if (ELEMENT_DIM < SPACE_DIM)
     {
-        this->mElementWeightedDirections.resize(this->GetNumAllElements());
+        this->mElementWeightedDirections.resize(num_elements);
     }
 
-    this->mBoundaryElementWeightedDirections.resize(this->GetNumAllBoundaryElements());
+    this->mBoundaryElementWeightedDirections.resize(num_boundary_elements);
 
-    this->mElementJacobianDeterminants.resize(this->GetNumAllElements());
-    this->mBoundaryElementJacobianDeterminants.resize(this->GetNumAllBoundaryElements());
+    this->mElementJacobianDeterminants.resize(num_elements);
+    this->mBoundaryElementJacobianDeterminants.resize(num_boundary_elements);
 
     // Update caches
     for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = this->GetElementIteratorBegin();

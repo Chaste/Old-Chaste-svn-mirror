@@ -260,8 +260,8 @@ public:
             }
         }
 
-        TS_ASSERT(location_indices.size() == cells.size());
-        TS_ASSERT(location_indices.size() <= num_nodes);
+        TS_ASSERT_EQUALS(location_indices.size(), cells.size());
+        TS_ASSERT_LESS_THAN(location_indices.size(), num_nodes);
         TS_ASSERT_EQUALS(location_indices.size(), 8u);
 
         // Test Save with a MeshBasedTissueWithGhostNodes

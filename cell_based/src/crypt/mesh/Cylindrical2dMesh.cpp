@@ -258,9 +258,11 @@ void Cylindrical2dMesh::ReMesh(NodeMap &map)
      * element if it is not deleted. This is a temporary measure to get
      * around re-index crashing when there are no boundary elements.
      */
+    unsigned num_elements = GetNumAllElements();
     bool boundary_element_made = false;
     unsigned elem_index = 0;
-    while (elem_index<GetNumAllElements() && !boundary_element_made)
+
+    while (elem_index<num_elements && !boundary_element_made)
     {
         Element<2,2>* p_element = GetElement(elem_index);
         if (!p_element->IsDeleted())
@@ -611,10 +613,10 @@ void Cylindrical2dMesh::CorrectNonPeriodicMesh()
      * Now we just have to use the first pair of elements and copy their info over to the other side.
      * First we need to get hold of both elements on either side.
      */
-    if (temp_left_hand_side_elements.size() == 0 || temp_right_hand_side_elements.size() == 0)
+    if (temp_left_hand_side_elements.empty() || temp_right_hand_side_elements.empty())
     {
-        assert(temp_right_hand_side_elements.size()==0);
-        assert(temp_left_hand_side_elements.size()==0);
+        assert(temp_right_hand_side_elements.empty());
+        assert(temp_left_hand_side_elements.empty());
     }
     else
     {
@@ -689,6 +691,7 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned>& rMai
     assert(corresponding_elements.size() == 2);
 
     // Now corresponding_elements contains the two elements which are going to be replaced by rMainSideElements
+    unsigned num_elements = GetNumAllElements();
     for (std::set<unsigned>::iterator iter = rMainSideElements.begin();
          iter != rMainSideElements.end();
          ++iter)
@@ -703,12 +706,13 @@ void Cylindrical2dMesh::UseTheseElementsToDecideMeshing(std::set<unsigned>& rMai
             nodes.push_back(this->GetNode(GetCorrespondingNodeIndex(main_node)));
         }
 
-        // Make a new element.
-        Element<2,2>* p_new_element = new Element<2,2>(GetNumAllElements(), nodes);
+        // Make a new element
+        Element<2,2>* p_new_element = new Element<2,2>(num_elements, nodes);
         this->mElements.push_back(p_new_element);
         this->mElementJacobians.push_back(zero_matrix<double>(2,2));
         this->mElementInverseJacobians.push_back(zero_matrix<double>(2,2));
         this->mElementJacobianDeterminants.push_back(0.0);
+        num_elements++;
     }
 
     // Reindex to get rid of extra elements indices

@@ -80,10 +80,10 @@ TissueConfig::TissueConfig()
  * mSymmetricDivisionProbability has no units
  * mAreaBasedDampingConstantParameter has no units
  * mMatureCellTargetArea has no units
- * mDeformationEnergyParameter has ? units \todo Fix this comment (see also #1294)
- * mMembraneSurfaceEnergyParameter has ? units \todo Fix this comment (see also #1294)
- * mCellCellAdhesionEnergyParameter has ? units \todo Fix this comment (see also #1294)
- * mCellBoundaryAdhesionEnergyParameter has ? units \todo Fix this comment (see also #1294)
+ * mNagaiHondaDeformationEnergyParameter has ? units \todo Fix this comment (see also #1294)
+ * mNagaiHondaMembraneSurfaceEnergyParameter has ? units \todo Fix this comment (see also #1294)
+ * mNagaiHondaCellCellAdhesionEnergyParameter has ? units \todo Fix this comment (see also #1294)
+ * mNagaiHondaCellBoundaryAdhesionEnergyParameter has ? units \todo Fix this comment (see also #1294)
  * mWelikyOsterAreaParameter has ? units \todo Fix this comment (see also #1294)
  * mWelikyOsterPerimeterParameter has ? units \todo Fix this comment (see also #1294)
  */
@@ -138,10 +138,10 @@ void TissueConfig::Reset()
      * the default value 1, whereas Nagai and Honda (who denote the parameter by nu)
      * take the value 0.01.
      */
-    mDeformationEnergyParameter = 100.0; // This is 1.0 in the Nagai & Honda paper
-    mMembraneSurfaceEnergyParameter = 10.0;  // This is 0.1 the Nagai & Honda paper
-    mCellCellAdhesionEnergyParameter = 1.0; // This is 0.01 the Nagai & Honda paper
-    mCellBoundaryAdhesionEnergyParameter = 1.0; // This is 0.01 the Nagai & Honda paper
+    mNagaiHondaDeformationEnergyParameter = 100.0; // This is 1.0 in the Nagai & Honda paper
+    mNagaiHondaMembraneSurfaceEnergyParameter = 10.0;  // This is 0.1 the Nagai & Honda paper
+    mNagaiHondaCellCellAdhesionEnergyParameter = 1.0; // This is 0.01 the Nagai & Honda paper
+    mNagaiHondaCellBoundaryAdhesionEnergyParameter = 1.0; // This is 0.01 the Nagai & Honda paper
 
     /**
      * The following two parameters are used in vertex-based tissue simulations
@@ -306,21 +306,21 @@ double TissueConfig::GetMatureCellTargetArea()
 {
     return mMatureCellTargetArea;
 }
-double TissueConfig::GetDeformationEnergyParameter()
+double TissueConfig::GetNagaiHondaDeformationEnergyParameter()
 {
-    return mDeformationEnergyParameter;
+    return mNagaiHondaDeformationEnergyParameter;
 }
-double TissueConfig::GetMembraneSurfaceEnergyParameter()
+double TissueConfig::GetNagaiHondaMembraneSurfaceEnergyParameter()
 {
-    return mMembraneSurfaceEnergyParameter;
+    return mNagaiHondaMembraneSurfaceEnergyParameter;
 }
-double TissueConfig::GetCellCellAdhesionEnergyParameter()
+double TissueConfig::GetNagaiHondaCellCellAdhesionEnergyParameter()
 {
-    return mCellCellAdhesionEnergyParameter;
+    return mNagaiHondaCellCellAdhesionEnergyParameter;
 }
-double TissueConfig::GetCellBoundaryAdhesionEnergyParameter()
+double TissueConfig::GetNagaiHondaCellBoundaryAdhesionEnergyParameter()
 {
-    return mCellBoundaryAdhesionEnergyParameter;
+    return mNagaiHondaCellBoundaryAdhesionEnergyParameter;
 }
 double TissueConfig::GetWelikyOsterAreaParameter()
 {
@@ -558,21 +558,21 @@ void TissueConfig::SetMatureCellTargetArea(double matureCellTargetArea)
     assert(matureCellTargetArea>=0.0);
     mMatureCellTargetArea = matureCellTargetArea;
 }
-void TissueConfig::SetDeformationEnergyParameter(double deformationEnergyParameter)
+void TissueConfig::SetNagaiHondaDeformationEnergyParameter(double deformationEnergyParameter)
 {
-    mDeformationEnergyParameter = deformationEnergyParameter;
+    mNagaiHondaDeformationEnergyParameter = deformationEnergyParameter;
 }
-void TissueConfig::SetMembraneSurfaceEnergyParameter(double membraneSurfaceEnergyParameter)
+void TissueConfig::SetNagaiHondaMembraneSurfaceEnergyParameter(double membraneSurfaceEnergyParameter)
 {
-    mMembraneSurfaceEnergyParameter = membraneSurfaceEnergyParameter;
+    mNagaiHondaMembraneSurfaceEnergyParameter = membraneSurfaceEnergyParameter;
 }
-void TissueConfig::SetCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyParameter)
+void TissueConfig::SetNagaiHondaCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyParameter)
 {
-    mCellCellAdhesionEnergyParameter = cellCellAdhesionEnergyParameter;
+    mNagaiHondaCellCellAdhesionEnergyParameter = cellCellAdhesionEnergyParameter;
 }
-void TissueConfig::SetCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdhesionEnergyParameter)
+void TissueConfig::SetNagaiHondaCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdhesionEnergyParameter)
 {
-    mCellBoundaryAdhesionEnergyParameter = cellBoundaryAdhesionEnergyParameter;
+    mNagaiHondaCellBoundaryAdhesionEnergyParameter = cellBoundaryAdhesionEnergyParameter;
 }
 void TissueConfig::SetWelikyOsterAreaParameter(double welikyOsterAreaParameter)
 {

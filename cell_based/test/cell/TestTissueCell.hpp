@@ -272,7 +272,7 @@ public:
                 {
                     newly_born.push_back(cell_iterator->Divide());
                 }
-                cell_iterator++;
+                ++cell_iterator;
             }
 
             // Copy offspring in newly_born vector to cells vector
@@ -280,7 +280,7 @@ public:
             while (cell_iterator < newly_born.end())
             {
                 cells.push_back(*cell_iterator);
-                cell_iterator++;
+                ++cell_iterator;
             }
             newly_born.clear();
 
@@ -301,7 +301,7 @@ public:
                         break;
                 }
 
-                cell_iterator++;
+                ++cell_iterator;
             }
             times[i]=p_simulation_time->GetTime();
             i++;
@@ -482,7 +482,7 @@ public:
                     {
                         newly_born.push_back(cell_iterator->Divide());
                     }
-                    cell_iterator++;
+                    ++cell_iterator;
                 }
 
                 // Copy offspring in newly_born vector to cells vector
@@ -490,7 +490,7 @@ public:
                 while (cell_iterator < newly_born.end())
                 {
                     cells.push_back(*cell_iterator);
-                    cell_iterator++;
+                    ++cell_iterator;
                 }
 
                 newly_born.clear();
@@ -514,7 +514,7 @@ public:
                         break;
                 }
 
-                cell_iterator++;
+                ++cell_iterator;
             }
             cells.clear();
         }
@@ -586,7 +586,7 @@ public:
                 {
                     newly_born.push_back(cell_iterator->Divide());
                 }
-                cell_iterator++;
+                ++cell_iterator;
             }
 
             // Copy offspring in newly_born vector to cells vector
@@ -594,7 +594,7 @@ public:
             while (cell_iterator < newly_born.end())
             {
                 cells.push_back(*cell_iterator);
-                cell_iterator++;
+                ++cell_iterator;
             }
             newly_born.clear();
 
@@ -617,7 +617,7 @@ public:
                         differentiated_cells[i]++;
                         break;
                 }
-                cell_iterator++;
+                ++cell_iterator;
             }
 
             times[i]=p_simulation_time->GetTime();
@@ -996,7 +996,7 @@ public:
                         cell_iterator->StartApoptosis();
                     }
                 }
-                cell_iterator++;
+                ++cell_iterator;
             }
 
             // Copy offspring in newly_born vector to cells vector
@@ -1004,7 +1004,7 @@ public:
             while (cell_iterator < newly_born.end())
             {
                 cells.push_back(*cell_iterator);
-                cell_iterator++;
+                ++cell_iterator;
             }
             newly_born.clear();
 
@@ -1032,7 +1032,7 @@ public:
                     dead_cells[i]++;
                 }
 
-                cell_iterator++;
+                ++cell_iterator;
             }
             times[i] = p_simulation_time->GetTime();
             i++;
@@ -1329,7 +1329,7 @@ public:
 
                     newly_born.push_back(new_cell);
                 }
-                cell_iterator++;
+                ++cell_iterator;
             }
 
             // Copy offspring in newly_born vector to cells vector
@@ -1337,7 +1337,7 @@ public:
             while (cell_iterator < newly_born.end())
             {
                 cells.push_back(*cell_iterator);
-                cell_iterator++;
+                ++cell_iterator;
             }
             newly_born.clear();
 

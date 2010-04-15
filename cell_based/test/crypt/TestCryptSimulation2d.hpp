@@ -989,9 +989,9 @@ public:
 
         // Check writing of Voronoi data
         OutputFileHandler handler("Crypt2DWntMatureCells", false);
-        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizvoronoi";
+        std::string results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/voronoi.dat";
 
-        NumericFileComparison comp(results_file, "cell_based/test/data/Crypt2DWntMatureCells/VoronoiAreaAndPerimeter.dat");
+        NumericFileComparison comp(results_file, "cell_based/test/data/Crypt2DWntMatureCells/voronoi.dat");
         TS_ASSERT(comp.CompareFiles(2e-6));
 
         // Tidy up

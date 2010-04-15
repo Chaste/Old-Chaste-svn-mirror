@@ -168,8 +168,8 @@ std::vector<TissueCell*> CryptStatistics::GetCryptSection(double xBottom, double
     // Copy to a vector
     std::vector<TissueCell*> ordered_cells;
     for (std::list<std::pair<TissueCell*, double> >::iterator iter = cells_list.begin();
-        iter!=cells_list.end();
-        iter++)
+         iter!=cells_list.end();
+         ++iter)
     {
         ordered_cells.push_back(iter->first);
     }

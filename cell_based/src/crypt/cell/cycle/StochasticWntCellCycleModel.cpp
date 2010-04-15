@@ -54,9 +54,7 @@ void StochasticWntCellCycleModel::SetG2Duration()
     // Check that the normal random deviate has not returned a small or negative G2 duration
     if (mG2Duration < p_config->GetMinimumGapDuration())
     {
-        #define COVERAGE_IGNORE
         mG2Duration = p_config->GetMinimumGapDuration();
-        #undef COVERAGE_IGNORE
     }
 }
 

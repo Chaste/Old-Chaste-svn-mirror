@@ -108,7 +108,7 @@ protected:
     out_stream mpCellMutationStatesFile;
 
     /** Results file for cell ancestors */
-    out_stream mpCellAncestorsFile;
+    out_stream mpVizCellAncestorsFile;
 
     /** Results file for cell types */
     out_stream mpCellProliferativeTypesFile;
@@ -126,7 +126,7 @@ protected:
     out_stream mpCellIdFile;
 
     /** Results file for boundary nodes. */
-    out_stream mpBoundaryNodesFile;
+    out_stream mpVizBoundaryNodesFile;
 
     /** Whether the tissue contains a mesh */
     bool mTissueContainsMesh;

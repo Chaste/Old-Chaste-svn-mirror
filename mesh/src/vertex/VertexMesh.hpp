@@ -632,7 +632,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexElementIterator::VertexElementIterator
       mElementIter(elementIter),
       mSkipDeletedElements(skipDeletedElements)
 {
-    if (mrMesh.mElements.size() == 0)
+    if (mrMesh.mElements.empty())
     {
         // Cope with empty meshes
         mElementIter = mrMesh.mElements.end();

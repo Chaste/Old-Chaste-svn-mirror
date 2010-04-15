@@ -630,7 +630,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         if (this->mpDistributedVectorFactory)
         {
             delete this->mpDistributedVectorFactory;
-            this->mpDistributedVectorFactory =  new DistributedVectorFactory(this->GetNumNodes());
+            this->mpDistributedVectorFactory = new DistributedVectorFactory(this->GetNumNodes());
         }
     }
     if (SPACE_DIM==1)
