@@ -44,6 +44,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
+ * CVODE error handling function.
+ *
+ * Throw an Exception to report errors, rather than the CVODE approach of magic
+ * return codes.
+ */
+void CvodeErrorHandler(int errorCode, const char *module, const char *function,
+                       char *message, void* pData);
+// Note: declared here since it's also used by AbstractCvodeCell.
+
+
+/**
  * Data structure passed to CVODE calls, allowing our callback functions
  * to access the Chaste objects.
  */

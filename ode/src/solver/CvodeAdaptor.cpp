@@ -49,13 +49,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 void CopyToStdVector(N_Vector src, std::vector<realtype>& rDest)
 {
     // Check for no-op
-    if (NV_DATA_S(src) == &(rDest[0])) return;
+    realtype* p_src = NV_DATA_S(src);
+    if (p_src == &(rDest[0])) return;
     // Set dest size
-    rDest.resize(NV_LENGTH_S(src));
+    long size = NV_LENGTH_S(src);
+    rDest.resize(size);
     // Copy data
-    for (long i=0; i<NV_LENGTH_S(src); i++)
+    for (long i=0; i<size; i++)
     {
-        rDest[i] = NV_Ith_S(src, i);
+        rDest[i] = p_src[i];
     }
 }
 
@@ -94,8 +96,12 @@ int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void* pData)
         return -1;
     }
     // Copy derivative back
-    for (long i=0; i<NV_LENGTH_S(ydot); i++)
-        NV_Ith_S(ydot, i) = ydot_vec[i];
+    long len = NV_LENGTH_S(ydot);
+    realtype* p_ydot = NV_DATA_S(ydot);
+    for (long i=0; i<len; i++)
+    {
+        p_ydot[i] = ydot_vec[i];
+    }
     return 0;
 }
 
@@ -174,12 +180,7 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype* pGOut, void* pData)
 // }
 
 
-/**
- * CVODE error handling function.
- *
- * Throw an Exception to report errors, rather than the CVODE approach of magic
- * return codes.
- */
+
 void CvodeErrorHandler(int errorCode, const char *module, const char *function,
                        char *message, void* pData)
 {
