@@ -172,6 +172,8 @@ void AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::DoMatri
 
     HeartEventHandler::BeginEvent(HeartEventHandler::ASSEMBLE_RHS);
 
+    VecSetOption((*(this->GetLinearSystem()))->rGetRhsVector(), VEC_IGNORE_OFF_PROC_ENTRIES);
+
     (*(this->GetLinearSystem()))->ZeroRhsVector();
 
     // construct z
