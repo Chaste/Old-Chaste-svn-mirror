@@ -29,19 +29,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifdef CHASTE_CVODE
 
 #include "CvodeAdaptor.hpp"
-#include "AbstractIvpOdeSolver.hpp"
+
+#include "Exception.hpp"
 #include "TimeStepper.hpp"
 
 #include <iostream>
 
 // CVODE headers
-#include <cvode/cvode.h>
-#include <nvector/nvector_serial.h>
 #include <sundials/sundials_nvector.h>
 #include <cvode/cvode_dense.h>
 
+
 /**
  * A helper function to copy an N_Vector into a std::vector.
+ *
+ * @param src  source vector
+ * @param rDest  destination vector; will be resized and filled
  */
 void CopyToStdVector(N_Vector src, std::vector<realtype>& rDest)
 {
@@ -56,6 +59,22 @@ void CopyToStdVector(N_Vector src, std::vector<realtype>& rDest)
     }
 }
 
+/**
+ * CVODE right-hand-side function adaptor.
+ *
+ * The CVODE solvers require the RHS of the ODE system to be defined
+ * by a function of this type.  We use pData to access the Chaste ODE system,
+ * and call EvaluateYDerivatives appropriately.
+ *
+ * Note that this requires copying the state variable and derivatives vectors,
+ * and thus introduces a slight overhead.
+ *
+ * @param t  the current time
+ * @param y  the current state variable values
+ * @param ydot  to be filled in with the derivatives
+ * @param pData  a pointer to the AbstractOdeSystem to evaluate
+ * @return 0 on success, -1 for an unrecoverable error
+ */
 int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void* pData)
 {
     assert(pData != NULL);
@@ -80,6 +99,26 @@ int CvodeRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void* pData)
     return 0;
 }
 
+/**
+ * CVODE root-finder function adaptor.
+ *
+ * Adapt the Chaste AbstractOdeSystem::CalculateStoppingEvent method for use by CVODE.
+ *
+ * This function computes a vector-valued function g(t, y) such that the roots of the
+ * components g_i(t, y) are to be found during the integration.
+ *
+ * Unfortunately, AbstractOdeSystem::CalculateStoppingEvent returns a boolean value,
+ * so we have to cheat in the definition of g.
+ *
+ * Note that this function requires copying the state variable vector, and thus
+ * introduces a slight overhead.
+ *
+ * @param t  the current time
+ * @param y  the current state variable values
+ * @param pGOut  pointer to array to be filled in with the g_i(t, y) values
+ * @param pData  a pointer to the AbstractOdeSystem to use
+ * @return 0 on success, negative on error
+ */
 int CvodeRootAdaptor(realtype t, N_Vector y, realtype* pGOut, void* pData)
 {
     assert(pData != NULL);
@@ -99,6 +138,14 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype* pGOut, void* pData)
     return 0;
 }
 
+// /**
+//  * Jacobian computation adaptor function.
+//  *
+//  * If solving an AbstractOdeSystemWithAnalyticJacobian, this function
+//  * can be used to allow CVODE to compute the Jacobian analytically.
+//  *
+//  * Note to self: can test using pSystem->GetUseAnalyticJacobian().
+//  */
 // int CvodeDenseJacobianAdaptor(long int numberOfStateVariables, DenseMat J,
 //                               realtype t, N_Vector y, N_Vector fy,
 //                               void* pData,
@@ -127,6 +174,12 @@ int CvodeRootAdaptor(realtype t, N_Vector y, realtype* pGOut, void* pData)
 // }
 
 
+/**
+ * CVODE error handling function.
+ *
+ * Throw an Exception to report errors, rather than the CVODE approach of magic
+ * return codes.
+ */
 void CvodeErrorHandler(int errorCode, const char *module, const char *function,
                        char *message, void* pData)
 {
