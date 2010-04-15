@@ -75,8 +75,6 @@ double& DistributedVector::operator[](Iterator index) throw (DistributedVectorEx
 void DistributedVector::Restore()
 {
     VecRestoreArray(mVec, &mpVec);
-    VecAssemblyBegin(mVec);
-    VecAssemblyEnd(mVec);
 }
 
 //

@@ -232,9 +232,6 @@ void MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMa
     }
 
     dist_vec_matrix_based.Restore();
-
-    VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly);
-    VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly);
 }
 
 

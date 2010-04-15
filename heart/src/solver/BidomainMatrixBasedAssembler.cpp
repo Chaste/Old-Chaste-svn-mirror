@@ -197,9 +197,6 @@ void BidomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>::ConstructVectorForMatr
     }
 
     dist_vec_matrix_based.Restore();
-
-    VecAssemblyBegin(this->mVectorForMatrixBasedRhsAssembly);
-    VecAssemblyEnd(this->mVectorForMatrixBasedRhsAssembly);
 }
 
 /////////////////////////////////////////////////////////////////////
