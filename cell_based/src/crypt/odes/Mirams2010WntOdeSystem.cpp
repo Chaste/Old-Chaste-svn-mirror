@@ -61,9 +61,9 @@ Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel, boost::shared_pt
         b2 = (mA/2.0) / (((wntLevel + mB)/(mC*wntLevel + mD)) + mF);
     }
 
-    SetInitialConditionsComponent(0, b1);
-    SetInitialConditionsComponent(1, b2);
-    SetInitialConditionsComponent(2, wntLevel);
+    SetInitialCondition(0, b1);
+    SetInitialCondition(1, b2);
+    SetInitialCondition(2, wntLevel);
 }
 
 void Mirams2010WntOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)

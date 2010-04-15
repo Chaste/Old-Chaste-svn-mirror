@@ -89,10 +89,10 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(
     }
 
     // Cell-specific initial conditions
-    SetInitialConditionsComponent(5, destruction_level);
-    SetInitialConditionsComponent(6, beta_cat_level_1);
-    SetInitialConditionsComponent(7, beta_cat_level_2);
-    SetInitialConditionsComponent(8, wntLevel);
+    SetInitialCondition(5, destruction_level);
+    SetInitialCondition(6, beta_cat_level_1);
+    SetInitialCondition(7, beta_cat_level_2);
+    SetInitialCondition(8, wntLevel);
 }
 
 void WntCellCycleOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)

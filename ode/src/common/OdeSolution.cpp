@@ -100,19 +100,19 @@ void OdeSolution::WriteToFile(std::string directoryName,
 
     // Either: the ODE system should have no names&units defined, or it should
     // the same number as the number of solutions per timestep.
-    assert( mpOdeSystemInformation->rGetVariableNames().size()==0 ||
-            (mpOdeSystemInformation->rGetVariableNames().size()==mSolutions[0].size()) );
+    assert( mpOdeSystemInformation->rGetStateVariableNames().size()==0 ||
+            (mpOdeSystemInformation->rGetStateVariableNames().size()==mSolutions[0].size()) );
 
     unsigned num_vars = mSolutions[0].size();
 
     std::vector<int> var_ids;
     var_ids.reserve(num_vars);
-    if (mpOdeSystemInformation->rGetVariableNames().size() > 0)
+    if (mpOdeSystemInformation->rGetStateVariableNames().size() > 0)
     {
         for (unsigned i=0; i<num_vars; i++)
         {
-            var_ids.push_back(writer.DefineVariable(mpOdeSystemInformation->rGetVariableNames()[i],
-                                                    mpOdeSystemInformation->rGetVariableUnits()[i]));
+            var_ids.push_back(writer.DefineVariable(mpOdeSystemInformation->rGetStateVariableNames()[i],
+                                                    mpOdeSystemInformation->rGetStateVariableUnits()[i]));
         }
     }
     else

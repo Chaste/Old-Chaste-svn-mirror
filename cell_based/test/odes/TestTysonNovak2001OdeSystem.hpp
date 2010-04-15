@@ -129,10 +129,10 @@ public:
             int time_var_id = writer.DefineUnlimitedDimension("Time","s");
 
             std::vector<int> var_ids;
-            for (unsigned i=0; i<tyson_novak_system.rGetVariableNames().size(); i++)
+            for (unsigned i=0; i<tyson_novak_system.rGetStateVariableNames().size(); i++)
             {
-                var_ids.push_back(writer.DefineVariable(tyson_novak_system.rGetVariableNames()[i],
-                                                        tyson_novak_system.rGetVariableUnits()[i]));
+                var_ids.push_back(writer.DefineVariable(tyson_novak_system.rGetStateVariableNames()[i],
+                                                        tyson_novak_system.rGetStateVariableUnits()[i]));
             }
             writer.EndDefineMode();
 

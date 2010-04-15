@@ -174,23 +174,23 @@ public:
     unsigned GetNumberOfStateVariables();
 
     /** Get the names of this cell's state variables. */
-    const std::vector<std::string>& rGetVariableNames() const;
+    const std::vector<std::string>& rGetStateVariableNames() const;
 
     /** Get the units of this cell's state variables. */
-    const std::vector<std::string>& rGetVariableUnits() const;
+    const std::vector<std::string>& rGetStateVariableUnits() const;
 
     /**
      * This method is used to establish a state variable's position within
      * the vector of state variables of an ODE system. This number can
-     * then be used with the methods GetStateVariableValueByNumber and
-     * GetStateVariableUnitsByNumber.
+     * then be used with the methods GetStateVariable and
+     * GetStateVariableUnits.
      *
      * @param name  the name of a state variable.
      *
      * @return the state variable's position within the vector of state variables
      *         associated with the ODE system.
      */
-    unsigned GetStateVariableNumberByName(const std::string name) const;
+    unsigned GetStateVariableIndex(const std::string name) const;
 
     /**
      * Get the value of a state variable given its index in the ODE system.
@@ -200,7 +200,7 @@ public:
      *
      * @return the current value of the state variable.
      */
-    double GetStateVariableValueByNumber(unsigned varNumber) const;
+    double GetStateVariable(unsigned varNumber) const;
 
     /**
      * Get the units of a state variable given its index in the ODE system.
@@ -209,7 +209,7 @@ public:
      *                   state variables associated with the ODE system.
      * @return the units of the state variable.
      */
-    std::string GetStateVariableUnitsByNumber(unsigned varNumber) const;
+    std::string GetStateVariableUnits(unsigned varNumber) const;
 
     /**
      * Get the object which provides information about this ODE system.

@@ -140,35 +140,35 @@ unsigned AbstractCvodeCell::GetNumberOfStateVariables()
     return mNumberOfStateVariables;
 }
 
-const std::vector<std::string>& AbstractCvodeCell::rGetVariableNames() const
+const std::vector<std::string>& AbstractCvodeCell::rGetStateVariableNames() const
 {
     assert(mpSystemInfo);
-    return mpSystemInfo->rGetVariableNames();
+    return mpSystemInfo->rGetStateVariableNames();
 }
 
-const std::vector<std::string>& AbstractCvodeCell::rGetVariableUnits() const
+const std::vector<std::string>& AbstractCvodeCell::rGetStateVariableUnits() const
 {
     assert(mpSystemInfo);
-    return mpSystemInfo->rGetVariableUnits();
+    return mpSystemInfo->rGetStateVariableUnits();
 }
 
-unsigned AbstractCvodeCell::GetStateVariableNumberByName(const std::string name) const
+unsigned AbstractCvodeCell::GetStateVariableIndex(const std::string name) const
 {
     assert(mpSystemInfo);
-    return mpSystemInfo->GetStateVariableNumberByName(name);
+    return mpSystemInfo->GetStateVariableIndex(name);
 }
 
-double AbstractCvodeCell::GetStateVariableValueByNumber(unsigned varNumber) const
+double AbstractCvodeCell::GetStateVariable(unsigned varNumber) const
 {
     assert(varNumber < mNumberOfStateVariables);
     return NV_Ith_S(mStateVariables, varNumber);
 }
 
-std::string AbstractCvodeCell::GetStateVariableUnitsByNumber(unsigned varNumber) const
+std::string AbstractCvodeCell::GetStateVariableUnits(unsigned varNumber) const
 {
     assert(varNumber < mNumberOfStateVariables);
     assert(mpSystemInfo);
-    return mpSystemInfo->GetStateVariableUnitsByNumber(varNumber);
+    return mpSystemInfo->GetStateVariableUnits(varNumber);
 }
 
 boost::shared_ptr<const AbstractOdeSystemInformation> AbstractCvodeCell::GetSystemInformation() const
@@ -425,7 +425,7 @@ std::string AbstractCvodeCell::DumpState(const std::string& message,
     }
     for (unsigned i=0; i<NV_LENGTH_S(Y); i++)
     {
-        res << "\t" << rGetVariableNames()[i] << ":" << NV_Ith_S(Y, i) << "\n";
+        res << "\t" << rGetStateVariableNames()[i] << ":" << NV_Ith_S(Y, i) << "\n";
     }
     return res.str();
 }

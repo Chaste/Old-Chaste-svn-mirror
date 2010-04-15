@@ -256,7 +256,7 @@ void FoxModel2002Modified::EvaluateYDerivatives (
     {
         if (!(0.0<=rY[index] && rY[index]<=1.0))
         {
-            EXCEPTION(DumpState(rGetVariableNames()[index] +
+            EXCEPTION(DumpState(rGetStateVariableNames()[index] +
                       " gate has gone out of range. Check model parameters, for example spatial stepsize"));
         }
     }

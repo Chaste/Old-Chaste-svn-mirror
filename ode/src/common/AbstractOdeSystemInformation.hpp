@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <string>
-#include <stdexcept>
 
 /**
  * An abstract class which provides access to information about a particular
@@ -42,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  - names of state variables
  *  - units of state variables
  *  - suggested initial conditions
+ *  - names of (settable) parameters
+ *  - units of (settable) parameters
  *
  * This class requires a subclass defining the Initialise method in order to set
  * up the information.  Developers may do this by defining their own subclass, but
@@ -103,7 +104,7 @@ public:
      * @param index  the index of the state variable in the system
      * @param initialCondition  the initial value for the state variable
      */
-    void SetInitialConditionsComponent(unsigned index, double initialCondition) throw(std::out_of_range);
+    void SetInitialCondition(unsigned index, double initialCondition);
 
     /**
      * Get a copy of the suggested initial conditions.
@@ -111,34 +112,34 @@ public:
     std::vector<double> GetInitialConditions() const;
 
     /**
-     * Get the variable names vector.
+     * Get the state variable names vector.
      */
-    const std::vector<std::string>& rGetVariableNames() const;
+    const std::vector<std::string>& rGetStateVariableNames() const;
 
     /**
-     * Get the variable units vector.
+     * Get the state variable units vector.
      */
-    const std::vector<std::string>& rGetVariableUnits() const;
+    const std::vector<std::string>& rGetStateVariableUnits() const;
 
     /**
      * This method is used to establish a state varible's position within
      * the vector of state variables of an ODE system. This number can
-     * then be used with the method GetStateVariableUnitsByNumber.
+     * then be used with the method GetStateVariableUnits.
      *
      * @param rName  the name of a state variable
      * @return the state variable's position within the vector of state
      *         variables associated with the ODE system.
      */
-    unsigned GetStateVariableNumberByName(const std::string& rName) const;
+    unsigned GetStateVariableIndex(const std::string& rName) const;
 
     /**
      * Get the units of a state variable given its index in the ODE system.
      *
-     * @param varNumber  a state variable's position within the vector of
-     *                   state variables associated with the ODE system.
+     * @param index  a state variable's position within the vector of
+     *               state variables associated with the ODE system.
      * @return the units of the state variable.
      */
-    std::string GetStateVariableUnitsByNumber(unsigned varNumber) const;
+    std::string GetStateVariableUnits(unsigned index) const;
 
     /**
      * Get the vector of parameter names.
@@ -149,6 +150,46 @@ public:
      * Get the vector of parameter units.
      */
     const std::vector<std::string>& rGetParameterUnits() const;
+
+    /**
+     * This method is used to establish a parameter's position within
+     * the vector of parameters of an ODE system. This number can
+     * then be used with the method GetParameterUnits.
+     *
+     * @param rName  the name of a parameter
+     * @return the parameter's position within the vector of parameters
+     *         associated with the ODE system.
+     */
+    unsigned GetParameterIndex(const std::string& rName) const;
+
+    /**
+     * Get the units of a parameter given its index in the ODE system.
+     *
+     * @param index  a state variable's position within the vector of
+     *               state variables associated with the ODE system.
+     * @return the units of the state variable.
+     */
+    std::string GetParameterUnits(unsigned index) const;
+
+
+    /**
+     * Get the index of a variable, whether state variable or parameter,
+     * with the given name.  The returned index is suitable for use with
+     * GetAnyVariableUnits.
+     *
+     * @param rName  the name of a variable
+     */
+    unsigned GetAnyVariableIndex(const std::string& rName) const;
+
+    /**
+     * Get the units of a variable, whether state variable or parameter,
+     * given its index as returned by GetAnyVariableIndex.
+     *
+     * @param index  an index from GetAnyVariableIndex.
+     * @return the units of the variable.
+     */
+    std::string GetAnyVariableUnits(unsigned index) const;
+
 };
 
 

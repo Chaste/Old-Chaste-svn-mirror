@@ -53,7 +53,7 @@ std::string AbstractOdeSystem::DumpState(const std::string& rMessage,
     {
         Y = rGetStateVariables();
     }
-    const std::vector<std::string>& r_var_names = rGetVariableNames();
+    const std::vector<std::string>& r_var_names = rGetStateVariableNames();
     assert(Y.size() == r_var_names.size());
     for (unsigned i=0; i<r_var_names.size(); i++)
     {
@@ -75,11 +75,19 @@ unsigned AbstractOdeSystem::GetNumberOfParameters() const
 
 double AbstractOdeSystem::GetParameter(unsigned index) const
 {
+    if (index >= mParameters.size())
+    {
+        EXCEPTION("The index passed in must be less than the number of parameters.");
+    }
     return mParameters[index];
 }
 
 void AbstractOdeSystem::SetParameter(unsigned index, double value)
 {
+    if (index >= mParameters.size())
+    {
+        EXCEPTION("The index passed in must be less than the number of parameters.");
+    }
     mParameters[index] = value;
 }
 
@@ -100,20 +108,20 @@ void AbstractOdeSystem::SetInitialConditions(const std::vector<double>& rInitial
 {
     if (rInitialConditions.size() != mNumberOfStateVariables)
     {
-        EXCEPTION("The number of initial conditions must be that of the number of state variables");
+        EXCEPTION("The number of initial conditions must be that of the number of state variables.");
     }
     assert(mpSystemInfo);
     mpSystemInfo->SetInitialConditions(rInitialConditions);
 }
 
-void AbstractOdeSystem::SetInitialConditionsComponent(unsigned index, double initialCondition)
+void AbstractOdeSystem::SetInitialCondition(unsigned index, double initialCondition)
 {
     if (index >= mNumberOfStateVariables)
     {
-        EXCEPTION("Index is greater than the number of state variables");
+        EXCEPTION("Index is greater than the number of state variables.");
     }
     assert(mpSystemInfo);
-    mpSystemInfo->SetInitialConditionsComponent(index, initialCondition);
+    mpSystemInfo->SetInitialCondition(index, initialCondition);
 }
 
 std::vector<double> AbstractOdeSystem::GetInitialConditions() const
@@ -126,36 +134,44 @@ void AbstractOdeSystem::SetStateVariables(const std::vector<double>& rStateVaria
 {
     if ( mNumberOfStateVariables != rStateVariables.size() )
     {
-        EXCEPTION("The size of the passed in vector must be that of the number of state variables");
+        EXCEPTION("The size of the passed in vector must be that of the number of state variables.");
     }
     mStateVariables = rStateVariables;
 }
 
-void AbstractOdeSystem::SetStateVariable(unsigned stateVariable, double newValue)
+void AbstractOdeSystem::SetStateVariable(unsigned index, double newValue)
 {
-    if ( mNumberOfStateVariables <= stateVariable )
+    if ( mNumberOfStateVariables <= index )
     {
-        EXCEPTION("The index passed in must be less than the number of state variables");
+        EXCEPTION("The index passed in must be less than the number of state variables.");
     }
-    mStateVariables[stateVariable] = newValue;
+    mStateVariables[index] = newValue;
 }
 
+double AbstractOdeSystem::GetStateVariable(unsigned index) const
+{
+    if (index >= mNumberOfStateVariables)
+    {
+        EXCEPTION("The index passed in must be less than the number of state variables.");
+    }
+    return mStateVariables[index];
+}
 
 std::vector<double>& AbstractOdeSystem::rGetStateVariables()
 {
     return mStateVariables;
 }
 
-const std::vector<std::string>& AbstractOdeSystem::rGetVariableNames() const
+const std::vector<std::string>& AbstractOdeSystem::rGetStateVariableNames() const
 {
     assert(mpSystemInfo);
-    return mpSystemInfo->rGetVariableNames();
+    return mpSystemInfo->rGetStateVariableNames();
 }
 
-const std::vector<std::string>& AbstractOdeSystem::rGetVariableUnits() const
+const std::vector<std::string>& AbstractOdeSystem::rGetStateVariableUnits() const
 {
     assert(mpSystemInfo);
-    return mpSystemInfo->rGetVariableUnits();
+    return mpSystemInfo->rGetStateVariableUnits();
 }
 
 boost::shared_ptr<const AbstractOdeSystemInformation> AbstractOdeSystem::GetSystemInformation() const
@@ -175,21 +191,55 @@ bool AbstractOdeSystem::GetUseAnalyticJacobian()
     return mUseAnalyticJacobian;
 }
 
-unsigned AbstractOdeSystem::GetStateVariableNumberByName(const std::string name) const
+unsigned AbstractOdeSystem::GetStateVariableIndex(const std::string& rName) const
 {
     assert(mpSystemInfo);
-    return mpSystemInfo->GetStateVariableNumberByName(name);
+    return mpSystemInfo->GetStateVariableIndex(rName);
 }
 
-double AbstractOdeSystem::GetStateVariableValueByNumber(unsigned varNumber) const
+std::string AbstractOdeSystem::GetStateVariableUnits(unsigned index) const
 {
-    assert(varNumber < mNumberOfStateVariables);
-    return mStateVariables[varNumber];
-}
-
-std::string AbstractOdeSystem::GetStateVariableUnitsByNumber(unsigned varNumber) const
-{
-    assert(varNumber < mNumberOfStateVariables);
     assert(mpSystemInfo);
-    return mpSystemInfo->GetStateVariableUnitsByNumber(varNumber);
+    return mpSystemInfo->GetStateVariableUnits(index);
+}
+
+unsigned AbstractOdeSystem::GetParameterIndex(const std::string& rName) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetParameterIndex(rName);
+}
+
+std::string AbstractOdeSystem::GetParameterUnits(unsigned index) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetParameterUnits(index);
+}
+
+unsigned AbstractOdeSystem::GetAnyVariableIndex(const std::string& rName) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetAnyVariableIndex(rName);
+}
+
+std::string AbstractOdeSystem::GetAnyVariableUnits(unsigned index) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetAnyVariableUnits(index);
+}
+
+
+double AbstractOdeSystem::GetAnyVariable(unsigned index) const
+{
+    if (index < mNumberOfStateVariables)
+    {
+        return mStateVariables[index];
+    }
+    else if (index - mNumberOfStateVariables < mParameters.size())
+    {
+        return mParameters[index - mNumberOfStateVariables];
+    }
+    else
+    {
+        EXCEPTION("Invalid index passed to GetAnyVariable.");
+    }
 }

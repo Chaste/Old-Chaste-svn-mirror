@@ -54,8 +54,8 @@ public:
 template<>
 void OdeSystemInformation<ParameterisedOde>::Initialise()
 {
-    this->mVariableNames.push_back("Variable 1");
-    this->mVariableUnits.push_back("Units 1");
+    this->mVariableNames.push_back("y");
+    this->mVariableUnits.push_back("dimensionless");
     this->mInitialConditions.push_back(0.0);
 
     this->mParameterNames.push_back("a");

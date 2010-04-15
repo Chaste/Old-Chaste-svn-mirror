@@ -47,7 +47,7 @@ void AbstractOdeSystemInformation::SetInitialConditions(const std::vector<double
     mInitialConditions = rInitialConditions;
 }
 
-void AbstractOdeSystemInformation::SetInitialConditionsComponent(unsigned index, double initialCondition) throw(std::out_of_range)
+void AbstractOdeSystemInformation::SetInitialCondition(unsigned index, double initialCondition)
 {
     assert(mInitialised);
     mInitialConditions.at(index) = initialCondition;
@@ -59,35 +59,39 @@ std::vector<double> AbstractOdeSystemInformation::GetInitialConditions() const
     return mInitialConditions;
 }
 
-const std::vector<std::string>& AbstractOdeSystemInformation::rGetVariableNames() const
+const std::vector<std::string>& AbstractOdeSystemInformation::rGetStateVariableNames() const
 {
     assert(mInitialised);
     return mVariableNames;
 }
 
-const std::vector<std::string>& AbstractOdeSystemInformation::rGetVariableUnits() const
+const std::vector<std::string>& AbstractOdeSystemInformation::rGetStateVariableUnits() const
 {
     assert(mInitialised);
     return mVariableUnits;
 }
 
-unsigned AbstractOdeSystemInformation::GetStateVariableNumberByName(const std::string& rName) const
+unsigned AbstractOdeSystemInformation::GetStateVariableIndex(const std::string& rName) const
 {
     assert(mInitialised);
-    unsigned var_number = 0u;
+    unsigned index = 0u;
     std::vector<std::string>::const_iterator it = mVariableNames.begin();
-    for ( ; it != mVariableNames.end() && *it != rName; ++it, ++var_number);
+    for ( ; it != mVariableNames.end() && *it != rName; ++it, ++index);
     if (it == mVariableNames.end())
     {
-        EXCEPTION("State variable '" + rName + "' does not exist");
+        EXCEPTION("No state variable named '" + rName + "'.");
     }
-    return var_number;
+    return index;
 }
 
-std::string AbstractOdeSystemInformation::GetStateVariableUnitsByNumber(unsigned varNumber) const
+std::string AbstractOdeSystemInformation::GetStateVariableUnits(unsigned index) const
 {
     assert(mInitialised);
-    return mVariableUnits.at(varNumber);
+    if (index >= mVariableUnits.size())
+    {
+        EXCEPTION("The index passed in must be less than the number of state variables.");
+    }
+    return mVariableUnits[index];
 }
 
 
@@ -101,4 +105,68 @@ const std::vector<std::string>& AbstractOdeSystemInformation::rGetParameterUnits
 {
     assert(mInitialised);
     return mParameterUnits;
+}
+
+unsigned AbstractOdeSystemInformation::GetParameterIndex(const std::string& rName) const
+{
+    assert(mInitialised);
+    unsigned index = 0u;
+    std::vector<std::string>::const_iterator it = mParameterNames.begin();
+    for ( ; it != mParameterNames.end() && *it != rName; ++it, ++index);
+    if (it == mParameterNames.end())
+    {
+        EXCEPTION("No parameter named '" + rName + "'.");
+    }
+    return index;
+}
+
+std::string AbstractOdeSystemInformation::GetParameterUnits(unsigned index) const
+{
+    assert(mInitialised);
+    if (index >= mParameterUnits.size())
+    {
+        EXCEPTION("The index passed in must be less than the number of parameters.");
+    }
+    return mParameterUnits[index];
+}
+
+unsigned AbstractOdeSystemInformation::GetAnyVariableIndex(const std::string& rName) const
+{
+    assert(mInitialised);
+    try
+    {
+        return GetStateVariableIndex(rName);
+    }
+    catch (const Exception& e)
+    {
+        try
+        {
+            return mVariableNames.size() + GetParameterIndex(rName);
+        }
+        catch (const Exception& e)
+        {
+            EXCEPTION("No state variable or parameter named '" + rName + "'.");
+        }
+    }
+}
+
+std::string AbstractOdeSystemInformation::GetAnyVariableUnits(unsigned index) const
+{
+    assert(mInitialised);
+    if (index < mVariableUnits.size())
+    {
+        return mVariableUnits[index];
+    }
+    else
+    {
+        unsigned offset = mVariableUnits.size();
+        if (index - offset < mParameterUnits.size())
+        {
+            return mParameterUnits[index - offset];
+        }
+        else
+        {
+            EXCEPTION("Invalid index passed to GetAnyVariableUnits.");
+        }
+    }
 }

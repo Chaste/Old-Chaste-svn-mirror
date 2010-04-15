@@ -85,7 +85,7 @@ CombinedOdeSystemInformation::CombinedOdeSystemInformation(const std::vector<boo
     unsigned total_system_size = 0u;
     for (unsigned i=0; i<rSubsystemInfo.size(); i++)
     {
-        total_system_size += rSubsystemInfo[i]->rGetVariableNames().size();
+        total_system_size += rSubsystemInfo[i]->rGetStateVariableNames().size();
     }
     mVariableNames.reserve(total_system_size);
     mVariableUnits.reserve(total_system_size);
@@ -95,8 +95,8 @@ CombinedOdeSystemInformation::CombinedOdeSystemInformation(const std::vector<boo
     for (unsigned i=0; i<rSubsystemInfo.size(); i++)
     {
         std::vector<double> inits = rSubsystemInfo[i]->GetInitialConditions();
-        const std::vector<std::string>& names = rSubsystemInfo[i]->rGetVariableNames();
-        const std::vector<std::string>& units = rSubsystemInfo[i]->rGetVariableUnits();
+        const std::vector<std::string>& names = rSubsystemInfo[i]->rGetStateVariableNames();
+        const std::vector<std::string>& units = rSubsystemInfo[i]->rGetStateVariableUnits();
         unsigned system_size = names.size();
         assert(inits.size() == system_size);
         assert(units.size() == system_size);

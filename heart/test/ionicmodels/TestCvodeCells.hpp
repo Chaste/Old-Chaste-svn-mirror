@@ -163,12 +163,12 @@ public:
 
         // Coverage
         boost::shared_ptr<const AbstractOdeSystemInformation> p_sys_info = lr91_cvode_system.GetSystemInformation();
-        TS_ASSERT(p_sys_info->rGetVariableNames() == lr91_cvode_system.rGetVariableNames());
-        TS_ASSERT(p_sys_info->rGetVariableUnits() == lr91_cvode_system.rGetVariableUnits());
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableNumberByName("V"),
+        TS_ASSERT(p_sys_info->rGetStateVariableNames() == lr91_cvode_system.rGetStateVariableNames());
+        TS_ASSERT(p_sys_info->rGetStateVariableUnits() == lr91_cvode_system.rGetStateVariableUnits());
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableIndex("V"),
                          lr91_cvode_system.GetVoltageIndex());
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableValueByNumber(4),lr91_cvode_system.GetVoltage());
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableUnitsByNumber(4),"mV");
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariable(4),lr91_cvode_system.GetVoltage());
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableUnits(4),"mV");
 
         TS_ASSERT_DELTA(lr91_cvode_system.GetRelativeTolerance(), 1e-4, 1e-10);
         TS_ASSERT_DELTA(lr91_cvode_system.GetAbsoluteTolerance(), 1e-6, 1e-10);

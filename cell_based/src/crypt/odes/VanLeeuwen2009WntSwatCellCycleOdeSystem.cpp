@@ -100,19 +100,19 @@ VanLeeuwen2009WntSwatCellCycleOdeSystem::VanLeeuwen2009WntSwatCellCycleOdeSystem
 
     // Cell-specific initial conditions
     double steady_D = ((1.0-sigma_D)*mSd*mSx)/((1.0-sigma_D)*mSd*d_d_hat + d_x_hat*(d_d_hat + d_d_x_hat));
-    SetInitialConditionsComponent(5, steady_D); // Destruction complex (APC/Axin/GSK3B)
+    SetInitialCondition(5, steady_D); // Destruction complex (APC/Axin/GSK3B)
 
     double temp = (mSx*(d_d_hat+d_d_x_hat))/((1.0-sigma_D)*mSd*d_d_hat+d_x_hat*(d_d_hat+d_d_x_hat));
-    SetInitialConditionsComponent(6, temp);  // Axin
+    SetInitialCondition(6, temp);  // Axin
 
     double steady_Cf = ((mSc-mDc*mKd - mPu*steady_D)+sqrt(SmallPow((mSc-mDc*mKd - mPu*steady_D),2) + (4.0*mSc*mDc*mKd)))/(2.0*mDc);
     temp = (mPu*steady_D*steady_Cf)/(mDu*(steady_Cf+mKd));
-    SetInitialConditionsComponent(7, temp); // beta-catenin to be ubiquitinated
+    SetInitialCondition(7, temp); // beta-catenin to be ubiquitinated
 
     double theta = mDc + (mPu*steady_D)/(steady_Cf + mKd);
 
     double steady_Co = ( mSc - p_c_hat - theta*mKc + sqrt(4.0*mSc*theta*mKc + SmallPow((mSc - p_c_hat - theta*mKc),2)) )/(2.0*theta);
-    SetInitialConditionsComponent(8, steady_Co); // Open form beta-catenin
+    SetInitialCondition(8, steady_Co); // Open form beta-catenin
 
     double steady_Cc = steady_Cf - steady_Co;
 
@@ -120,22 +120,22 @@ VanLeeuwen2009WntSwatCellCycleOdeSystem::VanLeeuwen2009WntSwatCellCycleOdeSystem
     {
         steady_Cc = 0.0;
     }
-    SetInitialConditionsComponent(9, steady_Cc); // Closed form beta-catenin
+    SetInitialCondition(9, steady_Cc); // Closed form beta-catenin
 
-    SetInitialConditionsComponent(12, mSa/mDa);  // 'Free' adhesion molecules
+    SetInitialCondition(12, mSa/mDa);  // 'Free' adhesion molecules
 
-    SetInitialConditionsComponent(13, mSa*mSca*steady_Co/(mDa*mDca)); // Co-A Adhesion complex
+    SetInitialCondition(13, mSa*mSca*steady_Co/(mDa*mDca)); // Co-A Adhesion complex
 
-    SetInitialConditionsComponent(15, mSt/mDt); // `Free' transcription molecules (TCF)
+    SetInitialCondition(15, mSt/mDt); // `Free' transcription molecules (TCF)
 
-    SetInitialConditionsComponent(16, mSct*mSt*steady_Co/(mDt*mDct)); // Co-T open form beta-catenin/TCF
+    SetInitialCondition(16, mSct*mSt*steady_Co/(mDt*mDct)); // Co-T open form beta-catenin/TCF
 
-    SetInitialConditionsComponent(17, mSct*mSt*steady_Cc/(mDt*mDct)); // Cc-T closed beta-catenin/TCF
+    SetInitialCondition(17, mSct*mSt*steady_Cc/(mDt*mDct)); // Cc-T closed beta-catenin/TCF
 
     temp = (mSct*mSt*mSy*steady_Cf)/(mDy*(mSct*mSt*steady_Cf + mDct*mDt*mKt));
-    SetInitialConditionsComponent(20, temp); // Wnt target protein
+    SetInitialCondition(20, temp); // Wnt target protein
 
-    SetInitialConditionsComponent(21, wntLevel); // Wnt stimulus
+    SetInitialCondition(21, wntLevel); // Wnt stimulus
 }
 
 void VanLeeuwen2009WntSwatCellCycleOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)

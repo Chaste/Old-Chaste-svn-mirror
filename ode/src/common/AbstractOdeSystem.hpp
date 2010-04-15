@@ -60,7 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Information about what the parameters and state variables represent is
  * provided by a subclass of AbstractOdeSystemInformation.  Various wrapper
- * methods (e.g. rGetVariableNames) are provided in this class to access
+ * methods (e.g. rGetStateVariableNames) are provided in this class to access
  * this information.
  *
  * There are two more advanced facilities available for subclass authors.
@@ -193,12 +193,12 @@ public:
     void SetInitialConditions(const std::vector<double>& rInitialConditions);
 
     /**
-     * Set the initial condition one state variable.
+     * Set the initial condition of one state variable.
      *
      * @param index  the index of the state variable in the system
      * @param initialCondition  the initial value for the state variable
      */
-    void SetInitialConditionsComponent(unsigned index, double initialCondition);
+    void SetInitialCondition(unsigned index, double initialCondition);
 
     /**
      * Get the initial conditions for the ODE system.
@@ -215,10 +215,17 @@ public:
     /**
      * Set the value of a single state variable in the ODE system.
      *
-     * @param stateVariable index of the state variable to be set
+     * @param index index of the state variable to be set
      * @param newValue new value of the state variable
      */
-    void SetStateVariable(unsigned stateVariable, double newValue);
+    void SetStateVariable(unsigned index, double newValue);
+
+    /**
+     * Get the value of a given state variable.
+     *
+     * @param index the index of the state variable
+     */
+    double GetStateVariable(unsigned index) const;
 
     /**
      * Get the values of the state variables in the ODE system.
@@ -228,12 +235,12 @@ public:
     /**
      * Get the names of the state variables in the ODE system.
      */
-    const std::vector<std::string>& rGetVariableNames() const;
+    const std::vector<std::string>& rGetStateVariableNames() const;
 
     /**
      * Get the units of the state variables in the ODE system.
      */
-    const std::vector<std::string>& rGetVariableUnits() const;
+    const std::vector<std::string>& rGetStateVariableUnits() const;
 
     /**
      *  CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
@@ -267,37 +274,75 @@ public:
      */
     bool GetUseAnalyticJacobian();
 
+
     /**
      * This method is used to establish a state variable's position within
-     * the vector of state variables of an ODE system. This number can
-     * then be used with the methods GetStateVariableValueByNumber and
-     * GetStateVariableUnitsByNumber.
+     * the vector of state variables of an ODE system.  This number can
+     * then be used with the methods GetStateVariable and GetStateVariableUnits.
      *
-     * @param name  the name of a state variable.
+     * @param rName  the name of a state variable.
      *
      * @return the state variable's position within the vector of state variables
      *         associated with the ODE system.
      */
-    unsigned GetStateVariableNumberByName(const std::string name) const;
-
-    /**
-     * Get the value of a state variable given its index in the ODE system.
-     *
-     * @param varNumber  a state variable's position within the vector of
-     *                   state variables associated with the ODE system.
-     *
-     * @return the current value of the state variable.
-     */
-    double GetStateVariableValueByNumber(unsigned varNumber) const;
+    unsigned GetStateVariableIndex(const std::string& rName) const;
 
     /**
      * Get the units of a state variable given its index in the ODE system.
      *
-     * @param varNumber  a state variable's position within the vector of
-     *                   state variables associated with the ODE system.
+     * @param index  a state variable's position within the vector of
+     *               state variables associated with the ODE system.
      * @return the units of the state variable.
      */
-    std::string GetStateVariableUnitsByNumber(unsigned varNumber) const;
+    std::string GetStateVariableUnits(unsigned index) const;
+
+
+    /**
+     * This method is used to establish a parameter's position within
+     * the vector of parameters of an ODE system. This number can
+     * then be used with the methods GetParameterUnits and GetParameter.
+     *
+     * @param rName  the name of a parameter
+     * @return the parameter's position within the vector of parameters
+     *         associated with the ODE system.
+     */
+    unsigned GetParameterIndex(const std::string& rName) const;
+
+    /**
+     * Get the units of a parameter given its index in the ODE system.
+     *
+     * @param index  a state variable's position within the vector of
+     *               state variables associated with the ODE system.
+     * @return the units of the state variable.
+     */
+    std::string GetParameterUnits(unsigned index) const;
+
+
+    /**
+     * Get the index of a variable, whether state variable or parameter,
+     * with the given name.  The returned index is suitable for use with
+     * GetAnyVariableUnits and GetAnyVariable.
+     *
+     * @param rName  the name of a variable
+     */
+    unsigned GetAnyVariableIndex(const std::string& rName) const;
+
+    /**
+     * Get the units of a variable, whether state variable or parameter,
+     * given its index as returned by GetAnyVariableIndex.
+     *
+     * @param index  an index from GetAnyVariableIndex.
+     * @return the units of the variable.
+     */
+    std::string GetAnyVariableUnits(unsigned index) const;
+
+    /**
+     * Get the value of a variable, either a state variable or a parameter.
+     *
+     * @param index the index of the variable, as given by GetAnyVariableIndex.
+     */
+    double GetAnyVariable(unsigned index) const;
+
 
     /**
      * Get the object which provides information about this ODE system.

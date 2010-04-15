@@ -129,7 +129,7 @@ public :
         // the following is just to get a realistic Ca_I value
         boost::shared_ptr<ZeroStimulus> p_zero_stimulus(new ZeroStimulus);
         LuoRudyIModel1991OdeSystem lr91(p_euler_solver, p_zero_stimulus);
-        unsigned Ca_i_index = lr91.GetStateVariableNumberByName("CaI");
+        unsigned Ca_i_index = lr91.GetStateVariableIndex("CaI");
         double Ca_I = lr91.rGetStateVariables()[Ca_i_index];
 
         // lambda1=1, dlamdt = 0, so there should be no active tension
@@ -183,13 +183,13 @@ public :
         NhsContractionModel cellmech_model;
 
         // find out if electrophys model has CaTrop
-        unsigned Ca_i_index = electrophys_model.GetStateVariableNumberByName("CaI");
+        unsigned Ca_i_index = electrophys_model.GetStateVariableIndex("CaI");
         bool has_Ca_trop = false;
         unsigned Ca_trop_index=0;
 
         try
         {
-            Ca_trop_index = electrophys_model.GetStateVariableNumberByName("CaTrop");
+            Ca_trop_index = electrophys_model.GetStateVariableIndex("CaTrop");
             has_Ca_trop = true;
         }
         catch(Exception& e)
@@ -291,13 +291,13 @@ public :
         NhsContractionModel cellmech_model;
 
         // find out if electrophys model has CaTrop
-        unsigned Ca_i_index = electrophys_model.GetStateVariableNumberByName("CaI");
+        unsigned Ca_i_index = electrophys_model.GetStateVariableIndex("CaI");
         bool has_Ca_trop = false;
         unsigned Ca_trop_index=0;
 
         try
         {
-            Ca_trop_index = electrophys_model.GetStateVariableNumberByName("CaTrop");
+            Ca_trop_index = electrophys_model.GetStateVariableIndex("CaTrop");
             has_Ca_trop = true;
         }
         catch(Exception& e)

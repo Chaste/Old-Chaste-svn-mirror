@@ -604,7 +604,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::WriteExtraVariab
              ++index)
         {
             // Store value for node "index"
-            distributed_var_data[index] = this->mpCardiacPde->GetCardiacCell(index.Global)->GetStateVariableValueByNumber(mExtraVariablesId[var_index]);
+            distributed_var_data[index] = this->mpCardiacPde->GetCardiacCell(index.Global)->GetStateVariable(mExtraVariablesId[var_index]);
         }
         distributed_var_data.Restore();
 

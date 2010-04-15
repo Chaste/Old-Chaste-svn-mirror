@@ -276,12 +276,12 @@ public:
         TS_ASSERT_DELTA(initial_conditions[0], 0.0, 1e-12);
         TS_ASSERT_DELTA(initial_conditions[1], 1.0, 1e-12);
         // Test variable names & units
-        const std::vector<std::string>& r_names = combined_ode_system.rGetVariableNames();
-        TS_ASSERT_EQUALS(r_names[0], ode_for_y.rGetVariableNames()[0]);
-        TS_ASSERT_EQUALS(r_names[1], ode_for_x.rGetVariableNames()[0]);
-        const std::vector<std::string>& r_units = combined_ode_system.rGetVariableUnits();
-        TS_ASSERT_EQUALS(r_units[0], ode_for_y.rGetVariableUnits()[0]);
-        TS_ASSERT_EQUALS(r_units[1], ode_for_x.rGetVariableUnits()[0]);
+        const std::vector<std::string>& r_names = combined_ode_system.rGetStateVariableNames();
+        TS_ASSERT_EQUALS(r_names[0], ode_for_y.rGetStateVariableNames()[0]);
+        TS_ASSERT_EQUALS(r_names[1], ode_for_x.rGetStateVariableNames()[0]);
+        const std::vector<std::string>& r_units = combined_ode_system.rGetStateVariableUnits();
+        TS_ASSERT_EQUALS(r_units[0], ode_for_y.rGetStateVariableUnits()[0]);
+        TS_ASSERT_EQUALS(r_units[1], ode_for_x.rGetStateVariableUnits()[0]);
 
         // Test solving the combined system.
         // This is dy/dt = x, dx/dt = -y, y(0) = 0, x(0) = 1.
@@ -385,14 +385,14 @@ public:
         TS_ASSERT_DELTA(initial_conditions[1], 1.0, 1e-12);
         TS_ASSERT_DELTA(initial_conditions[2], 0.0, 1e-12);
         // Test variable names & units
-        const std::vector<std::string>& r_names = combined_ode_system.rGetVariableNames();
-        TS_ASSERT_EQUALS(r_names[0], ode_for_x.rGetVariableNames()[0]);
-        TS_ASSERT_EQUALS(r_names[1], ode_for_y.rGetVariableNames()[0]);
-        TS_ASSERT_EQUALS(r_names[2], ode_for_z.rGetVariableNames()[0]);
-        const std::vector<std::string>& r_units = combined_ode_system.rGetVariableUnits();
-        TS_ASSERT_EQUALS(r_units[0], ode_for_x.rGetVariableUnits()[0]);
-        TS_ASSERT_EQUALS(r_units[1], ode_for_y.rGetVariableUnits()[0]);
-        TS_ASSERT_EQUALS(r_units[2], ode_for_z.rGetVariableUnits()[0]);
+        const std::vector<std::string>& r_names = combined_ode_system.rGetStateVariableNames();
+        TS_ASSERT_EQUALS(r_names[0], ode_for_x.rGetStateVariableNames()[0]);
+        TS_ASSERT_EQUALS(r_names[1], ode_for_y.rGetStateVariableNames()[0]);
+        TS_ASSERT_EQUALS(r_names[2], ode_for_z.rGetStateVariableNames()[0]);
+        const std::vector<std::string>& r_units = combined_ode_system.rGetStateVariableUnits();
+        TS_ASSERT_EQUALS(r_units[0], ode_for_x.rGetStateVariableUnits()[0]);
+        TS_ASSERT_EQUALS(r_units[1], ode_for_y.rGetStateVariableUnits()[0]);
+        TS_ASSERT_EQUALS(r_units[2], ode_for_z.rGetStateVariableUnits()[0]);
         TS_ASSERT_EQUALS(r_units[0], "dimensionless_x");
         TS_ASSERT_EQUALS(r_units[1], "dimensionless_y");
         TS_ASSERT_EQUALS(r_units[2], "dimensionless_z");
@@ -444,10 +444,10 @@ public:
         TS_ASSERT_DELTA(initial_conditions[1], 1.0, 1e-12);
         TS_ASSERT_DELTA(initial_conditions[2], 0.0, 1e-12);
         // Test variable names & units
-        const std::vector<std::string>& r_names = combined_ode_system.rGetVariableNames();
-        TS_ASSERT_EQUALS(r_names[0], ode_for_x.rGetVariableNames()[0]);
-        TS_ASSERT_EQUALS(r_names[1], ode_for_yz.rGetVariableNames()[0]);
-        TS_ASSERT_EQUALS(r_names[2], ode_for_yz.rGetVariableNames()[1]);
+        const std::vector<std::string>& r_names = combined_ode_system.rGetStateVariableNames();
+        TS_ASSERT_EQUALS(r_names[0], ode_for_x.rGetStateVariableNames()[0]);
+        TS_ASSERT_EQUALS(r_names[1], ode_for_yz.rGetStateVariableNames()[0]);
+        TS_ASSERT_EQUALS(r_names[2], ode_for_yz.rGetStateVariableNames()[1]);
 
         // x'=x-y+z, y'=y-z, z'=2y-z
         // starting at (x,y,z)=(0,1,0)

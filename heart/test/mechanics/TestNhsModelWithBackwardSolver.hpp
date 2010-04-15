@@ -49,7 +49,7 @@ private:
         boost::shared_ptr<EulerIvpOdeSolver> p_euler_solver(new EulerIvpOdeSolver);
         boost::shared_ptr<ZeroStimulus> p_zero_stimulus(new ZeroStimulus);
         LuoRudyIModel1991OdeSystem lr91(p_euler_solver, p_zero_stimulus);
-        return lr91.rGetStateVariables()[lr91.GetStateVariableNumberByName("CaI")];
+        return lr91.rGetStateVariables()[lr91.GetStateVariableIndex("CaI")];
     }
 
 public:

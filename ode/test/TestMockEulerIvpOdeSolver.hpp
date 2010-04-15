@@ -65,7 +65,7 @@ public:
 
         TS_ASSERT_EQUALS(euler_solver.GetCallCount(), 1U);
 
-        ode_system.SetInitialConditionsComponent(0, 0.0);
+        ode_system.SetInitialCondition(0, 0.0);
 
         state_variables = ode_system.GetInitialConditions();
         solutions = euler_solver.Solve(&ode_system, state_variables, 0.0, 2.0, 0.001, 2.0);
