@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestFourthOrderTensor : public CxxTest::TestSuite
 {
 public :
-    void testFourthOrderTensor() throw(Exception)
+    void TestFourthOrderTensorAllSameDimensions() throw(Exception)
     {
         FourthOrderTensor<2,2,2,2> x;
 
@@ -119,12 +119,10 @@ public :
     }
 
 
-    // Test the first of the four possibilities for SetAsContraction
-    void TestSetAsContraction0() throw(Exception)
+    void TestSetAsContractionOnFirstDimensionSameDimensions() throw(Exception)
     {
         FourthOrderTensor<3,3,3,3> X;
         c_matrix<double,3,3> A;
-        
         for (unsigned M=0; M<3; M++)
         {
             for (unsigned N=0; N<3; N++)
@@ -159,8 +157,7 @@ public :
     }
 
 
-    // Test the second of the four possibilities for SetAsContraction
-    void TestSetAsContraction1() throw(Exception)
+    void TestSetAsContractionOnSecondDimensionSameDimensions() throw(Exception)
     {
         FourthOrderTensor<3,3,3,3> X;
         c_matrix<double,3,3> A;
@@ -198,8 +195,7 @@ public :
         }
     }
 
-    // Test the third of the four possibilities for SetAsContraction
-    void TestSetAsContraction2() throw(Exception)
+    void TestSetAsContractionOnThirdDimensionSameDimensions() throw(Exception)
     {
         FourthOrderTensor<3,3,3,3> X;
         c_matrix<double,3,3> A;
@@ -237,8 +233,7 @@ public :
         }
     }
 
-    // Test the last of the four possibilities for SetAsContraction
-    void TestSetAsContraction3() throw(Exception)
+    void TestSetAsContractionOnFourthDimensionSameDimensions() throw(Exception)
     {
         FourthOrderTensor<3,3,3,3> X;
         c_matrix<double,3,3> A;
@@ -274,6 +269,128 @@ public :
                 }
             }
         }
+    }
+    
+    void TestFourthOrderTensorDifferentDimensions1() throw (Exception)
+    {
+        FourthOrderTensor<2,3,1,1> X;
+        
+        for (unsigned i=0; i<2; i++)
+        {
+            for (unsigned j=0; j<3; j++)
+            {
+                for (unsigned k=0; k<1; k++)
+                {
+                    for (unsigned n=0; n<1; n++)
+                    {
+                        X(i,j,k,n) = (i==j);
+                    }
+                }
+            }
+        }
+
+        c_matrix<double,1,2> A;
+        A(0,0) = 2;
+        A(0,1) = 3; 
+        
+        FourthOrderTensor<1,3,1,1> Y;
+        Y.SetAsContractionOnFirstDimension<2>(A,X);
+
+        TS_ASSERT_DELTA( Y(0,0,0,0), A(0,0), 1e-8);
+        TS_ASSERT_DELTA( Y(0,1,0,0), A(0,1), 1e-8);
+        TS_ASSERT_DELTA( Y(0,2,0,0), 0.0,    1e-8);
+    }
+
+
+    void TestFourthOrderTensorDifferentDimensions2() throw (Exception)
+    {
+        FourthOrderTensor<2,3,1,1> X;
+        
+        for (unsigned i=0; i<2; i++)
+        {
+            for (unsigned j=0; j<3; j++)
+            {
+                for (unsigned k=0; k<1; k++)
+                {
+                    for (unsigned n=0; n<1; n++)
+                    {
+                        X(i,j,k,n) = (i==j);
+                    }
+                }
+            }
+        }
+
+        c_matrix<double,1,3> A;
+        A(0,0) = 2;
+        A(0,1) = 3; 
+        A(0,2) = 4; 
+        
+        FourthOrderTensor<2,1,1,1> Y;
+        Y.SetAsContractionOnSecondDimension<3>(A,X);
+
+        TS_ASSERT_DELTA( Y(0,0,0,0), A(0,0), 1e-8);
+        TS_ASSERT_DELTA( Y(1,0,0,0), A(0,1), 1e-8);
+    }
+
+    void TestFourthOrderTensorDifferentDimensions3() throw (Exception)
+    {
+        FourthOrderTensor<1,1,2,3> X;
+        
+        for (unsigned i=0; i<1; i++)
+        {
+            for (unsigned j=0; j<1; j++)
+            {
+                for (unsigned k=0; k<2; k++)
+                {
+                    for (unsigned n=0; n<3; n++)
+                    {
+                        X(i,j,k,n) = (k==n);
+                    }
+                }
+            }
+        }
+
+        c_matrix<double,1,2> A;
+        A(0,0) = 2;
+        A(0,1) = 3; 
+        
+        FourthOrderTensor<1,1,1,3> Y;
+        Y.SetAsContractionOnThirdDimension<2>(A,X);
+
+        TS_ASSERT_DELTA( Y(0,0,0,0), A(0,0), 1e-8);
+        TS_ASSERT_DELTA( Y(0,0,0,1), A(0,1), 1e-8);
+        TS_ASSERT_DELTA( Y(0,0,0,2), 0.0,    1e-8);
+    }
+
+
+    void TestFourthOrderTensorDifferentDimensions4() throw (Exception)
+    {
+        FourthOrderTensor<1,1,2,3> X;
+        
+        for (unsigned i=0; i<1; i++)
+        {
+            for (unsigned j=0; j<1; j++)
+            {
+                for (unsigned k=0; k<2; k++)
+                {
+                    for (unsigned n=0; n<3; n++)
+                    {
+                        X(i,j,k,n) = (k==n);
+                    }
+                }
+            }
+        }
+
+        c_matrix<double,1,3> A;
+        A(0,0) = 2;
+        A(0,1) = 3; 
+        A(0,2) = 4; 
+        
+        FourthOrderTensor<1,1,2,1> Y;
+        Y.SetAsContractionOnFourthDimension<3>(A,X);
+
+        TS_ASSERT_DELTA( Y(0,0,0,0), A(0,0), 1e-8);
+        TS_ASSERT_DELTA( Y(0,0,1,0), A(0,1), 1e-8);
     }
 };
 #endif /*TESTFOURTHORDERTENSOR_HPP_*/
