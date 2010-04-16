@@ -112,7 +112,7 @@ protected:
      * Populate mNodes with locations corresponding to the element
      * circumcentres of a given TetrahedralMesh. Used by 'Voronoi'
      * constructors.
-     * 
+     *
      * @param rMesh a tetrahedral mesh
      */
     void GenerateVerticesFromElementCircumcentres(TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
@@ -324,7 +324,7 @@ public:
      * Given the global index of a node in the Delaunay mesh, returns the
      * global index of the corresponding element in the Voronoi mesh or
      * throws an exception if this does not exist.
-     * 
+     *
      * @param index global index of a node in the Delaunay mesh
      */
     unsigned SolveVoronoiElementIndexMapping(unsigned index);

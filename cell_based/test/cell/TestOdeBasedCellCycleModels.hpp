@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <boost/shared_ptr.hpp>
 
+#include "Alarcon2004OxygenBasedCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
@@ -883,6 +884,70 @@ public:
     }
 
 
+    void TestAlarcon2004OxygenBasedCellCycleModel() throw(Exception)
+    {
+        TissueConfig::Instance()->SetHepaOneParameters();
+
+        // Set up SimulationTime
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
+
+        // Set up oxygen_concentration
+        std::vector<double> oxygen_concentration;
+        oxygen_concentration.push_back(1.0);
+        CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+
+        // Create cell cycle model and associated cell
+        Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
+        p_cell_model->SetDimension(2);
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        TissueCell cell(STEM, p_state, p_cell_model);
+
+        // Coverage of cell cycle model copying without an ODE system set up
+        TissueCell stem_cell2 = cell;
+        TS_ASSERT_EQUALS(stem_cell2.GetMutationState()->IsType<WildTypeCellMutationState>(), true);
+
+        cell.InitialiseCellCycleModel();
+
+        // Check oxygen concentration is correct in cell cycle model
+        TS_ASSERT_DELTA(p_cell_model->GetProteinConcentrations()[5], 1.0, 1e-5);
+        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
+
+        // Divide a cell
+        Alarcon2004OxygenBasedCellCycleModel* p_cell_model2 = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
+
+        TissueCell cell2(STEM, p_state, p_cell_model2);
+
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false)
+        TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(), false);
+
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true)
+        TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(), true);
+
+        TS_ASSERT_THROWS_NOTHING(p_cell_model->ResetForDivision());
+
+        // Tidy up
+        CellwiseData<2>::Destroy();
+
+        // For coverage, create a 1D model
+        CellwiseData<1>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        Alarcon2004OxygenBasedCellCycleModel* p_cell_model3 = new Alarcon2004OxygenBasedCellCycleModel();
+        p_cell_model3->SetDimension(1);
+        TissueCell cell3(STEM, p_state, p_cell_model3);
+        cell3.InitialiseCellCycleModel();
+
+        TS_ASSERT_DELTA(p_cell_model3->GetProteinConcentrations()[5], 1.0, 1e-5);
+        TS_ASSERT_EQUALS(p_cell_model3->ReadyToDivide(), false);
+        p_simulation_time->IncrementTimeOneStep();
+        TS_ASSERT_EQUALS(p_cell_model3->ReadyToDivide(), false);
+
+        // Tidy up
+        CellwiseData<1>::Destroy();
+    }
+
+
     void TestArchiveTysonNovakCellCycleModels()
     {
         // Set up
@@ -1295,6 +1360,89 @@ public:
         // Tidy up
         WntConcentration<2>::Destroy();
     }
+
+
+    void TestArchiveAlarcon2004OxygenBasedCellCycleModels()
+    {
+        // Set up
+        TissueConfig::Instance()->SetHepaOneParameters();
+
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "alarcon_cell_cycle.arch";
+
+        std::vector<double> oxygen_concentration;
+        oxygen_concentration.push_back(1.0);
+        CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+
+        {
+            // Set up simulation time
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 2);
+
+            // Create cell cycle model and associated cell
+            Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
+            p_cell_model->SetDimension(3);
+
+            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+            TissueCell cell(STEM, p_state, p_cell_model);
+
+            cell.InitialiseCellCycleModel();
+            cell.GetCellCycleModel()->SetBirthTime(-10.0);
+
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(), false);
+
+            p_simulation_time->IncrementTimeOneStep();
+            TS_ASSERT_EQUALS(cell.GetCellCycleModel()->ReadyToDivide(), true);
+
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Archive cell
+            TissueCell* const p_cell = &cell;
+            output_arch << p_cell;
+
+            // Tidy up
+            SimulationTime::Destroy();
+        }
+
+        {
+            // Set up simulation time
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            p_simulation_time->SetStartTime(0.0);
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
+            TissueConfig* inst1 = TissueConfig::Instance();
+
+            inst1->SetSDuration(101.0);
+
+            TissueCell* p_cell;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_cell;
+
+            // Check that archiving worked correctly
+            Alarcon2004OxygenBasedCellCycleModel* p_model = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell->GetCellCycleModel());
+
+            TS_ASSERT_EQUALS(p_cell, p_model->GetCell());
+            TS_ASSERT_EQUALS(p_model->GetDimension(), 3u);
+            TS_ASSERT_EQUALS(p_model->ReadyToDivide(), true);
+
+            TS_ASSERT_DELTA(p_model->GetBirthTime(), -10.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetAge(), 20.0, 1e-12);
+            TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 10.0, 1e-12);
+
+            // Tidy up
+            delete p_cell;
+            CellwiseData<3>::Destroy();
+        }
+    }
+
 
     void TestCopyingCells() throw(Exception)
     {

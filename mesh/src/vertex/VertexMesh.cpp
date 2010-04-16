@@ -64,7 +64,7 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     // In 3D, populate mFaces
     if (SPACE_DIM == 3)
     {
-        // Use a std::set to keep track of which faces have been added to mFaces 
+        // Use a std::set to keep track of which faces have been added to mFaces
         std::set<unsigned> faces_counted;
 
         // Loop over mElements
@@ -354,7 +354,7 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh,
             {
                 // Calculate angle
                 c_vector<double, 3> vertex_vector =  mNodes[*index_iter]->rGetLocation() - mid_edge;
-    
+
                 double local_vertex_dot_basis_vector1 = inner_prod(vertex_vector, basis_vector1);
                 double local_vertex_dot_basis_vector2 = inner_prod(vertex_vector, basis_vector2);
 

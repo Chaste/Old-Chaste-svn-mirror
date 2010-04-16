@@ -34,7 +34,7 @@ HoneycombVertexMeshGenerator::HoneycombVertexMeshGenerator(unsigned numElementsA
 {
     assert(numElementsAcross > 0);
     assert(numElementsUp > 0);
-    
+
     std::vector<Node<2>*> nodes;
     std::vector<VertexElement<2,2>*>  elements;
 

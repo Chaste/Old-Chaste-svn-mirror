@@ -58,7 +58,7 @@ public:
      */
     HoneycombVertexMeshGenerator(unsigned numElementsAcross,
                                  unsigned numElementsUp);
-    
+
     /**
      * Null constructor for derived classes to call...
      */

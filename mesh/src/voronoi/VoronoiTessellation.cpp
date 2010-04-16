@@ -207,7 +207,7 @@ void VoronoiTessellation<3>::Initialise(TetrahedralMesh<3,3>& rMesh)
             {
                 // Calculate angle
                 c_vector<double, 3> vertex_vector = *(mVertices[*element_index_iterator]) - mid_edge;
-    
+
                 double local_vertex_dot_basis_vector1 = inner_prod(vertex_vector, basis_vector1);
                 double local_vertex_dot_basis_vector2 = inner_prod(vertex_vector, basis_vector2);
 

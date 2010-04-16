@@ -81,7 +81,7 @@ public:
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.node";
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.cell";
 
-        //To ignore the provenance data we only go as far as 
+        //To ignore the provenance data we only go as far as
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file1 + " mesh/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file2 + " mesh/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
 

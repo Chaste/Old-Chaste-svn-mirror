@@ -1395,7 +1395,7 @@ public:
         nodes.push_back(new Node<3>(2, true,  1.0, 0.0, 1.0));
         nodes.push_back(new Node<3>(3, true,  0.0, 1.0, 1.0));
         nodes.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
-        
+
         MutableMesh<3,3> delaunay_mesh(nodes);
         TS_ASSERT_EQUALS(delaunay_mesh.CheckIsVoronoi(), true);
 
@@ -1456,7 +1456,7 @@ public:
         TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumFaces(), 4u);
     }
-    
+
     void TestTessellationConstructor3dWithGhostNodeforCoverage() throw (Exception)
     {
         // Create a simple 3D tetrahedral mesh, the Delaunay triangulation
@@ -1467,7 +1467,7 @@ public:
         nodes.push_back(new Node<3>(3, true,  0.0, 1.0, 1.0));
         nodes.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
         nodes.push_back(new Node<3>(5, true, 2.0, 2.0, 2.0));
-             
+
         MutableMesh<3,3> delaunay_mesh(nodes);
         TS_ASSERT_EQUALS(delaunay_mesh.CheckIsVoronoi(), true);
 
