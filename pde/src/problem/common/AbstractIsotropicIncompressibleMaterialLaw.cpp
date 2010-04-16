@@ -39,7 +39,7 @@ void AbstractIsotropicIncompressibleMaterialLaw<DIM>::ComputeStressAndStressDeri
         c_matrix<double,DIM,DIM>& rInvC,
         double                    pressure,
         c_matrix<double,DIM,DIM>& rT,
-        FourthOrderTensor<DIM>&   rDTdE,
+        FourthOrderTensor<DIM,DIM,DIM,DIM>&   rDTdE,
         bool                      computeDTdE)
 {
     // this is covered, but gcov doesn't see this as being covered

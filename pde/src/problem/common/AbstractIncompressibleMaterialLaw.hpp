@@ -71,7 +71,7 @@ public :
                                                   c_matrix<double,DIM,DIM>& rInvC,
                                                   double                    pressure,
                                                   c_matrix<double,DIM,DIM>& rT,
-                                                  FourthOrderTensor<DIM>&   rDTdE,
+                                                  FourthOrderTensor<DIM,DIM,DIM,DIM>&   rDTdE,
                                                   bool                      computeDTdE)=0;
 
     /**

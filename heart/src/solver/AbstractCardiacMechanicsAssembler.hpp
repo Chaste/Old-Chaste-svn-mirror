@@ -509,13 +509,13 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
          *******************************************************************/
 
 
-        static FourthOrderTensor<DIM> dTdE_F;
-        static FourthOrderTensor<DIM> dTdE_FF1;
-        static FourthOrderTensor<DIM> dTdE_FF2;
+        static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_F;
+        static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_FF1;
+        static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_FF2;
 
-        dTdE_F.SetAsProduct(this->dTdE, F, 1);  // B^{MdPQ}  = F^d_N * dTdE^{MdPQ}
-        dTdE_FF1.SetAsProduct(dTdE_F, F, 3);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ}
-        dTdE_FF2.SetAsProduct(dTdE_F, F, 2);    // B2^{MdeQ} = F^d_N * F^e_P * dTdE^{MNPQ}
+        dTdE_F.template SetAsContractionOnSecondDimension<DIM>(F, this->dTdE);  // B^{MdPQ}  = F^d_N * dTdE^{MdPQ}
+        dTdE_FF1.template SetAsContractionOnFourthDimension<DIM>(F, dTdE_F);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ}
+        dTdE_FF2.template SetAsContractionOnThirdDimension<DIM>(F, dTdE_F);    // B2^{MdeQ} = F^d_N * F^e_P * dTdE^{MNPQ}
 
 
         /////////////////////////////////////////

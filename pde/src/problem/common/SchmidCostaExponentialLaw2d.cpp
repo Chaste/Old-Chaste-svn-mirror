@@ -61,7 +61,7 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
                                                                    c_matrix<double,2,2>& rInvC,
                                                                    double                pressure,
                                                                    c_matrix<double,2,2>& rT,
-                                                                   FourthOrderTensor<2>& rDTdE,
+                                                                   FourthOrderTensor<2,2,2,2>& rDTdE,
                                                                    bool                  computeDTdE)
 {
     static c_matrix<double,2,2> C_transformed;
@@ -134,11 +134,11 @@ void SchmidCostaExponentialLaw2d::ComputeStressAndStressDerivative(c_matrix<doub
         // dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
         if (computeDTdE)
         {
-            static FourthOrderTensor<2> temp;
-            temp.SetAsProduct(rDTdE, *mpChangeOfBasisMatrix, 0);
-            rDTdE.SetAsProduct(temp, *mpChangeOfBasisMatrix, 1);
-            temp.SetAsProduct(rDTdE, *mpChangeOfBasisMatrix, 2);
-            rDTdE.SetAsProduct(temp, *mpChangeOfBasisMatrix, 3);
+            static FourthOrderTensor<2,2,2,2> temp;
+            temp.SetAsContractionOnFirstDimension<2>(*mpChangeOfBasisMatrix, rDTdE);
+            rDTdE.SetAsContractionOnSecondDimension<2>(*mpChangeOfBasisMatrix, temp);
+            temp.SetAsContractionOnThirdDimension<2>(*mpChangeOfBasisMatrix, rDTdE);
+            rDTdE.SetAsContractionOnFourthDimension<2>(*mpChangeOfBasisMatrix, temp);
         }
     }
 }

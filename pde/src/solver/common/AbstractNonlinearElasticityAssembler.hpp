@@ -133,7 +133,7 @@ protected:
      *  Storage space for a 4th order tensor used in assembling the
      *  Jacobian (to avoid repeated memory allocation)
      */
-    FourthOrderTensor<DIM> dTdE;
+    FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE;
 
     /** Number of Newton iterations taken in last solve */
     unsigned mNumNewtonIterations;

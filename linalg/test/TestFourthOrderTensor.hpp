@@ -38,7 +38,7 @@ class TestFourthOrderTensor : public CxxTest::TestSuite
 public :
     void testFourthOrderTensor() throw(Exception)
     {
-        FourthOrderTensor<2> x;
+        FourthOrderTensor<2,2,2,2> x;
 
         for (unsigned M=0; M<2; M++)
         {
@@ -70,7 +70,7 @@ public :
         }
 
 
-        FourthOrderTensor<3> y;
+        FourthOrderTensor<3,3,3,3> y;
 
         for (unsigned M=0; M<3; M++)
         {
@@ -119,17 +119,12 @@ public :
     }
 
 
-    // Test the first of the four possibilities for SetAsProduct
-    void TestSetAsProduct0() throw(Exception)
+    // Test the first of the four possibilities for SetAsContraction
+    void TestSetAsContraction0() throw(Exception)
     {
-        FourthOrderTensor<3> X;
+        FourthOrderTensor<3,3,3,3> X;
         c_matrix<double,3,3> A;
-
-        // check throws if bad component passed in..
-        FourthOrderTensor<3> Z;
-        TS_ASSERT_THROWS_THIS(Z.SetAsProduct(X,A,5), "Component not 0, 1, 2, or 3");
-
-
+        
         for (unsigned M=0; M<3; M++)
         {
             for (unsigned N=0; N<3; N++)
@@ -145,8 +140,8 @@ public :
             }
         }
 
-        FourthOrderTensor<3> Y;
-        Y.SetAsProduct(X,A,0);
+        FourthOrderTensor<3,3,3,3> Y;
+        Y.SetAsContractionOnFirstDimension<3>(A,X);
 
         for (unsigned M=0; M<3; M++)
         {
@@ -164,10 +159,10 @@ public :
     }
 
 
-    // Test the second of the four possibilities for SetAsProduct
-    void TestSetAsProduct1() throw(Exception)
+    // Test the second of the four possibilities for SetAsContraction
+    void TestSetAsContraction1() throw(Exception)
     {
-        FourthOrderTensor<3> X;
+        FourthOrderTensor<3,3,3,3> X;
         c_matrix<double,3,3> A;
 
         for (unsigned M=0; M<3; M++)
@@ -185,8 +180,8 @@ public :
             }
         }
 
-        FourthOrderTensor<3> Y;
-        Y.SetAsProduct(X,A,1);
+        FourthOrderTensor<3,3,3,3> Y;
+        Y.SetAsContractionOnSecondDimension<3>(A,X);
 
         for (unsigned M=0; M<3; M++)
         {
@@ -203,10 +198,10 @@ public :
         }
     }
 
-    // Test the third of the four possibilities for SetAsProduct
-    void TestSetAsProduct2() throw(Exception)
+    // Test the third of the four possibilities for SetAsContraction
+    void TestSetAsContraction2() throw(Exception)
     {
-        FourthOrderTensor<3> X;
+        FourthOrderTensor<3,3,3,3> X;
         c_matrix<double,3,3> A;
 
         for (unsigned M=0; M<3; M++)
@@ -224,8 +219,8 @@ public :
             }
         }
 
-        FourthOrderTensor<3> Y;
-        Y.SetAsProduct(X,A,2);
+        FourthOrderTensor<3,3,3,3> Y;
+        Y.SetAsContractionOnThirdDimension<3>(A,X);
 
         for (unsigned M=0; M<3; M++)
         {
@@ -242,10 +237,10 @@ public :
         }
     }
 
-    // Test the last of the four possibilities for SetAsProduct
-    void TestSetAsProduct3() throw(Exception)
+    // Test the last of the four possibilities for SetAsContraction
+    void TestSetAsContraction3() throw(Exception)
     {
-        FourthOrderTensor<3> X;
+        FourthOrderTensor<3,3,3,3> X;
         c_matrix<double,3,3> A;
 
         for (unsigned M=0; M<3; M++)
@@ -263,8 +258,8 @@ public :
             }
         }
 
-        FourthOrderTensor<3> Y;
-        Y.SetAsProduct(X,A,3);
+        FourthOrderTensor<3,3,3,3> Y;
+        Y.SetAsContractionOnFourthDimension<3>(A,X);
 
         for (unsigned M=0; M<3; M++)
         {

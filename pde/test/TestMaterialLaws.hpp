@@ -129,7 +129,7 @@ public:
         c_matrix<double,3,3> S;
         c_matrix<double,3,3> sigma;
 
-        FourthOrderTensor<3> dTdE;
+        FourthOrderTensor<3,3,3,3> dTdE;
 
         ml_law_3d.ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, true);
         ml_law_3d.Compute1stPiolaKirchoffStress(F,pressure,S);
@@ -333,7 +333,7 @@ public:
         double pressure = 5.0;
 
         c_matrix<double,3,3> T;
-        FourthOrderTensor<3> dTdE;
+        FourthOrderTensor<3,3,3,3> dTdE;
 
         poly_law.ComputeStressAndStressDerivative(C, invC, pressure, T, dTdE, true);
 
@@ -452,7 +452,7 @@ public:
         c_matrix<double,2,2> invC = Inverse(C);
 
         c_matrix<double,2,2> T;
-        FourthOrderTensor<2> dTdE;
+        FourthOrderTensor<2,2,2,2> dTdE;
         double pressure = pole_zero_law.GetZeroStrainPressure();
 
         pole_zero_law.ComputeStressAndStressDerivative(C,invC,pressure,T,dTdE,true);
@@ -547,7 +547,7 @@ public:
         // test the pressure terms in the stress and stress-deriv, by calling with
         // p=0 and p=1 and verifying the difference is what it should be
         c_matrix<double,2,2> T2;
-        FourthOrderTensor<2> dTdE2;
+        FourthOrderTensor<2,2,2,2> dTdE2;
         pole_zero_law.ComputeStressAndStressDerivative(C, invC, 0.0, T,  dTdE,  true);
         pole_zero_law.ComputeStressAndStressDerivative(C, invC, 1.0, T2, dTdE2, true);
 
@@ -611,7 +611,7 @@ public:
         c_matrix<double,3,3> invC = Inverse(C);
 
         c_matrix<double,3,3> T;
-        FourthOrderTensor<3> dTdE;
+        FourthOrderTensor<3,3,3,3> dTdE;
 
         pole_zero_law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 
@@ -679,7 +679,7 @@ public:
         invC = Inverse(C);
 
         c_matrix<double,3,3> T;
-        FourthOrderTensor<3> dTdE;
+        FourthOrderTensor<3,3,3,3> dTdE;
 
         law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 
@@ -701,7 +701,7 @@ public:
         invC = Inverse(C);
 
         c_matrix<double,2,2> T;
-        FourthOrderTensor<2> dTdE;
+        FourthOrderTensor<2,2,2,2> dTdE;
 
         law.ComputeStressAndStressDerivative(C,invC,0.0,T,dTdE,true);
 
@@ -727,8 +727,8 @@ public:
 
         c_matrix<double,2,2> T_Xfibres;
         c_matrix<double,2,2> T_Yfibres;
-        FourthOrderTensor<2> dTdE_Xfibres;
-        FourthOrderTensor<2> dTdE_Yfibres;
+        FourthOrderTensor<2,2,2,2> dTdE_Xfibres;
+        FourthOrderTensor<2,2,2,2> dTdE_Yfibres;
 
         double p = 1.0;
         law.ComputeStressAndStressDerivative(C,invC,p,T_Xfibres,dTdE_Xfibres,true); // no change of basis no fibres in X-dir
@@ -779,7 +779,7 @@ public:
         invC = Inverse(C);
 
         c_matrix<double,2,2> T_base;
-        FourthOrderTensor<2> dTdE;
+        FourthOrderTensor<2,2,2,2> dTdE;
 
         law.ComputeStressAndStressDerivative(C,invC,0.0,T_base,dTdE,false);
 
@@ -837,7 +837,7 @@ public:
         invC = Inverse(C);
 
         c_matrix<double,2,2> T_base;
-        FourthOrderTensor<2> dTdE;
+        FourthOrderTensor<2,2,2,2> dTdE;
 
         law.ComputeStressAndStressDerivative(C,invC,0.0,T_base,dTdE,false);
 
@@ -908,8 +908,8 @@ public:
 
         c_matrix<double,2,2> T_Xfibres;
         c_matrix<double,2,2> T_Yfibres;
-        FourthOrderTensor<2> dTdE_Xfibres;
-        FourthOrderTensor<2> dTdE_Yfibres;
+        FourthOrderTensor<2,2,2,2> dTdE_Xfibres;
+        FourthOrderTensor<2,2,2,2> dTdE_Yfibres;
 
         double p = 1.0;
         law.ComputeStressAndStressDerivative(C,invC,p,T_Xfibres,dTdE_Xfibres,true); // no change of basis no fibres in X-dir

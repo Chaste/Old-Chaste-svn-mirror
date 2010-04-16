@@ -90,7 +90,7 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
                                                                 c_matrix<double,DIM,DIM>& rInvC,
                                                                 double                    pressure,
                                                                 c_matrix<double,DIM,DIM>& rT,
-                                                                FourthOrderTensor<DIM>&   rDTdE,
+                                                                FourthOrderTensor<DIM,DIM,DIM,DIM>&   rDTdE,
                                                                 bool                      computeDTdE)
 {
     // EMTODO: can factor out change of basis code? as repeated in SchmidCosta.
@@ -194,11 +194,11 @@ void PoleZeroMaterialLaw<DIM>::ComputeStressAndStressDerivative(c_matrix<double,
         // dTdE_{MNPQ}  =  P_{Mm}P_{Nn}P_{Pp}P_{Qq} dT*dE*_{mnpq}
         if (computeDTdE)
         {
-            static FourthOrderTensor<DIM> temp;
-            temp.SetAsProduct(rDTdE, *mpChangeOfBasisMatrix, 0);
-            rDTdE.SetAsProduct(temp, *mpChangeOfBasisMatrix, 1);
-            temp.SetAsProduct(rDTdE, *mpChangeOfBasisMatrix, 2);
-            rDTdE.SetAsProduct(temp, *mpChangeOfBasisMatrix, 3);
+            static FourthOrderTensor<DIM,DIM,DIM,DIM> temp;
+            temp.template SetAsContractionOnFirstDimension<DIM>(*mpChangeOfBasisMatrix, rDTdE);
+            rDTdE.template SetAsContractionOnSecondDimension<DIM>(*mpChangeOfBasisMatrix, temp);
+            temp.template SetAsContractionOnThirdDimension<DIM>(*mpChangeOfBasisMatrix, rDTdE);
+            rDTdE.template SetAsContractionOnFourthDimension<DIM>(*mpChangeOfBasisMatrix, temp);
         }
     }
 
