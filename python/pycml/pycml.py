@@ -2244,7 +2244,7 @@ class cellml_units(element_base):
         if self.is_simple():
             # Include offset information
             l.append((self.unit.get_units_element().uniquify_tuple,
-                      self.unit.get_offset))
+                      self.unit.get_offset()))
         return tuple(l)
 
     def __hash__(self):
@@ -2274,18 +2274,37 @@ class cellml_units(element_base):
 # The following currently causes infinite loops/recursions
 ##    def __eq__(self, other):
 ##        """Compare 2 units elements for equality.
-
-##        Two units are deemed equal if they are both dimensionally
-##        equivalent and have the same multiplicative factor.
-##        """
-##        return isinstance(other, cellml_units) and \
-##               self.dimensionally_equivalent(other) and \
-##               self.expand().get_multiplicative_factor() == \
-##               other.expand().get_multiplicative_factor()
-    
+##        return self.equals(other)
 ##    def __ne__(self, other):
 ##        """Inverse of self.__eq__(other)."""
 ##        return not self.__eq__(other)
+
+    def _rel_error_ok(self, value1, value2, tol):
+        """Test if the relative difference of 2 values is within tol."""
+        if abs(value1) == 0.0:
+            return abs(value2) < tol
+        else:
+            return (abs(value1-value2)/abs(value1)) < tol
+
+    def equals(self, other):
+        """Compare 2 units elements for equality.
+
+        Two units are deemed equal if they are both dimensionally
+        equivalent and have the same multiplicative factor (to
+        within a relative tolerance of 10^-6).
+        
+        If both are simple units, they must also have the same offset.
+        """
+        equal = isinstance(other, cellml_units) and \
+                self.dimensionally_equivalent(other) and \
+                self._rel_error_ok(self.expand().get_multiplicative_factor(),
+                                   other.expand().get_multiplicative_factor(),
+                                   1e-6)
+        if equal and self.is_simple():
+            equal = self._rel_error_ok(self.unit.get_offset(),
+                                       other.unit.get_offset(),
+                                       1e-6)
+        return equal
 
     @property
     def model(self):

@@ -1292,7 +1292,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if not ms.dimensionally_equivalent(time_units):
                 # Oops!
                 raise TranslationError('Time does not have dimensions of time')
-            elif ms != time_units:
+            elif not ms.equals(time_units):
                 # We'll need conversions
                 DEBUG('chaste-translator', 'Will convert time units')
                 self.conversion_factor = (ms.get_multiplicative_factor()/
