@@ -1432,23 +1432,22 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.output_comment('\nSettable parameters and readable variables\n',
                                 subsidiary=True)
         for var in kept_vars:
-            self.writeln_hpp(self.TYPE_DOUBLE, self.code_name(var), self.STMT_END)
+            if var.get_type() != VarTypes.Constant:
+                self.writeln_hpp(self.TYPE_DOUBLE, self.code_name(var), self.STMT_END)
         # Generate Set & Get methods
         self.set_access('public')
+        i = 0
         for var in kept_vars:
             if var.get_type() == VarTypes.Constant:
-                # Generate a Set method
-                self.output_method_start('Set_' + self.code_name(var, prefix=''),
-                                         [self.TYPE_CONST_DOUBLE + 'value'],
-                                         'void')
+                # Remember the var's index
+                var._cml_param_index = i
+                i += 1
+            else:
+                # Generate Get method
+                self.output_method_start('Get_' + self.code_name(var, prefix=''), [], self.TYPE_DOUBLE)
                 self.open_block()
-                self.writeln(self.code_name(var), self.EQ_ASSIGN, 'value;')
+                self.writeln('return ', self.code_name(var), ';')
                 self.close_block()
-            # Generate Get method
-            self.output_method_start('Get_' + self.code_name(var, prefix=''), [], self.TYPE_DOUBLE)
-            self.open_block()
-            self.writeln('return ', self.code_name(var), ';')
-            self.close_block()
         
         # Methods associated with oxmeta annotated variables
         if self.use_metadata:
@@ -1568,8 +1567,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
         #666 - initialise parameters
         for var in self.cell_parameters:
             if var.get_type() == VarTypes.Constant:
-                self.writeln(self.code_name(var), self.EQ_ASSIGN, var.initial_value,
-                             self.STMT_END)
+                self.writeln(self.vector_index('mParameters', var._cml_param_index),
+                             self.EQ_ASSIGN, var.initial_value, self.STMT_END,
+                             self.COMMENT_START, self.code_name(var))
         if self.use_lookup_tables and not self.separate_lut_class:
             self.output_lut_generation()
         self.close_block()
@@ -1750,15 +1750,24 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     self.writeln('else')
                     self.open_block()
                     close_if = True
-        clear_type = (self.kept_vars_as_members and assigned_var and
-                      assigned_var.pe_keep) or close_if
+        clear_type = ((self.kept_vars_as_members and assigned_var and
+                       assigned_var.pe_keep and assigned_var.get_type() != VarTypes.Constant)
+                      or close_if)
         if clear_type:
             self.TYPE_DOUBLE = self.TYPE_CONST_DOUBLE = ''
-        if (self.use_metadata and assigned_var and assigned_var.oxmeta_name
-            and assigned_var.get_type() == VarTypes.Constant):
-            # "Constant" oxmeta-annotated parameters may be modified at run-time
-            self.writeln(self.TYPE_DOUBLE, self.code_name(assigned_var), self.EQ_ASSIGN,
-                         self.modifier_call(assigned_var, expr.initial_value), self.STMT_END)
+        if assigned_var and assigned_var.get_type() == VarTypes.Constant:
+            # A potentially modifiable parameter
+            if assigned_var.pe_keep:
+                value = self.vector_index('mParameters', assigned_var._cml_param_index)
+            else:
+                value = expr.initial_value
+                if not '.' in value and not 'e' in value:
+                    value = value + '.0'
+            if self.use_metadata and assigned_var.oxmeta_name:
+                # "Constant" oxmeta-annotated parameters may be modified at run-time
+                value = self.modifier_call(assigned_var, value)
+            self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(assigned_var), self.EQ_ASSIGN,
+                         value, self.STMT_END)
         else:
             super(CellMLToChasteTranslator, self).output_assignment(expr)
         if clear_type:
@@ -2093,7 +2102,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.open_block()
         self.output_comment('Time units: ', self.free_vars[0].units, '\n')
         for var in self.state_vars:
-            if self.use_metadata and var.oxmeta_name:
+            if var.oxmeta_name:
                 self.writeln('this->mVariableNames.push_back("', var.oxmeta_name, '");')    
             else:
                 self.writeln('this->mVariableNames.push_back("', var.name, '");')
@@ -2107,6 +2116,15 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 init_comm = ''
             self.writeln('this->mInitialConditions.push_back(', init_val, ');',
                        init_comm, '\n')
+        # Model parameters
+        for var in self.cell_parameters:
+            if var.get_type() == VarTypes.Constant:
+                if var.oxmeta_name:
+                    self.writeln('this->mParameterNames.push_back("', var.oxmeta_name, '");')
+                else:
+                    self.writeln('this->mParameterNames.push_back("', var.name, '");')
+                self.writeln('this->mParameterUnits.push_back("', var.units, '");')
+                self.writeln()
         self.writeln('this->mInitialised = true;')
         self.close_block()
         self.writeln()

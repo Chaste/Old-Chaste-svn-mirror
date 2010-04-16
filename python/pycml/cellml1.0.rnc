@@ -40,10 +40,10 @@ namespace dcterms = "http://purl.org/dc/terms/"
 namespace bqs = "http://www.cellml.org/bqs/1.0#"
 namespace vCard = "http://www.w3.org/2001/vcard-rdf/3.0#"
 
-# Our extension namespaces (URIs will change)
-namespace pe = "https://chaste.comlab.ox.ac.uk/cellml/ns/partial-evaluation"
+# Our extension namespaces (URIs may change)
+namespace pe = "https://chaste.comlab.ox.ac.uk/cellml/ns/partial-evaluation#"
 namespace lut = "https://chaste.comlab.ox.ac.uk/cellml/ns/lookup-tables"
-namespace oxmeta = "https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata"
+namespace oxmeta = "https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#"
 
 # The 'no namespace' namespace, which is what will get used for
 # most CellML attributes. Note the spec is broken in rule 2.5.2.
@@ -504,9 +504,9 @@ include "mathml2.rnc" {
 # All cn elements must contain a cellml:units attribute
 attlist-mathml.cn &= attribute cellml:units { ident }
 
-# Allow binding time & lookup table annotations
+# Allow lookup table annotations
 MATHML.Common.attrib &=
-   attribute (pe:* | lut:*) {text}*
+   attribute lut:* {text}*
 
 
 

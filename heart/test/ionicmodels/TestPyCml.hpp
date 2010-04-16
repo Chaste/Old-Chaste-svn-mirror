@@ -141,6 +141,23 @@ public:
         be.SetVoltage(-100000);
         TS_ASSERT_THROWS_CONTAINS(be.GetIIonic(), "V outside lookup table range");
         be.SetVoltage(v);
+        
+        // Single parameter
+        TS_ASSERT_EQUALS(normal.GetNumberOfParameters(), 1u);
+        TS_ASSERT_EQUALS(normal.GetParameterIndex("g_Na"), 0u);
+        TS_ASSERT_EQUALS(normal.GetParameterUnits(0u), "milliS_per_cm2");
+        TS_ASSERT_EQUALS(normal.GetParameter(0u), 23.0);
+        normal.SetParameter(0u, 0.1);
+        TS_ASSERT_EQUALS(normal.GetParameter(0u), 0.1);
+        normal.SetParameter(0u, 23.0);
+        
+        TS_ASSERT_EQUALS(opt.GetNumberOfParameters(), 1u);
+        TS_ASSERT_EQUALS(opt.GetParameterIndex("fast_sodium_current__g_Na"), 0u);
+        TS_ASSERT_EQUALS(opt.GetParameterUnits(0u), "milliS_per_cm2");
+        TS_ASSERT_EQUALS(opt.GetParameter(0u), 23.0);
+        opt.SetParameter(0u, 0.1);
+        TS_ASSERT_EQUALS(opt.GetParameter(0u), 0.1);
+        opt.SetParameter(0u, 23.0);
 
 #ifdef CHASTE_CVODE
         // CVODE version
@@ -154,6 +171,22 @@ public:
         cvode_opt.SetVoltage(-100000);
         TS_ASSERT_THROWS_CONTAINS(cvode_opt.GetIIonic(), "V outside lookup table range");
         cvode_opt.SetVoltage(v);
+        // Single parameter
+        TS_ASSERT_EQUALS(cvode_cell.GetNumberOfParameters(), 1u);
+        TS_ASSERT_EQUALS(cvode_cell.GetParameterIndex("g_Na"), 0u);
+        TS_ASSERT_EQUALS(cvode_cell.GetParameterUnits(0u), "milliS_per_cm2");
+        TS_ASSERT_EQUALS(cvode_cell.GetParameter(0u), 23.0);
+        cvode_cell.SetParameter(0u, 0.1);
+        TS_ASSERT_EQUALS(cvode_cell.GetParameter(0u), 0.1);
+        cvode_cell.SetParameter(0u, 23.0);
+        
+        TS_ASSERT_EQUALS(cvode_opt.GetNumberOfParameters(), 1u);
+        TS_ASSERT_EQUALS(cvode_opt.GetParameterIndex("fast_sodium_current__g_Na"), 0u);
+        TS_ASSERT_EQUALS(cvode_opt.GetParameterUnits(0u), "milliS_per_cm2");
+        TS_ASSERT_EQUALS(cvode_opt.GetParameter(0u), 23.0);
+        cvode_opt.SetParameter(0u, 0.1);
+        TS_ASSERT_EQUALS(cvode_opt.GetParameter(0u), 0.1);
+        cvode_opt.SetParameter(0u, 23.0);
 #endif // CHASTE_CVODE
 
         // Test the archiving code too
@@ -211,6 +244,9 @@ public:
                                    "Lr91GetIIonicOpt", 1000, false);
         TS_ASSERT_DELTA( opt.GetIIonic(), normal.GetIIonic(), 1e-3);
         
+        // No stimulus at end time
+        TS_ASSERT_DELTA(opt.Get_membrane__I_stim(), 0.0, 1e-12);
+        
         // Backward Euler
         ck_start = clock();
         RunOdeSolverWithIonicModel(&be,
@@ -266,6 +302,9 @@ public:
         cvode_opt.SetStateVariables(cvode_opt.GetInitialConditions());
         cvode_opt.Solve(0.0, i_ionic_end_time, max_dt);
         TS_ASSERT_DELTA(cvode_opt.GetIIonic(), cvode_cell.GetIIonic(), 1e-1);
+        
+        // No stimulus at end time
+        TS_ASSERT_DELTA(cvode_opt.Get_membrane__I_stim(), 0.0, 1e-12);
 #endif // CHASTE_CVODE
 
         // Load and check simulation results still match

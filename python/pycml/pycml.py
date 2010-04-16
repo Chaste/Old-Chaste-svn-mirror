@@ -124,7 +124,7 @@ def LOG(facility, level, *args):
 NSS = {u'm'  : u'http://www.w3.org/1998/Math/MathML',
        u'cml': u'http://www.cellml.org/cellml/1.0#',
        # Our extensions; URIs will probably change?
-       u'pe': u'https://chaste.comlab.ox.ac.uk/cellml/ns/partial-evaluation',
+       u'pe': u'https://chaste.comlab.ox.ac.uk/cellml/ns/partial-evaluation#',
        u'lut': u'https://chaste.comlab.ox.ac.uk/cellml/ns/lookup-tables',
        u'solver': u'https://chaste.comlab.ox.ac.uk/cellml/ns/solver-info',
        u'oxmeta': u'https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#',
@@ -169,7 +169,7 @@ CELLML_SUBSET_ELTS = frozenset(
 BINDING_TIMES = Enum('static', 'dynamic')
 
 # Allowed metadata names, more to come
-# TODO: Use a proper ontology!
+# TODO #1209: Use a proper ontology!
 METADATA_NAMES = frozenset(
     ['membrane_voltage', 'membrane_E_R', 'membrane_stimulus_current', 'sodium_channel_current',
      'sodium_channel_conductance', 'sodium_channel_m_gate', 'sodium_channel_h_gate', 
