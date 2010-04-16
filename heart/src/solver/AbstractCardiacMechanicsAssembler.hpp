@@ -94,7 +94,7 @@ protected:
     void CheckOrthogonality(c_matrix<double,DIM,DIM>& rMatrix)
     {
         c_matrix<double,DIM,DIM>  temp = prod(trans(rMatrix),rMatrix);
-        double tol = 1e-6;
+        double tol = 1e-4;
         // check temp is equal to the identity
         for(unsigned i=0; i<DIM; i++)
         {
