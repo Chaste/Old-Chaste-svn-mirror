@@ -1723,7 +1723,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.TYPE_DOUBLE and self.TYPE_CONST_DOUBLE before calling the
         base class method.
         """
-        close_if = False #907
+        clear_type = False
         if isinstance(expr, cellml_variable):
             assigned_var = expr
         else:
@@ -1731,28 +1731,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 assigned_var = expr.eq.lhs.variable
             else:
                 assigned_var = None # We don't store derivatives as members
-                #907: Check if this is the derivative of the transmembrane
-                # potential.
+                #907: Check if this is the derivative of the transmembrane potential
                 if not self.use_backward_euler and expr.eq.lhs.diff.dependent_variable == self.v_variable:
-                    # Declare the variable for the derivative
-                    self.writeln()
-                    self.writeln(self.TYPE_DOUBLE, nl=False)
-                    self.output_lhs(expr.eq.lhs)
-                    self.writeln(self.STMT_END, indent=False)
-                    # Fix to zero case
-                    self.writeln('if (mSetVoltageDerivativeToZero)')
-                    self.open_block()
-                    self.writeln('', nl=False)
-                    self.output_lhs(expr.eq.lhs)
-                    self.writeln(self.EQ_ASSIGN, '0.0', self.STMT_END,
-                                 indent=False)
-                    self.close_block(blank_line=False)
-                    self.writeln('else')
-                    self.open_block()
-                    close_if = True
-        clear_type = ((self.kept_vars_as_members and assigned_var and
-                       assigned_var.pe_keep and assigned_var.get_type() != VarTypes.Constant)
-                      or close_if)
+                    clear_type = True
+        clear_type = (clear_type or
+                      (self.kept_vars_as_members and assigned_var and
+                       assigned_var.pe_keep and assigned_var.get_type() != VarTypes.Constant))
         if clear_type:
             self.TYPE_DOUBLE = self.TYPE_CONST_DOUBLE = ''
         if assigned_var and assigned_var.get_type() == VarTypes.Constant:
@@ -1774,8 +1758,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             # Remove the instance attributes, thus reverting to the class members
             del self.TYPE_DOUBLE
             del self.TYPE_CONST_DOUBLE
-        if close_if:
-            self.close_block()
         return
 
     def output_mathematics(self):
@@ -1843,13 +1825,16 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """Output the EvaluateYDerivatives method."""
         # Work out what equations are needed to compute the derivatives
         nodes = map(lambda v: (v, self.free_vars[0]), self.state_vars)
+        dvdt = (self.v_variable, self.free_vars[0])
+        nodes.remove(dvdt) #907: Consider dV/dt separately
         if self.use_chaste_stimulus:
             i_stim = self.doc._cml_config.i_stim_var
-            nodeset = self.calculate_extended_dependencies(
+            nonv_nodeset = self.calculate_extended_dependencies(
                 nodes, prune=[i_stim])
-            nodeset.add(i_stim)
+            nonv_nodeset.add(i_stim)
         else:
-            nodeset = self.calculate_extended_dependencies(nodes)
+            nonv_nodeset = self.calculate_extended_dependencies(nodes)
+        v_nodeset = self.calculate_extended_dependencies([dvdt], prune=nonv_nodeset)
         # Start code output
         self.output_method_start(method_name,
                                  [self.TYPE_DOUBLE + self.code_name(self.free_vars[0]),
@@ -1863,14 +1848,27 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if self.conversion_factor:
             self.writeln(self.code_name(self.free_vars[0]), ' *= ',
                          self.conversion_factor, self.STMT_END)
-        self.output_state_assignments(assign_rY=False, nodeset=nodeset)
+        self.output_state_assignments(assign_rY=False, nodeset=nonv_nodeset|v_nodeset)
         self.writeln()
         if self.use_lookup_tables:
             self.output_table_index_generation(
                 indexes_as_member=self.use_backward_euler)
         self.writeln(self.COMMENT_START, 'Mathematics')
-        self.output_equations(nodeset)
+        #907: Declare dV/dt
+        self.writeln(self.TYPE_DOUBLE, self.code_name(self.v_variable, ode=True), self.STMT_END)
+        # Output mathematics required for non-dV/dt derivatives (which may include dV/dt)
+        self.output_equations(nonv_nodeset)
         self.writeln()
+        #907: Calculation of dV/dt
+        self.writeln('if (mSetVoltageDerivativeToZero)')
+        self.open_block()
+        self.writeln(self.code_name(self.v_variable, ode=True), self.EQ_ASSIGN, '0.0', self.STMT_END)
+        self.close_block(blank_line=False)
+        self.writeln('else')
+        self.open_block()
+        self.output_equations(v_nodeset)
+        self.close_block()
+        # Assign to derivatives vector
         for i, var in enumerate(self.state_vars):
             deriv_assign = self.vector_index('rDY', i) + self.EQ_ASSIGN
             if self.conversion_factor:
