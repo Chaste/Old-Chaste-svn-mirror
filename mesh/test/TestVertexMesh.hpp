@@ -1356,7 +1356,7 @@ public:
         TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(0), 0.5, 1e-6);
     }
 
-    void TestGetEdgeLength() throw (Exception)
+    void TestGetEdgeLengthWithSimpleMesh() throw (Exception)
     {
         // Create a simple 2D tetrahedral mesh, the Delaunay triangulation
         std::vector<Node<2> *> nodes;
@@ -1382,7 +1382,7 @@ public:
         TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,4), pow(3,-0.5), 1e-6);
         TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,5), pow(3,-0.5), 1e-6);
 
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(0),  pow(3, 0.5)/4.0+0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(0), pow(3, 0.5)/4.0+0.5, 1e-6);
         TS_ASSERT_DELTA(voronoi_mesh.GetPerimeterOfElement(0), 2.0 + pow(3, 0.5), 1e-6);
     }
 

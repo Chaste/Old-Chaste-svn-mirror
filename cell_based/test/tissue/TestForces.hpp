@@ -302,8 +302,8 @@ public:
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
             c_vector<double, 2> force = linear_force.CalculateForceBetweenNodes(nodeA_global_index,
-                                                                                 nodeB_global_index,
-                                                                                 tissue);
+                                                                                nodeB_global_index,
+                                                                                tissue);
 
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1], 6.25, 1e-3);
         }
@@ -320,8 +320,8 @@ public:
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
             c_vector<double, 2> force = linear_force.CalculateForceBetweenNodes(nodeA_global_index,
-                                                                                 nodeB_global_index,
-                                                                                 tissue);
+                                                                                nodeB_global_index,
+                                                                                tissue);
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1], 4.34027778, 1e-3);
         }
     }

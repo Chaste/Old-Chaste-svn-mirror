@@ -124,9 +124,7 @@ double MeshBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
          */
         double d1 = 2.0*(1.0 - d0)/(sqrt(3)*rest_length*rest_length);
 
-        VoronoiTessellation<DIM>& tess = this->rGetVoronoiTessellation();
-
-        double area_cell = tess.GetFaceArea(nodeIndex);
+        double area_cell = GetAreaOfVoronoiElement(nodeIndex);
 
         /**
          * The cell area should not be too large - the next assertion is to avoid
@@ -504,8 +502,8 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
         double x = this->GetLocationOfCellCentre(*cell_iter)[0];
         double y = this->GetLocationOfCellCentre(*cell_iter)[1];
 
-        double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
-        double cell_perimeter = rGetVoronoiTessellation().GetFacePerimeter(node_index);
+        double cell_area = GetAreaOfVoronoiElement(node_index);
+        double cell_perimeter = GetPerimeterOfVoronoiElement(node_index);
 
         *mpVoronoiFile << node_index << " " << x << " " << y << " " << cell_area << " " << cell_perimeter << " ";
     }
@@ -533,7 +531,7 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
         if (cell_iter->GetCellProliferativeType() == APOPTOTIC)
         {
             unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-            double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
+            double cell_area = GetAreaOfVoronoiElement(node_index);
             apoptotic_area += cell_area;
         }
     }
@@ -565,7 +563,7 @@ void MeshBasedTissue<DIM>::WriteCellAreaResultsToFile()
 
         // Write cell area
         unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-        double cell_area = rGetVoronoiTessellation().GetFaceArea(node_index);
+        double cell_area = GetAreaOfVoronoiElement(node_index);
         *mpCellAreasFile << cell_area << " ";
     }
     *mpCellAreasFile << "\n";
@@ -664,7 +662,7 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::CreateVoronoiTessellation(const std::vector<unsigned> locationIndices)
 {
     delete mpVoronoiTessellation;
-    mpVoronoiTessellation = new VoronoiTessellation<DIM>(mrMesh, locationIndices);
+    mpVoronoiTessellation = new VertexMesh<DIM, DIM>(mrMesh, locationIndices);
 }
 
 /**
@@ -679,10 +677,35 @@ void MeshBasedTissue<1>::CreateVoronoiTessellation(const std::vector<unsigned> l
 }
 
 template<unsigned DIM>
-VoronoiTessellation<DIM>& MeshBasedTissue<DIM>::rGetVoronoiTessellation()
+VertexMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetVoronoiTessellation()
 {
     assert(mpVoronoiTessellation!=NULL);
     return *mpVoronoiTessellation;
+}
+
+template<unsigned DIM>
+double MeshBasedTissue<DIM>::GetAreaOfVoronoiElement(unsigned index)
+{
+    unsigned element_index = mpVoronoiTessellation->SolveVoronoiElementIndexMapping(index);
+    double area = mpVoronoiTessellation->GetAreaOfElement(element_index);
+    return area;
+}
+
+template<unsigned DIM>
+double MeshBasedTissue<DIM>::GetPerimeterOfVoronoiElement(unsigned index)
+{
+    unsigned element_index = mpVoronoiTessellation->SolveVoronoiElementIndexMapping(index);
+    double perimeter = mpVoronoiTessellation->GetPerimeterOfElement(element_index);
+    return perimeter;
+}
+
+template<unsigned DIM>
+double MeshBasedTissue<DIM>::GetVoronoiEdgeLength(unsigned index1, unsigned index2)
+{
+    unsigned element_index1 = mpVoronoiTessellation->SolveVoronoiElementIndexMapping(index1);
+    unsigned element_index2 = mpVoronoiTessellation->SolveVoronoiElementIndexMapping(index2);
+    double edge_length = mpVoronoiTessellation->GetEdgeLength(element_index1, element_index2);
+    return edge_length;
 }
 
 template<unsigned DIM>

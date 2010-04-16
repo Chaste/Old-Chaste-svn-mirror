@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "CellBasedEventHandler.hpp"
-#include "VoronoiTessellation.hpp"
 #include "NumericFileComparison.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
@@ -199,15 +198,13 @@ public:
         TS_ASSERT_EQUALS(cell_type_count[2], 36u);  // Differentiated
         TS_ASSERT_EQUALS(cell_type_count[3], 0u);   // Apoptotic
 
-        VoronoiTessellation<2u>& r_tessellation = crypt.rGetVoronoiTessellation();
-
         /**
          * Voronoi is worked out for the ghost nodes too, although this is not strictly necessary,
          * you do need the immediate ghost nodes to work out the Voronoi tessellation of the outer
          * real nodes, so need to work out the full tessellation really.
          */
-        TS_ASSERT_EQUALS(r_tessellation.GetNumFaces(), number_of_cells + ghost_indices.size());
-        TS_ASSERT_EQUALS(r_tessellation.GetNumVertices(), 273u);
+        TS_ASSERT_EQUALS(crypt.rGetVoronoiTessellation().GetNumFaces(), number_of_cells + ghost_indices.size());
+        TS_ASSERT_EQUALS(crypt.rGetVoronoiTessellation().GetNumVertices(), 273u);
     }
 
     /**

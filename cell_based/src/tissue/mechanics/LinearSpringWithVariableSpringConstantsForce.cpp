@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissue.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
-#include "VoronoiTessellation.hpp"
 
 template<unsigned DIM>
 LinearSpringWithVariableSpringConstantsForce<DIM>::LinearSpringWithVariableSpringConstantsForce()
@@ -99,14 +98,12 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
         assert(rTissue.HasMesh());
         assert(!mUseBCatSprings);   // don't want to do both (both account for edge length)
 
-        VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetVoronoiTessellation();
-
-        multiplication_factor = tess.GetEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex)*sqrt(3);
+        multiplication_factor = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->GetVoronoiEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex)*sqrt(3);
     }
 
     if (mUseMutantSprings)
     {
-        unsigned number_of_mutants=0;
+        unsigned number_of_mutants = 0;
 
         if (r_cell_A.GetMutationState()->IsType<ApcTwoHitCellMutationState>() || r_cell_A.GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
         {
@@ -146,11 +143,11 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
         double beta_cat_cell_1 = p_model_A->GetMembraneBoundBetaCateninLevel();
         double beta_cat_cell_2 = p_model_B->GetMembraneBoundBetaCateninLevel();
 
-        VoronoiTessellation<DIM>& tess = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetVoronoiTessellation();
+        MeshBasedTissue<DIM>* p_static_cast_tissue = (static_cast<MeshBasedTissue<DIM>*>(&rTissue));
 
-        double perim_cell_1 = tess.GetFacePerimeter(nodeAGlobalIndex);
-        double perim_cell_2 = tess.GetFacePerimeter(nodeBGlobalIndex);
-        double edge_length_between_1_and_2 = tess.GetEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex);
+        double perim_cell_1 = p_static_cast_tissue->GetPerimeterOfVoronoiElement(nodeAGlobalIndex);
+        double perim_cell_2 = p_static_cast_tissue->GetPerimeterOfVoronoiElement(nodeBGlobalIndex);
+        double edge_length_between_1_and_2 = p_static_cast_tissue->GetVoronoiEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex);
 
         double beta_cat_on_cell_1_edge = beta_cat_cell_1 *  edge_length_between_1_and_2 / perim_cell_1;
         double beta_cat_on_cell_2_edge = beta_cat_cell_2 *  edge_length_between_1_and_2 / perim_cell_2;

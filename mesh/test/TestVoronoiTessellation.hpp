@@ -239,8 +239,8 @@ public:
         TS_ASSERT_EQUALS(tessellation.rGetFace(4), expected_face);
         TS_ASSERT_EQUALS(tessellation.rGetFace(4).GetNumVertices(), 4u);
 
-        TS_ASSERT_DELTA(tessellation.GetFaceArea(4), 0.5, 1e-4);
-        TS_ASSERT_DELTA(tessellation.GetFacePerimeter(4), 2*sqrt(2), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetAreaOfElement(4), 0.5, 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetPerimeterOfElement(4), 2*sqrt(2), 1e-4);
 
         Face<2> face4 = tessellation.rGetFace(4);
         c_vector<double, 2> first_vertex_of_face4 = face4.rGetVertex(0);
@@ -274,8 +274,8 @@ public:
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 4u), pow(3,-0.5), 1e-6);
         TS_ASSERT_DELTA(tessellation.GetEdgeLength(0u, 5u), pow(3,-0.5), 1e-6);
 
-        TS_ASSERT_DELTA(tessellation.GetFaceArea(0),  pow(3, 0.5)/4.0+0.5, 1e-6);
-        TS_ASSERT_DELTA(tessellation.GetFacePerimeter(0), 2.0 + pow(3, 0.5), 1e-6);
+        TS_ASSERT_DELTA(tessellation.GetAreaOfElement(0),  pow(3, 0.5)/4.0+0.5, 1e-6);
+        TS_ASSERT_DELTA(tessellation.GetPerimeterOfElement(0), 2.0 + pow(3, 0.5), 1e-6);
 
     }
 

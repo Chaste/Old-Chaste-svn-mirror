@@ -185,7 +185,7 @@ public:
         unsigned thickness_of_ghost_layer = 2;
 
         double scale_factor = 1.2;
-        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, scale_factor);
+        HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, scale_factor);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
 
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
@@ -204,13 +204,14 @@ public:
 
         tissue.CreateVoronoiTessellation(location_indices);
 
+        TS_ASSERT_EQUALS(tissue.rGetVoronoiTessellation().GetNumElements(), 9u);
+
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
              ++cell_iter)
         {
             unsigned node_index = tissue.GetLocationIndexUsingCell(*cell_iter);
-            VoronoiTessellation<2>& tess = tissue.rGetVoronoiTessellation();
-            double area = tess.GetFaceArea(node_index);
+            double area = tissue.GetAreaOfVoronoiElement(node_index);
             TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
         }
     }
@@ -564,30 +565,24 @@ public:
 
         // Create Voronoi tessellation (normally done in a simulation)
         tissue.CreateVoronoiTessellation(location_indices);
-        VoronoiTessellation<2>& tess = tissue.rGetVoronoiTessellation();
-
         for (unsigned node_index=0; node_index<p_mesh->GetNumNodes(); node_index++)
         {
             if (tissue.IsGhostNode(node_index))
             {
-                // If the node is a ghost node, then we shouldn't be able to access the corresponding Face
-                TS_ASSERT_THROWS_THIS(tess.rGetFace(node_index),
-                                      "Attempting to get a Face corresponding to a ghost node");
+                TS_ASSERT_THROWS_THIS(tissue.GetAreaOfVoronoiElement(node_index),
+                                      "This index does not correspond to a VertexElement");
 
-                TS_ASSERT_THROWS_THIS(tess.GetFaceArea(node_index),
-                                      "Attempting to get the area of a Face corresponding to a ghost node");
+                TS_ASSERT_THROWS_THIS(tissue.GetPerimeterOfVoronoiElement(node_index),
+                                      "This index does not correspond to a VertexElement");
 
-                TS_ASSERT_THROWS_THIS(tess.GetFacePerimeter(node_index),
-                                      "Attempting to get the perimeter of a Face corresponding to a ghost node");
-
-                TS_ASSERT_THROWS_THIS(tess.GetEdgeLength(node_index, 5),
-                                      "Attempting to get the tessellation edge between two nodes, at least one of which is a ghost node");
+                TS_ASSERT_THROWS_THIS(tissue.GetVoronoiEdgeLength(node_index, 5),
+                                      "This index does not correspond to a VertexElement");
             }
             else
             {
                 // ...otherwise, the Face should be a regular hexagon
-                TS_ASSERT_DELTA(tess.GetFaceArea(node_index), sqrt(3)/2, 1e-4);
-                TS_ASSERT_DELTA(tess.GetFacePerimeter(node_index), 6/sqrt(3), 1e-4);
+                TS_ASSERT_DELTA(tissue.GetAreaOfVoronoiElement(node_index), sqrt(3)/2, 1e-4);
+                TS_ASSERT_DELTA(tissue.GetPerimeterOfVoronoiElement(node_index), 6/sqrt(3), 1e-4);
             }
         }
     }

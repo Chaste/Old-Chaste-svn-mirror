@@ -67,6 +67,24 @@ protected:
     std::vector<VertexElement<ELEMENT_DIM-1, SPACE_DIM>*> mFaces;
 
     /**
+     * Map that is used only when the vertex mesh is used to represent
+     * a Voronoi tessellation, the dual to a Delaunay tetrahedral mesh.
+     * The map consists of pairs (index1, index2), where index1 denotes
+     * the global index of a node in the Delaunay mesh and index2 denotes
+     * the global index of the corresponding element in the Voronoi mesh.
+     */
+    std::map<unsigned, unsigned> mVoronoiElementIndexMap;
+
+    /**
+     * Delaunay tetrahedral mesh that is used only when the vertex mesh
+     * is used to represent a Voronoi tessellation. A pointer to the
+     * Delaunay mesh is required in this case because the Delaunay mesh
+     * may be a subclass of TetrahedralMesh, which overrides methods such as
+     * GetVectorFromAtoB().
+     */
+    TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* mpDelaunayMesh;
+
+    /**
      * Solve node mapping method. This overridden method is required
      * as it is pure virtual in the base class.
      *
@@ -301,6 +319,29 @@ public:
      * Delete mNodes, mFaces and mElements.
      */
     virtual void Clear();
+
+    /**
+     * Given the global index of a node in the Delaunay mesh, returns the
+     * global index of the corresponding element in the Voronoi mesh or
+     * throws an exception if this does not exist.
+     * 
+     * @param index global index of a node in the Delaunay mesh
+     */
+    unsigned SolveVoronoiElementIndexMapping(unsigned index);
+
+    /**
+     * Overridden GetVectorFromAtoB() method. Returns a vector between two points in space.
+     *
+     * If the mesh is being used to represent a Voronoi tessellation, and mpDelaunayMesh
+     * is not NULL, then use that to compute GetVectorFromAtoB.
+     *
+     * @param rLocationA a c_vector of coordinates
+     * @param rLocationB a c_vector of coordinates
+     *
+     * @return c_vector from location A to location B.
+     */
+    virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA,
+                                                          const c_vector<double, SPACE_DIM>& rLocationB);
 
     /**
      * Translate the mesh given the displacement vector.

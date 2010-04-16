@@ -379,7 +379,7 @@ double VoronoiTessellation<DIM>::GetEdgeLength(unsigned nodeIndex1, unsigned nod
 }
 
 template<unsigned DIM>
-double VoronoiTessellation<DIM>::GetFaceArea(unsigned index) const
+double VoronoiTessellation<DIM>::GetAreaOfElement(unsigned index) const
 {
     #define COVERAGE_IGNORE
     assert(DIM==2);
@@ -429,7 +429,7 @@ double VoronoiTessellation<DIM>::GetFaceArea(unsigned index) const
 }
 
 template<unsigned DIM>
-double VoronoiTessellation<DIM>::GetFacePerimeter(unsigned index) const
+double VoronoiTessellation<DIM>::GetPerimeterOfElement(unsigned index) const
 {
     #define COVERAGE_IGNORE
     assert(DIM==2);

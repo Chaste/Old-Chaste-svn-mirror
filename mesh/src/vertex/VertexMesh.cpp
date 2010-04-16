@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 #include "UblasCustomFunctions.hpp"
 #include <list>
-#include "Debug.hpp"
 
 /**
  * Global method allowing alist of pairs (unsigned, double) to be compared
@@ -44,7 +43,9 @@ bool IndexAngleComparison(const std::pair<unsigned, double> lhs, const std::pair
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
                                                std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements)
+    : mpDelaunayMesh(NULL)
 {
+
     // Reset member variables and clear mNodes and mElements
     Clear();
 
@@ -101,8 +102,9 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nodes,
-                           std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> faces,
-                           std::vector<VertexElement<ELEMENT_DIM,SPACE_DIM>*> vertexElements)
+                           std::vector<VertexElement<ELEMENT_DIM-1, SPACE_DIM>*> faces,
+                           std::vector<VertexElement<ELEMENT_DIM, SPACE_DIM>*> vertexElements)
+    : mpDelaunayMesh(NULL)
 {
     // Reset member variables and clear mNodes, mFaces and mElements
     Clear();
@@ -150,11 +152,12 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
 template<>
 VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh,
                             const std::vector<unsigned> locationIndices)
+    : mpDelaunayMesh(&rMesh)
 {
     // Reset member variables and clear mNodes, mFaces and mElements
     Clear();
 
-    unsigned num_elements = locationIndices.empty() ? rMesh.GetNumAllNodes() : locationIndices.size();
+    unsigned num_elements = locationIndices.empty() ? mpDelaunayMesh->GetNumAllNodes() : locationIndices.size();
 
     std::set<unsigned> location_indices;
     if (!locationIndices.empty())
@@ -162,11 +165,12 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh,
         for (unsigned i=0; i<locationIndices.size(); i++)
         {
             location_indices.insert(locationIndices[i]);
+            mVoronoiElementIndexMap[locationIndices[i]] = i;
         }
     }
 
     // Allocate memory for mNodes and mElements
-    this->mNodes.reserve(rMesh.GetNumAllElements());
+    this->mNodes.reserve(mpDelaunayMesh->GetNumAllElements());
 
     // Create as many elements as there are nodes in the mesh
     mElements.reserve(num_elements);
@@ -181,12 +185,12 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh,
     GenerateVerticesFromElementCircumcentres(rMesh);
 
     // Loop over elements of the Delaunay mesh
-    for (unsigned i=0; i<rMesh.GetNumElements(); i++)
+    for (unsigned i=0; i<mpDelaunayMesh->GetNumElements(); i++)
     {
         // Loop over nodes owned by this element in the Delaunay mesh
         for (unsigned local_index=0; local_index<3; local_index++)
         {
-            unsigned global_index = rMesh.GetElement(i)->GetNodeGlobalIndex(local_index);
+            unsigned global_index = mpDelaunayMesh->GetElement(i)->GetNodeGlobalIndex(local_index);
             unsigned element_index = global_index;
 
             bool add_node_to_element = true;
@@ -237,8 +241,8 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh,
         std::list<std::pair<unsigned, double> > index_angle_list;
         for (unsigned j=0; j<mElements[i]->GetNumNodes(); j++)
         {
-            c_vector<double, 2> centre_to_vertex = GetVectorFromAtoB(rMesh.GetNode(element_index)->rGetLocation(),
-                                                                     mElements[i]->GetNodeLocation(j));
+            c_vector<double, 2> centre_to_vertex = mpDelaunayMesh->GetVectorFromAtoB(mpDelaunayMesh->GetNode(element_index)->rGetLocation(),
+                                                                                    mElements[i]->GetNodeLocation(j));
 
             double angle = atan2(centre_to_vertex(1), centre_to_vertex(0));
             unsigned global_index = mElements[i]->GetNodeGlobalIndex(j);
@@ -280,6 +284,7 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh,
 template<>
 VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh,
                             const std::vector<unsigned> locationIndices)
+    : mpDelaunayMesh(&rMesh)
 {
     // Reset member variables and clear mNodes, mFaces and mElements
     Clear();
@@ -304,8 +309,8 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh,
     unsigned element_index = 0;
 
     // Loop over each edge of the Delaunay mesh and populate mFaces and mElements
-    for (TetrahedralMesh<3,3>::EdgeIterator edge_iterator = rMesh.EdgesBegin();
-         edge_iterator != rMesh.EdgesEnd();
+    for (TetrahedralMesh<3,3>::EdgeIterator edge_iterator = mpDelaunayMesh->EdgesBegin();
+         edge_iterator != mpDelaunayMesh->EdgesEnd();
          ++edge_iterator)
     {
         Node<3>* p_node_a = edge_iterator.GetNodeA();
@@ -417,11 +422,14 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh,
     }
 
     // Populate mElements
+    unsigned elem_count = 0;
     for (std::map<unsigned, VertexElement<3,3>*>::iterator element_iter = index_element_map.begin();
          element_iter != index_element_map.end();
          ++element_iter)
     {
         mElements.push_back(element_iter->second);
+        mVoronoiElementIndexMap[element_iter->first] = elem_count;
+        elem_count++;
     }
 
     this->mMeshChangesDuringSimulation = false;
@@ -459,19 +467,6 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeLength(unsigned elementIndex1,
 {
     assert(SPACE_DIM==2);
 
-/**
- * \todo Move this bit of code into LinearSpringWithVariableSpringConstantsForce::VariableSpringConstantMultiplicationFactor()
- * and make use of IsGhostNode() (#1075)
- */
-//    if (!mLocationIndices.empty())
-//    {
-//        if (   mLocationIndices.find(nodeIndex1) == mLocationIndices.end()
-//            || mLocationIndices.find(nodeIndex2) == mLocationIndices.end() )
-//        {
-//            EXCEPTION("Attempting to get the tessellation edge between two nodes, at least one of which is a ghost node");
-//        }
-//    }
-
     std::set<unsigned> node_indices_1;
     for (unsigned i=0; i<mElements[elementIndex1]->GetNumNodes(); i++)
     {
@@ -493,7 +488,10 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeLength(unsigned elementIndex1,
     unsigned index1 = *(shared_nodes.begin());
     unsigned index2 = *(++(shared_nodes.begin()));
 
-    double edge_length = this->GetDistanceBetweenNodes(index1, index2);
+    c_vector<double, SPACE_DIM> node1_location = this->mNodes[index1]->rGetLocation();
+    c_vector<double, SPACE_DIM> node2_location = this->mNodes[index2]->rGetLocation();
+
+    double edge_length = norm_2(GetVectorFromAtoB(node1_location, node2_location));
     return edge_length;
 }
 
@@ -501,6 +499,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetEdgeLength(unsigned elementIndex1,
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh()
 {
+    mpDelaunayMesh = NULL;
     this->mMeshChangesDuringSimulation = false;
     Clear();
 }
@@ -535,6 +534,30 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigne
     /// \todo sort out boundary elements in a vertex mesh (#943)
 //    assert(index < this->mBoundaryElements.size() );
     return index;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveVoronoiElementIndexMapping(unsigned index)
+{
+    if (mVoronoiElementIndexMap.empty())
+    {
+        return index;
+    }
+    else
+    {
+        std::map<unsigned, unsigned>::iterator iter = mVoronoiElementIndexMap.find(index);
+
+        if (iter == mVoronoiElementIndexMap.end())
+        {
+            EXCEPTION("This index does not correspond to a VertexElement");
+        }
+        else
+        {
+            index = iter->second;
+        }
+        return index;
+    }
 }
 
 
@@ -779,6 +802,23 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshRea
             p_element->SetRegion(attribute_value);
         }
     }
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAtoB(
+    const c_vector<double, SPACE_DIM>& rLocationA, const c_vector<double, SPACE_DIM>& rLocationB)
+{
+    c_vector<double, SPACE_DIM> vector;
+    if (mpDelaunayMesh)
+    {
+        vector = mpDelaunayMesh->GetVectorFromAtoB(rLocationA, rLocationB);
+    }
+    else
+    {
+        vector = AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAtoB(rLocationA, rLocationB);
+    }
+    return vector;
 }
 
 
@@ -1112,8 +1152,11 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
 
     VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
 
+    c_vector<double, SPACE_DIM> first_node = p_element->GetNodeLocation(0);
     c_vector<double, SPACE_DIM> current_node;
     c_vector<double, SPACE_DIM> anticlockwise_node;
+    c_vector<double, SPACE_DIM> transformed_current_node;
+    c_vector<double, SPACE_DIM> transformed_anticlockwise_node;
 
     unsigned num_nodes_in_element = p_element->GetNumNodes();
 
@@ -1125,10 +1168,18 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
         current_node = p_element->GetNodeLocation(local_index);
         anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
 
-        element_area += 0.5*(current_node[0]*anticlockwise_node[1] - anticlockwise_node[0]*current_node[1]);
+        /*
+         * In order to calculate the area we map the origin to (x[0],y[0])
+         * then use GetVectorFromAtoB() to get node cooordiantes
+         */
+        transformed_current_node = GetVectorFromAtoB(first_node, current_node);
+        transformed_anticlockwise_node = GetVectorFromAtoB(first_node, anticlockwise_node);
+
+        element_area += 0.5*(transformed_current_node[0]*transformed_anticlockwise_node[1]
+                           - transformed_anticlockwise_node[0]*transformed_current_node[1]);
     }
 
-    return element_area;
+    return fabs(element_area);
 }
 
 
@@ -1276,7 +1327,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVolumeOfElement(unsigned index)
         // Use these to calculate the volume of the pyramid formed by the face and the point pyramid_apex
         volume += face_area * perpendicular_distance / 3;
     }
-    return volume;
+    return fabs(volume);
 }
 
 

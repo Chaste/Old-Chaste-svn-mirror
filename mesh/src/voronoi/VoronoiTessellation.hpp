@@ -116,14 +116,14 @@ public:
      *
      * @param index
      */
-    double GetFaceArea(unsigned index) const;
+    double GetAreaOfElement(unsigned index) const;
 
     /**
      * Get the perimeter of the face with a given index.
      *
      * @param index
      */
-    double GetFacePerimeter(unsigned index) const;
+    double GetPerimeterOfElement(unsigned index) const;
 
     /**
      * Get the length of the tessellation edge between two given nodes.

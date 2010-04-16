@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellCentreBasedTissue.hpp"
 #include "MutableMesh.hpp"
-#include "VoronoiTessellation.hpp"
+#include "VertexMesh.hpp"
 #include "Exception.hpp"
 #include "ArchiveLocationInfo.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -96,7 +96,7 @@ protected:
      * Pointer to a Voronoi tessellation object.
      * Used to calculate cell area and perimeter information if required.
      */
-    VoronoiTessellation<DIM>* mpVoronoiTessellation;
+    VertexMesh<DIM, DIM>* mpVoronoiTessellation;
 
     /**
      * Whether to delete the mesh when we are destroyed.
@@ -341,7 +341,44 @@ public:
     /**
      * @return mpVoronoiTessellation.
      */
-    VoronoiTessellation<DIM>& rGetVoronoiTessellation();
+    VertexMesh<DIM, DIM>& rGetVoronoiTessellation();
+
+    /**
+     * Get the area of the element of mpVoronoiTessellation associated with
+     * the node with this global index in the Delaunay mesh.
+     * 
+     * This method should be called instead of calling rGetVoronoiTessellation().GetAreaOfElement()
+     * because the global indices of Delaunay nodes and Voronoi elements may not match,
+     * e.g. if a node is a ghost node or corresponds to a Voronoi face.
+     * 
+     * @param index a node global index
+     */
+    double GetAreaOfVoronoiElement(unsigned index);
+
+    /**
+     * Get the perimeter of the element of mpVoronoiTessellation associated with
+     * the node with this global index in the Delaunay mesh.
+     * 
+     * This method should be called instead of calling rGetVoronoiTessellation().GetPerimeterOfElement()
+     * because the global indices of Delaunay nodes and Voronoi elements may not match,
+     * e.g. if a node is a ghost node or corresponds to a Voronoi face.
+     * 
+     * @param index a node global index
+     */
+    double GetPerimeterOfVoronoiElement(unsigned index);
+
+    /**
+     * Get the length of the edge of mpVoronoiTessellation associated with
+     * the two nodes with these global indices in the Delaunay mesh.
+     * 
+     * This method should be called instead of calling rGetVoronoiTessellation().GetEdgeLength()
+     * because the global indices of Delaunay nodes and Voronoi elements may not match,
+     * e.g. if a node is a ghost node or corresponds to a Voronoi face.
+     * 
+     * @param index1 a node global index
+     * @param index2 a node global index
+     */
+    double GetVoronoiEdgeLength(unsigned index1, unsigned index2);
 
     /**
      * Iterator over edges in the mesh, which correspond to springs between cells.
