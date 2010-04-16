@@ -507,12 +507,17 @@ class GoogleProfile(GccDebug):
     def GetTestRunnerCommand(self, exefile, exeflags=''):
         "Run test with a profiler and rename gmon.out"
         base = os.path.basename(exefile)
-        profileFile = '/tmp/'+base+'.prof'
-        return "export HOME='.'; export CPUPROFILE=" + profileFile + '; ' \
-            + exefile + ' ' + exeflags    + ' ; ' \
-            + self.tools['pprof'] + ' -gif ' + exefile + ' ' + profileFile \
-            + ' > ' + self.output_dir+'/'+base+'.gif ; ' \
-            + self.tools['rm'] + ' ' + profileFile
+        profile_file = '/tmp/' + base + '.prof'
+        pprof_args = ' '.join(['--gif',
+                               '--nodefraction=0.0001', '--edgefraction=0.0001',
+                               exefile, profile_file,
+                               '>', os.path.join(self.output_dir, base+'.gif')])
+        commands = ['export HOME="."',
+                    'export CPUPROFILE=' + profile_file,
+                    exefile + ' ' + exeflags,
+                    self.tools['pprof'] + ' ' + pprof_args,
+                    self.tools['rm'] + ' ' + profile_file]
+        return '; '.join(commands)
     
     def SetNumProcesses(self, np):
         """Can't run profiling in parallel (yet)."""
