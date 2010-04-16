@@ -118,7 +118,9 @@ public:
     /**
      * Initialise the cell:
      *  - set our state variables to the initial conditions,
-     *  - set model parameters to their default values.
+     *  - resize model parameters vector.
+     * 
+     * @note Must be called by subclass constructors.
      */
     void Init();
 

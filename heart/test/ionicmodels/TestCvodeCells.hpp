@@ -54,6 +54,7 @@ public :
     {
         mNice = false;
         mpSystemInfo = OdeSystemInformation<ExceptionalCell>::Instance();
+        Init();
     }
 
     void BeNice()
@@ -117,8 +118,6 @@ public:
         // Cover swapping to a proper stimulus
         lr91_cvode_system.SetStimulusFunction(p_stimulus);
 
-        TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetVoltage(),"State variables not set yet.");
-        TS_ASSERT_THROWS_THIS(lr91_cvode_system.SetVoltage(0.0),"State variables not set yet.");
         TS_ASSERT_EQUALS(lr91_cvode_system.GetVoltageIndex(), 4u);
         TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
 
@@ -160,7 +159,25 @@ public:
         TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 10000u);
         lr91_cvode_system.Solve(start_time, end_time, max_timestep);
         TS_ASSERT_DELTA(lr91_cvode_system.GetVoltage(), lr91_ode_system.GetVoltage(), 1e-3);
+        
+        // Test parameter
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetNumberOfParameters(), 1u);
+        TS_ASSERT_EQUALS(lr91_cvode_system.rGetParameterNames()[0], "fast_sodium_current__g_Na");
+        TS_ASSERT_EQUALS(lr91_cvode_system.rGetParameterUnits()[0], "milliS_per_cm2");
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetParameterIndex("fast_sodium_current__g_Na"), 0u);
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetParameterUnits(0u), "milliS_per_cm2");
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetParameter(0u), 23.0);
+        lr91_cvode_system.SetParameter(0u, 10.0);
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetParameter(0u), 10.0);
+        lr91_cvode_system.SetParameter(0u, 23.0);
 
+        // Parameter exceptions
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.SetParameter(1u, -1), "The index passed in must be less than the number of parameters.");
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetParameterIndex("b"), "No parameter named 'b'.");
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetParameter(1u), "The index passed in must be less than the number of parameters.");
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.GetParameterUnits(1u), "The index passed in must be less than the number of parameters.");
+
+        
         // Coverage
         boost::shared_ptr<const AbstractOdeSystemInformation> p_sys_info = lr91_cvode_system.GetSystemInformation();
         TS_ASSERT(p_sys_info->rGetStateVariableNames() == lr91_cvode_system.rGetStateVariableNames());
@@ -224,7 +241,6 @@ public:
 
         // Make a model that uses Cvode directly:
         CvOdeCellShannon2004FromCellML sh04_cvode_system(p_solver, p_stimulus);
-        TS_ASSERT_THROWS_THIS(sh04_cvode_system.GetVoltage(),"State variables not set yet.");
         TS_ASSERT_EQUALS(sh04_cvode_system.GetVoltageIndex(), 0u);
         TS_ASSERT_EQUALS(sh04_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
 

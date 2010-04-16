@@ -56,10 +56,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Note that a call to Solve will initialise the CVODE solver, and free its
  * working memory when done.  There is thus a non-trivial overhead involved.
  *
- * \todo Add an option to just initialise once, and assume subsequent Solve
+ * \todo #890 Add an option to just initialise once, and assume subsequent Solve
  *   calls are continuing from where we left off.
  *
- * \todo Integrate this better into the main hierarchy?
+ * \todo #889 Integrate this better into the main hierarchy?
  */
 class AbstractCvodeCell
 {
@@ -111,10 +111,8 @@ protected:
                           N_Vector Y = NULL);
 
     /**
-     * Can be called by concrete subclass constructors to initialise the state
-     * variables.
-     *
-     * Mainly here to reduce differences between this class and AbstractCardiacCell.
+     * @b Must be called by concrete subclass constructors to initialise the state
+     * variables, after setting #mpSystemInfo.
      */
     void Init();
 
@@ -126,6 +124,8 @@ protected:
 public:
     /**
      * Create a new cardiac cell.
+     * 
+     * @note subclasses @b must call Init() in their constructor after setting #mpSystemInfo.
      *
      * @param numberOfStateVariables  the size of the ODE system modelling this cell
      * @param voltageIndex  the index of the transmembrane potential within the vector of state variables
@@ -395,6 +395,65 @@ private:
      * @param v  vector to copy
      */
     std::vector<double> MakeStdVec(N_Vector v);
+
+    //
+    // Parameters functionality.
+    //
+protected:
+    /** Vector containing parameters. */
+    N_Vector mParameters;
+    
+public:
+
+    /**
+     * Get the number of parameters.
+     */
+    unsigned GetNumberOfParameters() const;
+
+    /**
+     * Get the value of a given parameter.
+     *
+     * @param index the index of the parameter
+     */
+    double GetParameter(unsigned index) const;
+
+    /**
+     * Set the value of a given parameter.
+     *
+     * @param index the index of the parameter
+     * @param value the value
+     */
+    void SetParameter(unsigned index, double value);
+
+    /**
+     * Get the names of the parameters in the ODE system.
+     */
+    const std::vector<std::string>& rGetParameterNames() const;
+
+    /**
+     * Get the units of the parameters in the ODE system.
+     */
+    const std::vector<std::string>& rGetParameterUnits() const;
+
+    /**
+     * This method is used to establish a parameter's position within
+     * the vector of parameters of an ODE system. This number can
+     * then be used with the methods GetParameterUnits and GetParameter.
+     *
+     * @param rName  the name of a parameter
+     * @return the parameter's position within the vector of parameters
+     *         associated with the ODE system.
+     */
+    unsigned GetParameterIndex(const std::string& rName) const;
+
+    /**
+     * Get the units of a parameter given its index in the ODE system.
+     *
+     * @param index  a state variable's position within the vector of
+     *               state variables associated with the ODE system.
+     * @return the units of the state variable.
+     */
+    std::string GetParameterUnits(unsigned index) const;
 
 };
 

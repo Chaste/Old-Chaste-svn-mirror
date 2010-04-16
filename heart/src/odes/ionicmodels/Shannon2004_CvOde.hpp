@@ -24,7 +24,7 @@ public:
         // Time units: millisecond
         //
         mpSystemInfo = OdeSystemInformation<CvOdeCellShannon2004FromCellML>::Instance();
-
+        Init();
     }
 
     ~CvOdeCellShannon2004FromCellML(void)

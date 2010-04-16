@@ -52,6 +52,7 @@ AbstractCardiacCell::~AbstractCardiacCell()
 void AbstractCardiacCell::Init()
 {
     SetStateVariables(GetInitialConditions());
+    mParameters.resize(rGetParameterNames().size());
 }
 
 

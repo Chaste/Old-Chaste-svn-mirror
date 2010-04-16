@@ -44,7 +44,6 @@ const double Lr91Cvode::membrane_R = 8314;
 const double Lr91Cvode::membrane_T = 310.0;
 const double Lr91Cvode::background_current_E_b = -59.87;
 const double Lr91Cvode::background_current_g_b = 0.03921;
-const double Lr91Cvode::fast_sodium_current_g_Na = 23.0;
 const double Lr91Cvode::ionic_concentrations_Ki = 145.0;
 const double Lr91Cvode::ionic_concentrations_Ko = 5.4;
 const double Lr91Cvode::ionic_concentrations_Nai = 18.0;
@@ -61,8 +60,11 @@ Lr91Cvode::Lr91Cvode(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
         : AbstractCvodeCell(pOdeSolver, 8, 4, pIntracellularStimulus)
 {
     mpSystemInfo = OdeSystemInformation<Lr91Cvode>::Instance();
+    Init();
 
-    // set the final paramter
+    NV_Ith_S(mParameters, 0) = 23.0; // fast sodium current max conductance, g_Na
+
+    // set the final parameter
     fast_sodium_current_E_Na = ((membrane_R * membrane_T) / membrane_F) *
                                log(ionic_concentrations_Nao / ionic_concentrations_Nai);
 
@@ -91,6 +93,8 @@ void Lr91Cvode::EvaluateRhs(double time, N_Vector y, N_Vector ydot)
     double slow_inward_current_d_gate_d = NV_Ith_S(y,5);
     double slow_inward_current_f_gate_f = NV_Ith_S(y,6);
     double time_dependent_potassium_current_X_gate_X = NV_Ith_S(y,7);
+    
+    double fast_sodium_current_g_Na = NV_Ith_S(mParameters, 0);
 
     double background_current_i_b = background_current_g_b*(membrane_V-background_current_E_b);
 
@@ -218,6 +222,8 @@ double Lr91Cvode::GetIIonic()
     double slow_inward_current_d_gate_d = NV_Ith_S(mStateVariables,5);
     double slow_inward_current_f_gate_f = NV_Ith_S(mStateVariables,6);
     double time_dependent_potassium_current_X_gate_X = NV_Ith_S(mStateVariables,7);
+
+    double fast_sodium_current_g_Na = NV_Ith_S(mParameters, 0);
 
     /*
      * Compute the Lr91Cvode model
@@ -350,6 +356,9 @@ void OdeSystemInformation<Lr91Cvode>::Initialise(void)
     this->mVariableNames.push_back("x");
     this->mVariableUnits.push_back("");
     this->mInitialConditions.push_back(0.16647703);
+
+    this->mParameterNames.push_back("fast_sodium_current__g_Na");
+    this->mParameterUnits.push_back("milliS_per_cm2");
 
     this->mInitialised = true;
 }

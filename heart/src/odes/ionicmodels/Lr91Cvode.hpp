@@ -56,8 +56,6 @@ private:
     static const double background_current_E_b;
     /** Maximal conductance for background current*/
     static const double background_current_g_b;
-    /** Maximal conductance for sodium current*/
-    static const double fast_sodium_current_g_Na;
     /** Intracellular potassium concentration*/
     static const double ionic_concentrations_Ki;
     /** Extracellular potassium concentration*/
