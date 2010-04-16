@@ -142,7 +142,7 @@ void CheckCellModelResults(const std::string& rBaseResultsFilename,
         validResultsBasename = rBaseResultsFilename;
     }
 
-    ColumnDataReader valid_reader("heart/test/data", validResultsBasename + "ValidData",
+    ColumnDataReader valid_reader("heart/test/data/ionicmodels", validResultsBasename + "ValidData",
                                   false);
     std::vector<double> valid_times = valid_reader.GetValues("Time");
     std::vector<double> valid_voltages = GetVoltages(valid_reader);
