@@ -172,7 +172,11 @@ void AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::DoMatri
 
     HeartEventHandler::BeginEvent(HeartEventHandler::ASSEMBLE_RHS);
 
+#if (PETSC_VERSION_MAJOR == 3)
+    VecSetOption((*(this->GetLinearSystem()))->rGetRhsVector(), VEC_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE);
+#else
     VecSetOption((*(this->GetLinearSystem()))->rGetRhsVector(), VEC_IGNORE_OFF_PROC_ENTRIES);
+#endif
 
     (*(this->GetLinearSystem()))->ZeroRhsVector();
 
