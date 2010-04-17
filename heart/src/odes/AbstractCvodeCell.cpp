@@ -93,6 +93,11 @@ AbstractCvodeCell::~AbstractCvodeCell()
         mStateVariables->ops->nvdestroy(mStateVariables);
         mStateVariables = NULL;
     }
+    if (mParameters)
+    {
+        mParameters->ops->nvdestroy(mParameters);
+        mParameters = NULL;
+    }
 }
 
 

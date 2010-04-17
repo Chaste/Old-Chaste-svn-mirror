@@ -106,8 +106,11 @@ protected:
     /**
      * Used to include extra debugging information in exception messages, e.g.
      *  EXCEPTION(DumpState("Gating variable out of range"));
+     *
+     * @param rMessage  explanatory message to include in exception
+     * @param Y  current state variable values (defaults to using #mStateVariables)
      */
-    std::string DumpState(const std::string& message,
+    std::string DumpState(const std::string& rMessage,
                           N_Vector Y = NULL);
 
     /**
@@ -117,7 +120,10 @@ protected:
     void Init();
 
     /**
-     * This class is used by GetStateVariables and SetStateVariablesUsingACopyOfThisVector()
+     * Create a new N_Vector by copying the given vector.
+     * Used by GetStateVariables and SetStateVariablesUsingACopyOfThisVector.
+     *
+     * @param originalVec  the vector to copy
      */
     N_Vector CopyVector(N_Vector originalVec);
 
@@ -332,6 +338,8 @@ public:
     /**
      * Change the maximum number of steps to be taken by the solver
      * in its attempt to reach the next output time.  Default is 500 (set by CVODE).
+     *
+     * @param numSteps new maximum
      */
     void SetMaxSteps(long int numSteps);
 

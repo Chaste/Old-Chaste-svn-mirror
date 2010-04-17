@@ -55,6 +55,8 @@ public :
         mNice = false;
         mpSystemInfo = OdeSystemInformation<ExceptionalCell>::Instance();
         Init();
+        // For coverage purposes, call Init twice
+        Init();
     }
 
     void BeNice()
