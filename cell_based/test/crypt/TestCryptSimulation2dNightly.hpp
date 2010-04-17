@@ -198,13 +198,8 @@ public:
         TS_ASSERT_EQUALS(cell_type_count[2], 36u);  // Differentiated
         TS_ASSERT_EQUALS(cell_type_count[3], 0u);   // Apoptotic
 
-        /**
-         * Voronoi is worked out for the ghost nodes too, although this is not strictly necessary,
-         * you do need the immediate ghost nodes to work out the Voronoi tessellation of the outer
-         * real nodes, so need to work out the full tessellation really.
-         */
-        TS_ASSERT_EQUALS(crypt.rGetVoronoiTessellation().GetNumFaces(), number_of_cells + ghost_indices.size());
-        TS_ASSERT_EQUALS(crypt.rGetVoronoiTessellation().GetNumVertices(), 273u);
+        TS_ASSERT_EQUALS(crypt.rGetVoronoiTessellation().GetNumElements(), number_of_cells);
+        TS_ASSERT_EQUALS(crypt.rGetVoronoiTessellation().GetNumNodes(), 273u);
     }
 
     /**
