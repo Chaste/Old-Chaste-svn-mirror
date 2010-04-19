@@ -78,7 +78,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
         #ifdef MECH_VERY_VERBOSE
         if (assembleJacobian) // && ((*iter).GetIndex()%500==0))
         {
-            std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << this->mpQuadMesh->GetNumElements() << std::flush;
+            std::cout << "\r[" << PetscTools::GetMyRank() << "]: Element " << (*iter).GetIndex() << " of " << mpQuadMesh->GetNumElements() << std::flush;
         }
         #endif
 
@@ -200,7 +200,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
     static c_matrix<double,DIM,DIM> inverse_jacobian;
     double jacobian_determinant;
     
-    this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
+    mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
     if (assembleJacobian)
     {
@@ -231,7 +231,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
     ///////////////////////////////////////////////
     for (unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
     {
-        element_current_pressures(II) = this->mCurrentSolution[DIM*this->mpQuadMesh->GetNumNodes() + rElement.GetNodeGlobalIndex(II)];
+        element_current_pressures(II) = this->mCurrentSolution[DIM*mpQuadMesh->GetNumNodes() + rElement.GetNodeGlobalIndex(II)];
     }
 
     // allocate memory for the basis functions values and derivative values
@@ -268,15 +268,16 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
     static c_matrix<double,DIM,DIM> F_T;    // F*T
     static c_matrix<double,DIM,NUM_NODES_PER_ELEMENT> F_T_grad_quad_phi; // F*T*grad_quad_phi
 
-    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_F;
-    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_FF1;
-    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_FF2;
+    c_vector<double,DIM> body_force;
+
+    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE;       // dTdE(M,N,P,Q) = dT_{MN}/dE_{PQ} 
+    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_sym;   // =0.5(dTdE(M,N,P,Q) + dTdE(M,N,Q,P)); symmtrization of PQ components of dTdE 
+
+    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,DIM> temp_tensor;
+    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,NUM_NODES_PER_ELEMENT,DIM> dTdE_FF_quad_quad;
 
     static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> temp_matrix;
     static c_matrix<double, NUM_NODES_PER_ELEMENT, NUM_NODES_PER_ELEMENT> quadgradphi_T_quadgradphi;
-    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,DIM> temp_tensor;
-    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,NUM_NODES_PER_ELEMENT,DIM> dTdE_FF1_quad_quad;
-    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,NUM_NODES_PER_ELEMENT> dTdE_FF2_quad_quad;
     static c_matrix<double,NUM_NODES_PER_ELEMENT,DIM> grad_quad_phi_times_invF;
 
 
@@ -288,8 +289,9 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
     //////////////////////////////////////////////////
     for (unsigned quadrature_index=0; quadrature_index < this->mpQuadratureRule->GetNumQuadPoints(); quadrature_index++)
     {
-        //unsigned current_quad_point_global_index =   rElement.GetIndex()*this->mpQuadratureRule->GetNumQuadPoints()
-        //                                           + quadrature_index;
+        // this is needed by the cardiac mechanics assembler
+        unsigned current_quad_point_global_index =   rElement.GetIndex()*this->mpQuadratureRule->GetNumQuadPoints()
+                                                   + quadrature_index;
 
         double wJ = jacobian_determinant * this->mpQuadratureRule->GetWeight(quadrature_index);
 
@@ -307,23 +309,24 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         ////////////////////////////////////////////////////
         // get the body force, interpolating X if necessary
         ////////////////////////////////////////////////////
-        c_vector<double,DIM> body_force;
 
-        if (this->mUsingBodyForceFunction)
+        if(assembleResidual)
         {
-            c_vector<double,DIM> X = zero_vector<double>(DIM);
-            // interpolate X (using the vertices and the /linear/ bases, as no curvilinear elements
-            for (unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
+            if (this->mUsingBodyForceFunction)
             {
-                X += linear_phi(node_index)*mpQuadMesh->GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                c_vector<double,DIM> X = zero_vector<double>(DIM);
+                // interpolate X (using the vertices and the /linear/ bases, as no curvilinear elements
+                for (unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
+                {
+                    X += linear_phi(node_index)*mpQuadMesh->GetNode( rElement.GetNodeGlobalIndex(node_index) )->rGetLocation();
+                }
+                body_force = (*(this->mpBodyForceFunction))(X);
             }
-            body_force = (*(this->mpBodyForceFunction))(X);
+            else
+            {
+                body_force = this->mBodyForce;
+            }
         }
-        else
-        {
-            body_force = this->mBodyForce;
-        }
-
 
         //////////////////////////////////////
         // interpolate grad_u and p
@@ -365,26 +368,27 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
 
         double detF = Determinant(F);
 
-        p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,this->dTdE,assembleJacobian);
+        ComputeStressAndStressDerivative(p_material_law, C, inv_C, pressure, current_quad_point_global_index,
+                                         T, dTdE, assembleJacobian);
 
-//        static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_sym;
-//
-//        if(assembleJacobian)
-//        {
-//            for (unsigned M=0; M<DIM; M++)
-//            {
-//                for (unsigned N=0; N<DIM; N++)
-//                {
-//                    for (unsigned P=0; P<DIM; P++)
-//                    {
-//                        for (unsigned Q=0; Q<DIM; Q++)
-//                        {
-//                            dTdE_sym(M,N,P,Q) = 0.5*(this->dTdE(M,N,P,Q)+this->dTdE(M,N,Q,P));
-//                        }
-//                    }
-//                }
-//            }
-//        }
+
+        // set up the tensor 0.5(dTdE(M,N,P,Q) + dTdE(M,N,Q,P)
+        if(assembleJacobian)
+        {
+            for (unsigned M=0; M<DIM; M++)
+            {
+                for (unsigned N=0; N<DIM; N++)
+                {
+                    for (unsigned P=0; P<DIM; P++)
+                    {
+                        for (unsigned Q=0; Q<DIM; Q++)
+                        {
+                            dTdE_sym(M,N,P,Q) = 0.5*(dTdE(M,N,P,Q) + dTdE(M,N,Q,P));
+                        }
+                    }
+                }
+            }
+        }
 
         /////////////////////////////////////////
         // residual vector
@@ -404,20 +408,9 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                                   * quad_phi(node_index)
                                   * wJ;
                                   
-                                  
+                // the  T(M,N)*F(spatial_dim,M)*grad_quad_phi(N,node_index)  term                  
                 rBElem(index) +=   F_T_grad_quad_phi(spatial_dim,node_index)
                                  * wJ;
-//// above line corresponds to
-//                for (unsigned M=0; M<DIM; M++)
-//                {
-//                    for (unsigned N=0; N<DIM; N++)
-//                    {
-//                        rBElem(index) +=   T(M,N)
-//                                         * F(spatial_dim,M)
-//                                         * grad_quad_phi(N,node_index)
-//                                         * wJ;
-//                    }
-//                }
             }
 
             for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
@@ -434,12 +427,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         /////////////////////////////////////////
         if (assembleJacobian) 
         {
-            // set up some fourth order tensors
-            dTdE_F.template SetAsContractionOnSecondDimension<DIM>(F, this->dTdE);  // B^{MdPQ}  = F^d_N * dTdE^{MNPQ}
-            dTdE_FF1.template SetAsContractionOnFourthDimension<DIM>(F, dTdE_F);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ}
-            dTdE_FF2.template SetAsContractionOnThirdDimension<DIM>(F, dTdE_F);     // B2^{MdeQ} = F^d_N * F^e_P * dTdE^{MNPQ}
-       
-            
             // Set up the matrix
             // quadgradphi_T_quadgradphi(node_index1, node_index2)  =   T(M,N)
             //                                                        * grad_quad_phi(M,node_index1)
@@ -447,28 +434,26 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
             temp_matrix = prod(T, grad_quad_phi); // temp(M, node_index2) = sum_N T(M,N) * grad_quad_phi(N,node_index2)
             quadgradphi_T_quadgradphi = prod(trans_grad_quad_phi, temp_matrix); // temp2(node_index1, node_index2) = sum_M sum_N  grad_quad_phi(M,node_index1) T(M,N) * grad_quad_phi(N,node_index2)
 
-
-            // Set up the tensor  
-            //   dTdE_FF1_quad_quad(node_index1, spatial_dim1, node_index2, spatial_dim2)
-            //            =   dTdE_FF1(M,spatial_dim1,P,spatial_dim2)
-            //              * grad_quad_phi(M,node_index1) 
-            //              * grad_quad_phi(P,node_index2)
-            // (sum over M and P)    
-            temp_tensor.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dTdE_FF1 );
-            dTdE_FF1_quad_quad.template SetAsContractionOnThirdDimension<DIM>( trans_grad_quad_phi, temp_tensor );
-
-
-            // Set up the tensor  
-            //   dTdE_FF2_quad_quad(node_index1, spatial_dim1, spatial_dim2, node_index2)
-            //            =   dTdE_FF2(M,spatial_dim1,spatial_dim2,Q)
-            //              * grad_quad_phi(M,node_index1)
-            //              * grad_quad_phi(Q,node_index2)
-            // (sum over M and Q)    
-            temp_tensor.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dTdE_FF2 );
-            dTdE_FF2_quad_quad.template SetAsContractionOnFourthDimension<DIM>( trans_grad_quad_phi, temp_tensor );
-
-            // trans(grad_quad_phi) * invF
+            // save trans(grad_quad_phi) * invF
             grad_quad_phi_times_invF = prod(trans_grad_quad_phi, inv_F);
+
+            ///////////////////////////////////////////////////////
+            // Set up the tensor  
+            //   dTdE_FF_quad_quad(node_index1, spatial_dim1, node_index2, spatial_dim2)
+            //            =  0.5 * (dTdE(M,N,P,Q)+dTdE(M,N,Q,P))
+            //                   * F(spatial_dim1, N)
+            //                   * F(spatial_dim2, Q)
+            //                   * grad_quad_phi(M,node_index1) 
+            //                   * grad_quad_phi(P,node_index2)
+            ///////////////////////////////////////////////////////
+
+            // NOT dTdE, just reusing memory. A^{MdPQ}  = F^d_N * dTdE_sym^{MNPQ}
+            dTdE.template SetAsContractionOnSecondDimension<DIM>(F, dTdE_sym);  
+            // NOT dTdE_sym, just reusing memory. B^{MdPe} = F^d_N * F^e_Q * dTdE_sym^{MNPQ}
+            dTdE_sym.template SetAsContractionOnFourthDimension<DIM>(F, dTdE);  
+            temp_tensor.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dTdE_sym );
+            dTdE_FF_quad_quad.template SetAsContractionOnThirdDimension<DIM>( trans_grad_quad_phi, temp_tensor );
+
 
             for (unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
             {
@@ -481,71 +466,24 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                     unsigned spatial_dim2 = index2%DIM;
                     unsigned node_index2 = (index2-spatial_dim2)/DIM;
 
+                    //    the  T(M,N)*grad_quad_phi(M,node_index1)*grad_quad_phi(N,node_index2)* (spatial_dim1==spatial_dim2?1:0)  term
                     rAElem(index1,index2) +=    quadgradphi_T_quadgradphi(node_index1, node_index2)
                                               * (spatial_dim1==spatial_dim2?1:0)
                                               * wJ;                                                
-//// the above line corresponds to 
-//                    for (unsigned M=0; M<DIM; M++)
-//                    {
-//                        for (unsigned N=0; N<DIM; N++)
-//                        {
-//                            rAElem(index1,index2) +=   T(M,N)
-//                                                     * grad_quad_phi(M,node_index1)
-//                                                     * grad_quad_phi(N,node_index2)
-//                                                     * (spatial_dim1==spatial_dim2?1:0)
-//                                                     * wJ;
-//                        }
-//                    }
-
-                    rAElem(index1,index2)  +=   0.5
-                                              * dTdE_FF1_quad_quad(node_index1,spatial_dim1,node_index2,spatial_dim2)
+                                              
+                    // the dTdE*F*F*grad_quad_phi*grad_quad_phi term
+                    rAElem(index1,index2)  +=   dTdE_FF_quad_quad(node_index1,spatial_dim1,node_index2,spatial_dim2)
                                               * wJ;
-
-                    rAElem(index1,index2)  +=   0.5
-                                              * dTdE_FF2_quad_quad(node_index1,spatial_dim1,spatial_dim2,node_index2)
-                                              * wJ;
-
-
-//// the above lines correspond to 
-//
-//                    for (unsigned M=0; M<DIM; M++)
-//                    {
-//                        for (unsigned P=0; P<DIM; P++)
-//                        {
-//                            rAElem(index1,index2)  +=   0.5
-//                                                      * dTdE_FF1(M,spatial_dim1,P,spatial_dim2)
-//                                                      * grad_quad_phi(P,node_index2)
-//                                                      * grad_quad_phi(M,node_index1)
-//                                                      * wJ;
-//                        }
-//
-//                        for (unsigned Q=0; Q<DIM; Q++)
-//                        {
-//                           rAElem(index1,index2)  +=   0.5
-//                                                     * dTdE_FF2(M,spatial_dim1,spatial_dim2,Q)
-//                                                     * grad_quad_phi(Q,node_index2)
-//                                                     * grad_quad_phi(M,node_index1)
-//                                                     * wJ;
-//                        }
-//                    }
                 }
 
                 for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
                 {
                     unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
-
+        
+                    // the -invF(M,spatial_dim1)*grad_quad_phi(M,node_index1)*linear_phi(vertex_index) term
                     rAElem(index1,index2)  +=  - grad_quad_phi_times_invF(node_index1,spatial_dim1)
                                                * linear_phi(vertex_index)
                                                * wJ;
-
-//// the above line corresponds to 
-//                    for (unsigned M=0; M<DIM; M++)
-//                    {
-//                         rAElem(index1,index2)  +=  - inv_F(M,spatial_dim1)
-//                                                    * grad_quad_phi(M,node_index1)
-//                                                    * linear_phi(vertex_index)
-//                                                    * wJ;
-//                    }
                 }
             }
 
@@ -563,17 +501,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                                              * grad_quad_phi_times_invF(node_index2,spatial_dim2)
                                              * linear_phi(vertex_index)
                                              * wJ;
-
-//// the above line corresponds to 
-//                    for (unsigned M=0; M<DIM; M++)
-//                    {
-//                        // same as (negative of) the opposite block (ie a few lines up), except for detF
-//                        rAElem(index1,index2) +=   detF
-//                                                 * inv_F(M,spatial_dim2)
-//                                                 * grad_quad_phi(M,node_index2)
-//                                                 * linear_phi(vertex_index)
-//                                                 * wJ;
-//                    }
                 }
 
                 /////////////////////////////////////////////////////
@@ -614,6 +541,22 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         }
     }
 }
+
+
+template<size_t DIM>
+void NonlinearElasticityAssembler<DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                                         c_matrix<double,DIM,DIM>& rC, 
+                                                                         c_matrix<double,DIM,DIM>& rInvC, 
+                                                                         double pressure, 
+                                                                         unsigned currentQuadPointGlobalIndex,
+                                                                         c_matrix<double,DIM,DIM>& rT,
+                                                                         FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                                                         bool computeDTdE)
+{
+    // just call the method on the material law
+    pMaterialLaw->ComputeStressAndStressDerivative(rC,rInvC,pressure,rT,rDTdE,computeDTdE);
+}
+
 
 template<size_t DIM>
 void NonlinearElasticityAssembler<DIM>::AssembleOnBoundaryElement(

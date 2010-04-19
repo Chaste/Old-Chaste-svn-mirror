@@ -87,30 +87,17 @@ protected:
      */
     std::vector<c_matrix<double,DIM,DIM> >* mpVariableFibreSheetDirections;
 
+    /** (Pointer to) the fibre-sheet matrix for the current element being assembled on */    
+    c_matrix<double,DIM,DIM>* mpCurrentElementFibreSheetMatrix;
+    /** The fibre direction for the current element being assembled on */    
+    c_vector<double,DIM> mCurrentElementFibreDirection;
+
+
     /** Check whether the given matrix is orthogonal, by computing A^T A and verifying whether each
       * component matches the identity matrix, to a given tolerance.
       * @param rMatrix reference to the matrix being tested
       */
-    void CheckOrthogonality(c_matrix<double,DIM,DIM>& rMatrix)
-    {
-        c_matrix<double,DIM,DIM>  temp = prod(trans(rMatrix),rMatrix);
-        double tol = 1e-4;
-        // check temp is equal to the identity
-        for(unsigned i=0; i<DIM; i++)
-        {
-            for(unsigned j=0; j<DIM; j++)
-            {
-                double val = (i==j ? 1.0 : 0.0);
-                if(fabs(temp(i,j)-val)>tol)
-                {
-                    std::stringstream ss;
-                    ss << "The given fibre-sheet matrix, " << rMatrix << ", is not orthogonal"
-                       << " (A^T A not equal to I to tolerance " << tol << ")";
-                    EXCEPTION(ss.str());
-                }
-            }
-        }
-    }
+    void CheckOrthogonality(c_matrix<double,DIM,DIM>& rMatrix);
 
 
     /**
@@ -120,12 +107,12 @@ protected:
     virtual bool IsImplicitSolver()=0;
 
     /**
-     * Overloaded AssembleOnElement. Apart from a tiny bit of initial set up and
-     * the lack of the body force term in the residual, the bits where this is
-     * different to the base class AssembleOnElement are restricted to two bits
-     * (see code): getting Ta and using it to compute the stress, and (in when Ta
-     * is a function of the stretch) the addition of extra term to the Jacobian.
-     *
+     * Overloaded AssembleOnElement. Does an bit of initial set up (sets mpCurrentElementFibreSheetMatrix
+     * and mCurrentElementFibreDirection), then calls the base class version on NonlinearElasticityAssembler.
+     * That then calls the overloaded ComputeStressAndStressDerivative, which
+     * computes the passive stress as normal but also computes the extra, active stresses to be
+     * added to the total stress.
+     * 
      * @param rElement The element to assemble on.
      * @param rAElem The element's contribution to the LHS matrix is returned in this
      *     n by n matrix, where n is the no. of nodes in this element. There is no
@@ -147,12 +134,41 @@ protected:
 
 
     /**
-     *  Pure method called in AbstractCardiacMechanicsAssembler::AssembleOnElement(), which needs to provide
+     *  Overloaded ComputeStressAndStressDerivative(), which computes the passive part of the
+     *  stress as normal but also calls on the contraction model to get the active stress and 
+     *  adds it on.
+     * 
+     *  @param pMaterialLaw The material law for this element
+     *  @param rC The Lagrangian deformation tensor (F^T F)
+     *  @param rInvC The inverse of C. Should be computed by the user.
+     *  @param pressure The current pressure
+     *  @param currentQuadPointGlobalIndex The index (assuming an outer loop over elements and an inner 
+     *    loop over quadrature points), of the current quadrature point.
+     *  @param rT The stress will be returned in this parameter
+     *  @param rDTdE the stress derivative will be returned in this parameter, assuming
+     *    the final parameter is true
+     *  @param computeDTdE A boolean flag saying whether the stress derivative is
+     *    required or not.
+     */ 
+    void ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                          c_matrix<double,DIM,DIM>& rC, 
+                                          c_matrix<double,DIM,DIM>& rInvC, 
+                                          double pressure, 
+                                          unsigned currentQuadPointGlobalIndex,
+                                          c_matrix<double,DIM,DIM>& rT,
+                                          FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                          bool computeDTdE);
+    
+
+
+
+    /**
+     *  Pure method called in AbstractCardiacMechanicsAssembler::ComputeStressAndStressDerivative(), which needs to provide
      *  the active tension (and other info if implicit (if the contraction model depends on stretch
      *  or stretch rate)) at a particular quadrature point. Takes in the current fibre stretch.
      *
      *  @param currentFibreStretch The stretch in the fibre direction
-     *  @param currentQuadPointGlobalIndex quadrature point integrand currently being evaluated at in AssembleOnElement
+     *  @param currentQuadPointGlobalIndex quadrature point the integrand is currently being evaluated at in AssembleOnElement
      *  @param assembleJacobian  A bool stating whether to assemble the Jacobian matrix.
      *  @param rActiveTension The returned active tension
      *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch. Only should be set in implicit assemblers
@@ -307,6 +323,63 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetCalciumAndVoltage(std::vector<do
     }
 }
 
+template<unsigned DIM>
+void AbstractCardiacMechanicsAssembler<DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                                         c_matrix<double,DIM,DIM>& rC, 
+                                                                         c_matrix<double,DIM,DIM>& rInvC, 
+                                                                         double pressure, 
+                                                                         unsigned currentQuadPointGlobalIndex,
+                                                                         c_matrix<double,DIM,DIM>& rT,
+                                                                         FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                                                         bool assembleJacobian)
+{
+    // 1. Compute T and dTdE for the PASSIVE part of the strain energy.
+    pMaterialLaw->SetChangeOfBasisMatrix(*mpCurrentElementFibreSheetMatrix);
+    pMaterialLaw->ComputeStressAndStressDerivative(rC,rInvC,pressure,rT,rDTdE,assembleJacobian);
+
+    // 2. Compute the active tension and add to the stress and stress-derivative
+    double I4 = inner_prod(mCurrentElementFibreDirection, prod(rC, mCurrentElementFibreDirection));
+    double lambda = sqrt(I4);
+
+    double active_tension = 0;
+    double d_act_tension_dlam = 0.0;     // Set and used if assembleJacobian==true
+    double d_act_tension_d_dlamdt = 0.0; // Set and used if assembleJacobian==true
+
+    GetActiveTensionAndTensionDerivs(lambda, currentQuadPointGlobalIndex, assembleJacobian,
+                                     active_tension, d_act_tension_dlam, d_act_tension_d_dlamdt);
+
+    // amend the stress and dTdE using the active tension
+    double dTdE_coeff = -2*active_tension/(I4*I4); // note: I4*I4 = lam^4
+    if(IsImplicitSolver())
+    {
+        double dt = mNextTime-mCurrentTime;
+        dTdE_coeff += (d_act_tension_dlam + d_act_tension_d_dlamdt/dt)/(lambda*I4); // note: I4*lam = lam^3
+    }
+
+    rT += (active_tension/I4)*outer_prod(mCurrentElementFibreDirection,mCurrentElementFibreDirection);
+
+    if(assembleJacobian)
+    {
+        for (unsigned M=0; M<DIM; M++)
+        {
+            for (unsigned N=0; N<DIM; N++)
+            {
+                for (unsigned P=0; P<DIM; P++)
+                {
+                    for (unsigned Q=0; Q<DIM; Q++)
+                    {
+                        rDTdE(M,N,P,Q) +=  dTdE_coeff * mCurrentElementFibreDirection(M)
+                                                      * mCurrentElementFibreDirection(N)
+                                                      * mCurrentElementFibreDirection(P)
+                                                      * mCurrentElementFibreDirection(Q);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 template<unsigned DIM>
 void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>& rElement,
@@ -320,469 +393,16 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     assert(mCurrentTime != DBL_MAX);
     assert(mNextTime != DBL_MAX);
     assert(mOdeTimestep != DBL_MAX);
-    double mech_dt = mNextTime - mCurrentTime;
 
-    // set up the fibre direction for this element
-    static c_matrix<double,DIM,DIM> r_fibre_sheet_matrix;
-    r_fibre_sheet_matrix = mpVariableFibreSheetDirections ? (*mpVariableFibreSheetDirections)[rElement.GetIndex()] : mConstantFibreSheetDirections;
-    
-    static c_vector<double,DIM> fibre_dir;
+    // set up the fibre info for this element
+    mpCurrentElementFibreSheetMatrix = mpVariableFibreSheetDirections ? &(*mpVariableFibreSheetDirections)[rElement.GetIndex()] : &mConstantFibreSheetDirections;
     for(unsigned i=0; i<DIM; i++)
     {
-        fibre_dir(i) = r_fibre_sheet_matrix(i,0);
+        mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(i,0);
     }
 
-    static c_matrix<double,DIM,DIM> jacobian;
-    static c_matrix<double,DIM,DIM> inverse_jacobian;
-    double jacobian_determinant;
-    this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
-
-    if (assembleJacobian)
-    {
-        rAElem.clear();
-        rAElemPrecond.clear();
-    }
-
-    if (assembleResidual)
-    {
-        rBElem.clear();
-    }
-
-    ///////////////////////////////////////////////
-    // Get the current displacement at the nodes
-    ///////////////////////////////////////////////
-    static c_matrix<double,DIM,NUM_NODES_PER_ELEMENT> element_current_displacements;
-    static c_vector<double,NUM_VERTICES_PER_ELEMENT> element_current_pressures;
-    for (unsigned II=0; II<NUM_NODES_PER_ELEMENT; II++)
-    {
-        for (unsigned JJ=0; JJ<DIM; JJ++)
-        {
-            element_current_displacements(JJ,II) = this->mCurrentSolution[DIM*rElement.GetNodeGlobalIndex(II) + JJ];
-        }
-    }
-
-    ///////////////////////////////////////////////
-    // Get the current pressure at the vertices
-    ///////////////////////////////////////////////
-    for (unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
-    {
-        element_current_pressures(II) = this->mCurrentSolution[DIM*this->mpQuadMesh->GetNumNodes() + rElement.GetNodeGlobalIndex(II)];
-    }
-
-    // allocate memory for the basis functions values and derivative values
-    static c_vector<double, NUM_VERTICES_PER_ELEMENT> linear_phi;
-    static c_vector<double, NUM_NODES_PER_ELEMENT> quad_phi;
-    static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> grad_quad_phi;
-    static c_matrix<double, NUM_NODES_PER_ELEMENT, DIM> trans_grad_quad_phi;
-
-
-    // get the material law
-    AbstractIncompressibleMaterialLaw<DIM>* p_material_law;
-    if (this->mMaterialLaws.size()==1)
-    {
-        // homogeneous
-        p_material_law = this->mMaterialLaws[0];
-    }
-    else
-    {
-        // heterogeneous
-        #define COVERAGE_IGNORE // not going to have tests in cts for everything
-        p_material_law = this->mMaterialLaws[rElement.GetIndex()];
-        #undef COVERAGE_IGNORE
-    }
-    
-    
-    static c_matrix<double,DIM,DIM> grad_u; // grad_u = (du_i/dX_M)
-            
-    static c_matrix<double,DIM,DIM> F;
-    static c_matrix<double,DIM,DIM> C;
-    static c_matrix<double,DIM,DIM> inv_C;
-    static c_matrix<double,DIM,DIM> inv_F;
-    static c_matrix<double,DIM,DIM> T;
-
-    static c_matrix<double,DIM,DIM> F_T;
-    static c_matrix<double,DIM,NUM_NODES_PER_ELEMENT> F_T_grad_quad_phi;
-
-    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_F;
-    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_FF1;
-    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_FF2;
-
-    static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> temp_matrix;
-    static c_matrix<double, NUM_NODES_PER_ELEMENT, NUM_NODES_PER_ELEMENT> quadgradphi_T_quadgradphi;
-    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,DIM> temp_tensor;
-    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,NUM_NODES_PER_ELEMENT,DIM> dTdE_FF1_quad_quad;
-    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,NUM_NODES_PER_ELEMENT> dTdE_FF2_quad_quad;
-    static c_matrix<double,NUM_NODES_PER_ELEMENT,DIM> grad_quad_phi_times_invF;
-
-
-
-    //////////////////////////////////////////////////
-    //////////////////////////////////////////////////
-    //// loop over Gauss points
-    //////////////////////////////////////////////////
-    //////////////////////////////////////////////////
-    for (unsigned quadrature_index=0; quadrature_index < this->mpQuadratureRule->GetNumQuadPoints(); quadrature_index++)
-    {
-        unsigned current_quad_point_global_index =   rElement.GetIndex()*this->mpQuadratureRule->GetNumQuadPoints()
-                                                   + quadrature_index;
-
-        double wJ = jacobian_determinant * this->mpQuadratureRule->GetWeight(quadrature_index);
-
-        const ChastePoint<DIM>& quadrature_point = this->mpQuadratureRule->rGetQuadPoint(quadrature_index);
-
-        //////////////////////////////////////
-        // set up basis function info
-        //////////////////////////////////////
-        LinearBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, linear_phi);
-        QuadraticBasisFunction<DIM>::ComputeBasisFunctions(quadrature_point, quad_phi);
-        QuadraticBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_quad_phi);
-        trans_grad_quad_phi = trans(grad_quad_phi);
-
-        ////////////////////////////////////////////////////
-        // (dont get the body force)
-        ////////////////////////////////////////////////////
-
-        //////////////////////////////////////
-        // interpolate grad_u and p
-        //////////////////////////////////////
-        grad_u = zero_matrix<double>(DIM,DIM); 
-
-        for (unsigned node_index=0; node_index<NUM_NODES_PER_ELEMENT; node_index++)
-        {
-            for (unsigned i=0; i<DIM; i++)
-            {
-                for (unsigned M=0; M<DIM; M++)
-                {
-                    grad_u(i,M) += grad_quad_phi(M,node_index)*element_current_displacements(i,node_index);
-                }
-            }
-        }
-
-        double pressure = 0;
-        for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
-        {
-            pressure += linear_phi(vertex_index)*element_current_pressures(vertex_index);
-        }
-
-
-        ///////////////////////////////////////////////
-        // calculate C, inv(C) and T
-        ///////////////////////////////////////////////
-        for (unsigned i=0; i<DIM; i++)
-        {
-            for (unsigned M=0; M<DIM; M++)
-            {
-                F(i,M) = (i==M?1:0) + grad_u(i,M);
-            }
-        }
-
-        C = prod(trans(F),F);
-        inv_C = Inverse(C);
-        inv_F = Inverse(F);
-
-        double detF = Determinant(F);
-
-
-        /*****************************
-         * The cardiac-specific code
-         *****************************/
-
-        // 1. Compute T and dTdE for the PASSIVE part of the strain energy.
-        // Note: changing assembleJacobian to false below takes off 3.5s from 36s in assembling 6000 elements
-        p_material_law->SetChangeOfBasisMatrix(r_fibre_sheet_matrix);
-        p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,this->dTdE,assembleJacobian);
-
-        // 2. Compute the active tension and add to the stress and stress-derivative
-        double I4 = inner_prod(fibre_dir, prod(C, fibre_dir));
-        double lambda = sqrt(I4);
-
-        double active_tension = 0;
-        double d_act_tension_dlam = 0.0;     // Set and used if assembleJacobian==true
-        double d_act_tension_d_dlamdt = 0.0; // Set and used if assembleJacobian==true
-
-        // Note: changing assembleJacobian to false takes up 3s from 36s in assembling 6000 elements
-        GetActiveTensionAndTensionDerivs(lambda, current_quad_point_global_index, assembleJacobian,
-                                         active_tension, d_act_tension_dlam, d_act_tension_d_dlamdt);
-
-        // amend the stress and dTdE using the active tension
-        double dTdE_coeff = -2*active_tension/(I4*I4); // note: I4*I4 = lam^4
-        if(IsImplicitSolver())
-        {
-            dTdE_coeff += (d_act_tension_dlam + d_act_tension_d_dlamdt/mech_dt)/(lambda*I4); // note: I4*lam = lam^3
-        }
-
-        T += (active_tension/I4)*outer_prod(fibre_dir,fibre_dir);
-
-        if(assembleJacobian)
-        {
-            for (unsigned M=0; M<DIM; M++)
-            {
-                for (unsigned N=0; N<DIM; N++)
-                {
-                    for (unsigned P=0; P<DIM; P++)
-                    {
-                        for (unsigned Q=0; Q<DIM; Q++)
-                        {
-                            this->dTdE(M,N,P,Q) +=  dTdE_coeff*fibre_dir(M)*fibre_dir(N)*fibre_dir(P)*fibre_dir(Q);
-                        }
-                    }
-                }
-            }
-        }
-
-
-        /*******************************************************************
-         * End of cardiac specific code
-         *
-         * The following, excluding the lack of body force term, should be
-         * identical to NonlinearElasticityAssembler::AssembleOnElement
-         *******************************************************************/
-
-//        static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_sym;
-//
-//        if(assembleJacobian)
-//        {
-//            for (unsigned M=0; M<DIM; M++)
-//            {
-//                for (unsigned N=0; N<DIM; N++)
-//                {
-//                    for (unsigned P=0; P<DIM; P++)
-//                    {
-//                        for (unsigned Q=0; Q<DIM; Q++)
-//                        {
-//                            dTdE_sym(M,N,P,Q) = 0.5*(this->dTdE(M,N,P,Q)+this->dTdE(M,N,Q,P));
-//                        }
-//                    }
-//                }
-//            }
-//        }
-
-
-        /////////////////////////////////////////
-        // residual vector
-        /////////////////////////////////////////
-        if (assembleResidual)
-        {
-            F_T = prod(F,T);
-            F_T_grad_quad_phi = prod(F_T, grad_quad_phi);
-            
-            for (unsigned index=0; index<NUM_NODES_PER_ELEMENT*DIM; index++)
-            {
-                unsigned spatial_dim = index%DIM;
-                unsigned node_index = (index-spatial_dim)/DIM;
-
-                assert(node_index < NUM_NODES_PER_ELEMENT);
-
-                rBElem(index) +=   F_T_grad_quad_phi(spatial_dim,node_index)
-                                 * wJ;
-
-
-                // no body force bit as body force = 0
-
-//                for (unsigned M=0; M<DIM; M++)
-//                {
-//                    for (unsigned N=0; N<DIM; N++)
-//                    {
-//                        rBElem(index) +=   T(M,N)
-//                                         * F(spatial_dim,M)
-//                                         * grad_quad_phi(N,node_index)
-//                                         * wJ;
-//                    }
-//                }
-            }
-
-            for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
-            {
-                rBElem( NUM_NODES_PER_ELEMENT*DIM + vertex_index ) +=   linear_phi(vertex_index)
-                                                                      * (detF - 1)
-                                                                      * wJ;
-            }
-        }
-
-        /////////////////////////////////////////
-        // Jacobian matrix
-        /////////////////////////////////////////
-        if (assembleJacobian) // this part takes up 21s of 31s in assembling 6000 elements, of which the setup is 16s, virtually all (check) of which is SetAsContraction*
-        {
-            // set up some fourth order tensors
-            dTdE_F.template SetAsContractionOnSecondDimension<DIM>(F, this->dTdE);  // B^{MdPQ}  = F^d_N * dTdE^{MNPQ}
-            dTdE_FF1.template SetAsContractionOnFourthDimension<DIM>(F, dTdE_F);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ}
-            dTdE_FF2.template SetAsContractionOnThirdDimension<DIM>(F, dTdE_F);     // B2^{MdeQ} = F^d_N * F^e_P * dTdE^{MNPQ}
-       
-            
-            // Set up the matrix
-            // quadgradphi_T_quadgradphi(node_index1, node_index2)  =   T(M,N)
-            //                                                        * grad_quad_phi(M,node_index1)
-            //                                                        * grad_quad_phi(N,node_index2)
-            temp_matrix = prod(T, grad_quad_phi); // temp(M, node_index2) = sum_N T(M,N) * grad_quad_phi(N,node_index2)
-            quadgradphi_T_quadgradphi = prod(trans_grad_quad_phi, temp_matrix); // temp2(node_index1, node_index2) = sum_M sum_N  grad_quad_phi(M,node_index1) T(M,N) * grad_quad_phi(N,node_index2)
-
-
-            // Set up the tensor  
-            //   dTdE_FF1_quad_quad(node_index1, spatial_dim1, node_index2, spatial_dim2)
-            //            =   dTdE_FF1(M,spatial_dim1,P,spatial_dim2)
-            //              * grad_quad_phi(M,node_index1) 
-            //              * grad_quad_phi(P,node_index2)
-            // (sum over M and P)    
-            temp_tensor.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dTdE_FF1 );
-            dTdE_FF1_quad_quad.template SetAsContractionOnThirdDimension<DIM>( trans_grad_quad_phi, temp_tensor );
-
-
-            // Set up the tensor  
-            //   dTdE_FF2_quad_quad(node_index1, spatial_dim1, spatial_dim2, node_index2)
-            //            =   dTdE_FF2(M,spatial_dim1,spatial_dim2,Q)
-            //              * grad_quad_phi(M,node_index1)
-            //              * grad_quad_phi(Q,node_index2)
-            // (sum over M and Q)    
-            temp_tensor.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dTdE_FF2 );
-            dTdE_FF2_quad_quad.template SetAsContractionOnFourthDimension<DIM>( trans_grad_quad_phi, temp_tensor );
-
-            // trans(grad_quad_phi) * invF
-            grad_quad_phi_times_invF = prod(trans_grad_quad_phi, inv_F);
-
-            for (unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
-            {
-                unsigned spatial_dim1 = index1%DIM;
-                unsigned node_index1 = (index1-spatial_dim1)/DIM;
-
-
-                for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
-                {
-                    unsigned spatial_dim2 = index2%DIM;
-                    unsigned node_index2 = (index2-spatial_dim2)/DIM;
-
-                    rAElem(index1,index2) +=    quadgradphi_T_quadgradphi(node_index1, node_index2)
-                                              * (spatial_dim1==spatial_dim2?1:0)
-                                              * wJ;                                                
-//// the above line corresponds to 
-//                    for (unsigned M=0; M<DIM; M++)
-//                    {
-//                        for (unsigned N=0; N<DIM; N++)
-//                        {
-//                            rAElem(index1,index2) +=   T(M,N)
-//                                                     * grad_quad_phi(M,node_index1)
-//                                                     * grad_quad_phi(N,node_index2)
-//                                                     * (spatial_dim1==spatial_dim2?1:0)
-//                                                     * wJ;
-//                        }
-//                    }
-
-                    rAElem(index1,index2)  +=   0.5
-                                              * dTdE_FF1_quad_quad(node_index1,spatial_dim1,node_index2,spatial_dim2)
-                                              * wJ;
-
-                    rAElem(index1,index2)  +=   0.5
-                                              * dTdE_FF2_quad_quad(node_index1,spatial_dim1,spatial_dim2,node_index2)
-                                              * wJ;
-
-
-//// the above lines correspond to 
-//
-//                    for (unsigned M=0; M<DIM; M++)
-//                    {
-//                        for (unsigned P=0; P<DIM; P++)
-//                        {
-//                            rAElem(index1,index2)  +=   0.5
-//                                                      * dTdE_FF1(M,spatial_dim1,P,spatial_dim2)
-//                                                      * grad_quad_phi(P,node_index2)
-//                                                      * grad_quad_phi(M,node_index1)
-//                                                      * wJ;
-//                        }
-//
-//                        for (unsigned Q=0; Q<DIM; Q++)
-//                        {
-//                           rAElem(index1,index2)  +=   0.5
-//                                                     * dTdE_FF2(M,spatial_dim1,spatial_dim2,Q)
-//                                                     * grad_quad_phi(Q,node_index2)
-//                                                     * grad_quad_phi(M,node_index1)
-//                                                     * wJ;
-//                        }
-//                    }
-                }
-
-                for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
-                {
-                    unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
-
-                    rAElem(index1,index2)  +=  - grad_quad_phi_times_invF(node_index1,spatial_dim1)
-                                               * linear_phi(vertex_index)
-                                               * wJ;
-
-//// the above line corresponds to 
-//                    for (unsigned M=0; M<DIM; M++)
-//                    {
-//                         rAElem(index1,index2)  +=  - inv_F(M,spatial_dim1)
-//                                                    * grad_quad_phi(M,node_index1)
-//                                                    * linear_phi(vertex_index)
-//                                                    * wJ;
-//                    }
-                }
-            }
-
-            for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
-            {
-                unsigned index1 = NUM_NODES_PER_ELEMENT*DIM + vertex_index;
-
-                for (unsigned index2=0; index2<NUM_NODES_PER_ELEMENT*DIM; index2++)
-                {
-                    unsigned spatial_dim2 = index2%DIM;
-                    unsigned node_index2 = (index2-spatial_dim2)/DIM;
-
-                    // same as (negative of) the opposite block (ie a few lines up), except for detF
-                    rAElem(index1,index2) +=   detF
-                                             * grad_quad_phi_times_invF(node_index2,spatial_dim2)
-                                             * linear_phi(vertex_index)
-                                             * wJ;
-
-//// the above line corresponds to 
-//                    for (unsigned M=0; M<DIM; M++)
-//                    {
-//                        // same as (negative of) the opposite block (ie a few lines up), except for detF
-//                        rAElem(index1,index2) +=   detF
-//                                                 * inv_F(M,spatial_dim2)
-//                                                 * grad_quad_phi(M,node_index2)
-//                                                 * linear_phi(vertex_index)
-//                                                 * wJ;
-//                    }
-                }
-
-                /////////////////////////////////////////////////////
-                // Preconditioner matrix
-                // Fill the mass matrix (ie \intgl phi_i phi_j) in the
-                // pressure-pressure block. Note, the rest of the
-                // entries are filled in at the end
-                /////////////////////////////////////////////////////
-                for (unsigned vertex_index2=0; vertex_index2<NUM_VERTICES_PER_ELEMENT; vertex_index2++)
-                {
-                    unsigned index2 = NUM_NODES_PER_ELEMENT*DIM + vertex_index2;
-                    rAElemPrecond(index1,index2) +=   linear_phi(vertex_index)
-                                                    * linear_phi(vertex_index2)
-                                                    * wJ;
-                }
-            }
-        }
-    }
-
-
-    if (assembleJacobian)
-    {
-        // Fill in the other blocks of the preconditioner matrix, by adding 
-        // the jacobian matrix (this doesn't effect the pressure-pressure block 
-        // of rAElemPrecond as the pressure-pressure block of rAElem is zero),
-        // and the zero a block.
-        //
-        // The following altogether gives the preconditioner  [ A  B1^T ]
-        //                                                    [ 0  M    ]
-
-        rAElemPrecond = rAElemPrecond + rAElem;
-        for(unsigned i=NUM_NODES_PER_ELEMENT*DIM; i<STENCIL_SIZE; i++)
-        {
-            for(unsigned j=0; j<NUM_NODES_PER_ELEMENT*DIM; j++)
-            {
-                rAElemPrecond(i,j) = 0.0;
-            }
-        }
-    }
+    // call base class AssembleOnElement
+    NonlinearElasticityAssembler<DIM>::AssembleOnElement(rElement, rAElem, rAElemPrecond, rBElem, assembleResidual, assembleJacobian);
 }
 
 
@@ -834,5 +454,27 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std
     }
 }
 
+
+template<unsigned DIM>
+void AbstractCardiacMechanicsAssembler<DIM>::CheckOrthogonality(c_matrix<double,DIM,DIM>& rMatrix)
+{
+    c_matrix<double,DIM,DIM>  temp = prod(trans(rMatrix),rMatrix);
+    double tol = 1e-4;
+    // check temp is equal to the identity
+    for(unsigned i=0; i<DIM; i++)
+    {
+        for(unsigned j=0; j<DIM; j++)
+        {
+            double val = (i==j ? 1.0 : 0.0);
+            if(fabs(temp(i,j)-val)>tol)
+            {
+                std::stringstream string_stream;
+                string_stream << "The given fibre-sheet matrix, " << rMatrix << ", is not orthogonal"
+                   << " (A^T A not equal to I to tolerance " << tol << ")";
+                EXCEPTION(string_stream.str());
+            }
+        }
+    }
+}
 
 #endif /*ABSTRACTCARDIACMECHANICSASSEMBLER_HPP_*/
