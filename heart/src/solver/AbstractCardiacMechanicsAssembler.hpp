@@ -323,14 +323,17 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     double mech_dt = mNextTime - mCurrentTime;
 
     // set up the fibre direction for this element
-    c_matrix<double,DIM,DIM> r_fibre_sheet_matrix = mpVariableFibreSheetDirections ? (*mpVariableFibreSheetDirections)[rElement.GetIndex()] : mConstantFibreSheetDirections;
-    c_vector<double,DIM> fibre_dir;
+    static c_matrix<double,DIM,DIM> r_fibre_sheet_matrix;
+    r_fibre_sheet_matrix = mpVariableFibreSheetDirections ? (*mpVariableFibreSheetDirections)[rElement.GetIndex()] : mConstantFibreSheetDirections;
+    
+    static c_vector<double,DIM> fibre_dir;
     for(unsigned i=0; i<DIM; i++)
     {
         fibre_dir(i) = r_fibre_sheet_matrix(i,0);
     }
 
-    c_matrix<double, DIM, DIM> jacobian, inverse_jacobian;
+    static c_matrix<double,DIM,DIM> jacobian;
+    static c_matrix<double,DIM,DIM> inverse_jacobian;
     double jacobian_determinant;
     this->mpQuadMesh->GetInverseJacobianForElement(rElement.GetIndex(), jacobian, jacobian_determinant, inverse_jacobian);
 
@@ -367,10 +370,10 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
     }
 
     // allocate memory for the basis functions values and derivative values
-    c_vector<double, NUM_VERTICES_PER_ELEMENT> linear_phi;
-    c_vector<double, NUM_NODES_PER_ELEMENT> quad_phi;
-    c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> grad_quad_phi;
-    c_matrix<double, NUM_NODES_PER_ELEMENT, DIM> trans_grad_quad_phi;
+    static c_vector<double, NUM_VERTICES_PER_ELEMENT> linear_phi;
+    static c_vector<double, NUM_NODES_PER_ELEMENT> quad_phi;
+    static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> grad_quad_phi;
+    static c_matrix<double, NUM_NODES_PER_ELEMENT, DIM> trans_grad_quad_phi;
 
 
     // get the material law
@@ -387,6 +390,31 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         p_material_law = this->mMaterialLaws[rElement.GetIndex()];
         #undef COVERAGE_IGNORE
     }
+    
+    
+    static c_matrix<double,DIM,DIM> grad_u; // grad_u = (du_i/dX_M)
+            
+    static c_matrix<double,DIM,DIM> F;
+    static c_matrix<double,DIM,DIM> C;
+    static c_matrix<double,DIM,DIM> inv_C;
+    static c_matrix<double,DIM,DIM> inv_F;
+    static c_matrix<double,DIM,DIM> T;
+
+    static c_matrix<double,DIM,DIM> F_T;
+    static c_matrix<double,DIM,NUM_NODES_PER_ELEMENT> F_T_grad_quad_phi;
+
+    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_F;
+    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_FF1;
+    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_FF2;
+
+    static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> temp_matrix;
+    static c_matrix<double, NUM_NODES_PER_ELEMENT, NUM_NODES_PER_ELEMENT> quadgradphi_T_quadgradphi;
+    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,DIM> temp_tensor;
+    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,NUM_NODES_PER_ELEMENT,DIM> dTdE_FF1_quad_quad;
+    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,NUM_NODES_PER_ELEMENT> dTdE_FF2_quad_quad;
+    static c_matrix<double,NUM_NODES_PER_ELEMENT,DIM> grad_quad_phi_times_invF;
+
+
 
     //////////////////////////////////////////////////
     //////////////////////////////////////////////////
@@ -417,8 +445,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         //////////////////////////////////////
         // interpolate grad_u and p
         //////////////////////////////////////
-        static c_matrix<double,DIM,DIM> grad_u; // grad_u = (du_i/dX_M)
-        grad_u = zero_matrix<double>(DIM,DIM);  // must be on new line!!
+        grad_u = zero_matrix<double>(DIM,DIM); 
 
         for (unsigned node_index=0; node_index<NUM_NODES_PER_ELEMENT; node_index++)
         {
@@ -441,12 +468,6 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         ///////////////////////////////////////////////
         // calculate C, inv(C) and T
         ///////////////////////////////////////////////
-        static c_matrix<double,DIM,DIM> F;
-        static c_matrix<double,DIM,DIM> C;
-        static c_matrix<double,DIM,DIM> inv_C;
-        static c_matrix<double,DIM,DIM> inv_F;
-        static c_matrix<double,DIM,DIM> T;
-
         for (unsigned i=0; i<DIM; i++)
         {
             for (unsigned M=0; M<DIM; M++)
@@ -467,6 +488,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
          *****************************/
 
         // 1. Compute T and dTdE for the PASSIVE part of the strain energy.
+        // Note: changing assembleJacobian to false below takes off 3.5s from 36s in assembling 6000 elements
         p_material_law->SetChangeOfBasisMatrix(r_fibre_sheet_matrix);
         p_material_law->ComputeStressAndStressDerivative(C,inv_C,pressure,T,this->dTdE,assembleJacobian);
 
@@ -478,7 +500,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         double d_act_tension_dlam = 0.0;     // Set and used if assembleJacobian==true
         double d_act_tension_d_dlamdt = 0.0; // Set and used if assembleJacobian==true
 
-        // Note: changing assembleJacobian to false here doesn't speed element assembly up much (if at all)
+        // Note: changing assembleJacobian to false takes up 3s from 36s in assembling 6000 elements
         GetActiveTensionAndTensionDerivs(lambda, current_quad_point_global_index, assembleJacobian,
                                          active_tension, d_act_tension_dlam, d_act_tension_d_dlamdt);
 
@@ -508,6 +530,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
             }
         }
 
+
         /*******************************************************************
          * End of cardiac specific code
          *
@@ -515,27 +538,34 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
          * identical to NonlinearElasticityAssembler::AssembleOnElement
          *******************************************************************/
 
+//        static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_sym;
+//
+//        if(assembleJacobian)
+//        {
+//            for (unsigned M=0; M<DIM; M++)
+//            {
+//                for (unsigned N=0; N<DIM; N++)
+//                {
+//                    for (unsigned P=0; P<DIM; P++)
+//                    {
+//                        for (unsigned Q=0; Q<DIM; Q++)
+//                        {
+//                            dTdE_sym(M,N,P,Q) = 0.5*(this->dTdE(M,N,P,Q)+this->dTdE(M,N,Q,P));
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
-        static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_F;
-        static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_FF1;
-        static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_FF2;
-
-        dTdE_F.template SetAsContractionOnSecondDimension<DIM>(F, this->dTdE);  // B^{MdPQ}  = F^d_N * dTdE^{MdPQ}
-        dTdE_FF1.template SetAsContractionOnFourthDimension<DIM>(F, dTdE_F);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ}
-        dTdE_FF2.template SetAsContractionOnThirdDimension<DIM>(F, dTdE_F);     // B2^{MdeQ} = F^d_N * F^e_P * dTdE^{MNPQ}
-
-        if(assembleJacobian)
-        {
-            dTdE_F.template SetAsContractionOnSecondDimension<DIM>(F, this->dTdE);  // B^{MdPQ}  = F^d_N * dTdE^{MdPQ}
-            dTdE_FF1.template SetAsContractionOnFourthDimension<DIM>(F, dTdE_F);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ}
-            dTdE_FF2.template SetAsContractionOnThirdDimension<DIM>(F, dTdE_F);     // B2^{MdeQ} = F^d_N * F^e_P * dTdE^{MNPQ}
-        }
 
         /////////////////////////////////////////
         // residual vector
         /////////////////////////////////////////
         if (assembleResidual)
         {
+            F_T = prod(F,T);
+            F_T_grad_quad_phi = prod(F_T, grad_quad_phi);
+            
             for (unsigned index=0; index<NUM_NODES_PER_ELEMENT*DIM; index++)
             {
                 unsigned spatial_dim = index%DIM;
@@ -543,18 +573,22 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
 
                 assert(node_index < NUM_NODES_PER_ELEMENT);
 
+                rBElem(index) +=   F_T_grad_quad_phi(spatial_dim,node_index)
+                                 * wJ;
+
+
                 // no body force bit as body force = 0
 
-                for (unsigned M=0; M<DIM; M++)
-                {
-                    for (unsigned N=0; N<DIM; N++)
-                    {
-                        rBElem(index) +=   T(M,N)
-                                         * F(spatial_dim,M)
-                                         * grad_quad_phi(N,node_index)
-                                         * wJ;
-                    }
-                }
+//                for (unsigned M=0; M<DIM; M++)
+//                {
+//                    for (unsigned N=0; N<DIM; N++)
+//                    {
+//                        rBElem(index) +=   T(M,N)
+//                                         * F(spatial_dim,M)
+//                                         * grad_quad_phi(N,node_index)
+//                                         * wJ;
+//                    }
+//                }
             }
 
             for (unsigned vertex_index=0; vertex_index<NUM_VERTICES_PER_ELEMENT; vertex_index++)
@@ -568,16 +602,20 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
         /////////////////////////////////////////
         // Jacobian matrix
         /////////////////////////////////////////
-        if (assembleJacobian)
+        if (assembleJacobian) // this part takes up 21s of 31s in assembling 6000 elements, of which the setup is 16s, virtually all (check) of which is SetAsContraction*
         {
+            // set up some fourth order tensors
+            dTdE_F.template SetAsContractionOnSecondDimension<DIM>(F, this->dTdE);  // B^{MdPQ}  = F^d_N * dTdE^{MNPQ}
+            dTdE_FF1.template SetAsContractionOnFourthDimension<DIM>(F, dTdE_F);    // B1^{MdPe} = F^d_N * F^e_Q * dTdE^{MNPQ}
+            dTdE_FF2.template SetAsContractionOnThirdDimension<DIM>(F, dTdE_F);     // B2^{MdeQ} = F^d_N * F^e_P * dTdE^{MNPQ}
+       
+            
             // Set up the matrix
             // quadgradphi_T_quadgradphi(node_index1, node_index2)  =   T(M,N)
             //                                                        * grad_quad_phi(M,node_index1)
             //                                                        * grad_quad_phi(N,node_index2)
-            c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> temp;
-            temp = prod(T, grad_quad_phi); // temp(M, node_index2) = sum_N T(M,N) * grad_quad_phi(N,node_index2)
-            c_matrix<double, NUM_NODES_PER_ELEMENT, NUM_NODES_PER_ELEMENT> quadgradphi_T_quadgradphi;
-            quadgradphi_T_quadgradphi = prod(trans_grad_quad_phi, temp); // temp2(node_index1, node_index2) = sum_M sum_N  grad_quad_phi(M,node_index1) T(M,N) * grad_quad_phi(N,node_index2)
+            temp_matrix = prod(T, grad_quad_phi); // temp(M, node_index2) = sum_N T(M,N) * grad_quad_phi(N,node_index2)
+            quadgradphi_T_quadgradphi = prod(trans_grad_quad_phi, temp_matrix); // temp2(node_index1, node_index2) = sum_M sum_N  grad_quad_phi(M,node_index1) T(M,N) * grad_quad_phi(N,node_index2)
 
 
             // Set up the tensor  
@@ -586,10 +624,8 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
             //              * grad_quad_phi(M,node_index1) 
             //              * grad_quad_phi(P,node_index2)
             // (sum over M and P)    
-            static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,DIM> temp_tensor1;
-            temp_tensor1.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dTdE_FF1 );
-            static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,NUM_NODES_PER_ELEMENT,DIM> dTdE_FF1_quad_quad;
-            dTdE_FF1_quad_quad.template SetAsContractionOnThirdDimension<DIM>( trans_grad_quad_phi, temp_tensor1 );
+            temp_tensor.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dTdE_FF1 );
+            dTdE_FF1_quad_quad.template SetAsContractionOnThirdDimension<DIM>( trans_grad_quad_phi, temp_tensor );
 
 
             // Set up the tensor  
@@ -598,13 +634,11 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
             //              * grad_quad_phi(M,node_index1)
             //              * grad_quad_phi(Q,node_index2)
             // (sum over M and Q)    
-            static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,DIM> temp_tensor2;
-            temp_tensor2.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dTdE_FF2 );
-            static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,NUM_NODES_PER_ELEMENT> dTdE_FF2_quad_quad;
-            dTdE_FF2_quad_quad.template SetAsContractionOnFourthDimension<DIM>( trans_grad_quad_phi, temp_tensor2 );
+            temp_tensor.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dTdE_FF2 );
+            dTdE_FF2_quad_quad.template SetAsContractionOnFourthDimension<DIM>( trans_grad_quad_phi, temp_tensor );
 
             // trans(grad_quad_phi) * invF
-            c_matrix<double,NUM_NODES_PER_ELEMENT,DIM> grad_quad_phi_times_invF = prod(trans_grad_quad_phi, inv_F); 
+            grad_quad_phi_times_invF = prod(trans_grad_quad_phi, inv_F);
 
             for (unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
             {
@@ -620,7 +654,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                     rAElem(index1,index2) +=    quadgradphi_T_quadgradphi(node_index1, node_index2)
                                               * (spatial_dim1==spatial_dim2?1:0)
                                               * wJ;                                                
-//
+//// the above line corresponds to 
 //                    for (unsigned M=0; M<DIM; M++)
 //                    {
 //                        for (unsigned N=0; N<DIM; N++)
@@ -642,6 +676,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                                               * wJ;
 
 
+//// the above lines correspond to 
 //
 //                    for (unsigned M=0; M<DIM; M++)
 //                    {
@@ -672,7 +707,8 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                     rAElem(index1,index2)  +=  - grad_quad_phi_times_invF(node_index1,spatial_dim1)
                                                * linear_phi(vertex_index)
                                                * wJ;
-//
+
+//// the above line corresponds to 
 //                    for (unsigned M=0; M<DIM; M++)
 //                    {
 //                         rAElem(index1,index2)  +=  - inv_F(M,spatial_dim1)
@@ -692,22 +728,22 @@ void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>
                     unsigned spatial_dim2 = index2%DIM;
                     unsigned node_index2 = (index2-spatial_dim2)/DIM;
 
-//                    // same as (negative of) the opposite block (ie a few lines up), except for detF
-//                    rAElem(index1,index2) +=   detF
-//                                             * grad_quad_phi_times_invF(node_index2,spatial_dim2)
-//                                             * linear_phi(vertex_index)
-//                                             * wJ;
+                    // same as (negative of) the opposite block (ie a few lines up), except for detF
+                    rAElem(index1,index2) +=   detF
+                                             * grad_quad_phi_times_invF(node_index2,spatial_dim2)
+                                             * linear_phi(vertex_index)
+                                             * wJ;
 
-
-                    for (unsigned M=0; M<DIM; M++)
-                    {
-                        // same as (negative of) the opposite block (ie a few lines up), except for detF
-                        rAElem(index1,index2) +=   detF
-                                                 * inv_F(M,spatial_dim2)
-                                                 * grad_quad_phi(M,node_index2)
-                                                 * linear_phi(vertex_index)
-                                                 * wJ;
-                    }
+//// the above line corresponds to 
+//                    for (unsigned M=0; M<DIM; M++)
+//                    {
+//                        // same as (negative of) the opposite block (ie a few lines up), except for detF
+//                        rAElem(index1,index2) +=   detF
+//                                                 * inv_F(M,spatial_dim2)
+//                                                 * grad_quad_phi(M,node_index2)
+//                                                 * linear_phi(vertex_index)
+//                                                 * wJ;
+//                    }
                 }
 
                 /////////////////////////////////////////////////////

@@ -161,18 +161,20 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFirstDimension(co
 {
     Zero();
 
-    for(unsigned a=0; a<DIM1; a++)
+    std::vector<double>::iterator iter = mData.begin();
+    for(unsigned d=0; d<DIM4; d++)
     {
-        for(unsigned b=0; b<DIM2; b++)
+        for(unsigned c=0; c<DIM3; c++)
         {
-            for(unsigned c=0; c<DIM3; c++)
+            for(unsigned b=0; b<DIM2; b++)
             {
-                for(unsigned d=0; d<DIM4; d++)
+                for(unsigned a=0; a<DIM1; a++)
                 {
                     for(unsigned N=0; N<CONTRACTED_DIM; N++)
                     {
-                        mData[GetVectorIndex(a,b,c,d)] += rMatrix(a,N) * rTensor(N,b,c,d);
+                        *iter += rMatrix(a,N) * rTensor(N,b,c,d);
                     }
+                    iter++;
                 }
             }
         }
@@ -186,18 +188,20 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnSecondDimension(c
 {
     Zero();
 
-    for(unsigned a=0; a<DIM1; a++)
+    std::vector<double>::iterator iter = mData.begin();
+    for(unsigned d=0; d<DIM4; d++)
     {
-        for(unsigned b=0; b<DIM2; b++)
+        for(unsigned c=0; c<DIM3; c++)
         {
-            for(unsigned c=0; c<DIM3; c++)
+            for(unsigned b=0; b<DIM2; b++)
             {
-                for(unsigned d=0; d<DIM4; d++)
+                for(unsigned a=0; a<DIM1; a++)
                 {
                     for(unsigned N=0; N<CONTRACTED_DIM; N++)
                     {
-                        mData[GetVectorIndex(a,b,c,d)] += rMatrix(b,N) * rTensor(a,N,c,d);
+                        *iter += rMatrix(b,N) * rTensor(a,N,c,d);
                     }
+                    iter++;
                 }
             }
         }
@@ -211,18 +215,20 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnThirdDimension(co
 {
     Zero();
    
-    for(unsigned a=0; a<DIM1; a++)
+    std::vector<double>::iterator iter = mData.begin();
+    for(unsigned d=0; d<DIM4; d++)
     {
-        for(unsigned b=0; b<DIM2; b++)
+        for(unsigned c=0; c<DIM3; c++)
         {
-            for(unsigned c=0; c<DIM3; c++)
+            for(unsigned b=0; b<DIM2; b++)
             {
-                for(unsigned d=0; d<DIM4; d++)
+                for(unsigned a=0; a<DIM1; a++)
                 {
                     for(unsigned N=0; N<CONTRACTED_DIM; N++)
                     {
-                        mData[GetVectorIndex(a,b,c,d)] += rMatrix(c,N) * rTensor(a,b,N,d);
+                       *iter += rMatrix(c,N) * rTensor(a,b,N,d);
                     }
+                    iter++;
                 }
             }
         }
@@ -236,18 +242,20 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFourthDimension(c
 {
     Zero();
    
-    for(unsigned a=0; a<DIM1; a++)
+    std::vector<double>::iterator iter = mData.begin();
+    for(unsigned d=0; d<DIM4; d++)
     {
-        for(unsigned b=0; b<DIM2; b++)
+        for(unsigned c=0; c<DIM3; c++)
         {
-            for(unsigned c=0; c<DIM3; c++)
+            for(unsigned b=0; b<DIM2; b++)
             {
-                for(unsigned d=0; d<DIM4; d++)
+                for(unsigned a=0; a<DIM1; a++)
                 {
                     for(unsigned N=0; N<CONTRACTED_DIM; N++)
                     {
-                        mData[GetVectorIndex(a,b,c,d)] += rMatrix(d,N) * rTensor(a,b,c,N);
+                        *iter += rMatrix(d,N) * rTensor(a,b,c,N);
                     }
+                    iter++;
                 }
             }
         }
