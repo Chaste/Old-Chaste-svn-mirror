@@ -74,7 +74,7 @@ inline void SetVectorComponent(VECTOR& rVec, unsigned index, double value);
 template<typename VECTOR>
 inline double GetVectorSize(const VECTOR& rVec);
 
-/*
+/**
  * Helper function to initialise a vector to be empty/unset.
  * 
  * This isn't a member so that we can specialise it without having to

@@ -44,33 +44,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Sets up variables and functions for a general ODE system.
  *
- * ODE systems are specified primarily by the EvaluateYDerivatives method,
+ * ODE systems are specified primarily by the EvaluateYDerivatives() method,
  * which calculates the right-hand side of the system.
  *
  * Instances can store their state internally in the mStateVariables vector
  * in our base class AbstractParameterisedSystem (see also
- * GetNumberOfStateVariables, SetStateVariables and rGetStateVariables),
+ * GetNumberOfStateVariables(), SetStateVariables() and rGetStateVariables()),
  * although this is not essential - the vector may be empty, in which case
  * AbstractIvpOdeSolver::SolveAndUpdateStateVariable may not be used to
  * solve the system.
  *
  * ODE systems may also have a vector of parameters, which can be accessed
- * through the GetParameter and SetParameter methods of our base class.
+ * through the GetParameter() and SetParameter() methods of our base class.
  *
  * Information about what the parameters and state variables represent is
  * provided by a subclass of AbstractOdeSystemInformation.  Various wrapper
- * methods (e.g. rGetStateVariableNames) are provided in our base class to
+ * methods (e.g. rGetStateVariableNames()) are provided in our base class to
  * access this information.
  *
  * There are two more advanced facilities available for subclass authors.
  * An analytic form for the Jacobian matrix of the system may be provided,
  * in which case you must subclass AbstractOdeSystemWithAnalyticJacobian.
- * The GetUseAnalyticJacobian method will test whether this is the case.
+ * The GetUseAnalyticJacobian() method will test whether this is the case.
  *
  * Also, subclasses may define a condition at which ODE solvers should stop
  * prematurely.  For the Chaste solvers this is done by overriding
- * CalculateStoppingEvent; if the more advanced CVODE solvers are being used
- * then implement CalculateRootFunction instead to detect the stopping time
+ * CalculateStoppingEvent(); if the more advanced CVODE solvers are being used
+ * then implement CalculateRootFunction() instead to detect the stopping time
  * more accurately.
  */
 class AbstractOdeSystem : public AbstractParameterisedSystem<std::vector<double> >
