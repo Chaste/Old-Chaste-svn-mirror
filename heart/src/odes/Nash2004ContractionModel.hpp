@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractOdeBasedContractionModel.hpp"
 #include "OdeSystemInformation.hpp"
+#include "Exception.hpp"
 
 /**
  *  Nash2004 contraction model - Nash & Panfilov "Electromechanical mode of excitable tissue to

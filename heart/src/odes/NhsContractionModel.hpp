@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define NHSCONTRACTIONMODEL_HPP_
 
 #include "AbstractOdeBasedContractionModel.hpp"
+#include "Exception.hpp"
 
 
 /**

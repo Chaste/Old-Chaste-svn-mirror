@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "Kerchoffs2003ContractionModel.hpp"
+#include "Exception.hpp"
 #include "TimeStepper.hpp"
 #include <iostream>
 

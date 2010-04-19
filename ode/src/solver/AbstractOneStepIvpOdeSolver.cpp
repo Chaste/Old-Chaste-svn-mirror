@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractOneStepIvpOdeSolver.hpp"
 #include "TimeStepper.hpp"
+#include "Exception.hpp"
 #include <cmath>
 
 const double smidge = 1e-10;

@@ -27,10 +27,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "NhsModelWithBackwardSolver.hpp"
-#include "TimeStepper.hpp"
+#include <iostream>
 #include <cmath>
 #include "LogFile.hpp"
-#include <iostream>
+#include "Exception.hpp"
+#include "TimeStepper.hpp"
 
 const double NhsModelWithBackwardSolver::mTolerance = 1e-10;
 

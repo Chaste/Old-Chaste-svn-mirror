@@ -29,17 +29,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTODESYSTEM_HPP_
 #define _ABSTRACTODESYSTEM_HPP_
 
+#include <vector>
+#include <string>
 
-#include <cassert>
-#include <climits> // Work around a boost bug - see #1024.
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
 #include "ClassIsAbstract.hpp"
-#include <boost/shared_ptr.hpp>
 
-#include "Exception.hpp"
-#include "AbstractOdeSystemInformation.hpp"
+#include "AbstractParameterisedSystem.hpp"
 
 /**
  * Abstract OdeSystem class.
@@ -49,19 +47,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * ODE systems are specified primarily by the EvaluateYDerivatives method,
  * which calculates the right-hand side of the system.
  *
- * Instances can store their state internally in the #mStateVariables vector
- * (see GetNumberOfStateVariables, SetStateVariables and rGetStateVariables),
- * although this is not essential - the vector may be empty, although in this
- * case AbstractIvpOdeSolver::SolveAndUpdateStateVariable may not be used to
+ * Instances can store their state internally in the mStateVariables vector
+ * in our base class AbstractParameterisedSystem (see also
+ * GetNumberOfStateVariables, SetStateVariables and rGetStateVariables),
+ * although this is not essential - the vector may be empty, in which case
+ * AbstractIvpOdeSolver::SolveAndUpdateStateVariable may not be used to
  * solve the system.
  *
  * ODE systems may also have a vector of parameters, which can be accessed
- * through the GetParameter and SetParameter methods.
+ * through the GetParameter and SetParameter methods of our base class.
  *
  * Information about what the parameters and state variables represent is
  * provided by a subclass of AbstractOdeSystemInformation.  Various wrapper
- * methods (e.g. rGetStateVariableNames) are provided in this class to access
- * this information.
+ * methods (e.g. rGetStateVariableNames) are provided in our base class to
+ * access this information.
  *
  * There are two more advanced facilities available for subclass authors.
  * An analytic form for the Jacobian matrix of the system may be provided,
@@ -74,13 +73,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * then implement CalculateRootFunction instead to detect the stopping time
  * more accurately.
  */
-class AbstractOdeSystem
+class AbstractOdeSystem : public AbstractParameterisedSystem<std::vector<double> >
 {
     friend class TestAbstractOdeSystem;
 
+private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
-private:
     /**
      * Archive the member variables.
      *
@@ -90,6 +89,10 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+        // Despite the fact that 3 of these variables actually live in our base class,
+        // we still archive them here to maintain backwards compatibility.  Since the
+        // N_Vector version of AbstractParameterisedSystem doesn't get checkpointed yet,
+        // this doesn't hurt.
         archive & mNumberOfStateVariables;
         archive & mUseAnalyticJacobian;
         archive & mStateVariables;
@@ -101,24 +104,6 @@ private:
     }
 
 protected:
-
-    /** The number of state variables in the ODE system. */
-    unsigned mNumberOfStateVariables;
-
-    /** Vector containing the current values of the state variables. */
-    std::vector<double> mStateVariables;
-
-    /** Vector containing parameters. */
-    std::vector<double> mParameters;
-
-    /**
-     * Information about the concrete ODE system class.
-     *
-     * Subclasses need to set this in their constructor to point to an instance
-     * of a suitable class.  See for example the OdeSystemInformation class.
-     */
-    boost::shared_ptr<AbstractOdeSystemInformation> mpSystemInfo;
-
     /** Whether to use an analytic Jacobian. */
     bool mUseAnalyticJacobian;
 
@@ -127,9 +112,9 @@ public:
     /**
      * Constructor.
      *
-     * @param numberOfStateVariables  the number of state variables in the ODE system (defaults to 0)
+     * @param numberOfStateVariables  the number of state variables in the ODE system
      */
-    AbstractOdeSystem(unsigned numberOfStateVariables = 0);
+    AbstractOdeSystem(unsigned numberOfStateVariables);
 
     /**
      * Virtual destructor since we have virtual methods.
@@ -145,44 +130,6 @@ public:
      */
     virtual void EvaluateYDerivatives(double time, const std::vector<double>& rY,
                                       std::vector<double>& rDY)=0;
-
-    /**
-     * Get the number of state variables in the ODE system.
-     *
-     * @return mNumberOfStateVariables
-     */
-    unsigned GetNumberOfStateVariables() const;
-
-
-    /**
-     * Get the number of parameters.
-     */
-    unsigned GetNumberOfParameters() const;
-
-    /**
-     * Get the value of a given parameter.
-     *
-     * @param index the index of the parameter
-     */
-    double GetParameter(unsigned index) const;
-
-    /**
-     * Set the value of a given parameter.
-     *
-     * @param index the index of the parameter
-     * @param value the value
-     */
-    void SetParameter(unsigned index, double value);
-
-    /**
-     * Get the names of the parameters in the ODE system.
-     */
-    const std::vector<std::string>& rGetParameterNames() const;
-
-    /**
-     * Get the units of the parameters in the ODE system.
-     */
-    const std::vector<std::string>& rGetParameterUnits() const;
 
 
     /**
@@ -205,6 +152,7 @@ public:
      */
     std::vector<double> GetInitialConditions() const;
 
+
     /**
      * Set the values of the state variables in the ODE system.
      *
@@ -213,34 +161,10 @@ public:
     void SetStateVariables(const std::vector<double>& rStateVariables);
 
     /**
-     * Set the value of a single state variable in the ODE system.
-     *
-     * @param index index of the state variable to be set
-     * @param newValue new value of the state variable
-     */
-    void SetStateVariable(unsigned index, double newValue);
-
-    /**
-     * Get the value of a given state variable.
-     *
-     * @param index the index of the state variable
-     */
-    double GetStateVariable(unsigned index) const;
-
-    /**
      * Get the values of the state variables in the ODE system.
      */
     std::vector<double>& rGetStateVariables();
 
-    /**
-     * Get the names of the state variables in the ODE system.
-     */
-    const std::vector<std::string>& rGetStateVariableNames() const;
-
-    /**
-     * Get the units of the state variables in the ODE system.
-     */
-    const std::vector<std::string>& rGetStateVariableUnits() const;
 
     /**
      *  CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
@@ -273,81 +197,6 @@ public:
      * @return mUseAnalyticJacobian
      */
     bool GetUseAnalyticJacobian();
-
-
-    /**
-     * This method is used to establish a state variable's position within
-     * the vector of state variables of an ODE system.  This number can
-     * then be used with the methods GetStateVariable and GetStateVariableUnits.
-     *
-     * @param rName  the name of a state variable.
-     *
-     * @return the state variable's position within the vector of state variables
-     *         associated with the ODE system.
-     */
-    unsigned GetStateVariableIndex(const std::string& rName) const;
-
-    /**
-     * Get the units of a state variable given its index in the ODE system.
-     *
-     * @param index  a state variable's position within the vector of
-     *               state variables associated with the ODE system.
-     * @return the units of the state variable.
-     */
-    std::string GetStateVariableUnits(unsigned index) const;
-
-
-    /**
-     * This method is used to establish a parameter's position within
-     * the vector of parameters of an ODE system. This number can
-     * then be used with the methods GetParameterUnits and GetParameter.
-     *
-     * @param rName  the name of a parameter
-     * @return the parameter's position within the vector of parameters
-     *         associated with the ODE system.
-     */
-    unsigned GetParameterIndex(const std::string& rName) const;
-
-    /**
-     * Get the units of a parameter given its index in the ODE system.
-     *
-     * @param index  a state variable's position within the vector of
-     *               state variables associated with the ODE system.
-     * @return the units of the state variable.
-     */
-    std::string GetParameterUnits(unsigned index) const;
-
-
-    /**
-     * Get the index of a variable, whether state variable or parameter,
-     * with the given name.  The returned index is suitable for use with
-     * GetAnyVariableUnits and GetAnyVariable.
-     *
-     * @param rName  the name of a variable
-     */
-    unsigned GetAnyVariableIndex(const std::string& rName) const;
-
-    /**
-     * Get the units of a variable, whether state variable or parameter,
-     * given its index as returned by GetAnyVariableIndex.
-     *
-     * @param index  an index from GetAnyVariableIndex.
-     * @return the units of the variable.
-     */
-    std::string GetAnyVariableUnits(unsigned index) const;
-
-    /**
-     * Get the value of a variable, either a state variable or a parameter.
-     *
-     * @param index the index of the variable, as given by GetAnyVariableIndex.
-     */
-    double GetAnyVariable(unsigned index) const;
-
-
-    /**
-     * Get the object which provides information about this ODE system.
-     */
-    boost::shared_ptr<const AbstractOdeSystemInformation> GetSystemInformation() const;
 
 protected:
 

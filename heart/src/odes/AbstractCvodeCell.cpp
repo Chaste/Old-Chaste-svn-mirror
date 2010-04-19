@@ -73,14 +73,12 @@ AbstractCvodeCell::AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> /* 
                                      unsigned numberOfStateVariables,
                                      unsigned voltageIndex,
                                      boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
-    : mNumberOfStateVariables(numberOfStateVariables),
+    : AbstractParameterisedSystem<N_Vector>(numberOfStateVariables),
       mVoltageIndex(voltageIndex),
-      mStateVariables(NULL),
       mpIntracellularStimulus(pIntracellularStimulus),
       mpCvodeMem(NULL),
       mMaxSteps(0),
-      mSetVoltageDerivativeToZero(false),
-      mParameters(NULL)
+      mSetVoltageDerivativeToZero(false)
 {
     SetTolerances();
 }
@@ -144,48 +142,6 @@ double AbstractCvodeCell::GetStimulus(double time)
     return mpIntracellularStimulus->GetStimulus(time);
 }
 
-
-unsigned AbstractCvodeCell::GetNumberOfStateVariables()
-{
-    return mNumberOfStateVariables;
-}
-
-const std::vector<std::string>& AbstractCvodeCell::rGetStateVariableNames() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetStateVariableNames();
-}
-
-const std::vector<std::string>& AbstractCvodeCell::rGetStateVariableUnits() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetStateVariableUnits();
-}
-
-unsigned AbstractCvodeCell::GetStateVariableIndex(const std::string name) const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetStateVariableIndex(name);
-}
-
-double AbstractCvodeCell::GetStateVariable(unsigned varNumber) const
-{
-    assert(varNumber < mNumberOfStateVariables);
-    return NV_Ith_S(mStateVariables, varNumber);
-}
-
-std::string AbstractCvodeCell::GetStateVariableUnits(unsigned varNumber) const
-{
-    assert(varNumber < mNumberOfStateVariables);
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetStateVariableUnits(varNumber);
-}
-
-boost::shared_ptr<const AbstractOdeSystemInformation> AbstractCvodeCell::GetSystemInformation() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo;
-}
 
 N_Vector AbstractCvodeCell::GetInitialConditions()
 {
@@ -444,61 +400,6 @@ N_Vector AbstractCvodeCell::CopyVector(N_Vector originalVec)
     return v;
 }
 
-
-//
-// Parameters
-//
-
-
-unsigned AbstractCvodeCell::GetNumberOfParameters() const
-{
-    assert(mParameters != NULL);
-    return NV_LENGTH_S(mParameters);
-}
-
-double AbstractCvodeCell::GetParameter(unsigned index) const
-{
-    assert(mParameters != NULL);
-    if (index >= NV_LENGTH_S(mParameters))
-    {
-        EXCEPTION("The index passed in must be less than the number of parameters.");
-    }
-    return NV_Ith_S(mParameters, index);
-}
-
-void AbstractCvodeCell::SetParameter(unsigned index, double value)
-{
-    assert(mParameters != NULL);
-    if (index >= NV_LENGTH_S(mParameters))
-    {
-        EXCEPTION("The index passed in must be less than the number of parameters.");
-    }
-    NV_Ith_S(mParameters, index) = value;
-}
-
-const std::vector<std::string>& AbstractCvodeCell::rGetParameterNames() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetParameterNames();
-}
-
-const std::vector<std::string>& AbstractCvodeCell::rGetParameterUnits() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetParameterUnits();
-}
-
-unsigned AbstractCvodeCell::GetParameterIndex(const std::string& rName) const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetParameterIndex(rName);
-}
-
-std::string AbstractCvodeCell::GetParameterUnits(unsigned index) const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetParameterUnits(index);
-}
 
 
 #endif // CHASTE_CVODE

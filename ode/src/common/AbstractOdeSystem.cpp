@@ -27,17 +27,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <sstream>
+#include <cassert>
 
 #include "AbstractOdeSystem.hpp"
+#include "Exception.hpp"
 
 AbstractOdeSystem::AbstractOdeSystem(unsigned numberOfStateVariables)
-    : mNumberOfStateVariables(numberOfStateVariables),
+    : AbstractParameterisedSystem<std::vector<double> >(numberOfStateVariables),
       mUseAnalyticJacobian(false)
 {
 }
 
 AbstractOdeSystem::~AbstractOdeSystem()
-{}
+{
+}
 
 bool AbstractOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)
 {
@@ -60,47 +63,6 @@ std::string AbstractOdeSystem::DumpState(const std::string& rMessage,
         res << "\t" << r_var_names[i] << ":" << Y[i] << "\n";
     }
     return res.str();
-}
-
-unsigned AbstractOdeSystem::GetNumberOfStateVariables() const
-{
-    return mNumberOfStateVariables;
-}
-
-
-unsigned AbstractOdeSystem::GetNumberOfParameters() const
-{
-    return mParameters.size();
-}
-
-double AbstractOdeSystem::GetParameter(unsigned index) const
-{
-    if (index >= mParameters.size())
-    {
-        EXCEPTION("The index passed in must be less than the number of parameters.");
-    }
-    return mParameters[index];
-}
-
-void AbstractOdeSystem::SetParameter(unsigned index, double value)
-{
-    if (index >= mParameters.size())
-    {
-        EXCEPTION("The index passed in must be less than the number of parameters.");
-    }
-    mParameters[index] = value;
-}
-
-const std::vector<std::string>& AbstractOdeSystem::rGetParameterNames() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetParameterNames();
-}
-
-const std::vector<std::string>& AbstractOdeSystem::rGetParameterUnits() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetParameterUnits();
 }
 
 
@@ -139,46 +101,11 @@ void AbstractOdeSystem::SetStateVariables(const std::vector<double>& rStateVaria
     mStateVariables = rStateVariables;
 }
 
-void AbstractOdeSystem::SetStateVariable(unsigned index, double newValue)
-{
-    if ( mNumberOfStateVariables <= index )
-    {
-        EXCEPTION("The index passed in must be less than the number of state variables.");
-    }
-    mStateVariables[index] = newValue;
-}
-
-double AbstractOdeSystem::GetStateVariable(unsigned index) const
-{
-    if (index >= mNumberOfStateVariables)
-    {
-        EXCEPTION("The index passed in must be less than the number of state variables.");
-    }
-    return mStateVariables[index];
-}
-
 std::vector<double>& AbstractOdeSystem::rGetStateVariables()
 {
     return mStateVariables;
 }
 
-const std::vector<std::string>& AbstractOdeSystem::rGetStateVariableNames() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetStateVariableNames();
-}
-
-const std::vector<std::string>& AbstractOdeSystem::rGetStateVariableUnits() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->rGetStateVariableUnits();
-}
-
-boost::shared_ptr<const AbstractOdeSystemInformation> AbstractOdeSystem::GetSystemInformation() const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo;
-}
 
 double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
 {
@@ -189,57 +116,4 @@ double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<d
 bool AbstractOdeSystem::GetUseAnalyticJacobian()
 {
     return mUseAnalyticJacobian;
-}
-
-unsigned AbstractOdeSystem::GetStateVariableIndex(const std::string& rName) const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetStateVariableIndex(rName);
-}
-
-std::string AbstractOdeSystem::GetStateVariableUnits(unsigned index) const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetStateVariableUnits(index);
-}
-
-unsigned AbstractOdeSystem::GetParameterIndex(const std::string& rName) const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetParameterIndex(rName);
-}
-
-std::string AbstractOdeSystem::GetParameterUnits(unsigned index) const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetParameterUnits(index);
-}
-
-unsigned AbstractOdeSystem::GetAnyVariableIndex(const std::string& rName) const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetAnyVariableIndex(rName);
-}
-
-std::string AbstractOdeSystem::GetAnyVariableUnits(unsigned index) const
-{
-    assert(mpSystemInfo);
-    return mpSystemInfo->GetAnyVariableUnits(index);
-}
-
-
-double AbstractOdeSystem::GetAnyVariable(unsigned index) const
-{
-    if (index < mNumberOfStateVariables)
-    {
-        return mStateVariables[index];
-    }
-    else if (index - mNumberOfStateVariables < mParameters.size())
-    {
-        return mParameters[index - mNumberOfStateVariables];
-    }
-    else
-    {
-        EXCEPTION("Invalid index passed to GetAnyVariable.");
-    }
 }

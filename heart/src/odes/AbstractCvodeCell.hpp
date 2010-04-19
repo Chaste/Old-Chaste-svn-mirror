@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystemInformation.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "AbstractIvpOdeSolver.hpp"
+#include "AbstractParameterisedSystem.hpp"
 
 // CVODE headers
 #include <nvector/nvector_serial.h>
@@ -61,23 +62,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * \todo #889 Integrate this better into the main hierarchy?
  */
-class AbstractCvodeCell
+class AbstractCvodeCell : public AbstractParameterisedSystem<N_Vector>
 {
 protected:
-    /** The number of state variables. */
-    unsigned mNumberOfStateVariables;
     /** The index of the transmembrane potential within the state variable vector */
     unsigned mVoltageIndex;
-    /** The state variables. */
-    N_Vector mStateVariables;
-
-    /**
-     * Information about the concrete ODE system class.
-     *
-     * Subclasses need to set this in their constructor to point to an instance
-     * of a suitable class.  See for example the OdeSystemInformation class.
-     */
-    boost::shared_ptr<AbstractOdeSystemInformation> mpSystemInfo;
 
     /** The intracellular stimulus current. */
     boost::shared_ptr<AbstractStimulusFunction> mpIntracellularStimulus;
@@ -175,52 +164,6 @@ public:
      * @param time  the time at which to evaluate the stimulus
      */
     double GetStimulus(double time);
-
-    /** Get the number of state variables */
-    unsigned GetNumberOfStateVariables();
-
-    /** Get the names of this cell's state variables. */
-    const std::vector<std::string>& rGetStateVariableNames() const;
-
-    /** Get the units of this cell's state variables. */
-    const std::vector<std::string>& rGetStateVariableUnits() const;
-
-    /**
-     * This method is used to establish a state variable's position within
-     * the vector of state variables of an ODE system. This number can
-     * then be used with the methods GetStateVariable and
-     * GetStateVariableUnits.
-     *
-     * @param name  the name of a state variable.
-     *
-     * @return the state variable's position within the vector of state variables
-     *         associated with the ODE system.
-     */
-    unsigned GetStateVariableIndex(const std::string name) const;
-
-    /**
-     * Get the value of a state variable given its index in the ODE system.
-     *
-     * @param varNumber  a state variable's position within the vector of
-     *                   state variables associated with the ODE system.
-     *
-     * @return the current value of the state variable.
-     */
-    double GetStateVariable(unsigned varNumber) const;
-
-    /**
-     * Get the units of a state variable given its index in the ODE system.
-     *
-     * @param varNumber  a state variable's position within the vector of
-     *                   state variables associated with the ODE system.
-     * @return the units of the state variable.
-     */
-    std::string GetStateVariableUnits(unsigned varNumber) const;
-
-    /**
-     * Get the object which provides information about this ODE system.
-     */
-    boost::shared_ptr<const AbstractOdeSystemInformation> GetSystemInformation() const;
 
     /**
      * Get the initial conditions for the cell.
@@ -403,66 +346,6 @@ private:
      * @param v  vector to copy
      */
     std::vector<double> MakeStdVec(N_Vector v);
-
-    //
-    // Parameters functionality.
-    //
-protected:
-    /** Vector containing parameters. */
-    N_Vector mParameters;
-    
-public:
-
-    /**
-     * Get the number of parameters.
-     */
-    unsigned GetNumberOfParameters() const;
-
-    /**
-     * Get the value of a given parameter.
-     *
-     * @param index the index of the parameter
-     */
-    double GetParameter(unsigned index) const;
-
-    /**
-     * Set the value of a given parameter.
-     *
-     * @param index the index of the parameter
-     * @param value the value
-     */
-    void SetParameter(unsigned index, double value);
-
-    /**
-     * Get the names of the parameters in the ODE system.
-     */
-    const std::vector<std::string>& rGetParameterNames() const;
-
-    /**
-     * Get the units of the parameters in the ODE system.
-     */
-    const std::vector<std::string>& rGetParameterUnits() const;
-
-    /**
-     * This method is used to establish a parameter's position within
-     * the vector of parameters of an ODE system. This number can
-     * then be used with the methods GetParameterUnits and GetParameter.
-     *
-     * @param rName  the name of a parameter
-     * @return the parameter's position within the vector of parameters
-     *         associated with the ODE system.
-     */
-    unsigned GetParameterIndex(const std::string& rName) const;
-
-    /**
-     * Get the units of a parameter given its index in the ODE system.
-     *
-     * @param index  a state variable's position within the vector of
-     *               state variables associated with the ODE system.
-     * @return the units of the state variable.
-     */
-    std::string GetParameterUnits(unsigned index) const;
-
 };
 
 

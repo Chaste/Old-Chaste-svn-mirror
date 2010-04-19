@@ -29,6 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractIvpOdeSolver.hpp"
 
+#include <climits>
+#include "Exception.hpp"
+
 AbstractIvpOdeSolver::AbstractIvpOdeSolver()
     : mStoppingEventOccurred(false),
       mStoppingTime(DBL_MAX)

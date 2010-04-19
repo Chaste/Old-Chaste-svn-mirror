@@ -171,12 +171,12 @@ public:
         TwoDimOdeSystem ode;
 
         std::vector<double> initial_conditions = ode.GetInitialConditions();
-        std::vector<double> state_variables = ode.rGetStateVariables();
+        std::vector<double>& r_state_variables = ode.rGetStateVariables();
 
         TS_ASSERT_DELTA(initial_conditions[0], 1.0, 1e-12);
         TS_ASSERT_DELTA(initial_conditions[1], 2.0, 1e-12);
-        TS_ASSERT_DELTA(state_variables[0], 3.0, 1e-12);
-        TS_ASSERT_DELTA(state_variables[1], 4.0, 1e-12);
+        TS_ASSERT_DELTA(r_state_variables[0], 3.0, 1e-12);
+        TS_ASSERT_DELTA(r_state_variables[1], 4.0, 1e-12);
 
         std::vector<double> new_initial_conditions;
         new_initial_conditions.push_back(5.0);
@@ -190,12 +190,11 @@ public:
         ode.SetStateVariables(new_state_variables);
 
         initial_conditions = ode.GetInitialConditions();
-        state_variables = ode.rGetStateVariables();
 
         TS_ASSERT_DELTA(initial_conditions[0], 5.0, 1e-12);
         TS_ASSERT_DELTA(initial_conditions[1], 6.0, 1e-12);
-        TS_ASSERT_DELTA(state_variables[0], 7.0, 1e-12);
-        TS_ASSERT_DELTA(state_variables[1], 8.0, 1e-12);
+        TS_ASSERT_DELTA(r_state_variables[0], 7.0, 1e-12);
+        TS_ASSERT_DELTA(r_state_variables[1], 8.0, 1e-12);
 
         ode.SetInitialCondition(1, 9.0);
         initial_conditions = ode.GetInitialConditions();
@@ -210,6 +209,8 @@ public:
         boost::archive::text_oarchive output_arch(ofs);
 
         output_arch <<  static_cast<const TwoDimOdeSystem&>(ode);
+        TS_ASSERT_DELTA(r_state_variables[0], 7.0, 1e-12);
+        TS_ASSERT_DELTA(r_state_variables[1], 8.0, 1e-12);
 
         ode.SetStateVariable(0, 2.0);
         ode.SetStateVariable(1, 5.0);
@@ -217,12 +218,10 @@ public:
         TS_ASSERT_THROWS_THIS(ode.SetStateVariable(2, 1.0),
                 "The index passed in must be less than the number of state variables."); //cover exception
 
-        state_variables = ode.rGetStateVariables();
-
-        TS_ASSERT_DELTA(state_variables[0], 2.0, 1e-12);
-        TS_ASSERT_DELTA(state_variables[1], 5.0, 1e-12);
-
+        TS_ASSERT_DELTA(r_state_variables[0], 2.0, 1e-12);
+        TS_ASSERT_DELTA(r_state_variables[1], 5.0, 1e-12);
     }
+    
     void TestLoadAbstractOdeSystem()
     {
         TwoDimOdeSystem ode;
@@ -241,11 +240,10 @@ public:
 
         TS_ASSERT_EQUALS( ode.GetNumberOfStateVariables(), 2U );
 
-        std::vector<double> state_variables = ode.rGetStateVariables();
+        std::vector<double>& r_state_variables = ode.rGetStateVariables();
 
-
-        TS_ASSERT_DELTA(state_variables[0], 7.0, 1e-12);
-        TS_ASSERT_DELTA(state_variables[1], 8.0, 1e-12);
+        TS_ASSERT_DELTA(r_state_variables[0], 7.0, 1e-12);
+        TS_ASSERT_DELTA(r_state_variables[1], 8.0, 1e-12);
     }
 
     void TestReadSpecificStateVariable()
