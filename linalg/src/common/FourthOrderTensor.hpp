@@ -134,14 +134,18 @@ public:
      * Set all components of the tensor to zero.
      */
     void Zero();
-
+    
+    std::vector<double>& rGetData()
+    {
+        return mData;
+    }
 };
 
 
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Implementation (lots of possibilities for the dimensions so no point with expl instantiation
+// Implementation (lots of possibilities for the dimensions so no point with expl instantiation)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -149,9 +153,6 @@ template<unsigned DIM1, unsigned DIM2, unsigned DIM3, unsigned DIM4>
 FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::FourthOrderTensor()
 {
     unsigned size = DIM1*DIM2*DIM3*DIM4;
-    mData.resize(size, 0.0);
-
-    // allocate memory and zero entries
     mData.resize(size, 0.0);
 }
 
@@ -162,6 +163,8 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFirstDimension(co
     Zero();
 
     std::vector<double>::iterator iter = mData.begin();
+    std::vector<double>::iterator other_tensor_iter = rTensor.rGetData().begin();
+
     for(unsigned d=0; d<DIM4; d++)
     {
         for(unsigned c=0; c<DIM3; c++)
@@ -172,15 +175,28 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFirstDimension(co
                 {
                     for(unsigned N=0; N<CONTRACTED_DIM; N++)
                     {
-                        *iter += rMatrix(a,N) * rTensor(N,b,c,d);
+                        // The following just does
+                        //
+                        // mData[GetVectorIndex(a,b,c,d)] += rMatrix(a,N) * rTensor(N,b,c,d);
+                        //
+                        // but more efficiently using iterators into the data vector, not
+                        // using random access
+                        *iter += rMatrix(a,N) * *other_tensor_iter;
+                        other_tensor_iter++;
                     }
+                    
                     iter++;
+                    
+                    if(a != DIM1-1)
+                    {
+                        other_tensor_iter -= CONTRACTED_DIM;
+                    }
                 }
             }
         }
     }
 }
-
+ 
 
 template<unsigned DIM1, unsigned DIM2, unsigned DIM3, unsigned DIM4>
 template<unsigned CONTRACTED_DIM>
@@ -189,19 +205,37 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnSecondDimension(c
     Zero();
 
     std::vector<double>::iterator iter = mData.begin();
+    std::vector<double>::iterator other_tensor_iter = rTensor.rGetData().begin();
+
     for(unsigned d=0; d<DIM4; d++)
     {
         for(unsigned c=0; c<DIM3; c++)
         {
             for(unsigned b=0; b<DIM2; b++)
             {
-                for(unsigned a=0; a<DIM1; a++)
+                for(unsigned N=0; N<CONTRACTED_DIM; N++)
                 {
-                    for(unsigned N=0; N<CONTRACTED_DIM; N++)
+                    for(unsigned a=0; a<DIM1; a++)
                     {
-                        *iter += rMatrix(b,N) * rTensor(a,N,c,d);
+                        // The following just does
+                        //
+                        // mData[GetVectorIndex(a,b,c,d)] += rMatrix(b,N) * rTensor(a,N,c,d);
+                        //
+                        // but more efficiently using iterators into the data vector, not
+                        // using random access
+                        *iter += rMatrix(b,N) * *other_tensor_iter;
+                        iter++;
+                        other_tensor_iter++;
                     }
-                    iter++;
+                    
+                    if(N != CONTRACTED_DIM-1)
+                    {
+                        iter -= DIM1;
+                    }
+                }
+                if(b != DIM2-1)
+                {
+                    other_tensor_iter -= CONTRACTED_DIM*DIM1;
                 }
             }
         }
@@ -214,22 +248,41 @@ template<unsigned CONTRACTED_DIM>
 void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnThirdDimension(const c_matrix<double,DIM3,CONTRACTED_DIM>& rMatrix, FourthOrderTensor<DIM1,DIM2,CONTRACTED_DIM,DIM4>& rTensor)
 {
     Zero();
-   
+    
     std::vector<double>::iterator iter = mData.begin();
+    std::vector<double>::iterator other_tensor_iter = rTensor.rGetData().begin();
+    
     for(unsigned d=0; d<DIM4; d++)
     {
         for(unsigned c=0; c<DIM3; c++)
         {
-            for(unsigned b=0; b<DIM2; b++)
+            for(unsigned N=0; N<CONTRACTED_DIM; N++)
             {
-                for(unsigned a=0; a<DIM1; a++)
+                for(unsigned b=0; b<DIM2; b++)
                 {
-                    for(unsigned N=0; N<CONTRACTED_DIM; N++)
+                    for(unsigned a=0; a<DIM1; a++)
                     {
-                       *iter += rMatrix(c,N) * rTensor(a,b,N,d);
+                        // The following just does
+                        //
+                        // mData[GetVectorIndex(a,b,c,d)] += rMatrix(c,N) * rTensor(a,b,N,d);
+                        //
+                        // but more efficiently using iterators into the data vector, not
+                        // using random access
+                        *iter += rMatrix(c,N) * *other_tensor_iter;
+                        iter++;
+                        other_tensor_iter++;
                     }
-                    iter++;
                 }
+
+                if(N != CONTRACTED_DIM-1)
+                {
+                    iter -= DIM1*DIM2;
+                }             
+            }
+
+            if(c != DIM3-1)
+            {
+                other_tensor_iter -= CONTRACTED_DIM*DIM1*DIM2;
             }
         }
     }
@@ -243,22 +296,39 @@ void FourthOrderTensor<DIM1,DIM2,DIM3,DIM4>::SetAsContractionOnFourthDimension(c
     Zero();
    
     std::vector<double>::iterator iter = mData.begin();
+    std::vector<double>::iterator other_tensor_iter = rTensor.rGetData().begin();
+
     for(unsigned d=0; d<DIM4; d++)
     {
-        for(unsigned c=0; c<DIM3; c++)
+        for(unsigned N=0; N<CONTRACTED_DIM; N++)
         {
-            for(unsigned b=0; b<DIM2; b++)
+            for(unsigned c=0; c<DIM3; c++)
             {
-                for(unsigned a=0; a<DIM1; a++)
+                for(unsigned b=0; b<DIM2; b++)
                 {
-                    for(unsigned N=0; N<CONTRACTED_DIM; N++)
+                    for(unsigned a=0; a<DIM1; a++)
                     {
-                        *iter += rMatrix(d,N) * rTensor(a,b,c,N);
+                        // The following just does
+                        //
+                        // mData[GetVectorIndex(a,b,c,d)] += rMatrix(d,N) * rTensor(a,b,c,N);
+                        //
+                        // but more efficiently using iterators into the data vector, not
+                        // using random access
+                        *iter += rMatrix(d,N) * *other_tensor_iter;
+                        
+                        iter++;
+                        other_tensor_iter++;
                     }
-                    iter++;
                 }
             }
+    
+            if(N != CONTRACTED_DIM-1)
+            {
+                iter-= DIM1*DIM2*DIM3;
+            }  
         }
+
+        other_tensor_iter -= CONTRACTED_DIM*DIM1*DIM2*DIM3;
     }
 }
 
