@@ -37,6 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+#include "MonodomainProblem.hpp"
+#include "PlaneStimulusCellFactory.hpp"
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
@@ -47,7 +49,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "PetscTools.hpp"
 #include "TetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "ArchiveOpener.hpp"
+#include "ChastePoint.hpp"
+#include "ChasteCuboid.hpp"
 
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
 {
@@ -167,7 +172,55 @@ public:
         VecDestroy(voltage);
     }
 
+    void TestMonodomainPdeWithHeterogeneousConductivities() throw (Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
+        TetrahedralMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+        
+        std::vector<ChasteCuboid<3> > heterogeneity_area;
+        std::vector< c_vector<double,3> > intra_conductivities;
+        std::vector< c_vector<double,3> > extra_conductivities;
+        
+        //first cuboid include element 0
+        ChastePoint<3> cornerA(-1, -1, 0);
+        ChastePoint<3> cornerB(0.1, 0.2, 0.2);
+        ChasteCuboid<3> cuboid_1(cornerA, cornerB);
+        heterogeneity_area.push_back(cuboid_1);
+        
+        //second cuboid include element 4
+        ChastePoint<3> cornerC(0.11, 0.0, 0);
+        ChastePoint<3> cornerD(0.2, 0.11, 0.2);
+        ChasteCuboid<3> cuboid_2(cornerC, cornerD);
+        
+        heterogeneity_area.push_back(cuboid_2);
+        
+        //within the first area
+        intra_conductivities.push_back( Create_c_vector(1.0, 2.0, 3.0) );   
+        extra_conductivities.push_back( Create_c_vector(0.0, 0.0, 0.0) );
 
+        //within the second area
+        intra_conductivities.push_back( Create_c_vector(11.0, 22.0, 33.0) );   
+        extra_conductivities.push_back( Create_c_vector(0.0, 0.0, 0.0) );
+              
+        HeartConfig::Instance()->SetConductivityHeterogeneities(heterogeneity_area, intra_conductivities, extra_conductivities); 
+        
+        //elsewhere
+        double isotropic_conductivity=15.0;
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(isotropic_conductivity, isotropic_conductivity, isotropic_conductivity));
+        
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem,3> cell_factory;
+        cell_factory.SetMesh(&mesh);
+        
+        //CreateIntracellularConductivityTensor called in the constructor
+        MonodomainPde<3> monodomain_pde( &cell_factory );
+        
+        TS_ASSERT_EQUALS(monodomain_pde.rGetIntracellularConductivityTensor(0u)(0,0),1.0);//within first cuboid
+        TS_ASSERT_EQUALS(monodomain_pde.rGetIntracellularConductivityTensor(4u)(0,0),11.0);//within second cuboid
+        TS_ASSERT_EQUALS(monodomain_pde.rGetIntracellularConductivityTensor(4u)(1,1),22.0);//within second cuboid
+        TS_ASSERT_EQUALS(monodomain_pde.rGetIntracellularConductivityTensor(8u)(0,0),15.0);//elsewhere, e.g. element 8
+         
+    }
     void TestMonodomainPdeGetCardiacCell( void )
     {
         TetrahedralMesh<1,1> mesh;
