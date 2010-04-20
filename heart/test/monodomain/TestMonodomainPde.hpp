@@ -37,22 +37,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-#include "MonodomainProblem.hpp"
-#include "PlaneStimulusCellFactory.hpp"
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "MonodomainPde.hpp"
 #include "OdeSolution.hpp"
-#include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"
 #include "PetscTools.hpp"
 #include "TetrahedralMesh.hpp"
-#include "DistributedTetrahedralMesh.hpp"
+#include "UblasCustomFunctions.hpp"
+#include "PlaneStimulusCellFactory.hpp"
+#include "PetscSetupAndFinalize.hpp"
 #include "ArchiveOpener.hpp"
-#include "ChastePoint.hpp"
-#include "ChasteCuboid.hpp"
 
 class MyCardiacCellFactory : public AbstractCardiacCellFactory<1>
 {
@@ -91,6 +88,7 @@ class TestMonodomainPde : public CxxTest::TestSuite
 public:
     void TestMonodomainPdeBasic( void )
     {
+        HeartConfig::Instance()->Reset();
         unsigned num_nodes=2;
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructLinearMesh(1);
@@ -174,6 +172,7 @@ public:
 
     void TestMonodomainPdeWithHeterogeneousConductivities() throw (Exception)
     {
+        HeartConfig::Instance()->Reset();
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -209,11 +208,11 @@ public:
         double isotropic_conductivity=15.0;
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(isotropic_conductivity, isotropic_conductivity, isotropic_conductivity));
         
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem,3> cell_factory;
-        cell_factory.SetMesh(&mesh);
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem,3> cell_factory_for_het;
+        cell_factory_for_het.SetMesh(&mesh);
         
         //CreateIntracellularConductivityTensor called in the constructor
-        MonodomainPde<3> monodomain_pde( &cell_factory );
+        MonodomainPde<3> monodomain_pde( &cell_factory_for_het );
         
         TS_ASSERT_EQUALS(monodomain_pde.rGetIntracellularConductivityTensor(0u)(0,0),1.0);//within first cuboid
         TS_ASSERT_EQUALS(monodomain_pde.rGetIntracellularConductivityTensor(4u)(0,0),11.0);//within second cuboid
@@ -223,6 +222,7 @@ public:
     }
     void TestMonodomainPdeGetCardiacCell( void )
     {
+        HeartConfig::Instance()->Reset();
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructLinearMesh(1);
 
@@ -246,6 +246,7 @@ public:
 
     void TestSaveAndLoadCardiacPDE() throw (Exception)
     {
+        HeartConfig::Instance()->Reset();
         // Archive settings
         std::string archive_dir = "archive";
         std::string archive_file = "monodomain_pde.arch";
