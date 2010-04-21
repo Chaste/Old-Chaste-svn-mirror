@@ -130,3 +130,8 @@ bool FileFinder::IsNewerThan(const FileFinder& rOtherEntity) const
     stat(rOtherEntity.GetAbsolutePath().c_str(), &other_stats);
     return our_stats.st_mtime > other_stats.st_mtime;
 }
+
+bool FileFinder::IsAbsolutePath(const std::string& rPath)
+{
+    return rPath[0]=='/';
+}

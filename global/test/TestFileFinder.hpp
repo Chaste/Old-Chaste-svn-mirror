@@ -97,6 +97,12 @@ public:
         TS_ASSERT(!file.IsNewerThan(new_file));
     }
     
+    void TestIsAbsolutePath()
+    {
+        TS_ASSERT(!FileFinder::IsAbsolutePath("global/src/FileFinder.hpp"));
+        TS_ASSERT(FileFinder::IsAbsolutePath("/root"));
+    }
+    
     void TestDirFinder()
     {
         FileFinder dir("global", RelativeTo::ChasteSourceRoot);

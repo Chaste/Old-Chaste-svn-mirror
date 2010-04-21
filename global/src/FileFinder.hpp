@@ -112,6 +112,12 @@ public:
      * @param rOtherEntity  the entity to test against.
      */
     bool IsNewerThan(const FileFinder& rOtherEntity) const;
+    
+    /**
+     * Test whether a path is absolute. Currently just checks whether the first character is '/'.
+     * @param rPath The path to test
+     */
+    static bool IsAbsolutePath(const std::string& rPath);
 };
 
 #endif /*FILEFINDER_HPP_*/
