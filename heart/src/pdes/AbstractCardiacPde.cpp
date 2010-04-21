@@ -201,7 +201,8 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
     {
         try
         {
-            hetero_intra_conductivities.resize(num_elements);
+            assert(hetero_intra_conductivities.size()==0);
+            hetero_intra_conductivities.resize(num_elements, intra_conductivities);
         }
         catch(std::bad_alloc &badAlloc)
         {
@@ -222,7 +223,6 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
 
         for (unsigned element_index=0; element_index<num_elements; element_index++)
         {
-            bool element_has_been_already_asssigned = false;
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
             {
                 // if element centroid is contained in the region
@@ -230,12 +230,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
                 if ( conductivities_heterogeneity_areas[region_index].DoesContain(element_centroid) )
                 {
                     hetero_intra_conductivities[element_index] = intra_h_conductivities[region_index];
-                    element_has_been_already_asssigned=true;
                 }
-            }
-            if (!element_has_been_already_asssigned)
-            {
-                hetero_intra_conductivities[element_index] = intra_conductivities;
             }
         }
 

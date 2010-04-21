@@ -94,7 +94,9 @@ void BidomainPde<SPACE_DIM>::CreateExtracellularConductivityTensors()
     {
         try
         {
-            hetero_extra_conductivities.resize(num_elements);
+            assert(hetero_extra_conductivities.size()==0);
+            //initialise with the values of teh default conductivity tensor 
+            hetero_extra_conductivities.resize(num_elements, extra_conductivities);
         }
         catch(std::bad_alloc &badAlloc)
         {
@@ -122,10 +124,6 @@ void BidomainPde<SPACE_DIM>::CreateExtracellularConductivityTensors()
                 if ( conductivities_heterogeneity_areas[region_index].DoesContain( element_centroid ) )
                 {
                     hetero_extra_conductivities[element_index] = extra_h_conductivities[region_index];
-                }
-                else
-                {
-                    hetero_extra_conductivities[element_index] = extra_conductivities;
                 }
             }
         }
