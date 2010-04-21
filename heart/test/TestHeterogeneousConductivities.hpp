@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainProblem.hpp"
 #include "GeneralPlaneStimulusCellFactory.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "TetrahedralMesh.hpp"
+#include "DistributedTetrahedralMesh.hpp"
 #include "MeshalyzerMeshWriter.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -62,7 +62,7 @@ public:
         const unsigned num_elem_z = 8;
 
         /* Read the mesh*/
-        TetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(num_elem_x, num_elem_y, num_elem_z);
         mesh.Scale(width/num_elem_x, height/num_elem_y, depth/num_elem_z);
 
@@ -108,7 +108,11 @@ public:
 
         ReplicatableVector voltage_replicated(problem.GetSolution());
         TS_ASSERT_EQUALS(mesh.GetNumNodes() * 2, voltage_replicated.GetSize());
-        for (unsigned i=0;i<mesh.GetNumNodes();i++)
+        unsigned lo, hi;
+        lo = mesh.GetDistributedVectorFactory()->GetLow();
+        hi = mesh.GetDistributedVectorFactory()->GetHigh();
+        
+        for (unsigned i=lo; i<hi; i++)
         {
             double x = mesh.GetNode(i)->rGetLocation()[0];
             if (x<width/2)

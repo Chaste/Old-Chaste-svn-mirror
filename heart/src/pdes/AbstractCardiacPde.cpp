@@ -221,12 +221,15 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
                                                                 intra_h_conductivities,
                                                                 extra_h_conductivities);
 
-        for (unsigned element_index=0; element_index<num_elements; element_index++)
+        for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator it = mpMesh->GetElementIteratorBegin();
+             it != mpMesh->GetElementIteratorEnd();
+             ++it)
         {
+            unsigned element_index = it->GetIndex();            
+            // if element centroid is contained in the region
+            ChastePoint<SPACE_DIM> element_centroid(it->CalculateCentroid());
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
             {
-                // if element centroid is contained in the region
-                ChastePoint<SPACE_DIM> element_centroid(mpMesh->GetElement(element_index)->CalculateCentroid());
                 if ( conductivities_heterogeneity_areas[region_index].DoesContain(element_centroid) )
                 {
                     hetero_intra_conductivities[element_index] = intra_h_conductivities[region_index];
