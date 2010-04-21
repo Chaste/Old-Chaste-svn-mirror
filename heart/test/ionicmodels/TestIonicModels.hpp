@@ -66,6 +66,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FaberRudy2000Version3Optimised.hpp"
 
 #include "NobleVargheseKohlNoble1998.hpp"
+#include "NobleVargheseKohlNoble1998WithStretch.hpp"
 #include "NobleVargheseKohlNoble1998Optimised.hpp"
 #include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
 #include "Mahajan2008OdeSystem.hpp"
@@ -85,7 +86,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestIonicModels : public CxxTest::TestSuite
 {
 public:
-    void TestOdeSolveForNoble98WithSimpleStimulus(void)
+    void TestSolveForNoble98WithSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -127,9 +128,75 @@ public:
         TS_ASSERT_THROWS_THIS(n98_ode_system.GetSlowValues(slows), error_should_be);
         TS_ASSERT_THROWS_THIS(n98_ode_system.SetSlowValues(slows), error_should_be);
 
-     }
+    }
+     
+    void TestSolveForNoble98WithStretchWithSimpleStimulus(void)
+    {
+        clock_t ck_start, ck_end;
 
-    void TestOdeSolveForOptimisedNoble98WithSimpleStimulus(void)
+        // Set stimulus
+        double magnitude_stimulus = -3;  // uA/cm2
+        double duration_stimulus = 3;  // ms
+        double start_stimulus = 10.0;   // ms
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(
+                magnitude_stimulus,
+                duration_stimulus,
+                start_stimulus));
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        double time_step = 0.01;
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
+
+        Cellnoble_varghese_kohl_noble_1998_with_stretch_FromCellML n98_with_stretch(p_solver, p_stimulus);
+
+        // Solve and write to file
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&n98_with_stretch,
+                                   150.0,
+                                   "N98StretchResult");
+        ck_end = clock();
+        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tForward: " << forward << std::endl;
+
+        CheckCellModelResults("N98StretchResult");
+        TS_ASSERT_DELTA( n98_with_stretch.GetIIonic(), 0.2532, 1e-3);
+        
+        // Coverage
+        n98_with_stretch.SetStretch(1.1);
+        TS_ASSERT_DELTA(n98_with_stretch.GetStretch(),1.1,1e-9);
+    }
+
+/// \todo #1345 - figure out how to get stretch activation of a model...
+//    void TestSolveForNoble98WithStretch_StretchActivated(void)
+//    {
+//        clock_t ck_start, ck_end;
+//
+//        // Set stimulus
+//        boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus());
+//        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+//        double time_step = 0.01;
+//
+//        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
+//
+//        Cellnoble_varghese_kohl_noble_1998_with_stretch_FromCellML n98_with_stretch(p_solver, p_stimulus);
+//
+//        n98_with_stretch.SetStretch(2.0);
+//
+//        // Solve and write to file
+//        ck_start = clock();
+//        RunOdeSolverWithIonicModel(&n98_with_stretch,
+//                                   150.0,
+//                                   "N98Stretch_StretchActivatedResult");
+//        ck_end = clock();
+//        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+//        std::cout << "\n\tForward: " << forward << std::endl;
+//
+/////finish
+////        CheckCellModelResults("N98Stretch_StretchActivatedResult");
+////        TS_ASSERT_DELTA( n98_with_stretch.GetIIonic(), 0.2532, 1e-3);
+//    }
+
+    void TestSolveForOptimisedNoble98WithSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -183,7 +250,7 @@ public:
     }
 
 
-    void TestOdeSolverForHH52WithSimpleStimulus(void)
+    void TestSolverForHH52WithSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -219,7 +286,7 @@ public:
     }
 
 
-    void TestOdeSolverForFHN61WithSimpleStimulus(void) throw (Exception)
+    void TestSolverForFHN61WithSimpleStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
 
@@ -270,7 +337,7 @@ public:
     }
 
 
-    void TestOdeSolverForLR91WithDelayedSimpleStimulus(void)
+    void TestSolverForLR91WithDelayedSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -308,7 +375,7 @@ public:
         TS_ASSERT_DELTA( lr91_ode_system.GetIIonic(), 1.9411, 1e-3);
     }
 
-    void TestOdeSolverForLR91WithRegularStimulus(void) throw (Exception)
+    void TestSolverForLR91WithRegularStimulus(void) throw (Exception)
     {
         // Set stimulus
         double magnitude = -25.5;
@@ -407,7 +474,7 @@ public:
         BackwardEulerLuoRudyIModel1991 lr91_backward_euler3(p_solver, p_stimulus);
     }
 
-    void TestOdeSolverForFR2000WithDelayedSimpleStimulus(void)
+    void TestSolverForFR2000WithDelayedSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -465,7 +532,7 @@ public:
     }
 
 
-    void TestOdeSolverForFR2000WithVariablePotassiumCurrents(void)
+    void TestSolverForFR2000WithVariablePotassiumCurrents(void)
     {
         // Set stimulus
         double magnitude = -25.5;
@@ -517,7 +584,7 @@ public:
     }
 
 
-    void TestOdeSolverForFox2002WithRegularStimulus(void) throw (Exception)
+    void TestSolverForFox2002WithRegularStimulus(void) throw (Exception)
     {
         clock_t ck_start, ck_end;
 
@@ -588,7 +655,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(TryTestLr91WithVoltageDrop(4));
     }
 
-    void TestOdeSolveForBackwardNoble98WithSimpleStimulus(void)
+    void TestSolveForBackwardNoble98WithSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -628,7 +695,7 @@ public:
         ///\todo compare with the forward results?
     }
 
-    void TestOdeSolveForTT06WithSimpleStimulus(void)
+    void TestSolveForTT06WithSimpleStimulus(void)
     {
 
         // This is a shortened test. Longer tests correctly produced AP
@@ -855,7 +922,7 @@ public:
     }
 //    Uncomment the includes for the models too
 //
-//    void TestOdeSolverForN98WithSimpleStimulus(void)
+//    void TestSolverForN98WithSimpleStimulus(void)
 //    {
 //        clock_t ck_start, ck_end;
 //
