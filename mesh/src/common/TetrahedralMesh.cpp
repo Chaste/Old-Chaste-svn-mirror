@@ -626,21 +626,20 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
     for (std::set<unsigned>::iterator iter=testElements.begin(); iter!=testElements.end(); iter++)
     {
         assert(*iter<this->GetNumElements());
-        ///\todo #1299 What if the element is deleted?
         if (this->mElements[*iter]->IncludesPoint(testPoint, strict))
         {
+            assert(!this->mElements[*iter]->IsDeleted());
             return *iter;
         }
     }
 
     if(!onlyTryWithTestElements)
     {
-        ///\todo #1299 Polling every element is unnecessary.  We ought to start from a likely place and hill climb
         for (unsigned i=0; i<this->mElements.size(); i++)
         {
-            ///\todo #1299 What if the element is deleted?
             if (this->mElements[i]->IncludesPoint(testPoint, strict))
             {
+                assert(!this->mElements[i]->IsDeleted());
                 return i;
             }
         }
@@ -678,9 +677,9 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
 
     while(!reached_end)
     {
-        ///\todo #1299 What if the element is deleted?
         if (this->mElements[i]->IncludesPoint(testPoint, strict))
         {
+            assert(!this->mElements[i]->IsDeleted());
             return i;
         }
 
@@ -713,14 +712,10 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(ChastePoint<SPACE_DIM> testPoint)
 {
-    ///\todo #1299 This ought to return a set of all elements that contain the point (if the point is a node in the mesh then it's contained in multiple elements)
-    ///\todo #1299 Polling every element is unnecessary.  We ought to start from a likely place and hill climb
-
     double max_min_weight = -INFINITY;
     unsigned closest_index = 0;
     for (unsigned i=0; i<this->mElements.size(); i++)
     {
-        ///\todo #1299 What if the element is deleted?
         c_vector<double, ELEMENT_DIM+1> weight=this->mElements[i]->CalculateInterpolationWeights(testPoint);
         double neg_weight_sum=0.0;
         for (unsigned j=0; j<=ELEMENT_DIM; j++)
@@ -737,12 +732,10 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(ChasteP
         }
 
     }
+    assert(!this->mElements[closest_index]->IsDeleted());
     return closest_index;
 }
 
-
-
-///todo #1299 refactor common code with GetNearestElementIndex 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndexFromTestElements(ChastePoint<SPACE_DIM> testPoint,
                                                                                          std::set<unsigned> testElements)
@@ -771,6 +764,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndexFromTest
         }
 
     }
+    assert(!this->mElements[closest_index]->IsDeleted());
     return closest_index;
 }
 
@@ -781,9 +775,9 @@ std::vector<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElem
     std::vector<unsigned> element_indices;
     for (unsigned i=0; i<this->mElements.size(); i++)
     {
-        ///\todo #1299 What if the element is deleted?
         if (this->mElements[i]->IncludesPoint(testPoint))
         {
+            assert(!this->mElements[i]->IsDeleted());
             element_indices.push_back(i);
         }
     }
