@@ -125,7 +125,8 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string inputDirectory,
                           std::string fileBaseName,
-                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh) :
+                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> *pMesh,
+                          bool hasBath) :
                     AbstractHdf5Converter<ELEMENT_DIM,SPACE_DIM>(inputDirectory, fileBaseName, pMesh, "cmgui_output")
 {
     //Used to inform the mesh of the data names
@@ -142,6 +143,13 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
     std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
     CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
     cmgui_mesh_writer.SetAdditionalFieldNames(field_names);
+    if (hasBath)
+    {
+        std::vector<std::string> names;
+        names.push_back("tissue");
+        names.push_back("bath");
+        cmgui_mesh_writer.SetRegionNames(names);
+    }
     cmgui_mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
 
     PetscTools::Barrier("Hdf5ToCmguiConverter");

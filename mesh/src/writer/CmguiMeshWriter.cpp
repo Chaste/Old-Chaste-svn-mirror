@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "CmguiMeshWriter.hpp"
 #include "Version.hpp"
+#include <boost/shared_ptr.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation
@@ -39,7 +40,7 @@ CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::CmguiMeshWriter(const std::string &rDire
         : AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>(rDirectory, rBaseName, cleanDirectory)
 {
     this->mIndexFromZero = false;
-    mGroupName = this->mBaseName;
+    mGroupName = this->mBaseName;    
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -71,95 +72,45 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     //////////////////////////
     // Write the exlem file
     //////////////////////////
-    std::string elem_file_name = this->mBaseName + ".exelem";
-    out_stream p_elem_file = this->mpOutputFileHandler->OpenOutputFile(elem_file_name);
     
-    // Write the elem header
-    
-    //write provenance info
-    std::string comment = "! " + ChasteBuildInfo::GetProvenanceString();
-    *p_elem_file << comment;
-
-    *p_elem_file << "Group name: " << mGroupName << "\n";
-    switch (ELEMENT_DIM)
+    // If nobody defined region names we default to the same name as the file.
+    if (mRegionNames.size() == 0)
     {
-        case 1:
-        {
-            *p_elem_file << CmguiElementFileHeader1D;
-            break;
-        }
-        case 2:
-        {
-            *p_elem_file << CmguiElementFileHeader2D;
-            break;
-        }
-        case 3:
-        {
-            *p_elem_file << CmguiElementFileHeader3D;
-            break;
-        }
-        default:
-        {
-            NEVER_REACHED;
-        }
+        mRegionNames.push_back(this->mBaseName);
     }
 
-
-    //now we need to figure out how many additional fields we have
-    unsigned number_of_fields = mAdditionalFieldNames.size();
-    std::stringstream string_of_number_of_fields;
-    //we write the number of additional fields + 1 because the coordinates field gets written anyway
-    string_of_number_of_fields << number_of_fields+1;
-    //and write accordingly the total number of fields
-    *p_elem_file << " #Fields="<<string_of_number_of_fields.str()<<"\n";
-
-    //first field (the coordinates field is fixed and always there
-    switch (ELEMENT_DIM)
+    // Array with file descriptors for each of regions    
+    std::vector<boost::shared_ptr<std::ofstream> > p_elem_file;
+    
+    p_elem_file.resize(mRegionNames.size());
+    
+    for (unsigned region_index=0; region_index<mRegionNames.size(); region_index++)     
     {
-        case 1:
-        {
-            *p_elem_file << CmguiCoordinatesFileHeader1D;
-            break;
-        }
-        case 2:
-        {
-            *p_elem_file << CmguiCoordinatesFileHeader2D;
-            break;
-        }
-        case 3:
-        {
-            *p_elem_file << CmguiCoordinatesFileHeader3D;
-            break;
-        }
-        default:
-        {
-            NEVER_REACHED;
-        }
-    }
-
-
-    //now write the specification for each additional field
-    for (unsigned i = 0; i <  number_of_fields; i++)
-    {
-        //unsigned to string
-        std::stringstream i_string;
-        i_string << i+2;
-        *p_elem_file<<i_string.str()<<")  "<<mAdditionalFieldNames[i]<<" ,";
+        std::string elem_file_name = mRegionNames[region_index] + ".exelem";
+        p_elem_file[region_index] = this->mpOutputFileHandler->OpenOutputFile(elem_file_name);
+        
+        // Write the elem header
+        
+        //write provenance info
+        std::string comment = "! " + ChasteBuildInfo::GetProvenanceString();
+        *p_elem_file[region_index] << comment;
+    
+        *p_elem_file[region_index] << "Group name: " << mGroupName << "\n";
         switch (ELEMENT_DIM)
         {
             case 1:
             {
-                *p_elem_file << CmguiAdditonalFieldHeader1D;
+                *p_elem_file[region_index] << CmguiElementFileHeader1D;
                 break;
             }
             case 2:
             {
-                *p_elem_file << CmguiAdditonalFieldHeader2D;
+                *p_elem_file[region_index] << CmguiElementFileHeader2D;
                 break;
             }
             case 3:
             {
-                *p_elem_file << CmguiAdditonalFieldHeader3D;
+                *p_elem_file[region_index] << CmguiElementFileHeader3D;
                 break;
             }
             default:
@@ -167,23 +118,97 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
                 NEVER_REACHED;
             }
         }
-
+    
+    
+        //now we need to figure out how many additional fields we have
+        unsigned number_of_fields = mAdditionalFieldNames.size();
+        std::stringstream string_of_number_of_fields;
+        //we write the number of additional fields + 1 because the coordinates field gets written anyway
+        string_of_number_of_fields << number_of_fields+1;
+        //and write accordingly the total number of fields
+        *p_elem_file[region_index] << " #Fields="<<string_of_number_of_fields.str()<<"\n";
+    
+        //first field (the coordinates field is fixed and always there
+        switch (ELEMENT_DIM)
+        {
+            case 1:
+            {
+                *p_elem_file[region_index] << CmguiCoordinatesFileHeader1D;
+                break;
+            }
+            case 2:
+            {
+                *p_elem_file[region_index] << CmguiCoordinatesFileHeader2D;
+                break;
+            }
+            case 3:
+            {
+                *p_elem_file[region_index] << CmguiCoordinatesFileHeader3D;
+                break;
+            }
+            default:
+            {
+                NEVER_REACHED;
+            }
+        }
+    
+    
+        //now write the specification for each additional field
+        for (unsigned i = 0; i <  number_of_fields; i++)
+        {
+            //unsigned to string
+            std::stringstream i_string;
+            i_string << i+2;
+            *p_elem_file[region_index]<<i_string.str()<<")  "<<mAdditionalFieldNames[i]<<" ,";
+            switch (ELEMENT_DIM)
+            {
+                case 1:
+                {
+                    *p_elem_file[region_index] << CmguiAdditonalFieldHeader1D;
+                    break;
+                }
+                case 2:
+                {
+                    *p_elem_file[region_index] << CmguiAdditonalFieldHeader2D;
+                    break;
+                }
+                case 3:
+                {
+                    *p_elem_file[region_index] << CmguiAdditonalFieldHeader3D;
+                    break;
+                }
+                default:
+                {
+                    NEVER_REACHED;
+                }
+            }
+    
+        }
     }
 
-    // Write each elements's data
+    // Write each elements's data        
     for (unsigned item_num=0; item_num<this->GetNumElements(); item_num++)
     {
-        std::vector<unsigned> current_element = this->GetNextElement().NodeIndices;
-
-        *p_elem_file << "Element:\t" << item_num+1 << " 0 0 Nodes:\t";
+        ElementData elem =this->GetNextElement();
+        std::vector<unsigned> current_element = elem.NodeIndices;
+        
+        /// \todo: EXCEPTION maybe...
+        assert(elem.AttributeValue < mRegionNames.size());
+           
+        *p_elem_file[elem.AttributeValue] << "Element:\t" << item_num+1 << " 0 0 Nodes:\t";
         for (unsigned i=0; i<(ELEMENT_DIM+1); i++)
         {
-            *p_elem_file << current_element[i]+1 << "\t";
+            *p_elem_file[elem.AttributeValue] << current_element[i]+1 << "\t";
         }
 
-        *p_elem_file << "\n";
+        *p_elem_file[elem.AttributeValue] << "\n";
+            
     }
-    p_elem_file->close();
+    
+    for (unsigned region_index=0; region_index<mRegionNames.size(); region_index++)     
+    {
+        p_elem_file[region_index]->close();
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -191,6 +216,13 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetAdditionalFieldNames(std::vector
 {
     mAdditionalFieldNames = rFieldNames;
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::SetRegionNames(std::vector<std::string>& rRegionNames)
+{    
+    mRegionNames = rRegionNames;
+}
+
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteNodeFileHeader(out_stream& rpNodeFile)

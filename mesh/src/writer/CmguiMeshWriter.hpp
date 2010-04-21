@@ -239,6 +239,13 @@ protected:
      * For storage of names of additional fields.
      */
     std::vector<std::string> mAdditionalFieldNames;
+    
+    
+    /**
+     * Stored the names of different regions that we want Cmgui to be able to visualize separately.
+     * There will be one .exelem file per region.
+     */
+    std::vector<std::string> mRegionNames;// {tissue, bath, whatever}
 
     /**
      * The group name to give in the output files. Defaults to the same as the
@@ -280,6 +287,13 @@ public:
      * @param rFieldNames is a reference to a vector of string containing the names of each additional field name
      */
     void SetAdditionalFieldNames(std::vector<std::string>& rFieldNames);
+
+    /**
+     * Set the region names to be used when generating multiple element files
+     *
+     * @param rRegionNames is a reference to a vector of string containing the names of each region defined in the mesh
+     */
+    void SetRegionNames(std::vector<std::string>& rRegionNames);
 
     /**
      * Destructor.

@@ -187,7 +187,52 @@ public :
                                      + " heart/test/data/CmguiData/bidomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
+    
+    void TestBidomainWithBathCmguiConversion1D() throw(Exception)
+    {
+        std::string working_directory = "TestBidomainWithBathCmguiConversion1D";
+        OutputFileHandler handler(working_directory);
 
+        // firstly, copy ./heart/test/data/CmguiData/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToCmguiConverter_monodomain,
+        // as that is where the reader reads from.
+        CopyToTestOutputDirectory("heart/test/data/CmguiData/bidomain_with_bath/bidomain_with_bath_1d.h5",
+                                  working_directory);
+
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_two_attributes"); //Not used in the test for exceptions
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // convert
+        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_with_bath_1d");
+        HeartConfig::Instance()->SetOutputDirectory(working_directory);
+        Hdf5ToCmguiConverter<1,1> converter(working_directory, "bidomain_with_bath_1d", &mesh, true);
+
+        // compare the voltage file with a correct version that is known to visualize correctly in Cmgui
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        
+        //mesh file first, one exnode, one for bath and one for tissue
+        std::string command_node_file = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/bidomain_with_bath_1d.exnode"
+                                     + " heart/test/data/CmguiData/bidomain_with_bath/bidomain_with_bath_1d.exnode";
+        TS_ASSERT_EQUALS(system(command_node_file.c_str()), 0);
+        
+        std::string command_tissue_element_file = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/tissue.exelem"
+                                     + " heart/test/data/CmguiData/bidomain_with_bath/tissue.exelem";
+        TS_ASSERT_EQUALS(system(command_tissue_element_file.c_str()), 0);
+
+        std::string command_bath_element_file = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/bath.exelem"
+                                     + " heart/test/data/CmguiData/bidomain_with_bath/bath.exelem";
+        TS_ASSERT_EQUALS(system(command_bath_element_file.c_str()), 0);
+        
+        //then the data file
+        std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/bidomain_with_bath_1d_0.exnode"
+                                     + " heart/test/data/CmguiData/bidomain_with_bath/bidomain_with_bath_1d_0.exnode";
+        TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
+
+        std::string command_second_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/bidomain_with_bath_1d_1.exnode"
+                                     + " heart/test/data/CmguiData/bidomain_with_bath/bidomain_with_bath_1d_1.exnode";
+        TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
+    }   
+    
     void TestMonodomainCmguiConversion2D() throw(Exception)
     {
         std::string working_directory = "TestHdf5ToCmguiConverter_monodomain2D";
