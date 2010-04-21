@@ -28,7 +28,98 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ArchiveLocationInfo.hpp"
 
-std::string ArchiveLocationInfo::mDirPath = "";
-bool ArchiveLocationInfo::mDirIsRelativeToChasteTestOutput = true;
+#include <sstream>
+
+#include "Exception.hpp"
+#include "OutputFileHandler.hpp"
+
+
+std::string ArchiveLocationInfo::mDirAbsPath = "";
 std::string ArchiveLocationInfo::mMeshFilename = "mesh";
+
+void ArchiveLocationInfo::SetMeshPathname(const FileFinder& rDirectory, const std::string& rFilename)
+{
+    SetArchiveDirectory(rDirectory);
+    mMeshFilename = rFilename;
+}
+
+void ArchiveLocationInfo::SetMeshPathname(const std::string& rDirectory, const std::string& rFilename)
+{
+    bool is_absolute = FileFinder::IsAbsolutePath(rDirectory);
+    RelativeTo::Value relative_to;
+    if (!is_absolute)
+    {
+        relative_to = RelativeTo::ChasteTestOutput;
+    }
+    else
+    {
+        relative_to = RelativeTo::Absolute;
+    }
+    FileFinder dir(rDirectory, relative_to);
+    SetArchiveDirectory(dir);
+    mMeshFilename = rFilename;
+}
+
+void ArchiveLocationInfo::SetMeshFilename(const std::string& rFilename)
+{
+    mMeshFilename = rFilename;
+}
+
+std::string ArchiveLocationInfo::GetMeshFilename()
+{
+    if (mMeshFilename == "")
+    {
+        EXCEPTION("ArchiveLocationInfo::mMeshFilename has not been set");
+    }
+    return mMeshFilename;
+}
+
+std::string ArchiveLocationInfo::GetArchiveDirectory()
+{
+    if (mDirAbsPath == "")
+    {
+        EXCEPTION("ArchiveLocationInfo::mDirAbsPath has not been set");
+    }
+    return mDirAbsPath;
+}
+
+std::string ArchiveLocationInfo::GetProcessUniqueFilePath(
+        const std::string& rFileName,
+        unsigned procId)
+{
+    std::stringstream filepath;
+    filepath << GetArchiveDirectory() << rFileName << "." << procId;
+    return filepath.str();
+}
+
+void ArchiveLocationInfo::SetArchiveDirectory(const FileFinder& rDirectory)
+{
+    mDirAbsPath = rDirectory.GetAbsolutePath();
+    if (! ( *(mDirAbsPath.end()-1) == '/'))
+    {
+        mDirAbsPath = mDirAbsPath + "/";
+    }
+}
+
+std::string ArchiveLocationInfo::GetArchiveRelativePath()
+{
+    std::string chaste_output = OutputFileHandler::GetChasteTestOutputDirectory();
+    // Find occurrence of CHASTE_TEST_OUTPUT in string
+    std::string::size_type pos = mDirAbsPath.find(chaste_output, 0);
+    if (pos == 0)
+    {
+        return mDirAbsPath.substr(chaste_output.length());
+    }
+    else
+    {
+        return mDirAbsPath;
+    }
+}
+
+bool ArchiveLocationInfo::GetIsDirRelativeToChasteTestOutput()
+{
+    std::string chaste_output = OutputFileHandler::GetChasteTestOutputDirectory();
+    std::string::size_type pos = mDirAbsPath.find(chaste_output, 0);
+    return (pos == 0);
+}
 

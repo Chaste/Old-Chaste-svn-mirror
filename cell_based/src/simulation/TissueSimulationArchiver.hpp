@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseData.hpp"
 #include "ArchiveLocationInfo.hpp"
 #include "ArchiveOpener.hpp"
+#include "FileFinder.hpp"
 
 /**
  * TissueSimulationArchiver handles the checkpointing (saving and loading)
@@ -93,11 +94,11 @@ SIM* TissueSimulationArchiver<DIM, SIM>::Load(const std::string& rArchiveDirecto
     time_stamp << rTimeStamp;
     std::string archive_filename = "tissue_sim_at_time_" + time_stamp.str() + ".arch";
     std::string mesh_filename = "mesh_" + time_stamp.str();
-    ArchiveLocationInfo::SetMeshPathname(OutputFileHandler::GetChasteTestOutputDirectory()
-                                         + rArchiveDirectory + "/archive/", mesh_filename);
+    FileFinder archive_dir(rArchiveDirectory + "/archive/", RelativeTo::ChasteTestOutput);
+    ArchiveLocationInfo::SetMeshPathname(archive_dir, mesh_filename);
 
     // Create an input archive
-    ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(rArchiveDirectory + "/archive/", archive_filename);
+    ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_filename);
     boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
     // Load any data that isn't the simulation itself, mainly singletons
@@ -140,12 +141,12 @@ void TissueSimulationArchiver<DIM, SIM>::Save(SIM* pSim)
     time_stamp << p_sim_time->GetTime();
 
     // Set up folder and filename of archive
-    std::string archive_directory = pSim->GetOutputDirectory() + "/archive/";
+    FileFinder archive_dir(pSim->GetOutputDirectory() + "/archive/", RelativeTo::ChasteTestOutput);
     std::string archive_filename = "tissue_sim_at_time_" + time_stamp.str() + ".arch";
     ArchiveLocationInfo::SetMeshFilename(std::string("mesh_") + time_stamp.str());
 
     // Create output archive
-    ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_directory, archive_filename);
+    ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_filename);
     boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
     // Save the simulation.  We save the time directly first to maintain its

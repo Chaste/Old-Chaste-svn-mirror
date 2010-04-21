@@ -219,11 +219,9 @@ cp -r /tmp/$USER/testoutput/SaveBidomain/ ~/eclipse/workspace/Chaste/apps/textte
 
         if (PetscTools::IsSequential())
         {
+            FileFinder archive_dir("apps/texttest/chaste/resume_bidomain/save_bidomain", RelativeTo::ChasteSourceRoot);
             // We can't use CardiacSimulationArchiver::Load for this, as it can't read files in the repository
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
-                "apps/texttest/chaste/resume_bidomain/save_bidomain/",
-                "archive.arch",
-                false);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, "archive.arch");
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             BidomainProblem<3> *p_bidomain_problem;
@@ -277,11 +275,9 @@ cp -r /tmp/$USER/testoutput/SaveMonodomain/ ~/eclipse/workspace/Chaste/apps/text
 
         if (PetscTools::IsSequential())
         {
+            FileFinder archive_dir("apps/texttest/chaste/resume_monodomain/save_monodomain", RelativeTo::ChasteSourceRoot);
             // We can't use CardiacSimulationArchiver::Load for this, as it can't read files in the repository
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
-                "apps/texttest/chaste/resume_monodomain/save_monodomain/",
-                "archive.arch",
-                false);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, "archive.arch");
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
             MonodomainProblem<2> *p_monodomain_problem;

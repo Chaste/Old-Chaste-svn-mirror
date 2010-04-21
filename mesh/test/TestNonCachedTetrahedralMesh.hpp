@@ -217,7 +217,7 @@ public:
 
     void TestArchiving()
     {
-        std::string archive_dir = "archive";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "non_cached_tetrahedral_mesh.arch";
         ArchiveLocationInfo::SetMeshFilename("non_cached_tetrahedral_mesh");
 

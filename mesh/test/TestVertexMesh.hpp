@@ -742,7 +742,7 @@ public:
     // This tests that a 'dummy' archive function does not throw any errors
     void TestArchive2dVertexMesh()
     {
-        std::string archive_dir = "archive";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "vertex_mesh_base.arch";
         ArchiveLocationInfo::SetMeshFilename("vertex_mesh");
 

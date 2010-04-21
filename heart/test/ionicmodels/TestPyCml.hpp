@@ -191,7 +191,7 @@ public:
 
         // Test the archiving code too
         OutputFileHandler handler("archive", false);
-        ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
+        handler.SetArchiveDirectory();
         std::string archive_filename = ArchiveLocationInfo::GetProcessUniqueFilePath("lr91-pycml.arch");
 
         // Save all (non-CVODE) cells at initial state

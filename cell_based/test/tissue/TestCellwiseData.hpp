@@ -167,7 +167,7 @@ public:
         MeshBasedTissue<2> tissue(mesh,cells);
 
         // Work out where to put the archive
-        std::string archive_dir = "archive";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "cellwise_data.arch";
         ArchiveLocationInfo::SetMeshFilename("cellwise_data_mesh");
 

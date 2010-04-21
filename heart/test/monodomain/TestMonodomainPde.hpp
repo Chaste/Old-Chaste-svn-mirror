@@ -198,7 +198,7 @@ public:
     {
         HeartConfig::Instance()->Reset();
         // Archive settings
-        std::string archive_dir = "archive";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "monodomain_pde.arch";
 
         bool cache_replication_saved = false;

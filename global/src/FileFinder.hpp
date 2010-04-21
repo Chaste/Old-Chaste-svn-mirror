@@ -103,6 +103,9 @@ public:
 
     /**
      * Get the absolute path to this file/dir.
+     * 
+     * If this is a directory that exists, the absolute path is guaranteed to end in a '/'.
+     * If the directory doesn't exist, it will depend on what was supplied to the constructor.
      */
     std::string GetAbsolutePath() const;
 

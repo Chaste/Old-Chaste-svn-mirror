@@ -109,6 +109,8 @@ public:
         TS_ASSERT(dir.Exists());
         TS_ASSERT(dir.IsDir());
         TS_ASSERT(!dir.IsFile());
+        std::string abs_path = std::string(ChasteBuildRootDir()) + "global/";
+        TS_ASSERT_EQUALS(dir.GetAbsolutePath(), abs_path);
         
         FileFinder dir2("global", RelativeTo::CWD); // CWD should be the same as ChasteSourceRoot for tests
         TS_ASSERT(dir2.Exists());
@@ -127,11 +129,13 @@ public:
         TS_ASSERT(new_dir.Exists());
         TS_ASSERT(new_dir.IsDir());
         TS_ASSERT(!new_dir.IsFile());
+        TS_ASSERT_EQUALS(new_dir.GetAbsolutePath(), handler.GetOutputDirectoryFullPath());
         
         FileFinder missing_dir("TestFileFinder/SubDir", RelativeTo::ChasteTestOutput);
         TS_ASSERT(!missing_dir.Exists());
         TS_ASSERT(!missing_dir.IsDir());
         TS_ASSERT(!missing_dir.IsFile());
+        TS_ASSERT_EQUALS(missing_dir.GetAbsolutePath(), handler.GetOutputDirectoryFullPath() + "SubDir");
     }
 };
 

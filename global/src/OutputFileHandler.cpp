@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "ArchiveLocationInfo.hpp"
 #include "GetCurrentWorkingDirectory.hpp"
+#include "FileFinder.hpp"
 
 OutputFileHandler::OutputFileHandler(const std::string &rDirectory,
                                      bool cleanOutputDirectory)
@@ -158,7 +159,8 @@ out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
 
 void OutputFileHandler::SetArchiveDirectory()
 {
-    ArchiveLocationInfo::SetArchiveDirectory(GetOutputDirectoryFullPath());
+    FileFinder dir(GetOutputDirectoryFullPath(), RelativeTo::Absolute);
+    ArchiveLocationInfo::SetArchiveDirectory(dir);
 }
 
 void OutputFileHandler::AddTrailingSlash(std::string& rDirectory)

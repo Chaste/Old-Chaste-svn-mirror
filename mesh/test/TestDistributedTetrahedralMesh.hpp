@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 #include "PetscTools.hpp"
 #include "ArchiveOpener.hpp"
+#include "FileFinder.hpp"
 
 class TestDistributedTetrahedralMesh : public CxxTest::TestSuite
 {
@@ -608,7 +609,7 @@ public:
 
     void TestArchiving() throw(Exception)
     {
-        std::string archive_dir = "archive";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "distributed_tetrahedral_mesh.arch";
         ArchiveLocationInfo::SetMeshFilename("distributed_tetrahedral_mesh");
 
@@ -710,10 +711,11 @@ public:
 
         // restore from a single processor archive
         {
+            FileFinder archive_dir("mesh/test/data/distributed_mesh_archive", RelativeTo::ChasteSourceRoot);
             if ( PetscTools::IsSequential() )
             {
                 ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(
-                        "mesh/test/data/distributed_mesh_archive/", "distributed_tetrahedral_mesh.arch", false);
+                        archive_dir, "distributed_tetrahedral_mesh.arch");
                 boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
                 AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
                 (*p_arch) >> p_mesh3;
@@ -725,14 +727,14 @@ public:
                 if (PetscTools::GetMyRank()>0)
                 {
                     /// Should not read this archive because none exists here.
-                    TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener("mesh/test/data/distributed_mesh_archive/", "distributed_tetrahedral_mesh.arch", false),
+                    TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener arch_opener(archive_dir, "distributed_tetrahedral_mesh.arch"),
                                 "Cannot load secondary archive file:");
                 }
                 else
                 {
                     /// Should not read this archive because there are two or more processes and
                     // this archive was written on one process.
-                    InputArchiveOpener arch_opener("mesh/test/data/distributed_mesh_archive/", "distributed_tetrahedral_mesh.arch", false);
+                    InputArchiveOpener arch_opener(archive_dir, "distributed_tetrahedral_mesh.arch");
                     boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
                     AbstractTetrahedralMesh<2,2>* p_mesh3 = NULL;
                     TS_ASSERT_THROWS_THIS((*p_arch) >> p_mesh3,
@@ -1255,7 +1257,7 @@ public:
 
     void TestArchiveOfConstructedMesh() throw(Exception)
     {
-        std::string archive_dir = "archive";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "distributed_rectangle.arch";
         ArchiveLocationInfo::SetMeshFilename("distributed_rectangle");
 

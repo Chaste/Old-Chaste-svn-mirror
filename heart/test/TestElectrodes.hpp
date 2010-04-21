@@ -298,7 +298,7 @@ public:
      */
     void TestArchivingElectrodes() throw(Exception)
     {
-        std::string archive_dir = "archive";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "Electrodes.arch";
 
         // These values used for construction and testing later.

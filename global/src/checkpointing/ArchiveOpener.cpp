@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveLocationInfo.hpp"
 #include "ProcessSpecificArchive.hpp"
 #include "Exception.hpp"
+#include "OutputFileHandler.hpp"
 
 /**
  * Specialization for input archives.
@@ -47,9 +48,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<>
 ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
-        const std::string& rDirectory,
-        const std::string& rFileName,
-        bool relativeToChasteTestOutput,
+        const FileFinder& rDirectory,
+        const std::string& rFileNameBase,
         unsigned procId)
     : mpCommonStream(NULL),
       mpPrivateStream(NULL),
@@ -57,18 +57,10 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::ArchiveOpener(
       mpPrivateArchive(NULL)
 {
     // Figure out where things live
-    if (relativeToChasteTestOutput)
-    {
-        OutputFileHandler handler(rDirectory, false);
-        handler.SetArchiveDirectory();
-    }
-    else
-    {
-        ArchiveLocationInfo::SetArchiveDirectory(rDirectory, relativeToChasteTestOutput);
-    }
-    std::string private_path = ArchiveLocationInfo::GetProcessUniqueFilePath(rFileName, procId);
+    ArchiveLocationInfo::SetArchiveDirectory(rDirectory);
+    std::string private_path = ArchiveLocationInfo::GetProcessUniqueFilePath(rFileNameBase, procId);
     std::stringstream common_path;
-    common_path << ArchiveLocationInfo::GetArchiveDirectory() << rFileName;
+    common_path << ArchiveLocationInfo::GetArchiveDirectory() << rFileNameBase;
 
     // Try to open the main archive for replicated data
     mpCommonStream = new std::ifstream(common_path.str().c_str(), std::ios::binary);
@@ -131,9 +123,8 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::~ArchiveOpener()
  */
 template<>
 ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
-        const std::string& rDirectory,
-        const std::string& rFileName,
-        bool relativeToChasteTestOutput,
+        const FileFinder& rDirectory,
+        const std::string& rFileNameBase,
         unsigned procId)
     : mpCommonStream(NULL),
       mpPrivateStream(NULL),
@@ -146,18 +137,15 @@ ArchiveOpener<boost::archive::text_oarchive, std::ofstream>::ArchiveOpener(
         EXCEPTION("Specifying the secondary archive file ID doesn't make sense when writing.");
     }
     // Figure out where things live
-    if (relativeToChasteTestOutput)
+    ArchiveLocationInfo::SetArchiveDirectory(rDirectory);
+    if (ArchiveLocationInfo::GetIsDirRelativeToChasteTestOutput())
     {
-        OutputFileHandler handler(rDirectory, false);
-        handler.SetArchiveDirectory();
+        // Ensure the directory exists
+        OutputFileHandler handler(ArchiveLocationInfo::GetArchiveRelativePath(), false);
     }
-    else
-    {
-        ArchiveLocationInfo::SetArchiveDirectory(rDirectory, relativeToChasteTestOutput);
-    }
-    std::string private_path = ArchiveLocationInfo::GetProcessUniqueFilePath(rFileName);
+    std::string private_path = ArchiveLocationInfo::GetProcessUniqueFilePath(rFileNameBase);
     std::stringstream common_path;
-    common_path << ArchiveLocationInfo::GetArchiveDirectory() << rFileName;
+    common_path << ArchiveLocationInfo::GetArchiveDirectory() << rFileNameBase;
 
     // Create master archive for replicated data
     if (PetscTools::AmMaster())

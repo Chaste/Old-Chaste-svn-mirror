@@ -1210,7 +1210,7 @@ public:
     {
         //Archive
         OutputFileHandler handler("archive", false);
-        ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
+        handler.SetArchiveDirectory();
         std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("noble98.arch");
 
         // Save

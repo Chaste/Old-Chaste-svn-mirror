@@ -73,6 +73,14 @@ void FileFinder::SetAbsolutePath(const std::string& rRelativePath, RelativeTo::V
             NEVER_REACHED;
             break;
     }
+    
+    if (IsDir())
+    {
+        if (*(mAbsPath.end()-1) != '/')
+        {
+            mAbsPath = mAbsPath + "/";
+        }
+    }
 }
 
 bool FileFinder::Exists() const

@@ -853,7 +853,7 @@ public:
      */
     void TestArchiving() throw(Exception)
     {
-        std::string archive_dir = "bidomain_problem_archive";
+        FileFinder archive_dir("bidomain_problem_archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "bidomain_problem.arch";
 
         // Values to test against after load

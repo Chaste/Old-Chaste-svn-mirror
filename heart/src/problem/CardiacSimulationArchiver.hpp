@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveLocationInfo.hpp"
 #include "DistributedVectorFactory.hpp"
 #include "PetscTools.hpp"
+#include "FileFinder.hpp"
 
 /**
  *  CardiacSimulationArchiver is a helper class for checkpointing of cardiac simulations.
@@ -111,7 +112,8 @@ void CardiacSimulationArchiver<PROBLEM_CLASS>::Save(PROBLEM_CLASS& simulationToA
     // the method ends.
     {
         // Open the archive files
-        ArchiveOpener<boost::archive::text_oarchive, std::ofstream> archive_opener(rDirectory, "archive.arch", true);
+        FileFinder dir(rDirectory, RelativeTo::ChasteTestOutput);
+        ArchiveOpener<boost::archive::text_oarchive, std::ofstream> archive_opener(dir, "archive.arch");
         boost::archive::text_oarchive* p_main_archive = archive_opener.GetCommonArchive();
 
         // And save
@@ -182,7 +184,8 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
             // partitioning etc. from before, so don't need any of the LoadExtraArchive
             // magic.  Indeed, we mustn't use it, or the mesh will get confused about
             // which nodes it owns.
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true);
+            FileFinder dir(rDirectory, RelativeTo::ChasteTestOutput);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(dir, "archive.arch");
             boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
             (*p_main_archive) >> p_unarchived_simulation;
 
@@ -202,7 +205,8 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
 
             // Load the master and process-0 archive files.
             // This will also set up ArchiveLocationInfo for us.
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", true, 0u);
+            FileFinder dir(rDirectory, RelativeTo::ChasteTestOutput);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(dir, "archive.arch", 0u);
             boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
             (*p_main_archive) >> p_unarchived_simulation;
 

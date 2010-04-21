@@ -548,7 +548,7 @@ public:
     // NB This checks that periodicity is maintained through archiving...
     void TestArchiving() throw (Exception)
     {
-        std::string archive_dir = "archive";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "cylindrical_mesh_base.arch";
         ArchiveLocationInfo::SetMeshFilename("cylindrical_mesh");
 

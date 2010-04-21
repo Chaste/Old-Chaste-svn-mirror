@@ -29,13 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ARCHIVELOCATIONINFO_HPP_
 
 #include <string>
-#include <sstream>
-#include <cassert>
-#include <iostream>
 
-#include "Exception.hpp"
 #include "PetscTools.hpp"
-#include "OutputFileHandler.hpp"
+#include "FileFinder.hpp"
 
 /**
  * Mini-class to help with 'archiving' various classes that don't write their
@@ -55,15 +51,10 @@ class ArchiveLocationInfo
 {
 private:
 
-    /** Directory that archives are being written to. */
-    static std::string mDirPath;
+    /** Absolute path for directory that archives are being written to. */
+    static std::string mDirAbsPath;
 
-    /** Whether mDirPath is relative to CHASTE_TEST_OUTPUT
-     *  true if the directory provided lives in CHASTE_TEST_OUTPUT, false if it's relative to CWD
-     */
-    static bool mDirIsRelativeToChasteTestOutput;
-
-    /** Mesh filename (relative to #mDirPath). */
+    /** Mesh filename (relative to #mDirAbsPath). */
     static std::string mMeshFilename;
 
 
@@ -73,47 +64,33 @@ public:
      * @param rDirectory  the directory to write to.
      * @param rFilename  the base name (minus extension) for the mesh files.
      */
-    static void SetMeshPathname(const std::string& rDirectory, const std::string& rFilename)
-    {
-        SetArchiveDirectory(rDirectory);
-        mMeshFilename = rFilename;
-    }
+    static void SetMeshPathname(const FileFinder& rDirectory, const std::string& rFilename);
+
+    /**
+     * Set the location to write mesh files.
+     * @param rDirectory  the directory to write to (if relative, assumes relative to CHASTE_TEST_OUTPUT).
+     * @param rFilename  the base name (minus extension) for the mesh files.
+     */
+    static void SetMeshPathname(const std::string& rDirectory, const std::string& rFilename);
 
     /**
      * Set the filename for mesh files.
      * @param rFilename  the base name (minus extension) for the mesh files, used to put on a timestamp.
      */
-    static void SetMeshFilename(const std::string& rFilename)
-    {
-        mMeshFilename = rFilename;
-    }
+    static void SetMeshFilename(const std::string& rFilename);
 
     /**
      * Get the filename that the mesh should be written to
      * @return mesh filename
      */
-    static std::string GetMeshFilename()
-    {
-        if (mMeshFilename == "")
-        {
-            EXCEPTION("ArchiveLocationInfo::mMeshFilename has not been set");
-        }
-        return mMeshFilename;
-    }
+    static std::string GetMeshFilename();
 
     /**
      * Get the directory that archives are being written to.
      * Will always end in a '/'.
      * @return full path to directory
      */
-    static std::string GetArchiveDirectory()
-    {
-        if (mDirPath == "")
-        {
-            EXCEPTION("ArchiveLocationInfo::mDirPath has not been set");
-        }
-        return mDirPath;
-    }
+    static std::string GetArchiveDirectory();
 
     /**
      * Get the full path to an output file which has a name unique to the current
@@ -127,66 +104,27 @@ public:
      * @return  a full path to the file for this process
      */
     static std::string GetProcessUniqueFilePath(const std::string& rFileName,
-                                                unsigned procId=PetscTools::GetMyRank())
-    {
-        std::stringstream filepath;
-        filepath << GetArchiveDirectory() << rFileName << "." << procId;
-        return filepath.str();
-    }
+                                                unsigned procId=PetscTools::GetMyRank());
 
     /**
      * Set the directory that archives are being written to.
      *
      * @param rDirectory  the directory in question.
-     * @param relativeToChasteTestOutput  Whether to convert directory to an absolute path using the
-     *                      OutputFileHandler (defaults to true)
      */
-    static void SetArchiveDirectory(const std::string& rDirectory, bool relativeToChasteTestOutput=true)
-    {
-        mDirPath = rDirectory;
-        if (! ( *(mDirPath.end()-1) == '/'))
-        {
-            mDirPath = mDirPath + "/";
-        }
-
-        mDirIsRelativeToChasteTestOutput = relativeToChasteTestOutput;
-    }
+    static void SetArchiveDirectory(const FileFinder& rDirectory);
 
     /**
      * Get the directory to which the archives are being written.
-     * Remove CHASTE_TEST_OUTPUT prefix (assuming it exists)
+     * Remove CHASTE_TEST_OUTPUT prefix (assuming it exists); if it doesn't, returns the absolute path.
      * Will always end in a '/'.
      * @return relative path to directory
      */
-    static std::string GetArchiveRelativePath()
-    {
-        if (mDirIsRelativeToChasteTestOutput)
-        {
-            std::string chaste_output=OutputFileHandler::GetChasteTestOutputDirectory();
-            //Find occurrence of CHASTE_TEST_OUTPUT in string
-            std::string::size_type pos=mDirPath.find(chaste_output, 0);
-            if (pos == std::string::npos)
-            {
-                EXCEPTION("Full path doesn't give a directory relative to CHASTE_TEST_OUTPUT");
-            }
-            assert(pos == 0); //Expect this as a prefix, not in the middle of the string
-
-            return mDirPath.substr(chaste_output.length());
-        }
-        else
-        {
-            return mDirPath;
-        }
-    }
+    static std::string GetArchiveRelativePath();
 
     /**
-     *  Get wheter the directory provided is relative to CHASTE_TEST_OUTPUT
-     *  @return true if the directory provided lives in CHASTE_TEST_OUTPUT, false if it's relative to CWD
+     *  Get whether the directory provided is relative to CHASTE_TEST_OUTPUT.
      */
-    static bool GetIsDirRelativeToChasteTestOutput()
-    {
-        return mDirIsRelativeToChasteTestOutput;
-    }
+    static bool GetIsDirRelativeToChasteTestOutput();
 };
 
 #endif /*ARCHIVELOCATIONINFO_HPP_*/

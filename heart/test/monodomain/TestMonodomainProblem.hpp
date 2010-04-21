@@ -967,7 +967,7 @@ public:
     void TestArchiving() throw(Exception)
     {
         // Based on TestMonodomainProblem1D()
-        std::string archive_dir = "monodomain_problem_archive";
+        FileFinder archive_dir("monodomain_problem_archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "monodomain_problem.arch";
 
         // Values to test against after load

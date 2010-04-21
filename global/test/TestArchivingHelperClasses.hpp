@@ -43,6 +43,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveOpener.hpp"
 #include "ProcessSpecificArchive.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "GetCurrentWorkingDirectory.hpp"
+#include "OutputFileHandler.hpp"
 
 // Save typing, and allow the use of these in cxxtest macros
 typedef ArchiveOpener<boost::archive::text_iarchive, std::ifstream> InputArchiveOpener;
@@ -55,7 +57,8 @@ public:
     void TestArchiveLocationInfoMethods() throw(Exception)
     {
         // These throw because we are getting things before they are set.
-        TS_ASSERT_THROWS_THIS(ArchiveLocationInfo::GetArchiveDirectory(),"ArchiveLocationInfo::mDirPath has not been set");
+        TS_ASSERT_THROWS_THIS(ArchiveLocationInfo::GetArchiveDirectory(),
+                              "ArchiveLocationInfo::mDirAbsPath has not been set");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(),"mesh"); //default value
 
         // To test exceptions (default value is now "mesh".)
@@ -63,24 +66,31 @@ public:
         TS_ASSERT_THROWS_THIS(ArchiveLocationInfo::GetMeshFilename(),"ArchiveLocationInfo::mMeshFilename has not been set");
 
         ArchiveLocationInfo::SetMeshPathname("archive_dir", "mesh_name");
-        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "archive_dir/");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(),
+                         OutputFileHandler::GetChasteTestOutputDirectory() + "archive_dir/");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(), "mesh_name");
 
-        ArchiveLocationInfo::SetArchiveDirectory("new_archive_dir");
+        FileFinder dir("new_archive_dir", RelativeTo::CWD);
+        ArchiveLocationInfo::SetArchiveDirectory(dir);
         ArchiveLocationInfo::SetMeshFilename("new_mesh_name");
-        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(), "new_archive_dir/");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(),
+                         GetCurrentWorkingDirectory() + "/new_archive_dir/");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(), "new_mesh_name");
 
-        // This throws because the full path isn't relative to test output
-        TS_ASSERT_THROWS_THIS(ArchiveLocationInfo::GetArchiveRelativePath(),"Full path doesn\'t give a directory relative to CHASTE_TEST_OUTPUT");
-        ArchiveLocationInfo::SetArchiveDirectory(OutputFileHandler::GetChasteTestOutputDirectory() + "relative_archive_dir");
+        // This gives the absolute path, since it isn't relative to CHASTE_TEST_OUTPUT
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveRelativePath(),
+                         GetCurrentWorkingDirectory() + "/new_archive_dir/");
+        TS_ASSERT(!ArchiveLocationInfo::GetIsDirRelativeToChasteTestOutput());
+        FileFinder dir2("relative_archive_dir", RelativeTo::ChasteTestOutput);
+        ArchiveLocationInfo::SetArchiveDirectory(dir2);
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveRelativePath(), "relative_archive_dir/");
         TS_ASSERT(ArchiveLocationInfo::GetIsDirRelativeToChasteTestOutput());
     }
 
     void TestArchiveLocationInfoProcessUniqueNaming() throw(Exception)
     {
-        ArchiveLocationInfo::SetArchiveDirectory("new_archive_dir");
+        FileFinder dir("new_archive_dir", RelativeTo::CWD);
+        ArchiveLocationInfo::SetArchiveDirectory(dir);
 
         std::stringstream expected_filepath;
         expected_filepath << ArchiveLocationInfo::GetArchiveDirectory() << "fred";
@@ -130,7 +140,7 @@ public:
         // apps/texttest/chaste/resume_bidomain/save_bidomain
         // then look at TestCardiacSimulationArchiver
 
-        std::string archive_dir = "archive";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "archive_opener.arch";
         const unsigned test_int = 123;
 
@@ -175,13 +185,15 @@ public:
                 EXCEPTION("Unexpected file found; bailing out!");
             }
             { // Write
-                OutputArchiveOpener archive_opener_relative("testoutput", "archive_opener.arch", false);
+                FileFinder testoutput_dir("testoutput", RelativeTo::ChasteSourceRoot);
+                OutputArchiveOpener archive_opener_relative(testoutput_dir, "archive_opener.arch");
             }
             // Remove the file
             EXPECT0(system, "rm -f testoutput/archive_opener.arch*");
 
             { // Read
-                InputArchiveOpener archive_opener_relative("apps/texttest/chaste/resume_bidomain/save_bidomain", "archive.arch", false);
+                FileFinder save_bidomain_dir("apps/texttest/chaste/resume_bidomain/save_bidomain", RelativeTo::ChasteSourceRoot);
+                InputArchiveOpener archive_opener_relative(save_bidomain_dir, "archive.arch");
             }
         }
 
@@ -194,12 +206,13 @@ public:
         std::string archive_dir = "archive";
         OutputFileHandler handler(archive_dir, false);
         handler.SetArchiveDirectory();
+        FileFinder archive_dir_finder(archive_dir, RelativeTo::ChasteTestOutput);
         std::string archive_base_name = "archive_opener.arch";
 
         // Remove the process-specific archive for this process
         std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath(archive_base_name);
         EXPECT0(system, "rm -f " + archive_path);
-        TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir, archive_base_name),
+        TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir_finder, archive_base_name),
                                   "Cannot load secondary archive file: ");
 
         // Remove the main archive
@@ -209,7 +222,7 @@ public:
             EXPECT0(system, "rm -f " + archive_path);
         }
         PetscTools::Barrier();
-        TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir, archive_base_name),
+        TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir_finder, archive_base_name),
                                   "Cannot load main archive file: ");
 
         // Remove write permissions on the archive dir.
@@ -226,12 +239,12 @@ public:
         //  are not being thrown (rather than a real parallel calling problem).
         if (PetscTools::AmMaster())
         {
-            TS_ASSERT_THROWS_CONTAINS(OutputArchiveOpener archive_opener_out(archive_dir, archive_base_name),
+            TS_ASSERT_THROWS_CONTAINS(OutputArchiveOpener archive_opener_out(archive_dir_finder, archive_base_name),
                                       "Failed to open main archive file for writing: ");
         }
         else
         {
-            TS_ASSERT_THROWS_CONTAINS(OutputArchiveOpener archive_opener_out(archive_dir, archive_base_name),
+            TS_ASSERT_THROWS_CONTAINS(OutputArchiveOpener archive_opener_out(archive_dir_finder, archive_base_name),
                                       "Failed to open secondary archive file for writing: ");
         }
         PetscTools::Barrier();
@@ -244,14 +257,14 @@ public:
 
     void TestSpecifyingSecondaryArchive() throw (Exception)
     {
-        std::string archive_dir = "archive";
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "specific_secondary.arch";
         const unsigned test_int = 321;
         const unsigned proc_id = PetscTools::GetMyRank();
 
         // Writing when specifying the secondary archive doesn't make sense
         {
-            TS_ASSERT_THROWS_THIS(OutputArchiveOpener archive_opener_out(archive_dir, archive_file, true, UINT_MAX),
+            TS_ASSERT_THROWS_THIS(OutputArchiveOpener archive_opener_out(archive_dir, archive_file, UINT_MAX),
                                   "Specifying the secondary archive file ID doesn't make sense when writing.");
         }
 
@@ -274,7 +287,7 @@ public:
             TS_ASSERT_THROWS_THIS(ProcessSpecificArchive<boost::archive::text_iarchive>::Get(),
                                   "A ProcessSpecificArchive has not been set up.");
 
-            InputArchiveOpener archive_opener_in(archive_dir, archive_file, true, 0);
+            InputArchiveOpener archive_opener_in(archive_dir, archive_file, 0);
             boost::archive::text_iarchive* p_arch = archive_opener_in.GetCommonArchive();
             boost::archive::text_iarchive* p_process_arch = ProcessSpecificArchive<boost::archive::text_iarchive>::Get();
 
@@ -290,7 +303,7 @@ public:
     void TestOpenFutureBoostArchive() throw (Exception)
     {
 
-        std::string archive_dir = "global/test/data";
+        FileFinder archive_dir("global/test/data", RelativeTo::ChasteSourceRoot);
         std::string archive_file = "future_boost.arch";
         //   future_boost has got archive version 5 in it
         // 33 => 3
@@ -302,7 +315,7 @@ public:
         return;
 #endif
 #if BOOST_VERSION >= 103600
-        InputArchiveOpener archive_opener_in(archive_dir, archive_file, false, 0);
+        InputArchiveOpener archive_opener_in(archive_dir, archive_file, 0);
         boost::archive::text_iarchive* p_arch = archive_opener_in.GetCommonArchive();
         boost::archive::text_iarchive* p_process_arch = ProcessSpecificArchive<boost::archive::text_iarchive>::Get();
 
@@ -315,7 +328,8 @@ public:
         TS_ASSERT_EQUALS(test_int2, 0u);
 #else
         //Current version is running with Boost-33-1 or Boost-34 so we can't read this archive...
-        TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir, archive_file, false, 0), "Could not open Boost archive 'global/test/data/future_boost.arch'");
+        TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir, archive_file, 0),
+                                  "Could not open Boost archive '");
 #endif
     }
 };

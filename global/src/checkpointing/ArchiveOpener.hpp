@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cassert>
 
 #include "PetscTools.hpp"
+#include "FileFinder.hpp"
 
 /**
  * A convenience class to assist with managing archives for parallel checkpointing.
@@ -63,19 +64,19 @@ public:
      * processes the main archive is a dummy, writing to /dev/null.
      *
      * @note Must be called collectively, i.e. by all processes!
+     * 
+     * If writing, and rDirectory is relative to CHASTE_TEST_OUTPUT, it will be created if it
+     * doesn't exist.
      *
      * @param rDirectory  folder containing archive files.
-     * @param rFileName  base name of archive files.  This will be used for the main archive
+     * @param rFileNameBase  base name of archive files.  This will be used for the main archive
      *     (for replicated data) with ".n" (where n is the process index) being appended for
      *     the secondary archive.
-     * @param relativeToChasteTestOutput  whether rDirectory should be interpreted as being
-     *     relative to CHASTE_TEST_OUTPUT (default) or the current working directory.
      * @param procId  this can be specified to read a specific secondary archive, rather than
      *     this process' default.  Should not be used for writing!
      */
-    ArchiveOpener(const std::string& rDirectory,
-                  const std::string& rFileName,
-                  bool relativeToChasteTestOutput=true,
+    ArchiveOpener(const FileFinder& rDirectory,
+                  const std::string& rFileNameBase,
                   unsigned procId=PetscTools::GetMyRank());
 
     /**
