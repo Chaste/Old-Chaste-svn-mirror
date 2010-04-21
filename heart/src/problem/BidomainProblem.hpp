@@ -58,7 +58,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
 {
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -275,6 +274,11 @@ public:
      */
     template<class Archive>
     void LoadExtraArchiveForBidomain(Archive & archive, unsigned version);
+    
+    /**
+     * Return whether this is a bidomain problem with bath or not
+     */
+    bool GetHasBath();
 };
 
 #include "SerializationExportWrapper.hpp" // Must be last

@@ -309,6 +309,9 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dFluxCompare");
         HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_fluxes");
 
+        // Coverage of Hdf5ToCmguiConverter with bath
+        HeartConfig::Instance()->SetVisualizeWithCmgui(true);
+
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms
 
         // need to create a cell factory but don't want any intra stim, so magnitude
@@ -319,6 +322,9 @@ public:
         BathCellFactory<2> cell_factory( 0.0, centre);
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
+        
+        // Coverage
+        TS_ASSERT(bidomain_problem.GetHasBath());
 
         TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);

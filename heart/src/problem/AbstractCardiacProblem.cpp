@@ -42,6 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5ToCmguiConverter.hpp"
 #include "Hdf5ToVtkConverter.hpp"
 
+#include "BidomainProblem.hpp"
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProblem(
             AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
@@ -509,7 +511,12 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CloseFilesAndPos
         if (HeartConfig::Instance()->GetVisualizeWithCmgui())
         {
             //Convert simulation data to Cmgui format
-            Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh);
+            bool bath_defined(false);            
+            if (PROBLEM_DIM==2)
+            {
+                bath_defined = dynamic_cast<BidomainProblem<SPACE_DIM>*>(this)->GetHasBath();
+            }
+            Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), HeartConfig::Instance()->GetOutputFilenamePrefix(), mpMesh, bath_defined);
         }
 
         if (HeartConfig::Instance()->GetVisualizeWithVtk())

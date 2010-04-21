@@ -397,6 +397,13 @@ void BidomainProblem<DIM>::SetUpAdditionalStoppingTimes(std::vector<double>& rAd
     }
 }
 
+template<unsigned DIM>
+bool BidomainProblem<DIM>::GetHasBath()
+{
+    return mHasBath;
+}
+
+
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
