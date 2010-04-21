@@ -33,45 +33,43 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "GetCurrentWorkingDirectory.hpp"
 #include <fstream>
+#include <cassert>
 #include <sys/stat.h>
 
-FileFinder::FileFinder(const cp::path_type& rPath)
+
+FileFinder::FileFinder()
+    : mAbsPath("UNSET!")
 {
-    SetAbsolutePath(rPath);
 }
 
-FileFinder::FileFinder(const std::string& rPath, cp::relative_to_type relativeTo)
+FileFinder::FileFinder(const std::string& rRelativePath, RelativeTo::Value relativeTo)
 {
-    cp::path_type path(rPath);
-    path.relative_to(relativeTo);
-    SetAbsolutePath(path);
+    SetAbsolutePath(rRelativePath, relativeTo);
 }
 
 
-void FileFinder::SetAbsolutePath(const cp::path_type& rPath)
+void FileFinder::SetAbsolutePath(const std::string& rRelativePath, RelativeTo::Value relativeTo)
 {
-    std::string leaf_path(rPath);
-
-    switch (rPath.relative_to())
+    switch (relativeTo)
     {
-        case cp::relative_to_type::chaste_source_root:
-            mAbsPath = ChasteBuildRootDir() + leaf_path;
+        case RelativeTo::ChasteSourceRoot:
+            mAbsPath = ChasteBuildRootDir() + rRelativePath;
             break;
 
-        case cp::relative_to_type::chaste_test_output:
-            mAbsPath = OutputFileHandler::GetChasteTestOutputDirectory() + leaf_path;
+        case RelativeTo::ChasteTestOutput:
+            mAbsPath = OutputFileHandler::GetChasteTestOutputDirectory() + rRelativePath;
             break;
 
-        case cp::relative_to_type::cwd:
-            mAbsPath = GetCurrentWorkingDirectory() + "/" + leaf_path;
+        case RelativeTo::CWD:
+            mAbsPath = GetCurrentWorkingDirectory() + "/" + rRelativePath;
             break;
 
-        case cp::relative_to_type::absolute:
-            mAbsPath = leaf_path;
+        case RelativeTo::Absolute:
+            mAbsPath = rRelativePath;
             break;
 
         default:
-            // Getting here is impossible due to the schema
+            // Getting here is impossible
             NEVER_REACHED;
             break;
     }

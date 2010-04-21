@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteBuildRoot.hpp"
 #include "HeartConfig.hpp"
 #include "FileFinder.hpp"
+#include "HeartFileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
 #include "AbstractDynamicallyLoadableEntity.hpp"
 
@@ -140,11 +141,11 @@ public:
      */
     void TestLr91FromCellML() throw(Exception)
     {
-        FileFinder model("heart/dynamic/libluo_rudy_1991.so", cp::relative_to_type::chaste_source_root);
+        FileFinder model("heart/dynamic/libluo_rudy_1991.so", RelativeTo::ChasteSourceRoot);
         DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::Instance()->GetLoader(model);
         RunLr91Test(*p_loader, 0u);
 
-        FileFinder model_opt("heart/dynamic/libluo_rudy_1991Opt.so", cp::relative_to_type::chaste_source_root);
+        FileFinder model_opt("heart/dynamic/libluo_rudy_1991Opt.so", RelativeTo::ChasteSourceRoot);
         DynamicCellModelLoader* p_loader_opt = DynamicModelLoaderRegistry::Instance()->GetLoader(model_opt);
         RunLr91Test(*p_loader_opt, 0u);
         
@@ -179,7 +180,7 @@ public:
         TS_ASSERT(ionic_model.Dynamic().present());
         if (ionic_model.Dynamic().present())
         {
-            FileFinder file_finder(ionic_model.Dynamic()->Path());
+            HeartFileFinder file_finder(ionic_model.Dynamic()->Path());
             TS_ASSERT(file_finder.Exists());
             DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::Instance()->GetLoader(file_finder);
             RunLr91Test(*p_loader);
@@ -193,7 +194,7 @@ public:
         OutputFileHandler handler(dirname);
         if (PetscTools::AmMaster())
         {
-            FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", cp::relative_to_type::chaste_source_root);
+            FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", RelativeTo::ChasteSourceRoot);
             EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestCellmlConverter_cp");
@@ -201,9 +202,9 @@ public:
         CellMLToSharedLibraryConverter converter;
 
         // Convert a real CellML file
-        FileFinder cellml_file(dirname + "/luo_rudy_1991.cellml", cp::relative_to_type::chaste_test_output);
+        FileFinder cellml_file(dirname + "/luo_rudy_1991.cellml", RelativeTo::ChasteTestOutput);
         TS_ASSERT(cellml_file.Exists());
-        FileFinder so_file(dirname + "/libluo_rudy_1991.so", cp::relative_to_type::chaste_test_output);
+        FileFinder so_file(dirname + "/libluo_rudy_1991.so", RelativeTo::ChasteTestOutput);
         TS_ASSERT(!so_file.Exists());
         DynamicCellModelLoader* p_loader = converter.Convert(cellml_file);
         TS_ASSERT(so_file.Exists());
@@ -216,7 +217,7 @@ public:
 
         // Cover exceptions
         std::string file_name = "test";
-        FileFinder no_ext(dirname + "/" + file_name, cp::relative_to_type::chaste_test_output);
+        FileFinder no_ext(dirname + "/" + file_name, RelativeTo::ChasteTestOutput);
         TS_ASSERT_THROWS_THIS(converter.Convert(no_ext), "Dynamically loadable cell model '"
                               + no_ext.GetAbsolutePath() + "' does not exist.");
 
@@ -229,7 +230,7 @@ public:
         PetscTools::Barrier("TestCellmlConverter_post_touch");
 
         TS_ASSERT_THROWS_THIS(converter.Convert(no_ext), "File does not have an extension: " + no_ext.GetAbsolutePath());
-        FileFinder unsupp_ext("heart/src/io/FileFinder.hpp", cp::relative_to_type::chaste_source_root);
+        FileFinder unsupp_ext("global/src/FileFinder.hpp", RelativeTo::ChasteSourceRoot);
         TS_ASSERT_THROWS_THIS(converter.Convert(unsupp_ext), "Unsupported extension '.hpp' of file '"
                               + unsupp_ext.GetAbsolutePath() + "'; must be .so or .cellml");
 
@@ -254,16 +255,16 @@ public:
         OutputFileHandler handler(dirname);
         if (PetscTools::AmMaster())
         {
-            FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", cp::relative_to_type::chaste_source_root);
+            FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", RelativeTo::ChasteSourceRoot);
             EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestArchiving_cp");
 
         // Convert to .so
         CellMLToSharedLibraryConverter converter;
-        FileFinder cellml_file(dirname + "/luo_rudy_1991.cellml", cp::relative_to_type::chaste_test_output);
+        FileFinder cellml_file(dirname + "/luo_rudy_1991.cellml", RelativeTo::ChasteTestOutput);
         TS_ASSERT(cellml_file.Exists());
-        FileFinder so_file(dirname + "/libluo_rudy_1991.so", cp::relative_to_type::chaste_test_output);
+        FileFinder so_file(dirname + "/libluo_rudy_1991.so", RelativeTo::ChasteTestOutput);
         TS_ASSERT(!so_file.Exists());
         DynamicCellModelLoader* p_loader = converter.Convert(cellml_file);
         

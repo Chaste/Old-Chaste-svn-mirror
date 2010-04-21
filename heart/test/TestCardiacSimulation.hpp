@@ -248,7 +248,7 @@ public:
         if (PetscTools::AmMaster())
         {
             // Copy CellML file into output dir
-            FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", cp::relative_to_type::chaste_source_root);
+            FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", RelativeTo::ChasteSourceRoot);
             EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestCardiacSimulationPatchwork");
@@ -292,7 +292,7 @@ public:
                               "Missing file parsing configuration file: no file");
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation(""), "No XML file name given");
 
-        FileFinder model("file_does_not_exist.so", cp::relative_to_type::chaste_source_root);
+        FileFinder model("file_does_not_exist.so", RelativeTo::ChasteSourceRoot);
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/missing_dynamic_model.xml"),
                               "Dynamically loadable cell model '" + model.GetAbsolutePath() + "' does not exist.");
 #ifndef CHASTE_CAN_CHECKPOINT_DLLS

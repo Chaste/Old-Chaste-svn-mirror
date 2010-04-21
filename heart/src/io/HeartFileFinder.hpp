@@ -26,31 +26,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef FILEFINDER_HPP_
-#define FILEFINDER_HPP_
+#ifndef HEARTFILEFINDER_HPP_
+#define HEARTFILEFINDER_HPP_
 
 #include <string>
 
 #include "HeartConfig.hpp"
+#include "FileFinder.hpp"
 
 /**
  * A helper class for finding files, given paths which can be relative to various
  * locations (e.g. the Chaste source tree root, the current directory, the Chaste
- * test output directory, or an absolute path).
+ * test output directory, or an absolute path).  This essentially just adds
+ * another constructor to FileFinder which takes in a cp::path_type.
  */
-class FileFinder
+class HeartFileFinder : public FileFinder
 {
-private:
-    /** The absolute path to our file */
-    std::string mAbsPath;
-
-    /**
-     * Determine the absolute path to this file.
-     * Used by constructors.
-     *
-     * @param rPath  the path to the file to find
-     */
-    void SetAbsolutePath(const cp::path_type& rPath);
 public:
     /**
      * Create a file finder for the given path.
@@ -59,31 +50,7 @@ public:
      *
      * @param rPath  the path to the file to find
      */
-    FileFinder(const cp::path_type& rPath);
-
-    /**
-     * Alternative constructor, taking the components of a cp::path_type.
-     * @param rPath  the path to the file to find
-     * @param relativeTo  how to interpret this path
-     */
-    FileFinder(const std::string& rPath, cp::relative_to_type relativeTo);
-
-    /**
-     * Test whether our file exists.
-     */
-    bool Exists() const;
-
-    /**
-     * Get the absolute path to this file.
-     */
-    std::string GetAbsolutePath() const;
-
-    /**
-     * Test whether this file is newer than another file.
-     * Compares modification times.
-     * @param rOtherFile  the file to test against.
-     */
-    bool IsNewerThan(const FileFinder& rOtherFile) const;
+    HeartFileFinder(const cp::path_type& rPath);
 };
 
-#endif /*FILEFINDER_HPP_*/
+#endif /*HEARTFILEFINDER_HPP_*/

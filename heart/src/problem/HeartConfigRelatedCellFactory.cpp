@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfigRelatedCellFactory.hpp"
 #include "HeartGeometryInformation.hpp"
 #include "ChasteNodesList.hpp"
-#include "FileFinder.hpp"
+#include "HeartFileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
 
 
@@ -92,7 +92,7 @@ DynamicCellModelLoader* HeartConfigRelatedCellFactory<SPACE_DIM>::LoadDynamicMod
         bool isCollective)
 {
     assert(rModel.Dynamic().present());
-    FileFinder file_finder(rModel.Dynamic()->Path());
+    HeartFileFinder file_finder(rModel.Dynamic()->Path());
     CellMLToSharedLibraryConverter converter;
     return converter.Convert(file_finder, isCollective);
 }

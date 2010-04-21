@@ -837,7 +837,7 @@ public:
         // Test that we can keep solving even if the results have been deleted (i.e. by creating a new
         // .h5 file when we realize that there isn't one to extend)
         OutputFileHandler file_handler("BidomainSimple1dInTwoHalves", true);
-        FileFinder h5_file("BidomainSimple1dInTwoHalves/BidomainLR91_1d.h5", cp::relative_to_type::chaste_test_output);
+        FileFinder h5_file("BidomainSimple1dInTwoHalves/BidomainLR91_1d.h5", RelativeTo::ChasteTestOutput);
         TS_ASSERT(!h5_file.Exists());
         HeartConfig::Instance()->SetSimulationDuration(3.0);
         TS_ASSERT_THROWS_NOTHING( bidomain_problem.Solve() );

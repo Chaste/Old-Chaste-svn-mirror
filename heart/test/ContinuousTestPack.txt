@@ -28,8 +28,8 @@ TestChasteParametersReader.hpp
 TestCheckpointing.hpp
 TestConductivityTensors.hpp
 TestElectrodes.hpp
-TestFileFinder.hpp
 TestHeartConfig.hpp
+TestHeartFileFinder.hpp
 TestHeartGeometryInformation.hpp
 TestHeterogeneousConductivities.hpp
 TestNeumannStimulus.hpp

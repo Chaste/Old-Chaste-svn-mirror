@@ -64,7 +64,7 @@ DynamicCellModelLoader* CellMLToSharedLibraryConverter::Convert(const FileFinder
         std::string leaf = absolute_path.substr(slash_position+1, dot_position-slash_position); // Include dot
         std::string so_path = folder + "lib" + leaf + "so";
         // Does the .so file already exist (and was it modified after the .cellml?)
-        FileFinder so_file(so_path, cp::relative_to_type::absolute);
+        FileFinder so_file(so_path, RelativeTo::Absolute);
         if (!so_file.Exists() || rFilePath.IsNewerThan(so_file))
         {
             if (!isCollective)
