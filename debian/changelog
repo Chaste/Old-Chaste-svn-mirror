@@ -1,3 +1,9 @@
+chaste-source (2.0.8705) intrepid; urgency=low
+
+  * Fix Depends of chaste-dependencies package.
+
+ -- Chaste Team <chaste-admin@maillist.ox.ac.uk>  Wed, 21 Apr 2010 08:44:49 +0000
+
 chaste-source (2.0) intrepid; urgency=low
 
   * Package release 2.0 of Chaste.
