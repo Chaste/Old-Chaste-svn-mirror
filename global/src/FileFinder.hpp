@@ -51,9 +51,9 @@ struct RelativeTo
 };
 
 /**
- * A helper class for finding files, given paths which can be relative to various
- * locations (e.g. the Chaste source tree root, the current directory, the Chaste
- * test output directory, or an absolute path).
+ * A helper class for finding files or directories, given paths which can be relative
+ * to various locations (e.g. the Chaste source tree root, the current directory, the
+ * Chaste test output directory, or an absolute path).
  */
 class FileFinder
 {
@@ -63,7 +63,7 @@ private:
 
 protected:
     /**
-     * Determine the absolute path to this file.
+     * Determine the absolute path to this file/dir.
      * Used by constructor and HeartFileFinder.
      *
      * @param rRelativePath  the relative path to the file to find
@@ -80,28 +80,38 @@ protected:
 public:
 
     /**
-     * Alternative constructor, taking the components of a cp::path_type.
-     * @param rPath  the path to the file to find
+     * Main constructor.
+     * @param rPath  the path to the file/dir to find
      * @param relativeTo  how to interpret this path
      */
     FileFinder(const std::string& rPath, RelativeTo::Value relativeTo);
 
     /**
-     * Test whether our file exists.
+     * Test whether we exist.
      */
     bool Exists() const;
+    
+    /**
+     * Are we pointing at a file?
+     */
+    bool IsFile() const;
+    
+    /**
+     * Are we pointing at a directory?
+     */
+    bool IsDir() const;
 
     /**
-     * Get the absolute path to this file.
+     * Get the absolute path to this file/dir.
      */
     std::string GetAbsolutePath() const;
 
     /**
-     * Test whether this file is newer than another file.
+     * Test whether this file/dir is newer than another file/dir.
      * Compares modification times.
-     * @param rOtherFile  the file to test against.
+     * @param rOtherEntity  the entity to test against.
      */
-    bool IsNewerThan(const FileFinder& rOtherFile) const;
+    bool IsNewerThan(const FileFinder& rOtherEntity) const;
 };
 
 #endif /*FILEFINDER_HPP_*/

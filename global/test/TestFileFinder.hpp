@@ -44,6 +44,8 @@ public:
             std::string file_name = "global/src/FileFinder.hpp";
             FileFinder file_finder(file_name, RelativeTo::ChasteSourceRoot);
             TS_ASSERT(file_finder.Exists());
+            TS_ASSERT(file_finder.IsFile());
+            TS_ASSERT(!file_finder.IsDir());
             // Check the path is as expected
             std::string abs_path = ChasteBuildRootDir() + file_name;
             TS_ASSERT_EQUALS(file_finder.GetAbsolutePath(), abs_path);
@@ -51,6 +53,8 @@ public:
             // CWD should be the Chaste source root
             FileFinder file_finder2(file_name, RelativeTo::CWD);
             TS_ASSERT(file_finder2.Exists());
+            TS_ASSERT(file_finder2.IsFile());
+            TS_ASSERT(!file_finder2.IsDir());
             // Check the path is as expected
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
         }
@@ -61,7 +65,9 @@ public:
             OutputFileHandler handler(dir_name);
             std::string file_name = "TestFile";
             FileFinder file_finder(dir_name + "/" + file_name, RelativeTo::ChasteTestOutput);
-            TS_ASSERT(! file_finder.Exists());
+            TS_ASSERT(!file_finder.Exists());
+            TS_ASSERT(!file_finder.IsFile());
+            TS_ASSERT(!file_finder.IsDir());
             // Check the path is as expected
             std::string abs_path = handler.GetOutputDirectoryFullPath() + file_name;
             TS_ASSERT_EQUALS(file_finder.GetAbsolutePath(), abs_path);
@@ -89,6 +95,37 @@ public:
         FileFinder new_file("TestFileFinder/new_file", RelativeTo::ChasteTestOutput);
         TS_ASSERT(new_file.IsNewerThan(file));
         TS_ASSERT(!file.IsNewerThan(new_file));
+    }
+    
+    void TestDirFinder()
+    {
+        FileFinder dir("global", RelativeTo::ChasteSourceRoot);
+        TS_ASSERT(dir.Exists());
+        TS_ASSERT(dir.IsDir());
+        TS_ASSERT(!dir.IsFile());
+        
+        FileFinder dir2("global", RelativeTo::CWD); // CWD should be the same as ChasteSourceRoot for tests
+        TS_ASSERT(dir2.Exists());
+        TS_ASSERT(dir2.IsDir());
+        TS_ASSERT(!dir2.IsFile());
+        TS_ASSERT_EQUALS(dir2.GetAbsolutePath(), dir.GetAbsolutePath());
+        
+        FileFinder dir3(dir.GetAbsolutePath(), RelativeTo::Absolute);
+        TS_ASSERT(dir3.Exists());
+        TS_ASSERT(dir3.IsDir());
+        TS_ASSERT(!dir3.IsFile());
+        TS_ASSERT_EQUALS(dir3.GetAbsolutePath(), dir.GetAbsolutePath());
+        
+        OutputFileHandler handler("TestFileFinder");
+        FileFinder new_dir("TestFileFinder", RelativeTo::ChasteTestOutput);
+        TS_ASSERT(new_dir.Exists());
+        TS_ASSERT(new_dir.IsDir());
+        TS_ASSERT(!new_dir.IsFile());
+        
+        FileFinder missing_dir("TestFileFinder/SubDir", RelativeTo::ChasteTestOutput);
+        TS_ASSERT(!missing_dir.Exists());
+        TS_ASSERT(!missing_dir.IsDir());
+        TS_ASSERT(!missing_dir.IsFile());
     }
 };
 

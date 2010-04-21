@@ -77,11 +77,43 @@ void FileFinder::SetAbsolutePath(const std::string& rRelativePath, RelativeTo::V
 
 bool FileFinder::Exists() const
 {
-    std::ifstream file(mAbsPath.c_str());
-    bool exists = file.is_open();
-    file.close();
+    struct stat our_stats;
+    int retcode = stat(GetAbsolutePath().c_str(), &our_stats);
+    return (retcode == 0);
+}
 
-    return exists;
+bool FileFinder::IsFile() const
+{
+    bool result;
+    struct stat our_stats;
+    int retcode = stat(GetAbsolutePath().c_str(), &our_stats);
+    if (retcode == 0)
+    {
+        result = S_ISREG(our_stats.st_mode);
+    }
+    else
+    {
+        // If it doesn't exist, it isn't a file
+        result = false;
+    }
+    return result;
+}
+
+bool FileFinder::IsDir() const
+{
+    bool result;
+    struct stat our_stats;
+    int retcode = stat(GetAbsolutePath().c_str(), &our_stats);
+    if (retcode == 0)
+    {
+        result = S_ISDIR(our_stats.st_mode);
+    }
+    else
+    {
+        // If it doesn't exist, it isn't a directory
+        result = false;
+    }
+    return result;
 }
 
 std::string FileFinder::GetAbsolutePath() const
@@ -89,12 +121,12 @@ std::string FileFinder::GetAbsolutePath() const
     return mAbsPath;
 }
 
-bool FileFinder::IsNewerThan(const FileFinder& rOtherFile) const
+bool FileFinder::IsNewerThan(const FileFinder& rOtherEntity) const
 {
     assert(Exists());
-    assert(rOtherFile.Exists());
+    assert(rOtherEntity.Exists());
     struct stat our_stats, other_stats;
     stat(GetAbsolutePath().c_str(), &our_stats);
-    stat(rOtherFile.GetAbsolutePath().c_str(), &other_stats);
+    stat(rOtherEntity.GetAbsolutePath().c_str(), &other_stats);
     return our_stats.st_mtime > other_stats.st_mtime;
 }
