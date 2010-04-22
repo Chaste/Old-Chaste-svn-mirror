@@ -66,8 +66,11 @@ private:
 
     /**
      * Queue of nodes to be processed (initialised with the nodes defining the surface)
+     * Priorities (given as the first in the pair for lexographical ordering) are
+     * initialised to -best_distance_to_source so that nodes closest to the source
+     * are dealt with first.
      */
-    std::queue<unsigned> mActiveNodeIndexQueue;
+    std::priority_queue<std::pair<double, unsigned> > mActivePriorityNodeIndexQueue;
 
     /**
      * Work on the Queue of node indices (grass-fire across the mesh)
@@ -94,14 +97,16 @@ private:
     /**
      * Push a node index onto the queue.  In the parallel case this will only push a
      * locally-owned (not halo) node.  Halo nodes will be updated, but never pushed to the local queue
+     * @param priority  Current priority/distance of this node.
      * @param nodeIndex  A global node index.
      */
-    void PushLocal(unsigned nodeIndex)
+    void PushLocal(double priority, unsigned nodeIndex)
     {
 
         if (mLo<=nodeIndex && nodeIndex<mHi)
         {
-            mActiveNodeIndexQueue.push(nodeIndex);
+            //Push a negative priority so that the lowest one (nearest the surface) is popped first
+            mActivePriorityNodeIndexQueue.push(std::pair<double, unsigned>(-priority, nodeIndex));
         }
     }
 

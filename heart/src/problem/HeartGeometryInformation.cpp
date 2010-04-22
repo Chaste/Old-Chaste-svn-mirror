@@ -178,7 +178,7 @@ void HeartGeometryInformation<SPACE_DIM>::GetNodesAtSurface(
     // Temporary storage for the nodes, helps discarding repeated values
     std::set<unsigned> surface_original_node_index_set;
 
-// Loop over all the triangles and add node indexes to the set
+    // Loop over all the triangles and add node indexes to the set
     std::string line;
     getline(file_stream, line);
     do

@@ -79,7 +79,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     for (unsigned source_index=0; source_index<rSourceNodeIndices.size(); source_index++)
     {
         unsigned node_index=rSourceNodeIndices[source_index];
-        PushLocal(node_index);
+        PushLocal(0.0, node_index);
         rNodeDistances[node_index] = 0.0;
         //If we have the correct information, then we can set the witness
         if (mLo<=node_index && node_index<mHi)
@@ -166,7 +166,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
                     {
                          rWitnessPoints[global_index][j] = witness_exchange[ index*(SPACE_DIM) + j];
                     }
-                    PushLocal(global_index);
+                    PushLocal(rNodeDistances[global_index], global_index);
                 }
             }
         }
@@ -175,7 +175,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
         delete [] index_exchange;
     }
     //Is any queue non-empty?
-    bool non_empty_queue=PetscTools::ReplicateBool(!mActiveNodeIndexQueue.empty());
+    bool non_empty_queue=PetscTools::ReplicateBool(!mActivePriorityNodeIndexQueue.empty());
     return(non_empty_queue);
 }
 
@@ -184,13 +184,15 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& rWitnessPoints,
                                                                      std::vector<double>& rNodeDistances)
 {
-   while (!mActiveNodeIndexQueue.empty())
+    while (!mActivePriorityNodeIndexQueue.empty())
     {
         // Get the next index in the queue
-        unsigned current_node_index = mActiveNodeIndexQueue.front();
-        mActiveNodeIndexQueue.pop();
-
-        try
+        unsigned current_node_index = mActivePriorityNodeIndexQueue.top().second;
+        double distance_when_queued=-mActivePriorityNodeIndexQueue.top().first;
+        mActivePriorityNodeIndexQueue.pop();
+        //Only act on nodes which haven't been acted on already
+        //(It's possible that a better distance has been found and already been dealt with) 
+        if (distance_when_queued == rNodeDistances[current_node_index]);
         {
             Node<SPACE_DIM>* p_current_node = mrMesh.GetNode(current_node_index);
             // Loop over the elements containing the given node
@@ -220,19 +222,13 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                         {
                             rWitnessPoints[neighbour_node_index] = rWitnessPoints[current_node_index];
                             rNodeDistances[neighbour_node_index] = updated_distance;
-                            PushLocal(neighbour_node_index);
+                            PushLocal(updated_distance, neighbour_node_index);
                         }
                     }
                }//Node
            }//Element
         }//Try
-        catch (Exception &e)
-        {
-            //Node in the queue doesn't belong to process
-            NEVER_REACHED;
-        }
-
-    }
+     }
 }
 
 /////////////////////////////////////////////////////////////////////
