@@ -343,23 +343,6 @@ public:
     virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA,
                                                           const c_vector<double, SPACE_DIM>& rLocationB);
 
-    /**
-     * Translate the mesh given the displacement vector.
-     * This is the translation method that actually does the work.
-     *
-     * @param rDisplacement is a translation vector of the correct size
-     */
-    void Translate(c_vector<double, SPACE_DIM>& rDisplacement);
-
-    /**
-     * Translate the mesh given the coordinate displacements separately.
-     *
-     * @param xMovement is the x-displacement (defaults to 0.0)
-     * @param yMovement is the y-displacement (defaults to 0.0)
-     * @param zMovement is the z-displacement (defaults to 0.0)
-     */
-    void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
-
     //////////////////////////////////////////////////////////////////////
     //                        2D-specific methods                       //
     //////////////////////////////////////////////////////////////////////

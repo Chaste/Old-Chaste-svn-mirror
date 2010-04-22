@@ -32,6 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 
+#include "UblasVectorInclude.hpp"
+#include "UblasMatrixInclude.hpp"
+
 #include <vector>
 #include <string>
 #include <cassert>
@@ -286,6 +289,67 @@ public:
      * @param zFactor is the scale in the z-direction (defaults to 1.0)
      */
     virtual void Scale(const double xFactor=1.0, const double yFactor=1.0, const double zFactor=1.0);
+
+    /**
+      * Translate the mesh given the displacement vector.
+      * This is the translation method that actually does the work.
+      *
+      * @param rDisplacement is a translation vector of the correct size
+      */
+     void Translate(const c_vector<double, SPACE_DIM>& rDisplacement);
+
+     /**
+      * Translate the mesh given the coordinate displacements separately.
+      *
+      * @param xMovement is the x-displacement (defaults to 0.0)
+      * @param yMovement is the y-displacement (defaults to 0.0)
+      * @param zMovement is the z-displacement (defaults to 0.0)
+      */
+     void Translate(const double xMovement=0.0, const double yMovement=0.0, const double zMovement=0.0);
+
+     /**
+      * Do a general mesh rotation with a positive determinant orthonormal rotation matrix.
+      * This is the rotation method that actually does the work.
+      *
+      * @param rotationMatrix is a Ublas rotation matrix of the correct form
+      */
+     void Rotate(c_matrix<double , SPACE_DIM, SPACE_DIM> rotationMatrix);
+
+     /**
+      * Do an angle axis rotation.
+      *
+      * @param axis is the axis of rotation (does not need to be normalised)
+      * @param angle is the angle of rotation in radians
+      */
+     void Rotate(c_vector<double,3> axis, double angle);
+
+     /**
+      * Rotate the mesh about the x-axis.
+      *
+      * @param theta is the angle of rotation in radians
+      */
+     void RotateX(const double theta);
+
+     /**
+      * Rotate the mesh about the y-axis.
+      *
+      * @param theta is the angle of rotation in radians
+      */
+     void RotateY(const double theta);
+
+     /**
+      * Rotate the mesh about the z-axis.
+      *
+      * @param theta is the angle of rotation in radians
+      */
+     void RotateZ(const double theta);
+
+     /**
+      * Rotating a 2D mesh equates that rotation around the z-axis.
+      *
+      * @param theta is the angle of rotation in radians
+      */
+     void Rotate(double theta);
 
     /**
      * This method allows the mesh properties to be re-calculated after

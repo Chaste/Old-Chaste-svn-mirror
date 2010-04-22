@@ -821,42 +821,6 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAto
     return vector;
 }
 
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Translate(
-    const double xMovement,
-    const double yMovement,
-    const double zMovement)
-{
-    c_vector<double, SPACE_DIM> displacement;
-
-    switch (SPACE_DIM)
-    {
-        case 3:
-            displacement[2] = zMovement;
-        case 2:
-            displacement[1] = yMovement;
-        case 1:
-            displacement[0] = xMovement;
-    }
-
-    Translate(displacement);
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::Translate(c_vector<double, SPACE_DIM>& rDisplacement)
-{
-    unsigned num_nodes = this->GetNumAllNodes();
-
-    for (unsigned i=0; i<num_nodes; i++)
-    {
-        c_vector<double, SPACE_DIM>& r_location = this->mNodes[i]->rGetModifiableLocation();
-        r_location += rDisplacement;
-    }
-}
-
-
 //////////////////////////////////////////////////////////////////////
 //                        2D-specific methods                       //
 //////////////////////////////////////////////////////////////////////
