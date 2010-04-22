@@ -134,8 +134,9 @@ class CellMLTranslator(object):
                        'c': 'h',
                        'cxx': 'hxx'}
 
-    def __init__(self, add_timestamp=True):
+    def __init__(self, add_timestamp=True, options=None):
         """Create a translator."""
+        self.options = options
         # Initially output should not be indented
         self.indent_level = 0
         # Character to indent with
@@ -1258,10 +1259,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
             [{'units': 'ampere', 'prefix': 'micro'},
              {'units': 'metre', 'prefix': 'centi', 'exponent': '-2'}])
         if not chaste_units.dimensionally_equivalent(units):
-            print >>sys.stderr, "Units of the ionic current are not in the " \
+            msg = "Units of the ionic current are not in the " \
                 "dimensions expected by Chaste (uA/cm^2).  Please add " \
                 "a suitable conversion manually - we cannot do this " \
                 "reliably automatically."
+            if self.options.fully_automatic:
+                raise TranslationError(msg)
+            else:
+                print >>sys.stderr, msg
             return 1
         return (units.get_multiplicative_factor() /
                 chaste_units.get_multiplicative_factor())
@@ -4037,7 +4042,11 @@ class ConfigurationStore(object):
                     break
             else:
                 # No match :(
-                print "No stimulus current found; you'll have trouble generating Chaste code"
+                msg = "No stimulus current found; you'll have trouble generating Chaste code"
+                if self.options.fully_automatic:
+                    raise ConfigurationError(msg)
+                else:
+                    print >>sys.stderr, msg
         # Other ionic currents just set from config file
         self.i_ionic_vars = []
         for defn in self.i_ionic_definitions:
@@ -4055,7 +4064,11 @@ class ConfigurationStore(object):
         if not self.i_ionic_vars:
             self.i_ionic_vars = self._find_transmembrane_currents_from_voltage_ode()
         if not self.i_ionic_vars:
-            print "No ionic currents found; you'll have trouble generating Chaste code"
+            msg = "No ionic currents found; you'll have trouble generating Chaste code"
+            if self.options.fully_automatic:
+                raise ConfigurationError(msg)
+            else:
+                print >>sys.stderr, msg
         return
 
     def _parse_lookup_tables(self, lookup_tables):
@@ -4715,6 +4728,9 @@ def get_options(args):
                       action='store_true', default=False,
                       help="add code to allow the model to be compiled to a "
                       "shared library and dynamically loaded")
+    parser.add_option('-A', '--fully-automatic',
+                      action='store_true', default=False,
+                      help="if human intervention is required, fail noisily")
 
     options, args = parser.parse_args(args)
     if len(args) != 1:
@@ -4842,7 +4858,8 @@ def run():
         # Translate to code
         klasses = CellMLTranslator.translators
         klass = klasses[options.translate_type]
-        initargs = {'add_timestamp': not options.no_timestamp}
+        initargs = {'add_timestamp': not options.no_timestamp,
+                    'options': options}
         transargs = {'v_variable': config.V_variable}
         transargs['row_lookup_method'] = options.row_lookup_method
         transargs['lt_index_uses_floor'] = options.lt_index_uses_floor

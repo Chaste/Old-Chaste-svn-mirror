@@ -137,7 +137,7 @@ public:
      * Currently the build system will not automatically regenerate the C++ code from CellML, so you
      * need to do that step manually:
      *     cdchaste
-     *     ./python/ConvertCellModel.py -y heart/dynamic/luo_rudy_1991.cellml
+     *     ./python/ConvertCellModel.py -A -y heart/dynamic/luo_rudy_1991.cellml
      */
     void TestLr91FromCellML() throw(Exception)
     {

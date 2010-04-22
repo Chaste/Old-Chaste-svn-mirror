@@ -112,7 +112,7 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             // Copy the .cellml file into the temporary folder
             EXPECT0(system, "cp " + rCellmlFullPath + " " + tmp_folder);
             // Run PyCml to generate C++ code
-            EXPECT0(system, "./python/ConvertCellModel.py -y --normal " + tmp_folder + "/" + rModelLeafName + "cellml");
+            EXPECT0(system, "./python/ConvertCellModel.py -A -y --normal " + tmp_folder + "/" + rModelLeafName + "cellml");
             // Run scons to compile it to a .so
             EXPECT0(system, "scons dyn_libs_only=1 build=" + ChasteBuildType() + " " + tmp_folder);
             // Copy the .so to the same folder as the original .cellml file
