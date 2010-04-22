@@ -63,9 +63,15 @@ public:
 
         // To test exceptions (default value is now "mesh".)
         ArchiveLocationInfo::SetMeshFilename("");
-        TS_ASSERT_THROWS_THIS(ArchiveLocationInfo::GetMeshFilename(),"ArchiveLocationInfo::mMeshFilename has not been set");
+        TS_ASSERT_THROWS_THIS(ArchiveLocationInfo::GetMeshFilename(),
+                              "ArchiveLocationInfo::mMeshFilename has not been set");
 
         ArchiveLocationInfo::SetMeshPathname("archive_dir", "mesh_name");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(),
+                         OutputFileHandler::GetChasteTestOutputDirectory() + "archive_dir/");
+        TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(), "mesh_name");
+        // with absolute path...
+        ArchiveLocationInfo::SetMeshPathname(ArchiveLocationInfo::GetArchiveDirectory(), "mesh_name");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetArchiveDirectory(),
                          OutputFileHandler::GetChasteTestOutputDirectory() + "archive_dir/");
         TS_ASSERT_EQUALS(ArchiveLocationInfo::GetMeshFilename(), "mesh_name");
