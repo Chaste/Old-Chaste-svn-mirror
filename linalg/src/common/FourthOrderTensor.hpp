@@ -135,6 +135,9 @@ public:
      */
     void Zero();
     
+    /**
+     * Get a reference to the internal data of the tensor.
+     */
     std::vector<double>& rGetData()
     {
         return mData;

@@ -42,8 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Specialization for input archives.
  * @param rDirectory
- * @param rFileName
- * @param relativeToChasteTestOutput
+ * @param rFileNameBase
  * @param procId
  */
 template<>
@@ -117,8 +116,7 @@ ArchiveOpener<boost::archive::text_iarchive, std::ifstream>::~ArchiveOpener()
 /**
  * Specialization for output archives.
  * @param rDirectory
- * @param rFileName
- * @param relativeToChasteTestOutput
+ * @param rFileNameBase
  * @param procId
  */
 template<>
