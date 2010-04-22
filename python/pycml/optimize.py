@@ -29,11 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
 """
-This part of PyCml deals with converting CellML models into
-programming language code, primarily C++ compatible with Chaste, but
-supporting a few other languages also (and easily extensible).
-
-It also controls applying various optimising transformations to CellML
+This part of PyCml applies various optimising transformations to CellML
 models, in particular partial evaluation and the use of lookup tables.
 """
 

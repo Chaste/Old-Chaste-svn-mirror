@@ -223,6 +223,7 @@ else:
 env.Append(BOPT = 'g_c++') # Needed for some versions of PETSc?
 env.Replace(CXX = build.tools['mpicxx'])
 env.Replace(AR = build.tools['ar'])
+env.Replace(CXXFILESUFFIX = '.cpp')
 
 # Any extra CCFLAGS and LINKFLAGS
 extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() \
@@ -234,11 +235,15 @@ env.Append(CCFLAGS = include_flag + include_flag.join(other_includepaths)
 env.Append(LINKFLAGS = link_flags)
 
 # Search path for Chaste #includes
-cpppath = ['.', 'cxxtest']
-src_folders = glob.glob('*/src')
-for src_folder in src_folders:
-    cpppath.extend(SConsTools.FindSourceFiles(env, src_folder, dirsOnly=True, includeRoot=True))
-cpppath = map(lambda p: '#/'+p, cpppath)
+cpppath = [Dir('.'), Dir('cxxtest')]
+for component in components:
+    src_folder = os.path.join(component, 'src')
+    src_dirs = SConsTools.FindSourceFiles(env, src_folder, dirsOnly=True, includeRoot=True)
+    bld_dir = os.path.join(component, 'build', build.build_dir)
+    clen = len(component)
+    for d in src_dirs:
+        cpppath.extend([Dir(d), Dir(bld_dir + d[clen:])])
+cpppath = map(lambda p: Dir(p), cpppath)
 env.Replace(CPPPATH = cpppath)
 
 # Some state needed by our build system
@@ -256,10 +261,10 @@ if not single_test_suite:
 # Create Builders for generating test .cpp files, and running test executables
 test = Builder(action='cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
 import TestRunner
-def test_description(target, source, env):
+def TestDescription(target, source, env):
     return "running '%s'" % (source[0])
 test_action = Action(TestRunner.get_build_function(build, run_time_flags),
-                     test_description, varlist=['buildsig'])
+                     TestDescription, varlist=['buildsig'])
 runtest = Builder(action=test_action)
 env['BUILDERS']['Test'] = test
 env['BUILDERS']['RunTest'] = runtest
@@ -272,9 +277,9 @@ env['BUILDERS']['OriginalSharedLibrary'] = env['BUILDERS']['SharedLibrary']
 env['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
 
 # 'Builder' for running xsd to generate parser code from an XML schema.
-# Getting this to integrate with the build is non-trivial, so we cheat.
-def run_xsd(schema_file):
-    output_dir = os.path.dirname(schema_file)
+def RunXsd(target, source, env):
+    schema_file = str(source[0])
+    output_dir = os.path.dirname(target[0].path)
     command = ' '.join([build.tools['xsd'], 'cxx-tree',
                         '--generate-serialization',
                         '--output-dir', output_dir,
@@ -284,9 +289,20 @@ def run_xsd(schema_file):
                         '--namespace-regex', "'X.* $Xchaste::parametersX'",
                         '--namespace-regex', "'X.* https://chaste.comlab.ox.ac.uk/nss/parameters/(.+)Xchaste::parameters::v$1X'",
                         schema_file])
-    print "Running xsd on", schema_file
     os.system(command)
-# Check if we need to run XSD (and that 'xsd' is really xsd...)
+def DescribeXsd(target, source, env):
+    return "Running xsd on %s" % (source[0])
+XsdAction = Action(RunXsd, DescribeXsd)
+def XsdEmitter(target, source, env):
+    hpp = os.path.splitext(str(target[0]))[0] + '.hpp'
+    return (target + [hpp], source)
+# Add XSD as a source of .cpp files
+import SCons.Tool
+c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
+cxx_file.add_action('.xsd', XsdAction)
+cxx_file.add_emitter('.xsd', XsdEmitter)
+
+# Check if  'xsd' is really CodeSynthesis xsd...
 if not GetOption('clean'):
     command = build.tools['xsd'] + ' version 2>&1'
     xsd_version_string = os.popen(command).readline().strip()
@@ -298,13 +314,13 @@ if not GetOption('clean'):
         print "Unexpected XSD program found:"
         print xsd_version_string
         sys.exit(1)
-    # If it's the old version, always run XSD; otherwise only run if generated code is out of date
-    for schema_file in glob.glob('heart/src/io/ChasteParameters*.xsd'):
-        cpp_file = schema_file[:-3] + 'cpp'
-        if (xsd_version == 2 or
-            not os.path.exists(cpp_file) or
-            os.stat(schema_file).st_mtime > os.stat(cpp_file).st_mtime):
-            run_xsd(schema_file)
+    # And to assist transitioning to the new builder...
+    for path in glob.glob('heart/src/io/ChasteParameters*.?pp'):
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+
 
 # Find full path to valgrind, as parallel memory testing needs it to be
 # given explicitly.
@@ -321,7 +337,7 @@ if hasattr(hostconfig.conf, 'ModifyEnv') and callable(hostconfig.conf.ModifyEnv)
     hostconfig.conf.ModifyEnv(env)
 
 # We need different linker flags when compiling dynamically loadable modules
-dynenv = env.Copy()
+dynenv = env.Clone()
 env.Append(LINKFLAGS=' '+build.rdynamic_link_flag)
 
 # Export the build environment to SConscript files
@@ -402,14 +418,12 @@ for toplevel_dir in components:
 # Also make sure we remove any libraries still hanging around, just in case
 Clean('.', glob.glob('lib/*'))
 Clean('.', glob.glob('linklib/*'))
-# Also make sure we regenerate the ChasteParameters files from the XSD.
-Clean('.', glob.glob('heart/src/io/ChasteParameters*pp'))
 
 
 # Test summary generation
 if test_summary and not compile_only:
     # Copy the build env, since we change TargetSigs
-    senv = env.Copy()
+    senv = env.Clone()
     # Get the directory to put results & summary in
     output_dir = build.output_dir
     # Remove old results. Note that this command gets run before anything is built.
@@ -454,7 +468,7 @@ if test_summary and not compile_only:
 
 if ARGUMENTS.get('exe', 0):
     assert use_chaste_libs
-    env = env.Copy()
+    env = env.Clone()
 
     if static_libs:
         libpath = '#lib'
@@ -464,6 +478,7 @@ if ARGUMENTS.get('exe', 0):
     else:
         libpath = '#linklib'
     env.Replace(LIBPATH=[libpath] + other_libpaths)
+    env.Prepend(CPPPATH='apps/src')
 
     exes = []
     for main_cpp in glob.glob('apps/src/*.cpp'):

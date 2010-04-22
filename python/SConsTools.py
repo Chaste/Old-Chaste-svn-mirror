@@ -41,10 +41,13 @@ except NameError:
     import sets
     set = sets.Set
 
+# Possible extensions for source files in Chaste
+chaste_source_exts = ['.cpp', '.xsd']
+
 def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):
     """Look for source files under rootDir.
     
-    Returns 2 lists: the first of source (.cpp) files, and the second
+    Returns 2 lists: the first of source (.cpp, .xsd) files, and the second
     of the directories in which they may be found.
     
     Optionally:
@@ -66,8 +69,8 @@ def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=Fal
                 source_dirs.append(os.path.join(dirpath, dirname))
         if not dirsOnly:
             for filename in filenames:
-                filepath = os.path.join(dirpath, filename)
-                if filename[-4:] == '.cpp':
+                if os.path.splitext(filename)[1] in chaste_source_exts:
+                    filepath = os.path.join(dirpath, filename)
                     source_files.append(filepath)
     if dirsOnly:
         return source_dirs
@@ -126,16 +129,28 @@ def BuildTest(target, source, env):
             if hdr not in header_files:
                 header_files.add(hdr)
                 # Is this a Chaste header?
-                component = hdr.split(os.path.sep)[0]
+                parts = hdr.split(os.path.sep)
+                component = parts[0]
                 if component in env['CHASTE_COMPONENTS']:
-                    #print "Header", hdr
                     # Does it have a source file?
                     base, ext = os.path.splitext(hdr)
-                    cpp_file = base + '.cpp'
-                    if (base in ['global/src/Version', 'global/src/ChasteBuildRoot'] or
-                        os.path.exists(cpp_file)):
+                    if base in ['global/src/Version', 'global/src/ChasteBuildRoot']:
+                        # Special cases
+                        has_source = True
+                        source_filename = base + '.cpp'
+                    else:
+                        if parts[1] == 'build':
+                            # It's a generated source file
+                            parts = [component] + parts[3:]
+                            base = os.path.join(*parts)[:-len(ext)]
+                        for ext in chaste_source_exts:
+                            source_filename = base + ext
+                            has_source = source_filename in env['CHASTE_OBJECTS']
+                            if has_source:
+                                break
+                    if has_source:
                         # Find the object file and analyse it
-                        obj = env['CHASTE_OBJECTS'][cpp_file]
+                        obj = env['CHASTE_OBJECTS'][source_filename]
                         objects.append(obj)
                         process(obj)
 
@@ -385,7 +400,7 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
 
     # Add extra source and test folders to CPPPATH only for this project
     if extra_cpppath:
-        newenv = env.Copy()
+        newenv = env.Clone()
         newenv.Prepend(CPPPATH=extra_cpppath)
         # Make sure both envs reference the same dict *object*,
         # so updates in one env are reflected in all.
@@ -499,7 +514,7 @@ def DoComponentSConscript(component, otherVars):
     
     # Add test folders to CPPPATH only for this component
     if test_cpppath:
-        newenv = env.Copy()
+        newenv = env.Clone()
         newenv.Prepend(CPPPATH=test_cpppath)
         # Make sure both envs reference the same dict *object*,
         # so updates in one env are reflected in all.

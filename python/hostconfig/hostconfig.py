@@ -166,8 +166,6 @@ def AddXsd(basePath):
     # Add new location
     conf.other_includepaths.append(os.path.join(basePath, 'libxsd'))
     conf.tools['xsd'] = os.path.join(basePath, 'bin', 'xsd')
-    # Make sure we re-run XSD
-    TryRemove('heart/src/io/ChasteParameters*.?pp')
     return
 
 def TryRemove(pathGlob):
