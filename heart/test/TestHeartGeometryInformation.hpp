@@ -509,9 +509,10 @@ public:
                     misclassified++;
                 }
 
-                ///\todo TS_ASSERT_DELTA(sequential_relative_wall_position[i], relative_wall_position[mesh.rGetNodePermutation()[i]], 4e-2); //This is quite sloppy: 4%
+                TS_ASSERT_DELTA(sequential_relative_wall_position[i], relative_wall_position[mesh.rGetNodePermutation()[i]], 6e-2); //This is quite sloppy: 6%
             }
         }
+        
         TS_ASSERT_LESS_THAN(misclassified, 3u);  //Allows for two differences
     }
 };
