@@ -272,7 +272,7 @@ public:
         AbstractCardiacCell* p_cell = CreateLr91CellFromLoader(*p_loader, 0u);
         
         // Archive it
-        ArchiveLocationInfo::SetArchiveDirectory(handler.GetOutputDirectoryFullPath());
+        handler.SetArchiveDirectory();
         std::string archive_filename1 = ArchiveLocationInfo::GetProcessUniqueFilePath("first-save.arch");
         {
             AbstractCardiacCell* const p_const_cell = p_cell;
