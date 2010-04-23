@@ -46,7 +46,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "BidomainDg0Assembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "TrianglesMeshReader.hpp"
 #include "ArchiveOpener.hpp"
 #include "CmguiMeshWriter.hpp"
 #include "FileFinder.hpp"
