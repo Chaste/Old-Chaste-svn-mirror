@@ -48,7 +48,8 @@ except NameError:
 # Possible extensions for source files in Chaste
 chaste_source_exts = ['.cpp', '.xsd', '.cellml']
 
-def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):
+def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False,
+                    source_exts=None):
     """Look for source files under rootDir.
     
     Returns 2 lists: the first of source (.cpp, .xsd) files, and the second
@@ -62,6 +63,8 @@ def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=Fal
     """
     source_files = []
     source_dirs = []
+    if source_exts is None:
+        source_exts = chaste_source_exts
     ignoreDirs.append('.svn')
     if includeRoot:
         source_dirs.append(rootDir)
@@ -73,7 +76,7 @@ def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=Fal
                 source_dirs.append(os.path.join(dirpath, dirname))
         if not dirsOnly:
             for filename in filenames:
-                if os.path.splitext(filename)[1] in chaste_source_exts:
+                if os.path.splitext(filename)[1] in source_exts:
                     filepath = os.path.join(dirpath, filename)
                     source_files.append(filepath)
     if dirsOnly:
@@ -204,7 +207,8 @@ def FindTestsToRun(build, BUILD_TARGETS,
             testfiles.add(singleTestSuite)
             # Remove any old test output file to force a re-run
             try:
-                os.remove(singleTestSuite[:-4] + '.log')
+                base = os.path.splitext(singleTestSuite)[0]
+                os.remove(base + '.log')
             except OSError:
                 pass
     else:
@@ -575,7 +579,7 @@ def DoComponentSConscript(component, otherVars):
     use_chaste_libs = otherVars['use_chaste_libs']
     # Note that this is executed from within the <component>/build/<something>/ folder
     curdir = os.getcwd()
-    # Look for .cpp files within the <component>/src folder
+    # Look for source files within the <component>/src folder
     os.chdir('../..') # This is so .o files are built in <component>/build/<something>/
     files, _ = FindSourceFiles(env, 'src', ignoreDirs=['broken'])
     # Look for source files that tests depend on under test/.

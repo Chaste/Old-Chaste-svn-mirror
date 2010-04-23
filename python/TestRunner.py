@@ -56,9 +56,10 @@ def help():
 def run_test(exefile, logfile, build, run_time_flags='', echo=True):
     """Actually run the given test."""
     # Find out how we're supposed to run tests under this build type
-    if exefile in ["python/CheckForOrphanedTests.py",
-                   "python/CheckForDuplicateFileNames.py"]:
-        command = exefile
+    if exefile.startswith("python/CheckFor"):
+        command = exefile + ' 2>&1'
+    elif exefile.startswith('python/test/Test'):
+        command = './python/TestPythonCode.py ' + exefile + ' 2>&1'
     else:
         command = build.GetTestRunnerCommand(exefile, '2>&1 ' + run_time_flags)
 

@@ -64,19 +64,23 @@ except AttributeError:
 
 chaste_dir = '.'
 
-suite_re = re.compile( r'\bclass\s+(\w+)\s*:\s*public\s+((::)?\s*CxxTest\s*::\s*)?\w*TestSuite\b' )
+suite_res = {'.hpp': re.compile(r'class\s+(\w+)\s*:\s*public\s+((::)?\s*CxxTest\s*::\s*)?\w*TestSuite\s+$'),
+             '.py': re.compile(r'class\s+\w+\(unittest\.TestCase\):\s+$')}
+
 def IsTestFile(test_dir, test_file_path):
     """Does the given file define a test suite?"""
     is_test = False
     test_file = os.path.basename(test_file_path)
-    if test_file[-4:] == '.hpp' and test_file[:4] == 'Test':
+    test_ext = os.path.splitext(test_file)[1]
+    if test_file[:4] == 'Test' and test_ext in suite_res.keys():
         fp = open(os.path.join(test_dir, test_file_path))
         for line in fp:
-            m = suite_re.search(line)
+            m = suite_res[test_ext].match(line)
             if m:
                 is_test = True
                 break
         fp.close()
+    print test_dir, test_file, test_ext, is_test
     return is_test
 
 test_packs  = set()  # Names of test packs found

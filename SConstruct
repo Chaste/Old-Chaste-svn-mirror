@@ -174,7 +174,7 @@ comp_deps = {'cell_based': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global'],
              'global': [],
              'core': ['pde', 'ode', 'mesh', 'linalg', 'io', 'global']}
 SConsTools.comp_deps = comp_deps
-components = ['global', 'io', 'linalg', 'mesh', 'ode', 'pde',
+components = ['python', 'global', 'io', 'linalg', 'mesh', 'ode', 'pde',
               'heart', 'cell_based', 'notforrelease', 'notforrelease_cell_based']
 # Ignore non-existent components
 # e.g. notforrelease wont appear in a release version
@@ -262,7 +262,7 @@ if not single_test_suite:
 test = Builder(action='cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES')
 import TestRunner
 def TestDescription(target, source, env):
-    return "running '%s'" % (source[0])
+    return "Running '%s'" % (source[0])
 test_action = Action(TestRunner.get_build_function(build, run_time_flags),
                      TestDescription, varlist=['buildsig'])
 runtest = Builder(action=test_action)
