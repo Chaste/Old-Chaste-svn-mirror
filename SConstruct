@@ -276,51 +276,11 @@ fasterSharedLibrary.Copy = Copy # Bit of a hack this!
 env['BUILDERS']['OriginalSharedLibrary'] = env['BUILDERS']['SharedLibrary']
 env['BUILDERS']['SharedLibrary'] = fasterSharedLibrary.fasterSharedLibrary
 
-# 'Builder' for running xsd to generate parser code from an XML schema.
-def RunXsd(target, source, env):
-    schema_file = str(source[0])
-    output_dir = os.path.dirname(target[0].path)
-    command = ' '.join([build.tools['xsd'], 'cxx-tree',
-                        '--generate-serialization',
-                        '--output-dir', output_dir,
-                        '--hxx-suffix', '.hpp', '--cxx-suffix', '.cpp',
-                        '--prologue-file', 'heart/src/io/XsdPrologue.txt',
-                        '--epilogue-file', 'heart/src/io/XsdEpilogue.txt',
-                        '--namespace-regex', "'X.* $Xchaste::parametersX'",
-                        '--namespace-regex', "'X.* https://chaste.comlab.ox.ac.uk/nss/parameters/(.+)Xchaste::parameters::v$1X'",
-                        schema_file])
-    os.system(command)
-def DescribeXsd(target, source, env):
-    return "Running xsd on %s" % (source[0])
-XsdAction = Action(RunXsd, DescribeXsd)
-def XsdEmitter(target, source, env):
-    hpp = os.path.splitext(str(target[0]))[0] + '.hpp'
-    return (target + [hpp], source)
-# Add XSD as a source of .cpp files
-import SCons.Tool
-c_file, cxx_file = SCons.Tool.createCFileBuilders(env)
-cxx_file.add_action('.xsd', XsdAction)
-cxx_file.add_emitter('.xsd', XsdEmitter)
+# Builder for generating C++ code from XML Schema files
+SConsTools.CreateXsdBuilder(build, env)
 
-# Check if  'xsd' is really CodeSynthesis xsd...
-if not GetOption('clean'):
-    command = build.tools['xsd'] + ' version 2>&1'
-    xsd_version_string = os.popen(command).readline().strip()
-    if xsd_version_string.startswith('XML Schema Definition Compiler'):
-        xsd_version = 2
-    elif xsd_version_string.startswith('CodeSynthesis XSD XML Schema to C++ compiler'):
-        xsd_version = 3
-    else:
-        print "Unexpected XSD program found:"
-        print xsd_version_string
-        sys.exit(1)
-    # And to assist transitioning to the new builder...
-    for path in glob.glob('heart/src/io/ChasteParameters*.?pp'):
-        try:
-            os.remove(path)
-        except OSError:
-            pass
-
+# Builder for generating C++ code from CellML files
+SConsTools.CreatePyCmlBuilder(build, env)
 
 # Find full path to valgrind, as parallel memory testing needs it to be
 # given explicitly.

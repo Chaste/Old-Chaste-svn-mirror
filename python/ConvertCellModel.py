@@ -62,6 +62,12 @@ if not found_any_arg:
     use_cvode = False
     use_normal = True
     use_opt = True
+if '--output-dir' in sys.argv:
+    i = sys.argv.index('--output-dir')
+    output_dir = sys.argv[i+1]
+    sys.argv[i:i+2] = []
+else:
+    output_dir = None
 
 # What options should be passed on to PyCml?
 try:
@@ -78,11 +84,13 @@ for model in [arg for arg in args if arg[0] != '-']:
     models.append(os.path.abspath(model))
 
 # The main workhorse function
-def convert(model):
+def convert(model, output_dir):
     model_dir = os.path.dirname(model)
     model_base = os.path.basename(model)
     model_base = os.path.splitext(model_base)[0]
     class_name = "Cell" + model_base + "FromCellML"
+    if output_dir is None:
+        output_dir = model_dir
 
     command_base = './translate.py %(opts)s -c %(classname)s %(model)s -o %(outfile)s'
 
@@ -91,7 +99,7 @@ def convert(model):
         cmd = command_base % {'opts': ' '.join(options),
                               'classname': class_name,
                               'model': model,
-                              'outfile': os.path.join(model_dir, model_base + '.cpp')}
+                              'outfile': os.path.join(output_dir, model_base + '.cpp')}
         print cmd
         os.system(cmd)
 
@@ -100,7 +108,7 @@ def convert(model):
         cmd = command_base % {'opts': ' '.join(['-p -l'] + options),
                               'classname': class_name + 'Opt',
                               'model': model,
-                              'outfile': os.path.join(model_dir, model_base + 'Opt.cpp')}
+                              'outfile': os.path.join(output_dir, model_base + 'Opt.cpp')}
         print cmd
         os.system(cmd)
     
@@ -108,7 +116,7 @@ def convert(model):
         cmd = command_base % {'opts': ' '.join(['-t CVODE'] + options),
                               'classname': class_name + 'Cvode',
                               'model': model,
-                              'outfile': os.path.join(model_dir, model_base + 'Cvode.cpp')}
+                              'outfile': os.path.join(output_dir, model_base + 'Cvode.cpp')}
         print cmd
         os.system(cmd)
 
@@ -117,7 +125,7 @@ def convert(model):
             cmd = command_base % {'opts': ' '.join(['-p -l', '-t CVODE'] + options),
                                   'classname': class_name + 'CvodeOpt',
                                   'model': model,
-                                  'outfile': os.path.join(model_dir, model_base + 'CvodeOpt.cpp')}
+                                  'outfile': os.path.join(output_dir, model_base + 'CvodeOpt.cpp')}
             print cmd
             os.system(cmd)
 
@@ -125,4 +133,4 @@ def convert(model):
 os.chdir(pycml_dir)
 
 for model in models:
-    convert(model)
+    convert(model, output_dir)

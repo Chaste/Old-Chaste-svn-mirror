@@ -28,11 +28,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """Useful functions for use by the build system."""
 
 import os
+import sys
 import glob
 import time
+import subprocess
 
 from SCons.Script import Command, Dir, Value
 import SCons.Action
+import SCons.Tool
+import SCons.Script
 
 # Compatability with Python 2.3
 try:
@@ -42,7 +46,7 @@ except NameError:
     set = sets.Set
 
 # Possible extensions for source files in Chaste
-chaste_source_exts = ['.cpp', '.xsd']
+chaste_source_exts = ['.cpp', '.xsd', '.cellml']
 
 def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False):
     """Look for source files under rootDir.
@@ -149,10 +153,11 @@ def BuildTest(target, source, env):
                             if has_source:
                                 break
                     if has_source:
-                        # Find the object file and analyse it
-                        obj = env['CHASTE_OBJECTS'][source_filename]
-                        objects.append(obj)
-                        process(obj)
+                        # Find the object file(s) and analyse it/them
+                        objs = env['CHASTE_OBJECTS'][source_filename]
+                        objects.extend(objs)
+                        for obj in objs:
+                            process(obj)
 
     for o in source:
         process(o)
@@ -357,6 +362,88 @@ def RecordBuildInfo(env, build_type, static_libs, use_chaste_libs):
         build_info += ', no Chaste libraries'
     env['CHASTE_BUILD_INFO'] = build_info
 
+def CreateXsdBuilder(build, buildenv):
+    """'Builder' for running xsd to generate parser code from an XML schema."""
+    # Check if  'xsd' is really CodeSynthesis xsd...
+    if not SCons.Script.GetOption('clean'):
+        command = build.tools['xsd'] + ' version 2>&1'
+        xsd_version_string = os.popen(command).readline().strip()
+        if xsd_version_string.startswith('XML Schema Definition Compiler'):
+            xsd_version = 2
+        elif xsd_version_string.startswith('CodeSynthesis XSD XML Schema to C++ compiler'):
+            xsd_version = 3
+        else:
+            print "Unexpected XSD program found:"
+            print xsd_version_string
+            sys.exit(1)
+        # And to assist transitioning to the new builder...
+        for path in glob.glob('heart/src/io/ChasteParameters*.?pp'):
+            try:
+                os.remove(path)
+            except OSError:
+                pass
+
+    def RunXsd(target, source, env):
+        """Action for running XSD."""
+        schema_file = str(source[0])
+        output_dir = os.path.dirname(target[0].abspath)
+        command = ' '.join([build.tools['xsd'], 'cxx-tree',
+                            '--generate-serialization',
+                            '--output-dir', output_dir,
+                            '--hxx-suffix', '.hpp', '--cxx-suffix', '.cpp',
+                            '--prologue-file', 'heart/src/io/XsdPrologue.txt',
+                            '--epilogue-file', 'heart/src/io/XsdEpilogue.txt',
+                            '--namespace-regex', "'X.* $Xchaste::parametersX'",
+                            '--namespace-regex', "'X.* https://chaste.comlab.ox.ac.uk/nss/parameters/(.+)Xchaste::parameters::v$1X'",
+                            schema_file])
+        os.system(command)
+    XsdAction = buildenv.Action(RunXsd, "Running xsd on $SOURCE")
+    def XsdEmitter(target, source, env):
+        hpp = os.path.splitext(str(target[0]))[0] + '.hpp'
+        return (target + [hpp], source)
+    # Add XSD as a source of .cpp files
+    c_file, cxx_file = SCons.Tool.createCFileBuilders(buildenv)
+    cxx_file.add_action('.xsd', XsdAction)
+    cxx_file.add_emitter('.xsd', XsdEmitter)
+
+def CreatePyCmlBuilder(build, buildenv):
+    """Create a builder for running PyCml to generate C++ source code from CellML.
+    
+    First step just runs with default args.  Later step will be to customize the
+    process with a separate options file (e.g. <cellml_file>.opts).
+    """
+    def IsDynamicSource(source):
+        parts = source[0].srcnode().path.split(os.path.sep)
+        return (parts[1] == 'dynamic' or
+                (parts[1] == 'build' and parts[3] == 'dynamic'))
+    def RunPyCml(target, source, env):
+        script = os.path.join(Dir('#').abspath, 'python', 'ConvertCellModel.py')
+        args = ['--normal', '--opt', '--cvode', '-A',
+                '--output-dir', os.path.dirname(target[0].abspath)]
+        if IsDynamicSource(source):
+            args.remove('--cvode')
+            args.append('-y')
+        # TODO: Strip CVODE if not being used
+        # TODO: Backward Euler if .out file available
+        command = [script] + args + [str(source[0])]
+        retcode = subprocess.call(command)
+        assert retcode == 0, "PyCml execution failed"
+    PyCmlAction = buildenv.Action(RunPyCml)
+    def PyCmlEmitter(target, source, env):
+        base, ext = os.path.splitext(str(target[0]))
+        target.extend([base + '.hpp',
+                       base + 'Opt.cpp',
+                       base + 'Opt.hpp'])
+        if not IsDynamicSource(source):
+            target.extend([base + 'Cvode.cpp',
+                           base + 'Cvode.hpp',
+                           base + 'CvodeOpt.cpp',
+                           base + 'CvodeOpt.hpp'])
+        return (target, source)
+    # Add PyCml as a source of .cpp files
+    c_file, cxx_file = SCons.Tool.createCFileBuilders(buildenv)
+    cxx_file.add_action('.cellml', PyCmlAction)
+    cxx_file.add_emitter('.cellml', PyCmlEmitter)
 
 
 def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
@@ -420,10 +507,10 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
         # Build the object files for this project
         project_lib = test_lib = None
         for source_file in files + testsource:
-            obj = env.StaticObject(source_file)
+            objs = env.StaticObject(source_file)
             key = os.path.join('projects', projectName, source_file)
             #print projectName, "source", key
-            env['CHASTE_OBJECTS'][key] = obj[0]
+            env['CHASTE_OBJECTS'][key] = objs
 
     # Make test output depend on shared libraries, so if implementation changes
     # then tests are re-run.
@@ -490,7 +577,7 @@ def DoComponentSConscript(component, otherVars):
     curdir = os.getcwd()
     # Look for .cpp files within the <component>/src folder
     os.chdir('../..') # This is so .o files are built in <component>/build/<something>/
-    files, _ = FindSourceFiles(env, 'src')
+    files, _ = FindSourceFiles(env, 'src', ignoreDirs=['broken'])
     # Look for source files that tests depend on under test/.
     # We also need to add any subfolders to the CPPPATH, so they are searched
     # for #includes.
@@ -524,10 +611,12 @@ def DoComponentSConscript(component, otherVars):
     # Build any dynamically loadable modules
     dyn_libs = []
     for s in dyn_source:
-        so_name = os.path.splitext(s)[0] + '.so'
-        so_lib = otherVars['dynenv'].OriginalSharedLibrary(so_name, s)
-        so_dir = os.path.abspath(os.path.join(curdir, '..', '..', os.path.dirname(s)))
-        dyn_libs.append(otherVars['dynenv'].Install(so_dir, so_lib))
+        # Note: if building direct from CellML, there will be more than 1 target
+        dyn_objs = otherVars['dynenv'].SharedObject(source=s)
+        for o in dyn_objs:
+            so_lib = otherVars['dynenv'].OriginalSharedLibrary(source=o)
+            so_dir = os.path.abspath(os.path.join(curdir, '..', '..', os.path.dirname(s)))
+            dyn_libs.append(otherVars['dynenv'].Install(so_dir, so_lib))
     
     # Build and install the library for this component
     if use_chaste_libs:
@@ -547,10 +636,10 @@ def DoComponentSConscript(component, otherVars):
         # Don't build libraries - tests will link against object files directly
         lib = None
         for source_file in files + testsource:
-            obj = env.StaticObject(source_file)
+            objs = env.StaticObject(source_file)
             key = os.path.join(component, str(source_file))
             #print component, "source", key
-            env['CHASTE_OBJECTS'][key] = obj[0]
+            env['CHASTE_OBJECTS'][key] = objs
     
     # Determine libraries to link against.
     # Note that order does matter!

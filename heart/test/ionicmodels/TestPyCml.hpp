@@ -93,13 +93,8 @@ public:
       * This test is designed to quickly check that PyCml-generated code matches the Chaste interfaces,
       * and gives expected results.
       *
-      * To generate the cell model C++ code, use:
+      * To generate the Backward Euler model, do
       *     cdchaste
-      *     ./python/ConvertCellModel.py --normal --opt --cvode heart/src/odes/cellml/luo_rudy_1991.cellml
-      * Or, if you don't have CVODE:
-      *     ./python/ConvertCellModel.py heart/src/odes/cellml/luo_rudy_1991.cellml
-      * 
-      * For the Backward Euler model, do
       *     cd python/pycml
       *     ./translate.py -j ../../heart/src/odes/cellml/luo_rudy_1991.out --conf=config.xml --use-chaste-stimulus --convert-interfaces -a -p -l --row-lookup-method ../../heart/src/odes/cellml/luo_rudy_1991.cellml -o ../../heart/src/odes/cellml/luo_rudy_1991BackwardEuler.cpp
       *
