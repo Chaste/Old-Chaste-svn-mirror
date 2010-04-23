@@ -58,8 +58,18 @@ class VtkWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>
 //Requires  "sudo aptitude install libvtk5-dev" or similar
 
 private:
+    /**
+     * A VTK mesh data structure.
+     * Created at construction, has data associated with it by AddCellData
+     * and AddCellPoint, then is filled with mesh geometry by MakeVtkMesh() in 
+     * WriteFiles().
+     */
     vtkUnstructuredGrid* mpVtkUnstructedMesh;
 
+    /** 
+     * Private helper method which copies the mesh details into the waiting
+     * VTK mesh structure.  Called by  WriteFiles().
+     */
     void MakeVtkMesh();
 public:
 
@@ -68,7 +78,7 @@ public:
      *
      * @param rDirectory  the directory in which to write the mesh to file
      * @param rBaseName  the base name of the files in which to write the mesh data
-     * @param clearOutputDir  whether to clean the directory (defaults to true)
+     * @param rCleanDirectory  whether to clean the directory (defaults to true)
      */
     VtkWriter(const std::string& rDirectory, const std::string& rBaseName, const bool& rCleanDirectory=true);
 
@@ -77,7 +87,21 @@ public:
      */
     void WriteFiles();
 
+    /**
+     * Add a scalar data field to each element (known as "cell" in VTK).
+     * @param name is a meaningful name with which to annotate the data
+     * @param data is the data which should appear in the same order as the element numbering
+     * The length of the data vector is assumed to match the number of elements in the mesh.
+     * Checking cannot be done at this stage since the data is associated with an empty VTK mesh structure.
+     */
     void AddCellData(std::string name, std::vector<double> data);
+    /**
+     * Add a scalar data field to each node (known as "point" in VTK).
+     * @param name is a meaningful name with which to annotate the data
+     * @param data is the data which should appear in the same order as the node numbering
+     * The length of the data vector is assumed to match the number of nodes in the mesh
+     * Checking cannot be done at this stage since the data is associated with an empty VTK mesh structure.
+     */
     void AddPointData(std::string name, std::vector<double> data);
 
     /**
