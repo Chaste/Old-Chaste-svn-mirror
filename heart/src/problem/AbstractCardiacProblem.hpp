@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 #include <cassert>
-#include <climits> // Work around a boost bug - see #1024.
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 #include "ChasteSerialization.hpp"

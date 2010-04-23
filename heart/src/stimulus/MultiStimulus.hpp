@@ -30,7 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MULTISTIMULUS_HPP_
 #define MULTISTIMULUS_HPP_
 
-#include <climits> // Work around a boost bug - see #1024.
 #include <vector>
 
 #include "ChasteSerialization.hpp"

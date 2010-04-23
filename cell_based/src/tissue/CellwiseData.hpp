@@ -28,7 +28,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CELLWISEDATA_HPP_
 #define CELLWISEDATA_HPP_
 
-#include <climits> // work around boost bug
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
 
