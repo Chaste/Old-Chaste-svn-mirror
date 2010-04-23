@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTDYNAMICALLYLOADEDCELLMODELS_HPP_
 #define TESTDYNAMICALLYLOADEDCELLMODELS_HPP_
 
+#include <sys/stat.h> // For chmod()
+
 #include <cxxtest/TestSuite.h>
 
 #include <boost/shared_ptr.hpp>
@@ -237,7 +239,8 @@ public:
         TS_ASSERT_THROWS_THIS(converter.Convert(unsupp_ext), "Unsupported extension '.hpp' of file '"
                               + unsupp_ext.GetAbsolutePath() + "'; must be .so or .cellml");
 
-        EXPECT0(chdir, "heart"); // The ConvertCellModel.py script in ConvertCellmlToSo() should only work from chaste source directory.
+        // Ensure that conversion works if CWD != ChasteSourceRoot
+        EXPECT0(chdir, "heart");
         if (PetscTools::AmMaster())
         {
             // Having the 'rm' after the 'chdir' cunningly double-checks that the FileFinder has really given us an absolute path
@@ -246,8 +249,15 @@ public:
         PetscTools::Barrier("TestCellmlConverter_rm");
         TS_ASSERT_THROWS_THIS(converter.Convert(cellml_file, false),
                               "Unable to convert .cellml to .so unless called collectively, due to possible race conditions.");
-        TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),"Conversion of CellML to Chaste shared object failed.");
+        converter.Convert(cellml_file);
         EXPECT0(chdir, "..");
+
+        // This one is tricky!
+        chmod(cellml_file.GetAbsolutePath().c_str(), 0);
+        EXPECT0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
+        TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),
+                                  "Conversion of CellML to Chaste shared object failed.");
+        chmod(cellml_file.GetAbsolutePath().c_str(), 0644);
     }
     
     void TestArchiving() throw(Exception)
