@@ -66,7 +66,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FaberRudy2000Version3Optimised.hpp"
 
 #include "NobleVargheseKohlNoble1998.hpp"
-#include "NobleVargheseKohlNoble1998WithStretch.hpp"
+#include "NobleVargheseKohlNoble1998WithSac.hpp"
 #include "NobleVargheseKohlNoble1998Optimised.hpp"
 #include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
 #include "Mahajan2008OdeSystem.hpp"
@@ -130,7 +130,7 @@ public:
 
     }
      
-    void TestSolveForNoble98WithStretchWithSimpleStimulus(void)
+    void TestSolveForNoble98WithSacWithSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
 
@@ -147,54 +147,65 @@ public:
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
-        Cellnoble_varghese_kohl_noble_1998_with_stretch_FromCellML n98_with_stretch(p_solver, p_stimulus);
+        CML_noble_varghese_kohl_noble_1998_basic_with_sac   n98_with_sac(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();
-        RunOdeSolverWithIonicModel(&n98_with_stretch,
+        RunOdeSolverWithIonicModel(&n98_with_sac,
                                    150.0,
-                                   "N98StretchResult");
+                                   "N98SacResult");
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tForward: " << forward << std::endl;
 
-        CheckCellModelResults("N98StretchResult");
-        TS_ASSERT_DELTA( n98_with_stretch.GetIIonic(), 0.2532, 1e-3);
+        // the 'good' data the result is compared against here was just copied from the standard N98 run good data, as they should be identical
+        CheckCellModelResults("N98SacResult"); 
+
+
+        // get a new ODE system (which still has its state variables set to the initial conditions),
+        // and check GetIonic agrees with standard noble98
+        CML_noble_varghese_kohl_noble_1998_basic_with_sac   another_n98_with_sac(p_solver, p_stimulus);
+        CML_noble_varghese_kohl_noble_1998_basic   n98_ode_system(p_solver, p_stimulus);
+        TS_ASSERT_DELTA( another_n98_with_sac.GetIIonic(), n98_ode_system.GetIIonic(), 1e-3);
         
-        // Coverage
-        n98_with_stretch.SetStretch(1.1);
-        TS_ASSERT_DELTA(n98_with_stretch.GetStretch(),1.1,1e-9);
+        another_n98_with_sac.SetStretch(0.9);
+        TS_ASSERT_DELTA( another_n98_with_sac.GetIIonic(), n98_ode_system.GetIIonic(), 1e-3);
+
+        // add stretch, and now should be different
+        another_n98_with_sac.SetStretch(1.1);
+        TS_ASSERT_DELTA( another_n98_with_sac.GetIIonic(), -20.3267, 1e-3);
+
+        // coverage
+        TS_ASSERT_DELTA(another_n98_with_sac.GetStretch(),1.1,1e-9);
     }
 
-/// \todo #1345 - figure out how to get stretch activation of a model...
-//    void TestSolveForNoble98WithStretch_StretchActivated(void)
-//    {
-//        clock_t ck_start, ck_end;
-//
-//        // Set stimulus
-//        boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus());
-//        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-//        double time_step = 0.01;
-//
-//        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
-//
-//        Cellnoble_varghese_kohl_noble_1998_with_stretch_FromCellML n98_with_stretch(p_solver, p_stimulus);
-//
-//        n98_with_stretch.SetStretch(2.0);
-//
-//        // Solve and write to file
-//        ck_start = clock();
-//        RunOdeSolverWithIonicModel(&n98_with_stretch,
-//                                   150.0,
-//                                   "N98Stretch_StretchActivatedResult");
-//        ck_end = clock();
-//        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
-//        std::cout << "\n\tForward: " << forward << std::endl;
-//
-/////finish
-////        CheckCellModelResults("N98Stretch_StretchActivatedResult");
-////        TS_ASSERT_DELTA( n98_with_stretch.GetIIonic(), 0.2532, 1e-3);
-//    }
+
+    void TestSolveForNoble98WithSacStretchActivated(void)
+    {
+        clock_t ck_start, ck_end;
+
+        // Set stimulus
+        boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus());
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        double time_step = 0.01;
+
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
+
+        CML_noble_varghese_kohl_noble_1998_basic_with_sac   n98_with_sac(p_solver, p_stimulus);
+
+        n98_with_sac.SetStretch(1.1);
+
+        // Solve and write to file
+        ck_start = clock();
+        RunOdeSolverWithIonicModel(&n98_with_sac,
+                                   150.0,
+                                   "N98Sac_StretchActivatedResult");
+        ck_end = clock();
+        double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
+        std::cout << "\n\tForward: " << forward << std::endl;
+
+        CheckCellModelResults("N98Sac_StretchActivatedResult");
+    }
 
     void TestSolveForOptimisedNoble98WithSimpleStimulus(void)
     {
