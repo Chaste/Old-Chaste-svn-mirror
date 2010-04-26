@@ -114,6 +114,7 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         double end_time = 1000.0; //One second in milliseconds
         double i_ionic_end_time = 60.0; // ms
+        double i_ionic = 1.9411; // test value
 
         // Normal model
         Cellluo_rudy_1991FromCellML normal(p_solver, p_stimulus);
@@ -145,7 +146,6 @@ public:
         normal.SetParameter(0u, 0.1);
         TS_ASSERT_EQUALS(normal.GetParameter(0u), 0.1);
         normal.SetParameter(0u, 23.0);
-        /// \todo #1331 add a test that simulates with zero conductance
         
         TS_ASSERT_EQUALS(opt.GetNumberOfParameters(), 1u);
         TS_ASSERT_EQUALS(opt.GetParameterIndex("fast_sodium_current__g_Na"), 0u);
@@ -222,7 +222,15 @@ public:
         RunOdeSolverWithIonicModel(&normal,
                                    i_ionic_end_time,
                                    "Lr91GetIIonic", 1000, false);
-        TS_ASSERT_DELTA( normal.GetIIonic(), 1.9411, 1e-3);
+        TS_ASSERT_DELTA( normal.GetIIonic(), i_ionic, 1e-3);
+        
+        // With zero g_Na
+        normal.SetParameter(0u, 0.0);
+        normal.SetStateVariables(normal.GetInitialConditions());
+        RunOdeSolverWithIonicModel(&normal,
+                                   end_time,
+                                   "Lr91FromPyCmlZeroGna");
+        CheckCellModelResults("Lr91FromPyCmlZeroGna");
 
         // Optimised
         ck_start = clock();
@@ -238,7 +246,7 @@ public:
         RunOdeSolverWithIonicModel(&opt,
                                    i_ionic_end_time,
                                    "Lr91GetIIonicOpt", 1000, false);
-        TS_ASSERT_DELTA( opt.GetIIonic(), normal.GetIIonic(), 1e-3);
+        TS_ASSERT_DELTA( opt.GetIIonic(), i_ionic, 1e-3);
         
         // No stimulus at end time
         TS_ASSERT_DELTA(opt.Get_membrane__I_stim(), 0.0, 1e-12);
@@ -257,7 +265,7 @@ public:
         RunOdeSolverWithIonicModel(&be,
                                    i_ionic_end_time,
                                    "Lr91GetIIonicBackwardEuler", 1000, false);
-        TS_ASSERT_DELTA( be.GetIIonic(), normal.GetIIonic(), 1e-3);
+        TS_ASSERT_DELTA( be.GetIIonic(), i_ionic, 1e-3);
 
 #ifdef CHASTE_CVODE
         // CVODE
@@ -278,7 +286,7 @@ public:
         // Check GetIIonic
         cvode_cell.SetStateVariables(cvode_cell.GetInitialConditions());
         cvode_cell.Solve(0.0, i_ionic_end_time, max_dt);
-        TS_ASSERT_DELTA(cvode_cell.GetIIonic(), normal.GetIIonic(), 1e-1);
+        TS_ASSERT_DELTA(cvode_cell.GetIIonic(), i_ionic, 1e-1);
 
         // CVODE Optimised
         ck_start = clock();
@@ -297,7 +305,7 @@ public:
         // Check GetIIonic
         cvode_opt.SetStateVariables(cvode_opt.GetInitialConditions());
         cvode_opt.Solve(0.0, i_ionic_end_time, max_dt);
-        TS_ASSERT_DELTA(cvode_opt.GetIIonic(), cvode_cell.GetIIonic(), 1e-1);
+        TS_ASSERT_DELTA(cvode_opt.GetIIonic(), i_ionic, 1e-1);
         
         // No stimulus at end time
         TS_ASSERT_DELTA(cvode_opt.Get_membrane__I_stim(), 0.0, 1e-12);

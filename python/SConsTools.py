@@ -107,7 +107,7 @@ def BuildTest(target, source, env):
     Takes as a single source the object file compiled for the test,
     and uses its implicit dependencies to work out which other object
     files must be linked against.  For each header file, if it is a
-    Chaste header and has a corresponding source .cpp file, then we
+    Chaste header and has a corresponding source file, then we
     should link with the associated object file.  This analysis is
     recursive - we analyse each object file in the same way.
 
@@ -115,7 +115,7 @@ def BuildTest(target, source, env):
      * env['CHASTE_COMPONENTS']
        A list of the Chaste components.
      * env['CHASTE_OBJECTS']
-       A dictionary mapping cpp file paths (relative to the Chaste root)
+       A dictionary mapping source file paths (relative to the Chaste root)
        to object file nodes.
      * env['RUNNER_EXE']
        The test runner executable (absolute) path.
@@ -134,6 +134,7 @@ def BuildTest(target, source, env):
         for d in o.implicit:
             hdr = str(d)
             if hdr not in header_files:
+                #print str(o), hdr, o.state
                 header_files.add(hdr)
                 # Is this a Chaste header?
                 parts = hdr.split(os.path.sep)
@@ -160,9 +161,11 @@ def BuildTest(target, source, env):
                         objs = env['CHASTE_OBJECTS'][source_filename]
                         objects.extend(objs)
                         for obj in objs:
+                            #print str(obj), obj.state
                             process(obj)
 
     for o in source:
+        #print str(o), o.state
         process(o)
     # Build the test itself
     runner = env['RUNNER_EXE']
@@ -445,6 +448,9 @@ def CreatePyCmlBuilder(build, buildenv):
                            base + 'Cvode.hpp',
                            base + 'CvodeOpt.cpp',
                            base + 'CvodeOpt.hpp'])
+        # Add dependency on pycml source code
+        pycml_code = glob.glob(os.path.join(Dir('#/python/pycml').abspath, '*'))
+        env.Depends(target, pycml_code)
         return (target, source)
     # Add PyCml as a source of .cpp files
     c_file, cxx_file = SCons.Tool.createCFileBuilders(buildenv)
@@ -644,7 +650,7 @@ def DoComponentSConscript(component, otherVars):
         for source_file in files + testsource:
             objs = env.StaticObject(source_file)
             key = os.path.join(component, str(source_file))
-            #print component, "source", key
+            #print component, "source", key, "gives", map(str, objs)
             env['CHASTE_OBJECTS'][key] = objs
     
     # Determine libraries to link against.

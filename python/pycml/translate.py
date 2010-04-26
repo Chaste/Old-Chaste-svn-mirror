@@ -1488,6 +1488,18 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     self.writeln('return ', var.initial_value, self.STMT_END)
                     self.close_block()
                     self.writeln()
+    
+    def code_name(self, var, *args, **kwargs):
+        """
+        Return the full name of var in a form suitable for inclusion in a
+        source file.
+        
+        Overrides the base class version to access mParameters for parameters.
+        """
+        if hasattr(var, '_cml_param_index'):
+            return self.vector_index('mParameters', var._cml_param_index)
+        else:
+            return super(CellMLToChasteTranslator, self).code_name(var, *args, **kwargs)
 
     def output_top_boilerplate(self):
         """Output top boilerplate.
@@ -1597,8 +1609,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         for var in self.cell_parameters:
             if var.get_type() == VarTypes.Constant:
                 self.writeln(self.vector_index('mParameters', var._cml_param_index),
-                             self.EQ_ASSIGN, var.initial_value, self.STMT_END,
-                             self.COMMENT_START, self.code_name(var))
+                             self.EQ_ASSIGN, var.initial_value, self.STMT_END, ' ',
+                             self.COMMENT_START, var.fullname(), ' [', var.units, ']')
         if self.use_lookup_tables and not self.separate_lut_class:
             self.output_lut_generation()
         self.close_block()
@@ -1755,6 +1767,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         Also has overrides for modifiable parameters and modifier calls.
         """
         clear_type = False
+        # Figure out what is being assigned to
         if isinstance(expr, cellml_variable):
             assigned_var = expr
         else:
@@ -1765,25 +1778,19 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 #907: Check if this is the derivative of the transmembrane potential
                 if not self.use_backward_euler and expr.eq.lhs.diff.dependent_variable == self.v_variable:
                     clear_type = True
+        # Parameters don't need assigning
+        if assigned_var in self.cell_parameters:
+            return
+        # Is the variable assigned to stored as a class member?
         clear_type = (clear_type or
-                      (self.kept_vars_as_members and assigned_var and
-                       assigned_var.pe_keep and
-                       (not assigned_var.is_modifiable_parameter or assigned_var.get_type() != VarTypes.Constant)))
+                      (self.kept_vars_as_members and assigned_var and assigned_var.pe_keep))
         if clear_type:
             self.TYPE_DOUBLE = self.TYPE_CONST_DOUBLE = ''
-        if assigned_var and assigned_var.get_type() == VarTypes.Constant:
-            # A potentially modifiable parameter
-            if assigned_var.is_modifiable_parameter:
-                value = self.vector_index('mParameters', assigned_var._cml_param_index)
-            else:
-                value = expr.initial_value
-                if not '.' in value and not 'e' in value:
-                    value = value + '.0'
-            if self.use_modifiers and assigned_var.oxmeta_name:
-                # "Constant" oxmeta-annotated parameters may be modified at run-time
-                value = self.modifier_call(assigned_var, value)
+        if (assigned_var and assigned_var.get_type() == VarTypes.Constant and
+            self.use_modifiers and assigned_var.oxmeta_name):
+            # "Constant" oxmeta-annotated parameters may be modified at run-time
             self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(assigned_var), self.EQ_ASSIGN,
-                         value, self.STMT_END)
+                         self.modifier_call(assigned_var, expr.initial_value), self.STMT_END)
         else:
             super(CellMLToChasteTranslator, self).output_assignment(expr)
         if clear_type:

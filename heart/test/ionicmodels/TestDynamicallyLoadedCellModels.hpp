@@ -106,10 +106,10 @@ private:
         // Simple sanity checks
         TS_ASSERT_EQUALS(p_cell->GetVoltageIndex(), vIndex);
         AbstractDynamicallyLoadableEntity* p_entity = dynamic_cast<AbstractDynamicallyLoadableEntity*>(p_cell);
+        TS_ASSERT(p_entity != NULL);
         if (p_entity != NULL)
         {
             TS_ASSERT_EQUALS(&rLoader, p_entity->GetLoader());
-            std::cout << "Cell inherits from AbstractDynamicallyLoadableEntity" << std::endl;
         }
         
         return p_cell;
@@ -254,7 +254,11 @@ public:
 
         // This one is tricky!
         chmod(cellml_file.GetAbsolutePath().c_str(), 0);
-        EXPECT0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
+        if (PetscTools::AmMaster())
+        {
+            EXPECT0(system, "rm " + so_file.GetAbsolutePath()); // Make sure the conversion is re-run
+        }
+        PetscTools::Barrier("TestCellmlConverter_rm2");
         TS_ASSERT_THROWS_CONTAINS(converter.Convert(cellml_file),
                                   "Conversion of CellML to Chaste shared object failed.");
         chmod(cellml_file.GetAbsolutePath().c_str(), 0644);
