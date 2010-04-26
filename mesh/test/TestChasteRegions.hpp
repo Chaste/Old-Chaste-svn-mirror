@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "ChastePoint.hpp"
 #include "ChasteCuboid.hpp"
+#include "ChasteEllipsoid.hpp"
 #include "ChasteNodesList.hpp"
 #include "AbstractChasteRegion.hpp"
 #include "Node.hpp"
@@ -116,6 +117,67 @@ public:
         TS_ASSERT_EQUALS(nodes_list.DoesContain(test_point_non_contained), false);
 
     }
+
+    void TestEllipsoidCreationAndContained() throw(Exception)
+    {
+    	ChastePoint<3> centre_3D(0, 0, 0);
+    	ChastePoint<3> radii_3D(2, 4, 6);
+    	ChastePoint<3> bad_radii_3D(-2, 4, 6);
+    	ChastePoint<3> point_inside_x_3D(1, 0, 0);
+    	ChastePoint<3> point_inside_y_3D(0, 2, 0);
+    	ChastePoint<3> point_inside_z_3D(0, 0, 3);
+    	ChastePoint<3> point_outside_x_3D(3, 0, 0);
+    	ChastePoint<3> point_outside_y_3D(0, 5, 0);
+    	ChastePoint<3> point_outside_z_3D(0, 0, 7);
+
+    	ChasteEllipsoid<3> ellipsoid_3D(centre_3D, radii_3D);
+
+    	TS_ASSERT_THROWS_THIS(ChasteEllipsoid<3> bad_ellipsoid_3D(centre_3D, bad_radii_3D),"Attempted to create an ellipsoid with a negative radius");
+
+    	TS_ASSERT_EQUALS(ellipsoid_3D.DoesContain(point_inside_x_3D), true);
+    	TS_ASSERT_EQUALS(ellipsoid_3D.DoesContain(point_inside_y_3D), true);
+    	TS_ASSERT_EQUALS(ellipsoid_3D.DoesContain(point_inside_z_3D), true);
+
+    	TS_ASSERT_EQUALS(ellipsoid_3D.DoesContain(point_outside_x_3D), false);
+    	TS_ASSERT_EQUALS(ellipsoid_3D.DoesContain(point_outside_y_3D), false);
+    	TS_ASSERT_EQUALS(ellipsoid_3D.DoesContain(point_outside_z_3D), false);
+
+    	// A point that is just outside the ellipsoid counts as inside to deal with rounding errors
+    	ChastePoint<3> just_outside_3D(0,0,6.00000000000000008882); // taken from error in cuboid mesh generation
+    	TS_ASSERT_EQUALS(ellipsoid_3D.DoesContain(just_outside_3D), true);
+
+    	ChastePoint<3> returned_centre = ellipsoid_3D.rGetCentre();
+    	c_vector<double, 3> diff_centre = returned_centre.rGetLocation() - centre_3D.rGetLocation();
+    	TS_ASSERT_DELTA(norm_2(diff_centre),0.0,1e-10);
+    	ChastePoint<3> returned_radii=ellipsoid_3D.rGetRadii();
+    	c_vector<double, 3> diff_radii = returned_radii.rGetLocation() - radii_3D.rGetLocation();
+    	TS_ASSERT_DELTA(norm_2(diff_radii),0.0,1e-10);
+
+    	// Lower dimensional cases
+    	ChastePoint<2> centre_2D(0, 0);
+    	ChastePoint<2> radii_2D(2, 4);
+    	ChastePoint<2> bad_radii_2D(-2, 4);
+     	ChastePoint<2> point_inside_x_2D(1, 0);
+    	ChastePoint<2> point_inside_y_2D(0, 2);
+    	ChastePoint<2> point_outside_x_2D(3, 0);
+    	ChastePoint<2> point_outside_y_2D(0, 5);
+    	ChasteEllipsoid<2> ellipsoid_2D(centre_2D, radii_2D);
+    	TS_ASSERT_EQUALS(ellipsoid_2D.DoesContain(point_inside_x_2D), true);
+    	TS_ASSERT_EQUALS(ellipsoid_2D.DoesContain(point_inside_y_2D), true);
+    	TS_ASSERT_EQUALS(ellipsoid_2D.DoesContain(point_outside_x_2D), false);
+    	TS_ASSERT_EQUALS(ellipsoid_2D.DoesContain(point_outside_y_2D), false);
+
+    	ChastePoint<1> centre_1D(0);
+    	ChastePoint<1> radii_1D(2);
+    	ChastePoint<1> bad_radii_1D(-2);
+    	ChastePoint<1> point_inside_x_1D(1);
+    	ChastePoint<1> point_outside_x_1D(3);
+    	ChasteEllipsoid<1> ellipsoid_1D(centre_1D, radii_1D);
+    	TS_ASSERT_EQUALS(ellipsoid_1D.DoesContain(point_inside_x_1D), true);
+    	TS_ASSERT_EQUALS(ellipsoid_1D.DoesContain(point_outside_x_1D), false);
+
+    }
+
 };
 
 #endif /*TESTCHASTEREGIONS_HPP_*/
