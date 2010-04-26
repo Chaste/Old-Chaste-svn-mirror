@@ -145,6 +145,7 @@ public:
         normal.SetParameter(0u, 0.1);
         TS_ASSERT_EQUALS(normal.GetParameter(0u), 0.1);
         normal.SetParameter(0u, 23.0);
+        /// \todo #1331 add a test that simulates with zero conductance
         
         TS_ASSERT_EQUALS(opt.GetNumberOfParameters(), 1u);
         TS_ASSERT_EQUALS(opt.GetParameterIndex("fast_sodium_current__g_Na"), 0u);

@@ -1424,22 +1424,35 @@ class CellMLToChasteTranslator(CellMLTranslator):
     def output_cell_parameters(self):
         """Output declarations, set & get methods for cell parameters.
         
-        "Parameters" are those variables annotated with pe:keep (see #666).
+        Sets self.cell_parameters to be those constant variables annotated with
+        pycml:modifiable-parameter.  These use the mParameters functionality in
+        Chaste.
+        
+        Also handles variables annotated with pe:keep (see #666).
         They can be real parameters, which have both set & get methods,
         or computed variables, which just have get methods.
         
-        Sets self.cell_parameters to be a list of the cellml_variable objects
-        representing parameters.
-        
-        Also collect any variables annotated with an RDF oxmeta name into
+        Also collects any variables annotated with an RDF oxmeta name into
         self.metadata_vars. Only constants and state variables are included.
         """
-        # Find annotated variables
+        # Find annotated parameters
+        self.cell_parameters = filter(
+            lambda v: v.is_modifiable_parameter,
+            cellml_metadata.find_variables(self.model,
+                                           ('pycml:modifiable-parameter', NSS['pycml']),
+                                           'yes'))
         if self.kept_vars_as_members:
             kept_vars = cellml_metadata.find_variables(self.model, ('pe:keep', NSS[u'pe']), 'yes')
+            kept_vars = list(set(kept_vars) - set(self.cell_parameters))
         else:
             kept_vars = []
-        self.cell_parameters = kept_vars
+        # Reduce intra-run variation
+        kept_vars.sort(key=lambda v: v.fullname())
+        self.cell_parameters.sort(key=lambda v: v.fullname())
+        
+        for i, var in enumerate(self.cell_parameters):
+            # Remember the var's index
+            var._cml_param_index = i
 
         # Create set of all oxmeta-annotated variables
         vars = cellml_metadata.find_variables(self.model, ('bqbiol:is', NSS[u'bqbiol']))
@@ -1455,22 +1468,15 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.output_comment('\nSettable parameters and readable variables\n',
                                 subsidiary=True)
         for var in kept_vars:
-            if var.get_type() != VarTypes.Constant:
-                self.writeln_hpp(self.TYPE_DOUBLE, self.code_name(var), self.STMT_END)
+            self.writeln_hpp(self.TYPE_DOUBLE, self.code_name(var), self.STMT_END)
         # Generate Set & Get methods
         self.set_access('public')
-        i = 0
         for var in kept_vars:
-            if var.get_type() == VarTypes.Constant:
-                # Remember the var's index
-                var._cml_param_index = i
-                i += 1
-            else:
-                # Generate Get method
-                self.output_method_start('Get_' + self.code_name(var, prefix=''), [], self.TYPE_DOUBLE)
-                self.open_block()
-                self.writeln('return ', self.code_name(var), ';')
-                self.close_block()
+            # Generate Get method
+            self.output_method_start('Get_' + self.code_name(var, prefix=''), [], self.TYPE_DOUBLE)
+            self.open_block()
+            self.writeln('return ', self.code_name(var), ';')
+            self.close_block()
         
         # Methods associated with oxmeta annotated variables
         if self.use_modifiers:
@@ -1745,6 +1751,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         the variable assigned to is such a one, temporarily clear
         self.TYPE_DOUBLE and self.TYPE_CONST_DOUBLE before calling the
         base class method.
+        
+        Also has overrides for modifiable parameters and modifier calls.
         """
         clear_type = False
         if isinstance(expr, cellml_variable):
@@ -1759,7 +1767,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     clear_type = True
         clear_type = (clear_type or
                       (self.kept_vars_as_members and assigned_var and
-                       assigned_var.pe_keep and assigned_var.get_type() != VarTypes.Constant))
+                       assigned_var.pe_keep and
+                       (not assigned_var.is_modifiable_parameter or assigned_var.get_type() != VarTypes.Constant)))
         if clear_type:
             self.TYPE_DOUBLE = self.TYPE_CONST_DOUBLE = ''
         if assigned_var and assigned_var.get_type() == VarTypes.Constant:

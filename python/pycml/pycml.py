@@ -1917,9 +1917,29 @@ class cellml_variable(element_base):
         return val
 
     @property
+    def is_modifiable_parameter(self):
+        """Whether this variable is a parameter that should be modifiable at run-time."""
+        return (self.get_type() == VarTypes.Constant and
+                self.get_rdf_annotation(('pycml:modifiable-parameter', NSS['pycml'])) == 'yes')
+    def set_is_modifiable_parameter(self, is_param):
+        """Set method for the is_modifiable_parameter property.
+        
+        We need a separate method for this to bypass Amara's property setting checks.
+        """
+        if self.get_type() != VarTypes.Constant:
+            raise ValueError("A non-constant variable (%s) cannot be set as a parameter"
+                             % (self.fullname(),))
+        if is_param:
+            val = 'yes'
+        else:
+            val = 'no'
+        self.add_rdf_annotation(('pycml:modifiable-parameter', NSS[u'pycml']), val)
+
+    @property
     def pe_keep(self):
         """Whether PE should retain this variable in the specialised model."""
-        return self.get_rdf_annotation(('pe:keep', NSS[u'pe'])) == 'yes'
+        return (self.get_rdf_annotation(('pe:keep', NSS[u'pe'])) == 'yes' or
+                self.is_modifiable_parameter)
     def set_pe_keep(self, keep):
         """Set method for the pe_keep property.
         

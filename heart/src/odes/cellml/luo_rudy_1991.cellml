@@ -1980,7 +1980,7 @@ The breakdown of the model into components and the definition of encapsulation a
     <ns7:boundIntervals rdf:resource="rdf:#$gaO9U1"/>
   </rdf:Description>
   <rdf:Description rdf:about="#fast_sodium_current_conductance">
-    <keep xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/partial-evaluation#">yes</keep>
+    <modifiable-parameter xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</modifiable-parameter>
   </rdf:Description>
 </rdf:RDF>
 </model>
