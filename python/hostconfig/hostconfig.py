@@ -67,6 +67,7 @@ Any non-absolute paths will be considered relative to the root of the Chaste ins
 """
 
 import glob
+import imp
 import os
 import sys
 import types
@@ -77,19 +78,17 @@ try:
     conf = machines.config_module()
 except ImportError:
     # How about distro-specific config?
-    tmp = sys.path
-    sys.path = ['python/hostconfig']
     try:
+        fp = open('/etc/issue')
+        distro = fp.read().split()[0].lower()
+        fp.close()
+        (file, pathname, desc) = imp.find_module(distro, ['python/hostconfig'])
         try:
-            fp = open('/etc/issue')
-            distro = fp.read().split()[0].lower()
-            fp.close()
-            conf = __import__(distro)
-        except (ImportError, IOError):
-            sys.path = tmp
-            import default as conf
-    finally:
-        sys.path = tmp
+            conf = imp.load_module(distro, file, pathname, desc)
+        finally:
+            file.close()
+    except (ImportError, IOError):
+        import default as conf
 
 # For debugging
 #for name in dir(conf):
@@ -304,16 +303,16 @@ def DoDealii(build):
 def OptionalLibraryDefines():
     """
     Work out what optional libraries have been asked for,
-    and return the appropriate #define flags, as a list.
+    and return the appropriate #define names, as a list.
     """
     possible_flags = {'cvode': 'CHASTE_CVODE', 'vtk': 'CHASTE_VTK', 'adaptivity': 'CHASTE_ADAPTIVITY'}
     actual_flags = []
     for libname, symbol in possible_flags.iteritems():
         if getattr(conf, 'use_' + libname, False):
-            actual_flags.append('-D' + symbol)
+            actual_flags.append(symbol)
     return actual_flags
 
-def configure(build):
+def Configure(build):
     """Given a build object (BuildTypes.BuildType instance), configure the build."""
     prefs = build.GetPreferedVersions()
     if hasattr(conf, 'Configure') and callable(conf.Configure):
@@ -358,11 +357,15 @@ def configure(build):
     if hasattr(conf, 'ModifyBuild') and callable(conf.ModifyBuild):
         conf.ModifyBuild(build)
 
-def ccflags():
-    opt_lib_flags = OptionalLibraryDefines()
-    conf_flags = getattr(conf, 'ccflags', '')
-    return conf_flags + ' ' + ' '.join(opt_lib_flags)
+def CppDefines():
+    """Return a list of extra C preprocessor defines."""
+    return OptionalLibraryDefines()
 
-def ldflags():
+def CcFlags():
+    """Return a string containing extra flags for the C++ compiler."""
+    return getattr(conf, 'ccflags', '')
+
+def LdFlags():
+    """Return a string containing extra flags for the linker."""
     return getattr(conf, 'ldflags', '')
 

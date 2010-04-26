@@ -427,7 +427,9 @@ def CreatePyCmlBuilder(build, buildenv):
         if IsDynamicSource(source):
             args.remove('--cvode')
             args.append('-y')
-        # TODO: Strip CVODE if not being used
+# Won't work until SCons' C scanner can understand #ifdef
+#        elif 'CHASTE_CVODE' not in env['CPPDEFINES']:
+#            args.remove('--cvode')
         # TODO: Backward Euler if .out file available
         command = [script] + args + [str(source[0])]
         retcode = subprocess.call(command)

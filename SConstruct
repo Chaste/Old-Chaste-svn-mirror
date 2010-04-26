@@ -192,7 +192,7 @@ Alias('core', Split('global io linalg mesh ode pde'))
 #   other_libpaths: paths to search for libraries to link against.
 #   other_includepaths: paths to search for header files.
 # This is now done by the hostconfig subsystem.
-hostconfig.configure(build)
+hostconfig.Configure(build)
 other_libs = hostconfig.libraries
 other_libpaths = hostconfig.libpaths
 other_includepaths = hostconfig.incpaths
@@ -226,13 +226,13 @@ env.Replace(AR = build.tools['ar'])
 env.Replace(CXXFILESUFFIX = '.cpp')
 
 # Any extra CCFLAGS and LINKFLAGS
-extra_flags = build.CcFlags() + ' ' + hostconfig.ccflags() \
-              + ' -DTRILIBRARY -DANSI_DECLARATORS '
-link_flags  = build.LinkFlags() + ' ' + hostconfig.ldflags()
+extra_flags = build.CcFlags() + ' ' + hostconfig.CcFlags()
+link_flags  = build.LinkFlags() + ' ' + hostconfig.LdFlags()
 include_flag = ' ' + build.IncludeFlag() + ' '
 env.Append(CCFLAGS = include_flag + include_flag.join(other_includepaths)
            + ' ' + extra_flags)
 env.Append(LINKFLAGS = link_flags)
+env.Append(CPPDEFINES = hostconfig.CppDefines() + ['TRILIBRARY', 'ANSI_DECLARATORS'])
 
 # Search path for Chaste #includes
 cpppath = [Dir('.'), Dir('cxxtest')]
