@@ -87,7 +87,8 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
     for (unsigned region_index=0; region_index<mRegionNames.size(); region_index++)     
     {
         std::string elem_file_name = mRegionNames[region_index] + ".exelem";
-        p_elem_file[region_index] = this->mpOutputFileHandler->OpenOutputFile(elem_file_name);
+        out_stream p_tmp_file = this->mpOutputFileHandler->OpenOutputFile(elem_file_name);
+        p_elem_file[region_index] = p_tmp_file;
         
         // Write the elem header
         
