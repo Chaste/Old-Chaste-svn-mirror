@@ -122,9 +122,6 @@ public:
     /** Returns the number of faces in the mesh (synonym of GetNumEdges()) */
     unsigned GetNumFaces() const;
 
-    /** Returns the number of edges in the mesh (synonym of GetNumFaces()) */
-    unsigned GetNumEdges() const;
-
     /** Returns the number of attributes in the mesh */
     unsigned GetNumElementAttributes() const;
 

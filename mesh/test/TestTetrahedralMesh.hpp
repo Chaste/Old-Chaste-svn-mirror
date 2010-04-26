@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "GenericMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -1462,9 +1463,9 @@ public:
         }
     }
 
-    void TestReadingMeshesWithRegions() throw (Exception)
+    void TestReadingMeshesWithRegionsAndGenericReader() throw (Exception)
     {
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
+        GenericMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_with_attributes");
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 

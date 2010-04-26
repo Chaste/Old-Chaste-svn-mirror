@@ -223,11 +223,6 @@ unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaces() const
     return mFaceData.size();
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned AbstractCachedMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumEdges() const
-{
-    return mFaceData.size();
-}
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

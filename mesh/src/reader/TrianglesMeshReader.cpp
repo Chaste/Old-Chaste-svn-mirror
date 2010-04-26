@@ -120,11 +120,6 @@ unsigned TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaces() const
     return mNumFaces;
 }
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumEdges() const
-{
-    return mNumFaces;
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElementAttributes() const

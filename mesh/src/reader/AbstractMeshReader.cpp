@@ -41,6 +41,12 @@ unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumElementAttributes() c
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumEdges() const
+{
+    return GetNumFaces();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNumFaceAttributes() const
 {
     // By default returns 0.  If a concrete class does read attributes

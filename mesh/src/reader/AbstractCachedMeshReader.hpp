@@ -90,8 +90,7 @@ public:
     unsigned GetNumElements() const; /**< Returns the number of elements in the mesh. */
     unsigned GetNumNodes() const;    /**< Returns the number of nodes in the mesh. */
     unsigned GetNumFaces() const;    /**< Returns the number of faces in the mesh (synonym of GetNumEdges()) */
-    unsigned GetNumEdges() const;    /**< Returns the number of edges in the mesh (synonym of GetNumFaces()) */
-
+    
     /**
      *  Returns the maximum node index. Used in testing to check that output nodes
      *  are always indexed from zero even if they are input indexed from one.
