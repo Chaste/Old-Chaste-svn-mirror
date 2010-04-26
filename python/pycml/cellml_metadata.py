@@ -43,6 +43,28 @@ _models = {}
 _base_uri = 'urn:chaste-pycml:dummy-rdf-base-uri'
 
 
+# Allowed metadata names, more to come
+# TODO #1209: Use a proper ontology!
+METADATA_NAMES = frozenset(
+    ['membrane_voltage', 'membrane_E_R', 'membrane_stimulus_current', 'sodium_channel_current',
+     'sodium_channel_conductance', 'sodium_channel_m_gate', 'sodium_channel_h_gate', 
+     'potassium_channel_current', 'potassium_channel_conductance', 'potassium_channel_n_gate', 
+     'leakage_current', 'sodium_channel_current_conductance','sodium_channel_current_h_gate',
+     'sodium_channel_current_j_gate','sodium_channel_current_m_gate', 'temperature',
+     'potassium_reversal_potential_sodium_permeability', 'inward_rectifier_potassium_current_conductance',
+     'rapid_time_dependent_potassium_current_conductance', 'rapid_time_dependent_potassium_current_Xr1_gate',
+     'rapid_time_dependent_potassium_current_Xr2_gate', 'slow_time_dependent_potassium_current_conductance',
+     'slow_time_dependent_potassium_current_Xs_gate', 'fast_sodium_current_conductance',
+     'fast_sodium_current_m_gate', 'fast_sodium_current_h_gate', 'fast_sodium_current_j_gate', 'sodium_background_current_conductance',
+     'L_type_Ca_current_conductance', 'L_type_Ca_current_d_gate', 'L_type_Ca_current_f_gate', 'L_type_Ca_current_f2_gate',
+     'L_type_Ca_current_fCass_gate', 'calcium_background_current_conductance', 'transient_outward_current_conductance',
+     'transient_outward_current_s_gate', 'transient_outward_current_r_gate', 'sodium_potassium_pump_current_permeability',
+     'sodium_calcium_exchanger_current_maximum', 'calcium_pump_current_conductance', 'potassium_pump_current_conductance',
+     'calcium_dynamics_release_current_maxiumum', 'calcium_dynamics_leak_current_maxiumum', 'calcium_leak_current_conductance',
+     'calcium_dynamics_uptake_current_maxiumum'])
+
+
+
 def _debug(*args):
     pycml.DEBUG('cellml-metadata', *args)
 

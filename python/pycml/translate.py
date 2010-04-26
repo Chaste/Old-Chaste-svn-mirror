@@ -1849,18 +1849,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
 
     def output_evaluate_y_derivatives(self, method_name='EvaluateYDerivatives'):
         """Output the EvaluateYDerivatives method."""
-        # Work out what equations are needed to compute the derivatives
-        nodes = map(lambda v: (v, self.free_vars[0]), self.state_vars)
-        dvdt = (self.v_variable, self.free_vars[0])
-        nodes.remove(dvdt) #907: Consider dV/dt separately
-        if self.use_chaste_stimulus:
-            i_stim = self.doc._cml_config.i_stim_var
-            nonv_nodeset = self.calculate_extended_dependencies(
-                nodes, prune=[i_stim])
-            nonv_nodeset.add(i_stim)
-        else:
-            nonv_nodeset = self.calculate_extended_dependencies(nodes)
-        v_nodeset = self.calculate_extended_dependencies([dvdt], prune=nonv_nodeset)
         # Start code output
         self.output_method_start(method_name,
                                  [self.TYPE_DOUBLE + self.code_name(self.free_vars[0]),
@@ -1868,32 +1856,59 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                   self.TYPE_VECTOR_REF + ' rDY'],
                                  'void', access='public')
         self.open_block()
+        if not self.state_vars:
+            # This isn't an ODE model!
+            self.close_block()
+            return
         self.output_comment('Inputs:')
         self.output_comment('Time units: ', self.free_vars[0].units)
         #621: convert if free var is not in milliseconds
         if self.conversion_factor:
             self.writeln(self.code_name(self.free_vars[0]), ' *= ',
                          self.conversion_factor, self.STMT_END)
+        # Work out what equations are needed to compute the derivatives
+        derivs = set(map(lambda v: (v, self.free_vars[0]), self.state_vars))
+        if self.v_variable in self.state_vars:
+            dvdt = (self.v_variable, self.free_vars[0])
+            derivs.remove(dvdt) #907: Consider dV/dt separately
+        else:
+            dvdt = None
+        if self.use_chaste_stimulus:
+            i_stim = self.doc._cml_config.i_stim_var
+            nonv_nodeset = self.calculate_extended_dependencies(
+                derivs, prune=[i_stim])
+            nonv_nodeset.add(i_stim)
+        else:
+            nonv_nodeset = self.calculate_extended_dependencies(derivs)
+        if dvdt:
+            v_nodeset = self.calculate_extended_dependencies(
+                [dvdt], prune=nonv_nodeset)
+        else:
+            v_nodeset = set()
+        # State variable inputs
         self.output_state_assignments(assign_rY=False, nodeset=nonv_nodeset|v_nodeset)
         self.writeln()
         if self.use_lookup_tables:
+            # TODO: Filter tables by available state/protocol variables?
             self.output_table_index_generation(
                 indexes_as_member=self.use_backward_euler)
-        self.writeln(self.COMMENT_START, 'Mathematics')
+        self.output_comment('Mathematics')
         #907: Declare dV/dt
-        self.writeln(self.TYPE_DOUBLE, self.code_name(self.v_variable, ode=True), self.STMT_END)
+        if dvdt:
+            self.writeln(self.TYPE_DOUBLE, self.code_name(self.v_variable, ode=True), self.STMT_END)
         # Output mathematics required for non-dV/dt derivatives (which may include dV/dt)
         self.output_equations(nonv_nodeset)
         self.writeln()
         #907: Calculation of dV/dt
-        self.writeln('if (mSetVoltageDerivativeToZero)')
-        self.open_block()
-        self.writeln(self.code_name(self.v_variable, ode=True), self.EQ_ASSIGN, '0.0', self.STMT_END)
-        self.close_block(blank_line=False)
-        self.writeln('else')
-        self.open_block()
-        self.output_equations(v_nodeset)
-        self.close_block()
+        if dvdt:
+            self.writeln('if (mSetVoltageDerivativeToZero)')
+            self.open_block()
+            self.writeln(self.code_name(self.v_variable, ode=True), self.EQ_ASSIGN, '0.0', self.STMT_END)
+            self.close_block(blank_line=False)
+            self.writeln('else')
+            self.open_block()
+            self.output_equations(v_nodeset)
+            self.close_block()
         # Assign to derivatives vector
         for i, var in enumerate(self.state_vars):
             deriv_assign = self.vector_index('rDY', i) + self.EQ_ASSIGN
@@ -3450,7 +3465,7 @@ class ConfigurationStore(object):
                 raise ConfigurationError('Invalid definition of ' + var_desc + ': '
                                          + unicode(var_elt))
         elif defn_type == u'oxmeta':
-            if unicode(var_elt) not in METADATA_NAMES:
+            if unicode(var_elt) not in cellml_metadata.METADATA_NAMES:
                 raise ConfigurationError('"' + unicode(var_elt) + '" is not a valid oxmeta name')
         elif defn_type == u'config-name':
             if unicode(var_elt) not in [u'stimulus', u'transmembrane_potential']:
@@ -3734,7 +3749,7 @@ class ConfigurationStore(object):
         self.metadata_vars = filter(lambda v: v.oxmeta_name, vars)
         names_used = [var.oxmeta_name for var in self.metadata_vars]
         # Check all metadata is allowed
-        if frozenset(names_used) <= METADATA_NAMES:
+        if frozenset(names_used) <= cellml_metadata.METADATA_NAMES:
             DEBUG('metadata', 'Metadata values are valid')
         else:
             DEBUG('metadata', 'Metadata values are NOT valid')
