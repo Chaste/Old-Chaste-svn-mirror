@@ -1248,7 +1248,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                       'separate_lut_class': True,
                       'convert_interfaces': False,
                       'kept_vars_as_members': True,
-                      'use_metadata': False,
+                      'use_modifiers': False,
                       'dynamically_loadable': False
                       }
         for key, default in our_kwargs.iteritems():
@@ -1375,7 +1375,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             self.base_class_name = 'AbstractCardiacCell'
             self.writeln_hpp('#include "' + self.base_class_name + '.hpp"')
-        if self.use_metadata:
+        if self.use_modifiers:
             self.writeln_hpp('#include "AbstractCardiacCellWithModifiers.hpp"')
             # Modify the base class name
             self.base_class_name = 'AbstractCardiacCellWithModifiers<' + self.base_class_name + ' >'
@@ -1431,9 +1431,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         Sets self.cell_parameters to be a list of the cellml_variable objects
         representing parameters.
         
-        If we're using metadata (self.use_metadata = True), then also collect
-        variables annotated with an RDF oxmeta name into self.metadata_vars.
-        Only constants and state variables are included.
+        Also collect any variables annotated with an RDF oxmeta name into
+        self.metadata_vars. Only constants and state variables are included.
         """
         # Find annotated variables
         if self.kept_vars_as_members:
@@ -1441,16 +1440,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             kept_vars = []
         self.cell_parameters = kept_vars
-        # Create set of all oxmeta-annotated variables         
-        if self.use_metadata:
-            vars = cellml_metadata.find_variables(self.model, ('bqbiol:is', NSS[u'bqbiol']))
-            # Keep only the variables with an oxmeta name
-            vars = filter(lambda v: v.oxmeta_name, vars)
-            # We're actually only interested in constants or state variables
-            self.metadata_vars = set([v for v in vars if v.get_type() == VarTypes.Constant
-                                      or v in self.state_vars])
-        else:
-            self.metadata_vars = set([])
+
+        # Create set of all oxmeta-annotated variables
+        vars = cellml_metadata.find_variables(self.model, ('bqbiol:is', NSS[u'bqbiol']))
+        # Keep only the variables with an oxmeta name
+        vars = filter(lambda v: v.oxmeta_name, vars)
+        # We're actually only interested in constants or state variables
+        self.metadata_vars = set([v for v in vars if v.get_type() == VarTypes.Constant
+                                  or v in self.state_vars])
 
         # Generate member variable declarations
         self.set_access('private')
@@ -1476,7 +1473,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.close_block()
         
         # Methods associated with oxmeta annotated variables
-        if self.use_metadata:
+        if self.use_modifiers:
             for var in self.metadata_vars:
                 if var.get_type() == VarTypes.Constant:
                     self.output_method_start('Get_' + var.oxmeta_name + '_constant', [], self.TYPE_DOUBLE)
@@ -1493,7 +1490,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         class, and also lookup table declarations and lookup methods.
         It also outputs a blank VerifyStateVariables method.
         """
-        self.include_serialization = not self.use_metadata # TODO: Implement
+        self.include_serialization = not self.use_modifiers # TODO: Implement
         self.check_time_units()
         # Check if we're generating a Backward Euler model
         if hasattr(self.model, u'solver_info') and \
@@ -1667,7 +1664,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if ( not exclude_nonlinear or 
                  self.code_name(var) not in self.nonlinear_system_vars) \
                  and (not nodeset or var in nodeset):
-                if self.use_metadata and var.oxmeta_name:
+                if self.use_modifiers and var.oxmeta_name:
                     value = self.modifier_call(var, self.vector_index('rY', i))
                 else:
                     value = self.vector_index('rY', i)
@@ -1767,13 +1764,13 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.TYPE_DOUBLE = self.TYPE_CONST_DOUBLE = ''
         if assigned_var and assigned_var.get_type() == VarTypes.Constant:
             # A potentially modifiable parameter
-            if assigned_var.pe_keep:
+            if assigned_var.is_modifiable_parameter:
                 value = self.vector_index('mParameters', assigned_var._cml_param_index)
             else:
                 value = expr.initial_value
                 if not '.' in value and not 'e' in value:
                     value = value + '.0'
-            if self.use_metadata and assigned_var.oxmeta_name:
+            if self.use_modifiers and assigned_var.oxmeta_name:
                 # "Constant" oxmeta-annotated parameters may be modified at run-time
                 value = self.modifier_call(assigned_var, value)
             self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(assigned_var), self.EQ_ASSIGN,
@@ -1807,8 +1804,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
 
     def output_get_i_ionic(self):
         """Output the GetIIonic method."""
-        use_metadata = self.use_metadata
-        self.use_metadata = False
+        use_modifiers = self.use_modifiers
+        self.use_modifiers = False
         self.output_method_start('GetIIonic', [], self.TYPE_DOUBLE, access='public')
         self.open_block()
         # Output mathematics to calculate ionic current, using
@@ -1845,7 +1842,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             self.writeln('return 0.0;')
         self.close_block()
-        self.use_metadata = use_metadata
+        self.use_modifiers = use_modifiers
 
     def output_evaluate_y_derivatives(self, method_name='EvaluateYDerivatives'):
         """Output the EvaluateYDerivatives method."""
@@ -3395,9 +3392,8 @@ class ConfigurationStore(object):
         Alternatively these elements may have text content which must be of the form
         'component_name,variable_name'.
 
-        Some items are overridden if oxmeta annotations are present and the
-        use_metadata option is set.  Currently this just applies to the
-        stimulus current and transmembrane potential.
+        Some items are overridden if oxmeta annotations are present.  Currently this just
+        applies to the stimulus current and transmembrane potential.
         """
         rules = [bt.ws_strip_element_rule(u'*')]
         config_doc = amara_parse(config_file, rules=rules)
@@ -3594,17 +3590,13 @@ class ConfigurationStore(object):
 
     def find_current_vars(self):
         """Find the variables representing currents."""
-        # Try metadata first if specified on command line
-        if self.options.use_metadata:
-            i_stim = cellml_metadata.find_variables(self.doc.model,
-                                                    ('bqbiol:is', NSS['bqbiol']),
-                                                    ('oxmeta:membrane_stimulus_current', NSS['oxmeta']))
-            if i_stim:
-                self.i_stim_var = i_stim[0]
-            else:
-                DEBUG('metadata', 'membrane_stimulus_current not found in metadata enabled cellml file.')
-            # TODO: add ionic currents here? (when using RDF metadata)
-        if not self.i_stim_var:
+        # Try metadata first for i_stim (TODO #1209: and other currents)
+        i_stim = cellml_metadata.find_variables(self.doc.model,
+                                                ('bqbiol:is', NSS['bqbiol']),
+                                                ('oxmeta:membrane_stimulus_current', NSS['oxmeta']))
+        if i_stim:
+            self.i_stim_var = i_stim[0]
+        else:
             for defn in self.i_stim_definitions:
                 var = self._find_variable(defn)
                 if var:
@@ -3694,7 +3686,7 @@ class ConfigurationStore(object):
                 raise ConfigurationError('The name of V must contain both '
                                          'component and variable name')
         # Check for metadata annotation
-        elif self.options.use_metadata:
+        else:
             var = cellml_metadata.find_variables(self.doc.model,
                                                  ('bqbiol:is', NSS['bqbiol']),
                                                  ('oxmeta:membrane_voltage', NSS['oxmeta']))
@@ -3880,10 +3872,10 @@ def get_options(args):
                       action='store_true', default=False,
                       help="[debug] use the old LT layout, with poorer cache"
                       " performance")
-    parser.add_option('-m', '--use-metadata',
-                      dest='use_metadata', action='store_true', default=False,
-                      help="obtain variable names from metadata embedded within "
-                      "the CellML file, rather than config.xml [experimental]")
+    parser.add_option('-m', '--use-modifiers',
+                      dest='use_modifiers', action='store_true', default=False,
+                      help="add modifier functions for certain metadata-annotated "
+                      "variables for use in sensitivity analysis [experimental]")
     parser.add_option('-y', '--dll', '--dynamically-loadable',
                       dest='dynamically_loadable',
                       action='store_true', default=False,
@@ -3938,8 +3930,7 @@ def run():
         config.find_transmembrane_potential()
         config.find_current_vars()
 
-    if options.use_metadata:
-        DEBUG('metadata', "metadata enabled, using for ConfigStore")
+    if options.use_modifiers:
         if not options.assume_valid:
             config.validate_metadata()
 
@@ -3952,7 +3943,7 @@ def run():
             class_name += '_lut'
         if options.maple_output:
             class_name += '_be'
-        if options.use_metadata:
+        if options.use_modifiers:
             class_name += '_sens'
 
     output_filename = getattr(options, 'outfilename', None)
@@ -3972,7 +3963,7 @@ def run():
         if options.config_file:
             config.annotate_currents_for_pe()
         # Need to ensure pe doesn't remove metadata-annotated variables
-        if options.use_metadata:
+        if options.use_modifiers:
             config.annotate_metadata_for_pe()
         optimize.parteval(doc)
 
@@ -4020,7 +4011,7 @@ def run():
             transargs['separate_lut_class'] = options.separate_lut_class
             transargs['convert_interfaces'] = options.convert_interfaces
             transargs['kept_vars_as_members'] = options.kept_vars_as_members
-            transargs['use_metadata'] = options.use_metadata
+            transargs['use_modifiers'] = options.use_modifiers
             transargs['dynamically_loadable'] = options.dynamically_loadable
         t = klass(**initargs)
         t.translate(doc, model_file, output_filename, class_name=class_name, **transargs)
