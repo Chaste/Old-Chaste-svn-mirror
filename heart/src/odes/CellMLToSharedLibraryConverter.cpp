@@ -115,9 +115,7 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             EXPECT0(system, "cp " + rCellmlFullPath + " " + tmp_folder);
             // Change to Chaste source folder
             EXPECT0(chdir, ChasteBuildRootDir());
-            // Run PyCml to generate C++ code
-            EXPECT0(system, "./python/ConvertCellModel.py -A -y --normal " + tmp_folder + "/" + rModelLeafName + "cellml");
-            // Run scons to compile it to a .so
+            // Run scons to generate C++ code and compile it to a .so
             EXPECT0(system, "scons dyn_libs_only=1 build=" + ChasteBuildType() + " " + tmp_folder);
             // CD back
             EXPECT0(chdir, old_cwd);

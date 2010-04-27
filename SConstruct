@@ -299,6 +299,9 @@ if hasattr(hostconfig.conf, 'ModifyEnv') and callable(hostconfig.conf.ModifyEnv)
 # We need different linker flags when compiling dynamically loadable modules
 dynenv = env.Clone()
 env.Append(LINKFLAGS=' '+build.rdynamic_link_flag)
+# Try to avoid likely conflicts
+for path in [p for p in dynenv['CPPPATH'] if 'cellml' in str(p)]:
+    dynenv['CPPPATH'].remove(path)
 
 # Export the build environment to SConscript files
 Export('env', 'dynenv')

@@ -597,7 +597,7 @@ def DoComponentSConscript(component, otherVars):
                                                ignoreDirs=['data'],
                                                includeRoot=True)
     # Find any source files that should get made into dynamically loadable modules.
-    dyn_source, _ = FindSourceFiles(env, 'dynamic')
+    dyn_source, dyn_cpppath = FindSourceFiles(env, 'dynamic', includeRoot=True)
     # Move back to the buid dir
     os.chdir(curdir)
 
@@ -622,13 +622,18 @@ def DoComponentSConscript(component, otherVars):
     
     # Build any dynamically loadable modules
     dyn_libs = []
+    if dyn_cpppath:
+        dyn_env = otherVars['dynenv'].Clone()
+        dyn_env.Prepend(CPPPATH=dyn_cpppath)
+    else:
+        dyn_env = otherVars['dynenv']
     for s in dyn_source:
         # Note: if building direct from CellML, there will be more than 1 target
-        dyn_objs = otherVars['dynenv'].SharedObject(source=s)
+        dyn_objs = dyn_env.SharedObject(source=s)
         for o in dyn_objs:
-            so_lib = otherVars['dynenv'].OriginalSharedLibrary(source=o)
+            so_lib = dyn_env.OriginalSharedLibrary(source=o)
             so_dir = os.path.abspath(os.path.join(curdir, '..', '..', os.path.dirname(s)))
-            dyn_libs.append(otherVars['dynenv'].Install(so_dir, so_lib))
+            dyn_libs.append(dyn_env.Install(so_dir, so_lib))
     
     # Build and install the library for this component
     if use_chaste_libs:
