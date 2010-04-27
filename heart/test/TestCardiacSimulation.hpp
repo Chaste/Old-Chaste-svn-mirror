@@ -248,7 +248,7 @@ public:
         if (PetscTools::AmMaster())
         {
             // Copy CellML file into output dir
-            FileFinder cellml_file("heart/dynamic/luo_rudy_1991.cellml", RelativeTo::ChasteSourceRoot);
+            FileFinder cellml_file("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
             EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
         }
         PetscTools::Barrier("TestCardiacSimulationPatchwork");

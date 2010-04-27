@@ -103,7 +103,7 @@
             </Region>
             <Region> <!-- REGION 11 -->
                 <IonicModel><Dynamic>
-                    <Path relative_to="chaste_test_output">DynamicallyLoadedModel/luo_rudy_1991.cellml</Path>
+                    <Path relative_to="chaste_test_output">DynamicallyLoadedModel/luo_rudy_1991_dyn.cellml</Path>
                 </Dynamic></IonicModel>
                 <Location unit="cm">
                     <Cuboid>
