@@ -56,7 +56,7 @@ private:
      * anti clockwise. If and only if this is false, the order of vertices
      * in the corresponding face should be reversed.
      *
-     * N.B. Most faces belong to two VoronoiCell, but with opposite
+     * N.B. Most faces belong to two elements, but with opposite
      * orientations. This allows us to reuse the face data across the
      * two cells.
      */

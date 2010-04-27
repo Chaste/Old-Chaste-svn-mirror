@@ -1,7 +1,5 @@
 TestTetrahedralMesh.hpp
 TestFemlabMeshReader.hpp
-TestFace.hpp
-TestInventorVoronoiWriter.hpp
 TestMemfemMeshReader.hpp
 TestMeshWriters.hpp
 TestTrianglesMeshReader.hpp
@@ -10,5 +8,3 @@ TestNode.hpp
 TestChastePoint.hpp
 TestTransformations.hpp
 TestMutableMeshRemesh.hpp
-TestVoronoiCell.hpp
-TestVoronoiTessellation.hpp

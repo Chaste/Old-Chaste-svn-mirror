@@ -10,7 +10,6 @@ crypt/TestVanLeeuwen2009WntSwatCellCycleOdeSystem.hpp
 crypt/TestWntCellCycleOdeSystem.hpp
 crypt/TestWntConcentration.hpp
 mesh/TestHoneycombMeshGenerator.hpp
-mesh/TestVoronoiAreaOnPeriodicMesh.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
 simulation/TestTissueSimulation3d.hpp

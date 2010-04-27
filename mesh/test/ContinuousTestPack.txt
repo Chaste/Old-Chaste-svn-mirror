@@ -4,9 +4,7 @@ TestChastePoint.hpp
 TestDistanceMapCalculator.hpp
 TestDistributedTetrahedralMesh.hpp
 TestElement.hpp
-TestFace.hpp
 TestFemlabMeshReader.hpp
-TestInventorVoronoiWriter.hpp
 TestMemfemMeshReader.hpp
 TestMeshWriters.hpp
 TestMutableMesh.hpp
@@ -21,5 +19,3 @@ TestVertexElement.hpp
 TestVertexMesh.hpp
 TestVertexMeshReader.hpp
 TestVertexMeshWriter.hpp
-TestVoronoiCell.hpp
-TestVoronoiTessellation.hpp

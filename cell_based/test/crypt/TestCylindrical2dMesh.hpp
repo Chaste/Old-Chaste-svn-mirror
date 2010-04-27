@@ -35,8 +35,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 
+#include "UblasCustomFunctions.hpp"
+#include "VertexMesh.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "ArchiveOpener.hpp"
+#include "TrianglesMeshWriter.hpp"
 
 class TestCylindrical2dMesh : public CxxTest::TestSuite
 {
@@ -860,6 +863,42 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh.ReconstructCylindricalMesh());
     }
 
+    void TestVoronoiTessellationUsesOverriddenMetric() throw (Exception)
+    {
+        TissueConfig* p_params = TissueConfig::Instance();
+
+        unsigned cells_across = 6;
+        unsigned cells_up = 12;
+        double crypt_width = 6.0;
+        unsigned thickness_of_ghost_layer = 0;
+
+        HoneycombMeshGenerator generator(cells_across, cells_up,thickness_of_ghost_layer, true, crypt_width/cells_across);
+        Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+        TS_ASSERT(p_mesh->CheckIsVoronoi());
+        TS_ASSERT_DELTA(p_params->GetCryptWidth(),6.0,1e-6);
+
+        // Create Voronoi tessellation
+        VertexMesh<2, 2> tessellation(*p_mesh);
+
+        //  Get two neighbouring nodes on boundary 48 and 53.
+        //  Check that they have a common edge
+        //  check it is a reasonable length (O(1)?)
+
+        c_vector<double, 2> location_48 = p_mesh->GetNode(48)->rGetLocation();
+        double common_edge_between_48_and_53 = tessellation.GetEdgeLength(48, 53);
+
+        TS_ASSERT_DELTA(tessellation.GetEdgeLength(48, 49), pow(3.0, -0.5), 1e-4);
+
+        TS_ASSERT_DELTA(common_edge_between_48_and_53,  pow(3.0, -0.5), 1e-4);
+
+        //  Check that both cells have a reasonable sized area
+        TS_ASSERT_DELTA(tessellation.GetAreaOfElement(44),  0.5 * pow(3.0, 0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetPerimeterOfElement(44), 2 * pow(3.0, 0.5), 1e-4);
+
+        TS_ASSERT_DELTA(tessellation.GetAreaOfElement(48),  0.5 * pow(3.0, 0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetPerimeterOfElement(48), 2 * pow(3.0, 0.5), 1e-4);
+    }
 };
 
 #endif /*TESTCYLINDRICAL2DMESH_HPP_*/
