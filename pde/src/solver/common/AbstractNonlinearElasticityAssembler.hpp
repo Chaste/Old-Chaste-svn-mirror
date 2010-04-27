@@ -495,6 +495,9 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
         // Speed up linear solve time massively for larger simulations (in fact GMRES may stagnate without
         // this for larger problems), by using a AMG preconditioner -- needs HYPRE installed 
         /////////////////////////////////////////////////////////////////////////////////////////////////////
+        //PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+        //PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.1");
+        PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
         PCSetType(pc, PCHYPRE);
         KSPSetPreconditionerSide(solver, PC_RIGHT);
     #endif     
