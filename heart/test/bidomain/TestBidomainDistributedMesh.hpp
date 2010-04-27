@@ -161,7 +161,7 @@ public:
 
         // The default stimulus in PlaneStimulusCellFactory is not enough to generate propagation
         // here, increasing it an order of magnitude
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-6000);
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-6000, 0.5);
 
         // To avoid an issue with the Event handler only one simulation should be
         // in existance at a time: therefore monodomain simulation is defined in a block

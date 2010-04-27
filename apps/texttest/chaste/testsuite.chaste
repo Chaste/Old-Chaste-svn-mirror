@@ -21,3 +21,6 @@ save_monodomain
 
 # monodomain 2D simulation with <ResumeSimulation> defined
 resume_monodomain
+
+# bidomain simulation with initial mesh read in Memfem format
+imported_mesh_bidomain

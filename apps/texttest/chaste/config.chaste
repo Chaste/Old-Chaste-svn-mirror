@@ -6,6 +6,9 @@ link_test_path:ChasteDefaults.xml
 link_test_path:cube_1626_elements.ele
 link_test_path:cube_1626_elements.face
 link_test_path:cube_1626_elements.node
+link_test_path:Memfem_slab.pts
+link_test_path:Memfem_slab.tetras
+link_test_path:Memfem_slab.tri
 # Directories containing an archived simulation
 link_test_path:save_bidomain
 link_test_path:save_monodomain
