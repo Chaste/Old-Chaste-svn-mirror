@@ -322,22 +322,9 @@ public:
         ///////////////////////////////////////////////////////////////////
         HeartConfig::Instance()->SetOutputDirectory("DistributedMesh3dDistViaMem");
 
-        MemfemMeshReader<3,3> mesh_reader("mesh/test/data/Memfem_slab");
-        DistributedTetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 381u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 1030u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 758u);
-
         BidomainProblem<3> distributed_problem( &cell_factory );
 
-        //distributed_problem.PrintOutput(false);
-
-        distributed_problem.SetMesh(&mesh);
-        ///\todo #1323 Prove we can do this via file name
-//        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/Memfem_slab");
-//        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/SlabFromMemfem");
-//        ///\todo #1323 Prove we can do this via file name
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/Memfem_slab");
         distributed_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -366,7 +353,7 @@ public:
 
         double para_ave_voltage;
         MPI_Reduce(&para_local_ave_voltage, &para_ave_voltage, 1, MPI_DOUBLE, MPI_SUM, PetscTools::MASTER_RANK, PETSC_COMM_WORLD);
-        para_ave_voltage /= mesh.GetNumNodes();
+        para_ave_voltage /= distributed_problem.rGetMesh().GetNumNodes();
 
         ///////////////////////////////////////////////////////////////////
         // compare

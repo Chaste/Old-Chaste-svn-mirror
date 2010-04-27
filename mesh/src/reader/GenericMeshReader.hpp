@@ -124,16 +124,13 @@ public:
         return mpMeshReader->GetNumElementAttributes();
     }
 
-/** \todo #1323 COVER
- */
-
-//    /** 
-//     * Method uses the public method of the delegated mesh reader
-//     */
-//    inline unsigned GetNumFaceAttributes() const
-//    {
-//        return mpMeshReader->GetNumFaceAttributes();
-//    }
+    /** 
+     * Method uses the public method of the delegated mesh reader
+     */
+    inline unsigned GetNumFaceAttributes() const
+    {
+        return mpMeshReader->GetNumFaceAttributes();
+    }
 
     /** 
      * Method uses the public method of the delegated mesh reader

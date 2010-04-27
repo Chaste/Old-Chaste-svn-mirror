@@ -582,8 +582,9 @@ public:
         GenericMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 312u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 522u);
-        TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 100u);
-        
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 1u);
+        TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 0u);
+         
         TS_ASSERT_THROWS_CONTAINS(GENERIC_READER_2D mesh_reader2("mesh/test/data/no_such_file"),
                               "Could not open appropriate mesh files for mesh/test/data/no_such_file");
     }

@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacProblem.hpp"
 
-#include "TrianglesMeshReader.hpp"
+#include "GenericMeshReader.hpp"
 #include "Exception.hpp"
 #include "HeartConfig.hpp"
 #include "HeartEventHandler.hpp"
@@ -116,7 +116,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
             if(HeartConfig::Instance()->GetLoadMesh())
             {
                 mpMesh = new DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>();
-                TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
+                GenericMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(HeartConfig::Instance()->GetMeshName());
                 mpMesh->ConstructFromMeshReader(mesh_reader);
             }
             else if(HeartConfig::Instance()->GetCreateMesh())

@@ -79,7 +79,9 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 1030u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 758u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumElementAttributes(), 0u);
-       // The file does not exist
+        TS_ASSERT_EQUALS(mesh_reader.GetNumFaceAttributes(), 0u);
+           
+        // The file does not exist
         TS_ASSERT_THROWS_CONTAINS( GENERIC_READER_3D mesh_reader2("no_file"), 
         "Could not open appropriate mesh files for no_file");
     }
