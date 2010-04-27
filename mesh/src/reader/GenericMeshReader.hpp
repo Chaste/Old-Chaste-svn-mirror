@@ -74,8 +74,10 @@ public:
             }
             catch (Exception memfem_exception)
             {
-                throw memfem_exception; ///\todo #1323 a decent throw if they all fail - concantenate messages?
-        
+                std::string combined_message = "Could not open appropriate mesh files for "+pathBaseName+"\n";
+                combined_message += "Triangle format: "+triangles_exception.GetShortMessage()+"\n"; 
+                combined_message += "Memfem format: "+memfem_exception.GetShortMessage()+"\n";
+                EXCEPTION(combined_message);
             }
         }
         

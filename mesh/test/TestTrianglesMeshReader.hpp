@@ -584,10 +584,8 @@ public:
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 522u);
         TS_ASSERT_EQUALS(mesh_reader.GetNumFaces(), 100u);
         
-///\todo #1323        TS_ASSERT_THROWS_THIS(GENERIC_READER_2D mesh_reader2("mesh/test/data/no_such_file"),
-//                              "Could not open data file: mesh/test/data/no_such_file.node");
-        TS_ASSERT_THROWS_THIS(GENERIC_READER_2D mesh_reader2("mesh/test/data/no_such_file"),
-                              "Could not open data file mesh/test/data/no_such_file.pts");
+        TS_ASSERT_THROWS_CONTAINS(GENERIC_READER_2D mesh_reader2("mesh/test/data/no_such_file"),
+                              "Could not open appropriate mesh files for mesh/test/data/no_such_file");
     }
     
 };
