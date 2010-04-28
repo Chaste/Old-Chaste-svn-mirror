@@ -1364,6 +1364,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln_hpp('#include <boost/serialization/base_object.hpp>')
         self.writeln('#include <cmath>')
         self.writeln('#include <cassert>')
+        self.writeln('#include <memory>')
         if self.use_backward_euler:
             self.writeln_hpp('#include "AbstractBackwardEulerCardiacCell.hpp"')
             self.writeln('#include "CardiacNewtonSolver.hpp"')
@@ -1628,12 +1629,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Method to get the table instance object
         self.writeln('static ', self.lt_class_name, '* Instance()')
         self.open_block()
-        self.writeln('if (mpInstance == NULL)')
+        self.writeln('if (mpInstance.get() == NULL)')
         self.writeln('{')
-        self.writeln('mpInstance = new ', self.lt_class_name, ';',
+        self.writeln('mpInstance.reset(new ', self.lt_class_name, ');',
                      indent_offset=1)
         self.writeln('}')
-        self.writeln('return mpInstance;')
+        self.writeln('return mpInstance.get();')
         self.close_block()
         # Table lookup methods
         self.output_lut_methods()
@@ -1646,22 +1647,22 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Constructor
         self.writeln(self.lt_class_name, '()')
         self.open_block()
-        self.writeln('assert(mpInstance == NULL);')
+        self.writeln('assert(mpInstance.get() == NULL);')
         self.output_lut_generation()
         self.close_block()
         # Private data
         self.writeln('private:', indent_level=0)
         self.writeln('/** The single instance of the class */')
-        self.writeln('static ', self.lt_class_name, ' *mpInstance;\n')
+        self.writeln('static std::auto_ptr<', self.lt_class_name, '> mpInstance;\n')
         if self.row_lookup_method:
             self.output_lut_row_lookup_memory()
         self.output_lut_declarations()
         # Close the class
         self.set_indent(0)
         self.writeln('};\n')
-        # Initialise the instance pointer
-        self.writeln(self.lt_class_name, '* ', self.lt_class_name,
-                     '::mpInstance = NULL;')
+        # Define the instance pointer
+        self.writeln('std::auto_ptr<', self.lt_class_name, '> ',
+                     self.lt_class_name, '::mpInstance;')
         self.writeln()
         return
 
