@@ -309,9 +309,9 @@ cp -r /tmp/$USER/testoutput/SaveMonodomain/ ~/eclipse/workspace/Chaste/apps/text
 private:
     // Helper functions for the migration tests defined below.
     template<class Problem, unsigned DIM>
-    Problem* DoMigrateAndBasicTests(const std::string& rArchiveDirectory,
-                                    const std::string& rRefArchiveDir,
-                                    const std::string& rSourceDir,
+    Problem* DoMigrateAndBasicTests(const FileFinder& rArchiveDirectory,
+                                    const std::string& rRefArchiveDir, // relative to CHASTE_TEST_OUTPUT
+                                    const std::string& rNewArchiveDir, // relative to CHASTE_TEST_OUTPUT
                                     const unsigned totalNumCells,
                                     bool isDistributedMesh=false,
                                     double currentTime=0.0)
@@ -368,12 +368,12 @@ private:
         }
 
         // Save it to an archive for the current number of processes
-        CardiacSimulationArchiver<Problem>::Save(*p_problem, rArchiveDirectory + "/new_archive");
+        CardiacSimulationArchiver<Problem>::Save(*p_problem, rNewArchiveDir);
 
         // Compare with the global archive from the previous test
-        OutputFileHandler handler(rArchiveDirectory, false);
+        OutputFileHandler handler(rNewArchiveDir, false);
         std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/archive.arch";
-        std::string my_archive = handler.GetOutputDirectoryFullPath() + "new_archive/archive.arch";
+        std::string my_archive = handler.GetOutputDirectoryFullPath() + "archive.arch";
         EXPECT0(system, "cmp " + ref_archive + " " + my_archive);
         //THIS WON'T WORK WITH DIFFERENT VERSIONS OF BOOST:
 #ifndef BOOST_VERSION
@@ -393,11 +393,11 @@ private:
 scons test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestLoadAsSequential/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration/reference_0_archive
 cp /tmp/$USER/testoutput/TestLoadAsSequentialWithBath/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_with_bath/reference_0_archive
-cp /tmp/chaste/testoutput/TestLoadAsSequentialWithBathAndDistributedMesh/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/reference_0_archive
+cp /tmp/$USER/testoutput/TestLoadAsSequentialWithBathAndDistributedMesh/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/reference_0_archive
 cp /tmp/$USER/testoutput/TestBcsOnNonMasterOnly/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_bcs_on_non_master_only/reference_0_archive
 cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./heart/test/data/checkpoint_migration_after_solve/reference_0_archive
              */
-            EXPECT0(system, "cmp " + rSourceDir + "reference_0_archive " + my_archive + ".0");
+            EXPECT0(system, "cmp " + rArchiveDirectory.GetAbsolutePath() + "reference_0_archive " + my_archive + ".0");
         }
 #endif
 
@@ -412,8 +412,8 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
      * Also change the end time if we're resuming a simulation, and copy the previous
      * results h5 file into the new subfolder in that case, so that it can be extended.
      */
-    void SetOutputDirAndEndTime(const std::string& rDirToCopyFrom,
-                                const std::string& rRefArchiveDir,
+    void SetOutputDirAndEndTime(const FileFinder& rDirToCopyFrom,
+                                const std::string& rRefArchiveDir, // relative to CHASTE_TEST_OUTPUT
                                 const std::string& rSubDir,
                                 double endTime)
     {
@@ -424,11 +424,10 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
         {
             HeartConfig::Instance()->SetSimulationDuration(endTime);
             // Also need to copy the old results into the new output folder
-            OutputFileHandler handler1(rDirToCopyFrom, false); // must be collective
             OutputFileHandler handler2(output_dir, false); // must be collective
             if (PetscTools::AmMaster())
             {
-                std::string prev_results_path = handler1.GetOutputDirectoryFullPath() + "simulation.h5";
+                std::string prev_results_path = rDirToCopyFrom.GetAbsolutePath() + "simulation.h5";
                 std::string new_path = handler2.GetOutputDirectoryFullPath() + "simulation.h5";
                 EXPECT0(system, "cp " + prev_results_path + " " + new_path);
             }
@@ -436,11 +435,12 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
     }
 
     template<class Problem>
-    void DoSimulationsAfterMigrationAndCompareResults(Problem* pProblem,
-                                                      const std::string& rArchiveDirectory,
-                                                      const std::string& rRefArchiveDir,
-                                                      unsigned numVars,
-                                                      double endTime=0.0)
+    void DoSimulationsAfterMigrationAndCompareResults(Problem* pProblem, // the loaded problem
+                                                      const FileFinder& rArchiveDirectory, // where the archive was stored
+                                                      const std::string& rRefArchiveDir, // relative to CHASTE_TEST_OUTPUT
+                                                      const std::string& rNewArchiveDir, // relative to CHASTE_TEST_OUTPUT
+                                                      unsigned numVars, // mono or bidomain?
+                                                      double endTime=0.0) // if >0, we're resuming a simulation
     {
         // Simulate this problem
         SetOutputDirAndEndTime(rArchiveDirectory, rRefArchiveDir, "mig1", endTime);
@@ -452,7 +452,8 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
 
         // Compare the results with simulating the archive from the previous test
         Problem* p_orig_problem = CardiacSimulationArchiver<Problem>::Load(rRefArchiveDir);
-        SetOutputDirAndEndTime(rRefArchiveDir, rRefArchiveDir, "orig", endTime);
+        FileFinder ref_archive_dir(rRefArchiveDir, RelativeTo::ChasteTestOutput);
+        SetOutputDirAndEndTime(ref_archive_dir, rRefArchiveDir, "orig", endTime);
         p_orig_problem->Solve();
         ReplicatableVector orig_soln(p_orig_problem->GetSolution());
         TS_ASSERT_EQUALS(migrated_soln_1.GetSize(), orig_soln.GetSize());
@@ -474,7 +475,7 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
         delete p_orig_problem;
 
         // Now try loading the migrated simulation that we saved above
-        Problem* p_problem = CardiacSimulationArchiver<Problem>::Load(rArchiveDirectory + "/new_archive");
+        Problem* p_problem = CardiacSimulationArchiver<Problem>::Load(rNewArchiveDir);
         SetOutputDirAndEndTime(rArchiveDirectory, rRefArchiveDir, "mig2", endTime);
         // Change end time?
         if (endTime > 0.0)
@@ -495,18 +496,9 @@ cp /tmp/$USER/testoutput/TestMigrateAfterSolve/new_archive/archive.arch.0 ./hear
 public:
     void TestMigrationExceptions() throw (Exception)
     {
-        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
-        std::string source_directory = "heart/test/data/checkpoint_migration_exception/";
-        std::string target_directory = "TestMigrationExceptions";
-        OutputFileHandler handler(target_directory); // Clear the target directory
-        if (PetscTools::AmMaster())
-        {
-            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
-        }
-        PetscTools::Barrier("TestMigrationExceptions");
+        FileFinder archive_dir("heart/test/data/checkpoint_migration_exception/", RelativeTo::ChasteSourceRoot);
         BidomainProblem<3>* p_problem;
-        // Cover exceptions
-        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load(target_directory),
+        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load(archive_dir),
                                   "Cannot load main archive file: ");
         TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load("absent_directory"),
                                   "Checkpoint directory does not exist: ");
@@ -524,7 +516,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
      * that produced by the next test.
      *
      * Generates a 3d cube mesh with 125 nodes, corners at (0,0,0) and (1,1,1)
-     * with nodal spacing of 0.25cm.
+     * with nodal spacing of 0.2cm.
      */
     void TestCreateArchiveForLoadAsSequential() throw (Exception)
     {
@@ -544,7 +536,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
         CardiacSimulationArchiver<BidomainProblem<3> >::Save(bidomain_problem, directory);
 
         // This is quite a nasty exception to cover, as you need to be able to write to all files
-        // in the directory exception archive.info.  It also has to be done in parallel too, to
+        // in the directory except archive.info.  It also has to be done in parallel too, to
         // cover the exception replication.
         OutputFileHandler handler(directory, false);
         std::string info_path = handler.GetOutputDirectoryFullPath() + "archive.info";
@@ -563,26 +555,19 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
     /**
      * #1159 - the first part of migrating a checkpoint to a different number of processes.
      *
-     * The original LoadAsSequential and LoadFromSequential methods are now deprecated, since
-     * we can do everything with a single Migrate method.  But the tests are still named after
+     * The original LoadAsSequential and LoadFromSequential methods are now gone, since
+     * we can do everything with a single Load method.  But the tests are still named after
      * the original methods.
      */
     void TestLoadAsSequential() throw (Exception)
     {
-        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
-        std::string source_directory = "heart/test/data/checkpoint_migration/";
-        std::string archive_directory = "TestLoadAsSequential";
+        FileFinder source_directory("heart/test/data/checkpoint_migration/", RelativeTo::ChasteSourceRoot);
+        std::string new_directory = "TestLoadAsSequential";
         std::string ref_archive_dir = "TestCreateArchiveForLoadAsSequential";
-        OutputFileHandler handler(archive_directory); // Clear the target directory
-        if (PetscTools::AmMaster())
-        {
-            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
-        }
-        PetscTools::Barrier("TestLoadAsSequential");
 
         // Do the migration
         const unsigned num_cells = 216u;
-        BidomainProblem<3>* p_problem = DoMigrateAndBasicTests<BidomainProblem<3>,3>(archive_directory, ref_archive_dir, source_directory, num_cells, true);
+        BidomainProblem<3>* p_problem = DoMigrateAndBasicTests<BidomainProblem<3>,3>(source_directory, ref_archive_dir, new_directory, num_cells, true);
 
         // All cells at x=0 should have a SimpleStimulus(-80000, 1).
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
@@ -613,7 +598,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
         TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
         TS_ASSERT(! p_problem->mpBoundaryConditionsContainer);
 
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, source_directory, ref_archive_dir, new_directory, 2);
     }
 
 
@@ -623,11 +608,6 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
 scons build=GccOpt_hostconfig,boost=1-33-1_3 test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBath/?* ./heart/test/data/checkpoint_migration_with_bath/
 cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistributedMesh/?* ./heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/
-     *
-     * Sets up a simulation and archives it without solving at all.
-     *
-     * When running sequentially, this creates an archive we can compare with
-     * that produced by the next test.
      */
     void TestCreateArchiveForLoadAsSequentialWithBath() throw (Exception)
     {
@@ -689,21 +669,14 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
 
     void TestLoadAsSequentialWithBath() throw (Exception)
     {
-        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
-        std::string source_directory = "heart/test/data/checkpoint_migration_with_bath/";
-        std::string archive_directory = "TestLoadAsSequentialWithBath";
+        FileFinder source_directory("heart/test/data/checkpoint_migration_with_bath/", RelativeTo::ChasteSourceRoot);
+        std::string new_archive_dir = "TestLoadAsSequentialWithBath";
         std::string ref_archive_dir = "TestCreateArchiveForLoadAsSequentialWithBath";
-        OutputFileHandler handler(archive_directory); // Clear the target directory
-        if (PetscTools::AmMaster())
-        {
-            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
-        }
-        PetscTools::Barrier("TestLoadAsSequentialWithBath");
 
         BidomainProblem<2>* p_problem;
         // Do the migration to sequential
         const unsigned num_cells = 221u;
-        p_problem = DoMigrateAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, source_directory, num_cells, false);
+        p_problem = DoMigrateAndBasicTests<BidomainProblem<2>,2>(source_directory, ref_archive_dir, new_archive_dir, num_cells, false);
 
         // All cells should have no stimulus.
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
@@ -769,30 +742,25 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
             TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*iter,centroid,0), 0, 1e-10);
         }
 
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, source_directory, ref_archive_dir, new_archive_dir, 2);
         
         // And now a shorter test with a distributed mesh, for coverage
-        source_directory = "heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/";
-        archive_directory = "TestLoadAsSequentialWithBathAndDistributedMesh";
+        source_directory = FileFinder("heart/test/data/checkpoint_migration_with_bath_and_distributed_mesh/", RelativeTo::ChasteSourceRoot);
+        new_archive_dir = "TestLoadAsSequentialWithBathAndDistributedMesh";
         ref_archive_dir = "TestCreateArchiveForLoadAsSequentialWithBathAndDistributedMesh";
-        OutputFileHandler handler2(archive_directory); // Clear the target directory
-        if (PetscTools::AmMaster())
-        {
-            EXPECT0(system, "cp " + source_directory + "* " + handler2.GetOutputDirectoryFullPath());
-        }
-        PetscTools::Barrier("TestLoadAsSequentialWithBathAndDistributedMesh");
         
         BidomainProblem<2>* p_problem2;
         // Do the migration to sequential
-        p_problem2 = DoMigrateAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, source_directory, num_cells, true);
+        p_problem2 = DoMigrateAndBasicTests<BidomainProblem<2>,2>(source_directory, ref_archive_dir, new_archive_dir, num_cells, true);
         delete p_problem2;
     }
 
 private:
     template<class Problem, unsigned DIM>
     Problem* DoMigrateFromSequentialAndBasicTests(
-            const std::string& rArchiveDirectory,
+            const FileFinder& rArchiveDirectory,
             const std::string& rRefArchiveDir,
+            const std::string& rNewArchiveDir,
             const unsigned totalNumCells,
             bool isDistributedMesh,
             bool isConstructedMesh,
@@ -853,12 +821,12 @@ private:
         }
 
         // Save it to a normal archive
-        CardiacSimulationArchiver<Problem>::Save(*p_problem, rArchiveDirectory + "/new_archive");
+        CardiacSimulationArchiver<Problem>::Save(*p_problem, rNewArchiveDir);
 
         // Compare with the archive from the previous test
-        OutputFileHandler handler(rArchiveDirectory, false);
+        OutputFileHandler handler(rNewArchiveDir, false);
         std::string ref_archive = handler.GetChasteTestOutputDirectory() + rRefArchiveDir + "/archive.arch";
-        std::string my_archive = handler.GetOutputDirectoryFullPath() + "new_archive/archive.arch";
+        std::string my_archive = handler.GetOutputDirectoryFullPath() + "archive.arch";
         ///\todo When #1199 is done, re-instate this if
 //        if (PetscTools::GetNumProcs() > 1)
 //        {
@@ -897,11 +865,8 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
      *
      * Sets up a simulation and archives it without solving at all.
      *
-     * When running in parallel, this creates an archive we can compare with
-     * that produced by the next test.
-     *
      * Generates a 3d cube mesh with 125 nodes, corners at (0,0,0) and (1,1,1)
-     * with nodal spacing of 0.25cm.
+     * with nodal spacing of 0.2cm.
      */
     void TestCreateArchiveForLoadFromSequential() throw (Exception)
     {
@@ -926,21 +891,14 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
      */
     void TestLoadFromSequential() throw (Exception)
     {
-        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
-        std::string source_directory = "heart/test/data/checkpoint_migration_from_seq/";
-        std::string archive_directory = "TestLoadFromSequential";
+        FileFinder source_directory("heart/test/data/checkpoint_migration_from_seq/", RelativeTo::ChasteSourceRoot);
+        std::string new_archive_dir = "TestLoadFromSequential";
         std::string ref_archive_dir = "TestCreateArchiveForLoadFromSequential";
-        OutputFileHandler handler(archive_directory); // Clear the target directory
-        if (PetscTools::AmMaster())
-        {
-            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
-        }
-        PetscTools::Barrier("TestLoadFromSequential");
 
         // Loading from a sequential archive should work just as well running sequentially as in parallel -
-        // if running sequentially it's essentially just the same as a normal load.
+        // if running sequentially it's just the same as a normal load.
         const unsigned num_cells = 216u;
-        MonodomainProblem<3>* p_problem = DoMigrateFromSequentialAndBasicTests<MonodomainProblem<3>,3>(archive_directory, ref_archive_dir, num_cells, true, true);
+        MonodomainProblem<3>* p_problem = DoMigrateFromSequentialAndBasicTests<MonodomainProblem<3>,3>(source_directory, ref_archive_dir, new_archive_dir, num_cells, true, true);
 
         // All cells at x=0 should have a SimpleStimulus(-25500, 2).
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
@@ -971,7 +929,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
         TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
         TS_ASSERT(! p_problem->mpBoundaryConditionsContainer);
 
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 1);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, source_directory, ref_archive_dir, new_archive_dir, 1);
     }
 
     /**
@@ -980,9 +938,6 @@ scons build=GccOpt_hostconfig,boost=1-33-1  test_suite=heart/test/TestCardiacSim
 cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./heart/test/data/checkpoint_migration_from_seq_with_bath/
      *
      * Sets up a simulation and archives it, solving for one PDE step first to set up default BCs.
-     *
-     * When running in parallel, this creates an archive we can compare directly with
-     * that produced by the next test.
      */
     void TestCreateArchiveForLoadFromSequentialWithBath() throw (Exception)
     {
@@ -1024,21 +979,14 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
 
     void TestLoadFromSequentialWithBath() throw (Exception)
     {
-        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
-        std::string source_directory = "heart/test/data/checkpoint_migration_from_seq_with_bath/";
-        std::string archive_directory = "TestLoadFromSequentialWithBath";
+        FileFinder source_directory("heart/test/data/checkpoint_migration_from_seq_with_bath/", RelativeTo::ChasteSourceRoot);
+        std::string new_archive_dir = "TestLoadFromSequentialWithBath";
         std::string ref_archive_dir = "TestCreateArchiveForLoadFromSequentialWithBath";
-        OutputFileHandler handler(archive_directory); // Clear the target directory
-        if (PetscTools::AmMaster())
-        {
-            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
-        }
-        PetscTools::Barrier("TestLoadFromSequentialWithBath");
 
         // Loading from a sequential archive should work just as well running sequentially as in parallel -
         // if running sequentially it's essentially just the same as a normal load.
         const unsigned num_cells = 221u;
-        BidomainProblem<2>* p_problem = DoMigrateFromSequentialAndBasicTests<BidomainProblem<2>,2>(archive_directory, ref_archive_dir, num_cells, true, false, 0.1);
+        BidomainProblem<2>* p_problem = DoMigrateFromSequentialAndBasicTests<BidomainProblem<2>,2>(source_directory, ref_archive_dir, new_archive_dir, num_cells, true, false, 0.1);
 
         // All cells should have a ZeroStimulus.
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
@@ -1114,7 +1062,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
             TS_ASSERT(!p_bcc->HasDirichletBoundaryCondition(p_node, 0));
         }
 
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2, 0.2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, source_directory, ref_archive_dir, new_archive_dir, 2, 0.2);
     }
 
     /**
@@ -1124,11 +1072,6 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
      *
 scons build=GccOpt_hostconfig,boost=1-33-1_2  test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/data/checkpoint_migration_bcs_on_non_master_only/
-     *
-     * Sets up a simulation and archives it without solving at all.
-     *
-     * When running sequentially, this creates an archive we can compare with
-     * that produced by the next test.
      */
     void TestCreateArchiveForBcsOnNonMasterOnly() throw (Exception)
     {
@@ -1180,19 +1123,12 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
 
     void TestBcsOnNonMasterOnly() throw (Exception)
     {
-        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
-        std::string source_directory = "heart/test/data/checkpoint_migration_bcs_on_non_master_only/";
-        std::string archive_directory = "TestBcsOnNonMasterOnly";
+        FileFinder source_directory("heart/test/data/checkpoint_migration_bcs_on_non_master_only/", RelativeTo::ChasteSourceRoot);
+        std::string new_archive_dir = "TestBcsOnNonMasterOnly";
         std::string ref_archive_dir = "TestCreateArchiveForBcsOnNonMasterOnly";
-        OutputFileHandler handler(archive_directory); // Clear the target directory
-        if (PetscTools::AmMaster())
-        {
-            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
-        }
-        PetscTools::Barrier("TestBcsOnNonMasterOnly");
 
         const unsigned num_nodes = 11u;
-        BidomainProblem<1>* p_problem = DoMigrateAndBasicTests<BidomainProblem<1>,1>(archive_directory, ref_archive_dir, source_directory, num_nodes, true);
+        BidomainProblem<1>* p_problem = DoMigrateAndBasicTests<BidomainProblem<1>,1>(source_directory, ref_archive_dir, new_archive_dir, num_nodes, true);
 
         // Test the bccs - zero dirichlet on RHS only
         TS_ASSERT(! p_problem->mpDefaultBoundaryConditionsContainer);
@@ -1220,7 +1156,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
             }
         }
 
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, source_directory, ref_archive_dir, new_archive_dir, 2);
     }
 
     /**
@@ -1232,11 +1168,6 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForBcsOnNonMasterOnly/?* ./heart/test/
      * Run this in parallel (build=_2) to create the archive for TestMigrateAfterSolve.
 scons build=GccOpt_hostconfig,boost=1-33-1_2 test_suite=heart/test/TestCardiacSimulationArchiver.hpp
 cp /tmp/$USER/testoutput/TestCreateArchiveForMigrateAfterSolve/archive/?* ./heart/test/data/checkpoint_migration_after_solve/
-     *
-     * Sets up a simulation and archives it without solving at all.
-     *
-     * When running sequentially, this creates an archive we can compare with
-     * that produced by the next test.
      */
     void TestCreateArchiveForMigrateAfterSolve() throw (Exception)
     {
@@ -1275,19 +1206,12 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForMigrateAfterSolve/archive/?* ./hear
 
     void TestMigrateAfterSolve() throw (Exception)
     {
-        // We can only load simulations from CHASTE_TEST_OUTPUT, so copy the archives there
-        std::string source_directory = "heart/test/data/checkpoint_migration_after_solve/";
-        std::string archive_directory = "TestMigrateAfterSolve";
+        FileFinder source_directory("heart/test/data/checkpoint_migration_after_solve/", RelativeTo::ChasteSourceRoot);
+        std::string new_archive_dir = "TestMigrateAfterSolve";
         std::string ref_archive_dir = "TestCreateArchiveForMigrateAfterSolve/archive";
-        OutputFileHandler handler(archive_directory); // Clear the target directory
-        if (PetscTools::AmMaster())
-        {
-            EXPECT0(system, "cp " + source_directory + "* " + handler.GetOutputDirectoryFullPath());
-        }
-        PetscTools::Barrier("TestMigrateAfterSolve");
 
         const unsigned num_nodes = 101u;
-        MonodomainProblem<1>* p_problem = DoMigrateAndBasicTests<MonodomainProblem<1>,1>(archive_directory, ref_archive_dir, source_directory, num_nodes, true, 0.1);
+        MonodomainProblem<1>* p_problem = DoMigrateAndBasicTests<MonodomainProblem<1>,1>(source_directory, ref_archive_dir, new_archive_dir, num_nodes, true, 0.1);
 
         // Test the bccs - zero neumann on the boundary
         TS_ASSERT( p_problem->mpDefaultBoundaryConditionsContainer);
@@ -1321,7 +1245,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForMigrateAfterSolve/archive/?* ./hear
             TS_ASSERT_DELTA(p_bcc->GetNeumannBCValue(*it, centroid, 0), 0, 1e-10);
         }
 
-        DoSimulationsAfterMigrationAndCompareResults(p_problem, archive_directory, ref_archive_dir, 1, 0.2);
+        DoSimulationsAfterMigrationAndCompareResults(p_problem, source_directory, ref_archive_dir, new_archive_dir, 1, 0.2);
     }
 };
 
