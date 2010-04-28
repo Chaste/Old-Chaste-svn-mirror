@@ -612,6 +612,11 @@ public:
      */
     template<class Archive>
     void LoadExtraArchive(Archive & archive, unsigned version);
+    
+    /**
+     * Return whether there's bath defined in this problem
+     */
+    virtual bool GetHasBath();    
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem);

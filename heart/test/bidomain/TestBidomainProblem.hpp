@@ -359,6 +359,9 @@ public:
 
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
+        // Not really needed for coverage, but it's worth checking that logic works properly in both scenarios.
+        TS_ASSERT(!bidomain_problem.GetHasBath());
+
         bidomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);

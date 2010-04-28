@@ -355,6 +355,9 @@ public:
         // using the criss-cross mesh so wave propagates properly
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
+        // Coverage
+        TS_ASSERT(!monodomain_problem.GetHasBath());
+
         monodomain_problem.Initialise();
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
