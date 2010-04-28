@@ -420,6 +420,10 @@ public:
 
         VecDestroy(data);
         reader.Close();
+        
+        // Missing dir
+        FileFinder absent_dir("absent_dir", RelativeTo::ChasteSourceRoot);
+        TS_ASSERT_THROWS_CONTAINS(Hdf5DataReader(absent_dir, "base"), "Directory does not exist: ");
     }
 
     void TestMultiStepExceptions () throw (Exception)

@@ -34,6 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <map>
 
+#include "FileFinder.hpp"
+
 /**
  * A concrete column data reader class.
  */
@@ -79,7 +81,15 @@ private:
      */
     void ReadValueFromFile(const std::string& rFilename, int col, int row);
 
-
+    /**
+     * Set up internal data structures based on file structure, checking that they
+     * contain data in roughly the expected format.
+     * 
+     * @param rDirectory  Absolute path of the directory the files are stored in
+     * @param rBaseName  The base name of the files to read (i.e. without the extensions)
+     */
+    void CheckFiles(const std::string& rDirectory, const std::string& rBaseName);
+    
 public:
 
     /**
@@ -102,6 +112,16 @@ public:
     ColumnDataReader(const std::string& rDirectory,
                      const std::string& rBaseName,
                      bool makeAbsolute=true);
+
+    /**
+     * Alternative constructor using FileFinder to specify the directory files are stored
+     * in.
+     * 
+     * @param rDirectory  The directory the files are stored in
+     * @param rBaseName  The base name of the files to read (i.e. without the extensions)
+     */
+    ColumnDataReader(const FileFinder& rDirectory,
+                     const std::string& rBaseName);
 
     /**
      * Get the entries for a given variable.

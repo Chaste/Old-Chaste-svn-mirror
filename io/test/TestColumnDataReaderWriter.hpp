@@ -96,30 +96,34 @@ public:
 
     void TestCreateColumnWriter() throw(Exception)
     {
-        // Create a new csvdata writer
-        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter("TestColumnDataReaderWriter", "test"));
-        //check that the output directory exists
-        //use the Boost libraries for this check
-        //or stat()
-
+        // Create a new writer
+        std::string dirname("TestColumnDataReaderWriter");
+        TS_ASSERT_THROWS_NOTHING(mpTestWriter = new ColumnDataWriter(dirname, "test"));
+        // Check that the output directory exists
+        FileFinder dir(dirname, RelativeTo::ChasteTestOutput);
+        TS_ASSERT(dir.Exists());
+        TS_ASSERT(dir.IsDir());
         delete mpTestWriter;
     }
 
     void TestCreateColumnReader() throw(Exception)
     {
         // File does not exist
-        TS_ASSERT_THROWS_CONTAINS(mpTestReader = new ColumnDataReader("", "testdoesnotexist"), "Couldn\'t open info file: ");
+        TS_ASSERT_THROWS_CONTAINS(mpTestReader = new ColumnDataReader("", "testdoesnotexist"), "Couldn't open info file: ");
 
         // File contains corrupt data
-        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "testbad", false), "Couldn\'t read info file correctly");
+        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "testbad", false), "Couldn't read info file correctly");
 
         // .info file exists (unlimited) but _unlimited.dat file does not
-        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "UnlimitedMissing", false), "Couldn\'t open ancillary data file");
+        FileFinder dir("io/test/data", RelativeTo::ChasteSourceRoot);
+        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader(dir, "UnlimitedMissing"), "Couldn't open ancillary data file");
 
         // .info file exists (fixed dim) but .dat file does not
-        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader("io/test/data", "DatMissing", false), "Couldn\'t open data file");
-
-        delete mpTestReader;
+        TS_ASSERT_THROWS_THIS(mpTestReader = new ColumnDataReader(dir, "DatMissing"), "Couldn't open data file");
+        
+        // Folder is missing
+        FileFinder absent_dir("absent_dir", RelativeTo::ChasteTestOutput);
+        TS_ASSERT_THROWS_CONTAINS(mpTestReader = new ColumnDataReader(absent_dir, "file"), "Directory does not exist: ");
     }
 
     void TestDetermineFieldWidth() throw(Exception)

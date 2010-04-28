@@ -68,9 +68,23 @@ ColumnDataReader::ColumnDataReader(const std::string& rDirectory,
             directory = rDirectory + "/";
         }
     }
+    CheckFiles(directory, rBaseName);
+}
 
+ColumnDataReader::ColumnDataReader(const FileFinder& rDirectory,
+                                   const std::string& rBaseName)
+{
+    if (!rDirectory.IsDir() || !rDirectory.Exists())
+    {
+        EXCEPTION("Directory does not exist: " + rDirectory.GetAbsolutePath());
+    }
+    CheckFiles(rDirectory.GetAbsolutePath(), rBaseName);
+}
+
+void ColumnDataReader::CheckFiles(const std::string& rDirectory, const std::string& rBaseName)
+{
     // Read in info file
-    mInfoFilename = directory + rBaseName + ".info";
+    mInfoFilename = rDirectory + rBaseName + ".info";
     std::ifstream infofile(mInfoFilename.c_str(), std::ios::in);
 
     // If it doesn't exist - throw exception
@@ -99,18 +113,18 @@ ColumnDataReader::ColumnDataReader(const std::string& rDirectory,
     {
         if (mNumFixedDimensions < 1)
         {
-            mDataFilename = directory + rBaseName + ".dat";
+            mDataFilename = rDirectory + rBaseName + ".dat";
         }
         else
         {
             std::stringstream suffix;
             suffix << std::setfill('0') << std::setw(FILE_SUFFIX_WIDTH) << 0;
 
-            mDataFilename = directory + rBaseName + "_" + suffix.str() + ".dat";
+            mDataFilename = rDirectory + rBaseName + "_" + suffix.str() + ".dat";
 
             // The ancillary path needs to come from a single place that is
             // used by both the reader & writer, otherwise all will be bad.
-            mAncillaryFilename = directory + rBaseName + "_unlimited.dat";
+            mAncillaryFilename = rDirectory + rBaseName + "_unlimited.dat";
 
             // Extract the units and place into map
             std::ifstream ancillaryfile(mAncillaryFilename.c_str(), std::ios::in);
@@ -138,7 +152,7 @@ ColumnDataReader::ColumnDataReader(const std::string& rDirectory,
     }
     else
     {
-        mDataFilename = directory + rBaseName + ".dat";
+        mDataFilename = rDirectory + rBaseName + ".dat";
     }
 
     std::ifstream datafile(mDataFilename.c_str(), std::ios::in);

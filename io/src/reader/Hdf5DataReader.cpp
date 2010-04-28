@@ -35,30 +35,43 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 Hdf5DataReader::Hdf5DataReader(const std::string& rDirectory,
                                const std::string& rBaseName,
                                bool makeAbsolute)
-    : mDirectory(rDirectory),
-      mBaseName(rBaseName),
+    : mBaseName(rBaseName),
       mIsUnlimitedDimensionSet(false),
       mNumberTimesteps(1),
       mIsDataComplete(true)
 {
-    std::string results_dir;
-
-    // Find out where files are really stored
+    RelativeTo::Value relative_to;
     if (makeAbsolute)
     {
-        OutputFileHandler output_file_handler(rDirectory, false);
-        results_dir = output_file_handler.GetOutputDirectoryFullPath();
+        relative_to = RelativeTo::ChasteTestOutput;
     }
     else
     {
-        results_dir = rDirectory;
-
-        // Add a trailing slash if needed
-        if ( !(*(rDirectory.end()-1) == '/'))
-        {
-            results_dir = results_dir + "/";
-        }
+        relative_to = RelativeTo::Absolute;
     }
+    FileFinder directory(rDirectory, relative_to);
+    CommonConstructor(directory, rBaseName);
+}
+
+Hdf5DataReader::Hdf5DataReader(const FileFinder& rDirectory,
+                               const std::string& rBaseName)
+    : mBaseName(rBaseName),
+      mIsUnlimitedDimensionSet(false),
+      mNumberTimesteps(1),
+      mIsDataComplete(true)
+{
+    CommonConstructor(rDirectory, rBaseName);
+}
+
+void Hdf5DataReader::CommonConstructor(const FileFinder& rDirectory, const std::string& rBaseName)
+{
+    std::string results_dir = rDirectory.GetAbsolutePath();
+    if (!rDirectory.IsDir() || !rDirectory.Exists())
+    {
+        EXCEPTION("Directory does not exist: " + results_dir);
+    }
+    mDirectory = results_dir;
+    assert(*(mDirectory.end()-1) == '/'); // paranoia
 
     std::string file_name = results_dir + mBaseName + ".h5";
 

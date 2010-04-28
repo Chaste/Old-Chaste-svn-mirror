@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <map>
 
+#include "FileFinder.hpp"
 
 const unsigned MAX_STRING_SIZE = 100; /// \todo: magic number
 
@@ -48,7 +49,7 @@ private:
 
     const static unsigned MAX_DATASET_RANK = 3;             /**< Defined in HDF5 writer too. \todo: define it once */
 
-    std::string mDirectory;                                 /**< Directory output files will be stored in. */
+    std::string mDirectory;                                 /**< Directory output files will be stored in (absolute path). */
     std::string mBaseName;                                  /**< The base name for the output data files. */
 
     hid_t mFileId;                                          /**< The data file ID. */
@@ -68,6 +69,15 @@ private:
     bool mIsDataComplete;                                   /**< Whether the data file is complete. */
     std::vector<unsigned> mIncompleteNodeIndices;           /**< Vector of node indices for which the data file does not contain data. */
 
+    /**
+     * Contains functionality common to both constructors.
+     *
+     * @param rDirectory  The directory the files are stored in
+     * @param rBaseName  The base name of the files to read (i.e. without the extensions)
+     */
+    void CommonConstructor(const FileFinder& rDirectory,
+                           const std::string& rBaseName);
+
 public:
 
     /**
@@ -81,6 +91,15 @@ public:
     Hdf5DataReader(const std::string& rDirectory,
                    const std::string& rBaseName,
                    bool makeAbsolute=true);
+
+    /**
+     * Alternative constructor taking a FileFinder to specify the directory.
+     *
+     * @param rDirectory  The directory the files are stored in
+     * @param rBaseName  The base name of the files to read (i.e. without the extensions)
+     */
+    Hdf5DataReader(const FileFinder& rDirectory,
+                   const std::string& rBaseName);
 
     /**
      * Get the values of a given variable at each time step at a given node.
