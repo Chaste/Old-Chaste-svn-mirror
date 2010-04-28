@@ -78,6 +78,17 @@ public:
      */
     static PROBLEM_CLASS* Load(const std::string& rDirectory);
 
+    /**
+     * Unarchives a simulation from the directory specified.
+     *
+     * Does a migrate if necessary (this is actually just a wrapper around the
+     * Migrate method now).
+     *
+     * @note Must be called collectively, i.e. by all processes.
+     *
+     * @param rDirectory directory where the multiple files defining the checkpoint are located
+     */
+    static PROBLEM_CLASS* Load(const FileFinder& rDirectory);
 
     /**
      * Load a simulation, saved by any number of processes, into the correct
@@ -94,15 +105,14 @@ public:
      * simulation was saved on, it uses exactly the same distribution as before.
      *
      * @param rDirectory directory where the multiple files defining the checkpoint are located
-     *     (relative to CHASTE_TEST_OUTPUT)
      */
-    static PROBLEM_CLASS* Migrate(const std::string &rDirectory);
+    static PROBLEM_CLASS* Migrate(const FileFinder& rDirectory);
 };
 
 
 template<class PROBLEM_CLASS>
 void CardiacSimulationArchiver<PROBLEM_CLASS>::Save(PROBLEM_CLASS& simulationToArchive,
-                                                    const std::string &rDirectory,
+                                                    const std::string& rDirectory,
                                                     bool clearDirectory)
 {
     // Clear directory if requested (and make sure it exists)
@@ -149,18 +159,31 @@ void CardiacSimulationArchiver<PROBLEM_CLASS>::Save(PROBLEM_CLASS& simulationToA
 }
 
 template<class PROBLEM_CLASS>
-PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(const std::string &rDirectory)
+PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(const std::string& rDirectory)
+{
+    FileFinder directory(rDirectory, RelativeTo::ChasteTestOutput);
+    return CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(directory);
+}
+
+template<class PROBLEM_CLASS>
+PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Load(const FileFinder& rDirectory)
 {
     return CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(rDirectory);
 }
 
 
 template<class PROBLEM_CLASS>
-PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::string &rDirectory)
+PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const FileFinder& rDirectory)
 {
+    // Check the directory exists
+    std::string dir_path = rDirectory.GetAbsolutePath();
+    if (!rDirectory.IsDir() || !rDirectory.Exists())
+    {
+        EXCEPTION("Checkpoint directory does not exist: " + dir_path);
+    }
+    assert(*(dir_path.end()-1) == '/'); // Paranoia
     // Load the info file
-    OutputFileHandler handler(rDirectory, false);
-    std::string info_path = handler.GetOutputDirectoryFullPath() + "archive.info";
+    std::string info_path = dir_path + "archive.info";
     std::ifstream info_file(info_path.c_str());
     if (!info_file.is_open())
     {
@@ -184,8 +207,7 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
             // partitioning etc. from before, so don't need any of the LoadExtraArchive
             // magic.  Indeed, we mustn't use it, or the mesh will get confused about
             // which nodes it owns.
-            FileFinder dir(rDirectory, RelativeTo::ChasteTestOutput);
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(dir, "archive.arch");
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch");
             boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
             (*p_main_archive) >> p_unarchived_simulation;
 
@@ -205,8 +227,7 @@ PROBLEM_CLASS* CardiacSimulationArchiver<PROBLEM_CLASS>::Migrate(const std::stri
 
             // Load the master and process-0 archive files.
             // This will also set up ArchiveLocationInfo for us.
-            FileFinder dir(rDirectory, RelativeTo::ChasteTestOutput);
-            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(dir, "archive.arch", 0u);
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> archive_opener(rDirectory, "archive.arch", 0u);
             boost::archive::text_iarchive* p_main_archive = archive_opener.GetCommonArchive();
             (*p_main_archive) >> p_unarchived_simulation;
 

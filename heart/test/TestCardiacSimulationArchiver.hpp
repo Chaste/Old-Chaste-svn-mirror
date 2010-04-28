@@ -110,6 +110,7 @@ public:
 
     void TestArchivingWithHelperClass()
     {
+        std::string archive_dir("bidomain_problem_archive_helper");
         // Save
         {
             HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
@@ -133,13 +134,13 @@ public:
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
             bidomain_problem.Solve();
 
-            CardiacSimulationArchiver<BidomainProblem<1> >::Save(bidomain_problem, "bidomain_problem_archive_helper", false);
+            CardiacSimulationArchiver<BidomainProblem<1> >::Save(bidomain_problem, archive_dir, false);
         }
 
         // Load
         {
             BidomainProblem<1> *p_bidomain_problem;
-            p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load("bidomain_problem_archive_helper");
+            p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(archive_dir);
 
             HeartConfig::Instance()->SetSimulationDuration(2.0); //ms
             p_bidomain_problem->Solve();
@@ -169,10 +170,14 @@ public:
         }
 
         {
-            // Coverage of "couldn't find file" exception
+            // Coverage
             BidomainProblem<1> *p_bidomain_problem;
-            TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load("missing_directory"),
-                                      "Unable to open archive information file:");
+            TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load("absent_directory"),
+                                      "Checkpoint directory does not exist: ");
+            std::string empty_dir(archive_dir + "_empty");
+            OutputFileHandler handler(empty_dir); // Ensure folder is empty
+            TS_ASSERT_THROWS_CONTAINS(p_bidomain_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(empty_dir),
+                                      "Unable to open archive information file: ");
         }
     }
 
@@ -312,7 +317,7 @@ private:
                                     double currentTime=0.0)
     {
         // Do the migration to sequential
-        Problem* p_problem = CardiacSimulationArchiver<Problem>::Migrate(rArchiveDirectory);
+        Problem* p_problem = CardiacSimulationArchiver<Problem>::Load(rArchiveDirectory);
 
         // Some basic tests that we have the right data
         TS_ASSERT_EQUALS(p_problem->mMeshFilename, "");
@@ -501,10 +506,10 @@ public:
         PetscTools::Barrier("TestMigrationExceptions");
         BidomainProblem<3>* p_problem;
         // Cover exceptions
-        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Migrate(target_directory),
+        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load(target_directory),
                                   "Cannot load main archive file: ");
-        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Migrate("non_existent_dir"),
-                                  "Unable to open archive information file: ");
+        TS_ASSERT_THROWS_CONTAINS(p_problem = CardiacSimulationArchiver<BidomainProblem<3> >::Load("absent_directory"),
+                                  "Checkpoint directory does not exist: ");
     }
 
     /**
@@ -794,7 +799,7 @@ private:
             double currentTime=0.0)
     {
         // Do the migration
-        Problem* p_problem = CardiacSimulationArchiver<Problem>::Migrate(rArchiveDirectory);
+        Problem* p_problem = CardiacSimulationArchiver<Problem>::Load(rArchiveDirectory);
 
         // Some basic tests that we have the right data
         TS_ASSERT_EQUALS(p_problem->mMeshFilename, "");
