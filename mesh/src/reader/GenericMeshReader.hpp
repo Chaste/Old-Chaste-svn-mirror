@@ -59,6 +59,7 @@ public:
      * Constructor.
      *
      * @param pathBaseName  the base name of the files from which to read the mesh data
+     *    (either absolute, or relative to the current directory)
      */
     GenericMeshReader(std::string pathBaseName)
     {

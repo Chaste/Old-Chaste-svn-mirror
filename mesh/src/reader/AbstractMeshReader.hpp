@@ -59,29 +59,8 @@ struct ElementData
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractMeshReader
 {
-protected:
-//    unsigned mNumNodeAttributes; /**< Is the number of attributes stored at each node */
-//    unsigned mMaxNodeBdyMarker; /**< Is the maximum node boundary marker */
-//    unsigned mNumElementNodes; /** Is the number of nodes per element*/
-//    unsigned mNumElementAttributes; /**< Is the number of attributes stored for each element */
-//    unsigned mMaxFaceBdyMarker; /**< Is the maximum face (or edge) boundary marker */
-
-
-//    bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
-
 public:
-//    AbstractMeshReader() /**< Constructor */
-//    {
-//        mNumNodeAttributes = 0;
-//        mMaxNodeBdyMarker = 0;
-//        mNumElementNodes = 0;
-//        mNumElementAttributes = 0;
-//        mMaxFaceBdyMarker = 0;
-//
-//        // We have initialized all numeric variables to zero
-//
-//        mIndexFromZero = false; // Initially assume that nodes are not numbered from zero
-//    }
+
     virtual ~AbstractMeshReader()
     {}
 
@@ -152,7 +131,7 @@ public:
     ElementData GetEdgeData(unsigned index);
 
     /**
-     * Get method for mMeshFileBaseName.
+     * Get the base name (less any extension) for mesh files.  Only implemented for some mesh types.
      */
     virtual std::string GetMeshFileBaseName();
 

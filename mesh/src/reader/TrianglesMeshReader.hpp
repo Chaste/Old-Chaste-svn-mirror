@@ -101,6 +101,7 @@ public:
      * Constructor.
      *
      * @param pathBaseName  the base name of the files from which to read the mesh data
+     *    (either absolute, or relative to the current directory)
      * @param orderOfElements  the order of each element: 1 for linear, 2 for quadratic (defaults to 1)
      * @param orderOfBoundaryElements the order of each boundary element: 1 for linear, 2 for quadratic (defaults to 1. May
      *  or may not be different to orderOfElements (Note tetgen with the -o2 flag creates quadratic elements but doesn't
