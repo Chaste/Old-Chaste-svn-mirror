@@ -242,17 +242,17 @@ public:
      */
     bool GetOutputCellAges();
     /**
-     * @return mOutputCellAreas
+     * @return mOutputCellVolumes
      */
-    bool GetOutputCellAreas();
+    bool GetOutputCellVolumes();
     /**
      * @return mOutputVoronoiData
      */
     bool GetOutputVoronoiData();
     /**
-     * @return mOutputTissueAreas
+     * @return mOutputTissueVolumes
      */
-    bool GetOutputTissueAreas();
+    bool GetOutputTissueVolumes();
     /**
      * @return mOutputNodeVelocities
      */
@@ -447,17 +447,17 @@ public:
      */
     void SetOutputCellAges(bool);
     /**
-     * Set mOutputCellAreas.
+     * Set mOutputCellVolumes.
      */
-    void SetOutputCellAreas(bool);
+    void SetOutputCellVolumes(bool);
     /**
      * Set mOutputVoronoiData.
      */
     void SetOutputVoronoiData(bool);
       /**
-     * Set mOutputTissueAreas.
+     * Set mOutputTissueVolumes.
      */
-    void SetOutputTissueAreas(bool);
+    void SetOutputTissueVolumes(bool);
     /**
      * Set mOutputNodeVelocities.
      */
@@ -754,14 +754,14 @@ private:
     /** Whether to write the cell ages to a file. */
     bool mOutputCellAges;
 
-    /** Whether to write the cell areas to a file. */
-    bool mOutputCellAreas;
+    /** Whether to write the cell volumes (in 3D) or areas (in 2D) to a file. */
+    bool mOutputCellVolumes;
 
-    /** Whether to write cell area and perimeter information to file. */
+    /** Whether to write cell volume and surface area (in 3D) or area and perimeter (in 2D) information to file. */
     bool mOutputVoronoiData;
 
-    /** Whether to write the tissue areas to file. */
-    bool mOutputTissueAreas;
+    /** Whether to write the tissue volumes (in 3D) or areas (in 2D)  to file. */
+    bool mOutputTissueVolumes;
 
     /** Whether to write the node velocities to a file. */
     bool mOutputNodeVelocities;
@@ -823,9 +823,9 @@ private:
         archive & mOutputCellVariables;
         archive & mOutputCellCyclePhases;
         archive & mOutputCellAges;
-        archive & mOutputCellAreas;
+        archive & mOutputCellVolumes;
         archive & mOutputVoronoiData;
-        archive & mOutputTissueAreas;
+        archive & mOutputTissueVolumes;
         archive & mOutputNodeVelocities;
     }
 };

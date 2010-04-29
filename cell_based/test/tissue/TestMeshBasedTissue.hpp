@@ -476,8 +476,8 @@ public:
         // Test set methods
 
         TissueConfig::Instance()->SetOutputVoronoiData(true);
-        TissueConfig::Instance()->SetOutputTissueAreas(true);
-        TissueConfig::Instance()->SetOutputCellAreas(true);
+        TissueConfig::Instance()->SetOutputTissueVolumes(true);
+        TissueConfig::Instance()->SetOutputCellVolumes(true);
 
         // This method is usually called by Update()
         tissue.CreateVoronoiTessellation();

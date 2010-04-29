@@ -311,7 +311,7 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     {
         CellBasedEventHandler::BeginEvent(CellBasedEventHandler::TESSELLATION);
         if (mUseAreaBasedDampingConstant || TissueConfig::Instance()->GetOutputVoronoiData() ||
-            TissueConfig::Instance()->GetOutputTissueAreas() || TissueConfig::Instance()->GetOutputCellAreas() )
+            TissueConfig::Instance()->GetOutputTissueVolumes() || TissueConfig::Instance()->GetOutputCellVolumes() )
         {
             std::vector<unsigned> location_indices;
             for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
@@ -375,13 +375,13 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool
     {
         mpVoronoiFile = output_file_handler.OpenOutputFile("voronoi.dat");
     }
-    if (TissueConfig::Instance()->GetOutputTissueAreas())
+    if (TissueConfig::Instance()->GetOutputTissueVolumes())
     {
-        mpTissueAreasFile = output_file_handler.OpenOutputFile("tissueareas.dat");
+        mpTissueVolumesFile = output_file_handler.OpenOutputFile("tissueareas.dat");
     }
-    if (TissueConfig::Instance()->GetOutputCellAreas())
+    if (TissueConfig::Instance()->GetOutputCellVolumes())
     {
-        mpCellAreasFile = output_file_handler.OpenOutputFile("cellareas.dat");
+        mpCellVolumesFile = output_file_handler.OpenOutputFile("cellareas.dat");
     }
 }
 
@@ -396,13 +396,13 @@ void MeshBasedTissue<DIM>::CloseOutputFiles()
     {
         mpVoronoiFile->close();
     }
-    if (TissueConfig::Instance()->GetOutputTissueAreas())
+    if (TissueConfig::Instance()->GetOutputTissueVolumes())
     {
-        mpTissueAreasFile->close();
+        mpTissueVolumesFile->close();
     }
-    if (TissueConfig::Instance()->GetOutputCellAreas())
+    if (TissueConfig::Instance()->GetOutputCellVolumes())
     {
-        mpCellAreasFile->close();
+        mpCellVolumesFile->close();
     }
 }
 
@@ -465,13 +465,13 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
                 {
                     WriteVoronoiResultsToFile();
                 }
-                if (TissueConfig::Instance()->GetOutputTissueAreas())
+                if (TissueConfig::Instance()->GetOutputTissueVolumes())
                 {
-                    WriteTissueAreaResultsToFile();
+                    WriteTissueVolumeResultsToFile();
                 }
-                if (TissueConfig::Instance()->GetOutputCellAreas())
+                if (TissueConfig::Instance()->GetOutputCellVolumes())
                 {
-                    WriteCellAreaResultsToFile();
+                    WriteCellVolumeResultsToFile();
                 }
             }
             break;
@@ -511,12 +511,12 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
+void MeshBasedTissue<DIM>::WriteTissueVolumeResultsToFile()
 {
     assert(DIM==2);
 
     // Write time to file
-    *mpTissueAreasFile << SimulationTime::Instance()->GetTime() << " ";
+    *mpTissueVolumesFile << SimulationTime::Instance()->GetTime() << " ";
 
     // Don't use the Voronoi tessellation to calculate the total area
     // because it gives huge areas for boundary cells
@@ -535,16 +535,16 @@ void MeshBasedTissue<DIM>::WriteTissueAreaResultsToFile()
             apoptotic_area += cell_area;
         }
     }
-    *mpTissueAreasFile << total_area << " " << apoptotic_area << "\n";
+    *mpTissueVolumesFile << total_area << " " << apoptotic_area << "\n";
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::WriteCellAreaResultsToFile()
+void MeshBasedTissue<DIM>::WriteCellVolumeResultsToFile()
 {
     assert(DIM==2);
 
     // Write time to file
-    *mpCellAreasFile << SimulationTime::Instance()->GetTime() << " ";
+    *mpCellVolumesFile << SimulationTime::Instance()->GetTime() << " ";
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
          cell_iter != this->End();
@@ -552,21 +552,21 @@ void MeshBasedTissue<DIM>::WriteCellAreaResultsToFile()
     {
         // Write cell index
         unsigned cell_index = cell_iter->GetCellId();
-        *mpCellAreasFile << cell_index << " ";
+        *mpCellVolumesFile << cell_index << " ";
 
         // Write cell location
         c_vector<double, DIM> cell_location = this->GetLocationOfCellCentre(*cell_iter);
         for (unsigned i=0; i<DIM; i++)
         {
-            *mpCellAreasFile << cell_location[i] << " ";
+            *mpCellVolumesFile << cell_location[i] << " ";
         }
 
         // Write cell area
         unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
         double cell_area = GetAreaOfVoronoiElement(node_index);
-        *mpCellAreasFile << cell_area << " ";
+        *mpCellVolumesFile << cell_area << " ";
     }
-    *mpCellAreasFile << "\n";
+    *mpCellVolumesFile << "\n";
 }
 
 

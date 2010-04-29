@@ -97,9 +97,9 @@ private:
         TS_ASSERT_EQUALS(p_inst->GetOutputCellVariables(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellCyclePhases(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellAges(), false);
-        TS_ASSERT_EQUALS(p_inst->GetOutputCellAreas(), false);
+        TS_ASSERT_EQUALS(p_inst->GetOutputCellVolumes(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputVoronoiData(), false);
-        TS_ASSERT_EQUALS(p_inst->GetOutputTissueAreas(), false);
+        TS_ASSERT_EQUALS(p_inst->GetOutputTissueVolumes(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputNodeVelocities(), false);
     }
 
@@ -155,9 +155,9 @@ public:
         p_inst->SetOutputCellVariables(true);
         p_inst->SetOutputCellCyclePhases(true);
         p_inst->SetOutputCellAges(true);
-        p_inst->SetOutputCellAreas(true);
+        p_inst->SetOutputCellVolumes(true);
         p_inst->SetOutputVoronoiData(true);
-        p_inst->SetOutputTissueAreas(true);
+        p_inst->SetOutputTissueVolumes(true);
         p_inst->SetOutputNodeVelocities(true);
         p_inst->Reset();
 
@@ -212,9 +212,9 @@ public:
         p_inst1->SetOutputCellVariables(true);
         p_inst1->SetOutputCellCyclePhases(true);
         p_inst1->SetOutputCellAges(true);
-        p_inst1->SetOutputCellAreas(true);
+        p_inst1->SetOutputCellVolumes(true);
         p_inst1->SetOutputVoronoiData(true);
-        p_inst1->SetOutputTissueAreas(true);
+        p_inst1->SetOutputTissueVolumes(true);
         p_inst1->SetOutputNodeVelocities(true);
 
         TissueConfig* p_inst2 = TissueConfig::Instance();
@@ -262,9 +262,9 @@ public:
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellVariables(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellCyclePhases(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellAges(), true);
-        TS_ASSERT_EQUALS(p_inst2->GetOutputCellAreas(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputCellVolumes(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputVoronoiData(), true);
-        TS_ASSERT_EQUALS(p_inst2->GetOutputTissueAreas(), true);
+        TS_ASSERT_EQUALS(p_inst2->GetOutputTissueVolumes(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputNodeVelocities(), true);
     }
 
@@ -321,9 +321,9 @@ public:
             p_inst1->SetOutputCellVariables(true);
             p_inst1->SetOutputCellCyclePhases(true);
             p_inst1->SetOutputCellAges(true);
-            p_inst1->SetOutputCellAreas(true);
+            p_inst1->SetOutputCellVolumes(true);
             p_inst1->SetOutputVoronoiData(true);
-            p_inst1->SetOutputTissueAreas(true);
+            p_inst1->SetOutputTissueVolumes(true);
             p_inst1->SetOutputNodeVelocities(true);
 
             std::ofstream ofs(archive_filename.c_str());
@@ -381,9 +381,9 @@ public:
             p_inst1->SetOutputCellVariables(false);
             p_inst1->SetOutputCellCyclePhases(false);
             p_inst1->SetOutputCellAges(false);
-            p_inst1->SetOutputCellAreas(false);
+            p_inst1->SetOutputCellVolumes(false);
             p_inst1->SetOutputVoronoiData(false);
-            p_inst1->SetOutputTissueAreas(false);
+            p_inst1->SetOutputTissueVolumes(false);
             p_inst1->SetOutputNodeVelocities(false);
 
             // Create an input archive
@@ -437,9 +437,9 @@ public:
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellVariables(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellCyclePhases(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellAges(), true);
-            TS_ASSERT_EQUALS(p_inst1->GetOutputCellAreas(), true);
+            TS_ASSERT_EQUALS(p_inst1->GetOutputCellVolumes(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputVoronoiData(), true);
-            TS_ASSERT_EQUALS(p_inst1->GetOutputTissueAreas(), true);
+            TS_ASSERT_EQUALS(p_inst1->GetOutputTissueVolumes(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputNodeVelocities(), true);
         }
     }

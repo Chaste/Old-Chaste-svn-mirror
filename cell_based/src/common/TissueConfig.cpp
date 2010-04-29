@@ -160,9 +160,9 @@ void TissueConfig::Reset()
     mOutputCellVariables = false;
     mOutputCellCyclePhases = false;
     mOutputCellAges = false;
-    mOutputCellAreas = false;
+    mOutputCellVolumes = false;
     mOutputVoronoiData = false;
-    mOutputTissueAreas = false;
+    mOutputTissueVolumes = false;
     mOutputNodeVelocities = false;
 }
 
@@ -358,17 +358,17 @@ bool TissueConfig::GetOutputCellAges()
 {
     return mOutputCellAges;
 }
-bool TissueConfig::GetOutputCellAreas()
+bool TissueConfig::GetOutputCellVolumes()
 {
-    return mOutputCellAreas;
+    return mOutputCellVolumes;
 }
 bool TissueConfig::GetOutputVoronoiData()
 {
     return mOutputVoronoiData;
 }
-bool TissueConfig::GetOutputTissueAreas()
+bool TissueConfig::GetOutputTissueVolumes()
 {
-    return mOutputTissueAreas;
+    return mOutputTissueVolumes;
 }
 bool TissueConfig::GetOutputNodeVelocities()
 {
@@ -610,17 +610,17 @@ void TissueConfig::SetOutputCellAges(bool outputCellAges)
 {
     mOutputCellAges = outputCellAges;
 }
-void TissueConfig::SetOutputCellAreas(bool outputCellAreas)
+void TissueConfig::SetOutputCellVolumes(bool outputCellVolumes)
 {
-    mOutputCellAreas = outputCellAreas;
+    mOutputCellVolumes = outputCellVolumes;
 }
 void TissueConfig::SetOutputVoronoiData(bool outputVoronoiData)
 {
     mOutputVoronoiData = outputVoronoiData;
 }
-void TissueConfig::SetOutputTissueAreas(bool outputTissueAreas)
+void TissueConfig::SetOutputTissueVolumes(bool outputTissueVolumes)
 {
-    mOutputTissueAreas = outputTissueAreas;
+    mOutputTissueVolumes = outputTissueVolumes;
 }
 void TissueConfig::SetOutputNodeVelocities(bool outputNodeVelocities)
 {

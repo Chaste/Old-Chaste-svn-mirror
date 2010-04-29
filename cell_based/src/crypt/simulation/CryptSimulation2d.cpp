@@ -222,9 +222,9 @@ void CryptSimulation2d::OutputParameters()
     *ParameterFile << "OutputCellVariables \t" << p_inst->GetOutputCellVariables() << " \n";
     *ParameterFile << "OutputCellCyclePhases \t" << p_inst->GetOutputCellCyclePhases() << " \n";
     *ParameterFile << "OutputCellAges \t" << p_inst->GetOutputCellAges() << " \n";
-    *ParameterFile << "OutputCellAreas \t" << p_inst->GetOutputCellAreas() << " \n";
+    *ParameterFile << "OutputCellAreas \t" << p_inst->GetOutputCellVolumes() << " \n";
     *ParameterFile << "OutputVoronoiData \t" << p_inst->GetOutputVoronoiData() << " \n";
-    *ParameterFile << "OutputTissueAreas \t" << p_inst->GetOutputTissueAreas() << " \n";
+    *ParameterFile << "OutputTissueAreas \t" << p_inst->GetOutputTissueVolumes() << " \n";
     *ParameterFile << "OutputNodeVelocities \t" << p_inst->GetOutputNodeVelocities() << " \n";
 
     ParameterFile->close();

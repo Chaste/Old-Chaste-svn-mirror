@@ -209,7 +209,7 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::AddFace(VertexElement<ELEMENT_DIM-1,
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned VertexElement<ELEMENT_DIM, SPACE_DIM>::GetNodeLocalIndex(unsigned globalIndex) const
 {
-    unsigned local_index= UINT_MAX;
+    unsigned local_index = UINT_MAX;
     for (unsigned i=0; i<this->mNodes.size(); i++)
     {
         if (this->GetNodeGlobalIndex(i) == globalIndex)

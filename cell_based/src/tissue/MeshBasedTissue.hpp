@@ -117,11 +117,11 @@ protected:
     /** Results file for Voronoi data. */
     out_stream mpVoronoiFile;
 
-    /** Results file for tissue area data. */
-    out_stream mpTissueAreasFile;
+    /** Results file for tissue volume (in 3D) or area (in 2D) data. */
+    out_stream mpTissueVolumesFile;
 
-    /** Results file for cell area data. */
-    out_stream mpCellAreasFile;
+    /** Results file for cell volume (in 3D) or area (in 2D) data. */
+    out_stream mpCellVolumesFile;
 
     /** Whether to use a viscosity that is linear in the cell area, rather than constant. */
     bool mUseAreaBasedDampingConstant;
@@ -222,12 +222,12 @@ public:
     double GetDampingConstant(unsigned nodeIndex);
 
     /**
-     * Set method for mWriteTissueAreas.
+     * Set method for mWriteTissueVolumes.
      * \todo Extend this to 3D (possibly rename to SetOutputTissueVolumes?) - see also #738
      *
-     * @param writeTissueAreas  whether to output tissue area data
+     * @param writeTissueVolumes  whether to output tissue area data
      */
-    void SetOutputTissueAreas(bool writeTissueAreas);
+    void SetOutputTissueVolumes(bool writeTissueVolumes);
 
     /**
      * Set method for mUseAreaBasedDampingConstant.
@@ -312,16 +312,16 @@ public:
     void WriteVoronoiResultsToFile();
 
     /**
-     * Write current results to mpTissueAreasFile if in 2D.
+     * Write current results to mpTissueVolumesFile if in 2D.
      *
      * The data is written in the form:
      *
      * time total_area apoptotic_area
      */
-    void WriteTissueAreaResultsToFile();
+    void WriteTissueVolumeResultsToFile();
 
     /**
-     * Write current results to mpCellAreasFile.
+     * Write current results to mpCellVolumesFile.
      *
      * In 2D, the data is written in the form:
      *
@@ -329,7 +329,7 @@ public:
      *
      * and similarly in 3D.
      */
-    void WriteCellAreaResultsToFile();
+    void WriteCellVolumeResultsToFile();
 
     /**
      * Get a reference to a Voronoi tessellation of the mesh.
