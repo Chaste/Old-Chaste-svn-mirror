@@ -65,8 +65,8 @@ But run for a little longer
 			<!-- Get results to match in h5dump -->
 			<KSPAbsolute>1e-6</KSPAbsolute>
 		</KSPTolerances>
-		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>jacobi</KSPPreconditioner>
+		<KSPSolver>cg</KSPSolver>
+		<KSPPreconditioner>bjacobi</KSPPreconditioner>
 	</Numerical>		
 		    
 </ChasteParameters>
