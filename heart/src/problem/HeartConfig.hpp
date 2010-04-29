@@ -36,8 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 
 #include "ArchiveLocationInfo.hpp"
-//#include "ChasteParameters_1_1.hpp"
-#include "ChasteParameters_2_0.hpp"
+#include "ChasteParameters_2_1.hpp"
 #include "SimpleStimulus.hpp"
 #include "ChasteCuboid.hpp"
 #include "AbstractTetrahedralMesh.hpp"
@@ -52,7 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/split_member.hpp>
 
-namespace cp = chaste::parameters::v2_0;
+namespace cp = chaste::parameters::v2_1;
 
 
 /**
@@ -204,8 +203,8 @@ private:
     std::string EscapeSpaces(const std::string& rPath);
 
     /**
-     * Fake having a namespace in older configuration files, by adding a namespace
-     * to each element in a tree.
+     * Fake having a namespace in older configuration files, by setting the namespace
+     * on each element in a tree.
      *
      * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_that_is_missing_namespace_information.3F
      *
@@ -213,13 +212,13 @@ private:
      * @param pElement  the root of the tree to be transformed
      * @param rNamespace  the namespace to put elements in
      */
-    xercesc::DOMElement* AddNamespace(xercesc::DOMDocument* pDocument,
+    xercesc::DOMElement* SetNamespace(xercesc::DOMDocument* pDocument,
                                       xercesc::DOMElement* pElement,
                                       const std::string& rNamespace);
 
     /**
-     * Fake having a namespace in older configuration files, by adding a namespace
-     * to each element in a tree.
+     * Fake having a namespace in older configuration files, by setting the namespace
+     * on each element in a tree.
      *
      * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_that_is_missing_namespace_information.3F
      *
@@ -227,7 +226,7 @@ private:
      * @param pElement  the root of the tree to be transformed
      * @param pNamespace  the namespace to put elements in
      */
-    xercesc::DOMElement* AddNamespace(xercesc::DOMDocument* pDocument,
+    xercesc::DOMElement* SetNamespace(xercesc::DOMDocument* pDocument,
                                       xercesc::DOMElement* pElement,
                                       const XMLCh* pNamespace);
 
@@ -286,6 +285,7 @@ public:
      * @param rFileName The name of the parameters file
      */
     void SetParametersFile(const std::string& rFileName);
+    
     /**
      * Write out the complete configuration set (ChasteParameters
      * and ChasteDefaults) as an XML file.
@@ -310,6 +310,14 @@ public:
      * "New" another #mpInstance
      */
     static void Reset();
+    
+    /**
+     * Get the Chaste version of a parameters file, given its namespace URI.
+     * The version will be encoded as major*1000+minor.
+     * 
+     * @param rNamespaceUri  the namespace URI of the parameters file
+     */
+    unsigned GetVersionFromNamespace(const std::string& rNamespaceUri);
 
     /*
      *  Get methods
@@ -335,16 +343,16 @@ public:
     double GetSimulationDuration() const; /**< @return duration of the simulation (ms)*/
 
     /**
-     * domain_type is an xsd convenience class type
+     * cp::domain_type is an xsd convenience class type
      *
-     * @return domain type of simulation bi- mono-domain
+     * @return domain type of simulation: bi- or mono-domain
      */
     cp::domain_type GetDomain() const;
 
     /**
      * Default cardiac cell model to use at all mesh nodes
-     * (unless otherwise specified by IonicModelRegions).
-     * ionic_model_selection_type is generated automatically from the XML Schema.
+     * (unless otherwise specified by GetIonicModelRegions).
+     * cp::ionic_model_selection_type is generated automatically from the XML Schema.
      *
      * @return  type of model
      */
@@ -352,7 +360,7 @@ public:
 
     /**
      * Regions where we need to use a different cell model (think infarction).
-     * ionic_model_selection_type is generated automatically from the XML Schema.
+     * cp::ionic_model_selection_type is generated automatically from the XML Schema.
      *
      * The supplied vectors are first cleared, then filled in with the information from the
      * parameters files.  On return, both vectors will be the same length (one entry per region).
@@ -367,7 +375,7 @@ public:
     /**
      * Set the regions where we need to use a different cell model (think infarction).
      * Unlike the get method, this is currently only supported in 3d.
-     * ionic_model_selection_type is generated automatically from the XML Schema.
+     * cp::ionic_model_selection_type is generated automatically from the XML Schema.
      *
      * The input standard vectors must be of the same length (one entry per region)
      * otherwise the method throws.
@@ -510,9 +518,9 @@ public:
     /**
      * Get the extra output variables from the xml file
      *
-     * @param outputVariables reference to std::vector to contain the output variables requested
+     * @param rOutputVariables reference to std::vector to contain the output variables requested
      */
-    void GetOutputVariables(std::vector<std::string> &outputVariables) const;
+    void GetOutputVariables(std::vector<std::string>& rOutputVariables) const;
 
     /**
      * Get whether simulation should be checkpointed or not
@@ -654,21 +662,21 @@ public:
      */
     bool IsApdMapsRequested() const;
     /**
-     * @param apdMaps  each entry is a request for a map with
+     * @param rApdMaps  each entry is a request for a map with
      *  - a threshold (in mV)
      *  - a percentage in the range [1, 100)
      */
-    void GetApdMaps(std::vector<std::pair<double,double> >& apdMaps) const;
+    void GetApdMaps(std::vector<std::pair<double,double> >& rApdMaps) const;
 
     /**
      * @return true if upstroke time maps have been requested
      */
     bool IsUpstrokeTimeMapsRequested() const;
     /**
-     * @param upstrokeTimeMaps  each entry is a request for a map with
+     * @param rUpstrokeTimeMaps  each entry is a request for a map with
      *  - a threshold (in mV)
      */
-    void GetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps) const;
+    void GetUpstrokeTimeMaps (std::vector<double>& rUpstrokeTimeMaps) const;
 
     /**
      * @return true maximum upstroke velocity maps have been requested
@@ -676,10 +684,10 @@ public:
     bool IsMaxUpstrokeVelocityMapRequested() const;
 
     /**
-     * @param upstrokeVelocityMaps  each entry is a request for a map with
+     * @param rUpstrokeVelocityMaps  each entry is a request for a map with
      *  - a threshold (in mV, defaulted to -30 mV)
      */
-    void GetMaxUpstrokeVelocityMaps(std::vector<double>& upstrokeVelocityMaps) const;
+    void GetMaxUpstrokeVelocityMaps(std::vector<double>& rUpstrokeVelocityMaps) const;
 
     /**
      * @return true if conduction velocity maps have been requested
@@ -687,10 +695,10 @@ public:
     bool IsConductionVelocityMapsRequested() const;
 
     /**
-     * @param conductionVelocityMaps  each entry is a request for a map with
+     * @param rConductionVelocityMaps  each entry is a request for a map with
      *  - an index to treat as ths source for wave propagation
      */
-    void GetConductionVelocityMaps(std::vector<unsigned>& conductionVelocityMaps) const;
+    void GetConductionVelocityMaps(std::vector<unsigned>& rConductionVelocityMaps) const;
 
 
     // Output visualization
@@ -724,7 +732,7 @@ public:
 
     /**
      * Set the configuration to run mono or bidomain
-     * domain_type is an xsd convenience class type
+     * cp::domain_type is an xsd convenience class type
      *
      * @param rDomain type of simulation bi- mono-domain
      */
@@ -733,7 +741,7 @@ public:
     /**
      * Set the configuration to place the given cardiac cell models at all mesh nodes
      * (unless otherwise specified by SetIonicModelRegions).
-     * ionic_models_available_type is generated automatically from the XML Schema.
+     * cp::ionic_models_available_type is generated automatically from the XML Schema.
      *
      * @param rIonicModel  type of model
      */
@@ -772,13 +780,13 @@ public:
     /**
      * Set a number of heterogeneous regions (Axis-aligned boxes)
      * It is assumed that the std::vectors are all of the same length
-     * @param conductivityAreas conductivityAreas[0] is the first region
-     * @param intraConductivities  intraConductivities[0] is conductivity vector for the first region
-     * @param extraConductivities  extraConductivities[0] is conductivity vector for the first region
+     * @param rConductivityAreas conductivityAreas[0] is the first region
+     * @param rIntraConductivities  intraConductivities[0] is conductivity vector for the first region
+     * @param rExtraConductivities  extraConductivities[0] is conductivity vector for the first region
      */
-    void SetConductivityHeterogeneities(std::vector<ChasteCuboid<3> >& conductivityAreas,
-                                        std::vector< c_vector<double,3> >& intraConductivities,
-                                        std::vector< c_vector<double,3> >& extraConductivities);
+    void SetConductivityHeterogeneities(std::vector<ChasteCuboid<3> >& rConductivityAreas,
+                                        std::vector< c_vector<double,3> >& rIntraConductivities,
+                                        std::vector< c_vector<double,3> >& rExtraConductivities);
 
     /**
      * @param rOutputDirectory  Full path to output directory (will be created if necessary)
@@ -822,35 +830,35 @@ public:
     // Physiological
     /**
      * 3D version
-     * @param intraConductivities  DIM-vector of intracellular conductivities (mS/cm)
+     * @param rIntraConductivities  DIM-vector of intracellular conductivities (mS/cm)
      */
-    void SetIntracellularConductivities(const c_vector<double, 3>& intraConductivities);
+    void SetIntracellularConductivities(const c_vector<double, 3>& rIntraConductivities);
     /**
      * 2D version
-     * @param intraConductivities  DIM-vector of intracellular conductivities (mS/cm)
+     * @param rIntraConductivities  DIM-vector of intracellular conductivities (mS/cm)
      */
-    void SetIntracellularConductivities(const c_vector<double, 2>& intraConductivities);
+    void SetIntracellularConductivities(const c_vector<double, 2>& rIntraConductivities);
     /**
      * 1D version
-     * @param intraConductivities  DIM-vector of intracellular conductivities (mS/cm)
+     * @param rIntraConductivities  DIM-vector of intracellular conductivities (mS/cm)
      */
-    void SetIntracellularConductivities(const c_vector<double, 1>& intraConductivities);
+    void SetIntracellularConductivities(const c_vector<double, 1>& rIntraConductivities);
 
     /**
      * 3D version
-     * @param extraConductivities  DIM-vector of extracellular conductivities (mS/cm)
+     * @param rExtraConductivities  DIM-vector of extracellular conductivities (mS/cm)
      */
-    void SetExtracellularConductivities(const c_vector<double, 3>& extraConductivities);
+    void SetExtracellularConductivities(const c_vector<double, 3>& rExtraConductivities);
     /**
      * 2D version
-     * @param extraConductivities  DIM-vector of extracellular conductivities (mS/cm)
+     * @param rExtraConductivities  DIM-vector of extracellular conductivities (mS/cm)
      */
-    void SetExtracellularConductivities(const c_vector<double, 2>& extraConductivities);
+    void SetExtracellularConductivities(const c_vector<double, 2>& rExtraConductivities);
     /**
      * 1D version
-     * @param extraConductivities  DIM-vector of extracellular conductivities (mS/cm)
+     * @param rExtraConductivities  DIM-vector of extracellular conductivities (mS/cm)
      */
-    void SetExtracellularConductivities(const c_vector<double, 1>& extraConductivities);
+    void SetExtracellularConductivities(const c_vector<double, 1>& rExtraConductivities);
 
     /**
      * Set bath conductivity
@@ -879,11 +887,13 @@ public:
      * @param printingTimeStep  printing value to use
      */
     void SetOdePdeAndPrintingTimeSteps(double odeTimeStep, double pdeTimeStep, double printingTimeStep);
-   /** Set the configuration to use ode time of given value
+    
+    /** Set the configuration to use ode time of given value
      * Calls CheckTimeSteps via SetOdePdeAndPrintingTimeSteps
      * @param odeTimeStep  the value to use
      */
     void SetOdeTimeStep(double odeTimeStep);
+    
     /** Set the configuration to use pde time of given value
      * Calls CheckTimeSteps via SetOdePdeAndPrintingTimeSteps
      * @param pdeTimeStep  the value to use
@@ -900,6 +910,7 @@ public:
      * @param relativeTolerance  the value to use
      */
     void SetUseRelativeTolerance(double relativeTolerance);
+    
     /** Set the configuration to use KSP absolute tolerance of given value
      * @param absoluteTolerance  the value to use
      */
@@ -909,6 +920,7 @@ public:
      * @param kspSolver  a string from {"gmres", "cg", "symmlq"}
      */
     void SetKSPSolver(const char* kspSolver);
+    
     /** Set the type of preconditioner as with the flag "-pc_type"
      * @param kspPreconditioner  a string from {"ilu", "jacobi", "bjacobi", "hypre", "blockdiagonal", "none"}
      */
@@ -979,29 +991,29 @@ public:
 
     /** Set the parameters of the apd map requested
      *
-     *  @param apdMaps  each entry is a request for a map with
+     *  @param rApdMaps  each entry is a request for a map with
      *  - a threshold (in mV)
      *  - a percentage in the range [1, 100) (ranges are not checked by this method, but during the calculation)
      */
-    void SetApdMaps(const std::vector<std::pair<double,double> >& apdMaps);
+    void SetApdMaps(const std::vector<std::pair<double,double> >& rApdMaps);
 
     /** Set the parameters of the upstroke time map requested
      *
-     *  @param upstrokeTimeMaps  is the list of thresholds (? ///\todo improve the description of threshold) with respect to which the upstroke time maps are calculated.
+     *  @param rUpstrokeTimeMaps  is the list of thresholds (? ///\todo improve the description of threshold) with respect to which the upstroke time maps are calculated.
      */
-    void SetUpstrokeTimeMaps (std::vector<double>& upstrokeTimeMaps);
+    void SetUpstrokeTimeMaps (std::vector<double>& rUpstrokeTimeMaps);
 
     /** Set the parameters of the maximal upstroke velocity map requested
      *
-     *  @param maxUpstrokeVelocityMaps is the list of thresholds (? ///\todo improve the description of threshold) with respect to which the upstroke velocity maps are calculated.
+     *  @param rMaxUpstrokeVelocityMaps is the list of thresholds (? ///\todo improve the description of threshold) with respect to which the upstroke velocity maps are calculated.
      */
-    void SetMaxUpstrokeVelocityMaps (std::vector<double>& maxUpstrokeVelocityMaps);
+    void SetMaxUpstrokeVelocityMaps (std::vector<double>& rMaxUpstrokeVelocityMaps);
 
     /** Set the parameters of the conduction velocity map requested
      *
-     *  @param conductionVelocityMaps is a list of origin node indices. One map is created for each origin node.
+     *  @param rConductionVelocityMaps is a list of origin node indices. One map is created for each origin node.
      */
-    void SetConductionVelocityMaps (std::vector<unsigned>& conductionVelocityMaps);
+    void SetConductionVelocityMaps (std::vector<unsigned>& rConductionVelocityMaps);
 
 
     // Output visualization
@@ -1102,10 +1114,10 @@ private:
      *
      * @param params_ptr  Pointer to quantity within the parameters file (checked first, since it will override a default)
      * @param defaults_ptr  Pointer to quantity within the defaults file (used if there was no override)
-     * @param nameParameter Name of quatity within params_ptr/defaults_ptr (so we can throw a meaningful exception if it's not found)
+     * @param rNameParameter Name of quatity within params_ptr/defaults_ptr (so we can throw a meaningful exception if it's not found)
      */
     template<class TYPE>
-    TYPE* DecideLocation(TYPE* params_ptr, TYPE* defaults_ptr, const std::string& nameParameter) const;
+    TYPE* DecideLocation(TYPE* params_ptr, TYPE* defaults_ptr, const std::string& rNameParameter) const;
 
     /**
      * CheckSimulationIsDefined is a convience method for checking if the "<"Simulation">" element

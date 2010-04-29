@@ -158,8 +158,8 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
     }
     else
     {
-        OutputFileHandler handler(GetOutputDirectory(), false);
-        output_dirname =  handler.GetOutputDirectoryFullPath() + subfolderName + "/";
+        OutputFileHandler handler(GetOutputDirectory() + "/" + subfolderName, false);
+        output_dirname = handler.GetOutputDirectoryFullPath();
     }
     if (!PetscTools::AmMaster())
     {
@@ -184,6 +184,10 @@ void HeartConfig::Write(bool useArchiveLocationInfo, std::string subfolderName)
     // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
     map["cp20"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_0";
     map["cp20"].schema = absolute_path_to_xsd + "ChasteParameters_2_0.xsd";
+    // We use 'cp' as prefix for the latest version to avoid having to change saved
+    // versions for comparison at every release.
+    map["cp"].name = "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1";
+    map["cp"].schema = absolute_path_to_xsd + "ChasteParameters_2_1.xsd";
 
     cp::ChasteParameters(*p_parameters_file, *mpUserParameters, map);
     cp::ChasteParameters(*p_defaults_file, *mpDefaultParameters, map);
@@ -198,6 +202,41 @@ void HeartConfig::SetDefaultSchemaLocations()
     mSchemaLocations[""] = root_dir + "ChasteParameters_1_1.xsd";
     // Later releases use namespaces of the form https://chaste.comlab.ox.ac.uk/nss/parameters/N_M
     mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"] = root_dir + "ChasteParameters_2_0.xsd";
+    mSchemaLocations["https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"] = root_dir + "ChasteParameters_2_1.xsd";
+}
+
+unsigned HeartConfig::GetVersionFromNamespace(const std::string& rNamespaceUri)
+{
+    unsigned version_major = 0;
+    unsigned version_minor = 0;
+    if (rNamespaceUri == "")
+    {
+        version_major = 1;
+        version_minor = 1;
+    }
+    else
+    {
+        std::string uri_base("https://chaste.comlab.ox.ac.uk/nss/parameters/");
+        if (rNamespaceUri.substr(0, uri_base.length()) == uri_base)
+        {
+            std::istringstream version_string(rNamespaceUri.substr(uri_base.length()));
+            version_string >> version_major;
+            version_string.ignore(1);
+            version_string >> version_minor;
+            if (version_string.fail())
+            {
+                version_major = 0;
+                version_minor = 0;
+            }
+        }
+    }
+    
+    unsigned version = version_major * 1000 + version_minor;
+    if (version == 0)
+    {
+        EXCEPTION(rNamespaceUri + " is not a recognised Chaste parameters namespace.");
+    }
+    return version;
 }
 
 void HeartConfig::SetFixedSchemaLocations(const SchemaLocationsMap& rSchemaLocations)
@@ -264,12 +303,14 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
         // Test the namespace on the root element
         xercesc::DOMElement* p_root_elt = p_doc->getDocumentElement();
         std::string namespace_uri(xsd::cxx::xml::transcode<char>(p_root_elt->getNamespaceURI()));
-        if (namespace_uri == "")
+        switch (GetVersionFromNamespace(namespace_uri))
         {
-            // Pretend it's a version 2.0 file
-            AddNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_0");
-            // Change definitions of ionic models
-            TransformIonicModelDefinitions(p_doc.get(), p_root_elt);
+            case 1001: // Release 1.1 and earlier
+                TransformIonicModelDefinitions(p_doc.get(), p_root_elt);
+            case 2000: // Release 2.0
+                SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1");
+            default: // Current release - nothing to do
+                break;
         }
         // Parse DOM to object model
         std::auto_ptr<cp::chaste_parameters_type> p_params(cp::ChasteParameters(*p_doc, ::xml_schema::flags::dont_initialize, props));
@@ -2366,6 +2407,7 @@ void HeartConfig::SetVisualizeWithVtk(bool useVtk)
 #include <xercesc/util/XMLUniDefs.hpp> // chLatin_*
 #include <xercesc/framework/Wrapper4InputSource.hpp>
 #include <xercesc/validators/common/Grammar.hpp>
+#include <xercesc/dom/DOMNamedNodeMap.hpp>
 
 #include <xsd/cxx/xml/string.hxx>
 #include <xsd/cxx/xml/dom/auto-ptr.hxx>
@@ -2374,6 +2416,12 @@ void HeartConfig::SetVisualizeWithVtk(bool useVtk)
 
 #include <xsd/cxx/tree/exceptions.hxx>
 #include <xsd/cxx/tree/error-handler.hxx>
+
+/**
+ * Convenience macro for transcoding C++ strings to Xerces' format.
+ * @param str  the string to transcode
+ */
+#define X(str) xsd::cxx::xml::string(str).c_str()
 
 
 xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> HeartConfig::ReadFileToDomDocument(
@@ -2488,14 +2536,76 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> HeartConfig::ReadFileToDomDoc
     return p_doc;
 }
 
-xercesc::DOMElement* HeartConfig::AddNamespace(xercesc::DOMDocument* pDocument,
+#define COVERAGE_IGNORE
+/**
+ * Function for debugging.
+ * @param rMsg
+ * @param pNode
+ * @param showChildren
+ */
+void PrintNode(const std::string& rMsg, xercesc::DOMNode* pNode, bool showChildren=false)
+{
+    std::string prefix = xsd::cxx::xml::transcode<char>(pNode->getPrefix());
+    std::string name = xsd::cxx::xml::transcode<char>(pNode->getLocalName());
+    std::string nsuri = xsd::cxx::xml::transcode<char>(pNode->getNamespaceURI());
+    std::cout << rMsg << " " << pNode << " " << prefix << ":" << name << " in " << nsuri << std::endl;
+    if (showChildren)
+    {
+        for (xercesc::DOMNode* p_node = pNode->getFirstChild();
+             p_node != NULL;
+             p_node = p_node->getNextSibling())
+        {
+            std::cout << "     child type " << p_node->getNodeType();
+            PrintNode("", p_node, false);
+        }
+        xercesc::DOMNamedNodeMap* p_attrs = pNode->getAttributes();
+        if (p_attrs)
+        {
+            for (XMLSize_t i=0; i<p_attrs->getLength(); i++)
+            {
+                 xercesc::DOMNode* p_attr = p_attrs->item(i);
+                 std::string value = xsd::cxx::xml::transcode<char>(p_attr->getNodeValue());
+                 PrintNode("     attr (" + value + ")", p_attr, false);
+            }
+        }
+    }
+}
+#undef COVERAGE_IGNORE
+
+xercesc::DOMElement* HeartConfig::SetNamespace(xercesc::DOMDocument* pDocument,
                                                xercesc::DOMElement* pElement,
                                                const XMLCh* pNamespace)
 {
     using namespace xercesc;
 
+    //PrintNode("Renaming", pElement, true);
+    DOMNamedNodeMap* p_orig_attrs = pElement->getAttributes();
+    std::vector<std::string> attr_values;
+    if (p_orig_attrs)
+    {
+        for (XMLSize_t i=0; i<p_orig_attrs->getLength(); i++)
+        {
+            DOMNode* p_attr = p_orig_attrs->item(i);
+            attr_values.push_back(xsd::cxx::xml::transcode<char>(p_attr->getNodeValue()));
+        }
+    }
     DOMElement* p_new_elt = static_cast<DOMElement*>(
         pDocument->renameNode(pElement, pNamespace, pElement->getLocalName()));
+    //PrintNode("   to", p_new_elt, true);
+    // Fix attributes - some get broken by the rename!
+    if (p_orig_attrs)
+    {
+        DOMNamedNodeMap* p_new_attrs = p_new_elt->getAttributes();
+        assert(p_new_attrs);
+        assert(p_new_attrs == p_orig_attrs);
+        assert(p_new_attrs->getLength() == attr_values.size());
+        for (XMLSize_t i=0; i<p_new_attrs->getLength(); i++)
+        {
+            DOMNode* p_attr = p_new_attrs->item(i);
+            p_attr->setNodeValue(X(attr_values[i]));
+        }
+    }
+    //PrintNode("   after attr fix", p_new_elt, true);        
 
     for (DOMNode* p_node = p_new_elt->getFirstChild();
          p_node != NULL;
@@ -2503,59 +2613,20 @@ xercesc::DOMElement* HeartConfig::AddNamespace(xercesc::DOMDocument* pDocument,
     {
         if (p_node->getNodeType() == DOMNode::ELEMENT_NODE)
         {
-            p_node = AddNamespace(pDocument, static_cast<DOMElement*>(p_node), pNamespace);
+            p_node = SetNamespace(pDocument, static_cast<DOMElement*>(p_node), pNamespace);
         }
     }
 
     return p_new_elt;
 }
 
-xercesc::DOMElement* HeartConfig::AddNamespace(xercesc::DOMDocument* pDocument,
+xercesc::DOMElement* HeartConfig::SetNamespace(xercesc::DOMDocument* pDocument,
                                                xercesc::DOMElement* pElement,
                                                const std::string& rNamespace)
 {
-    return AddNamespace(pDocument, pElement, xsd::cxx::xml::string(rNamespace).c_str());
+    return SetNamespace(pDocument, pElement, X(rNamespace));
 }
 
-/**
- *  This is a simple class that lets us do easy (though not terribly efficient)
- *  trancoding of char* data to XMLCh data.
- *
- * Taken from Xerces-C samples/CreateDOMDocument/CreateDOMDocument.cpp
- */
-class XStr
-{
-public :
-    /**
-     * Constructor.
-     * @param toTranscode  the C string to convert
-     */
-    XStr(const char* const toTranscode)
-    {
-        // Call the private transcoding method
-        mUnicodeForm = xercesc::XMLString::transcode(toTranscode);
-    }
-
-    /** Destructor */
-    ~XStr()
-    {
-        xercesc::XMLString::release(&mUnicodeForm);
-    }
-
-
-    /** Get the converted string */
-    const XMLCh* UnicodeForm() const
-    {
-        return mUnicodeForm;
-    }
-
-private :
-    /** This is the Unicode XMLCh format of the string. */
-    XMLCh* mUnicodeForm;
-};
-
-//#define X(str) XStr(str).UnicodeForm()
-#define X(str) xsd::cxx::xml::string(str).c_str()
 
 
 void HeartConfig::TransformIonicModelDefinitions(xercesc::DOMDocument* pDocument,

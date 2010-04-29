@@ -5,7 +5,7 @@
     xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 ../../../src/io/ChasteParameters_2_0.xsd">
  
     <!-- See also ChasteParametersResumeSimulation.xml -->       
-       
+    
 	<Simulation>
 		<!-- 
 			Problem definition 

@@ -404,7 +404,7 @@ def CreateXsdBuilder(build, buildenv):
                             '--namespace-regex', "'X.* https://chaste.comlab.ox.ac.uk/nss/parameters/(.+)Xchaste::parameters::v$1X'",
                             schema_file])
         os.system(command)
-    XsdAction = buildenv.Action(RunXsd, "Running xsd on $SOURCE")
+    XsdAction = buildenv.Action(RunXsd, "Running xsd on $SOURCES")
     def XsdEmitter(target, source, env):
         hpp = os.path.splitext(str(target[0]))[0] + '.hpp'
         return (target + [hpp], source)

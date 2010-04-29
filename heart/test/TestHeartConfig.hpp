@@ -226,7 +226,7 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 10.0);
     }
 
-    void TestGetHeterogeneities()
+    void TestGetHeterogeneities() throw (Exception)
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
         ///////////////
@@ -247,7 +247,7 @@ public :
         TS_ASSERT_EQUALS(ionic_models_defined[0].Dynamic().get().Path(), model_zero);
         TS_ASSERT(ionic_models_defined[1].Hardcoded().present());
         TS_ASSERT_EQUALS(ionic_models_defined[1].Hardcoded().get(), cp::ionic_models_available_type::DifrancescoNoble);
-
+        
         //cover the 2D case
         std::vector<ChasteCuboid<2> > ionic_model_regions_2D;
         std::vector<cp::ionic_model_selection_type> ionic_models_defined_2D;
@@ -1035,14 +1035,17 @@ public :
                 "Checkpoint time-step should be a multiple of printing time-step");
 
         //Can't open a directory
+        HeartConfig::Reset();
         HeartConfig::Instance()->SetOutputDirectory("../../../");
         TS_ASSERT_THROWS_CONTAINS(HeartConfig::Instance()->Write(), "due to it potentially being above, and cleaning, CHASTE_TEST_OUTPUT.");
 
         // Can't open a file for writing
         std::string command = OutputFileHandler::GetChasteTestOutputDirectory() + "no_write_access";
-        mkdir(command.c_str(), 0444);
+        mkdir(command.c_str(), 0);
+        chmod(command.c_str(), 0); // in case the directory already exists
         HeartConfig::Instance()->SetOutputDirectory("no_write_access");
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->Write(),"Could not open XML file in HeartConfig");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->Write(false, ""),
+                              "Could not open XML file in HeartConfig");
         chmod(command.c_str(), 0755);
         rmdir(command.c_str());
 
@@ -1065,8 +1068,18 @@ public :
     /**
      * And here we try to check that using old XML or XSD files does The Right Thing.
      */
-    void TestVersioning()
+    void TestVersioning() throw (Exception)
     {
+        // Test we can recognise known versions
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace(""), 1001u);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"), 2000u);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"), 2001u);
+        // and exceptions
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetVersionFromNamespace("https://chaste.comlab.ox.ac.uk/nss/parameters/1__1"),
+                              "https://chaste.comlab.ox.ac.uk/nss/parameters/1__1 is not a recognised Chaste parameters namespace.");
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetVersionFromNamespace("bob"),
+                              "bob is not a recognised Chaste parameters namespace.");
+        
         // Broken schema should throw
         HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/BrokenSchema.xml"),
@@ -1111,6 +1124,20 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1_1.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+
+        // Check that release 2.0 xml can be loaded with release 2.0 schema
+        HeartConfig::Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(false);
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease2_0.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_0.xml");
+
+        // Check that release 2.0 xml can be loaded with latest schema
+        HeartConfig::Reset();
+        HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
+        HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease2_0.xml");
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_0.xml");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
     }
 
     /**
@@ -1118,7 +1145,7 @@ public :
      * This gives some indication of whether Chaste will cope being checked out into
      * a path with spaces.
      */
-    void TestSpacesInPath()
+    void TestSpacesInPath() throw (Exception)
     {
         HeartConfig::Reset();
         HeartConfig::SchemaLocationsMap schema_locations;
@@ -1128,7 +1155,7 @@ public :
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1_1.xml");
     }
 
-    void TestGetOuputVariablesFromXML()
+    void TestGetOuputVariablesFromXML() throw (Exception)
     {
         // Use the configuration file we just modified.
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
@@ -1281,7 +1308,7 @@ public :
                               "OutputVariables information is not available in a resumed simulation.");
     }
 
-    void TestOutputVisualizerSettings()
+    void TestOutputVisualizerSettings() throw (Exception)
     {
         // Defaults file doesn't have the OutputVisualizer element
         TS_ASSERT( ! HeartConfig::Instance()->mpDefaultParameters->Simulation().get().OutputVisualizer().present());
