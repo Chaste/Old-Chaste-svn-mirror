@@ -223,7 +223,7 @@ public:
             }
             else if(Y>0.15)
             {
-                double error = 0.0025;
+                double error = 0.0030;
                 TS_ASSERT_DELTA(lambda[i], lam_fit, error);
             }
 
@@ -295,8 +295,8 @@ public:
 
             // have visually checked the answer and seen that it looks ok, so have
             // a hardcoded test here. Node that 24 is the top-right corner node,
-            TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 0.9429, 5e-3);
-            TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 1.0565, 5e-3);
+            TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 0.9429, 1e-2);
+            TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 1.0565, 1e-2);
 
             std::vector<double>& lambda = assembler.rGetFibreStretches();
 
