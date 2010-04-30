@@ -871,7 +871,7 @@ _state_res = map(re.compile,
     [r"mpicxx ",
      r"BuildTest\(\[",
      r"cxxtest/cxxtestgen.py",
-     r"running '.*/build/.*/Test.*Runner'"])
+     r"(r|R)unning '(.*/build/.*/Test.*Runner|python/test/.*\.py)'"])
 
 def _parseBuildTimings(logfilename):
     """Parse a build log file to determine timings.
