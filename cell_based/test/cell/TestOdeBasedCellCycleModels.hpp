@@ -879,6 +879,16 @@ public:
             }
         }
 
+        // Coverage
+        TissueConfig::Instance()->SetMinimumGapDuration(1e20);
+
+        StochasticWntCellCycleModel* p_cell_model2 = new StochasticWntCellCycleModel();
+        p_cell_model2->SetDimension(2);
+        TissueCell cell2(STEM, p_healthy_state, p_cell_model2);
+        cell2.InitialiseCellCycleModel();
+
+        TS_ASSERT_DELTA(p_cell_model2->GetG2Duration(), 1e20, 1e-4);
+
         // Tidy up
         WntConcentration<2>::Destroy();
     }
