@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MechanicsEventHandler.hpp"
 #include "ReplicatableVector.hpp"
 
-//#define MECH_VERBOSE
+#define MECH_VERBOSE
 //#define MECH_VERY_VERBOSE
 //#define MECH_USE_HYPRE
 
