@@ -383,6 +383,7 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool
     {
         mpCellVolumesFile = output_file_handler.OpenOutputFile("cellareas.dat");
     }
+    mDirPath = rDirectory;
 #ifdef CHASTE_VTK
     mpVtkMetaFile = output_file_handler.OpenOutputFile("results.pvd");
     *mpVtkMetaFile << "<?xml version=\"1.0\"?>\n";
