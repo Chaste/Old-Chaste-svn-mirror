@@ -714,6 +714,17 @@ public:
         TS_ASSERT_EQUALS(apoptotic_cell.GetCellProliferativeType(), APOPTOTIC);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
+
+        // Coverage
+        TissueConfig::Instance()->SetMinimumGapDuration(1e20);
+
+        StochasticOxygenBasedCellCycleModel* p_cell_model2 = new StochasticOxygenBasedCellCycleModel;
+        p_cell_model2->SetDimension(2);
+        TissueCell cell2(STEM, p_state, p_cell_model2);
+        cell2.InitialiseCellCycleModel();
+
+        TS_ASSERT_DELTA(p_cell_model2->GetG2Duration(), 1e20, 1e-4);
+
         // Tidy up
         CellwiseData<2>::Destroy();
 

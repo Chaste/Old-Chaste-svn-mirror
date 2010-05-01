@@ -40,9 +40,7 @@ void StochasticOxygenBasedCellCycleModel::SetG2Duration()
     // Check that the normal random deviate has not returned a small or negative G2 duration
     if (mG2Duration < p_params->GetMinimumGapDuration())
     {
-        #define COVERAGE_IGNORE
         mG2Duration = p_params->GetMinimumGapDuration();
-        #undef COVERAGE_IGNORE
     }
 }
 
