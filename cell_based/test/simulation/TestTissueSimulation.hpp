@@ -108,7 +108,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        TissueConfig::Instance()->SetOutputTissueVolumes(true); // record the spheroid radius and apoptotic radius
+        TissueConfig::Instance()->SetOutputTissueVolumes(true);
 
         // Set up Wnt Gradient
         WntConcentration<2>::Instance()->SetType(LINEAR);
