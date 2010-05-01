@@ -62,12 +62,14 @@ public:
     /**
      * Null constructor for derived classes to call...
      */
-    HoneycombVertexMeshGenerator(){};
+    HoneycombVertexMeshGenerator()
+    {
+    }
 
     /**
      * Destructor - deletes the mesh object and pointer
      */
-    ~HoneycombVertexMeshGenerator();
+    virtual ~HoneycombVertexMeshGenerator();
 
     /**
      * @return a mutable honeycomb mesh based on a 2D plane.
