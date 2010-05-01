@@ -538,7 +538,7 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigne
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveVoronoiElementIndexMapping(unsigned index)
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(unsigned index)
 {
     if (mVoronoiElementIndexMap.empty())
     {

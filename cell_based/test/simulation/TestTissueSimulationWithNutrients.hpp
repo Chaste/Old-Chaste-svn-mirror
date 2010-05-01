@@ -480,7 +480,7 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TestSpheroidStatistics", false);
         std::string areas_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/tissueareas.dat";
-        TS_ASSERT_EQUALS(system(("diff " + areas_results_file + " cell_based/test/data/TestSpheroidStatistics/Areas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + areas_results_file + " cell_based/test/data/TestSpheroidStatistics/tissueareas.dat").c_str()), 0);
 
         std::string dist_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/radial_dist.dat";
         TS_ASSERT_EQUALS(system(("diff " + dist_results_file + " cell_based/test/data/TestSpheroidStatistics/radial_dist.dat").c_str()), 0);

@@ -441,8 +441,11 @@ public:
         }
     }
 
-    void TestOutputWriters()
+    void TestTissueWritersIn2d()
     {
+        // Set up SimulationTime (needed if VTK is used)
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
         // Resetting the Maximum cell Id to zero (to account for previous tests)
         TissueCell::ResetMaxCellId();
 
@@ -474,7 +477,6 @@ public:
         MeshBasedTissue<2> tissue(mesh, cells);
 
         // Test set methods
-
         TissueConfig::Instance()->SetOutputVoronoiData(true);
         TissueConfig::Instance()->SetOutputTissueVolumes(true);
         TissueConfig::Instance()->SetOutputCellVolumes(true);
@@ -482,7 +484,7 @@ public:
         // This method is usually called by Update()
         tissue.CreateVoronoiTessellation();
 
-        std::string output_directory = "TestTissueWriters";
+        std::string output_directory = "TestTissueWritersIn2d";
         OutputFileHandler output_file_handler(output_directory, false);
 
         TissueConfig::Instance()->SetOutputCellMutationStates(true);
@@ -496,17 +498,18 @@ public:
         // Compare output with saved files of what they should look like
         std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements   cell_based/test/data/TestTissueWriters/results.vizelements").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes      cell_based/test/data/TestTissueWriters/results.viznodes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cell_based/test/data/TestTissueWriters/results.vizcelltypes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissueareas.dat       cell_based/test/data/TestTissueWriters/tissueareas.dat").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestTissueWriters/cellareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements   cell_based/test/data/TestTissueWritersIn2d/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes      cell_based/test/data/TestTissueWritersIn2d/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cell_based/test/data/TestTissueWritersIn2d/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissueareas.dat       cell_based/test/data/TestTissueWritersIn2d/tissueareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestTissueWritersIn2d/cellareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "voronoi.dat           cell_based/test/data/TestTissueWritersIn2d/voronoi.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function: there should only be healthy cells
         std::vector<unsigned> cell_mutation_states = tissue.GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
         for (unsigned i=0; i<cell_mutation_states.size(); i++)
-        {   // There should be one of each kind of mutation in the results files.
+        {
             TS_ASSERT_EQUALS(cell_mutation_states[i], 1u);
         }
 
@@ -517,6 +520,73 @@ public:
         TS_ASSERT_EQUALS(cell_types[1], 0u);
         TS_ASSERT_EQUALS(cell_types[2], 0u);
         TS_ASSERT_EQUALS(cell_types[3], 1u);
+    }
+
+    void TestTissueWritersIn3d()
+    {
+        // Set up SimulationTime (needed if VTK is used)
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
+        // Resetting the Maximum cell Id to zero (to account for previous tests)
+        TissueCell::ResetMaxCellId();
+
+        // Create a simple 3D tetrahedral mesh
+        std::vector<Node<3>*> nodes;
+        for (unsigned i=0; i<5; i++)
+        {
+            double x = 3*RandomNumberGenerator::Instance()->ranf();
+            double y = 3*RandomNumberGenerator::Instance()->ranf();
+            double z = 3*RandomNumberGenerator::Instance()->ranf();
+            nodes.push_back(new Node<3>(i, false,  x, y, z));
+        }
+        MutableMesh<3,3> mesh(nodes);
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        // Create tissue
+        MeshBasedTissue<3> tissue(mesh, cells);
+
+        // Test set methods
+        TissueConfig::Instance()->SetOutputVoronoiData(true);
+        TissueConfig::Instance()->SetOutputTissueVolumes(true);
+        TissueConfig::Instance()->SetOutputCellVolumes(true);
+
+        // This method is usually called by Update()
+        tissue.CreateVoronoiTessellation();
+
+        std::string output_directory = "TestTissueWritersIn3d";
+        OutputFileHandler output_file_handler(output_directory, false);
+
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
+        TissueConfig::Instance()->SetOutputCellAges(true);
+
+        tissue.CreateOutputFiles(output_directory, false);
+        tissue.WriteResultsToFiles();
+        tissue.CloseOutputFiles();
+
+        // Compare output with saved files of what they should look like
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements   cell_based/test/data/TestTissueWritersIn3d/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes      cell_based/test/data/TestTissueWritersIn3d/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cell_based/test/data/TestTissueWritersIn3d/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissueareas.dat       cell_based/test/data/TestTissueWritersIn3d/tissueareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestTissueWritersIn3d/cellareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "voronoi.dat           cell_based/test/data/TestTissueWritersIn3d/voronoi.dat").c_str()), 0);
+
+        // Test the GetCellMutationStateCount function: there should only be healthy cells
+        std::vector<unsigned> cell_mutation_states = tissue.GetCellMutationStateCount();
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_states[0], 5u);
+
+        // Test the GetCellProliferativeTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
+        std::vector<unsigned> cell_types = tissue.rGetCellProliferativeTypeCount();
+        TS_ASSERT_EQUALS(cell_types.size(), 4u);
+        TS_ASSERT_EQUALS(cell_types[0], 5u);
     }
 
     void TestGetLocationOfCellCentreAndGetNodeCorrespondingToCell() throw (Exception)
@@ -798,6 +868,38 @@ public:
                 TS_ASSERT_EQUALS(is_deleted, false);
             }
         }
+    }
+
+    void Test3dVoronoiTessellation() throw (Exception)
+    {
+        // Create simple 3D tetrahedral mesh
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false,  0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false,  1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(2, false,  1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(3, false,  0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
+
+        MutableMesh<3,3> mesh(nodes);
+
+        // Create cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        // Create tissue
+        MeshBasedTissue<3> tissue(mesh, cells);
+
+        // Create Voronoi tessellation (normally done in a simulation)
+        tissue.CreateVoronoiTessellation();
+
+        // Test volume and surface area of central Voronoi element
+        // (the other nodes correspond to Voronoi faces)
+        double base_area = 1.125;
+        double height = sqrt(3);
+
+        TS_ASSERT_DELTA(tissue.GetVolumeOfVoronoiElement(4), base_area*height/3, 1e-4);
+        TS_ASSERT_DELTA(tissue.GetSurfaceAreaOfVoronoiElement(4), 4*base_area, 1e-4);
     }
 };
 

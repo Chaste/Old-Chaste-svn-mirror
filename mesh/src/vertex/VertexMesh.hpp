@@ -326,7 +326,7 @@ public:
      *
      * @param index global index of a node in the Delaunay mesh
      */
-    unsigned SolveVoronoiElementIndexMapping(unsigned index);
+    unsigned GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(unsigned index);
 
     /**
      * Overridden GetVectorFromAtoB() method. Returns a vector between two points in space.

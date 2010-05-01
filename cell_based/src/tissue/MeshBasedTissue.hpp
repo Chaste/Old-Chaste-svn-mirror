@@ -98,6 +98,12 @@ protected:
      */
     VertexMesh<DIM, DIM>* mpVoronoiTessellation;
 
+    /** A cache of where the results are going (used for VTK writer). */
+    std::string mDirPath;
+
+    /** Meta results file for VTK. */
+    out_stream mpVtkMetaFile;
+
     /**
      * Whether to delete the mesh when we are destroyed.
      * Needed if this tissue has been de-serialized.
@@ -366,6 +372,30 @@ public:
      * @param index a node global index
      */
     double GetPerimeterOfVoronoiElement(unsigned index);
+
+    /**
+     * Get the volume of the element of mpVoronoiTessellation associated with
+     * the node with this global index in the Delaunay mesh.
+     *
+     * This method should be called instead of calling rGetVoronoiTessellation().GetVolumeOfElement()
+     * because the global indices of Delaunay nodes and Voronoi elements may not match,
+     * e.g. if a node is a ghost node or corresponds to a Voronoi face.
+     *
+     * @param index a node global index
+     */
+    double GetVolumeOfVoronoiElement(unsigned index);
+
+    /**
+     * Get the surface area of the element of mpVoronoiTessellation associated with
+     * the node with this global index in the Delaunay mesh.
+     *
+     * This method should be called instead of calling rGetVoronoiTessellation().GetSurfaceAreaOfElement()
+     * because the global indices of Delaunay nodes and Voronoi elements may not match,
+     * e.g. if a node is a ghost node or corresponds to a Voronoi face.
+     *
+     * @param index a node global index
+     */
+    double GetSurfaceAreaOfVoronoiElement(unsigned index);
 
     /**
      * Get the length of the edge of mpVoronoiTessellation associated with
