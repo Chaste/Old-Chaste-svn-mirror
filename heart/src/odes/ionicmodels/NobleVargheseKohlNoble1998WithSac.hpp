@@ -73,6 +73,16 @@ public:
     {
         return mStretch;
     }
+    
+    /**
+     * Get the intracellular calcium concentration
+     *
+     * @return the intracellular calcium concentration
+     */
+    double GetIntracellularCalciumConcentration()
+    {
+        return mStateVariables[16];
+    }
 };
 
 

@@ -149,6 +149,9 @@ public:
 
         CML_noble_varghese_kohl_noble_1998_basic_with_sac   n98_with_sac(p_solver, p_stimulus);
 
+        // some models have this implemented so they can be used in mechanics simulations
+        TS_ASSERT_DELTA(n98_with_sac.GetIntracellularCalciumConcentration(), 1.4e-5, 2e-6); 
+
         // Solve and write to file
         ck_start = clock();
         RunOdeSolverWithIonicModel(&n98_with_sac,
@@ -403,7 +406,7 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
 
-        // cover get intracellular calcium
+        // some models have this implemented so they can be used in mechanics simulations
         TS_ASSERT_DELTA(lr91_ode_system.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
 
         // Solve and write to file
@@ -430,7 +433,7 @@ public:
         // Solve using backward euler
         BackwardEulerLuoRudyIModel1991 lr91_backward_euler(p_stimulus);
 
-        // cover get intracellular calcium
+        // some models have this implemented so they can be used in mechanics simulations
         TS_ASSERT_DELTA(lr91_backward_euler.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
 
         ck_start = clock();
