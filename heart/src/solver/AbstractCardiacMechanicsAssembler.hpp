@@ -193,55 +193,15 @@ public:
     AbstractCardiacMechanicsAssembler(QuadraticMesh<DIM>* pQuadMesh,
                                       std::string outputDirectory,
                                       std::vector<unsigned>& rFixedNodes,
-                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
-        : NonlinearElasticityAssembler<DIM>(pQuadMesh,
-                                        pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw<DIM>,
-                                        zero_vector<double>(DIM),
-                                        DOUBLE_UNSET,
-                                        outputDirectory,
-                                        rFixedNodes),
-        mCurrentTime(DBL_MAX),
-        mNextTime(DBL_MAX),
-        mOdeTimestep(DBL_MAX)
-    {
-        // compute total num quad points
-        mTotalQuadPoints = pQuadMesh->GetNumElements()*this->mpQuadratureRule->GetNumQuadPoints();
+                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw);
 
-        // note that if pMaterialLaw is NULL a new NashHunter law was sent to the
-        // NonlinElas constuctor (see above)
-        mAllocatedMaterialLawMemory = (pMaterialLaw==NULL);
-
-        // initialise the store of fibre stretches
-        mStretches.resize(mTotalQuadPoints, 1.0);
-
-        // initialise fibre/sheet direction matrix to be the identity, fibres in X-direction, and sheet in XY-plane
-        mConstantFibreSheetDirections = zero_matrix<double>(DIM,DIM);
-        for(unsigned i=0; i<DIM; i++)
-        {
-            mConstantFibreSheetDirections(i,i) = 1.0;
-        }
-
-        mpVariableFibreSheetDirections = NULL;
-    }
 
     /**
      *  Destructor just deletes memory if it was allocated
      */
-    ~AbstractCardiacMechanicsAssembler()
-    {
-        if(mAllocatedMaterialLawMemory)
-        {
-            assert(this->mMaterialLaws.size()==1); // haven't implemented heterogeniety yet
-            delete this->mMaterialLaws[0];
-        }
-
-        if(mpVariableFibreSheetDirections)
-        {
-            delete mpVariableFibreSheetDirections;
-        }
-    }
-
-
+    ~AbstractCardiacMechanicsAssembler();
+    
+    
     /** Get the total number of quad points in the mesh. Pure, implemented in concrete assembler */
     unsigned GetTotalNumQuadPoints()
     {
@@ -300,7 +260,83 @@ public:
      *  @param odeTimestep the ODE timestep
      */
     virtual void Solve(double time, double nextTime, double odeTimestep)=0;
+    
+    
+    
+    // following method will eventually become 
+    // ComputeDeformationGradientsAndStretchesInEachElement(std::vector<c_matrix<double,DIM,DIM> >& rDeformationGradients, 
+    //                                                      std::vector<double>& rStretches)
+
+    /**
+     *  Compute the stretch in the fibre direction, for each element in the mesh.
+     *  Note: using quadratic interpolation for position, the stretches actually vary linearly 
+     *  in each element. However, for computational efficiency reasons, when computing the
+     *  stretch to pass back to the cell model, we just assume the stretches are constant in
+     *  each element (ie ignoring the quadratic correction to the displacement). This means that
+     *  the (const) stretch for each element can be computed in advance and stored, and we don't
+     *  have to worry about interpolation onto the precise location of the cell-model (electrics-mesh)
+     *  node, just which element it is in. 
+     *  
+     *  To compute this constant stretch we just have to compute F using the deformed positions at the 
+     *  vertices only, with linear bases, rather than all the nodes and quadratic bases. 
+     * 
+     *  @rStretches A reference of a std::vector in which the stretch in each element will be returned.
+     *  Must be allocated prior to being passed in
+     */
+    void ComputeStretchesInEachElement(std::vector<double>& rStretches);
 };
+
+
+template<unsigned DIM>
+AbstractCardiacMechanicsAssembler<DIM>::AbstractCardiacMechanicsAssembler(QuadraticMesh<DIM>* pQuadMesh,
+                                                                          std::string outputDirectory,
+                                                                          std::vector<unsigned>& rFixedNodes,
+                                                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
+   : NonlinearElasticityAssembler<DIM>(pQuadMesh,
+                                       pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw<DIM>,
+                                       zero_vector<double>(DIM),
+                                       DOUBLE_UNSET,
+                                       outputDirectory,
+                                       rFixedNodes),
+                                       mCurrentTime(DBL_MAX),
+                                       mNextTime(DBL_MAX),
+                                       mOdeTimestep(DBL_MAX)
+{
+    // compute total num quad points
+    mTotalQuadPoints = pQuadMesh->GetNumElements()*this->mpQuadratureRule->GetNumQuadPoints();
+
+    // note that if pMaterialLaw is NULL a new NashHunter law was sent to the
+    // NonlinElas constuctor (see above)
+    mAllocatedMaterialLawMemory = (pMaterialLaw==NULL);
+
+    // initialise the store of fibre stretches
+    mStretches.resize(mTotalQuadPoints, 1.0);
+
+    // initialise fibre/sheet direction matrix to be the identity, fibres in X-direction, and sheet in XY-plane
+    mConstantFibreSheetDirections = zero_matrix<double>(DIM,DIM);
+    for(unsigned i=0; i<DIM; i++)
+    {
+        mConstantFibreSheetDirections(i,i) = 1.0;
+    }
+
+    mpVariableFibreSheetDirections = NULL;
+}
+
+
+template<unsigned DIM>
+AbstractCardiacMechanicsAssembler<DIM>::~AbstractCardiacMechanicsAssembler()
+{
+    if(mAllocatedMaterialLawMemory)
+    {
+        assert(this->mMaterialLaws.size()==1); 
+        delete this->mMaterialLaws[0];
+    }
+
+    if(mpVariableFibreSheetDirections)
+    {
+        delete mpVariableFibreSheetDirections;
+    }
+}
 
 
 
@@ -376,6 +412,69 @@ void AbstractCardiacMechanicsAssembler<DIM>::ComputeStressAndStressDerivative(Ab
                 }
             }
         }
+    }
+}
+
+
+
+
+template<unsigned DIM>
+void AbstractCardiacMechanicsAssembler<DIM>::ComputeStretchesInEachElement(std::vector<double>& rStretches)
+{
+    assert(rStretches.size()==this->mpQuadMesh->GetNumElements());
+   
+    static c_matrix<double,DIM,NUM_VERTICES_PER_ELEMENT> element_current_displacements;
+    static c_matrix<double,DIM,NUM_VERTICES_PER_ELEMENT> grad_lin_phi;
+    static c_matrix<double,DIM,DIM> F;      // the deformation gradient, F = dx/dX, F_{iM} = dx_i/dX_M
+
+    static c_matrix<double,DIM,DIM> jacobian;
+    static c_matrix<double,DIM,DIM> inverse_jacobian;
+    double jacobian_determinant;
+    ChastePoint<DIM> quadrature_point; // not needed, but has to be passed in  
+    
+    // loop over all the elements
+    for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
+    {
+        Element<DIM,DIM>* p_elem = this->mpQuadMesh->GetElement(elem_index);
+
+        // get the fibre direction for this element
+        mpCurrentElementFibreSheetMatrix = mpVariableFibreSheetDirections ? &(*mpVariableFibreSheetDirections)[elem_index] : &mConstantFibreSheetDirections;
+        for(unsigned i=0; i<DIM; i++)
+        {
+            mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(i,0);
+        }
+
+        // get the displacement at this element
+        for (unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
+        {
+            for (unsigned JJ=0; JJ<DIM; JJ++)
+            {
+                element_current_displacements(JJ,II) = this->mCurrentSolution[DIM*p_elem->GetNodeGlobalIndex(II) + JJ];
+            }
+        }
+
+        // set up the linear basis functions
+        this->mpQuadMesh->GetInverseJacobianForElement(elem_index, jacobian, jacobian_determinant, inverse_jacobian);
+        LinearBasisFunction<DIM>::ComputeTransformedBasisFunctionDerivatives(quadrature_point, inverse_jacobian, grad_lin_phi);
+        
+        F = identity_matrix<double>(DIM,DIM); 
+
+        // loop over the vertices and interpolate F, the deformation gradient
+        // (note: could use matrix-mult if this becomes inefficient
+        for (unsigned node_index=0; node_index<NUM_VERTICES_PER_ELEMENT; node_index++)
+        {
+            for (unsigned i=0; i<DIM; i++)
+            {
+                for (unsigned M=0; M<DIM; M++)
+                {
+                    F(i,M) += grad_lin_phi(M,node_index)*element_current_displacements(i,node_index);
+                }
+            }
+        }
+        
+        // compute and save the stretch: m^T C m = ||Fm||
+        c_vector<double,DIM> deformed_fibre = prod(F, mCurrentElementFibreDirection);
+        rStretches[elem_index] = norm_2(deformed_fibre);
     }
 }
 

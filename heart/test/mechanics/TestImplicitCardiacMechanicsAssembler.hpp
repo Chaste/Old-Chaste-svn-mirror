@@ -362,10 +362,58 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsAssembler<2> expl_solver1(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
-        ImplicitCardiacMechanicsAssembler<2> expl_solver2(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> impl_solver1(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
+        ImplicitCardiacMechanicsAssembler<2> impl_solver2(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
 
         // call with TS_ASSERT_THROWS_CONTAINS with any disallowed contraction models here:
+    }
+
+    
+    void TestComputeStretchesEachElement() throw(Exception)
+    {
+        QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
+
+        MooneyRivlinMaterialLaw<2> law(1);
+        std::vector<unsigned> fixed_nodes
+          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
+
+        ImplicitCardiacMechanicsAssembler<2> assembler(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
+        
+        // compute the stretches, they should be 1
+        std::vector<double> stretches(mesh.GetNumElements());
+        assembler.ComputeStretchesInEachElement(stretches);
+        for(unsigned i=0; i<stretches.size(); i++)
+        {
+            TS_ASSERT_DELTA(stretches[i], 1.0, 1e-6);
+        }
+
+        // get the current solution (displacement), and contract in the non-fibre direction
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            unsigned j=1;
+            assembler.mCurrentSolution[2*i+j] = -0.1*mesh.GetNode(i)->rGetLocation()[j];
+        }
+
+        // stretches should still be 1
+        assembler.ComputeStretchesInEachElement(stretches);
+        for(unsigned i=0; i<stretches.size(); i++)
+        {
+            TS_ASSERT_DELTA(stretches[i], 1.0, 1e-6);
+        }
+
+        // contract in the fibre direction
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            unsigned j=0;
+            assembler.mCurrentSolution[2*i+j] = -0.2*mesh.GetNode(i)->rGetLocation()[j];
+        }
+
+        // stretches should now be 0.8
+        assembler.ComputeStretchesInEachElement(stretches);
+        for(unsigned i=0; i<stretches.size(); i++)
+        {
+            TS_ASSERT_DELTA(stretches[i], 0.8, 1e-3);
+        }
     }
 
 
