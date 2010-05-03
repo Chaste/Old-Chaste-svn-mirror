@@ -173,7 +173,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
     QuadraturePointsGroup<DIM> quad_point_posns(mrCoarseMesh, rQuadRule);
 
     // resize the elements and weights vector.
-    mElementsAndWeights.resize(quad_point_posns.Size());
+    mFineMeshElementsAndWeights.resize(quad_point_posns.Size());
 
 
 //// Bring back identical-meshes functionality if needed
@@ -201,8 +201,8 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
 //            c_vector<double,DIM+1> weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(point);
 //                
 //                
-//            mElementsAndWeights[i].ElementNum = elem_index;
-//            mElementsAndWeights[i].Weights = weight;
+//            mFineMeshElementsAndWeights[i].ElementNum = elem_index;
+//            mFineMeshElementsAndWeights[i].Weights = weight;
 //        }
 //    }
 //    else
@@ -320,8 +320,8 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
             }
         }
 
-        mElementsAndWeights[i].ElementNum = elem_index;
-        mElementsAndWeights[i].Weights = weight;
+        mFineMeshElementsAndWeights[i].ElementNum = elem_index;
+        mFineMeshElementsAndWeights[i].Weights = weight;
     }
 //    }
 }
@@ -345,6 +345,29 @@ void FineCoarseMeshPair<DIM>::PrintStatistics()
         }
     }
 }
+
+
+// todo: use boxes when this becomes inefficient....
+template<unsigned DIM>
+void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineNodes()
+{
+    mCoarseElementsForFineNodes.resize(mrFineMesh.GetNumNodes());
+    for(unsigned i=0; i<mCoarseElementsForFineNodes.size(); i++)
+    {
+//todo: reference?!
+        ChastePoint<DIM> point = mrFineMesh.GetNode(i)->GetPoint();
+
+        try
+        {
+            mCoarseElementsForFineNodes[i] = mrCoarseMesh.GetContainingElementIndex(point);
+        }
+        catch(Exception& e)
+        {
+            mCoarseElementsForFineNodes[i] = mrCoarseMesh.GetNearestElementIndex(point);
+        }
+    }
+}
+
 
 
 template<unsigned DIM>

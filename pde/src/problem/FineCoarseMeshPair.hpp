@@ -75,7 +75,7 @@ private:
     /** The containing elements and corresponding weights in the fine mesh for the set of points given.
      *  The points may have been quadrature points in the coarse mesh, or nodes in coarse mesh, etc.
      */
-    std::vector<ElementAndWeights<DIM> > mElementsAndWeights;
+    std::vector<ElementAndWeights<DIM> > mFineMeshElementsAndWeights;
 
     /** Indices of the points which were found to be outside the fine mesh */
     std::vector<unsigned> mNotInMesh;
@@ -96,6 +96,13 @@ private:
 //      * will have extra nodes), we should figure out if this is the case and do things differently if so
 //      */
 //    bool mIdenticalMeshes;
+
+
+    /**  
+     *  The elements in the coarse mesh that each fine mesh node is contained in (or nearest to).
+     *  ComputeCoarseElementsForFineNodes() needs to be called for this to be set up.
+     */
+    std::vector<unsigned> mCoarseElementsForFineNodes;
 
 public:
     /** Constructor sets up domain size
@@ -146,12 +153,29 @@ public:
      */
     void PrintStatistics();
 
+
+    /** 
+     *  Compute the element in the coarse mesh that each fine mesh node is contained in (or nearest to)
+     */
+    void ComputeCoarseElementsForFineNodes();
+
     /**
      * @return  A reference to the elements/weights information
      */
     std::vector<ElementAndWeights<DIM> >& rGetElementsAndWeights()
     {
-        return mElementsAndWeights;
+        return mFineMeshElementsAndWeights;
+    }
+
+
+    /** 
+     *  Get the elements in the coarse mesh that each fine mesh node is contained in (or nearest to).
+     *  ComputeCoarseElementsForFineNodes() needs to be called before calling this.
+     */
+    std::vector<unsigned>& rGetCoarseElementsForFineNodes()
+    {
+        assert(mCoarseElementsForFineNodes.size()>0);
+        return mCoarseElementsForFineNodes;
     }
 
     /**

@@ -311,6 +311,49 @@ public:
         mesh_pair2.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true);
         TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
     }
+    
+    
+    void TestComputeCoarseElementsForFineNodes() throw(Exception)
+    {
+        TetrahedralMesh<2,2> fine_mesh;
+        fine_mesh.ConstructRectangularMesh(5,5);
+        fine_mesh.Scale(0.2, 0.2);
+
+        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1); // 2 triangular elements
+    
+        FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
+        mesh_pair.ComputeCoarseElementsForFineNodes();
+        
+        for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
+        {
+            double x = fine_mesh.GetNode(i)->rGetLocation()[0];
+            double y = fine_mesh.GetNode(i)->rGetLocation()[1];
+            
+            
+            if( x+y < 1.0 - 1e-5 )  // x+y < 1
+            {
+                TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 0u);
+            }
+            else if ( x+y > 1.0 + 1e-5 )  // x+y > 1
+            {
+                TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 1u);
+            }
+            else // x=1-y, so in both elements, result could be either. However, it should find 0 first
+            {
+                //TS_ASSERT_LESS_THAN(mesh_pair.rGetCoarseElementsForFineNodes()[i], 2u);
+                TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 0u);
+            }
+        }
+        
+        // translate the fine mesh to somewhere far away in (-1, -1) direction --> all
+        // fine nodes nearest to (not contained in) element 0 
+        fine_mesh.Translate(-10, -10);
+        mesh_pair.ComputeCoarseElementsForFineNodes();
+        for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 0u);
+        }
+    }
 
 
 //
