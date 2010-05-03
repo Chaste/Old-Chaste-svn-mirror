@@ -39,7 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MechanicsEventHandler.hpp"
 #include "ReplicatableVector.hpp"
 
-#define MECH_VERBOSE
+//#include "PCBlockDiagonalMechanics.hpp"
+//#include "PCLDUFactorisationMechanics.hpp"
+
+//#define MECH_VERBOSE
 //#define MECH_VERY_VERBOSE
 //#define MECH_USE_HYPRE
 
@@ -202,8 +205,14 @@ protected:
     /**
      *  Set up the residual vector (using the current solution), and get its
      *  scaled norm (Calculate |r|_2 / length(r), where r is residual vector)
+     *  
+     *  @allowException Sometimes the current solution solution will be such 
+     *   that the residual vector cannot be computed, as (say) the material law
+     *   will throw an exception as the strains are too large. If this bool is
+     *   set to true, the exception will be caught, and DBL_MAX returned as the 
+     *   residual norm
      */
-    double ComputeResidualAndGetNorm();
+    double ComputeResidualAndGetNorm(bool allowException);
 
     /** Calculate |r|_2 / length(r), where r is the current residual vector */
     double CalculateResidualNorm();
@@ -385,29 +394,27 @@ void AbstractNonlinearElasticityAssembler<DIM>::ApplyBoundaryConditions(bool app
 }
 
 template<unsigned DIM>
-double AbstractNonlinearElasticityAssembler<DIM>::ComputeResidualAndGetNorm()
+double AbstractNonlinearElasticityAssembler<DIM>::ComputeResidualAndGetNorm(bool allowException)
 {
-      AssembleSystem(true, false);
-
-//// in the future might want this method to do the following..
-//    if(!allowException /* argument */)
-//    {
-//        // assemble the residual
-//        AssembleSystem(true, false);
-//    }
-//    else
-//    {
-//        try
-//        {
-//            // try to assemble the residual using this current solution
-//            AssembleSystem(true, false);
-//        }
-//        catch(Exception& e)
-//        {
-//            // if fail (because eg ODEs fail to solve), return infinity
-//            return DBL_MAX;
-//        }
-//    }
+    if(!allowException)
+    {
+        // assemble the residual
+        AssembleSystem(true, false);
+    }
+    else
+    {
+        try
+        {
+            // try to assemble the residual using this current solution
+            AssembleSystem(true, false);
+        }
+        catch(Exception& e)
+        {
+            // if fail (because eg ODEs fail to solve, or strains are too large for material law), 
+            // return infinity
+            return DBL_MAX;
+        }
+    }
 
     // return the scaled norm of the residual
     return CalculateResidualNorm();
@@ -461,13 +468,13 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     /////////////////////////////////////////////////////////////
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::SOLVE);
 
-    KSP solver;
     Vec solution;
     VecDuplicate(mpLinearSystem->rGetRhsVector(),&solution);
 
     Mat& r_jac = mpLinearSystem->rGetLhsMatrix();
     Mat& r_precond_jac = mpPreconditionMatrixLinearSystem->rGetLhsMatrix();
 
+    KSP solver;
     KSPCreate(PETSC_COMM_WORLD,&solver);
 
     KSPSetOperators(solver, r_jac, r_precond_jac, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
@@ -495,11 +502,16 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
         // Speed up linear solve time massively for larger simulations (in fact GMRES may stagnate without
         // this for larger problems), by using a AMG preconditioner -- needs HYPRE installed 
         /////////////////////////////////////////////////////////////////////////////////////////////////////
-        //PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
-        //PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.1");
         PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
+        // PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+        // PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
+
         PCSetType(pc, PCHYPRE);
-        KSPSetPreconditionerSide(solver, PC_RIGHT);
+        
+        //PCBlockDiagonalMechanics* p_custom_pc = new PCBlockDiagonalMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
+        //PCLDUFactorisationMechanics* p_custom_pc = new PCLDUFactorisationMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
+		//remember to delete memory..
+        //KSPSetPreconditionerSide(solver, PC_RIGHT);
     #endif     
 
     KSPSetFromOptions(solver);
@@ -572,26 +584,27 @@ double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(
     // let mCurrentSolution = old_solution - damping_val[0]*update; and compute residual
     unsigned index = 0;
     VectorSum(old_solution, update, -damping_values[index], mCurrentSolution);
-    double current_resid_norm = ComputeResidualAndGetNorm();
+    double current_resid_norm = ComputeResidualAndGetNorm(true);
     PrintLineSearchResult(damping_values[index], current_resid_norm);
 
     //// Try s=0.9 and see what the residual-norm is
     // let mCurrentSolution = old_solution - damping_val[1]*update; and compute residual
     index = 1;
     VectorSum(old_solution, update, -damping_values[index], mCurrentSolution);
-    double next_resid_norm = ComputeResidualAndGetNorm();
+    double next_resid_norm = ComputeResidualAndGetNorm(true);
     PrintLineSearchResult(damping_values[index], next_resid_norm);
 
     index = 2;
     // While f(s_next) < f(s_current), [f = residnorm], keep trying new damping values,
     // ie exit thus loop when next norm of the residual first increases
-    while ( (next_resid_norm < current_resid_norm)  && index<damping_values.size())
+    while (    (next_resid_norm==DBL_MAX) // the residual is returned as infinity if the deformation is so large to cause exceptions in the material law/EM contraction model
+            || ( (next_resid_norm < current_resid_norm) && (index<damping_values.size()) ) )
     {
         current_resid_norm = next_resid_norm;
 
         // let mCurrentSolution = old_solution - damping_val*update; and compute residual
         VectorSum(old_solution, update, -damping_values[index], mCurrentSolution);
-        next_resid_norm = ComputeResidualAndGetNorm();
+        next_resid_norm = ComputeResidualAndGetNorm(true);
         PrintLineSearchResult(damping_values[index], next_resid_norm);
 
         index++;
@@ -773,7 +786,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
     }
 
     // compute residual
-    double norm_resid = this->ComputeResidualAndGetNorm();
+    double norm_resid = this->ComputeResidualAndGetNorm(false);
     #ifdef MECH_VERBOSE
     std::cout << "\nNorm of residual is " << norm_resid << "\n";
     #endif

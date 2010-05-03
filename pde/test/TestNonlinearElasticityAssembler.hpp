@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "ExponentialMaterialLaw.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
-
+#include "NashHunterPoleZeroLaw.hpp"
 double MATERIAL_PARAM = 0.05;
 double ALPHA = 0.2;
 
@@ -110,9 +110,7 @@ public:
 
     void TestAssembleSystem() throw (Exception)
     {
-        QuadraticMesh<2> mesh;
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
-        mesh.ConstructFromMeshReader(mesh_reader);
+        QuadraticMesh<2> mesh(1.0, 1.0, 2, 2);
         ExponentialMaterialLaw<2> law(2,3);
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
@@ -130,7 +128,7 @@ public:
         // current solution should have been initialised to u=0, p=p0
         ///////////////////////////////////////////////////////////////////
         ReplicatableVector rhs_vec(assembler.mpLinearSystem->rGetRhsVector());
-        TS_ASSERT_EQUALS( rhs_vec.GetSize(), 2U*289U+81U );
+        TS_ASSERT_EQUALS( rhs_vec.GetSize(), 2U*25U+9U );
         for (unsigned i=0; i<rhs_vec.GetSize(); i++)
         {
             TS_ASSERT_DELTA(rhs_vec[i], 0.0, 1e-12);
@@ -225,6 +223,54 @@ public:
             }
             assembler.mCurrentSolution[j] -= h;
         }
+    }
+
+    void TestComputeResidualAndGetNormWithBadDeformation() throw(Exception)
+    {
+        QuadraticMesh<3> mesh;
+        TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1,false);
+        mesh.ConstructFromMeshReader(mesh_reader1);
+        NashHunterPoleZeroLaw<3> law;
+        
+        std::vector<unsigned> fixed_nodes;
+        fixed_nodes.push_back(0);
+
+        NonlinearElasticityAssembler<3> assembler(&mesh,
+                                                  &law,
+                                                  zero_vector<double>(3),
+                                                  1.0,
+                                                  "",
+                                                  fixed_nodes);
+
+        // compute the residual norm - should be zero as no force or tractions
+        TS_ASSERT_DELTA( assembler.ComputeResidualAndGetNorm(false), 0.0, 1e-7);
+        
+        // the change the current solution (=displacement) to correspond to a small stretch
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            for (unsigned j=0; j<3; j++)
+            {
+                assembler.mCurrentSolution[3*i+j] = 0.01*mesh.GetNode(i)->rGetLocation()[j];
+            }
+        }
+
+        // compute the residual norm - check computes fine
+        TS_ASSERT_LESS_THAN( 0.0, assembler.ComputeResidualAndGetNorm(false));
+
+        // the change the current solution (=displacement) to correspond to a large stretch
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            for (unsigned j=0; j<3; j++)
+            {
+                assembler.mCurrentSolution[3*i+j] = mesh.GetNode(i)->rGetLocation()[j];
+            }
+        }
+
+        // compute the residual norm - material law should complain - exception thrown...
+        TS_ASSERT_THROWS_CONTAINS( assembler.ComputeResidualAndGetNorm(false), "strain unacceptably large");
+        // ..unless we set the allowException parameter to be true, in which case we should get
+        // infinity returned.
+        TS_ASSERT_EQUALS( assembler.ComputeResidualAndGetNorm(true), DBL_MAX);
     }
 
 
