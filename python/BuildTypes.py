@@ -49,6 +49,7 @@ class BuildType(object):
         self.build_type = buildType
         self._compiler_type = 'gcc'
         self._cc_flags = ['-Wall', '-Werror']
+        self._cc_flags.append('-Wnon-virtual-dtor') #See also #270 (StyleCheck)
         self._link_flags = []
         self.rdynamic_link_flag = '-rdynamic'
         self._include_flag = ['-isystem']
