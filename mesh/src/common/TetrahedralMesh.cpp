@@ -485,7 +485,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodesWithMetisBinaries(unsi
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint,
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(const ChastePoint<SPACE_DIM>& rTestPoint,
                                                                             bool strict,
                                                                             std::set<unsigned> testElements,
                                                                             bool onlyTryWithTestElements)
@@ -493,7 +493,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
     for (std::set<unsigned>::iterator iter=testElements.begin(); iter!=testElements.end(); iter++)
     {
         assert(*iter<this->GetNumElements());
-        if (this->mElements[*iter]->IncludesPoint(testPoint, strict))
+        if (this->mElements[*iter]->IncludesPoint(rTestPoint, strict))
         {
             assert(!this->mElements[*iter]->IsDeleted());
             return *iter;
@@ -504,7 +504,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
     {
         for (unsigned i=0; i<this->mElements.size(); i++)
         {
-            if (this->mElements[i]->IncludesPoint(testPoint, strict))
+            if (this->mElements[i]->IncludesPoint(rTestPoint, strict))
             {
                 assert(!this->mElements[i]->IsDeleted());
                 return i;
@@ -517,9 +517,9 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
     ss << "Point [";
     for(unsigned j=0; (int)j<(int)SPACE_DIM-1; j++)
     {
-        ss << testPoint[j] << ",";
+        ss << rTestPoint[j] << ",";
     }
-    ss << testPoint[SPACE_DIM-1] << "] is not in ";
+    ss << rTestPoint[SPACE_DIM-1] << "] is not in ";
     if(!onlyTryWithTestElements)
     {
         ss << "mesh - all elements tested";
@@ -532,7 +532,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndex(Chas
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithInitialGuess(ChastePoint<SPACE_DIM> testPoint, unsigned startingElementGuess, bool strict)
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithInitialGuess(const ChastePoint<SPACE_DIM>& rTestPoint, unsigned startingElementGuess, bool strict)
 {
     assert(startingElementGuess<this->GetNumElements());
 
@@ -544,7 +544,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
 
     while(!reached_end)
     {
-        if (this->mElements[i]->IncludesPoint(testPoint, strict))
+        if (this->mElements[i]->IncludesPoint(rTestPoint, strict))
         {
             assert(!this->mElements[i]->IsDeleted());
             return i;
@@ -569,21 +569,21 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndexWithI
     ss << "Point [";
     for(unsigned j=0; (int)j<(int)SPACE_DIM-1; j++)
     {
-        ss << testPoint[j] << ",";
+        ss << rTestPoint[j] << ",";
     }
-    ss << testPoint[SPACE_DIM-1] << "] is not in mesh - all elements tested";
+    ss << rTestPoint[SPACE_DIM-1] << "] is not in mesh - all elements tested";
     EXCEPTION(ss.str());
 }
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(ChastePoint<SPACE_DIM> testPoint)
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(const ChastePoint<SPACE_DIM>& rTestPoint)
 {
     double max_min_weight = -INFINITY;
     unsigned closest_index = 0;
     for (unsigned i=0; i<this->mElements.size(); i++)
     {
-        c_vector<double, ELEMENT_DIM+1> weight=this->mElements[i]->CalculateInterpolationWeights(testPoint);
+        c_vector<double, ELEMENT_DIM+1> weight=this->mElements[i]->CalculateInterpolationWeights(rTestPoint);
         double neg_weight_sum=0.0;
         for (unsigned j=0; j<=ELEMENT_DIM; j++)
         {
@@ -604,7 +604,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndex(ChasteP
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndexFromTestElements(ChastePoint<SPACE_DIM> testPoint,
+unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndexFromTestElements(const ChastePoint<SPACE_DIM>& rTestPoint,
                                                                                          std::set<unsigned> testElements)
 {
     assert(testElements.size()>0);
@@ -615,7 +615,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndexFromTest
         iter != testElements.end();
         iter++)
     {
-        c_vector<double, ELEMENT_DIM+1> weight=this->mElements[*iter]->CalculateInterpolationWeights(testPoint);
+        c_vector<double, ELEMENT_DIM+1> weight=this->mElements[*iter]->CalculateInterpolationWeights(rTestPoint);
         double neg_weight_sum=0.0;
         for (unsigned j=0; j<=ELEMENT_DIM; j++)
         {
@@ -637,12 +637,12 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndexFromTest
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-std::vector<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint)
+std::vector<unsigned> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetContainingElementIndices(const ChastePoint<SPACE_DIM> &rTestPoint)
 {
     std::vector<unsigned> element_indices;
     for (unsigned i=0; i<this->mElements.size(); i++)
     {
-        if (this->mElements[i]->IncludesPoint(testPoint))
+        if (this->mElements[i]->IncludesPoint(rTestPoint))
         {
             assert(!this->mElements[i]->IsDeleted());
             element_indices.push_back(i);

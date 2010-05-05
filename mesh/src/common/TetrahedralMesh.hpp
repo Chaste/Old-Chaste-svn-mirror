@@ -187,7 +187,7 @@ public:
     /**
      * Return the element index for the first element that contains a test point
      *
-     * @param testPoint
+     * @param rTestPoint reference to the point
      * @param strict  Should the element returned contain the point in the interior and
      *      not on an edge/face/vertex (default = not strict)
      * @param testElements  a set of guesses for the element (a set of element indices), to be checked
@@ -196,7 +196,7 @@ public:
      *      (for cases where you know the testPoint must be in the set of test elements or maybe outside
      *      the mesh).
      */
-    unsigned GetContainingElementIndex(ChastePoint<SPACE_DIM> testPoint,
+    unsigned GetContainingElementIndex(const ChastePoint<SPACE_DIM>& rTestPoint,
                                        bool strict=false,
                                        std::set<unsigned> testElements=std::set<unsigned>(),
                                        bool onlyTryWithTestElements = false);
@@ -206,12 +206,12 @@ public:
      * Return the element index for the first element that contains a test point. Like GetContainingElementIndex
      * but uses the user given element (M say) as the first element checked, and then checks M+1,M+2,..,Ne,0,1..
      *
-     * @param testPoint
+     * @param rTestPoint reference to the point
      * @param startingElementGuess Which element to try first.
      * @param strict  Should the element returned contain the point in the interior and
      *      not on an edge/face/vertex (default = not strict)
      */
-    unsigned GetContainingElementIndexWithInitialGuess(ChastePoint<SPACE_DIM> testPoint, unsigned startingElementGuess, bool strict=false);
+    unsigned GetContainingElementIndexWithInitialGuess(const ChastePoint<SPACE_DIM>& rTestPoint, unsigned startingElementGuess, bool strict=false);
 
     /**
      * Return the element index for an element is closest to the testPoint.
@@ -219,24 +219,24 @@ public:
      * "Closest" means that the minimum interpolation weights for the testPoint are
      * maximised for this element.
      *
-     * @param testPoint the point
+     * @param rTestPoint reference to the point
      */
-    unsigned GetNearestElementIndex(ChastePoint<SPACE_DIM> testPoint);
+    unsigned GetNearestElementIndex(const ChastePoint<SPACE_DIM>& rTestPoint);
 
     /** As with GetNearestElementIndex() except only searches in the given set of elements.
-     *  @param testPoint the point
+     *  @param rTestPoint reference to the point
      *  @param testElements a set of elements (element indices) to look in
      */
-    unsigned GetNearestElementIndexFromTestElements(ChastePoint<SPACE_DIM> testPoint,
+    unsigned GetNearestElementIndexFromTestElements(const ChastePoint<SPACE_DIM>& rTestPoint,
                                                     std::set<unsigned> testElements);
 
 
     /**
      * Return all element indices for elements that are known to contain a test point.
      *
-     * @param testPoint the point
+     * @param rTestPoint reference to the point
      */
-    std::vector<unsigned> GetContainingElementIndices(ChastePoint<SPACE_DIM> testPoint);
+    std::vector<unsigned> GetContainingElementIndices(const ChastePoint<SPACE_DIM>& rTestPoint);
 
 //    /*
 //     * Sets the ownership of each element according to which nodes are owned by the

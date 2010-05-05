@@ -116,35 +116,41 @@ public:
     double CalculateQuality();
 
     /**
-     * Calculate the interpolation weights at a given point.
+     * Calculate the interpolation weights: the vector
+     *  (psi(0), psi(1), psi(2), 1-psi(0)-psi(1)-psi(2))
+     * (in the 3D case) for a given point. (see CalculatePsi() documentation)
      *
-     * @param testPoint the point
+     * @param rTestPoint reference to the point
      */
-    c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(ChastePoint<SPACE_DIM> testPoint);
+    c_vector<double, SPACE_DIM+1> CalculateInterpolationWeights(const ChastePoint<SPACE_DIM>& rTestPoint);
 
     /**
-     * Calculate the interpolation weights, but if we are not within
-     * the element (one or more negative weights), we project onto the
+     * Calculate the interpolation weights (see CalculateInterpolationWeights() documentation), 
+     * but if we are not within the element (one or more negative weights), we project onto the
      * element, rather than extrapolating from it.
      *
-     * @param testPoint the point
+     * @param rTestPoint reference to the point
      */
-    c_vector<double, SPACE_DIM+1> CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint);
+    c_vector<double, SPACE_DIM+1> CalculateInterpolationWeightsWithProjection(const ChastePoint<SPACE_DIM>& rTestPoint);
 
     /**
-     * Calculate psi at a given point.
+     * Calculate psi at a given point. These are the values in the canonical element, using the
+     *  the canonical element coordinate system, corresponding to the test point in this element.
+     *  For example, if the test point is node 0, psi=(1,0,0); if node 2, then psi=(0,0,1); if the
+     *  test point is halfway between nodes 0 and 1 on the edge between then, then psi=(0.5,0.5,0);
+     *  if the test point is the interior, then psi=(a,b,c), where a,b,c>0 and 1-a-b-c > 0.
      *
-     * @param testPoint the point
+     * @param rTestPoint reference to the point
      */
-    c_vector<double, SPACE_DIM> CalculatePsi(ChastePoint<SPACE_DIM> testPoint);
+    c_vector<double, SPACE_DIM> CalculatePsi(const ChastePoint<SPACE_DIM>& rTestPoint);
 
     /**
      * Get whether a given point lies inside this element.
      *
-     * @param testPoint the point
+     * @param rTestPoint reference to the point
      * @param strict whether the point must not be too close to an edge/face (defaults to false)
      */
-    bool IncludesPoint(ChastePoint<SPACE_DIM> testPoint, bool strict=false);
+    bool IncludesPoint(const ChastePoint<SPACE_DIM>& rTestPoint, bool strict=false);
 
 };
 

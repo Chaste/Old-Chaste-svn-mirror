@@ -193,14 +193,14 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpolationWeights(ChastePoint<SPACE_DIM> testPoint)
+c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpolationWeights(const ChastePoint<SPACE_DIM>& rTestPoint)
 {
     //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
     assert(ELEMENT_DIM == SPACE_DIM);
 
     c_vector<double, SPACE_DIM+1> weights;
 
-    c_vector<double, SPACE_DIM> psi=CalculatePsi(testPoint);
+    c_vector<double, SPACE_DIM> psi=CalculatePsi(rTestPoint);
 
     //Copy 3 weights and compute the fourth weight
     weights[0]=1.0;
@@ -218,12 +218,12 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
  * element, rather than extrapolating from it.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpolationWeightsWithProjection(ChastePoint<SPACE_DIM> testPoint)
+c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpolationWeightsWithProjection(const ChastePoint<SPACE_DIM>& rTestPoint)
 {
     //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
     assert(ELEMENT_DIM == SPACE_DIM);
 
-    c_vector<double, SPACE_DIM+1> weights = CalculateInterpolationWeights(testPoint);
+    c_vector<double, SPACE_DIM+1> weights = CalculateInterpolationWeights(rTestPoint);
 
     // Check for negative weights and set them to zero.
     bool negative_weight = false;
@@ -260,13 +260,16 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(ChastePoint<SPACE_DIM> testPoint)
+c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(const ChastePoint<SPACE_DIM>& rTestPoint)
 {
     //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
     assert(ELEMENT_DIM == SPACE_DIM);
 
     //Find the location with respect to node 0
-    c_vector<double, SPACE_DIM> test_location=testPoint.rGetLocation()-this->GetNodeLocation(0);
+// todo: #1361 ComputeContainingElements and related methods, and methods called by that down to 
+// here, should really take in const c_vector& rather than ChastePoints.
+    ChastePoint<SPACE_DIM> copy = rTestPoint; // as rGetLocation in line below is not a const method
+    c_vector<double, SPACE_DIM> test_location=copy.rGetLocation()-this->GetNodeLocation(0);
 
     //Multiply by inverse Jacobian
     c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
@@ -281,12 +284,12 @@ c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(Chaste
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool Element<ELEMENT_DIM, SPACE_DIM>::IncludesPoint(ChastePoint<SPACE_DIM> testPoint, bool strict)
+bool Element<ELEMENT_DIM, SPACE_DIM>::IncludesPoint(const ChastePoint<SPACE_DIM>& rTestPoint, bool strict)
 {
     //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
     assert(ELEMENT_DIM == SPACE_DIM);
 
-    c_vector<double, SPACE_DIM+1> weights=CalculateInterpolationWeights(testPoint);
+    c_vector<double, SPACE_DIM+1> weights=CalculateInterpolationWeights(rTestPoint);
 
     //If the point is in the simplex then all the weights should be positive
 
