@@ -224,7 +224,6 @@ public:
         TS_ASSERT_DELTA(damping_const_4, TissueConfig::Instance()->GetDampingConstantMutant(), 1e-6);
     }
 
-
     void TestAreaBasedDampingConstant()
     {
         // Create a simple mesh
@@ -441,6 +440,84 @@ public:
         }
     }
 
+    void TestVoronoiMethods()
+    {
+        // First test the 2D case...
+
+        // Create 2D mesh
+        std::vector<Node<2> *> nodes2d;
+        nodes2d.push_back(new Node<2>(0, true, 0.0, 0.0));
+        nodes2d.push_back(new Node<2>(1, true, 1.0, 0.0));
+        nodes2d.push_back(new Node<2>(2, true, 1.0, 1.0));
+        nodes2d.push_back(new Node<2>(3, true, 0.0, 1.0));
+        nodes2d.push_back(new Node<2>(4, false, 0.5, 0.5));
+        MutableMesh<2,2> mesh2d(nodes2d);
+
+        // Create cells
+        std::vector<TissueCell> cells2d;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator2d;
+        cells_generator2d.GenerateBasic(cells2d, mesh2d.GetNumNodes());
+
+        // Create tissue
+        MeshBasedTissue<2> tissue2d(mesh2d, cells2d);
+        
+        // Create Voronoi tessellation
+        tissue2d.CreateVoronoiTessellation();
+
+        // Test element areas
+        TS_ASSERT_DELTA(tissue2d.GetAreaOfVoronoiElement(0), 0.0, 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetAreaOfVoronoiElement(1), 0.0, 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetAreaOfVoronoiElement(2), 0.0, 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetAreaOfVoronoiElement(3), 0.0, 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetAreaOfVoronoiElement(4), 0.5, 1e-6);
+
+        // Test element perimeters
+        TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(0), sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(1), sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(2), sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(3), sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(4), 2*sqrt(2), 1e-6);
+
+///\todo fix issue once vtk is installed on clpc298 (#1075)
+//        // ...now test the 3D case
+//
+//        // Create 3D mesh
+//        std::vector<Node<3>*> nodes3d;
+//        nodes3d.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
+//        nodes3d.push_back(new Node<3>(1, true,  1.0, 1.0, 0.0));
+//        nodes3d.push_back(new Node<3>(2, true,  1.0, 0.0, 1.0));
+//        nodes3d.push_back(new Node<3>(3, true,  0.0, 1.0, 1.0));
+//        nodes3d.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
+//        MutableMesh<3,3> mesh3d(nodes3d);
+//
+//        // Create cells
+//        std::vector<TissueCell> cells3d;
+//        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator3d;
+//        cells_generator3d.GenerateBasic(cells3d, mesh3d.GetNumNodes());
+//
+//        // Create tissue
+//        MeshBasedTissue<3> tissue3d(mesh3d, cells3d);
+//        
+//        // Create Voronoi tessellation
+//        tissue3d.CreateVoronoiTessellation();
+//
+//        // Test element volumes and surface areas
+//        for (unsigned i=0; i<4; i++)
+//        {
+//            TS_ASSERT_THROWS_THIS(tissue3d.GetVolumeOfVoronoiElement(i),
+//                                  "This index does not correspond to a VertexElement");
+//
+//            TS_ASSERT_THROWS_THIS(tissue3d.GetSurfaceAreaOfVoronoiElement(i),
+//                                  "This index does not correspond to a VertexElement");
+//        }
+//
+//        double base_area = 1.125;
+//        double height = sqrt(3);
+//
+//        TS_ASSERT_DELTA(tissue3d.GetVolumeOfVoronoiElement(4), base_area*height/3, 1e-4);
+//        TS_ASSERT_DELTA(tissue3d.GetSurfaceAreaOfVoronoiElement(4), 4*base_area, 1e-4);
+    }
+
     void TestTissueWritersIn2d()
     {
         // Set up SimulationTime (needed if VTK is used)
@@ -480,6 +557,7 @@ public:
         TissueConfig::Instance()->SetOutputVoronoiData(true);
         TissueConfig::Instance()->SetOutputTissueVolumes(true);
         TissueConfig::Instance()->SetOutputCellVolumes(true);
+        TissueConfig::Instance()->SetOutputCellAncestors(true);
 
         // This method is usually called by Update()
         tissue.CreateVoronoiTessellation();
@@ -522,6 +600,7 @@ public:
         TS_ASSERT_EQUALS(cell_types[3], 1u);
     }
 
+    ///\todo Work out why the Voronoi tessellation gives one cell, with zero volume (#1075)
     void TestTissueWritersIn3d()
     {
         // Set up SimulationTime (needed if VTK is used)
@@ -537,7 +616,7 @@ public:
             double x = 3*RandomNumberGenerator::Instance()->ranf();
             double y = 3*RandomNumberGenerator::Instance()->ranf();
             double z = 3*RandomNumberGenerator::Instance()->ranf();
-            nodes.push_back(new Node<3>(i, false,  x, y, z));
+            nodes.push_back(new Node<3>(i, true,  x, y, z));
         }
         MutableMesh<3,3> mesh(nodes);
 
@@ -868,39 +947,6 @@ public:
                 TS_ASSERT_EQUALS(is_deleted, false);
             }
         }
-    }
-
-    ///\todo check what's wrong here (#1075)
-    void noTest3dVoronoiTessellation() throw (Exception)
-    {
-        // Create simple 3D tetrahedral mesh
-        std::vector<Node<3>*> nodes;
-        nodes.push_back(new Node<3>(0, false,  0.0, 0.0, 0.0));
-        nodes.push_back(new Node<3>(1, false,  1.0, 1.0, 0.0));
-        nodes.push_back(new Node<3>(2, false,  1.0, 0.0, 1.0));
-        nodes.push_back(new Node<3>(3, false,  0.0, 1.0, 1.0));
-        nodes.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
-
-        MutableMesh<3,3> mesh(nodes);
-
-        // Create cells
-        std::vector<TissueCell> cells;
-        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
-        cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
-
-        // Create tissue
-        MeshBasedTissue<3> tissue(mesh, cells);
-
-        // Create Voronoi tessellation (normally done in a simulation)
-        tissue.CreateVoronoiTessellation();
-
-        // Test volume and surface area of central Voronoi element
-        // (the other nodes correspond to Voronoi faces)
-        double base_area = 1.125;
-        double height = sqrt(3);
-
-        TS_ASSERT_DELTA(tissue.GetVolumeOfVoronoiElement(4), base_area*height/3, 1e-4);
-        TS_ASSERT_DELTA(tissue.GetSurfaceAreaOfVoronoiElement(4), 4*base_area, 1e-4);
     }
 };
 
