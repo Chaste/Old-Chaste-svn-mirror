@@ -280,7 +280,7 @@ public:
      *  To compute this constant stretch we just have to compute F using the deformed positions at the 
      *  vertices only, with linear bases, rather than all the nodes and quadratic bases. 
      * 
-     *  @rStretches A reference of a std::vector in which the stretch in each element will be returned.
+     *  @param rStretches A reference of a std::vector in which the stretch in each element will be returned.
      *  Must be allocated prior to being passed in
      */
     void ComputeStretchesInEachElement(std::vector<double>& rStretches);

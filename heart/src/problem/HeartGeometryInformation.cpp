@@ -317,21 +317,12 @@ double HeartGeometryInformation<SPACE_DIM>::CalculateRelativeWallPosition(unsign
 
     double dist_endo = GetDistanceToEndo(nodeIndex);
     double dist_epi = GetDistanceToEpi(nodeIndex);
-
-    double relative_position;
-
-    if ( (dist_endo + dist_epi) != 0 )
-    {
-       relative_position = dist_endo / (dist_endo + dist_epi);
-    }
-    else
-    {
-        /*
-         *  A node contained on both epicardium and lv (or rv) surfaces has wall thickness 0/0.
-         *  By setting its value to 0 we consider it contained only on the lv (or rv) surface.
-         */
-        relative_position = 0;
-    }
+    assert( (dist_endo + dist_epi) != 0 );
+    /*
+     *  A node contained on both epicardium and lv (or rv) surfaces has wall thickness 0/0.
+     *  By setting its value to 0 we consider it contained only on the lv (or rv) surface.
+     */
+    double relative_position = dist_endo / (dist_endo + dist_epi);
     return relative_position;
 }
 

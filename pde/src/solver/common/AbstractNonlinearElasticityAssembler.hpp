@@ -206,7 +206,7 @@ protected:
      *  Set up the residual vector (using the current solution), and get its
      *  scaled norm (Calculate |r|_2 / length(r), where r is residual vector)
      *  
-     *  @allowException Sometimes the current solution solution will be such 
+     *  @param allowException Sometimes the current solution solution will be such 
      *   that the residual vector cannot be computed, as (say) the material law
      *   will throw an exception as the strains are too large. If this bool is
      *   set to true, the exception will be caught, and DBL_MAX returned as the 
