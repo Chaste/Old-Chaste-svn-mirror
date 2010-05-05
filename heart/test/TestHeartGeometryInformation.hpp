@@ -384,27 +384,28 @@ public:
     void TestHeartGeometryTakingMeshFromFile() throw (Exception)
     {
         //files containing list of nodes on each surface
-        std::string epi_surface = "apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles.epi";
-        std::string lv_surface = "apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles.lv";
-        std::string rv_surface = "apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles.rv";
+        std::string epi_surface = "heart/test/data/box_shaped_heart/epi.tri";
+        std::string lv_surface = "heart/test/data/box_shaped_heart/lv.tri";
+        std::string rv_surface = "heart/test/data/box_shaped_heart/rv.tri";
+        std::string bad_surface = "heart/test/data/box_shaped_heart/zero.tri";
 
 
         //read in the mesh
-        TrianglesMeshReader<3,3> mesh_reader("apps/simulations/propagation3dparallel/heart_chaste2_renum_i_triangles");
+        TrianglesMeshReader<3,3> mesh_reader("heart/test/data/box_shaped_heart/box_heart");
         //DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::DUMB);
         DistributedTetrahedralMesh<3,3> mesh;
         //TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         //Check the indexing exception
-        TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> info2(mesh, epi_surface, lv_surface, rv_surface, false),
+        TS_ASSERT_THROWS_THIS(HeartGeometryInformation<3> info2(mesh, epi_surface, lv_surface, bad_surface, false),
                               "Error when reading surface file.  It was assumed not to be indexed from zero, but zero appeared in the list.");
         
         //calculate the geometry informations
-        HeartGeometryInformation<3> info(mesh, epi_surface, lv_surface, rv_surface, true);
+        HeartGeometryInformation<3> info(mesh, epi_surface, lv_surface, rv_surface, false);
         info.DetermineLayerForEachNode(0.25,0.375);
         //and write them out to file
-        OutputFileHandler results_handler("CellularHeterogeneity", false);
+        OutputFileHandler results_handler("BoxShaped", false);
 
 
         std::vector<double> relative_wall_position;
@@ -482,17 +483,13 @@ public:
 //#endif //CHASTE_VTK
 
 
-        unsigned misclassified=0;
-        if (PetscTools::IsSequential()  || mesh.rGetNodePermutation().empty())
+        if (PetscTools::IsSequential())
         {
             TS_ASSERT(mesh.rGetNodePermutation().empty());
             for (unsigned i=0;i<sequential_layers.size();i++)
             {
                 TS_ASSERT_DELTA(sequential_relative_wall_position[i], relative_wall_position[i], 1e-15);
-                if (sequential_layers[ i ] != info.rGetLayerForEachNode()[ i ])
-                {
-                    misclassified++;
-                }
+                TS_ASSERT_EQUALS(sequential_layers[ i ], info.rGetLayerForEachNode()[ i ]);
             }
         }
         else
@@ -504,16 +501,10 @@ public:
             TS_ASSERT(mesh.rGetNodePermutation().empty() == false );
             for (unsigned i=0;i<sequential_layers.size();i++)
             {
-                if (sequential_layers[ i ] != info.rGetLayerForEachNode()[ mesh.rGetNodePermutation()[i] ])
-                {
-                    misclassified++;
-                }
-
-                TS_ASSERT_DELTA(sequential_relative_wall_position[i], relative_wall_position[mesh.rGetNodePermutation()[i]], 6e-2); //This is quite sloppy: 6%
+                TS_ASSERT_DELTA(sequential_relative_wall_position[i], relative_wall_position[mesh.rGetNodePermutation()[i]], 1e-15);
+                TS_ASSERT_EQUALS(sequential_layers[ i ], info.rGetLayerForEachNode()[ mesh.rGetNodePermutation()[i] ]);
             }
         }
-        
-        TS_ASSERT_LESS_THAN(misclassified, 3u);  //Allows for two differences
     }
 };
 

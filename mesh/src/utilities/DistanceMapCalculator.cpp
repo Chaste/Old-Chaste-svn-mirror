@@ -227,8 +227,8 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                     }
                }//Node
            }//Element
-        }//Try
-     }
+        }//If
+     }//While !empty
 }
 
 /////////////////////////////////////////////////////////////////////
