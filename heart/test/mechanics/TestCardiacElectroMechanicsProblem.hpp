@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "CardiacElectroMechProbRegularGeom.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "NobleVargheseKohlNoble1998WithSac.hpp"
 #include "NumericFileComparison.hpp"
 
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
@@ -164,7 +165,7 @@ public:
     {
         HeartEventHandler::Disable();
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechProbRegularGeom<2> problem(NASH2004,
                                                      0.05, /* width (cm) */

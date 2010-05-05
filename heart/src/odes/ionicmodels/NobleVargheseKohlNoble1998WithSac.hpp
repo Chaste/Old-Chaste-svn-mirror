@@ -57,7 +57,7 @@ public:
             std::vector<double> &rDY);
 
     /** 
-     *  Set the stretch
+     *  Set the stretch (overloaded)
      *  @param stretch stretch
      */            
     void SetStretch(double stretch)

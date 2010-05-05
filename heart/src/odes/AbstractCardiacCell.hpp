@@ -195,6 +195,17 @@ public:
      *  one of the state variables
      */
     virtual double GetIntracellularCalciumConcentration();
+    
+    /**
+     *  In electromechanics problems, the stretch is passed back to cell-model in case 
+     *  mechano-electric feedback has been modelled. We define an empty method here.
+     *  Stretch-dependent cell models should overload this method to use the input 
+     *  stretch accordingly.
+     *  @param stretch the stretch of the cell in the axial direction
+     */
+    virtual void SetStretch(double stretch)
+    {
+    }
 
     /**
      *  Empty method which can be over-ridden in concrete cell class which should
@@ -204,7 +215,7 @@ public:
      */
     virtual void VerifyStateVariables()
     {
-//// This code is for the future, but commented out at the moment due to the memory increas
+//// This code is for the future, but commented out at the moment due to the memory increase
 //// it will introduce. See #794.
 ////
 //// DOXYGEN DESCRIPTION NEEDS CHANGING ONCE THIS IS BROUGHT IN

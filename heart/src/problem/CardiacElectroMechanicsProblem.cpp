@@ -151,9 +151,8 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
 
     //// Removed the following which also took this nodes calcium concentration and printing, because (it isn't that
     //// important and) it won't work in parallel and has the hardcoded index issue described below.
-    //     // \todo: NOTE!!! HARDCODED state variable index - assumes Lr91.
     //     // Metadata is currently being added to CellML models and then this will be avoided by asking for Calcium.
-    //    double Ca = mpMonodomainProblem->GetMonodomainPde()->GetCardiacCell(mWatchedElectricsNodeIndex)->rGetStateVariables()[3];
+    //    double Ca = mpMonodomainProblem->GetMonodomainPde()->GetCardiacCell(mWatchedElectricsNodeIndex)->GetIntracellularCalciumConcentration();
 
     *mpWatchedLocationFile << time << " ";
     for(unsigned i=0; i<DIM; i++)
@@ -164,6 +163,39 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
     mpWatchedLocationFile->flush();
 }
 
+//
+//
+//// #1245
+//template<unsigned DIM>
+//void CardiacElectroMechanicsProblem<DIM>::SetImpactRegion(std::vector<BoundaryElement<DIM-1,DIM>*>& rImpactRegion)
+//{
+//    assert(mpImpactRegion == NULL);
+//    mpImpactRegion = &rImpactRegion; 
+//}
+//
+//// #1245
+//template<unsigned DIM>
+//void CardiacElectroMechanicsProblem<DIM>::ApplyImpactTractions(double time)
+//{    
+//    if(mpImpactRegion==NULL)
+//    {
+//        return;
+//    }
+//
+//    double start_time = 10;
+//    double end_time = 20;
+//    double magnitude = 1.5;
+//    unsigned direction = 1;
+//    
+//    c_vector<double,DIM> traction = zero_vector<double>(DIM);
+//    if( (time>=start_time) && (time<=end_time) )
+//    {
+//        traction(direction) = magnitude;
+//    }
+//    mImpactTractions.clear();
+//    mImpactTractions.resize(mpImpactRegion->size(), traction);
+//    mpCardiacMechAssembler->SetSurfaceTractionBoundaryConditions(*mpImpactRegion, mImpactTractions);
+//}
 
 template<unsigned DIM>
 CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
@@ -258,6 +290,8 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mWatchedMechanicsNodeIndex = UNSIGNED_UNSET;
 
     mFibreSheetDirectionsFile = "";
+
+//    mpImpactRegion=NULL;
 }
 
 template<unsigned DIM>
@@ -334,26 +368,17 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMeshPair->SetUpBoxesOnFineMesh();
     mpMeshPair->ComputeFineElementsAndWeightsForCoarseQuadPoints(*(mpCardiacMechAssembler->GetQuadratureRule()), false);
     mpMeshPair->DeleteBoxCollection();
+    // set up coarse elements with contain each fine node
+    mpMeshPair->ComputeCoarseElementsForFineNodes();
 
+    // initialise the stretches saved for each element
+    mStretchesForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),1.0);
+        
     if(mWriteOutput)
     {
         TrianglesMeshWriter<DIM,DIM> mesh_writer(mOutputDirectory,"electrics_mesh",false);
         mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
     }
-
-//// when using *Cinverse* in electrics
-//    // get the assembler to compute which electrics nodes are in each mechanics mesh
-//    mpCardiacMechAssembler->ComputeElementsContainingNodes(mpElectricsMesh);
-//    assert(DIM==2);
-//
-//    NodewiseData<DIM>::Instance()->AllocateMemory(mpElectricsMesh->GetNumNodes(), 3);
-//    std::vector<std::vector<double> >& r_c_inverse = NodewiseData<DIM>::Instance()->rGetData();
-//    for(unsigned i=0; i<r_c_inverse.size(); i++)
-//    {
-//        r_c_inverse[i][0] = 1.0;
-//        r_c_inverse[i][1] = 0.0;
-//        r_c_inverse[i][2] = 1.0;
-//    }
 }
 
 template<unsigned DIM>
@@ -423,6 +448,31 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         std::cout << "\n\n ** Current time = " << stepper.GetTime() << "\n";
         #endif
 
+		/////////////////////////////////////////////////////////////////////////////////////
+        ////
+        ////  Pass the current deformation infomation back to the electrophysiology
+        ////  solver
+        ////
+        //////////////////////////////////////////////////////////////////////////////////////
+
+        //  Determine the stretch in each mechanics element (later: determine stretch, and 
+        //  deformation gradient)
+        mpCardiacMechAssembler->ComputeStretchesInEachElement(mStretchesForEachMechanicsElement);
+
+        //  Set the stretches on each of the cell models
+        for(unsigned i=0; i<mpElectricsMesh->GetNumNodes(); i++)
+        {
+            unsigned containing_elem = mpMeshPair->rGetCoarseElementsForFineNodes()[i];
+            double stretch = mStretchesForEachMechanicsElement[containing_elem];
+            mpMonodomainProblem->GetPde()->GetCardiacCell(i)->SetStretch(stretch);
+        }
+
+
+        /////////////////////////////////////////////////////////////////////////
+        ////
+        ////  Solve for the electrical activity 
+        ////
+        /////////////////////////////////////////////////////////////////////////
         LOG(2, "  Solving electrics");
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::NON_MECH);
         for(unsigned i=0; i<mNumElecTimestepsPerMechTimestep; i++)
@@ -454,6 +504,13 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
 //// when using *Cinverse* in electrics
 //        p_electrics_assembler->SetMatrixIsNotAssembled();
+
+
+        /////////////////////////////////////////////////////////////////////////
+        ////
+        ////  Pass the electrical information back to the contraction models:
+        ////
+        /////////////////////////////////////////////////////////////////////////
 
         // compute Ca_I at each quad point (by interpolation, using the info on which
         // electrics element the quad point is in. Then set Ca_I on the mechanics solver
@@ -501,10 +558,18 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         mpCardiacMechAssembler->SetCalciumAndVoltage(interpolated_calcium_concs, interpolated_voltages);
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::NON_MECH);
 
-        // solve the mechanics
+
+
+        /////////////////////////////////////////////////////////////////////////
+        ////
+        ////  Solve for the deformation
+        ////
+        /////////////////////////////////////////////////////////////////////////
         LOG(2, "  Solving mechanics ");
-        //double timestep = std::min(0.01, stepper.GetNextTime()-stepper.GetTime());
         mpCardiacMechAssembler->SetWriteOutput(false);
+
+//// #1245
+//        ApplyImpactTractions(stepper.GetTime());
 
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ALL_MECH);
         mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mContractionModelOdeTimeStep);
@@ -512,11 +577,16 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
         LOG(2, "    Number of newton iterations = " << mpCardiacMechAssembler->GetNumNewtonIterations());
 
-        // update the current time
+         // update the current time
         stepper.AdvanceOneTimeStep();
         counter++;
 
-        // output the results
+
+        /////////////////////////////////////////////////////////////////////////
+        ////
+        ////  Output the results
+        ////
+        /////////////////////////////////////////////////////////////////////////
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::OUTPUT);
         if(mWriteOutput && (counter%WRITE_EVERY_NTH_TIME==0))
         {
@@ -541,20 +611,11 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         }
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::OUTPUT);
 
-//// when using *Cinverse* in electrics
-//        // setup the Cinverse data;
-//        std::vector<std::vector<double> >& r_c_inverse = NodewiseData<DIM>::Instance()->rGetData();
-//        mpCardiacMechAssembler->CalculateCinverseAtNodes(mpElectricsMesh, r_c_inverse);
-//
-//        // write lambda
-//        std::stringstream file_name;
-//        file_name << "lambda_" << mech_writer_counter << ".dat";
-//        mpCardiacMechAssembler->WriteLambda(mOutputDirectory,file_name.str());
-
-
         // write the total elapsed time..
         LogFile::Instance()->WriteElapsedTime("  ");
     }
+
+
 
     if ((mWriteOutput) && (!mNoElectricsOutput))
     {

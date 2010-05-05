@@ -42,9 +42,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacMechanicsAssembler.hpp"
 #include "FineCoarseMeshPair.hpp"
 
-// if including Cinv in monobidomain equations
-//#include "NodewiseData.hpp"
-
 
 /**
  *  CardiacElectroMechanicsProblem
@@ -136,21 +133,29 @@ protected :
     /** .ortho file from which to read element-wise fibre-sheet-normal-directions */
     std::string mFibreSheetDirectionsFile;
 
+    /** A vector of stretches (in the fibre direction), one for each element in the mechanics mesh) */
+    std::vector<double> mStretchesForEachMechanicsElement;
+
+
     /**
      *  Determine which node is closest to the watched location
      */
     void DetermineWatchedNodes();
 
 
-//EMTODO
     /**
-     *  Write info (x, y, V, and Ca) for the watched node. Note: the Ca is written,
-     *  but this ASSUMES LUO-RUDY IS USED
+     *  Write info (x, y, [z], V) for the watched node.
      *
      * @param time  Time-step now, to write out
      * @param voltage  Vm vector (this is Monodomain)
      */
     void WriteWatchedLocationData(double time, Vec voltage);
+
+
+//// #1245
+//    std::vector<BoundaryElement<DIM-1,DIM>*>* mpImpactRegion;
+//    std::vector<c_vector<double,DIM> > mImpactTractions;
+//    void ApplyImpactTractions(double time);
 
 public :
 
@@ -231,6 +236,11 @@ public :
 
     /** @return the current deformed position of the nodes */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
+
+
+//// #1245
+//    void SetImpactRegion(std::vector<BoundaryElement<DIM-1,DIM>*>& rImpactRegion);
+
 };
 
 

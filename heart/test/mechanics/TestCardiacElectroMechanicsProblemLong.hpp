@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CardiacElectroMechProbRegularGeom.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "NonlinearElasticityTools.hpp"
+#include "NobleVargheseKohlNoble1998WithSac.hpp"
 
 class TestCardiacElectroMechanicsProblemLong : public CxxTest::TestSuite
 {
@@ -148,5 +149,63 @@ public:
         MechanicsEventHandler::Report();
     }
 
+
+
+//    void Test3dWithNoble98SacAndImpact() throw(Exception)
+//    {
+//        // zero stimuli
+//        PlaneStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 3> cell_factory(0);
+//
+//        // set up two meshes of 1cm by 1cm by 1cm
+//        TetrahedralMesh<3,3> electrics_mesh;
+//        unsigned num_elem = 10;
+//        electrics_mesh.ConstructCuboid(num_elem,num_elem,num_elem);
+//        electrics_mesh.Scale(1.0/num_elem, 1.0/num_elem, 1.0/num_elem);
+//
+//        QuadraticMesh<3> mechanics_mesh(1.0, 1.0, 1.0, 5, 5, 5);
+//
+//        // fix the nodes on x=0
+//        std::vector<unsigned> fixed_nodes
+//          = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh,0,0);
+//
+//        std::vector<BoundaryElement<2,3>*> impact_region;        
+//        for (TetrahedralMesh<3,3>::BoundaryElementIterator iter
+//              = mechanics_mesh.GetBoundaryElementIteratorBegin();
+//             iter != mechanics_mesh.GetBoundaryElementIteratorEnd();
+//             ++iter)
+//        {
+//            c_vector<double,3> centroid =(*iter)->CalculateCentroid(); 
+//            if (    (fabs(centroid[1])<1e-4) 
+//                 && (centroid[0] < 0.05)
+//                 && (centroid[2] < 0.05) )
+//            {
+//                BoundaryElement<2,3>* p_element = *iter;
+//                impact_region.push_back(p_element);
+//            }
+//        }
+//        assert(impact_region.size() > 0);
+//
+//        CardiacElectroMechanicsProblem<3> problem(KERCHOFFS2003,
+//                                                  &electrics_mesh,
+//                                                  &mechanics_mesh,
+//                                                  fixed_nodes,
+//                                                  &cell_factory,
+//                                                  10,   /* end time */
+//                                                  0.01, /* electrics timestep (ms) */
+//                                                  100,  /* 100*0.01ms mech dt */
+//                                                  1.0,  /* contraction model ode dt */
+//                                                  "TestCardiacElectroMech3dImpact");
+//
+//        problem.SetImpactRegion(impact_region);
+//
+//        problem.Solve();
+//
+//        // test by checking the length of the tissue against hardcoded value
+//        std::vector<c_vector<double,3> >& r_deformed_position = problem.rGetDeformedPosition();
+//        TS_ASSERT_DELTA(r_deformed_position[1](0), 0.0879, 1e-3);
+//
+//        MechanicsEventHandler::Headings();
+//        MechanicsEventHandler::Report();
+//    }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEMLONG_HPP_*/
