@@ -1243,11 +1243,14 @@ public:
 
             // Check Standard
             AbstractCardiacCell* const p_n98_cell = new CML_noble_varghese_kohl_noble_1998_basic(p_solver, p_stimulus);
-
+            // and SAC
+            AbstractCardiacCell* const p_n98_sac = new CML_noble_varghese_kohl_noble_1998_basic_with_sac(p_solver, p_stimulus);
+            
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             output_arch <<  p_n98_cell;
+            output_arch <<  p_n98_sac;
 
             // These results are in the repository and should be replicated after the load below
 //            RunOdeSolverWithIonicModel(p_n98_cell,
@@ -1255,6 +1258,7 @@ public:
 //                                       "N98AfterArchiveValidData");
 
             delete p_n98_cell;
+            delete p_n98_sac;
         }
         // Load
         {
@@ -1271,8 +1275,12 @@ public:
                                        "N98AfterArchive");
 
             CheckCellModelResults("N98AfterArchive");
+            AbstractCardiacCell* p_n98_cell_sac;
+            input_arch >> p_n98_cell_sac;
+            TS_ASSERT_EQUALS( p_n98_cell_sac->GetNumberOfStateVariables(), 22U );
 
             delete p_n98_cell;
+            delete p_n98_cell_sac;
         }
      }
 
