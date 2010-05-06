@@ -164,8 +164,8 @@ public:
      * @param numRows the number of rows in the matrix
      * @param numColumns the number of columns in the matrix
      * @param matType the matrix type (defaults to MATMPIAIJ)
-     * @param numLocalRows the number of local rows (detaults to PETSC_DECIDE)
-     * @param numLocalColumns the number of local columns (detaults to PETSC_DECIDE)
+     * @param numLocalRows the number of local rows (defaults to PETSC_DECIDE)
+     * @param numLocalColumns the number of local columns (defaults to PETSC_DECIDE)
      */
     static void SetupMat(Mat& rMat, int numRows, int numColumns,
                          MatType matType=(MatType) MATMPIAIJ,

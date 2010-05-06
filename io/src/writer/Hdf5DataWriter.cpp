@@ -57,7 +57,9 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
       mOffset(0u),
       mIsDataComplete(true),
       mNeedExtend(false),
-      mCurrentTimeStep(0)
+      mCurrentTimeStep(0),
+      mSinglePermutation(NULL),
+      mDoublePermutation(NULL)
 {
     if (extendData && cleanDirectory)
     {
@@ -215,6 +217,15 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
 Hdf5DataWriter::~Hdf5DataWriter()
 {
     Close();
+    
+    if (mSinglePermutation)
+    {
+        MatDestroy(mSinglePermutation);
+    }
+    if (mDoublePermutation)
+    {
+        MatDestroy(mDoublePermutation);
+    }
 }
 
 void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
@@ -537,7 +548,22 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
 
     // Make sure that everything is actually extended to the correct dimension.
     PossiblyExtend();
-
+    
+    Vec output_petsc_vector;
+    //Decide what to write 
+    if (mSinglePermutation == NULL)
+    {
+        //No permutation - just write
+        output_petsc_vector = petscVector;
+    }
+    else
+    {
+        assert(mIsDataComplete);
+        //Make a vector with the same pattern (doesn't copy the data)
+        VecDuplicate(petscVector, &output_petsc_vector);
+        //Apply the permutation matrix
+        MatMult(mSinglePermutation, petscVector, output_petsc_vector);
+    }
     // Define a dataset in memory for this process
     hid_t memspace=0;
     if (mNumberOwned !=0)
@@ -557,7 +583,7 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     H5Sselect_hyperslab(file_dataspace, H5S_SELECT_SET, offset_dims, NULL, count, NULL);
 
     double* p_petsc_vector;
-    VecGetArray(petscVector, &p_petsc_vector);
+    VecGetArray(output_petsc_vector, &p_petsc_vector);
 
     if (mIsDataComplete)
     {
@@ -575,13 +601,19 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
         H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, local_data);
     }
 
-    VecRestoreArray(petscVector, &p_petsc_vector);
+    VecRestoreArray(output_petsc_vector, &p_petsc_vector);
 
     H5Pclose(property_list_id);
     H5Sclose(file_dataspace);
     if (mNumberOwned !=0)
     {
         H5Sclose(memspace);
+    }
+    
+    if (petscVector != output_petsc_vector)
+    {
+        //Free local vector
+        VecDestroy(output_petsc_vector);
     }
 }
 
@@ -592,7 +624,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
         EXCEPTION("Cannot write data while in define mode.");
     }
 
-    int NUM_STRIPES=2;
+    const int NUM_STRIPES=2;
 
     // Currently the method only works with consecutive columns, can be extended if needed
     if (secondVariableID-firstVariableID != 1)
@@ -776,4 +808,32 @@ int Hdf5DataWriter::GetVariableByName(const std::string& rVariableName)
         EXCEPTION("Variable does not exist in hdf5 definitions.");
     }
     return id;
+}
+
+void Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
+{
+    if (!mIsInDefineMode)
+    {
+        EXCEPTION("Cannot define permutation when not in Define mode");
+    }
+    if (rPermutation.size() !=   mFileFixedDimensionSize || 
+        rPermutation.size() != mDataFixedDimensionSize)
+    {
+        EXCEPTION("Permutation doesn't match the expected problem size");
+    }
+    ///\todo use pigeon-hole set to check it's a permutation
+    PetscTools::SetupMat(mSinglePermutation,   mDataFixedDimensionSize,   mDataFixedDimensionSize);
+    MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES); 
+    //Only do local rows
+    for (unsigned index=mLo; index<mHi; index++)
+    {
+        //Put zero on the diagonal
+        MatSetValue(mSinglePermutation, index, index, 0.0, INSERT_VALUES);
+        //Put one at (i,j) - or is it (j, i)?
+        MatSetValue(mSinglePermutation, index, rPermutation[index], 1.0, INSERT_VALUES);
+    }
+    MatAssemblyBegin(mSinglePermutation, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(mSinglePermutation, MAT_FINAL_ASSEMBLY);
+    ///\todo Set this one up
+    PetscTools::SetupMat(mDoublePermutation, 2*mDataFixedDimensionSize, 2*mDataFixedDimensionSize);
 }

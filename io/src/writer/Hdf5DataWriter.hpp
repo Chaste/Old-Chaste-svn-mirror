@@ -65,6 +65,18 @@ private:
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
 
+    hid_t mFileId; /**< The data file ID. */
+    hid_t mDatasetId; /**< The variables data set ID. */
+    hid_t mTimeDatasetId; /**< The time data set ID. */
+
+    long mCurrentTimeStep; /**< The current time step. */
+
+    const static unsigned DATASET_DIMS=3; /**< Defined in HDF5 reader too. \todo: define it once */
+    hsize_t mDatasetDims[DATASET_DIMS]; /**< The sizes of each variable data set. */
+    
+    Mat mSinglePermutation; /**< Stores a permutation as a matrix */ 
+    ///\todo implement
+    Mat mDoublePermutation;/**< Stores a permutation of a striped structure (u_0 v_0 u_1 v_1) as a matrix */ 
     /**
      * Check name of variable is allowed, i.e. contains only alphanumeric & _, and isn't blank.
      *
@@ -79,15 +91,6 @@ private:
      */
     void CheckUnitsName(const std::string& rName);
 
-    hid_t mFileId; /**< The data file ID. */
-    hid_t mDatasetId; /**< The variables data set ID. */
-    hid_t mTimeDatasetId; /**< The time data set ID. */
-
-    long mCurrentTimeStep; /**< The current time step. */
-
-    const static unsigned DATASET_DIMS=3; /**< Defined in HDF5 reader too. \todo: define it once */
-    hsize_t mDatasetDims[DATASET_DIMS]; /**< The sizes of each variable data set. */
-    
     /**
      * Compute #mOffset and #mNumberOwned from #mIncompleteNodeIndices when we have incomplete data.
      */
@@ -206,6 +209,15 @@ public:
      * @return  HDF5 id for the given variable.
      */
     int GetVariableByName(const std::string& rVariableName);
+    
+    
+    /**
+     * Apply a permutation to all occurences of PutVector
+     * Should be called when in define mode
+     * @param rPermutation  a forward/?reverse permutation
+     */
+    void ApplyPermutation(const std::vector<unsigned>& rPermutation);
+     
 };
 
 #endif /*HDF5DATAWRITER_HPP_*/

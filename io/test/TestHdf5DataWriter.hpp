@@ -1071,5 +1071,55 @@ public:
         TS_ASSERT_THROWS_THIS(Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format_striped_incomplete", false, true),
                               "Unable to extend an incomplete data file at present.");
     }
+    
+    
+    void TestPermutation()
+    {
+        int number_nodes = 10;
+        DistributedVectorFactory factory(number_nodes);
+
+        Hdf5DataWriter writer(factory, "hdf5", "hdf5_permuted", false);
+        writer.DefineFixedDimension(number_nodes);
+
+        int index_id = writer.DefineVariable("index","dimensionless");
+
+        std::vector<unsigned> perm;
+        //Can't apply empty permutation
+        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(perm), "Permutation doesn't match the expected problem size");
+        for (unsigned index=0; index<(unsigned)number_nodes; index++)
+        {
+            perm.push_back(number_nodes - index - 1);
+            //Starts at 10 - 0 -1 = 9
+            //Ends before index  == 10-10-1 = -1
+        }
+        writer.ApplyPermutation(perm);
+        
+        writer.EndDefineMode();
+        //Can't apply permutation after define mode
+        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(perm), "Cannot define permutation when not in Define mode");
+        
+        Vec petsc_data_short = factory.CreateVec();
+        DistributedVector distributed_vector_short = factory.CreateDistributedVector(petsc_data_short);
+
+        for (DistributedVector::Iterator index = distributed_vector_short.Begin();
+             index!= distributed_vector_short.End();
+             ++index)
+        {
+            distributed_vector_short[index] = index.Global;
+        }
+        distributed_vector_short.Restore();
+
+
+        writer.PutVector(index_id, petsc_data_short);
+
+        writer.Close();
+
+        VecDestroy(petsc_data_short);
+        TS_ASSERT(CompareFilesViaHdf5DataReaderGlobalNorm("hdf5", "hdf5_permuted", true,
+                                                "io/test/data", "hdf5_unpermuted", false));
+        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_permuted", true,
+                                                "io/test/data", "hdf5_permuted", false));
+        
+    }    
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/
