@@ -51,7 +51,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestConvergenceTester : public CxxTest::TestSuite
 {
 public:
-
+//    time_t start;
+//    void setUp()
+//    {
+//        start=time(NULL);
+//    }
+//    void tearDown()
+//    {
+//        unsigned secs = time(NULL) - start;
+//        std::cout<<"REAL TIME Test took "<< secs/60<<" minutes, "<< secs%60<<" seconds of real time\n";
+//    }
     void Test1DOdeTime() throw(Exception)
     {
         OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
@@ -104,25 +113,7 @@ public:
         TS_ASSERT_EQUALS(tester.PdeTimeStep, 0.02);
     }
 
-    void Test1DSpace() throw(Exception)
-    {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
-        tester.RelativeConvergenceCriterion=2e-2;
-        tester.Converge(__FUNCTION__);
-        TS_ASSERT(tester.IsConverged());
-        TS_ASSERT_EQUALS(tester.GetMeshNum(), 2);
-        TS_ASSERT_DELTA(tester.GetSpaceStep(), 0.0125, 1e-8);
-    }
 
-    void Test2DOdeTime() throw(Exception)
-    {
-        OdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
-        tester.MeshNum=0;
-        tester.RelativeConvergenceCriterion=8e-5;
-        tester.Converge(__FUNCTION__);
-        TS_ASSERT(tester.Converged);
-        TS_ASSERT_EQUALS(tester.OdeTimeStep, 0.0025);
-    }
 
     void TestSpaceConvergenceMonoIn1DWithRelativeTolerance() throw(Exception)
     {
