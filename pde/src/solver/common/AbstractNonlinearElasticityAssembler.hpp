@@ -65,10 +65,10 @@ protected:
      *  with tolerance 1e-9; a=1e-9, it will solve with tolerance 1e-10.  */
     static const double MAX_NEWTON_ABS_TOL;
 
-    /** Minimum absolute tolerance for Newton solve. See documentation for mMaxNewtonAbsoluteTol. */
+    /** Minimum absolute tolerance for Newton solve. See documentation for MAX_NEWTON_ABS_TOL. */
     static const double MIN_NEWTON_ABS_TOL;
 
-    /** Relative tolerance for Newton solve. See documentation for mMaxNewtonAbsoluteTol. */
+    /** Relative tolerance for Newton solve. See documentation for MAX_NEWTON_ABS_TOL. */
     static const double NEWTON_REL_TOL;
     
     /** Absolute tolerance for linear systems. Can be set by calling 
