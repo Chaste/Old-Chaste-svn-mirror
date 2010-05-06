@@ -183,11 +183,11 @@ double NhsModelWithBackwardSolver::GetNextActiveTension()
 
     if(Q>0)
     {
-        return T0*(1+(2+mA)*Q)/(1+Q);
+        return (T0*(1+(2+mA)*Q)/(1+Q));
     }
     else
     {
-        return T0*(1+mA*Q)/(1-Q);
+        return (T0*(1+mA*Q)/(1-Q));
     }
 }
 

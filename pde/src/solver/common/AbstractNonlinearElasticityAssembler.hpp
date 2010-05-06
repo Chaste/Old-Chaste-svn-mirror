@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "PCBlockDiagonalMechanics.hpp"
 //#include "PCLDUFactorisationMechanics.hpp"
 
-//#define MECH_VERBOSE
+#define MECH_VERBOSE
 //#define MECH_VERY_VERBOSE
 //#define MECH_USE_HYPRE
 
@@ -58,14 +58,23 @@ class AbstractNonlinearElasticityAssembler
 {
 protected:
 
-    /** Maximum absolute tolerance for Newton solve.  */
+    /** Maximum absolute tolerance for Newton solve. The Newton solver uses the absolute tolerance
+     *  corresponding to the specified relative tolerance, but has a max and min allowable absolute
+     *  tolerance. (ie: if max_abs = 1e-7, min_abs = 1e-10, rel=1e-4: then if the norm of the 
+     *  initial_residual (=a) is 1e-2, it will solve with tolerance 1e-7; if a=1e-5, it will solve
+     *  with tolerance 1e-9; a=1e-9, it will solve with tolerance 1e-10.  */
     static const double MAX_NEWTON_ABS_TOL;
 
-    /** Minimum absolute tolerance for Newton solv.e  */
+    /** Minimum absolute tolerance for Newton solve. See documentation for mMaxNewtonAbsoluteTol. */
     static const double MIN_NEWTON_ABS_TOL;
 
-    /** Relative tolerance for Newton solve.  */
+    /** Relative tolerance for Newton solve. See documentation for mMaxNewtonAbsoluteTol. */
     static const double NEWTON_REL_TOL;
+    
+    /** Absolute tolerance for linear systems. Can be set by calling 
+     *  SetKspAbsoluteTolerances(), but default to -1, in which case 
+     *  a relative tolerance is used. */
+    double mKspAbsoluteTol;
 
     /**
      * Number of degrees of freedom (eg equal to DIM*N + M if quadratic-linear
@@ -344,6 +353,18 @@ public:
      */
     void SetWriteOutput(bool writeOutput=true);
 
+
+    /** 
+     *  Set the absolute tolerance to be used when solving the linear system.
+     *  If this is not called a relative tolerance is used.
+     *  @param kspAbsoluteTolerance the tolerance
+     */
+    void SetKspAbsoluteTolerance(double kspAbsoluteTolerance)
+    {
+        assert(kspAbsoluteTolerance>0);
+        mKspAbsoluteTol = kspAbsoluteTolerance;
+    }
+
 };
 
 
@@ -479,11 +500,20 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 
     KSPSetOperators(solver, r_jac, r_precond_jac, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
 
-    double ksp_relative_error_tol = 1e-6;
-    unsigned num_restarts = 100;
-    // set max iterations
-    KSPSetTolerances(solver, ksp_relative_error_tol, PETSC_DEFAULT, PETSC_DEFAULT, 10000); //hopefully with the preconditioner this max is way too high
+
     KSPSetType(solver,KSPGMRES);
+    
+    if(mKspAbsoluteTol < 0)
+    {
+        double ksp_rel_tol = 1e-6;
+        KSPSetTolerances(solver, ksp_rel_tol, PETSC_DEFAULT, PETSC_DEFAULT, 10000 /*max iter*/); //hopefully with the preconditioner this max is way too high
+    }
+    else
+    {
+        KSPSetTolerances(solver, 1e-16, mKspAbsoluteTol, PETSC_DEFAULT, 10000 /*max iter*/); //hopefully with the preconditioner this max is way too high
+    }
+    
+    unsigned num_restarts = 100;
     KSPGMRESSetRestart(solver,num_restarts); // gmres num restarts
 
     KSPSetFromOptions(solver);
@@ -495,36 +525,41 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     PC pc;
     KSPGetPC(solver, &pc);
 
-    #ifndef MECH_USE_HYPRE    
-        PCSetType(pc, PCJACOBI);
+    #ifndef MECH_USE_HYPRE 
+    PCSetType(pc, PCBJACOBI); // BJACOBI = ILU on each block (block = part of matrix on each process)
     #else
-        /////////////////////////////////////////////////////////////////////////////////////////////////////
-        // Speed up linear solve time massively for larger simulations (in fact GMRES may stagnate without
-        // this for larger problems), by using a AMG preconditioner -- needs HYPRE installed 
-        /////////////////////////////////////////////////////////////////////////////////////////////////////
-        PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
-        // PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
-        // PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Speed up linear solve time massively for larger simulations (in fact GMRES may stagnate without
+    // this for larger problems), by using a AMG preconditioner -- needs HYPRE installed 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
+    // PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+    // PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
 
-        PCSetType(pc, PCHYPRE);
-        
-        //PCBlockDiagonalMechanics* p_custom_pc = new PCBlockDiagonalMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
-        //PCLDUFactorisationMechanics* p_custom_pc = new PCLDUFactorisationMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
-		//remember to delete memory..
-        //KSPSetPreconditionerSide(solver, PC_RIGHT);
+    PCSetType(pc, PCHYPRE);
+    
+    //PCBlockDiagonalMechanics* p_custom_pc = new PCBlockDiagonalMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
+    //PCLDUFactorisationMechanics* p_custom_pc = new PCLDUFactorisationMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
+	//remember to delete memory..
+    //KSPSetPreconditionerSide(solver, PC_RIGHT);
     #endif     
 
     KSPSetFromOptions(solver);
     
     KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
     
-    #ifdef MECH_VERBOSE
-    Timer::PrintAndReset("KSP Solve");
     int num_iters;
     KSPGetIterationNumber(solver, &num_iters);
+    if(num_iters==0)
+    {
+        EXCEPTION("KSP Absolute tolerance was too high, linear system wasn't solved - there will be no decrease in Newton residual. Decrease KspAbsoluteTolerance");
+    }    
+    
+    #ifdef MECH_VERBOSE
+    Timer::PrintAndReset("KSP Solve");
+
     std::cout << "[" << PetscTools::GetMyRank() << "]: Num iterations = " << num_iters << "\n" << std::flush;
     #endif
-
 
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
 
@@ -718,7 +753,8 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
                                          double density,
                                          std::string outputDirectory,
                                          std::vector<unsigned>& fixedNodes)
-    : mNumDofs(numDofs),
+    : mKspAbsoluteTol(-1),
+      mNumDofs(numDofs),
       mBodyForce(bodyForce),
       mDensity(density),
       mOutputDirectory(outputDirectory),
@@ -744,11 +780,13 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
                                          double density,
                                          std::string outputDirectory,
                                          std::vector<unsigned>& fixedNodes)
-    : mNumDofs(numDofs),
+    : mKspAbsoluteTol(-1),
+      mNumDofs(numDofs),
       mBodyForce(bodyForce),
       mDensity(density),
       mOutputDirectory(outputDirectory),
       mFixedNodes(fixedNodes),
+      mNumNewtonIterations(0),
       mUsingBodyForceFunction(false),
       mUsingTractionBoundaryConditionFunction(false)
 {

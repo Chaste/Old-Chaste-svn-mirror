@@ -37,7 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ExponentialMaterialLaw.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
-double MATERIAL_PARAM = 0.05;
+
+double MATERIAL_PARAM = 1.0;
 double ALPHA = 0.2;
 
 // Body force corresponding to the deformation
@@ -95,7 +96,7 @@ public:
         QuadraticMesh<3> mesh;
         TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1,false);
         mesh.ConstructFromMeshReader(mesh_reader1);
-        ExponentialMaterialLaw<3> law(2,3);
+        ExponentialMaterialLaw<3> law(2.0, 3.0);
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
 
@@ -111,7 +112,7 @@ public:
     void TestAssembleSystem() throw (Exception)
     {
         QuadraticMesh<2> mesh(1.0, 1.0, 2, 2);
-        ExponentialMaterialLaw<2> law(2,3);
+        ExponentialMaterialLaw<2> law(2.0, 3.0);
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
 
@@ -373,9 +374,9 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1,false);
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        MooneyRivlinMaterialLaw<2> law(0.02);
+        MooneyRivlinMaterialLaw<2> law(1.0);
         c_vector<double,2> body_force;
-        body_force(0) = 0.06;
+        body_force(0) = 3.0;
         body_force(1) = 0.0;
 
         std::vector<unsigned> fixed_nodes;
@@ -395,7 +396,7 @@ public:
                                                   fixed_nodes);
 
         assembler.Solve();
-        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 5u); // 'hardcoded' answer, protects against jacobian getting messed up
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 4u); // 'hardcoded' answer, protects against jacobian getting messed up
 
         std::vector<c_vector<double,2> >& r_solution = assembler.rGetDeformedPosition();
 
@@ -462,7 +463,7 @@ public:
     void TestSolveWithNonZeroBoundaryConditions() throw(Exception)
     {
         double lambda = 0.85;
-        double c1 = 0.02;
+        double c1 = 1.0;
         c_vector<double,2> body_force = zero_vector<double>(2);
         unsigned num_elem = 5;
 
@@ -511,6 +512,9 @@ public:
                                                   &locations);
 
         assembler.SetSurfaceTractionBoundaryConditions(boundary_elems, tractions);
+
+    	// coverage
+        assembler.SetKspAbsoluteTolerance(1e-8);
 
         assembler.Solve();
         TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 3u); // 'hardcoded' answer, protects against jacobian getting messed up
@@ -631,6 +635,11 @@ public:
 
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
+
+		assembler.mCurrentSolution.clear();
+		assembler.mCurrentSolution.resize(assembler.mNumDofs, 0.0);
+        assembler.SetKspAbsoluteTolerance(1); // way too high
+        TS_ASSERT_THROWS_CONTAINS(assembler.Solve(), "KSP Absolute tolerance was too high");
     }
 };
 
