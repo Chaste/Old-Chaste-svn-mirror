@@ -823,7 +823,11 @@ void Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
     }
     ///\todo use pigeon-hole set to check it's a permutation
     PetscTools::SetupMat(mSinglePermutation,   mDataFixedDimensionSize,   mDataFixedDimensionSize);
+#if PETSC_VERSION_MAJOR == 3
+    MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
+#else
     MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES); 
+#endif
     //Only do local rows
     for (unsigned index=mLo; index<mHi; index++)
     {
