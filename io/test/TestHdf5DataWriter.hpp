@@ -1082,7 +1082,9 @@ public:
         writer.DefineFixedDimension(number_nodes);
 
         int index_id = writer.DefineVariable("index","dimensionless");
-
+        int vm_id = writer.DefineVariable("V_m", "millivolts");
+        int phi_e_id = writer.DefineVariable("Phi_e", "millivolts");
+     
         std::vector<unsigned> perm;
         //Can't apply empty permutation
         TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(perm), "Permutation doesn't match the expected problem size");
@@ -1092,6 +1094,16 @@ public:
             //Starts at 10 - 0 -1 = 9
             //Ends before index  == 10-10-1 = -1
         }
+
+        //Make the permutation incorrect
+        TS_ASSERT_EQUALS((int)perm[0], number_nodes - 1);
+        perm[0]=0;
+        
+        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(perm), "Permutation vector doesn't contain a valid permutation");
+
+        //Correct the mistake imposed above
+        perm[0]=number_nodes - 1;
+        
         writer.ApplyPermutation(perm);
         
         writer.EndDefineMode();
@@ -1100,7 +1112,6 @@ public:
         
         Vec petsc_data_short = factory.CreateVec();
         DistributedVector distributed_vector_short = factory.CreateDistributedVector(petsc_data_short);
-
         for (DistributedVector::Iterator index = distributed_vector_short.Begin();
              index!= distributed_vector_short.End();
              ++index)
@@ -1108,13 +1119,27 @@ public:
             distributed_vector_short[index] = index.Global;
         }
         distributed_vector_short.Restore();
-
-
         writer.PutVector(index_id, petsc_data_short);
+
+        Vec petsc_data_long = factory.CreateVec(2);
+        DistributedVector distributed_vector_long = factory.CreateDistributedVector(petsc_data_long);
+        DistributedVector::Stripe vm_stripe(distributed_vector_long, 0);
+        DistributedVector::Stripe phi_e_stripe(distributed_vector_long, 1);
+        for (DistributedVector::Iterator index = distributed_vector_long.Begin();
+             index!= distributed_vector_long.End();
+             ++index)
+        {
+            vm_stripe[index] =  100 + index.Global;
+            phi_e_stripe[index] = 1000 + index.Global;
+        }
+        distributed_vector_long.Restore();
+        writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long);
+
 
         writer.Close();
 
         VecDestroy(petsc_data_short);
+        VecDestroy(petsc_data_long);
         TS_ASSERT(CompareFilesViaHdf5DataReaderGlobalNorm("hdf5", "hdf5_permuted", true,
                                                 "io/test/data", "hdf5_unpermuted", false));
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_permuted", true,

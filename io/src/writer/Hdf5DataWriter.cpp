@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 * Implementation file for Hdf5DataWriter class.
 *
 */
+#include <set>
 
 #include "Hdf5DataWriter.hpp"
 
@@ -643,6 +644,21 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     // Make sure that everything is actually extended to the correct dimension
     PossiblyExtend();
 
+    Vec output_petsc_vector;
+    //Decide what to write 
+    if (mDoublePermutation == NULL)
+    {
+        //No permutation - just write
+        output_petsc_vector = petscVector;
+    }
+    else
+    {
+        assert(mIsDataComplete);
+        //Make a vector with the same pattern (doesn't copy the data)
+        VecDuplicate(petscVector, &output_petsc_vector);
+        //Apply the permutation matrix
+        MatMult(mDoublePermutation, petscVector, output_petsc_vector);
+    }
     // Define a dataset in memory for this process
     hid_t memspace=0;
     if (mNumberOwned !=0)
@@ -665,7 +681,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     H5Pset_dxpl_mpio(property_list_id, H5FD_MPIO_COLLECTIVE);
 
     double* p_petsc_vector;
-    VecGetArray(petscVector, &p_petsc_vector);
+    VecGetArray(output_petsc_vector, &p_petsc_vector);
 
     if (mIsDataComplete)
     {
@@ -685,7 +701,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
         H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, local_data);
     }
 
-    VecRestoreArray(petscVector, &p_petsc_vector);
+    VecRestoreArray(output_petsc_vector, &p_petsc_vector);
 
     H5Sclose(hyperslab_space);
     if (mNumberOwned != 0)
@@ -693,6 +709,12 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
         H5Sclose(memspace);
     }
     H5Pclose(property_list_id);
+    
+    if (petscVector != output_petsc_vector)
+    {
+        //Free local vector
+        VecDestroy(output_petsc_vector);
+    }
 }
 
 void Hdf5DataWriter::PutUnlimitedVariable(double value)
@@ -821,12 +843,32 @@ void Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
     {
         EXCEPTION("Permutation doesn't match the expected problem size");
     }
-    ///\todo use pigeon-hole set to check it's a permutation
-    PetscTools::SetupMat(mSinglePermutation,   mDataFixedDimensionSize,   mDataFixedDimensionSize);
+    //Permutation checker
+    std::set<unsigned> permutation_pigeon_hole;
+    //Fill up the pigeon holes
+    for (unsigned i=0; i<mDataFixedDimensionSize; i++)
+    {
+        permutation_pigeon_hole.insert(rPermutation[i]);
+    }
+    /* Pigeon-hole principal says that each index appears exactly once
+     * so if any don't appear then either one appears twice or something out of
+     * scope has appeared. 
+     */
+    for (unsigned i=0; i<mDataFixedDimensionSize; i++)
+    {
+        if (permutation_pigeon_hole.count(i) != 1u)
+        {
+            EXCEPTION("Permutation vector doesn't contain a valid permutation");  
+        }
+    }
+    PetscTools::SetupMat(mSinglePermutation,   mDataFixedDimensionSize,   mDataFixedDimensionSize, (MatType) MATMPIAIJ, mHi - mLo, mHi - mLo);
+    PetscTools::SetupMat(mDoublePermutation, 2*mDataFixedDimensionSize, 2*mDataFixedDimensionSize, (MatType) MATMPIAIJ, 2*(mHi - mLo), 2*(mHi - mLo));
 #if PETSC_VERSION_MAJOR == 3
     MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
+    MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
 #else
     MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES); 
+    MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
 #endif
     //Only do local rows
     for (unsigned index=mLo; index<mHi; index++)
@@ -835,9 +877,18 @@ void Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
         MatSetValue(mSinglePermutation, index, index, 0.0, INSERT_VALUES);
         //Put one at (i,j) - or is it (j, i)?
         MatSetValue(mSinglePermutation, index, rPermutation[index], 1.0, INSERT_VALUES);
+        
+        unsigned bi_index=2*index;
+        unsigned perm_index=2*rPermutation[index];
+        //Put zeroes on the diagonal
+        MatSetValue(mDoublePermutation, bi_index, bi_index, 0.0, INSERT_VALUES);
+        MatSetValue(mDoublePermutation, bi_index+1, bi_index+1, 0.0, INSERT_VALUES);
+        //Put ones at (i,j) - or is it (j, i)?
+        MatSetValue(mDoublePermutation, bi_index, perm_index, 1.0, INSERT_VALUES);
+        MatSetValue(mDoublePermutation, bi_index+1, perm_index+1, 1.0, INSERT_VALUES);
     }
     MatAssemblyBegin(mSinglePermutation, MAT_FINAL_ASSEMBLY);
+    MatAssemblyBegin(mDoublePermutation, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mSinglePermutation, MAT_FINAL_ASSEMBLY);
-    ///\todo Set this one up
-    PetscTools::SetupMat(mDoublePermutation, 2*mDataFixedDimensionSize, 2*mDataFixedDimensionSize);
+    MatAssemblyEnd(mDoublePermutation, MAT_FINAL_ASSEMBLY);    
 }

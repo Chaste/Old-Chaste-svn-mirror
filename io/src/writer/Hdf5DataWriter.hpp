@@ -75,7 +75,6 @@ private:
     hsize_t mDatasetDims[DATASET_DIMS]; /**< The sizes of each variable data set. */
     
     Mat mSinglePermutation; /**< Stores a permutation as a matrix */ 
-    ///\todo implement
     Mat mDoublePermutation;/**< Stores a permutation of a striped structure (u_0 v_0 u_1 v_1) as a matrix */ 
     /**
      * Check name of variable is allowed, i.e. contains only alphanumeric & _, and isn't blank.
