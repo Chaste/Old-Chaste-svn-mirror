@@ -214,8 +214,9 @@ public:
      * Apply a permutation to all occurences of PutVector
      * Should be called when in define mode
      * @param rPermutation  a forward/?reverse permutation
+     * @return success value.  A value "false" indictates that the permutation was empty or was the identity and was not applied
      */
-    void ApplyPermutation(const std::vector<unsigned>& rPermutation);
+    bool ApplyPermutation(const std::vector<unsigned>& rPermutation);
      
 };
 

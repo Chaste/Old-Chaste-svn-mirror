@@ -1086,12 +1086,19 @@ public:
         int phi_e_id = writer.DefineVariable("Phi_e", "millivolts");
      
         std::vector<unsigned> rotation_perm;
-        //Can't apply empty permutation
-        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(rotation_perm), "Permutation doesn't match the expected problem size");
+        std::vector<unsigned> identity_perm;
+        std::vector<unsigned> short_perm;
+        
+        //Can't apply empty permutation - nothing happens
+        TS_ASSERT_EQUALS(writer.ApplyPermutation(rotation_perm), false);
+        //Can't apply a permutation of the wrong length
+        short_perm.push_back(0u);
+        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(short_perm), "Permutation doesn't match the expected problem size");
+        
         for (unsigned index=0; index<(unsigned)number_nodes; index++)
         {
-            rotation_perm.push_back( (index + 3) % number_nodes);
-            // 3, 4, ... 0, 1, 2
+            rotation_perm.push_back( (index + 3) % number_nodes); // 3, 4, ... 0, 1, 2
+            identity_perm.push_back(index);
         }
 
         //Make the permutation incorrect
@@ -1103,7 +1110,10 @@ public:
         //Correct the mistake imposed above
         rotation_perm[0]=3;
         
-        writer.ApplyPermutation(rotation_perm);
+        TS_ASSERT_EQUALS(writer.ApplyPermutation(identity_perm), false); //Does nothing
+        
+        // +++ This is where the permutation is really applied +++
+        TS_ASSERT(writer.ApplyPermutation(rotation_perm));
         
         writer.EndDefineMode();
         //Can't apply permutation after define mode

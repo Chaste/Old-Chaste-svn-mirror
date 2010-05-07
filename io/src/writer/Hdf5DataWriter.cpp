@@ -832,12 +832,18 @@ int Hdf5DataWriter::GetVariableByName(const std::string& rVariableName)
     return id;
 }
 
-void Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
+bool Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
 {
     if (!mIsInDefineMode)
     {
         EXCEPTION("Cannot define permutation when not in Define mode");
     }
+    
+    if (rPermutation.empty())
+    {
+        return false;
+    }
+    
     if (rPermutation.size() !=   mFileFixedDimensionSize || 
         rPermutation.size() != mDataFixedDimensionSize)
     {
@@ -846,9 +852,19 @@ void Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
     //Permutation checker
     std::set<unsigned> permutation_pigeon_hole;
     //Fill up the pigeon holes
+    bool identity_map=true;
     for (unsigned i=0; i<mDataFixedDimensionSize; i++)
     {
         permutation_pigeon_hole.insert(rPermutation[i]);
+        if (identity_map && i != rPermutation[i])
+        {
+            identity_map=false;
+        }
+    }
+    if (identity_map)
+    {
+        //Do nothing
+        return false;
     }
     /* Pigeon-hole principal says that each index appears exactly once
      * so if any don't appear then either one appears twice or something out of
@@ -861,6 +877,9 @@ void Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
             EXCEPTION("Permutation vector doesn't contain a valid permutation");  
         }
     }
+    //Make sure we've not done it already
+    assert(mSinglePermutation == NULL);
+    assert(mDoublePermutation == NULL);
     PetscTools::SetupMat(mSinglePermutation,   mDataFixedDimensionSize,   mDataFixedDimensionSize, (MatType) MATMPIAIJ, mHi - mLo, mHi - mLo);
     PetscTools::SetupMat(mDoublePermutation, 2*mDataFixedDimensionSize, 2*mDataFixedDimensionSize, (MatType) MATMPIAIJ, 2*(mHi - mLo), 2*(mHi - mLo));
 #if PETSC_VERSION_MAJOR == 3
@@ -890,5 +909,6 @@ void Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
     MatAssemblyBegin(mSinglePermutation, MAT_FINAL_ASSEMBLY);
     MatAssemblyBegin(mDoublePermutation, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mSinglePermutation, MAT_FINAL_ASSEMBLY);
-    MatAssemblyEnd(mDoublePermutation, MAT_FINAL_ASSEMBLY);    
+    MatAssemblyEnd(mDoublePermutation, MAT_FINAL_ASSEMBLY);  
+    return true;  
 }
