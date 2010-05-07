@@ -868,7 +868,7 @@ void Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
     MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
 #else
     MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES); 
-    MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
+    MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES); 
 #endif
     //Only do local rows
     for (unsigned index=mLo; index<mHi; index++)

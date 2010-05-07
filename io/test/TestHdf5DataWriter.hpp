@@ -1085,30 +1085,29 @@ public:
         int vm_id = writer.DefineVariable("V_m", "millivolts");
         int phi_e_id = writer.DefineVariable("Phi_e", "millivolts");
      
-        std::vector<unsigned> perm;
+        std::vector<unsigned> rotation_perm;
         //Can't apply empty permutation
-        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(perm), "Permutation doesn't match the expected problem size");
+        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(rotation_perm), "Permutation doesn't match the expected problem size");
         for (unsigned index=0; index<(unsigned)number_nodes; index++)
         {
-            perm.push_back(number_nodes - index - 1);
-            //Starts at 10 - 0 -1 = 9
-            //Ends before index  == 10-10-1 = -1
+            rotation_perm.push_back( (index + 3) % number_nodes);
+            // 3, 4, ... 0, 1, 2
         }
 
         //Make the permutation incorrect
-        TS_ASSERT_EQUALS((int)perm[0], number_nodes - 1);
-        perm[0]=0;
+        TS_ASSERT_EQUALS(rotation_perm[0], 3u);
+        rotation_perm[0]=0;
         
-        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(perm), "Permutation vector doesn't contain a valid permutation");
+        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(rotation_perm), "Permutation vector doesn't contain a valid permutation");
 
         //Correct the mistake imposed above
-        perm[0]=number_nodes - 1;
+        rotation_perm[0]=3;
         
-        writer.ApplyPermutation(perm);
+        writer.ApplyPermutation(rotation_perm);
         
         writer.EndDefineMode();
         //Can't apply permutation after define mode
-        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(perm), "Cannot define permutation when not in Define mode");
+        TS_ASSERT_THROWS_THIS(writer.ApplyPermutation(rotation_perm), "Cannot define permutation when not in Define mode");
         
         Vec petsc_data_short = factory.CreateVec();
         DistributedVector distributed_vector_short = factory.CreateDistributedVector(petsc_data_short);
