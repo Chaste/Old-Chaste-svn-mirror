@@ -552,6 +552,8 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     KSPGetIterationNumber(solver, &num_iters);
     if(num_iters==0)
     {
+        VecDestroy(solution);
+        KSPDestroy(solver);
         EXCEPTION("KSP Absolute tolerance was too high, linear system wasn't solved - there will be no decrease in Newton residual. Decrease KspAbsoluteTolerance");
     }    
     
