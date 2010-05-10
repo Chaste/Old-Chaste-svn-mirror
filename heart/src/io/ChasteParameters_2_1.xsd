@@ -191,9 +191,9 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="cwd"/>
       <xs:enumeration value="chaste_test_output"/>
-      <!-- <xs:enumeration value="this_file"/> Rather difficult to implement... -->
       <xs:enumeration value="chaste_source_root"/>
       <xs:enumeration value="absolute"/>
+      <!-- <xs:enumeration value="this_file"/> Rather difficult to implement... -->
     </xs:restriction>
   </xs:simpleType>
   <xs:complexType name="ionic_model_region_type">
@@ -867,9 +867,9 @@ Note that in parallel the output meshes may be renumbered from the original inpu
       <xs:documentation>Main XML component for resuming a cardaic bidomain or monodomain simulation from checkpoint.  This contains those resources (such as simulation duration) which are going to be overwritten.</xs:documentation>
     </xs:annotation>
     <xs:all>
-      <xs:element name="ArchiveDirectory" type="xs:string">
+      <xs:element name="ArchiveDirectory" type="path_type">
         <xs:annotation>
-          <xs:documentation>Name of the input directory from which to read the checkpoint archive files.  This is expected to be a subfolder of the environmental variable CHASTE_TEST_OUTPUT, if set. If CHASTE_TEST_OUTPUT is not set, the archive directory is expected relative to a 'testoutput' folder in the current directory.
+          <xs:documentation>Location of the input directory from which to read the checkpoint archive files.  This is expected to be a subfolder of the environmental variable CHASTE_TEST_OUTPUT, if set. If CHASTE_TEST_OUTPUT is not set, the archive directory is expected relative to a 'testoutput' folder in the current directory.
 </xs:documentation>
         </xs:annotation>
       </xs:element>

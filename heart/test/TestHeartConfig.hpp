@@ -50,8 +50,9 @@ private:
     {
         HeartConfig::Reset();
     }
-public :
-    void TestHeartConfigBasic()
+    
+public:
+    void TestHeartConfigBasic() throw (Exception)
     {
         double chi = HeartConfig::Instance()->mpDefaultParameters->Physiological().SurfaceAreaToVolumeRatio().get();
         TS_ASSERT_EQUALS(chi, 1400);
@@ -71,7 +72,7 @@ public :
         TS_ASSERT_EQUALS(conductivity_2, 7.0);
     }
 
-    void TestUserProvidedDifferentFromDefault()
+    void TestUserProvidedDifferentFromDefault() throw (Exception)
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
@@ -95,7 +96,7 @@ public :
 
      }
 
-    void TestGetFunctions()
+    void TestGetFunctions() throw (Exception)
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
 
@@ -408,7 +409,7 @@ public :
         TS_ASSERT_EQUALS(extra_conductivities[2], 7.0);
     }
 
-    void TestIsMeshProvided()
+    void TestIsMeshProvided() throw (Exception)
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteEmpty.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsMeshProvided(), false);
@@ -421,7 +422,7 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetCreateMesh(), false);
     }
 
-    void TestTransmuralHeterogeneities()
+    void TestTransmuralHeterogeneities() throw (Exception)
     {
         {
             HeartConfig::Reset();
@@ -578,9 +579,9 @@ public :
 
             TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), true);
         }
-
     }
-    void Test2dProblems()
+    
+    void Test2dProblems() throw (Exception)
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParameters2D.xml");
 
@@ -607,7 +608,7 @@ public :
         TS_ASSERT_EQUALS(inter_node_space, 0.1);
     }
 
-    void Test1dProblems()
+    void Test1dProblems() throw (Exception)
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParameters1D.xml");
 
@@ -634,7 +635,7 @@ public :
     }
 
 
-    void TestSetFunctions() throw(Exception)
+    void TestSetFunctions() throw (Exception)
     {
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
         HeartConfig::Instance()->SetSimulationDuration(35.0);
@@ -939,7 +940,7 @@ public :
         TS_ASSERT_EQUALS(conduction_velocity_map_get[0],25u);
     }
 
-    void TestWrite() throw(Exception)
+    void TestWrite() throw (Exception)
     {
         OutputFileHandler output_file_handler("Xml/output", true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 0.01);
@@ -956,7 +957,7 @@ public :
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOdeTimeStep(), 1.1);
     }
 
-    void TestArchiving()
+    void TestArchiving() throw (Exception)
     {
         //Archive
         OutputFileHandler handler("archive", false);
@@ -1181,7 +1182,7 @@ public :
         }
     }
 
-    void TestSetAndGetOuputVariables()
+    void TestSetAndGetOuputVariables() throw (Exception)
     {
         // Set the variables we are interested in writing.
         std::vector<std::string> output_variables;
@@ -1212,7 +1213,7 @@ public :
         }
     }
 
-    void TestSetAndGetArchivingStuff()
+    void TestSetAndGetArchivingStuff() throw (Exception)
     {
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersFullFormat.xml");
         TS_ASSERT(HeartConfig::Instance()->IsSimulationDefined());
@@ -1362,7 +1363,7 @@ public :
         TS_ASSERT( HeartConfig::Instance()->GetVisualizeWithVtk() );
     }
 
-    void TestAdaptivityVariables()
+    void TestAdaptivityVariables() throw (Exception)
     {
         // Defaults file doesn't have the AdaptivityParameters element
         TS_ASSERT( ! HeartConfig::Instance()->mpDefaultParameters->Numerical().AdaptivityParameters().present() );

@@ -242,7 +242,19 @@ private:
                                         xercesc::DOMElement* pRootElement);
 
     /**
+     * Backwards compatibility transformation method: edits the DOM tree to change the
+     * 'ArchiveDirectory' element from a simple string to a cp::path_type.
+     *
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pRootElement  the root of the tree to be transformed
+     */
+    void TransformArchiveDirectory(xercesc::DOMDocument* pDocument,
+                                   xercesc::DOMElement* pRootElement);
+
+    /**
      * Used by TransformIonicModelDefinitions to do the actual wrapping of an element's content.
+     *
+     * @note Doesn't transfer attributes.
      *
      * @param pDocument  the DOM document containing the tree to be transformed
      * @param pElement  the element whose content is to be wrapped

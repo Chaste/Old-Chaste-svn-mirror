@@ -308,6 +308,7 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
             case 1001: // Release 1.1 and earlier
                 TransformIonicModelDefinitions(p_doc.get(), p_root_elt);
             case 2000: // Release 2.0
+                TransformArchiveDirectory(p_doc.get(), p_root_elt);
                 SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1");
             default: // Current release - nothing to do
                 break;
@@ -2408,6 +2409,8 @@ void HeartConfig::SetVisualizeWithVtk(bool useVtk)
 #include <xercesc/framework/Wrapper4InputSource.hpp>
 #include <xercesc/validators/common/Grammar.hpp>
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
+#include <xercesc/dom/DOMXPathEvaluator.hpp>
+#include <xercesc/dom/DOMXPathResult.hpp>
 
 #include <xsd/cxx/xml/string.hxx>
 #include <xsd/cxx/xml/dom/auto-ptr.hxx>
@@ -2627,34 +2630,82 @@ xercesc::DOMElement* HeartConfig::SetNamespace(xercesc::DOMDocument* pDocument,
     return SetNamespace(pDocument, pElement, X(rNamespace));
 }
 
+void FindElements(xercesc::DOMElement* pContextElement,
+                  const std::vector<std::string>& rNames,
+                  std::vector<xercesc::DOMElement*>& rResults,
+                  unsigned depth=0)
+{
+    xercesc::DOMNodeList* p_child_elts = pContextElement->getElementsByTagName(X(rNames[depth]));
+    unsigned num_children = p_child_elts->getLength();
+    for (unsigned i=0; i<num_children; i++)
+    {
+        xercesc::DOMElement* p_child_elt = static_cast<xercesc::DOMElement*>(p_child_elts->item(i));
+        if (depth == rNames.size() - 1)
+        {
+            rResults.push_back(p_child_elt);
+        }
+        else
+        {
+            FindElements(p_child_elt, rNames, rResults, depth+1);
+        }
+    }
+}
 
+std::vector<xercesc::DOMElement*> FindElements(xercesc::DOMElement* pContextElement,
+                                               const std::string& rPath)
+{
+    std::vector<xercesc::DOMElement*> results;
+    std::vector<std::string> path;
+    size_t start_pos = 0;
+    size_t slash_pos = 0;
+    while (slash_pos != std::string::npos)
+    {
+        slash_pos = rPath.find('/', start_pos);
+        if (slash_pos == std::string::npos)
+        {
+            path.push_back(rPath.substr(start_pos));
+        }
+        else
+        {
+            path.push_back(rPath.substr(start_pos, slash_pos-start_pos));
+        }
+        start_pos = slash_pos + 1;
+    }
+    FindElements(pContextElement, path, results);
+    return results;
+}
+
+void HeartConfig::TransformArchiveDirectory(xercesc::DOMDocument* pDocument,
+                                            xercesc::DOMElement* pRootElement)
+{
+    using namespace xercesc;
+    std::vector<xercesc::DOMElement*> elts = FindElements(pRootElement,
+                                                          "ResumeSimulation/ArchiveDirectory");
+    if (elts.size() > 0)
+    {
+        // We have an ArchiveDirectory element, so add the relative_to='cwd' attribute
+        DOMElement* p_dir_elt = elts[0];
+        //PrintNode(" before", p_dir_elt, true);
+        p_dir_elt->setAttribute(X("relative_to"), X("cwd"));
+        //PrintNode(" after", p_dir_elt, true);
+    }
+}
 
 void HeartConfig::TransformIonicModelDefinitions(xercesc::DOMDocument* pDocument,
                                                  xercesc::DOMElement* pRootElement)
 {
-    xercesc::DOMNodeList* p_sim_elt_list = pRootElement->getElementsByTagName(X("Simulation"));
-    if (p_sim_elt_list->getLength() > 0)
+    // Default ionic model
+    std::vector<xercesc::DOMElement*> p_elt_list = FindElements(pRootElement,
+                                                                "Simulation/IonicModels/Default");
+    if (p_elt_list.size() > 0)
     {
-        xercesc::DOMElement* p_sim_elt = static_cast<xercesc::DOMElement*>(p_sim_elt_list->item(0));
-        xercesc::DOMNodeList* p_ionic_models_elt_list = p_sim_elt->getElementsByTagName(X("IonicModels"));
-        if (p_ionic_models_elt_list->getLength() > 0)
+        assert(p_elt_list.size() == 1); // Asserted by schema
+        WrapContentInElement(pDocument, p_elt_list[0], X("Hardcoded"));
+        // Now do any region-specific definitions
+        p_elt_list = FindElements(pRootElement, "Simulation/IonicModels/Region/IonicModel");
+        for (unsigned i=0; i<p_elt_list.size(); i++)
         {
-            xercesc::DOMElement* p_ionic_models_elt = static_cast<xercesc::DOMElement*>(p_ionic_models_elt_list->item(0));
-            // Do the default ionic model
-            xercesc::DOMNodeList* p_default_list = p_ionic_models_elt->getElementsByTagName(X("Default"));
-            assert(p_default_list->getLength() > 0); // Asserted by schema
-            xercesc::DOMElement* p_default_elt = static_cast<xercesc::DOMElement*>(p_default_list->item(0));
-            WrapContentInElement(pDocument, p_default_elt, X("Hardcoded"));
-            // Now do any region-specific definitions
-            xercesc::DOMNodeList* p_region_list = p_ionic_models_elt->getElementsByTagName(X("Region"));
-            for (unsigned i=0; i<p_region_list->getLength(); i++)
-            {
-                xercesc::DOMElement* p_region_elt = static_cast<xercesc::DOMElement*>(p_region_list->item(0));
-                xercesc::DOMNodeList* p_ionic_model_list = p_region_elt->getElementsByTagName(X("IonicModel"));
-                assert(p_ionic_model_list->getLength() > 0); // Asserted by schema
-                xercesc::DOMElement* p_ionic_model_elt = static_cast<xercesc::DOMElement*>(p_ionic_model_list->item(0));
-                WrapContentInElement(pDocument, p_ionic_model_elt, X("Hardcoded"));
-            }
+            WrapContentInElement(pDocument, p_elt_list[i], X("Hardcoded"));
         }
     }
 }
@@ -2668,12 +2719,8 @@ void HeartConfig::WrapContentInElement(xercesc::DOMDocument* pDocument,
     const XMLCh* p_qualified_name;
     if (p_prefix)
     {
-#define COVERAGE_IGNORE
-        // We can't actually cover this code, since previous versions of the parameters file didn't use a namespace,
-        // so can't have a namespace prefix!
         xercesc::QName qname(p_prefix, pNewElementLocalName, 0);
         p_qualified_name = qname.getRawName();
-#undef COVERAGE_IGNORE
     }
     else
     {
