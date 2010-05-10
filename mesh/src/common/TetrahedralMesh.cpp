@@ -306,6 +306,12 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceArea()
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 {
+    //Make a permutation vector (initially the identity)
+    std::vector<unsigned> perm(this->mNodes.size());
+    for  (unsigned index=0; index<this->mNodes.size(); index++)
+    {
+        perm[index]=index;
+    }
     RandomNumberGenerator* p_rng = RandomNumberGenerator::Instance();
 
     // Working from the back, each node is swapped with a random node that precedes it in the array
@@ -313,20 +319,17 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
     {
         unsigned  other=p_rng->randMod(index+1); //includes the possibility of rolling "index"
         // Swap index and other
-        Node<SPACE_DIM> *temp=this->mNodes[index];
-        this->mNodes[index]=this->mNodes[other];
-        this->mNodes[other]=temp;
+        unsigned temp=perm[index];
+        perm[index]=perm[other];
+        perm[other]=temp;
     }
 
-    // Update indices
-    for (unsigned index=0; index<this->mNodes.size(); index++)
-    {
-        this->mNodes[index]->SetIndex(index);
-    }
+    //Call the non-random version
+    PermuteNodes(perm);
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned>& perm)
+void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(const std::vector<unsigned>& perm)
 {
     // Let's not do this if there are any deleted nodes
     assert( this->GetNumAllNodes() == this->GetNumNodes());
@@ -337,10 +340,11 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned>
     std::vector< Node<SPACE_DIM>* > copy_m_nodes;
     copy_m_nodes.assign(this->mNodes.begin(), this->mNodes.end());
 
-    for (unsigned i=0; i<this->mNodes.size(); i++)
+    for (unsigned original_index=0; original_index<this->mNodes.size(); original_index++)
     {
-        assert(perm[i] < this->mNodes.size());
-        this->mNodes[ perm[i] ] = copy_m_nodes[i];
+        assert(perm[original_index] < this->mNodes.size());
+        //perm[original_index] holds the new assigned index of that node
+        this->mNodes[ perm[original_index] ] = copy_m_nodes[original_index];
     }
 
     // Update indices
@@ -348,6 +352,8 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes(std::vector<unsigned>
     {
         this->mNodes[index]->SetIndex(index);
     }
+    //Copy the permutation vector into the mesh
+    this->mNodesPermutation = perm;
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>

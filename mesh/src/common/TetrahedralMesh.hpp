@@ -164,7 +164,7 @@ public:
     void RefreshMesh();
 
     /**
-     * Permute the nodes so that they appear in a different order in mNodes
+     * Permute the nodes randomly so that they appear in a different order in mNodes
      * (and their mIndex's are altered accordingly).
      */
     void PermuteNodes();
@@ -182,7 +182,7 @@ public:
      * (and their mIndex's are altered accordingly).
      * @param perm is a vector containing the new indices
      */
-    void PermuteNodes(std::vector<unsigned>& perm);
+    void PermuteNodes(const std::vector<unsigned>& perm);
 
     /**
      * Return the element index for the first element that contains a test point
