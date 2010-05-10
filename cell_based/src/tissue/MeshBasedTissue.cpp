@@ -533,7 +533,9 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
             }
             else // DIM==3
             {
-                cell_area = GetVolumeOfVoronoiElement(elem_index);
+                NEVER_REACHED;
+                ///\todo #8806
+                //cell_area = GetVolumeOfVoronoiElement(elem_index);
             }
             cell_areas.push_back(cell_area);
         }
@@ -607,9 +609,11 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
         }
         else // DIM==3
         {
-            double cell_volume = GetVolumeOfVoronoiElement(elem_index);
-            double cell_surface_area = GetSurfaceAreaOfVoronoiElement(elem_index);
-            *mpVoronoiFile << cell_volume << " " << cell_surface_area << " ";
+            NEVER_REACHED;
+            ///\todo #8806
+            //double cell_volume = GetVolumeOfVoronoiElement(elem_index);
+            //double cell_surface_area = GetSurfaceAreaOfVoronoiElement(elem_index);
+            //*mpVoronoiFile << cell_volume << " " << cell_surface_area << " ";
         }
     }
     *mpVoronoiFile << "\n";
@@ -649,8 +653,10 @@ void MeshBasedTissue<DIM>::WriteTissueVolumeResultsToFile()
             }
             else // DIM==3
             {
-                double cell_volume = GetVolumeOfVoronoiElement(elem_index);
-                apoptotic_area += cell_volume;
+                NEVER_REACHED;
+                ///\todo #8806
+                //double cell_volume = GetVolumeOfVoronoiElement(elem_index);
+                //apoptotic_area += cell_volume;
             }
         }
     }
@@ -696,8 +702,10 @@ void MeshBasedTissue<DIM>::WriteCellVolumeResultsToFile()
         }
         else // DIM==3
         {
-            double cell_volume = GetVolumeOfVoronoiElement(elem_index);
-            *mpCellVolumesFile << cell_volume << " ";
+            NEVER_REACHED;
+            ///\todo #8806
+            //double cell_volume = GetVolumeOfVoronoiElement(elem_index);
+            //*mpCellVolumesFile << cell_volume << " ";
         }
     }
     *mpCellVolumesFile << "\n";
