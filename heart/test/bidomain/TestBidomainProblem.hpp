@@ -50,9 +50,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CmguiMeshWriter.hpp"
 #include "FileFinder.hpp"
 #include "OutputFileHandler.hpp"
+#include "MemfemMeshReader.hpp"
 
 #include "CompareHdf5ResultsFiles.hpp"
-
+#include "NumericFileComparison.hpp"
 
 class DelayedTotalStimCellFactory : public AbstractCardiacCellFactory<1>
 {
@@ -782,6 +783,51 @@ public:
             mSolutionReplicated1d2ms.push_back(solution_replicated[index]);
         }
 
+    }
+
+    /*
+     *  Simple bidomain simulation to test against in the archiving tests below
+     */
+    void TestPermutedBidomain1D() throw(Exception)
+    {
+        
+        TetrahedralMesh<1,1> mesh;
+        TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1mm_10_elements");
+        mesh.ConstructFromMeshReader(reader);
+ 
+        //Rotate the permutation
+        ///\todo #1242      
+        //mesh.PermuteNodes();
+ 
+        ///\todo #1242      
+        // Set some flag in the HeartConfig or BidomainProblem
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+
+        HeartConfig::Instance()->SetSimulationDuration(0.5); //ms
+        HeartConfig::Instance()->SetOutputDirectory("BidomainUnpermuted1d");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
+
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        BidomainProblem<1> bidomain_problem( &cell_factory );
+
+        bidomain_problem.SetMesh(&mesh);
+        bidomain_problem.Initialise();
+        bidomain_problem.Solve();
+        
+        //Can't read in the final mesh since it's a 1d example...
+        OutputFileHandler handler("BidomainUnpermuted1d/output", false);
+        
+        //Mesh
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + handler.GetOutputDirectoryFullPath()
+                                + "/BidomainLR91_1d_mesh.pts   heart/test/data/BidomainUnpermuted1d/BidomainLR91_1d_mesh.pts").c_str() ), 0);
+        //Transmembrane
+        std::string file1=handler.GetOutputDirectoryFullPath()+ "/BidomainLR91_1d_V.dat";
+        std::string file2="heart/test/data/BidomainUnpermuted1d/BidomainLR91_1d_V.dat";
+        NumericFileComparison comp(file1, file2);
+        TS_ASSERT(comp.CompareFiles(3e-3)); //This can be quite flexible since the permutation differences will be quite large
     }
 
     /*
