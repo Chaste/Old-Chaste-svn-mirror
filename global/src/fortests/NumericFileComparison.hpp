@@ -125,7 +125,7 @@ public:
                     if (word == "#")
                     {
                         //Ignore comment (up to 255 characters until newline)
-                        mpFile1->ignore(255, '\n');
+                        mpFile1->ignore(1024, '\n');
                     }
                 }
                 else
@@ -145,7 +145,7 @@ public:
                     if (word == "#")
                     {
                         //Ignore comment (up to 255 characters until newline)
-                        mpFile2->ignore(255, '\n');
+                        mpFile2->ignore(1024, '\n');
                     }
                 }
                 else
