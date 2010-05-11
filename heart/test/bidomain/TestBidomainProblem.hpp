@@ -795,12 +795,22 @@ public:
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1mm_10_elements");
         mesh.ConstructFromMeshReader(reader);
  
+        std::vector<unsigned> rotation_perm;
+        std::vector<unsigned> identity_perm;///Remove this one #1242
+        
+        unsigned number_nodes=11;
+        for (unsigned index=0; index<(unsigned)number_nodes; index++)
+        {
+            rotation_perm.push_back( (index + 3) % number_nodes); // 3, 4, ... 0, 1, 2
+            identity_perm.push_back(index);
+        }
+        
         //Rotate the permutation
         ///\todo #1242      
-        //mesh.PermuteNodes();
- 
-        ///\todo #1242      
-        // Set some flag in the HeartConfig or BidomainProblem
+        //mesh.PermuteNodes(rotation_perm);
+        mesh.PermuteNodes(identity_perm);
+        HeartConfig::Instance()->SetOutputWithOriginalMeshPermutation(true);
+        
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);

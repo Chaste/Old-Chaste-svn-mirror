@@ -141,6 +141,10 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
 
     //Write mesh in a suitable form for cmgui
     std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
+    
+    ///\todo #1242 
+    assert(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false );
+    
     CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
     cmgui_mesh_writer.SetAdditionalFieldNames(field_names);
     if (hasBath)

@@ -635,6 +635,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter
     {
         // The constructor only throws an Exception if we're extending
         assert(extend_file);
+        ///\todo 1242
+        assert (HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false);
         // Tried to extend and failed, so just create from scratch
         extend_file = false;
         mpWriter = new Hdf5DataWriter(*mpMesh->GetDistributedVectorFactory(),
@@ -646,6 +648,19 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::InitialiseWriter
 
     // Define columns, or get the variable IDs from the writer
     DefineWriterColumns(extend_file);
+    
+    //Possibility of applying a permutation
+    if (HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation())
+    {
+        bool success=mpWriter->ApplyPermutation(mpMesh->rGetNodePermutation());
+        if (success == false)
+        {
+            //It's not really a permutation, so reset
+            HeartConfig::Instance()->SetOutputWithOriginalMeshPermutation(false);
+        }
+    }
+                                  
+
     if (!extend_file)
     {
         mpWriter->EndDefineMode();

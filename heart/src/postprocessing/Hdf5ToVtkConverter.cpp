@@ -99,6 +99,10 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
         }
     }
     VecDestroy(data);
+    
+    ///\todo #1242 
+    assert(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false );
+    
     vtk_writer.WriteFilesUsingMesh( *(this->mpMesh) );
 #endif //CHASTE_VTK
 
