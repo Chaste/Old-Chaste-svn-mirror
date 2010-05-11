@@ -1095,7 +1095,20 @@ void HeartConfig::GetOutputVariables(std::vector<std::string> &outputVariables) 
         outputVariables.push_back(var.name());
     }
 }
-
+bool HeartConfig::GetOutputWithOriginalMeshPermutation()
+{
+    try 
+    {
+        return (DecideLocation( & mpUserParameters->Simulation().get().OutputWithOriginalMeshPermutation(),
+                            & mpDefaultParameters->Simulation().get().OutputWithOriginalMeshPermutation(),
+                              "OutputWithOriginalMeshPermutation")->get()  == cp::yesno_type::yes);
+    }
+    catch (Exception &e)
+    {
+        //If it didn't exist, then we default to false
+        return false;
+    }
+}
 bool HeartConfig::GetCheckpointSimulation() const
 {
     try
@@ -1906,6 +1919,11 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
         SetVisualizeWithVtk(false);
     }
 }
+void  HeartConfig::SetOutputWithOriginalMeshPermutation(bool useOriginal)
+{
+    //What if it doesn't exist?
+    mpUserParameters->Simulation().get().OutputWithOriginalMeshPermutation().set(useOriginal? cp::yesno_type::yes : cp::yesno_type::no);
+}  
 
 void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpointTimestep, unsigned maxCheckpointsOnDisk)
 {

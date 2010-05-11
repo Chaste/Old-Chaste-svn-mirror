@@ -533,6 +533,13 @@ public:
      * @param rOutputVariables reference to std::vector to contain the output variables requested
      */
     void GetOutputVariables(std::vector<std::string>& rOutputVariables) const;
+    
+    /**
+     * @return whether to write output HDF5 file using the original
+     * mesh permutation (in situations where a parallel partition may have
+     * permuted the node).  The default is to use the new, not original permutation,
+     */
+    bool GetOutputWithOriginalMeshPermutation();
 
     /**
      * Get whether simulation should be checkpointed or not
@@ -828,6 +835,16 @@ public:
      * visualizer output if the provided vector is non-empty.
      */
     void SetOutputVariables(const std::vector<std::string>& rOutputVariables);
+
+    /**
+     * This method may set the output HDF5 file to be written using the original
+     * mesh permutation (in situations where a parallel partition may have
+     * permuted the node).  The default is to use the new, not original permutation,
+     * i.e.  useOriginal=false
+     * 
+     * @param useOriginal  whether to use the original permutation 
+     */
+    void SetOutputWithOriginalMeshPermutation(bool useOriginal);
 
     /**
      * Set whether the simulation should be checkpointed or not.

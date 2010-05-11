@@ -212,6 +212,7 @@ public:
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested[0], 10u);
         TS_ASSERT_EQUALS(conduction_velocity_maps_requested[1], 20u);
 
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation(), true);
 
         /// \todo: refactor from here until the end of the test into a different test
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersLoadMesh.xml");
@@ -744,6 +745,12 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("NewSimulation");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputFilenamePrefix(), "NewSimulation");
 
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation(), false);
+        HeartConfig::Instance()->SetOutputWithOriginalMeshPermutation(true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation(), true);
+        HeartConfig::Instance()->SetOutputWithOriginalMeshPermutation(false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation(), false);
+        
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(-6.0, -5.0, -4.0));
 
         c_vector<double, 3> intra;
