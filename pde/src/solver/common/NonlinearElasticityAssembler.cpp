@@ -270,14 +270,13 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
 
     c_vector<double,DIM> body_force;
 
-    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE;       // dTdE(M,N,P,Q) = dT_{MN}/dE_{PQ} 
-    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE_sym;   // =0.5(dTdE(M,N,P,Q) + dTdE(M,N,Q,P)); symmtrization of PQ components of dTdE 
+    static FourthOrderTensor<DIM,DIM,DIM,DIM> dTdE;    // dTdE(M,N,P,Q) = dT_{MN}/dE_{PQ} 
+    static FourthOrderTensor<DIM,DIM,DIM,DIM> dSdF;    // dSdF(M,i,N,j) = dS_{Mi}/dF_{jN} 
 
     static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,DIM,DIM> temp_tensor;
-    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,NUM_NODES_PER_ELEMENT,DIM> dTdE_FF_quad_quad;
+    static FourthOrderTensor<NUM_NODES_PER_ELEMENT,DIM,NUM_NODES_PER_ELEMENT,DIM> dSdF_quad_quad;
 
     static c_matrix<double, DIM, NUM_NODES_PER_ELEMENT> temp_matrix;
-    static c_matrix<double, NUM_NODES_PER_ELEMENT, NUM_NODES_PER_ELEMENT> quadgradphi_T_quadgradphi;
     static c_matrix<double,NUM_NODES_PER_ELEMENT,DIM> grad_quad_phi_times_invF;
 
 
@@ -372,24 +371,6 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                                          T, dTdE, assembleJacobian);
 
 
-        // set up the tensor 0.5(dTdE(M,N,P,Q) + dTdE(M,N,Q,P)
-        if(assembleJacobian)
-        {
-            for (unsigned M=0; M<DIM; M++)
-            {
-                for (unsigned N=0; N<DIM; N++)
-                {
-                    for (unsigned P=0; P<DIM; P++)
-                    {
-                        for (unsigned Q=0; Q<DIM; Q++)
-                        {
-                            dTdE_sym(M,N,P,Q) = 0.5*(dTdE(M,N,P,Q) + dTdE(M,N,Q,P));
-                        }
-                    }
-                }
-            }
-        }
-
         /////////////////////////////////////////
         // residual vector
         /////////////////////////////////////////
@@ -427,32 +408,70 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
         /////////////////////////////////////////
         if (assembleJacobian) 
         {
-            // Set up the matrix
-            // quadgradphi_T_quadgradphi(node_index1, node_index2)  =   T(M,N)
-            //                                                        * grad_quad_phi(M,node_index1)
-            //                                                        * grad_quad_phi(N,node_index2)
-            temp_matrix = prod(T, grad_quad_phi); // temp(M, node_index2) = sum_N T(M,N) * grad_quad_phi(N,node_index2)
-            quadgradphi_T_quadgradphi = prod(trans_grad_quad_phi, temp_matrix); // temp2(node_index1, node_index2) = sum_M sum_N  grad_quad_phi(M,node_index1) T(M,N) * grad_quad_phi(N,node_index2)
-
             // save trans(grad_quad_phi) * invF
             grad_quad_phi_times_invF = prod(trans_grad_quad_phi, inv_F);
+            
+            /////////////////////////////////////////////////////////////////////////////////////////////
+            // Set up the tensor dSdF
+            //
+            // dSdF as a function of T and dTdE (which is what the material law returns) is given by:
+            //
+            // dS_{Mi}/dF_{jN} = (dT_{MN}/dC_{PQ}+dT_{MN}/dC_{PQ}) F{iP} F_{jQ}  + T_{MN} delta_{ij}
+            //
+            // todo1: this should probably move into the material law (but need to make sure 
+            // memory is handled efficiently
+            // todo2: get material law to return this immediately, not dTdE
+            /////////////////////////////////////////////////////////////////////////////////////////////
+
+            // set up the tensor 0.5(dTdE(M,N,P,Q) + dTdE(M,N,Q,P))
+            for (unsigned M=0; M<DIM; M++)
+            {
+                for (unsigned N=0; N<DIM; N++)
+                {
+                    for (unsigned P=0; P<DIM; P++)
+                    {
+                        for (unsigned Q=0; Q<DIM; Q++)
+                        {
+                            // this is NOT dSdF, just using this as storage space
+                            dSdF(M,N,P,Q) = 0.5*(dTdE(M,N,P,Q) + dTdE(M,N,Q,P));
+                        }
+                    }
+                }
+            }
+            // This is NOT dTdE, just reusing memory. A^{MdPQ}  = F^d_N * dTdE_sym^{MNPQ}
+            dTdE.template SetAsContractionOnSecondDimension<DIM>(F, dSdF);  
+            // dSdF{MdPe} := F^d_N * F^e_Q * dTdE_sym^{MNPQ}
+            dSdF.template SetAsContractionOnFourthDimension<DIM>(F, dTdE);  
+            
+            // now add the T_{MN} delta_{ij} term
+            for(unsigned M=0; M<DIM; M++)
+            {
+                for(unsigned N=0; N<DIM; N++)
+                {
+                    for(unsigned i=0; i<DIM; i++)
+                    {
+                        dSdF(M,i,N,i) += T(M,N);
+                    }
+                }
+            }
+            
 
             ///////////////////////////////////////////////////////
             // Set up the tensor  
-            //   dTdE_FF_quad_quad(node_index1, spatial_dim1, node_index2, spatial_dim2)
-            //            =  0.5 * (dTdE(M,N,P,Q)+dTdE(M,N,Q,P))
-            //                   * F(spatial_dim1, N)
-            //                   * F(spatial_dim2, Q)
-            //                   * grad_quad_phi(M,node_index1) 
-            //                   * grad_quad_phi(P,node_index2)
+            //   dSdF_quad_quad(node_index1, spatial_dim1, node_index2, spatial_dim2)
+            //            =    dS_{M,spatial_dim1}/d_F{spatial_dim2,N}      
+            //               * grad_quad_phi(M,node_index1) 
+            //               * grad_quad_phi(P,node_index2)
+            //
+            //            =    dSdF(M,spatial_index1,N,spatial_index2)
+            //               * grad_quad_phi(M,node_index1) 
+            //               * grad_quad_phi(P,node_index2)
+            //            
             ///////////////////////////////////////////////////////
+            temp_tensor.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dSdF );
+            dSdF_quad_quad.template SetAsContractionOnThirdDimension<DIM>( trans_grad_quad_phi, temp_tensor );
 
-            // NOT dTdE, just reusing memory. A^{MdPQ}  = F^d_N * dTdE_sym^{MNPQ}
-            dTdE.template SetAsContractionOnSecondDimension<DIM>(F, dTdE_sym);  
-            // NOT dTdE_sym, just reusing memory. B^{MdPe} = F^d_N * F^e_Q * dTdE_sym^{MNPQ}
-            dTdE_sym.template SetAsContractionOnFourthDimension<DIM>(F, dTdE);  
-            temp_tensor.template SetAsContractionOnFirstDimension<DIM>( trans_grad_quad_phi, dTdE_sym );
-            dTdE_FF_quad_quad.template SetAsContractionOnThirdDimension<DIM>( trans_grad_quad_phi, temp_tensor );
+
 
 
             for (unsigned index1=0; index1<NUM_NODES_PER_ELEMENT*DIM; index1++)
@@ -466,13 +485,8 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
                     unsigned spatial_dim2 = index2%DIM;
                     unsigned node_index2 = (index2-spatial_dim2)/DIM;
 
-                    //    the  T(M,N)*grad_quad_phi(M,node_index1)*grad_quad_phi(N,node_index2)* (spatial_dim1==spatial_dim2?1:0)  term
-                    rAElem(index1,index2) +=    quadgradphi_T_quadgradphi(node_index1, node_index2)
-                                              * (spatial_dim1==spatial_dim2?1:0)
-                                              * wJ;                                                
-                                              
-                    // the dTdE*F*F*grad_quad_phi*grad_quad_phi term
-                    rAElem(index1,index2)  +=   dTdE_FF_quad_quad(node_index1,spatial_dim1,node_index2,spatial_dim2)
+                    // the dSdF*grad_quad_phi*grad_quad_phi term
+                    rAElem(index1,index2)  +=   dSdF_quad_quad(node_index1,spatial_dim1,node_index2,spatial_dim2)
                                               * wJ;
                 }
 
