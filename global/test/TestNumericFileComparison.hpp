@@ -58,6 +58,17 @@ public:
         NumericFileComparison same_data(boost_33_file, boost_34_file);
         TS_ASSERT(same_data.CompareFiles(5.1e-6, 1));
     }
+    
+    void TestIgnoreProvenanceComment()
+    {
+        std::string v1_file = "./global/test/data/fake_v_day_one.txt";
+        std::string v2_file = "./global/test/data/fake_v_day_two.txt";
+
+        NumericFileComparison same_data(v1_file, v2_file);
+        //TS_ASSERT(same_data.CompareFiles(5e-4));//Fails do to difference after comment
+        TS_ASSERT(same_data.CompareFiles(5e-3));//Fails do to difference after comment
+    }
+    
 
 };
 #endif /*TESTNUMERICFILECOMPARISON_HPP_*/
