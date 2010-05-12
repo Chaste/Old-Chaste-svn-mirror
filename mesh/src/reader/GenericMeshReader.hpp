@@ -97,7 +97,7 @@ public:
     /** 
      * Method uses the public method of the delegated mesh reader
      */
-    inline unsigned GetNumNodes() const
+    unsigned GetNumNodes() const
     {
         return mpMeshReader->GetNumNodes();
     }
@@ -105,7 +105,7 @@ public:
     /** 
      * Method uses the public method of the delegated mesh reader
      */
-    inline unsigned GetNumElements() const
+    unsigned GetNumElements() const
     {
         return mpMeshReader->GetNumElements();
     }
@@ -113,14 +113,14 @@ public:
     /** 
      * Method uses the public method of the delegated mesh reader
      */
-    inline unsigned GetNumFaces() const
+    unsigned GetNumFaces() const
     {
         return mpMeshReader->GetNumFaces();
     }
     /** 
      * Method uses the public method of the delegated mesh reader
      */
-    inline unsigned GetNumElementAttributes() const
+    unsigned GetNumElementAttributes() const
     {
         return mpMeshReader->GetNumElementAttributes();
     }
@@ -128,7 +128,7 @@ public:
     /** 
      * Method uses the public method of the delegated mesh reader
      */
-    inline unsigned GetNumFaceAttributes() const
+    unsigned GetNumFaceAttributes() const
     {
         return mpMeshReader->GetNumFaceAttributes();
     }
@@ -136,7 +136,7 @@ public:
     /** 
      * Method uses the public method of the delegated mesh reader
      */
-    inline void Reset()
+    void Reset()
     {
         mpMeshReader->Reset();
     }
@@ -144,7 +144,7 @@ public:
     /** 
      * Method uses the public method of the delegated mesh reader
      */
-    inline std::vector<double> GetNextNode()
+    std::vector<double> GetNextNode()
     {
         return mpMeshReader->GetNextNode();
     }
@@ -152,18 +152,26 @@ public:
     /** 
      * Method uses the public method of the delegated mesh reader
      */
-    inline ElementData GetNextElementData()
+    ElementData GetNextElementData()
     {
         return mpMeshReader->GetNextElementData();
     }
     /** 
      * Method uses the public method of the delegated mesh reader
      */
-    inline ElementData GetNextFaceData()
+    ElementData GetNextFaceData()
     {
         return mpMeshReader->GetNextFaceData();
     }
-
+    
+    /**
+     * Get the base name (less any extension) for mesh files.  Only implemented for some mesh types.
+     * Method uses the public method of the delegated mesh reader
+     */
+    std::string GetMeshFileBaseName()
+    {
+        return mpMeshReader->GetMeshFileBaseName();
+    }
   
 };
 

@@ -796,13 +796,11 @@ public:
         mesh.ConstructFromMeshReader(reader);
  
         std::vector<unsigned> rotation_perm;
-        std::vector<unsigned> identity_perm;///Remove this one #1242
-        
+                
         unsigned number_nodes=11;
         for (unsigned index=0; index<(unsigned)number_nodes; index++)
         {
             rotation_perm.push_back( (index + 3) % number_nodes); // 3, 4, ... 0, 1, 2
-            identity_perm.push_back(index);
         }
         
         //Rotate the permutation

@@ -49,6 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveOpener.hpp"
 #include "CmguiMeshWriter.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
+#include "NumericFileComparison.hpp"
 
 #include <sys/stat.h> // For chmod()
 
@@ -1103,6 +1104,60 @@ public:
         TS_ASSERT(CompareFilesViaHdf5DataReader("MonoProblem1dInTwoHalves", "MonodomainLR91_1d", true,
                                                 "MonoProblem1d", "MonodomainLR91_1d", true));
     }
+
+
+    void TestMonodomain2dOriginalPermutationInParallel() throw(Exception)
+    {
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
+        HeartConfig::Instance()->SetSimulationDuration(0.5); //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
+        HeartConfig::Instance()->SetOutputDirectory("MonoProblem2dOriginalPermutation");
+        HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2d");
+        HeartConfig::Instance()->SetOutputWithOriginalMeshPermutation(true);
+
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+
+        // using the criss-cross mesh so wave propagates properly
+        MonodomainProblem<2> monodomain_problem( &cell_factory );
+
+        monodomain_problem.Initialise();
+
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
+        HeartConfig::Instance()->SetCapacitance(1.0);
+///\todo #1242        
+//        HeartConfig::SetVisualizeWithVtk(true)
+//        HeartConfig::SetVisualizeWithCmgui(true)
+
+        monodomain_problem.Solve();
+
+        // The following lines check that the output is always in the same permutation 
+        // order, regardless of whether it has been permuted internally.
+
+        // In sequential mode, no permutation is applied
+        if (PetscTools::IsSequential())
+        {
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation(), false);
+        }
+        else
+        {
+            // In parallel the mesh in memory has been permuted. Will check the output has been unpermuted.
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation(), true);
+        }
+
+        OutputFileHandler handler("MonoProblem2dOriginalPermutation/output", false);
+        //Note that without the "SetOutputWithOriginalMeshPermutation" above the following would fail
+        //since METIS partitioning will have changed the permutation
+        //Mesh
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + handler.GetOutputDirectoryFullPath()
+                                + "/MonodomainLR91_2d_mesh.pts   heart/test/data/MonoProblem2dOriginalPermutation/MonodomainLR91_2d_mesh.pts").c_str() ), 0);
+        //Transmembrane
+        std::string file1=handler.GetOutputDirectoryFullPath()+ "/MonodomainLR91_2d_V.dat";
+        std::string file2="heart/test/data/MonoProblem2dOriginalPermutation/MonodomainLR91_2d_V.dat";
+        NumericFileComparison comp(file1, file2);
+        TS_ASSERT(comp.CompareFiles(1e-3)); //This can be quite flexible since the permutation differences will be quite large
+
+    }
+
 };
 
 #endif //_TESTMONODOMAINPROBLEM_HPP_
