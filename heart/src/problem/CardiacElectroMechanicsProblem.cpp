@@ -460,11 +460,13 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         mpCardiacMechAssembler->ComputeStretchesInEachElement(mStretchesForEachMechanicsElement);
 
         //  Set the stretches on each of the cell models
-        for(unsigned i=0; i<mpElectricsMesh->GetNumNodes(); i++)
+        for(unsigned global_index = mpElectricsMesh->GetDistributedVectorFactory()->GetLow(); 
+                     global_index < mpElectricsMesh->GetDistributedVectorFactory()->GetHigh();
+                     global_index++)
         {
-            unsigned containing_elem = mpMeshPair->rGetCoarseElementsForFineNodes()[i];
+            unsigned containing_elem = mpMeshPair->rGetCoarseElementsForFineNodes()[global_index];
             double stretch = mStretchesForEachMechanicsElement[containing_elem];
-            mpMonodomainProblem->GetPde()->GetCardiacCell(i)->SetStretch(stretch);
+            mpMonodomainProblem->GetPde()->GetCardiacCell(global_index)->SetStretch(stretch);
         }
 
 
