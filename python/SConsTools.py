@@ -118,7 +118,7 @@ def BuildTest(target, source, env):
        A dictionary mapping source file paths (relative to the Chaste root)
        to object file nodes.
      * env['RUNNER_EXE']
-       The test runner executable (absolute) path.
+       The test runner executable (SCons File node)
      * env['TestBuilder']
        A callable for use in building the test runner executable.
        Should take keyword parameters target (filled by RUNNER_EXE)
@@ -170,7 +170,9 @@ def BuildTest(target, source, env):
     # Build the test itself
     runner = env['RUNNER_EXE']
     #print "Building", runner, "from", pns(source+objects)
-    env['TestBuilder'](target=runner, source=source+objects)
+    actual_runner = env['TestBuilder'](target=runner, source=source+objects)
+    env.Default(actual_runner)
+    assert actual_runner[0] is runner # Just in case
     return None
 
 def pns(nodes):
@@ -458,6 +460,38 @@ def CreatePyCmlBuilder(build, buildenv):
     cxx_file.add_emitter('.cellml', PyCmlEmitter)
 
 
+
+def ScheduleTestBuild(env, env_with_libs, testfile, prefix, use_chaste_libs):
+    """Set the compilation of a single test.
+    
+    This handles the logic of building with or without chaste_libs, and ensures
+    the test is added to the default targets.  The behaviour is indentical for
+    projects and core components.
+    
+    @param env  the main SCons environment to use
+    @param env_with_libs  the environment for building the test runner with chaste_libs
+    @param testfile  the path of the test .hpp file, relative to the 'test' folder
+    @param prefix  testfile without extension
+    @param use_chaste_libs  whether to use chaste_libs
+    """
+    test_hpp = os.path.join('test', testfile)
+    runner_cpp = env.Test(prefix+'Runner.cpp', test_hpp)
+    runner_exe = env.File(ExeName(env, prefix+'Runner'))
+    if use_chaste_libs:
+        runner_dummy = None
+        runner_exe = env_with_libs.Program(runner_exe, runner_cpp)
+        # Make sure we build the test unless the user says otherwise
+        env.Default(runner_exe)
+    else:
+        runner_obj = env.StaticObject(runner_cpp)
+        runner_dummy = env.File(prefix+'.dummy')
+        env.BuildTest(runner_dummy, runner_obj, RUNNER_EXE=runner_exe)
+        env.AlwaysBuild(runner_dummy)
+        env.Depends(runner_exe, runner_dummy)
+        # Make sure we build the test unless the user says otherwise
+        env.Default(runner_dummy)
+    return runner_exe, runner_dummy
+
 def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
     """Main logic for a project's SConscript file.
     
@@ -534,30 +568,19 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
     test_log_files = []
 
     # Build and run tests of this project
-    if not use_chaste_libs:
-        env['TestBuilder'] = \
-            lambda target, source: env.Program(target, source,
-                        LIBS=otherVars['other_libs'],
-                        LIBPATH=otherVars['other_libpaths'])
+    if testfiles:
+        if not use_chaste_libs:
+            buildenv = env.Clone(LIBS=otherVars['other_libs'],
+                                 LIBPATH=otherVars['other_libpaths'])
+            env['TestBuilder'] = \
+                lambda target, source: buildenv.Program(target, source)
+        else:
+            buildenv = env.Clone(LIBS = all_libs,
+                                 LIBPATH = ['#/lib', '.'] + otherVars['other_libpaths'])
     for testfile in testfiles:
         prefix = os.path.splitext(testfile)[0]
         #print projectName, 'test', prefix
-        test_hpp = os.path.join('test', testfile)
-        runner_cpp = env.Test(prefix+'Runner.cpp', test_hpp)
-        runner_exe = env.File(prefix+'Runner').abspath
-        if use_chaste_libs:
-            runner_exe = env.Program(runner_exe, runner_cpp,
-                                     LIBS = all_libs,
-                                     LIBPATH = ['#/lib', '.'] + otherVars['other_libpaths'])
-        else:
-            runner_obj = env.StaticObject(runner_cpp)
-            runner_dummy = runner_exe+'.dummy'
-            runner_exe = env.File(ExeName(env, runner_exe))
-            env.BuildTest(runner_dummy, runner_obj, RUNNER_EXE=runner_exe)
-            env.AlwaysBuild(runner_dummy)
-            env.Depends(runner_exe, runner_dummy)
-        # Make sure we build the test unless the user says otherwise
-        env.Default(runner_exe)
+        (runner_exe, runner_dummy) = ScheduleTestBuild(env, buildenv, testfile, prefix, use_chaste_libs)
         if not otherVars['compile_only']:
             log_file = env.File(prefix+'.log')
             if use_chaste_libs:
@@ -677,31 +700,20 @@ def DoComponentSConscript(component, otherVars):
     test_log_files = []
     
     # Build and run tests of this component
-    if not use_chaste_libs:
-        env['TestBuilder'] = \
-            lambda target, source: env.Program(target, source,
-                        LIBS=otherVars['other_libs'],
-                        LIBPATH=otherVars['other_libpaths'])
+    if testfiles:
+        if not use_chaste_libs:
+            buildenv = env.Clone(LIBS=otherVars['other_libs'],
+                                 LIBPATH=otherVars['other_libpaths'])
+            env['TestBuilder'] = \
+                lambda target, source: buildenv.Program(target, source)
+        else:
+            buildenv = env.Clone(LIBS = all_libs,
+                                 LIBPATH = [libpath, '.'] + otherVars['other_libpaths'])
     
     for testfile in testfiles:
         prefix = os.path.splitext(testfile)[0]
         #print component, 'test', prefix
-        test_hpp = os.path.join('test', testfile)
-        runner_cpp = env.Test(prefix+'Runner.cpp', test_hpp)
-        runner_exe = env.File(prefix+'Runner').abspath
-        if use_chaste_libs:
-            runner_exe = env.Program(runner_exe, runner_cpp,
-                                     LIBS = all_libs,
-                                     LIBPATH = [libpath, '.'] + otherVars['other_libpaths'])
-        else:
-            runner_obj = env.StaticObject(runner_cpp)
-            runner_dummy = runner_exe+'.dummy'
-            runner_exe = env.File(ExeName(env, runner_exe))
-            env.BuildTest(runner_dummy, runner_obj, RUNNER_EXE=runner_exe)
-            env.AlwaysBuild(runner_dummy)
-            env.Depends(runner_exe, runner_dummy)
-        # Make sure we build the test unless the user says otherwise
-        env.Default(runner_exe)
+        (runner_exe, runner_dummy) = ScheduleTestBuild(env, buildenv, testfile, prefix, use_chaste_libs)
         if not otherVars['compile_only']:
             log_file = env.File(prefix+'.log')
             if use_chaste_libs:

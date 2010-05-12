@@ -38,10 +38,10 @@ def fasterSharedLibrary(env, library, sources, **args):
     if type(library) != type([]):
         library = [library]
     # use the 'quicker' shallow copy method!
-    envContentSig=env.Copy()
+    envContentSig = env.Clone()
     envContentSig.TargetSignatures('content')
 
-    cat=env.OriginalSharedLibrary(library, sources)
+    cat = env.OriginalSharedLibrary(library, sources)
 
     # copy all the latest libraries to ONE directory..
     # for our convenience. Could modify the above to
@@ -50,7 +50,7 @@ def fasterSharedLibrary(env, library, sources, **args):
 
     # now generate the 'interface' file, using the
     # content signature for its target
-    catIF=envContentSig.Command(
+    catIF = envContentSig.Command(
         '%s.if' % library[0],
         catLib,
         'nm --extern-only $SOURCES | cut -c 12- | sort > $TARGET')
@@ -60,16 +60,12 @@ def fasterSharedLibrary(env, library, sources, **args):
     # the IF file, which has a target content signature.
     # ie only if the Global Symbol list changes, is copied and this the
     # Programs it relinked.
-    catLink=env.Command(
+    catLink = env.Command(
         '#linklib/${SHLIBPREFIX}%s${SHLIBSUFFIX}' % library[0],
         '',
         Copy('$TARGET', str(catLib[0])))
 
-    #Dir('#lib')
     envContentSig.Depends(catLink, catIF)
-
-    #global libs
-    #libs += catLib
 
     return cat
 
