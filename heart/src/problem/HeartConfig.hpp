@@ -54,6 +54,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 namespace cp = chaste::parameters::v2_1;
 
+// Forward declaration to avoid circular includes
+class HeartFileFinder;
+
 
 /**
  * A singleton class containing configuration parameters for heart simulations.
@@ -242,6 +245,8 @@ public:
      * "New" another #mpInstance
      */
     static void Reset();
+    
+    ~HeartConfig(); /**< Destructor*/
     
     /**
      * Get the Chaste version of a parameters file, given its namespace URI.
@@ -486,7 +491,7 @@ public:
     /**
      * Get directory where the archived simulation to resume is defined
      */
-    std::string GetArchivedSimulationDir() const;
+    HeartFileFinder GetArchivedSimulationDir() const;
 
 
     // Physiological
@@ -997,13 +1002,10 @@ public:
      */
     void SetVisualizeWithVtk(bool useVtk=true);
 
-
-    ~HeartConfig(); /**< Destructor*/
-protected:
+private:
     // Only to be accessed by the tests
     friend class TestHeartConfig;
 
-private:
     /*Constructor is private, since the class is only accessed by the singleton instance() method*/
     HeartConfig();
 

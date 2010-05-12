@@ -43,6 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteEllipsoid.hpp"
 #include "Version.hpp"
 #include "TetrahedralMesh.hpp"
+#include "HeartFileFinder.hpp"
 
 class TestHeartConfig : public CxxTest::TestSuite
 {
@@ -1316,7 +1317,8 @@ public:
         TS_ASSERT(!HeartConfig::Instance()->IsSimulationDefined());
         TS_ASSERT(HeartConfig::Instance()->IsSimulationResumed());
 
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetArchivedSimulationDir(), "ChasteResults_10ms");
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->GetArchivedSimulationDir().GetAbsolutePath(),
+                         OutputFileHandler::GetChasteTestOutputDirectory() + "ChasteResults_10ms");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetSimulationDuration(), 20.0);
         TS_ASSERT(HeartConfig::Instance()->GetCheckpointSimulation());
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetMaxCheckpointsOnDisk(),3u);

@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChastePoint.hpp"
 #include "Version.hpp"
 #include "AbstractChasteRegion.hpp"
+#include "HeartFileFinder.hpp"
 
 #include <string>
 #include <istream>
@@ -230,7 +231,8 @@ public:
 
     /**
      * Edits the DOM tree to change the 'ArchiveDirectory' element from a simple string
-     * to a cp::path_type.  This is used for 2.0 -> 2.1 migration.
+     * to a cp::path_type.  This is used for 2.0 -> 2.1 migration.  We assume that the
+     * path is relative to CHASTE_TEST_OUTPUT.
      *
      * @param pDocument  the DOM document containing the tree to be transformed
      * @param pRootElement  the root of the tree to be transformed
@@ -1358,11 +1360,11 @@ unsigned HeartConfig::GetMaxCheckpointsOnDisk() const
 }
 
 
-std::string HeartConfig::GetArchivedSimulationDir() const
+HeartFileFinder HeartConfig::GetArchivedSimulationDir() const
 {
     CheckResumeSimulationIsDefined("GetArchivedSimulationDir");
 
-    return mpUserParameters->ResumeSimulation().get().ArchiveDirectory();
+    return HeartFileFinder(mpUserParameters->ResumeSimulation().get().ArchiveDirectory());
 }
 
 
@@ -2936,10 +2938,10 @@ void XmlTransforms::TransformArchiveDirectory(xercesc::DOMDocument* pDocument,
         "ResumeSimulation/ArchiveDirectory");
     if (elts.size() > 0)
     {
-        // We have an ArchiveDirectory element, so add the relative_to='cwd' attribute
+        // We have an ArchiveDirectory element, so add the relative_to='chaste_test_output' attribute
         DOMElement* p_dir_elt = elts[0];
         //PrintNode(" before", p_dir_elt, true);
-        p_dir_elt->setAttribute(X("relative_to"), X("cwd"));
+        p_dir_elt->setAttribute(X("relative_to"), X("chaste_test_output"));
         //PrintNode(" after", p_dir_elt, true);
     }
 }
