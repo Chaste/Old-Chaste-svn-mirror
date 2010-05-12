@@ -32,9 +32,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include <memory>
-#include "ChasteParameters_2_0.hpp"
+#include "ChasteParameters_2_1.hpp"
 
-namespace cp = chaste::parameters::v2_0;
+namespace cp = chaste::parameters::v2_1;
 
 using std::auto_ptr;
 

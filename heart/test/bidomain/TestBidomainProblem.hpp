@@ -806,9 +806,8 @@ public:
         }
         
         //Rotate the permutation
-        ///\todo #1242      
-        //mesh.PermuteNodes(rotation_perm);
-        mesh.PermuteNodes(identity_perm);
+        mesh.PermuteNodes(rotation_perm);
+        
         HeartConfig::Instance()->SetOutputWithOriginalMeshPermutation(true);
         
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));

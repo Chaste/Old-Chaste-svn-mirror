@@ -174,7 +174,7 @@ public:
     /**
      * Write data for a given variable from a Petsc vector to the dataset.
      *
-     * @param variableID the variable
+     * @param variableID the variable id of the column in the HDF5 file 
      * @param petscVector the data
      */
     void PutVector(int variableID, Vec petscVector);
@@ -182,8 +182,8 @@ public:
     /**
      * Write data for two variables from a Petsc vector to the dataset.
      *
-     * @param firstVariableID the first variable
-     * @param secondVariableID the first variable
+     * @param firstVariableID the first variable column in the HDF5 file 
+     * @param secondVariableID the first variable column in the HDF5 file 
      * @param petscVector the data
      */
     void PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector);

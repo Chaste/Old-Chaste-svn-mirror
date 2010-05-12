@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "MeshalyzerMeshWriter.hpp"
+#include "GenericMeshReader.hpp"
 #include "UblasCustomFunctions.hpp"
 #include "HeartConfig.hpp"
 #include "PetscTools.hpp"
@@ -96,12 +97,23 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
     }
 
 
-    ///\todo #1242 
-    assert(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false );
     //Write mesh in a suitable form for meshalyzer
     std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/output";
     MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
-    mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
+    //Normal case is that the in-memory mesh is converted
+    if (HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false )
+    {
+        mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
+    }
+    else
+    {
+        //In this case we expect the mesh to have been read in from file
+        ///\todo What if the mesh has been scaled, translated or rotated?
+        //Note that the next line will throw if the mesh has not been read from file
+        std::string original_file=this->mpMesh->GetMeshFileBaseName();
+        GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
+        mesh_writer.WriteFilesUsingMeshReader(original_mesh_reader);
+    }
     PetscTools::Barrier("Hdf5ToMeshalyzerConverter");
 }
 

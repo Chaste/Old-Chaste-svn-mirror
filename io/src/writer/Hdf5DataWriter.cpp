@@ -844,7 +844,7 @@ bool Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
         return false;
     }
     
-    if (rPermutation.size() !=   mFileFixedDimensionSize || 
+    if (rPermutation.size() != mFileFixedDimensionSize || 
         rPermutation.size() != mDataFixedDimensionSize)
     {
         EXCEPTION("Permutation doesn't match the expected problem size");
@@ -890,19 +890,19 @@ bool Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
     MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES); 
 #endif
     //Only do local rows
-    for (unsigned index=mLo; index<mHi; index++)
+    for (unsigned row_index=mLo; row_index<mHi; row_index++)
     {
         //Put zero on the diagonal
-        MatSetValue(mSinglePermutation, index, index, 0.0, INSERT_VALUES);
-        //Put one at (i,j) - or is it (j, i)?
-        MatSetValue(mSinglePermutation, index, rPermutation[index], 1.0, INSERT_VALUES);
+        MatSetValue(mSinglePermutation, row_index, row_index, 0.0, INSERT_VALUES);
+        //Put one at (i,j)
+        MatSetValue(mSinglePermutation, row_index, rPermutation[row_index], 1.0, INSERT_VALUES);
         
-        unsigned bi_index=2*index;
-        unsigned perm_index=2*rPermutation[index];
+        unsigned bi_index=2*row_index;
+        unsigned perm_index=2*rPermutation[row_index];
         //Put zeroes on the diagonal
         MatSetValue(mDoublePermutation, bi_index, bi_index, 0.0, INSERT_VALUES);
         MatSetValue(mDoublePermutation, bi_index+1, bi_index+1, 0.0, INSERT_VALUES);
-        //Put ones at (i,j) - or is it (j, i)?
+        //Put ones at (i,j)
         MatSetValue(mDoublePermutation, bi_index, perm_index, 1.0, INSERT_VALUES);
         MatSetValue(mDoublePermutation, bi_index+1, perm_index+1, 1.0, INSERT_VALUES);
     }

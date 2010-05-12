@@ -559,7 +559,8 @@
   </xs:complexType>
   <xs:simpleType name="yesno_type">
     <xs:annotation>
-      <xs:documentation>Whether or not to apply.</xs:documentation>
+      <xs:documentation>Whether or not to convert output to a particular 3rd party visualizer at the
+        end of the simulation.</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="yes"/>
@@ -847,14 +848,6 @@
 Note that in parallel the output meshes may be renumbered from the original input but will be consistent with the HDF5 data.</xs:documentation>
         </xs:annotation>
       </xs:element>
-            <xs:element name="OutputWithOriginalMeshPermutation" default="no" type="yesno_type" minOccurs="0">
-      <xs:annotation>
-          <xs:documentation>Set to "yes" for writing data from parallel simulations with the original mesh
-          ordering.  This slows down parallel simulations, but means that the output data are unpermuted and
-          could be visualised on the original mesh.</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      
       <xs:element name="CheckpointSimulation" type="checkpoint_type" minOccurs="0">
         <xs:annotation>
           <xs:documentation>
