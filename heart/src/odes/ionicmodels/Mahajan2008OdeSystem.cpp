@@ -203,8 +203,7 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolve
 
         /*
          * Currents in this model are given in microA/microF (as the results of conductance (mS/microF) times voltage (mV)).
-         * Hence, no conversion factor is necessary because this term will be multiplied by Cm (in microF/cm2)
-         * giving rise to mono/bidomain currents in the correct units.
+         * Hence, no conversion factor is necessary because capacitance = 1 uF/cm^2 obtaining the correct units.
          *
          * Note that the CellML file in the repository was coded up with currents as having "dimensionless" units and therefore Pycml raised a warning about the units of this.
          */

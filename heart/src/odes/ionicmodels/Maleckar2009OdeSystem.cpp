@@ -259,9 +259,11 @@ double Maleckar2009OdeSystem::GetIIonic()
     double i_ion_in_pA  = (var_membrane__i_Na+var_membrane__i_Ca_L+var_membrane__i_t+var_membrane__i_Kur+var_membrane__i_K1+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_B_Na+var_membrane__i_B_Ca+var_membrane__i_NaK+var_membrane__i_CaP+var_membrane__i_NaCa+var_membrane__i_KACh);
 
     /***
-     * Convert to microA/cm2.
-     *
-     * Cm needs to be converted from nF to  microF (to cancel with mono/bidomain Cm) --> 10^-3 at the denominator
+     * Convert to microA/cm^2.
+     * 
+     * Currents are in pA. As we need to get current per unita area we divide the bidomain capacitance (assumed to be 1 uF/cm^2) by the Cm in the cell model.
+     * First, Cm needs to be converted from nF to  microF --> 10^-3 at the denominator
+     * Then, we calculate an estimate of the area by dividing by the default capacitance 1 uF/cm^2 and obtaining a value in cm^2.
      * Currents are in pA and needs to be converted to microA --> 10^-6 at the numerator.
      * So we divide by (Cm*1000)
      */
