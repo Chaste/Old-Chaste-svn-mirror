@@ -91,6 +91,12 @@
             UpperCoordinates attributes.</xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name="Ellipsoid" type="ellipsoid_type">
+        <xs:annotation>
+          <xs:documentation>Axis-aligned ellipsoid defined by Centre and
+            Radii attributes.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="EpiLayer" type="dimensionless_type">
         <xs:annotation>
           <xs:documentation>Proportion of cardiac wall that is in the epicardium (outer wall). Value
@@ -307,6 +313,26 @@
         <xs:annotation>
           <xs:documentation>Represents the vertex in the cuboid that has the most positive values of
             all coordinates.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="ellipsoid_type">
+    <xs:annotation>
+      <xs:documentation>Axis-aligned ellipsoid defined by Centre and Radii
+        attributes.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Centre" type="point_type">
+        <xs:annotation>
+          <xs:documentation>Represents the centre of the ellipsoid.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Radii" type="point_type">
+        <xs:annotation>
+          <xs:documentation>Represents the radii of the ellipsoid along the coordinate axes.
+          </xs:documentation>
         </xs:annotation>
       </xs:element>
     </xs:sequence>

@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AxisymmetricConductivityTensors.hpp"
 #include "OrthotropicConductivityTensors.hpp"
 #include "ChastePoint.hpp"
-#include "ChasteCuboid.hpp"
+#include "AbstractChasteRegion.hpp"
 #include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
 #include "FakeBathCell.hpp"
@@ -214,7 +214,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
         }
         PetscTools::ReplicateException(false);
 
-        std::vector<ChasteCuboid<SPACE_DIM> > conductivities_heterogeneity_areas;
+        std::vector<AbstractChasteRegion<SPACE_DIM>* > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
@@ -225,18 +225,24 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
              it != mpMesh->GetElementIteratorEnd();
              ++it)
         {
-            unsigned element_index = it->GetIndex();            
+            unsigned element_index = it->GetIndex();
             // if element centroid is contained in the region
             ChastePoint<SPACE_DIM> element_centroid(it->CalculateCentroid());
             for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
             {
-                if ( conductivities_heterogeneity_areas[region_index].DoesContain(element_centroid) )
+                if ( conductivities_heterogeneity_areas[region_index]->DoesContain(element_centroid) )
                 {
                     hetero_intra_conductivities[element_index] = intra_h_conductivities[region_index];
                 }
             }
         }
-
+        
+        // freeing memory allcated by HeartConfig::Instance()->GetConductivityHeterogeneities
+        for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
+        {
+            delete conductivities_heterogeneity_areas[region_index];
+        }
+                
         mpIntracellularConductivityTensors->SetNonConstantConductivities(&hetero_intra_conductivities);
     }
     else

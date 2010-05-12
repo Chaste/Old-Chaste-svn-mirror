@@ -952,7 +952,7 @@ bool HeartConfig::GetConductivityHeterogeneitiesProvided() const
 
 template<unsigned DIM>
 void HeartConfig::GetConductivityHeterogeneities(
-        std::vector<ChasteCuboid<DIM> >& conductivitiesHeterogeneityAreas,
+        std::vector<AbstractChasteRegion<DIM>* >& conductivitiesHeterogeneityAreas,
         std::vector< c_vector<double,3> >& intraConductivities,
         std::vector< c_vector<double,3> >& extraConductivities) const
 {
@@ -978,28 +978,60 @@ void HeartConfig::GetConductivityHeterogeneities(
                 {
                     ChastePoint<DIM> chaste_point_a ( point_a.x() );
                     ChastePoint<DIM> chaste_point_b ( point_b.x() );
-                    conductivitiesHeterogeneityAreas.push_back( ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
+                    conductivitiesHeterogeneityAreas.push_back( new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
                     break;
                 }
                 case 2:
                 {
                     ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y() );
                     ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y() );
-                    conductivitiesHeterogeneityAreas.push_back( ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
+                    conductivitiesHeterogeneityAreas.push_back( new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
                     break;
                 }
                 case 3:
                 {
                     ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y(), point_a.z() );
                     ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
-                    conductivitiesHeterogeneityAreas.push_back( ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
+                    conductivitiesHeterogeneityAreas.push_back( new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
                     break;
                 }
                 default:
                     NEVER_REACHED;
                     break;
             }
+        }
+        else if (ht.Location().Ellipsoid().present())
+        {
+        	cp::point_type centre = ht.Location().Ellipsoid()->Centre();
+        	cp::point_type radii  = ht.Location().Ellipsoid()->Radii();
 
+        	switch (DIM)
+        	{
+        	case 1:
+        	{
+        		ChastePoint<DIM> chaste_point_a ( centre.x() );
+        		ChastePoint<DIM> chaste_point_b ( radii.x() );
+        		conductivitiesHeterogeneityAreas.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
+        		break;
+        	}
+        	case 2:
+        	{
+        		ChastePoint<DIM> chaste_point_a ( centre.x(), centre.y() );
+        		ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y() );
+        		conductivitiesHeterogeneityAreas.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
+        		break;
+        	}
+        	case 3:
+        	{
+        		ChastePoint<DIM> chaste_point_a ( centre.x(), centre.y(), centre.z() );
+        		ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y(), radii.z() );
+        		conductivitiesHeterogeneityAreas.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
+        		break;
+        	}
+        	default:
+        		NEVER_REACHED;
+        		break;
+        	}
 
         }
         else
@@ -1881,6 +1913,53 @@ void HeartConfig::SetConductivityHeterogeneities(std::vector<ChasteCuboid<3> >& 
     mpUserParameters->Simulation().get().ConductivityHeterogeneities().set(heterogeneities_object);
 }
 
+void HeartConfig::SetConductivityHeterogeneitiesEllipsoid(std::vector<ChasteEllipsoid<3> >& conductivityAreas,
+        std::vector< c_vector<double,3> >& intraConductivities,
+        std::vector< c_vector<double,3> >& extraConductivities)
+{
+    assert ( conductivityAreas.size() == intraConductivities.size() );
+    assert ( intraConductivities.size() == extraConductivities.size());
+
+    XSD_ANON_SEQUENCE_TYPE(cp::simulation_type, ConductivityHeterogeneities, ConductivityHeterogeneity) heterogeneities_container;
+
+    for (unsigned region_index=0; region_index<conductivityAreas.size(); region_index++)
+    {
+        cp::point_type centre(conductivityAreas[region_index].rGetCentre()[0],
+                              conductivityAreas[region_index].rGetCentre()[1],
+                              conductivityAreas[region_index].rGetCentre()[2]);
+
+        cp::point_type radii(conductivityAreas[region_index].rGetRadii()[0],
+                             conductivityAreas[region_index].rGetRadii()[1],
+                             conductivityAreas[region_index].rGetRadii()[2]);
+
+        XSD_CREATE_WITH_FIXED_ATTR(cp::location_type, locn, "cm");
+        locn.Ellipsoid().set(cp::ellipsoid_type(centre, radii));
+        cp::conductivity_heterogeneity_type ht(locn);
+
+        XSD_CREATE_WITH_FIXED_ATTR3(cp::conductivities_type, intra,
+                                    intraConductivities[region_index][0],
+                                    intraConductivities[region_index][1],
+                                    intraConductivities[region_index][2],
+                                    "mS/cm");
+
+        ht.IntracellularConductivities(intra);
+
+        XSD_CREATE_WITH_FIXED_ATTR3(cp::conductivities_type, extra,
+                                    extraConductivities[region_index][0],
+                                    extraConductivities[region_index][1],
+                                    extraConductivities[region_index][2],
+                                    "mS/cm");
+
+        ht.ExtracellularConductivities(extra);
+
+        heterogeneities_container.push_back(ht);
+    }
+
+    XSD_ANON_TYPE(cp::simulation_type, ConductivityHeterogeneities) heterogeneities_object;
+    heterogeneities_object.ConductivityHeterogeneity(heterogeneities_container);
+
+    mpUserParameters->Simulation().get().ConductivityHeterogeneities().set(heterogeneities_object);
+}
 
 void HeartConfig::SetOutputDirectory(const std::string& rOutputDirectory)
 {
@@ -2767,17 +2846,17 @@ void HeartConfig::WrapContentInElement(xercesc::DOMDocument* pDocument,
 template void HeartConfig::GetIonicModelRegions<3u>(std::vector<ChasteCuboid<3u> >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<3u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<3u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) ;
-template void HeartConfig::GetConductivityHeterogeneities<3u>(std::vector<ChasteCuboid<3u> >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
+template void HeartConfig::GetConductivityHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
 template void HeartConfig::GetIonicModelRegions<2u>(std::vector<ChasteCuboid<2u> >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<2u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<2u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) ;
-template void HeartConfig::GetConductivityHeterogeneities<2u>(std::vector<ChasteCuboid<2u> >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
+template void HeartConfig::GetConductivityHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
 template void HeartConfig::GetIonicModelRegions<1u>(std::vector<ChasteCuboid<1u> >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<1u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<1u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& );
-template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<ChasteCuboid<1u> >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
+template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 /**
  * \endcond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods

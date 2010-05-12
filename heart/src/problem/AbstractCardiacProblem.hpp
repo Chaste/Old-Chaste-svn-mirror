@@ -465,7 +465,7 @@ public:
      * See also GetSolution.
      */
     DistributedVector GetSolutionDistributedVector();
-    
+
     /**
      * @return the current time of the simulation
      */
@@ -487,7 +487,7 @@ public:
      *  (otherwise it passes the defauls bcc).
      *   It then calls the Solve method in the assembler class.
      *   It also handles the output, if necessary.
-     * 
+     *
      * @note This method is collective, and hence must be called by all processes.
      */
     void Solve();
@@ -496,7 +496,7 @@ public:
      * Closes the files where the solution is stored and,
      * if specified so (as it is by default), converts the output to Meshalyzer format
      * by calling the WriteFilesUsingMesh method in the MeshalyzerWriter class.
-     * 
+     *
      * @note This method is collective, and hence must be called by all processes.
      */
     void CloseFilesAndPostProcess();
@@ -582,12 +582,12 @@ public:
      */
     virtual void OnEndOfTimestep(double time)
     {}
-    
+
     /**
      * Allow subclasses to define additional 'stopping times' for the printing
      * time step loop.  This allows bidomain simulations to specify exactly
      * when the Electrodes should be turned on or off.
-     * 
+     *
      * @param rAdditionalStoppingTimes  to be filled in with the additional stopping times
      */
     virtual void SetUpAdditionalStoppingTimes(std::vector<double>& rAdditionalStoppingTimes)
@@ -615,11 +615,11 @@ public:
      */
     template<class Archive>
     void LoadExtraArchive(Archive & archive, unsigned version);
-    
+
     /**
      * Return whether there's bath defined in this problem
      */
-    virtual bool GetHasBath();    
+    virtual bool GetHasBath();
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem);

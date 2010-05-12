@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteParameters_2_1.hpp"
 #include "SimpleStimulus.hpp"
 #include "ChasteCuboid.hpp"
+#include "ChasteEllipsoid.hpp"
 #include "AbstractTetrahedralMesh.hpp"
 
 #include <xercesc/dom/DOM.hpp>
@@ -505,7 +506,7 @@ public:
      * @param extraConductivities  extraConductivities[0] is conductivity vector for the first region
      */
     template<unsigned DIM>
-    void GetConductivityHeterogeneities(std::vector<ChasteCuboid<DIM> >& conductivitiesHeterogeneityAreas,
+    void GetConductivityHeterogeneities(std::vector<AbstractChasteRegion<DIM>* >& conductivitiesHeterogeneityAreas,
                                         std::vector< c_vector<double,3> >& intraConductivities,
                                         std::vector< c_vector<double,3> >& extraConductivities) const;
     std::string GetOutputDirectory() const; /**< @return output directory path name*/
@@ -806,7 +807,16 @@ public:
     void SetConductivityHeterogeneities(std::vector<ChasteCuboid<3> >& rConductivityAreas,
                                         std::vector< c_vector<double,3> >& rIntraConductivities,
                                         std::vector< c_vector<double,3> >& rExtraConductivities);
-
+    /**
+     * Set a number of heterogeneous regions (Axis-aligned ellipsoids)
+     * It is assumed that the std::vectors are all of the same length
+     * @param conductivityAreas conductivityAreas[0] is the first region
+     * @param intraConductivities  intraConductivities[0] is conductivity vector for the first region
+     * @param extraConductivities  extraConductivities[0] is conductivity vector for the first region
+     */
+    void SetConductivityHeterogeneitiesEllipsoid(std::vector<ChasteEllipsoid<3> >& conductivityAreas,
+    		std::vector< c_vector<double,3> >& intraConductivities,
+    		std::vector< c_vector<double,3> >& extraConductivities);
     /**
      * @param rOutputDirectory  Full path to output directory (will be created if necessary)
      */

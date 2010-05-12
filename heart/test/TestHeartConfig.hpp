@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "OutputFileHandler.hpp"
 #include "ChasteCuboid.hpp"
+#include "ChasteEllipsoid.hpp"
 #include "Version.hpp"
 #include "TetrahedralMesh.hpp"
 
@@ -362,43 +363,61 @@ public:
         //Conductivity heterogeneities
         //////////////
 
-        std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
+        std::vector<AbstractChasteRegion<3>* > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
                                                                 intra_h_conductivities,
                                                                 extra_h_conductivities);
 
-        TS_ASSERT(conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(1.95, 0, 0)));
+        TS_ASSERT(conductivities_heterogeneity_areas[0]->DoesContain(ChastePoint<3>(1.95, 0, 0)));
         TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.0);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 0.75);
-
+        
+        // freeing memory allcated by HeartConfig::Instance()->GetConductivityHeterogeneities
+        for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
+        {
+            delete conductivities_heterogeneity_areas[region_index];
+        }
+        
         //cover the 2D case
-        std::vector<ChasteCuboid<2> > conductivities_heterogeneity_areas_2D;
+        std::vector<AbstractChasteRegion<2>* > conductivities_heterogeneity_areas_2D;
         std::vector< c_vector<double,3> > intra_h_conductivities_2D;
         std::vector< c_vector<double,3> > extra_h_conductivities_2D;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas_2D,
                                                                 intra_h_conductivities_2D,
                                                                 extra_h_conductivities_2D);
-
-        TS_ASSERT(conductivities_heterogeneity_areas_2D[0].DoesContain(ChastePoint<2>(1.95, 0)));
+        
+        TS_ASSERT(conductivities_heterogeneity_areas_2D[0]->DoesContain(ChastePoint<2>(1.95, 0)));
         TS_ASSERT_EQUALS(intra_h_conductivities_2D[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities_2D[0][0], 8.0);
         TS_ASSERT_EQUALS(intra_h_conductivities_2D[1][0], 0.75);
 
+        // freeing memory allcated by HeartConfig::Instance()->GetConductivityHeterogeneities
+        for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas_2D.size(); region_index++)
+        {
+            delete conductivities_heterogeneity_areas_2D[region_index];
+        }
+
         //cover the 1D case
-        std::vector<ChasteCuboid<1> > conductivities_heterogeneity_areas_1D;
+        std::vector<AbstractChasteRegion<1>* > conductivities_heterogeneity_areas_1D;
         std::vector< c_vector<double,3> > intra_h_conductivities_1D;
         std::vector< c_vector<double,3> > extra_h_conductivities_1D;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas_1D,
                                                                 intra_h_conductivities_1D,
                                                                 extra_h_conductivities_1D);
-
-        TS_ASSERT(conductivities_heterogeneity_areas_1D[0].DoesContain(ChastePoint<1>(1.95)));
+        
+        TS_ASSERT(conductivities_heterogeneity_areas_1D[0]->DoesContain(ChastePoint<1>(1.95)));
         TS_ASSERT_EQUALS(intra_h_conductivities_1D[0][0], 2.75);
         TS_ASSERT_EQUALS(extra_h_conductivities_1D[0][0], 8.0);
         TS_ASSERT_EQUALS(intra_h_conductivities_1D[1][0], 0.75);
+
+        // freeing memory allcated by HeartConfig::Instance()->GetConductivityHeterogeneities
+        for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas_1D.size(); region_index++)
+        {
+            delete conductivities_heterogeneity_areas_1D[region_index];
+        }
 
         //extracellular conductivities
         c_vector<double, 3> extra_conductivities;
@@ -465,7 +484,7 @@ public:
             TS_ASSERT_EQUALS(scale_factor_gkr[0], 1.0);
 
             //covering the case when the user specify transmural layers for conductivities (not supported and probably not worth considering)...
-            std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
+            std::vector<AbstractChasteRegion<3>* > conductivities_heterogeneity_areas;
             std::vector< c_vector<double,3> > intra_h_conductivities;
             std::vector< c_vector<double,3> > extra_h_conductivities;
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
@@ -687,7 +706,7 @@ public:
 
         TS_ASSERT(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided());
 
-        std::vector<ChasteCuboid<3> > conductivities_heterogeneity_areas;
+        std::vector<AbstractChasteRegion<3>* > conductivities_heterogeneity_areas;
         std::vector< c_vector<double,3> > intra_h_conductivities;
         std::vector< c_vector<double,3> > extra_h_conductivities;
         HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas,
@@ -698,15 +717,66 @@ public:
         TS_ASSERT_EQUALS(intra_h_conductivities.size(), 2u);
         TS_ASSERT_EQUALS(extra_h_conductivities.size(), 2u);
 
-        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(0.0, 0.0, 0.0)), true);
-        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[0].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), false);
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[0]->DoesContain(ChastePoint<3>(0.0, 0.0, 0.0)), true);
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[0]->DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), false);
         TS_ASSERT_EQUALS(intra_h_conductivities[0][0], 2.5);
         TS_ASSERT_EQUALS(extra_h_conductivities[0][0], 8.5);
 
-        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[1].DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), true);
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas[1]->DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), true);
         TS_ASSERT_EQUALS(intra_h_conductivities[1][0], 1.0);
+        
+        // freeing memory allcated by HeartConfig::Instance()->GetConductivityHeterogeneities
+        for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
+        {
+            delete conductivities_heterogeneity_areas[region_index];
+        }
+        
+        // Test ellipsoid
+        std::vector< c_vector<double,3> > intra_conductivities_ellipsoid;
+        std::vector< c_vector<double,3> > extra_conductivities_ellipsoid;
 
+        std::vector<ChasteEllipsoid<3> > input_areas_ellipsoid;
+        ChastePoint<3> centre_1(-1.0, -1.0, -1.0);
+        ChastePoint<3> radii_1( 1.5,  2.0,  3.0);
+        input_areas_ellipsoid.push_back(ChasteEllipsoid<3> (centre_1, radii_1));
+        intra_conductivities_ellipsoid.push_back( Create_c_vector(2.5, 2.5, 2.5) );
+        extra_conductivities_ellipsoid.push_back( Create_c_vector(8.5, 8.5, 8.5) );
 
+        ChastePoint<3> centre_2(-2.0, -2.0, -2.0);
+        ChastePoint<3> radii_2(1.0,  2.0,  3.0);
+        input_areas_ellipsoid.push_back(ChasteEllipsoid<3> (centre_2, radii_2));
+        intra_conductivities_ellipsoid.push_back( Create_c_vector(1.0, 0.5, 0.4) );
+        extra_conductivities_ellipsoid.push_back( Create_c_vector(7.0, 6.5, 6.4) );
+
+        HeartConfig::Instance()->SetConductivityHeterogeneitiesEllipsoid(input_areas_ellipsoid, intra_conductivities_ellipsoid, extra_conductivities_ellipsoid);
+
+        TS_ASSERT(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided());
+
+        std::vector<AbstractChasteRegion<3>* > conductivities_heterogeneity_areas_ellipsoid;
+        std::vector< c_vector<double,3> > intra_h_conductivities_ellipsoid;
+        std::vector< c_vector<double,3> > extra_h_conductivities_ellipsoid;
+        HeartConfig::Instance()->GetConductivityHeterogeneities(conductivities_heterogeneity_areas_ellipsoid,
+                                                                intra_h_conductivities_ellipsoid,
+                                                                extra_h_conductivities_ellipsoid);
+
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas_ellipsoid.size(), 2u);
+        TS_ASSERT_EQUALS(intra_h_conductivities_ellipsoid.size(), 2u);
+        TS_ASSERT_EQUALS(extra_h_conductivities_ellipsoid.size(), 2u);
+
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas_ellipsoid[0]->DoesContain(ChastePoint<3>(0.0, 0.0, 0.0)), true);
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas_ellipsoid[0]->DoesContain(ChastePoint<3>(-2.5, -1.5, -1.5)), false);
+        TS_ASSERT_EQUALS(intra_h_conductivities_ellipsoid[0][0], 2.5);
+        TS_ASSERT_EQUALS(extra_h_conductivities_ellipsoid[0][0], 8.5);
+
+        TS_ASSERT_EQUALS(conductivities_heterogeneity_areas_ellipsoid[1]->DoesContain(ChastePoint<3>(-1.5, -1.5, -1.5)), true);
+        TS_ASSERT_EQUALS(intra_h_conductivities_ellipsoid[1][0], 1.0);
+       
+        // freeing memory allcated by HeartConfig::Instance()->GetConductivityHeterogeneities
+        for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas_ellipsoid.size(); region_index++)
+        {
+            delete conductivities_heterogeneity_areas_ellipsoid[region_index];
+        }
+        
         std::vector<ChasteCuboid<3> > ionic_model_regions;
         std::vector<cp::ionic_model_selection_type> ionic_models;
 
@@ -1297,7 +1367,7 @@ public:
             delete cell_heterogeneity_areas[i];
         }
 
-        std::vector<ChasteCuboid<3> > conductivitiesHeterogeneityAreas;
+        std::vector<AbstractChasteRegion<3>* > conductivitiesHeterogeneityAreas;
         std::vector< c_vector<double,3> > intraConductivities;
         std::vector< c_vector<double,3> > extraConductivities;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneities(conductivitiesHeterogeneityAreas,
