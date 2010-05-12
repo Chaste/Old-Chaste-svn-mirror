@@ -208,10 +208,10 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
     OutputFileHandler handler(rOutputDirectory, false);
     out_stream p_file = handler.OpenOutputFile("ResumeParameters.xml");
     (*p_file) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
-    (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_0'>" << std::endl;
+    (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_1'>" << std::endl;
     (*p_file) << std::endl;
     (*p_file) << "    <ResumeSimulation>" << std::endl;
-    (*p_file) << "        <ArchiveDirectory>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;
+    (*p_file) << "        <ArchiveDirectory relative_to='chaste_test_output'>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;
     (*p_file) << "        <SpaceDimension>" << HeartConfig::Instance()->GetSpaceDimension() << "</SpaceDimension>" << std::endl;
     (*p_file) << "        <SimulationDuration unit='ms'>0.0</SimulationDuration>" << std::endl;
     (*p_file) << "        <Domain>" << HeartConfig::Instance()->GetDomain() << "</Domain>" << std::endl;

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ChasteParameters
-    xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0"
+    xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_1"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0 ../../../src/io/ChasteParameters_2_0.xsd">
+	xsi:schemaLocation="https://chaste.comlab.ox.ac.uk/nss/parameters/2_1 ../../../src/io/ChasteParameters_2_1.xsd">
 
     <!-- See also ChasteParametersFullFormat.xml -->       
 	<ResumeSimulation>
 	    <!-- Input directory for checkpoint archive-->
-        <ArchiveDirectory>ChasteResults_10ms</ArchiveDirectory>
+        <ArchiveDirectory relative_to='chaste_test_output'>ChasteResults_10ms</ArchiveDirectory>
         
         <!-- This must match the dimension of the original archive -->
         <SpaceDimension>3</SpaceDimension>

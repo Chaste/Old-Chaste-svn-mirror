@@ -38,11 +38,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Version.hpp"
 #include "AbstractChasteRegion.hpp"
 
+#include <string>
+#include <istream>
+#include <fstream>
 #include <cassert>
 
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/QName.hpp>
+#include <xercesc/util/XMLUniDefs.hpp> // chLatin_*
+#include <xercesc/framework/Wrapper4InputSource.hpp>
+#include <xercesc/validators/common/Grammar.hpp>
+#include <xercesc/dom/DOMNamedNodeMap.hpp>
+#include <xercesc/dom/DOMXPathEvaluator.hpp>
+#include <xercesc/dom/DOMXPathResult.hpp>
+
+#include <xsd/cxx/xml/string.hxx>
+#include <xsd/cxx/xml/dom/auto-ptr.hxx>
+#include <xsd/cxx/xml/sax/std-input-source.hxx>
+#include <xsd/cxx/xml/dom/bits/error-handler-proxy.hxx>
+#include <xsd/cxx/tree/exceptions.hxx>
 #include <xsd/cxx/tree/error-handler.hxx>
+
+
+using namespace xsd::cxx::tree;
+
 
 // Coping with changes to XSD interface
 #if (XSD_INT_VERSION >= 3000000L)
@@ -86,7 +105,142 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
     type name(arg1, arg2, arg3, attr)
 #endif
 
-using namespace xsd::cxx::tree;
+/**
+ * Convenience macro for transcoding C++ strings to Xerces' format.
+ * @param str  the string to transcode
+ */
+#define X(str) xsd::cxx::xml::string(str).c_str()
+
+/**
+ * A class of utility methods for processing XML files.
+ */
+class XmlTools
+{
+public:
+    /**
+     * Read an XML file into a DOM document.
+     * Useful for figuring out what version of the parameters file we're dealing with,
+     * so we can construct the right version of the object model.
+     *
+     * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_to_a_Xerces-C.2B.2B_DOM_document.3F
+     *
+     * Requires the Xerces runtime to have been initialised.
+     *
+     * @param rFileName  the file to read
+     * @param rErrorHandler  handler for any parsing errors
+     * @param rProps  properties that specify fixed schema locations, if wanted
+     */
+    static xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> ReadFileToDomDocument(
+        const std::string& rFileName,
+        ::xml_schema::error_handler& rErrorHandler,
+        const ::xml_schema::properties& rProps);
+    
+    /**
+     * Display key info about an XML node for debugging.
+     * 
+     * @param rMsg  message to prepend to the report
+     * @param pNode  the node to display
+     * @param showChildren  whether to recursive display the node's children
+     */
+    static void PrintNode(const std::string& rMsg, xercesc::DOMNode* pNode, bool showChildren=false);
+    
+    /**
+     * Fake having a namespace in older configuration files, by setting the namespace
+     * on each element in a tree.
+     *
+     * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_that_is_missing_namespace_information.3F
+     *
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pElement  the root of the tree to be transformed
+     * @param rNamespace  the namespace to put elements in
+     */
+    static xercesc::DOMElement* SetNamespace(xercesc::DOMDocument* pDocument,
+                                             xercesc::DOMElement* pElement,
+                                             const std::string& rNamespace);
+
+    /**
+     * Fake having a namespace in older configuration files, by setting the namespace
+     * on each element in a tree.
+     *
+     * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_that_is_missing_namespace_information.3F
+     *
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pElement  the root of the tree to be transformed
+     * @param pNamespace  the namespace to put elements in
+     */
+    static xercesc::DOMElement* SetNamespace(xercesc::DOMDocument* pDocument,
+                                             xercesc::DOMElement* pElement,
+                                             const XMLCh* pNamespace);
+
+    /**
+     * Wrap the content (children) of an element within a new element.  The
+     * new element becomes the sole child of the original element.
+     *
+     * @note Doesn't transfer attributes.
+     *
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pElement  the element whose content is to be wrapped
+     * @param pNewElementLocalName  the local name (i.e. without namespace prefix) of the wrapping element
+     *   (the namespace of pElement will be used).
+     */
+    static void WrapContentInElement(xercesc::DOMDocument* pDocument,
+                                     xercesc::DOMElement* pElement,
+                                     const XMLCh* pNewElementLocalName);
+
+    /**
+     * Find all elements matching the given path from this context element.
+     * 
+     * @param pContextElement  the root element to search from
+     * @param rPath  where to search.  This should be a '/'-separated path of element names.
+     */
+    static std::vector<xercesc::DOMElement*> FindElements(xercesc::DOMElement* pContextElement,
+                                                          const std::string& rPath);
+
+    /**
+     * Find all elements matching the given path from this context element.
+     * 
+     * @param pContextElement  the root element to search from
+     * @param rNames  a list of element names, the first of which is looked for as children of
+     *   pContextElement; the next as children of those, etc.
+     * @param rResults  vector to be filled in with matching elements
+     * @param depth  for managing recursion; should not be provided by users
+     */
+    static void FindElements(xercesc::DOMElement* pContextElement,
+                             const std::vector<std::string>& rNames,
+                             std::vector<xercesc::DOMElement*>& rResults,
+                             unsigned depth=0);
+};
+
+/**
+ * A class of utility methods for transforming parameters files from previous versions
+ * of the Chaste schema to the latest version.
+ */
+class XmlTransforms
+{
+public:
+    /**
+     * Edits the DOM tree to wrap ionic model definitions from old (release 1 or 1.1)
+     * configuration files in a 'Hardcoded' element.
+     *
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pRootElement  the root of the tree to be transformed
+     */
+    static void TransformIonicModelDefinitions(xercesc::DOMDocument* pDocument,
+                                               xercesc::DOMElement* pRootElement);
+
+    /**
+     * Edits the DOM tree to change the 'ArchiveDirectory' element from a simple string
+     * to a cp::path_type.  This is used for 2.0 -> 2.1 migration.
+     *
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pRootElement  the root of the tree to be transformed
+     */
+    static void TransformArchiveDirectory(xercesc::DOMDocument* pDocument,
+                                          xercesc::DOMElement* pRootElement);
+
+};
+
+
 
 //
 // Definition of static member variables
@@ -297,7 +451,7 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
         // Set up an error handler
         ::xsd::cxx::tree::error_handler<char> error_handler;
         // Parse XML to DOM
-        xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> p_doc = ReadFileToDomDocument(rFileName, error_handler, props);
+        xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> p_doc = XmlTools::ReadFileToDomDocument(rFileName, error_handler, props);
         // Any errors?
         error_handler.throw_if_failed< ::xsd::cxx::tree::parsing< char > >();
         // Test the namespace on the root element
@@ -306,10 +460,10 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
         switch (GetVersionFromNamespace(namespace_uri))
         {
             case 1001: // Release 1.1 and earlier
-                TransformIonicModelDefinitions(p_doc.get(), p_root_elt);
+                XmlTransforms::TransformIonicModelDefinitions(p_doc.get(), p_root_elt);
             case 2000: // Release 2.0
-                TransformArchiveDirectory(p_doc.get(), p_root_elt);
-                SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1");
+                XmlTransforms::TransformArchiveDirectory(p_doc.get(), p_root_elt);
+                XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1");
             default: // Current release - nothing to do
                 break;
         }
@@ -2493,38 +2647,12 @@ void HeartConfig::SetVisualizeWithVtk(bool useVtk)
 /**********************************************************************
  *                                                                    *
  *                                                                    *
- *                Utility methods for reading files                   *
+ *            Utility methods for reading/transforming XML            *
  *                                                                    *
  *                                                                    *
  **********************************************************************/
 
-#include <string>
-#include <istream>
-#include <fstream>
-
-#include <xercesc/util/XMLUniDefs.hpp> // chLatin_*
-#include <xercesc/framework/Wrapper4InputSource.hpp>
-#include <xercesc/validators/common/Grammar.hpp>
-#include <xercesc/dom/DOMNamedNodeMap.hpp>
-#include <xercesc/dom/DOMXPathEvaluator.hpp>
-#include <xercesc/dom/DOMXPathResult.hpp>
-
-#include <xsd/cxx/xml/string.hxx>
-#include <xsd/cxx/xml/dom/auto-ptr.hxx>
-#include <xsd/cxx/xml/sax/std-input-source.hxx>
-#include <xsd/cxx/xml/dom/bits/error-handler-proxy.hxx>
-
-#include <xsd/cxx/tree/exceptions.hxx>
-#include <xsd/cxx/tree/error-handler.hxx>
-
-/**
- * Convenience macro for transcoding C++ strings to Xerces' format.
- * @param str  the string to transcode
- */
-#define X(str) xsd::cxx::xml::string(str).c_str()
-
-
-xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> HeartConfig::ReadFileToDomDocument(
+xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> XmlTools::ReadFileToDomDocument(
         const std::string& rFileName,
         ::xml_schema::error_handler& rErrorHandler,
         const ::xml_schema::properties& rProps)
@@ -2637,13 +2765,7 @@ xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> HeartConfig::ReadFileToDomDoc
 }
 
 #define COVERAGE_IGNORE
-/**
- * Function for debugging.
- * @param rMsg
- * @param pNode
- * @param showChildren
- */
-void PrintNode(const std::string& rMsg, xercesc::DOMNode* pNode, bool showChildren=false)
+void XmlTools::PrintNode(const std::string& rMsg, xercesc::DOMNode* pNode, bool showChildren)
 {
     std::string prefix = xsd::cxx::xml::transcode<char>(pNode->getPrefix());
     std::string name = xsd::cxx::xml::transcode<char>(pNode->getLocalName());
@@ -2672,9 +2794,9 @@ void PrintNode(const std::string& rMsg, xercesc::DOMNode* pNode, bool showChildr
 }
 #undef COVERAGE_IGNORE
 
-xercesc::DOMElement* HeartConfig::SetNamespace(xercesc::DOMDocument* pDocument,
-                                               xercesc::DOMElement* pElement,
-                                               const XMLCh* pNamespace)
+xercesc::DOMElement* XmlTools::SetNamespace(xercesc::DOMDocument* pDocument,
+                                            xercesc::DOMElement* pElement,
+                                            const XMLCh* pNamespace)
 {
     using namespace xercesc;
 
@@ -2720,17 +2842,17 @@ xercesc::DOMElement* HeartConfig::SetNamespace(xercesc::DOMDocument* pDocument,
     return p_new_elt;
 }
 
-xercesc::DOMElement* HeartConfig::SetNamespace(xercesc::DOMDocument* pDocument,
-                                               xercesc::DOMElement* pElement,
-                                               const std::string& rNamespace)
+xercesc::DOMElement* XmlTools::SetNamespace(xercesc::DOMDocument* pDocument,
+                                            xercesc::DOMElement* pElement,
+                                            const std::string& rNamespace)
 {
     return SetNamespace(pDocument, pElement, X(rNamespace));
 }
 
-void FindElements(xercesc::DOMElement* pContextElement,
-                  const std::vector<std::string>& rNames,
-                  std::vector<xercesc::DOMElement*>& rResults,
-                  unsigned depth=0)
+void XmlTools::FindElements(xercesc::DOMElement* pContextElement,
+                            const std::vector<std::string>& rNames,
+                            std::vector<xercesc::DOMElement*>& rResults,
+                            unsigned depth)
 {
     xercesc::DOMNodeList* p_child_elts = pContextElement->getElementsByTagName(X(rNames[depth]));
     unsigned num_children = p_child_elts->getLength();
@@ -2748,8 +2870,8 @@ void FindElements(xercesc::DOMElement* pContextElement,
     }
 }
 
-std::vector<xercesc::DOMElement*> FindElements(xercesc::DOMElement* pContextElement,
-                                               const std::string& rPath)
+std::vector<xercesc::DOMElement*> XmlTools::FindElements(xercesc::DOMElement* pContextElement,
+                                                         const std::string& rPath)
 {
     std::vector<xercesc::DOMElement*> results;
     std::vector<std::string> path;
@@ -2772,52 +2894,21 @@ std::vector<xercesc::DOMElement*> FindElements(xercesc::DOMElement* pContextElem
     return results;
 }
 
-void HeartConfig::TransformArchiveDirectory(xercesc::DOMDocument* pDocument,
-                                            xercesc::DOMElement* pRootElement)
-{
-    using namespace xercesc;
-    std::vector<xercesc::DOMElement*> elts = FindElements(pRootElement,
-                                                          "ResumeSimulation/ArchiveDirectory");
-    if (elts.size() > 0)
-    {
-        // We have an ArchiveDirectory element, so add the relative_to='cwd' attribute
-        DOMElement* p_dir_elt = elts[0];
-        //PrintNode(" before", p_dir_elt, true);
-        p_dir_elt->setAttribute(X("relative_to"), X("cwd"));
-        //PrintNode(" after", p_dir_elt, true);
-    }
-}
-
-void HeartConfig::TransformIonicModelDefinitions(xercesc::DOMDocument* pDocument,
-                                                 xercesc::DOMElement* pRootElement)
-{
-    // Default ionic model
-    std::vector<xercesc::DOMElement*> p_elt_list = FindElements(pRootElement,
-                                                                "Simulation/IonicModels/Default");
-    if (p_elt_list.size() > 0)
-    {
-        assert(p_elt_list.size() == 1); // Asserted by schema
-        WrapContentInElement(pDocument, p_elt_list[0], X("Hardcoded"));
-        // Now do any region-specific definitions
-        p_elt_list = FindElements(pRootElement, "Simulation/IonicModels/Region/IonicModel");
-        for (unsigned i=0; i<p_elt_list.size(); i++)
-        {
-            WrapContentInElement(pDocument, p_elt_list[i], X("Hardcoded"));
-        }
-    }
-}
-
-void HeartConfig::WrapContentInElement(xercesc::DOMDocument* pDocument,
-                                       xercesc::DOMElement* pElement,
-                                       const XMLCh* pNewElementLocalName)
+void XmlTools::WrapContentInElement(xercesc::DOMDocument* pDocument,
+                                    xercesc::DOMElement* pElement,
+                                    const XMLCh* pNewElementLocalName)
 {
     const XMLCh* p_namespace_uri = pElement->getNamespaceURI();
     const XMLCh* p_prefix = pElement->getPrefix();
     const XMLCh* p_qualified_name;
     if (p_prefix)
     {
+#define COVERAGE_IGNORE
+        // We can't actually cover this code, since versions of the parameters file which need this
+        // transform didn't use a namespace, so can't have a namespace prefix! 
         xercesc::QName qname(p_prefix, pNewElementLocalName, 0);
         p_qualified_name = qname.getRawName();
+#undef COVERAGE_IGNORE
     }
     else
     {
@@ -2833,6 +2924,44 @@ void HeartConfig::WrapContentInElement(xercesc::DOMDocument* pDocument,
     }
     // Add the wrapper as the sole child of pElement
     pElement->appendChild(p_wrapper_elt);
+}
+
+
+void XmlTransforms::TransformArchiveDirectory(xercesc::DOMDocument* pDocument,
+                                              xercesc::DOMElement* pRootElement)
+{
+    using namespace xercesc;
+    std::vector<xercesc::DOMElement*> elts = XmlTools::FindElements(
+        pRootElement,
+        "ResumeSimulation/ArchiveDirectory");
+    if (elts.size() > 0)
+    {
+        // We have an ArchiveDirectory element, so add the relative_to='cwd' attribute
+        DOMElement* p_dir_elt = elts[0];
+        //PrintNode(" before", p_dir_elt, true);
+        p_dir_elt->setAttribute(X("relative_to"), X("cwd"));
+        //PrintNode(" after", p_dir_elt, true);
+    }
+}
+
+void XmlTransforms::TransformIonicModelDefinitions(xercesc::DOMDocument* pDocument,
+                                                   xercesc::DOMElement* pRootElement)
+{
+    // Default ionic model
+    std::vector<xercesc::DOMElement*> p_elt_list = XmlTools::FindElements(
+        pRootElement,
+        "Simulation/IonicModels/Default");
+    if (p_elt_list.size() > 0)
+    {
+        assert(p_elt_list.size() == 1); // Asserted by schema
+        XmlTools::WrapContentInElement(pDocument, p_elt_list[0], X("Hardcoded"));
+        // Now do any region-specific definitions
+        p_elt_list = XmlTools::FindElements(pRootElement, "Simulation/IonicModels/Region/IonicModel");
+        for (unsigned i=0; i<p_elt_list.size(); i++)
+        {
+            XmlTools::WrapContentInElement(pDocument, p_elt_list[i], X("Hardcoded"));
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////

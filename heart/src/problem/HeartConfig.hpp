@@ -158,24 +158,6 @@ private:
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-    /**
-     * Read an XML file into a DOM document.
-     * Useful for figuring out what version of the parameters file we're dealing with,
-     * so we can construct the right version of the object model.
-     *
-     * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_to_a_Xerces-C.2B.2B_DOM_document.3F
-     *
-     * Requires the Xerces runtime to have been initialised.
-     *
-     * @param rFileName  the file to read
-     * @param rErrorHandler  handler for any parsing errors
-     * @param rProps  properties that specify fixed schema locations, if wanted
-     */
-    xsd::cxx::xml::dom::auto_ptr<xercesc::DOMDocument> ReadFileToDomDocument(
-        const std::string& rFileName,
-        ::xml_schema::error_handler& rErrorHandler,
-        const ::xml_schema::properties& rProps);
-
 public:
     /**
      * Our type for specifying schema location properties: a map from namespace URI
@@ -202,69 +184,6 @@ private:
      * @param rPath  the path to escape
      */
     std::string EscapeSpaces(const std::string& rPath);
-
-    /**
-     * Fake having a namespace in older configuration files, by setting the namespace
-     * on each element in a tree.
-     *
-     * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_that_is_missing_namespace_information.3F
-     *
-     * @param pDocument  the DOM document containing the tree to be transformed
-     * @param pElement  the root of the tree to be transformed
-     * @param rNamespace  the namespace to put elements in
-     */
-    xercesc::DOMElement* SetNamespace(xercesc::DOMDocument* pDocument,
-                                      xercesc::DOMElement* pElement,
-                                      const std::string& rNamespace);
-
-    /**
-     * Fake having a namespace in older configuration files, by setting the namespace
-     * on each element in a tree.
-     *
-     * Based on http://wiki.codesynthesis.com/Tree/FAQ#How_do_I_parse_an_XML_document_that_is_missing_namespace_information.3F
-     *
-     * @param pDocument  the DOM document containing the tree to be transformed
-     * @param pElement  the root of the tree to be transformed
-     * @param pNamespace  the namespace to put elements in
-     */
-    xercesc::DOMElement* SetNamespace(xercesc::DOMDocument* pDocument,
-                                      xercesc::DOMElement* pElement,
-                                      const XMLCh* pNamespace);
-
-
-    /**
-     * Backwards compatibility transformation method: edits the DOM tree to wrap ionic model
-     * definitions from old (release 1 or 1.1) configuration files in a 'Hardcoded' element.
-     *
-     * @param pDocument  the DOM document containing the tree to be transformed
-     * @param pRootElement  the root of the tree to be transformed
-     */
-    void TransformIonicModelDefinitions(xercesc::DOMDocument* pDocument,
-                                        xercesc::DOMElement* pRootElement);
-
-    /**
-     * Backwards compatibility transformation method: edits the DOM tree to change the
-     * 'ArchiveDirectory' element from a simple string to a cp::path_type.
-     *
-     * @param pDocument  the DOM document containing the tree to be transformed
-     * @param pRootElement  the root of the tree to be transformed
-     */
-    void TransformArchiveDirectory(xercesc::DOMDocument* pDocument,
-                                   xercesc::DOMElement* pRootElement);
-
-    /**
-     * Used by TransformIonicModelDefinitions to do the actual wrapping of an element's content.
-     *
-     * @note Doesn't transfer attributes.
-     *
-     * @param pDocument  the DOM document containing the tree to be transformed
-     * @param pElement  the element whose content is to be wrapped
-     * @param pNewElementLocalName  the local name (i.e. without namespace prefix) of the wrapping element
-     *   (the namespace of pElement will be used).
-     */
-    void WrapContentInElement(xercesc::DOMDocument* pDocument,
-                              xercesc::DOMElement* pElement,
-                              const XMLCh* pNewElementLocalName);
 
 public:
     /**
