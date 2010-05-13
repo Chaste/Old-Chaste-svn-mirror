@@ -222,7 +222,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
             for (unsigned j=0; j<ELEMENT_DIM+1; j++)
             {
                 //because we have populated mNodes and mHaloNodes above, we can now use this method, which should never throw
-                nodes.push_back(this->GetAnyNode(element_data.NodeIndices[j]));
+                nodes.push_back(this->GetNodeOrHaloNode(element_data.NodeIndices[j]));
             }
 
             RegisterElement(global_element_index);
@@ -253,7 +253,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
                 for (unsigned j=0; j<ELEMENT_DIM+1; j++)
                 {
                     //because we have populated mNodes and mHaloNodes above, we can now use this method, which should never throw
-                    nodes.push_back(this->GetAnyNode(element_data.NodeIndices[j]));
+                    nodes.push_back(this->GetNodeOrHaloNode(element_data.NodeIndices[j]));
                 }
 
                 RegisterElement(element_index);
@@ -306,7 +306,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
                 //which SHOULD never throw (but it does).
                 try
                 {
-                    nodes.push_back(this->GetAnyNode(node_indices[node_index]));
+                    nodes.push_back(this->GetNodeOrHaloNode(node_indices[node_index]));
                 }
                 catch (Exception &e)
                 {
@@ -552,7 +552,7 @@ unsigned DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElemen
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-Node<SPACE_DIM> * DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetAnyNode(unsigned index) const
+Node<SPACE_DIM> * DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeOrHaloNode(unsigned index) const
 {
     std::map<unsigned, unsigned>::const_iterator node_position;
     //First search the halo
@@ -910,8 +910,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
        for (unsigned i=0; i<width; i++)
        {
             std::vector<Node<SPACE_DIM>*> nodes;
-            nodes.push_back(GetAnyNode( height*(width+1)+i ));
-            nodes.push_back(GetAnyNode( height*(width+1)+i+1 ));
+            nodes.push_back(GetNodeOrHaloNode( height*(width+1)+i ));
+            nodes.push_back(GetNodeOrHaloNode( height*(width+1)+i+1 ));
             belem_index=i;
             RegisterBoundaryElement(belem_index);
             this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));
@@ -922,8 +922,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
     for (unsigned j=lo_y+1; j<hi_y; j++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(GetAnyNode( (width+1)*(j+1)-1 ));
-        nodes.push_back(GetAnyNode( (width+1)*j-1 ));
+        nodes.push_back(GetNodeOrHaloNode( (width+1)*(j+1)-1 ));
+        nodes.push_back(GetNodeOrHaloNode( (width+1)*j-1 ));
         belem_index=width+j-1;
         RegisterBoundaryElement(belem_index);
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));
@@ -935,8 +935,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
         for (unsigned i=0; i<width; i++)
         {
             std::vector<Node<SPACE_DIM>*> nodes;
-            nodes.push_back(GetAnyNode( i+1 ));
-            nodes.push_back(GetAnyNode( i ));
+            nodes.push_back(GetNodeOrHaloNode( i+1 ));
+            nodes.push_back(GetNodeOrHaloNode( i ));
             belem_index=width+height+i;
             RegisterBoundaryElement(belem_index);
             this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));
@@ -947,8 +947,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
     for (unsigned j=lo_y; j<hi_y-1; j++)
     {
         std::vector<Node<SPACE_DIM>*> nodes;
-        nodes.push_back(GetAnyNode( (width+1)*(j+1) ));
-        nodes.push_back(GetAnyNode( (width+1)*(j) ));
+        nodes.push_back(GetNodeOrHaloNode( (width+1)*(j+1) ));
+        nodes.push_back(GetNodeOrHaloNode( (width+1)*(j) ));
         belem_index=2*width+height+j;
         RegisterBoundaryElement(belem_index);
         this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index,nodes));
@@ -965,29 +965,29 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMes
             unsigned nw=(j+1)*(width+1)+i; //ne=nw+1
             unsigned sw=(j)*(width+1)+i;   //se=sw+1
             std::vector<Node<SPACE_DIM>*> upper_nodes;
-            upper_nodes.push_back(GetAnyNode( nw ));
-            upper_nodes.push_back(GetAnyNode( nw+1 ));
+            upper_nodes.push_back(GetNodeOrHaloNode( nw ));
+            upper_nodes.push_back(GetNodeOrHaloNode( nw+1 ));
             if (stagger==false  || parity == 1)
             {
-                upper_nodes.push_back(GetAnyNode( sw+1 ));
+                upper_nodes.push_back(GetNodeOrHaloNode( sw+1 ));
             }
             else
             {
-                upper_nodes.push_back(GetAnyNode( sw ));
+                upper_nodes.push_back(GetNodeOrHaloNode( sw ));
             }
             elem_index=2*(j*width+i);
             RegisterElement(elem_index);
             this->mElements.push_back(new Element<ELEMENT_DIM,SPACE_DIM>(elem_index,upper_nodes));
             std::vector<Node<SPACE_DIM>*> lower_nodes;
-            lower_nodes.push_back(GetAnyNode( sw+1 ));
-            lower_nodes.push_back(GetAnyNode( sw ));
+            lower_nodes.push_back(GetNodeOrHaloNode( sw+1 ));
+            lower_nodes.push_back(GetNodeOrHaloNode( sw ));
             if (stagger==false  ||parity == 1)
             {
-                lower_nodes.push_back(GetAnyNode( nw ));
+                lower_nodes.push_back(GetNodeOrHaloNode( nw ));
             }
             else
             {
-                lower_nodes.push_back(GetAnyNode( nw+1 ));
+                lower_nodes.push_back(GetNodeOrHaloNode( nw+1 ));
             }
             elem_index++;
             RegisterElement(elem_index);
@@ -1132,7 +1132,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
 
                     for (unsigned n = 0; n < 4; n++)
                     {
-                        tetrahedra_nodes.push_back(GetAnyNode( global_node_indices[element_nodes[m][n]] ));
+                        tetrahedra_nodes.push_back(GetNodeOrHaloNode( global_node_indices[element_nodes[m][n]] ));
                     }
                     unsigned elem_index = 6 * ((k*height+j)*width+i)+m;
                     RegisterElement(elem_index);
@@ -1145,90 +1145,90 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigne
                 if (i == 0) //low face at x==0
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[2] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[6] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[0] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[2] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[6] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[6] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[4] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[0] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[6] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[4] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
                 if (i == width-1) //high face at x=width
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[1] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[5] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[1] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[5] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[7] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[1] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[3] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[1] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[7] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[3] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
                 if (j == 0) //low face at y==0
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[5] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[1] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[0] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[5] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[1] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[4] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[5] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[0] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[4] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[5] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
                 if (j == height-1) //high face at y=height
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[2] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[3] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[2] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[3] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[7] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[2] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[6] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[2] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[7] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[6] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
                 if (k == 0) //low face at z==0
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[3] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[2] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[0] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[3] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[2] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[0] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[1] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[3] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[0] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[1] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[3] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }
                 if (k == depth-1) //high face at z=depth
                 {
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[4] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[5] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[4] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[7] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[5] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                     triangle_nodes.clear();
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[4] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[6] ));
-                    triangle_nodes.push_back(GetAnyNode( global_node_indices[7] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[4] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[6] ));
+                    triangle_nodes.push_back(GetNodeOrHaloNode( global_node_indices[7] ));
                     RegisterBoundaryElement(belem_index);
                     this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>(belem_index++,triangle_nodes));
                 }

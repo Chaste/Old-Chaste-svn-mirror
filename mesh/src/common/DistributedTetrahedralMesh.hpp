@@ -283,7 +283,7 @@ public:
      *
      * @param index the global index of the node
      */
-    Node<SPACE_DIM>* GetAnyNode(unsigned index) const;
+    Node<SPACE_DIM>* GetNodeOrHaloNode(unsigned index) const;
 
 private:
 

@@ -894,9 +894,9 @@ public:
         {
             expected_elements--;
             //Left processor always owns left node
-            TS_ASSERT_EQUALS(small_mesh.GetNode(0),small_mesh.GetAnyNode(0));
-            TS_ASSERT_DELTA(small_mesh.GetAnyNode(0)->rGetLocation()[0], 0.0, 1e-5);
-            TS_ASSERT_DELTA(small_mesh.GetAnyNode(1)->rGetLocation()[0], 10.0, 1e-5);
+            TS_ASSERT_EQUALS(small_mesh.GetNode(0),small_mesh.GetNodeOrHaloNode(0));
+            TS_ASSERT_DELTA(small_mesh.GetNodeOrHaloNode(0)->rGetLocation()[0], 0.0, 1e-5);
+            TS_ASSERT_DELTA(small_mesh.GetNodeOrHaloNode(1)->rGetLocation()[0], 10.0, 1e-5);
             if (PetscTools::IsSequential())
             {
                 TS_ASSERT_EQUALS(halo_indices.size(), 0u);
@@ -918,12 +918,12 @@ public:
             {
                 TS_ASSERT_EQUALS(halo_indices.size(), 1u);
                 TS_ASSERT_EQUALS(halo_indices[0], 1u); //Halo is at index 1 (2 or 3 procs)
-                TS_ASSERT_THROWS_CONTAINS(small_mesh.GetAnyNode(0), "Requested node/halo");
+                TS_ASSERT_THROWS_CONTAINS(small_mesh.GetNodeOrHaloNode(0), "Requested node/halo");
                 //Right processor has  node 1 as halo
                 TS_ASSERT_THROWS_CONTAINS(small_mesh.GetNode(1), "does not belong to processor");
-                TS_ASSERT_THROWS_NOTHING(small_mesh.GetAnyNode(1));//It's a halo
-                TS_ASSERT_DELTA(small_mesh.GetAnyNode(1)->rGetLocation()[0], 10.0, 1e-5);
-                TS_ASSERT_DELTA(small_mesh.GetAnyNode(2)->rGetLocation()[0], 20.0, 1e-5);
+                TS_ASSERT_THROWS_NOTHING(small_mesh.GetNodeOrHaloNode(1));//It's a halo
+                TS_ASSERT_DELTA(small_mesh.GetNodeOrHaloNode(1)->rGetLocation()[0], 10.0, 1e-5);
+                TS_ASSERT_DELTA(small_mesh.GetNodeOrHaloNode(2)->rGetLocation()[0], 20.0, 1e-5);
             }
         }
         if (PetscTools::GetNumProcs() > 3 && PetscTools::GetMyRank()==2)
