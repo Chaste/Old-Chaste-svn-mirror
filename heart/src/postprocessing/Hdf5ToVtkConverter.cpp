@@ -26,9 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-#include <vector>
-
 #include "UblasCustomFunctions.hpp"
 #include "HeartConfig.hpp"
 #include "Hdf5ToVtkConverter.hpp"
@@ -38,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
 #include "VtkWriter.hpp"
+#include "GenericMeshReader.hpp"    
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string inputDirectory,
@@ -100,10 +99,21 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
     }
     VecDestroy(data);
     
-    ///\todo #1242 
-    assert(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false );
+    // Normally the in-memory mesh is converted:
+    if (HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false)
+    {
+        vtk_writer.WriteFilesUsingMesh( *(this->mpMesh) );
+    }
+    else
+    {
+        //In this case we expect the mesh to have been read in from file
+        ///\todo What if the mesh has been scaled, translated or rotated?
+        //Note that the next line will throw if the mesh has not been read from file
+        std::string original_file=this->mpMesh->GetMeshFileBaseName();
+        GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
+        vtk_writer.WriteFilesUsingMeshReader(original_mesh_reader);
+    }    
     
-    vtk_writer.WriteFilesUsingMesh( *(this->mpMesh) );
 #endif //CHASTE_VTK
 
 }

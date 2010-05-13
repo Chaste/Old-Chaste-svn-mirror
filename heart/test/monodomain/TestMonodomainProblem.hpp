@@ -1124,9 +1124,9 @@ public:
 
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
         HeartConfig::Instance()->SetCapacitance(1.0);
-///\todo #1242        
-//        HeartConfig::SetVisualizeWithVtk(true)
-//        HeartConfig::SetVisualizeWithCmgui(true)
+
+        HeartConfig::Instance()->SetVisualizeWithVtk(true);
+        HeartConfig::Instance()->SetVisualizeWithCmgui(true);
 
         monodomain_problem.Solve();
 
@@ -1144,17 +1144,38 @@ public:
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation(), true);
         }
 
-        OutputFileHandler handler("MonoProblem2dOriginalPermutation/output", false);
+        OutputFileHandler handler("MonoProblem2dOriginalPermutation/", false);
         //Note that without the "SetOutputWithOriginalMeshPermutation" above the following would fail
         //since METIS partitioning will have changed the permutation
+        
+        /*
+         * Meshalyzer format
+         */        
         //Mesh
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + handler.GetOutputDirectoryFullPath()
-                                + "/MonodomainLR91_2d_mesh.pts   heart/test/data/MonoProblem2dOriginalPermutation/MonodomainLR91_2d_mesh.pts").c_str() ), 0);
+                                + "/output/MonodomainLR91_2d_mesh.pts   heart/test/data/MonoProblem2dOriginalPermutation/MonodomainLR91_2d_mesh.pts").c_str() ), 0);
         //Transmembrane
-        std::string file1=handler.GetOutputDirectoryFullPath()+ "/MonodomainLR91_2d_V.dat";
+        std::string file1=handler.GetOutputDirectoryFullPath()+ "/output/MonodomainLR91_2d_V.dat";
         std::string file2="heart/test/data/MonoProblem2dOriginalPermutation/MonodomainLR91_2d_V.dat";
         NumericFileComparison comp(file1, file2);
         TS_ASSERT(comp.CompareFiles(1e-3)); //This can be quite flexible since the permutation differences will be quite large
+
+        /*
+         * Cmgui format
+         */        
+        //Mesh
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + handler.GetOutputDirectoryFullPath()
+                                + "/cmgui_output/MonodomainLR91_2d.exnode  heart/test/data/MonoProblem2dOriginalPermutation/MonodomainLR91_2d.exnode").c_str() ), 0);
+        //Transmembrane
+        file1=handler.GetOutputDirectoryFullPath()+ "/cmgui_output/MonodomainLR91_2d_50.exnode";
+        file2="heart/test/data/MonoProblem2dOriginalPermutation/MonodomainLR91_2d_50.exnode";
+        NumericFileComparison comp_cmgui(file1, file2);
+        TS_ASSERT(comp_cmgui.CompareFiles(1e-3)); //This can be quite flexible since the permutation differences will be quite large
+
+        /*
+         * Vtk Format
+         */
+        /// \todo: write a comparison based on a VTK reader to come...         
 
     }
 

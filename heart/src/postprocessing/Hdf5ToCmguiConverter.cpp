@@ -26,10 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-#include <vector>
-
-
 #include "Hdf5ToCmguiConverter.hpp"
 #include "CmguiMeshWriter.hpp"
 #include "UblasCustomFunctions.hpp"
@@ -40,6 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
 #include "Version.hpp"
+#include "GenericMeshReader.hpp"    
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
@@ -142,9 +140,6 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
     //Write mesh in a suitable form for cmgui
     std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
     
-    ///\todo #1242 
-    assert(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false );
-    
     CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM> cmgui_mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix(), false);
     cmgui_mesh_writer.SetAdditionalFieldNames(field_names);
     if (hasBath)
@@ -154,8 +149,23 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
         names.push_back("bath");
         cmgui_mesh_writer.SetRegionNames(names);
     }
-    cmgui_mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
-
+    
+   
+    // Normally the in-memory mesh is converted:
+    if (HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false )
+    {
+        cmgui_mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
+    }
+    else
+    {
+        //In this case we expect the mesh to have been read in from file
+        ///\todo What if the mesh has been scaled, translated or rotated?
+        //Note that the next line will throw if the mesh has not been read from file
+        std::string original_file=this->mpMesh->GetMeshFileBaseName();
+        GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
+        cmgui_mesh_writer.WriteFilesUsingMeshReader(original_mesh_reader);
+    }
+    
     PetscTools::Barrier("Hdf5ToCmguiConverter");
 }
 

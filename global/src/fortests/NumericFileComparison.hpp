@@ -122,7 +122,7 @@ public:
                 if (*mpFile1>>word)
                 {
                     data1=A_WORD;
-                    if (word == "#")
+                    if (word == "#" || word == "!")
                     {
                         //Ignore comment (up to 1024 characters until newline)
                         mpFile1->ignore(1024, '\n');
@@ -142,7 +142,7 @@ public:
                 if (*mpFile2>>word)
                 {
                     data2=A_WORD;
-                    if (word == "#")
+                    if (word == "#" || word == "!")
                     {
                         //Ignore comment (up to 1024 characters until newline)
                         mpFile2->ignore(1024, '\n');

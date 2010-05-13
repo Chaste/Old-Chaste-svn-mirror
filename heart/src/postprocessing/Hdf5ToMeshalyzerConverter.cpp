@@ -26,9 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-#include <vector>
-
 #include "Hdf5ToMeshalyzerConverter.hpp"
 #include "MeshalyzerMeshWriter.hpp"
 #include "GenericMeshReader.hpp"
