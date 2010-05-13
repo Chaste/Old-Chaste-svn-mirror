@@ -156,6 +156,14 @@ private:
     }
 
 
+    void InitialiseForSolve(Vec initialSolution)
+    {
+        BaseClassType::InitialiseForSolve(initialSolution);
+        assert(this->mpLinearSystem);
+        this->mpLinearSystem->SetMatrixIsSymmetric(true);
+        this->mpLinearSystem->SetKspType("cg");
+    }
+
 public:
     MySimpleCoupledAssembler(TetrahedralMesh<2,2>* pMesh,
                              BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,

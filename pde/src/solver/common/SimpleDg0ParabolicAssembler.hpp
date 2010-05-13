@@ -122,6 +122,19 @@ protected:
         ChastePoint<SPACE_DIM>& rX);
 #undef COVERAGE_IGNORE //In case these protoypes show up as code
 
+    /**
+     *  Overloaded InitaliseForSolve() which just calls the base class but also
+     *  sets the matrix as symmetric and sets Conjugate Gradients as the solver 
+     *  @param initialSolution initialSolution (used in base class version of this method)
+     */
+    void InitialiseForSolve(Vec initialSolution)
+    {
+        BaseClassType::InitialiseForSolve(initialSolution);
+        assert(this->mpLinearSystem);
+        this->mpLinearSystem->SetMatrixIsSymmetric(true);
+        this->mpLinearSystem->SetKspType("cg");
+    }
+
 public:
 
     /**
