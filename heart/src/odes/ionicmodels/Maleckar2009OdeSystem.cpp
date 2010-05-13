@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cassert>
 #include "Maleckar2009OdeSystem.hpp"
+#include "HeartConfig.hpp"
 #include "Exception.hpp"
 #include "OdeSystemInformation.hpp"
 
@@ -258,17 +259,22 @@ double Maleckar2009OdeSystem::GetIIonic()
 
     double i_ion_in_pA  = (var_membrane__i_Na+var_membrane__i_Ca_L+var_membrane__i_t+var_membrane__i_Kur+var_membrane__i_K1+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_B_Na+var_membrane__i_B_Ca+var_membrane__i_NaK+var_membrane__i_CaP+var_membrane__i_NaCa+var_membrane__i_KACh);
 
-    /***
+    /**
      * Convert to microA/cm^2.
      * 
-     * Currents are in pA. As we need to get current per unita area we divide the bidomain capacitance (assumed to be 1 uF/cm^2) by the Cm in the cell model.
-     * First, Cm needs to be converted from nF to  microF --> 10^-3 at the denominator
-     * Then, we calculate an estimate of the area by dividing by the default capacitance 1 uF/cm^2 and obtaining a value in cm^2.
-     * Currents are in pA and needs to be converted to microA --> 10^-6 at the numerator.
-     * So we divide by (Cm*1000)
+     * This is done by dividing the current (converted to microA) by an estimate of the cell area.
+     * The estimate of the cell area is obtained by observing that Cm in the cell model and Cm in the bidomain equation are conceptually the same thing.
+     * The Cm in the bidomain equation is expressed in capacitance units per area.
+     * We get an estimate of the cell area is then the ratio of the two values of Cm.
      */
-    double i_ion_in_microAmp_per_cm_square = i_ion_in_pA/(var_membrane__Cm*1000);
-    return i_ion_in_microAmp_per_cm_square;
+
+    double i_ion_in_microamp = i_ion_in_pA*pow(10,-6);
+
+    //Area = Cm in the cell model (converted from nF to  microF) by Cm in the bidomain equation (in microF/cm^2)
+    double estimated_cell_surface_in_cm_square = var_membrane__Cm*pow(10,-3) / HeartConfig::Instance()->GetCapacitance();
+
+    double i_ion_in_microamp_per_cm_square = i_ion_in_microamp / estimated_cell_surface_in_cm_square;
+    return i_ion_in_microamp_per_cm_square;
 }
 
 void Maleckar2009OdeSystem::EvaluateYDerivatives(
