@@ -381,9 +381,10 @@ public:
      * because the global indices of Delaunay nodes and Voronoi elements may not match,
      * e.g. if a node is a ghost node or corresponds to a Voronoi face.
      *
-     * @param index a node global index
+     * \todo #8806
+     * @---param index a node global index
      */
-    double GetVolumeOfVoronoiElement(unsigned index);
+    //double GetVolumeOfVoronoiElement(unsigned index);
 
     /**
      * Get the surface area of the element of mpVoronoiTessellation associated with
@@ -393,9 +394,10 @@ public:
      * because the global indices of Delaunay nodes and Voronoi elements may not match,
      * e.g. if a node is a ghost node or corresponds to a Voronoi face.
      *
-     * @param index a node global index
+     * @\todo #8806
+     * ---param index a node global index
      */
-    double GetSurfaceAreaOfVoronoiElement(unsigned index);
+    //double GetSurfaceAreaOfVoronoiElement(unsigned index);
 
     /**
      * Get the length of the edge of mpVoronoiTessellation associated with

@@ -841,21 +841,21 @@ double MeshBasedTissue<DIM>::GetPerimeterOfVoronoiElement(unsigned index)
     return perimeter;
 }
 
-template<unsigned DIM>
-double MeshBasedTissue<DIM>::GetVolumeOfVoronoiElement(unsigned index)
-{
-    unsigned element_index = mpVoronoiTessellation->GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(index);
-    double volume = mpVoronoiTessellation->GetVolumeOfElement(element_index);
-    return volume;
-}
+//template<unsigned DIM>
+//double MeshBasedTissue<DIM>::GetVolumeOfVoronoiElement(unsigned index)
+//{
+//    unsigned element_index = mpVoronoiTessellation->GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(index);
+//    double volume = mpVoronoiTessellation->GetVolumeOfElement(element_index);
+//    return volume;
+//}
 
-template<unsigned DIM>
-double MeshBasedTissue<DIM>::GetSurfaceAreaOfVoronoiElement(unsigned index)
-{
-    unsigned element_index = mpVoronoiTessellation->GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(index);
-    double surface_area = mpVoronoiTessellation->GetSurfaceAreaOfElement(element_index);
-    return surface_area;
-}
+//template<unsigned DIM>
+//double MeshBasedTissue<DIM>::GetSurfaceAreaOfVoronoiElement(unsigned index)
+//{
+//    unsigned element_index = mpVoronoiTessellation->GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(index);
+//    double surface_area = mpVoronoiTessellation->GetSurfaceAreaOfElement(element_index);
+//    return surface_area;
+//}
 
 template<unsigned DIM>
 double MeshBasedTissue<DIM>::GetVoronoiEdgeLength(unsigned index1, unsigned index2)
