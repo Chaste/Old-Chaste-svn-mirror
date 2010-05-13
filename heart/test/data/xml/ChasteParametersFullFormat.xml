@@ -195,7 +195,30 @@
 						<UpperCoordinates x="-1.9"  y="0.1"  z="1.0"/>
 					</Cuboid>
 				</Location>				
-			</ConductivityHeterogeneity>		
+			</ConductivityHeterogeneity>	
+			
+			<!-- Heterogeneities in both conductivities an ellipsoid region -->
+			<ConductivityHeterogeneity> <!-- #4 -->
+			    <IntracellularConductivities longi="2.75" trans="2.75" normal="2.75" unit="mS/cm"/>
+	    		<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" unit="mS/cm"/>				
+				<Location unit="cm">
+					<Ellipsoid>
+						<Centre x="1.0" y="0.0" z="0.0"/>
+						<Radii  x="0.1" y="0.1" z="0.1"/>
+					</Ellipsoid>
+				</Location>				
+			</ConductivityHeterogeneity>	
+			
+			<!-- Intracellular conductivity heterogeneities in a ellipsoid region -->
+		    <ConductivityHeterogeneity> <!-- #5 -->
+			    <IntracellularConductivities longi="0.75" trans="0.75" normal="0.75" unit="mS/cm"/>
+				<Location unit="cm">
+					<Ellipsoid>
+						<Centre x="-1.0" y="0.0" z="0.0"/>
+						<Radii  x="0.1" y="0.1" z="0.1"/>
+					</Ellipsoid>
+				</Location>				
+			</ConductivityHeterogeneity>	
 
  		<!-- Conductivity heterogeneities in transmural regions are valid XML but are not implemented -->
 
