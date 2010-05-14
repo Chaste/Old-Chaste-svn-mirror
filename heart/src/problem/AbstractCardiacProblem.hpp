@@ -130,7 +130,7 @@ private:
             int vm_col = writer.DefineVariable("Vm","mV");
 
             ///\todo #1242 
-            assert(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false );
+            assert(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false );
             
             if (PROBLEM_DIM==1)
             {

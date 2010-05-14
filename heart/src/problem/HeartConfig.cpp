@@ -1283,13 +1283,13 @@ void HeartConfig::GetOutputVariables(std::vector<std::string> &outputVariables) 
         outputVariables.push_back(var.name());
     }
 }
-bool HeartConfig::GetOutputWithOriginalMeshPermutation()
+bool HeartConfig::GetOutputUsingOriginalNodeOrdering()
 {
     try 
     {
-        return (DecideLocation( & mpUserParameters->Simulation().get().OutputWithOriginalMeshPermutation(),
-                            & mpDefaultParameters->Simulation().get().OutputWithOriginalMeshPermutation(),
-                              "OutputWithOriginalMeshPermutation")->get()  == cp::yesno_type::yes);
+        return (DecideLocation( & mpUserParameters->Simulation().get().OutputUsingOriginalNodeOrdering(),
+                            & mpDefaultParameters->Simulation().get().OutputUsingOriginalNodeOrdering(),
+                              "OutputUsingOriginalNodeOrdering")->get()  == cp::yesno_type::yes);
     }
     catch (Exception &e)
     {
@@ -2154,10 +2154,10 @@ void HeartConfig::SetOutputVariables(const std::vector<std::string>& rOutputVari
         SetVisualizeWithVtk(false);
     }
 }
-void  HeartConfig::SetOutputWithOriginalMeshPermutation(bool useOriginal)
+void  HeartConfig::SetOutputUsingOriginalNodeOrdering(bool useOriginal)
 {
     //What if it doesn't exist?
-    mpUserParameters->Simulation().get().OutputWithOriginalMeshPermutation().set(useOriginal? cp::yesno_type::yes : cp::yesno_type::no);
+    mpUserParameters->Simulation().get().OutputUsingOriginalNodeOrdering().set(useOriginal? cp::yesno_type::yes : cp::yesno_type::no);
 }  
 
 void HeartConfig::SetCheckpointSimulation(bool saveSimulation, double checkpointTimestep, unsigned maxCheckpointsOnDisk)

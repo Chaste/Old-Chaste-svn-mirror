@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ReplicatableVector.hpp"
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
-#include "VtkWriter.hpp"
+#include "VtkMeshWriter.hpp"
 #include "GenericMeshReader.hpp"    
 
 
@@ -47,7 +47,7 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
 
-    VtkWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(HeartConfig::Instance()->GetOutputDirectory() + "/vtk_output", fileBaseName, false);
+    VtkMeshWriter<ELEMENT_DIM,SPACE_DIM> vtk_writer(HeartConfig::Instance()->GetOutputDirectory() + "/vtk_output", fileBaseName, false);
 
     unsigned num_nodes = this->mpReader->GetNumberOfRows();
     DistributedVectorFactory factory(num_nodes);
@@ -100,7 +100,7 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
     VecDestroy(data);
     
     // Normally the in-memory mesh is converted:
-    if (HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false)
+    if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false)
     {
         vtk_writer.WriteFilesUsingMesh( *(this->mpMesh) );
     }

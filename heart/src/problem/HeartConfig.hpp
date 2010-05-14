@@ -464,7 +464,7 @@ public:
      * mesh permutation (in situations where a parallel partition may have
      * permuted the node).  The default is to use the new, not original permutation,
      */
-    bool GetOutputWithOriginalMeshPermutation();
+    bool GetOutputUsingOriginalNodeOrdering();
 
     /**
      * Get whether simulation should be checkpointed or not
@@ -778,7 +778,7 @@ public:
      * 
      * @param useOriginal  whether to use the original permutation 
      */
-    void SetOutputWithOriginalMeshPermutation(bool useOriginal);
+    void SetOutputUsingOriginalNodeOrdering(bool useOriginal);
 
     /**
      * Set whether the simulation should be checkpointed or not.

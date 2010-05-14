@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MutableMesh.hpp"
 #include "CmguiMeshWriter.hpp"
 #include "CmguiDeformedSolutionsWriter.hpp"
-#include "VtkWriter.hpp"
+#include "VtkMeshWriter.hpp"
 #include "QuadraticMesh.hpp"
 #include <iostream>
 
@@ -612,7 +612,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(writer.ConvertOutput("mesh/test/data/TestCmguiDeformedSolutionsWriter", "bad_myoldsolution", 1), "Error occurred when reading file");
     }
 
-    void TestVtkWriter() throw(Exception)
+    void TestVtkMeshWriter() throw(Exception)
     {
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
@@ -620,17 +620,17 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        VtkWriter<3,3> writer("TestVtkWriter", "cube_2mm_12_elements");
+        VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "cube_2mm_12_elements");
 
         TS_ASSERT_THROWS_NOTHING(writer.WriteFilesUsingMesh(mesh));
 
         //1.6K uncompressed, 1.3K compressed
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkWriter/cube_2mm_12_elements.vtu").c_str()), 0);
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements.vtu").c_str()), 0);
 #endif //CHASTE_VTK
     }
 
-    void TestVtkWriter2D() throw(Exception)
+    void TestVtkMeshWriter2D() throw(Exception)
     {
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
@@ -638,7 +638,7 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        VtkWriter<2,2> writer("TestVtkWriter", "2D_0_to_1mm_200_elements", false);
+        VtkMeshWriter<2,2> writer("TestVtkMeshWriter", "2D_0_to_1mm_200_elements", false);
 
         // Add distance from origin into the node "point" data
         std::vector<double> distance;
@@ -659,13 +659,13 @@ public:
 
         writer.WriteFilesUsingMesh(mesh);
         //13K uncompressed, 3.7K compressed
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/2D_0_to_1mm_200_elements.vtu mesh/test/data/TestVtkWriter/2D_0_to_1mm_200_elements.vtu").c_str()), 0);
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/2D_0_to_1mm_200_elements.vtu mesh/test/data/TestVtkMeshWriter/2D_0_to_1mm_200_elements.vtu").c_str()), 0);
 #endif //CHASTE_VTK
     }
 
 
-    void TestVtkWriterWithData() throw(Exception)
+    void TestVtkMeshWriterWithData() throw(Exception)
     {
 #ifdef CHASTE_VTK
 // Requires  "sudo aptitude install libvtk5-dev" or similar
@@ -673,7 +673,7 @@ public:
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(reader);
 
-        VtkWriter<3,3> writer("TestVtkWriter", "heart_decimation", false);
+        VtkMeshWriter<3,3> writer("TestVtkMeshWriter", "heart_decimation", false);
 
         // Add element quality into the element "cell" data
         std::vector<double> quality;
@@ -695,8 +695,8 @@ public:
 
 
         //32K uncompressed, 19K compressed
-        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkWriter/";
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/heart_decimation.vtu mesh/test/data/TestVtkWriter/heart_decimation.vtu").c_str()), 0);
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/heart_decimation.vtu mesh/test/data/TestVtkMeshWriter/heart_decimation.vtu").c_str()), 0);
 #endif //CHASTE_VTK
     }
 

@@ -806,7 +806,7 @@ public:
         //Rotate the permutation
         mesh.PermuteNodes(rotation_perm);
         
-        HeartConfig::Instance()->SetOutputWithOriginalMeshPermutation(true);
+        HeartConfig::Instance()->SetOutputUsingOriginalNodeOrdering(true);
         
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));

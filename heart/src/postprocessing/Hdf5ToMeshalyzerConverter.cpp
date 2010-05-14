@@ -98,7 +98,7 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
     std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/output";
     MeshalyzerMeshWriter<ELEMENT_DIM,SPACE_DIM> mesh_writer(output_directory, HeartConfig::Instance()->GetOutputFilenamePrefix()+"_mesh", false);
     //Normal case is that the in-memory mesh is converted
-    if (HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false )
+    if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false )
     {
         mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
     }

@@ -873,7 +873,7 @@
 Note that in parallel the output meshes may be renumbered from the original input but will be consistent with the HDF5 data.</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="OutputWithOriginalMeshPermutation" default="no" type="yesno_type" minOccurs="0">
+      <xs:element name="OutputUsingOriginalNodeOrdering" default="no" type="yesno_type" minOccurs="0">
       <xs:annotation>
           <xs:documentation>Set to "yes" for writing data from parallel simulations with the original mesh
           ordering.  This slows down parallel simulations, but means that the output data are unpermuted and

@@ -152,7 +152,7 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
     
    
     // Normally the in-memory mesh is converted:
-    if (HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation() == false )
+    if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false )
     {
         cmgui_mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
     }

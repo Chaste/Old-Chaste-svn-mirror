@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexMeshWriter.hpp"
-#include "VtkWriter.hpp"
+#include "VtkMeshWriter.hpp"
 #include "VertexMeshReader.hpp"
 
 class TestVertexMeshWriter : public CxxTest::TestSuite
@@ -108,7 +108,7 @@ public:
 #endif //CHASTE_VTK
     }
 
-    void TestMeshVtkWriter3D() throw(Exception)
+    void TestMeshVtkMeshWriter3D() throw(Exception)
     {
         // Create 3D mesh
         std::vector<Node<3>*> nodes;

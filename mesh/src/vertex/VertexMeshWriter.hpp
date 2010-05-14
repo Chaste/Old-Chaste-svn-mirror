@@ -80,7 +80,7 @@ private:
 
 #ifdef CHASTE_VTK
 //Requires  "sudo aptitude install libvtk5-dev" or similar
-///\todo Merge into VtkWriter (#1076)
+///\todo Merge into VtkMeshWriter (#1076)
     vtkUnstructuredGrid* mpVtkUnstructedMesh;
 #endif //CHASTE_VTK
 

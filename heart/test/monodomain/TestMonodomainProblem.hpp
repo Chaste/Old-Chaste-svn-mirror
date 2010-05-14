@@ -1113,7 +1113,7 @@ public:
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_400_elements");
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem2dOriginalPermutation");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2d");
-        HeartConfig::Instance()->SetOutputWithOriginalMeshPermutation(true);
+        HeartConfig::Instance()->SetOutputUsingOriginalNodeOrdering(true);
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
 
@@ -1136,16 +1136,16 @@ public:
         // In sequential mode, no permutation is applied
         if (PetscTools::IsSequential())
         {
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation(), false);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering(), false);
         }
         else
         {
             // In parallel the mesh in memory has been permuted. Will check the output has been unpermuted.
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputWithOriginalMeshPermutation(), true);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering(), true);
         }
 
         OutputFileHandler handler("MonoProblem2dOriginalPermutation/", false);
-        //Note that without the "SetOutputWithOriginalMeshPermutation" above the following would fail
+        //Note that without the "SetOutputUsingOriginalNodeOrdering" above the following would fail
         //since METIS partitioning will have changed the permutation
         
         /*

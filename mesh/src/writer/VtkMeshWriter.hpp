@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef VTKWRITER_HPP_
-#define VTKWRITER_HPP_
+#ifndef VTKMESHWRITER_HPP_
+#define VTKMESHWRITER_HPP_
 
 #ifdef CHASTE_VTK
 //Requires  "sudo aptitude install libvtk5-dev" or similar
@@ -46,13 +46,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Version.hpp"
 
 /**
- *  VtkWriter
+ *  VtkMeshWriter
  *
  *  Writes a mesh in VTK .vtu format (that's an XML-based, data compressed unstructured mesh)
  *
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class VtkWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>
+class VtkMeshWriter : public AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>
 {
 
 //Requires  "sudo aptitude install libvtk5-dev" or similar
@@ -80,7 +80,7 @@ public:
      * @param rBaseName  the base name of the files in which to write the mesh data
      * @param rCleanDirectory  whether to clean the directory (defaults to true)
      */
-    VtkWriter(const std::string& rDirectory, const std::string& rBaseName, const bool& rCleanDirectory=true);
+    VtkMeshWriter(const std::string& rDirectory, const std::string& rBaseName, const bool& rCleanDirectory=true);
 
     /**
      * Write mesh data to files.
@@ -107,7 +107,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~VtkWriter();
+    virtual ~VtkMeshWriter();
 };
 
 
@@ -115,7 +115,7 @@ public:
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VtkWriter<ELEMENT_DIM, SPACE_DIM>::VtkWriter(const std::string& rDirectory,
+VtkMeshWriter<ELEMENT_DIM, SPACE_DIM>::VtkMeshWriter(const std::string& rDirectory,
                      const std::string& rBaseName,
                      const bool& rCleanDirectory)
     : AbstractTetrahedralMeshWriter<ELEMENT_DIM, SPACE_DIM>(rDirectory, rBaseName, rCleanDirectory)
@@ -127,13 +127,13 @@ VtkWriter<ELEMENT_DIM, SPACE_DIM>::VtkWriter(const std::string& rDirectory,
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-VtkWriter<ELEMENT_DIM,SPACE_DIM>::~VtkWriter()
+VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::~VtkMeshWriter()
 {
     mpVtkUnstructedMesh->Delete(); // Reference counted
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VtkWriter<ELEMENT_DIM,SPACE_DIM>::MakeVtkMesh()
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::MakeVtkMesh()
 {
     assert(SPACE_DIM==3 || SPACE_DIM == 2);
     assert(SPACE_DIM==ELEMENT_DIM);
@@ -176,7 +176,7 @@ void VtkWriter<ELEMENT_DIM,SPACE_DIM>::MakeVtkMesh()
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VtkWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
 {
     // Using separate scope here to make sure file is properly closed before re-opening it to add provenance info.
     {
@@ -207,7 +207,7 @@ void VtkWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VtkWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std::vector<double> dataPayload)
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std::vector<double> dataPayload)
 {
     vtkDoubleArray* p_scalars = vtkDoubleArray::New();
     p_scalars->SetName(dataName.c_str());
@@ -222,7 +222,7 @@ void VtkWriter<ELEMENT_DIM,SPACE_DIM>::AddCellData(std::string dataName, std::ve
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VtkWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
+void VtkMeshWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, std::vector<double> dataPayload)
 {
     vtkDoubleArray* p_scalars = vtkDoubleArray::New();
     p_scalars->SetName(dataName.c_str());
@@ -238,4 +238,4 @@ void VtkWriter<ELEMENT_DIM,SPACE_DIM>::AddPointData(std::string dataName, std::v
 }
 #endif //CHASTE_VTK
 
-#endif /*VTKWRITER_HPP_*/
+#endif /*VTKMESHWRITER_HPP_*/

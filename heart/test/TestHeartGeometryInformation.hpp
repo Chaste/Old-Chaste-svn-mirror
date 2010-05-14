@@ -468,7 +468,7 @@ public:
 //// Requires  "sudo aptitude install libvtk5-dev" or similar
 //        if  (!PetscTools::IsSequential())
 //        {
-//            VtkWriter<3,3> writer("", "epi_distance_par", false);
+//            VtkMeshWriter<3,3> writer("", "epi_distance_par", false);
 //            // Add distance from origin into the node "point" data
 //            writer.AddPointData("Distance from epi", info.rGetDistanceMapEpicardium());
 //            writer.AddPointData("Relative wall distance", relative_wall_position);
