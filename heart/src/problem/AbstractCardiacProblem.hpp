@@ -129,7 +129,7 @@ private:
             writer.DefineUnlimitedDimension("Time", "msec");
             int vm_col = writer.DefineVariable("Vm","mV");
 
-            ///\todo #1242 
+            ///\todo #1369
             assert(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false );
             
             if (PROBLEM_DIM==1)

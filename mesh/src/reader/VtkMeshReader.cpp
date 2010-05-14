@@ -1,0 +1,272 @@
+/*
+
+Copyright (C) Fujitsu Laboratories of Europe, 2009
+
+*/
+
+/*
+
+Copyright (C) University of Oxford, 2005-2010
+
+University of Oxford means the Chancellor, Masters and Scholars of the
+University of Oxford, having an administrative office at Wellington
+Square, Oxford OX1 2JD, UK.
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details. The offer of Chaste under the terms of the
+License is subject to the License being interpreted in accordance with
+English Law and subject to any action against the University of Oxford
+being under the jurisdiction of the English Courts.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Chaste. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+
+
+#ifdef CHASTE_VTK
+
+#include "VtkMeshReader.hpp"
+#include "Exception.hpp"
+
+VtkMeshReader::VtkMeshReader(std::string pathBaseName) :
+    mIndexFromZero(true),
+    mNumNodes(0),
+    mNumElements(0),
+    mNumFaces(0),
+    mNodesRead(0),
+    mElementsRead(0),
+    mFacesRead(0),
+    mBoundaryFacesRead(0),
+    mNumElementAttributes(0),
+    mNumFaceAttributes(0),
+    mOrderOfElements(1),
+    mNodesPerElement(4)
+{
+    vtkXMLUnstructuredGridReader* vtk_xml_unstructured_grid_reader;
+
+    // Check file exists
+    mVtuFile.open(pathBaseName.c_str());
+    if ( !mVtuFile.is_open() )
+    {
+        EXCEPTION("Could not open VTU file: " + pathBaseName);
+    }
+    mVtuFile.close();
+
+    // Load the mesh geometry and data from a file
+    vtk_xml_unstructured_grid_reader = vtkXMLUnstructuredGridReader::New();
+    vtk_xml_unstructured_grid_reader->SetFileName( pathBaseName.c_str() );
+    vtk_xml_unstructured_grid_reader->Update();
+    mpVtkUnstructuredGrid = vtk_xml_unstructured_grid_reader->GetOutput();
+
+    mNumNodes = vtk_xml_unstructured_grid_reader->GetNumberOfPoints();
+    mNumElements = vtk_xml_unstructured_grid_reader->GetNumberOfCells();
+
+    // Extract the surface faces
+    mpVtkGeometryFilter = vtkGeometryFilter::New();
+    mpVtkGeometryFilter->SetInput(mpVtkUnstructuredGrid);
+    mpVtkGeometryFilter->Update();
+
+    mNumFaces = mpVtkGeometryFilter->GetOutput()->GetNumberOfCells();
+
+    vtk_xml_unstructured_grid_reader->Delete();
+}
+
+VtkMeshReader::VtkMeshReader(vtkUnstructuredGrid* p_vtkUnstructuredGrid) :
+    mIndexFromZero(true),
+    mNumNodes(0),
+    mNumElements(0),
+    mNumFaces(0),
+    mNodesRead(0),
+    mElementsRead(0),
+    mFacesRead(0),
+    mBoundaryFacesRead(0),
+    mNumElementAttributes(0),
+    mNumFaceAttributes(0),
+    mOrderOfElements(1),
+    mNodesPerElement(4)
+{
+    mpVtkUnstructuredGrid = p_vtkUnstructuredGrid;
+
+    mNumNodes = mpVtkUnstructuredGrid->GetNumberOfPoints();
+    mNumElements = mpVtkUnstructuredGrid->GetNumberOfCells();
+
+    // Extract the surface faces
+    mpVtkGeometryFilter = vtkGeometryFilter::New();
+    mpVtkGeometryFilter->SetInput(mpVtkUnstructuredGrid);
+    mpVtkGeometryFilter->Update();
+
+    mNumFaces = mpVtkGeometryFilter->GetOutput()->GetNumberOfCells();
+}
+
+VtkMeshReader::~VtkMeshReader()
+{
+    mpVtkGeometryFilter->Delete();
+}
+
+unsigned VtkMeshReader::GetNumElements() const
+{
+    return mNumElements;
+}
+
+unsigned VtkMeshReader::GetNumNodes() const
+{
+    return mNumNodes;
+}
+
+unsigned VtkMeshReader::GetNumFaces() const
+{
+    return mNumFaces;
+}
+
+unsigned VtkMeshReader::GetNumEdges() const
+{
+    return mNumFaces;
+}
+
+unsigned VtkMeshReader::GetNumElementAttributes() const
+{
+    return mNumElementAttributes;
+}
+
+unsigned VtkMeshReader::GetNumFaceAttributes() const
+{
+    return mNumFaceAttributes;
+}
+
+void VtkMeshReader::Reset()
+{
+//    CloseFiles();
+//    OpenFiles();
+//    ReadHeaders();
+
+    mNodesRead=0;
+    mElementsRead=0;
+    mFacesRead=0;
+    mBoundaryFacesRead=0;
+}
+
+void VtkMeshReader::Initialize()
+{
+    mpVtkUnstructuredGrid->Initialize();
+}
+
+std::vector<double> VtkMeshReader::GetNextNode()
+{
+    if ( mNodesRead >= mNumNodes )
+    {
+        EXCEPTION( "Trying to read data for a node that doesn't exist" );
+    }
+
+    std::vector<double> next_node;
+
+    for (unsigned i = 0; i < 3; i++)
+    {
+        next_node.push_back( mpVtkUnstructuredGrid->GetPoint(mNodesRead)[i] );
+    }
+
+    mNodesRead++;
+    return next_node;
+}
+
+ElementData VtkMeshReader::GetNextElementData()
+{
+    if ( mElementsRead >= mNumElements )
+    {
+        EXCEPTION( "Trying to read data for an element that doesn't exist" );
+    }
+
+    if( !mpVtkUnstructuredGrid->GetCell(mElementsRead)->IsA("vtkTetra") )
+    {
+        EXCEPTION("Element is not a vtkTetra");
+    }
+
+    ElementData next_element_data;
+
+    for (unsigned i = 0; i < mNodesPerElement; i++)
+    {
+        next_element_data.NodeIndices.push_back(mpVtkUnstructuredGrid->GetCell(mElementsRead)->GetPointId(i));
+    }
+
+    // \todo implement method to read element data properly (currently returns zero always...)
+    next_element_data.AttributeValue = 0;
+
+    mElementsRead++;
+    return next_element_data;
+}
+
+ElementData VtkMeshReader::GetNextFaceData()
+{
+    if ( mBoundaryFacesRead >= mNumFaces)
+    {
+        EXCEPTION( "Trying to read data for a boundary element that doesn't exist");
+    }
+
+    ElementData next_face_data;
+
+    for (unsigned i = 0; i < 3; i++)
+    {
+        next_face_data.NodeIndices.push_back(mpVtkGeometryFilter->GetOutput()->GetCell(mBoundaryFacesRead)->GetPointId(i));
+    }
+
+    mBoundaryFacesRead++;
+    return next_face_data;
+}
+
+
+std::vector<double> VtkMeshReader::GetCellData(std::string dataName)
+{
+    vtkCellData *p_cell_data = mpVtkUnstructuredGrid->GetCellData();
+
+    if ( !p_cell_data->HasArray(dataName.c_str()) )
+    {
+        EXCEPTION("No cell data '" + dataName + "'");
+    }
+
+    vtkDataArray *p_scalars = p_cell_data->GetArray( dataName.c_str() );
+    std::vector<double> data_payload;
+
+    for (unsigned i = 0; i < mNumElements; i++)
+    {
+        data_payload.push_back( p_scalars->GetTuple(i)[0] );
+    }
+
+    return data_payload;
+}
+
+std::vector<double> VtkMeshReader::GetPointData(std::string dataName)
+{
+    vtkPointData *p_point_data = mpVtkUnstructuredGrid->GetPointData();
+
+    if ( !p_point_data->HasArray(dataName.c_str()) )
+    {
+        EXCEPTION("No point data '" + dataName + "'");
+    }
+
+    vtkDataArray *p_scalars = p_point_data->GetArray( dataName.c_str() );
+    std::vector<double> data_payload;
+
+    for (unsigned i = 0; i < mNumNodes; i++)
+    {
+        data_payload.push_back( p_scalars->GetTuple(i)[0] );
+    }
+
+    return data_payload;
+}
+
+vtkUnstructuredGrid* VtkMeshReader::OutputMeshAsVtkUnstructuredGrid()
+{
+    return mpVtkUnstructuredGrid;
+}
+
+#endif // CHASTE_VTK

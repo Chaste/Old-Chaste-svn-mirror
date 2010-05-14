@@ -19,3 +19,4 @@ TestVertexElement.hpp
 TestVertexMesh.hpp
 TestVertexMeshReader.hpp
 TestVertexMeshWriter.hpp
+TestVtkMeshReader.hpp

@@ -50,6 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CmguiMeshWriter.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 #include "NumericFileComparison.hpp"
+#include "VtkMeshReader.hpp"
 
 #include <sys/stat.h> // For chmod()
 
@@ -1175,7 +1176,29 @@ public:
         /*
          * Vtk Format
          */
-        /// \todo: write a comparison based on a VTK reader to come...         
+#ifdef CHASTE_VTK
+        // Read in a VTKUnstructuredGrid as a mesh
+        VtkMeshReader mesh_reader(handler.GetOutputDirectoryFullPath()+"vtk_output/MonodomainLR91_2d.vtu");
+        TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 221U);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 400U);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 400U);
+        
+        std::vector<double> first_node = mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
+        TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );
+
+        std::vector<double> next_node = mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( next_node[0] , 0.01 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
+        
+        //Last time step V_m
+        TS_ASSERT_DELTA( mesh_reader.GetPointData( "V_000050" )[0],    13.146, 1e-3 );
+        TS_ASSERT_DELTA( mesh_reader.GetPointData( "V_000050" )[110],  13.146, 1e-3 );
+        TS_ASSERT_DELTA( mesh_reader.GetPointData( "V_000050" )[220], -83.855, 1e-3 );
+
+#endif // CHASTE_VTK    
 
     }
 
