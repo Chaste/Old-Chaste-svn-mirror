@@ -1178,7 +1178,8 @@ public:
          */
 #ifdef CHASTE_VTK
         // Read in a VTKUnstructuredGrid as a mesh
-        VtkMeshReader mesh_reader(handler.GetOutputDirectoryFullPath()+"vtk_output/MonodomainLR91_2d.vtu");
+        
+        VtkMeshReader<2,2> mesh_reader(handler.GetOutputDirectoryFullPath()+"vtk_output/MonodomainLR91_2d.vtu");
         TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 221U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 400U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 400U);

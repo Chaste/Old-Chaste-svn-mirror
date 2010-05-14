@@ -39,7 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VtkMeshReader.hpp"
 #include "Exception.hpp"
 
-VtkMeshReader::VtkMeshReader(std::string pathBaseName) :
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::VtkMeshReader(std::string pathBaseName) :
     mIndexFromZero(true),
     mNumNodes(0),
     mNumElements(0),
@@ -82,7 +83,8 @@ VtkMeshReader::VtkMeshReader(std::string pathBaseName) :
     vtk_xml_unstructured_grid_reader->Delete();
 }
 
-VtkMeshReader::VtkMeshReader(vtkUnstructuredGrid* p_vtkUnstructuredGrid) :
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::VtkMeshReader(vtkUnstructuredGrid* p_vtkUnstructuredGrid) :
     mIndexFromZero(true),
     mNumNodes(0),
     mNumElements(0),
@@ -109,42 +111,50 @@ VtkMeshReader::VtkMeshReader(vtkUnstructuredGrid* p_vtkUnstructuredGrid) :
     mNumFaces = mpVtkGeometryFilter->GetOutput()->GetNumberOfCells();
 }
 
-VtkMeshReader::~VtkMeshReader()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::~VtkMeshReader()
 {
     mpVtkGeometryFilter->Delete();
 }
 
-unsigned VtkMeshReader::GetNumElements() const
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNumElements() const
 {
     return mNumElements;
 }
 
-unsigned VtkMeshReader::GetNumNodes() const
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNumNodes() const
 {
     return mNumNodes;
 }
 
-unsigned VtkMeshReader::GetNumFaces() const
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNumFaces() const
 {
     return mNumFaces;
 }
 
-unsigned VtkMeshReader::GetNumEdges() const
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNumEdges() const
 {
     return mNumFaces;
 }
 
-unsigned VtkMeshReader::GetNumElementAttributes() const
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNumElementAttributes() const
 {
     return mNumElementAttributes;
 }
 
-unsigned VtkMeshReader::GetNumFaceAttributes() const
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNumFaceAttributes() const
 {
     return mNumFaceAttributes;
 }
 
-void VtkMeshReader::Reset()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::Reset()
 {
 //    CloseFiles();
 //    OpenFiles();
@@ -156,12 +166,14 @@ void VtkMeshReader::Reset()
     mBoundaryFacesRead=0;
 }
 
-void VtkMeshReader::Initialize()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::Initialize()
 {
     mpVtkUnstructuredGrid->Initialize();
 }
 
-std::vector<double> VtkMeshReader::GetNextNode()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<double> VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNextNode()
 {
     if ( mNodesRead >= mNumNodes )
     {
@@ -179,7 +191,8 @@ std::vector<double> VtkMeshReader::GetNextNode()
     return next_node;
 }
 
-ElementData VtkMeshReader::GetNextElementData()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNextElementData()
 {
     if ( mElementsRead >= mNumElements )
     {
@@ -205,7 +218,8 @@ ElementData VtkMeshReader::GetNextElementData()
     return next_element_data;
 }
 
-ElementData VtkMeshReader::GetNextFaceData()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ElementData VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetNextFaceData()
 {
     if ( mBoundaryFacesRead >= mNumFaces)
     {
@@ -224,7 +238,8 @@ ElementData VtkMeshReader::GetNextFaceData()
 }
 
 
-std::vector<double> VtkMeshReader::GetCellData(std::string dataName)
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<double> VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetCellData(std::string dataName)
 {
     vtkCellData *p_cell_data = mpVtkUnstructuredGrid->GetCellData();
 
@@ -244,7 +259,8 @@ std::vector<double> VtkMeshReader::GetCellData(std::string dataName)
     return data_payload;
 }
 
-std::vector<double> VtkMeshReader::GetPointData(std::string dataName)
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::vector<double> VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::GetPointData(std::string dataName)
 {
     vtkPointData *p_point_data = mpVtkUnstructuredGrid->GetPointData();
 
@@ -264,9 +280,20 @@ std::vector<double> VtkMeshReader::GetPointData(std::string dataName)
     return data_payload;
 }
 
-vtkUnstructuredGrid* VtkMeshReader::OutputMeshAsVtkUnstructuredGrid()
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+vtkUnstructuredGrid* VtkMeshReader<ELEMENT_DIM,SPACE_DIM>::OutputMeshAsVtkUnstructuredGrid()
 {
     return mpVtkUnstructuredGrid;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////////////
+
+template class VtkMeshReader<1,1>;
+template class VtkMeshReader<1,2>;
+template class VtkMeshReader<1,3>;
+template class VtkMeshReader<2,2>;
+template class VtkMeshReader<2,3>;
+template class VtkMeshReader<3,3>;
 #endif // CHASTE_VTK

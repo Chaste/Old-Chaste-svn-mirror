@@ -54,9 +54,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedTetrahedralMesh.hpp"
 #include "VtkMeshWriter.hpp"
 #include "VtkMeshReader.hpp"
+#include "GenericMeshReader.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
+typedef VtkMeshReader<3,3> MESH_READER3;
 
 class TestVtkMeshReader : public CxxTest::TestSuite
 {
@@ -69,8 +71,8 @@ public:
     void TestFilesOpen(void) throw(Exception)
     {
 #ifdef CHASTE_VTK
-        TS_ASSERT_THROWS_NOTHING( VtkMeshReader mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu") );
-        TS_ASSERT_THROWS_ANYTHING( VtkMeshReader mesh_reader("mesh/test/data/nofile.vtu") );
+        TS_ASSERT_THROWS_NOTHING( MESH_READER3 mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu") );
+        TS_ASSERT_THROWS_ANYTHING( MESH_READER3 mesh_reader("mesh/test/data/nofile.vtu") );
 #endif // CHASTE_VTK
     }
 
@@ -80,7 +82,7 @@ public:
     void TestOutputVtkUnstructuredGrid(void) throw(Exception)
     {
 #ifdef CHASTE_VTK
-        VtkMeshReader mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
+        VtkMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
 
         vtkUnstructuredGrid* vtk_unstructed_grid = mesh_reader.OutputMeshAsVtkUnstructuredGrid();
 
@@ -97,7 +99,7 @@ public:
     void TestGetNextNode(void) throw(Exception)
     {
 #ifdef CHASTE_VTK
-        VtkMeshReader mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
+        VtkMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
 
         TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 12U);
 
@@ -124,7 +126,7 @@ public:
     void TestGetNextElementData(void) throw(Exception)
     {
 #ifdef CHASTE_VTK
-        VtkMeshReader mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
+        VtkMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
 
         TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 12U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumElementAttributes(), 0u);
@@ -153,7 +155,7 @@ public:
                                "Trying to read data for an element that doesn't exist" );
 
         // Test on a .vtu file where the elements are triangles, rather than tetrahedra
-        VtkMeshReader invalid_mesh_reader("mesh/test/data/sids.vtu");
+        VtkMeshReader<3,3> invalid_mesh_reader("mesh/test/data/sids.vtu");
         TS_ASSERT_EQUALS( invalid_mesh_reader.GetNumElements(), 736U);
         TS_ASSERT_EQUALS( invalid_mesh_reader.GetNumElementAttributes(), 0u);
 
@@ -166,7 +168,7 @@ public:
     void TestGetNextFaceData(void) throw(Exception)
     {
 #ifdef CHASTE_VTK
-        VtkMeshReader mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
+        VtkMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
 
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 20U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumEdges(), 20U);
@@ -206,11 +208,31 @@ public:
     void TestConstructFromVtkUnstructuredGridObject()
     {
 #ifdef CHASTE_VTK
-        VtkMeshReader mesh_reader_1("mesh/test/data/cube_2mm_12_elements.vtu");
+        VtkMeshReader<3,3> mesh_reader_1("mesh/test/data/cube_2mm_12_elements.vtu");
         vtkUnstructuredGrid* vtk_unstructed_grid = mesh_reader_1.OutputMeshAsVtkUnstructuredGrid();
 
-        VtkMeshReader mesh_reader(vtk_unstructed_grid);
+        VtkMeshReader<3,3> mesh_reader(vtk_unstructed_grid);
 
+        TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 12U);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 12U);
+        TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 20U);
+
+        std::vector<double> first_node = mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( first_node[0] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( first_node[1] , 0.0, 1e-6 );
+        TS_ASSERT_DELTA( first_node[2] , 0.0 , 1e-6 );
+
+        std::vector<double> next_node = mesh_reader.GetNextNode();
+        TS_ASSERT_DELTA( next_node[0] , 0.2 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[1] , 0.0 , 1e-6 );
+        TS_ASSERT_DELTA( next_node[2] , 0.0 , 1e-6 );
+#endif // CHASTE_VTK
+    }
+    void TestGenericReader()
+    {
+#ifdef CHASTE_VTK
+        GenericMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements.vtu");
+       
         TS_ASSERT_EQUALS( mesh_reader.GetNumNodes(), 12U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumElements(), 12U);
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 20U);
@@ -233,7 +255,7 @@ public:
     void TestBuildTetrahedralMeshFromMeshReader(void) throw(Exception)
     {
 #ifdef CHASTE_VTK
-        VtkMeshReader mesh_reader("mesh/test/data/TestVtkMeshWriter/heart_decimation.vtu");
+        VtkMeshReader<3,3> mesh_reader("mesh/test/data/TestVtkMeshWriter/heart_decimation.vtu");
 
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -289,7 +311,7 @@ public:
    void TestBuildDistributedTetrahedralMeshFromVtkMeshReader(void) throw(Exception)
    {
 #ifdef CHASTE_VTK
-        VtkMeshReader mesh_reader("mesh/test/data/TestVtkMeshWriter/heart_decimation.vtu");
+        VtkMeshReader<3,3> mesh_reader("mesh/test/data/TestVtkMeshWriter/heart_decimation.vtu");
 
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -354,7 +376,7 @@ public:
         std::string input_mesh = "cube_2mm_12_elements";
 
         // Read in a VTKUnstructuredGrid as a mesh
-        VtkMeshReader mesh_reader("mesh/test/data/" + input_mesh + ".vtu");
+        VtkMeshReader<3,3> mesh_reader("mesh/test/data/" + input_mesh + ".vtu");
         DistributedTetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -389,7 +411,7 @@ public:
 
         // Read the mesh back in from the VTK file
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtk/";
-        VtkMeshReader vtk_reader(results_dir+"vtk/" + input_mesh + ".vtu");
+        VtkMeshReader<3,3> vtk_reader(results_dir+"vtk/" + input_mesh + ".vtu");
         TetrahedralMesh<3,3> mesh_from_vtk;
         mesh_from_vtk.ConstructFromMeshReader(vtk_reader);
 

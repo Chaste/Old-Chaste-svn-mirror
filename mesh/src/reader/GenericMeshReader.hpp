@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //Possible subclasses to delegate
 #include "TrianglesMeshReader.hpp"
 #include "MemfemMeshReader.hpp"
+#include "VtkMeshReader.hpp"
 
 /**
  * A generic mesh reader
@@ -75,10 +76,18 @@ public:
             }
             catch (Exception memfem_exception)
             {
-                std::string combined_message = "Could not open appropriate mesh files for "+pathBaseName+"\n";
-                combined_message += "Triangle format: "+triangles_exception.GetShortMessage()+"\n"; 
-                combined_message += "Memfem format: "+memfem_exception.GetShortMessage()+"\n";
-                EXCEPTION(combined_message);
+                try
+                {
+                    mpMeshReader=new VtkMeshReader<ELEMENT_DIM, SPACE_DIM>(pathBaseName);
+                }
+                catch (Exception vtk_exception)
+                {
+                    std::string combined_message = "Could not open appropriate mesh files for "+pathBaseName+"\n";
+                    combined_message += "Triangle format: "+triangles_exception.GetShortMessage()+"\n"; 
+                    combined_message += "Memfem format: "+memfem_exception.GetShortMessage()+"\n";
+                    combined_message += "Vtk format: "+memfem_exception.GetShortMessage()+"\n";
+                    EXCEPTION(combined_message);
+                }
             }
         }
         

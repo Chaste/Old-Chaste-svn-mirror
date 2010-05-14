@@ -63,10 +63,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  VtkMeshReader
  *
  *  Reads a mesh from VTK .vtu format (that's an XML-based, data compressed unstructured mesh)
- *
+ *  \todo Provide <2,2> functionality
  */
 
-class VtkMeshReader : public AbstractMeshReader<3,3>
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class VtkMeshReader : public AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>
 {
 private:
 
