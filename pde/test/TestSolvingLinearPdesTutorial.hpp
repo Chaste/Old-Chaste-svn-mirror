@@ -79,8 +79,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /* == Test 1: Solving a linear elliptic PDE ==
  *
- * Here, we solve the PDE: div(D grad u) + u = x^2^+y^2^, in 2D, where
- * D is the diffusion tensor (1 1; 0 1) (ie D11=D12=D22=1, D21=0), on a square
+ * Here, we solve the PDE: div(D grad u) + u + x^2^+y^2^ = 0, in 2D, where
+ * D is the diffusion tensor (2 0; 0 1) (ie D11=D12=D22=1, D21=0), on a square
  * domain, with boundary conditions u=0 on x=0 or y=0, and (D grad u).n = 0 on x=1 and y=1,
  * where n is the surface normal.
  *
