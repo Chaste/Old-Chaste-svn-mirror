@@ -41,7 +41,7 @@ from pwd import getpwuid
 max_semaphore_arrays=int(os.popen('ipcs -l | awk \'/max number of arrays/\'').read().split()[-1])
 #On chaste-bob server (and other Ubuntu machines) the value is max_semaphore_arrays==128
 #MPI starts to fail when the number of semaphores reaches 128
-semaphore_limit = 3*max_semaphore_arrays/4
+semaphore_limit = 5*max_semaphore_arrays/8
 
 semaphore_data=os.popen('tail -n +2 /proc/sysvipc/sem  |awk \'{print $5}\'| sort | uniq -c').readlines()
 
