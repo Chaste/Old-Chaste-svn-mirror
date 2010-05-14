@@ -84,7 +84,7 @@ public:
                                                      Element<ELEMENT_DIM,SPACE_DIM>* pElement)=0;
 
     /**
-     * Compute the diffusion term at a given point.
+     * Compute the diffusion term at a given point. The diffusion tensor should be symmetric and positive definite
      *
      * @param rX The point in space at which the diffusion term is computed.
      * @return A matrix.

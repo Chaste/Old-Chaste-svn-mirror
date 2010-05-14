@@ -104,11 +104,12 @@ private:
     c_matrix<double,2,2> mDiffusionTensor;
 
 public:
-    /* The constructor just sets up the diffusion tensor. */
+    /* The constructor just sets up the diffusion tensor. We choose a diffusion tensor which
+     * corresponds to twice as much diffusion in the x-direction compared to the y-direction */
     MyPde()
     {
-        mDiffusionTensor(0,0) = 1.0;
-        mDiffusionTensor(0,1) = 1.0;
+        mDiffusionTensor(0,0) = 2.0;
+        mDiffusionTensor(0,1) = 0.0;
         mDiffusionTensor(1,0) = 0.0;
         mDiffusionTensor(1,1) = 1.0;
     }
@@ -128,7 +129,8 @@ public:
         return 1.0;
     }
 
-    /* The third method returns the diffusion tensor D */
+    /* The third method returns the diffusion tensor D. Note that the diffusion tensor should 
+     * be symmetric and positive definite for a physical, well-posed problem. */
     c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& rX)
     {
         return mDiffusionTensor;
@@ -143,7 +145,7 @@ class TestSolvingLinearPdesTutorial : public CxxTest::TestSuite
 /* All individual test defined in this test suite '''must''' be declared as public */
 public:
     /* Define a particular test */
-    void TestSolvingEllipticPde()
+    void TestSolvingEllipticPde() throw(Exception)
     {
         /* First we declare a mesh reader which reads mesh data files of the 'Triangle'
          * format. The path given is the relative to the main Chaste directory. The reader
@@ -303,7 +305,7 @@ public:
      * conditions u=1
      *
      */
-    void TestSolvingParabolicPde()
+    void TestSolvingParabolicPde() throw(Exception)
     {
         /* Create a 10 by 10 by 10 mesh in 3D, this time using the {{{ConstructCuboid}}} method
          * on the mesh. */

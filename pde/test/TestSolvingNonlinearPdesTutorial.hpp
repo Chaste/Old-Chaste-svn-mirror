@@ -101,7 +101,7 @@ public:
     }
 
     /* The third is the diffusion tensor, which unlike the linear case, can be
-     * dependent on u */
+     * dependent on u. The diffusion tensor should be symmetric and positive definite/ */
     c_matrix<double,2,2> ComputeDiffusionTerm(const ChastePoint<2>& rX, double u)
     {
         return identity_matrix<double>(2)*u;

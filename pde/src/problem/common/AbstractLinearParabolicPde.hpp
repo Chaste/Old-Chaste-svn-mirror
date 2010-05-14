@@ -78,7 +78,7 @@ public:
     virtual double ComputeLinearSourceTerm(const ChastePoint<SPACE_DIM>& rX)=0;
 
     /**
-     * Compute diffusion term.
+     * Compute diffusion term. The diffusion tensor should be symmetric and positive definite.
      *
      * @param rX The point in space at which the diffusion term is computed.
      * @param pElement The mesh element that x is contained in (optional).

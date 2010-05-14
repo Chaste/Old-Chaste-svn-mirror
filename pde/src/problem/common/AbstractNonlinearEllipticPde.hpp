@@ -62,7 +62,7 @@ public:
     virtual double ComputeNonlinearSourceTerm(const ChastePoint<SPACE_DIM>& rX, double u)=0;
 
     /**
-     * Compute diffusion term.
+     * Compute diffusion term. The diffusion tensor should be symmetric and positive definite.
      *
      * @param rX the point in space at which the diffusion term is computed.
      * @param u the value of the dependent variable at the point
