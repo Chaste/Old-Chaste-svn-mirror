@@ -385,17 +385,18 @@ class CellMLTranslator(object):
 
     def output_comment(self, *args, **kwargs):
         """Output a (multi-line) string as a comment."""
+        start = kwargs.get('start', self.COMMENT_START)
+        if kwargs.get('pad', False):
+            start = ' ' + start
         comment = ''.join(map(str, args))
         lines = comment.split('\n')
         for line in lines:
-            self.writeln(self.COMMENT_START, line, **kwargs)
+            self.writeln(start, line, **kwargs)
 
     def output_doxygen(self, *args, **kwargs):
         """Output a (multi-line) string as a Doxygen comment."""
-        comment = ''.join(map(str, args))
-        lines = comment.split('\n')
-        for line in lines:
-            self.writeln(self.DOXYGEN_COMMENT_START, line, **kwargs)
+        kwargs['start'] = self.DOXYGEN_COMMENT_START
+        self.output_comment(*args, **kwargs)
 
     def set_indent(self, level=None, offset=None):
         """Set the indentation level for subsequent writes.
@@ -542,12 +543,14 @@ class CellMLTranslator(object):
                 self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(expr),
                              self.EQ_ASSIGN,
                              self.code_name(expr.get_source_variable()),
-                             self.STMT_END)
+                             self.STMT_END, nl=False)
+                self.output_comment(expr.units, indent=False, pad=True)
             elif t == VarTypes.Constant:
                 self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(expr),
                              self.EQ_ASSIGN, nl=False)
                 self.output_number(expr.initial_value)
-                self.writeln(self.STMT_END, indent=False)
+                self.writeln(self.STMT_END, indent=False, nl=False)
+                self.output_comment(expr.units, indent=False, pad=True)
         else:
             # This is a mathematical expression
             self.writeln(self.TYPE_CONST_DOUBLE, nl=False)
@@ -555,7 +558,10 @@ class CellMLTranslator(object):
             self.output_lhs(opers.next())
             self.write(self.EQ_ASSIGN)
             self.output_expr(opers.next(), False)
-            self.writeln(self.STMT_END, indent=False)
+            self.writeln(self.STMT_END, indent=False, nl=False)
+            #1365: add a comment with the LHS units
+            self.output_comment(expr._get_element_units(expr.eq.lhs, return_set=False).description(),
+                                indent=False, pad=True)
 
     def output_lhs(self, expr):
         """Output the left hand side of an assignment expression."""
@@ -1791,7 +1797,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.use_modifiers and assigned_var.oxmeta_name):
             # "Constant" oxmeta-annotated parameters may be modified at run-time
             self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(assigned_var), self.EQ_ASSIGN,
-                         self.modifier_call(assigned_var, expr.initial_value), self.STMT_END)
+                         self.modifier_call(assigned_var, expr.initial_value), self.STMT_END, nl=False)
+            self.output_comment(assigned_var.units, indent=False, pad=True)
         else:
             super(CellMLToChasteTranslator, self).output_assignment(expr)
         if clear_type:
