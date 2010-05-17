@@ -586,6 +586,88 @@ public:
             }
         }
     }
+
+    void TestTissueWritersIn3dWithGhostNodes()
+    {
+        // Set up SimulationTime (needed if VTK is used)
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
+
+        // Resetting the Maximum cell Id to zero (to account for previous tests)
+        TissueCell::ResetMaxCellId();
+
+        // Create a simple 3D mesh with some ghost nodes
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0,  true,  0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1,  true,  1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(2,  true,  1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(3,  true,  0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(4,  false, 0.5, 0.5, 0.5));
+        nodes.push_back(new Node<3>(5,  false, -1.0, -1.0, -1.0));
+        nodes.push_back(new Node<3>(6,  false,  2.0, -1.0, -1.0));
+        nodes.push_back(new Node<3>(7,  false,  2.0,  2.0, -1.0));
+        nodes.push_back(new Node<3>(8,  false, -1.0,  2.0, -1.0));
+        nodes.push_back(new Node<3>(9,  false, -1.0, -1.0,  2.0));
+        nodes.push_back(new Node<3>(10, false,  2.0, -1.0,  2.0));
+        nodes.push_back(new Node<3>(11, false,  2.0,  2.0,  2.0));
+        nodes.push_back(new Node<3>(12, false, -1.0,  2.0,  2.0));
+        MutableMesh<3,3> mesh(nodes);
+
+        std::vector<unsigned> location_indices;
+        for (unsigned index=0; index<5; index++)
+        {
+            location_indices.push_back(index);
+        }
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
+        cells_generator.GenerateGivenLocationIndices(cells, location_indices);
+        cells[4].SetCellProliferativeType(APOPTOTIC); // coverage
+
+        // Create tissue
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);
+
+        // Test set methods
+        TissueConfig::Instance()->SetOutputVoronoiData(true);
+        TissueConfig::Instance()->SetOutputTissueVolumes(true);
+        TissueConfig::Instance()->SetOutputCellVolumes(true);
+        TissueConfig::Instance()->SetOutputCellAncestors(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
+        TissueConfig::Instance()->SetOutputCellAges(true);
+        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+
+        // This method is usually called by Update()
+        tissue.CreateVoronoiTessellation(location_indices);
+
+        std::string output_directory = "TestTissueWritersIn3dWithGhostNodes";
+        OutputFileHandler output_file_handler(output_directory, false);
+
+        tissue.CreateOutputFiles(output_directory, false);
+        tissue.WriteResultsToFiles();
+        tissue.CloseOutputFiles();
+
+        // Compare output with saved files of what they should look like
+        std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements   cell_based/test/data/TestTissueWritersIn3dWithGhostNodes/results.vizelements").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes      cell_based/test/data/TestTissueWritersIn3dWithGhostNodes/results.viznodes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cell_based/test/data/TestTissueWritersIn3dWithGhostNodes/results.vizcelltypes").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissueareas.dat       cell_based/test/data/TestTissueWritersIn3dWithGhostNodes/tissueareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestTissueWritersIn3dWithGhostNodes/cellareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "voronoi.dat           cell_based/test/data/TestTissueWritersIn3dWithGhostNodes/voronoi.dat").c_str()), 0);
+
+        // Test the GetCellMutationStateCount function: there should only be healthy cells
+        std::vector<unsigned> cell_mutation_states = tissue.GetCellMutationStateCount();
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_states[0], 5u);
+
+        // Test the GetCellProliferativeTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
+        std::vector<unsigned> cell_types = tissue.rGetCellProliferativeTypeCount();
+        TS_ASSERT_EQUALS(cell_types.size(), 4u);
+        TS_ASSERT_EQUALS(cell_types[0], 4u);
+        TS_ASSERT_EQUALS(cell_types[3], 1u);
+    }
 };
 
 
