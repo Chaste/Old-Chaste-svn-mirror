@@ -392,8 +392,7 @@ First, return to the main Chaste directory (the folder with the code and this RE
 
 You will need to edit the python/hostconfig/default.py to give the correct paths to each 
 of the libraries.  Note that if you followed these instructions (placing all dependencies below
-a ${CHASTE_LIBS} directory) then this should a matter of removing two lines and editing one 
-line below them.  
+a ${CHASTE_LIBS} directory) then this should a matter of editing the line that sets chaste_libs_path.
 
 If you've used a variation on these instructions then you may need to make other alterations.  For
 example, the name of the Boost serialization library may differ in the 'other_libraries' field.
@@ -449,6 +448,17 @@ file:///<CHASTE_CODE_DIRECTORY>/testoutput/<NAME_OF_YOUR_COMPUTER>.<SOMETHING>/i
 for example: file:///home/scratch/chaste-code/testoutput/msc30.ecs.ox.ac.uk.GccOpt/index.html
 
 
+By default the build does not create library files for the Chaste code, but directly links the
+object files required by each test.  To use libraries, which will reduce the compilation time
+if you are not making frequent changes to core Chaste code, use the chaste_libs=1 option, e.g.
+scons chaste_libs=1 core
+
+
+Further details on build options can be found on the Chaste developers' wiki at
+https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/wiki/BuildGuide.
+For a guest login, use the username "anonymous", and your email address as
+the password.
+
 ========== Creating an executable ==========
 
 *IF* you want to create the standalone cardiac Chaste executable:
@@ -466,8 +476,8 @@ environment (where [*PATH_TO_CHASTE*] is the location of your Chaste
 directory):
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:[*PATH_TO_CHASTE*]/linklib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/boost/lib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/xerces/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/boost/lib:$CHASTE_LIBS/xerces/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/hdf/lib:$CHASTE_LIBS/rdf/lib
 
 In order to run a simulation edit the ChasteParameters.xml file according to your needs and, 
 from the Chaste directory, type
