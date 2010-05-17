@@ -66,28 +66,35 @@ public:
     {
         try
         {
-            mpMeshReader=new TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>(pathBaseName);
+            mpMeshReader = new TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>(pathBaseName);
         }
-        catch (Exception triangles_exception)
+        catch (const Exception& r_triangles_exception)
         {
             try
             {
-                mpMeshReader=new MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>(pathBaseName);
+                mpMeshReader = new MemfemMeshReader<ELEMENT_DIM, SPACE_DIM>(pathBaseName);
             }
-            catch (Exception memfem_exception)
+            catch (const Exception& r_memfem_exception)
             {
+#ifdef CHASTE_VTK
                 try
                 {
-                    mpMeshReader=new VtkMeshReader<ELEMENT_DIM, SPACE_DIM>(pathBaseName);
+                    mpMeshReader = new VtkMeshReader<ELEMENT_DIM, SPACE_DIM>(pathBaseName);
                 }
-                catch (Exception vtk_exception)
+                catch (const Exception& r_vtk_exception)
                 {
-                    std::string combined_message = "Could not open appropriate mesh files for "+pathBaseName+"\n";
-                    combined_message += "Triangle format: "+triangles_exception.GetShortMessage()+"\n"; 
-                    combined_message += "Memfem format: "+memfem_exception.GetShortMessage()+"\n";
-                    combined_message += "Vtk format: "+memfem_exception.GetShortMessage()+"\n";
+#endif // CHASTE_VTK
+                    std::string eol("\n");
+                    std::string combined_message = "Could not open appropriate mesh files for " + pathBaseName + eol;
+                    combined_message += "Triangle format: " + r_triangles_exception.GetShortMessage() + eol; 
+                    combined_message += "Memfem format: " + r_memfem_exception.GetShortMessage() + eol;
+#ifdef CHASTE_VTK
+                    combined_message += "Vtk format: " + r_vtk_exception.GetShortMessage() + eol;
+#endif // CHASTE_VTK
                     EXCEPTION(combined_message);
+#ifdef CHASTE_VTK
                 }
+#endif // CHASTE_VTK
             }
         }
         

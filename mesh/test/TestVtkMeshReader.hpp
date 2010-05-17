@@ -58,7 +58,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
+#ifdef CHASTE_VTK
 typedef VtkMeshReader<3,3> MESH_READER3;
+#endif //CHASTE_VTK
 
 class TestVtkMeshReader : public CxxTest::TestSuite
 {
