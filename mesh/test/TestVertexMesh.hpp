@@ -1432,29 +1432,39 @@ public:
         TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[2], -0.25, 1e-6);
 
         // Check Voronoi faces are correct
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(0)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(0)->GetNodeGlobalIndex(0), 3u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(0)->GetNodeGlobalIndex(1), 0u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(0)->GetNodeGlobalIndex(2), 2u);
+        VertexElement<2,3>* p_face0 = voronoi_mesh.GetFace(0);
+        TS_ASSERT_EQUALS(p_face0->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face0->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(p_face0->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(p_face0->GetNodeGlobalIndex(2), 2u);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face0), 1.125, 1e-4);
 
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(1)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(1)->GetNodeGlobalIndex(0), 3u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(1)->GetNodeGlobalIndex(1), 0u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(1)->GetNodeGlobalIndex(2), 1u);
+        VertexElement<2,3>* p_face1 = voronoi_mesh.GetFace(1);
+        TS_ASSERT_EQUALS(p_face1->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face1->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(p_face1->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(p_face1->GetNodeGlobalIndex(2), 1u);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face1), 1.9485, 1e-4);
 
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(2)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(2)->GetNodeGlobalIndex(0), 1u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(2)->GetNodeGlobalIndex(1), 0u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(2)->GetNodeGlobalIndex(2), 2u);
+        VertexElement<2,3>* p_face2 = voronoi_mesh.GetFace(2);
+        TS_ASSERT_EQUALS(p_face2->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face2->GetNodeGlobalIndex(0), 1u);
+        TS_ASSERT_EQUALS(p_face2->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(p_face2->GetNodeGlobalIndex(2), 2u);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face2), 1.125, 1e-4);
 
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(3)->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(3)->GetNodeGlobalIndex(0), 3u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(3)->GetNodeGlobalIndex(1), 1u);
-        TS_ASSERT_EQUALS(voronoi_mesh.GetFace(3)->GetNodeGlobalIndex(2), 2u);
+        VertexElement<2,3>* p_face3 = voronoi_mesh.GetFace(3);
+        TS_ASSERT_EQUALS(p_face3->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face3->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(p_face3->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(p_face3->GetNodeGlobalIndex(2), 2u);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face3), 1.125, 1e-4);
 
         // Check Voronoi element is correct
         TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumFaces(), 4u);
+        TS_ASSERT_DELTA(voronoi_mesh.GetVolumeOfElement(0), 0.6495, 1e-4);
+        TS_ASSERT_DELTA(voronoi_mesh.GetSurfaceAreaOfElement(0), 5.3235, 1e-4);
     }
 
     void TestTessellationConstructor3dWithGhostNodeforCoverage() throw (Exception)

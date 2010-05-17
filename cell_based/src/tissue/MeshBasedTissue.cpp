@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "MeshBasedTissue.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "CellBasedEventHandler.hpp"
@@ -476,6 +477,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
         {
             WriteCellVolumeResultsToFile();
         }
+        
 #ifdef CHASTE_VTK
     VertexMeshWriter<DIM, DIM> mesh_writer(mDirPath, "results", false);
     std::stringstream time;
@@ -533,9 +535,7 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
             }
             else // DIM==3
             {
-                NEVER_REACHED;
-                ///\todo #8806
-                //cell_area = GetVolumeOfVoronoiElement(elem_index);
+                cell_area = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
             }
             cell_areas.push_back(cell_area);
         }
@@ -609,11 +609,9 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
         }
         else // DIM==3
         {
-            NEVER_REACHED;
-            ///\todo #8806
-            //double cell_volume = GetVolumeOfVoronoiElement(elem_index);
-            //double cell_surface_area = GetSurfaceAreaOfVoronoiElement(elem_index);
-            //*mpVoronoiFile << cell_volume << " " << cell_surface_area << " ";
+            double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+            double cell_surface_area = mpVoronoiTessellation->GetSurfaceAreaOfElement(elem_index);
+            *mpVoronoiFile << cell_volume << " " << cell_surface_area << " ";
         }
     }
     *mpVoronoiFile << "\n";
@@ -653,10 +651,8 @@ void MeshBasedTissue<DIM>::WriteTissueVolumeResultsToFile()
             }
             else // DIM==3
             {
-                NEVER_REACHED;
-                ///\todo #8806
-                //double cell_volume = GetVolumeOfVoronoiElement(elem_index);
-                //apoptotic_area += cell_volume;
+                double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+                apoptotic_area += cell_volume;
             }
         }
     }
@@ -702,10 +698,8 @@ void MeshBasedTissue<DIM>::WriteCellVolumeResultsToFile()
         }
         else // DIM==3
         {
-            NEVER_REACHED;
-            ///\todo #8806
-            //double cell_volume = GetVolumeOfVoronoiElement(elem_index);
-            //*mpCellVolumesFile << cell_volume << " ";
+            double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+            *mpCellVolumesFile << cell_volume << " ";
         }
     }
     *mpCellVolumesFile << "\n";
@@ -841,21 +835,21 @@ double MeshBasedTissue<DIM>::GetPerimeterOfVoronoiElement(unsigned index)
     return perimeter;
 }
 
-//template<unsigned DIM>
-//double MeshBasedTissue<DIM>::GetVolumeOfVoronoiElement(unsigned index)
-//{
-//    unsigned element_index = mpVoronoiTessellation->GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(index);
-//    double volume = mpVoronoiTessellation->GetVolumeOfElement(element_index);
-//    return volume;
-//}
+template<unsigned DIM>
+double MeshBasedTissue<DIM>::GetVolumeOfVoronoiElement(unsigned index)
+{
+    unsigned element_index = mpVoronoiTessellation->GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(index);
+    double volume = mpVoronoiTessellation->GetVolumeOfElement(element_index);
+    return volume;
+}
 
-//template<unsigned DIM>
-//double MeshBasedTissue<DIM>::GetSurfaceAreaOfVoronoiElement(unsigned index)
-//{
-//    unsigned element_index = mpVoronoiTessellation->GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(index);
-//    double surface_area = mpVoronoiTessellation->GetSurfaceAreaOfElement(element_index);
-//    return surface_area;
-//}
+template<unsigned DIM>
+double MeshBasedTissue<DIM>::GetSurfaceAreaOfVoronoiElement(unsigned index)
+{
+    unsigned element_index = mpVoronoiTessellation->GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(index);
+    double surface_area = mpVoronoiTessellation->GetSurfaceAreaOfElement(element_index);
+    return surface_area;
+}
 
 template<unsigned DIM>
 double MeshBasedTissue<DIM>::GetVoronoiEdgeLength(unsigned index1, unsigned index2)

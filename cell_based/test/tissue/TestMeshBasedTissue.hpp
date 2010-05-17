@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
+#include "Debug.hpp"
+
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "MeshBasedTissue.hpp"
@@ -478,44 +480,61 @@ public:
         TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(3), sqrt(2), 1e-6);
         TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(4), 2*sqrt(2), 1e-6);
 
-///\todo fix issue once vtk is installed on clpc298 (#1075)
-//        // ...now test the 3D case
-//
-//        // Create 3D mesh
-//        std::vector<Node<3>*> nodes3d;
-//        nodes3d.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
-//        nodes3d.push_back(new Node<3>(1, true,  1.0, 1.0, 0.0));
-//        nodes3d.push_back(new Node<3>(2, true,  1.0, 0.0, 1.0));
-//        nodes3d.push_back(new Node<3>(3, true,  0.0, 1.0, 1.0));
-//        nodes3d.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
-//        MutableMesh<3,3> mesh3d(nodes3d);
-//
-//        // Create cells
-//        std::vector<TissueCell> cells3d;
-//        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator3d;
-//        cells_generator3d.GenerateBasic(cells3d, mesh3d.GetNumNodes());
-//
-//        // Create tissue
-//        MeshBasedTissue<3> tissue3d(mesh3d, cells3d);
-//        
-//        // Create Voronoi tessellation
-//        tissue3d.CreateVoronoiTessellation();
-//
-//        // Test element volumes and surface areas
-//        for (unsigned i=0; i<4; i++)
-//        {
-//            TS_ASSERT_THROWS_THIS(tissue3d.GetVolumeOfVoronoiElement(i),
-//                                  "This index does not correspond to a VertexElement");
-//
-//            TS_ASSERT_THROWS_THIS(tissue3d.GetSurfaceAreaOfVoronoiElement(i),
-//                                  "This index does not correspond to a VertexElement");
-//        }
-//
-//        double base_area = 1.125;
-//        double height = sqrt(3);
-//
-//        TS_ASSERT_DELTA(tissue3d.GetVolumeOfVoronoiElement(4), base_area*height/3, 1e-4);
-//        TS_ASSERT_DELTA(tissue3d.GetSurfaceAreaOfVoronoiElement(4), 4*base_area, 1e-4);
+        // ...now test the 3D case
+
+        // Create 3D mesh
+        std::vector<Node<3>*> nodes3d;
+        nodes3d.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
+        nodes3d.push_back(new Node<3>(1, true,  1.0, 1.0, 0.0));
+        nodes3d.push_back(new Node<3>(2, true,  1.0, 0.0, 1.0));
+        nodes3d.push_back(new Node<3>(3, true,  0.0, 1.0, 1.0));
+        nodes3d.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
+        MutableMesh<3,3> mesh3d(nodes3d);
+
+        // Create cells
+        std::vector<TissueCell> cells3d;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator3d;
+        cells_generator3d.GenerateBasic(cells3d, mesh3d.GetNumNodes());
+
+        // Create tissue
+        MeshBasedTissue<3> tissue3d(mesh3d, cells3d);
+        
+        // Create Voronoi tessellation
+        tissue3d.CreateVoronoiTessellation();
+
+        // Test element volumes and surface areas
+        for (unsigned i=0; i<4; i++)
+        {
+            TS_ASSERT_THROWS_THIS(tissue3d.GetVolumeOfVoronoiElement(i),
+                                  "This index does not correspond to a VertexElement");
+
+            TS_ASSERT_THROWS_THIS(tissue3d.GetSurfaceAreaOfVoronoiElement(i),
+                                  "This index does not correspond to a VertexElement");
+        }
+
+        // The Voronoi tessellation should comprise a single tetrahedral VertexElement
+        TS_ASSERT_EQUALS(tissue3d.rGetVoronoiTessellation().GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(tissue3d.rGetVoronoiTessellation().GetNumFaces(), 4u);
+        TS_ASSERT_EQUALS(tissue3d.rGetVoronoiTessellation().GetNumElements(), 1u);
+
+        // The faces are not all equal
+        for (unsigned face_index=0; face_index<4; face_index++)
+        {
+            VertexElement<2,3>* p_face = tissue3d.rGetVoronoiTessellation().GetFace(face_index);
+
+            if (face_index == 1)
+            {
+                TS_ASSERT_DELTA(tissue3d.rGetVoronoiTessellation().GetAreaOfFace(p_face), 1.9485, 1e-4);
+            }
+            else
+            {
+                TS_ASSERT_DELTA(tissue3d.rGetVoronoiTessellation().GetAreaOfFace(p_face), 1.125, 1e-4);
+            }
+        }
+
+
+        TS_ASSERT_DELTA(tissue3d.GetVolumeOfVoronoiElement(4), 0.6495, 1e-4);
+        TS_ASSERT_DELTA(tissue3d.GetSurfaceAreaOfVoronoiElement(4), 3*1.125 + 1.9485, 1e-4);
     }
 
     void TestTissueWritersIn2d()
@@ -558,16 +577,16 @@ public:
         TissueConfig::Instance()->SetOutputTissueVolumes(true);
         TissueConfig::Instance()->SetOutputCellVolumes(true);
         TissueConfig::Instance()->SetOutputCellAncestors(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
+        TissueConfig::Instance()->SetOutputCellAges(true);
+        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
 
         // This method is usually called by Update()
         tissue.CreateVoronoiTessellation();
 
         std::string output_directory = "TestTissueWritersIn2d";
         OutputFileHandler output_file_handler(output_directory, false);
-
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
-        TissueConfig::Instance()->SetOutputCellAges(true);
 
         tissue.CreateOutputFiles(output_directory, false);
         tissue.WriteResultsToFiles();
@@ -600,7 +619,6 @@ public:
         TS_ASSERT_EQUALS(cell_types[3], 1u);
     }
 
-    ///\todo Work out why the Voronoi tessellation gives one cell, with zero volume (#1075)
     void TestTissueWritersIn3d()
     {
         // Set up SimulationTime (needed if VTK is used)
@@ -609,21 +627,20 @@ public:
         // Resetting the Maximum cell Id to zero (to account for previous tests)
         TissueCell::ResetMaxCellId();
 
-        // Create a simple 3D tetrahedral mesh
+        // Create a simple 3D mesh
         std::vector<Node<3>*> nodes;
-        for (unsigned i=0; i<5; i++)
-        {
-            double x = 3*RandomNumberGenerator::Instance()->ranf();
-            double y = 3*RandomNumberGenerator::Instance()->ranf();
-            double z = 3*RandomNumberGenerator::Instance()->ranf();
-            nodes.push_back(new Node<3>(i, true,  x, y, z));
-        }
+        nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, true,  1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(2, true,  1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(3, true,  0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
         MutableMesh<3,3> mesh(nodes);
 
         // Set up cells
         std::vector<TissueCell> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+        cells[4].SetCellProliferativeType(APOPTOTIC); // coverage
 
         // Create tissue
         MeshBasedTissue<3> tissue(mesh, cells);
@@ -632,16 +649,17 @@ public:
         TissueConfig::Instance()->SetOutputVoronoiData(true);
         TissueConfig::Instance()->SetOutputTissueVolumes(true);
         TissueConfig::Instance()->SetOutputCellVolumes(true);
+        TissueConfig::Instance()->SetOutputCellAncestors(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
+        TissueConfig::Instance()->SetOutputCellAges(true);
+        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
 
         // This method is usually called by Update()
         tissue.CreateVoronoiTessellation();
 
         std::string output_directory = "TestTissueWritersIn3d";
         OutputFileHandler output_file_handler(output_directory, false);
-
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
-        TissueConfig::Instance()->SetOutputCellAges(true);
 
         tissue.CreateOutputFiles(output_directory, false);
         tissue.WriteResultsToFiles();
@@ -665,7 +683,8 @@ public:
         // Test the GetCellProliferativeTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
         std::vector<unsigned> cell_types = tissue.rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_types.size(), 4u);
-        TS_ASSERT_EQUALS(cell_types[0], 5u);
+        TS_ASSERT_EQUALS(cell_types[0], 4u);
+        TS_ASSERT_EQUALS(cell_types[3], 1u);
     }
 
     void TestGetLocationOfCellCentreAndGetNodeCorrespondingToCell() throw (Exception)
