@@ -65,6 +65,7 @@ other_libpaths = [chaste_libs_path+'lib',
                   chaste_libs_path+'boost/lib', 
                   chaste_libs_path+'xerces/lib',
                   chaste_libs_path+'hdf5/lib',
+                  chaste_libs_path+'rdf/lib',
                   os.path.join(petsc_2_3_path, 'externalpackages/f2cblaslapack/linux-gnu'),
                   parmetis_path]
 
