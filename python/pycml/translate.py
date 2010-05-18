@@ -3910,10 +3910,8 @@ def get_options(args):
     return options, args[0]
 
 
-def run():
-    # Translate the file given on the command line
-    options, model_file = get_options(sys.argv[1:])
-
+def load_model(model_file, options, pycml_path=''):
+    """Load and validate a CellML model."""
     if options.debug:
         formatter = logging.Formatter(fmt="%(name)s: %(message)s")
         handler = logging.StreamHandler(sys.stderr)
@@ -3926,7 +3924,7 @@ def run():
     # model is invalid
     notifier = NotifyHandler(level=logging.WARNING_TRANSLATE_ERROR)
     logging.getLogger('validator').addHandler(notifier)
-    v = validator.CellMLValidator()
+    v = validator.CellMLValidator(pycml_path=pycml_path)
     valid, doc = v.validate(model_file, True,
                             warn_on_units_errors=options.warn_on_units_errors,
                             assume_valid=options.assume_valid)
@@ -3940,6 +3938,13 @@ def run():
         else:
             print >>sys.stderr, "contains untranslatable constructs"
         sys.exit(1)
+    
+    return doc
+
+def run():
+    """Translate the file given on the command line."""
+    options, model_file = get_options(sys.argv[1:])
+    doc = load_model(model_file, options)
 
     config = ConfigurationStore(doc, options=options)
     if options.config_file:

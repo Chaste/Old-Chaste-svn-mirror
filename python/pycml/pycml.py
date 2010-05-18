@@ -2043,6 +2043,24 @@ class cellml_variable(element_base):
                 # Depend directly on the assignment expression
                 self._cml_depends_on = [defn]
                 self._cml_source_var = None
+    
+    @staticmethod
+    def create_new(elt, name, units, id=None, initial_value=None):
+        """Create a new <variable> element with the given name and units.
+        
+        Optionally id and initial_value may also be given.
+        
+        elt may be any existing XML element.
+        """
+        attrs = {(u'units', None): units,
+                 (u'name', None): name}
+        if id is not None:
+            attrs[(u'cmeta:id', NSS[u'cmeta'])] = id
+        if initial_value is not None:
+            attrs[(u'initial_value', None)] = initial_value
+        new_elt = elt.xml_create_element(u'variable', NSS[u'cml'],
+                                         attributes=attrs)
+        return new_elt
 
 class UnitsSet(set):
     """A set of cellml_units objects.

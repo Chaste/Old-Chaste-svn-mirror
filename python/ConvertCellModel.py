@@ -30,6 +30,7 @@ A little helper script to facilitate calling PyCml for common Chaste usage scena
 """
 
 import os
+import subprocess
 import sys
 
 options = ['--conf=config.xml',
@@ -41,6 +42,8 @@ options = ['--conf=config.xml',
 #   --assume-valid --no-member-vars
 #   --lt-index-uses-floor
 
+validation_options = ['-u', '--Wu']
+
 # Use external PyCml if requested
 if 'PYCML_DIR' in os.environ and os.path.isdir(os.environ['PYCML_DIR']):
     print 'Using external PyCml from PYCML_DIR =', os.environ['PYCML_DIR']
@@ -50,18 +53,22 @@ else:
 
 # Poor man's argument parsing
 our_args = ['--cvode', '--normal', '--opt']
-found_any_arg = False
+number_of_args = 0
 for arg in our_args:
     if arg in sys.argv:
         sys.argv.remove(arg)
         exec("use_%s = True" % arg[2:])
-        found_any_arg = True
+        number_of_args += 1
     else:
         exec("use_%s = False" % arg[2:])
-if not found_any_arg:
+if number_of_args == 0:
     use_cvode = False
     use_normal = True
     use_opt = True
+    number_of_args = 2
+if number_of_args > 1:
+    options.append('--assume-valid')
+
 if '--output-dir' in sys.argv:
     i = sys.argv.index('--output-dir')
     output_dir = sys.argv[i+1]
@@ -82,15 +89,27 @@ options.extend([arg for arg in args if arg[0] == '-'])
 models = []
 for model in [arg for arg in args if arg[0] != '-']:
     models.append(os.path.abspath(model))
+    
+def do_cmd(cmd):
+    """Print and execute a command."""
+    print cmd
+    rc = subprocess.call(cmd, shell=True)
+    if rc:
+        sys.exit(rc)
 
-# The main workhorse function
 def convert(model, output_dir):
+    """The main workhorse function."""
     model_dir = os.path.dirname(model)
     model_base = os.path.basename(model)
     model_base = os.path.splitext(model_base)[0]
     class_name = "Cell" + model_base + "FromCellML"
     if output_dir is None:
         output_dir = model_dir
+
+    if number_of_args > 1:
+        # Run validation separately
+        cmd = './validator.py ' + ' '.join(validation_options) + ' ' + model
+        do_cmd(cmd)
 
     command_base = './translate.py %(opts)s -c %(classname)s %(model)s -o %(outfile)s'
 
@@ -100,8 +119,7 @@ def convert(model, output_dir):
                               'classname': class_name,
                               'model': model,
                               'outfile': os.path.join(output_dir, model_base + '.cpp')}
-        print cmd
-        os.system(cmd)
+        do_cmd(cmd)
 
     if use_opt and (use_normal or not use_cvode):
         # With optimisation
@@ -109,16 +127,14 @@ def convert(model, output_dir):
                               'classname': class_name + 'Opt',
                               'model': model,
                               'outfile': os.path.join(output_dir, model_base + 'Opt.cpp')}
-        print cmd
-        os.system(cmd)
+        do_cmd(cmd)
     
     if use_cvode:
         cmd = command_base % {'opts': ' '.join(['-t CVODE'] + options),
                               'classname': class_name + 'Cvode',
                               'model': model,
                               'outfile': os.path.join(output_dir, model_base + 'Cvode.cpp')}
-        print cmd
-        os.system(cmd)
+        do_cmd(cmd)
 
         if use_opt:
             # With optimisation
@@ -126,8 +142,7 @@ def convert(model, output_dir):
                                   'classname': class_name + 'CvodeOpt',
                                   'model': model,
                                   'outfile': os.path.join(output_dir, model_base + 'CvodeOpt.cpp')}
-            print cmd
-            os.system(cmd)
+            do_cmd(cmd)
 
 
 os.chdir(pycml_dir)

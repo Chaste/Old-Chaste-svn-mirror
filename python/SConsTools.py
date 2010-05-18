@@ -396,17 +396,19 @@ def CreateXsdBuilder(build, buildenv):
         """Action for running XSD."""
         schema_file = str(source[0])
         output_dir = os.path.dirname(target[0].abspath)
-        command = ' '.join([build.tools['xsd'], 'cxx-tree',
-                            '--generate-serialization',
-                            '--output-dir', output_dir,
-                            '--hxx-suffix', '.hpp', '--cxx-suffix', '.cpp',
-                            '--prologue-file', 'heart/src/io/XsdPrologue.txt',
-                            '--epilogue-file', 'heart/src/io/XsdEpilogue.txt',
-                            '--namespace-regex', "'X.* $Xchaste::parametersX'",
-                            '--namespace-regex', "'X.* https://chaste.comlab.ox.ac.uk/nss/parameters/(.+)Xchaste::parameters::v$1X'",
-                            schema_file])
-        os.system(command)
-    XsdAction = buildenv.Action(RunXsd, "Running xsd on $SOURCES")
+        command = [build.tools['xsd'], 'cxx-tree',
+                   '--generate-serialization',
+                   '--output-dir', output_dir,
+                   '--hxx-suffix', '.hpp', '--cxx-suffix', '.cpp',
+                   '--prologue-file', 'heart/src/io/XsdPrologue.txt',
+                   '--epilogue-file', 'heart/src/io/XsdEpilogue.txt',
+                   '--namespace-regex', 'X.* $Xchaste::parametersX',
+                   '--namespace-regex', 'X.* https://chaste.comlab.ox.ac.uk/nss/parameters/(.+)Xchaste::parameters::v$1X',
+                   schema_file]
+        rc = subprocess.call(command)
+        return rc
+
+    XsdAction = buildenv.Action(RunXsd)
     def XsdEmitter(target, source, env):
         hpp = os.path.splitext(str(target[0]))[0] + '.hpp'
         return (target + [hpp], source)
@@ -437,8 +439,8 @@ def CreatePyCmlBuilder(build, buildenv):
 #            args.remove('--cvode')
         # TODO: Backward Euler if .out file available
         command = [script] + args + [str(source[0])]
-        retcode = subprocess.call(command)
-        assert retcode == 0, "PyCml execution failed"
+        rc = subprocess.call(command)
+        return rc
     PyCmlAction = buildenv.Action(RunPyCml)
     def PyCmlEmitter(target, source, env):
         base, ext = os.path.splitext(str(target[0]))

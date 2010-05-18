@@ -46,16 +46,17 @@ import optparse
 
 
 class CellMLValidator(object):
-    def __init__(self):
+    def __init__(self, pycml_path=''):
         """Initialise a validator for CellML files."""
         # Create validator from RELAX NG schema
-        self.relaxng_validator = RelaxNGValidator('cellml1.0.rnc')
+        self.relaxng_validator = RelaxNGValidator(os.path.join(pycml_path,
+                                                               'cellml1.0.rnc'))
         
         # Create validator from Schematron schema
         regen = False
-        t1 = os.stat('cellml1.0.stron')
+        t1 = os.stat(os.path.join(pycml_path, 'cellml1.0.stron'))
         try:
-            t2 = os.stat('schematron.py')
+            t2 = os.stat(os.path.join(pycml_path, 'schematron.py'))
         except OSError:
             regen = True
         if regen or t1.st_mtime > t2.st_mtime:
