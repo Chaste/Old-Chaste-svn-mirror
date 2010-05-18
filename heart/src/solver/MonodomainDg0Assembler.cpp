@@ -73,7 +73,6 @@ c_vector<double,1*(ELEMENT_DIM+1)> MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>
     return  rPhi * (this->mDtInverse * Am * Cm * rU(0) - Am*mIionic - mIIntracellularStimulus);
 }
 
-//#define COVERAGE_IGNORE - I think this is called nowadays
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 c_vector<double, 1*ELEMENT_DIM> MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
     const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
@@ -85,7 +84,6 @@ c_vector<double, 1*ELEMENT_DIM> MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::C
 
     return rPhi*sigma_i_times_grad_phi_i_dot_n;
 }
-//#undef COVERAGE_IGNORE
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

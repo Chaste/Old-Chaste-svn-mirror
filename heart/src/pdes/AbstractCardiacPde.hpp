@@ -250,14 +250,12 @@ public:
     AbstractCardiacCell* GetCardiacCell( unsigned globalIndex );
 
     /**
-     *  SolveCellSystems()
+     * Integrate the cell ODEs and update ionic current etc for each of the
+     * cells, between the two times provided.
      *
-     *  Integrate the cell ODEs and update ionic current etc for each of the
-     *  cells, between the two times provided.
-     *
-     *  \note This used to be called PrepareForAssembleSystem, but
-     *  that method is now a virtual method in the assemblers not the
-     *  pdes.
+     * \note This used to be called PrepareForAssembleSystem, but
+     * that method is now a virtual method in the assemblers not the
+     * pdes.
      *
      * @param existingSolution  the current voltage solution vector
      * @param time  the current simulation time

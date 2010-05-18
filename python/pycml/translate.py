@@ -1849,6 +1849,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     indexes_as_member=self.use_backward_euler)
             self.output_equations(nodeset)
             self.writeln()
+            # TODO: Assign to temporary and assert(!std::isnan(i_ionic));?
             #621: check units of the ionic current
             conv = self.ionic_current_units_conversion_factor(
                 self.get_var_units(nodes[0]))
@@ -3339,6 +3340,9 @@ class ConfigurationStore(object):
         # Transmembrane potential
         self.V_definitions = [u'membrane,V']
         self.V_variable = None
+        # Membrane capacitance
+        self.Cm_definitions = []
+        self.Cm_variable = None
         # Lookup table configuration
         self.lut_config = {}
         self.lut_config_keys = []
@@ -3382,6 +3386,8 @@ class ConfigurationStore(object):
          * 'transmembrane_potential'
            Defines which variable holds the transmembrane potential.
            Defaults to 'membrane,V' if not present.
+         * 'membrane_capacitance'
+           Defines which variable holds the cell membrane capacitance.
            
         The root element also contains 0 or more 'for_model' elements,
         which contain settings for individual models.  These must have
@@ -3407,7 +3413,7 @@ class ConfigurationStore(object):
            Variable names are given in full form, i.e. component_name,variable_name
         2. By standardised name (var type='oxmeta')
            Use the name from the oxmeta annotations
-        3. By reference to a section of this config file (when defining lookup table keys)
+        3. By reference to a section of the config file (when defining lookup table keys)
            e.g. <var type='config-name'>transmembrane_potential</var>
 
         Within any element that specifies a variable, a list of <var> elements can be
@@ -3416,31 +3422,24 @@ class ConfigurationStore(object):
         Alternatively these elements may have text content which must be of the form
         'component_name,variable_name'.
 
-        Some items are overridden if oxmeta annotations are present.  Currently this just
-        applies to the stimulus current and transmembrane potential.
+        Some items are overridden if oxmeta annotations are present in the model, with
+        the annotated variable taking precedence over the config file specification.
         """
         rules = [bt.ws_strip_element_rule(u'*')]
         config_doc = amara_parse(config_file, rules=rules)
-        # Parse global configuration
+        # Sections to use in configuration; later sections take precedence
+        sections = []
+        # Use global configuration?
         glo = config_doc.xml_xpath(u'/*/global')
         if glo:
-            glo = glo[0]
-            if hasattr(glo, u'lookup_tables'):
-                # Lookup tables configuration
-                self._parse_lookup_tables(glo.lookup_tables)
-            if hasattr(glo, u'currents'):
-                # Configure which vars are ionic and stimulus currents
-                self._parse_currents(glo.currents)
-            if hasattr(glo, u'transmembrane_potential'):
-                # Configure the transmembrane potential variable
-                self._parse_Vm(glo.transmembrane_potential)
+            sections.append(glo[0])
         # Get the config section(s) for our model.  Sections
         # specifically for this model come after sections covering
         # multiple models, so they take precedence.
         model_id = getattr(self.doc.model, u'id', self.doc.model.name)
-        sections = config_doc.xml_xpath(
+        sections.extend(config_doc.xml_xpath(
             u'/*/for_models[ids/id="%s" or ids/id="%s"]'
-            % (self.doc.model.name, model_id))
+            % (self.doc.model.name, model_id)))
         sections.extend(config_doc.xml_xpath(
             u'/*/for_model[@name="%s" or @id="%s"]'
             % (self.doc.model.name, model_id)))
@@ -3453,7 +3452,7 @@ class ConfigurationStore(object):
         if newton_vars:
             #print "Non-linear vars:", newton_vars
             self.doc.model._cml_nonlinear_system_variables = u';'.join(newton_vars)
-        # Overrides for global configuration
+        # Main items of configuration
         for section in sections:
             if hasattr(section, u'lookup_tables'):
                 self._parse_lookup_tables(section.lookup_tables)
@@ -3461,8 +3460,11 @@ class ConfigurationStore(object):
                 self._parse_currents(section.currents)
             if hasattr(section, u'transmembrane_potential'):
                 self._parse_Vm(section.transmembrane_potential)
+            if hasattr(section, u'membrane_capacitance'):
+                self._parse_Cm(section.membrane_capacitance)
         # Now identify the variables in the model
         self.find_transmembrane_potential()
+        self.find_membrane_capacitance()
         self.find_current_vars()
         return
 
@@ -3488,48 +3490,40 @@ class ConfigurationStore(object):
             if unicode(var_elt) not in cellml_metadata.METADATA_NAMES:
                 raise ConfigurationError('"' + unicode(var_elt) + '" is not a valid oxmeta name')
         elif defn_type == u'config-name':
-            if unicode(var_elt) not in [u'stimulus', u'transmembrane_potential']:
+            if unicode(var_elt) not in [u'stimulus', u'transmembrane_potential', u'membrane_capacitance']:
                 raise ConfigurationError('"' + unicode(var_elt) + '" is not a name known to the config file')
         else:
             raise ConfigurationError('"' + defn_type + '" is not a valid variable definition type')
         return
 
-    def _parse_Vm(self, vm_elt):
-        """Parse definition of variable holding the transmembrane potential."""
-        if hasattr(vm_elt, 'var'):
+    def _parse_var(self, elt, name):
+        """Parse definition of a special variable."""
+        if hasattr(elt, 'var'):
             # List of possibilities
-            self.V_definitions = []
-            for vardef in vm_elt.var:
-                self._check_var_def(vardef, 'transmembrane potential')
-                self.V_definitions.append(vardef)
+            defs = []
+            for vardef in elt.var:
+                self._check_var_def(vardef, name)
+                defs.append(vardef)
         else:
             # Old style - single variable given by text content
-            self._check_var_def(vm_elt, 'transmembrane potential')
-            self.V_definitions = [vm_elt]
-        return
+            self._check_var_def(elt, name)
+            defs = [elt]
+        return defs
+
+    def _parse_Vm(self, vm_elt):
+        """Parse definition of variable holding the transmembrane potential."""
+        self.V_definitions = self._parse_var(vm_elt, 'transmembrane_potential')
+    
+    def _parse_Cm(self, cm_elt):
+        """Parse definition of variable holding the cell membrane capacitance."""
+        self.Cm_definitions = self._parse_var(cm_elt, 'membrane_capacitance')
 
     def _parse_currents(self, currents):
         """Parse definitions of ionic and stimulus currents."""
         if hasattr(currents, u'stimulus'):
-            if hasattr(currents.stimulus, u'var'):
-                # List of possibilities
-                self.i_stim_definitions = []
-                for var in currents.stimulus.var:
-                    self._check_var_def(var, 'stimulus current')
-                    self.i_stim_definitions.append(var)
-            else:
-                self._check_var_def(currents.stimulus, 'stimulus current')
-                self.i_stim_definitions = [currents.stimulus]
+            self.i_stim_definitions = self._parse_var(currents.stimulus, 'stimulus current')
         if hasattr(currents, u'ionic_match'):
-            if hasattr(currents.ionic_match, u'var'):
-                # List of possibilities
-                self.i_ionic_definitions = []
-                for var in currents.ionic_match.var:
-                    self._check_var_def(var, 'ionic currents')
-                    self.i_ionic_definitions.append(var)
-            else:
-                self._check_var_def(currents.ionic_match, 'ionic currents')
-                self.i_ionic_definitions = [currents.ionic_match]
+            self.i_ionic_definitions = self._parse_var(currents.ionic_match, 'ionic currents')
         return
     
     def _find_variable(self, defn, pe_done=False):
@@ -3563,6 +3557,8 @@ class ConfigurationStore(object):
                 var = self.i_stim_var
             elif unicode(defn) == u'transmembrane_potential':
                 var = self.V_variable
+            elif unicode(defn) == u'membrane_capacitance':
+                var = self.Cm_variable
         else:
             raise ConfigurationError('"' + defn_type + '" is not a valid variable definition type')
         return var
@@ -3611,28 +3607,33 @@ class ConfigurationStore(object):
                 break
         DEBUG('config', "Found ionic currents from dV/dt: ", ionic_vars)
         return ionic_vars
+    
+    def _find_var(self, oxmeta_name, definitions):
+        """Find the variable object in the model for a particular concept.
+        
+        Will look for a variable annotated with the given oxmeta_name first, then
+        try the list of definitions from the configuration file in turn.
+        """
+        var = None
+        # Prepend an oxmeta definition
+        oxmeta_defn = self._create_var_def(oxmeta_name, 'oxmeta')
+        for defn in [oxmeta_defn] + definitions:
+            var = self._find_variable(defn)
+            if var:
+                break
+        return var
 
     def find_current_vars(self):
         """Find the variables representing currents."""
         # Try metadata first for i_stim (TODO #1209: and other currents)
-        i_stim = cellml_metadata.find_variables(self.doc.model,
-                                                ('bqbiol:is', NSS['bqbiol']),
-                                                ('oxmeta:membrane_stimulus_current', NSS['oxmeta']))
-        if i_stim:
-            self.i_stim_var = i_stim[0]
-        else:
-            for defn in self.i_stim_definitions:
-                var = self._find_variable(defn)
-                if var:
-                    self.i_stim_var = var
-                    break
+        self.i_stim_var = self._find_var('membrane_stimulus_current', self.i_stim_definitions)
+        if not self.i_stim_var:
+            # No match :(
+            msg = "No stimulus current found; you'll have trouble generating Chaste code"
+            if self.options.fully_automatic:
+                raise ConfigurationError(msg)
             else:
-                # No match :(
-                msg = "No stimulus current found; you'll have trouble generating Chaste code"
-                if self.options.fully_automatic:
-                    raise ConfigurationError(msg)
-                else:
-                    print >>sys.stderr, msg
+                print >>sys.stderr, msg
         # Other ionic currents just set from config file
         self.i_ionic_vars = []
         for defn in self.i_ionic_definitions:
@@ -3698,33 +3699,27 @@ class ConfigurationStore(object):
     def find_transmembrane_potential(self):
         """Find and store the variable object representing V.
 
-        Uses the name given in the command line options, if present.
-        Otherwise uses first metadata, if present, then the configuration file.
+        Tries metadata annotation first.  If that fails, uses the name given in
+        the command line options, if present.  If that fails, uses the config file.
         """
         if not self.options:
             raise ValueError('No command line options given')
-        # Check command line option
+        # Check command line option before config file
         if self.options.transmembrane_potential:
-            self.V_definitions = [self.options.transmembrane_potential.strip().split(',')]
+            self.V_definitions[0:0] = [self.options.transmembrane_potential.strip().split(',')]
             if len(self.V_definitions[0]) != 2:
                 raise ConfigurationError('The name of V must contain both '
                                          'component and variable name')
-        # Check for metadata annotation
-        else:
-            var = cellml_metadata.find_variables(self.doc.model,
-                                                 ('bqbiol:is', NSS['bqbiol']),
-                                                 ('oxmeta:membrane_voltage', NSS['oxmeta']))
-            if var:
-                self.V_variable = var[0]
-        if not self.V_variable:
-            for defn in self.V_definitions:
-                var = self._find_variable(defn)
-                if var:
-                    self.V_variable = var
-                    break
+        self.V_variable = self._find_var('membrane_voltage', self.V_definitions)
         if not self.V_variable:
             raise ConfigurationError('No transmembrane potential found; check your configuration')
         return self.V_variable
+    
+    def find_membrane_capacitance(self):
+        """Find and store the variable object representing the cell membrane capacitance.
+        
+        Uses first metadata, if present, then the configuration file."""
+        self.Cm_variable = self._find_var('membrane_capacitance', self.Cm_definitions)
 
     def find_lookup_variables(self, pe_done=False):
         """Find the variable objects used as lookup table keys.

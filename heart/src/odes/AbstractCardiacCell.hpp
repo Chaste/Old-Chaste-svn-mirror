@@ -145,6 +145,24 @@ public:
     /**
      * Computes the total current flowing through the cell membrane, using the current
      * values of the state variables.
+     *
+     * Should return a value in units of microamps/cm^2.  Note that many cell models
+     * do not use these dimensions (let alone these units) and so a complex conversion
+     * is required.  There are 2 main cases:
+     *   - Cell model uses amps per unit capacitance.  Often in this case the units used
+     *     for the cell capacitance don't make sense (e.g. uF/cm^2 is used, and dV/dt=I/C_m).
+     *     Hence we suggest examining the equation for dV/dt given in the model to determine
+     *     what the cell model really considers the value for C_m to be, and scaling by
+     *     Chaste's C_m / cell model C_m (the latter implicitly being dimensionless).
+     *   - Cell model uses amps.  In this case you need to divide by an estimate of the cell
+     *     surface area.  Assuming the model represents a single cell, and gives C_m in farads,
+     *     then scaling by Chaste's C_m / model C_m seems reasonable.  If the 'cell model'
+     *     doesn't actually represent a single whole cell, then you'll have to be more careful.
+     * In both cases additional scaling may be required to obtain correct units once the
+     * dimensions have been sorted out.
+     *
+     * Chaste's value for C_m can be obtained from HeartConfig::Instance()->GetCapacitance()
+     * and is measured in uF/cm^2.
      */
     virtual double GetIIonic() = 0;
 

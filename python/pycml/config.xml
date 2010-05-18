@@ -54,6 +54,13 @@
     <var type='name'>cell,V</var>
     <var type='name'>membrane,E</var>
   </transmembrane_potential>
+  <membrane_capacitance>
+    <var type='oxmeta'>membrane_capacitance</var>
+    <var type='name'>membrane,Cm</var>
+    <var type='name'>membrane,C</var>
+    <var type='name'>membrane,C_m</var>
+    <var type='name'>membrane,C_sc</var>
+  </membrane_capacitance>
 </global>
 
 <for_model id="tentusscher_model_2006_epi">
