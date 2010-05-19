@@ -9,6 +9,7 @@ link_test_path:cube_1626_elements.node
 link_test_path:Memfem_slab.pts
 link_test_path:Memfem_slab.tetras
 link_test_path:Memfem_slab.tri
+link_test_path:luo_rudy_1991.cellml
 # Directories containing an archived simulation
 link_test_path:save_bidomain
 link_test_path:save_monodomain
@@ -101,4 +102,5 @@ resumed_bi_h5:HDF5
 errors:{INTERNAL writedir}{REPLACE <texttest_dir>}
 # Handle source code line numbers
 errors:Chaste error: ([a-zA-Z./]+):([0-9]+):{REPLACE Chaste error: \1:line:}
-
+# Dynamically generated models generate variable output
+output:heart/.*dynamic/tmp_[0-9]+_[0-9]+{REPLACE <build_path>}

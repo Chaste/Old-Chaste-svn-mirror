@@ -8,7 +8,9 @@
 	    <SimulationDuration unit="ms">4.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
-	    	<Default><Hardcoded>Fox2002BackwardEuler</Hardcoded></Default>
+	    	<Default><Dynamic>
+	    	    <Path relative_to="cwd">luo_rudy_1991.cellml</Path>
+	    	</Dynamic></Default>
     	</IonicModels>
 	    
 		<!-- 
