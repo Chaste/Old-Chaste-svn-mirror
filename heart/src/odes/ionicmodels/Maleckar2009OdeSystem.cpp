@@ -265,7 +265,7 @@ double Maleckar2009OdeSystem::GetIIonic()
      * This is done by dividing the current (converted to microA) by an estimate of the cell area.
      * The estimate of the cell area is obtained by observing that Cm in the cell model and Cm in the bidomain equation are conceptually the same thing.
      * The Cm in the bidomain equation is expressed in capacitance units per area.
-     * We get an estimate of the cell area is then the ratio of the two values of Cm.
+     * An estimate of the cell area is then the ratio of the two values of Cm.
      */
 
     double i_ion_in_microamp = i_ion_in_pA*pow(10,-6);

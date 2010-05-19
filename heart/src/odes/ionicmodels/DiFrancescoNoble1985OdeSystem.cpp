@@ -398,15 +398,20 @@ double DiFrancescoNoble1985OdeSystem::GetIIonic()
 
     assert(!std::isnan(i_ionic));
 
-    double i_ionic_in_microA_per_cm2=i_ionic*pow(10,-3)/0.075;
-    return i_ionic_in_microA_per_cm2;
-     /*   I_ion is in nA. I_ion*pow(10,-3) is in microA.
-     *    Please note that in the mono/bidomain formulation, I_ion needs to be in microA/cm2.
-     *    The cell capacitance is, from the paper, 0.075 microF.
-     *    In order to get the cell density factor, we use the same method as in the Noble98 model and we obtain using the
-     *    Cm=0.075microF from the cell model and Cm=1.0microF/cm^2 from the mono/bidomain equations.
-     *    Hence, the cell density factor is (1.0 microF/cm2)/(0.075 microF).
+    /*
+     * The return value has to be scaled to match the units required by the mono/bidomain equations.
+     * The cell model ionic current is in nano Amps, we require micro Amps/cm^2.
+     * The estimate of the cell area is obtained by observing that Cm in the cell model and Cm in the bidomain equation are conceptually the same thing.
+     * The Cm in the bidomain equation is expressed in capacitance units per area.
+     * An estimate of the cell area is then the ratio of the two values of Cm.
+     *
      */
+
+    double i_ionic_in_microA = i_ionic*pow(10,-3);
+    double estimated_cell_surface_in_cm_square = 0.075 / HeartConfig::Instance()->GetCapacitance();
+    double i_ionic_in_microA_per_cm2=i_ionic_in_microA / estimated_cell_surface_in_cm_square;
+    return i_ionic_in_microA_per_cm2;
+
 }
 
 void DiFrancescoNoble1985OdeSystem::VerifyStateVariables()
