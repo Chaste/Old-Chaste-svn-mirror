@@ -546,7 +546,7 @@ public:
     double GetRelativeTolerance() const;  /**< @return KSP relative tolerance (or throw if we are using absolute)*/
 
     const char* GetKSPSolver() const; /**< @return name of -ksp_type from {"gmres", "cg", "symmlq"}*/
-    const char* GetKSPPreconditioner() const; /**< @return name of -pc_type from {"ilu", "jacobi", "bjacobi", "hypre", "none"}*/
+    const char* GetKSPPreconditioner() const; /**< @return name of -pc_type from {"jacobi", "bjacobi", "hypre", "ml", "spai", "blockdiagonal", "ldufactorisation", "none"}*/
 
 
     // Adaptivity
@@ -885,7 +885,7 @@ public:
     void SetKSPSolver(const char* kspSolver);
     
     /** Set the type of preconditioner as with the flag "-pc_type"
-     * @param kspPreconditioner  a string from {"ilu", "jacobi", "bjacobi", "hypre", "blockdiagonal", "none"}
+     * @param kspPreconditioner  a string from {"jacobi", "bjacobi", "hypre", "ml", "spai", "blockdiagonal", "ldufactorisation", "none"}
      */
     void SetKSPPreconditioner(const char* kspPreconditioner);
 

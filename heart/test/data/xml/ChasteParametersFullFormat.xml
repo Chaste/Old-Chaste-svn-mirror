@@ -273,10 +273,10 @@
 			<KSPRelative>1e-6</KSPRelative>
 			<!-- Or absolute <KSPAbsolute>1e-8</KSPAbsolute> -->
 		</KSPTolerances>
-		<!-- KSP solver type "cg" for Conjugate Gradient -->
+		<!-- KSP solver type -->
 		<KSPSolver>gmres</KSPSolver>
 		<!-- KSP preconditioner type -->
-		<KSPPreconditioner>ilu</KSPPreconditioner>
+		<KSPPreconditioner>bjacobi</KSPPreconditioner>
 		
 		<!-- Optional.  These parameters are for use with a particular adaptivity library -->
 		<AdaptivityParameters target_error="2.0" sigma="0.01" max_edge_length="0.04" min_edge_length="0.005" gradation="1.3" max_nodes="1000" num_sweeps="5" />

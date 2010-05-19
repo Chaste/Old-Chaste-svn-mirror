@@ -91,7 +91,7 @@
 			<KSPRelative>1e-6</KSPRelative>
 		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>ilu</KSPPreconditioner>
+		<KSPPreconditioner>bjacobi</KSPPreconditioner>
 		<AdaptivityParameters target_error="2.0" sigma="0.01" max_edge_length="0.04" min_edge_length="0.005" gradation="1.3" max_nodes="1000" num_sweeps="5" />
 	</Numerical>
 

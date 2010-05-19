@@ -8,7 +8,7 @@
 		<!-- 
 			Problem definition 
 		-->
-		<SpaceDimension>3</SpaceDimension>
+		<SpaceDimension>1</SpaceDimension>
 	    <SimulationDuration unit="ms">10.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    
@@ -16,7 +16,7 @@
 			Mesh definition 
 		-->
 		<Mesh unit="cm">
-			<Slab x="4.0" y="0.1" z="2.0" inter_node_space="0.1"/>    
+			<Fibre x="4.0" inter_node_space="0.1"/>    
 	  	</Mesh>
 	
 		<!--
@@ -26,9 +26,21 @@
 			<Default><Hardcoded>FaberRudy2000</Hardcoded></Default>
 			<Region>
 				<IonicModel><Hardcoded>LuoRudyI</Hardcoded></IonicModel>
-					<Location unit="cm">
-							<EndoLayer unit="dimensionless">0.1</EndoLayer>
-					</Location>				
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="-2.0" y="-0.05" z="-1.0"/>
+						<UpperCoordinates x="-1.0" y="0.05"  z="1.0"/>
+					</Cuboid>
+				</Location>				
+			</Region>
+			<Region>
+				<IonicModel><Hardcoded>DifrancescoNoble</Hardcoded></IonicModel>
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="-1.0" y="-0.05" z="-1.0"/>
+						<UpperCoordinates x="0.0"  y="0.05"  z="1.0"/>
+					</Cuboid>
+				</Location>				
 			</Region>
 		</IonicModels>
 	
@@ -40,9 +52,23 @@
 				<Strength unit="uA/cm^3">-25500.0</Strength>
 				<Duration unit="ms">0.5</Duration>
 				<Delay unit="ms">0</Delay>
-					<Location unit="cm">
-							<EpiLayer unit="dimensionless">0.1</EpiLayer>
-					</Location>	
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="-5.0"  y="-0.125" z="-5.0"/>
+						<UpperCoordinates x="-4.75" y="0.125"  z="5.0"/>
+					</Cuboid>
+				</Location>
+			</Stimulus>	
+			<Stimulus> <!-- #2 -->
+				<Strength unit="uA/cm^3">-25500.0</Strength>
+				<Duration unit="ms">0.5</Duration>
+				<Delay unit="ms">200.0</Delay>
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="-5.0" y="-0.125" z="-5.0"/>
+						<UpperCoordinates x="0.0"  y="0.125"  z="0.0"/>
+					</Cuboid>
+				</Location>
 			</Stimulus>	
 		</Stimuli>
 
@@ -55,43 +81,63 @@
 				<ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
 				<ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
 				<Location unit="cm">
-						<EpiLayer unit="dimensionless">0.3</EpiLayer>
+					<Cuboid>
+						<LowerCoordinates x="-2.0" y="-0.1" z="-1.0"/>
+						<UpperCoordinates x="-0.5" y="0.1" z="1.0"/>
+					</Cuboid>
 				</Location>
 			</CellHeterogeneity>	
-		    <CellHeterogeneity> <!-- #2 -->
-				<ScaleFactorGks unit="dimensionless">0.5</ScaleFactorGks>
-				<ScaleFactorIto unit="dimensionless">0.1</ScaleFactorIto>
+		
+		  	<CellHeterogeneity> <!-- #2 -->
+				<ScaleFactorGks unit="dimensionless">1.154</ScaleFactorGks>
+				<ScaleFactorIto unit="dimensionless">0.85</ScaleFactorIto>
 				<ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
 				<Location unit="cm">
-						<EndoLayer unit="dimensionless">0.3</EndoLayer>
+					<Cuboid>
+						<LowerCoordinates x="-0.5" y="-0.1" z="-1.0"/>
+						<UpperCoordinates x="0.5" y="0.1" z="1.0"/>
+					</Cuboid>
 				</Location>
 			</CellHeterogeneity>	
-		   <CellHeterogeneity> <!-- #3 -->
-				<ScaleFactorGks unit="dimensionless">0.3</ScaleFactorGks>
-				<ScaleFactorIto unit="dimensionless">0.9</ScaleFactorIto>
-				<ScaleFactorGkr unit="dimensionless">2.0</ScaleFactorGkr>
-				<Location unit="cm">
-						<MidLayer unit="dimensionless">0.4</MidLayer>
-				</Location>
-			</CellHeterogeneity>
 		</CellHeterogeneities>		
-
+		
 		<ConductivityHeterogeneities>
 			<ConductivityHeterogeneity> <!-- #1 -->
 			    <IntracellularConductivities longi="2.75" trans="2.75" normal="2.75" unit="mS/cm"/>
 	    		<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" unit="mS/cm"/>				
 				<Location unit="cm">
-						<MidLayer unit="dimensionless">0.1</MidLayer>
-				</Location>		
-			</ConductivityHeterogeneity>	
-		</ConductivityHeterogeneities>
+					<Cuboid>
+						<LowerCoordinates x="1.9" y="-0.1" z="-1.0"/>
+						<UpperCoordinates x="2.0" y="0.1" z="1.0"/>
+					</Cuboid>
+				</Location>				
+			</ConductivityHeterogeneity>		
+
+			<ConductivityHeterogeneity> <!-- #2 -->
+			    <IntracellularConductivities longi="0.75" trans="0.75" normal="0.75" unit="mS/cm"/>
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="-0.1" y="-0.1" z="-1.0"/>
+						<UpperCoordinates x="0.1"  y="0.1"  z="1.0"/>
+					</Cuboid>
+				</Location>				
+			</ConductivityHeterogeneity>		
+
+			<ConductivityHeterogeneity> <!-- #3 -->
+				<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" unit="mS/cm"/>				
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="-2.0" y="-0.1" z="-1.0"/>
+						<UpperCoordinates x="-1.9"  y="0.1"  z="1.0"/>
+					</Cuboid>
+				</Location>				
+			</ConductivityHeterogeneity>		
+		</ConductivityHeterogeneities>		
+
 		<!-- 
 			Output 
 		-->
 		<OutputDirectory>ChasteResults</OutputDirectory>
-
-		<OutputVisualizer meshalyzer="no" vtk="yes" cmgui="no"/>
-				
 	</Simulation>
 	
 	<Physiological>
@@ -111,8 +157,7 @@
 			<KSPRelative>1e-6</KSPRelative>
 		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>bjacobi</KSPPreconditioner>
-		<AdaptivityParameters target_error="2.0" sigma="0.01" max_edge_length="0.04" min_edge_length="0.005" gradation="1.3" max_nodes="1000" num_sweeps="5" />
+		<KSPPreconditioner>ilu</KSPPreconditioner>
 	</Numerical>
 
 </ChasteParameters>

@@ -682,14 +682,15 @@
   </xs:simpleType>
   <xs:simpleType name="ksp_preconditioner_type">
     <xs:annotation>
-      <xs:documentation>Type of KSP preconditioner to use. It can specified as incomplete LU
-        factorization (ilu), jacobi (jaccobi), block jacobi (bjacobi), algebraic multigrid (hypre),
-        multi-level preconditioning (ml), sparse approximate inverse preconditioner (spai), block
-        diagonal (blockdiagonal), ldu factorization (ldufactorization) or no preconditioner
-        (none).</xs:documentation>
+      <xs:documentation>Type of KSP preconditioner to use. It can specified as jacobi (jaccobi), 
+        block jacobi (bjacobi), algebraic multigrid (hypre), multi-level preconditioning (ml), 
+        sparse approximate inverse preconditioner (spai), block diagonal (blockdiagonal), 
+        ldu factorization (ldufactorization) or no preconditioner (none).
+        Note that some of these may only work if you have compiled PETSc with support for them
+        (e.g. hypre).
+        </xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:string">
-      <xs:enumeration value="ilu"/>
       <xs:enumeration value="jacobi"/>
       <xs:enumeration value="bjacobi"/>
       <xs:enumeration value="hypre"/>

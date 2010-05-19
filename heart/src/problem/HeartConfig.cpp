@@ -240,6 +240,15 @@ public:
     static void TransformArchiveDirectory(xercesc::DOMDocument* pDocument,
                                           xercesc::DOMElement* pRootElement);
 
+    /**
+     * Release 2.1 removes the ilu preconditioner as an option, so throw an exception
+     * if it is used.
+     * 
+     * @param pDocument  the DOM document containing the tree to be transformed
+     * @param pRootElement  the root of the tree to be transformed
+     */
+    static void CheckForIluPreconditioner(xercesc::DOMDocument* pDocument,
+                                          xercesc::DOMElement* pRootElement);
 };
 
 
@@ -465,6 +474,7 @@ boost::shared_ptr<cp::chaste_parameters_type> HeartConfig::ReadFile(const std::s
                 XmlTransforms::TransformIonicModelDefinitions(p_doc.get(), p_root_elt);
             case 2000: // Release 2.0
                 XmlTransforms::TransformArchiveDirectory(p_doc.get(), p_root_elt);
+                XmlTransforms::CheckForIluPreconditioner(p_doc.get(), p_root_elt);
                 XmlTools::SetNamespace(p_doc.get(), p_root_elt, "https://chaste.comlab.ox.ac.uk/nss/parameters/2_1");
             default: // Current release - nothing to do
                 break;
@@ -1561,8 +1571,6 @@ const char* HeartConfig::GetKSPPreconditioner() const
                              & mpDefaultParameters->Numerical().KSPPreconditioner(),
                              "KSPPreconditioner")->get() )
     {
-        case cp::ksp_preconditioner_type::ilu :
-            return "ilu";
         case cp::ksp_preconditioner_type::jacobi :
             return "jacobi";
         case cp::ksp_preconditioner_type::bjacobi :
@@ -2379,11 +2387,6 @@ void HeartConfig::SetKSPSolver(const char* kspSolver)
 void HeartConfig::SetKSPPreconditioner(const char* kspPreconditioner)
 {
     /* Note that changes in these conditions need to be reflected in the Doxygen*/
-    if ( strcmp(kspPreconditioner, "ilu") == 0)
-    {
-        mpUserParameters->Numerical().KSPPreconditioner().set(cp::ksp_preconditioner_type::ilu);
-        return;
-    }
     if ( strcmp(kspPreconditioner, "jacobi") == 0)
     {
         mpUserParameters->Numerical().KSPPreconditioner().set(cp::ksp_preconditioner_type::jacobi);
@@ -2962,6 +2965,23 @@ void XmlTransforms::TransformIonicModelDefinitions(xercesc::DOMDocument* pDocume
         for (unsigned i=0; i<p_elt_list.size(); i++)
         {
             XmlTools::WrapContentInElement(pDocument, p_elt_list[i], X("Hardcoded"));
+        }
+    }
+}
+
+void XmlTransforms::CheckForIluPreconditioner(xercesc::DOMDocument* pDocument,
+                                              xercesc::DOMElement* pRootElement)
+{
+    std::vector<xercesc::DOMElement*> p_elt_list = XmlTools::FindElements(
+        pRootElement,
+        "Numerical/KSPPreconditioner");
+    if (p_elt_list.size() > 0)
+    {
+        assert(p_elt_list.size() == 1); // Asserted by schema
+        std::string text_value = xsd::cxx::xml::transcode<char>(p_elt_list[0]->getTextContent());
+        if (text_value == "ilu")
+        {
+            EXCEPTION("PETSc does not have a parallel implementation of ilu, so we no longer allow it as an option.  Use bjacobi instead.");
         }
     }
 }

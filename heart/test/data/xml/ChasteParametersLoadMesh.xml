@@ -138,7 +138,7 @@
 			<KSPRelative>1e-6</KSPRelative>
 		</KSPTolerances>
 		<KSPSolver>gmres</KSPSolver>
-		<KSPPreconditioner>ilu</KSPPreconditioner>
+		<KSPPreconditioner>bjacobi</KSPPreconditioner>
 	</Numerical>
 
 </ChasteParameters>

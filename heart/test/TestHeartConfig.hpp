@@ -184,7 +184,7 @@ public:
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetRelativeTolerance(), 1e-6);
 
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPSolver(), "gmres")==0);
-        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
+        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "bjacobi")==0);
 
         TS_ASSERT(HeartConfig::Instance()->IsPostProcessingSectionPresent());
 
@@ -998,9 +998,6 @@ public:
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "bjacobi")==0);
 
-        HeartConfig::Instance()->SetKSPPreconditioner("ilu");
-        TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "ilu")==0);
-
         HeartConfig::Instance()->SetKSPPreconditioner("hypre");
         TS_ASSERT(strcmp(HeartConfig::Instance()->GetKSPPreconditioner(), "hypre")==0);
 
@@ -1277,6 +1274,11 @@ public:
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease2_0.xml");
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), true);
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
+        
+        // We removed ilu in version 2.1; throw an exception if an older parameters file uses it
+        HeartConfig::Reset();
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ilu_preconditioner.xml"),
+                              "PETSc does not have a parallel implementation of ilu, so we no longer allow it as an option.  Use bjacobi instead.");
     }
 
     /**
