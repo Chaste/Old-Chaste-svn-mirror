@@ -331,6 +331,7 @@ cd ..
 tar -zxf redland-1.0.10.tar.gz
 cd redland-1.0.10
 ./configure --prefix=$CHASTE_LIBS/rdf
+make install
 cd ..
 
 tar -zxf redland-bindings-1.0.10.1.tar.gz
@@ -392,7 +393,7 @@ First, return to the main Chaste directory (the folder with the code and this RE
 
 You will need to edit the python/hostconfig/default.py to give the correct paths to each 
 of the libraries.  Note that if you followed these instructions (placing all dependencies below
-a ${CHASTE_LIBS} directory) then this should a matter of editing the line that sets chaste_libs_path.
+a ${CHASTE_LIBS} directory) then this should be a matter of editing the line that sets chaste_libs_path.
 
 If you've used a variation on these instructions then you may need to make other alterations.  For
 example, the name of the Boost serialization library may differ in the 'other_libraries' field.
