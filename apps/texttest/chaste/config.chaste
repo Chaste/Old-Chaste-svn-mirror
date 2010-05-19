@@ -72,8 +72,6 @@ output:(seconds)
 output:(uname)
 # Filter out revision and build details
 output:from revision number
-# Some setups don't use VTK
-catalogue:.vtu
 # Ignore provenance in Meshalyzer mesh output
 mesh_tri:Created by Chaste
 mesh_pts:Created by Chaste

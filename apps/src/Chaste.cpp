@@ -26,6 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+/*
+ * Note: Do not put any VTK-specific functionality in this file, as we
+ * don't ever test it with VTK support turned off!
+ */
+
 #include <iostream>
 
 // Most of the work is done by this class.  It must be included first.
