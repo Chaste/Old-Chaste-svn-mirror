@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ColumnDataWriter.hpp"
 #include "AbstractOdeSystemInformation.hpp"
+class AbstractOdeSystem;
 
 /**
  * An OdeSolution class that that allows us to save the output data to file.
@@ -52,6 +53,9 @@ private:
 
     /** Solutions for each variable at each timestep. */
     std::vector<std::vector<double> > mSolutions;
+    
+    /** Derived quantities at each timestep. */
+    std::vector<std::vector<double> > mDerivedQuantities;
 
     /**
      * Information about the concrete ODE system class.
@@ -109,6 +113,13 @@ public:
      * @return mSolutions.
      */
     std::vector<std::vector<double> >& rGetSolutions();
+    
+    /**
+     * Get the derived quantities for this ODE system at each timestep.
+     * 
+     * @param pOdeSystem  the ODE system which was solved to generate this solution object
+     */
+    std::vector<std::vector<double> >& rGetDerivedQuantities(AbstractOdeSystem* pOdeSystem);
 
     /**
      * Write the data to a file.
@@ -122,13 +133,18 @@ public:
      * @param precision the precision with which to write the data (i.e. exactly
      *    how many digits to display after the decimal point).  Defaults to 8.
      *    Must be between 2 and 20 (inclusive).
+     * @param includeDerivedQuantities  whether to include derived quantities in the output
+     * @param pOdeSystem  the ODE system which was solved to generate this solution object
+     *    (only used if includeDerivedQuantities=true)
      */
     void WriteToFile(std::string directoryName,
                      std::string baseResultsFilename,
                      std::string timeUnits,
                      unsigned stepsPerRow=1,
                      bool cleanDirectory=true,
-                     unsigned precision=8);
+                     unsigned precision=8,
+                     bool includeDerivedQuantities=false,
+                     AbstractOdeSystem* pOdeSystem=NULL);
 };
 
 #endif //_ODESOLUTION_HPP_

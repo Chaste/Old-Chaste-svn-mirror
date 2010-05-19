@@ -28,6 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "OdeSolution.hpp"
 #include "PetscTools.hpp"
+#include "AbstractOdeSystem.hpp"
+#include "Exception.hpp"
 
 OdeSolution::OdeSolution()
    : mNumberOfTimeSteps(0u),
@@ -75,17 +77,42 @@ std::vector<std::vector<double> >& OdeSolution::rGetSolutions()
     return mSolutions;
 }
 
+std::vector<std::vector<double> >& OdeSolution::rGetDerivedQuantities(AbstractOdeSystem* pOdeSystem)
+{
+    assert(pOdeSystem != NULL);
+    if (mDerivedQuantities.empty() && pOdeSystem->GetNumberOfDerivedQuantities() > 0)
+    {
+        assert(mTimes.size() == mSolutions.size()); // Paranoia
+        mDerivedQuantities.reserve(mTimes.size());
+        for (unsigned i=0; i<mTimes.size(); i++)
+        {
+            mDerivedQuantities.push_back(pOdeSystem->ComputeDerivedQuantities(mTimes[i], mSolutions[i]));
+        }
+    }
+    return mDerivedQuantities;
+}
+
 void OdeSolution::WriteToFile(std::string directoryName,
                               std::string baseResultsFilename,
                               std::string timeUnits,
                               unsigned stepsPerRow,
                               bool cleanDirectory,
-                              unsigned precision)
+                              unsigned precision,
+                              bool includeDerivedQuantities,
+                              AbstractOdeSystem* pOdeSystem)
 {
     assert(stepsPerRow > 0);
     assert(mTimes.size() > 0);
     assert(mTimes.size() == mSolutions.size());
     assert(mpOdeSystemInformation.get() != NULL);
+    if (includeDerivedQuantities)
+    {
+        if (pOdeSystem == NULL)
+        {
+            EXCEPTION("You must provide an ODE system to compute derived quantities.");
+        }
+        assert(pOdeSystem->GetSystemInformation() == mpOdeSystemInformation); // Just in case...
+    }
 
     // Write data to a file using ColumnDataWriter
     ColumnDataWriter writer(directoryName, baseResultsFilename, cleanDirectory, precision);
@@ -124,15 +151,32 @@ void OdeSolution::WriteToFile(std::string directoryName,
             var_ids.push_back(writer.DefineVariable(string_stream.str(), ""));
         }
     }
+    
+    if (includeDerivedQuantities)
+    {
+        var_ids.reserve(num_vars + pOdeSystem->GetNumberOfDerivedQuantities());
+        for (unsigned i=0; i<pOdeSystem->GetNumberOfDerivedQuantities(); i++)
+        {
+            var_ids.push_back(writer.DefineVariable(mpOdeSystemInformation->rGetDerivedQuantityNames()[i],
+                                                    mpOdeSystemInformation->rGetDerivedQuantityUnits()[i]));
+        }
+    }
 
     writer.EndDefineMode();
 
     for (unsigned i=0; i<mSolutions.size(); i+=stepsPerRow)
     {
         writer.PutVariable(time_var_id, mTimes[i]);
-        for (unsigned j=0; j<var_ids.size(); j++)
+        for (unsigned j=0; j<num_vars; j++)
         {
             writer.PutVariable(var_ids[j], mSolutions[i][j]);
+        }
+        if (includeDerivedQuantities)
+        {
+            for (unsigned j=0; j<pOdeSystem->GetNumberOfDerivedQuantities(); j++)
+            {
+                writer.PutVariable(var_ids[j+num_vars], rGetDerivedQuantities(pOdeSystem)[i][j]);
+            }
         }
         writer.AdvanceAlongUnlimitedDimension();
     }

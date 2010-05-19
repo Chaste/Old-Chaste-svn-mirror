@@ -49,6 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSecondOrderWithEvents.hpp"
 #include "OdeThirdOrder.hpp"
 #include "ParameterisedOde.hpp"
+#include "NumericFileComparison.hpp"
 
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -172,8 +173,11 @@ public:
 
         // Write
         solutions.WriteToFile("OdeSolution", "Ode2_8", "time");
-        // Write at lower precision
-        solutions.WriteToFile("OdeSolution", "Ode2_4", "time", 1, false, 4);
+        // Write at lower precision with derived quantities
+        solutions.WriteToFile("OdeSolution", "Ode2_4", "time", 1, false, 4, true, &ode_system);
+        NumericFileComparison comparer(OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/Ode2_4.dat",
+                                       "ode/test/data/Ode2_4.dat");
+        TS_ASSERT(comparer.CompareFiles(1e-6));
     }
 
     void TestEulerSolver() throw (Exception)
@@ -249,6 +253,28 @@ public:
         ode.SetParameter(0, 5.0);
         euler_solver.SolveAndUpdateStateVariable(&ode, 0, 1, 0.01);
         TS_ASSERT_DELTA(ode.rGetStateVariables()[0], 5.0, 1e-2);
+        
+        // Test with a = 5 => y = 5t, for calculating derived quantities
+        std::vector<double> inits = ode.GetInitialConditions();
+        OdeSolution solution = euler_solver.Solve(&ode, inits, 0, 1, 0.01, 0.1);
+        
+        // Check solution and derived quantity for all times
+        for (unsigned i=0; i<solution.rGetSolutions().size(); i++)
+        {
+            TS_ASSERT_DELTA(solution.rGetSolutions()[i][0], 5.0*solution.rGetTimes()[i], 1e-2);
+             // (derived quantity = 2a+y)
+            TS_ASSERT_DELTA(solution.rGetDerivedQuantities(&ode)[i][0], 2.0*5.0 + solution.rGetSolutions()[i][0], 1e-2);
+        }
+        
+        // Check the derived quantity is written to the file properly too.
+        solution.WriteToFile("OdeSolution", "ParameterisedOde", "seconds", 1, false, 4, true, &ode);
+        NumericFileComparison comparer(OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/ParameterisedOde.dat",
+                                       "ode/test/data/ParameterisedOde.dat");
+        TS_ASSERT(comparer.CompareFiles(1e-6));
+        
+        // Exception coverage
+        TS_ASSERT_THROWS_THIS(solution.WriteToFile("OdeSolution", "ParameterisedOde", "seconds", 1, false, 4, true),
+                              "You must provide an ODE system to compute derived quantities.");        
     }
 
     void TestLastTimeStep()
