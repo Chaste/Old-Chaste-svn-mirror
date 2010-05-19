@@ -684,19 +684,20 @@ public:
         var_membrane__i_b_Ca = var_calcium_background_current__i_b_Ca;
 
         /** \todo we need to
-         *  + Check this scaling
          *  + Ask JonC to amend PyCml if necessary
-         *  + Check other cell models
          *
          * The return value has to be scaled to match the units required by the mono/bidomain equations.
-         * The cell model ionic current is in nano Amps, we require micro Amps/cm^2. The cell density factor
-         * was calculated using the Cm=0.000095microF from the cell model and Cm=1.0microF/cm^2 from the
-         * mono/bidomain equations.
+         * The cell model ionic current is in nano Amps, we require micro Amps/cm^2.
+         * The estimate of the cell area is obtained by observing that Cm in the cell model and Cm in the bidomain equation are conceptually the same thing.
+         * The Cm in the bidomain equation is expressed in capacitance units per area.
+         * An estimate of the cell area is then the ratio of the two values of Cm.
+         *
          */
-        double value_in_nA =  var_membrane__i_K1+var_membrane__i_to+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_Ca_L_K_cyt+var_membrane__i_Ca_L_K_ds+var_membrane__i_NaK+var_membrane__i_Na+var_membrane__i_b_Na+var_membrane__i_p_Na+var_membrane__i_Ca_L_Na_cyt+var_membrane__i_Ca_L_Na_ds+var_membrane__i_NaCa_cyt+var_membrane__i_NaCa_ds+var_membrane__i_Ca_L_Ca_cyt+var_membrane__i_Ca_L_Ca_ds+var_membrane__i_b_Ca;
+        double value_in_nA = var_membrane__i_K1+var_membrane__i_to+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_Ca_L_K_cyt+var_membrane__i_Ca_L_K_ds+var_membrane__i_NaK+var_membrane__i_Na+var_membrane__i_b_Na+var_membrane__i_p_Na+var_membrane__i_Ca_L_Na_cyt+var_membrane__i_Ca_L_Na_ds+var_membrane__i_NaCa_cyt+var_membrane__i_NaCa_ds+var_membrane__i_Ca_L_Ca_cyt+var_membrane__i_Ca_L_Ca_ds+var_membrane__i_b_Ca;
         double value_in_microA = 0.001*value_in_nA;
-        double value_in_microA_per_cm_squared = value_in_microA/0.000095;
-        return value_in_microA_per_cm_squared;
+        double estimated_cell_surface_in_cm_square = 9.5e-05 / HeartConfig::Instance()->GetCapacitance();
+        double value_in_microA_per_cm_square = value_in_microA/estimated_cell_surface_in_cm_square;
+        return value_in_microA_per_cm_square;
     }
 
     void EvaluateYDerivatives (

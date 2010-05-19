@@ -295,7 +295,17 @@ double var_ionic_concentrations__Ki = rY[24];
     double var_non_specific_calcium_activated_current__i_ns_Ca = var_non_specific_calcium_activated_current__i_ns_Na + var_non_specific_calcium_activated_current__i_ns_K;
     double var_membrane__i_ns_Ca = var_non_specific_calcium_activated_current__i_ns_Ca;
 
-    return var_membrane__i_Na+var_membrane__i_Ca_L+var_membrane__i_Ca_T+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_K_Na+var_membrane__i_K_ATP+var_membrane__i_to+var_membrane__i_NaCa+var_membrane__i_K1+var_membrane__i_Kp+var_membrane__i_p_Ca+var_membrane__i_Na_b+var_membrane__i_Ca_b+var_membrane__i_NaK+var_membrane__i_ns_Ca;
+    double i_ion = var_membrane__i_Na+var_membrane__i_Ca_L+var_membrane__i_Ca_T+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_K_Na+var_membrane__i_K_ATP+var_membrane__i_to+var_membrane__i_NaCa+var_membrane__i_K1+var_membrane__i_Kp+var_membrane__i_p_Ca+var_membrane__i_Na_b+var_membrane__i_Ca_b+var_membrane__i_NaK+var_membrane__i_ns_Ca;
+
+    /*
+     * The return value has to be scaled to match the units required by the mono/bidomain equations.
+     * The cell model ionic current is in microA/microF, we require micro Amps/cm^2.
+     * The Cm in the bidomain equation is expressed in capacitance units per area.
+     * Hence, multiplying i_ionic*Cm yields the current in the correct units
+	 *
+     */
+    double i_ionic_in_microA_per_cm_square = i_ion * HeartConfig::Instance()->GetCapacitance();
+    return i_ionic_in_microA_per_cm_square;
 }
 
 void FaberRudy2000Version3::EvaluateYDerivatives (

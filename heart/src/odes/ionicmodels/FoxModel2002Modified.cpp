@@ -212,7 +212,17 @@ double FoxModel2002Modified::GetIIonic()
     double var_sodium_background_current__i_Na_b = var_sodium_background_current__g_Nab * (var_sodium_background_current__V - var_sodium_background_current__E_Na);
     double var_membrane__i_Na_b = var_sodium_background_current__i_Na_b;
 
-    return var_membrane__i_Na+var_membrane__i_Ca+var_membrane__i_CaK+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_to+var_membrane__i_K1+var_membrane__i_Kp+var_membrane__i_NaCa+var_membrane__i_NaK+var_membrane__i_p_Ca+var_membrane__i_Ca_b+var_membrane__i_Na_b;
+    /*
+     * The return value has to be scaled to match the units required by the mono/bidomain equations.
+     * The cell model ionic current is in microA/microF, we require micro Amps/cm^2.
+     * The Cm in the bidomain equation is expressed in capacitance units per area.
+     * Hence, multiplying i_ionic*Cm yields the current in the correct units
+     */
+
+    double i_ion = var_membrane__i_Na+var_membrane__i_Ca+var_membrane__i_CaK+var_membrane__i_Kr+var_membrane__i_Ks+var_membrane__i_to+var_membrane__i_K1+var_membrane__i_Kp+var_membrane__i_NaCa+var_membrane__i_NaK+var_membrane__i_p_Ca+var_membrane__i_Ca_b+var_membrane__i_Na_b;
+
+    double i_ionic_in_microA_per_cm_square = i_ion * HeartConfig::Instance()->GetCapacitance();
+    return i_ionic_in_microA_per_cm_square;
 }
 
 void FoxModel2002Modified::EvaluateYDerivatives (

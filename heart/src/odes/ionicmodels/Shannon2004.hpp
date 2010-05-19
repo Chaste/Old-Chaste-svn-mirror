@@ -346,7 +346,15 @@ public:
         const double var_ICap__i_Cap = var_ICap__i_Cap_jct + var_ICap__i_Cap_SL;
         const double var_cell__i_Cap = var_ICap__i_Cap;
 
-        return var_cell__i_Na+var_cell__i_Nab+var_cell__i_NaK+var_cell__i_Kr+var_cell__i_Ks+var_cell__i_tos+var_cell__i_tof+var_cell__i_K1+var_cell__i_NaCa+var_cell__i_Cl_Ca+var_cell__i_Clb+var_cell__i_CaL+var_cell__i_Cab+var_cell__i_Cap;
+        double i_ionic = var_cell__i_Na+var_cell__i_Nab+var_cell__i_NaK+var_cell__i_Kr+var_cell__i_Ks+var_cell__i_tos+var_cell__i_tof+var_cell__i_K1+var_cell__i_NaCa+var_cell__i_Cl_Ca+var_cell__i_Clb+var_cell__i_CaL+var_cell__i_Cab+var_cell__i_Cap;
+
+        /*
+         * The return value has to be scaled to match the units required by the mono/bidomain equations.
+         * The cell model ionic current is in microA/microF, we require micro Amps/cm^2.
+         * The Cm in the bidomain equation is expressed in capacitance units per area.
+         * Hence, multiplying i_ionic*Cm yields the current in the correct units
+         */
+        return i_ionic*HeartConfig::Instance()->GetCapacitance();
     }
 
     void EvaluateYDerivatives(

@@ -271,7 +271,16 @@ double LuoRudyIModel1991OdeSystem::GetIIonic()
     double i_ionic = fast_sodium_current_i_Na+slow_inward_current_i_si+time_dependent_potassium_current_i_K+time_independent_potassium_current_i_K1+plateau_potassium_current_i_Kp+background_current_i_b;
 
     assert(!std::isnan(i_ionic));
-    return i_ionic;
+
+    /*
+     * The return value has to be scaled to match the units required by the mono/bidomain equations.
+     * The cell model ionic current is in microA/microF, we require micro Amps/cm^2.
+     * The Cm in the bidomain equation is expressed in capacitance units per area.
+     * Hence, multiplying i_ionic*Cm yields the current in the correct units
+     */
+
+    double i_ionic_in_microA_per_cm_square = i_ionic * HeartConfig::Instance()->GetCapacitance();
+    return i_ionic_in_microA_per_cm_square;
 }
 
 void LuoRudyIModel1991OdeSystem::VerifyStateVariables()

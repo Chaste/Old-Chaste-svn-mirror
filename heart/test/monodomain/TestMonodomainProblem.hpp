@@ -154,8 +154,8 @@ public:
 
         double atol=5e-3;
 
-        TS_ASSERT_DELTA(voltage_replicated[0], -52.1698, atol);
-        TS_ASSERT_DELTA(voltage_replicated[1], -83.8381, atol);
+        TS_ASSERT_DELTA(voltage_replicated[0], 40.3848, atol);
+        TS_ASSERT_DELTA(voltage_replicated[1], -83.8279, atol);
     }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
