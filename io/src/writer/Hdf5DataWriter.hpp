@@ -62,6 +62,7 @@ private:
     bool mIsDataComplete; /**< Whether the data file is complete. */
     bool mNeedExtend; /**< Used so that the data set is only extended when data is written*/
     std::vector<unsigned> mIncompleteNodeIndices; /**< Vector of node indices for which the data file does contain data. */
+    bool mUseMatrixForIncompleteData; /**< Whether to use a matrix format for incomplete data */
 
     std::vector<DataWriterVariable> mVariables; /**< The data variables */
 
@@ -76,6 +77,9 @@ private:
     
     Mat mSinglePermutation; /**< Stores a permutation as a matrix */ 
     Mat mDoublePermutation;/**< Stores a permutation of a striped structure (u_0 v_0 u_1 v_1) as a matrix */ 
+    
+    Mat mSingleIncompleteOutputMatrix; /**< Stores nodes to be output as a matrix */ 
+    Mat mDoubleIncompleteOutputMatrix; /**< Stores striped nodes to be output as a matrix */
     /**
      * Check name of variable is allowed, i.e. contains only alphanumeric & _, and isn't blank.
      *
@@ -217,6 +221,15 @@ public:
      * @return success value.  A value "false" indictates that the permutation was empty or was the identity and was not applied
      */
     bool ApplyPermutation(const std::vector<unsigned>& rPermutation);
+    
+     /**
+     * Define the fixed dimension, assuming incomplete data output (subset of the nodes) and using a matrix
+     * to convert from full to incomplete output (rather than picking required data values out one at a time).
+     *
+     * @param rNodesToOuput Node indexes to be output (precondition: to be monotonic increasing)
+     * @param vecSize
+     */
+    void DefineFixedDimensionUsingMatrix(const std::vector<unsigned>& rNodesToOuput, long vecSize);
      
 };
 

@@ -681,7 +681,6 @@ public:
 //
 //            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_striped_incomplete_dumped.txt").c_str()), 0);
 //        }
-//
 
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_striped_incomplete", true,
                                                 "io/test/data", "hdf5_test_full_format_striped_incomplete", false));
@@ -1154,6 +1153,148 @@ public:
         TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_permuted", true,
                                                 "io/test/data", "hdf5_permuted", false));
         
-    }    
+    }
+    
+    void TestHdf5DataWriterFullFormatIncompleteUsingMatrix() throw(Exception)
+    {
+        int number_nodes = 100;
+
+        DistributedVectorFactory factory(number_nodes);
+
+        Hdf5DataWriter writer(factory, "hdf5", "hdf5_test_full_format_incomplete_using_matrix", false);
+
+        int node_id = writer.DefineVariable("Node","dimensionless");
+        int ik_id = writer.DefineVariable("I_K","milliamperes");
+        int ina_id = writer.DefineVariable("I_Na","milliamperes");
+        writer.DefineUnlimitedDimension("Time", "msec");
+
+        std::vector<unsigned> node_numbers;
+        node_numbers.push_back(21);
+        node_numbers.push_back(47);
+        node_numbers.push_back(60);
+        writer.DefineFixedDimensionUsingMatrix(node_numbers, number_nodes);
+
+        writer.EndDefineMode();
+
+        Vec petsc_data_1 = factory.CreateVec();
+        DistributedVector distributed_vector_1 = factory.CreateDistributedVector(petsc_data_1);
+
+        Vec petsc_data_2 = factory.CreateVec();
+        DistributedVector distributed_vector_2 = factory.CreateDistributedVector(petsc_data_2);
+
+        Vec petsc_data_3 = factory.CreateVec();
+        DistributedVector distributed_vector_3 = factory.CreateDistributedVector(petsc_data_3);
+
+        for (unsigned time_step=0; time_step<10; time_step++)
+        {
+            // Write some values
+            for (DistributedVector::Iterator index = distributed_vector_1.Begin();
+                 index!= distributed_vector_1.End();
+                 ++index)
+            {
+                distributed_vector_1[index] =  index.Global;
+                distributed_vector_2[index] =  time_step*1000 + 100 + index.Global;
+                distributed_vector_3[index] =  time_step*1000 + 200 + index.Global;
+            }
+            distributed_vector_1.Restore();
+            distributed_vector_2.Restore();
+            distributed_vector_3.Restore();
+
+            // Write the vector
+
+            writer.PutVector(node_id, petsc_data_1);
+            writer.PutVector(ik_id, petsc_data_2);
+            writer.PutVector(ina_id, petsc_data_3);
+            writer.PutUnlimitedVariable(time_step);
+            writer.AdvanceAlongUnlimitedDimension();
+        }
+
+        writer.Close();
+
+//        if (PetscTools::AmMaster())
+//        {
+//            // call h5dump to take the binary hdf5 output file and print it
+//            // to a text file. Note that the first line of the txt file would
+//            // be the directory it has been printed to, but is this line is
+//            // removed by piping the output through sed to delete the first line
+//            OutputFileHandler handler("hdf5",false);
+//            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_incomplete.h5";
+//            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_incomplete_dumped.txt";
+//            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+//
+//            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_incomplete_dumped.txt").c_str()), 0);
+//        }
+
+        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_incomplete_using_matrix", true,
+                                                "io/test/data", "hdf5_test_full_format_incomplete", false));
+
+        VecDestroy(petsc_data_1);
+        VecDestroy(petsc_data_2);
+        VecDestroy(petsc_data_3);
+    }
+
+    void TestHdf5DataWriterFullFormatStripedIncompleteUsingMatrix() throw(Exception)
+    {
+        int number_nodes = 100;
+        DistributedVectorFactory vec_factory(number_nodes);
+
+        Hdf5DataWriter writer(vec_factory, "hdf5", "hdf5_test_full_format_striped_incomplete_using_matrix", false);
+
+        std::vector<unsigned> node_numbers;
+        node_numbers.push_back(21);
+        node_numbers.push_back(47);
+        node_numbers.push_back(60);
+        writer.DefineFixedDimensionUsingMatrix(node_numbers, number_nodes);
+
+        int vm_id = writer.DefineVariable("V_m","millivolts");
+        int phi_e_id = writer.DefineVariable("Phi_e","millivolts");
+
+        writer.DefineUnlimitedDimension("Time", "msec");
+
+        writer.EndDefineMode();
+
+        DistributedVectorFactory factory(number_nodes);
+        Vec petsc_data_long = factory.CreateVec(2);
+        DistributedVector distributed_vector_long = factory.CreateDistributedVector(petsc_data_long);
+        DistributedVector::Stripe vm_stripe(distributed_vector_long, 0);
+        DistributedVector::Stripe phi_e_stripe(distributed_vector_long,1 );
+
+        for (unsigned time_step=0; time_step<2; time_step++)
+        {
+            for (DistributedVector::Iterator index = distributed_vector_long.Begin();
+                 index!= distributed_vector_long.End();
+                 ++index)
+            {
+                vm_stripe[index] = (time_step+1)*1000 + index.Global;
+                phi_e_stripe[index] =  index.Global;
+            }
+            distributed_vector_long.Restore();
+
+            writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long);
+            writer.PutUnlimitedVariable(time_step);
+            writer.AdvanceAlongUnlimitedDimension();
+        }
+
+        writer.Close();
+
+//        if (PetscTools::AmMaster())
+//        {
+//            // call h5dump to take the binary hdf5 output file and print it
+//            // to a text file. Note that the first line of the txt file would
+//            // be the directory it has been printed to, but is this line is
+//            // removed by piping the output through sed to delete the first line
+//            OutputFileHandler handler("hdf5",false);
+//            std::string file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_striped_incomplete_using_matrix.h5";
+//            std::string new_file = handler.GetOutputDirectoryFullPath() + "/hdf5_test_full_format_striped_incomplete_using_matrix_dumped.txt";
+//            system( ("h5dump "+file+" | sed 1d > "+new_file).c_str() );
+//
+//            TS_ASSERT_EQUALS(system(("diff " + new_file + " io/test/data/hdf5_test_full_format_striped_incomplete_dumped.txt").c_str()), 0);
+//        }
+
+        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_striped_incomplete_using_matrix", true,
+                                                "io/test/data", "hdf5_test_full_format_striped_incomplete", false));
+
+        VecDestroy(petsc_data_long);
+    }
 };
 #endif /*TESTHDF5DATAWRITER_HPP_*/

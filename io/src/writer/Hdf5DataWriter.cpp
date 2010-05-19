@@ -58,9 +58,12 @@ Hdf5DataWriter::Hdf5DataWriter(DistributedVectorFactory& rVectorFactory,
       mOffset(0u),
       mIsDataComplete(true),
       mNeedExtend(false),
+      mUseMatrixForIncompleteData(false),
       mCurrentTimeStep(0),
       mSinglePermutation(NULL),
-      mDoublePermutation(NULL)
+      mDoublePermutation(NULL),
+      mSingleIncompleteOutputMatrix(NULL),
+      mDoubleIncompleteOutputMatrix(NULL)
 {
     if (extendData && cleanDirectory)
     {
@@ -277,6 +280,78 @@ void Hdf5DataWriter::DefineFixedDimension(const std::vector<unsigned>& rNodesToO
     mIsDataComplete = false;
     mIncompleteNodeIndices = rNodesToOuput;
     ComputeIncompleteOffset();
+}
+
+void Hdf5DataWriter::DefineFixedDimensionUsingMatrix(const std::vector<unsigned>& rNodesToOuput, long vecSize)
+{
+    unsigned vector_size = rNodesToOuput.size();
+
+    for (unsigned index=0; index < vector_size-1; index++)
+    {
+        if (rNodesToOuput[index] >= rNodesToOuput[index+1])
+        {
+            EXCEPTION("Input should be monotonic increasing");
+        }
+    }
+
+    if ((int) rNodesToOuput.back() >= vecSize)
+    {
+        EXCEPTION("Vector size doesn't match nodes to output");
+    }
+    
+    DefineFixedDimension(vecSize);
+
+    mFileFixedDimensionSize = vector_size;
+    mIsDataComplete = false;
+    mIncompleteNodeIndices = rNodesToOuput;
+    mUseMatrixForIncompleteData = true;
+    ComputeIncompleteOffset();    
+
+    //Make sure we've not done it already
+    assert(mSingleIncompleteOutputMatrix == NULL);
+    assert(mDoubleIncompleteOutputMatrix == NULL);
+    PetscTools::SetupMat(mSingleIncompleteOutputMatrix,   mFileFixedDimensionSize,   mDataFixedDimensionSize, (MatType) MATMPIAIJ);
+    PetscTools::SetupMat(mDoubleIncompleteOutputMatrix, 2*mFileFixedDimensionSize, 2*mDataFixedDimensionSize, (MatType) MATMPIAIJ);
+
+//#if PETSC_VERSION_MAJOR == 3
+//    MatSetOption(mSingleIncompleteOutputMatrix, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
+//    MatSetOption(mDoubleIncompleteOutputMatrix, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
+//#else
+//    MatSetOption(mSingleIncompleteOutputMatrix, MAT_IGNORE_OFF_PROC_ENTRIES); 
+//    MatSetOption(mDoubleIncompleteOutputMatrix, MAT_IGNORE_OFF_PROC_ENTRIES); 
+//#endif
+
+    int hi, lo;
+    
+    MatGetOwnershipRange(mSingleIncompleteOutputMatrix, &lo, &hi);
+    
+    mHi = (unsigned)(hi);
+    mLo = (unsigned)(lo);
+
+    //Only do local rows
+    for (unsigned row_index=mLo; row_index<mHi; row_index++)
+    {
+        //Put zero on the diagonal
+        MatSetValue(mSingleIncompleteOutputMatrix, row_index, row_index, 0.0, INSERT_VALUES);
+        //Put one at (i,j)
+        MatSetValue(mSingleIncompleteOutputMatrix, row_index, rNodesToOuput[row_index], 1.0, INSERT_VALUES);
+        
+        unsigned bi_index=2*row_index;
+        unsigned perm_index=2*rNodesToOuput[row_index];
+        //Put zeroes on the diagonal
+        MatSetValue(mDoubleIncompleteOutputMatrix, bi_index, bi_index, 0.0, INSERT_VALUES);
+        MatSetValue(mDoubleIncompleteOutputMatrix, bi_index+1, bi_index+1, 0.0, INSERT_VALUES);
+        //Put ones at (i,j)
+        MatSetValue(mDoubleIncompleteOutputMatrix, bi_index, perm_index, 1.0, INSERT_VALUES);
+        MatSetValue(mDoubleIncompleteOutputMatrix, bi_index+1, perm_index+1, 1.0, INSERT_VALUES);
+    }
+    MatAssemblyBegin(mSingleIncompleteOutputMatrix, MAT_FINAL_ASSEMBLY);
+    MatAssemblyBegin(mDoubleIncompleteOutputMatrix, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(mSingleIncompleteOutputMatrix, MAT_FINAL_ASSEMBLY);
+    MatAssemblyEnd(mDoubleIncompleteOutputMatrix, MAT_FINAL_ASSEMBLY);
+    
+//    MatView(mSingleIncompleteOutputMatrix, PETSC_VIEWER_STDOUT_WORLD);
+
 }
 
 void Hdf5DataWriter::ComputeIncompleteOffset()
@@ -592,14 +667,28 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     }
     else
     {
-        // Make a local copy of the data you own
-        double local_data[mNumberOwned];
-        for (unsigned i=0; i<mNumberOwned; i++)
+        if (mUseMatrixForIncompleteData)
         {
-            local_data[i] = p_petsc_vector[ mIncompleteNodeIndices[mOffset+i]-mLo ];
-
+            //Make a vector of the required size
+            output_petsc_vector = PetscTools::CreateVec(mFileFixedDimensionSize);
+            //Fill the vector by multiplying complete data by incomplete output matrix
+            MatMult(mSingleIncompleteOutputMatrix, petscVector, output_petsc_vector);
+            
+            double* p_petsc_vector_incomplete;
+            VecGetArray(output_petsc_vector, &p_petsc_vector_incomplete);
+            H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, p_petsc_vector_incomplete);
         }
-        H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, local_data);
+        else
+        {
+            // Make a local copy of the data you own
+            double local_data[mNumberOwned];
+            for (unsigned i=0; i<mNumberOwned; i++)
+            {
+                local_data[i] = p_petsc_vector[ mIncompleteNodeIndices[mOffset+i]-mLo ];
+    
+            }
+            H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, file_dataspace, property_list_id, local_data);
+        }
     }
 
     VecRestoreArray(output_petsc_vector, &p_petsc_vector);
@@ -689,16 +778,32 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     }
     else
     {
-        // Make a local copy of the data you own
-        double local_data[mNumberOwned*NUM_STRIPES];
-        for (unsigned i=0; i<mNumberOwned; i++)
+        if (mUseMatrixForIncompleteData)
         {
-            ///\todo Use distributed vector functionality here?
-            unsigned local_node_number=mIncompleteNodeIndices[mOffset+i] - mLo;
-            local_data[NUM_STRIPES*i]   = p_petsc_vector[ local_node_number*NUM_STRIPES ];
-            local_data[NUM_STRIPES*i+1] = p_petsc_vector[ local_node_number*NUM_STRIPES + 1];
+            //Make a vector of the required size
+            output_petsc_vector = PetscTools::CreateVec(2*mFileFixedDimensionSize);
+            //Fill the vector by multiplying complete data by incomplete output matrix
+            MatMult(mDoubleIncompleteOutputMatrix, petscVector, output_petsc_vector);
+            
+            double* p_petsc_vector_incomplete;
+            VecGetArray(output_petsc_vector, &p_petsc_vector_incomplete);
+                     
+            H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, p_petsc_vector_incomplete);
         }
-        H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, local_data);
+        else
+        {
+            // Make a local copy of the data you own
+            double local_data[mNumberOwned*NUM_STRIPES];
+            for (unsigned i=0; i<mNumberOwned; i++)
+            {
+                ///\todo Use distributed vector functionality here?
+                unsigned local_node_number=mIncompleteNodeIndices[mOffset+i] - mLo;
+                local_data[NUM_STRIPES*i]   = p_petsc_vector[ local_node_number*NUM_STRIPES ];
+                local_data[NUM_STRIPES*i+1] = p_petsc_vector[ local_node_number*NUM_STRIPES + 1];
+            }
+
+            H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, local_data);
+        }
     }
 
     VecRestoreArray(output_petsc_vector, &p_petsc_vector);
