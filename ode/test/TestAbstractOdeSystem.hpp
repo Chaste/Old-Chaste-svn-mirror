@@ -165,6 +165,51 @@ public:
         TS_ASSERT_THROWS_THIS(p_info->GetStateVariableUnits(1u), "The index passed in must be less than the number of state variables.");
         TS_ASSERT_THROWS_THIS(p_info->GetAnyVariableUnits(2u), "Invalid index passed to GetAnyVariableUnits.");
     }
+    
+    void TestDerivedQuantities() throw (Exception)
+    {
+        ParameterisedOde ode;
+        boost::shared_ptr<const AbstractOdeSystemInformation> p_info = ode.GetSystemInformation();
+        
+        TS_ASSERT_EQUALS(ode.GetNumberOfDerivedQuantities(), 1u);
+        TS_ASSERT_EQUALS(ode.GetDerivedQuantityIndex("2a_plus_y"), 0u);
+        TS_ASSERT_EQUALS(ode.GetDerivedQuantityUnits(0u), "dimensionless");
+        TS_ASSERT_EQUALS(ode.rGetDerivedQuantityNames().size(), 1u);
+        TS_ASSERT_EQUALS(ode.rGetDerivedQuantityUnits().size(), 1u);
+        TS_ASSERT_EQUALS(ode.rGetDerivedQuantityNames()[0], "2a_plus_y");
+        TS_ASSERT_EQUALS(ode.rGetDerivedQuantityUnits()[0], "dimensionless");
+        
+        TS_ASSERT_EQUALS(p_info->GetDerivedQuantityIndex("2a_plus_y"), 0u);
+        TS_ASSERT_EQUALS(p_info->GetDerivedQuantityUnits(0u), "dimensionless");
+        TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityNames().size(), 1u);
+        TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityUnits().size(), 1u);
+        TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityNames()[0], "2a_plus_y");
+        TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityUnits()[0], "dimensionless");
+        
+        std::vector<double> derived = ode.ComputeDerivedQuantitiesFromCurrentState(0.0);
+        double a = ode.GetParameter(0);
+        TS_ASSERT_EQUALS(a, 0.0);
+        TS_ASSERT_DELTA(derived[0], 2*a, 1e-4);
+        a = 1.0;
+        ode.SetParameter(0, a);
+        derived = ode.ComputeDerivedQuantities(0.0, ode.GetInitialConditions());
+        TS_ASSERT_DELTA(derived[0], 2*a, 1e-4);
+        double y = 10.0;
+        ode.SetStateVariable(0, y);
+        derived = ode.ComputeDerivedQuantitiesFromCurrentState(0.0);
+        TS_ASSERT_DELTA(derived[0], 2*a+y, 1e-4);
+        
+        // Exceptions
+        TS_ASSERT_THROWS_THIS(ode.GetDerivedQuantityIndex("Missing"), "No derived quantity named 'Missing'.");
+        TS_ASSERT_THROWS_THIS(ode.GetDerivedQuantityUnits(1u), "The index passed in must be less than the number of derived quantities.");
+        
+        TwoDimOdeSystem ode2;
+        TS_ASSERT_THROWS_THIS(ode2.ComputeDerivedQuantitiesFromCurrentState(0.0),
+                              "This ODE system does not define derived quantities.");
+        std::vector<double> doesnt_matter;
+        TS_ASSERT_THROWS_THIS(ode2.ComputeDerivedQuantities(0.0, doesnt_matter),
+                              "This ODE system does not define derived quantities.");
+    }
 
     void TestSetGetFunctionsInAbstractOdeSystem()
     {

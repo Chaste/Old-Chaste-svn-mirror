@@ -73,6 +73,11 @@ public:
      * @param numberOfStateVariables  the number of state variables in the ODE system
      */
     AbstractParameterisedSystem(unsigned numberOfStateVariables);
+    
+    /**
+     * Virtual destructor.
+     */
+    virtual ~AbstractParameterisedSystem();
 
     /**
      * Get the object which provides information about this ODE system.
@@ -219,6 +224,56 @@ public:
      */
     std::string GetAnyVariableUnits(unsigned index) const;
 
+    //
+    // Derived quantity methods
+    //
+    
+    /**
+     * Get the number of derived quantities.
+     */
+    unsigned GetNumberOfDerivedQuantities() const;
+    
+    /**
+     * Compute the derived quantities from the given system state.
+     * Uses the current values for the parameters.
+     * 
+     * @param time  the time at which to compute the derived quantities
+     * @param rState  values for the state variables
+     */
+    virtual VECTOR ComputeDerivedQuantities(double time,
+                                            const VECTOR& rState);
+    
+    /**
+     * Compute the derived quantities based on the current system state.
+     * 
+     * @param time  the time at which to compute the derived quantities
+     */
+    VECTOR ComputeDerivedQuantitiesFromCurrentState(double time);
+
+    /**
+     * Get the vector of derived quantity names.
+     */
+    const std::vector<std::string>& rGetDerivedQuantityNames() const;
+
+    /**
+     * Get the vector of derived quantity units.
+     */
+    const std::vector<std::string>& rGetDerivedQuantityUnits() const;
+    
+    /**
+     * Get the index of a derived quantity, given its name.
+     *
+     * @param rName  the name of a derived quantity.
+     */
+    unsigned GetDerivedQuantityIndex(const std::string& rName) const;
+
+    /**
+     * Get the units of a derived quantity.
+     *
+     * @param index  an index from GetDerivedQuantityIndex.
+     * @return the units of the variable.
+     */
+    std::string GetDerivedQuantityUnits(unsigned index) const;
 };
 
 #endif /*ABSTRACTPARAMETERISEDSYSTEM_HPP_*/

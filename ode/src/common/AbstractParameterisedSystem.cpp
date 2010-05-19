@@ -160,6 +160,11 @@ AbstractParameterisedSystem<VECTOR>::AbstractParameterisedSystem(unsigned number
 }
 
 template<typename VECTOR>
+AbstractParameterisedSystem<VECTOR>::~AbstractParameterisedSystem()
+{
+}
+
+template<typename VECTOR>
 boost::shared_ptr<const AbstractOdeSystemInformation> AbstractParameterisedSystem<VECTOR>::GetSystemInformation() const
 {
     assert(mpSystemInfo);
@@ -316,6 +321,59 @@ std::string AbstractParameterisedSystem<VECTOR>::GetAnyVariableUnits(unsigned in
     assert(mpSystemInfo);
     return mpSystemInfo->GetAnyVariableUnits(index);
 }
+
+//
+// "Derived quantities" methods
+//
+
+template<typename VECTOR>
+unsigned AbstractParameterisedSystem<VECTOR>::GetNumberOfDerivedQuantities() const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->rGetDerivedQuantityNames().size();
+}
+
+template<typename VECTOR>
+VECTOR AbstractParameterisedSystem<VECTOR>::ComputeDerivedQuantities(double time,
+                                                                     const VECTOR& rState)
+{
+    EXCEPTION("This ODE system does not define derived quantities.");
+}
+
+template<typename VECTOR>
+VECTOR AbstractParameterisedSystem<VECTOR>::ComputeDerivedQuantitiesFromCurrentState(double time)
+{
+    return this->ComputeDerivedQuantities(time, mStateVariables);
+}
+
+template<typename VECTOR>
+const std::vector<std::string>& AbstractParameterisedSystem<VECTOR>::rGetDerivedQuantityNames() const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->rGetDerivedQuantityNames();
+}
+
+template<typename VECTOR>
+const std::vector<std::string>& AbstractParameterisedSystem<VECTOR>::rGetDerivedQuantityUnits() const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->rGetDerivedQuantityUnits();
+}
+
+template<typename VECTOR>
+unsigned AbstractParameterisedSystem<VECTOR>::GetDerivedQuantityIndex(const std::string& rName) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetDerivedQuantityIndex(rName);
+}
+
+template<typename VECTOR>
+std::string AbstractParameterisedSystem<VECTOR>::GetDerivedQuantityUnits(unsigned index) const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetDerivedQuantityUnits(index);
+}
+    
 
 
 ////////////////////////////////////////////////////////////////////////////////////

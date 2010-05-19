@@ -49,6 +49,14 @@ public:
     {
         rDY[0] = mParameters[0];
     }
+    
+    std::vector<double> ComputeDerivedQuantities(double time,
+                                                 const std::vector<double>& rState)
+    {
+        std::vector<double> dqs;
+        dqs.push_back(2*mParameters[0] + rState[0]);
+        return dqs;
+    }
 };
 
 template<>
@@ -60,6 +68,9 @@ void OdeSystemInformation<ParameterisedOde>::Initialise()
 
     this->mParameterNames.push_back("a");
     this->mParameterUnits.push_back("dimensionless");
+    
+    this->mDerivedQuantityNames.push_back("2a_plus_y");
+    this->mDerivedQuantityUnits.push_back("dimensionless");
 
     this->mInitialised = true;
 }

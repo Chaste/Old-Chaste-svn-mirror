@@ -170,3 +170,40 @@ std::string AbstractOdeSystemInformation::GetAnyVariableUnits(unsigned index) co
         }
     }
 }
+
+
+const std::vector<std::string>& AbstractOdeSystemInformation::rGetDerivedQuantityNames() const
+{
+    assert(mInitialised);
+    return mDerivedQuantityNames;
+}
+
+const std::vector<std::string>& AbstractOdeSystemInformation::rGetDerivedQuantityUnits() const
+{
+    assert(mInitialised);
+    return mDerivedQuantityUnits;
+}
+
+unsigned AbstractOdeSystemInformation::GetDerivedQuantityIndex(const std::string& rName) const
+{
+    assert(mInitialised);
+    unsigned index = 0u;
+    std::vector<std::string>::const_iterator it = mDerivedQuantityNames.begin();
+    for ( ; it != mDerivedQuantityNames.end() && *it != rName; ++it, ++index);
+    if (it == mDerivedQuantityNames.end())
+    {
+        EXCEPTION("No derived quantity named '" + rName + "'.");
+    }
+    return index;
+}
+
+std::string AbstractOdeSystemInformation::GetDerivedQuantityUnits(unsigned index) const
+{
+    assert(mInitialised);
+    if (index >= mDerivedQuantityUnits.size())
+    {
+        EXCEPTION("The index passed in must be less than the number of derived quantities.");
+    }
+    return mDerivedQuantityUnits[index];
+}
+

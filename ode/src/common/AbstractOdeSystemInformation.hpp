@@ -43,6 +43,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  - suggested initial conditions
  *  - names of (settable) parameters
  *  - units of (settable) parameters
+ *  - names of derived quantities
+ *  - units of derived quantities
  *
  * This class requires a subclass defining the Initialise method in order to set
  * up the information.  Developers may do this by defining their own subclass, but
@@ -65,6 +67,12 @@ protected:
 
     /** Parameter units */
     std::vector<std::string> mParameterUnits;
+    
+    /** Derived quantity names */
+    std::vector<std::string> mDerivedQuantityNames;
+    
+    /** Derived quantity units */
+    std::vector<std::string> mDerivedQuantityUnits;
 
     /** Suggested initial conditions */
     std::vector<double> mInitialConditions;
@@ -190,6 +198,31 @@ public:
      */
     std::string GetAnyVariableUnits(unsigned index) const;
 
+
+    /**
+     * Get the vector of derived quantity names.
+     */
+    const std::vector<std::string>& rGetDerivedQuantityNames() const;
+
+    /**
+     * Get the vector of derived quantity units.
+     */
+    const std::vector<std::string>& rGetDerivedQuantityUnits() const;
+    
+    /**
+     * Get the index of a derived quantity, given its name.
+     *
+     * @param rName  the name of a derived quantity.
+     */
+    unsigned GetDerivedQuantityIndex(const std::string& rName) const;
+
+    /**
+     * Get the units of a derived quantity.
+     *
+     * @param index  an index from GetDerivedQuantityIndex.
+     * @return the units of the variable.
+     */
+    std::string GetDerivedQuantityUnits(unsigned index) const;
 };
 
 
