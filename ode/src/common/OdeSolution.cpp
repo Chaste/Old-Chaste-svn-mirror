@@ -26,9 +26,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include "AbstractOdeSystem.hpp"
 #include "OdeSolution.hpp"
 #include "PetscTools.hpp"
-#include "AbstractOdeSystem.hpp"
 #include "Exception.hpp"
 
 OdeSolution::OdeSolution()
