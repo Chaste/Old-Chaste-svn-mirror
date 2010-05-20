@@ -489,6 +489,12 @@ class cellml_model(element_base):
         `compname'.
         """
         return self._cml_variables[(compname, varname)]
+    
+    def get_all_variables(self):
+        """Return an iterator over the variables in the model."""
+        for comp in getattr(self, u'component', []):
+            for var in getattr(comp, u'variable', []):
+                yield var
 
     def _add_variable(self, var, varname, compname):
         """Add a new variable to the model."""
@@ -575,9 +581,59 @@ class cellml_model(element_base):
         When invalid_if_warnings is True the model will fail to validate
         if there are any warnings, as well as if there are any errors.
         """
-        ##############################################################
-        # Rule 6.4.3.2 (4): hierarchies must not be circular.
-        # Build all the hierarchies, and check for cycles.
+        self._validate_component_hierarchies()
+
+        # Rule 5.4.2.2 (2): units definitions may not be circular.
+        self._build_units_dictionary()
+        if not assume_valid:
+            for unit in self.get_all_units():
+                self._check_unit_cycles(unit)
+            DEBUG('validator', 'Checked for units cycles')
+
+        if not self._cml_validation_errors:
+            self._check_variable_mappings(check_for_units_conversions)
+
+        # Rule 4.4.4: mathematical expressions may only modify
+        # variables belonging to the current component.
+        if not self._cml_validation_errors:
+            assignment_exprs = self.search_for_assignments()
+            if not assume_valid:
+                self._check_assigned_vars(assignment_exprs)
+
+        # Warn if mathematics outside the CellML subset is used.
+        if not self._cml_validation_errors and not assume_valid:
+            math_elts = self.xml_xpath(self.math_xpath_1 + u' | ' + self.math_xpath_2)
+            self._check_cellml_subset(math_elts)
+
+        # Classify variables and check for circular equations.
+        # Does a topological sort of all equations in the process.
+        # TODO: Handle reactions properly.
+        if not self._cml_validation_errors:
+            self._classify_variables(assignment_exprs)
+            self._order_variables(assignment_exprs)
+
+        # Appendix C.3.6: Equation dimension checking.
+        if not self._cml_validation_errors and (
+              not assume_valid or check_for_units_conversions):
+            self._check_dimensional_consistency(assignment_exprs,
+                                                warn_on_units_errors,
+                                                check_for_units_conversions)
+        
+        # Warn if unknown namespaces are used, just in case.
+        unknown_nss = set(self.rootNode.xml_namespaces.keys()).difference(set(NSS.values()))
+        if unknown_nss:
+            self.validation_warning(u'Unrecognised namespaces used:\n  ' +
+                                    u'\n  '.join(list(unknown_nss)))
+
+        # Return validation result
+        return not self._cml_validation_errors and \
+               (not invalid_if_warnings or not self._cml_validation_warnings)
+
+    def _validate_component_hierarchies(self):
+        """Check Rule 6.4.3.2 (4): hierarchies must not be circular.
+        
+        Builds all the hierarchies, and checks for cycles.
+        """
         # First, we find the hierarchies that are defined.
         rels = self.xml_xpath(u'cml:group/cml:relationship_ref')
         hiers = set()
@@ -592,167 +648,30 @@ class cellml_model(element_base):
                                            rels=rels)
         DEBUG('validator', 'Checked component hierachies')
 
-        ##############################################################
-        # Rule 5.4.2.2 (2): units definitions may not be circular.
-        # We perform a depth first search to check for cycles in the
-        # units definition graph.
-        self._build_units_dictionary()
-        if not assume_valid:
-            # Get a list of all units objects, including the standard units
-            units = self._cml_units.values()
-            units.extend(self.xml_xpath(u'cml:component/cml:units'))
-            # Do a dfs
-            for unit in units:
-                if unit.get_colour() == DFS.White:
-                    self._check_unit_cycles(unit)
-        DEBUG('validator', 'Checked for units cycles')
-
-        ##############################################################
-        # Rule 3.4.6.4: check variable mappings and interfaces are
-        # sane.
-        # Also check that the units of mapped variables are
-        # dimensionally consistent.
-        if not self._cml_validation_errors:
-            # First check connection elements and build mappings dict
-            self.build_name_dictionaries()
-            for connection in getattr(self, u'connection', []):
-                self._validate_connection(connection,
-                                          check_for_units_conversions)
-            # Now check for variables that should receive a value but don't
-            for comp in getattr(self, u'component', []):
-                for var in getattr(comp, u'variable', []):
-                    for iface in [u'private_interface', u'public_interface']:
-                        if getattr(var, iface, u'none') == u'in':
-                            try:
-                                src = var.get_source_variable()
-                            except TypeError:
-                                # No source variable found
-                                self.validation_error(u' '.join([
-                                    u'Variable',var.fullname(),u'has a',iface,
-                                    u'attribute with value "in", but no component exports a value to that variable.']))
-        DEBUG('validator', 'Checked variable mappings')
-
-        ##############################################################
-        # Rule 4.4.4: mathematical expressions may only modify
-        # variables belonging to the current component.
-        if not self._cml_validation_errors:
-            math_xpath_1 = u'cml:component/m:math'
-            math_xpath_2 = u'cml:component/cml:reaction/cml:variable_ref/cml:role/m:math'
-            apply_xpath_1 = u'/m:apply[m:eq]'
-            apply_xpath_2 = u'/m:semantics/m:apply[m:eq]'
-            assignments_xpath = math_xpath_1 + apply_xpath_1 + u' | ' + \
-                                math_xpath_1 + apply_xpath_2 + u' | ' + \
-                                math_xpath_2 + apply_xpath_1 + u' | ' + \
-                                math_xpath_2 + apply_xpath_2
-            assignment_exprs = self.xml_xpath(assignments_xpath)
-            if not assume_valid:
-                for expr in assignment_exprs:
-                    try:
-                        expr.check_assigned_var()
-                    except MathsError, e:
-                        self._report_exception(e, xml_context)
-        DEBUG('validator', 'Checked variable assignments')
-
-        ##############################################################
-        # Warn if mathematics outside the CellML subset is used.
-        if not self._cml_validation_errors and not assume_valid:
-            math_elts = self.xml_xpath(math_xpath_1 + u' | ' + math_xpath_2)
-            def check_cml_subset(elt):
-                if not elt.localName in CELLML_SUBSET_ELTS and \
-                       elt.namespaceURI == NSS[u'm']:
-                    self.validation_warning(u' '.join([
-                        u'MathML element', elt.localName,
-                        u'is not in the CellML subset.',
-                        u'Some tools may not be able to process it.']))
-                for child in self.xml_element_children(elt):
-                    check_cml_subset(child)
-            for elt in math_elts:
-                check_cml_subset(elt)
-        DEBUG('validator', 'Checked for CellML subset')
-
-        ##############################################################
-        # Classify variables and check for circular equations.
-        # Does a topological sort of all equations in the process.
-        # TODO: Handle reactions properly.
-        if not self._cml_validation_errors:
-            # Classify those vars that might be constants,
-            # i.e. have an initial value assigned.
-            # Note that mapped vars have already been classified, and
-            # the RELAX NG schema ensures that a variable cannot be
-            # both Mapped and MaybeConstant.
-            for comp in getattr(self, u'component', []):
-                for var in getattr(comp, u'variable', []):
-                    if hasattr(var, u'initial_value'):
-                        var._set_type(VarTypes.MaybeConstant)
-            # Now classify by checking usage in mathematics, building
-            # an equation dependency graph in the process.
-            for expr in assignment_exprs:
-                try:
-                    expr.classify_variables(root=True)
-                except MathsError, e:
-                    self._report_exception(e, xml_context)
-            # Now do a DFS on the dependency graph to sort
-            # and check for cycles.
-            try:
-                self._cml_sorting_variables_stack = []
-                for comp in getattr(self, u'component', []):
-                    for var in getattr(comp, u'variable', []):
-                        if var.get_colour() == DFS.White:
-                            self.topological_sort(var)
-                for expr in assignment_exprs:
-                    if expr.get_colour() == DFS.White:
-                        self.topological_sort(expr)
-            except MathsError, e:
-                self._report_exception(e, xml_context)
-        DEBUG('validator', 'Classified and sorted variables')
-
-        ##############################################################
-        # Appendix C.3.6: Equation dimension checking.
-        if not self._cml_validation_errors and (
-              not assume_valid or check_for_units_conversions):
-            self._cml_conversions_needed = False
-            # Check dimensions
-            for expr in assignment_exprs:
-                try:
-                    expr.get_units()
-                except UnitsError, e:
-                    if warn_on_units_errors:
-                        e.warn = True
-                        e.level = logging.WARNING
-                    self._report_exception(e, xml_context)
-        # Check if units conversions will be needed
-        if check_for_units_conversions and not self._cml_validation_errors:
-            boolean = self.get_units_by_name('cellml:boolean')
-            for expr in assignment_exprs:
-                try:
-                    DEBUG('validator', "Checking units in",
-                          element_xpath(expr),
-                          expr.xml_parent.xml_parent.name)
-                    expr._set_in_units(boolean, no_act=True)
-##                    if self._cml_conversions_needed:
-##                        import pdb
-##                        pdb.set_trace()
-                except UnitsError:
-                    pass
-            # Warn if conversions used
-            if self._cml_conversions_needed:
-                self.validation_warning(
-                    u'The mathematics in this model require units conversions.',
-                    level=logging.WARNING)
-        DEBUG('validator', 'Checked units')
+    def _check_variable_mappings(self, check_for_units_conversions=False):
+        """Check Rule 3.4.6.4: check variable mappings and interfaces are sane.
         
-        ##############################################################
-        # Warn if unknown namespaces are used, just in case.
-        unknown_nss = set(self.rootNode.xml_namespaces.keys()).difference(
-            set(NSS.values()))
-        if unknown_nss:
-            self.validation_warning(u'Unrecognised namespaces used:\n  ' +
-                                    u'\n  '.join(list(unknown_nss)))
-
-        ##############################################################
-        # Return validation result
-        return not self._cml_validation_errors and \
-               (not invalid_if_warnings or not self._cml_validation_warnings)
+        Also check that the units of mapped variables are dimensionally consistent
+        if check_for_units_conversions is True.
+        """
+        # First check connection elements and build mappings dict
+        self.build_name_dictionaries()
+        for connection in getattr(self, u'connection', []):
+            self._validate_connection(connection,
+                                      check_for_units_conversions)
+        # Now check for variables that should receive a value but don't
+        for comp in getattr(self, u'component', []):
+            for var in getattr(comp, u'variable', []):
+                for iface in [u'private_interface', u'public_interface']:
+                    if getattr(var, iface, u'none') == u'in':
+                        try:
+                            src = var.get_source_variable()
+                        except TypeError:
+                            # No source variable found
+                            self.validation_error(u' '.join([
+                                u'Variable',var.fullname(),u'has a',iface,
+                                u'attribute with value "in", but no component exports a value to that variable.']))
+        DEBUG('validator', 'Checked variable mappings')
 
     def _validate_connection(self, conn,
                              check_for_units_conversions=False):
@@ -836,18 +755,99 @@ class cellml_model(element_base):
                         var2.fullname(),'will require a units conversion.']),
                         level=logging.WARNING_TRANSLATE_ERROR)
 
+    def _check_assigned_vars(self, assignments):
+        """Check Rule 4.4.4: mathematical expressions may only modify
+        variables belonging to the current component.
+        """
+        for expr in assignments:
+            try:
+                expr.check_assigned_var()
+            except MathsError, e:
+                self._report_exception(e, xml_context)
+        DEBUG('validator', 'Checked variable assignments')
+
+    def _check_cellml_subset(self, math_elts, root=True):
+        """Warn if MathML outside the CellML subset is used."""
+        for elt in math_elts:
+            if not elt.localName in CELLML_SUBSET_ELTS and \
+                   elt.namespaceURI == NSS[u'm']:
+                self.validation_warning(u' '.join([
+                    u'MathML element', elt.localName,
+                    u'is not in the CellML subset.',
+                    u'Some tools may not be able to process it.']))
+            self._check_cellml_subset(self.xml_element_children(elt), False)
+        if root:
+            DEBUG('validator', 'Checked for CellML subset')
+
+    def _classify_variables(self, assignment_exprs):
+        """Determine the type of each variable.
+        
+        Note that mapped vars must have already been classified by
+        self._check_variable_mappings, and the RELAX NG schema ensures
+        that a variable cannot be both Mapped and MaybeConstant.
+        
+        Builds the equation dependency graph in the process.
+        """
+        # Classify those vars that might be constants,
+        # i.e. have an initial value assigned.
+        for var in self.get_all_variables():
+            if hasattr(var, u'initial_value'):
+                var._set_type(VarTypes.MaybeConstant)
+        # Now classify by checking usage in mathematics, building
+        # an equation dependency graph in the process.
+        for expr in assignment_exprs:
+            try:
+                expr.classify_variables(root=True)
+            except MathsError, e:
+                self._report_exception(e, xml_context)
+        DEBUG('validator', 'Classified variables')
+            
+    def _order_variables(self, assignment_exprs):
+        """Topologically sort the equation dependency graph.
+        
+        This orders all the assignment expressions in the model, to
+        allow procedural code generation.  It also checks that equations
+        are not cyclic (we don't support DAEs).
+        """
+        try:
+            self._cml_sorting_variables_stack = []
+            for var in self.get_all_variables():
+                if var.get_colour() == DFS.White:
+                    self.topological_sort(var)
+            for expr in assignment_exprs:
+                if expr.get_colour() == DFS.White:
+                    self.topological_sort(expr)
+        except MathsError, e:
+            self._report_exception(e, xml_context)
+        DEBUG('validator', 'Topologically sorted variables')
+
+    math_xpath_1 = u'cml:component/m:math'
+    math_xpath_2 = u'cml:component/cml:reaction/cml:variable_ref/cml:role/m:math'
+    apply_xpath_1 = u'/m:apply[m:eq]'
+    apply_xpath_2 = u'/m:semantics/m:apply[m:eq]'
+    
+    def search_for_assignments(self):
+        """Search for assignment expressions in the model's mathematics."""
+        assignments_xpath = u' | '.join([self.math_xpath_1 + self.apply_xpath_1,
+                                         self.math_xpath_1 + self.apply_xpath_2,
+                                         self.math_xpath_2 + self.apply_xpath_1,
+                                         self.math_xpath_2 + self.apply_xpath_2])
+        return self.xml_xpath(assignments_xpath)
+    
     def build_name_dictionaries(self, rebuild=False):
         """
         Create dictionaries mapping names of variables and components to
         the objects representing them.
         Dictionary keys for variables will be
           (component_name, variable_name).
+        
+        If rebuild is True, clear the dictionaries first.
         """
         if rebuild:
             self._cml_variables = {}
             self._cml_components = {}
         if not self._cml_components:
-            for comp in self.component:
+            for comp in getattr(self, u'component', []):
                 self._cml_components[comp.name] = comp
                 for var in getattr(comp, u'variable', []):
                     self._cml_variables[(comp.name, var.name)] = var
@@ -1039,11 +1039,55 @@ class cellml_model(element_base):
                 # Compute binding time recursively
                 item._get_binding_time()
 
+    def get_all_units(self):
+        """Get a list of all units objects, including the standard units."""
+        units = self._cml_units.values()
+        units.extend(self.xml_xpath(u'cml:component/cml:units'))
+        return units
+
+    def _check_dimensional_consistency(self, assignment_exprs,
+                                       warn_on_units_errors=False,
+                                       check_for_units_conversions=False):
+        """Appendix C.3.6: Equation dimension checking."""
+        self._cml_conversions_needed = False
+        # Check dimensions
+        for expr in assignment_exprs:
+            try:
+                expr.get_units()
+            except UnitsError, e:
+                if warn_on_units_errors:
+                    e.warn = True
+                    e.level = logging.WARNING
+                self._report_exception(e, xml_context)
+        # Check if units conversions will be needed
+        if check_for_units_conversions and not self._cml_validation_errors:
+            boolean = self.get_units_by_name('cellml:boolean')
+            for expr in assignment_exprs:
+                try:
+                    DEBUG('validator', "Checking units in",
+                          element_xpath(expr),
+                          expr.component.name)
+                    expr._set_in_units(boolean, no_act=True)
+##                    if self._cml_conversions_needed:
+##                        import pdb
+##                        pdb.set_trace()
+                except UnitsError:
+                    pass
+            # Warn if conversions used
+            if self._cml_conversions_needed:
+                self.validation_warning(
+                    u'The mathematics in this model require units conversions.',
+                    level=logging.WARNING)
+        DEBUG('validator', 'Checked units')
+
     def _check_unit_cycles(self, unit):
         """Check for cyclic units definitions.
 
         We do this by doing a depth-first search from unit.
         """
+        if unit.get_colour() != DFS.White:
+            # Allow self.validate to call us without colour check
+            return
         unit.set_colour(DFS.Gray)
         # Get the object unit is defined in
         parent = unit.xml_parent or self
@@ -1139,6 +1183,7 @@ class cellml_model(element_base):
         # Update units hashmap
         for u in self._cml_units.itervalues():
             self._add_units_obj(u)
+
     def get_units_by_name(self, uname):
         """
         Return an object representing the element that defines the units
