@@ -235,6 +235,8 @@ public:
     /**
      * Alternative 2D 'Voronoi' constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
      * which must be Delaunay (see TetrahedralMesh::CheckIsVoronoi).
+     * 
+     * \todo Merge with 3D Voronoi constructor? (#1075)
      *
      * @param rMesh a tetrahedral mesh
      */
@@ -244,6 +246,8 @@ public:
      * Alternative 3D 'Voronoi' constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
      * which must be Delaunay (see TetrahedralMesh::CheckIsVoronoi).
      *
+     * \todo Merge with 2D Voronoi constructor? (#1075)
+     * 
      * @param rMesh a tetrahedral mesh
      */
     VertexMesh(TetrahedralMesh<3,3>& rMesh);
@@ -354,6 +358,8 @@ public:
      * Compute the area of a 2D element.
      *
      * This needs to be overridden in daughter classes for non-Euclidean metrics.
+     * 
+     * \todo Merge with 3D method GetVolumeOfElement()? (#1075)
      *
      * @param index  the global index of a specified vertex element
      *
