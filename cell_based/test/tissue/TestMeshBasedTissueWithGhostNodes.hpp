@@ -720,7 +720,6 @@ public:
         }
     }
 
-
     void TestVoronoiGhostNodeLabelling3d() throw (Exception)
     {
         // Set up the simulation time
