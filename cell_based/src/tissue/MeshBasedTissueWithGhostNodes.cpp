@@ -180,7 +180,7 @@ c_vector<double, DIM> MeshBasedTissueWithGhostNodes<DIM>::CalculateForceBetweenN
 
     double rest_length = 1.0;
 
-    return TissueConfig::Instance()->GetSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
+    return TissueConfig::Instance()->GetMeinekeSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
 template<unsigned DIM>

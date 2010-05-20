@@ -98,14 +98,6 @@ public:
      */
     double GetCryptWidth();
     /**
-     * @return mSpringStiffness
-     */
-    double GetSpringStiffness();
-    /**
-     * @return mMechanicsCutOffLength
-     */
-    double GetMechanicsCutOffLength();
-    /**
      * @return mDampingConstantNormal
      */
     double GetDampingConstantNormal();
@@ -121,14 +113,6 @@ public:
      * @return mApoptosisTime
      */
     double GetApoptosisTime();
-    /**
-     * @return mDivisionRestingSpringLength
-     */
-    double GetDivisionRestingSpringLength();
-    /**
-     * @return mDivisionSeparation
-     */
-    double GetDivisionSeparation();
     /**
      * @return mHepaOneCellHypoxicConcentration
      */
@@ -185,6 +169,22 @@ public:
      * @return mAreaBasedDampingConstantParameter
      */
     double GetAreaBasedDampingConstantParameter();
+    /**
+	 * @return mMeinekeSpringStiffness
+	 */
+	double GetMeinekeSpringStiffness();
+	/**
+	 * @return mMeinekeMechanicsCutOffLength
+	 */
+	double GetMeinekeMechanicsCutOffLength();
+	/**
+	 * @return mMeinekeDivisionRestingSpringLength
+	 */
+	double GetMeinekeDivisionRestingSpringLength();
+	/**
+	 * @return mMeinekeDivisionSeparation
+	 */
+	double GetMeinekeDivisionSeparation();
     /**
      * @return mMatureCellTargetArea
      */
@@ -299,14 +299,6 @@ public:
      */
     void SetCryptWidth(double);
     /**
-     * Set mSpringStiffness.
-     */
-    void SetSpringStiffness(double);
-    /**
-     * Set mMechanicsCutOffLength.
-     */
-    void SetMechanicsCutOffLength(double);
-    /**
      * Set mDampingConstantNormal.
      */
     void SetDampingConstantNormal(double);
@@ -322,14 +314,6 @@ public:
      * Set mApoptosisTime.
      */
     void SetApoptosisTime(double);
-    /**
-     * Set mDivisionRestingSpringLength.
-     */
-    void SetDivisionRestingSpringLength(double);
-    /**
-     * Set mDivisionSeparation.
-     */
-    void SetDivisionSeparation(double);
     /**
      * Set mHepaOneCellHypoxicConcentration.
      */
@@ -390,6 +374,22 @@ public:
      * Set mAreaBasedDampingConstantParameter.
      */
     void SetAreaBasedDampingConstantParameter(double);
+    /**
+	* Set mMeinekeSpringStiffness.
+	*/
+	void SetMeinekeSpringStiffness(double);
+	/**
+	 * Set mMeinekeMechanicsCutOffLength.
+	 */
+	void SetMeinekeMechanicsCutOffLength(double);
+	/**
+	 * Set mMeinekeDivisionRestingSpringLength.
+	 */
+	void SetMeinekeDivisionRestingSpringLength(double);
+	/**
+	 * Set mMeinekeDivisionSeparation.
+	 */
+	void SetMeinekeDivisionSeparation(double);
     /**
      * Set mMatureCellTargetArea.
      */
@@ -549,21 +549,6 @@ private:
     double mCryptWidth;
 
     /**
-     * Spring stiffness.
-     *
-     * Represented by the parameter mu in the model by Meineke et al (2001) in
-     * their off-lattice model of the intestinal crypt
-     * (doi:10.1046/j.0960-7722.2001.00216.x).
-     */
-    double mSpringStiffness;
-
-    /**
-     * Mechanics cut off length.
-     * Used in NodeBasedTissue.
-     */
-    double mMechanicsCutOffLength;
-
-    /**
      * Damping constant for normal cells.
      * Represented by the parameter eta in the model by Meineke et al (2001) in
      * their off-lattice model of the intestinal crypt
@@ -585,18 +570,6 @@ private:
      * The time it takes for a cell to fully undergo apoptosis
      */
     double mApoptosisTime;
-
-    /**
-     * Initial separation placement of mother/daughter cells at birth
-     */
-    double mDivisionSeparation;
-
-    /**
-     * Initial resting spring length after cell division.
-     * The value of thiis parameter should be larger than mDivisionSeparation,
-     * because of pressure from neighbouring springs.
-     */
-    double mDivisionRestingSpringLength;
 
     /**
      * Non-dimensionalized oxygen concentration below which HEPA-1 cells are
@@ -679,6 +652,33 @@ private:
      * Non-dimensional parameter d0 for use in area-based damping constant calculations.
      */
     double mAreaBasedDampingConstantParameter;
+
+    /**
+	* Spring stiffness.
+	*
+	* Represented by the parameter mu in the model by Meineke et al (2001) in
+	* their off-lattice model of the intestinal crypt
+	* (doi:10.1046/j.0960-7722.2001.00216.x).
+	*/
+	double mMeinekeSpringStiffness;
+
+	/**
+	 * Mechanics cut off length.
+	 * Used in NodeBasedTissue.
+	 */
+	double mMeinekeMechanicsCutOffLength;
+
+	/**
+	 * Initial separation placement of mother/daughter cells at birth
+	 */
+	double mMeinekeDivisionSeparation;
+
+	/**
+	 * Initial resting spring length after cell division.
+	 * The value of this parameter should be larger than mDivisionSeparation,
+	 * because of pressure from neighbouring springs.
+	 */
+	double mMeinekeDivisionRestingSpringLength;
 
     /**
      * Non-dimensional target area of a mature (fully-grown) TissueCell.
@@ -789,8 +789,6 @@ private:
         archive & mMaxTransitGenerations;
         archive & mCryptLength;
         archive & mCryptWidth;
-        archive & mSpringStiffness;
-        archive & mMechanicsCutOffLength;
         archive & mDampingConstantNormal;
         archive & mDampingConstantMutant;
         archive & mBetaCatSpringScaler;
@@ -809,6 +807,9 @@ private:
         archive & mWntChemotaxisStrength;
         archive & mSymmetricDivisionProbability;
         archive & mAreaBasedDampingConstantParameter;
+        archive & mMeinekeSpringStiffness;
+        archive & mMeinekeMechanicsCutOffLength;
+        //\todo add mMeinekeDivisionRestingSpringLength and mMeinekeDivisionSeparation
         archive & mMatureCellTargetArea;
         archive & mNagaiHondaDeformationEnergyParameter;
         archive & mNagaiHondaMembraneSurfaceEnergyParameter;

@@ -57,14 +57,10 @@ TissueConfig::TissueConfig()
  * mMaxTransitGenerations has no units
  * mCryptWidth has units of cell size at equilibrium rest length
  * mCryptLength has units of cell size at equilibrium rest length
- * mSpringStiffness has units of N/m = kg s^-2
- * mMechanicsCutOffLength has units of cell size at equilibrium rest length
  * mDampingConstantNormal has units of kg s^-1
  * mDampingConstantMutant has units of kg s^-1
  * mBetaCatSpringScaler has no units
  * mApoptosisTime has units of hours
- * mDivisionRestingSpringLength has units of cell size at equilibrium rest length
- * mDivisionSeparation has units of cell size at equilibrium rest length
  * mHepaOneCellHypoxicConcentration has no units
  * mHepaOneCellQuiescentConcentration has no units
  * mWntTransitThreshold has no units
@@ -79,6 +75,10 @@ TissueConfig::TissueConfig()
  * mWntChemotaxisStrength has no units
  * mSymmetricDivisionProbability has no units
  * mAreaBasedDampingConstantParameter has no units
+ * mMeinekeSpringStiffness has units of N/m = kg s^-2
+ * mMeinekeMechanicsCutOffLength has units of cell size at equilibrium rest length
+ * mMeinekeDivisionRestingSpringLength has units of cell size at equilibrium rest length
+ * mMeinekeDivisionSeparation has units of cell size at equilibrium rest length
  * mMatureCellTargetArea has no units
  * mNagaiHondaDeformationEnergyParameter has ? units \todo Fix this comment (see also #1294)
  * mNagaiHondaMembraneSurfaceEnergyParameter has ? units \todo Fix this comment (see also #1294)
@@ -101,15 +101,11 @@ void TissueConfig::Reset()
     mMaxTransitGenerations = 3u;    // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mCryptWidth = 10.0;
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
-    mSpringStiffness = 15.0;        // denoted by mu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
-    mMechanicsCutOffLength = DBL_MAX; // This needs to be set by a caller
     mDampingConstantNormal = 1.0;   // denoted by nu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mDampingConstantMutant = 1.0;
     mBetaCatSpringScaler = 18.14 / 6.0; // this scales the spring constant with the amount of beta-catenin
                                         // (divided by 6 as a cell normally is a hexagon)
     mApoptosisTime = 0.25;          // cell takes 15 min to fully undergo apoptosis
-    mDivisionRestingSpringLength = 0.5;
-    mDivisionSeparation = 0.3;
     mHepaOneCellHypoxicConcentration = 0.4;
     mHepaOneCellQuiescentConcentration = 1.0;
     mWntStemThreshold = 0.8;
@@ -120,13 +116,29 @@ void TissueConfig::Reset()
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
 
-    mApoptoticSpringTensionStiffness = 0.25*mSpringStiffness;
-    mApoptoticSpringCompressionStiffness = 0.75*mSpringStiffness;
+    mApoptoticSpringTensionStiffness = 0.25*mMeinekeSpringStiffness;
+    mApoptoticSpringCompressionStiffness = 0.75*mMeinekeSpringStiffness;
 
     mWntChemotaxisStrength = 100.0;
     mSymmetricDivisionProbability = 0.0;
 
     mAreaBasedDampingConstantParameter = 0.1;
+
+
+    /*
+     * The following Parameters are specific to cell-centre based models, which are based on the
+     * model described in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
+     */
+    mMeinekeSpringStiffness = 15.0;        // denoted by mu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
+    mMeinekeMechanicsCutOffLength = DBL_MAX; // This needs to be set by a caller
+    mMeinekeDivisionRestingSpringLength = 0.5;
+    mMeinekeDivisionSeparation = 0.3;
+
+
+
+    /*
+     * The following Parameters are specific to vertex based models
+     */
 
     mMatureCellTargetArea = 1.0; //0.785398163;//pi/4.0; used to be 1
 
@@ -214,14 +226,6 @@ double TissueConfig::GetCryptWidth()
 {
     return mCryptWidth;
 }
-double TissueConfig::GetSpringStiffness()
-{
-    return mSpringStiffness;
-}
-double TissueConfig::GetMechanicsCutOffLength()
-{
-    return mMechanicsCutOffLength;
-}
 double TissueConfig::GetDampingConstantNormal()
 {
     return mDampingConstantNormal;
@@ -237,14 +241,6 @@ double TissueConfig::GetBetaCatSpringScaler()
 double TissueConfig::GetApoptosisTime()
 {
     return mApoptosisTime;
-}
-double TissueConfig::GetDivisionRestingSpringLength()
-{
-    return mDivisionRestingSpringLength;
-}
-double TissueConfig::GetDivisionSeparation()
-{
-    return mDivisionSeparation;
 }
 double TissueConfig::GetHepaOneCellHypoxicConcentration()
 {
@@ -301,6 +297,22 @@ double TissueConfig::GetSymmetricDivisionProbability()
 double TissueConfig::GetAreaBasedDampingConstantParameter()
 {
     return mAreaBasedDampingConstantParameter;
+}
+double TissueConfig::GetMeinekeSpringStiffness()
+{
+    return mMeinekeSpringStiffness;
+}
+double TissueConfig::GetMeinekeMechanicsCutOffLength()
+{
+    return mMeinekeMechanicsCutOffLength;
+}
+double TissueConfig::GetMeinekeDivisionRestingSpringLength()
+{
+    return mMeinekeDivisionRestingSpringLength;
+}
+double TissueConfig::GetMeinekeDivisionSeparation()
+{
+    return mMeinekeDivisionSeparation;
 }
 double TissueConfig::GetMatureCellTargetArea()
 {
@@ -428,17 +440,6 @@ void TissueConfig::SetCryptWidth(double cryptWidth)
     assert(cryptWidth > 0.0);
     mCryptWidth = cryptWidth;
 }
-void TissueConfig::SetSpringStiffness(double springStiffness)
-{
-    assert(springStiffness > 0.0);
-    mSpringStiffness = springStiffness;
-}
-void TissueConfig::SetMechanicsCutOffLength(double mechanicsCutOffLength)
-{
-    assert(mechanicsCutOffLength > 0.0);
-    mMechanicsCutOffLength = mechanicsCutOffLength;
-}
-
 void TissueConfig::SetDampingConstantNormal(double dampingConstantNormal)
 {
     assert(dampingConstantNormal > 0.0);
@@ -458,19 +459,6 @@ void TissueConfig::SetApoptosisTime(double apoptosisTime)
 {
     assert(apoptosisTime > 0.0);
     mApoptosisTime = apoptosisTime;
-}
-void TissueConfig::SetDivisionRestingSpringLength(double divisionRestingSpringLength)
-{
-    assert(divisionRestingSpringLength<=1.0);
-    assert(divisionRestingSpringLength>=0.0);
-
-    mDivisionRestingSpringLength = divisionRestingSpringLength;
-}
-void TissueConfig::SetDivisionSeparation(double divisionSeparation)
-{
-    assert(divisionSeparation<=1.0);
-    assert(divisionSeparation>=0.0);
-    mDivisionSeparation = divisionSeparation;
 }
 void TissueConfig::SetHepaOneCellHypoxicConcentration(double hepaOneCellHypoxicConcentration)
 {
@@ -552,6 +540,29 @@ void TissueConfig::SetAreaBasedDampingConstantParameter(double areaBasedDampingC
 {
     assert(areaBasedDampingConstantParameter>=0.0);
     mAreaBasedDampingConstantParameter = areaBasedDampingConstantParameter;
+}
+void TissueConfig::SetMeinekeSpringStiffness(double springStiffness)
+{
+    assert(springStiffness > 0.0);
+    mMeinekeSpringStiffness = springStiffness;
+}
+void TissueConfig::SetMeinekeMechanicsCutOffLength(double mechanicsCutOffLength)
+{
+    assert(mechanicsCutOffLength > 0.0);
+    mMeinekeMechanicsCutOffLength = mechanicsCutOffLength;
+}
+void TissueConfig::SetMeinekeDivisionRestingSpringLength(double divisionRestingSpringLength)
+{
+    assert(divisionRestingSpringLength<=1.0);
+    assert(divisionRestingSpringLength>=0.0);
+
+    mMeinekeDivisionRestingSpringLength = divisionRestingSpringLength;
+}
+void TissueConfig::SetMeinekeDivisionSeparation(double divisionSeparation)
+{
+    assert(divisionSeparation<=1.0);
+    assert(divisionSeparation>=0.0);
+    mMeinekeDivisionSeparation = divisionSeparation;
 }
 void TissueConfig::SetMatureCellTargetArea(double matureCellTargetArea)
 {

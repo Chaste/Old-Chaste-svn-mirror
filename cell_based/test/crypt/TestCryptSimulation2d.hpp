@@ -1197,8 +1197,8 @@ public:
     {
         // Set up model parameters
         TissueConfig::Instance()->Reset();
-        TissueConfig::Instance()->SetDivisionRestingSpringLength(0.9);//Only coverage
-        TissueConfig::Instance()->SetDivisionSeparation(0.1);
+        TissueConfig::Instance()->SetMeinekeDivisionRestingSpringLength(0.9);//Only coverage
+        TissueConfig::Instance()->SetMeinekeDivisionSeparation(0.1);
 
         // Make a parent node
         c_vector<double,2> location;
@@ -1230,7 +1230,7 @@ public:
         c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*conf_iter);
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetDivisionSeparation(), 1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetMeinekeDivisionSeparation(), 1e-7);
     }
 
 
@@ -1276,7 +1276,7 @@ public:
             TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
             TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
             TS_ASSERT(daughter_location[1]>=location[1]);
-            TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetDivisionSeparation(), 1e-7);
+            TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetMeinekeDivisionSeparation(), 1e-7);
        }
     }
 
@@ -1312,7 +1312,7 @@ public:
         c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*cyl_iter);
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetDivisionSeparation(), 1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetMeinekeDivisionSeparation(), 1e-7);
     }
 
 
@@ -1352,7 +1352,7 @@ public:
         TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
         TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
         TS_ASSERT(daughter_location[1]>=location[1]);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetDivisionSeparation(), 1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetMeinekeDivisionSeparation(), 1e-7);
     }
 
 
@@ -1761,7 +1761,7 @@ public:
 
         // Do not give mutant cells any different movement properties to normal ones
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
-        p_params->SetSpringStiffness(30.0); //normally 15.0;
+        p_params->SetMeinekeSpringStiffness(30.0); //normally 15.0;
 
         // Create mesh
         unsigned cells_across = 13;

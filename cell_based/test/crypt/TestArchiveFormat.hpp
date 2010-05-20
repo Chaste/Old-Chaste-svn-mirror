@@ -112,7 +112,7 @@ public:
         TS_ASSERT_EQUALS(p_inst->GetMaxTransitGenerations(), 3u);
         TS_ASSERT_DELTA(p_inst->GetCryptLength(), 20.151744972676, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptWidth(), 12.1, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetSpringStiffness(), 30.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetMeinekeSpringStiffness(), 30.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetDampingConstantNormal(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetDampingConstantMutant(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetBetaCatSpringScaler(), 18.14/6.0, 1e-12);

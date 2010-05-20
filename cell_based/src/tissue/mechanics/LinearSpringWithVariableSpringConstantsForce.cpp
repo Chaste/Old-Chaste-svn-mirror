@@ -162,8 +162,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     {
         if (r_cell_A.GetCellProliferativeType()==APOPTOTIC || r_cell_B.GetCellProliferativeType()==APOPTOTIC)
         {
-            double spring_a_stiffness = 2.0 * p_config->GetSpringStiffness();
-            double spring_b_stiffness = 2.0 * p_config->GetSpringStiffness();
+            double spring_a_stiffness = 2.0 * p_config->GetMeinekeSpringStiffness();
+            double spring_b_stiffness = 2.0 * p_config->GetMeinekeSpringStiffness();
 
             if (r_cell_A.GetCellProliferativeType()==APOPTOTIC)
             {
@@ -188,7 +188,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
                 }
             }
 
-            multiplication_factor /= (1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*p_config->GetSpringStiffness();
+            multiplication_factor /= (1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*p_config->GetMeinekeSpringStiffness();
         }
     }
 

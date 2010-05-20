@@ -42,14 +42,14 @@ void AbstractTwoBodyInteractionForce<DIM>::UseCutoffPoint(double cutoffPoint)
 {
     assert(cutoffPoint > 0.0);
     mUseCutoffPoint = true;
-    TissueConfig::Instance()->SetMechanicsCutOffLength(cutoffPoint);
+    TissueConfig::Instance()->SetMeinekeMechanicsCutOffLength(cutoffPoint);
 }
 
 
 template<unsigned DIM>
 double AbstractTwoBodyInteractionForce<DIM>::GetCutoffPoint()
 {
-    return TissueConfig::Instance()->GetMechanicsCutOffLength();
+    return TissueConfig::Instance()->GetMeinekeMechanicsCutOffLength();
 }
 
 

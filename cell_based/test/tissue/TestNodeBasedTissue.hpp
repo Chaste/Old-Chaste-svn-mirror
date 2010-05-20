@@ -199,9 +199,9 @@ public:
 
         // throws exception as the cut-off length hasn't been set and has its default value of DBL_MAX
         TS_ASSERT_THROWS_THIS(tissue.Update(),
-                "NodeBasedTissue cannot create boxes if the cut-off length has not been set - Call UseCutoffPoint() on the force law, or SetMechanicsCutOffLength on TissueConfig");
+                "NodeBasedTissue cannot create boxes if the cut-off length has not been set - Call UseCutoffPoint() on the force law, or SetMeinekeMechanicsCutOffLength on TissueConfig");
 
-        TissueConfig::Instance()->SetMechanicsCutOffLength(1.2);
+        TissueConfig::Instance()->SetMeinekeMechanicsCutOffLength(1.2);
         tissue.Update();
 
         std::set< std::pair<Node<2>*, Node<2>* > >& r_node_pairs = tissue.rGetNodePairs();
@@ -371,7 +371,7 @@ public:
 
         unsigned num_removed = node_based_tissue.RemoveDeadCells();
 
-        TissueConfig::Instance()->SetMechanicsCutOffLength(1.2);
+        TissueConfig::Instance()->SetMeinekeMechanicsCutOffLength(1.2);
         node_based_tissue.Update(true);
 
         // Test that one cell has been removed
@@ -433,7 +433,7 @@ public:
 
         // Test that the apoptotic cell has been removed
         unsigned num_removed = node_based_tissue.RemoveDeadCells();
-        TissueConfig::Instance()->SetMechanicsCutOffLength(1.2);
+        TissueConfig::Instance()->SetMeinekeMechanicsCutOffLength(1.2);
         node_based_tissue.Update();
 
         TS_ASSERT_EQUALS(num_removed, 1u);

@@ -39,7 +39,7 @@ CryptSimulation1d::CryptSimulation1d(AbstractTissue<1>& rTissue,
                           deleteTissueAndForceCollection,
                           initialiseCells)
 {
-    TissueConfig::Instance()->SetSpringStiffness(30.0);
+    TissueConfig::Instance()->SetMeinekeSpringStiffness(30.0);
     mpStaticCastTissue = static_cast<MeshBasedTissue<1>*>(&mrTissue);
 }
 
@@ -51,7 +51,7 @@ c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCell& r
     c_vector<double, 1> daughter_coords;
 
     // Get separation parameter
-    double separation = TissueConfig::Instance()->GetDivisionSeparation();
+    double separation = TissueConfig::Instance()->GetMeinekeDivisionSeparation();
 
     // Make a random direction vector of the required length
     c_vector<double, 1> random_vector;

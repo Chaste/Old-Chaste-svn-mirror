@@ -112,7 +112,7 @@ public:
         // Do not give mutant cells any different movement properties to normal ones
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
 
-        p_params->SetSpringStiffness(30.0); //normally 15.0;
+        p_params->SetMeinekeSpringStiffness(30.0); //normally 15.0;
         // 0.3/30 = 0.01 (i.e. Meineke's values)
 
         simulator.UseJiggledBottomCells();

@@ -53,7 +53,7 @@ c_vector<double, 2> CryptSimulation2d::CalculateCellDivisionVector(TissueCell& r
     c_vector<double, 2> daughter_coords;
 
     // Get separation parameter
-    double separation = TissueConfig::Instance()->GetDivisionSeparation();
+    double separation = TissueConfig::Instance()->GetMeinekeDivisionSeparation();
 
     // Make a random direction vector of the required length
     c_vector<double, 2> random_vector;
@@ -189,8 +189,8 @@ void CryptSimulation2d::OutputParameters()
     *ParameterFile << "MaxTransitGenerations \t" << p_inst->GetMaxTransitGenerations() << " \n";
     *ParameterFile << "CryptLength \t" << p_inst->GetCryptLength() << " \n";
     *ParameterFile << "CryptWidth \t" << p_inst->GetCryptWidth() << " \n";
-    *ParameterFile << "SpringStiffness \t" << p_inst->GetSpringStiffness() << " \n";
-    *ParameterFile << "MechanicsCutOffLength \t" << p_inst->GetMechanicsCutOffLength() << " \n";
+    *ParameterFile << "SpringStiffness \t" << p_inst->GetMeinekeSpringStiffness() << " \n";
+    *ParameterFile << "MechanicsCutOffLength \t" << p_inst->GetMeinekeMechanicsCutOffLength() << " \n";
     *ParameterFile << "DampingConstantNormal \t" << p_inst->GetDampingConstantNormal() << " \n";
     *ParameterFile << "DampingConstantMutant \t" << p_inst->GetDampingConstantMutant() << " \n";
     *ParameterFile << "BetaCatSpringScaler \t" << p_inst->GetBetaCatSpringScaler() << " \n";

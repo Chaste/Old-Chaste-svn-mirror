@@ -94,7 +94,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
      */
     if (this->mUseCutoffPoint)
     {
-        if (distance_between_nodes >= p_config->GetMechanicsCutOffLength())
+        if (distance_between_nodes >= p_config->GetMeinekeMechanicsCutOffLength())
         {
             return zero_vector<double>(DIM); // c_vector<double,DIM>() is not guaranteed to be fresh memory
         }
@@ -130,7 +130,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
             if (p_static_cast_tissue->IsMarkedSpring(cell_pair))
             {
                 // Spring rest length increases from a small value to the normal rest length over 1 hour
-                double lambda = p_config->GetDivisionRestingSpringLength();
+                double lambda = p_config->GetMeinekeDivisionRestingSpringLength();
                 rest_length = lambda + (1.0 - lambda) * ageA/m_duration;
             }
             if (ageA + SimulationTime::Instance()->GetTimeStep() >= m_duration)
@@ -142,7 +142,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         else
         {
             // Spring rest length increases from mDivisionRestingSpringLength to normal rest length, 1.0, over 1 hour
-            double lambda = p_config->GetDivisionRestingSpringLength();
+            double lambda = p_config->GetMeinekeDivisionRestingSpringLength();
             rest_length = lambda + (1.0 - lambda) * ageA/m_duration;
         }
     }
@@ -173,7 +173,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     // Although in this class the 'spring constant' is a constant parameter, in
     // subclasses it can depend on properties of each of the cells
     double multiplication_factor = VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
-    double spring_stiffness = p_config->GetSpringStiffness();
+    double spring_stiffness = p_config->GetMeinekeSpringStiffness();
     double overlap = distance_between_nodes - rest_length;
 
     if (rTissue.HasMesh())

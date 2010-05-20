@@ -64,8 +64,8 @@ private:
         TS_ASSERT_EQUALS(p_inst->GetMaxTransitGenerations(), 3u);
         TS_ASSERT_DELTA(p_inst->GetCryptLength(), 22.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptWidth(), 10.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetSpringStiffness(), 15.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetMechanicsCutOffLength(), DBL_MAX, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetMeinekeSpringStiffness(), 15.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst->GetMeinekeMechanicsCutOffLength(), DBL_MAX, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetDampingConstantNormal(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetDampingConstantMutant(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetBetaCatSpringScaler(), 18.14 / 6.0, 1e-12);
@@ -123,8 +123,8 @@ public:
         p_inst->SetMinimumGapDuration(2.5);
         p_inst->SetMaxTransitGenerations(666u);
         p_inst->SetCryptLength(100.0);
-        p_inst->SetSpringStiffness(20.0);
-        p_inst->SetMechanicsCutOffLength(1.5);
+        p_inst->SetMeinekeSpringStiffness(20.0);
+        p_inst->SetMeinekeMechanicsCutOffLength(1.5);
         p_inst->SetDampingConstantNormal(2.0);
         p_inst->SetDampingConstantMutant(3.0);
         p_inst->SetBetaCatSpringScaler(10.0);
@@ -178,8 +178,8 @@ public:
         p_inst1->SetMinimumGapDuration(2.5);
         p_inst1->SetMaxTransitGenerations(666u);
         p_inst1->SetCryptLength(100.0);
-        p_inst1->SetSpringStiffness(20.0);
-        p_inst1->SetMechanicsCutOffLength(3.0);
+        p_inst1->SetMeinekeSpringStiffness(20.0);
+        p_inst1->SetMeinekeMechanicsCutOffLength(3.0);
         p_inst1->SetDampingConstantNormal(2.0);
         p_inst1->SetDampingConstantMutant(3.0);
         p_inst1->SetBetaCatSpringScaler(10.0);
@@ -229,8 +229,8 @@ public:
         TS_ASSERT_DELTA(p_inst2->GetMinimumGapDuration(), 2.5, 1e-12);
         TS_ASSERT_EQUALS(p_inst2->GetMaxTransitGenerations(), 666u);
         TS_ASSERT_DELTA(p_inst2->GetCryptLength(), 100.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetSpringStiffness(), 20.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetMechanicsCutOffLength(), 3.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst2->GetMeinekeSpringStiffness(), 20.0, 1e-12);
+        TS_ASSERT_DELTA(p_inst2->GetMeinekeMechanicsCutOffLength(), 3.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetDampingConstantNormal(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetDampingConstantMutant(), 3.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetBetaCatSpringScaler(), 10.0, 1e-12);
@@ -287,8 +287,8 @@ public:
             p_inst1->SetMinimumGapDuration(2.5);
             p_inst1->SetMaxTransitGenerations(666u);
             p_inst1->SetCryptLength(100.0);
-            p_inst1->SetSpringStiffness(20.0);
-            p_inst1->SetMechanicsCutOffLength(3.0);
+            p_inst1->SetMeinekeSpringStiffness(20.0);
+            p_inst1->SetMeinekeMechanicsCutOffLength(3.0);
             p_inst1->SetDampingConstantNormal(2.0);
             p_inst1->SetDampingConstantMutant(3.0);
             p_inst1->SetBetaCatSpringScaler(10.0);
@@ -347,8 +347,8 @@ public:
             p_inst1->SetMaxTransitGenerations(3u);
             p_inst1->SetCryptLength(22.0);
             p_inst1->SetApoptosisTime(0.25);
-            p_inst1->SetSpringStiffness(30.0);
-            p_inst1->SetMechanicsCutOffLength(1.5);
+            p_inst1->SetMeinekeSpringStiffness(30.0);
+            p_inst1->SetMeinekeMechanicsCutOffLength(1.5);
             p_inst1->SetDampingConstantNormal(1.0);
             p_inst1->SetDampingConstantMutant(2.0);
             p_inst1->SetBetaCatSpringScaler(10.0);
@@ -404,8 +404,8 @@ public:
             TS_ASSERT_DELTA(p_inst1->GetMinimumGapDuration(), 2.5, 1e-12);
             TS_ASSERT_EQUALS(p_inst1->GetMaxTransitGenerations(), 666u);
             TS_ASSERT_DELTA(p_inst1->GetCryptLength(), 100.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetSpringStiffness(), 20.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetMechanicsCutOffLength(), 3.0, 1e-12);
+            TS_ASSERT_DELTA(p_inst1->GetMeinekeSpringStiffness(), 20.0, 1e-12);
+            TS_ASSERT_DELTA(p_inst1->GetMeinekeMechanicsCutOffLength(), 3.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetDampingConstantNormal(), 2.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetDampingConstantMutant(), 3.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetBetaCatSpringScaler(), 10.0, 1e-12);

@@ -278,17 +278,17 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         domain_size(2*i+1) = mMaxSpatialPositions(i);
     }
 
-    double cut_off_length = TissueConfig::Instance()->GetMechanicsCutOffLength();
+    double cut_off_length = TissueConfig::Instance()->GetMeinekeMechanicsCutOffLength();
     if (cut_off_length==DBL_MAX)
     {
         std::string error =  std::string("NodeBasedTissue cannot create boxes if the cut-off length has not been set - ")
-                           + std::string("Call UseCutoffPoint() on the force law, or SetMechanicsCutOffLength on TissueConfig");
+                           + std::string("Call UseCutoffPoint() on the force law, or SetMeinekeMechanicsCutOffLength on TissueConfig");
         EXCEPTION(error);
     }
 
     // Add this parameter and suggest that mechanics systems set it.
     // Allocates memory for mpBoxCollection and does the splitting and putting nodes into boxes
-    SplitUpIntoBoxes(TissueConfig::Instance()->GetMechanicsCutOffLength(), domain_size);
+    SplitUpIntoBoxes(TissueConfig::Instance()->GetMeinekeMechanicsCutOffLength(), domain_size);
 
     mpBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
 }
