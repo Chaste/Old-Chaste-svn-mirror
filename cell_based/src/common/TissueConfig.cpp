@@ -116,14 +116,10 @@ void TissueConfig::Reset()
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
 
-    mApoptoticSpringTensionStiffness = 0.25*mMeinekeSpringStiffness;
-    mApoptoticSpringCompressionStiffness = 0.75*mMeinekeSpringStiffness;
-
     mWntChemotaxisStrength = 100.0;
     mSymmetricDivisionProbability = 0.0;
 
     mAreaBasedDampingConstantParameter = 0.1;
-
 
     /*
      * The following Parameters are specific to cell-centre based models, which are based on the
@@ -134,7 +130,8 @@ void TissueConfig::Reset()
     mMeinekeDivisionRestingSpringLength = 0.5;
     mMeinekeDivisionSeparation = 0.3;
 
-
+    mApoptoticSpringTensionStiffness = 0.25*mMeinekeSpringStiffness;
+    mApoptoticSpringCompressionStiffness = 0.75*mMeinekeSpringStiffness;
 
     /*
      * The following Parameters are specific to vertex based models
