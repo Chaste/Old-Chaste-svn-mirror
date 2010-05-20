@@ -147,6 +147,24 @@ NSS = {u'm'  : u'http://www.w3.org/1998/Math/MathML',
 # Useful constants for depth-first search
 DFS = Enum('White', 'Gray', 'Black')
 
+class Colourable(object):
+    """
+    A mixin class for objects that have a colour attribute, and so support
+    a depth-first search.
+    """
+    def __init__(self, *args, **kwargs):
+        super(Colourable, self).__init__(*args, **kwargs)
+        self.clear_colour()
+    
+    def set_colour(self, colour):
+        self._cml_colour = colour
+    
+    def get_colour(self):
+        return self._cml_colour
+    
+    def clear_colour(self):
+        self._cml_colour = DFS.White
+
 # Variable classifications
 VarTypes = Enum('Unknown', 'Free', 'State', 'MaybeConstant', 'Constant',
                 'Computed', 'Mapped')
@@ -297,7 +315,7 @@ class element_base(amara.bindery.element_base):
     """
     def __init__(self):
         self.xml_attributes = {} # Amara should really do this!
-        amara.bindery.element_base.__init__(self)
+        super(element_base, self).__init__()
         return
     def __setattr__(self, key, value):
         """
@@ -455,8 +473,7 @@ class cellml_model(element_base):
         self._cml_mappings = {}
         self._cml_units = {}
         self._cml_units_map = {}
-        # Topologically sorted component list
-        self._cml_sorted_components = []
+        # Topologically sorted assignments list
         self._cml_assignments = []
     
     def __del__(self):
@@ -476,11 +493,20 @@ class cellml_model(element_base):
     def _add_variable(self, var, varname, compname):
         """Add a new variable to the model."""
         self._cml_variables[(compname, varname)] = var
-        return
+
     def _del_variable(self, varname, compname):
         """Remove a variable from the model."""
         del self._cml_variables[(compname, varname)]
-        return
+
+    def _add_component(self, comp):
+        """Add a new component to the model."""
+        self.xml_append(comp)
+        self._cml_components[comp.name] = comp
+
+    def _del_component(self, comp):
+        """Remove the given component from the model."""
+        self.xml_remove_child(comp)
+        del self._cml_components[comp.name]
 
     def validation_error(self, errmsg, level=logging.ERROR):
         """Log a validation error message.
@@ -577,7 +603,7 @@ class cellml_model(element_base):
             units.extend(self.xml_xpath(u'cml:component/cml:units'))
             # Do a dfs
             for unit in units:
-                if unit._get_colour() == DFS.White:
+                if unit.get_colour() == DFS.White:
                     self._check_unit_cycles(unit)
         DEBUG('validator', 'Checked for units cycles')
 
@@ -671,11 +697,11 @@ class cellml_model(element_base):
                 self._cml_sorting_variables_stack = []
                 for comp in getattr(self, u'component', []):
                     for var in getattr(comp, u'variable', []):
-                        if var._get_colour() == DFS.White:
-                            self._topological_sort(var)
+                        if var.get_colour() == DFS.White:
+                            self.topological_sort(var)
                 for expr in assignment_exprs:
-                    if expr._get_colour() == DFS.White:
-                        self._topological_sort(expr)
+                    if expr.get_colour() == DFS.White:
+                        self.topological_sort(expr)
             except MathsError, e:
                 self._report_exception(e, xml_context)
         DEBUG('validator', 'Classified and sorted variables')
@@ -907,15 +933,15 @@ class cellml_model(element_base):
         return
 
     # TODO: Fix the naming in these methods!
-    def _topological_sort(self, node):
+    def topological_sort(self, node):
         """
         Do a topological sort of all assignment expressions and variables
         in the model.
 
-        node should be an expression or variable object that has methods
-        _set_colour, _get_colour, _get_dependencies, get_component
+        node should be an expression or variable object that inherits from
+        Colourable and has methods _get_dependencies, get_component
         """
-        node._set_colour(DFS.Gray)
+        node.set_colour(DFS.Gray)
         # Keep track of gray variables, for reporting cycles
         if isinstance(node, cellml_variable):
             self._cml_sorting_variables_stack.append(node.fullname())
@@ -929,9 +955,9 @@ class cellml_model(element_base):
             if type(dep) == types.TupleType:
                 # This is an ODE dependency, so get the defining expression
                 dep = dep[0]._get_ode_dependency(dep[1], node)
-            if dep._get_colour() == DFS.White:
-                self._topological_sort(dep)
-            elif dep._get_colour() == DFS.Gray:
+            if dep.get_colour() == DFS.White:
+                self.topological_sort(dep)
+            elif dep.get_colour() == DFS.Gray:
                 # We have a cyclic dependency
                 if isinstance(dep, cellml_variable):
                     i = self._cml_sorting_variables_stack.index(dep.fullname())
@@ -953,7 +979,7 @@ class cellml_model(element_base):
                     u'There is a cyclic dependency involving the following',
                     u'variables:', u','.join(varnames)]))
         # Finish this node, and add it to the appropriate sorted list
-        node._set_colour(DFS.Black)
+        node.set_colour(DFS.Black)
         self._add_sorted_assignment(node)
         # Pop the gray variables stack
         if (isinstance(node, cellml_variable) or node.is_ode()):
@@ -1018,21 +1044,21 @@ class cellml_model(element_base):
 
         We do this by doing a depth-first search from unit.
         """
-        unit._set_colour(DFS.Gray)
+        unit.set_colour(DFS.Gray)
         # Get the object unit is defined in
         parent = unit.xml_parent or self
         if hasattr(unit, u'unit'):
             # Explore units that this unit is defined in terms of
             for v in [parent.get_units_by_name(u.units)
                       for u in unit.unit]:
-                if v._get_colour() == DFS.White:
+                if v.get_colour() == DFS.White:
                     self._check_unit_cycles(v)
-                elif v._get_colour() == DFS.Gray:
+                elif v.get_colour() == DFS.Gray:
                     # We have a cycle
                     self.validation_error(u' '.join([
                         u'Units',unit.name,u'and',v.name,
                         u'are in a cyclic units definition']))
-        unit._set_colour(DFS.Black)
+        unit.set_colour(DFS.Black)
 
     def _build_units_dictionary(self):
         """
@@ -1403,9 +1429,6 @@ class cellml_component(element_base):
         self._cml_parents = {}
         self._cml_children = {}
         self._cml_units = {}
-        # For topological sort
-        self._cml_colour = DFS.White
-        self._cml_sorted_nodes = []
     
     def parent(self, relationship=u'encapsulation', namespace=None,
                name=None, reln_key=None):
@@ -1514,39 +1537,20 @@ class cellml_component(element_base):
         self.xml_parent._del_variable(var.name, self.name)
         return
 
-    def _set_colour(self, col):
-        "Method used by validator."
-        self._cml_colour = col
-        return
-    def _get_colour(self):
-        "Method used by validator."
-        return self._cml_colour
-    def _add_sorted_node(self, node):
-        """
-        Add node to our list of finished expressions/variables from the
-        topological sort.
-        """
-        # TODO: Proper implementation
-        self._cml_sorted_nodes.append(node)
-        if isinstance(node, cellml_variable):
-##            print "Finished var",node.fullname()
-            self.xml_parent._add_assignment_expr(node)
-        else:
-            self.xml_parent._add_assignment_expr(node)
-##            print "Finished expr for",
-##            a = node.assigned_variable()
-##            if isinstance(a, cellml_variable):
-##                print a.fullname()
-##            else:
-##                print 'd' + a[0].fullname() + '/d' + a[1].name
+    @staticmethod
+    def create_new(elt, name):
+        """Create a new component with the given name."""
+        new_comp = elt.xml_create_element(u'component', NSS[u'cml'],
+                                          attributes={u'name': name})
+        return new_comp
 
 
-class cellml_variable(element_base):
+class cellml_variable(Colourable, element_base):
     """
     Class representing CellML <variable> elements.
     """
     def __init__(self):
-        element_base.__init__(self)
+        super(cellml_variable, self).__init__()
         # The type of this variable is not yet known
         self._cml_var_type = VarTypes.Unknown
         self._cml_source_var = None
@@ -1555,7 +1559,6 @@ class cellml_variable(element_base):
         # Dependency graph edges
         self._cml_depends_on = []
         self._cml_depends_on_ode = {}
-        self._cml_colour = DFS.White
         self._cml_usage_count = 0
         return
 
@@ -1761,14 +1764,6 @@ class cellml_variable(element_base):
             model = self.xml_parent.xml_parent
             model._pe_repeat = u'yes'
         return
-
-    def _set_colour(self, col):
-        "Method used by validator."
-        self._cml_colour = col
-        return
-    def _get_colour(self):
-        "Method used by validator."
-        return self._cml_colour
 
     def add_rdf_annotation(self, property, target):
         """Add an RDF annotation about this variable.
@@ -2026,7 +2021,7 @@ class cellml_variable(element_base):
                 defn = src._get_dependencies()[0]
                 assert isinstance(defn, mathml_apply)
                 ## Move the definition to this component
-                #defn._unset_component_links()
+                #defn._unset_cached_links()
                 #defn.xml_parent.xml_remove_child(defn)
                 #self.component.math.xml_append(defn)
                 # Update the LHS
@@ -2045,10 +2040,11 @@ class cellml_variable(element_base):
                 self._cml_source_var = None
     
     @staticmethod
-    def create_new(elt, name, units, id=None, initial_value=None):
+    def create_new(elt, name, units, id=None, initial_value=None,
+                   interfaces={}):
         """Create a new <variable> element with the given name and units.
         
-        Optionally id and initial_value may also be given.
+        Optionally id, initial_value, and interfaces may also be given.
         
         elt may be any existing XML element.
         """
@@ -2058,6 +2054,8 @@ class cellml_variable(element_base):
             attrs[(u'cmeta:id', NSS[u'cmeta'])] = id
         if initial_value is not None:
             attrs[(u'initial_value', None)] = initial_value
+        for iface, val in interfaces.items():
+            attrs[(iface + u'_interface', None)] = val
         new_elt = elt.xml_create_element(u'variable', NSS[u'cml'],
                                          attributes=attrs)
         return new_elt
@@ -2209,7 +2207,7 @@ class UnitsSet(set):
             desc = desc[0]
         return desc
 
-class cellml_units(element_base):
+class cellml_units(Colourable, element_base):
     """
     Specialised units class.
     Contains useful methods for defining the standard units dictionary,
@@ -2226,8 +2224,7 @@ class cellml_units(element_base):
     """
     
     def __init__(self):
-        element_base.__init__(self)
-        self._cml_colour = DFS.White
+        super(cellml_units, self).__init__()
         self._cml_expanded = None
         self._cml_generated = False
         self._cml_quotients = {}
@@ -2580,14 +2577,6 @@ class cellml_units(element_base):
             o = 0
         return o
     
-    def _set_colour(self, col):
-        """Method used by validator."""
-        self._cml_colour = col
-        return
-    def _get_colour(self):
-        """Method used by validator."""
-        return self._cml_colour
-
     @staticmethod
     def create_new(parent, name, bases, add_to_parent=False):
         """Create a new units definition element.
@@ -3409,16 +3398,21 @@ class mathml(element_base):
         return self._cml_component
     component = property(get_component)
 
-    def _unset_component_links(self, elt=None):
-        """
-        Used by partial evaluator when moving maths to a new component.
+    def _unset_cached_links(self, elt=None):
+        """Forget cached component and variable references in this MathML tree.
+        
+        Used by partial evaluator when moving maths to a new component, and by
+        simulation protocols.
         """
         if elt is None:
             elt = self
         if isinstance(elt, mathml):
             elt._cml_component = None
         for child in self.xml_element_children(elt):
-            self._unset_component_links(child)
+            if hasattr(child, '_unset_cached_links'):
+                child._unset_cached_links()
+            else:
+                self._unset_cached_links(child)
         return
 
     @property
@@ -3500,9 +3494,11 @@ class mathml(element_base):
         handles a variety of encodings of variable names that contain
         the component name.
         """
-        if hasattr(ci_elt, '_cml_variable') and ci_elt._cml_variable:
-            var = ci_elt._cml_variable
-        else:
+        try:
+            var = ci_elt.variable
+        except:
+            var = None
+        if not var:
             varname = unicode(ci_elt).strip()
             if varname[0] == '(':
                 cname, vname = varname[1:-1].split(',')
@@ -3825,6 +3821,15 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
         self._cml_variable = None
         self._cml_units = None
         return
+    
+    def _unset_cached_links(self, elt=None):
+        """Forget cached component and variable references in this MathML tree.
+        
+        Used by partial evaluator when moving maths to a new component, and by
+        simulation protocols.
+        """
+        self._cml_variable = None
+        super(mathml_ci, self)._unset_cached_links()
 
     @property
     def variable(self):
@@ -3912,6 +3917,7 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
                     DEBUG('partial-evaluator', "Keeping",
                           self.variable.fullname())
                     self.variable._reduce(update_usage=True)
+                    self._rename()
                 else:
                     # Create a new <ci> element
                     ci = self.xml_create_element(
@@ -3960,7 +3966,7 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
                                          content=variable_name)
         return new_elt
 
-class mathml_apply(mathml_constructor, mathml_units_mixin):
+class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
 
     QUALIFIERS = frozenset(('degree', 'bvar', 'logbase',
                             'lowlimit', 'uplimit', 'interval', 'condition',
@@ -3987,17 +3993,9 @@ class mathml_apply(mathml_constructor, mathml_units_mixin):
         self._cml_binding_time = None
         # Dependency graph edges
         self._cml_depends_on = []
-        self._cml_colour = DFS.White
         self._cml_assigns_to = None
         return
 
-    def _set_colour(self, col):
-        "Method used by validator."
-        self._cml_colour = col
-        return
-    def _get_colour(self):
-        "Method used by validator."
-        return self._cml_colour
     def _get_dependencies(self):
         """Return the list of variables this expression depends on."""
         return self._cml_depends_on

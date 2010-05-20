@@ -112,10 +112,9 @@ def parteval(doc):
                     var._reduce()
 
         # Collapse into a single component
-        new_comp = doc.xml_create_element(u'component', NSS[u'cml'],
-                                          attributes={u'name': u'c'})
+        new_comp = cellml_component.create_new(doc, u'c')
         old_comps = list(getattr(doc.model, u'component', []))
-        doc.model.xml_append(new_comp)
+        doc.model._add_component(new_comp)
         # We iterate over a copy of the component list so we can
         # delete components from the model in this loop, and so the
         # new component exists in the model so we can add content to
@@ -126,7 +125,7 @@ def parteval(doc):
                 # Copy all <units> elements
                 # TODO: Just generate the ones we need,
                 # using _ensure_units_exist
-                units.next_elem = None
+                comp.xml_remove_child(units)
                 new_comp.xml_append(units)
             for var in list(getattr(comp, u'variable', [])):
                 # Only move used source variables
@@ -145,11 +144,11 @@ def parteval(doc):
             for math in list(getattr(comp, u'math', [])):
                 # Copy all <math> elements with content
                 if math.xml_children:
-                    math.next_elem = None
+                    comp.xml_remove_child(math)
                     new_comp.xml_append(math)
-                    # Invalidate cached component links
-                    math._unset_component_links()
-            doc.model.xml_remove_child(comp)
+                    # Invalidate cached links
+                    math._unset_cached_links()
+            doc.model._del_component(comp)
         # Remove groups & connections
         for group in list(getattr(doc.model, u'group', [])):
             doc.model.xml_remove_child(group)
@@ -174,8 +173,7 @@ def parteval(doc):
         # Refresh expression dependency lists
         for expr in [e for e in doc.model.get_assignments()
                      if isinstance(e, mathml_apply)]:
-            rhs = expr.eq.rhs
-            expr._cml_depends_on = list(expr.vars_in(rhs))
+            expr._cml_depends_on = list(expr.vars_in(expr.eq.rhs))
             if expr.is_ode():
                 # Add dependency on the independent variable
                 indep_var = expr.eq.lhs.diff.independent_variable
