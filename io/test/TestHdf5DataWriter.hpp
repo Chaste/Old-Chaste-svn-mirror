@@ -767,9 +767,11 @@ public:
 
         // Data not increasing
         TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(node_numbers, 100),"Input should be monotonic increasing");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimensionUsingMatrix(node_numbers, 100),"Input should be monotonic increasing");
         node_numbers[2]=100;
         // Data is increasing but the last number is too large
         TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimension(node_numbers, 100),"Vector size doesn\'t match nodes to output");
+        TS_ASSERT_THROWS_THIS(mpTestWriter->DefineFixedDimensionUsingMatrix(node_numbers, 100),"Vector size doesn\'t match nodes to output");
 
         mpTestWriter->DefineFixedDimension(5000);
         // Can't set fixed dimension more than once

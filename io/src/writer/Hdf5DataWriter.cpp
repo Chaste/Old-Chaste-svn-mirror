@@ -230,6 +230,14 @@ Hdf5DataWriter::~Hdf5DataWriter()
     {
         MatDestroy(mDoublePermutation);
     }
+//    if (mSingleIncompleteOutputMatrix)
+//    {
+//    	MatDestroy(mSingleIncompleteOutputMatrix);
+//    }
+//    if (mDoubleIncompleteOutputMatrix)
+//	{
+//    	MatDestroy(mDoubleIncompleteOutputMatrix);
+//	}
 }
 
 void Hdf5DataWriter::DefineFixedDimension(long dimensionSize)
