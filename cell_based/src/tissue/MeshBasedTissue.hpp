@@ -338,14 +338,12 @@ public:
     void WriteCellVolumeResultsToFile();
 
     /**
-     * Get a reference to a Voronoi tessellation of the mesh.
-     *
-     * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
+     * Create a Voronoi tessellation of the mesh.
      */
-    void CreateVoronoiTessellation(const std::vector<unsigned> locationIndices=std::vector<unsigned>());
+    void CreateVoronoiTessellation();
 
     /**
-     * @return mpVoronoiTessellation.
+     * Get a reference to a Voronoi tessellation of the mesh.
      */
     VertexMesh<DIM, DIM>& rGetVoronoiTessellation();
 

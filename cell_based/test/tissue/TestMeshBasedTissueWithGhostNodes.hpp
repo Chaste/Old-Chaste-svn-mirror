@@ -202,9 +202,9 @@ public:
         // It seems quite difficult to test this on a periodic mesh,
         // so just check the areas of all the cells are correct.
 
-        tissue.CreateVoronoiTessellation(location_indices);
+        tissue.CreateVoronoiTessellation();
 
-        TS_ASSERT_EQUALS(tissue.rGetVoronoiTessellation().GetNumElements(), 9u);
+        TS_ASSERT_EQUALS(tissue.rGetVoronoiTessellation().GetNumElements(), p_mesh->GetNumNodes());
 
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
@@ -548,45 +548,6 @@ public:
         TS_ASSERT_EQUALS(springs_visited, expected_node_pairs);
     }
 
-    void TestVoronoiTessellationWithGhostNodes() throw (Exception)
-    {
-        // Create a small honeycomb mesh surrounded by a single layer of ghost nodes
-        HoneycombMeshGenerator generator(2, 2, 1, false);
-        MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
-
-        // Create some cells
-        std::vector<TissueCell> cells;
-        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
-        cells_generator.GenerateGivenLocationIndices(cells, location_indices);
-
-        // Create a tissue
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
-
-        // Create Voronoi tessellation (normally done in a simulation)
-        tissue.CreateVoronoiTessellation(location_indices);
-        for (unsigned node_index=0; node_index<p_mesh->GetNumNodes(); node_index++)
-        {
-            if (tissue.IsGhostNode(node_index))
-            {
-                TS_ASSERT_THROWS_THIS(tissue.GetAreaOfVoronoiElement(node_index),
-                                      "This index does not correspond to a VertexElement");
-
-                TS_ASSERT_THROWS_THIS(tissue.GetPerimeterOfVoronoiElement(node_index),
-                                      "This index does not correspond to a VertexElement");
-
-                TS_ASSERT_THROWS_THIS(tissue.GetVoronoiEdgeLength(node_index, 5),
-                                      "This index does not correspond to a VertexElement");
-            }
-            else
-            {
-                // ...otherwise, the Face should be a regular hexagon
-                TS_ASSERT_DELTA(tissue.GetAreaOfVoronoiElement(node_index), sqrt(3)/2, 1e-4);
-                TS_ASSERT_DELTA(tissue.GetPerimeterOfVoronoiElement(node_index), 6/sqrt(3), 1e-4);
-            }
-        }
-    }
-
     void TestTissueWritersIn3dWithGhostNodes()
     {
         // Set up SimulationTime (needed if VTK is used)
@@ -638,7 +599,7 @@ public:
         TissueConfig::Instance()->SetOutputCellCyclePhases(true);
 
         // This method is usually called by Update()
-        tissue.CreateVoronoiTessellation(location_indices);
+        tissue.CreateVoronoiTessellation();
 
         std::string output_directory = "TestTissueWritersIn3dWithGhostNodes";
         OutputFileHandler output_file_handler(output_directory, false);
@@ -667,6 +628,155 @@ public:
         TS_ASSERT_EQUALS(cell_types.size(), 4u);
         TS_ASSERT_EQUALS(cell_types[0], 4u);
         TS_ASSERT_EQUALS(cell_types[3], 1u);
+    }
+
+    void TestVoronoiAreasAndPerimetersWithGhostNodes() throw (Exception)
+    {
+        // Create a small honeycomb mesh surrounded by a single layer of ghost nodes
+        HoneycombMeshGenerator generator(2, 2, 1, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+
+        // Create some cells
+        std::vector<TissueCell> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
+        cells_generator.GenerateGivenLocationIndices(cells, location_indices);
+
+        // Create a tissue
+        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+
+        // Create Voronoi tessellation (normally done in a simulation)
+        tissue.CreateVoronoiTessellation();
+
+        // The Voronoi element corresponding to each real cell should be a regular hexagon
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+             cell_iter != tissue.End();
+             ++cell_iter)
+        {
+            unsigned node_index = tissue.GetLocationIndexUsingCell(*cell_iter);
+            if (!tissue.IsGhostNode(node_index))
+            {
+                TS_ASSERT_DELTA(tissue.GetAreaOfVoronoiElement(node_index), sqrt(3)/2, 1e-4);
+                TS_ASSERT_DELTA(tissue.GetPerimeterOfVoronoiElement(node_index), 6/sqrt(3), 1e-4);
+            }
+        }
+    }
+
+    void TestVoronoiGhostNodeLabelling2d() throw (Exception)
+    {
+        // Set up the simulation time
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
+
+        // Set output config
+        TissueConfig::Instance()->SetOutputVoronoiData(true);
+
+        // Create 2D mesh with ghost nodes
+        MutableMesh<2,2> mesh;
+        mesh.ConstructRectangularMesh(6, 6);
+
+        c_vector<double, 2> mesh_centre = zero_vector<double>(2);
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            mesh_centre += mesh.GetNode(node_index)->rGetLocation() / mesh.GetNumNodes();
+        }
+
+        // Set up cells by iterating through the nodes
+        std::vector<TissueCell> cells;
+        std::vector<unsigned> location_indices;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+
+        // Loop over nodes
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            // If this node is sufficiently close to the centre of the mesh, then create a cell for it
+            c_vector<double, 2> node_location = mesh.GetNode(node_index)->rGetLocation();
+            if (node_location(0) <= 3)
+            {
+                TissueCell cell(TRANSIT, p_state, new FixedDurationGenerationBasedCellCycleModel());
+                cell.SetBirthTime(-1.0);
+                cells.push_back(cell);
+                location_indices.push_back(node_index);
+            }
+        }
+
+        // Create tissue
+        MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells, location_indices);
+
+        // Create Voronoi tessellation
+        tissue.CreateVoronoiTessellation();
+
+        // Check the correspondence between ghost nodes is correct
+        for (VertexMesh<2,2>::VertexElementIterator elem_iter = tissue.rGetVoronoiTessellation().GetElementIteratorBegin();
+             elem_iter != tissue.rGetVoronoiTessellation().GetElementIteratorEnd();
+             ++elem_iter)
+        {
+            unsigned elem_index = elem_iter->GetIndex();
+            unsigned node_index = tissue.rGetVoronoiTessellation().GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
+
+            c_vector<double, 2> node_location = tissue.GetNode(node_index)->rGetLocation();
+            bool should_be_ghost_node = (node_location(0) > 3);
+
+            TS_ASSERT_EQUALS(tissue.IsGhostNode(node_index), should_be_ghost_node);
+        }
+    }
+
+
+    void TestVoronoiGhostNodeLabelling3d() throw (Exception)
+    {
+        // Set up the simulation time
+        SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
+
+        // Set output config
+        TissueConfig::Instance()->SetOutputVoronoiData(true);
+
+        // Create 3D mesh with ghost nodes
+        MutableMesh<3,3> mesh;
+        mesh.ConstructCuboid(6, 6, 6);
+
+        c_vector<double, 3> mesh_centre = zero_vector<double>(3);
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            mesh_centre += mesh.GetNode(node_index)->rGetLocation() / mesh.GetNumNodes();
+        }
+
+        // Set up cells by iterating through the nodes
+        std::vector<TissueCell> cells;
+        std::vector<unsigned> location_indices;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+
+        // Loop over nodes
+        for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
+        {
+            // If this node is sufficiently close to the centre of the mesh, then create a cell for it
+            c_vector<double, 3> node_location = mesh.GetNode(node_index)->rGetLocation();
+            if (node_location(0) <= 3)
+            {
+                TissueCell cell(TRANSIT, p_state, new FixedDurationGenerationBasedCellCycleModel());
+                cell.SetBirthTime(-1.0);
+                cells.push_back(cell);
+                location_indices.push_back(node_index);
+            }
+        }
+
+        // Create tissue
+        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);
+
+        // Create Voronoi tessellation
+        tissue.CreateVoronoiTessellation();
+
+        // Check the correspondence between ghost nodes is correct
+        for (VertexMesh<3,3>::VertexElementIterator elem_iter = tissue.rGetVoronoiTessellation().GetElementIteratorBegin();
+             elem_iter != tissue.rGetVoronoiTessellation().GetElementIteratorEnd();
+             ++elem_iter)
+        {
+            unsigned elem_index = elem_iter->GetIndex();
+            unsigned node_index = tissue.rGetVoronoiTessellation().GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
+
+            c_vector<double, 3> node_location = tissue.GetNode(node_index)->rGetLocation();
+            bool should_be_ghost_node = (node_location(0) > 3);
+
+            TS_ASSERT_EQUALS(tissue.IsGhostNode(node_index), should_be_ghost_node);
+        }
     }
 };
 

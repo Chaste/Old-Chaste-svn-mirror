@@ -147,37 +147,25 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
  * This VertexMesh constructor is currently only defined for 2D meshes.
  *
  * @param rMesh a tetrahedral mesh
- * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
  */
 template<>
-VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh,
-                            const std::vector<unsigned> locationIndices)
+VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh)
     : mpDelaunayMesh(&rMesh)
 {
     // Reset member variables and clear mNodes, mFaces and mElements
     Clear();
 
-    unsigned num_elements = locationIndices.empty() ? mpDelaunayMesh->GetNumAllNodes() : locationIndices.size();
-
-    std::set<unsigned> location_indices;
-    if (!locationIndices.empty())
-    {
-        for (unsigned i=0; i<locationIndices.size(); i++)
-        {
-            location_indices.insert(locationIndices[i]);
-            mVoronoiElementIndexMap[locationIndices[i]] = i;
-        }
-    }
+    unsigned num_elements = mpDelaunayMesh->GetNumAllNodes();
+    unsigned num_nodes = mpDelaunayMesh->GetNumAllElements();
 
     // Allocate memory for mNodes and mElements
-    this->mNodes.reserve(mpDelaunayMesh->GetNumAllElements());
+    this->mNodes.reserve(num_nodes);
 
     // Create as many elements as there are nodes in the mesh
     mElements.reserve(num_elements);
-    for (unsigned i=0; i<num_elements; i++)
+    for (unsigned elem_index=0; elem_index<num_elements; elem_index++)
     {
-        unsigned element_index = locationIndices.empty() ? i : locationIndices[i];
-        VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index);
+        VertexElement<2,2>* p_element = new VertexElement<2,2>(elem_index);
         mElements.push_back(p_element);
     }
 
@@ -185,67 +173,35 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh,
     GenerateVerticesFromElementCircumcentres(rMesh);
 
     // Loop over elements of the Delaunay mesh
-    for (unsigned i=0; i<mpDelaunayMesh->GetNumElements(); i++)
+    for (unsigned i=0; i<num_nodes; i++)
     {
         // Loop over nodes owned by this element in the Delaunay mesh
         for (unsigned local_index=0; local_index<3; local_index++)
         {
-            unsigned global_index = mpDelaunayMesh->GetElement(i)->GetNodeGlobalIndex(local_index);
-            unsigned element_index = global_index;
+            unsigned elem_index = mpDelaunayMesh->GetElement(i)->GetNodeGlobalIndex(local_index);
+            unsigned num_nodes_in_elem = mElements[elem_index]->GetNumNodes();
+            unsigned end_index = num_nodes_in_elem>0 ? num_nodes_in_elem-1 : 0;
 
-            bool add_node_to_element = true;
-
-            // If there are ghost nodes...
-            if (!location_indices.empty())
-            {
-                // ...and this node is one...
-                if (location_indices.find(global_index) == location_indices.end())
-                {
-                    // ...then don't add it to the element in the Voronoi mesh...
-                    add_node_to_element = false;
-                }
-                else
-                {
-                    // ...otherwise find the appropriate entry of mElements to which it should be added
-                     for (unsigned j=0; j<num_elements; j++)
-                     {
-                        if (mElements[j]->GetIndex() == global_index)
-                        {
-                            element_index = j;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (add_node_to_element)
-            {
-                unsigned num_nodes_in_elem = mElements[element_index]->GetNumNodes();
-                unsigned end_index = num_nodes_in_elem>0 ? num_nodes_in_elem-1 : 0;
-
-                mElements[element_index]->AddNode(end_index, this->mNodes[i]);
-            }
+            mElements[elem_index]->AddNode(end_index, this->mNodes[i]);
         }
     }
 
     // Reorder mNodes anticlockwise
-    for (unsigned i=0; i<mElements.size(); i++)
+    for (unsigned elem_index=0; elem_index<mElements.size(); elem_index++)
     {
-        unsigned element_index = locationIndices.empty() ? i : locationIndices[i];
-
         /**
          * Create a std::list of pairs, where each pair comprises the angle
          * between the centre of the Voronoi element and each node with that
          * node's global index in the Voronoi mesh.
          */
         std::list<std::pair<unsigned, double> > index_angle_list;
-        for (unsigned j=0; j<mElements[i]->GetNumNodes(); j++)
+        for (unsigned local_index=0; local_index<mElements[elem_index]->GetNumNodes(); local_index++)
         {
-            c_vector<double, 2> centre_to_vertex = mpDelaunayMesh->GetVectorFromAtoB(mpDelaunayMesh->GetNode(element_index)->rGetLocation(),
-                                                                                    mElements[i]->GetNodeLocation(j));
+            c_vector<double, 2> centre_to_vertex = mpDelaunayMesh->GetVectorFromAtoB(mpDelaunayMesh->GetNode(elem_index)->rGetLocation(),
+                                                                                     mElements[elem_index]->GetNodeLocation(local_index));
 
             double angle = atan2(centre_to_vertex(1), centre_to_vertex(0));
-            unsigned global_index = mElements[i]->GetNodeGlobalIndex(j);
+            unsigned global_index = mElements[elem_index]->GetNodeGlobalIndex(local_index);
 
             std::pair<unsigned, double> pair(global_index, angle);
             index_angle_list.push_back(pair);
@@ -255,20 +211,20 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh,
         index_angle_list.sort(IndexAngleComparison);
 
         // Create a new Voronoi element and pass in the appropriate Nodes, ordered anticlockwise
-        VertexElement<2,2>* p_element = new VertexElement<2,2>(element_index);
+        VertexElement<2,2>* p_new_element = new VertexElement<2,2>(elem_index);
         unsigned count = 0;
         for (std::list<std::pair<unsigned, double> >::iterator list_iter = index_angle_list.begin();
              list_iter != index_angle_list.end();
              ++list_iter)
         {
             unsigned local_index = count>1 ? count-1 : 0;
-            p_element->AddNode(local_index, mNodes[list_iter->first]);
+            p_new_element->AddNode(local_index, mNodes[list_iter->first]);
             count++;
         }
 
         // Replace the relevant member of mElements with this Voronoi element
-        delete mElements[i];
-        mElements[i] = p_element;
+        delete mElements[elem_index];
+        mElements[elem_index] = p_new_element;
     }
 
     this->mMeshChangesDuringSimulation = false;
@@ -279,27 +235,18 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh,
  * This VertexMesh constructor is currently only defined for 3D meshes.
  *
  * @param rMesh a tetrahedral mesh
- * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
  */
 template<>
-VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh,
-                            const std::vector<unsigned> locationIndices)
+VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh)
     : mpDelaunayMesh(&rMesh)
 {
     // Reset member variables and clear mNodes, mFaces and mElements
     Clear();
 
-    std::set<unsigned> location_indices;
-    if (!locationIndices.empty())
-    {
-        for (unsigned i=0; i<locationIndices.size(); i++)
-        {
-            location_indices.insert(locationIndices[i]);
-        }
-    }
+    unsigned num_nodes = mpDelaunayMesh->GetNumAllElements();
 
     // Allocate memory for mNodes
-    this->mNodes.reserve(rMesh.GetNumAllElements());
+    this->mNodes.reserve(num_nodes);
 
     // Populate mNodes
     GenerateVerticesFromElementCircumcentres(rMesh);
@@ -394,8 +341,8 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh,
                 else
                 {
                     // ...otherwise create an element, add the face to it, and add to the map
-                    unsigned this_element_index = locationIndices.empty() ? element_index : locationIndices[element_index];
-                    VertexElement<3,3>* p_element = new VertexElement<3,3>(this_element_index);
+                    mVoronoiElementIndexMap[p_node_a->GetIndex()] = element_index;
+                    VertexElement<3,3>* p_element = new VertexElement<3,3>(element_index);
                     element_index++;
                     p_element->AddFace(p_face);
                     index_element_map[p_node_a->GetIndex()] = p_element;
@@ -411,8 +358,8 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh,
                 else
                 {
                     // ...otherwise create an element, add the face to it, and add to the map
-                    unsigned this_element_index = locationIndices.empty() ? element_index : locationIndices[element_index];
-                    VertexElement<3,3>* p_element = new VertexElement<3,3>(this_element_index);
+                    mVoronoiElementIndexMap[p_node_b->GetIndex()] = element_index;
+                    VertexElement<3,3>* p_element = new VertexElement<3,3>(element_index);
                     element_index++;
                     p_element->AddFace(p_face);
                     index_element_map[p_node_b->GetIndex()] = p_element;
@@ -538,15 +485,44 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::SolveBoundaryElementMapping(unsigne
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(unsigned index)
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(unsigned elementIndex)
 {
+    unsigned node_index = UNSIGNED_UNSET;
+
     if (mVoronoiElementIndexMap.empty())
     {
-        return index;
+        node_index = elementIndex;
     }
     else
     {
-        std::map<unsigned, unsigned>::iterator iter = mVoronoiElementIndexMap.find(index);
+        for (std::map<unsigned, unsigned>::iterator iter = mVoronoiElementIndexMap.begin();
+             iter != mVoronoiElementIndexMap.end();
+             ++iter)
+        {
+            if (iter->second == elementIndex)
+            {
+                node_index = iter->first;
+                break;
+            }
+        }
+    }
+    assert(node_index != UNSIGNED_UNSET);
+    return node_index;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(unsigned nodeIndex)
+{
+    unsigned element_index = UNSIGNED_UNSET;
+
+    if (mVoronoiElementIndexMap.empty())
+    {
+        element_index = nodeIndex;
+    }
+    else
+    {
+        std::map<unsigned, unsigned>::iterator iter = mVoronoiElementIndexMap.find(nodeIndex);
 
         if (iter == mVoronoiElementIndexMap.end())
         {
@@ -554,10 +530,11 @@ unsigned VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVoronoiElementIndexCorresponding
         }
         else
         {
-            index = iter->second;
+            element_index = iter->second;
         }
-        return index;
     }
+    assert(element_index != UNSIGNED_UNSET);
+    return element_index;
 }
 
 

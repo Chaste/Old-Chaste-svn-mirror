@@ -314,15 +314,7 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         if (mUseAreaBasedDampingConstant || TissueConfig::Instance()->GetOutputVoronoiData() ||
             TissueConfig::Instance()->GetOutputTissueVolumes() || TissueConfig::Instance()->GetOutputCellVolumes() )
         {
-            std::vector<unsigned> location_indices;
-            for (typename AbstractTissue<DIM>::Iterator cell_iter = this->Begin();
-                 cell_iter != this->End();
-                 ++cell_iter)
-            {
-                unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
-                location_indices.push_back(node_index);
-            }
-            CreateVoronoiTessellation(location_indices);
+            CreateVoronoiTessellation();
         }
         CellBasedEventHandler::EndEvent(CellBasedEventHandler::TESSELLATION);
     }
@@ -483,12 +475,14 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
     std::stringstream time;
     time << SimulationTime::Instance()->GetTimeStepsElapsed();
 
-    std::vector<double> cell_types;
-    std::vector<double> cell_ancestors;
-    std::vector<double> cell_mutation_states;
-    std::vector<double> cell_ages;
-    std::vector<double> cell_cycle_phases;
-    std::vector<double> cell_areas;
+    unsigned num_elements = mpVoronoiTessellation->GetNumElements();
+    std::vector<double> ghosts(num_elements);
+    std::vector<double> cell_types(num_elements);
+    std::vector<double> cell_ancestors(num_elements);
+    std::vector<double> cell_mutation_states(num_elements);
+    std::vector<double> cell_ages(num_elements);
+    std::vector<double> cell_cycle_phases(num_elements);
+    std::vector<double> cell_areas(num_elements);
 
     // Loop over Voronoi elements
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
@@ -498,49 +492,84 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
         // Get index of this element in the Voronoi tessellation mesh
         unsigned elem_index = elem_iter->GetIndex();
 
-        // Get the cell corresponding to this element
-        TissueCell* p_cell = this->mLocationCellMap[elem_index];
+        unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
 
-        if (TissueConfig::Instance()->GetOutputCellAncestors())
+        ghosts[elem_index] = (double)(this->IsGhostNode(node_index));
+
+        if (!this->IsGhostNode(node_index))
         {
-            double ancestor_index = (p_cell->GetAncestor() == UNSIGNED_UNSET) ? (-1.0) : (double)p_cell->GetAncestor();
-            cell_ancestors.push_back(ancestor_index);
-        }
-        if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
-        {
-            double cell_type = p_cell->GetCellProliferativeType();
-            cell_types.push_back(cell_type);
-        }
-        if (TissueConfig::Instance()->GetOutputCellMutationStates())
-        {
-            double mutation_state = p_cell->GetMutationState()->GetColour();
-            cell_mutation_states.push_back(mutation_state);
-        }
-        if (TissueConfig::Instance()->GetOutputCellAges())
-        {
-            double age = p_cell->GetAge();
-            cell_ages.push_back(age); 
-        }
-        if (TissueConfig::Instance()->GetOutputCellCyclePhases())
-        {
-            double cycle_phase = p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase();
-            cell_cycle_phases.push_back(cycle_phase);
-        }
-        if (TissueConfig::Instance()->GetOutputCellVolumes())
-        {
-            double cell_area;
-            if (DIM==2)
+            // Get the cell corresponding to this element
+            TissueCell* p_cell = this->mLocationCellMap[node_index];
+
+            if (TissueConfig::Instance()->GetOutputCellAncestors())
             {
-                cell_area = GetAreaOfVoronoiElement(elem_index);
+                double ancestor_index = (p_cell->GetAncestor() == UNSIGNED_UNSET) ? (-1.0) : (double)p_cell->GetAncestor();
+                cell_ancestors[elem_index] = ancestor_index;
             }
-            else // DIM==3
+            if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
             {
-                cell_area = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+                double cell_type = p_cell->GetCellProliferativeType();
+                cell_types[elem_index] = cell_type;
             }
-            cell_areas.push_back(cell_area);
+            if (TissueConfig::Instance()->GetOutputCellMutationStates())
+            {
+                double mutation_state = p_cell->GetMutationState()->GetColour();
+                cell_mutation_states[elem_index] = mutation_state;
+            }
+            if (TissueConfig::Instance()->GetOutputCellAges())
+            {
+                double age = p_cell->GetAge();
+                cell_ages[elem_index] = age; 
+            }
+            if (TissueConfig::Instance()->GetOutputCellCyclePhases())
+            {
+                double cycle_phase = p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase();
+                cell_cycle_phases[elem_index] = cycle_phase;
+            }
+            if (TissueConfig::Instance()->GetOutputCellVolumes())
+            {
+                double cell_area;
+                if (DIM==2)
+                {
+                    cell_area = mpVoronoiTessellation->GetAreaOfElement(elem_index);
+                }
+                else // DIM==3
+                {
+                    cell_area = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+                }
+                cell_areas[elem_index] = cell_area;
+            }
+        }
+        else
+        {
+            if (TissueConfig::Instance()->GetOutputCellAncestors())
+            {
+                cell_ancestors[elem_index] = -1.0;
+            }
+            if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
+            {
+                cell_types[elem_index] = -1.0;
+            }
+            if (TissueConfig::Instance()->GetOutputCellMutationStates())
+            {
+                cell_mutation_states[elem_index] = -1.0;
+            }
+            if (TissueConfig::Instance()->GetOutputCellAges())
+            {
+                cell_ages[elem_index] = -1.0; 
+            }
+            if (TissueConfig::Instance()->GetOutputCellCyclePhases())
+            {
+                cell_cycle_phases[elem_index] = -1.0;
+            }
+            if (TissueConfig::Instance()->GetOutputCellVolumes())
+            {
+                cell_areas[elem_index] = -1.0;
+            } 
         }
     }
 
+    mesh_writer.AddCellData("Non-ghosts", ghosts);
     if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
     {
         mesh_writer.AddCellData("Cell types", cell_types);
@@ -591,10 +620,13 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
     {
         // Get index of this element in the Voronoi tessellation mesh and write to file
         unsigned elem_index = elem_iter->GetIndex();
-        *mpVoronoiFile << elem_index << " ";
+
+        unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
+
+        *mpVoronoiFile << node_index << " ";
  
         // Write node location to file
-        c_vector<double, DIM> node_location = this->GetNode(elem_index)->rGetLocation();
+        c_vector<double, DIM> node_location = this->GetNode(node_index)->rGetLocation();
         for (unsigned i=0; i<DIM; i++)
         {
             *mpVoronoiFile << node_location[i] << " ";
@@ -603,8 +635,8 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
         // Get cell volume and surface area (in 3D) or area and perimeter (in 2D) and write to file
         if (DIM==2)
         {
-            double cell_area = GetAreaOfVoronoiElement(elem_index);
-            double cell_perimeter = GetPerimeterOfVoronoiElement(elem_index);
+            double cell_area = mpVoronoiTessellation->GetAreaOfElement(elem_index);
+            double cell_perimeter = mpVoronoiTessellation->GetPerimeterOfElement(elem_index);
             *mpVoronoiFile << cell_area << " " << cell_perimeter << " ";
         }
         else // DIM==3
@@ -638,21 +670,26 @@ void MeshBasedTissue<DIM>::WriteTissueVolumeResultsToFile()
         // Get index of this element in the Voronoi tessellation mesh and write to file
         unsigned elem_index = elem_iter->GetIndex();
 
-        // Get the cell corresponding to this node
-        TissueCell* p_cell =  this->mLocationCellMap[elem_index];
+        unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
 
-        // Only bother calculating the cell area if it is apoptotic
-        if (p_cell->GetCellProliferativeType() == APOPTOTIC)
+        if (!this->IsGhostNode(node_index))
         {
-            if (DIM==2)
+            // Get the cell corresponding to this node
+            TissueCell* p_cell =  this->mLocationCellMap[node_index];
+    
+            // Only bother calculating the cell area if it is apoptotic
+            if (p_cell->GetCellProliferativeType() == APOPTOTIC)
             {
-                double cell_area = GetAreaOfVoronoiElement(elem_index);
-                apoptotic_area += cell_area;
-            }
-            else // DIM==3
-            {
-                double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
-                apoptotic_area += cell_volume;
+                if (DIM==2)
+                {
+                    double cell_area = mpVoronoiTessellation->GetAreaOfElement(elem_index);
+                    apoptotic_area += cell_area;
+                }
+                else // DIM==3
+                {
+                    double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+                    apoptotic_area += cell_volume;
+                }
             }
         }
     }
@@ -674,32 +711,38 @@ void MeshBasedTissue<DIM>::WriteCellVolumeResultsToFile()
     {
         // Get index of this element in the Voronoi tessellation mesh and write to file
         unsigned elem_index = elem_iter->GetIndex();
-        *mpCellVolumesFile << elem_index << " ";
 
-        // Get the cell corresponding to this node
-        TissueCell* p_cell =  this->mLocationCellMap[elem_index];
+        unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
 
-        // Write cell ID to file
-        unsigned cell_index = p_cell->GetCellId();
-        *mpCellVolumesFile << cell_index << " ";
-
-        // Write node location to file
-        c_vector<double, DIM> node_location = this->GetNode(elem_index)->rGetLocation();
-        for (unsigned i=0; i<DIM; i++)
+        if (!this->IsGhostNode(node_index))
         {
-            *mpCellVolumesFile << node_location[i] << " ";
-        }
-
-        // Write cell volume (in 3D) or area (in 2D) to file
-        if (DIM==2)
-        {
-            double cell_area = GetAreaOfVoronoiElement(elem_index);
-            *mpCellVolumesFile << cell_area << " ";
-        }
-        else // DIM==3
-        {
-            double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
-            *mpCellVolumesFile << cell_volume << " ";
+            *mpCellVolumesFile << node_index << " ";
+    
+            // Get the cell corresponding to this node
+            TissueCell* p_cell =  this->mLocationCellMap[node_index];
+    
+            // Write cell ID to file
+            unsigned cell_index = p_cell->GetCellId();
+            *mpCellVolumesFile << cell_index << " ";
+    
+            // Write node location to file
+            c_vector<double, DIM> node_location = this->GetNode(node_index)->rGetLocation();
+            for (unsigned i=0; i<DIM; i++)
+            {
+                *mpCellVolumesFile << node_location[i] << " ";
+            }
+    
+            // Write cell volume (in 3D) or area (in 2D) to file
+            if (DIM==2)
+            {
+                double cell_area = mpVoronoiTessellation->GetAreaOfElement(elem_index);
+                *mpCellVolumesFile << cell_area << " ";
+            }
+            else // DIM==3
+            {
+                double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+                *mpCellVolumesFile << cell_volume << " ";
+            }
         }
     }
     *mpCellVolumesFile << "\n";
@@ -795,10 +838,10 @@ typename MeshBasedTissue<DIM>::SpringIterator MeshBasedTissue<DIM>::SpringsEnd()
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::CreateVoronoiTessellation(const std::vector<unsigned> locationIndices)
+void MeshBasedTissue<DIM>::CreateVoronoiTessellation()
 {
     delete mpVoronoiTessellation;
-    mpVoronoiTessellation = new VertexMesh<DIM, DIM>(mrMesh, locationIndices);
+    mpVoronoiTessellation = new VertexMesh<DIM, DIM>(mrMesh);
 }
 
 /**
@@ -806,7 +849,7 @@ void MeshBasedTissue<DIM>::CreateVoronoiTessellation(const std::vector<unsigned>
  * are two definitions to this method (one templated and one not).
  */
 template<>
-void MeshBasedTissue<1>::CreateVoronoiTessellation(const std::vector<unsigned> locationIndices)
+void MeshBasedTissue<1>::CreateVoronoiTessellation()
 {
     // No 1D Voronoi tessellation
     NEVER_REACHED;

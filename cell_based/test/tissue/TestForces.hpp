@@ -233,7 +233,7 @@ public:
         // Check that the force between nodes is correctly calculated when the 'spring constant'
         // is proportional to the length of the edge between adjacent cells
         linear_force.SetEdgeBasedSpringConstant(true);
-        tissue.CreateVoronoiTessellation(location_indices);  // normally done in a simulation loop
+        tissue.CreateVoronoiTessellation();  // normally done in a simulation loop
 
         for (MeshBasedTissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
              spring_iterator != tissue.SpringsEnd();
@@ -260,7 +260,7 @@ public:
         p_mesh->SetNode(21, new_point, false);
 
         // Check that the new force between nodes is correctly calculated
-        tissue.CreateVoronoiTessellation(location_indices);
+        tissue.CreateVoronoiTessellation();
         c_vector<double, 2> new_force = linear_force.CalculateForceBetweenNodes(41, 42, tissue);
 
         // Force calculation: shift is along x-axis so we should have
@@ -311,7 +311,7 @@ public:
         // Check that the force between nodes is correctly calculated when the spring constant
         // is proportional to the length of the edge between adjacenet cells
         linear_force.SetEdgeBasedSpringConstant(true);
-        tissue.CreateVoronoiTessellation(location_indices);
+        tissue.CreateVoronoiTessellation();
 
         for (MeshBasedTissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
              spring_iterator != tissue.SpringsEnd();
@@ -401,7 +401,7 @@ public:
         TS_ASSERT_DELTA(norm_2(linear_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.50, 1e-10);
 
         linear_force.SetBetaCateninSprings(true);
-        crypt.CreateVoronoiTessellation(location_indices);  // this method is normally called in a simulation loop
+        crypt.CreateVoronoiTessellation();  // this method is normally called in a simulation loop
 
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.5*8.59312/18.14, 1e-5);
 

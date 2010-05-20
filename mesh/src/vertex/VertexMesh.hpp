@@ -237,20 +237,16 @@ public:
      * which must be Delaunay (see TetrahedralMesh::CheckIsVoronoi).
      *
      * @param rMesh a tetrahedral mesh
-     * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
      */
-    VertexMesh(TetrahedralMesh<2,2>& rMesh,
-               const std::vector<unsigned> locationIndices=std::vector<unsigned>());
+    VertexMesh(TetrahedralMesh<2,2>& rMesh);
 
     /**
      * Alternative 3D 'Voronoi' constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
      * which must be Delaunay (see TetrahedralMesh::CheckIsVoronoi).
      *
      * @param rMesh a tetrahedral mesh
-     * @param locationIndices an optional vector of location indices that correspond to non-ghost nodes
      */
-    VertexMesh(TetrahedralMesh<3,3>& rMesh,
-               const std::vector<unsigned> locationIndices=std::vector<unsigned>());
+    VertexMesh(TetrahedralMesh<3,3>& rMesh);
 
     /**
      * Default constructor for use by serializer.
@@ -320,13 +316,21 @@ public:
     virtual void Clear();
 
     /**
+     * Given the global index of an element in the Voronoi mesh, returns the
+     * global index of the corresponding element in the Delaunay mesh.
+     *
+     * @param elementIndex global index of an element in the Voronoi mesh
+     */
+    unsigned GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(unsigned elementIndex);
+
+    /**
      * Given the global index of a node in the Delaunay mesh, returns the
      * global index of the corresponding element in the Voronoi mesh or
      * throws an exception if this does not exist.
      *
-     * @param index global index of a node in the Delaunay mesh
+     * @param nodeIndex global index of a node in the Delaunay mesh
      */
-    unsigned GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(unsigned index);
+    unsigned GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex(unsigned nodeIndex);
 
     /**
      * Overridden GetVectorFromAtoB() method. Returns a vector between two points in space.

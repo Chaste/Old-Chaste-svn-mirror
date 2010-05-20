@@ -530,7 +530,6 @@ public:
             }
         }
 
-
         TS_ASSERT_DELTA(tissue3d.GetVolumeOfVoronoiElement(4), 0.6495, 1e-4);
         TS_ASSERT_DELTA(tissue3d.GetSurfaceAreaOfVoronoiElement(4), 3*1.125 + 1.9485, 1e-4);
     }
