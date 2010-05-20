@@ -95,6 +95,8 @@ protected:
     /**
      * Pointer to a Voronoi tessellation object.
      * Used to calculate cell area and perimeter information if required.
+     * 
+     * \todo Make this static/const? (#1075)
      */
     VertexMesh<DIM, DIM>* mpVoronoiTessellation;
 
