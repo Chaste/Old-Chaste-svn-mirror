@@ -183,7 +183,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueC
         c_vector<double, DIM> daughter_coords;
 
         // Get separation parameter
-        double separation = TissueConfig::Instance()->GetDivisionSeparation();
+        double separation = TissueConfig::Instance()->GetMeinekeDivisionSeparation();
 
         // Make a random direction vector of the required length
         c_vector<double, DIM> random_vector;
