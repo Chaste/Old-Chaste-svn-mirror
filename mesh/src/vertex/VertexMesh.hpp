@@ -350,34 +350,31 @@ public:
     virtual c_vector<double, SPACE_DIM> GetVectorFromAtoB(const c_vector<double, SPACE_DIM>& rLocationA,
                                                           const c_vector<double, SPACE_DIM>& rLocationB);
 
+    /**
+     * Get the volume (or area in 2D, or length in 1D) of an element.
+     *
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
+     *
+     * @param index  the global index of a specified vertex element
+     *
+     * @return the volume of the element
+     */
+    virtual double GetVolumeOfElement(unsigned index);
+
+    /**
+     * Compute the surface area (or perimeter in 2D) of an element.
+     *
+     * This needs to be overridden in daughter classes for non-Euclidean metrics.
+     *
+     * @param index  the global index of a specified vertex element
+     *
+     * @return the surfacearea of the element
+     */
+    virtual double GetSurfaceAreaOfElement(unsigned index);
+
     //////////////////////////////////////////////////////////////////////
     //                        2D-specific methods                       //
     //////////////////////////////////////////////////////////////////////
-
-    /**
-     * Compute the area of a 2D element.
-     *
-     * This needs to be overridden in daughter classes for non-Euclidean metrics.
-     * 
-     * \todo Merge with 3D method GetVolumeOfElement()? (#1075)
-     *
-     * @param index  the global index of a specified vertex element
-     *
-     * @return the area of the element
-     */
-    virtual double GetAreaOfElement(unsigned index);
-
-    /**
-     * Compute the perimeter of a 2D element.
-     *
-     * N.B. This calls GetVectorFromAtoB(), which can be overridden
-     * in daughter classes for non-Euclidean metrics.
-     *
-     * @param index  the global index of a specified vertex element
-     *
-     * @return the perimeter of the element
-     */
-    double GetPerimeterOfElement(unsigned index);
 
     /**
      * Compute the area gradient of a 2D element at one of its nodes.
@@ -473,28 +470,6 @@ public:
      * @return the area
      */
     virtual double GetAreaOfFace(VertexElement<ELEMENT_DIM-1, SPACE_DIM>* pFace);
-
-    /**
-     * Compute the volume of a 3D element.
-     *
-     * This needs to be overridden in daughter classes for non-Euclidean metrics.
-     *
-     * @param index  the global index of a specified vertex element
-     *
-     * @return the volume of the element
-     */
-    virtual double GetVolumeOfElement(unsigned index);
-
-    /**
-     * Compute the surface area of a 3D element.
-     *
-     * This needs to be overridden in daughter classes for non-Euclidean metrics.
-     *
-     * @param index  the global index of a specified vertex element
-     *
-     * @return the surfacearea of the element
-     */
-    virtual double GetSurfaceAreaOfElement(unsigned index);
 
     /**
      * Calculate the vector of the shortest axis of a given 2D element.

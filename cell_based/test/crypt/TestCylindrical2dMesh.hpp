@@ -893,11 +893,11 @@ public:
         TS_ASSERT_DELTA(common_edge_between_48_and_53,  pow(3.0, -0.5), 1e-4);
 
         //  Check that both cells have a reasonable sized area
-        TS_ASSERT_DELTA(tessellation.GetAreaOfElement(44),  0.5 * pow(3.0, 0.5), 1e-4);
-        TS_ASSERT_DELTA(tessellation.GetPerimeterOfElement(44), 2 * pow(3.0, 0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetVolumeOfElement(44),  0.5 * pow(3.0, 0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetSurfaceAreaOfElement(44), 2 * pow(3.0, 0.5), 1e-4);
 
-        TS_ASSERT_DELTA(tessellation.GetAreaOfElement(48),  0.5 * pow(3.0, 0.5), 1e-4);
-        TS_ASSERT_DELTA(tessellation.GetPerimeterOfElement(48), 2 * pow(3.0, 0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetVolumeOfElement(48),  0.5 * pow(3.0, 0.5), 1e-4);
+        TS_ASSERT_DELTA(tessellation.GetSurfaceAreaOfElement(48), 2 * pow(3.0, 0.5), 1e-4);
     }
 };
 

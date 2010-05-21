@@ -459,8 +459,8 @@ public:
         }
 
         // Test area and perimeter calculations
-        TS_ASSERT_DELTA(mesh.GetAreaOfElement(0), 1.0, 1e-6);
-        TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(0), 4.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetVolumeOfElement(0), 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetSurfaceAreaOfElement(0), 4.0, 1e-6);
     }
 
     void TestVertexElementAreaAndPerimeterOnCircle()
@@ -490,8 +490,8 @@ public:
         }
 
         // Test area and perimeter calculations
-        TS_ASSERT_DELTA(mesh.GetAreaOfElement(0), M_PI, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetPerimeterOfElement(0), 2.0*M_PI, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetVolumeOfElement(0), M_PI, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetSurfaceAreaOfElement(0), 2.0*M_PI, 1e-4);
     }
 
     void Test3dMethodsWithPrism()
@@ -930,8 +930,8 @@ public:
         {
             unsigned elem_index = iter->GetIndex();
 
-            TS_ASSERT_DELTA(p_mesh->GetAreaOfElement(elem_index), 0.8660, 1e-4);
-            TS_ASSERT_DELTA(p_mesh->GetPerimeterOfElement(elem_index), 3.4641, 1e-4);
+            TS_ASSERT_DELTA(p_mesh->GetVolumeOfElement(elem_index), 0.8660, 1e-4);
+            TS_ASSERT_DELTA(p_mesh->GetSurfaceAreaOfElement(elem_index), 3.4641, 1e-4);
         }
 
         // Test centroid calculations for random elements
@@ -1305,11 +1305,11 @@ public:
         TS_ASSERT_EQUALS(voronoi_mesh.GetElement(4)->GetNumNodes(), 4u);
 
         // Test element areas
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(0), 0.0, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(1), 0.0, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(2), 0.0, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(3), 0.0, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(4), 0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetVolumeOfElement(0), 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetVolumeOfElement(1), 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetVolumeOfElement(2), 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetVolumeOfElement(3), 0.0, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetVolumeOfElement(4), 0.5, 1e-6);
     }
 
     void TestTessellationConstructor2dWithGhostNodes() throw (Exception)
@@ -1349,7 +1349,7 @@ public:
         TS_ASSERT_EQUALS(voronoi_mesh.GetElement(4)->GetNumNodes(), 4u);
 
         // Test element areas
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(4), 0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetVolumeOfElement(4), 0.5, 1e-6);
     }
 
     void TestGetEdgeLengthWithSimpleMesh() throw (Exception)
@@ -1378,8 +1378,8 @@ public:
         TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,4), pow(3,-0.5), 1e-6);
         TS_ASSERT_DELTA(voronoi_mesh.GetEdgeLength(0,5), pow(3,-0.5), 1e-6);
 
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfElement(0), pow(3, 0.5)/4.0+0.5, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetPerimeterOfElement(0), 2.0 + pow(3, 0.5), 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetVolumeOfElement(0), pow(3, 0.5)/4.0+0.5, 1e-6);
+        TS_ASSERT_DELTA(voronoi_mesh.GetSurfaceAreaOfElement(0), 2.0 + pow(3, 0.5), 1e-6);
     }
 
     void TestTessellationConstructor3dWithGhostNode() throw (Exception) 

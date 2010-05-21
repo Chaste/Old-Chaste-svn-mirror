@@ -465,18 +465,18 @@ public:
         tissue2d.CreateVoronoiTessellation();
 
         // Test element areas
-        TS_ASSERT_DELTA(tissue2d.GetAreaOfVoronoiElement(0), 0.0, 1e-6);
-        TS_ASSERT_DELTA(tissue2d.GetAreaOfVoronoiElement(1), 0.0, 1e-6);
-        TS_ASSERT_DELTA(tissue2d.GetAreaOfVoronoiElement(2), 0.0, 1e-6);
-        TS_ASSERT_DELTA(tissue2d.GetAreaOfVoronoiElement(3), 0.0, 1e-6);
-        TS_ASSERT_DELTA(tissue2d.GetAreaOfVoronoiElement(4), 0.5, 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetVolumeOfVoronoiElement(0), 0.0, 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetVolumeOfVoronoiElement(1), 0.0, 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetVolumeOfVoronoiElement(2), 0.0, 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetVolumeOfVoronoiElement(3), 0.0, 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetVolumeOfVoronoiElement(4), 0.5, 1e-6);
 
         // Test element perimeters
-        TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(0), sqrt(2), 1e-6);
-        TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(1), sqrt(2), 1e-6);
-        TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(2), sqrt(2), 1e-6);
-        TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(3), sqrt(2), 1e-6);
-        TS_ASSERT_DELTA(tissue2d.GetPerimeterOfVoronoiElement(4), 2*sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetSurfaceAreaOfVoronoiElement(0), sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetSurfaceAreaOfVoronoiElement(1), sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetSurfaceAreaOfVoronoiElement(2), sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetSurfaceAreaOfVoronoiElement(3), sqrt(2), 1e-6);
+        TS_ASSERT_DELTA(tissue2d.GetSurfaceAreaOfVoronoiElement(4), 2*sqrt(2), 1e-6);
 
         // ...now test the 3D case
 

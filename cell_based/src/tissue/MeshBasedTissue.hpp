@@ -99,12 +99,12 @@ protected:
      * 
      * The tessellation can be used to compute the area and perimeter (in 2D) or volume and
      * surface area (in 3D) of the Voronoi element corresponding to each node in the Delaunay
-     * mesh (including ghost nodes) by calling the methods GetAreaOfVoronoiElement(),
-     * GetPerimeterOfVoronoiElement(), GetVolumeOfVoronoiElement() and GetSurfaceAreaOfVoronoiElement()
-     * respectively. Each of these methods should be called rather than the relevant method
-     * on the VertexMesh. This is because the index of a given Node in mrMesh may not equal
-     * the index of the corresponding VertexElement in mpVoronoiTessellation; a map between
-     * these indices may be accessed by calling the methods GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex()
+     * mesh (including ghost nodes) by calling the methods GetVolumeOfVoronoiElement() and
+     * GetSurfaceAreaOfVoronoiElement() respectively. Each of these methods should be called 
+     * rather than the relevant method on the VertexMesh. This is because the index of a given 
+     * Node in mrMesh may not equal the index of the corresponding VertexElement in 
+     * mpVoronoiTessellation; a map between these indices may be accessed by calling the methods 
+     * GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex()
      * and GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex() on mpVoronoiTessellation.
      * 
      * \todo Make this static/const? (#1075)
@@ -357,31 +357,7 @@ public:
     VertexMesh<DIM, DIM>& rGetVoronoiTessellation();
 
     /**
-     * Get the area of the element of mpVoronoiTessellation associated with
-     * the node with this global index in the Delaunay mesh.
-     *
-     * This method should be called instead of calling rGetVoronoiTessellation().GetAreaOfElement()
-     * because the global indices of Delaunay nodes and Voronoi elements may not match,
-     * e.g. if a node is a ghost node or corresponds to a Voronoi face.
-     *
-     * @param index a node global index
-     */
-    double GetAreaOfVoronoiElement(unsigned index);
-
-    /**
-     * Get the perimeter of the element of mpVoronoiTessellation associated with
-     * the node with this global index in the Delaunay mesh.
-     *
-     * This method should be called instead of calling rGetVoronoiTessellation().GetPerimeterOfElement()
-     * because the global indices of Delaunay nodes and Voronoi elements may not match,
-     * e.g. if a node is a ghost node or corresponds to a Voronoi face.
-     *
-     * @param index a node global index
-     */
-    double GetPerimeterOfVoronoiElement(unsigned index);
-
-    /**
-     * Get the volume of the element of mpVoronoiTessellation associated with
+     * Get the volume (or area in 2D, or length in 1D) of the element of mpVoronoiTessellation associated with
      * the node with this global index in the Delaunay mesh.
      *
      * This method should be called instead of calling rGetVoronoiTessellation().GetVolumeOfElement()

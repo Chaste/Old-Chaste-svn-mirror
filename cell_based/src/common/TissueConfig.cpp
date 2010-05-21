@@ -80,12 +80,12 @@ TissueConfig::TissueConfig()
  * mMeinekeDivisionRestingSpringLength has units of cell size at equilibrium rest length
  * mMeinekeDivisionSeparation has units of cell size at equilibrium rest length
  * mMatureCellTargetArea has no units
- * mNagaiHondaDeformationEnergyParameter has ? units \todo Fix this comment (see also #1294)
- * mNagaiHondaMembraneSurfaceEnergyParameter has ? units \todo Fix this comment (see also #1294)
- * mNagaiHondaCellCellAdhesionEnergyParameter has ? units \todo Fix this comment (see also #1294)
- * mNagaiHondaCellBoundaryAdhesionEnergyParameter has ? units \todo Fix this comment (see also #1294)
- * mWelikyOsterAreaParameter has ? units \todo Fix this comment (see also #1294)
- * mWelikyOsterPerimeterParameter has ? units \todo Fix this comment (see also #1294)
+ * mNagaiHondaDeformationEnergyParameter has units of kg s^-2 (cell size at equilibrium rest length)^-1
+ * mNagaiHondaMembraneSurfaceEnergyParameter units of kg (cell size at equilibrium rest length) s^-2 
+ * mNagaiHondaCellCellAdhesionEnergyParameter has units of kg (cell size at equilibrium rest length)^2 s^-2 
+ * mNagaiHondaCellBoundaryAdhesionEnergyParameter units of kg (cell size at equilibrium rest length)^2 s^-2 
+ * mWelikyOsterAreaParameter has units of kg (cell size at equilibrium rest length)^2 s^-2 
+ * mWelikyOsterPerimeterParameter has units of kg s^-2 (cell size at equilibrium rest length)^-1
  */
 void TissueConfig::Reset()
 {

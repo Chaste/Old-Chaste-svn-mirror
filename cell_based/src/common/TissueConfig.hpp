@@ -809,7 +809,8 @@ private:
         archive & mAreaBasedDampingConstantParameter;
         archive & mMeinekeSpringStiffness;
         archive & mMeinekeMechanicsCutOffLength;
-        //\todo add mMeinekeDivisionRestingSpringLength and mMeinekeDivisionSeparation
+        archive & mMeinekeDivisionRestingSpringLength;
+        archive & mMeinekeDivisionSeparation;
         archive & mMatureCellTargetArea;
         archive & mNagaiHondaDeformationEnergyParameter;
         archive & mNagaiHondaMembraneSurfaceEnergyParameter;

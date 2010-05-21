@@ -175,15 +175,13 @@ public:
             orientations[i] = true;
         }
 
-        ///\todo Temporary test with hard-coded class
-
         // Make a cube element out of these faces
         VertexElement<3,3> element(0, faces, orientations);
 
-        TS_ASSERT_EQUALS(element.GetNumNodes(),8u);
-        TS_ASSERT_EQUALS(element.GetNumFaces(),6u);
+        TS_ASSERT_EQUALS(element.GetNumNodes(), 8u);
+        TS_ASSERT_EQUALS(element.GetNumFaces(), 6u);
 
-        TS_ASSERT_EQUALS(element.GetIndex(),0u);
+        TS_ASSERT_EQUALS(element.GetIndex(), 0u);
 
         // Test the position of some random nodes
         TS_ASSERT_DELTA(element.GetFace(0)->GetNode(0)->rGetLocation()[0], 0.0, 1e-6);

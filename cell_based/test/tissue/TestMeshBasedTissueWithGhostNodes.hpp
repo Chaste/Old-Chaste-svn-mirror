@@ -211,7 +211,7 @@ public:
              ++cell_iter)
         {
             unsigned node_index = tissue.GetLocationIndexUsingCell(*cell_iter);
-            double area = tissue.GetAreaOfVoronoiElement(node_index);
+            double area = tissue.GetVolumeOfVoronoiElement(node_index);
             TS_ASSERT_DELTA(area, sqrt(3)*scale_factor*scale_factor/2, 1e-6);
         }
     }
@@ -656,8 +656,8 @@ public:
             unsigned node_index = tissue.GetLocationIndexUsingCell(*cell_iter);
             if (!tissue.IsGhostNode(node_index))
             {
-                TS_ASSERT_DELTA(tissue.GetAreaOfVoronoiElement(node_index), sqrt(3)/2, 1e-4);
-                TS_ASSERT_DELTA(tissue.GetPerimeterOfVoronoiElement(node_index), 6/sqrt(3), 1e-4);
+                TS_ASSERT_DELTA(tissue.GetVolumeOfVoronoiElement(node_index), sqrt(3)/2, 1e-4);
+                TS_ASSERT_DELTA(tissue.GetSurfaceAreaOfVoronoiElement(node_index), 6/sqrt(3), 1e-4);
             }
         }
     }

@@ -145,8 +145,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
         MeshBasedTissue<DIM>* p_static_cast_tissue = (static_cast<MeshBasedTissue<DIM>*>(&rTissue));
 
-        double perim_cell_1 = p_static_cast_tissue->GetPerimeterOfVoronoiElement(nodeAGlobalIndex);
-        double perim_cell_2 = p_static_cast_tissue->GetPerimeterOfVoronoiElement(nodeBGlobalIndex);
+        double perim_cell_1 = p_static_cast_tissue->GetSurfaceAreaOfVoronoiElement(nodeAGlobalIndex);
+        double perim_cell_2 = p_static_cast_tissue->GetSurfaceAreaOfVoronoiElement(nodeBGlobalIndex);
         double edge_length_between_1_and_2 = p_static_cast_tissue->GetVoronoiEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex);
 
         double beta_cat_on_cell_1_edge = beta_cat_cell_1 *  edge_length_between_1_and_2 / perim_cell_1;

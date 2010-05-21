@@ -641,7 +641,7 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetCentroidOfEle
                 temp_centroid_y += (current_node[1]+anticlockwise_node[1])*(current_node[0]*anticlockwise_node[1]-current_node[1]*anticlockwise_node[0]);
             }
 
-            double vertex_area = GetAreaOfElement(index);
+            double vertex_area = GetVolumeOfElement(index);
             double centroid_coefficient = 1.0/(6.0*vertex_area);
 
             centroid(0) = centroid_coefficient*temp_centroid_x;
@@ -797,6 +797,99 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVectorFromAto
     }
     return vector;
 }
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVolumeOfElement(unsigned index)
+{
+    assert(SPACE_DIM == 2 || SPACE_DIM == 3);
+
+    // Get pointer to this element
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
+
+    double element_volume = 0.0;
+    if (SPACE_DIM == 2)
+    {
+        c_vector<double, SPACE_DIM> first_node = p_element->GetNodeLocation(0);
+    
+        unsigned num_nodes_in_element = p_element->GetNumNodes();
+    
+        for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
+        {
+            // Find locations of current node and anticlockwise node
+            c_vector<double, SPACE_DIM> current_node = p_element->GetNodeLocation(local_index);
+            c_vector<double, SPACE_DIM> anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
+    
+            /*
+             * In order to calculate the area we map the origin to (x[0],y[0])
+             * then use GetVectorFromAtoB() to get node cooordiantes
+             */
+            c_vector<double, SPACE_DIM> transformed_current_node = GetVectorFromAtoB(first_node, current_node);
+            c_vector<double, SPACE_DIM> transformed_anticlockwise_node = GetVectorFromAtoB(first_node, anticlockwise_node);
+    
+            element_volume += 0.5*(transformed_current_node[0]*transformed_anticlockwise_node[1]
+                                   - transformed_anticlockwise_node[0]*transformed_current_node[1]);
+        }
+    }
+    else
+    {
+        // Loop over faces and add up pyramid volumes
+        c_vector<double, SPACE_DIM> pyramid_apex = p_element->GetNodeLocation(0);
+        for (unsigned face_index=0; face_index<p_element->GetNumFaces(); face_index++)
+        {
+            // Get pointer to face
+            VertexElement<ELEMENT_DIM-1, SPACE_DIM>* p_face = p_element->GetFace(face_index);
+
+            // Get unit normal to this face
+            c_vector<double, SPACE_DIM> unit_normal = GetUnitNormalToFace(p_face);
+    
+            // Calculate the perpendicular distance from the plane of the face to the chosen apex
+            c_vector<double, SPACE_DIM> base_to_apex = GetVectorFromAtoB(p_face->GetNodeLocation(0), pyramid_apex);
+            double perpendicular_distance = inner_prod(base_to_apex, unit_normal);
+    
+            // Calculate the area of the face
+            double face_area = GetAreaOfFace(p_face);
+    
+            // Use these to calculate the volume of the pyramid formed by the face and the point pyramid_apex
+            element_volume += face_area * perpendicular_distance / 3;
+        }
+    }
+    return fabs(element_volume);
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceAreaOfElement(unsigned index)
+{
+    assert(SPACE_DIM == 2 || SPACE_DIM == 3);
+
+    // Get pointer to this element
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
+
+    double surface_area = 0.0;
+    if (SPACE_DIM == 2)
+    {
+        unsigned num_nodes_in_element = p_element->GetNumNodes();
+        for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
+        {
+            // Find locations of current node and anticlockwise node
+            unsigned current_node_index = p_element->GetNodeGlobalIndex(local_index);
+            unsigned anticlockwise_node_index = p_element->GetNodeGlobalIndex((local_index+1)%num_nodes_in_element);
+    
+            surface_area += this->GetDistanceBetweenNodes(current_node_index, anticlockwise_node_index);
+        }
+    }
+    else
+    {
+        // Loop over faces and add up areas
+        for (unsigned face_index=0; face_index<p_element->GetNumFaces(); face_index++)
+        {
+            surface_area += GetAreaOfFace(p_element->GetFace(face_index));
+        }
+    }
+    return surface_area;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 //                        2D-specific methods                       //
@@ -1086,70 +1179,6 @@ c_vector<double, SPACE_DIM> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterGrad
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfElement(unsigned index)
-{
-    assert(SPACE_DIM == 2);
-
-    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
-
-    c_vector<double, SPACE_DIM> first_node = p_element->GetNodeLocation(0);
-    c_vector<double, SPACE_DIM> current_node;
-    c_vector<double, SPACE_DIM> anticlockwise_node;
-    c_vector<double, SPACE_DIM> transformed_current_node;
-    c_vector<double, SPACE_DIM> transformed_anticlockwise_node;
-
-    unsigned num_nodes_in_element = p_element->GetNumNodes();
-
-    double element_area = 0;
-
-    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
-    {
-        // Find locations of current node and anticlockwise node
-        current_node = p_element->GetNodeLocation(local_index);
-        anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
-
-        /*
-         * In order to calculate the area we map the origin to (x[0],y[0])
-         * then use GetVectorFromAtoB() to get node cooordiantes
-         */
-        transformed_current_node = GetVectorFromAtoB(first_node, current_node);
-        transformed_anticlockwise_node = GetVectorFromAtoB(first_node, anticlockwise_node);
-
-        element_area += 0.5*(transformed_current_node[0]*transformed_anticlockwise_node[1]
-                           - transformed_anticlockwise_node[0]*transformed_current_node[1]);
-    }
-
-    return fabs(element_area);
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetPerimeterOfElement(unsigned index)
-{
-    assert(SPACE_DIM == 2);
-
-    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
-
-    unsigned current_node_index;
-    unsigned anticlockwise_node_index;
-    unsigned num_nodes_in_element = p_element->GetNumNodes();
-
-    double element_perimeter = 0;
-
-    for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
-    {
-        // Find locations of current node and anticlockwise node
-        current_node_index = p_element->GetNodeGlobalIndex(local_index);
-        anticlockwise_node_index = p_element->GetNodeGlobalIndex((local_index+1)%num_nodes_in_element);
-
-        element_perimeter += this->GetDistanceBetweenNodes(current_node_index, anticlockwise_node_index);
-    }
-
-    return element_perimeter;
-}
-
-
 //////////////////////////////////////////////////////////////////////
 //                        3D-specific methods                       //
 //////////////////////////////////////////////////////////////////////
@@ -1211,7 +1240,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_D
     }
 
     // Compute area of the 2D projection
-    ///\todo reduce code duplication with GetAreaOfElement() method (see #1283 and #1276)
+    ///\todo reduce code duplication with GetVolumeOfElement() method (see #1283 and #1276)
 
     double face_area = 0.0;
 
@@ -1238,54 +1267,6 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_D
     // Scale to get area before projection
     face_area /= abs;
     return fabs(face_area);
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVolumeOfElement(unsigned index)
-{
-    assert(SPACE_DIM == 3);
-
-    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
-
-    // Loop over faces and add up pyramid volumes
-    double volume = 0.0;
-    c_vector<double, SPACE_DIM> pyramid_apex = p_element->GetNodeLocation(0);
-    for (unsigned face_index=0; face_index<p_element->GetNumFaces(); face_index++)
-    {
-        // Get unit normal to this face
-        c_vector<double, SPACE_DIM> unit_normal = GetUnitNormalToFace(p_element->GetFace(face_index));
-
-        // Calculate the perpendicular distance from the plane of the face to the chosen apex
-        c_vector<double, SPACE_DIM> base_to_apex = GetVectorFromAtoB(p_element->GetFace(face_index)->GetNodeLocation(0),
-                                                                     pyramid_apex);
-
-        double perpendicular_distance = inner_prod(base_to_apex, unit_normal);
-
-        // Calculate the area of the face
-        double face_area = GetAreaOfFace(p_element->GetFace(face_index));
-
-        // Use these to calculate the volume of the pyramid formed by the face and the point pyramid_apex
-        volume += face_area * perpendicular_distance / 3;
-    }
-    return fabs(volume);
-}
-
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceAreaOfElement(unsigned index)
-{
-    assert(SPACE_DIM == 3);
-
-    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = GetElement(index);
-
-    // Loop over faces and add up areas
-    double surface_area = 0.0;
-    for (unsigned face_index=0; face_index<p_element->GetNumFaces(); face_index++)
-    {
-        surface_area += GetAreaOfFace(p_element->GetFace(face_index));
-    }
-    return surface_area;
 }
 
 
