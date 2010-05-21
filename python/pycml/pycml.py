@@ -470,7 +470,6 @@ class cellml_model(element_base):
         self._cml_validation_warnings = []
         self._cml_variables = {}
         self._cml_components = {}
-        self._cml_mappings = {}
         self._cml_units = {}
         self._cml_units_map = {}
         # Topologically sorted assignments list
@@ -556,7 +555,7 @@ class cellml_model(element_base):
                  invalid_if_warnings=False,
                  warn_on_units_errors=False,
                  check_for_units_conversions=False,
-                 assume_valid=False):
+                 assume_valid=False, **ignored_kwargs):
         """Validate this model.
 
         Assumes that RELAX NG and Schematron validation has been done.
@@ -598,7 +597,7 @@ class cellml_model(element_base):
         if not self._cml_validation_errors:
             assignment_exprs = self.search_for_assignments()
             if not assume_valid:
-                self._check_assigned_vars(assignment_exprs)
+                self._check_assigned_vars(assignment_exprs, xml_context)
 
         # Warn if mathematics outside the CellML subset is used.
         if not self._cml_validation_errors and not assume_valid:
@@ -609,13 +608,14 @@ class cellml_model(element_base):
         # Does a topological sort of all equations in the process.
         # TODO: Handle reactions properly.
         if not self._cml_validation_errors:
-            self._classify_variables(assignment_exprs)
-            self._order_variables(assignment_exprs)
+            self._classify_variables(assignment_exprs, xml_context)
+            self._order_variables(assignment_exprs, xml_context)
 
         # Appendix C.3.6: Equation dimension checking.
         if not self._cml_validation_errors and (
               not assume_valid or check_for_units_conversions):
             self._check_dimensional_consistency(assignment_exprs,
+                                                xml_context,
                                                 warn_on_units_errors,
                                                 check_for_units_conversions)
         
@@ -755,7 +755,7 @@ class cellml_model(element_base):
                         var2.fullname(),'will require a units conversion.']),
                         level=logging.WARNING_TRANSLATE_ERROR)
 
-    def _check_assigned_vars(self, assignments):
+    def _check_assigned_vars(self, assignments, xml_context=False):
         """Check Rule 4.4.4: mathematical expressions may only modify
         variables belonging to the current component.
         """
@@ -779,7 +779,7 @@ class cellml_model(element_base):
         if root:
             DEBUG('validator', 'Checked for CellML subset')
 
-    def _classify_variables(self, assignment_exprs):
+    def _classify_variables(self, assignment_exprs, xml_context=False):
         """Determine the type of each variable.
         
         Note that mapped vars must have already been classified by
@@ -802,7 +802,7 @@ class cellml_model(element_base):
                 self._report_exception(e, xml_context)
         DEBUG('validator', 'Classified variables')
             
-    def _order_variables(self, assignment_exprs):
+    def _order_variables(self, assignment_exprs, xml_context=False):
         """Topologically sort the equation dependency graph.
         
         This orders all the assignment expressions in the model, to
@@ -1046,6 +1046,7 @@ class cellml_model(element_base):
         return units
 
     def _check_dimensional_consistency(self, assignment_exprs,
+                                       xml_context=False,
                                        warn_on_units_errors=False,
                                        check_for_units_conversions=False):
         """Appendix C.3.6: Equation dimension checking."""
@@ -1596,6 +1597,14 @@ class cellml_variable(Colourable, element_base):
     """
     def __init__(self):
         super(cellml_variable, self).__init__()
+        self.clear_dependency_info()
+        return
+    
+    def clear_dependency_info(self):
+        """Clear the type, dependency, etc. information for this variable.
+        
+        This allows us to re-run the type & dependency analysis for the model.
+        """
         # The type of this variable is not yet known
         self._cml_var_type = VarTypes.Unknown
         self._cml_source_var = None
@@ -1605,7 +1614,6 @@ class cellml_variable(Colourable, element_base):
         self._cml_depends_on = []
         self._cml_depends_on_ode = {}
         self._cml_usage_count = 0
-        return
 
     def __hash__(self):
         """Hashing function for variables.
@@ -4035,11 +4043,17 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
     def __init__(self):
         super(mathml_apply, self).__init__()
         self._cml_units = None
+        self.clear_dependency_info()
+        return
+    
+    def clear_dependency_info(self):
+        """Clear the type, dependency, etc. information for this equation.
+        
+        This allows us to re-run the type & dependency analysis for the model."""
         self._cml_binding_time = None
         # Dependency graph edges
         self._cml_depends_on = []
         self._cml_assigns_to = None
-        return
 
     def _get_dependencies(self):
         """Return the list of variables this expression depends on."""

@@ -75,24 +75,14 @@ class CellMLValidator(object):
         """
         self.relaxng_validator.quit()
         return
-
-    def validate(self, source, return_doc=False,
-                 show_errors=True, error_stream=sys.stderr,
-                 show_warnings=True, warning_stream=sys.stderr,
-                 space_errors=False, loglevel=logging.WARNING,
-                 assume_valid=False,
-                 **kw):
-        """Validate the given document.
-
-        source should be a file-like object, URI, local file name,
-        or '-' for standard input.  If a file-like object, it must support
-        the seek method to reset it.
-
-        If return_doc is True then the result is a tuple (valid, document),
-        where if valid==True then document is an Amara binding of the CellML
-        document.
-        Otherwise just return True iff the document is valid.
-
+    
+    @staticmethod
+    def setup_logging(show_errors=True, error_stream=sys.stderr,
+                      show_warnings=True, warning_stream=sys.stderr,
+                      space_errors=False, loglevel=logging.WARNING,
+                      **kwargs):
+        """Set up loggers for validation errors/warnings.
+        
         Set show_errors or show_warnings to False to suppress the output of
         validation error or warning messages, respectively.  When not
         suppressed, the messages will be output to the streams given by
@@ -100,16 +90,7 @@ class CellMLValidator(object):
 
         If space_errors is True, a blank line will be inserted between
         each message.
-        If xml_context is True, then the failing XML tree will be displayed
-        with every units error.
-
-        The assume_valid option allows you to skip RELAX NG and
-        Schematron checks.  This is useful for speeding transformation
-        of models that are known to pass these checks.
-        
-        See cellml_model.validate for other keyword arguments.
         """
-        # Set up loggers for validation errors/warnings
         logger = logging.getLogger('validator')
         logger.setLevel(loglevel)
         if space_errors:
@@ -128,6 +109,40 @@ class CellMLValidator(object):
             warning_handler.setLevel(logging.CRITICAL)
         logger.addHandler(error_handler)
         logger.addHandler(warning_handler)
+        return error_handler, warning_handler
+    
+    @staticmethod
+    def cleanup_logging(handlers):
+        """Flush logger & remove handlers."""
+        logger = logging.getLogger('validator')
+        for handler in handlers:
+            handler.flush()
+            logger.removeHandler(handler)
+
+    def validate(self, source, return_doc=False,
+                 assume_valid=False,
+                 **kw):
+        """Validate the given document.
+
+        source should be a file-like object, URI, local file name,
+        or '-' for standard input.  If a file-like object, it must support
+        the seek method to reset it.
+
+        If return_doc is True then the result is a tuple (valid, document),
+        where if valid==True then document is an Amara binding of the CellML
+        document.
+        Otherwise just return True iff the document is valid.
+
+        If xml_context is True, then the failing XML tree will be displayed
+        with every units error.
+
+        The assume_valid option allows you to skip RELAX NG and
+        Schematron checks.  This is useful for speeding transformation
+        of models that are known to pass these checks.
+        
+        See cellml_model.validate and setup_logging for other keyword arguments.
+        """
+        logging_info = CellMLValidator.setup_logging(**kw)
         
         # Validate against RELAX NG schema
         DEBUG('validator', 'CellML Validator version', __version__)
@@ -190,10 +205,7 @@ class CellMLValidator(object):
             doc = None
 
         # Flush logger & remove handlers
-        error_handler.flush()
-        logger.removeHandler(error_handler)
-        warning_handler.flush()
-        logger.removeHandler(warning_handler)
+        CellMLValidator.cleanup_logging(logging_info)
 
         # Return result
         if return_doc:
