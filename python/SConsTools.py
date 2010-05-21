@@ -37,6 +37,7 @@ from SCons.Script import Command, Dir, Value
 import SCons.Action
 import SCons.Tool
 import SCons.Script
+import SCons.Scanner
 
 # Compatability with Python 2.3
 try:
@@ -49,7 +50,7 @@ except NameError:
 chaste_source_exts = ['.cpp', '.xsd', '.cellml']
 
 def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=False,
-                    source_exts=None):
+                    sourceExts=None):
     """Look for source files under rootDir.
     
     Returns 2 lists: the first of source (.cpp, .xsd) files, and the second
@@ -63,8 +64,7 @@ def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=Fal
     """
     source_files = []
     source_dirs = []
-    if source_exts is None:
-        source_exts = chaste_source_exts
+    source_exts = sourceExts or chaste_source_exts
     ignoreDirs.append('.svn')
     if includeRoot:
         source_dirs.append(rootDir)
@@ -460,7 +460,18 @@ def CreatePyCmlBuilder(build, buildenv):
     c_file, cxx_file = SCons.Tool.createCFileBuilders(buildenv)
     cxx_file.add_action('.cellml', PyCmlAction)
     cxx_file.add_emitter('.cellml', PyCmlEmitter)
-
+    
+class PyScanner(SCons.Scanner.Classic):
+    """A scanner for import lines in Python source code."""
+    base = SCons.Scanner.Classic # old-style class so can't super()
+    def __init__(self, *args, **kw):
+        name = kw.get('name', 'PyScanner')
+        suffixes = ['.py']
+        path_variable = 'PYINCPATH'
+        regex = r'^[ \t]*import ([a-zA-Z0-9_]+)[ \t]*$'
+        self.base.__init__(self, name, suffixes, path_variable, regex, *args, **kw)
+    def find_include(self, include, source_dir, path):
+        return self.base.find_include(self, include + '.py', source_dir, path)
 
 
 def ScheduleTestBuild(env, env_with_libs, testfile, prefix, use_chaste_libs):
