@@ -327,27 +327,22 @@ public:
     unsigned GetNumNodes();
 
     /**
-     * Write current results to mpVoronoiFile.
+     * Write the current index and location of each node in mrMesh (including ghost nodes),
+     * as well as the area and perimeter (in 2D) or volume and surface area (in 3D)
+     * of its corresponding element in mpVoronoiTessellation, to mpVoronoiFile.
      */
     void WriteVoronoiResultsToFile();
 
     /**
-     * Write current results to mpTissueVolumesFile if in 2D.
-     *
-     * The data is written in the form:
-     *
-     * time total_area apoptotic_area
+     * Write the current total area (in 2D) or volume (in 3D) of mrMesh, and of the set of
+     * APOPTOTIC cells in the tissue (using mpVoronoiTessellation), to mpTissueVolumesFile.
      */
     void WriteTissueVolumeResultsToFile();
 
     /**
-     * Write current results to mpCellVolumesFile.
-     *
-     * In 2D, the data is written in the form:
-     *
-     * time cell0_id cell0_x cell0_y cell0_area cell1_id cell1_x cell1_y cell1_area ...
-     *
-     * and similarly in 3D.
+     * Write the current index and location of each non-ghost node in mrMesh, as well as the ID and
+     * (using mpVoronoiTessellation) the area (in 2D) or volume (in 3D) of its corresponding
+     * cell, to mpCellVolumesFile.
      */
     void WriteCellVolumeResultsToFile();
 
@@ -357,7 +352,7 @@ public:
     void CreateVoronoiTessellation();
 
     /**
-     * Get a reference to a Voronoi tessellation of the mesh.
+     * Get a reference to mpVoronoiTessellation.
      */
     VertexMesh<DIM, DIM>& rGetVoronoiTessellation();
 

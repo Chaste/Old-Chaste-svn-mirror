@@ -613,34 +613,35 @@ void MeshBasedTissue<DIM>::WriteVoronoiResultsToFile()
     // Write time to file
     *mpVoronoiFile << SimulationTime::Instance()->GetTime() << " ";
 
-    // Loop over elements of the Voronoi mesh
+    // Loop over elements of mpVoronoiTessellation
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
          elem_iter != mpVoronoiTessellation->GetElementIteratorEnd();
          ++elem_iter)
     {
-        // Get index of this element in the Voronoi tessellation mesh and write to file
+        // Get index of this element in mpVoronoiTessellation
         unsigned elem_index = elem_iter->GetIndex();
 
+        // Get the index of the corresponding node in mrMesh
         unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
 
+        // Write node index and location to file
         *mpVoronoiFile << node_index << " ";
- 
-        // Write node location to file
         c_vector<double, DIM> node_location = this->GetNode(node_index)->rGetLocation();
         for (unsigned i=0; i<DIM; i++)
         {
             *mpVoronoiFile << node_location[i] << " ";
         }
 
-        // Get cell volume and surface area (in 3D) or area and perimeter (in 2D) and write to file
         if (DIM==2)
         {
+            // Write the area and perimeter of this element in mpVoronoiTessellation to file
             double cell_area = mpVoronoiTessellation->GetAreaOfElement(elem_index);
             double cell_perimeter = mpVoronoiTessellation->GetPerimeterOfElement(elem_index);
             *mpVoronoiFile << cell_area << " " << cell_perimeter << " ";
         }
         else // DIM==3
         {
+            // Write the volume and surface area of this element in mpVoronoiTessellation to file
             double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
             double cell_surface_area = mpVoronoiTessellation->GetSurfaceAreaOfElement(elem_index);
             *mpVoronoiFile << cell_volume << " " << cell_surface_area << " ";
@@ -657,27 +658,28 @@ void MeshBasedTissue<DIM>::WriteTissueVolumeResultsToFile()
     // Write time to file
     *mpTissueVolumesFile << SimulationTime::Instance()->GetTime() << " ";
 
-    // Don't use the Voronoi tessellation to calculate the total area
-    // because it gives huge areas for boundary cells
+    // Don't use the Voronoi tessellation to calculate the total area of the mesh because it gives huge areas for boundary cells
     double total_area = mrMesh.GetVolume();
     double apoptotic_area = 0.0;
 
-    // Loop over elements of the Voronoi mesh
+    // Loop over elements of mpVoronoiTessellation
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
          elem_iter != mpVoronoiTessellation->GetElementIteratorEnd();
          ++elem_iter)
     {
-        // Get index of this element in the Voronoi tessellation mesh and write to file
+        // Get index of this element in mpVoronoiTessellation
         unsigned elem_index = elem_iter->GetIndex();
 
+        // Get the index of the corresponding node in mrMesh
         unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
 
+        // Discount ghost nodes
         if (!this->IsGhostNode(node_index))
         {
             // Get the cell corresponding to this node
             TissueCell* p_cell =  this->mLocationCellMap[node_index];
     
-            // Only bother calculating the cell area if it is apoptotic
+            // Only bother calculating the area/volume of APOPTOTIC cells
             if (p_cell->GetCellProliferativeType() == APOPTOTIC)
             {
                 if (DIM==2)
@@ -704,18 +706,21 @@ void MeshBasedTissue<DIM>::WriteCellVolumeResultsToFile()
      // Write time to file
     *mpCellVolumesFile << SimulationTime::Instance()->GetTime() << " ";
  
-    // Loop over elements of the Voronoi mesh
+    // Loop over elements of mpVoronoiTessellation
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
          elem_iter != mpVoronoiTessellation->GetElementIteratorEnd();
          ++elem_iter)
     {
-        // Get index of this element in the Voronoi tessellation mesh and write to file
+        // Get index of this element in mpVoronoiTessellation
         unsigned elem_index = elem_iter->GetIndex();
 
+        // Get the index of the corresponding node in mrMesh
         unsigned node_index = mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
 
+        // Discount ghost nodes
         if (!this->IsGhostNode(node_index))
         {
+            // Write node index to file
             *mpCellVolumesFile << node_index << " ";
     
             // Get the cell corresponding to this node
