@@ -1240,10 +1240,6 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_D
     }
 
     // Compute area of the 2D projection
-    ///\todo reduce code duplication with GetVolumeOfElement() method (see #1283 and #1276)
-
-    double face_area = 0.0;
-
     c_vector<double, SPACE_DIM-1> current_vertex;
     c_vector<double, SPACE_DIM-1> anticlockwise_vertex;
 
@@ -1252,6 +1248,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_D
     unsigned dim1 = dim_to_ignore==0 ? 1 : 0;
     unsigned dim2 = dim_to_ignore==2 ? 1 : 2;
 
+    double face_area = 0.0;
     for (unsigned local_index=0; local_index<num_nodes_in_face; local_index++)
     {
         // Find locations of current vertex and anticlockwise vertex
