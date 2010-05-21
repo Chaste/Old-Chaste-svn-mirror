@@ -477,9 +477,6 @@ public:
      * of the inertial tensor. If the polygon is regular then the
      * eigenvalues are the same, so we return a random unit vector.
      *
-     * \todo This method is only called inside DivideElementAlongShortAxis() -
-     *       get rid of it and move the code into that method? (#1276)
-     *
      * @param index  the global index of a specified vertex element
      *
      * @return (short_axis_x, short_axis_y).
