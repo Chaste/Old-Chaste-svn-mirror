@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Lr91Cvode.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "Shannon2004.hpp"
-#include "Shannon2004_CvOde.hpp"
+#include "Shannon2004Cvode.hpp"
 
 #include "RegularStimulus.hpp"
 #include "SimpleStimulus.hpp"
@@ -242,7 +242,7 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
         // Make a model that uses Cvode directly:
-        CvOdeCellShannon2004FromCellML sh04_cvode_system(p_solver, p_stimulus);
+        CellShannon2004FromCellMLCvode sh04_cvode_system(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(sh04_cvode_system.GetVoltageIndex(), 0u);
         TS_ASSERT_EQUALS(sh04_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
 
