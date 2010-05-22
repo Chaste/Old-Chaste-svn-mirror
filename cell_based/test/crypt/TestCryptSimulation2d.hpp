@@ -961,6 +961,15 @@ public:
         TS_ASSERT_THROWS_THIS(simulator.rGetTissue().rGetCellCyclePhaseCount(),
                               "Call TissueConfig::Instance()->SetOutputCellCyclePhases(true) before using this function");
 
+        TissueConfig::Instance()->SetOutputVoronoiData(true);
+        TissueConfig::Instance()->SetOutputTissueVolumes(true);
+        TissueConfig::Instance()->SetOutputCellVolumes(true);
+        TissueConfig::Instance()->SetOutputCellAncestors(true);
+        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
+        TissueConfig::Instance()->SetOutputCellAges(true);
+        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+
         // Run simulation
         simulator.Solve();
 

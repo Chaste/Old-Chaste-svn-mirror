@@ -327,6 +327,11 @@ public:
     unsigned GetNumNodes();
 
     /**
+     * Write the current results to mpVtkMetaFile.
+     */
+    virtual void WriteVtkResultsToFile();
+
+    /**
      * Write the current index and location of each node in mrMesh (including ghost nodes),
      * as well as the area and perimeter (in 2D) or volume and surface area (in 3D)
      * of its corresponding element in mpVoronoiTessellation, to mpVoronoiFile.

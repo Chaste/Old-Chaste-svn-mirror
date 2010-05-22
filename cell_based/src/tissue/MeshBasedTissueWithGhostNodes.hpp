@@ -186,6 +186,11 @@ public:
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
     TissueCell* AddCell(TissueCell& rNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCell* pParentCell=NULL);
+
+    /**
+     * Overridden WriteVtkResultsToFile method.
+     */
+    void WriteVtkResultsToFile();
 };
 
 

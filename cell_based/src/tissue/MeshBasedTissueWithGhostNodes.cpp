@@ -266,6 +266,134 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateNodeLocations(const std::vector< 
     AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(rNodeForces, dt);
 }
 
+template<unsigned DIM>
+void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
+{
+#ifdef CHASTE_VTK
+    VertexMeshWriter<DIM, DIM> mesh_writer(this->mDirPath, "results", false);
+    std::stringstream time;
+    time << SimulationTime::Instance()->GetTimeStepsElapsed();
+
+    unsigned num_elements = this->mpVoronoiTessellation->GetNumElements();
+    std::vector<double> ghosts(num_elements);
+    std::vector<double> cell_types(num_elements);
+    std::vector<double> cell_ancestors(num_elements);
+    std::vector<double> cell_mutation_states(num_elements);
+    std::vector<double> cell_ages(num_elements);
+    std::vector<double> cell_cycle_phases(num_elements);
+    std::vector<double> cell_areas(num_elements);
+
+    // Loop over Voronoi elements
+    for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = this->mpVoronoiTessellation->GetElementIteratorBegin();
+         elem_iter != this->mpVoronoiTessellation->GetElementIteratorEnd();
+         ++elem_iter)
+    {
+        // Get index of this element in the Voronoi tessellation mesh
+        unsigned elem_index = elem_iter->GetIndex();
+
+        unsigned node_index = this->mpVoronoiTessellation->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
+
+        ghosts[elem_index] = (double)(this->IsGhostNode(node_index));
+
+        if (!this->IsGhostNode(node_index))
+        {
+            // Get the cell corresponding to this element
+            TissueCell* p_cell = this->mLocationCellMap[node_index];
+
+            if (TissueConfig::Instance()->GetOutputCellAncestors())
+            {
+                double ancestor_index = (p_cell->GetAncestor() == UNSIGNED_UNSET) ? (-1.0) : (double)p_cell->GetAncestor();
+                cell_ancestors[elem_index] = ancestor_index;
+            }
+            if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
+            {
+                double cell_type = p_cell->GetCellProliferativeType();
+                cell_types[elem_index] = cell_type;
+            }
+            if (TissueConfig::Instance()->GetOutputCellMutationStates())
+            {
+                double mutation_state = p_cell->GetMutationState()->GetColour();
+                cell_mutation_states[elem_index] = mutation_state;
+            }
+            if (TissueConfig::Instance()->GetOutputCellAges())
+            {
+                double age = p_cell->GetAge();
+                cell_ages[elem_index] = age; 
+            }
+            if (TissueConfig::Instance()->GetOutputCellCyclePhases())
+            {
+                double cycle_phase = p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase();
+                cell_cycle_phases[elem_index] = cycle_phase;
+            }
+            if (TissueConfig::Instance()->GetOutputCellVolumes())
+            {
+                double cell_area = this->mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+                cell_areas[elem_index] = cell_area;
+            }
+        }
+        else
+        {
+            if (TissueConfig::Instance()->GetOutputCellAncestors())
+            {
+                cell_ancestors[elem_index] = -1.0;
+            }
+            if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
+            {
+                cell_types[elem_index] = -1.0;
+            }
+            if (TissueConfig::Instance()->GetOutputCellMutationStates())
+            {
+                cell_mutation_states[elem_index] = -1.0;
+            }
+            if (TissueConfig::Instance()->GetOutputCellAges())
+            {
+                cell_ages[elem_index] = -1.0; 
+            }
+            if (TissueConfig::Instance()->GetOutputCellCyclePhases())
+            {
+                cell_cycle_phases[elem_index] = -1.0;
+            }
+            if (TissueConfig::Instance()->GetOutputCellVolumes())
+            {
+                cell_areas[elem_index] = -1.0;
+            } 
+        }
+    }
+
+    mesh_writer.AddCellData("Non-ghosts", ghosts);
+    if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
+    {
+        mesh_writer.AddCellData("Cell types", cell_types);
+    }
+    if (TissueConfig::Instance()->GetOutputCellAncestors())
+    {
+        mesh_writer.AddCellData("Ancestors", cell_ancestors);
+    }
+    if (TissueConfig::Instance()->GetOutputCellMutationStates())
+    {
+        mesh_writer.AddCellData("Mutation states", cell_mutation_states);
+    }
+    if (TissueConfig::Instance()->GetOutputCellAges())
+    {
+        mesh_writer.AddCellData("Ages", cell_ages);
+    }
+    if (TissueConfig::Instance()->GetOutputCellCyclePhases())
+    {
+        mesh_writer.AddCellData("Cycle phases", cell_cycle_phases);
+    }
+    if (TissueConfig::Instance()->GetOutputCellVolumes())
+    {
+        mesh_writer.AddCellData("Cell areas", cell_areas);
+    }
+
+    mesh_writer.WriteVtkUsingMesh(*(this->mpVoronoiTessellation), time.str());
+    *(this->mpVtkMetaFile) << "        <DataSet timestep=\"";
+    *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();
+    *(this->mpVtkMetaFile) << "\" group=\"\" part=\"0\" file=\"results_";
+    *(this->mpVtkMetaFile) << SimulationTime::Instance()->GetTimeStepsElapsed();
+    *(this->mpVtkMetaFile) << ".vtu\"/>\n";
+#endif //CHASTE_VTK
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
