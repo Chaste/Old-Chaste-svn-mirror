@@ -31,125 +31,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractParameterisedSystem.hpp"
 
 #include "Exception.hpp"
+#include "VectorHelperFunctions.hpp"
 
 #ifdef CHASTE_CVODE
 // CVODE headers
 #include <nvector/nvector_serial.h>
 #endif
-
-/**
- * Helper function to get a vector component.
- * 
- * This isn't a member so that we can specialise it without having to
- * specialise the whole class.
- * 
- * @param rVec  the vector to access
- * @param index  the index of the component to get
- */
-template<typename VECTOR>
-inline double GetVectorComponent(const VECTOR& rVec, unsigned index);
-
-/**
- * Helper function to set a vector component.
- * 
- * This isn't a member so that we can specialise it without having to
- * specialise the whole class.
- * 
- * @param rVec  the vector to modify
- * @param index  the index of the component to set
- * @param value  the new value
- */
-template<typename VECTOR>
-inline void SetVectorComponent(VECTOR& rVec, unsigned index, double value);
-
-/**
- * Helper function to determine a vector's size.
- * 
- * This isn't a member so that we can specialise it without having to
- * specialise the whole class.
- * 
- * @param rVec  the vector
- * @return  its size
- */
-template<typename VECTOR>
-inline double GetVectorSize(const VECTOR& rVec);
-
-/**
- * Helper function to initialise a vector to be empty/unset.
- * 
- * This isn't a member so that we can specialise it without having to
- * specialise the whole class.
- * 
- * @param rVec  the vector
- */
-template<typename VECTOR>
-inline void InitialiseEmptyVector(VECTOR& rVec);
-
-//
-// Specialisations for std::vector<double>
-//
-
-template<>
-inline double GetVectorComponent(const std::vector<double>& rVec, unsigned index)
-{
-    assert(index < rVec.size());
-    return rVec[index];
-}
-
-template<>
-inline void SetVectorComponent(std::vector<double>& rVec, unsigned index, double value)
-{
-    assert(index < rVec.size());
-    rVec[index] = value;
-}
-
-template<>
-inline double GetVectorSize(const std::vector<double>& rVec)
-{
-    return rVec.size();
-}
-
-template<>
-inline void InitialiseEmptyVector(std::vector<double>& rVec)
-{
-}
-
-//
-// Specialisations for N_Vector
-//
-
-#ifdef CHASTE_CVODE
-template<>
-inline double GetVectorComponent(const N_Vector& rVec, unsigned index)
-{
-    assert(rVec != NULL);
-    return NV_Ith_S(rVec, index);
-}
-
-template<>
-inline void SetVectorComponent(N_Vector& rVec, unsigned index, double value)
-{
-    assert(rVec != NULL);
-    NV_Ith_S(rVec, index) = value;
-}
-
-template<>
-inline double GetVectorSize(const N_Vector& rVec)
-{
-    assert(rVec != NULL);
-    return NV_LENGTH_S(rVec);
-}
-
-template<>
-inline void InitialiseEmptyVector(N_Vector& rVec)
-{
-    rVec = NULL;
-}
-#endif // CHASTE_CVODE
-
-//
-// End of helper functions
-//
 
 template<typename VECTOR>
 AbstractParameterisedSystem<VECTOR>::AbstractParameterisedSystem(unsigned numberOfStateVariables)

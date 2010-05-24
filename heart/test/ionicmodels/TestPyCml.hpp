@@ -44,6 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "ArchiveLocationInfo.hpp"
+#include "VectorHelperFunctions.hpp"
 
 #include "luo_rudy_1991.hpp"
 #include "luo_rudy_1991Opt.hpp"
@@ -57,6 +58,41 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestPyCml : public CxxTest::TestSuite
 {
+    template<typename VECTOR_TYPE>
+    void CheckDerivedQuantities(AbstractParameterisedSystem<VECTOR_TYPE>& rCell,
+                                const VECTOR_TYPE& rStateVec)
+    {
+        TS_ASSERT_EQUALS(rCell.GetNumberOfDerivedQuantities(), 2u);
+        TS_ASSERT_EQUALS(rCell.GetDerivedQuantityIndex("FonRT"), 0u);
+        TS_ASSERT_EQUALS(rCell.GetDerivedQuantityIndex("potassium_currents"), 1u);
+        TS_ASSERT_EQUALS(rCell.GetDerivedQuantityUnits(0u), "per_millivolt");
+        TS_ASSERT_EQUALS(rCell.GetDerivedQuantityUnits(1u), "microA_per_cm2");
+        VECTOR_TYPE derived = rCell.ComputeDerivedQuantitiesFromCurrentState(0.0);
+        const double FonRT = 0.037435728309031795;
+        const double i_K_total = 1.0007;
+        TS_ASSERT_EQUALS(GetVectorSize(derived), 2u);
+        TS_ASSERT_DELTA(GetVectorComponent(derived, 0), FonRT, 1e-12);
+        TS_ASSERT_DELTA(GetVectorComponent(derived, 1), i_K_total, 1e-4);
+        DeleteVector(derived);
+        derived = rCell.ComputeDerivedQuantities(0.0, rStateVec);
+        TS_ASSERT_EQUALS(GetVectorSize(derived), 2u);
+        TS_ASSERT_DELTA(GetVectorComponent(derived, 0), FonRT, 1e-12);
+        TS_ASSERT_DELTA(GetVectorComponent(derived, 1), i_K_total, 1e-4);
+        DeleteVector(derived);
+    }
+    
+    template<typename VECTOR_TYPE>
+    void CheckParameter(AbstractParameterisedSystem<VECTOR_TYPE>& rCell)
+    {
+        TS_ASSERT_EQUALS(rCell.GetNumberOfParameters(), 1u);
+        TS_ASSERT_EQUALS(rCell.GetParameterIndex("fast_sodium_current_conductance"), 0u);
+        TS_ASSERT_EQUALS(rCell.GetParameterUnits(0u), "milliS_per_cm2");
+        TS_ASSERT_EQUALS(rCell.GetParameter(0u), 23.0);
+        rCell.SetParameter(0u, 0.1);
+        TS_ASSERT_EQUALS(rCell.GetParameter(0u), 0.1);
+        rCell.SetParameter(0u, 23.0);
+    }
+    
 public:
     /** For comparison with the test below; copied from TestIonicModels.hpp */
     void TestOdeSolverForLR91WithDelayedSimpleStimulus(void)
@@ -139,21 +175,14 @@ public:
         be.SetVoltage(v);
         
         // Single parameter
-        TS_ASSERT_EQUALS(normal.GetNumberOfParameters(), 1u);
-        TS_ASSERT_EQUALS(normal.GetParameterIndex("g_Na"), 0u);
-        TS_ASSERT_EQUALS(normal.GetParameterUnits(0u), "milliS_per_cm2");
-        TS_ASSERT_EQUALS(normal.GetParameter(0u), 23.0);
-        normal.SetParameter(0u, 0.1);
-        TS_ASSERT_EQUALS(normal.GetParameter(0u), 0.1);
-        normal.SetParameter(0u, 23.0);
+        CheckParameter(normal);
+        CheckParameter(opt);
+        CheckParameter(be);
         
-        TS_ASSERT_EQUALS(opt.GetNumberOfParameters(), 1u);
-        TS_ASSERT_EQUALS(opt.GetParameterIndex("fast_sodium_current__g_Na"), 0u);
-        TS_ASSERT_EQUALS(opt.GetParameterUnits(0u), "milliS_per_cm2");
-        TS_ASSERT_EQUALS(opt.GetParameter(0u), 23.0);
-        opt.SetParameter(0u, 0.1);
-        TS_ASSERT_EQUALS(opt.GetParameter(0u), 0.1);
-        opt.SetParameter(0u, 23.0);
+        // Derived variables
+        CheckDerivedQuantities(normal, normal.GetInitialConditions());
+        CheckDerivedQuantities(opt, opt.GetInitialConditions());
+        CheckDerivedQuantities(be, be.GetInitialConditions());
 
 #ifdef CHASTE_CVODE
         // CVODE version
@@ -167,22 +196,14 @@ public:
         cvode_opt.SetVoltage(-100000);
         TS_ASSERT_THROWS_CONTAINS(cvode_opt.GetIIonic(), "V outside lookup table range");
         cvode_opt.SetVoltage(v);
-        // Single parameter
-        TS_ASSERT_EQUALS(cvode_cell.GetNumberOfParameters(), 1u);
-        TS_ASSERT_EQUALS(cvode_cell.GetParameterIndex("g_Na"), 0u);
-        TS_ASSERT_EQUALS(cvode_cell.GetParameterUnits(0u), "milliS_per_cm2");
-        TS_ASSERT_EQUALS(cvode_cell.GetParameter(0u), 23.0);
-        cvode_cell.SetParameter(0u, 0.1);
-        TS_ASSERT_EQUALS(cvode_cell.GetParameter(0u), 0.1);
-        cvode_cell.SetParameter(0u, 23.0);
         
-        TS_ASSERT_EQUALS(cvode_opt.GetNumberOfParameters(), 1u);
-        TS_ASSERT_EQUALS(cvode_opt.GetParameterIndex("fast_sodium_current__g_Na"), 0u);
-        TS_ASSERT_EQUALS(cvode_opt.GetParameterUnits(0u), "milliS_per_cm2");
-        TS_ASSERT_EQUALS(cvode_opt.GetParameter(0u), 23.0);
-        cvode_opt.SetParameter(0u, 0.1);
-        TS_ASSERT_EQUALS(cvode_opt.GetParameter(0u), 0.1);
-        cvode_opt.SetParameter(0u, 23.0);
+        // Single parameter
+        CheckParameter(cvode_cell);
+        CheckParameter(cvode_opt);
+        
+        // Derived variables
+        CheckDerivedQuantities(cvode_cell, cvode_cell.GetInitialConditions());
+        CheckDerivedQuantities(cvode_opt, cvode_opt.GetInitialConditions());
 #endif // CHASTE_CVODE
 
         // Test the archiving code too

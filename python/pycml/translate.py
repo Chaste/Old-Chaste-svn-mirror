@@ -1240,8 +1240,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
     # We want separate .cpp/.hpp files
     USES_SUBSIDIARY_FILE = True
 
-    # Type of a reference to the state variable vector
-    TYPE_VECTOR_REF = 'std::vector<double>&'
+    # Type of (a reference to) the state variable vector
+    TYPE_VECTOR = 'std::vector<double> '
+    TYPE_VECTOR_REF = 'std::vector<double>& '
     
     def writeln_hpp(self, *args, **kwargs):
         """Convenience wrapper for writing to the header file."""
@@ -1427,6 +1428,53 @@ class CellMLToChasteTranslator(CellMLTranslator):
         args_string = ', '.join(filter(None, map(str, args)))
         self.writeln_hpp(ret_type, method_name, '(', args_string, ')', self.STMT_END)
         self.writeln(ret_type, self.class_name, '::', method_name, '(', args_string, ')')
+
+    def output_derived_quantities(self):
+        """Output a ComputeDerivedQuantities method if any such quantities exist.
+        
+        Looks for variables annotated with pycml:derived-quantity=yes, and generates
+        a method to compute all these variables from a given state.
+        """
+        dqs = cellml_metadata.find_variables(self.model,
+                                             ('pycml:derived-quantity', NSS['pycml']),
+                                             'yes')
+        # Reduce intra-run variation
+        dqs.sort(key=lambda v: v.fullname())
+        if dqs:
+            self.output_method_start('ComputeDerivedQuantities',
+                                     [self.TYPE_DOUBLE + self.code_name(self.free_vars[0]),
+                                      'const ' + self.TYPE_VECTOR + '& rY'], # We need it to really be a reference
+                                     self.TYPE_VECTOR, access='public')
+            self.open_block()
+            self.output_comment('Inputs:')
+            self.output_comment('Time units: ', self.free_vars[0].units)
+            #621: convert if free var is not in milliseconds
+            if self.conversion_factor:
+                self.writeln(self.code_name(self.free_vars[0]), ' *= ',
+                             self.conversion_factor, self.STMT_END)
+            # Work out what equations are needed
+            nodeset = self.calculate_extended_dependencies(dqs)
+            # State variable inputs
+            self.output_state_assignments(assign_rY=False, nodeset=nodeset)
+            self.writeln()
+            if self.use_lookup_tables:
+                # TODO: Filter tables by available state/protocol variables?
+                self.output_table_index_generation(
+                    indexes_as_member=self.use_backward_euler)
+            # Output equations
+            self.output_comment('Mathematics')
+            self.output_equations(nodeset)
+            self.writeln()
+            # Assign to results vector
+            self.writeln(self.vector_create('dqs', len(dqs)))
+            for i, var in enumerate(dqs):
+                # TODO: #621 conversions
+                self.writeln(self.vector_index('dqs', i), self.EQ_ASSIGN,
+                             self.code_name(var), self.STMT_END)
+            self.writeln('return dqs', self.STMT_END)
+            self.close_block(blank_line=True)
+        # Save for use in output_bottom_boilerplate to fill OdeSystemInformation
+        self.derived_quantities = dqs
 
     def output_cell_parameters(self):
         """Output declarations, set & get methods for cell parameters.
@@ -1684,7 +1732,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         will be included.
         """
         if assign_rY:
-            self.writeln(self.TYPE_VECTOR_REF, ' rY = rGetStateVariables();')
+            self.writeln(self.TYPE_VECTOR_REF, 'rY = rGetStateVariables();')
         for i, var in enumerate(self.state_vars):
             if ( not exclude_nonlinear or 
                  self.code_name(var) not in self.nonlinear_system_vars) \
@@ -1714,6 +1762,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
     def vector_index(self, vector, i):
         """Return code for accessing the i'th index of vector."""
         return vector + '[' + str(i) + ']'
+    
+    def vector_create(self, vector, size):
+        """Return code for creating a new vector with the given size."""
+        return ''.join(map(str, [self.TYPE_VECTOR, vector, '(', size, ')', self.STMT_END]))
 
     def output_nonlinear_state_assignments(self):
         """Output assignments for nonlinear state variables."""
@@ -1790,7 +1842,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             return
         # Is the variable assigned to stored as a class member?
         clear_type = (clear_type or
-                      (self.kept_vars_as_members and assigned_var and assigned_var.pe_keep))
+                      (self.kept_vars_as_members and assigned_var and assigned_var.pe_keep
+                       and not assigned_var.is_derived_quantity))
         if clear_type:
             self.TYPE_DOUBLE = self.TYPE_CONST_DOUBLE = ''
         if (assigned_var and assigned_var.get_type() == VarTypes.Constant and
@@ -1819,12 +1872,16 @@ class CellMLToChasteTranslator(CellMLTranslator):
         For other solvers, only 2 methods are needed:
          * EvaluateYDerivatives computes the RHS of the ODE system
          * GetIIonic is as above
+        
+        Where derived-quantity annotations are present, we also generate a
+        ComputeDerivedQuantities method.
         """
         self.output_get_i_ionic()
         if self.use_backward_euler:
             self.output_backward_euler_mathematics()
         else:
             self.output_evaluate_y_derivatives()
+        self.output_derived_quantities()
 
     def output_get_i_ionic(self):
         """Output the GetIIonic method."""
@@ -1874,8 +1931,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Start code output
         self.output_method_start(method_name,
                                  [self.TYPE_DOUBLE + self.code_name(self.free_vars[0]),
-                                  'const ' + self.TYPE_VECTOR_REF + ' rY',
-                                  self.TYPE_VECTOR_REF + ' rDY'],
+                                  'const ' + self.TYPE_VECTOR_REF + 'rY',
+                                  self.TYPE_VECTOR_REF + 'rDY'],
                                  'void', access='public')
         self.open_block()
         if not self.state_vars:
@@ -2162,12 +2219,16 @@ class CellMLToChasteTranslator(CellMLTranslator):
                      '>::Initialise(void)')
         self.open_block()
         self.output_comment('Time units: ', self.free_vars[0].units, '\n')
-        for var in self.state_vars:
+        def output_var(vector, var):
             if var.oxmeta_name:
-                self.writeln('this->mVariableNames.push_back("', var.oxmeta_name, '");')    
+                self.writeln('this->m', vector, 'Names.push_back("', var.oxmeta_name, '");')   
+            elif hasattr(var, u'id') and var.id:
+                self.writeln('this->m', vector, 'Names.push_back("', var.id, '");') 
             else:
-                self.writeln('this->mVariableNames.push_back("', var.name, '");')
-            self.writeln('this->mVariableUnits.push_back("', var.units, '");')
+                self.writeln('this->m', vector, 'Names.push_back("', var.name, '");')
+            self.writeln('this->m', vector, 'Units.push_back("', var.units, '");')
+        for var in self.state_vars:
+            output_var('Variable', var)
             init_val = getattr(var, u'initial_value', None)
             if init_val is None:
                 init_comm = ' // Value not given in model'
@@ -2180,12 +2241,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Model parameters
         for var in self.cell_parameters:
             if var.get_type() == VarTypes.Constant:
-                if var.oxmeta_name:
-                    self.writeln('this->mParameterNames.push_back("', var.oxmeta_name, '");')
-                else:
-                    self.writeln('this->mParameterNames.push_back("', var.name, '");')
-                self.writeln('this->mParameterUnits.push_back("', var.units, '");')
+                output_var('Parameter', var)
                 self.writeln()
+        # Derived quantities
+        for var in self.derived_quantities:
+            output_var('DerivedQuantity', var)
         self.writeln('this->mInitialised = true;')
         self.close_block()
         self.writeln()
@@ -2275,8 +2335,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 prefix = ''
                 varname = 'dt'
             else:
-                # var_cname__vname
-                varname = varname[4:]
+                # Possibly var_cname__vname
+                if varname.startswith('var_'):
+                    varname = varname[4:]
             self.write(prefix + varname)
         return
 
@@ -2284,11 +2345,18 @@ class CellMLToChasteTranslator(CellMLTranslator):
 class CellMLToCvodeTranslator(CellMLToChasteTranslator):
     """Translate a CellML model to C++ code for use with Chaste+CVODE."""
     
-    TYPE_VECTOR_REF = 'N_Vector' # CVODE's vector is actually a pointer type
+    # Type of (a reference to) the state variable vector
+    TYPE_VECTOR = 'N_Vector '
+    TYPE_VECTOR_REF = 'N_Vector ' # CVODE's vector is actually a pointer type
     
     def vector_index(self, vector, i):
         """Return code for accessing the i'th index of vector."""
         return 'NV_Ith_S(' + vector + ', ' + str(i) + ')'
+    
+    def vector_create(self, vector, size):
+        """Return code for creating a new vector with the given size."""
+        return ''.join(map(str, [self.TYPE_VECTOR, vector, self.EQ_ASSIGN,
+                                 'N_VNew_Serial(', size, ')', self.STMT_END]))
 
     def output_top_boilerplate(self):
         """Output top boilerplate code.
@@ -2340,6 +2408,7 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         """
         self.output_get_i_ionic()
         self.output_evaluate_y_derivatives(method_name='EvaluateRhs')
+        self.output_derived_quantities()
     
     def output_bottom_boilerplate(self):
         """Call superclass method, then end the CHASTE_CVODE guard."""

@@ -136,11 +136,6 @@ public:
     }
 
     /**
-     * Currently the build system will not automatically regenerate the C++ code from CellML, so you
-     * need to do that step manually:
-     *     cdchaste
-     *     ./python/ConvertCellModel.py -A -y heart/dynamic/luo_rudy_1991.cellml
-     *
      * \todo #1164 Remove this test?  TestCellmlConverter makes it slightly redundant,
      * apart from the optimised version.
      */

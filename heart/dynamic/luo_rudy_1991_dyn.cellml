@@ -128,7 +128,7 @@ The breakdown of the model into components and the definition of encapsulation a
       <variable units="millisecond" public_interface="out" cmeta:id="environment_time" name="time"/>
    </component>
    <component name="membrane">
-      <variable units="millivolt" public_interface="out" cmeta:id="membrane_V" name="V" initial_value="-83.853"/>
+      <variable units="millivolt" public_interface="out" cmeta:id="membrane_voltage" name="V" initial_value="-83.853"/>
       <variable units="joule_per_kilomole_kelvin" public_interface="out" name="R" initial_value="8314"/>
       <variable units="kelvin" public_interface="out" name="T" initial_value="310"/>
       <variable units="coulomb_per_mole" public_interface="out" name="F" initial_value="96484.6"/>

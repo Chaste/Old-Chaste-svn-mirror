@@ -1984,10 +1984,16 @@ class cellml_variable(Colourable, element_base):
         self.add_rdf_annotation(('pycml:modifiable-parameter', NSS[u'pycml']), val)
 
     @property
+    def is_derived_quantity(self):
+        """Whether this variable should be included in reports of derived quantities."""
+        return self.get_rdf_annotation(('pycml:derived-quantity', NSS['pycml'])) == 'yes'
+
+    @property
     def pe_keep(self):
         """Whether PE should retain this variable in the specialised model."""
         return (self.get_rdf_annotation(('pe:keep', NSS[u'pe'])) == 'yes' or
-                self.is_modifiable_parameter)
+                self.is_modifiable_parameter or
+                self.is_derived_quantity)
     def set_pe_keep(self, keep):
         """Set method for the pe_keep property.
         

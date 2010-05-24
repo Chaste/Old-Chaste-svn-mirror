@@ -128,10 +128,12 @@ The breakdown of the model into components and the definition of encapsulation a
       <variable units="millisecond" public_interface="out" cmeta:id="environment_time" name="time"/>
    </component>
    <component name="membrane">
-      <variable units="millivolt" public_interface="out" cmeta:id="membrane_V" name="V" initial_value="-83.853"/>
+      <variable units="millivolt" public_interface="out" cmeta:id="membrane_voltage" name="V" initial_value="-83.853"/>
       <variable units="joule_per_kilomole_kelvin" public_interface="out" name="R" initial_value="8314"/>
       <variable units="kelvin" public_interface="out" name="T" initial_value="310"/>
       <variable units="coulomb_per_mole" public_interface="out" name="F" initial_value="96484.6"/>
+      <variable units="per_millivolt" name="FonRT" cmeta:id="FonRT"/>
+      <variable units="microA_per_cm2" name="potassium_currents" cmeta:id="potassium_currents"/>
       <variable units="microF_per_cm2" name="C" initial_value="1"/>
       <variable units="microA_per_cm2" name="I_stim"/>
       <variable units="millisecond" public_interface="in" name="time"/>
@@ -147,6 +149,16 @@ The breakdown of the model into components and the definition of encapsulation a
       <variable units="millisecond" name="stim_duration" initial_value="2"/>
       <variable units="microA_per_cm2" name="stim_amplitude" initial_value="-25.5"/>
       <math xmlns="http://www.w3.org/1998/Math/MathML">
+         <apply><eq/>
+            <ci>FonRT</ci>
+            <apply><divide/>
+               <ci>F</ci>
+               <apply><times/>
+                  <ci>R</ci>
+                  <ci>T</ci>
+               </apply>
+            </apply>
+         </apply>
          <apply>
             <eq/>
             <ci>I_stim</ci>
@@ -229,6 +241,14 @@ The breakdown of the model into components and the definition of encapsulation a
                   <ci>i_Kp</ci>
                   <ci>i_b</ci>
                </apply>
+            </apply>
+         </apply>
+         <apply><eq/>
+            <ci>potassium_currents</ci>
+            <apply><plus/>
+               <ci>i_K</ci>
+               <ci>i_K1</ci>
+               <ci>i_Kp</ci>
             </apply>
          </apply>
       </math>
@@ -1981,6 +2001,12 @@ The breakdown of the model into components and the definition of encapsulation a
   </rdf:Description>
   <rdf:Description rdf:about="#fast_sodium_current_conductance">
     <modifiable-parameter xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</modifiable-parameter>
+  </rdf:Description>
+  <rdf:Description rdf:about="#potassium_currents">
+    <derived-quantity xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</derived-quantity>
+  </rdf:Description>
+  <rdf:Description rdf:about="#FonRT">
+    <derived-quantity xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</derived-quantity>
   </rdf:Description>
 </rdf:RDF>
 </model>
