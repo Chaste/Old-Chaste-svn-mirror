@@ -35,6 +35,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractStimulusFunction.hpp"
 
+/**
+ * A base class for cardiac cells that have been altered to include calls to subclasses
+ * of AbstractSensitivityModifier when computing their derivatives.  It specifies a
+ * selection of 'standard' parameters that can be modified in this way, with a hacky
+ * interface to specifying which modifier to use for each.
+ */
 template<class CARDIAC_CELL>
 class AbstractCardiacCellWithModifiers : public CARDIAC_CELL
 {
@@ -57,8 +63,9 @@ public:
     /**
      * Create a new cardiac cell.
      *
-     * This calls the main AbstractCardiacCell constructor, but also supplies
-     * modifiers for working with metadata-enabled CellML files.
+     * This calls the main CARDIAC_CELL constructor, but also supplies modifiers for
+     * working with metadata-enabled CellML files. Each modifier pointer defaults to
+     * #default_modifier.
      *
      * @param pOdeSolver  the ODE solver to use when simulating this cell
      * @param numberOfStateVariables  the size of the ODE system modelling this cell
@@ -66,9 +73,9 @@ public:
      * @param pIntracellularStimulus  the intracellular stimulus current
      */
     AbstractCardiacCellWithModifiers(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
-                        unsigned numberOfStateVariables,
-                        unsigned voltageIndex,
-                        boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
+                                     unsigned numberOfStateVariables,
+                                     unsigned voltageIndex,
+                                     boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : CARDIAC_CELL(pOdeSolver, numberOfStateVariables, voltageIndex, pIntracellularStimulus)
     {
         inward_rectifier_potassium_current_conductance_modifier = &default_modifier;

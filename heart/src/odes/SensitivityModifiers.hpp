@@ -35,8 +35,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 /**
- * This class specifies the calc() method which all modifiers must call to intervene on the
- * right hand side of a cell model.
+ * This family of classes are used to add simple functions into cell models to modify
+ * particular quantities on the fly.  Rather than the model using the quantity directly
+ * in computing its right-hand side, it calls calc() with the current value and uses
+ * the result of that instead.
+ * 
+ * Clearly for this to work the cell model must be modified to include calls to instances
+ * of these classes.  PyCml has some experimental support for this, generating subclasses
+ * of AbstractCardiacCellWithModifiers.
  */
 class AbstractSensitivityModifier
 {
@@ -44,15 +50,23 @@ class AbstractSensitivityModifier
     /**
      * Default constructor.
      */
-    AbstractSensitivityModifier(void){}
+    AbstractSensitivityModifier(void)
+    {
+    }
 
     /**
      * Default destructor.
      */
-    virtual ~AbstractSensitivityModifier(){};
+    virtual ~AbstractSensitivityModifier()
+    {
+    };
 
     /**
-     * Pure virtual function which must be overriden in subclasses.
+     * Pure virtual function which must be overriden in subclasses to actually
+     * perform the modification.
+     * 
+     * @param param  the current value of the quantity which is being modified
+     * @param time  the current simulation time
      */
     virtual double calc(double param, double time) = 0;
 };
@@ -69,12 +83,19 @@ private:
 public:
     /**
      * Constructor
-     * @param factor  Scale factor to use, defaults to 1 (no effect)
+     * @param factor  scale factor to use, defaults to 1 (i.e. no effect)
      */
     FactorModifier(double factor=1)
-        :mFactor(factor)
-    {}
+        : mFactor(factor)
+    {
+    }
 
+    /**
+     * Perform the modification.
+     * 
+     * @param param  the current value of the quantity which is being modified
+     * @param time  the current simulation time
+     */
     virtual double calc(double param, double time)
     {
         return (param * mFactor);
@@ -92,10 +113,15 @@ public:
     /**
      * Constructor
      */
-    TimeModifier(){}
+    TimeModifier()
+    {
+    }
 
     /**
-     * @return The value that the parameter should take at this time.
+     * Perform the modification.
+     * 
+     * @param param  the current value of the quantity which is being modified
+     * @param time  the current simulation time
      */
     virtual double calc(double param, double time)
     {
@@ -118,12 +144,16 @@ public:
      * @param value  The fixed value to use.
      */
     FixedModifier(double value)
-      :mValue(value)
+        : mValue(value)
     {
     }
 
     /**
-     * @return The fixed value (ignores inputs).
+     * Perform the modification.
+     * 
+     * @param param  the current value of the quantity which is being modified
+     * @param time  the current simulation time
+     * @return  the fixed value (ignores inputs)
      */
     virtual double calc(double param, double time)
     {
@@ -140,12 +170,17 @@ private:
 
 public:
     /**
-     * Default Constructor
+     * Default constructor
      */
-    DummyModifier(){}
+    DummyModifier()
+    {
+    }
 
     /**
      * This calculate does nothing and returns the parameter 'unharmed'.
+     * 
+     * @param param  the current value of the quantity which is being modified
+     * @param time  the current simulation time
      */
     virtual double calc(double param, double time)
     {
