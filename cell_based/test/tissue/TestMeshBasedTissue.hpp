@@ -496,7 +496,7 @@ public:
 
         // Create tissue
         MeshBasedTissue<3> tissue3d(mesh3d, cells3d);
-        
+
         // Create Voronoi tessellation
         tissue3d.CreateVoronoiTessellation();
 
@@ -511,27 +511,48 @@ public:
         }
 
         // The Voronoi tessellation should comprise a single tetrahedral VertexElement
-        TS_ASSERT_EQUALS(tissue3d.rGetVoronoiTessellation().GetNumNodes(), 4u);
-        TS_ASSERT_EQUALS(tissue3d.rGetVoronoiTessellation().GetNumFaces(), 4u);
-        TS_ASSERT_EQUALS(tissue3d.rGetVoronoiTessellation().GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(tissue3d.GetVoronoiTessellation()->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(tissue3d.GetVoronoiTessellation()->GetNumFaces(), 4u);
+        TS_ASSERT_EQUALS(tissue3d.GetVoronoiTessellation()->GetNumElements(), 1u);
 
         // The faces are not all equal
         for (unsigned face_index=0; face_index<4; face_index++)
         {
-            VertexElement<2,3>* p_face = tissue3d.rGetVoronoiTessellation().GetFace(face_index);
+            VertexElement<2,3>* p_face = tissue3d.GetVoronoiTessellation()->GetFace(face_index);
 
             if (face_index == 1)
             {
-                TS_ASSERT_DELTA(tissue3d.rGetVoronoiTessellation().GetAreaOfFace(p_face), 1.9485, 1e-4);
+                TS_ASSERT_DELTA(tissue3d.GetVoronoiTessellation()->GetAreaOfFace(p_face), 1.9485, 1e-4);
             }
             else
             {
-                TS_ASSERT_DELTA(tissue3d.rGetVoronoiTessellation().GetAreaOfFace(p_face), 1.125, 1e-4);
+                TS_ASSERT_DELTA(tissue3d.GetVoronoiTessellation()->GetAreaOfFace(p_face), 1.125, 1e-4);
             }
         }
 
         TS_ASSERT_DELTA(tissue3d.GetVolumeOfVoronoiElement(4), 0.6495, 1e-4);
         TS_ASSERT_DELTA(tissue3d.GetSurfaceAreaOfVoronoiElement(4), 3*1.125 + 1.9485, 1e-4);
+
+        // Check that the Voronoi tessellation can be returned successfully as a reference
+        VertexMesh<3,3>* p_tessellation1 = tissue3d.GetVoronoiTessellation();
+        TS_ASSERT_EQUALS(p_tessellation1->GetNumNodes(), 4u);
+
+        // Move node 0 by a small amount
+        AbstractTissue<3>::Iterator cell_iter = tissue3d.Begin();
+        c_vector<double,3> new_location = tissue3d.GetLocationOfCellCentre(*cell_iter);
+        new_location[0] += 1e-2;
+        new_location[1] += 1e-2;
+        new_location[2] += 1e-2;
+        ChastePoint<3> new_location_point(new_location);
+        tissue3d.SetNode(tissue3d.GetLocationIndexUsingCell(*cell_iter), new_location_point);
+
+        // Re-create Voronoi tessellation
+        tissue3d.CreateVoronoiTessellation();
+
+        VertexMesh<3,3>* p_tessellation2 = tissue3d.GetVoronoiTessellation();
+        TS_ASSERT_EQUALS(p_tessellation2->GetNumNodes(), 4u);
+
+//        TS_ASSERT_EQUALS(p_tessellation1->GetNumNodes(), 4u);
     }
 
     void TestTissueWritersIn2d()

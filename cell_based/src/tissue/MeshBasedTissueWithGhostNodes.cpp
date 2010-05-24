@@ -281,7 +281,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
     std::vector<double> cell_mutation_states(num_elements);
     std::vector<double> cell_ages(num_elements);
     std::vector<double> cell_cycle_phases(num_elements);
-    std::vector<double> cell_areas(num_elements);
+    std::vector<double> cell_volumes(num_elements);
 
     // Loop over Voronoi elements
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = this->mpVoronoiTessellation->GetElementIteratorBegin();
@@ -318,7 +318,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
             if (TissueConfig::Instance()->GetOutputCellAges())
             {
                 double age = p_cell->GetAge();
-                cell_ages[elem_index] = age; 
+                cell_ages[elem_index] = age;
             }
             if (TissueConfig::Instance()->GetOutputCellCyclePhases())
             {
@@ -327,8 +327,8 @@ void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
             }
             if (TissueConfig::Instance()->GetOutputCellVolumes())
             {
-                double cell_area = this->mpVoronoiTessellation->GetVolumeOfElement(elem_index);
-                cell_areas[elem_index] = cell_area;
+                double cell_volume = this->mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+                cell_volumes[elem_index] = cell_volume;
             }
         }
         else
@@ -347,7 +347,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
             }
             if (TissueConfig::Instance()->GetOutputCellAges())
             {
-                cell_ages[elem_index] = -1.0; 
+                cell_ages[elem_index] = -1.0;
             }
             if (TissueConfig::Instance()->GetOutputCellCyclePhases())
             {
@@ -355,8 +355,8 @@ void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
             }
             if (TissueConfig::Instance()->GetOutputCellVolumes())
             {
-                cell_areas[elem_index] = -1.0;
-            } 
+                cell_volumes[elem_index] = -1.0;
+            }
         }
     }
 
@@ -383,7 +383,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
     }
     if (TissueConfig::Instance()->GetOutputCellVolumes())
     {
-        mesh_writer.AddCellData("Cell areas", cell_areas);
+        mesh_writer.AddCellData("Cell volumes", cell_volumes);
     }
 
     mesh_writer.WriteVtkUsingMesh(*(this->mpVoronoiTessellation), time.str());

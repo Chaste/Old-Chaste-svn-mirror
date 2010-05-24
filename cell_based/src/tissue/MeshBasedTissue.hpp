@@ -95,7 +95,7 @@ protected:
     /**
      * Pointer to a VertexMesh object that stores the Voronoi tessellation that is dual to
      * mrMesh. The tessellation is created by calling CreateVoronoiTessellation() and can
-     * be returned as a reference by calling rGetVoronoiTessellation().
+     * be accessed by calling GetVoronoiTessellation().
      * 
      * The tessellation can be used to compute the area and perimeter (in 2D) or volume and
      * surface area (in 3D) of the Voronoi element corresponding to each node in the Delaunay
@@ -359,13 +359,13 @@ public:
     /**
      * Get a reference to mpVoronoiTessellation.
      */
-    VertexMesh<DIM, DIM>& rGetVoronoiTessellation();
+    VertexMesh<DIM, DIM>* GetVoronoiTessellation();
 
     /**
      * Get the volume (or area in 2D, or length in 1D) of the element of mpVoronoiTessellation associated with
      * the node with this global index in the Delaunay mesh.
      *
-     * This method should be called instead of calling rGetVoronoiTessellation().GetVolumeOfElement()
+     * This method should be called instead of calling GetVoronoiTessellation()->GetVolumeOfElement()
      * because the global indices of Delaunay nodes and Voronoi elements may not match,
      * e.g. if a node is a ghost node or corresponds to a Voronoi face.
      *
@@ -377,7 +377,7 @@ public:
      * Get the surface area of the element of mpVoronoiTessellation associated with
      * the node with this global index in the Delaunay mesh.
      *
-     * This method should be called instead of calling rGetVoronoiTessellation().GetSurfaceAreaOfElement()
+     * This method should be called instead of calling GetVoronoiTessellation()->GetSurfaceAreaOfElement()
      * because the global indices of Delaunay nodes and Voronoi elements may not match,
      * e.g. if a node is a ghost node or corresponds to a Voronoi face.
      *
@@ -389,7 +389,7 @@ public:
      * Get the length of the edge of mpVoronoiTessellation associated with
      * the two nodes with these global indices in the Delaunay mesh.
      *
-     * This method should be called instead of calling rGetVoronoiTessellation().GetEdgeLength()
+     * This method should be called instead of calling GetVoronoiTessellation()->GetEdgeLength()
      * because the global indices of Delaunay nodes and Voronoi elements may not match,
      * e.g. if a node is a ghost node or corresponds to a Voronoi face.
      *

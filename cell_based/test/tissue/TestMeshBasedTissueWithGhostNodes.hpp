@@ -204,7 +204,7 @@ public:
 
         tissue.CreateVoronoiTessellation();
 
-        TS_ASSERT_EQUALS(tissue.rGetVoronoiTessellation().GetNumElements(), p_mesh->GetNumNodes());
+        TS_ASSERT_EQUALS(tissue.GetVoronoiTessellation()->GetNumElements(), p_mesh->GetNumNodes());
 
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
@@ -706,12 +706,12 @@ public:
         tissue.CreateVoronoiTessellation();
 
         // Check the correspondence between ghost nodes is correct
-        for (VertexMesh<2,2>::VertexElementIterator elem_iter = tissue.rGetVoronoiTessellation().GetElementIteratorBegin();
-             elem_iter != tissue.rGetVoronoiTessellation().GetElementIteratorEnd();
+        for (VertexMesh<2,2>::VertexElementIterator elem_iter = tissue.GetVoronoiTessellation()->GetElementIteratorBegin();
+             elem_iter != tissue.GetVoronoiTessellation()->GetElementIteratorEnd();
              ++elem_iter)
         {
             unsigned elem_index = elem_iter->GetIndex();
-            unsigned node_index = tissue.rGetVoronoiTessellation().GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
+            unsigned node_index = tissue.GetVoronoiTessellation()->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
 
             c_vector<double, 2> node_location = tissue.GetNode(node_index)->rGetLocation();
             bool should_be_ghost_node = (node_location(0) > 3);
@@ -764,12 +764,12 @@ public:
         tissue.CreateVoronoiTessellation();
 
         // Check the correspondence between ghost nodes is correct
-        for (VertexMesh<3,3>::VertexElementIterator elem_iter = tissue.rGetVoronoiTessellation().GetElementIteratorBegin();
-             elem_iter != tissue.rGetVoronoiTessellation().GetElementIteratorEnd();
+        for (VertexMesh<3,3>::VertexElementIterator elem_iter = tissue.GetVoronoiTessellation()->GetElementIteratorBegin();
+             elem_iter != tissue.GetVoronoiTessellation()->GetElementIteratorEnd();
              ++elem_iter)
         {
             unsigned elem_index = elem_iter->GetIndex();
-            unsigned node_index = tissue.rGetVoronoiTessellation().GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
+            unsigned node_index = tissue.GetVoronoiTessellation()->GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex(elem_index);
 
             c_vector<double, 3> node_location = tissue.GetNode(node_index)->rGetLocation();
             bool should_be_ghost_node = (node_location(0) > 3);

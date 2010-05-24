@@ -198,8 +198,8 @@ public:
         TS_ASSERT_EQUALS(cell_type_count[2], 36u);  // Differentiated
         TS_ASSERT_EQUALS(cell_type_count[3], 0u);   // Apoptotic
 
-        TS_ASSERT_EQUALS(crypt.rGetVoronoiTessellation().GetNumElements(), number_of_nodes);
-        TS_ASSERT_EQUALS(crypt.rGetVoronoiTessellation().GetNumNodes(), 273u);
+        TS_ASSERT_EQUALS(crypt.GetVoronoiTessellation()->GetNumElements(), number_of_nodes);
+        TS_ASSERT_EQUALS(crypt.GetVoronoiTessellation()->GetNumNodes(), 273u);
     }
 
     /**

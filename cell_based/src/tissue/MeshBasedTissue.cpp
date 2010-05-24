@@ -66,6 +66,7 @@ template<unsigned DIM>
 MeshBasedTissue<DIM>::~MeshBasedTissue()
 {
     delete mpVoronoiTessellation;
+
     if (mDeleteMesh)
     {
         delete &mrMesh;
@@ -489,7 +490,7 @@ void MeshBasedTissue<DIM>::WriteVtkResultsToFile()
     std::vector<double> cell_mutation_states(num_elements);
     std::vector<double> cell_ages(num_elements);
     std::vector<double> cell_cycle_phases(num_elements);
-    std::vector<double> cell_areas(num_elements);
+    std::vector<double> cell_volumes(num_elements);
 
     // Loop over elements of mpVoronoiTessellation
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
@@ -526,7 +527,7 @@ void MeshBasedTissue<DIM>::WriteVtkResultsToFile()
         if (TissueConfig::Instance()->GetOutputCellAges())
         {
             double age = p_cell->GetAge();
-            cell_ages[elem_index] = age; 
+            cell_ages[elem_index] = age;
         }
         if (TissueConfig::Instance()->GetOutputCellCyclePhases())
         {
@@ -535,8 +536,8 @@ void MeshBasedTissue<DIM>::WriteVtkResultsToFile()
         }
         if (TissueConfig::Instance()->GetOutputCellVolumes())
         {
-            double cell_area = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
-            cell_areas[elem_index] = cell_area;
+            double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
+            cell_volumes[elem_index] = cell_volume;
         }
     }
 
@@ -562,7 +563,7 @@ void MeshBasedTissue<DIM>::WriteVtkResultsToFile()
     }
     if (TissueConfig::Instance()->GetOutputCellVolumes())
     {
-        mesh_writer.AddCellData("Cell areas", cell_areas);
+        mesh_writer.AddCellData("Cell volumes", cell_volumes);
     }
 
     mesh_writer.WriteVtkUsingMesh(*mpVoronoiTessellation, time.str());
@@ -636,7 +637,7 @@ void MeshBasedTissue<DIM>::WriteTissueVolumeResultsToFile()
         {
             // Get the cell corresponding to this node
             TissueCell* p_cell =  this->mLocationCellMap[node_index];
-    
+
             // Only bother calculating the area/volume of APOPTOTIC cells
             if (p_cell->GetCellProliferativeType() == APOPTOTIC)
             {
@@ -655,7 +656,7 @@ void MeshBasedTissue<DIM>::WriteCellVolumeResultsToFile()
 
      // Write time to file
     *mpCellVolumesFile << SimulationTime::Instance()->GetTime() << " ";
- 
+
     // Loop over elements of mpVoronoiTessellation
     for (typename VertexMesh<DIM,DIM>::VertexElementIterator elem_iter = mpVoronoiTessellation->GetElementIteratorBegin();
          elem_iter != mpVoronoiTessellation->GetElementIteratorEnd();
@@ -672,21 +673,21 @@ void MeshBasedTissue<DIM>::WriteCellVolumeResultsToFile()
         {
             // Write node index to file
             *mpCellVolumesFile << node_index << " ";
-    
+
             // Get the cell corresponding to this node
             TissueCell* p_cell =  this->mLocationCellMap[node_index];
-    
+
             // Write cell ID to file
             unsigned cell_index = p_cell->GetCellId();
             *mpCellVolumesFile << cell_index << " ";
-    
+
             // Write node location to file
             c_vector<double, DIM> node_location = this->GetNode(node_index)->rGetLocation();
             for (unsigned i=0; i<DIM; i++)
             {
                 *mpCellVolumesFile << node_location[i] << " ";
             }
-    
+
             // Write cell volume (in 3D) or area (in 2D) to file
             double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
             *mpCellVolumesFile << cell_volume << " ";
@@ -803,10 +804,10 @@ void MeshBasedTissue<1>::CreateVoronoiTessellation()
 }
 
 template<unsigned DIM>
-VertexMesh<DIM, DIM>& MeshBasedTissue<DIM>::rGetVoronoiTessellation()
+VertexMesh<DIM, DIM>* MeshBasedTissue<DIM>::GetVoronoiTessellation()
 {
     assert(mpVoronoiTessellation!=NULL);
-    return *mpVoronoiTessellation;
+    return mpVoronoiTessellation;
 }
 
 template<unsigned DIM>
