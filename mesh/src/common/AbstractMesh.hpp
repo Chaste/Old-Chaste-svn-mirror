@@ -43,11 +43,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include "ProcessSpecificArchive.hpp"
 
+#include <boost/utility.hpp>
+
 /**
  * Abstract base class for all meshes.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class AbstractMesh
+class AbstractMesh : boost::noncopyable
 {
 private:
     /**

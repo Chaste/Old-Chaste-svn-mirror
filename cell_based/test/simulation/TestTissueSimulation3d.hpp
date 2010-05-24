@@ -46,14 +46,14 @@ class TestTissueSimulation3d : public AbstractCellBasedTestSuite
 {
 private:
 
-    MutableMesh<3,3> Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
+    MutableMesh<3,3>* Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
     {
-        MutableMesh<3,3> mesh;
-        mesh.ConstructCuboid(width, height, depth);
+        MutableMesh<3,3>* p_mesh = new MutableMesh<3,3>;
+        p_mesh->ConstructCuboid(width, height, depth);
         TrianglesMeshWriter<3,3> mesh_writer("","3dSpringMesh");
-        mesh_writer.WriteFilesUsingMesh(mesh);
+        mesh_writer.WriteFilesUsingMesh(*p_mesh);
 
-        return mesh;
+        return p_mesh;
     }
 
     double mLastStartTime;
@@ -209,9 +209,9 @@ public:
         unsigned height = 3;
         unsigned depth = 3;
 
-        MutableMesh<3,3> mesh = Make3dMesh(width, height, depth);
+        MutableMesh<3,3>* p_mesh = Make3dMesh(width, height, depth);
         TrianglesMeshWriter<3,3> mesh_writer("TestGhostNodesSpheroidSimulation3D", "StartMesh");
-        mesh_writer.WriteFilesUsingMesh(mesh);
+        mesh_writer.WriteFilesUsingMesh(*p_mesh);
 
         c_vector<double, 3> spheroid_centre;
         spheroid_centre[0] = 0.5*((double) width);
@@ -219,7 +219,7 @@ public:
         spheroid_centre[2] = 0.5*((double) depth);
 
         // Set up cells by iterating through the mesh nodes
-        unsigned num_nodes = mesh.GetNumAllNodes();
+        unsigned num_nodes = p_mesh->GetNumAllNodes();
         std::vector<TissueCell> cells;
         std::vector<TissueCell> cells2;
         std::vector<unsigned> location_indices;
@@ -227,7 +227,7 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<num_nodes; i++)
         {
-            c_vector<double, 3> node_location = mesh.GetNode(i)->rGetLocation();
+            c_vector<double, 3> node_location = p_mesh->GetNode(i)->rGetLocation();
 
             unsigned min_spatial_dimension;
             if (width <= height && width <= depth)
@@ -265,7 +265,7 @@ public:
         TS_ASSERT_EQUALS(location_indices.size(), 8u);
 
         // Test Save with a MeshBasedTissueWithGhostNodes
-        MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);
+        MeshBasedTissueWithGhostNodes<3> tissue(*p_mesh, cells, location_indices);
 
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.UseCutoffPoint(1.5);
@@ -286,7 +286,7 @@ public:
 
         // Test Save with a MeshBasedTissue - one cell born during this
 
-        MeshBasedTissueWithGhostNodes<3> tissue2(mesh, cells2);
+        MeshBasedTissueWithGhostNodes<3> tissue2(*p_mesh, cells2);
 
         TissueSimulation<3> simulator2(tissue2, force_collection);
         simulator2.SetOutputDirectory("TestGhostNodesSpheroidSimulation3DNoGhosts");
@@ -296,7 +296,7 @@ public:
 
         // To generate results for below test
 //        std::cout << mesh.GetNode(23u)->rGetLocation()[2] << std::endl << std::flush;
-
+        delete p_mesh;
     }
 
     void TestLoadOf3DSimulation() throw (Exception)
