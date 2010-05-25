@@ -69,7 +69,7 @@ class TestProtocol(unittest.TestCase):
         """Test that changing mathematics reports errors for wrong inputs.
         
         In particular, it should throw if we try to define a Mapped variable
-        using mathematics. 
+        using mathematics, or if we reference non-existent variables.
         """
         doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
@@ -85,6 +85,17 @@ class TestProtocol(unittest.TestCase):
                                              (u'1', u'dimensionless'))
         p.inputs = [T_ode]
         self.assertRaises(protocol.ProtocolError, p.modify_model)
+        # Referencing a missing variable is also an error
+        T = doc.model.get_variable_by_name(u'membrane', u'T')
+        T_const = pycml.mathml_apply.create_new(T, u'eq', [u'membrane,T',
+                                                           u'membrane,missing'])
+        p.inputs = [T_const]
+        self.assertRaises(KeyError, p.modify_model)
+        # As is assigning to a missing variable
+        missing = pycml.mathml_apply.create_new(T, u'eq', [u'membrane,missing',
+                                                           u'membrane,T'])
+        p.inputs = [missing]
+        self.assertRaises(KeyError, p.modify_model)
 
     def TestChangeMathsToComputed(self):
         """Test changing the mathematical definition of a variable to type Computed.
@@ -184,4 +195,45 @@ class TestProtocol(unittest.TestCase):
     def TestAddNewVariables(self):
         """Test we can add new variables along with defining mathematics.
         """
-        pass
+        doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
+        p = protocol.Protocol(doc.model, multi_stage=True)
+        # Add a new 'I_total' variable and computation
+        I_total = pycml.cellml_variable.create_new(doc.model, u'membrane,I_total', u'microA_per_cm2')
+        p.inputs.append(I_total)
+        currents = map(lambda i: u'membrane,i_' + i, ['Na', 'si', 'b'])
+        currents.append(u'membrane,I_stim')
+        currents.append(u'membrane,potassium_currents')
+        rhs = pycml.mathml_apply.create_new(doc.model, u'plus', currents)
+        defn = pycml.mathml_apply.create_new(doc.model, u'eq',
+                                             [u'membrane,I_total', rhs])
+        p.inputs.append(defn)
+        # Add a variable to the protocol component
+        one = pycml.cellml_variable.create_new(defn, u'one', u'dimensionless')
+        p.inputs.append(one)
+        self.assertRaises(KeyError, doc.model.get_component_by_name, u'protocol')
+        # Apply protocol to model
+        p.modify_model()
+        # Check the changes
+        self.assertEqual(I_total, doc.model.get_variable_by_name(u'membrane', u'I_total'))
+        self.assertEqual(I_total.component, doc.model.get_component_by_name(u'membrane'))
+        self.assertEqual(I_total.component, I_total.xml_parent)
+        self.assertEqual(I_total.get_type(), pycml.VarTypes.Computed)
+        self.assertEqual(I_total._get_dependencies()[0], defn)
+        self.assertEqual(I_total.component, defn.component)
+        self.assertEqual(str(defn), 'I_totali_Nai_sii_bI_stimpotassium_currents')
+        self.assertEqual(one, doc.model.get_variable_by_name(u'protocol', u'one'))
+        self.assertEqual(one.component, doc.model.get_component_by_name(u'protocol'))
+        self.assertEqual(one.component.name, u'protocol')
+        self.assertEqual(one.model, doc.model)
+        # Now apply a new protocol, to create a protocol_ component
+        p2 = protocol.Protocol(doc.model, multi_stage=True)
+        two = pycml.cellml_variable.create_new(defn, u'two', u'dimensionless')
+        p2.inputs.append(two)
+        self.assertRaises(KeyError, doc.model.get_component_by_name, u'protocol_')
+        p2.modify_model()
+        self.assertEqual(two, doc.model.get_variable_by_name(u'protocol_', u'two'))
+        self.assertEqual(two.component, doc.model.get_component_by_name(u'protocol_'))
+        self.assertEqual(two.component.name, u'protocol_')
+        self.assertEqual(two.model, doc.model)
+        self.assertNotEqual(one.component, two.component)
+

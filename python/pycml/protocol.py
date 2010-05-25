@@ -243,7 +243,10 @@ class Protocol(object):
         """
         cname, vname = self._split_name(var.name)
         comp = self.model.get_component_by_name(cname)
-        orig_var = comp.get_variable_by_name(vname)
+        try:
+            orig_var = comp.get_variable_by_name(vname)
+        except KeyError:
+            orig_var = None
         if orig_var:
             # We're replacing a variable
             comp._del_variable(orig_var)
