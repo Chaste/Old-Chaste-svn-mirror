@@ -1704,6 +1704,11 @@ class cellml_variable(Colourable, element_base):
                 u'The ODE d',self.fullname(),u'/d',independent_var.fullname(),
                 u'is used but not defined.']))
         return self._cml_depends_on_ode[independent_var]
+    def _get_all_expr_dependencies(self):
+        """Return all expressions this variable depends on, either directly or as an ODE."""
+        deps = filter(lambda d: isinstance(d, mathml_apply), self._cml_depends_on)
+        deps.extend(self._cml_depends_on_ode.values())
+        return deps
 
     def _set_source_variable(self, src_var):
         """
@@ -3087,6 +3092,10 @@ class MathsError(Exception):
         self.context = context_obj
         
         # Nicer context explanation
+        if isinstance(context_obj, cellml_variable):
+            self.expr_index = self.math_index = 0
+            self.reaction_spec = ''
+            return
         expr_root = context_obj.xml_xpath(u'ancestor-or-self::*[local-name(..)="math"]')[0]
         self.expr_index = self.math_index = 1
         math = expr_root.xml_parent
@@ -3927,10 +3936,12 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
         """
         return self.variable._get_binding_time()
 
-    def _rename(self):
+    def _rename(self, new_name=None):
         """Update the variable reference to use a canonical name."""
         self.xml_remove_child(unicode(self))
-        self.xml_append(self.variable.fullname(cellml=True))
+        if new_name is None:
+            new_name = self.variable.fullname(cellml=True)
+        self.xml_append(new_name)
         return
 
     def _reduce(self):

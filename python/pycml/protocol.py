@@ -103,7 +103,7 @@ class Protocol(object):
             if isinstance(input, cellml_variable):
                 self._add_variable_to_model(input)
             elif isinstance(input, mathml_apply):
-                raise NotImplemented
+                self._add_maths_to_model(input)
             else:
                 raise ProtocolError("Unexpected input object type '" + str(type(input))
                                     + "': " + str(input))
@@ -137,12 +137,24 @@ class Protocol(object):
         
         Check mathematics for ci elements that refer to variables not defined in that
         component.  These must refer to the variable by its full name (i.e. 'cname,vname').
+        These variables will be renamed to use local names by this method, which will
+        also create local variables mapped to the relevant source variable if needed.
         
         This needs to take account of the fact that a variable in one nested component
         may need to be connected to a variable in another nested component, and so create
         variables in the parent components to connect the whole thing up.
         """
-        pass
+        for expr in self.model.search_for_assignments():
+            for ci_elt in self._find_ci_elts(expr):
+                vname = unicode(ci_elt)
+                if u',' in vname:
+                    cname, vname = self._split_name(vname)
+                    comp = expr.component
+                    if comp.name != cname:
+                        raise NotImplemented
+                    else:
+                        # Just rename to be local
+                        ci_elt._rename(vname)
     
     def _clear_model_caches(self):
         """
@@ -195,9 +207,39 @@ class Protocol(object):
         else:
             raise ValueError("Invalid variable name: " + full_name)
         return cname, vname
-
+        
+    def _rename_local_variables(self, expr):
+        """
+        Change local variable references in the given expression to refer
+        explicitly to the protocol component.
+        """
+        for ci_elt in self._find_ci_elts(expr):
+            vname = unicode(ci_elt)
+            if u',' not in vname:
+                # Do the rename
+                cname = self._get_protocol_component().name
+                full_name = cname + u',' + vname
+                expr._rename(full_name)
+    
+    def _find_ci_elts(self, expr):
+        """Get an iterator over all ci elements on the descendent-or-self axis of the given element."""
+        if isinstance(expr, mathml_ci):
+            yield expr
+        elif hasattr(expr, 'xml_children'):
+            # Recurse
+            for child in expr.xml_children:
+                for ci_elt in self._find_ci_elts(child):
+                    yield ci_elt
+        
     def _add_variable_to_model(self, var):
         """Add or replace a variable in our model.
+        
+        We don't really do any checking for this case - just add the variable.
+        This means that some 'possible' changes don't actually make sense, for
+        instance giving a computed variable an initial value will trigger a later
+        validation error, unless its definition is also changed to an ODE.
+        (To change a variable to a constant, you need to replace its definition
+        with a constant expression.)
         """
         cname, vname = self._split_name(var.name)
         comp = self.model.get_component_by_name(cname)
@@ -207,3 +249,64 @@ class Protocol(object):
             comp._del_variable(orig_var)
         var.name = vname
         comp._add_variable(var)
+
+    def _add_maths_to_model(self, expr):
+        """Add or replace an equation in the model.
+        
+        This case is more complex than variables, since we may need to change
+        the type of variable assigned to, depending on the expression.
+        
+        Note: variable references within ci elements in the given expression
+        should use full names (i.e. cname,vname).  Any local names will be
+        assumed to refer to variables in the protocol component, and modified
+        by self._rename_local_variables.  Later, self._fix_model_connections
+        will change all references to use local names.
+        """
+        assert isinstance(expr, mathml_apply)
+        assert expr.operator().localName == u'eq', 'Expression is not an assignment'
+        # Figure out what's on the LHS of the assignment
+        lhs = expr.operands().next()
+        if lhs.localName == u'ci':
+            # Straight assignment to variable
+            cname, vname = self._split_name(unicode(lhs))
+            assigned_var = self.model.get_variable_by_name(cname, vname)
+            self._remove_existing_definition(assigned_var, False)
+            self._add_expr_to_comp(cname, expr)
+        else:
+            # This had better be an ODE
+            assert lhs.localName == u'apply', 'Expression is not a straight assignment or ODE'
+            assert lhs.operator().localName == u'diff', 'Expression is not a straight assignment or ODE'
+            dep_var = lhs.operands().next()
+            assert dep_var.localName == u'ci', 'ODE is malformed'
+            cname, dep_var_name = self._split_name(unicode(dep_var))
+            dep_var = self.model.get_variable_by_name(cname, dep_var_name)
+            self._remove_existing_definition(dep_var, True)
+            self._add_expr_to_comp(cname, expr)
+
+    def _remove_existing_definition(self, var, keep_initial_value):
+        """Remove any existing definition (as an equation) of the given variable.
+        
+        If keep_initial_value is False, then also remove any initial_value attribute.
+        
+        If the variable is Mapped, throw a ProtocolError.
+        """
+        if var.get_type() == VarTypes.Mapped:
+            raise ProtocolError("Cannot add new mathematics defining a mapped variable - change the definition of its source instead")
+        if not keep_initial_value and hasattr(var, u'initial_value'):
+            del var.initial_value
+        # Note: if this is a variable added by the protocol, then it shouldn't have
+        # any dependencies set up yet, so this is a no-op.
+        for dep in var._get_all_expr_dependencies():
+            assert isinstance(dep, mathml_apply)
+            dep.xml_parent.xml_remove_child(dep)
+            dep.xml_parent = None # Not done by Amara...
+    
+    def _add_expr_to_comp(self, cname, expr):
+        """Add an expression to the mathematics in the given component."""
+        comp = self.model.get_component_by_name(cname)
+        if not hasattr(comp, u'math'):
+            # Create the math element
+            math = comp.xml_create_element(u'math', NSS[u'm'])
+            comp.xml_append(math)
+        # Append this expression
+        comp.math.xml_append(expr)

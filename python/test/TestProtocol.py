@@ -64,3 +64,32 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(V.get_type(), pycml.VarTypes.State)
         self.assertEqual(V._get_dependencies(), [])
         self.assert_(V._get_ode_dependency(time) is dv_dt)
+
+    def TestChangeMaths(self):
+        doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
+        p = protocol.Protocol(doc.model, multi_stage=True)
+        # Add maths setting Cai to a constant, thus replacing the ODE (state->computed)
+        Cai = doc.model.get_variable_by_name(u'intracellular_calcium_concentration', u'Cai')
+        time = doc.model.get_variable_by_name(u'environment', u'time')
+        ode = Cai._get_ode_dependency(time)
+        Cai_const = pycml.mathml_apply.create_new(ode, u'eq', [u'intracellular_calcium_concentration,Cai',
+                                                               (u'0.0002', u'millimolar')])
+        p.inputs.append(Cai_const)
+        # Change computed defintion for g_K (computed->computed)
+        g_K = doc.model.get_variable_by_name(u'time_dependent_potassium_current', u'g_K')
+        g_K_const = pycml.mathml_apply.create_new(g_K, u'eq', [u'time_dependent_potassium_current,g_K',
+                                                               (u'0.282', u'milliS_per_cm2')])
+        p.inputs.append(g_K_const)
+        old_g_K = g_K._get_dependencies()[0]
+        # Apply protocol to model
+        p.modify_model()
+        # Check the changes
+        self.assertEqual(Cai, doc.model.get_variable_by_name(u'intracellular_calcium_concentration', u'Cai'))
+        self.assertEqual(ode.xml_parent, None)
+        self.assertRaises(translate.MathsError, Cai._get_ode_dependency, time)
+        self.assertEqual(Cai._get_dependencies()[0], Cai_const)
+        self.assertEqual(Cai.get_type(), pycml.VarTypes.Computed)
+        self.assertEqual(old_g_K.xml_parent, None)
+        self.assertEqual(g_K._get_dependencies()[0], g_K_const)
+        self.assertEqual(g_K.get_type(), pycml.VarTypes.Computed)
+        # Note: still need to test constant->computed, state->state, computed->state, constant->state, mapped->x (error case), define new var
