@@ -1237,6 +1237,7 @@ public:
 
     void TestHdf5DataWriterFullFormatStripedIncompleteUsingMatrix() throw(Exception)
     {
+        EXIT_IF_PARALLEL;
         int number_nodes = 100;
         DistributedVectorFactory vec_factory(number_nodes);
 

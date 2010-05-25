@@ -168,20 +168,21 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
             unsigned node_index = indices1[index];
             for (unsigned var=0; var<num_vars; var++)
             {
-              std::vector<double> var_over_time1 = reader1.GetVariableOverTime(variable_names1[var], node_index);
-              std::vector<double> var_over_time2 = reader2.GetVariableOverTime(variable_names1[var], node_index);
-              for (unsigned time_step=0;time_step< var_over_time1.size(); time_step++)
-              {
-                 if (var_over_time1[time_step] != var_over_time2[time_step])
-                 {
-                    std::cout<<"Node "<<node_index<<" at time step "<<time_step<<" variable "<<variable_names1[var]<<
-                        " differs ("<<var_over_time1[time_step]<<" != "<<var_over_time2[time_step]<<")\n";
-                 }
-              }
+                std::vector<double> var_over_time1 = reader1.GetVariableOverTime(variable_names1[var], node_index);
+                std::vector<double> var_over_time2 = reader2.GetVariableOverTime(variable_names1[var], node_index);
+                for (unsigned time_step=0;time_step< var_over_time1.size(); time_step++)
+                {
+                    if (var_over_time1[time_step] != var_over_time2[time_step])
+                    {
+                        std::cout<<"Node "<<node_index<<" at time step "<<time_step<<" variable "<<variable_names1[var]<<
+                            " differs ("<<var_over_time1[time_step]<<" != "<<var_over_time2[time_step]<<")\n";
+                        return false;
+                    }
+                }
             }
         }
     }
-   return true;
+    return true;
 }
 
 bool CompareFilesViaHdf5DataReaderGlobalNorm(std::string pathname1, std::string filename1, bool makeAbsolute1,
