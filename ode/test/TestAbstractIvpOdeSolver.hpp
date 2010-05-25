@@ -175,6 +175,7 @@ public:
         solutions.WriteToFile("OdeSolution", "Ode2_8", "time");
         // Write at lower precision with derived quantities
         solutions.WriteToFile("OdeSolution", "Ode2_4", "time", 1, false, 4, true, &ode_system);
+        PetscTools::Barrier("TestCoverageOfWriteToFile");
         NumericFileComparison comparer(OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/Ode2_4.dat",
                                        "ode/test/data/Ode2_4.dat");
         TS_ASSERT(comparer.CompareFiles(1e-6));
@@ -268,6 +269,7 @@ public:
         
         // Check the derived quantity is written to the file properly too.
         solution.WriteToFile("OdeSolution", "ParameterisedOde", "seconds", 1, false, 4, true, &ode);
+        PetscTools::Barrier("TestWithParameters");
         NumericFileComparison comparer(OutputFileHandler::GetChasteTestOutputDirectory() + "OdeSolution/ParameterisedOde.dat",
                                        "ode/test/data/ParameterisedOde.dat");
         TS_ASSERT(comparer.CompareFiles(1e-6));
