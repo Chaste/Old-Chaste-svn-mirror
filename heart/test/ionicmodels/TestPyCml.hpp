@@ -202,8 +202,10 @@ public:
         CheckParameter(cvode_opt);
         
         // Derived variables
-        CheckDerivedQuantities(cvode_cell, cvode_cell.GetInitialConditions());
-        CheckDerivedQuantities(cvode_opt, cvode_opt.GetInitialConditions());
+        N_Vector inits = cvode_cell.GetInitialConditions();
+        CheckDerivedQuantities(cvode_cell, inits);
+        CheckDerivedQuantities(cvode_opt, inits);
+        DeleteVector(inits);
 #endif // CHASTE_CVODE
 
         // Test the archiving code too
