@@ -108,6 +108,11 @@ inline void DeleteVector(VECTOR& rVec);
 // Specialisations for std::vector<double>
 //
 
+/**
+ * Specialisation for std::vector<double>.
+ * @param rVec
+ * @param index
+ */
 template<>
 inline double GetVectorComponent(const std::vector<double>& rVec, unsigned index)
 {
@@ -115,6 +120,12 @@ inline double GetVectorComponent(const std::vector<double>& rVec, unsigned index
     return rVec[index];
 }
 
+/**
+ * Specialisation for std::vector<double>.
+ * @param rVec
+ * @param index
+ * @param value
+ */
 template<>
 inline void SetVectorComponent(std::vector<double>& rVec, unsigned index, double value)
 {
@@ -122,17 +133,29 @@ inline void SetVectorComponent(std::vector<double>& rVec, unsigned index, double
     rVec[index] = value;
 }
 
+/**
+ * Specialisation for std::vector<double>.
+ * @param rVec
+ */
 template<>
 inline double GetVectorSize(const std::vector<double>& rVec)
 {
     return rVec.size();
 }
 
+/**
+ * Specialisation for std::vector<double>.
+ * @param rVec
+ */
 template<>
 inline void InitialiseEmptyVector(std::vector<double>& rVec)
 {
 }
 
+/**
+ * Specialisation for std::vector<double>.
+ * @param rVec
+ */
 template<>
 inline void DeleteVector(std::vector<double>& rVec)
 {
@@ -143,6 +166,12 @@ inline void DeleteVector(std::vector<double>& rVec)
 //
 
 #ifdef CHASTE_CVODE
+
+/**
+ * Specialisation for CVODE's N_Vector type.
+ * @param rVec
+ * @param index
+ */
 template<>
 inline double GetVectorComponent(const N_Vector& rVec, unsigned index)
 {
@@ -150,6 +179,12 @@ inline double GetVectorComponent(const N_Vector& rVec, unsigned index)
     return NV_Ith_S(rVec, index);
 }
 
+/**
+ * Specialisation for CVODE's N_Vector type.
+ * @param rVec
+ * @param index
+ * @param value
+ */
 template<>
 inline void SetVectorComponent(N_Vector& rVec, unsigned index, double value)
 {
@@ -157,6 +192,10 @@ inline void SetVectorComponent(N_Vector& rVec, unsigned index, double value)
     NV_Ith_S(rVec, index) = value;
 }
 
+/**
+ * Specialisation for CVODE's N_Vector type.
+ * @param rVec
+ */
 template<>
 inline double GetVectorSize(const N_Vector& rVec)
 {
@@ -164,12 +203,20 @@ inline double GetVectorSize(const N_Vector& rVec)
     return NV_LENGTH_S(rVec);
 }
 
+/**
+ * Specialisation for CVODE's N_Vector type.
+ * @param rVec
+ */
 template<>
 inline void InitialiseEmptyVector(N_Vector& rVec)
 {
     rVec = NULL;
 }
 
+/**
+ * Specialisation for CVODE's N_Vector type.
+ * @param rVec
+ */
 template<>
 inline void DeleteVector(N_Vector& rVec)
 {
