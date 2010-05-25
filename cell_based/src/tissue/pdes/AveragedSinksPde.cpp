@@ -25,7 +25,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "AveragedSinksPde.hpp"
+#include "ApoptoticCellMutationState.hpp"
 
 template<unsigned DIM>
 AveragedSinksPde<DIM>::AveragedSinksPde(MeshBasedTissue<DIM>& rTissue, double coefficient)
@@ -52,7 +54,11 @@ void AveragedSinksPde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMe
         const ChastePoint<DIM>& r_position_of_cell = mrTissue.GetLocationOfCellCentre(*cell_iter);
         unsigned elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
 
-        if (cell_iter->GetCellProliferativeType() != APOPTOTIC)
+        boost::shared_ptr<AbstractCellMutationState> p_mutation_state = cell_iter->GetMutationState();
+
+        bool cell_is_apoptotic = (p_mutation_state->IsType<ApoptoticCellMutationState>());
+
+        if (!cell_is_apoptotic)
         {
             mCellDensityOnCoarseElements[elem_index] += 1.0;
         }

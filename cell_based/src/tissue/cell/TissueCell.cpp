@@ -25,7 +25,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "TissueCell.hpp"
+#include "ApoptoticCellMutationState.hpp"
+#include "CellMutationStateRegistry.hpp"
 
 unsigned TissueCell::mMaxCellId = 0;
 
@@ -214,7 +217,9 @@ void TissueCell::StartApoptosis(bool setDeathTime)
         mDeathTime = DBL_MAX;
     }
 
-    mCellProliferativeType = APOPTOTIC;
+    ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
+    boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
+    SetMutationState(p_apoptotic_state);
 }
 
 
@@ -280,7 +285,7 @@ void TissueCell::ResetMaxCellId()
 bool TissueCell::ReadyToDivide()
 {
     assert(!IsDead());
-    if (mUndergoingApoptosis || mCellProliferativeType==APOPTOTIC)
+    if (mUndergoingApoptosis || mpMutationState->IsType<ApoptoticCellMutationState>())
     {
         return false;
     }

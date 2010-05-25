@@ -133,11 +133,10 @@ public:
         TS_ASSERT_EQUALS(number_of_cells + ghost_indices.size(), number_of_nodes);
 
         std::vector<unsigned> cell_type_count = crypt.rGetCellProliferativeTypeCount();
-        TS_ASSERT_EQUALS(cell_type_count.size(), 4u);
+        TS_ASSERT_EQUALS(cell_type_count.size(), 3u);
         TS_ASSERT_EQUALS(cell_type_count[0], 6u);   // Stem
         TS_ASSERT_EQUALS(cell_type_count[1], 21u);  // Transit
         TS_ASSERT_EQUALS(cell_type_count[2], 35u);  // Differentiated
-        TS_ASSERT_EQUALS(cell_type_count[3], 0u);   // Apoptotic
     }
 
     void TestMonolayer() throw (Exception)
@@ -192,11 +191,10 @@ public:
         TS_ASSERT_EQUALS(number_of_cells + ghost_indices.size(), number_of_nodes);
 
         std::vector<unsigned> cell_type_count = crypt.rGetCellProliferativeTypeCount();
-        TS_ASSERT_EQUALS(cell_type_count.size(), 4u);
+        TS_ASSERT_EQUALS(cell_type_count.size(), 3u);
         TS_ASSERT_EQUALS(cell_type_count[0], 0u);   // Stem
         TS_ASSERT_EQUALS(cell_type_count[1], 32u);  // Transit
         TS_ASSERT_EQUALS(cell_type_count[2], 36u);  // Differentiated
-        TS_ASSERT_EQUALS(cell_type_count[3], 0u);   // Apoptotic
 
         TS_ASSERT_EQUALS(crypt.GetVoronoiTessellation()->GetNumElements(), number_of_nodes);
         TS_ASSERT_EQUALS(crypt.GetVoronoiTessellation()->GetNumNodes(), 273u);

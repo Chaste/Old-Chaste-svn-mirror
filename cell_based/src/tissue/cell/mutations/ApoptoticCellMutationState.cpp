@@ -25,21 +25,14 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CELLTYPES_HPP_
-#define CELLTYPES_HPP_
 
-/**
- * The possible proliferative types of a TissueCell. This property of a cell is
- * updated by its cell cycle model.
- */
-typedef enum CellProliferativeType_
-{
-    STEM,
-    TRANSIT,
-    DIFFERENTIATED
-} CellProliferativeType;
+#include "ApoptoticCellMutationState.hpp"
 
-const static unsigned NUM_CELL_PROLIFERATIVE_TYPES=3;
+ApoptoticCellMutationState::ApoptoticCellMutationState()
+    : AbstractCellMutationState(6)
+{}
 
 
-#endif /*CELLTYPES_HPP_*/
+#include "SerializationExportWrapperForCpp.hpp"
+// Declare identifier for the serializer
+CHASTE_CLASS_EXPORT(ApoptoticCellMutationState)

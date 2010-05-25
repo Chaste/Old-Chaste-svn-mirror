@@ -43,6 +43,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
+#include "Node.hpp"
+
 #include "CellMutationStateRegistry.hpp"
 // Needed here to avoid serialization errors (on Boost<1.37)
 #include "WildTypeCellMutationState.hpp"
@@ -50,6 +52,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
+#include "ApoptoticCellMutationState.hpp"
 
 /**
  * An abstract facade class encapsulating a tissue.
@@ -324,6 +327,7 @@ public:
      * [2] = APC one hit
      * [3] = APC two hit
      * [4] = beta catenin one hit
+     * [5] = apoptotic
      */
     std::vector<unsigned> GetCellMutationStateCount();
 
@@ -334,7 +338,6 @@ public:
      * [0] = STEM
      * [1] = TRANSIT
      * [2] = DIFFERENTIATED
-     * [3] = APOPTOTIC
      */
      const std::vector<unsigned>& rGetCellProliferativeTypeCount() const;
 

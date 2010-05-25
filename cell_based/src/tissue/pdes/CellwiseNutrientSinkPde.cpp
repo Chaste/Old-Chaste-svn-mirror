@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #include "CellwiseNutrientSinkPde.hpp"
+#include "ApoptoticCellMutationState.hpp"
 
 template<unsigned DIM>
 CellwiseNutrientSinkPde<DIM>::CellwiseNutrientSinkPde(MeshBasedTissue<DIM>& rTissue, double coefficient)
@@ -53,7 +53,7 @@ template<unsigned DIM>
 double CellwiseNutrientSinkPde<DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<DIM>& rNode)
 {
     TissueCell& r_cell = mrTissue.rGetCellUsingLocationIndex(rNode.GetIndex());
-    if (r_cell.GetCellProliferativeType() != APOPTOTIC)
+    if (!(r_cell.GetMutationState()->IsType<ApoptoticCellMutationState>()))
     {
         return -mCoefficient;
     }

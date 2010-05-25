@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "OxygenBasedCellKiller.hpp"
+#include "ApoptoticCellMutationState.hpp"
 
 template <unsigned SPACE_DIM>
 OxygenBasedCellKiller<SPACE_DIM>::OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue,
@@ -50,7 +51,7 @@ double OxygenBasedCellKiller<SPACE_DIM>::GetHypoxicConcentration() const
 template <unsigned SPACE_DIM>
 void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
 {
-    if (rCell.GetCellProliferativeType()==APOPTOTIC && !(rCell.HasApoptosisBegun()))
+    if (rCell.GetMutationState()->IsType<ApoptoticCellMutationState>() && !(rCell.HasApoptosisBegun()))
     {
         rCell.StartApoptosis();
     }

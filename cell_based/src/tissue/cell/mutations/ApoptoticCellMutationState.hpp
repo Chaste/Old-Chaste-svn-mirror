@@ -25,21 +25,45 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CELLTYPES_HPP_
-#define CELLTYPES_HPP_
+#ifndef APOPTOTICCELLMUTATIONSTATE_HPP_
+#define APOPTOTICCELLMUTATIONSTATE_HPP_
+
+#include "AbstractCellMutationState.hpp"
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
 
 /**
- * The possible proliferative types of a TissueCell. This property of a cell is
- * updated by its cell cycle model.
+ * Subclass of AbstractCellMutationState defining an apoptotic mutation state.
+ * 
+ * \todo Fixing this is part of #1285.
  */
-typedef enum CellProliferativeType_
+class ApoptoticCellMutationState : public AbstractCellMutationState
 {
-    STEM,
-    TRANSIT,
-    DIFFERENTIATED
-} CellProliferativeType;
+private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the cell cycle model.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellMutationState>(*this);
+    }
 
-const static unsigned NUM_CELL_PROLIFERATIVE_TYPES=3;
+public:
+    /**
+     * Constructor.
+     */
+    ApoptoticCellMutationState();
 
+};
 
-#endif /*CELLTYPES_HPP_*/
+#include "SerializationExportWrapper.hpp"
+// Declare identifier for the serializer
+CHASTE_CLASS_EXPORT(ApoptoticCellMutationState)
+
+#endif /*APOPTOTICCELLMUTATIONSTATE_HPP_*/

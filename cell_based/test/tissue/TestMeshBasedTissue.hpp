@@ -572,16 +572,15 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
-        cells[0].SetCellProliferativeType(APOPTOTIC); // coverage
 
         // Cover mutation state reporting
-        boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_labelled(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_apc1(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_apc2(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
 
-        cells[0].SetMutationState(p_state);
+        cells[0].SetMutationState(p_apoptotic_state);
         cells[1].SetMutationState(p_apc1);
         cells[2].SetMutationState(p_apc2);
         cells[3].SetMutationState(p_bcat1);
@@ -620,21 +619,22 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestTissueWritersIn2d/cellareas.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "voronoi.dat           cell_based/test/data/TestTissueWritersIn2d/voronoi.dat").c_str()), 0);
 
-        // Test the GetCellMutationStateCount function: there should only be healthy cells
+        // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = tissue.GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
-        for (unsigned i=0; i<cell_mutation_states.size(); i++)
-        {
-            TS_ASSERT_EQUALS(cell_mutation_states[i], 1u);
-        }
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 6u);
+        TS_ASSERT_EQUALS(cell_mutation_states[0], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states[1], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_states[2], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_states[3], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_states[4], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_states[5], 1u);
 
         // Test the GetCellProliferativeTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
         std::vector<unsigned> cell_types = tissue.rGetCellProliferativeTypeCount();
-        TS_ASSERT_EQUALS(cell_types.size(), 4u);
-        TS_ASSERT_EQUALS(cell_types[0], 4u);
+        TS_ASSERT_EQUALS(cell_types.size(), 3u);
+        TS_ASSERT_EQUALS(cell_types[0], 5u);
         TS_ASSERT_EQUALS(cell_types[1], 0u);
         TS_ASSERT_EQUALS(cell_types[2], 0u);
-        TS_ASSERT_EQUALS(cell_types[3], 1u);
     }
 
     void TestTissueWritersIn3d()
@@ -658,7 +658,9 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
-        cells[4].SetCellProliferativeType(APOPTOTIC); // coverage
+
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
+        cells[4].SetMutationState(p_apoptotic_state); // coverage
 
         // Create tissue
         MeshBasedTissue<3> tissue(mesh, cells);
@@ -693,16 +695,22 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestTissueWritersIn3d/cellareas.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "voronoi.dat           cell_based/test/data/TestTissueWritersIn3d/voronoi.dat").c_str()), 0);
 
-        // Test the GetCellMutationStateCount function: there should only be healthy cells
+        // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = tissue.GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
-        TS_ASSERT_EQUALS(cell_mutation_states[0], 5u);
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 6u);
+        TS_ASSERT_EQUALS(cell_mutation_states[0], 4u);
+        TS_ASSERT_EQUALS(cell_mutation_states[1], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states[2], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states[3], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states[4], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states[5], 1u);
 
-        // Test the GetCellProliferativeTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
+        // Test the GetCellProliferativeTypeCount function
         std::vector<unsigned> cell_types = tissue.rGetCellProliferativeTypeCount();
-        TS_ASSERT_EQUALS(cell_types.size(), 4u);
-        TS_ASSERT_EQUALS(cell_types[0], 4u);
-        TS_ASSERT_EQUALS(cell_types[3], 1u);
+        TS_ASSERT_EQUALS(cell_types.size(), 3u);
+        TS_ASSERT_EQUALS(cell_types[0], 5u);
+        TS_ASSERT_EQUALS(cell_types[1], 0u);
+        TS_ASSERT_EQUALS(cell_types[2], 0u);
     }
 
     void TestGetLocationOfCellCentreAndGetNodeCorrespondingToCell() throw (Exception)

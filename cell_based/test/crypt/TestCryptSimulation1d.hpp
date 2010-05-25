@@ -587,7 +587,7 @@ public:
 
         // Check we have the correct number of each cell type
         std::vector<unsigned> cell_type_count = simulator.rGetTissue().rGetCellProliferativeTypeCount();
-        TS_ASSERT_EQUALS(cell_type_count.size(), 4u);
+        TS_ASSERT_EQUALS(cell_type_count.size(), 3u);
         TS_ASSERT_EQUALS(cell_type_count[0], 1u);
         TS_ASSERT_EQUALS(cell_type_count[1], 2u);
         TS_ASSERT_EQUALS(cell_type_count[2], 3u);
@@ -696,19 +696,19 @@ public:
         }
 
         std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 6u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[0], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[2], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count[3], 0u);  // No APC two hit, one of all the rest.
+        TS_ASSERT_EQUALS(cell_mutation_state_count[3], 0u); // No APC two hit
         TS_ASSERT_EQUALS(cell_mutation_state_count[4], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count[5], 0u); // No apoptotic
 
         std::vector<unsigned> cell_type_count = simulator.rGetTissue().rGetCellProliferativeTypeCount();
-        TS_ASSERT_EQUALS(cell_type_count.size(), 4u);
+        TS_ASSERT_EQUALS(cell_type_count.size(), 3u);
         TS_ASSERT_EQUALS(cell_type_count[0], 0u);
         TS_ASSERT_EQUALS(cell_type_count[1], 4u);
         TS_ASSERT_EQUALS(cell_type_count[2], 0u);
-        TS_ASSERT_EQUALS(cell_type_count[3], 0u);
 
         // Tidy up
         WntConcentration<1>::Destroy();

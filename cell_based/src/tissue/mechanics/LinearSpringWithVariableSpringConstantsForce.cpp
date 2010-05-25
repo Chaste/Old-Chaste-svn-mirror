@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissue.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
+#include "ApoptoticCellMutationState.hpp"
 
 template<unsigned DIM>
 LinearSpringWithVariableSpringConstantsForce<DIM>::LinearSpringWithVariableSpringConstantsForce()
@@ -160,12 +161,15 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
     if (mUseApoptoticSprings)
     {
-        if (r_cell_A.GetCellProliferativeType()==APOPTOTIC || r_cell_B.GetCellProliferativeType()==APOPTOTIC)
+        bool cell_A_is_apoptotic = r_cell_A.GetMutationState()->IsType<ApoptoticCellMutationState>();
+        bool cell_B_is_apoptotic = r_cell_B.GetMutationState()->IsType<ApoptoticCellMutationState>();
+        
+        if (cell_A_is_apoptotic || cell_B_is_apoptotic)
         {
             double spring_a_stiffness = 2.0 * p_config->GetMeinekeSpringStiffness();
             double spring_b_stiffness = 2.0 * p_config->GetMeinekeSpringStiffness();
 
-            if (r_cell_A.GetCellProliferativeType()==APOPTOTIC)
+            if (cell_A_is_apoptotic)
             {
                 if (!isCloserThanRestLength) // if under tension
                 {
@@ -176,7 +180,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
                     spring_a_stiffness = p_config->GetApoptoticSpringCompressionStiffness();
                 }
             }
-            if (r_cell_B.GetCellProliferativeType()==APOPTOTIC)
+            if (cell_B_is_apoptotic)
             {
                 if (!isCloserThanRestLength) // if under tension
                 {

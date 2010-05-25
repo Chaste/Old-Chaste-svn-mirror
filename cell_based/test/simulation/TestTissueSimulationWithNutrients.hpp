@@ -316,6 +316,8 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -330,9 +332,10 @@ public:
             double x = p_mesh->GetNode(i)->rGetLocation()[0];
             double y = p_mesh->GetNode(i)->rGetLocation()[1];
             double dist_from_centre = sqrt( (x-2.5)*(x-2.5) + (y-2.5)*(y-2.5) );
+
             if (dist_from_centre < 1.5)
             {
-                cell.SetCellProliferativeType(APOPTOTIC);
+                cell.SetMutationState(p_apoptotic_state);
             }
 
             cells.push_back(cell);
@@ -401,6 +404,8 @@ public:
         // Set up cells
         std::vector<TissueCell> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -411,7 +416,7 @@ public:
             // Label three neighbouring cells as apoptotic
             if (i==12 || i==13 || i==17)
             {
-                cell.SetCellProliferativeType(APOPTOTIC);
+                cell.SetMutationState(p_apoptotic_state);
             }
             cells.push_back(cell);
         }
@@ -458,7 +463,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            if (cell_iter->GetCellProliferativeType()==APOPTOTIC)
+            if (cell_iter->GetMutationState()->IsType<ApoptoticCellMutationState>())
             {
                 num_apoptotic_cells++;
             }

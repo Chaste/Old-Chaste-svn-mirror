@@ -530,7 +530,7 @@ public:
         // Force the cell to be apoptotic
         for (unsigned i=0; i<num_steps; i++)
         {
-            TS_ASSERT(apoptotic_cell.GetCellProliferativeType()!=APOPTOTIC ||
+            TS_ASSERT(!(apoptotic_cell.GetMutationState()->IsType<ApoptoticCellMutationState>()) ||
                       p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
@@ -538,8 +538,8 @@ public:
             apoptotic_cell.ReadyToDivide();
         }
 
-        // Test that the cell type is updated to be APOPTOTIC
-        TS_ASSERT(apoptotic_cell.GetCellProliferativeType()==APOPTOTIC);
+        // Test that the cell is updated to be apoptotic
+        TS_ASSERT_EQUALS(apoptotic_cell.GetMutationState()->IsType<ApoptoticCellMutationState>(), true);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
         // Tidy up
@@ -702,7 +702,7 @@ public:
         // Force the cell to be apoptotic
         for (unsigned i=0; i<num_steps; i++)
         {
-            TS_ASSERT(apoptotic_cell.GetCellProliferativeType()!=APOPTOTIC ||
+            TS_ASSERT(!(apoptotic_cell.GetMutationState()->IsType<ApoptoticCellMutationState>()) ||
                       p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
@@ -710,8 +710,8 @@ public:
             apoptotic_cell.ReadyToDivide();
         }
 
-        // Test that the cell type is updated to be APOPTOTIC
-        TS_ASSERT_EQUALS(apoptotic_cell.GetCellProliferativeType(), APOPTOTIC);
+        // Test that the cell is updated to be apoptotic
+        TS_ASSERT_EQUALS(apoptotic_cell.GetMutationState()->IsType<ApoptoticCellMutationState>(), true);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
 

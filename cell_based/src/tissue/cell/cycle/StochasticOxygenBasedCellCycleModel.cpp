@@ -26,6 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "StochasticOxygenBasedCellCycleModel.hpp"
+#include "ApoptoticCellMutationState.hpp"
+#include "CellMutationStateRegistry.hpp"
 
 void StochasticOxygenBasedCellCycleModel::SetG2Duration()
 {
@@ -96,7 +98,7 @@ void StochasticOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 {
     // mG1Duration is set when the cell cycle model is given a cell
 
-    if (mpCell->GetCellProliferativeType()!=APOPTOTIC)
+    if (!(mpCell->GetMutationState()->IsType<ApoptoticCellMutationState>()))
     {
         UpdateHypoxicDuration();
 
@@ -150,7 +152,7 @@ AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleMode
 
 void StochasticOxygenBasedCellCycleModel::UpdateHypoxicDuration()
 {
-    assert(mpCell->GetCellProliferativeType()!=APOPTOTIC);
+    assert(!(mpCell->GetMutationState()->IsType<ApoptoticCellMutationState>()));
     assert(!mpCell->HasApoptosisBegun());
 
     // Get cell's oxygen concentration
@@ -190,7 +192,9 @@ void StochasticOxygenBasedCellCycleModel::UpdateHypoxicDuration()
         double prob_of_death = 0.9 - 0.5*(oxygen_concentration/hypoxic_concentration);
         if (mCurrentHypoxicDuration > TissueConfig::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {
-            mpCell->SetCellProliferativeType(APOPTOTIC);
+            ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
+            boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
+            mpCell->SetMutationState(p_apoptotic_state);
         }
     }
     else

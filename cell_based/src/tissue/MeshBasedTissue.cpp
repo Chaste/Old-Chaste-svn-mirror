@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissue.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "CellBasedEventHandler.hpp"
+#include "ApoptoticCellMutationState.hpp"
 
 template<unsigned DIM>
 MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
@@ -638,8 +639,8 @@ void MeshBasedTissue<DIM>::WriteTissueVolumeResultsToFile()
             // Get the cell corresponding to this node
             TissueCell* p_cell =  this->mLocationCellMap[node_index];
 
-            // Only bother calculating the area/volume of APOPTOTIC cells
-            if (p_cell->GetCellProliferativeType() == APOPTOTIC)
+            // Only bother calculating the area/volume of apoptotic cells
+            if (p_cell->GetMutationState()->IsType<ApoptoticCellMutationState>())
             {
                 double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
                 apoptotic_area += cell_volume;

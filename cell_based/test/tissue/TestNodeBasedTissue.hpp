@@ -546,14 +546,15 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_apc1(node_based_tissue.GetMutationRegistry()->Get<ApcOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_apc2(node_based_tissue.GetMutationRegistry()->Get<ApcTwoHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(node_based_tissue.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(node_based_tissue.GetMutationRegistry()->Get<ApoptoticCellMutationState>());
+
         node_based_tissue.rGetCellUsingLocationIndex(0).SetCellProliferativeType(TRANSIT);
         node_based_tissue.rGetCellUsingLocationIndex(0).SetMutationState(p_labelled);
         node_based_tissue.rGetCellUsingLocationIndex(1).SetCellProliferativeType(DIFFERENTIATED);
         node_based_tissue.rGetCellUsingLocationIndex(1).SetMutationState(p_apc1);
         node_based_tissue.rGetCellUsingLocationIndex(2).SetMutationState(p_apc2);
         node_based_tissue.rGetCellUsingLocationIndex(3).SetMutationState(p_bcat1);
-        node_based_tissue.rGetCellUsingLocationIndex(4).SetCellProliferativeType(APOPTOTIC);
-        node_based_tissue.rGetCellUsingLocationIndex(4).StartApoptosis();
+        node_based_tissue.rGetCellUsingLocationIndex(4).SetMutationState(p_apoptotic_state);
         node_based_tissue.SetCellAncestorsToLocationIndices();
 
         std::string output_directory = "TestNodeBasedTissueWriters";
@@ -582,20 +583,20 @@ public:
 
         // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = node_based_tissue.GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
-        TS_ASSERT_EQUALS(cell_mutation_states[0], 1u);
-        for (unsigned i=1; i<cell_mutation_states.size(); i++)
-        {
-            TS_ASSERT_EQUALS(cell_mutation_states[i], 1u);
-        }
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 6u);
+        TS_ASSERT_EQUALS(cell_mutation_states[0], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states[1], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_states[2], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_states[3], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_states[4], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_states[5], 1u);
 
         // Test the GetCellProliferativeTypeCount function
         std::vector<unsigned> cell_types = node_based_tissue.rGetCellProliferativeTypeCount();
-        TS_ASSERT_EQUALS(cell_types.size(), 4u);
-        TS_ASSERT_EQUALS(cell_types[0], 2u);
+        TS_ASSERT_EQUALS(cell_types.size(), 3u);
+        TS_ASSERT_EQUALS(cell_types[0], 3u);
         TS_ASSERT_EQUALS(cell_types[1], 1u);
         TS_ASSERT_EQUALS(cell_types[2], 1u);
-        TS_ASSERT_EQUALS(cell_types[3], 1u);
 
         // For coverage
         TS_ASSERT_THROWS_NOTHING(node_based_tissue.WriteResultsToFiles());

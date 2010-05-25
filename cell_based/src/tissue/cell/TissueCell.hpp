@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 
-#include "Element.hpp"
 #include "CellProliferativeTypes.hpp"
 #include "AbstractCellMutationState.hpp"
 #include "AbstractCellCycleModel.hpp"

@@ -340,7 +340,7 @@ public:
 
     /**
      * Write the current total area (in 2D) or volume (in 3D) of mrMesh, and of the set of
-     * APOPTOTIC cells in the tissue (using mpVoronoiTessellation), to mpTissueVolumesFile.
+     * apoptotic cells in the tissue (using mpVoronoiTessellation), to mpTissueVolumesFile.
      */
     void WriteTissueVolumeResultsToFile();
 

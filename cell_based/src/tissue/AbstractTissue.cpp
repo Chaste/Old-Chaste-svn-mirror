@@ -213,6 +213,7 @@ void AbstractTissue<DIM>::SetDefaultMutationStateOrdering()
         mutations.push_back(p_registry->Get<ApcOneHitCellMutationState>());
         mutations.push_back(p_registry->Get<ApcTwoHitCellMutationState>());
         mutations.push_back(p_registry->Get<BetaCateninOneHitCellMutationState>());
+        mutations.push_back(p_registry->Get<ApoptoticCellMutationState>());
         p_registry->SpecifyOrdering(mutations);
     }
 }
@@ -240,7 +241,7 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool 
     if (p_config->GetOutputCellMutationStates())
     {
         mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
-        *mpCellMutationStatesFile << "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT \n";
+        *mpCellMutationStatesFile << "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT\t Apoptotic \n";
     }
     if (p_config->GetOutputCellProliferativeTypes())
     {
@@ -378,13 +379,6 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
                 rCellProliferativeTypeCounter[2]++;
             }
             break;
-        case APOPTOTIC:
-            colour = APOPTOSIS_COLOUR;
-            if (p_config->GetOutputCellProliferativeTypes())
-            {
-                rCellProliferativeTypeCounter[3]++;
-            }
-            break;
         default:
             NEVER_REACHED;
     }
@@ -398,9 +392,9 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         }
     }
 
-    if (p_cell->HasApoptosisBegun())
+    if (p_cell->GetMutationState()->IsType<ApoptoticCellMutationState>() || p_cell->HasApoptosisBegun())
     {
-        // For any type of cell set the colour to this if it is undergoing apoptosis.
+        // For any type of cell set the colour to this if it is undergoing apoptosis
         colour = APOPTOSIS_COLOUR;
     }
 

@@ -71,7 +71,9 @@ public:
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         // Make one cell apoptotic
-        cells[0].SetCellProliferativeType(APOPTOTIC);
+        ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
+        cells[0].SetMutationState(p_apoptotic_state);
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 

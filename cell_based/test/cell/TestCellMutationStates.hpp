@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "LabelledCellMutationState.hpp"
+#include "ApoptoticCellMutationState.hpp"
 
 #include "CellMutationStateRegistry.hpp"
 
@@ -71,8 +72,8 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_l_state(new LabelledCellMutationState);
         TS_ASSERT(p_wt_state->IsSame(p_state.get()));
         TS_ASSERT(p_state->IsSame(p_wt_state));
-        TS_ASSERT(! p_wt_state->IsSame(p_l_state.get()));
-        TS_ASSERT(! p_l_state->IsSame(p_wt_state));
+        TS_ASSERT(!p_wt_state->IsSame(p_l_state.get()));
+        TS_ASSERT(!p_l_state->IsSame(p_wt_state));
     }
 
     void TestRegistry() throw(Exception)
@@ -122,18 +123,21 @@ public:
         mutations.push_back(p_instance->Get<WildTypeCellMutationState>());
         mutations.push_back(p_instance->Get<LabelledCellMutationState>());
         mutations.push_back(p_instance->Get<ApcOneHitCellMutationState>());
-        TS_ASSERT(!p_instance->HasOrderingBeenSpecified());
+        mutations.push_back(p_instance->Get<ApoptoticCellMutationState>());
+
+        TS_ASSERT_EQUALS(p_instance->HasOrderingBeenSpecified(), false);
         p_instance->SpecifyOrdering(mutations);
-        TS_ASSERT(p_instance->HasOrderingBeenSpecified());
+        TS_ASSERT_EQUALS(p_instance->HasOrderingBeenSpecified(), true);
 
         TS_ASSERT_THROWS_THIS(p_instance->SpecifyOrdering(mutations),
                               "An ordering has already been specified.");
 
         std::vector<boost::shared_ptr<AbstractCellMutationState> > states = p_instance->rGetAllMutationStates();
-        TS_ASSERT_EQUALS(states.size(), 3u);
+        TS_ASSERT_EQUALS(states.size(), 4u);
         TS_ASSERT(states[0]->IsType<WildTypeCellMutationState>());
         TS_ASSERT(states[1]->IsType<LabelledCellMutationState>());
         TS_ASSERT(states[2]->IsType<ApcOneHitCellMutationState>());
+        TS_ASSERT(states[3]->IsType<ApoptoticCellMutationState>());
 
         // The ordering must be complete
         TS_ASSERT_THROWS_THIS(p_instance->Get<BetaCateninOneHitCellMutationState>(),

@@ -583,7 +583,11 @@ public:
         std::vector<TissueCell> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
-        cells[4].SetCellProliferativeType(APOPTOTIC); // coverage
+
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
+        cells[4].SetMutationState(p_apoptotic_state); // coverage
+
+        TS_ASSERT_EQUALS(cells[4].GetMutationState()->IsType<ApoptoticCellMutationState>(), true);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);
@@ -620,14 +624,20 @@ public:
 
         // Test the GetCellMutationStateCount function: there should only be healthy cells
         std::vector<unsigned> cell_mutation_states = tissue.GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
-        TS_ASSERT_EQUALS(cell_mutation_states[0], 5u);
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 6u);
+        TS_ASSERT_EQUALS(cell_mutation_states[0], 4u);
+        TS_ASSERT_EQUALS(cell_mutation_states[1], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states[2], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states[3], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states[4], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states[5], 1u);
 
         // Test the GetCellProliferativeTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
         std::vector<unsigned> cell_types = tissue.rGetCellProliferativeTypeCount();
-        TS_ASSERT_EQUALS(cell_types.size(), 4u);
-        TS_ASSERT_EQUALS(cell_types[0], 4u);
-        TS_ASSERT_EQUALS(cell_types[3], 1u);
+        TS_ASSERT_EQUALS(cell_types.size(), 3u);
+        TS_ASSERT_EQUALS(cell_types[0], 5u);
+        TS_ASSERT_EQUALS(cell_types[1], 0u);
+        TS_ASSERT_EQUALS(cell_types[2], 0u);
     }
 
     void TestVoronoiAreasAndPerimetersWithGhostNodes() throw (Exception)
