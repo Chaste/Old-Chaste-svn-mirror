@@ -131,7 +131,8 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             /*.. then create a cell, giving it a particular cell cycle model
-             * - {{{SimpleOxygenBasedCellCycleModel}}}. The dimension needs to be
+             * - {{{SimpleOxygenBasedCellCycleModel}}}. The spatial dimension (1, 2 or 3) and 
+             * cell proliferative type (STEM, TRANSIT or DIFFERENTIATED) needs to be
              * set on the cell cycle model before being passed to the cell. */
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
             p_model->SetDimension(2);
