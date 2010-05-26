@@ -104,6 +104,15 @@ libraries = []
 
 # The functions below are supplied to machine config files for their use
 
+def ConfigError(message):
+    """Print an error message and quit."""
+    raise ValueError(message)
+    
+def CheckPathExists(path, component):
+    """Check that a path exists, dieing if not."""
+    if not os.path.exists(path):
+        ConfigError("Cannot use %s from %s: path does not exist." % (component, path))
+
 def RemoveFromPath(pathList, searchString):
     """Remove path entries from pathList that contain searchString."""
     for path in pathList[:]:
@@ -120,6 +129,7 @@ def AddBoost(basePath, version):
     Will automatically account for extended Boost library naming schemes.
     Can also handle boost libraries already appearing in other_libpaths etc.
     """
+    CheckPathExists(basePath, 'Boost')
     # Remove existing Boost libs
     for lib in conf.other_libraries[:]:
         if lib.startswith('boost_'):
@@ -148,6 +158,7 @@ def AddBoost(basePath, version):
 
 def AddHdf5(basePath):
     """Use HDF5 from a non-standard location."""
+    CheckPathExists(basePath, 'HDF5')
     # Remove existing paths
     RemoveFromPath(conf.other_includepaths, 'hdf5')
     RemoveFromPath(conf.other_libpaths, 'hdf5')
@@ -160,6 +171,7 @@ def AddHdf5(basePath):
 
 def AddXsd(basePath):
     """Use CodeSynthesis XSD from a non-standard location."""
+    CheckPathExists(basePath, 'XSD')
     # Remove existing include path
     RemoveFromPath(conf.other_includepaths, 'libxsd')
     # Add new location
@@ -197,7 +209,7 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
     than debug builds.
     Set profile to True to use profile builds of PETSc.
     """
-    if  os.environ.get('XTPE_COMPILE_TARGET', ''):
+    if os.environ.get('XTPE_COMPILE_TARGET', ''):
         return
 
     conf.petsc_2_2_path = getattr(conf, 'petsc_2_2_path', None)
@@ -215,7 +227,7 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
     if version == '2.2' and (conf.petsc_2_2_path is None or 
                              not os.path.isdir(conf.petsc_2_2_path)):
         # Raise a friendly error
-        raise ValueError('PETSc %s requested, but no path for this or an earlier version given in the host config.' % requested_version)
+        ConfigError('PETSc %s requested, but no path for this or an earlier version given in the host config.' % requested_version)
     if version == '2.2':
         petsc_base = os.path.abspath(conf.petsc_2_2_path)
         # Gracefully fall back to optimised/non-opt if the requested one isn't there
@@ -227,10 +239,11 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
             libpath = os.path.join(petsc_base, 'lib', d, conf.petsc_build_name)
             if os.path.exists(libpath): break
         else:
-            raise ValueError('No PETSc 2.2 libraries found.')
+            ConfigError('No PETSc 2.2 libraries found.')
         incpaths.append(os.path.join(petsc_base, 'bmake', conf.petsc_build_name))
     elif version == '2.3':
         petsc_base = os.path.abspath(conf.petsc_2_3_path)
+        CheckPathExists(petsc_base, 'PETSc')
         if production:
             build_name = conf.petsc_build_name_production
         elif profile:
@@ -244,6 +257,7 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
         incpaths.append(os.path.join(petsc_base, 'bmake', build_name))
     else: #version == '3.0'
         petsc_base = os.path.abspath(conf.petsc_3_0_path)
+        CheckPathExists(petsc_base, 'PETSc')
         if production:
             build_name = conf.petsc_build_name_production
         elif profile:
@@ -278,8 +292,9 @@ def DoDealii(build):
     Deal.II uses different library *names* to distinguish optimised versions.
     """
     if conf.dealii_path is None:
-        raise ValueError('Deal.II required, but no path given in the host config.')
+        ConfigError('Deal.II required, but no path given in the host config.')
     base = os.path.abspath(conf.dealii_path)
+    CheckPathExists(base, 'Deal.II')
     # Check Deal.II version
     version = open(os.path.join(base, 'Version')).read()
     if not version.startswith('6.'):
