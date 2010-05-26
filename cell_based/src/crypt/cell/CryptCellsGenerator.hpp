@@ -222,9 +222,10 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
         {
             dynamic_cast<AbstractSimpleGenerationBasedCellCycleModel*>(p_cell_cycle_model)->SetGeneration(generation);
         }
+        p_cell_cycle_model->SetCellProliferativeType(cell_type);
 
         boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-        TissueCell cell(cell_type, p_state, p_cell_cycle_model);
+        TissueCell cell(p_state, p_cell_cycle_model);
         if (initialiseCells)
         {
             cell.InitialiseCellCycleModel();

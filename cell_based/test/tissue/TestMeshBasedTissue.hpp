@@ -114,7 +114,8 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
             AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
-            TissueCell cell(STEM, p_state, p_cell_cycle_model);
+            p_cell_cycle_model->SetCellProliferativeType(STEM);
+            TissueCell cell(p_state, p_cell_cycle_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -127,7 +128,8 @@ public:
 
         // Add another cell
         AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
-        TissueCell cell(STEM, p_state, p_cell_cycle_model);
+        p_cell_cycle_model->SetCellProliferativeType(STEM);
+        TissueCell cell(p_state, p_cell_cycle_model);
         double birth_time = -4.0;
         cell.SetBirthTime(birth_time);
         cells.push_back(cell);
@@ -302,7 +304,10 @@ public:
 
         // Create a new cell, DON'T set the node index, set birth time=-1
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
+
+        FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
+        p_cell_cycle_model->SetCellProliferativeType(STEM);
+        TissueCell cell(p_state, p_cell_cycle_model);
         cell.SetBirthTime(-1);
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 2;

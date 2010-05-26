@@ -94,8 +94,7 @@ private:
 
     /**
      * Called by ::Initialise() and ::UpdateCellProliferativeType() only.
-     * Updates the mpCell::mCellProliferativeType to match mpOdeSystem's
-     * beta-catenin levels
+     * Updates mCellProliferativeType to match mpOdeSystem's beta-catenin levels
      *
      * This carries out the work for ::UpdateCellProliferativeType();
      * But does not check the current time so it can be used by the initialise method.

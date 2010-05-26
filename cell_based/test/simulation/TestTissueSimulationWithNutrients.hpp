@@ -120,11 +120,13 @@ public:
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+            TissueCell cell(p_state, p_model);
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
+
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -218,10 +220,14 @@ public:
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell(p_state, p_model);
+
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
+
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -322,7 +328,8 @@ public:
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+            TissueCell cell(p_state, p_model);
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
@@ -410,7 +417,8 @@ public:
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+            TissueCell cell(p_state, p_model);
             cell.SetBirthTime(-0.1);
 
             // Label three neighbouring cells as apoptotic
@@ -517,10 +525,14 @@ public:
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell(p_state, p_model);
+
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
+
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -595,7 +607,7 @@ public:
             ++cell_iter)
         {
             unsigned containing_element_index = simulator.mCellNutrientElementMap[&(*cell_iter)];
-            TS_ASSERT(containing_element_index < simulator.mpCoarseNutrientMesh->GetNumElements());
+            TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarseNutrientMesh->GetNumElements());
             TS_ASSERT_EQUALS(containing_element_index, simulator.FindElementContainingCell(*cell_iter));
         }
 
@@ -674,10 +686,14 @@ public:
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell(p_state, p_model);
+
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
+
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -751,10 +767,14 @@ public:
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell( p_state, p_model);
+
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                             (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                              +TissueConfig::Instance()->GetSG2MDuration());
+
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -856,10 +876,14 @@ public:
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell(p_state, p_model);
+
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
+
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

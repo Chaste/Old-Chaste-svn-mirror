@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellKiller.hpp"
 #include "AbstractTissue.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "ChastePoint.hpp"
 
 
 /**

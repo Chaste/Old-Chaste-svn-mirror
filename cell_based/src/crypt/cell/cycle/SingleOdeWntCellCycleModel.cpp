@@ -140,7 +140,7 @@ void SingleOdeWntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCate
         cell_type = DIFFERENTIATED;
     }
 
-    mpCell->SetCellProliferativeType(cell_type);
+    mCellProliferativeType = cell_type;
 }
 
 double SingleOdeWntCellCycleModel::GetBetaCateninConcentration()

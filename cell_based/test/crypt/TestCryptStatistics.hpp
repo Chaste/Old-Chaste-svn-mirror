@@ -328,11 +328,11 @@ public:
         {
             if (vector_index==2u)
             {
-                TS_ASSERT(labelled[vector_index]);
+                TS_ASSERT_EQUALS(labelled[vector_index], true);
             }
             else
             {
-                TS_ASSERT(!labelled[vector_index]);
+                TS_ASSERT_EQUALS(labelled[vector_index], false);
             }
         }
         RandomNumberGenerator::Destroy();

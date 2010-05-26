@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellMutationState.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
+#include "CellMutationStateRegistry.hpp"
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 
@@ -69,7 +70,6 @@ private:
         // If Archive is an input archive, then '&' resolves to '>>'
         // These first four are also dealt with by {load,save}_construct_data
         archive & mCanDivide;
-        archive & mCellProliferativeType;
         archive & mpMutationState;
         archive & mpCellCycleModel;
         archive & mUndergoingApoptosis;
@@ -85,9 +85,6 @@ private:
 protected:
 
     // NB - if you add any member variables, make sure CommonCopy includes them.
-
-    /** The cell type - defined in CellProliferativeTypes.hpp */
-    CellProliferativeType mCellProliferativeType;
 
     /** The cell's mutation state. */
     boost::shared_ptr<AbstractCellMutationState> mpMutationState;
@@ -133,14 +130,13 @@ public:
 
     /**
      * Create a new tissue cell.
-     * @param cellType  the type of cell this is
+     * 
      * @param pMutationState the mutation state of the cell
      * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
      * @param archiving  whether this constructor is being called by the archiver - do things slightly differently!
      */
-    TissueCell(CellProliferativeType cellType,
-               boost::shared_ptr<AbstractCellMutationState> pMutationState,
+    TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationState,
                AbstractCellCycleModel* pCellCycleModel,
                bool archiving = false);
 
@@ -200,18 +196,6 @@ public:
      * Get the time at which apoptosis was commanded to start.
      */
     double GetStartOfApoptosisTime() const;
-
-    /**
-     * Get method for #mCellProliferativeType.
-     */
-    CellProliferativeType GetCellProliferativeType() const;
-
-    /**
-     * Set method for #mCellProliferativeType.
-     *
-     * @param cellType the cell's type
-     */
-    void SetCellProliferativeType(CellProliferativeType cellType);
 
     /**
      * Get method for #mpMutationState.
@@ -318,11 +302,9 @@ inline void save_construct_data(
     Archive & ar, const TissueCell * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const CellProliferativeType cell_type = t->GetCellProliferativeType();
     const boost::shared_ptr<AbstractCellMutationState> p_mutation_state = t->GetMutationState();
-
     const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
-    ar << cell_type;
+
     ar << p_mutation_state;
     ar << p_cell_cycle_model;
 }
@@ -335,17 +317,15 @@ inline void load_construct_data(
     Archive & ar, TissueCell * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    CellProliferativeType cell_type;
     boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
     AbstractCellCycleModel* p_cell_cycle_model;
 
-    ar >> cell_type;
     ar >> p_mutation_state;
     ar >> p_cell_cycle_model;
     bool archiving = true;
 
     // Invoke inplace constructor to initialize instance
-    ::new(t)TissueCell(cell_type, p_mutation_state, p_cell_cycle_model, archiving);
+    ::new(t)TissueCell(p_mutation_state, p_cell_cycle_model, archiving);
 }
 }
 } // namespace ...

@@ -53,10 +53,14 @@ private:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(STEM);
+            
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (TissueConfig::Instance()->GetStemCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-            TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
+
+            TissueCell cell(p_state, p_model);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

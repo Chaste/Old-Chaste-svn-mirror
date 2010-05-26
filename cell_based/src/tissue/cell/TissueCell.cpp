@@ -28,17 +28,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueCell.hpp"
 #include "ApoptoticCellMutationState.hpp"
-#include "CellMutationStateRegistry.hpp"
 
 unsigned TissueCell::mMaxCellId = 0;
 
 
-TissueCell::TissueCell(CellProliferativeType cellType,
-                       boost::shared_ptr<AbstractCellMutationState> pMutationState,
+TissueCell::TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationState,
                        AbstractCellCycleModel* pCellCycleModel,
                        bool archiving)
     : mCanDivide(false),
-      mCellProliferativeType(cellType),
       mpMutationState(pMutationState),
       mpCellCycleModel(pCellCycleModel),
       mAncestor(UNSIGNED_UNSET), // Has to be set by a SetAncestor() call (usually from Tissue)
@@ -53,7 +50,7 @@ TissueCell::TissueCell(CellProliferativeType cellType,
         EXCEPTION("TissueCell is setting up a cell cycle model but SimulationTime has not been set up");
     }
 
-    if (pCellCycleModel==NULL)
+    if (pCellCycleModel == NULL)
     {
         EXCEPTION("Cell cycle model is null");
     }
@@ -75,7 +72,6 @@ void TissueCell::CommonCopy(const TissueCell& rOtherCell)
     mCanDivide = rOtherCell.mCanDivide;
 
     // Copy 'easy' protected data members
-    mCellProliferativeType = rOtherCell.mCellProliferativeType;
     mpMutationState = rOtherCell.mpMutationState;
     mUndergoingApoptosis = rOtherCell.mUndergoingApoptosis;
     mIsDead = rOtherCell.mIsDead;
@@ -157,18 +153,6 @@ double TissueCell::GetBirthTime() const
 void TissueCell::SetBirthTime(double birthTime)
 {
     mpCellCycleModel->SetBirthTime(birthTime);
-}
-
-
-void TissueCell::SetCellProliferativeType(CellProliferativeType cellType)
-{
-    mCellProliferativeType = cellType;
-}
-
-
-CellProliferativeType TissueCell::GetCellProliferativeType() const
-{
-    return mCellProliferativeType;
 }
 
 
@@ -307,8 +291,7 @@ TissueCell TissueCell::Divide()
     mpCellCycleModel->ResetForDivision();
 
     // Create daughter cell
-    TissueCell new_cell = TissueCell(mCellProliferativeType, mpMutationState,
-                                     mpCellCycleModel->CreateCellCycleModel());
+    TissueCell new_cell = TissueCell(mpMutationState, mpCellCycleModel->CreateCellCycleModel());
 
     // Initialise properties of daughter cell
     new_cell.GetCellCycleModel()->InitialiseDaughterCell();

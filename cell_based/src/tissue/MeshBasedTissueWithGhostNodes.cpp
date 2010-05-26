@@ -307,7 +307,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
             }
             if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
             {
-                double cell_type = p_cell->GetCellProliferativeType();
+                double cell_type = p_cell->GetCellCycleModel()->GetCellProliferativeType();
                 cell_types[elem_index] = cell_type;
             }
             if (TissueConfig::Instance()->GetOutputCellMutationStates())

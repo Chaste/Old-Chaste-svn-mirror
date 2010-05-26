@@ -133,27 +133,27 @@ public:
             if (height <= y0)
             {
                 TS_ASSERT_EQUALS(generation, 0u);
-                TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), STEM);
+                TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetCellProliferativeType(), STEM);
             }
             else if (height < y1)
             {
                 TS_ASSERT_EQUALS(generation, 1u);
-                TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
+                TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
             }
             else if (height < y2)
             {
                 TS_ASSERT_EQUALS(generation, 2u);
-                TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
+                TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
             }
             else if (height < y3)
             {
                 TS_ASSERT_EQUALS(generation, 3u);
-                TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), TRANSIT);
+                TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
             }
             else
             {
                 TS_ASSERT_EQUALS(generation, 4u);
-                TS_ASSERT_EQUALS(cells[i].GetCellProliferativeType(), DIFFERENTIATED);
+                TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
             }
         }
     }

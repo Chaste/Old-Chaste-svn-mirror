@@ -356,7 +356,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     }
 
     // Set colour dependent on cell type
-    switch (p_cell->GetCellProliferativeType())
+    switch (p_cell->GetCellCycleModel()->GetCellProliferativeType())
     {
         case STEM:
             colour = STEM_COLOUR;
@@ -450,6 +450,8 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellPr
     // Write cell mutation state data to file if required
     if (p_config->GetOutputCellMutationStates())
     {
+        ///\todo Merge with code in GetCellMutationStateCount()?
+
         // An ordering must be specified for cell mutation states
         SetDefaultMutationStateOrdering();
 

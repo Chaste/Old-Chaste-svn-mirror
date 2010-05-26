@@ -75,7 +75,7 @@ void WntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel(
         cell_type = DIFFERENTIATED;
     }
 
-    mpCell->SetCellProliferativeType(cell_type);
+    mCellProliferativeType = cell_type;
 }
 
 

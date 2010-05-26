@@ -256,7 +256,8 @@ public:
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+            TissueCell cell(p_state, p_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -408,7 +409,8 @@ public:
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+            TissueCell cell(p_state, p_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
 

@@ -75,7 +75,9 @@ public:
 
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
-            TissueCell cell(DIFFERENTIATED, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(DIFFERENTIATED);
+            TissueCell cell(p_healthy_state, p_model);
             double birth_time = 0.0 - node_index;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -102,7 +104,7 @@ public:
         {
             Node<1>* p_node = mesh.GetNode(index);
 
-            TS_ASSERT(!p_node->IsDeleted());
+            TS_ASSERT_EQUALS(p_node->IsDeleted(), false);
 
             double coord = p_node->rGetLocation()[0];
             TS_ASSERT_DELTA(coord, index, 0.05);
@@ -138,7 +140,9 @@ public:
 
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
-            TissueCell cell(DIFFERENTIATED, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(DIFFERENTIATED);
+            TissueCell cell(p_healthy_state, p_model);
             double birth_time = 0.0 - node_index;
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
@@ -225,10 +229,15 @@ public:
                 generation = 4;
                 birth_time = 0; // hours
             }
-            TissueCell cell(cell_type, p_healthy_state, new StochasticDurationGenerationBasedCellCycleModel);
+
+            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(cell_type);
+            p_model->SetGeneration(generation);
+
+            TissueCell cell(p_healthy_state, p_model);
             cell.InitialiseCellCycleModel();
-            static_cast<StochasticDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
+
             cells.push_back(cell);
         }
 
@@ -290,8 +299,13 @@ public:
             {
                 birth_time = -1.0;
             }
-            TissueCell cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel);
+
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell(p_healthy_state, p_model);
             cell.SetBirthTime(birth_time);
+
             cells.push_back(cell);
         }
 
@@ -369,10 +383,15 @@ public:
                 generation = 4;
                 birth_time = 0; // hours
             }
-            TissueCell cell(cell_type, p_healthy_state, new StochasticDurationGenerationBasedCellCycleModel);
+
+            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(cell_type);
+            p_model->SetGeneration(generation);
+
+            TissueCell cell(p_healthy_state, p_model);
             cell.InitialiseCellCycleModel();
-            static_cast<StochasticDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
+
             cells.push_back(cell);
         }
 
@@ -440,31 +459,32 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             CellProliferativeType cell_type;
-            unsigned generation;
             double birth_time;
             if (i == 0)
             {
                 cell_type = STEM;
-                generation = 0;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
                                                   + p_params->GetSG2MDuration());
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
-                generation = 1 + (i - 1) / 5;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
                                                     + p_params->GetSG2MDuration());
             }
             else
             {
                 cell_type = DIFFERENTIATED;
-                generation = 4;
                 birth_time = 0;
             }
-            TissueCell cell(cell_type, p_healthy_state, new TysonNovakCellCycleModel());
+
+            TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel();
+            p_model->SetCellProliferativeType(cell_type);
+
+            TissueCell cell(p_healthy_state, p_model);
             cell.InitialiseCellCycleModel();
             cell.SetBirthTime(birth_time);
+
             cells.push_back(cell);
         }
 
@@ -549,10 +569,15 @@ public:
                 generation = 4;
                 birth_time = 0;
             }
-            TissueCell cell(cell_type, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
+
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(cell_type);
+            p_model->SetGeneration(generation);
+
+            TissueCell cell(p_healthy_state, p_model);
             cell.InitialiseCellCycleModel();
-            static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel())->SetGeneration(generation);
             cell.SetBirthTime(birth_time);
+
             cells.push_back(cell);
         }
 
@@ -601,15 +626,15 @@ public:
 
             if (fabs(x) < 1e-2)
             {
-                TS_ASSERT_EQUALS(cell_iter->GetCellProliferativeType(), STEM);
+                TS_ASSERT_EQUALS(cell_iter->GetCellCycleModel()->GetCellProliferativeType(), STEM);
             }
             else if ( (fabs(x-1) < 1e-2) || (fabs(x-2) < 1e-2) )
             {
-                TS_ASSERT_EQUALS(cell_iter->GetCellProliferativeType(), TRANSIT);
+                TS_ASSERT_EQUALS(cell_iter->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
             }
             else
             {
-                TS_ASSERT_EQUALS(cell_iter->GetCellProliferativeType(), DIFFERENTIATED);
+                TS_ASSERT_EQUALS(cell_iter->GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
             }
         }
     }
@@ -643,8 +668,9 @@ public:
         {
             WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
             p_cell_cycle_model1->SetDimension(1);
+            p_cell_cycle_model1->SetCellProliferativeType(TRANSIT);
             boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-            TissueCell cell(TRANSIT, p_state, p_cell_cycle_model1);
+            TissueCell cell(p_state, p_cell_cycle_model1);
             cell.SetBirthTime(0.0);
             cells.push_back(cell);
         }
@@ -757,8 +783,14 @@ public:
                 generation = 4;
                 birth_time = 0;
             }
-            TissueCell cell(cell_type, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
+
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(cell_type);
+            p_model->SetGeneration(generation);
+
+            TissueCell cell(p_healthy_state, p_model);
             cell.SetBirthTime(birth_time);
+
             cells.push_back(cell);
         }
 

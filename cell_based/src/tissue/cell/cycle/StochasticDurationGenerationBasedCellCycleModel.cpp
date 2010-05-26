@@ -39,7 +39,7 @@ void StochasticDurationGenerationBasedCellCycleModel::SetG1Duration()
 
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
-    switch (mpCell->GetCellProliferativeType())
+    switch (mCellProliferativeType)
     {
         case STEM:
             mG1Duration = 1 + 4*p_gen->ranf(); // U[1,5] according to Meineke

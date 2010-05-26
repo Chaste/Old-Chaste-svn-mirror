@@ -71,10 +71,12 @@ public:
         // Test TysonNovakCellCycleModel methods for a healthy cell
         TysonNovakCellCycleModel* p_cell_model = new TysonNovakCellCycleModel;
         p_cell_model->SetBirthTime(p_simulation_time->GetTime());
+        p_cell_model->SetCellProliferativeType(STEM);
+
         TS_ASSERT_EQUALS(p_cell_model->CanCellTerminallyDifferentiate(), false);
 
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-        TissueCell cell(STEM, p_healthy_state, p_cell_model);
+        TissueCell cell(p_healthy_state, p_cell_model);
 
         // Test the cell is ready to divide at the right time
         for (unsigned i=0; i<num_timesteps/2; i++)
@@ -106,9 +108,13 @@ public:
 
         // For coverage, we also test TysonNovakCellCycleModel methods for a mutant cell
         p_cell_model->ResetForDivision();
+
         TysonNovakCellCycleModel* p_cell_model2 = static_cast<TysonNovakCellCycleModel*> (p_cell_model->CreateCellCycleModel());
+        p_cell_model2->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_mutation(new ApcOneHitCellMutationState);
-        TissueCell stem_cell_2(STEM, p_mutation, p_cell_model2);
+
+        TissueCell stem_cell_2(p_mutation, p_cell_model2);
 
         // Test the cell is ready to divide at the right time
         for (unsigned i=0; i<num_timesteps/2; i++)
@@ -159,8 +165,11 @@ public:
 
         // Create cell cycle model and associated cell
         TysonNovakCellCycleModel* p_repeating_cell_model = new TysonNovakCellCycleModel;
+        p_repeating_cell_model->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_mutation(new ApcOneHitCellMutationState);
-        TissueCell tyson_novak_cell(STEM, p_mutation, p_repeating_cell_model);
+
+        TissueCell tyson_novak_cell(p_mutation, p_repeating_cell_model);
 
         // Run through the cell cycle model for a certain duration
         // and test how many times it has stopped for division
@@ -222,18 +231,19 @@ public:
         // Create cell cycle model and associated cell
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         p_cell_model->SetDimension(2);
+        p_cell_model->SetCellProliferativeType(STEM);
 
         TS_ASSERT_EQUALS(p_cell_model->CanCellTerminallyDifferentiate(), false);
 
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-        TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
+        TissueCell stem_cell(p_healthy_state, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
         // When using a WntCellCycleModel, there is no such thing as
         // a 'stem cell'. Cell type is changed to transit or
         // differentiated, depending on the Wnt concentration, when
         // InitialiseCellCycleModel() is called.
-        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), TRANSIT);
+        TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
         // Progress through the cell cycle
         for (unsigned i=0; i<num_timesteps; i++)
@@ -278,7 +288,7 @@ public:
 
         // Test that, since the cell now experiences a low Wnt concentration,
         // it has indeed changed cell type to differentiated
-        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), DIFFERENTIATED);
+        TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
 
         double diff = 1.0;
         test_results[6] = test_results[6] + diff;
@@ -310,10 +320,11 @@ public:
         // Create cell cycle model and associated cell
         VanLeeuwen2009WntSwatCellCycleModelHypothesisOne* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisOne();
         p_cell_model->SetDimension(2);
+        p_cell_model->SetCellProliferativeType(STEM);
 
         // Test that member variables are set correctly
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-        TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
+        TissueCell stem_cell(p_healthy_state, p_cell_model);
 
         // Coverage of cell cycle model copying without an ODE system set up
         TissueCell stem_cell2 = stem_cell;
@@ -325,7 +336,7 @@ public:
         // a 'stem cell'. Cell type is changed to transit or
         // differentiated, depending on the Wnt concentration, when
         // InitialiseCellCycleModel() is called.
-        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), TRANSIT);
+        TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
@@ -470,7 +481,7 @@ public:
 
         // Test that, since the cell now experiences a low Wnt concentration,
         // it has indeed changed cell type to differentiated
-        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), DIFFERENTIATED);
+        TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
 
         // Test beta catenin levels
 
@@ -494,10 +505,11 @@ public:
         WntConcentration<1>::Instance()->SetConstantWntValueForTesting(wnt_level);
         VanLeeuwen2009WntSwatCellCycleModelHypothesisOne* p_cell_model_1d = new VanLeeuwen2009WntSwatCellCycleModelHypothesisOne();
         p_cell_model_1d->SetDimension(1);
+        p_cell_model_1d->SetCellProliferativeType(STEM);
 
         TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
 
-        TissueCell stem_cell_1d(STEM, p_healthy_state, p_cell_model_1d);
+        TissueCell stem_cell_1d(p_healthy_state, p_cell_model_1d);
         stem_cell_1d.InitialiseCellCycleModel();
 
         SimulationTime::Destroy();
@@ -511,10 +523,11 @@ public:
         WntConcentration<3>::Instance()->SetConstantWntValueForTesting(wnt_level);
         VanLeeuwen2009WntSwatCellCycleModelHypothesisOne* p_cell_model_3d = new VanLeeuwen2009WntSwatCellCycleModelHypothesisOne();
         p_cell_model_3d->SetDimension(3);
+        p_cell_model_3d->SetCellProliferativeType(STEM);
 
         TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
 
-        TissueCell stem_cell_3d(STEM, p_healthy_state, p_cell_model_3d);
+        TissueCell stem_cell_3d(p_healthy_state, p_cell_model_3d);
         stem_cell_3d.InitialiseCellCycleModel();
 
         SimulationTime::Destroy();
@@ -544,10 +557,10 @@ public:
         // Create cell cycle model and associated cell
         VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo();
         p_cell_model->SetDimension(2);
+        p_cell_model->SetCellProliferativeType(STEM);
 
-        // Test that member variables are set correctly
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-        TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
+        TissueCell stem_cell(p_healthy_state, p_cell_model);
 
         // Coverage of cell cycle model copying without an ODE system set up
         TissueCell stem_cell2 = stem_cell;
@@ -559,7 +572,7 @@ public:
         // a 'stem cell'. Cell type is changed to transit or
         // differentiated, depending on the Wnt concentration, when
         // InitialiseCellCycleModel() is called.
-        TS_ASSERT_EQUALS(stem_cell.GetCellProliferativeType(), TRANSIT);
+        TS_ASSERT_EQUALS(stem_cell.GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
 
@@ -605,9 +618,11 @@ public:
         // Create cell cycle model and associated cell
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         p_cell_model->SetDimension(2);
+        p_cell_model->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-        TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
+        TissueCell stem_cell(p_healthy_state, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
         double SG2M_duration = TissueConfig::Instance()->GetSG2MDuration();
@@ -616,8 +631,11 @@ public:
         // Create another cell cycle model and associated cell
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         p_cell_model_1->SetDimension(2);
+        p_cell_model_1->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_mutation(new ApcOneHitCellMutationState);
-        TissueCell stem_cell_1(STEM, p_mutation, p_cell_model_1);
+
+        TissueCell stem_cell_1(p_mutation, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -667,8 +685,11 @@ public:
         // Create cell cycle model and associated cell
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         p_cell_model->SetDimension(2);
+        p_cell_model->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_mutation(new BetaCateninOneHitCellMutationState);
-        TissueCell stem_cell(STEM, p_mutation, p_cell_model);
+
+        TissueCell stem_cell(p_mutation, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
@@ -676,7 +697,8 @@ public:
         // Create another cell cycle model and associated cell
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         p_cell_model_1->SetDimension(2);
-        TissueCell stem_cell_1(STEM, p_mutation, p_cell_model_1);
+        p_cell_model_1->SetCellProliferativeType(STEM);
+        TissueCell stem_cell_1(p_mutation, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -728,14 +750,19 @@ public:
         // Create cell cycle model and associated cell
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         p_cell_model_1->SetDimension(2);
+        p_cell_model_1->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_mutation(new ApcTwoHitCellMutationState);
-        TissueCell stem_cell_1(STEM, p_mutation, p_cell_model_1);
+
+        TissueCell stem_cell_1(p_mutation, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
         // Create another cell cycle model and associated cell
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
         p_cell_model_2->SetDimension(2);
-        TissueCell stem_cell_2(STEM, p_mutation, p_cell_model_2);
+        p_cell_model_2->SetCellProliferativeType(STEM);
+
+        TissueCell stem_cell_2(p_mutation, p_cell_model_2);
         stem_cell_2.InitialiseCellCycleModel();
 
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -788,15 +815,19 @@ public:
         // Create cell cycle model and associated cell
         WntCellCycleModel* p_cell_model_1 = new WntCellCycleModel();
         p_cell_model_1->SetDimension(2);
+        p_cell_model_1->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-        TissueCell stem_cell_1(STEM, p_healthy_state, p_cell_model_1);
+        TissueCell stem_cell_1(p_healthy_state, p_cell_model_1);
         stem_cell_1.InitialiseCellCycleModel();
 
         // Create another cell cycle model and associated cell
         WntCellCycleModel* p_cell_model_2 = new WntCellCycleModel();
         p_cell_model_2->SetDimension(2);
-        TissueCell stem_cell_2(STEM, p_healthy_state, p_cell_model_2);
+        p_cell_model_2->SetCellProliferativeType(STEM);
+
+        TissueCell stem_cell_2(p_healthy_state, p_cell_model_2);
         stem_cell_2.InitialiseCellCycleModel();
 
         // Run the Wnt model for a full constant Wnt stimulus for 20 hours.
@@ -848,9 +879,11 @@ public:
         // Create cell cycle model and associated cell
         StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
         p_cell_model->SetDimension(2);
+        p_cell_model->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-        TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
+        TissueCell stem_cell(p_healthy_state, p_cell_model);
         stem_cell.InitialiseCellCycleModel();
 
         // A WntCellCycleModel does this:
@@ -884,7 +917,9 @@ public:
 
         StochasticWntCellCycleModel* p_cell_model2 = new StochasticWntCellCycleModel();
         p_cell_model2->SetDimension(2);
-        TissueCell cell2(STEM, p_healthy_state, p_cell_model2);
+        p_cell_model2->SetCellProliferativeType(STEM);
+
+        TissueCell cell2(p_healthy_state, p_cell_model2);
         cell2.InitialiseCellCycleModel();
 
         TS_ASSERT_DELTA(p_cell_model2->GetG2Duration(), 1e20, 1e-4);
@@ -910,8 +945,10 @@ public:
         // Create cell cycle model and associated cell
         Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
         p_cell_model->SetDimension(2);
+        p_cell_model->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        TissueCell cell(STEM, p_state, p_cell_model);
+        TissueCell cell(p_state, p_cell_model);
 
         // Coverage of cell cycle model copying without an ODE system set up
         TissueCell stem_cell2 = cell;
@@ -925,8 +962,8 @@ public:
 
         // Divide a cell
         Alarcon2004OxygenBasedCellCycleModel* p_cell_model2 = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
-
-        TissueCell cell2(STEM, p_state, p_cell_model2);
+        p_cell_model2->SetCellProliferativeType(STEM);
+        TissueCell cell2(p_state, p_cell_model2);
 
         p_simulation_time->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false)
@@ -945,7 +982,9 @@ public:
         CellwiseData<1>::Instance()->SetConstantDataForTesting(oxygen_concentration);
         Alarcon2004OxygenBasedCellCycleModel* p_cell_model3 = new Alarcon2004OxygenBasedCellCycleModel();
         p_cell_model3->SetDimension(1);
-        TissueCell cell3(STEM, p_state, p_cell_model3);
+        p_cell_model3->SetCellProliferativeType(STEM);
+
+        TissueCell cell3(p_state, p_cell_model3);
         cell3.InitialiseCellCycleModel();
 
         TS_ASSERT_DELTA(p_cell_model3->GetProteinConcentrations()[5], 1.0, 1e-5);
@@ -971,11 +1010,12 @@ public:
 
             // Create cell cycle model and associated cell
             TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel;
+            p_model->SetCellProliferativeType(TRANSIT);
 
             p_simulation_time->IncrementTimeOneStep();
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-            TissueCell cell(TRANSIT, p_healthy_state, p_model);
+            TissueCell cell(p_healthy_state, p_model);
             cell.InitialiseCellCycleModel();
 
             TS_ASSERT_EQUALS(p_model->ReadyToDivide(), true);
@@ -1034,9 +1074,11 @@ public:
             // Create cell cycle model and associated cell
             WntCellCycleModel* p_cell_model = new WntCellCycleModel();
             p_cell_model->SetDimension(3);
+            p_cell_model->SetCellProliferativeType(STEM);
+
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-            TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
+            TissueCell stem_cell(p_healthy_state, p_cell_model);
             stem_cell.InitialiseCellCycleModel();
 
             p_simulation_time->IncrementTimeOneStep();
@@ -1114,9 +1156,11 @@ public:
             // Create cell cycle model and associated cell
             AbstractVanLeeuwen2009WntSwatCellCycleModel* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisOne();
             p_cell_model->SetDimension(2);
+            p_cell_model->SetCellProliferativeType(STEM);
+
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-            TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
+            TissueCell stem_cell( p_healthy_state, p_cell_model);
             stem_cell.InitialiseCellCycleModel();
 
             p_simulation_time->IncrementTimeOneStep();
@@ -1189,9 +1233,11 @@ public:
             // Create cell cycle model and associated cell
             AbstractVanLeeuwen2009WntSwatCellCycleModel* p_cell_model = new VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo();
             p_cell_model->SetDimension(2);
+            p_cell_model->SetCellProliferativeType(STEM);
+
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-            TissueCell stem_cell(STEM, p_healthy_state, p_cell_model);
+            TissueCell stem_cell(p_healthy_state, p_cell_model);
             stem_cell.InitialiseCellCycleModel();
 
             p_simulation_time->IncrementTimeOneStep();
@@ -1270,15 +1316,19 @@ public:
             // Create cell cycle model and associated cell
             StochasticWntCellCycleModel* p_stoc_model = new StochasticWntCellCycleModel();
             p_stoc_model->SetDimension(2);
+            p_stoc_model->SetCellProliferativeType(STEM);
+
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-            TissueCell stoc_cell(STEM, p_healthy_state, p_stoc_model);
+            TissueCell stoc_cell(p_healthy_state, p_stoc_model);
             stoc_cell.InitialiseCellCycleModel();
 
             // Create another cell cycle model and associated cell
             WntCellCycleModel* p_wnt_model = new WntCellCycleModel();
             p_wnt_model->SetDimension(2);
-            TissueCell wnt_cell(STEM, p_healthy_state, p_wnt_model);
+            p_wnt_model->SetCellProliferativeType(STEM);
+
+            TissueCell wnt_cell(p_healthy_state, p_wnt_model);
             wnt_cell.InitialiseCellCycleModel();
 
             p_simulation_time->IncrementTimeOneStep(); // 5.5
@@ -1392,9 +1442,10 @@ public:
             // Create cell cycle model and associated cell
             Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
             p_cell_model->SetDimension(3);
+            p_cell_model->SetCellProliferativeType(STEM);
 
             boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-            TissueCell cell(STEM, p_state, p_cell_model);
+            TissueCell cell(p_state, p_cell_model);
 
             cell.InitialiseCellCycleModel();
             cell.GetCellCycleModel()->SetBirthTime(-10.0);
@@ -1456,10 +1507,11 @@ public:
 
     void TestCopyingCells() throw(Exception)
     {
-        TysonNovakCellCycleModel* p_original_cell_cycle= new TysonNovakCellCycleModel;
+        TysonNovakCellCycleModel* p_original_cell_cycle = new TysonNovakCellCycleModel;
+        p_original_cell_cycle->SetCellProliferativeType(STEM);
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-        TissueCell cell(STEM, p_healthy_state, p_original_cell_cycle);
+        TissueCell cell(p_healthy_state, p_original_cell_cycle);
 
         // These changed from default
         p_original_cell_cycle->mLastTime = 42.01;

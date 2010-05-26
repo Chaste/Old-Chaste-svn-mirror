@@ -60,7 +60,9 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-        TissueCell stem_cell(STEM, p_healthy_state, new TysonNovakCellCycleModel());
+        TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel();
+        p_model->SetCellProliferativeType(STEM);
+        TissueCell stem_cell(p_healthy_state, p_model);
         stem_cell.InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(stem_cell.ReadyToDivide(), false);
@@ -90,7 +92,9 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-        TissueCell stem_cell(STEM, p_healthy_state, new TysonNovakCellCycleModel());
+        TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel();
+        p_model->SetCellProliferativeType(STEM);
+        TissueCell stem_cell(p_healthy_state, p_model);
         stem_cell.InitialiseCellCycleModel();
 
         std::vector<TissueCell> cells;
@@ -134,7 +138,7 @@ public:
             cell_iterator = cells.begin();
             while (cell_iterator < cells.end())
             {
-                switch (cell_iterator->GetCellProliferativeType())
+                switch (cell_iterator->GetCellCycleModel()->GetCellProliferativeType())
                 {
                     case STEM:
                         stem_cells[i]++;
@@ -179,8 +183,9 @@ public:
 
         WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
         p_cell_cycle_model1->SetDimension(2);
+        p_cell_cycle_model1->SetCellProliferativeType(TRANSIT);
         boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
-        TissueCell wnt_cell(TRANSIT, p_apc1, p_cell_cycle_model1);
+        TissueCell wnt_cell(p_apc1, p_cell_cycle_model1);
         wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
@@ -252,8 +257,9 @@ public:
 
         WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
         p_cell_cycle_model1->SetDimension(2);
+        p_cell_cycle_model1->SetCellProliferativeType(TRANSIT);
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
-        TissueCell wnt_cell(TRANSIT, p_bcat1, p_cell_cycle_model1);
+        TissueCell wnt_cell(p_bcat1, p_cell_cycle_model1);
         wnt_cell.InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps/2; i++)
@@ -326,8 +332,9 @@ public:
 
         WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
         p_cell_cycle_model1->SetDimension(2);
+        p_cell_cycle_model1->SetCellProliferativeType(TRANSIT);
         boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
-        TissueCell wnt_cell(TRANSIT, p_apc2, p_cell_cycle_model1);
+        TissueCell wnt_cell(p_apc2, p_cell_cycle_model1);
         wnt_cell.InitialiseCellCycleModel();
 
         boost::shared_ptr<AbstractCellMutationState> p_this_state = wnt_cell.GetMutationState();

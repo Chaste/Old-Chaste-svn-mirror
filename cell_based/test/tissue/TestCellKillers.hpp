@@ -111,7 +111,7 @@ public:
             ++cell_it;
         }
 
-        TS_ASSERT(apoptosis_cell_found);
+        TS_ASSERT_EQUALS(apoptosis_cell_found, true);
 
         // Increment time to a time after cell death
         double death_time = p_simulation_time->GetTime() + p_params->GetApoptosisTime();
@@ -141,7 +141,7 @@ public:
              cell_iter != r_cells.end();
              ++cell_iter)
         {
-            TS_ASSERT(!cell_iter->IsDead());
+            TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
             Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);
@@ -227,9 +227,12 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
-            double birth_time = 0.0;
-            cell.SetBirthTime(birth_time);
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell(p_healthy_state, p_model);
+            cell.SetBirthTime(0.0);
+
             cells.push_back(cell);
         }
 
@@ -287,9 +290,12 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
-            double birth_time = 0.0;
-            cell.SetBirthTime(birth_time);
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell(p_healthy_state, p_model);
+            cell.SetBirthTime(0.0);
+
             cells.push_back(cell);
         }
 
@@ -345,9 +351,12 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            TissueCell cell(STEM, p_healthy_state, new FixedDurationGenerationBasedCellCycleModel());
-            double birth_time = 0.0;
-            cell.SetBirthTime(birth_time);
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell(p_healthy_state, p_model);
+            cell.SetBirthTime(0.0);
+
             cells.push_back(cell);
         }
 
@@ -402,7 +411,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            cell_iter->SetCellProliferativeType(STEM);
+            cell_iter->GetCellCycleModel()->SetCellProliferativeType(STEM);
         }
 
         TS_ASSERT_THROWS_NOTHING(OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue));
@@ -446,7 +455,7 @@ public:
              cell_iter != r_cells.end();
              ++cell_iter)
         {
-            TS_ASSERT(!cell_iter->IsDead());
+            TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
             Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);

@@ -156,7 +156,7 @@ private:
          * cell cycle, we set the G1 duration to {{{DBL_MAX}}}. */
         double uniform_random_number = RandomNumberGenerator::Instance()->ranf();
 
-        switch (mpCell->GetCellProliferativeType())
+        switch (mCellProliferativeType)
         {
             case STEM:
                 mG1Duration = -log(uniform_random_number)*TissueConfig::Instance()->GetStemCellG1Duration();
@@ -239,7 +239,8 @@ public:
         for (unsigned i=0; i<num_cells; i++)
         {
             MyCellCycleModel* p_cell_cycle_model = new MyCellCycleModel;
-            TissueCell cell(STEM, p_state, p_cell_cycle_model);
+            p_cell_cycle_model->SetCellProliferativeType(STEM);
+            TissueCell cell(p_state, p_cell_cycle_model);
             cell.InitialiseCellCycleModel();
             cells.push_back(cell);
         }
@@ -258,7 +259,8 @@ public:
 
         /* Now construct another {{{MyCellCycleModel}}} and associated cell. */
         MyCellCycleModel* p_my_model = new MyCellCycleModel;
-        TissueCell my_cell(TRANSIT, p_state, p_my_model);
+        p_my_model->SetCellProliferativeType(TRANSIT);
+        TissueCell my_cell(p_state, p_my_model);
         my_cell.InitialiseCellCycleModel();
 
         /* Use the helper method {{{CheckReadyToDivideAndPhaseIsUpdated()}}} to
@@ -295,7 +297,8 @@ public:
 
             /* Create a cell with associated cell cycle model. */
             MyCellCycleModel* p_model = new MyCellCycleModel;
-            TissueCell cell(TRANSIT, p_state, p_model);
+            p_model->SetCellProliferativeType(TRANSIT);
+            TissueCell cell(p_state, p_model);
             cell.InitialiseCellCycleModel();
 
             /* Move forward two time steps. */
@@ -384,7 +387,9 @@ public:
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             /* For each node we create a cell with our cell cycle model. */
-            TissueCell cell(STEM, p_state, new MyCellCycleModel);
+            MyCellCycleModel* p_model = new MyCellCycleModel();
+            p_model->SetCellProliferativeType(STEM);
+            TissueCell cell(p_state, p_model);
 
             /* Now, we define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration

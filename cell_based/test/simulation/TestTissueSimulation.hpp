@@ -163,10 +163,14 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(DIFFERENTIATED);
+
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (TissueConfig::Instance()->GetStemCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-            TissueCell cell(DIFFERENTIATED, p_state, new FixedDurationGenerationBasedCellCycleModel());
+
+            TissueCell cell(p_state, p_model);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -214,8 +218,12 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            TissueCell cell(DIFFERENTIATED, p_state, new FixedDurationGenerationBasedCellCycleModel());
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(DIFFERENTIATED);
+            
+            TissueCell cell(p_state, p_model);
             cell.SetBirthTime(-1.0);
+
             cells.push_back(cell);
         }
 
@@ -260,10 +268,13 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(STEM);
+
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (TissueConfig::Instance()->GetStemCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-            TissueCell cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
+            TissueCell cell(p_state, p_model);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -360,9 +371,14 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
-            TissueCell cell(TRANSIT, p_state, new FixedDurationGenerationBasedCellCycleModel());
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(TRANSIT);
+            
+            TissueCell cell(p_state, p_model);
+
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
                                                +p_params->GetSG2MDuration());
+            
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

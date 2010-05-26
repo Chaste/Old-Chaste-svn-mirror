@@ -66,11 +66,13 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
             AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
-            TissueCell cell(STEM, p_state, p_cell_cycle_model);
+            p_cell_cycle_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell(p_state, p_cell_cycle_model);
             double birth_time = 0.0 - i;
             cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
 
+            cells.push_back(cell);
             cell_location_indices.push_back(i);
         }
 
@@ -340,7 +342,10 @@ public:
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 70u);
 
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        TissueCell new_cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
+
+        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+        p_model->SetCellProliferativeType(STEM);
+        TissueCell new_cell(p_state, p_model);
         new_cell.SetBirthTime(0);
 
         c_vector<double,2> new_location;
@@ -359,7 +364,9 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 70u);
 
-        TissueCell new_cell2(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
+        FixedDurationGenerationBasedCellCycleModel* p_model2 = new FixedDurationGenerationBasedCellCycleModel();
+        p_model2->SetCellProliferativeType(STEM);
+        TissueCell new_cell2(p_state, p_model2);
         new_cell2.SetBirthTime(0);
 
         c_vector<double,2> new_location2;
@@ -702,8 +709,12 @@ public:
             c_vector<double, 2> node_location = mesh.GetNode(node_index)->rGetLocation();
             if (node_location(0) <= 3)
             {
-                TissueCell cell(TRANSIT, p_state, new FixedDurationGenerationBasedCellCycleModel());
+                FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+                p_model->SetCellProliferativeType(TRANSIT);
+
+                TissueCell cell(p_state, p_model);
                 cell.SetBirthTime(-1.0);
+                
                 cells.push_back(cell);
                 location_indices.push_back(node_index);
             }
@@ -760,8 +771,12 @@ public:
             c_vector<double, 3> node_location = mesh.GetNode(node_index)->rGetLocation();
             if (node_location(0) <= 3)
             {
-                TissueCell cell(TRANSIT, p_state, new FixedDurationGenerationBasedCellCycleModel());
+                FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+                p_model->SetCellProliferativeType(TRANSIT);
+
+                TissueCell cell(p_state, p_model);
                 cell.SetBirthTime(-1.0);
+
                 cells.push_back(cell);
                 location_indices.push_back(node_index);
             }

@@ -62,7 +62,7 @@ void AbstractVanLeeuwen2009WntSwatCellCycleModel::ChangeCellProliferativeTypeDue
         cell_type = DIFFERENTIATED;
     }
 
-    mpCell->SetCellProliferativeType(cell_type);
+    mCellProliferativeType = cell_type;
 }
 
 

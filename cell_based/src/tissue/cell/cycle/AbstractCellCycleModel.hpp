@@ -83,6 +83,7 @@ private:
         archive & mG1Duration;
         archive & mReadyToDivide;
         archive & mDimension;
+        archive & mCellProliferativeType;
     }
 
     /**
@@ -119,9 +120,14 @@ protected:
     bool mReadyToDivide;
 
     /**
-     *  Spatial dimension being used in simulation (defaults to 0, set with SetDimension)
+     *  Spatial dimension being used in simulation (defaults to 0, set with SetDimension).
      */
     unsigned mDimension;
+
+    /**
+     * The cell type - defined in CellProliferativeTypes.hpp.
+     */
+    CellProliferativeType mCellProliferativeType;
 
 public:
 
@@ -315,6 +321,18 @@ public:
      * Whether a cell with this cell cyclde model is able to fully (terminally) differentiate.
      */
     virtual bool CanCellTerminallyDifferentiate();
+
+    /**
+     * Get method for #mCellProliferativeType.
+     */
+    CellProliferativeType GetCellProliferativeType() const;
+
+    /**
+     * Set method for #mCellProliferativeType.
+     *
+     * @param cellType the cell's type
+     */
+    void SetCellProliferativeType(CellProliferativeType cellType);
 };
 
 

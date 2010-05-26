@@ -135,7 +135,8 @@ public:
              * set on the cell cycle model before being passed to the cell. */
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
             p_model->SetDimension(2);
-            TissueCell cell(STEM, p_state, p_model);
+            p_model->SetCellProliferativeType(STEM);
+            TissueCell cell(p_state, p_model);
 
             /* We now define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration

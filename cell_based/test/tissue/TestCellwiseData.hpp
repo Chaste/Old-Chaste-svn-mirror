@@ -66,22 +66,22 @@ public:
         // Create a tissue
         MeshBasedTissue<2> tissue(mesh,cells);
 
-        TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
+        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), false);
 
         // One variable tests
 
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
 
-        TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
+        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), false);
         TS_ASSERT_THROWS_THIS(p_data->SetTissue(tissue),"SetTissue must be called after SetNumNodesAndVars()");
 
         p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
 
-        TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
+        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), false);
 
         p_data->SetTissue(tissue);
 
-        TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
+        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
 
         p_data->SetValue(1.23, mesh.GetNode(0));
         AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
@@ -93,8 +93,13 @@ public:
 
         // Test ReallocateMemory method
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        TissueCell new_cell(STEM, p_state, new FixedDurationGenerationBasedCellCycleModel());
+
+        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+        p_model->SetCellProliferativeType(STEM);
+
+        TissueCell new_cell(p_state, p_model);
         new_cell.SetBirthTime(-1);
+
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 0.2;
         new_cell_location[1] = 0.3;
@@ -117,7 +122,7 @@ public:
 
         p_data->Destroy();
 
-        TS_ASSERT(!CellwiseData<2>::Instance()->IsSetUp());
+        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), false);
 
         // Two variable tests
 
@@ -127,7 +132,7 @@ public:
         p_data->SetTissue(tissue);
 
         TS_ASSERT_THROWS_THIS(p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1),"SetNumNodesAndVars() must be called before setting the Tissue (and after a Destroy)");
-        TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
+        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
 
         p_data->SetValue(3.23, mesh.GetNode(0), 1);
         AbstractTissue<2>::Iterator cell_iter2 = tissue.Begin();
@@ -187,7 +192,7 @@ public:
                 i++;
             }
 
-            TS_ASSERT(p_data->IsSetUp());
+            TS_ASSERT_EQUALS(p_data->IsSetUp(), true);
 
             // Create output archive
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
@@ -209,9 +214,9 @@ public:
             (*p_arch) >> *p_data;
 
             // Check the data
-            TS_ASSERT(CellwiseData<2>::Instance()->IsSetUp());
-            TS_ASSERT(p_data->IsSetUp());
-            TS_ASSERT(!p_data->mUseConstantDataForTesting);
+            TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
+            TS_ASSERT_EQUALS(p_data->IsSetUp(), true);
+            TS_ASSERT_EQUALS(p_data->mUseConstantDataForTesting, false);
 
             // We will have constructed a new tissue on load, so use the new tissue
             MeshBasedTissue<2>& tissue = p_data->rGetTissue();

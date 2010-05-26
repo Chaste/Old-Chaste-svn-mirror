@@ -80,9 +80,9 @@ void TysonNovakCellCycleModel::ResetForDivision()
 
 void TysonNovakCellCycleModel::InitialiseDaughterCell()
 {
-    if (mpCell->GetCellProliferativeType() == STEM)
+    if (mCellProliferativeType == STEM)
     {
-        mpCell->SetCellProliferativeType(TRANSIT);
+        mCellProliferativeType = TRANSIT;
     }
 }
 

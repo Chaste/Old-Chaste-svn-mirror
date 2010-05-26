@@ -516,7 +516,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-             TS_ASSERT(cell_iter->GetCellProliferativeType() != DIFFERENTIATED);
+             TS_ASSERT(cell_iter->GetCellCycleModel()->GetCellProliferativeType() != DIFFERENTIATED);
         }
 
         // Close the log file opened in this test
@@ -1283,7 +1283,7 @@ public:
 
             TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
             TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
-            TS_ASSERT(daughter_location[1]>=location[1]);
+            TS_ASSERT_LESS_THAN_EQUALS(location[1], daughter_location[1]);
             TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetMeinekeDivisionSeparation(), 1e-7);
        }
     }
@@ -1359,7 +1359,7 @@ public:
         // The parent stem cell should stay where it is and the daughter be introduced at positive y.
         TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
         TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
-        TS_ASSERT(daughter_location[1]>=location[1]);
+        TS_ASSERT_LESS_THAN_EQUALS(location[1], daughter_location[1]);
         TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetMeinekeDivisionSeparation(), 1e-7);
     }
 

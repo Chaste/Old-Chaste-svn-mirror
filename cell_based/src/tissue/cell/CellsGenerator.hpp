@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "TissueCell.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "CellMutationStateRegistry.hpp"
 
 /**
  * A helper class for generating a vector of cells for a given mesh.
@@ -93,9 +92,10 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCell>
     {
         CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
         p_cell_cycle_model->SetDimension(DIM);
+        p_cell_cycle_model->SetCellProliferativeType(STEM);
 
         boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-        TissueCell cell(STEM, p_state, p_cell_cycle_model);
+        TissueCell cell(p_state, p_cell_cycle_model);
 
         double birth_time;
         if (!locationIndices.empty())
@@ -127,10 +127,11 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vec
     {
         CELL_CYCLE_MODEL* p_cell_cycle_model = new CELL_CYCLE_MODEL;
         p_cell_cycle_model->SetDimension(DIM);
+        p_cell_cycle_model->SetCellProliferativeType(STEM);
 
         boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 
-        TissueCell cell(STEM, p_state, p_cell_cycle_model);
+        TissueCell cell(p_state, p_cell_cycle_model);
 
         double birth_time = 0.0 - locationIndices[i];
         cell.SetBirthTime(birth_time);

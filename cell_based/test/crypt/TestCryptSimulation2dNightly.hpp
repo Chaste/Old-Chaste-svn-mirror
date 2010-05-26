@@ -255,8 +255,11 @@ public:
                 birth_time = -1; //hours
             }
             boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-            TissueCell cell(cell_type, p_state, new FixedDurationGenerationBasedCellCycleModel());
-            (static_cast<FixedDurationGenerationBasedCellCycleModel*>(cell.GetCellCycleModel()))->SetGeneration(generation);
+            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+            p_model->SetGeneration(generation);
+            p_model->SetCellProliferativeType(cell_type);
+
+            TissueCell cell(p_state, p_model);
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
@@ -290,7 +293,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            CellProliferativeType type = cell_iter->GetCellProliferativeType();
+            CellProliferativeType type = cell_iter->GetCellCycleModel()->GetCellProliferativeType();
 
             if (type==STEM)
             {

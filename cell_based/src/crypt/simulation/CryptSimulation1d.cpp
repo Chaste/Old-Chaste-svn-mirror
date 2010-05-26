@@ -125,7 +125,7 @@ void CryptSimulation1d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
              * If WntConcentration is not set up then stem cells must be pinned,
              * so we reset the location of each stem cell.
              */
-            if (cell_iter->GetCellProliferativeType()==STEM)
+            if (cell_iter->GetCellCycleModel()->GetCellProliferativeType()==STEM)
             {
                 // Get old node location
                 c_vector<double, 1> old_node_location = rOldLocations[node_index];

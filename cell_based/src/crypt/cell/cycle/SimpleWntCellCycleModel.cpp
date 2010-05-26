@@ -52,7 +52,7 @@ void SimpleWntCellCycleModel::SetG1Duration()
     TissueConfig* p_params = TissueConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
-    switch (mpCell->GetCellProliferativeType())
+    switch (mCellProliferativeType)
     {
         case STEM:
             if (mUseCellProliferativeTypeDependentG1Duration)
@@ -198,12 +198,12 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
             cell_type = STEM;
         }
 
-        mpCell->SetCellProliferativeType(cell_type);
+        mCellProliferativeType = cell_type;
     }
     else
     {
         // The cell is DIFFERENTIATED and so in G0 phase
-        mpCell->SetCellProliferativeType(DIFFERENTIATED);
+        mCellProliferativeType = DIFFERENTIATED;
     }
     AbstractSimpleCellCycleModel::UpdateCellCyclePhase();
 }
@@ -214,7 +214,7 @@ void SimpleWntCellCycleModel::InitialiseDaughterCell()
 
     if (wnt_type == RADIAL)
     {
-        mpCell->SetCellProliferativeType(TRANSIT);
+        mCellProliferativeType = TRANSIT;
     }
 
     AbstractSimpleCellCycleModel::InitialiseDaughterCell();
