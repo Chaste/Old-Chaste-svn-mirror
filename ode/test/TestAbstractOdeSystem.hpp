@@ -148,22 +148,22 @@ public:
 
         TS_ASSERT_THROWS_THIS(ode.GetParameterIndex("b"), "No parameter named 'b'.");
         TS_ASSERT_THROWS_THIS(ode.GetStateVariableIndex("b"), "No state variable named 'b'.");
-        TS_ASSERT_THROWS_THIS(ode.GetAnyVariableIndex("b"), "No state variable or parameter named 'b'.");
+        TS_ASSERT_THROWS_THIS(ode.GetAnyVariableIndex("b"), "No state variable, parameter, or derived quantity named 'b'.");
 
-        TS_ASSERT_THROWS_THIS(ode.GetAnyVariable(2u), "Invalid index passed to GetAnyVariable.");
+        TS_ASSERT_THROWS_THIS(ode.GetAnyVariable(3u), "Invalid index passed to GetAnyVariable.");
         TS_ASSERT_THROWS_THIS(ode.GetStateVariable(1u), "The index passed in must be less than the number of state variables.");
         TS_ASSERT_THROWS_THIS(ode.GetParameter(1u), "The index passed in must be less than the number of parameters.");
 
         TS_ASSERT_THROWS_THIS(ode.GetParameterUnits(1u), "The index passed in must be less than the number of parameters.");
         TS_ASSERT_THROWS_THIS(ode.GetStateVariableUnits(1u), "The index passed in must be less than the number of state variables.");
-        TS_ASSERT_THROWS_THIS(ode.GetAnyVariableUnits(2u), "Invalid index passed to GetAnyVariableUnits.");
+        TS_ASSERT_THROWS_THIS(ode.GetAnyVariableUnits(3u), "Invalid index passed to GetAnyVariableUnits.");
 
         TS_ASSERT_THROWS_THIS(p_info->GetParameterIndex("b"), "No parameter named 'b'.");
         TS_ASSERT_THROWS_THIS(p_info->GetStateVariableIndex("b"), "No state variable named 'b'.");
-        TS_ASSERT_THROWS_THIS(p_info->GetAnyVariableIndex("b"), "No state variable or parameter named 'b'.");
+        TS_ASSERT_THROWS_THIS(p_info->GetAnyVariableIndex("b"), "No state variable, parameter, or derived quantity named 'b'.");
         TS_ASSERT_THROWS_THIS(p_info->GetParameterUnits(1u), "The index passed in must be less than the number of parameters.");
         TS_ASSERT_THROWS_THIS(p_info->GetStateVariableUnits(1u), "The index passed in must be less than the number of state variables.");
-        TS_ASSERT_THROWS_THIS(p_info->GetAnyVariableUnits(2u), "Invalid index passed to GetAnyVariableUnits.");
+        TS_ASSERT_THROWS_THIS(p_info->GetAnyVariableUnits(3u), "Invalid index passed to GetAnyVariableUnits.");
     }
     
     void TestDerivedQuantities() throw (Exception)
@@ -186,10 +186,16 @@ public:
         TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityNames()[0], "2a_plus_y");
         TS_ASSERT_EQUALS(p_info->rGetDerivedQuantityUnits()[0], "dimensionless");
         
+        TS_ASSERT_EQUALS(ode.GetAnyVariableIndex("2a_plus_y"), 2u);
+        TS_ASSERT_EQUALS(ode.GetAnyVariableUnits(2u), "dimensionless");
+        TS_ASSERT_EQUALS(p_info->GetAnyVariableIndex("2a_plus_y"), 2u);
+        TS_ASSERT_EQUALS(p_info->GetAnyVariableUnits(2u), "dimensionless");
+        
         std::vector<double> derived = ode.ComputeDerivedQuantitiesFromCurrentState(0.0);
         double a = ode.GetParameter(0);
         TS_ASSERT_EQUALS(a, 0.0);
         TS_ASSERT_DELTA(derived[0], 2*a, 1e-4);
+        TS_ASSERT_DELTA(ode.GetAnyVariable(2u, 0.0), 2*a, 1e-4);
         a = 1.0;
         ode.SetParameter(0, a);
         derived = ode.ComputeDerivedQuantities(0.0, ode.GetInitialConditions());
@@ -198,6 +204,7 @@ public:
         ode.SetStateVariable(0, y);
         derived = ode.ComputeDerivedQuantitiesFromCurrentState(0.0);
         TS_ASSERT_DELTA(derived[0], 2*a+y, 1e-4);
+        TS_ASSERT_DELTA(ode.GetAnyVariable(2u, 1.0/* ignored for this ODE */), 2*a+y, 1e-4);
         
         // Exceptions
         TS_ASSERT_THROWS_THIS(ode.GetDerivedQuantityIndex("Missing"), "No derived quantity named 'Missing'.");

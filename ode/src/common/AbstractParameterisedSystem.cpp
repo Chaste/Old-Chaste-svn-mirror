@@ -179,7 +179,7 @@ std::string AbstractParameterisedSystem<VECTOR>::GetParameterUnits(unsigned inde
 //
 
 template<typename VECTOR>
-double AbstractParameterisedSystem<VECTOR>::GetAnyVariable(unsigned index) const
+double AbstractParameterisedSystem<VECTOR>::GetAnyVariable(unsigned index, double time)
 {
     if (index < mNumberOfStateVariables)
     {
@@ -191,7 +191,18 @@ double AbstractParameterisedSystem<VECTOR>::GetAnyVariable(unsigned index) const
     }
     else
     {
-        EXCEPTION("Invalid index passed to GetAnyVariable.");
+        unsigned offset = mNumberOfStateVariables + GetVectorSize(mParameters);
+        if (index - offset < GetNumberOfDerivedQuantities())
+        {
+            VECTOR dqs = ComputeDerivedQuantitiesFromCurrentState(time);
+            double value = GetVectorComponent(dqs, index - offset);
+            DeleteVector(dqs);
+            return value;
+        }
+        else
+        {
+            EXCEPTION("Invalid index passed to GetAnyVariable.");
+        }
     }
 }
 

@@ -145,7 +145,14 @@ unsigned AbstractOdeSystemInformation::GetAnyVariableIndex(const std::string& rN
         }
         catch (const Exception& e)
         {
-            EXCEPTION("No state variable or parameter named '" + rName + "'.");
+            try
+            {
+                return mVariableNames.size() + mParameterNames.size() + GetDerivedQuantityIndex(rName);
+            }
+            catch (const Exception& e)
+            {
+                EXCEPTION("No state variable, parameter, or derived quantity named '" + rName + "'.");
+            }
         }
     }
 }
@@ -166,7 +173,15 @@ std::string AbstractOdeSystemInformation::GetAnyVariableUnits(unsigned index) co
         }
         else
         {
-            EXCEPTION("Invalid index passed to GetAnyVariableUnits.");
+            offset += mParameterUnits.size();
+            if (index - offset < mDerivedQuantityUnits.size())
+            {
+                return mDerivedQuantityUnits[index - offset];
+            }
+            else
+            {
+                EXCEPTION("Invalid index passed to GetAnyVariableUnits.");
+            }
         }
     }
 }

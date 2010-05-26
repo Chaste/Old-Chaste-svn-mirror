@@ -200,24 +200,31 @@ public:
     //
 
     /**
-     * Get the value of a variable, either a state variable or a parameter.
+     * Get the value of a variable, whether a state variable, parameter,
+     * or derived quantity.
+     * 
+     * Note that if the variable is a derived quantity, this method will compute
+     * all derived quantities, so may not be very efficient.
      *
      * @param index the index of the variable, as given by GetAnyVariableIndex.
+     * @param time  the current simulation time, possibly needed if the variable
+     *     is a derived quantity
      */
-    double GetAnyVariable(unsigned index) const;
+    double GetAnyVariable(unsigned index, double time=0.0);
 
     /**
-     * Get the index of a variable, whether state variable or parameter,
-     * with the given name.  The returned index is suitable for use with
-     * GetAnyVariableUnits and GetAnyVariable.
+     * Get the index of a variable, whether a state variable, parameter,
+     * or derived quantity, with the given name.
+     * The returned index is suitable for use with GetAnyVariableUnits
+     * and GetAnyVariable.
      *
      * @param rName  the name of a variable
      */
     unsigned GetAnyVariableIndex(const std::string& rName) const;
 
     /**
-     * Get the units of a variable, whether state variable or parameter,
-     * given its index as returned by GetAnyVariableIndex.
+     * Get the units of a variable, whether a state variable, parameter, or
+     * derived quantity, given its index as returned by GetAnyVariableIndex.
      *
      * @param index  an index from GetAnyVariableIndex.
      * @return the units of the variable.

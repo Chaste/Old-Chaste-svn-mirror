@@ -181,17 +181,17 @@ public:
 
 
     /**
-     * Get the index of a variable, whether state variable or parameter,
-     * with the given name.  The returned index is suitable for use with
-     * GetAnyVariableUnits.
+     * Get the index of a variable, whether a state variable, parameter,
+     * or derived quantity, with the given name.  The returned index is
+     * suitable for use with GetAnyVariableUnits.
      *
      * @param rName  the name of a variable
      */
     unsigned GetAnyVariableIndex(const std::string& rName) const;
 
     /**
-     * Get the units of a variable, whether state variable or parameter,
-     * given its index as returned by GetAnyVariableIndex.
+     * Get the units of a variable, whether a state variable, parameter, or
+     * derived quantity, given its index as returned by GetAnyVariableIndex.
      *
      * @param index  an index from GetAnyVariableIndex.
      * @return the units of the variable.
