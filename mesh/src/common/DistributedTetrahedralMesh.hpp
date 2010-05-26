@@ -74,12 +74,14 @@ public:
       * "DUMB" is using natural mesh ordering with PETSC_DECIDE.
       * "PARMETIS_LIBRARY" is a call to the parallel parMETIS library
       * "METIS_LIBRARY" is a call to the sequential METIS library
+      * "PETSC_MAT_PARTITION" is a call to parMETIS (or whatever) via PETSc functionality
       * */
     typedef enum
     {
         DUMB=0,
         PARMETIS_LIBRARY=1,
-        METIS_LIBRARY=2 
+        METIS_LIBRARY=2,
+//        PETSC_MAT_PARTITION=3 
     } PartitionType;
 
 private:
@@ -377,6 +379,18 @@ private:
                                       std::set<unsigned>& rNodesOwned,
                                       std::vector<unsigned>& rProcessorsOffset);
 
+//    /**
+//     * Specialised method to compute a parallel partitioning of a given mesh
+//     * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning
+//     *
+//     * @param rMeshReader is the reader pointing to the mesh to be read in and partitioned
+//     * @param rNodesOwned is an empty set to be filled with the indices of nodes owned by this process
+//     * @param rProcessorsOffset a vector of length NumProcs to be filled with the index of the lowest indexed node owned by each process
+//     *
+//     */
+//    void PetscMatrixPartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+//                                      std::set<unsigned>& rNodesOwned,
+//                                      std::vector<unsigned>& rProcessorsOffset);
     /**
       * Specialised method to compute a parallel partitioning of a given mesh with the ParMetis library
       * (called by ComputeMeshPartitioning, based on the value of mMetisPartitioning)

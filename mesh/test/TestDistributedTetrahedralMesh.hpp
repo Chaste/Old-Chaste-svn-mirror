@@ -514,10 +514,45 @@ public:
 
         CheckEverythingIsAssigned<3,3>(mesh);
     }
+    
+    void xTestRandomShuffle() throw (Exception)
+    {
+        unsigned num_elts = 20;
+        
+        std::vector<unsigned> random_order(num_elts);
+        for (unsigned element_number = 0; element_number < num_elts; element_number++)
+        {
+            random_order[element_number] = element_number;
+        }
+        
+        random_shuffle ( random_order.begin(), random_order.end() );
+        
+        unsigned my_entry;
+        unsigned neighbours_entry;
+        
+        int num_procs = PetscTools::GetNumProcs();
+        int my_rank = PetscTools::GetMyRank();
+        int source_rank = (my_rank + num_procs - 1) % num_procs;
+        int destination_rank = (my_rank + 1) % num_procs;
+        
+        MPI_Status status;
+        
+        for (unsigned element_number = 0; element_number < num_elts; element_number++)
+        {
+            my_entry = random_order[element_number];
+            
+            MPI_Send( &my_entry, 1, MPI_UNSIGNED, destination_rank, my_rank, PETSC_COMM_WORLD );
+            MPI_Recv( &neighbours_entry, 1, MPI_UNSIGNED, source_rank, source_rank, PETSC_COMM_WORLD, &status );
+        
+            TS_ASSERT_EQUALS( my_entry, neighbours_entry );
+        }
+        
+    }
+    
 
     void TestEverythingIsAssignedParMetisLibrary()
     {
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
         DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PARMETIS_LIBRARY);
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -526,7 +561,22 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
 
         CheckEverythingIsAssigned<3,3>(mesh);
+        
+//        std::cout << PetscTools::GetMyRank() << " " << mesh.GetNumLocalNodes() << std::endl;
     }
+
+//    void TestEverythingIsAssignedPetscPartition()
+//    {
+//        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+//        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PETSC_MAT_PARTITION);
+//        mesh.ConstructFromMeshReader(mesh_reader);
+//
+//        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
+//        TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
+//        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
+//
+//        CheckEverythingIsAssigned<3,3>(mesh);
+//    }
 
     void TestConstruct3DWithRegions() throw (Exception)
     {

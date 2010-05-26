@@ -42,6 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Timer.hpp"
 
+#include "petscao.h"
+
 /////////////////////////////////////////////////////////////////////////////////////
 //   IMPLEMENTATION
 /////////////////////////////////////////////////////////////////////////////////////
@@ -104,6 +106,10 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
         {
             MetisLibraryNodePartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
         }
+//        else if (mMetisPartitioning==PETSC_MAT_PARTITION && !PetscTools::IsSequential())
+//        {
+//            PetscMatrixPartitioning(rMeshReader, rNodesOwned, rProcessorsOffset);
+//        }
         else
         {
             DumbNodePartitioning(rMeshReader, rNodesOwned);
@@ -340,13 +346,16 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
                 p_boundary_element->SetRegion(attribute_value);
             }
         }
-        }
+    }
     catch (Exception &e)
     {
         PetscTools::ReplicateException(true); //Bad face exception
         throw e;
     }
+//    EXCEPTION("before deadlocking");
+//    std::cout << "before!" << std::flush <<std::endl;
     PetscTools::ReplicateException(false);
+//    std::cout << "went past this!" << std::flush <<std::endl;
 
     if (mMetisPartitioning != DUMB && !PetscTools::IsSequential())
     {
@@ -601,6 +610,129 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::DumbNodePartitioning(Ab
     }
 }
 
+
+//template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
+//                                                                                  std::set<unsigned>& rNodesOwned,
+//                                                                                  std::vector<unsigned>& rProcessorsOffset)
+//{
+//    assert(!PetscTools::IsSequential());
+//    assert(ELEMENT_DIM==2 || ELEMENT_DIM==3); // Metis works with triangles and tetras
+//
+//    unsigned num_elements = rMeshReader.GetNumElements();
+//    unsigned num_procs = PetscTools::GetNumProcs();
+//    unsigned local_proc_index = PetscTools::GetMyRank();
+//
+//    /*
+//     *  Work out initial element distribution
+//     */
+//    idxtype element_distribution[num_procs+1];
+//    idxtype element_count[num_procs];
+//
+//    element_distribution[0]=0;
+//
+//    for (unsigned proc_index=1; proc_index<num_procs; proc_index++)
+//    {
+//        element_distribution[proc_index] = element_distribution[proc_index-1] + num_elements/num_procs;
+//        element_count[proc_index-1] = element_distribution[proc_index] - element_distribution[proc_index-1];
+//    }
+//
+//    element_distribution[num_procs] = num_elements;
+//    element_count[num_procs-1] = element_distribution[num_procs] - element_distribution[num_procs-1];
+//
+//    /*
+//     *  Create distributed mesh data structure
+//     */
+//    unsigned first_local_element = element_distribution[local_proc_index];
+//    unsigned last_plus_one_element = element_distribution[local_proc_index+1];
+//    unsigned num_local_elements = last_plus_one_element - first_local_element;
+//
+//    idxtype* eind = new idxtype[num_local_elements*(ELEMENT_DIM+1)];
+//    idxtype* eptr = new idxtype[num_local_elements+1];
+//
+//    // Advance the file pointer to the first element I own.
+//    for (unsigned element_index = 0; element_index < first_local_element; element_index++)
+//    {
+//        ElementData element_data = rMeshReader.GetNextElementData();
+//    }
+//
+//    unsigned counter=0;
+//    for (unsigned element_index = 0; element_index < num_local_elements; element_index++)
+//    {
+//        ElementData element_data = rMeshReader.GetNextElementData();
+//
+//        eptr[element_index] = counter;
+//        for (unsigned i=0; i<ELEMENT_DIM+1; i++)
+//        {
+//            eind[counter++] = element_data.NodeIndices[i];
+//        }
+//
+//    }
+//    eptr[num_local_elements] = counter;
+//
+//    rMeshReader.Reset();
+//
+//    int numflag = 0; // METIS speak for C-style numbering
+//    int ncommonnodes = 3; // Connectivity degree. Manual recommends 3 for meshes made exclusively of tetrahedra.
+//    MPI_Comm communicator = PETSC_COMM_WORLD;
+//
+//    idxtype* xadj;
+//    idxtype* adjncy;
+//
+//    Timer::Reset();
+//    ParMETIS_V3_Mesh2Dual(element_distribution, eptr, eind,
+//                          &numflag, &ncommonnodes, &xadj, &adjncy, &communicator);
+//    //Timer::Print("ParMETIS Mesh2Dual");
+//
+//    delete[] eind;
+//    delete[] eptr;
+//
+//
+//    Mat Adj;
+//    //MatCreateMPIAdj(MPI Comm comm,int mlocal,int n,const int ia[],const int ja[],int *weights,Mat *Adj)
+//    MatCreateMPIAdj(communicator, num_local_elements, num_elements, xadj, adjncy, PETSC_NULL, &Adj);
+////    assert(0);
+//
+//    MatPartitioning part;
+//    MatPartitioningCreate(communicator, &part);
+//    MatPartitioningSetAdjacency(part, Adj);
+//    MatPartitioningSetFromOptions(part);
+//    
+//    IS is;
+//    MatPartitioningApply(part, &is);
+//    MatPartitioningDestroy(part);
+//    
+//    // MatDestroy(Adj) complains about "block not allocated with PetscMalloc()" Indeed it wasn't, ParMETIS_V3_Mesh2Dual did it
+//    //MatDestroy(Adj);
+//    // Instead, free memory manually and hope nothing else needs to be deallocated.
+//    free(xadj);
+//    free(adjncy);    
+//    
+//    // Could be hacked with something like:
+//    //newadj = (Mat_MPIAdj *)(*dual)->data;
+//    //newadj->freeaijwithfree = PETSC_TRUE;
+//    //
+//    //Adj->data->freeaijwithfree = PETSC_TRUE;
+//    
+//    IS isg;
+//    ISPartitioningToNumbering(is, &isg);
+//    
+//    AO ao;
+//    AOCreateBasicIS(isg,PETSC_NULL,&ao);
+//    
+//    PetscInt local_size; 
+//    ISGetLocalSize(isg, &local_size);
+//    
+//    PetscInt size;
+//    ISGetSize(isg, &size);
+//    
+//    std::cout << PetscTools::GetMyRank() << " " << local_size << " " << size << " " << num_elements << std::endl;
+//
+//    IS pets
+//    
+//    //AOApplicationToPetscIS(ao,IS indices);   
+//
+//}
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::MetisLibraryNodePartitioning(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader,
@@ -1403,8 +1535,21 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
      *      global_node_partition and rProcessorsOffset are global,
      *      rNodesOwned and rHaloNodesOwned are local.
      */
+    
+    std::vector<unsigned> random_order(mTotalNumElements);
     for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
     {
+        random_order[element_number] = element_number;
+    }
+    
+    random_shuffle ( random_order.begin(), random_order.end() );    
+     
+    for (unsigned random_index = 0; random_index < mTotalNumElements; random_index++)
+    {
+        // The commented out line needs to replace the one following it - but leads to deadlock when we do... 
+//        unsigned element_number = random_order[random_index];
+        unsigned element_number = random_index;
+        
         unsigned element_owner = global_element_partition[element_number];
         ElementData element_data = rMeshReader.GetNextElementData();
 
