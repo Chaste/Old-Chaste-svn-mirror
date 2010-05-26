@@ -136,39 +136,4 @@ public:
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(SimpleWntCellCycleModel)
 
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a SimpleWntCellCycleModel instance.
- */
-template<class Archive>
-inline void save_construct_data(
-    Archive & ar, const SimpleWntCellCycleModel * t, const unsigned int file_version)
-{
-}
-
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a SimpleWntCellCycleModel instance.
- */
-template<class Archive>
-inline void load_construct_data(
-    Archive & ar, SimpleWntCellCycleModel * t, const unsigned int file_version)
-{
-    /**
-     * Invoke inplace constructor to initialise an instance of SimpleWntCellCycleModel.
-     * It doesn't actually matter what values we pass to our standard constructor,
-     * provided they are valid parameter values, since the state loaded later
-     * from the archive will overwrite their effect in this case.
-     */
-
-    ::new(t)SimpleWntCellCycleModel;
-}
-}
-} // namespace ...
-
 #endif /*SIMPLEWNTCELLCYCLEMODEL_HPP_*/
