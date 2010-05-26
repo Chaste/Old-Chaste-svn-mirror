@@ -369,6 +369,18 @@
       </xs:element>
     </xs:sequence>
   </xs:complexType>
+  <xs:complexType name="set_parameter_type">
+    <xs:attribute name="name" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>Name of the parameter to set.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>Value for the parameter.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
   <xs:complexType name="cell_heterogeneity_type">
     <xs:annotation>
       <xs:documentation>Defines a heterogeneity in a set of cells in a given location (cuboid or
@@ -398,6 +410,11 @@
         <xs:annotation>
           <xs:documentation>Location of nodes at which to apply these scale
             factors.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SetParameter" type="set_parameter_type" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Set a named parameter on the cell models in this region.</xs:documentation>
         </xs:annotation>
       </xs:element>
     </xs:sequence>

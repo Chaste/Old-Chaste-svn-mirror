@@ -930,13 +930,14 @@ template<unsigned DIM>
 void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* >& rCellHeterogeneityRegions,
                                          std::vector<double>& rScaleFactorGks,
                                          std::vector<double>& rScaleFactorIto,
-                                         std::vector<double>& rScaleFactorGkr)
+                                         std::vector<double>& rScaleFactorGkr,
+                                         std::vector<std::map<std::string, double> >* pParameterSettings)
 {
     CheckSimulationIsDefined("CellHeterogeneities");
     XSD_ANON_SEQUENCE_TYPE(cp::simulation_type, CellHeterogeneities, CellHeterogeneity)&
          cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().get().CellHeterogeneities(),
-                                                 & mpDefaultParameters->Simulation().get().CellHeterogeneities(),
-                                                 "CellHeterogeneities")->get().CellHeterogeneity();
+                                              & mpDefaultParameters->Simulation().get().CellHeterogeneities(),
+                                              "CellHeterogeneities")->get().CellHeterogeneity();
 
     bool user_supplied_negative_value = false;
     bool user_asking_for_transmural_layers = false;
@@ -998,6 +999,22 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
         rScaleFactorGks.push_back (ht.ScaleFactorGks());
         rScaleFactorIto.push_back (ht.ScaleFactorIto());
         rScaleFactorGkr.push_back (ht.ScaleFactorGkr());
+        
+        // Named parameters
+        if (pParameterSettings)
+        {
+            std::map<std::string, double> param_settings;
+            XSD_SEQUENCE_TYPE(cp::cell_heterogeneity_type::SetParameter)& params = ht.SetParameter();
+            for (XSD_ITERATOR_TYPE(cp::cell_heterogeneity_type::SetParameter) param_it = params.begin();
+                 param_it != params.end();
+                 ++param_it)
+            {
+                cp::set_parameter_type param(*param_it);
+                param_settings[param.name()] = param.value();
+            }
+            pParameterSettings->push_back(param_settings);
+        }
+        
         counter_of_heterogeneities++;
     }
 
@@ -2920,17 +2937,17 @@ void XmlTransforms::CheckForIluPreconditioner(xercesc::DOMDocument* pDocument,
  */
 template void HeartConfig::GetIonicModelRegions<3u>(std::vector<ChasteCuboid<3u> >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<3u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<3u> >& ) const;
-template void HeartConfig::GetCellHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) ;
+template void HeartConfig::GetCellHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*) ;
 template void HeartConfig::GetConductivityHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
 template void HeartConfig::GetIonicModelRegions<2u>(std::vector<ChasteCuboid<2u> >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<2u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<2u> >& ) const;
-template void HeartConfig::GetCellHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ) ;
+template void HeartConfig::GetCellHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*) ;
 template void HeartConfig::GetConductivityHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
 template void HeartConfig::GetIonicModelRegions<1u>(std::vector<ChasteCuboid<1u> >& , std::vector<cp::ionic_model_selection_type>&) const;
 template void HeartConfig::GetStimuli<1u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<1u> >& ) const;
-template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& );
+template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*);
 template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 /**
  * \endcond

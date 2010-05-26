@@ -116,6 +116,8 @@
 						<UpperCoordinates x="-0.5" y="0.1" z="1.0"/>
 					</Cuboid>
 				</Location>
+				<SetParameter name="example" value="0.0"/>
+				<SetParameter name="example2" value="2.0"/>
 			</CellHeterogeneity>	
 		
 		    <!-- More heterogeneities in a cuboid region -->

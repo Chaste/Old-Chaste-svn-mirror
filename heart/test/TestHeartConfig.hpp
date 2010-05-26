@@ -292,13 +292,15 @@ public:
         std::vector<double> scale_factor_gks_3D;
         std::vector<double> scale_factor_ito_3D;
         std::vector<double> scale_factor_gkr_3D;
+        std::vector<std::map<std::string, double> > parameter_settings;
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularTransmuralHeterogeneitiesRequested(), false);
 
         HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas_3D,
                                                         scale_factor_gks_3D,
                                                         scale_factor_ito_3D,
-                                                        scale_factor_gkr_3D);
+                                                        scale_factor_gkr_3D,
+                                                        &parameter_settings);
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), true);
         TS_ASSERT(cell_heterogeneity_areas_3D[0]->DoesContain(ChastePoint<3>(-1.0, 0, 0)));
@@ -308,6 +310,15 @@ public:
         TS_ASSERT_EQUALS(scale_factor_gks_3D[1], 1.154);
         TS_ASSERT_EQUALS(scale_factor_ito_3D[1], 0.85);
         TS_ASSERT_EQUALS(scale_factor_gkr_3D[1], 1.0);
+        
+        TS_ASSERT_EQUALS(parameter_settings[0].size(), 2u);
+        TS_ASSERT_EQUALS(parameter_settings[1].size(), 0u);
+        std::map<std::string, double>::iterator param_it = parameter_settings[0].begin();
+        TS_ASSERT_EQUALS(param_it->first, "example");
+        TS_ASSERT_EQUALS(param_it->second, 0.0);
+        param_it++;
+        TS_ASSERT_EQUALS(param_it->first, "example2");
+        TS_ASSERT_EQUALS(param_it->second, 2.0);
 
         for (unsigned i = 0; i<cell_heterogeneity_areas_3D.size();i++)
         {
@@ -322,7 +333,8 @@ public:
         HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas_2D,
                                                         scale_factor_gks_2D,
                                                         scale_factor_ito_2D,
-                                                        scale_factor_gkr_2D);
+                                                        scale_factor_gkr_2D,
+                                                        NULL);
 
         TS_ASSERT(cell_heterogeneity_areas_2D[0]->DoesContain(ChastePoint<2>(-1.0, 0)));
         TS_ASSERT_EQUALS(scale_factor_gks_2D[0], 0.462);
@@ -345,7 +357,8 @@ public:
         HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas_1D,
                                                         scale_factor_gks_1D,
                                                         scale_factor_ito_1D,
-                                                        scale_factor_gkr_1D);
+                                                        scale_factor_gkr_1D,
+                                                        NULL);
 
         TS_ASSERT(cell_heterogeneity_areas_1D[0]->DoesContain(ChastePoint<1>(-1.0)));
         TS_ASSERT_EQUALS(scale_factor_gks_1D[0], 0.462);
@@ -526,7 +539,8 @@ public:
             HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                             scale_factor_gks,
                                                             scale_factor_ito,
-                                                            scale_factor_gkr);
+                                                            scale_factor_gkr,
+                                                            NULL);
 
             //in this file, they are supplied as epi first, then endo, then mid
             TS_ASSERT_EQUALS(HeartConfig::Instance()->GetEpiLayerIndex(), 0u);
@@ -578,7 +592,8 @@ public:
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
-                                                                                  scale_factor_gkr),
+                                                                                  scale_factor_gkr,
+                                                                                  NULL),
                                   "Summation of epicardial, midmyocardial and endocardial fractions should be 1");
 
         }
@@ -595,7 +610,8 @@ public:
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
-                                                                                  scale_factor_gkr),
+                                                                                  scale_factor_gkr,
+                                                                                  NULL),
                                   "Fractions must be positive");
 
         }
@@ -613,7 +629,8 @@ public:
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
-                                                                                  scale_factor_gkr),
+                                                                                  scale_factor_gkr,
+                                                                                  NULL),
                                   "Fractions must be positive");
 
         }
@@ -630,7 +647,8 @@ public:
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
-                                                                                  scale_factor_gkr),
+                                                                                  scale_factor_gkr,
+                                                                                  NULL),
                                   "Three specifications of layers must be supplied");
 
 
@@ -655,7 +673,8 @@ public:
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
-                                                                                  scale_factor_gkr),
+                                                                                  scale_factor_gkr,
+                                                                                  NULL),
                                   "Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");
 
             TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), true);
@@ -1421,7 +1440,7 @@ public:
         std::vector<double> scale_factor_gks;
         std::vector<double> scale_factor_ito;
         std::vector<double> scale_factor_gkr;
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas, scale_factor_gks, scale_factor_ito, scale_factor_gkr),
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas, scale_factor_gks, scale_factor_ito, scale_factor_gkr, NULL),
                               "CellHeterogeneities information is not available in a resumed simulation.");
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityHeterogeneitiesProvided(),
                               "ConductivityHeterogeneities information is not available in a resumed simulation.");

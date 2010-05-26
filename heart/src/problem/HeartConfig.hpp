@@ -371,13 +371,17 @@ public:
      * @param rScaleFactorGks  scaleFactorGks[0] is a scaling factor for the first region
      * @param rScaleFactorIto  scaleFactorIto[0] is a scaling factor for the first region
      * @param rScaleFactorGkr  scaleFactorGkr[0] is a scaling factor for the first region
+     * @param pParameterSettings  specification of named parameters to set on the cell models; each entry is a map
+     *     from parameter name to value.
      * \todo There is no set method
      */
     template<unsigned DIM>
     void GetCellHeterogeneities( std::vector<AbstractChasteRegion<DIM>* >& rCellHeterogeneityRegions,
                                  std::vector<double>& rScaleFactorGks,
                                  std::vector<double>& rScaleFactorIto,
-                                 std::vector<double>& rScaleFactorGkr);
+                                 std::vector<double>& rScaleFactorGkr,
+                                 std::vector<std::map<std::string, double> >* pParameterSettings);
+
     bool GetConductivityHeterogeneitiesProvided() const; /**< @return  true if there are conductivity heterogeneities for GetConductivityHeterogeneities to return*/
 
     /**

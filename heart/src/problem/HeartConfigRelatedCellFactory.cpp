@@ -59,7 +59,7 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
         HeartConfig::Instance()->GetCellHeterogeneities(mCellHeterogeneityAreas,
                                                         mScaleFactorGks,
                                                         mScaleFactorIto,
-                                                        mScaleFactorGkr);
+                                                        mScaleFactorGkr, NULL);
     }
     catch (Exception& e)
     {
