@@ -953,40 +953,15 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
             mUserAskedForCuboidsForCellularHeterogeneities = true;
             cp::point_type point_a = ht.Location().Cuboid()->LowerCoordinates();
             cp::point_type point_b = ht.Location().Cuboid()->UpperCoordinates();
-
-            switch (DIM)
-            {
-                case 1:
-                {
-                    ChastePoint<DIM> chaste_point_a ( point_a.x() );
-                    ChastePoint<DIM> chaste_point_b ( point_b.x() );
-                    rCellHeterogeneityRegions.push_back(new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
-                    break;
-                }
-                case 2:
-                {
-                    ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y() );
-                    ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y() );
-                    rCellHeterogeneityRegions.push_back(new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
-                    break;
-                }
-                case 3:
-                {
-                    ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y(), point_a.z() );
-                    ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
-                    rCellHeterogeneityRegions.push_back(new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
-                    break;
-                }
-                default:
-                    NEVER_REACHED;
-                    break;
-            }
-
+            
+            ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y(), point_a.z() );
+            ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
+            rCellHeterogeneityRegions.push_back(new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
         }
         else
         {
 
-            if(ht.Location().EpiLayer().present())
+            if (ht.Location().EpiLayer().present())
             {
                 mEpiFraction  =  ht.Location().EpiLayer().get();
 
@@ -997,7 +972,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                 }
                 mIndexEpi = counter_of_heterogeneities;
             }
-            if(ht.Location().EndoLayer().present())
+            if (ht.Location().EndoLayer().present())
             {
                 mEndoFraction  =  ht.Location().EndoLayer().get();
 
@@ -1008,7 +983,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                 }
                 mIndexEndo = counter_of_heterogeneities;
             }
-            if(ht.Location().MidLayer().present())
+            if (ht.Location().MidLayer().present())
             {
                 mMidFraction  =  ht.Location().MidLayer().get();
 
@@ -1027,21 +1002,21 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
     }
 
     //set the flag for request of transmural layers
-     mUserAskedForCellularTransmuralHeterogeneities = user_asking_for_transmural_layers;
+    mUserAskedForCellularTransmuralHeterogeneities = user_asking_for_transmural_layers;
 
-     // cuboids and layers at the same time are not yet supported
-     if (mUserAskedForCuboidsForCellularHeterogeneities && mUserAskedForCellularTransmuralHeterogeneities)
-     {
-         // free the pointers before throwing the exception
+    // cuboids and layers at the same time are not yet supported
+    if (mUserAskedForCuboidsForCellularHeterogeneities && mUserAskedForCellularTransmuralHeterogeneities)
+    {
+        // free the pointers before throwing the exception
         for (unsigned index=0;index < rCellHeterogeneityRegions.size(); index++)
         {
             delete rCellHeterogeneityRegions[index];
         }
         EXCEPTION ("Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");
-     }
-     //check the user input if the transmural heterogeneities have been requested
-     if (mUserAskedForCellularTransmuralHeterogeneities)
-     {
+    }
+    //check the user input if the transmural heterogeneities have been requested
+    if (mUserAskedForCellularTransmuralHeterogeneities)
+    {
         //check that the user supplied all three layers, the indexes should be 0, 1 and 2.
         // As they are initialised to a higher value, if their summation is higher than 3,
         // one (or more) is missing
@@ -1057,7 +1032,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
         {
            EXCEPTION ("Fractions must be positive");
         }
-     }
+    }
 }
 
 bool HeartConfig::AreCellularTransmuralHeterogeneitiesRequested()
@@ -1137,68 +1112,17 @@ void HeartConfig::GetConductivityHeterogeneities(
         {
             cp::point_type point_a = ht.Location().Cuboid()->LowerCoordinates();
             cp::point_type point_b = ht.Location().Cuboid()->UpperCoordinates();
-
-            switch (DIM)
-            {
-                case 1:
-                {
-                    ChastePoint<DIM> chaste_point_a ( point_a.x() );
-                    ChastePoint<DIM> chaste_point_b ( point_b.x() );
-                    conductivitiesHeterogeneityAreas.push_back( new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
-                    break;
-                }
-                case 2:
-                {
-                    ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y() );
-                    ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y() );
-                    conductivitiesHeterogeneityAreas.push_back( new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
-                    break;
-                }
-                case 3:
-                {
-                    ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y(), point_a.z() );
-                    ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
-                    conductivitiesHeterogeneityAreas.push_back( new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
-                    break;
-                }
-                default:
-                    NEVER_REACHED;
-                    break;
-            }
+            ChastePoint<DIM> chaste_point_a ( point_a.x(), point_a.y(), point_a.z() );
+            ChastePoint<DIM> chaste_point_b ( point_b.x(), point_b.y(), point_b.z() );
+            conductivitiesHeterogeneityAreas.push_back( new ChasteCuboid<DIM> ( chaste_point_a, chaste_point_b ) );
         }
         else if (ht.Location().Ellipsoid().present())
         {
         	cp::point_type centre = ht.Location().Ellipsoid()->Centre();
         	cp::point_type radii  = ht.Location().Ellipsoid()->Radii();
-
-        	switch (DIM)
-        	{
-        	case 1:
-        	{
-        		ChastePoint<DIM> chaste_point_a ( centre.x() );
-        		ChastePoint<DIM> chaste_point_b ( radii.x() );
-        		conductivitiesHeterogeneityAreas.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
-        		break;
-        	}
-        	case 2:
-        	{
-        		ChastePoint<DIM> chaste_point_a ( centre.x(), centre.y() );
-        		ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y() );
-        		conductivitiesHeterogeneityAreas.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
-        		break;
-        	}
-        	case 3:
-        	{
-        		ChastePoint<DIM> chaste_point_a ( centre.x(), centre.y(), centre.z() );
-        		ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y(), radii.z() );
-        		conductivitiesHeterogeneityAreas.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
-        		break;
-        	}
-        	default:
-        		NEVER_REACHED;
-        		break;
-        	}
-
+            ChastePoint<DIM> chaste_point_a ( centre.x(), centre.y(), centre.z() );
+            ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y(), radii.z() );
+            conductivitiesHeterogeneityAreas.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );
         }
         else
         {

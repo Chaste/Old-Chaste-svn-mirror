@@ -162,8 +162,9 @@
 		
 		<ConductivityHeterogeneities>
 		    <!-- Specify scaling factors for conductivities in heterogeneous regions -->
+		    <!-- If two regions overlap, the last one wins -->
 
-		    <!-- Heterogeneities in both conductivities a cuboid region -->
+		    <!-- Heterogeneities in both conductivities in a cuboid region -->
 			<ConductivityHeterogeneity> <!-- #1 -->
 			    <IntracellularConductivities longi="2.75" trans="2.75" normal="2.75" unit="mS/cm"/>
 	    		<ExtracellularConductivities longi="8.0"  trans="8.0"  normal="8.0" unit="mS/cm"/>				
