@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include "OutputFileHandler.hpp"
 
+#include "RandomNumberGenerator.hpp"
+
 #include "Timer.hpp"
 
 #include "petscao.h"
@@ -1536,22 +1538,38 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
      *      rNodesOwned and rHaloNodesOwned are local.
      */
     
-    std::vector<unsigned> random_order(mTotalNumElements);
-    for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+    std::vector<unsigned> random_order;
+
+    if ( rMeshReader.IsFileFormatBinary() )
+    {     
+        RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
+        p_gen->Reseed(0);
+        p_gen->Shuffle(mTotalNumElements,random_order);
+    }
+    else
     {
-        random_order[element_number] = element_number;
+        for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
+        {
+            random_order.push_back(element_number);
+        }
     }
     
-    random_shuffle ( random_order.begin(), random_order.end() );    
-     
+    
     for (unsigned random_index = 0; random_index < mTotalNumElements; random_index++)
     {
-        // The commented out line needs to replace the one following it - but leads to deadlock when we do... 
-//        unsigned element_number = random_order[random_index];
-        unsigned element_number = random_index;
-        
+        unsigned element_number = random_order[random_index];
         unsigned element_owner = global_element_partition[element_number];
-        ElementData element_data = rMeshReader.GetNextElementData();
+        
+        ElementData element_data;
+        
+        if ( rMeshReader.IsFileFormatBinary() )
+        {
+            element_data = rMeshReader.GetElementData(element_number);
+        }
+        else
+        {
+            element_data = rMeshReader.GetNextElementData();
+        }        
 
         for (unsigned i=0; i<ELEMENT_DIM+1; i++)
         {
