@@ -39,16 +39,33 @@ class TestProtocol(unittest.TestCase):
         args = ['-C', '-A', '--assume-valid', model_filename] + options
         options, model_file = translate.get_options(args)
         doc = translate.load_model(model_file, options, pycml_path='python/pycml')
+        self._doc = doc
         return doc
+    
+    def CreateLr91Test(self):
+        doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
+        p = protocol.Protocol(doc.model, multi_stage=True)
+        return p
+    
+    def NewVariable(self, name, units, id=None, initial_value=None, interfaces={}):
+        return pycml.cellml_variable.create_new(self._doc, name, units,
+                                                id=id, initial_value=initial_value,
+                                                interfaces=interfaces)
+    
+    def NewApply(self, operator, operands):
+        return pycml.mathml_apply.create_new(self._doc, operator, operands)
+    
+    def NewAssign(self, lhs, rhs):
+        return self.NewApply(u'eq', [lhs, rhs])
     
     def TestChangeInitialValue(self):
         doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
         # Change initial value for V
         v_init = u'-80'
-        new_V = pycml.cellml_variable.create_new(doc.model, u'membrane,V', u'millivolt',
-                                                 initial_value=v_init,
-                                                 interfaces={u'public': u'out'})
+        new_V = self.NewVariable(u'membrane,V', u'millivolt',
+                                 initial_value=v_init,
+                                 interfaces={u'public': u'out'})
         p.inputs.append(new_V)
         # Check we are actually changing things
         V = doc.model.get_variable_by_name('membrane', 'V')
@@ -65,13 +82,13 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(V._get_dependencies(), [])
         self.assert_(V._get_ode_dependency(time) is dv_dt)
         # An error case: changing interfaces is not allowed
-        new_V = pycml.cellml_variable.create_new(doc.model, u'membrane,V', u'millivolt',
-                                                 initial_value=v_init,
-                                                 interfaces={u'public': u'none'})
+        new_V = self.NewVariable(u'membrane,V', u'millivolt',
+                                 initial_value=v_init,
+                                 interfaces={u'public': u'none'})
         p.inputs = [new_V]
         self.assertRaises(AssertionError, p.modify_model)
-        new_V = pycml.cellml_variable.create_new(doc.model, u'membrane,V', u'millivolt',
-                                                 initial_value=v_init)
+        new_V = self.NewVariable(u'membrane,V', u'millivolt',
+                                 initial_value=v_init)
         p.inputs = [new_V]
         self.assertRaises(AssertionError, p.modify_model)
         
@@ -85,8 +102,8 @@ class TestProtocol(unittest.TestCase):
         p = protocol.Protocol(doc.model, multi_stage=True)
         # T is a Mapped variable in time_dependent_potassium_current
         T = doc.model.get_variable_by_name(u'time_dependent_potassium_current', u'T')
-        T_const = pycml.mathml_apply.create_new(T, u'eq', [u'time_dependent_potassium_current,T',
-                                                           (unicode(T.get_value()), T.units)])
+        T_const = self.NewAssign(u'time_dependent_potassium_current,T',
+                                 (unicode(T.get_value()), T.units))
         p.inputs.append(T_const)
         self.assertRaises(protocol.ProtocolError, p.modify_model)
         # Same should apply if we replace by an ODE
@@ -97,13 +114,11 @@ class TestProtocol(unittest.TestCase):
         self.assertRaises(protocol.ProtocolError, p.modify_model)
         # Referencing a missing variable is also an error
         T = doc.model.get_variable_by_name(u'membrane', u'T')
-        T_const = pycml.mathml_apply.create_new(T, u'eq', [u'membrane,T',
-                                                           u'membrane,missing'])
+        T_const = self.NewAssign(u'membrane,T', u'membrane,missing')
         p.inputs = [T_const]
         self.assertRaises(KeyError, p.modify_model)
         # As is assigning to a missing variable
-        missing = pycml.mathml_apply.create_new(T, u'eq', [u'membrane,missing',
-                                                           u'membrane,T'])
+        missing = self.NewAssign(u'membrane,missing', u'membrane,T')
         p.inputs = [missing]
         self.assertRaises(KeyError, p.modify_model)
 
@@ -118,22 +133,21 @@ class TestProtocol(unittest.TestCase):
         Cai = doc.model.get_variable_by_name(u'intracellular_calcium_concentration', u'Cai')
         time = doc.model.get_variable_by_name(u'environment', u'time')
         ode = Cai._get_ode_dependency(time)
-        Cai_const = pycml.mathml_apply.create_new(ode, u'eq', [u'intracellular_calcium_concentration,Cai',
-                                                               (u'0.0002', u'millimolar')])
+        Cai_const = self.NewAssign(u'intracellular_calcium_concentration,Cai',
+                                   (u'0.0002', u'millimolar'))
         p.inputs.append(Cai_const)
         self.failUnlessEqual(Cai.get_type(), pycml.VarTypes.State)
         # Change computed defintion for g_K (computed->computed)
         g_K = doc.model.get_variable_by_name(u'time_dependent_potassium_current', u'g_K')
-        g_K_const = pycml.mathml_apply.create_new(g_K, u'eq', [u'time_dependent_potassium_current,g_K',
-                                                               (u'0.282', u'milliS_per_cm2')])
+        g_K_const = self.NewAssign(u'time_dependent_potassium_current,g_K',
+                                   (u'0.282', u'milliS_per_cm2'))
         p.inputs.append(g_K_const)
         old_g_K = g_K._get_dependencies()[0]
         self.failUnlessEqual(g_K.get_type(), pycml.VarTypes.Computed)
         # Change PR_NaK from constant->computed (with same value)
         PR_NaK = doc.model.get_variable_by_name(u'time_dependent_potassium_current', u'PR_NaK')
-        PR_NaK_const = pycml.mathml_apply.create_new(PR_NaK, u'eq',
-                                                     [u'time_dependent_potassium_current,PR_NaK',
-                                                      (PR_NaK.initial_value, PR_NaK.units)])
+        PR_NaK_const = self.NewAssign(u'time_dependent_potassium_current,PR_NaK',
+                                      (PR_NaK.initial_value, PR_NaK.units))
         p.inputs.append(PR_NaK_const)
         self.failUnlessEqual(PR_NaK.get_type(), pycml.VarTypes.Constant)
         # Apply protocol to model
@@ -165,7 +179,7 @@ class TestProtocol(unittest.TestCase):
         time = doc.model.get_variable_by_name(u'membrane', u'time')
         V_old = V._get_ode_dependency(time)
         currents = map(lambda i: u'membrane,i_' + i, ['Na', 'si', 'K', 'b'])
-        rhs = pycml.mathml_apply.create_new(V, u'plus', currents)
+        rhs = self.NewApply(u'plus', currents)
         V_new = pycml.mathml_diff.create_new(V, u'environment,time', u'membrane,V', rhs)
         V_new_str = str(V_new)
         p.inputs.append(V_new)
@@ -208,18 +222,16 @@ class TestProtocol(unittest.TestCase):
         doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
         # Add a new 'I_total' variable and computation
-        I_total = pycml.cellml_variable.create_new(doc.model, u'membrane,I_total', u'microA_per_cm2')
+        I_total = self.NewVariable(u'membrane,I_total', u'microA_per_cm2')
         p.inputs.append(I_total)
         currents = map(lambda i: u'membrane,i_' + i, ['Na', 'si', 'b'])
         currents.append(u'membrane,I_stim')
         currents.append(u'membrane,potassium_currents')
-        rhs = pycml.mathml_apply.create_new(doc.model, u'plus', currents)
-        defn = pycml.mathml_apply.create_new(doc.model, u'eq',
-                                             [u'membrane,I_total', rhs])
+        rhs = self.NewApply(u'plus', currents)
+        defn = self.NewAssign(u'membrane,I_total', rhs)
         p.inputs.append(defn)
         # Add a variable to the protocol component
-        one = pycml.cellml_variable.create_new(defn, u'one', u'dimensionless',
-                                               initial_value=u'1')
+        one = self.NewVariable(u'one', u'dimensionless', initial_value=u'1')
         p.inputs.append(one)
         self.assertRaises(KeyError, doc.model.get_component_by_name, u'protocol')
         # Apply protocol to model
@@ -240,9 +252,8 @@ class TestProtocol(unittest.TestCase):
         # Now apply a new protocol, to create a protocol_ component
         # Also checks connection creation
         p2 = protocol.Protocol(doc.model, multi_stage=True)
-        two = pycml.cellml_variable.create_new(defn, u'two', u'dimensionless')
-        two_defn = pycml.mathml_apply.create_new(two, u'eq',
-                                                 [u'two', u'membrane,time'])
+        two = self.NewVariable(u'two', u'dimensionless')
+        two_defn = self.NewAssign(u'two', u'membrane,time')
         p2.inputs.append(two)
         p2.inputs.append(two_defn)
         self.assertRaises(KeyError, doc.model.get_component_by_name, u'protocol_')
@@ -252,3 +263,80 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(two.component.name, u'protocol_')
         self.assertEqual(two.model, doc.model)
         self.assertNotEqual(one.component, two.component)
+
+    def TestConnectionMaking(self):
+        """Test that creating new connections between variables works.
+        
+        This is done a little in other tests; here we try to exercise all cases.
+        """
+        p = self.CreateLr91Test()
+        # Add a new variable in an encapsulated component
+        src = self.NewVariable(u'time_dependent_potassium_current_Xi_gate,new_src', u'dimensionless')
+        p.inputs.append(src)
+        # Add mathematics using it in another encapsulated component
+        targ1 = self.NewVariable(u'time_independent_potassium_current_K1_gate,target1', u'dimensionless')
+        use1 = self.NewAssign(targ1.name, u'time_dependent_potassium_current_Xi_gate,new_src')
+        p.inputs.extend([targ1, use1])
+        # Add mathematics using it in a top-level component
+        targ2 = self.NewVariable(u'target2', u'dimensionless')
+        use2 = self.NewAssign(targ2.name, u'time_dependent_potassium_current_Xi_gate,new_src')
+        p.inputs.extend([use2, targ2])
+        # Add 2 new mapped variables with chained dependency
+        stim1 = self.NewVariable(u'ionic_concentrations,stim1', u'microA_per_cm2')
+        stim2 = self.NewVariable(u'intracellular_calcium_concentration,stim2', u'microA_per_cm2')
+        p.inputs.extend([stim1, stim2])
+        p.inputs.append(self.NewAssign(stim1.name, u'membrane,I_stim'))
+        p.inputs.append(self.NewAssign(stim2.name, stim1.name))
+        # Apply protocol and test
+        p.modify_model()
+        model = self._doc.model
+        self.assertEqual(src.model, model)
+        src1 = model.get_variable_by_name(u'time_independent_potassium_current_K1_gate', u'new_src')
+        src2 = model.get_variable_by_name(u'protocol', u'new_src')
+        self.assertNotEqual(src, src1)
+        self.assertEqual(src1.get_source_variable(recurse=True), src)
+        self.assertNotEqual(src1.get_source_variable(), src)
+        self.assertEqual(src2.get_source_variable(recurse=True), src)
+        self.assertNotEqual(src2.get_source_variable(), src)
+        self.assertEqual(targ1._get_dependencies()[0], use1)
+        self.assertEqual(use1._get_dependencies()[0], src1)
+        self.assertEqual(targ2._get_dependencies()[0], use2)
+        self.assertEqual(use2._get_dependencies()[0], src2)
+        self.assertEqual(src1.get_type(), pycml.VarTypes.Mapped)
+        self.assertEqual(src2.get_type(), pycml.VarTypes.Mapped)
+        self.assertEqual(targ1.get_type(), pycml.VarTypes.Computed)
+        self.assertEqual(targ2.get_type(), pycml.VarTypes.Computed)
+        
+        # Also check error cases:
+        # Where we try to create a connection but there's an existing conflicting variable
+        p = self.CreateLr91Test()
+        time2 = self.NewVariable(u'environment,time2', u'millisecond')
+        t2def = self.NewAssign(time2.name, u'membrane,time')
+        p.inputs = [time2, t2def]
+        self.assertRaises(protocol.ProtocolError, p.modify_model)
+        
+        # The following are odd cases that do actually work!
+        # Where we use the real source variable as target
+        p = self.CreateLr91Test()
+        time2 = self.NewVariable(u'fast_sodium_current,time2', u'millisecond')
+        t2def = self.NewAssign(time2.name, u'fast_sodium_current_m_gate,time')
+        p.inputs = [time2, t2def]
+        p.modify_model()
+        # The order in which we add assignments shouldn't matter
+        p = self.CreateLr91Test()
+        n1 = u'fast_sodium_current,stim1'
+        n2 = u'slow_inward_current,stim2'
+        p.inputs = [self.NewVariable(n1, u'microA_per_cm2'),
+                    self.NewVariable(n2, u'microA_per_cm2'),
+                    self.NewAssign(n2, n1),
+                    self.NewAssign(n1, u'membrane,I_stim')]
+        p.modify_model()
+        # Likewise for the order in which they appear in the model
+        p = self.CreateLr91Test()
+        n2 = u'fast_sodium_current,stim1'
+        n1 = u'slow_inward_current,stim2'
+        p.inputs = [self.NewVariable(n1, u'microA_per_cm2'),
+                    self.NewVariable(n2, u'microA_per_cm2'),
+                    self.NewAssign(n2, n1),
+                    self.NewAssign(n1, u'membrane,I_stim')]
+        p.modify_model()

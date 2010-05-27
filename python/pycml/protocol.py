@@ -99,14 +99,11 @@ class Protocol(object):
         do not already exist in the model, the object *must* have an attribute
         _cml_units referring to a suitable cellml_units instance.
         """
-        for input in self.inputs:
-            if isinstance(input, cellml_variable):
-                self._add_variable_to_model(input)
-            elif isinstance(input, mathml_apply):
-                self._add_maths_to_model(input)
-            else:
-                raise ProtocolError("Unexpected input object type '" + str(type(input))
-                                    + "': " + str(input))
+        # Add variables before maths so the order of inputs doesn't matter so much.
+        for input in filter(lambda i: isinstance(i, cellml_variable), self.inputs):
+            self._add_variable_to_model(input)
+        for input in filter(lambda i: isinstance(i, mathml_apply), self.inputs):
+            self._add_maths_to_model(input)
         self._fix_model_connections()
         self._clear_model_caches()
         self._reanalyse_model()
@@ -189,7 +186,9 @@ class Protocol(object):
         # Sanity check the target variable
         if target_var.get_type() == VarTypes.Mapped:
             # It must already be mapped to src_var; we're done
-            assert target_var.get_source_variable() == src_var
+            assert (target_var.get_source_variable() == src_var or
+                    src_var.get_source_variable() == target_var)
+            #print "Connection exists between", src_var, "and target", target_var
             return
         elif target_var.get_type() == VarTypes.Unknown:
             # We've created this variable, so should be ok, but check for gotchas
@@ -203,27 +202,28 @@ class Protocol(object):
                 src_if = u'public'
                 target_if = u'private'
             else:
-                assert src_comp.parent() == None
-                assert target_comp.parent() == None
+                assert src_comp.parent() == target_comp.parent()
                 src_if = u'public'
                 target_if = u'public'
                 # One special case: if the src_var is actually obtained from a different
-                # top-level component, in which case we should use the real source, not
-                # that given.
+                # component at this level or above, in which case we should use the real
+                # source, not that given.
                 if getattr(src_var, src_if + u'_interface', u'none') == u'in':
                     src_var = src_var.get_source_variable()
             # Check and set the interface attributes
-            print "Connecting", src_var, src_if, getattr(src_var, src_if + u'_interface', u'none'),
-            print "to", target_var, target_if, getattr(target_var, target_if + u'_interface', u'none')
+            #print "Connecting source", src_var, src_if, getattr(src_var, src_if + u'_interface', u'none'),
+            #print "to", target_var, target_if, getattr(target_var, target_if + u'_interface', u'none')
             assert getattr(src_var, src_if + u'_interface', u'none') != u'in'
             assert getattr(target_var, target_if + u'_interface', u'none') != u'out'
             src_var.xml_set_attribute((src_if + u'_interface', None), u'out')
             target_var.xml_set_attribute((target_if + u'_interface', None), u'in')
             # Create the connection element
             self._create_connection_element(src_var, target_var)
+            # Ensure we handle a latter connection attempt between these variables correctly
+            target_var._set_source_variable(src_var)
         else:
             # Ouch!  The model has used the same variable name for different things...
-            raise ProtocolError("Cannot connect " + target_var.fullname() + " to " +
+            raise ProtocolError("Cannot connect " + target_var.fullname() + " to source " +
                                 src_var.fullname() + " as the target has the wrong type.")
     
     def _create_connection_element(self, var1, var2):
@@ -252,13 +252,16 @@ class Protocol(object):
                                        attributes={u'variable_1': var1.name,
                                                    u'variable_2': var2.name})
         conn.xml_append(mapv)
-        print conn.xml()
     
     def _find_common_tail(self, l1, l2):
         """Find the first element at which both lists are identical from then on."""
         i = -1
-        while l1[i] == l2[i]:
-            i -= 1
+        try:
+            while l1[i] == l2[i]:
+                i -= 1
+        except IndexError:
+            # One list is the tail of the other
+            pass
         # i now gives the last differing element
         assert i < -1
         return i+1
