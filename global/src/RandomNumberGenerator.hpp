@@ -71,13 +71,13 @@ public:
     unsigned randMod(unsigned base);
 
     /**
-     * Shuffle the integers 0,1,..,num-1, using the Knuth-algorithm
+     * Produce a permutation of the integers 0,1,..,num-1, using the Knuth-algorithm
      * (also called the Fisher-Yates algorithm), a linear time unbiased method.
      * The shuffled values are returned in rValues, which doesn't need to
      * be correctly-sized when passed in.
      *
      * @param num  the number of integers to shuffle
-     * @param rValues  the shuffled values
+     * @param rValues  the output permutation of shuffled values (any initial values ignored)
      */
     void Shuffle(unsigned num, std::vector<unsigned>& rValues);
 

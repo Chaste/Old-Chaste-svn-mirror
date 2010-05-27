@@ -94,12 +94,12 @@ void RandomNumberGenerator::Shuffle(unsigned num, std::vector<unsigned>& rValues
         rValues[i] = i;
     }
 
-    for (unsigned end=num; end>0; end--)
+    for (unsigned end=num-1; end>0; end--)
     {
-        // Pick a random integer from {0,..,end-1}
-        unsigned k = RandomNumberGenerator::Instance()->randMod(end);
-        unsigned temp = rValues[end-1];
-        rValues[end-1] = rValues[k];
+        // Pick a random integer from {0,..,end}
+        unsigned k = RandomNumberGenerator::Instance()->randMod(end+1);
+        unsigned temp = rValues[end];
+        rValues[end] = rValues[k];
         rValues[k] = temp;
     }
 }

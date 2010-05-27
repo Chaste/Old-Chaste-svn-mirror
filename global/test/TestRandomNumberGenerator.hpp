@@ -154,7 +154,7 @@ public:
         p_gen->Reseed(0);
 
         std::vector<unsigned> shuffled_results;
-        p_gen->Shuffle(5,shuffled_results);
+        p_gen->Shuffle(5, shuffled_results);
 
         for (unsigned i=0; i<5; i++)
         {

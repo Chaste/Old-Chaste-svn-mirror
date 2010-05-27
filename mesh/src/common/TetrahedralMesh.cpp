@@ -306,24 +306,10 @@ double TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceArea()
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PermuteNodes()
 {
-    //Make a permutation vector (initially the identity)
-    std::vector<unsigned> perm(this->mNodes.size());
-    for  (unsigned index=0; index<this->mNodes.size(); index++)
-    {
-        perm[index]=index;
-    }
+    //Make a permutation vector of the identity
     RandomNumberGenerator* p_rng = RandomNumberGenerator::Instance();
-
-    // Working from the back, each node is swapped with a random node that precedes it in the array
-    for (unsigned index=this->mNodes.size()-1; index>0; index--)
-    {
-        unsigned  other=p_rng->randMod(index+1); //includes the possibility of rolling "index"
-        // Swap index and other
-        unsigned temp=perm[index];
-        perm[index]=perm[other];
-        perm[other]=temp;
-    }
-
+    std::vector<unsigned> perm;
+    p_rng->Shuffle(this->mNodes.size(), perm);
     //Call the non-random version
     PermuteNodes(perm);
 }
