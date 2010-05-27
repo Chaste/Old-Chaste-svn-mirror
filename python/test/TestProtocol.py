@@ -58,6 +58,12 @@ class TestProtocol(unittest.TestCase):
     def NewAssign(self, lhs, rhs):
         return self.NewApply(u'eq', [lhs, rhs])
     
+    def NewUnits(self, name, bases):
+        return pycml.cellml_units.create_new(self._doc, name, bases)
+    
+    def NewOde(self, var, bvar, rhs):
+        return pycml.mathml_diff.create_new(self._doc, bvar, var, rhs)
+    
     def TestChangeInitialValue(self):
         doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
@@ -98,22 +104,22 @@ class TestProtocol(unittest.TestCase):
         In particular, it should throw if we try to define a Mapped variable
         using mathematics, or if we reference non-existent variables.
         """
-        doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
-        p = protocol.Protocol(doc.model, multi_stage=True)
+        p = self.CreateLr91Test()
+        m = self._doc.model
         # T is a Mapped variable in time_dependent_potassium_current
-        T = doc.model.get_variable_by_name(u'time_dependent_potassium_current', u'T')
+        T = m.get_variable_by_name(u'time_dependent_potassium_current', u'T')
         T_const = self.NewAssign(u'time_dependent_potassium_current,T',
                                  (unicode(T.get_value()), T.units))
         p.inputs.append(T_const)
         self.assertRaises(protocol.ProtocolError, p.modify_model)
         # Same should apply if we replace by an ODE
-        T_ode = pycml.mathml_diff.create_new(T, u'time_dependent_potassium_current,time',
-                                             u'time_dependent_potassium_current,T',
-                                             (u'1', u'dimensionless'))
+        T_ode = self.NewOde(u'time_dependent_potassium_current,T',
+                            u'time_dependent_potassium_current,time',
+                            (u'1', u'dimensionless'))
         p.inputs = [T_ode]
         self.assertRaises(protocol.ProtocolError, p.modify_model)
         # Referencing a missing variable is also an error
-        T = doc.model.get_variable_by_name(u'membrane', u'T')
+        T = m.get_variable_by_name(u'membrane', u'T')
         T_const = self.NewAssign(u'membrane,T', u'membrane,missing')
         p.inputs = [T_const]
         self.assertRaises(KeyError, p.modify_model)
@@ -179,23 +185,26 @@ class TestProtocol(unittest.TestCase):
         time = doc.model.get_variable_by_name(u'membrane', u'time')
         V_old = V._get_ode_dependency(time)
         currents = map(lambda i: u'membrane,i_' + i, ['Na', 'si', 'K', 'b'])
-        rhs = self.NewApply(u'plus', currents)
-        V_new = pycml.mathml_diff.create_new(V, u'environment,time', u'membrane,V', rhs)
+        currents = self.NewApply(u'plus', currents)
+        rhs = self.NewApply(u'divide', [currents, u'membrane,C'])
+        V_new = self.NewOde(u'membrane,V', u'environment,time', rhs)
         V_new_str = str(V_new)
         p.inputs.append(V_new)
         # constant->state: membrane,T
         T = doc.model.get_variable_by_name(u'membrane', u'T')
         self.assertEqual(T.get_type(), pycml.VarTypes.Constant)
         self.assertEqual(T._get_dependencies(), [])
-        T_new = pycml.mathml_diff.create_new(T, u'membrane,time', u'membrane,T',
-                                             (u'1', u'dimensionless')) # TODO: proper units
+        T_new = self.NewOde(u'membrane,T', u'membrane,time', (u'1', u'K_per_ms'))
         p.inputs.append(T_new)
+        p.inputs.append(self.NewUnits(u'K_per_ms',
+                                      [{'units':'kelvin'},
+                                       {'units':'millisecond', 'exponent':'-1'}]))
         # computed->state: membrane,FonRT
         FonRT = doc.model.get_variable_by_name(u'membrane', u'FonRT')
         self.assertEqual(FonRT.get_type(), pycml.VarTypes.Computed)
         FonRT_old = FonRT._get_dependencies()[0]
-        FonRT_new = pycml.mathml_diff.create_new(FonRT, u'membrane,time', u'membrane,FonRT',
-                                                 (u'0', u'per_millivolt_millisecond'))
+        FonRT_new = self.NewOde(u'membrane,FonRT', u'membrane,time',
+                                (u'0', u'per_millivolt_millisecond'))
         # TODO: FonRT now has no initial condition; this is a validation warning so OK...
         p.inputs.append(FonRT_new)
         # Apply protocol to model
@@ -207,7 +216,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(V_new, V._get_ode_dependency(time))
         self.assertEqual(V.get_type(), pycml.VarTypes.State)
         self.assertNotEqual(str(V_new), V_new_str) # Variable refs get renamed
-        self.assertEqual(str(V_new), 'timeVi_Nai_sii_Ki_b')
+        self.assertEqual(str(V_new), 'timeVi_Nai_sii_Ki_bC')
         self.assertEqual(T.get_type(), pycml.VarTypes.State)
         self.assertEqual(T_new, T._get_ode_dependency(time))
         self.assertEqual(FonRT.id, u'FonRT')
@@ -252,7 +261,7 @@ class TestProtocol(unittest.TestCase):
         # Now apply a new protocol, to create a protocol_ component
         # Also checks connection creation
         p2 = protocol.Protocol(doc.model, multi_stage=True)
-        two = self.NewVariable(u'two', u'dimensionless')
+        two = self.NewVariable(u'two', u'millisecond')
         two_defn = self.NewAssign(u'two', u'membrane,time')
         p2.inputs.append(two)
         p2.inputs.append(two_defn)

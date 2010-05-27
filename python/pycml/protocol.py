@@ -99,7 +99,9 @@ class Protocol(object):
         do not already exist in the model, the object *must* have an attribute
         _cml_units referring to a suitable cellml_units instance.
         """
-        # Add variables before maths so the order of inputs doesn't matter so much.
+        # Add units before variables before maths so the order of inputs doesn't matter so much.
+        for input in filter(lambda i: isinstance(i, cellml_units), self.inputs):
+            self._add_units_to_model(input)
         for input in filter(lambda i: isinstance(i, cellml_variable), self.inputs):
             self._add_variable_to_model(input)
         for input in filter(lambda i: isinstance(i, mathml_apply), self.inputs):
@@ -124,6 +126,12 @@ class Protocol(object):
         if not self.model._cml_validation_errors:
             self.model._classify_variables(assignment_exprs)
             self.model._order_variables(assignment_exprs)
+        if not self.model._cml_validation_errors:
+            warn_on_units_errors = False
+            self.model._check_dimensional_consistency(assignment_exprs,
+                                                      False,
+                                                      warn_on_units_errors,
+                                                      False)
         if self.model._cml_validation_errors:
             raise ProtocolError("Applying protocol created an invalid model.")
         # Clear up logging
@@ -367,6 +375,14 @@ class Protocol(object):
             for child in expr.xml_children:
                 for ci_elt in self._find_ci_elts(child):
                     yield ci_elt
+    
+    def _add_units_to_model(self, units):
+        """Add a units definition to the model.
+        
+        For now, we just add to the model element without checking (TODO).
+        """
+        self.model.xml_append(units)
+        self.model.add_units(units.name, units)
         
     def _add_variable_to_model(self, var):
         """Add or replace a variable in our model.
