@@ -64,6 +64,16 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(V.get_type(), pycml.VarTypes.State)
         self.assertEqual(V._get_dependencies(), [])
         self.assert_(V._get_ode_dependency(time) is dv_dt)
+        # An error case: changing interfaces is not allowed
+        new_V = pycml.cellml_variable.create_new(doc.model, u'membrane,V', u'millivolt',
+                                                 initial_value=v_init,
+                                                 interfaces={u'public': u'none'})
+        p.inputs = [new_V]
+        self.assertRaises(AssertionError, p.modify_model)
+        new_V = pycml.cellml_variable.create_new(doc.model, u'membrane,V', u'millivolt',
+                                                 initial_value=v_init)
+        p.inputs = [new_V]
+        self.assertRaises(AssertionError, p.modify_model)
         
     def TestChangeMathsErrors(self):
         """Test that changing mathematics reports errors for wrong inputs.
@@ -156,7 +166,7 @@ class TestProtocol(unittest.TestCase):
         V_old = V._get_ode_dependency(time)
         currents = map(lambda i: u'membrane,i_' + i, ['Na', 'si', 'K', 'b'])
         rhs = pycml.mathml_apply.create_new(V, u'plus', currents)
-        V_new = pycml.mathml_diff.create_new(V, u'membrane,time', u'membrane,V', rhs)
+        V_new = pycml.mathml_diff.create_new(V, u'environment,time', u'membrane,V', rhs)
         V_new_str = str(V_new)
         p.inputs.append(V_new)
         # constant->state: membrane,T
@@ -208,7 +218,8 @@ class TestProtocol(unittest.TestCase):
                                              [u'membrane,I_total', rhs])
         p.inputs.append(defn)
         # Add a variable to the protocol component
-        one = pycml.cellml_variable.create_new(defn, u'one', u'dimensionless')
+        one = pycml.cellml_variable.create_new(defn, u'one', u'dimensionless',
+                                               initial_value=u'1')
         p.inputs.append(one)
         self.assertRaises(KeyError, doc.model.get_component_by_name, u'protocol')
         # Apply protocol to model
@@ -225,10 +236,15 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(one.component, doc.model.get_component_by_name(u'protocol'))
         self.assertEqual(one.component.name, u'protocol')
         self.assertEqual(one.model, doc.model)
+        self.assertEqual(one.get_type(), pycml.VarTypes.Constant)
         # Now apply a new protocol, to create a protocol_ component
+        # Also checks connection creation
         p2 = protocol.Protocol(doc.model, multi_stage=True)
         two = pycml.cellml_variable.create_new(defn, u'two', u'dimensionless')
+        two_defn = pycml.mathml_apply.create_new(two, u'eq',
+                                                 [u'two', u'membrane,time'])
         p2.inputs.append(two)
+        p2.inputs.append(two_defn)
         self.assertRaises(KeyError, doc.model.get_component_by_name, u'protocol_')
         p2.modify_model()
         self.assertEqual(two, doc.model.get_variable_by_name(u'protocol_', u'two'))
@@ -236,4 +252,3 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(two.component.name, u'protocol_')
         self.assertEqual(two.model, doc.model)
         self.assertNotEqual(one.component, two.component)
-

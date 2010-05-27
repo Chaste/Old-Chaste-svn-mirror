@@ -107,8 +107,8 @@ class Protocol(object):
             else:
                 raise ProtocolError("Unexpected input object type '" + str(type(input))
                                     + "': " + str(input))
-        self._clear_model_caches()
         self._fix_model_connections()
+        self._clear_model_caches()
         self._reanalyse_model()
         
     def _reanalyse_model(self):
@@ -151,10 +151,144 @@ class Protocol(object):
                     cname, vname = self._split_name(vname)
                     comp = expr.component
                     if comp.name != cname:
-                        raise NotImplemented
-                    else:
-                        # Just rename to be local
-                        ci_elt._rename(vname)
+                        self._connect_variables((cname,vname), (comp.name,vname))
+                    # Now just rename to be local
+                    ci_elt._rename(vname)
+        
+    def _connect_variables(self, source, target):
+        """Create a connection between the given source and target variables.
+        
+        The variables are both specified by a pair (cname,vname).  The source
+        variable must exist within the model, whereas the target might not, in
+        which case it will be created.
+        """
+        src_cname, src_vname = source
+        target_cname, target_vname = target
+        assert target_vname == src_vname
+        src_comp = self.model.get_component_by_name(src_cname)
+        target_comp = self.model.get_component_by_name(target_cname)
+        # Determine encapsulation paths from target & source to the root
+        src_path = self._parent_path(src_comp)
+        target_path = self._parent_path(target_comp)
+        # At some point these will share a common path, even if it's just the root itself
+        meeting_index = self._find_common_tail(src_path, target_path)
+        # Construct path from source to target, leaving out the root (None)
+        path = src_path[:meeting_index]
+        if src_path[meeting_index]:
+            path.append(src_path[meeting_index])
+        path.extend(reversed(target_path[:meeting_index]))
+        # Traverse this path, adding connections at each step
+        for i, src_comp in enumerate(path[:-1]):
+            target_comp = path[i+1]
+            self._make_connection(src_comp, target_comp, src_vname)
+    
+    def _make_connection(self, src_comp, target_comp, vname):
+        """Make a connection between two components using the given variable name."""
+        src_var = src_comp.get_variable_by_name(vname)
+        target_var = self._find_or_create_variable(target_comp.name, vname, src_var)
+        # Sanity check the target variable
+        if target_var.get_type() == VarTypes.Mapped:
+            # It must already be mapped to src_var; we're done
+            assert target_var.get_source_variable() == src_var
+            return
+        elif target_var.get_type() == VarTypes.Unknown:
+            # We've created this variable, so should be ok, but check for gotchas
+            assert not(hasattr(target_var, u'initial_value'))
+            public_iface = getattr(target_var, u'public_interface', u'none')
+            private_iface = getattr(target_var, u'private_interface', u'none')
+            if src_comp == target_comp.parent():
+                src_if = u'private'
+                target_if = u'public'
+            elif src_comp.parent() == target_comp:
+                src_if = u'public'
+                target_if = u'private'
+            else:
+                assert src_comp.parent() == None
+                assert target_comp.parent() == None
+                src_if = u'public'
+                target_if = u'public'
+                # One special case: if the src_var is actually obtained from a different
+                # top-level component, in which case we should use the real source, not
+                # that given.
+                if getattr(src_var, src_if + u'_interface', u'none') == u'in':
+                    src_var = src_var.get_source_variable()
+            # Check and set the interface attributes
+            print "Connecting", src_var, src_if, getattr(src_var, src_if + u'_interface', u'none'),
+            print "to", target_var, target_if, getattr(target_var, target_if + u'_interface', u'none')
+            assert getattr(src_var, src_if + u'_interface', u'none') != u'in'
+            assert getattr(target_var, target_if + u'_interface', u'none') != u'out'
+            src_var.xml_set_attribute((src_if + u'_interface', None), u'out')
+            target_var.xml_set_attribute((target_if + u'_interface', None), u'in')
+            # Create the connection element
+            self._create_connection_element(src_var, target_var)
+        else:
+            # Ouch!  The model has used the same variable name for different things...
+            raise ProtocolError("Cannot connect " + target_var.fullname() + " to " +
+                                src_var.fullname() + " as the target has the wrong type.")
+    
+    def _create_connection_element(self, var1, var2):
+        """Create a connection element connecting the given variables and add to the model.
+        
+        If there's already a connection element for the relevant pair of components,
+        we just add another map_variables element to that.
+        """
+        xpath_template = u'(cml:map_components/@component_1 = "%s" and cml:map_components/@component_2 = "%s")'
+        cn1, cn2 = var1.component.name, var2.component.name
+        xpath_predicate = xpath_template % (cn1, cn2) + u' or ' + xpath_template % (cn2, cn1)
+        conn = self.model.xml_xpath(u'cml:connection[%s]' % (xpath_predicate,))
+        if conn:
+            conn = conn[0]
+            # Check if we need to swap the variables
+            if conn.map_components.component_1 == cn2:
+                var1, var2 = var2, var1
+        else:
+            conn = var1.xml_create_element(u'connection', NSS[u'cml'])
+            mapc = var1.xml_create_element(u'map_components', NSS[u'cml'],
+                                           attributes={u'component_1': var1.component.name,
+                                                       u'component_2': var2.component.name})
+            conn.xml_append(mapc)
+            self.model.xml_append(conn)
+        mapv = var1.xml_create_element(u'map_variables', NSS[u'cml'],
+                                       attributes={u'variable_1': var1.name,
+                                                   u'variable_2': var2.name})
+        conn.xml_append(mapv)
+        print conn.xml()
+    
+    def _find_common_tail(self, l1, l2):
+        """Find the first element at which both lists are identical from then on."""
+        i = -1
+        while l1[i] == l2[i]:
+            i -= 1
+        # i now gives the last differing element
+        assert i < -1
+        return i+1
+        
+    def _parent_path(self, comp):
+        """Return a path of components from that given to the encapsulation root.
+        
+        The root is specified by None, since we're really dealing with a forest,
+        not a tree.
+        """
+        path = [comp]
+        while comp:
+            path.append(comp.parent())
+            comp = comp.parent()
+        return path
+    
+    def _find_or_create_variable(self, cname, vname, source):
+        """Find the given variable in the model, creating it if necessary.
+        
+        The variable will become a mapped variable with the given source.
+        Hence if it is created it will have the same units.
+        """
+        try:
+            var = self.model.get_variable_by_name(cname, vname)
+        except KeyError:
+            # Create it and add to model
+            comp = self.model.get_component_by_name(cname)
+            var = cellml_variable.create_new(comp, vname, source.units) # TODO: what if units are defined locally to source's component?
+            comp._add_variable(var)
+        return var
     
     def _clear_model_caches(self):
         """
@@ -240,6 +374,10 @@ class Protocol(object):
         validation error, unless its definition is also changed to an ODE.
         (To change a variable to a constant, you need to replace its definition
         with a constant expression.)
+        
+        The one check that is made is that you don't change the interface
+        definitions if replacing a variable, otherwise self._fix_model_connections
+        could get confused.
         """
         cname, vname = self._split_name(var.name)
         comp = self.model.get_component_by_name(cname)
@@ -249,6 +387,11 @@ class Protocol(object):
             orig_var = None
         if orig_var:
             # We're replacing a variable
+            for iface in [u'public', u'private']:
+                n = iface + u'_interface'
+                assert hasattr(orig_var, n) == hasattr(var, n), "You are not allowed to change a variable's interfaces"
+                if hasattr(var, n):
+                    assert getattr(orig_var, n) == getattr(var, n), "You are not allowed to change a variable's interfaces"
             comp._del_variable(orig_var)
         var.name = vname
         comp._add_variable(var)

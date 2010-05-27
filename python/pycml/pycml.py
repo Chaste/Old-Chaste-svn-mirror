@@ -800,6 +800,10 @@ class cellml_model(element_base):
                 expr.classify_variables(root=True)
             except MathsError, e:
                 self._report_exception(e, xml_context)
+        # Unused vars still classified as MaybeConstant are constants
+        for var in self.get_all_variables():
+            if var.get_type() == VarTypes.MaybeConstant:
+                var._set_type(VarTypes.Constant)
         DEBUG('validator', 'Classified variables')
             
     def _order_variables(self, assignment_exprs, xml_context=False):
@@ -868,7 +872,7 @@ class cellml_model(element_base):
         key = (relationship, namespace, name)
         # Set all components to have no parent or children,
         # under this hierarchy
-        for comp in self.component:
+        for comp in getattr(self, u'component', []):
             comp._clear_hierarchy(key)
         self.build_name_dictionaries()
         # Find nodes defining this hierarchy
@@ -932,7 +936,6 @@ class cellml_model(element_base):
                         u'" and namespace "'+ns+'" has a cycle')
         return
 
-    # TODO: Fix the naming in these methods!
     def topological_sort(self, node):
         """
         Do a topological sort of all assignment expressions and variables
