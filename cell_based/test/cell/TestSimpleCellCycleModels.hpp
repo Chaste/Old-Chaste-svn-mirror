@@ -820,9 +820,10 @@ public:
             p_model->ReadyToDivide();
 
             TissueCell* const p_cell = &cell;
-
             output_arch << p_cell;
+
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
+            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), TRANSIT);
 
             SimulationTime::Destroy();
         }
@@ -847,6 +848,7 @@ public:
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(), 2.5, 1e-12);
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
+            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), TRANSIT);
 
             delete p_cell;
         }
@@ -889,6 +891,7 @@ public:
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.1, 1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(), 2.1, 1e-12);
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
+            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), TRANSIT);
 
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             random_number_test = p_gen->ranf();
@@ -924,6 +927,7 @@ public:
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.1, 1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(), 2.1, 1e-12);
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
+            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), TRANSIT);
 
             TS_ASSERT_DELTA(p_inst1->GetSDuration(), 5.0, 1e-12);
 
@@ -1038,6 +1042,7 @@ public:
 
             TS_ASSERT_DELTA(p_gen->ranf(), random_number_test, 1e-7);
             TS_ASSERT_EQUALS((static_cast<SimpleWntCellCycleModel*>(p_cell_model))->GetDimension(), 1u);
+            TS_ASSERT_EQUALS(p_cell_model->GetCellProliferativeType(), TRANSIT);
 
             // Tidy up
             SimulationTime::Destroy();
@@ -1182,6 +1187,7 @@ public:
 
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
             p_model->SetDimension(1);
+            p_model->SetCellProliferativeType(STEM);
 
             p_simulation_time->IncrementTimeOneStep();
 
@@ -1216,6 +1222,7 @@ public:
             // Check that archiving worked correctly
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), M_PHASE);
             TS_ASSERT_EQUALS(p_model->GetDimension(), 1u);
+            TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), STEM);
 
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(), 1.5, 1e-12);
