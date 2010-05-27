@@ -555,6 +555,84 @@ public:
         
     }
     
+    /*
+     *  If you need to generate a binary mesh from an existing one. Use something like:
+     * 
+     *      TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements");
+     *      TrianglesMeshWriter<3,3> mesh_writer("new_binary_mesh", "3D_0_to_1mm_6000_elements_binary");
+     *      mesh_writer.SetWriteFilesAsBinary();        
+     *      mesh_writer.WriteFilesUsingMeshReader(mesh_reader);
+     * 
+     */
+    void TestComparePartitionQualities()
+    {
+        unsigned num_local_nodes_ascii, num_local_nodes_binary, num_local_nodes_metis;
+        
+        {
+            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements");
+            //TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart");
+            DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::METIS_LIBRARY);
+            mesh.ConstructFromMeshReader(mesh_reader);
+    
+            TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
+            TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
+            TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
+    
+            CheckEverythingIsAssigned<3,3>(mesh);
+            
+            num_local_nodes_metis = mesh.GetNumLocalNodes();
+        }
+
+        {
+            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements");
+            //TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart");
+            DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PARMETIS_LIBRARY);
+            mesh.ConstructFromMeshReader(mesh_reader);
+    
+            TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
+            TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
+            TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
+    
+            CheckEverythingIsAssigned<3,3>(mesh);
+            
+            num_local_nodes_ascii = mesh.GetNumLocalNodes();
+        }
+
+        {
+            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements_binary");
+            //TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart_binary");            
+            DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PARMETIS_LIBRARY);
+            mesh.ConstructFromMeshReader(mesh_reader);
+    
+            TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
+            TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
+            TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
+    
+            CheckEverythingIsAssigned<3,3>(mesh);
+
+            num_local_nodes_binary = mesh.GetNumLocalNodes();
+        }
+        
+        unsigned max_local_nodes_metis;
+        unsigned max_local_nodes_ascii;
+        unsigned max_local_nodes_binary;
+
+        MPI_Allreduce (&num_local_nodes_metis, &max_local_nodes_metis, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD );
+        MPI_Allreduce (&num_local_nodes_ascii, &max_local_nodes_ascii, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD );
+        MPI_Allreduce (&num_local_nodes_binary, &max_local_nodes_binary, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD );
+        
+        if (PetscTools::AmMaster())
+        {
+            std::cout << "METIS\tPARMETIS ASCII\tPARMETIS BINARY" << std::endl;
+            std::cout << max_local_nodes_metis << "\t" << max_local_nodes_ascii << "\t\t" << max_local_nodes_binary << std::endl;
+        }
+        
+        TS_ASSERT(max_local_nodes_binary <= max_local_nodes_ascii);        
+                        
+    }
+        
+        
+
 
     void TestEverythingIsAssignedParMetisLibraryAsciiFiles()
     {
@@ -567,8 +645,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
 
         CheckEverythingIsAssigned<3,3>(mesh);
-        
-//        std::cout << PetscTools::GetMyRank() << " " << mesh.GetNumLocalNodes() << std::endl;
     }
 
     void TestEverythingIsAssignedParMetisLibraryBinaryFiles()
@@ -582,8 +658,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
 
         CheckEverythingIsAssigned<3,3>(mesh);
-        
-//        std::cout << PetscTools::GetMyRank() << " " << mesh.GetNumLocalNodes() << std::endl;
     }
 
 //    void TestEverythingIsAssignedPetscPartition()

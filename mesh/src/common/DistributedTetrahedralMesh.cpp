@@ -354,7 +354,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader
         PetscTools::ReplicateException(true); //Bad face exception
         throw e;
     }
-//    EXCEPTION("before deadlocking");
+    //EXCEPTION("before deadlocking");
 //    std::cout << "before!" << std::flush <<std::endl;
     PetscTools::ReplicateException(false);
 //    std::cout << "went past this!" << std::flush <<std::endl;
@@ -1435,16 +1435,28 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
     idxtype* eind = new idxtype[num_local_elements*(ELEMENT_DIM+1)];
     idxtype* eptr = new idxtype[num_local_elements+1];
 
-    // Advance the file pointer to the first element I own.
-    for (unsigned element_index = 0; element_index < first_local_element; element_index++)
+    if ( ! rMeshReader.IsFileFormatBinary() )
     {
-        ElementData element_data = rMeshReader.GetNextElementData();
+        // Advance the file pointer to the first element I own.
+        for (unsigned element_index = 0; element_index < first_local_element; element_index++)
+        {
+            ElementData element_data = rMeshReader.GetNextElementData();
+        }
     }
 
     unsigned counter=0;
     for (unsigned element_index = 0; element_index < num_local_elements; element_index++)
     {
-        ElementData element_data = rMeshReader.GetNextElementData();
+        ElementData element_data;
+        
+        if ( rMeshReader.IsFileFormatBinary() )
+        {
+            element_data = rMeshReader.GetElementData(first_local_element + element_index);
+        }
+        else
+        {
+            element_data = rMeshReader.GetNextElementData();
+        }        
 
         eptr[element_index] = counter;
         for (unsigned i=0; i<ELEMENT_DIM+1; i++)
@@ -1538,26 +1550,26 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
      *      rNodesOwned and rHaloNodesOwned are local.
      */
     
-    std::vector<unsigned> random_order;
+    std::vector<unsigned> element_access_order;
 
     if ( rMeshReader.IsFileFormatBinary() )
     {     
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         p_gen->Reseed(0);
-        p_gen->Shuffle(mTotalNumElements,random_order);
+        p_gen->Shuffle(mTotalNumElements,element_access_order);
     }
     else
     {
         for (unsigned element_number = 0; element_number < mTotalNumElements; element_number++)
         {
-            random_order.push_back(element_number);
+            element_access_order.push_back(element_number);
         }
     }
     
     
-    for (unsigned random_index = 0; random_index < mTotalNumElements; random_index++)
+    for (unsigned element_count = 0; element_count < mTotalNumElements; element_count++)
     {
-        unsigned element_number = random_order[random_index];
+        unsigned element_number = element_access_order[element_count];
         unsigned element_owner = global_element_partition[element_number];
         
         ElementData element_data;
