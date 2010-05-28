@@ -73,9 +73,11 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     }
     /*
      * Vector of witness points (a closest point in original source set of points)
+     * \todo  This is to be removed
      */
-    std::vector< c_vector<double, SPACE_DIM> >  witness_points(mNumNodes);
-
+    //std::vector< c_vector<double, SPACE_DIM> >  witness_points(mNumNodes);
+    witness_points.resize(mNumNodes);
+    
     for (unsigned source_index=0; source_index<rSourceNodeIndices.size(); source_index++)
     {
         unsigned node_index=rSourceNodeIndices[source_index];
@@ -216,8 +218,8 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                     {
 
                         // Test if we have found a shorter path from the witness in the source to the current neighbour through current node
-                        //This will save some sqrts later...
-                        double updated_distance = norm_2(p_neighbour_node->rGetLocation() - rWitnessPoints[current_node_index]);
+                        double updated_distance = rNodeDistances[current_node_index] +
+                                                  norm_2(p_neighbour_node->rGetLocation() - p_current_node->rGetLocation());
                         if ( updated_distance < rNodeDistances[neighbour_node_index] * (1.0-DBL_EPSILON) )
                         {
                             rWitnessPoints[neighbour_node_index] = rWitnessPoints[current_node_index];

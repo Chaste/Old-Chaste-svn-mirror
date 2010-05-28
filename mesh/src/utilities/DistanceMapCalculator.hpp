@@ -63,7 +63,9 @@ private:
     std::vector<unsigned> mHaloNodeIndices;
     /** Used to check parallel implementation*/
     unsigned mRoundCounter;
-
+    /** Temporary **/
+    std::vector< c_vector<double, SPACE_DIM> >  witness_points;
+    friend class TestDistanceMapBug;
     /**
      * Queue of nodes to be processed (initialised with the nodes defining the surface)
      * Priorities (given as the first in the pair for lexographical ordering) are

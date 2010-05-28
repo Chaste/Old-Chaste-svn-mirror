@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestDistanceMapCalculator : public CxxTest::TestSuite
 {
 public:
-    void TestDistances1D() throw (Exception)
+    void joeTestDistances1D() throw (Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 
@@ -221,14 +221,26 @@ public:
         {
             c_vector<double, 3> node = mesh.GetNode(index)->rGetLocation();
 
-            double dist = norm_2(far_corner - node);
-
-            TS_ASSERT_DELTA(distances[index], dist, 1e-11);
-            TS_ASSERT_DELTA(parallel_distances[index], dist, 1e-11);
+            //Straightline distance
+            double euclidean_distance = norm_2(far_corner - node);
+            // x + y + z distance
+            double manhattan_distance = norm_1(far_corner - node);
+            //If they differ, then allow the in-mesh distance to be in between
+            double error_bound = (manhattan_distance - euclidean_distance)/2.0;
+            //If they don't differ, then we expect the in-mesh distance to be similar
+            if (error_bound == 0.0)
+            { 
+                error_bound = 1e-15;
+            }
+            TS_ASSERT_LESS_THAN_EQUALS(distances[index], manhattan_distance+DBL_EPSILON);
+            TS_ASSERT_LESS_THAN_EQUALS(euclidean_distance, distances[index]+DBL_EPSILON);
+            TS_ASSERT_DELTA(distances[index], euclidean_distance, error_bound);
+            
+            TS_ASSERT_DELTA(distances[index], parallel_distances[index], 1e-15);
         }
     }
 
-    void TestDistancesToFaceDumb()
+    void joeTestDistancesToFaceDumb()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
 
@@ -277,7 +289,7 @@ public:
             TS_ASSERT_DELTA(parallel_distances[index], node[0]+0.25,1e-11);
         }
     }
-    void TestDistancesToFace()
+    void joeTestDistancesToFace()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
 
