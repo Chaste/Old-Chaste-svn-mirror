@@ -71,31 +71,20 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     {
         rNodeDistances[index] = DBL_MAX;
     }
-    /*
-     * Vector of witness points (a closest point in original source set of points)
-     * \todo  This is to be removed
-     */
-    //std::vector< c_vector<double, SPACE_DIM> >  witness_points(mNumNodes);
-    witness_points.resize(mNumNodes);
     
     for (unsigned source_index=0; source_index<rSourceNodeIndices.size(); source_index++)
     {
         unsigned node_index=rSourceNodeIndices[source_index];
         PushLocal(0.0, node_index);
         rNodeDistances[node_index] = 0.0;
-        //If we have the correct information, then we can set the witness
-        if (mLo<=node_index && node_index<mHi)
-        {
-            witness_points[node_index]=mrMesh.GetNode(node_index)->rGetLocation();
-        }
     }
 
     bool non_empty_queue=true;
     mRoundCounter=0;
     while (non_empty_queue)
     {
-        WorkOnLocalQueue(witness_points, rNodeDistances);
-        non_empty_queue=UpdateQueueFromRemote(witness_points, rNodeDistances);
+        WorkOnLocalQueue(rNodeDistances);
+        non_empty_queue=UpdateQueueFromRemote(rNodeDistances);
         //Sanity - check that we aren't doing this very many times
         if (mRoundCounter++ > 3 * PetscTools::GetNumProcs())
         {
@@ -117,8 +106,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::vector< c_vector<double, SPACE_DIM> >& rWitnessPoints,
-                                                                     std::vector<double>& rNodeDistances)
+bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::vector<double>& rNodeDistances)
 {
     if (mWorkOnEntireMesh)
     {
@@ -128,7 +116,6 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
     for (unsigned bcast_process=0; bcast_process<PetscTools::GetNumProcs(); bcast_process++)
     {
         //Process packs cart0/cart1/...euclid/index into a 1-d array
-        double* witness_exchange = new double[ SPACE_DIM * mNumHalosPerProcess[bcast_process] ];
         double* dist_exchange = new double[  mNumHalosPerProcess[bcast_process] ];
         unsigned* index_exchange = new unsigned[  mNumHalosPerProcess[bcast_process] ];
         if (PetscTools::GetMyRank() == bcast_process)
@@ -136,10 +123,6 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
             //Broadcaster fills the array
             for (unsigned index=0; index<mHaloNodeIndices.size();index++)
             {
-                for (unsigned j=0; j<SPACE_DIM; j++)
-                {
-                    witness_exchange[ index*(SPACE_DIM) + j] =  rWitnessPoints[mHaloNodeIndices[index]][j];
-                }
                 dist_exchange[index] = rNodeDistances[mHaloNodeIndices[index]];
                 index_exchange[index] = mHaloNodeIndices[index];
             }
@@ -147,8 +130,6 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
 
         //Broadcast - this is can be done by casting indices to double and packing everything
         //into a single array.  That would be better for latency, but this is probably more readable.
-        MPI_Bcast(witness_exchange, (SPACE_DIM) * mNumHalosPerProcess[bcast_process], MPI_DOUBLE,
-                  bcast_process, PETSC_COMM_WORLD);
         MPI_Bcast(dist_exchange, mNumHalosPerProcess[bcast_process], MPI_DOUBLE,
                   bcast_process, PETSC_COMM_WORLD);
         MPI_Bcast(index_exchange, mNumHalosPerProcess[bcast_process], MPI_UNSIGNED,
@@ -164,15 +145,10 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
                 {
                     //Copy across - this may be unnecessary when PushLocal isn't going to push because it's not local.
                     rNodeDistances[global_index] = dist_exchange[index];
-                    for (unsigned j=0; j<SPACE_DIM; j++)
-                    {
-                         rWitnessPoints[global_index][j] = witness_exchange[ index*(SPACE_DIM) + j];
-                    }
                     PushLocal(rNodeDistances[global_index], global_index);
                 }
             }
         }
-        delete [] witness_exchange;
         delete [] dist_exchange;
         delete [] index_exchange;
     }
@@ -183,8 +159,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& rWitnessPoints,
-                                                                     std::vector<double>& rNodeDistances)
+void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector<double>& rNodeDistances)
 {
     while (!mActivePriorityNodeIndexQueue.empty())
     {
@@ -217,12 +192,11 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                     if(neighbour_node_index != current_node_index)
                     {
 
-                        // Test if we have found a shorter path from the witness in the source to the current neighbour through current node
+                        // Test if we have found a shorter path from the source to the neighbour through current node
                         double updated_distance = rNodeDistances[current_node_index] +
                                                   norm_2(p_neighbour_node->rGetLocation() - p_current_node->rGetLocation());
                         if ( updated_distance < rNodeDistances[neighbour_node_index] * (1.0-DBL_EPSILON) )
                         {
-                            rWitnessPoints[neighbour_node_index] = rWitnessPoints[current_node_index];
                             rNodeDistances[neighbour_node_index] = updated_distance;
                             PushLocal(updated_distance, neighbour_node_index);
                         }

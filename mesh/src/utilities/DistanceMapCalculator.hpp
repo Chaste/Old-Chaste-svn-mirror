@@ -63,9 +63,7 @@ private:
     std::vector<unsigned> mHaloNodeIndices;
     /** Used to check parallel implementation*/
     unsigned mRoundCounter;
-    /** Temporary **/
-    std::vector< c_vector<double, SPACE_DIM> >  witness_points;
-    friend class TestDistanceMapBug;
+
     /**
      * Queue of nodes to be processed (initialised with the nodes defining the surface)
      * Priorities (given as the first in the pair for lexographical ordering) are
@@ -77,24 +75,20 @@ private:
     /**
      * Work on the Queue of node indices (grass-fire across the mesh)
      *
-     * @param rWitnessPoints  The witness points in the source which supply the current minimum distance of each node
      * @param rNodeDistances distance map computed
      */
-    void WorkOnLocalQueue(std::vector< c_vector<double, SPACE_DIM> >& rWitnessPoints,
-                          std::vector<double>& rNodeDistances);
+    void WorkOnLocalQueue(std::vector<double>& rNodeDistances);
 
     /**
      * Update the local Queue of node indices using data that are from the halo nodes of remote processes.
      *
-     * @param rWitnessPoints  The witness points in the source which supply the current minimum distance of each node
      * @param rNodeDistances distance map computed
      *
      * @return true when this update was active => there are non-empty queues left to work on
      * @return false without working or side-effects if we don't have a true distributed mesh
      *
      */
-    bool UpdateQueueFromRemote(std::vector< c_vector<double, SPACE_DIM> >& rWitnessPoints,
-                               std::vector<double>& rNodeDistances);
+    bool UpdateQueueFromRemote(std::vector<double>& rNodeDistances);
 
     /**
      * Push a node index onto the queue.  In the parallel case this will only push a
