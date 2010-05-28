@@ -42,9 +42,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "PCBlockDiagonalMechanics.hpp"
 //#include "PCLDUFactorisationMechanics.hpp"
 
-#define MECH_VERBOSE
+
+//#define MECH_VERBOSE
 //#define MECH_VERY_VERBOSE
-//#define MECH_USE_HYPRE
+
+//// These should be commented in a commit at the moment!
+//#define MECH_USE_MUMPS  // requires Petsc to be installed with MUMPS
+//#define MECH_USE_HYPRE  // requires Petsc to be installed with HYPRE
+
+
 
 #ifdef MECH_VERBOSE
 #include "Timer.hpp"
@@ -481,70 +487,90 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     Timer::PrintAndReset("AssembleSystem");
     #endif
 
-    /////////////////////////////////////////////////////////////
-    // Solve the linear system using Petsc GMRES and an LU
-    // factorisation of the preconditioner. Note we
-    // don't call Solve on the linear_system as we want to
-    // set Petsc options..
-    /////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////
+    //
+    // Solve the linear system.
+    // Three alternatives
+    //   (a) GMRES with ILU preconditioner (or bjacobi=ILU on each process) [default]. Very poor on large problems.
+    //   (b) GMRES with AMG preconditioner. Uncomment #define MECH_USE_HYPRE above. Requires Petsc3 with HYPRE installed.
+    //   (c) Solve using MUMPS direct solver Uncomment #define MECH_USE_MUMPS above. Requires Petsc 3 with MUMPS installed.
+    //
+    ///////////////////////////////////////////////////////////////////
     MechanicsEventHandler::BeginEvent(MechanicsEventHandler::SOLVE);
 
     Vec solution;
     VecDuplicate(mpLinearSystem->rGetRhsVector(),&solution);
 
     Mat& r_jac = mpLinearSystem->rGetLhsMatrix();
-    Mat& r_precond_jac = mpPreconditionMatrixLinearSystem->rGetLhsMatrix();
 
     KSP solver;
     KSPCreate(PETSC_COMM_WORLD,&solver);
-
-    KSPSetOperators(solver, r_jac, r_precond_jac, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
-
-
-    KSPSetType(solver,KSPGMRES);
+    PC pc;
+    KSPGetPC(solver, &pc);
     
-    if(mKspAbsoluteTol < 0)
-    {
-        double ksp_rel_tol = 1e-6;
-        KSPSetTolerances(solver, ksp_rel_tol, PETSC_DEFAULT, PETSC_DEFAULT, 10000 /*max iter*/); //hopefully with the preconditioner this max is way too high
-    }
-    else
-    {
-        KSPSetTolerances(solver, 1e-16, mKspAbsoluteTol, PETSC_DEFAULT, 10000 /*max iter*/); //hopefully with the preconditioner this max is way too high
-    }
-    
-    unsigned num_restarts = 100;
-    KSPGMRESSetRestart(solver,num_restarts); // gmres num restarts
+    #ifdef MECH_USE_MUMPS
+        // no need for the precondition matrix
+        KSPSetOperators(solver, r_jac, r_jac, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
 
-    KSPSetFromOptions(solver);
-    KSPSetUp(solver);
+        KSPSetType(solver, KSPPREONLY);
+        PCSetType(pc, PCLU);
+        PCFactorSetMatSolverPackage(pc, MAT_SOLVER_MUMPS);
+
+        // Allow matrices with zero diagonals to be solved
+        PCFactorSetShiftNonzero(pc, PETSC_DECIDE);
+        // "Do LU factorization in-place (saves memory)"
+        PCASMSetUseInPlace(pc);
+    #else
+        Mat& r_precond_jac = mpPreconditionMatrixLinearSystem->rGetLhsMatrix();
+        KSPSetOperators(solver, r_jac, r_precond_jac, DIFFERENT_NONZERO_PATTERN /*in precond between successive solves*/);
+
+        unsigned num_restarts = 100;
+        KSPSetType(solver,KSPGMRES);
+        KSPGMRESSetRestart(solver,num_restarts); // gmres num restarts
+    
+        if(mKspAbsoluteTol < 0)
+        {
+            double ksp_rel_tol = 1e-6;
+            KSPSetTolerances(solver, ksp_rel_tol, PETSC_DEFAULT, PETSC_DEFAULT, 10000 /*max iter*/); //hopefully with the preconditioner this max is way too high
+        }
+        else
+        {
+            KSPSetTolerances(solver, 1e-16, mKspAbsoluteTol, PETSC_DEFAULT, 10000 /*max iter*/); //hopefully with the preconditioner this max is way too high
+        }
+
+        #ifndef MECH_USE_HYPRE 
+            PCSetType(pc, PCBJACOBI); // BJACOBI = ILU on each block (block = part of matrix on each process)
+        #else
+            /////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Speed up linear solve time massively for larger simulations (in fact GMRES may stagnate without
+            // this for larger problems), by using a AMG preconditioner -- needs HYPRE installed 
+            /////////////////////////////////////////////////////////////////////////////////////////////////////
+            PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
+            // PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
+            // PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
+        
+            PCSetType(pc, PCHYPRE);
+            
+            // other possible preconditioners..
+            //PCBlockDiagonalMechanics* p_custom_pc = new PCBlockDiagonalMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
+            //PCLDUFactorisationMechanics* p_custom_pc = new PCLDUFactorisationMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
+        	//remember to delete memory..
+            //KSPSetPreconditionerSide(solver, PC_RIGHT);
+        #endif
+
+        // uncomment to get convergence information
+        //#ifdef MECH_VERBOSE
+        //PetscOptionsSetValue("-ksp_monitor","");
+        //#endif
+
+        KSPSetFromOptions(solver);
+        KSPSetUp(solver);
+    #endif     
+
     #ifdef MECH_VERBOSE
     Timer::PrintAndReset("KSP Setup");
     #endif
-
-    PC pc;
-    KSPGetPC(solver, &pc);
-
-    #ifndef MECH_USE_HYPRE 
-    PCSetType(pc, PCBJACOBI); // BJACOBI = ILU on each block (block = part of matrix on each process)
-    #else
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Speed up linear solve time massively for larger simulations (in fact GMRES may stagnate without
-    // this for larger problems), by using a AMG preconditioner -- needs HYPRE installed 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////
-    PetscOptionsSetValue("-pc_hypre_type", "boomeramg");
-    // PetscOptionsSetValue("-pc_hypre_boomeramg_max_iter", "1");
-    // PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
-
-    PCSetType(pc, PCHYPRE);
-    
-    //PCBlockDiagonalMechanics* p_custom_pc = new PCBlockDiagonalMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
-    //PCLDUFactorisationMechanics* p_custom_pc = new PCLDUFactorisationMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);
-	//remember to delete memory..
-    //KSPSetPreconditionerSide(solver, PC_RIGHT);
-    #endif     
-
-    KSPSetFromOptions(solver);
     
     KSPSolve(solver,mpLinearSystem->rGetRhsVector(),solution);
     
@@ -564,7 +590,6 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
     #endif
 
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::SOLVE);
-
     ///////////////////////////////////////////////////////////////////////////
     // Update the solution
     //  Newton method:       sol = sol - update, where update=Jac^{-1}*residual
