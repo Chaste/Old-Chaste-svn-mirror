@@ -26,6 +26,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#ifndef CHASTESERIALIZATION_HPP_
+#define CHASTESERIALIZATION_HPP_
+
 /**
  * @file
  *
@@ -53,3 +56,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CHASTE_CAN_CHECKPOINT_DLLS
 #endif
 #endif
+
+/**
+ * Also check for versions of Boost we don't support at all.
+ */
+#if BOOST_VERSION < 103301
+#error "Chaste doesn't support versions of Boost earlier than 1.33.1."
+#elif BOOST_VERSION == 103500
+// There's a bug in 1.35 which involves a
+// #include <boost/serialization/extended_type_info_typeid.hpp>
+// missing at the end of <boost/serialization/export.hpp>
+// It's probably not worth fixing.
+#error "Chaste won't work with Boost 1.35 due to a bug in its serialization library."
+#elif BOOST_VERSION == 104100
+// Something goes wrong compiling TestCardiacSimulationArchiver with 1.41
+#error "Chaste does not support Boost 1.41; use an earlier or later version."
+#endif
+
+#endif // CHASTESERIALIZATION_HPP_
