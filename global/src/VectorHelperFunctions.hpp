@@ -80,7 +80,7 @@ inline void SetVectorComponent(VECTOR& rVec, unsigned index, double value);
  * @return  its size
  */
 template<typename VECTOR>
-inline double GetVectorSize(const VECTOR& rVec);
+inline unsigned GetVectorSize(const VECTOR& rVec);
 
 /**
  * Helper function to initialise a vector to be empty/unset.
@@ -138,7 +138,7 @@ inline void SetVectorComponent(std::vector<double>& rVec, unsigned index, double
  * @param rVec
  */
 template<>
-inline double GetVectorSize(const std::vector<double>& rVec)
+inline unsigned GetVectorSize(const std::vector<double>& rVec)
 {
     return rVec.size();
 }
@@ -197,7 +197,7 @@ inline void SetVectorComponent(N_Vector& rVec, unsigned index, double value)
  * @param rVec
  */
 template<>
-inline double GetVectorSize(const N_Vector& rVec)
+inline unsigned GetVectorSize(const N_Vector& rVec)
 {
     assert(rVec != NULL);
     return NV_LENGTH_S(rVec);
