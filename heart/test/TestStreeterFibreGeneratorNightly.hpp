@@ -47,7 +47,7 @@ public:
         std::string rv_face_file = "heart/test/data/point50_heart_mesh/rv.tri";
         std::string lv_face_file = "heart/test/data/point50_heart_mesh/lv.tri";
 
-        DistributedTetrahedralMesh<3,3> mesh;
+        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::DUMB);
         mesh.ConstructFromMeshReader(mesh_reader);
 
         StreeterFibreGenerator<3> fibre_generator(mesh);
