@@ -57,15 +57,25 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
     unsigned ownership_range_low = mpDistributedVectorFactory->GetLow();
     mCellsDistributed.resize(num_local_nodes);
 
-    for (unsigned local_index = 0; local_index < num_local_nodes; local_index++)
+    try
     {
-        unsigned global_index = ownership_range_low + local_index;
-        mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
+        for (unsigned local_index = 0; local_index < num_local_nodes; local_index++)
+        {
+            unsigned global_index = ownership_range_low + local_index;
+            mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
+        }
+    
+        pCellFactory->FinaliseCellCreation(&mCellsDistributed,
+                                           mpDistributedVectorFactory->GetLow(),
+                                           mpDistributedVectorFactory->GetHigh());
     }
-
-    pCellFactory->FinaliseCellCreation(&mCellsDistributed,
-                                       mpDistributedVectorFactory->GetLow(),
-                                       mpDistributedVectorFactory->GetHigh());
+    catch (const Exception& e)
+    {
+        // Errors thrown creating cells will often be process-specific
+        PetscTools::ReplicateException(true);
+        throw e;
+    }
+    PetscTools::ReplicateException(false);
 
     HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
     mIionicCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
