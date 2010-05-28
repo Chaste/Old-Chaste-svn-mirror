@@ -39,6 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestCardiacSimulation : public CxxTest::TestSuite
 {
+    void setUp()
+    {
+        HeartEventHandler::Reset();
+    }
 public:
 
     void TestMono1dSmall() throw(Exception)
@@ -48,16 +52,30 @@ public:
                                                  "SaveMono1D", "SimulationResults", true));
         CardiacSimulation simulation2("heart/test/data/xml/monodomain1d_resume.xml");
     }
+
     void TestMono2dSmall() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/monodomain2d_small.xml");
         CardiacSimulation simulation2("heart/test/data/xml/monodomain2d_resume.xml");
     }
+
     void TestMono3dSmall() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/monodomain3d_small.xml");
         CardiacSimulation simulation2("heart/test/data/xml/monodomain3d_resume.xml");
     }
+
+    void TestMono1dSodiumBlockBySettingNamedParameter() throw(Exception)
+    {
+        CardiacSimulation simulation("heart/test/data/xml/monodomain1d_sodium_block.xml");
+        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "mono_1d_sodium_block", false,
+                                                 "Mono1dSodiumBlock", "SimulationResults", true));
+
+        // Test exception
+        TS_ASSERT_THROWS_THIS(CardiacSimulation bad_param("heart/test/data/xml/bad_cell_parameter.xml"),
+                              "No parameter named 'missing-parameter'.");
+    }
+    
     void TestBi1dSmall() throw(Exception)
     {
         { CardiacSimulation simulation("heart/test/data/xml/bidomain1d_small.xml"); }

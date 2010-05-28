@@ -59,7 +59,8 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
         HeartConfig::Instance()->GetCellHeterogeneities(mCellHeterogeneityAreas,
                                                         mScaleFactorGks,
                                                         mScaleFactorIto,
-                                                        mScaleFactorGkr, NULL);
+                                                        mScaleFactorGkr,
+                                                        &mParameterSettings);
     }
     catch (Exception& e)
     {
@@ -123,6 +124,8 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
             break;
         }
     }
+    
+    AbstractCardiacCell* p_cell = NULL;
 
     if (ionic_model.Dynamic().present())
     {
@@ -134,7 +137,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 #endif // CHASTE_CAN_CHECKPOINT_DLLS
         // Load model from shared library
         DynamicCellModelLoader* p_loader = LoadDynamicModel(ionic_model, false);
-        return p_loader->CreateCell(this->mpSolver, intracellularStimulus);
+        p_cell = p_loader->CreateCell(this->mpSolver, intracellularStimulus);
     }
     else
     {
@@ -143,31 +146,31 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
         {
             case(cp::ionic_models_available_type::LuoRudyI):
             {
-                return new LuoRudyIModel1991OdeSystem(this->mpSolver, intracellularStimulus);
+                p_cell = new LuoRudyIModel1991OdeSystem(this->mpSolver, intracellularStimulus);
                 break;
             }
 
             case(cp::ionic_models_available_type::LuoRudyIBackwardEuler):
             {
-                return new BackwardEulerLuoRudyIModel1991(intracellularStimulus);
+                p_cell = new BackwardEulerLuoRudyIModel1991(intracellularStimulus);
                 break;
             }
 
             case(cp::ionic_models_available_type::Fox2002BackwardEuler):
             {
-                return new BackwardEulerFoxModel2002Modified(intracellularStimulus);
+                p_cell = new BackwardEulerFoxModel2002Modified(intracellularStimulus);
                 break;
             }
 
             case(cp::ionic_models_available_type::DifrancescoNoble):
             {
-                return new DiFrancescoNoble1985OdeSystem(this->mpSolver, intracellularStimulus);
+                p_cell = new DiFrancescoNoble1985OdeSystem(this->mpSolver, intracellularStimulus);
                 break;
             }
 
             case(cp::ionic_models_available_type::MahajanShiferaw):
             {
-                return new Mahajan2008OdeSystem(this->mpSolver, intracellularStimulus);
+                p_cell = new Mahajan2008OdeSystem(this->mpSolver, intracellularStimulus);
                 break;
             }
 
@@ -187,7 +190,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
                     }
                 }
 
-                return p_tt06_instance;
+                p_cell = p_tt06_instance;
                 break;
             }
 
@@ -207,13 +210,13 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
                     }
                 }
 
-                return p_maleckar_instance;
+                p_cell = p_maleckar_instance;
                 break;
             }
 
             case(cp::ionic_models_available_type::HodgkinHuxley):
             {
-                return new HodgkinHuxleySquidAxon1952OriginalOdeSystem(this->mpSolver, intracellularStimulus);
+                p_cell = new HodgkinHuxleySquidAxon1952OriginalOdeSystem(this->mpSolver, intracellularStimulus);
                 break;
             }
 
@@ -232,13 +235,13 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
                     }
                 }
 
-                return p_faber_rudy_instance;
+                p_cell = p_faber_rudy_instance;
                 break;
             }
 
             case(cp::ionic_models_available_type::FaberRudy2000Optimised):
             {
-                return new FaberRudy2000Version3Optimised(this->mpSolver, intracellularStimulus);
+                p_cell = new FaberRudy2000Version3Optimised(this->mpSolver, intracellularStimulus);
                 break;
             }
 
@@ -249,9 +252,25 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
             }
         }
     }
-    NEVER_REACHED;
+    
+    // Set parameters
+    for (unsigned ht_index = 0;
+         ht_index < mCellHeterogeneityAreas.size();
+         ++ht_index)
+    {
+        if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+        {
+            for (std::map<std::string, double>::iterator param_it = mParameterSettings[ht_index].begin();
+                 param_it != mParameterSettings[ht_index].end();
+                 ++param_it)
+            {
+                unsigned param_index = p_cell->GetParameterIndex(param_it->first);
+                p_cell->SetParameter(param_index, param_it->second);
+            }
+        }
+    }
 
-    return NULL;
+    return p_cell;
 }
 
 

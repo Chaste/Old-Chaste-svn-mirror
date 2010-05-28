@@ -104,6 +104,9 @@ private:
     std::vector<double> mScaleFactorIto;
     /** List of scale factors for Gkr scaling in each region (size of list matches that of mCellHeterogeneityAreas)*/
     std::vector<double> mScaleFactorGkr;
+    
+    /** Named parameters to be set in each region (size of list matches that of mCellHeterogeneityAreas)*/
+    std::vector<std::map<std::string, double> > mParameterSettings;
 
     /**
      * Called by the constructor to convert any CellML files used as dynamically loaded cell models to shared libraries.

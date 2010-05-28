@@ -235,7 +235,7 @@ The breakdown of the model into components and the definition of encapsulation a
    </component>
    <component name="fast_sodium_current">
       <variable units="microA_per_cm2" public_interface="out" cmeta:id="fast_sodium_current_i_Na" name="i_Na"/>
-      <variable units="milliS_per_cm2" name="g_Na" initial_value="23"/>
+      <variable units="milliS_per_cm2" name="g_Na" initial_value="23" cmeta:id="fast_sodium_current_conductance"/>
       <variable units="millivolt" name="E_Na"/>
       <variable units="millisecond" public_interface="in" private_interface="out" name="time"/>
       <variable units="joule_per_kilomole_kelvin" public_interface="in" name="R"/>
@@ -1978,6 +1978,9 @@ The breakdown of the model into components and the definition of encapsulation a
   </rdf:Description>
   <rdf:Description rdf:about="rdf:#$faO9U1">
     <ns7:boundIntervals rdf:resource="rdf:#$gaO9U1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="#fast_sodium_current_conductance">
+    <modifiable-parameter xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</modifiable-parameter>
   </rdf:Description>
 </rdf:RDF>
 </model>
