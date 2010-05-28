@@ -53,13 +53,16 @@ public:
         StreeterFibreGenerator<3> fibre_generator(mesh);
         fibre_generator.SetSurfaceFiles(epi_face_file, rv_face_file, lv_face_file);
 
-        fibre_generator.GenerateOrthotropicFibreOrientation("streeter", "point50.ortho", true);
+        fibre_generator.GenerateOrthotropicFibreOrientation("streeter_parallel", "point50.ortho", true);
 
-        OutputFileHandler handler("streeter", false);
+        OutputFileHandler handler("streeter_parallel", false);
         std::string fibre_file = handler.GetOutputDirectoryFullPath() + "point50.ortho";
+        std::string wall_file = handler.GetOutputDirectoryFullPath() + "wall_thickness.data";
 
-        NumericFileComparison comp(fibre_file,"heart/test/data/point50_heart_mesh/point50.ortho");
-        TS_ASSERT(comp.CompareFiles(1e-11));
+        NumericFileComparison comp_ortho(fibre_file,"heart/test/data/point50_heart_mesh/point50.ortho");
+        TS_ASSERT(comp_ortho.CompareFiles(1e-11));
+        NumericFileComparison comp_wall(wall_file,"heart/test/data/point50_heart_mesh/wall_thickness.data");
+        TS_ASSERT(comp_wall.CompareFiles(1e-11));
     }
 
     void TestSimpleOrthotropicNotDistributed() throw (Exception)
@@ -79,9 +82,12 @@ public:
 
         OutputFileHandler handler("streeter", false);
         std::string fibre_file = handler.GetOutputDirectoryFullPath() + "point50_not_dist.ortho";
+        std::string wall_file = handler.GetOutputDirectoryFullPath() + "wall_thickness.data";
 
-        NumericFileComparison comp(fibre_file,"heart/test/data/point50_heart_mesh/point50.ortho");
-        TS_ASSERT(comp.CompareFiles(1e-11));
+        NumericFileComparison comp_ortho(fibre_file,"heart/test/data/point50_heart_mesh/point50.ortho");
+        TS_ASSERT(comp_ortho.CompareFiles(1e-11));
+        NumericFileComparison comp_wall(wall_file,"heart/test/data/point50_heart_mesh/wall_thickness.data");
+        TS_ASSERT(comp_wall.CompareFiles(1e-11));
     }
 
 };
