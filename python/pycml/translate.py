@@ -1273,31 +1273,90 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.lookup_method_prefix = self.lt_class_name + '::Instance()->'
         return super(CellMLToChasteTranslator, self).final_configuration_hook()
     
-    def ionic_current_units_conversion_factor(self, units):
+    def ionic_current_units_conversion(self, varname, all_units):
         """
-        Check whether the units of the transmembrane current are as
-        expected by Chaste.  If they are dimensionally consistent,
-        return the required conversion factor (could be 1).  If not,
-        print a warning message to stderr.
-
-        To go from model -> Chaste, multiply by the conversion factor.
+        Check whether the units of the transmembrane currents are as expected by
+        Chaste, and return an appropriate conversion expression if not.
+        
+        There are three main cases:
+        
+        1. Current in amps/area, capacitance in farads/area.
+           In this case the dimensions are as expected by Chaste, so we just
+           compute the units conversion factor.
+        2. Current in amps/farads.
+           In this case we convert to uA/uF then multiply by Chaste's value
+           for the membrane capacitance (in uF/cm^2).
+        3. Current in amps, capacitance in farads.
+           We assume the cell model conceptually represents a cell, and hence
+           that its membrane capacitance is supposed to represent the same
+           thing as Chaste's.  Thus convert current to uA, capacitance to uF,
+           and return current/capacitance * Chaste's capacitance.
+        
+        If the model doesn't match one of these cases, print a warning message,
+        or die if running fully automatically.
         """
+        # We just use the first units element; if the model passes units checking,
+        # this is OK.  If it doesn't, then it's pot luck as to whether this
+        # method does anything sensible at all...
+        model_units = all_units[0]
+        conversion = varname # Default to no conversion
         chaste_units = cellml_units.create_new(
             self.model, 'uA_per_cm2',
             [{'units': 'ampere', 'prefix': 'micro'},
              {'units': 'metre', 'prefix': 'centi', 'exponent': '-2'}])
-        if not chaste_units.dimensionally_equivalent(units):
-            msg = "Units of the ionic current are not in the " \
-                "dimensions expected by Chaste (uA/cm^2).  Please add " \
-                "a suitable conversion manually - we cannot do this " \
-                "reliably automatically."
+        microamps = cellml_units.create_new(self.model, u'microamps',
+                                            [{'units':'ampere', 'prefix':'micro'}])
+        microfarads = cellml_units.create_new(self.model, u'microfarads',
+                                              [{'units':'farad', 'prefix':'micro'}])
+        A_per_F = cellml_units.create_new(self.model, 'A_per_F',
+                                          [{'units': 'ampere'},
+                                           {'units': 'farad', 'exponent': '-1'}])
+        
+        def problem(msg):
             if self.options.fully_automatic:
                 raise TranslationError(msg)
             else:
                 print >>sys.stderr, msg
-            return 1
-        return (units.get_multiplicative_factor() /
-                chaste_units.get_multiplicative_factor())
+        
+        if chaste_units.dimensionally_equivalent(model_units):
+            # Case 1
+            conv = (model_units.get_multiplicative_factor() /
+                    chaste_units.get_multiplicative_factor())
+            if conv != 1:
+                conversion += ' * ' +str(conv)
+        elif A_per_F.dimensionally_equivalent(model_units):
+            # Case 2
+            conv = (model_units.get_multiplicative_factor() /
+                    A_per_F.get_multiplicative_factor())
+            if conv != 1:
+                conversion += ' * ' + str(conv)
+            conversion += ' * HeartConfig::Instance()->GetCapacitance()'
+        elif microamps.dimensionally_equivalent(model_units):
+            # Case 3, probably
+            conv = (model_units.get_multiplicative_factor() /
+                    microamps.get_multiplicative_factor())
+            if conv != 1:
+                conversion += ' * ' + str(conv)
+            model_Cm = self.doc._cml_config.Cm_variable
+            if model_Cm is None:
+                problem("Cannot convert ionic current from amps to uA/cm^2 "
+                        "without knowing which variable in the cell model "
+                        "represents the membrane capacitance.")
+            else:
+                Cm_units = self.get_var_units(model_Cm)
+                Cm_value = self.code_name(model_Cm)
+                conv = (Cm_units.get_multiplicative_factor() /
+                        microfarads.get_multiplicative_factor())
+                if conv != 1:
+                    conversion += ' / (' + str(conv) + ' * ' + Cm_value + ')'
+                else:
+                    conversion += ' / ' + Cm_value
+            conversion += ' * HeartConfig::Instance()->GetCapacitance()'
+        else:
+            problem("Units of the ionic current are not in the "
+                    "dimensions expected by Chaste (uA/cm^2) and cannot "
+                    "be converted automatically.")
+        return conversion
     
     def check_time_units(self):
         """Check if units conversions at the interfaces are required (#621).
@@ -1906,21 +1965,20 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     indexes_as_member=self.use_backward_euler)
             self.output_equations(nodeset)
             self.writeln()
-            # TODO: Assign to temporary and assert(!std::isnan(i_ionic));?
-            #621: check units of the ionic current
-            conv = self.ionic_current_units_conversion_factor(
-                self.get_var_units(nodes[0]))
-            if conv == 1:
-                conv = ''
-            else:
-                conv = str(conv) + ' * '
-            self.writeln('return ', conv, '(', nl=False)
+            # Assign the total current to a temporary so we can check for NaN and
+            # do units conversion if needed.
+            self.writeln(self.TYPE_DOUBLE, 'i_ionic', self.EQ_ASSIGN, nl=False)
             plus = False
             for varelt in self.model.solver_info.ionic_current.var:
                 if plus: self.write('+')
                 else: plus = True
                 self.output_variable(varelt)
-            self.writeln(')', self.STMT_END, indent=False)
+            self.writeln(self.STMT_END, indent=False)
+            self.writeln('assert(!std::isnan(i_ionic));')
+            #621: check units of the ionic current
+            units_objs = map(self.get_var_units, nodes)
+            conversion = self.ionic_current_units_conversion('i_ionic', units_objs)
+            self.writeln('return ', conversion, self.STMT_END)
         else:
             self.writeln('return 0.0;')
         self.close_block()
