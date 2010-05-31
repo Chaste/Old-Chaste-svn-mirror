@@ -144,6 +144,9 @@ public:
         {
             return;
         }
+#ifdef BARRIERS
+        PetscTools::Barrier("BeginEvent");
+#endif
         mInUse = true;
         assert(event<NUM_EVENTS);
         CheckVectorSizes();
@@ -183,6 +186,9 @@ public:
         {
             return;
         }
+#ifdef BARRIERS
+        PetscTools::Barrier("EndEvent");        
+#endif
         CheckVectorSizes();
         if (!mHasBegun[event])
         {

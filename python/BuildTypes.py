@@ -1190,6 +1190,9 @@ def GetBuildType(buildType):
         elif extra.startswith('hostconfig'):
             obj.SetHostConfig(extra[11:])
             obj.build_dir += '_' + extra
+        elif extra == 'barriers':
+            obj._cc_flags.append('-DBARRIERS')
+            obj.build_dir += '_barriers'
         else:
             try:
                 np = int(extra)
