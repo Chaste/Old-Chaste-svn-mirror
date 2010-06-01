@@ -254,20 +254,28 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
     }
     
     // Set parameters
-    for (unsigned ht_index = 0;
-         ht_index < mCellHeterogeneityAreas.size();
-         ++ht_index)
+    try
     {
-        if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+        for (unsigned ht_index = 0;
+             ht_index < mCellHeterogeneityAreas.size();
+             ++ht_index)
         {
-            for (std::map<std::string, double>::iterator param_it = mParameterSettings[ht_index].begin();
-                 param_it != mParameterSettings[ht_index].end();
-                 ++param_it)
+            if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
             {
-                unsigned param_index = p_cell->GetParameterIndex(param_it->first);
-                p_cell->SetParameter(param_index, param_it->second);
+                for (std::map<std::string, double>::iterator param_it = mParameterSettings[ht_index].begin();
+                     param_it != mParameterSettings[ht_index].end();
+                     ++param_it)
+                {
+                    unsigned param_index = p_cell->GetParameterIndex(param_it->first);
+                    p_cell->SetParameter(param_index, param_it->second);
+                }
             }
         }
+    }
+    catch (const Exception& e)
+    {
+        delete p_cell;
+        throw e;
     }
 
     return p_cell;

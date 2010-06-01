@@ -73,6 +73,10 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
     {
         // Errors thrown creating cells will often be process-specific
         PetscTools::ReplicateException(true);
+        // Should really do this for other processes too, but this is all we need
+        // to get memory testing to pass, and leaking when we're about to die isn't
+        // that bad!
+        DeleteCells(false);
         throw e;
     }
     PetscTools::ReplicateException(false);

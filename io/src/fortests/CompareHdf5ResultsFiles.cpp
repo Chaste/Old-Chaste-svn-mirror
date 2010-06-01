@@ -36,7 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1, bool makeAbsolute1,
-                                   std::string pathname2, std::string filename2, bool makeAbsolute2)
+                                   std::string pathname2, std::string filename2, bool makeAbsolute2,
+                                   double tol)
 {
     Hdf5DataReader reader1(pathname1, filename1, makeAbsolute1);
     Hdf5DataReader reader2(pathname2, filename2, makeAbsolute2);
@@ -129,7 +130,7 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
                 PetscReal difference_norm;
                 VecNorm(data1, NORM_2, &difference_norm);
 
-                if (difference_norm > 1e-10)
+                if (difference_norm > tol)
                 {
                     std::cout << "Vectors differ in NORM_2 by " << difference_norm << std::endl;
                     return false;
@@ -172,7 +173,7 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
                 std::vector<double> var_over_time2 = reader2.GetVariableOverTime(variable_names1[var], node_index);
                 for (unsigned time_step=0;time_step< var_over_time1.size(); time_step++)
                 {
-                    if (var_over_time1[time_step] != var_over_time2[time_step])
+                    if (fabs(var_over_time1[time_step] - var_over_time2[time_step]) > tol)
                     {
                         std::cout<<"Node "<<node_index<<" at time step "<<time_step<<" variable "<<variable_names1[var]<<
                             " differs ("<<var_over_time1[time_step]<<" != "<<var_over_time2[time_step]<<")\n";
@@ -186,7 +187,8 @@ bool CompareFilesViaHdf5DataReader(std::string pathname1, std::string filename1,
 }
 
 bool CompareFilesViaHdf5DataReaderGlobalNorm(std::string pathname1, std::string filename1, bool makeAbsolute1,
-                                             std::string pathname2, std::string filename2, bool makeAbsolute2)
+                                             std::string pathname2, std::string filename2, bool makeAbsolute2,
+                                             double tol)
 {
         Hdf5DataReader reader1(pathname1, filename1, makeAbsolute1);
         Hdf5DataReader reader2(pathname2, filename2, makeAbsolute2);
@@ -214,7 +216,7 @@ bool CompareFilesViaHdf5DataReaderGlobalNorm(std::string pathname1, std::string 
                 VecNorm(data1, NORM_2, &data1_norm);
                 VecNorm(data2, NORM_2, &data2_norm);
                 PetscReal norm = fabs(data1_norm-data2_norm);
-                if (norm > 1e-10)
+                if (norm > tol)
                 {
                     is_the_same = false;
                     std::cout << "Vectors differ in global NORM_2 by " << norm << std::endl;

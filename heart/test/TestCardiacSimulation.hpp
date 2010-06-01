@@ -69,7 +69,8 @@ public:
     {
         CardiacSimulation simulation("heart/test/data/xml/monodomain1d_sodium_block.xml");
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "mono_1d_sodium_block", false,
-                                                 "Mono1dSodiumBlock", "SimulationResults", true));
+                                                 "Mono1dSodiumBlock", "SimulationResults", true,
+                                                 1e-3));
 
         // Test exception
         TS_ASSERT_THROWS_THIS(CardiacSimulation bad_param("heart/test/data/xml/bad_cell_parameter.xml"),
