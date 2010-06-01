@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleDataWriter.hpp"
 #include "Nash2004ContractionModel.hpp"
 
+#include "NhsModelWithBackwardSolver.hpp"
 
 // specify a functional form of lambda rather than get it from the mechanics.
 // Use tanh so that lambda starts at 1.0 and decreases quickly to 0.8 halfway
@@ -120,7 +121,7 @@ public :
         // Hardcoded results for two values for z when lambda1=0.
         // Note: CalculateT0(z) is a private method.
         TS_ASSERT_DELTA(nhs_system.CalculateT0(0), 0, 1e-12);
-        TS_ASSERT_DELTA(nhs_system.CalculateT0(1), 58.0648, 1e-3);
+        TS_ASSERT_DELTA(nhs_system.CalculateT0(1), 58.0391, 1e-3);
 
         TS_ASSERT_DELTA(nhs_system.GetCalciumTroponinValue(), 0.0, 0.01);
 
@@ -267,7 +268,7 @@ public :
         TS_ASSERT_DELTA(active_tensions[20000], 54.99, 1e-1);
 
         TS_ASSERT_DELTA(times[50000], 500, 1e-2);
-        TS_ASSERT_DELTA(active_tensions[50000], 28.25, 1e-1);
+        TS_ASSERT_DELTA(active_tensions[50000], 28.64, 1e-1);
     }
 
 
@@ -312,7 +313,6 @@ public :
         std::vector<double> Q1;
         std::vector<double> Q2;
         std::vector<double> Q3;
-
         // time loop
         for(double current_time = 0; current_time<end_time; current_time+=HeartConfig::Instance()->GetOdeTimeStep())
         {
@@ -378,6 +378,81 @@ public :
         TS_ASSERT_DELTA(active_tensions[6000], -0.0031, 1e-3);
     }
 
+    /*
+     *  A test which couples the NHS model with the Lr91 model, via CaI, with different constant stretches.
+     *  The stretches are 0.9, 1.0, 1.1
+     */
+    void TestNhsIsometricTwitch() throw(Exception)
+    {
+        // setup
+        double magnitude =  -25.5;
+        double duration  =   2.0;  // ms
+        double when      =   0.0;  // ms
+        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
+
+        double end_time = 1000.0;
+
+        std::vector<std::vector<double> > data;
+
+        // NHS paper states physiological sarcomere length range to be 1.8-2.3 um, and is only valid for this range
+        // especially at top end. Note disassociation rate of Ca_trop is length-dependent (by being tension dependent),
+        // this rate stops being negative if Ta/gamma*Tref > 1. But in case lambdadot=0 (=> Q=0, Ta=T0), 
+        // then Ta/gamma*Tref = (z/zmax)*c(lambda), where c(lambda)=(1+4.9(lambda-1)/gamma. c(lambda)=1 if lambda=1.20408
+        //  ==> bad things will happen (?) around and above this..    
+        double stretch[3] = {0.9,1.0,1.1}; 
+
+        for(unsigned run=0; run<3; run++)
+        {
+            boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+            LuoRudyIModel1991OdeSystem electrophys_model(p_solver, p_stimulus);
+            unsigned Ca_i_index = electrophys_model.GetStateVariableIndex("CaI");
+    
+            NhsContractionModel cellmech_model;
+
+            std::vector<double> times;
+            std::vector<double> active_tensions;
+
+            // time loop
+            for(double current_time = 0; current_time<end_time; current_time+=HeartConfig::Instance()->GetOdeTimeStep())
+            {
+                // solve electrophys model
+                electrophys_model.Compute(current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep());
+    
+                // get CaI
+                double Ca_I = electrophys_model.rGetStateVariables()[Ca_i_index];
+                cellmech_model.SetStretchAndStretchRate(stretch[run], 0.0);
+    
+                ContractionModelInputParameters input_parameters;
+                input_parameters.intracellularCalciumConcentration = Ca_I;
+                cellmech_model.SetInputParameters(input_parameters);
+    
+                // solve the cellular mechanics model
+                cellmech_model.RunDoNotUpdate(current_time, current_time+HeartConfig::Instance()->GetOdeTimeStep(), HeartConfig::Instance()->GetOdeTimeStep());
+                cellmech_model.UpdateStateVariables();
+    
+                times.push_back(current_time);
+                active_tensions.push_back( cellmech_model.GetActiveTension() );
+    
+            }
+
+            if(run==0)
+            {
+                data.push_back(times);
+            }
+            data.push_back(active_tensions);
+        }
+
+///\todo: what's with the flat peaks, when this is visualised? Is it just down to the calcium transient?
+
+        SimpleDataWriter writer("TestNhsIsometricTwitch", "nhs_forward.dat", data);
+        
+        // hardcoded test of final values for each of the stretches. 
+        TS_ASSERT_DELTA(data[1].back(), 1.2584, 1e-2);
+        TS_ASSERT_DELTA(data[2].back(), 2.7161, 1e-2);
+        TS_ASSERT_DELTA(data[3].back(), 5.0268, 1e-2);
+    }
+
+
     void TestRunDoNotUpdateEtcUsingKerchoff() throw(Exception)
     {
         Kerchoffs2003ContractionModel kerchoffs_model;
@@ -429,60 +504,70 @@ public :
         TS_ASSERT_DELTA(kerchoffs_model2.GetActiveTension(),      kerchoffs_model3.GetActiveTension(), 1e-10);
     }
 
-    void TestKerchoffs2003ContractionModelConstantStretch() throw(Exception)
+    void TestKerchoffs2003ContractionModelIsometricTwitch() throw(Exception)
     {
-        Kerchoffs2003ContractionModel kerchoffs_model;
-        TS_ASSERT_EQUALS(kerchoffs_model.IsStretchDependent(), true);
-        TS_ASSERT_EQUALS(kerchoffs_model.IsStretchRateDependent(), false);
+        std::vector<std::vector<double> > data;
+    
+        // three stretches
+        double stretch[3] = {0.85,1.0,1.1}; 
 
-        EulerIvpOdeSolver euler_solver;
-
-        kerchoffs_model.SetStretchAndStretchRate(0.85,0.0);
-
-        ContractionModelInputParameters input_params;
-        input_params.intracellularCalciumConcentration = DOUBLE_UNSET;
-
-        std::vector<double> times;
-        std::vector<double> active_tensions;
-
-        TimeStepper stepper(0, 1000, 1.0);  //ms
-        times.push_back(stepper.GetTime());
-        active_tensions.push_back(kerchoffs_model.GetActiveTension());
-
-        while(!stepper.IsTimeAtEnd())
+        for(unsigned run=0; run<3; run++)
         {
-            // specify a step-change voltage since this model gets activated at V=0 and deactivated at V=-70
-            if( (stepper.GetTime()>100) && (stepper.GetTime()<600) )
-            {
-                input_params.voltage = 50;
-            }
-            else
-            {
-                input_params.voltage = -90;
-            }
-            kerchoffs_model.SetInputParameters(input_params);
-
-            kerchoffs_model.RunDoNotUpdate(stepper.GetTime(), stepper.GetNextTime(), 0.01);
-            kerchoffs_model.UpdateStateVariables();
-
+            Kerchoffs2003ContractionModel kerchoffs_model;
+            TS_ASSERT_EQUALS(kerchoffs_model.IsStretchDependent(), true);
+            TS_ASSERT_EQUALS(kerchoffs_model.IsStretchRateDependent(), false);
+    
+            EulerIvpOdeSolver euler_solver;
+    
+            kerchoffs_model.SetStretchAndStretchRate(stretch[run],0.0);
+    
+            ContractionModelInputParameters input_params;
+            input_params.intracellularCalciumConcentration = DOUBLE_UNSET;
+    
+            std::vector<double> times;
+            std::vector<double> active_tensions;
+    
+            TimeStepper stepper(0, 1000, 1.0);  //ms
             times.push_back(stepper.GetTime());
             active_tensions.push_back(kerchoffs_model.GetActiveTension());
-
-            stepper.AdvanceOneTimeStep();
+    
+            while(!stepper.IsTimeAtEnd())
+            {
+                // specify a step-change voltage since this model gets activated at V=0 and deactivated at V=-70
+                if( (stepper.GetTime()>100) && (stepper.GetTime()<600) )
+                {
+                    input_params.voltage = 50;
+                }
+                else
+                {
+                    input_params.voltage = -90;
+                }
+                kerchoffs_model.SetInputParameters(input_params);
+    
+                kerchoffs_model.RunDoNotUpdate(stepper.GetTime(), stepper.GetNextTime(), 0.01);
+                kerchoffs_model.UpdateStateVariables();
+    
+                times.push_back(stepper.GetTime());
+                active_tensions.push_back(kerchoffs_model.GetActiveTension());
+    
+                stepper.AdvanceOneTimeStep();
+            }
+    
+            if(run==0)
+            {
+                data.push_back(times);
+            }
+            data.push_back(active_tensions);
         }
 
-        std::vector<std::vector<double> > data;
-        data.push_back(times);
-        data.push_back(active_tensions);
-        SimpleDataWriter writer("TestKerchoffContractionModel", "constant_lam.dat", data);
+        SimpleDataWriter writer("TestKerchoffsIsometricTwitch", "results.dat", data);
 
-        // visualise to verify validity..
-
-        // hardcoded test, somewhere near the peak
-        TS_ASSERT_DELTA(times[274], 273, 1e-2);
-        TS_ASSERT_DELTA(active_tensions[274], 2.1633, 1e-2);
-
-        TS_ASSERT_DELTA(active_tensions.back(), 0.0,  1e-2);
+        // hardcoded test2, somewhere near the peak
+        TS_ASSERT_DELTA(data[0][274], 273, 1e-2);
+        TS_ASSERT_DELTA(data[1][274], 2.1633, 1e-2);
+        TS_ASSERT_DELTA(data[2][274], 60.666, 1e-2);
+        TS_ASSERT_DELTA(data[3][274], 117.469, 1e-2);
+        TS_ASSERT_DELTA(data[1].back(), 0.0,  1e-2);
     }
 
     void TestKerchoffs2003ContractionModelVaryingStetch() throw(Exception)
@@ -538,7 +623,7 @@ public :
         data.push_back(active_tensions);
         SimpleDataWriter writer("TestKerchoffContractionModel", "linear_lam.dat", data, false);
 
-        // visualise to verify validity.. // EMTODO2
+        // visualise to verify validity.. 
 
         // hardcoded test, somewhere near the two peaks
         TS_ASSERT_DELTA(times[100], 100, 1e-2);

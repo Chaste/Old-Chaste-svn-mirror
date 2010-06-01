@@ -42,7 +42,7 @@ const double NhsContractionModel::mKrefoff = 0.2;
 const double NhsContractionModel::mGamma = 2;
 const double NhsContractionModel::mCalciumTroponinMax = 0.07;
 const double NhsContractionModel::mAlphaR1 = 0.002;
-const double NhsContractionModel::mAlphaR2 = 0.00175;
+const double NhsContractionModel::mAlphaR2 = 0.0017;
 const double NhsContractionModel::mKZ = 0.15;
 const unsigned NhsContractionModel::mNr = 3u;
 const double NhsContractionModel::mBeta1 = -4;
@@ -66,10 +66,11 @@ const double NhsContractionModel::mAlpha3 = 0.625;
  */
 void NhsContractionModel::CalculateCalciumTrop50()
 {
-    double one_plus_beta1_times_lam_minus_one = 1 + mBeta1*(mLambda-1);
+    double Ca50ref_times_one_plus_beta1_times_lam_minus_one = mCalcium50ref * (1 + mBeta1*(mLambda-1));
+    double one_plus_beta0_times_lam_minus_one_over_two_gamma = (1 + mBeta0*(mLambda-1))/(2*mGamma);
 
-    mCalciumTrop50 = mCalciumTroponinMax * mCalcium50ref * one_plus_beta1_times_lam_minus_one;
-    mCalciumTrop50 /= mCalcium50ref*one_plus_beta1_times_lam_minus_one + (1-one_plus_beta1_times_lam_minus_one/(2*mGamma))*mKrefoff/mKon;
+    mCalciumTrop50 = mCalciumTroponinMax * Ca50ref_times_one_plus_beta1_times_lam_minus_one;
+    mCalciumTrop50 /= (Ca50ref_times_one_plus_beta1_times_lam_minus_one + (1-one_plus_beta0_times_lam_minus_one_over_two_gamma)*mKrefoff/mKon);
 }
 
 
