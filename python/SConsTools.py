@@ -517,6 +517,8 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
         result = SConsTools.DoProjectSConscript(project_name, chaste_libs_used, globals())
         Return("result")
     """
+    if otherVars['debug']:
+        print "Executing SConscript for project", projectName
     # Commonly used variables
     env = otherVars['env']
     use_chaste_libs = otherVars['use_chaste_libs']
@@ -543,6 +545,8 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
                                otherVars['single_test_suite_dir'],
                                otherVars['all_tests'],
                                project=projectName)
+    if otherVars['debug']:
+        print "  Will run tests:", map(str, testfiles)
 
     # Add extra source and test folders to CPPPATH only for this project
     if extra_cpppath:
@@ -618,6 +622,8 @@ def DoComponentSConscript(component, otherVars):
         result = SConsTools.DoComponentSConscript(toplevel_dir, globals())
         Return("result")
     """
+    if otherVars['debug']:
+        print "Executing SConscript for component", component
     # Commonly used variables
     env = otherVars['env']
     use_chaste_libs = otherVars['use_chaste_libs']

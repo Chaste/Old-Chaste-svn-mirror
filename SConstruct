@@ -59,11 +59,15 @@ Export('SConsTools')
 import hostconfig
 
 # If building a loadable module at run-time
-dyn_libs_only = ARGUMENTS.get('dyn_libs_only', 0)
+dyn_libs_only = int(ARGUMENTS.get('dyn_libs_only', 0))
 if dyn_libs_only:
     # Set some other options
     ARGUMENTS['test_summary'] = 0
     ARGUMENTS['do_inf_tests'] = 0
+
+# Turn on some build-script debugging?
+debug = int(ARGUMENTS.get('debug', 0))
+Export('debug')
 
 # The type of build to perform (see python/BuildTypes.py for options)
 build_type = ARGUMENTS.get('build', 'default')
@@ -359,6 +363,8 @@ if not isinstance(build, BuildTypes.DoxygenCoverage):
     # Any user projects?
     for project in glob.glob('projects/[_a-zA-z]*'):
         if not os.path.isdir(project):
+            if debug:
+                print "Found non-dir", project, "in projects folder"
             continue
         if not os.path.exists(os.path.join(project, 'SConscript')):
             print >>sys.stderr, "Unexpected folder", project, "in projects folder."
