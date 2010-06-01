@@ -1187,12 +1187,12 @@ def GetBuildType(buildType):
                 obj.build_dir += '_warn'
             except ValueError:
                 pass
+        elif extra == 'barriers':
+            obj._cc_flags.append('-DCHASTE_EVENT_BARRIERS')
+            obj.build_dir += '_barriers'
         elif extra.startswith('hostconfig'):
             obj.SetHostConfig(extra[11:])
             obj.build_dir += '_' + extra
-        elif extra == 'barriers':
-            obj._cc_flags.append('-DBARRIERS')
-            obj.build_dir += '_barriers'
         else:
             try:
                 np = int(extra)

@@ -144,7 +144,7 @@ public:
         {
             return;
         }
-#ifdef BARRIERS
+#ifdef CHASTE_EVENT_BARRIERS
         PetscTools::Barrier("BeginEvent");
 #endif
         mInUse = true;
@@ -186,7 +186,7 @@ public:
         {
             return;
         }
-#ifdef BARRIERS
+#ifdef CHASTE_EVENT_BARRIERS
         PetscTools::Barrier("EndEvent");        
 #endif
         CheckVectorSizes();
