@@ -45,13 +45,13 @@ public:
     void TestMeshWriter() throw(Exception)
     {
         std::vector<Node<2>*> basic_nodes;
-        basic_nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-        basic_nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
-        basic_nodes.push_back(new Node<2>(2, false, 1.5, 1.0));
-        basic_nodes.push_back(new Node<2>(3, false, 1.0, 2.0));
-        basic_nodes.push_back(new Node<2>(4, false, 0.0, 1.0));
-        basic_nodes.push_back(new Node<2>(5, false, 2.0, 0.0));
-        basic_nodes.push_back(new Node<2>(6, false, 2.0, 3.0));
+        basic_nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
+        basic_nodes.push_back(new Node<2>(1, true, 1.0, 0.0));
+        basic_nodes.push_back(new Node<2>(2, true, 1.5, 1.0));
+        basic_nodes.push_back(new Node<2>(3, true, 1.0, 2.0));
+        basic_nodes.push_back(new Node<2>(4, true, 0.0, 1.0));
+        basic_nodes.push_back(new Node<2>(5, true, 2.0, 0.0));
+        basic_nodes.push_back(new Node<2>(6, true, 2.0, 3.0));
 
         std::vector<Node<2>*> nodes_elem_0, nodes_elem_1;
 
@@ -110,16 +110,16 @@ public:
 
     void TestMeshVtkMeshWriter3D() throw(Exception)
     {
-        // Create 3D mesh
+        // Create 3D mesh \TODO even though nodes are marked as boundary nodes they are not saved in 3D #1076
         std::vector<Node<3>*> nodes;
-        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
-        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
-        nodes.push_back(new Node<3>(2, false, 1.0, 2.0, 0.0));
-        nodes.push_back(new Node<3>(3, false, 0.0, 2.0, 0.0));
-        nodes.push_back(new Node<3>(4, false, 0.0, 2.0, 3.0));
-        nodes.push_back(new Node<3>(5, false, 1.0, 0.0, 3.0));
-        nodes.push_back(new Node<3>(6, false, 1.0, 2.0, 3.0));
-        nodes.push_back(new Node<3>(7, false, 0.0, 2.0, 3.0));
+        nodes.push_back(new Node<3>(0, true, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, true, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, true, 1.0, 2.0, 0.0));
+        nodes.push_back(new Node<3>(3, true, 0.0, 2.0, 0.0));
+        nodes.push_back(new Node<3>(4, true, 0.0, 2.0, 3.0));
+        nodes.push_back(new Node<3>(5, true, 1.0, 0.0, 3.0));
+        nodes.push_back(new Node<3>(6, true, 1.0, 2.0, 3.0));
+        nodes.push_back(new Node<3>(7, true, 0.0, 2.0, 3.0));
 
         std::vector<VertexElement<3,3>*> elements;
         elements.push_back(new VertexElement<3,3>(0, nodes));

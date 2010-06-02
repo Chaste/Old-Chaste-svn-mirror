@@ -87,25 +87,44 @@ VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::~VertexMeshWriter()
 #endif //CHASTE_VTK
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::vector<double> VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
     if (mpMesh)
     {
-        std::vector<double> coords(SPACE_DIM);
-
-        assert(this->mNumNodes==mpMesh->GetNumNodes());
-
-        // get the node coords using the node iterator (so to skip deleted nodes etc)
-        for (unsigned j=0; j<SPACE_DIM; j++)
+        if(SPACE_DIM==2) // in 2d Output boundary node info #1076
         {
-            coords[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
+			std::vector<double> coords(SPACE_DIM+1);
+
+			assert(this->mNumNodes==mpMesh->GetNumNodes());
+
+			// get the node coords using the node iterator (so to skip deleted nodes etc)
+			for (unsigned j=0; j<SPACE_DIM; j++)
+			{
+				coords[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
+			}
+			coords[SPACE_DIM] = (*(mpIters->pNodeIter))->IsBoundaryNode();
+
+			++(*(mpIters->pNodeIter));
+
+			return coords;
         }
+        else
+        {
+			std::vector<double> coords(SPACE_DIM);
 
-        ++(*(mpIters->pNodeIter));
+			assert(this->mNumNodes==mpMesh->GetNumNodes());
 
-        return coords;
+			// get the node coords using the node iterator (so to skip deleted nodes etc)
+			for (unsigned j=0; j<SPACE_DIM; j++)
+			{
+				coords[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
+			}
+
+			++(*(mpIters->pNodeIter));
+
+			return coords;
+        }
     }
     else
     {
@@ -274,7 +293,6 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMesh(VertexMesh<EL
     WriteFiles();
 }
 
-
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 {
@@ -305,7 +323,14 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         {
             *p_node_file << "\t" << current_item[i];
         }
-        *p_node_file << "\t" << default_marker << "\n";
+        if (SPACE_DIM==2)  // in 2d Output boundary node info #1076
+        {
+        	*p_node_file << "\t" << current_item[SPACE_DIM] << "\n";
+        }
+        else
+        {
+        	*p_node_file << "\t" << default_marker << "\n";
+        }
 
     }
     *p_node_file << comment << "\n";
