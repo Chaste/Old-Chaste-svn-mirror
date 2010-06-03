@@ -559,6 +559,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
             // PetscOptionsSetValue("-pc_hypre_boomeramg_strong_threshold", "0.0");
         
             PCSetType(pc, PCHYPRE);
+            KSPSetPreconditionerSide(solver, PC_RIGHT);
             
             // other possible preconditioners..
             //PCBlockDiagonalMechanics* p_custom_pc = new PCBlockDiagonalMechanics(solver, r_precond_jac, mBlock1Size, mBlock2Size);

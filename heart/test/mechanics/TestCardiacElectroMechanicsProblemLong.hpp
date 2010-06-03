@@ -96,7 +96,7 @@ public:
         }
         assert(0);
         */
-        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/5by5mesh_curving_fibres.ortho");
+        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/5by5mesh_curving_fibres.ortho", false);
 
         // problem.SetNoElectricsOutput();
         problem.Solve();
@@ -147,6 +147,67 @@ public:
 
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
+    }
+    
+    void TestTwistingCube() throw(Exception)
+    {
+        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-1000*1000);
+
+        // set up two meshes of 1mm by 1mm by 1mm
+        TetrahedralMesh<3,3> electrics_mesh;
+        electrics_mesh.ConstructCuboid(10,10,10);
+        electrics_mesh.Scale(0.01, 0.01, 0.01);
+
+        QuadraticMesh<3> mechanics_mesh(0.1, 0.1, 0.1, 5, 5, 5);
+
+        // fix the nodes on Z=0
+        std::vector<unsigned> fixed_nodes
+          = NonlinearElasticityTools<3>::GetNodesByComponentValue(mechanics_mesh,2,0.0);
+
+        CardiacElectroMechanicsProblem<3> problem(KERCHOFFS2003,
+                                                  &electrics_mesh,
+                                                  &mechanics_mesh,
+                                                  fixed_nodes,
+                                                  &cell_factory,
+                                                  50,   /* end time */
+                                                  0.01, /* electrics timestep (ms) */
+                                                  100,  /* 100*0.01ms mech dt */
+                                                  1.0,  /* contraction model ode dt */
+                                                  "TestCardiacElectroMech3dTwistingCube");
+
+
+/////// Use the following to set up the fibres file        
+////        GaussianQuadratureRule<3> quad_rule(3);
+////        QuadraturePointsGroup<3> quad_points(mechanics_mesh, quad_rule);
+////        std::cout << quad_points.Size() << "\n"; 
+////        for(unsigned i=0; i<quad_points.Size(); i++)
+////        {
+////            ////std::cout << quad_points.Get(i)(0) << " " << quad_points.Get(i)(1) << " " << quad_points.Get(i)(2) << " ";
+////            double x = quad_points.Get(i)(0);
+////            double theta = M_PI/3 - 10*x*2*M_PI/3; // 60 degrees when x=0, -60 when x=0.1; 
+////            std::cout <<  "0 " << cos(theta)  << " " << sin(theta) 
+////                      << " 0 " << -sin(theta) << " " << cos(theta)
+////                      << " 1 0 0\n";  
+////        }
+
+        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/5by5by5_fibres_by_quadpt.orthoquad", true);
+
+        problem.Solve();
+
+        // verified that it twists by visualising, some hardcoded values here..
+
+        std::vector<c_vector<double,3> >& r_deformed_position = problem.rGetDeformedPosition();
+        TS_ASSERT_DELTA(r_deformed_position[6*6*5](0),  0.0195, 1e-3);
+        TS_ASSERT_DELTA(r_deformed_position[6*6*5](1), -0.0190, 1e-3);
+        TS_ASSERT_DELTA(r_deformed_position[6*6*5](2),  0.1021, 1e-3);
+
+        TS_ASSERT_DELTA(r_deformed_position[6*6*6-1](0), 0.0812, 1e-3);
+        TS_ASSERT_DELTA(r_deformed_position[6*6*6-1](1), 0.1150, 1e-3);
+        TS_ASSERT_DELTA(r_deformed_position[6*6*6-1](2), 0.1030, 1e-3);
+
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
+
     }
 
 
