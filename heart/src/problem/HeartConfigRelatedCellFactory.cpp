@@ -176,21 +176,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
             case(cp::ionic_models_available_type::tenTusscher2006):
             {
-                TenTusscher2006OdeSystem*  p_tt06_instance = new TenTusscher2006OdeSystem(this->mpSolver, intracellularStimulus);
-
-                for (unsigned ht_index = 0;
-                     ht_index < mCellHeterogeneityAreas.size();
-                     ++ht_index)
-                {
-                    if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
-                    {
-                        p_tt06_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
-                        p_tt06_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
-                        p_tt06_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
-                    }
-                }
-
-                p_cell = p_tt06_instance;
+                p_cell = new Celltentusscher_model_2006_epi_corrected_flooristimFromCellML(this->mpSolver, intracellularStimulus);
                 break;
             }
 
@@ -269,6 +255,20 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
                     unsigned param_index = p_cell->GetParameterIndex(param_it->first);
                     p_cell->SetParameter(param_index, param_it->second);
                 }
+            }
+            // Special case for backwards-compatibility: scale factors
+            try
+            {
+                unsigned param_index = p_cell->GetParameterIndex("ScaleFactorGks");
+                p_cell->SetParameter(param_index, mScaleFactorGks[ht_index]);
+                param_index = p_cell->GetParameterIndex("ScaleFactorGkr");
+                p_cell->SetParameter(param_index, mScaleFactorGkr[ht_index]);
+                param_index = p_cell->GetParameterIndex("ScaleFactorIto");
+                p_cell->SetParameter(param_index, mScaleFactorIto[ht_index]);
+            }
+            catch (const Exception& e)
+            {
+                // Just ignore missing parameter errors in this case
             }
         }
     }

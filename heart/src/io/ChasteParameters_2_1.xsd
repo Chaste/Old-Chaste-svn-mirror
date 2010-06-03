@@ -370,6 +370,9 @@
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="set_parameter_type">
+    <xs:annotation>
+      <xs:documentation>Type for specifying the value of a named parameter.</xs:documentation>
+    </xs:annotation>
     <xs:attribute name="name" type="xs:string" use="required">
       <xs:annotation>
         <xs:documentation>Name of the parameter to set.</xs:documentation>
@@ -384,26 +387,42 @@
   <xs:complexType name="cell_heterogeneity_type">
     <xs:annotation>
       <xs:documentation>Defines a heterogeneity in a set of cells in a given location (cuboid or
-        transmural layer). This heterogeneity is defined by scaling certain (potassuim) currents
-        from their CellML default values.</xs:documentation>
+        transmural layer). This heterogeneity is defined by scaling certain (potassium) currents
+        from their CellML default values.
+        
+        As of version 2.1 of Chaste, any named parameter in the CellML file may also be modified within
+        a defined region.  Named parameters are those annotated with a pycml:modifiable-parameter=yes
+        RDF annotation.  The name of the parameter is the cmeta:id of the annotated variable.</xs:documentation>
     </xs:annotation>
     <xs:sequence>
       <xs:element name="ScaleFactorGks" type="dimensionless_type">
         <xs:annotation>
           <xs:documentation>Scales the Gks slow delayed rectifier potassium current. (A value of 1.0
-            will reset to the default value in the CellML definition.)</xs:documentation>
+            will reset to the default value in the CellML definition.)
+            
+            This heterogeneity is only supported for some cell models:
+            either those with a parameter named ScaleFactorGks, or with
+            support hardcoded into Chaste.</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element name="ScaleFactorIto" type="dimensionless_type">
         <xs:annotation>
           <xs:documentation>Scales the Ito transient outward potassium current. (A value of 1.0 will
-            reset to the default value in the CellML definition.)</xs:documentation>
+            reset to the default value in the CellML definition.)
+            
+            This heterogeneity is only supported for some cell models:
+            either those with a parameter named ScaleFactorIto, or with
+            support hardcoded into Chaste.</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element name="ScaleFactorGkr" type="dimensionless_type">
         <xs:annotation>
           <xs:documentation>Scales the Gkr rapid delayed rectifier potassium current. (A value of
-            1.0 will reset to the default value in the CellML definition.)</xs:documentation>
+            1.0 will reset to the default value in the CellML definition.)
+            
+            This heterogeneity is only supported for some cell models:
+            either those with a parameter named ScaleFactorGkr, or with
+            support hardcoded into Chaste.</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element name="Location" type="location_type">
@@ -891,8 +910,9 @@
 Note that in parallel the output meshes may be renumbered from the original input but will be consistent with the HDF5 data.</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="OutputUsingOriginalNodeOrdering" default="no" type="yesno_type" minOccurs="0">
-      <xs:annotation>
+      <xs:element name="OutputUsingOriginalNodeOrdering" default="no" type="yesno_type"
+        minOccurs="0">
+        <xs:annotation>
           <xs:documentation>Set to "yes" for writing data from parallel simulations with the original mesh
           ordering.  This slows down parallel simulations, but means that the output data are unpermuted and
           could be visualised on the original mesh.</xs:documentation>

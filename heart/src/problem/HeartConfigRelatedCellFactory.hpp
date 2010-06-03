@@ -58,7 +58,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FaberRudy2000Version3Optimised.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 #include "Mahajan2008OdeSystem.hpp"
-#include "TenTusscher2006OdeSystem.hpp"
+#include "tentusscher_model_2006_epi_corrected_flooristim.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "Maleckar2009OdeSystem.hpp"
 

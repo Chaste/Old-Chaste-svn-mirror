@@ -27,7 +27,7 @@ http://www.CellML.org/
    </units>
    <units name="nanoS_per_picoF">
       <unit units="siemens" prefix="nano"/>
-      <unit units="farad" prefix="pico"/>
+      <unit units="farad" prefix="pico" exponent="-1"/>
    </units>
    <units name="microF">
       <unit units="farad" prefix="micro"/>
@@ -37,7 +37,7 @@ http://www.CellML.org/
    </units>
    <units name="picoA_per_picoF">
       <unit units="ampere" prefix="pico"/>
-      <unit units="farad" prefix="pico"/>
+      <unit units="farad" prefix="pico" exponent="-1"/>
    </units>
    <units name="nanoA_per_millimolar">
       <unit units="ampere" prefix="nano"/>
@@ -462,6 +462,7 @@ http://www.CellML.org/
       </math>
    </component>
    <component name="rapid_time_dependent_potassium_current">
+      <variable name="ScaleFactorGkr" units="dimensionless" cmeta:id="ScaleFactorGkr" initial_value="1.0"/>
       <variable name="i_Kr" units="picoA_per_picoF" public_interface="out"/>
       <variable name="g_Kr" units="nanoS_per_picoF" initial_value="0.153"/>
       <variable name="E_K" units="millivolt" public_interface="in"/>
@@ -476,6 +477,7 @@ http://www.CellML.org/
             <ci>i_Kr</ci>
             <apply>
                <times/>
+               <ci>ScaleFactorGkr</ci>
                <ci>g_Kr</ci>
                <apply>
                   <root/>
@@ -728,6 +730,7 @@ http://www.CellML.org/
       </math>
    </component>
    <component name="slow_time_dependent_potassium_current">
+      <variable name="ScaleFactorGks" units="dimensionless" cmeta:id="ScaleFactorGks" initial_value="1.0"/>
       <variable name="i_Ks" units="picoA_per_picoF" public_interface="out"/>
       <variable name="g_Ks" units="nanoS_per_picoF" initial_value="0.392"/>
       <variable name="E_Ks" units="millivolt" public_interface="in"/>
@@ -740,6 +743,7 @@ http://www.CellML.org/
             <ci>i_Ks</ci>
             <apply>
                <times/>
+               <ci>ScaleFactorGks</ci>
                <ci>g_Ks</ci>
                <apply>
                   <power/>
@@ -2104,6 +2108,7 @@ http://www.CellML.org/
       </math>
    </component>
    <component name="transient_outward_current">
+      <variable name="ScaleFactorIto" units="dimensionless" cmeta:id="ScaleFactorIto" initial_value="1.0"/>
       <variable name="i_to" units="picoA_per_picoF" public_interface="out"/>
       <variable name="g_to" units="nanoS_per_picoF" initial_value="0.294"/>
       <variable name="E_K" units="millivolt" public_interface="in"/>
@@ -2117,6 +2122,7 @@ http://www.CellML.org/
             <ci>i_to</ci>
             <apply>
                <times/>
+               <ci>ScaleFactorIto</ci>
                <ci>g_to</ci>
                <ci>r</ci>
                <ci>s</ci>
@@ -3584,4 +3590,15 @@ http://www.CellML.org/
       <map_components component_1="potassium_pump_current" component_2="potassium_dynamics"/>
       <map_variables variable_1="i_p_K" variable_2="i_p_K"/>
    </connection>
+   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:pycml="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">
+      <rdf:Description rdf:about="#ScaleFactorIto">
+         <pycml:modifiable-parameter>yes</pycml:modifiable-parameter>
+      </rdf:Description>
+      <rdf:Description rdf:about="#ScaleFactorGkr">
+         <pycml:modifiable-parameter>yes</pycml:modifiable-parameter>
+      </rdf:Description>
+      <rdf:Description rdf:about="#ScaleFactorGks">
+         <pycml:modifiable-parameter>yes</pycml:modifiable-parameter>
+      </rdf:Description>
+   </rdf:RDF>
 </model>

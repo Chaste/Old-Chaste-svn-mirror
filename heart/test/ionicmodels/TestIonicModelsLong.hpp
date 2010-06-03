@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerFoxModel2002Modified.hpp"
 #include "Maleckar2009OdeSystem.hpp"
 #include "Mahajan2008OdeSystem.hpp"
-#include "TenTusscher2006OdeSystem.hpp"
+#include "tentusscher_model_2006_epi_corrected_flooristim.hpp"
 #include "CellProperties.hpp"
 
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
@@ -237,10 +237,13 @@ public:
         const std::string endo_file = "TT_endo";
         const std::string LQT_file = "TT_LQT";
 
-        TenTusscher2006OdeSystem TT_model_epi(p_solver, p_stimulus);
-        TT_model_epi.SetScaleFactorGks(1.0);
-        TT_model_epi.SetScaleFactorIto(1.0);
-        TT_model_epi.SetScaleFactorGkr(1.0);
+        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML TT_model_epi(p_solver, p_stimulus);
+        unsigned param_ito = TT_model_epi.GetParameterIndex("ScaleFactorIto");
+        unsigned param_gkr = TT_model_epi.GetParameterIndex("ScaleFactorGkr");
+        unsigned param_gks = TT_model_epi.GetParameterIndex("ScaleFactorGks");
+        TT_model_epi.SetParameter(param_ito, 1.0);
+        TT_model_epi.SetParameter(param_gkr, 1.0);
+        TT_model_epi.SetParameter(param_gks, 1.0);
         //run the model
         RunOdeSolverWithIonicModel(&TT_model_epi,
                                    simulation_end,
@@ -248,10 +251,10 @@ public:
                                    100,
                                    false);
 
-        TenTusscher2006OdeSystem TT_model_mid(p_solver, p_stimulus);
-        TT_model_mid.SetScaleFactorGks(0.25);
-        TT_model_mid.SetScaleFactorIto(1.0);
-        TT_model_mid.SetScaleFactorGkr(1.0);
+        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML TT_model_mid(p_solver, p_stimulus);
+        TT_model_mid.SetParameter(param_ito, 1.0);
+        TT_model_mid.SetParameter(param_gkr, 1.0);
+        TT_model_mid.SetParameter(param_gks, 0.25);
 
         RunOdeSolverWithIonicModel(&TT_model_mid,
                                    simulation_end,
@@ -259,11 +262,10 @@ public:
                                    100,
                                    false);
 
-        TenTusscher2006OdeSystem TT_model_endo(p_solver, p_stimulus);
-
-        TT_model_endo.SetScaleFactorGks(0.66);
-        TT_model_endo.SetScaleFactorIto(0.165);
-        TT_model_endo.SetScaleFactorGkr(1.0);
+        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML TT_model_endo(p_solver, p_stimulus);
+        TT_model_endo.SetParameter(param_ito, 0.165);
+        TT_model_endo.SetParameter(param_gkr, 1.0);
+        TT_model_endo.SetParameter(param_gks, 0.66);
 
         RunOdeSolverWithIonicModel(&TT_model_endo,
                                    simulation_end,
@@ -271,10 +273,10 @@ public:
                                    100,
                                    false);
 
-        TenTusscher2006OdeSystem TT_model_LQT(p_solver, p_stimulus);
-        TT_model_LQT.SetScaleFactorGks(1.0);
-        TT_model_LQT.SetScaleFactorIto(1.0);
-        TT_model_LQT.SetScaleFactorGkr(0.0);
+        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML TT_model_LQT(p_solver, p_stimulus);
+        TT_model_LQT.SetParameter(param_ito, 1.0);
+        TT_model_LQT.SetParameter(param_gkr, 0.0);
+        TT_model_LQT.SetParameter(param_gks, 1.0);
 
         RunOdeSolverWithIonicModel(&TT_model_LQT,
                                    simulation_end,

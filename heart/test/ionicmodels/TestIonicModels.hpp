@@ -71,7 +71,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
 #include "Mahajan2008OdeSystem.hpp"
 #include "BackwardEulerMahajanModel2008.hpp"
-#include "TenTusscher2006OdeSystem.hpp"
+#include "tentusscher_model_2006_epi_corrected_flooristim.hpp"
 #include "BackwardEulerTenTusscher2006.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 #include "Maleckar2009OdeSystem.hpp"
@@ -726,12 +726,15 @@ public:
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.001);// with Forward Euler, this must be as small as 0.001.
-        TenTusscher2006OdeSystem TT_model(p_solver, p_stimulus);
+        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML TT_model(p_solver, p_stimulus);
 
         //Default values for the scale factors, other values tested in the nightly build
-        TT_model.SetScaleFactorGks(1.0);
-        TT_model.SetScaleFactorIto(1.0);
-        TT_model.SetScaleFactorGkr(1.0);
+        unsigned param_index = TT_model.GetParameterIndex("ScaleFactorIto");
+        TT_model.SetParameter(param_index, 1.0);
+        param_index = TT_model.GetParameterIndex("ScaleFactorGkr");
+        TT_model.SetParameter(param_index, 1.0);
+        param_index = TT_model.GetParameterIndex("ScaleFactorGks");
+        TT_model.SetParameter(param_index, 1.0);
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&TT_model,
@@ -749,7 +752,7 @@ public:
 
         //Test the GetIIonic method against one hardcoded value for initial values of voltage
         //(mainly for coverage of different if conditions in sodium channel gates for different voltages)
-        TenTusscher2006OdeSystem TT_model_initial(p_solver, p_stimulus);
+        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML TT_model_initial(p_solver, p_stimulus);
         TS_ASSERT_DELTA(TT_model_initial.GetIIonic(), 0.0012 , 1e-3);
     }
     
@@ -784,7 +787,7 @@ public:
         // Solve using forward euler
         HeartConfig::Instance()->SetOdeTimeStep(0.001);// with Forward Euler, this must be as small as 0.001.        
 
-        TenTusscher2006OdeSystem tt06_ode_system(p_solver, p_stimulus);
+        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML tt06_ode_system(p_solver, p_stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&tt06_ode_system,
                                    end_time,
