@@ -28,7 +28,7 @@ CHANGES:
   22/07/2002 - CML - Added more metadata.
   08/02/2003 - DPN - Added encapsulation hierarchy for transient_outward_current.
   04/11/2007 - PJN - Units checked, curated
---><model xmlns="http://www.cellml.org/cellml/1.0#" xmlns:cmeta="http://www.cellml.org/metadata/1.0#" xml:base="" cmeta:id="noble_varghese_kohl_noble_1998_basic" name="noble_varghese_kohl_noble_1998_basic">
+--><model xmlns="http://www.cellml.org/cellml/1.0#" xmlns:cmeta="http://www.cellml.org/metadata/1.0#" cmeta:id="noble_varghese_kohl_noble_1998_basic" name="noble_varghese_kohl_noble_1998_basic">
 
 <documentation xmlns="http://cellml.org/tmp-documentation">
 <article>
@@ -146,7 +146,7 @@ Improved guinea-pig ventricular cell model incorporating a diadic space, IKr and
       <variable cmeta:id="environment_time" name="time" public_interface="out" units="second"/>
    </component>
    <component name="membrane">
-      <variable cmeta:id="membrane_V" initial_value="-92.849333" name="V" public_interface="out" units="millivolt"/>
+      <variable cmeta:id="membrane_voltage" initial_value="-92.849333" name="V" public_interface="out" units="millivolt"/>
       <variable initial_value="8314.472" name="R" public_interface="out" units="joule_per_kilomole_kelvin"/>
       <variable initial_value="310" name="T" public_interface="out" units="kelvin"/>
       <variable initial_value="96485.3415" name="F" public_interface="out" units="coulomb_per_mole"/>

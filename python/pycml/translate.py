@@ -1276,7 +1276,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
     def ionic_current_units_conversion(self, varname, all_units):
         """
         Check whether the units of the transmembrane currents are as expected by
-        Chaste, and return an appropriate conversion expression if not.
+        Chaste, and return an appropriate conversion expression if not, along with
+        a list of nodes used in computing this conversion.
         
         There are three main cases:
         
@@ -1300,6 +1301,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # method does anything sensible at all...
         model_units = all_units[0]
         conversion = varname # Default to no conversion
+        nodes_used = []
         chaste_units = cellml_units.create_new(
             self.model, 'uA_per_cm2',
             [{'units': 'ampere', 'prefix': 'micro'},
@@ -1343,6 +1345,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                         "without knowing which variable in the cell model "
                         "represents the membrane capacitance.")
             else:
+                nodes_used.append(model_Cm)
                 Cm_units = self.get_var_units(model_Cm)
                 Cm_value = self.code_name(model_Cm)
                 conv = (Cm_units.get_multiplicative_factor() /
@@ -1356,7 +1359,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             problem("Units of the ionic current are not in the "
                     "dimensions expected by Chaste (uA/cm^2) and cannot "
                     "be converted automatically.")
-        return conversion
+        return conversion, nodes_used
     
     def check_time_units(self):
         """Check if units conversions at the interfaces are required (#621).
@@ -1978,7 +1981,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln('assert(!std::isnan(i_ionic));')
             #621: check units of the ionic current
             units_objs = map(self.get_var_units, nodes)
-            conversion = self.ionic_current_units_conversion('i_ionic', units_objs)
+            conversion, nodes_used = self.ionic_current_units_conversion('i_ionic', units_objs)
+            nodes_used = self.calculate_extended_dependencies(nodes_used, prune=nodeset)
+            self.output_equations(nodes_used)
             self.writeln('return ', conversion, self.STMT_END)
         else:
             self.writeln('return 0.0;')
@@ -3811,11 +3816,14 @@ class ConfigurationStore(object):
         return
 
     def annotate_currents_for_pe(self):
-        "Annotate ionic & stimulus current vars so PE doesn't remove them."
+        """Annotate ionic & stimulus current vars so PE doesn't remove them.
+        Also annotate the membrane capacitance, if defined."""
         if self.i_stim_var:
             self.i_stim_var.set_pe_keep(True)
         for var in self.i_ionic_vars:
             var.set_pe_keep(True)
+        if self.Cm_variable:
+            self.Cm_variable.set_pe_keep(True)
         return
     
     def annotate_metadata_for_pe(self):

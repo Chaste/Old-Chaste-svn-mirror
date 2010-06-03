@@ -48,8 +48,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdePdeConvergenceTester.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
-#include "NobleVargheseKohlNoble1998.hpp"
-#include "NobleVargheseKohlNoble1998Optimised.hpp"
+#include "noble_varghese_kohl_noble_1998_a.hpp"
+#include "noble_varghese_kohl_noble_1998_aOpt.hpp"
 
 
 class TestConvergenceNightly : public CxxTest::TestSuite
@@ -254,7 +254,7 @@ public:
 
     void TestOdePdeConvergencein1DWithForwardLookupN98() throw(Exception)
     {
-        OdePdeConvergenceTester<CML_noble_varghese_kohl_noble_1998_basic_pe_lut,  MonodomainProblem<1>, 1, 1> tester;
+        OdePdeConvergenceTester<Cellnoble_varghese_kohl_noble_1998_aFromCellMLOpt,  MonodomainProblem<1>, 1, 1> tester;
         tester.NeumannStimulus = 5000;
         tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
@@ -264,7 +264,7 @@ public:
     }
     void TestOdePdeConvergencein1DWithForwardBasicN98() throw(Exception)
     {
-        OdePdeConvergenceTester<CML_noble_varghese_kohl_noble_1998_basic,  MonodomainProblem<1>, 1, 1> tester;
+        OdePdeConvergenceTester<Cellnoble_varghese_kohl_noble_1998_aFromCellML,  MonodomainProblem<1>, 1, 1> tester;
         tester.NeumannStimulus = 5000;
         tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);

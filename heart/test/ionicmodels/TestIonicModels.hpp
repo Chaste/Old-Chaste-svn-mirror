@@ -65,9 +65,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FaberRudy2000Version3.hpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 
-#include "NobleVargheseKohlNoble1998.hpp"
+#include "noble_varghese_kohl_noble_1998_a.hpp"
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
-#include "NobleVargheseKohlNoble1998Optimised.hpp"
+#include "noble_varghese_kohl_noble_1998_aOpt.hpp"
 #include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
 #include "Mahajan2008OdeSystem.hpp"
 #include "BackwardEulerMahajanModel2008.hpp"
@@ -104,7 +104,7 @@ public:
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
         //Check Standard
-        CML_noble_varghese_kohl_noble_1998_basic n98_ode_system(p_solver, p_stimulus);
+        Cellnoble_varghese_kohl_noble_1998_aFromCellML n98_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -168,7 +168,7 @@ public:
         // get a new ODE system (which still has its state variables set to the initial conditions),
         // and check GetIonic agrees with standard noble98
         CML_noble_varghese_kohl_noble_1998_basic_with_sac   another_n98_with_sac(p_solver, p_stimulus);
-        CML_noble_varghese_kohl_noble_1998_basic   n98_ode_system(p_solver, p_stimulus);
+        Cellnoble_varghese_kohl_noble_1998_aFromCellML   n98_ode_system(p_solver, p_stimulus);
         TS_ASSERT_DELTA( another_n98_with_sac.GetIIonic(), n98_ode_system.GetIIonic(), 1e-3);
         
         another_n98_with_sac.SetStretch(0.9);
@@ -227,7 +227,7 @@ public:
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
         //Check Optimised
-        CML_noble_varghese_kohl_noble_1998_basic_pe_lut n98_ode_system(p_solver, p_stimulus);
+        Cellnoble_varghese_kohl_noble_1998_aFromCellMLOpt n98_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -954,7 +954,7 @@ public:
 //        // Solve forward
 //        HeartConfig::Instance()->SetOdeTimeStep(0.0005);
 //        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-//        CML_noble_varghese_kohl_noble_1998_basic_pe_lut n98_ode_system(p_solver, p_stimulus);
+//        Cellnoble_varghese_kohl_noble_1998_aFromCellMLOpt n98_ode_system(p_solver, p_stimulus);
 //
 //        std::vector<double> dY(22);
 //
@@ -1245,7 +1245,7 @@ public:
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
             // Check Standard
-            AbstractCardiacCell* const p_n98_cell = new CML_noble_varghese_kohl_noble_1998_basic(p_solver, p_stimulus);
+            AbstractCardiacCell* const p_n98_cell = new Cellnoble_varghese_kohl_noble_1998_aFromCellML(p_solver, p_stimulus);
             // and SAC
             AbstractCardiacCell* const p_n98_sac = new CML_noble_varghese_kohl_noble_1998_basic_with_sac(p_solver, p_stimulus);
             
