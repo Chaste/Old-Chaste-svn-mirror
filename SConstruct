@@ -131,6 +131,13 @@ Export('force_test_runs')
 # Don't update the provenance information (Version.cpp file).
 update_provenance = int(ARGUMENTS.get('update_provenance', 1))
 
+# Experimental support for installing Chaste as a normal collection of
+# libraries and headers.
+install_prefix = ARGUMENTS.get('install_prefix', '')
+Export('install_prefix')
+if 'install' in BUILD_TARGETS:
+    assert use_chaste_libs, "Cannot install unless building Chaste libraries"
+
 # Check for an easy mistake, where the user forgets the 'test_suite='.
 for target in BUILD_TARGETS:
     if target.endswith('.hpp'):

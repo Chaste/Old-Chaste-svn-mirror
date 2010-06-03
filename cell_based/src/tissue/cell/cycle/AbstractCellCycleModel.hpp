@@ -101,7 +101,7 @@ protected:
 
     /**
      * The time that the cell began to split from its parent
-     * (i.e. beginning of M phase NOT the end)
+     * (i.e. @b beginning of M phase NOT the end)
      */
     double mBirthTime;
 
@@ -318,7 +318,7 @@ public:
     virtual double GetAverageStemCellCycleTime();
 
     /**
-     * Whether a cell with this cell cyclde model is able to fully (terminally) differentiate.
+     * Whether a cell with this cell cycle model is able to fully (terminally) differentiate.
      */
     virtual bool CanCellTerminallyDifferentiate();
 

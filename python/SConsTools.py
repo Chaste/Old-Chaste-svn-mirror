@@ -81,7 +81,7 @@ def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=Fal
                     source_files.append(filepath)
     if dirsOnly:
         return source_dirs
-    else:
+    elif '.cpp' in source_exts:
         component = os.path.basename(os.path.dirname(os.path.abspath(rootDir)))
         if component == 'global' and rootDir == 'src':
             # Special-case the version info files.
@@ -99,7 +99,7 @@ def FindSourceFiles(env, rootDir, ignoreDirs=[], dirsOnly=False, includeRoot=Fal
             source_files.append(env.Command(os.path.join('src', 'ChasteBuildRoot.cpp'),
                                             [Value(GetChasteBuildRootCpp(env))],
                                             GenerateCppFromValue)[0])
-        return source_files, source_dirs
+    return source_files, source_dirs
 
 def BuildTest(target, source, env):
     """A builder for test executables.
@@ -640,6 +640,11 @@ def DoComponentSConscript(component, otherVars):
                                                includeRoot=True)
     # Find any source files that should get made into dynamically loadable modules.
     dyn_source, dyn_cpppath = FindSourceFiles(env, 'dynamic', includeRoot=True)
+    # Install headers?
+    if otherVars['install_prefix']:
+        headers, _ = FindSourceFiles(env, 'src', sourceExts=['.hpp'])
+        t = env.Install(os.path.join(otherVars['install_prefix'], 'include'), headers)
+        env.Alias('install', t)
     # Move back to the buid dir
     os.chdir(curdir)
 
@@ -691,6 +696,10 @@ def DoComponentSConscript(component, otherVars):
             libpath = '#linklib'
         # Build the test library for this component
         env.StaticLibrary('test'+component, testsource)
+        # Install libraries?
+        if lib and otherVars['install_prefix']:
+            t = env.Install(os.path.join(otherVars['install_prefix'], 'lib'), lib)
+            env.Alias('install', t)
     else:
         # Don't build libraries - tests will link against object files directly
         lib = None
