@@ -130,12 +130,19 @@ protected :
 
     /** Nodes for which the deformation is fixed to zero */
     std::vector<unsigned> mFixedNodes;
-    /** .ortho file from which to read element-wise fibre-sheet-normal-directions */
+    /** .ortho/.orthoquad file from which to read element-wise/quadpoint-wise fibre-sheet-normal-directions */
     std::string mFibreSheetDirectionsFile;
+    /** Whether the mFibreSheetDirectionsFile file gives the fibre info at each element, or each quadrature point */
+    bool mFibreSheetDirectionsDefinedPerQuadraturePoint;
 
     /** A vector of stretches (in the fibre direction), one for each element in the mechanics mesh) */
     std::vector<double> mStretchesForEachMechanicsElement;
 
+    /** If this is true then the deformation is not allowed to affect the electrics
+     *  (either through altering conductivities (not implemented yet anyway), or through
+     *  cellular MEF (eg stretch-activated channels)
+     */
+    bool mNoMechanoElectricFeedback; 
 
     /**
      *  Determine which node is closest to the watched location
@@ -227,16 +234,39 @@ public :
     void SetWatchedPosition(c_vector<double,DIM> watchedLocation);
 
     /**
-     *  Set fibre/sheet directions for each element from a file.
-     *  The file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir for that element).
-     *  The number of elements must match the number in the MECHANICS mesh!
+     *  Set a variable fibre-sheet-normal direction (matrices), from file.
+     *  If the second parameter is false, there should be one fibre-sheet definition for each element; otherwise
+     *  there should be one fibre-sheet definition for each *quadrature point* in the mesh.
+     *  In the first case, the file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir 
+     *  for that element), in the second it should have .orthoquad as the format.
+     * 
      *  @param orthoFile the file containing the fibre/sheet directions
+     *  @param definedPerQuadraturePoint whether the fibre-sheet definitions are for each quadrature point in the mesh
+     *   (if not, one for each element is assumed).
      */
-    void SetVariableFibreSheetDirectionsFile(std::string orthoFile);
+    void SetVariableFibreSheetDirectionsFile(std::string orthoFile, bool definedPerQuadPoint);
 
     /** @return the current deformed position of the nodes */
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
 
+    /**
+     *  By default (at the moment), the deformation does not affect the electrophysiology in any way. 
+     *  Call this to allow it to, then
+     *   (i) the stretch will be passed back to the cell models for use stretch-activated channels etc
+     *   (ii) (The other way the deformation should affect the electrophy, altered conductivities, has not yet 
+     *  been implemented)
+     * 
+     *  Two things to note:
+     *   (i) this can't be called if fibre-sheet directions have been defined from file for each quadrature
+     *  point (as opposed to each mechanics element) - this is because if the stretch is to be passed back to
+     *  the electric mesh nodes, the fibre direction has to be defined at those nodes
+     *   (ii) currently the set-up stage (computing mechanics mesh elements and weights for electrics mesh 
+     *  nodes) is inefficiently implemented - setup will be very slow for big meshes
+     */
+    void UseMechanoElectricFeedback()
+    {
+        mNoMechanoElectricFeedback = false;
+    }
 
 //// #1245
 //    void SetImpactRegion(std::vector<BoundaryElement<DIM-1,DIM>*>& rImpactRegion);

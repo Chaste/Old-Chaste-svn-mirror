@@ -367,7 +367,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
 
         double detF = Determinant(F);
 
-        ComputeStressAndStressDerivative(p_material_law, C, inv_C, pressure, current_quad_point_global_index,
+        ComputeStressAndStressDerivative(p_material_law, C, inv_C, pressure, rElement.GetIndex(), current_quad_point_global_index,
                                          T, dTdE, assembleJacobian);
 
 
@@ -562,6 +562,7 @@ void NonlinearElasticityAssembler<DIM>::ComputeStressAndStressDerivative(Abstrac
                                                                          c_matrix<double,DIM,DIM>& rC, 
                                                                          c_matrix<double,DIM,DIM>& rInvC, 
                                                                          double pressure, 
+                                                                         unsigned elementIndex,
                                                                          unsigned currentQuadPointGlobalIndex,
                                                                          c_matrix<double,DIM,DIM>& rT,
                                                                          FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,

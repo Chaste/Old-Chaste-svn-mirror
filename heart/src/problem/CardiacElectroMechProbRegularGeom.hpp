@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  *  Child class of CardiacElectroMechanicsProblem for setting up cardiac electromechanics
  *  problems on a square (currently just 2d). The user just has to specify the number
- *  of elements in each direction. Note: the x=0 surface is fixed in the deformation.
+ *  of elements in each direction. Note: the X=0 surface is fixed in the deformation.
  */
 template<unsigned DIM>
 class CardiacElectroMechProbRegularGeom : public CardiacElectroMechanicsProblem<DIM>

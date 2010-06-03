@@ -86,6 +86,12 @@ protected:
      * is called, if not mConstantFibreSheetDirections is used instead
      */
     std::vector<c_matrix<double,DIM,DIM> >* mpVariableFibreSheetDirections;
+    
+    /** 
+     *  Whether the fibre-sheet directions that where read in where define per element or per quadrature point.
+     *  Only valid if mpVariableFibreSheetDirections!=NULL
+     */
+    bool mFibreSheetDirectionsDefinedByQuadraturePoint;
 
     /** (Pointer to) the fibre-sheet matrix for the current element being assembled on */    
     c_matrix<double,DIM,DIM>* mpCurrentElementFibreSheetMatrix;
@@ -107,33 +113,6 @@ protected:
     virtual bool IsImplicitSolver()=0;
 
     /**
-     * Overloaded AssembleOnElement. Does an bit of initial set up (sets mpCurrentElementFibreSheetMatrix
-     * and mCurrentElementFibreDirection), then calls the base class version on NonlinearElasticityAssembler.
-     * That then calls the overloaded ComputeStressAndStressDerivative, which
-     * computes the passive stress as normal but also computes the extra, active stresses to be
-     * added to the total stress.
-     * 
-     * @param rElement The element to assemble on.
-     * @param rAElem The element's contribution to the LHS matrix is returned in this
-     *     n by n matrix, where n is the no. of nodes in this element. There is no
-     *     need to zero this matrix before calling.
-     * @param rAElemPrecond The element's contribution to the matrix passed to PetSC
-     *     in creating a preconditioner
-     * @param rBElem The element's contribution to the RHS vector is returned in this
-     *     vector of length n, the no. of nodes in this element. There is no
-     *     need to zero this vector before calling.
-     * @param assembleResidual A bool stating whether to assemble the residual vector.
-     * @param assembleJacobian A bool stating whether to assemble the Jacobian matrix.
-     */
-    void AssembleOnElement(Element<DIM, DIM>& rElement,
-                           c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElem,
-                           c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElemPrecond,
-                           c_vector<double,STENCIL_SIZE>& rBElem,
-                           bool assembleResidual,
-                           bool assembleJacobian);
-
-
-    /**
      *  Overloaded ComputeStressAndStressDerivative(), which computes the passive part of the
      *  stress as normal but also calls on the contraction model to get the active stress and 
      *  adds it on.
@@ -142,6 +121,7 @@ protected:
      *  @param rC The Lagrangian deformation tensor (F^T F)
      *  @param rInvC The inverse of C. Should be computed by the user.
      *  @param pressure The current pressure
+     *  @param elementIndex Index of the current element
      *  @param currentQuadPointGlobalIndex The index (assuming an outer loop over elements and an inner 
      *    loop over quadrature points), of the current quadrature point.
      *  @param rT The stress will be returned in this parameter
@@ -153,7 +133,8 @@ protected:
     void ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
                                           c_matrix<double,DIM,DIM>& rC, 
                                           c_matrix<double,DIM,DIM>& rInvC, 
-                                          double pressure, 
+                                          double pressure,
+                                          unsigned elementIndex,
                                           unsigned currentQuadPointGlobalIndex,
                                           c_matrix<double,DIM,DIM>& rT,
                                           FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
@@ -228,12 +209,17 @@ public:
     }
 
     /**
-     *    Set a variable fibre-sheet-normal direction (matrices), one for each element, from a file.
-     *  The file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir for that element).
-     *  The number of elements must match the number in the MECHANICS mesh!
+     *  Set a variable fibre-sheet-normal direction (matrices), from file.
+     *  If the second parameter is false, there should be one fibre-sheet definition for each element; otherwise
+     *  there should be one fibre-sheet definition for each *quadrature point* in the mesh.
+     *  In the first case, the file should be a .ortho file (ie each line has the fibre dir, sheet dir, normal dir 
+     *  for that element), in the second it should have .orthoquad as the format.
+     * 
      *  @param orthoFile the file containing the fibre/sheet directions
+     *  @param definedPerQuadraturePoint whether the fibre-sheet definitions are for each quadrature point in the mesh
+     *   (if not, one for each element is assumed).
      */
-    void SetVariableFibreSheetDirections(std::string orthoFile);
+    void SetVariableFibreSheetDirections(std::string orthoFile, bool definedPerQuadraturePoint);
 
 
 
@@ -361,14 +347,34 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetCalciumAndVoltage(std::vector<do
 
 template<unsigned DIM>
 void AbstractCardiacMechanicsAssembler<DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                                                         c_matrix<double,DIM,DIM>& rC, 
-                                                                         c_matrix<double,DIM,DIM>& rInvC, 
-                                                                         double pressure, 
-                                                                         unsigned currentQuadPointGlobalIndex,
-                                                                         c_matrix<double,DIM,DIM>& rT,
-                                                                         FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
-                                                                         bool assembleJacobian)
+                                                                              c_matrix<double,DIM,DIM>& rC, 
+                                                                              c_matrix<double,DIM,DIM>& rInvC, 
+                                                                              double pressure, 
+                                                                              unsigned elementIndex,
+                                                                              unsigned currentQuadPointGlobalIndex,
+                                                                              c_matrix<double,DIM,DIM>& rT,
+                                                                              FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                                                              bool assembleJacobian)
 {
+    if(!mpVariableFibreSheetDirections) // constant fibre directions
+    {
+        mpCurrentElementFibreSheetMatrix = &mConstantFibreSheetDirections;
+    }
+    else if(!mFibreSheetDirectionsDefinedByQuadraturePoint) // fibre directions defined for each mechanics mesh element
+    {
+        mpCurrentElementFibreSheetMatrix = &(*mpVariableFibreSheetDirections)[elementIndex];
+    }
+    else // fibre directions defined for each mechanics mesh quadrature point
+    {
+        mpCurrentElementFibreSheetMatrix = &(*mpVariableFibreSheetDirections)[currentQuadPointGlobalIndex];
+    }
+        
+    for(unsigned i=0; i<DIM; i++)
+    {
+        mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(0,i);
+    }
+    
+    
     // 1. Compute T and dTdE for the PASSIVE part of the strain energy.
     pMaterialLaw->SetChangeOfBasisMatrix(*mpCurrentElementFibreSheetMatrix);
     pMaterialLaw->ComputeStressAndStressDerivative(rC,rInvC,pressure,rT,rDTdE,assembleJacobian);
@@ -422,6 +428,12 @@ template<unsigned DIM>
 void AbstractCardiacMechanicsAssembler<DIM>::ComputeStretchesInEachElement(std::vector<double>& rStretches)
 {
     assert(rStretches.size()==this->mpQuadMesh->GetNumElements());
+    
+    // this will only work currently if the coarse mesh fibre info is defined per element, not per quad point 
+    if(mpVariableFibreSheetDirections)
+    {
+        assert(!mFibreSheetDirectionsDefinedByQuadraturePoint);
+    }
    
     static c_matrix<double,DIM,NUM_VERTICES_PER_ELEMENT> element_current_displacements;
     static c_matrix<double,DIM,NUM_VERTICES_PER_ELEMENT> grad_lin_phi;
@@ -480,37 +492,25 @@ void AbstractCardiacMechanicsAssembler<DIM>::ComputeStretchesInEachElement(std::
 
 
 
-template<unsigned DIM>
-void AbstractCardiacMechanicsAssembler<DIM>::AssembleOnElement(Element<DIM, DIM>& rElement,
-                                                               c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElem,
-                                                               c_matrix<double,STENCIL_SIZE,STENCIL_SIZE>& rAElemPrecond,
-                                                               c_vector<double,STENCIL_SIZE>& rBElem,
-                                                               bool assembleResidual,
-                                                               bool assembleJacobian)
-{
-    // check these have been set
-    assert(mCurrentTime != DBL_MAX);
-    assert(mNextTime != DBL_MAX);
-    assert(mOdeTimestep != DBL_MAX);
 
-    // set up the fibre info for this element
-    mpCurrentElementFibreSheetMatrix = mpVariableFibreSheetDirections ? &(*mpVariableFibreSheetDirections)[rElement.GetIndex()] : &mConstantFibreSheetDirections;
-    for(unsigned i=0; i<DIM; i++)
+template<unsigned DIM>
+void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std::string orthoFile, bool definedPerQuadraturePoint)
+{
+    mFibreSheetDirectionsDefinedByQuadraturePoint = definedPerQuadraturePoint;
+    
+    if(!mFibreSheetDirectionsDefinedByQuadraturePoint)
     {
-        mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(i,0);
+        if((orthoFile.length()<7) || orthoFile.substr(orthoFile.length()-6,orthoFile.length()) != ".ortho")
+        {
+            EXCEPTION("Fibre file must be a .ortho file");
+        }
     }
-
-    // call base class AssembleOnElement
-    NonlinearElasticityAssembler<DIM>::AssembleOnElement(rElement, rAElem, rAElemPrecond, rBElem, assembleResidual, assembleJacobian);
-}
-
-
-template<unsigned DIM>
-void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std::string orthoFile)
-{
-    if((orthoFile.length()<7) || orthoFile.substr(orthoFile.length()-6,orthoFile.length()) != ".ortho")
+    else
     {
-        EXCEPTION("Fibre file must be a .ortho file");
+        if((orthoFile.length()<11) || orthoFile.substr(orthoFile.length()-10,orthoFile.length()) != ".orthoquad")
+        {
+            EXCEPTION("Fibre file must be a .orthoquad file");
+        }
     }
 
     std::ifstream ifs(orthoFile.c_str());
@@ -519,12 +519,26 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std
         EXCEPTION("Could not open file: " + orthoFile);
     }
 
-    unsigned num_elem_read_from_file;
-    ifs >> num_elem_read_from_file;
-    assert(num_elem_read_from_file == this->mpQuadMesh->GetNumElements());
+    unsigned num_entries_in_ortho_file;
+    ifs >> num_entries_in_ortho_file;
+    if(!mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries_in_ortho_file!=this->mpQuadMesh->GetNumElements()) )
+    {
+        std::stringstream ss;
+        ss << "Number of entries defined at top of file " << orthoFile << " does not match number of elements in the mesh, "
+           << "found " <<  num_entries_in_ortho_file << ", expected " << this->mpQuadMesh->GetNumElements();
+        EXCEPTION(ss.str());
+    }
 
-    mpVariableFibreSheetDirections = new std::vector<c_matrix<double,DIM,DIM> >(this->mpQuadMesh->GetNumElements(), zero_matrix<double>(DIM,DIM));
-    for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
+    if(mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries_in_ortho_file!=mTotalQuadPoints) )
+    {
+        std::stringstream ss;
+        ss << "Number of entries defined at top of file " << orthoFile << " does not match number of quadrature points defined, "
+           << "found " <<  num_entries_in_ortho_file << ", expected " << mTotalQuadPoints;
+        EXCEPTION(ss.str());
+    }
+    
+    mpVariableFibreSheetDirections = new std::vector<c_matrix<double,DIM,DIM> >(num_entries_in_ortho_file, zero_matrix<double>(DIM,DIM));
+    for(unsigned index=0; index<num_entries_in_ortho_file; index++)
     {
         for(unsigned j=0; j<DIM*DIM; j++)
         {
@@ -533,23 +547,21 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std
             if(ifs.fail())
             {
                 std::stringstream error_message;
-                error_message << "Error occurred when reading file " << orthoFile
-                              << ". Expected " << this->mpQuadMesh->GetNumElements() << " rows and "
-                              << "three (not DIM!) columns, ie three components for each fibre, whichever "
-                              << "dimension you are in";
+                error_message << "Error occurred when reading file " << orthoFile;
                 delete mpVariableFibreSheetDirections;
+                mpVariableFibreSheetDirections = NULL; // important!
                 EXCEPTION(error_message.str());
             }
 
-            (*mpVariableFibreSheetDirections)[elem_index](j/DIM,j%DIM) = data;
+            (*mpVariableFibreSheetDirections)[index](j/DIM,j%DIM) = data;
         }
     }
 
     ifs.close();
 
-    for(unsigned elem_index=0; elem_index<this->mpQuadMesh->GetNumElements(); elem_index++)
+    for(unsigned index=0; index<num_entries_in_ortho_file; index++)
     {
-        CheckOrthogonality((*mpVariableFibreSheetDirections)[elem_index]);
+        CheckOrthogonality((*mpVariableFibreSheetDirections)[index]);
     }
 }
 

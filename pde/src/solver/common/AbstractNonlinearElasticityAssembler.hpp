@@ -371,6 +371,14 @@ public:
         mKspAbsoluteTol = kspAbsoluteTolerance;
     }
 
+    /**
+     *  Get the current solution vector (advanced use only - for getting the deformed position use
+     *  rGetDeformedPosition()
+     */
+    std::vector<double>& rGetCurrentSolution()
+    {
+        return mCurrentSolution;
+    }
 };
 
 

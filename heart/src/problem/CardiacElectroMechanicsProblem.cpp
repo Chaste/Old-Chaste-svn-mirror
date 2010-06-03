@@ -290,6 +290,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mWatchedMechanicsNodeIndex = UNSIGNED_UNSET;
 
     mFibreSheetDirectionsFile = "";
+    mNoMechanoElectricFeedback = true;
 
 //    mpImpactRegion=NULL;
 }
@@ -359,7 +360,7 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 
     if(mFibreSheetDirectionsFile!="")
     {
-       mpCardiacMechAssembler->SetVariableFibreSheetDirections(mFibreSheetDirectionsFile);
+       mpCardiacMechAssembler->SetVariableFibreSheetDirections(mFibreSheetDirectionsFile, mFibreSheetDirectionsDefinedPerQuadraturePoint);
     }
 
     // set up mesh pair and determine the fine mesh elements and corresponding weights for each
@@ -368,11 +369,15 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMeshPair->SetUpBoxesOnFineMesh();
     mpMeshPair->ComputeFineElementsAndWeightsForCoarseQuadPoints(*(mpCardiacMechAssembler->GetQuadratureRule()), false);
     mpMeshPair->DeleteBoxCollection();
-    // set up coarse elements with contain each fine node
-    mpMeshPair->ComputeCoarseElementsForFineNodes();
+    
+    if(!mNoMechanoElectricFeedback)
+    {
+        // set up coarse elements with contain each fine node
+        mpMeshPair->ComputeCoarseElementsForFineNodes();
 
-    // initialise the stretches saved for each element
-    mStretchesForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),1.0);
+        // initialise the stretches saved for each element
+        mStretchesForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),1.0);
+    }
         
     if(mWriteOutput)
     {
@@ -454,19 +459,21 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         ////  solver
         ////
         //////////////////////////////////////////////////////////////////////////////////////
-
-        //  Determine the stretch in each mechanics element (later: determine stretch, and 
-        //  deformation gradient)
-        mpCardiacMechAssembler->ComputeStretchesInEachElement(mStretchesForEachMechanicsElement);
-
-        //  Set the stretches on each of the cell models
-        for(unsigned global_index = mpElectricsMesh->GetDistributedVectorFactory()->GetLow(); 
-                     global_index < mpElectricsMesh->GetDistributedVectorFactory()->GetHigh();
-                     global_index++)
+        if(!mNoMechanoElectricFeedback)
         {
-            unsigned containing_elem = mpMeshPair->rGetCoarseElementsForFineNodes()[global_index];
-            double stretch = mStretchesForEachMechanicsElement[containing_elem];
-            mpMonodomainProblem->GetPde()->GetCardiacCell(global_index)->SetStretch(stretch);
+            //  Determine the stretch in each mechanics element (later: determine stretch, and 
+            //  deformation gradient)
+            mpCardiacMechAssembler->ComputeStretchesInEachElement(mStretchesForEachMechanicsElement);
+
+            //  Set the stretches on each of the cell models
+            for(unsigned global_index = mpElectricsMesh->GetDistributedVectorFactory()->GetLow(); 
+                         global_index < mpElectricsMesh->GetDistributedVectorFactory()->GetHigh();
+                         global_index++)
+            {
+                unsigned containing_elem = mpMeshPair->rGetCoarseElementsForFineNodes()[global_index];
+                double stretch = mStretchesForEachMechanicsElement[containing_elem];
+                mpMonodomainProblem->GetPde()->GetCardiacCell(global_index)->SetStretch(stretch);
+            }
         }
 
 
@@ -685,9 +692,10 @@ void CardiacElectroMechanicsProblem<DIM>::SetWatchedPosition(c_vector<double,DIM
 }
 
 template<unsigned DIM>
-void CardiacElectroMechanicsProblem<DIM>::SetVariableFibreSheetDirectionsFile(std::string fibreSheetDirectionsFile)
+void CardiacElectroMechanicsProblem<DIM>::SetVariableFibreSheetDirectionsFile(std::string fibreSheetDirectionsFile, bool definedPerQuadraturePoint)
 {
     mFibreSheetDirectionsFile = fibreSheetDirectionsFile;
+    mFibreSheetDirectionsDefinedPerQuadraturePoint = definedPerQuadraturePoint;
 }
 
 template<unsigned DIM>

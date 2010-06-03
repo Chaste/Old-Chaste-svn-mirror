@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "CardiacElectroMechProbRegularGeom.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "NonlinearElasticityTools.hpp"
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
 #include "NumericFileComparison.hpp"
 
@@ -179,8 +180,7 @@ public:
                                                      "TestExplicitWithNash");
 
         // coverage, this file is just X-direction fibres
-        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/1by1mesh_fibres.ortho");
-
+        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/1by1mesh_fibres.ortho", false);
 
         c_vector<double,2> pos;
         pos(0) = 0.05;
@@ -198,34 +198,74 @@ public:
         TS_ASSERT_EQUALS(problem.mWatchedMechanicsNodeIndex, 1u);
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0419, 0.0002);
     }
+    
+    // Sets up a short simulation on a square with zero stimulus, but a model with stretch activated channels.
+    // Hacks the mechanics initial condition to correspond to some stretch, which should create a bit of 
+    // SAC activity and increased voltage
+    void TestWithMechanoElectricFeedback() throw (Exception)
+    {
+        PlaneStimulusCellFactory<CML_noble_varghese_kohl_noble_1998_basic_with_sac, 2> cell_factory(0.0);
 
-//// Don't delete
-//    void TestCinverseDataStructure() throw(Exception)
-//    {
-//        PlaneStimulusCellFactory<2> cell_factory(0.01, -1000*1000);
-//        CardiacElectroMechanicsProblem<2> implicit_problem(1.0   /* width*/
-//                                                           5,    /* mech mesh size*/
-//                                                           96,   /* elec elem each dir
-//                                                           &cell_factory,
-//                                                           0.05, /* end time */
-//                                                           0.01, /* electrics timestep (ms) */
-//                                                           1,    /* 0.01ms mech dt */
-//                                                           0.01, /* contraction model ode dt */
-//                                                           "TestCardiacElectroMechImplicitCinverse");
-//        implicit_problem.SetNoElectricsOutput();
-//        implicit_problem.Solve();
-//
-//        NodewiseData<2>* p_nodewise_data = NodewiseData<2>::Instance();
-//        unsigned num_nodes = 97*97; //hardcoded
-//        TS_ASSERT_EQUALS(p_nodewise_data->rGetData().size(), num_nodes);
-//
-//        for(unsigned i=0; i<p_nodewise_data->rGetData().size(); i++)
-//        {
-//            TS_ASSERT_EQUALS(p_nodewise_data->rGetData()[i].size(), 3u);
-//            TS_ASSERT_DELTA(p_nodewise_data->rGetData()[i][0], 1.0, 1e-6);
-//            TS_ASSERT_DELTA(p_nodewise_data->rGetData()[i][1], 0.0, 1e-6);
-//            TS_ASSERT_DELTA(p_nodewise_data->rGetData()[i][2], 1.0, 1e-6);
-//        }
-//    }
+        // set up two meshes of 1mm by 1mm by 1mm
+        TetrahedralMesh<2,2> electrics_mesh;
+        electrics_mesh.ConstructRectangularMesh(5,5);
+        electrics_mesh.Scale(0.02, 0.02);
+
+        QuadraticMesh<2> mechanics_mesh(0.1, 0.1, 1, 1);
+
+        // fix the nodes on x=0
+        std::vector<unsigned> fixed_nodes
+          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mechanics_mesh,0,0);
+
+        CardiacElectroMechanicsProblem<2> problem(NASH2004,
+                                                  &electrics_mesh,
+                                                  &mechanics_mesh,
+                                                  fixed_nodes,
+                                                  &cell_factory,
+                                                  1,   /* end time */
+                                                  0.01, /* electrics timestep (ms) */
+                                                  100,  /* 100*0.01ms mech dt */
+                                                  1.0,  /* contraction model ode dt */
+                                                  "TestNobleSacActivatedByStretchTissue");
+
+        // use MEF
+        problem.UseMechanoElectricFeedback();
+
+        problem.Initialise();
+
+        // hack into the mechanics assembler and set up the current solution so that it corresponds to
+        // the square of tissue being stretched
+        //
+        // Note after one timestep the tissue will have returned to the resting state as there are no
+        // forces and no way at the moment of passing fixed-displacement boundary conditions down to the mech
+        // assembler. 
+        for(unsigned i=0; i<problem.mpMechanicsMesh->GetNumNodes(); i++)
+        {
+            double X = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[0];
+            double Y = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[1];
+            problem.mpCardiacMechAssembler->rGetCurrentSolution()[2*i]   = X*0.2;
+            problem.mpCardiacMechAssembler->rGetCurrentSolution()[2*i+1] = Y*(1.0/1.2 - 1);
+        }
+            
+                
+        problem.Solve();
+        
+        // Get the voltage at the start and end of the simulation, check the stretch was passed down to the 
+        // cell model and caused increased voltage
+        
+        Hdf5DataReader reader("TestNobleSacActivatedByStretchTissue/electrics", "voltage");
+        Vec start_voltage = PetscTools::CreateVec(36);
+        Vec end_voltage = PetscTools::CreateVec(36);
+        reader.GetVariableOverNodes(start_voltage, "V", 0);
+        reader.GetVariableOverNodes(end_voltage, "V", 1);
+        ReplicatableVector start_voltage_repl(start_voltage);
+        ReplicatableVector end_voltage_repl(end_voltage);
+
+        for(unsigned i=0; i<start_voltage_repl.GetSize(); i++)
+        {
+            TS_ASSERT_LESS_THAN(start_voltage_repl[i], -90.0);
+            TS_ASSERT_LESS_THAN(-90, end_voltage_repl[i]);
+        }         
+    }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/

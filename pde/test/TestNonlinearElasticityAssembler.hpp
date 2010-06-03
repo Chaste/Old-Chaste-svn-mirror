@@ -147,9 +147,9 @@ public:
 
         for (unsigned j=0; j<num_dofs; j++)
         {
-            assembler.mCurrentSolution.clear();
+            assembler.rGetCurrentSolution().clear();
             assembler.FormInitialGuess();
-            assembler.mCurrentSolution[j] += h;
+            assembler.rGetCurrentSolution()[j] += h;
 
             assembler.AssembleSystem(true, false);
 
@@ -184,12 +184,12 @@ public:
         double lambda = 1.2;
         double mu = 1.0/1.3;
 
-        assembler.mCurrentSolution.clear();
+        assembler.rGetCurrentSolution().clear();
         assembler.FormInitialGuess();
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            assembler.mCurrentSolution[2*i]   = (lambda-1)*mesh.GetNode(i)->rGetLocation()[0];
-            assembler.mCurrentSolution[2*i+1] = (mu-1)*mesh.GetNode(i)->rGetLocation()[1];
+            assembler.rGetCurrentSolution()[2*i]   = (lambda-1)*mesh.GetNode(i)->rGetLocation()[0];
+            assembler.rGetCurrentSolution()[2*i+1] = (mu-1)*mesh.GetNode(i)->rGetLocation()[1];
         }
 
         assembler.AssembleSystem(true, true);
@@ -199,7 +199,7 @@ public:
 
         for (unsigned j=0; j<num_dofs; j++)
         {
-            assembler.mCurrentSolution[j] += h;
+            assembler.rGetCurrentSolution()[j] += h;
             assembler.AssembleSystem(true, false);
 
             ReplicatableVector perturbed_rhs( assembler.mpLinearSystem->rGetRhsVector() );
@@ -222,7 +222,7 @@ public:
                     }
                 }
             }
-            assembler.mCurrentSolution[j] -= h;
+            assembler.rGetCurrentSolution()[j] -= h;
         }
     }
 
@@ -251,7 +251,7 @@ public:
         {
             for (unsigned j=0; j<3; j++)
             {
-                assembler.mCurrentSolution[3*i+j] = 0.01*mesh.GetNode(i)->rGetLocation()[j];
+                assembler.rGetCurrentSolution()[3*i+j] = 0.01*mesh.GetNode(i)->rGetLocation()[j];
             }
         }
 
@@ -263,7 +263,7 @@ public:
         {
             for (unsigned j=0; j<3; j++)
             {
-                assembler.mCurrentSolution[3*i+j] = mesh.GetNode(i)->rGetLocation()[j];
+                assembler.rGetCurrentSolution()[3*i+j] = mesh.GetNode(i)->rGetLocation()[j];
             }
         }
 
@@ -363,9 +363,9 @@ public:
 
         unsigned num_nodes = 9;
         // pressure for node 0 (in elem 0)
-        TS_ASSERT_DELTA(assembler.mCurrentSolution[2*num_nodes + 0], 2.0, 1e-6);
+        TS_ASSERT_DELTA(assembler.rGetCurrentSolution()[2*num_nodes + 0], 2.0, 1e-6);
         // pressure for node 3 (in elem 1)
-        TS_ASSERT_DELTA(assembler.mCurrentSolution[2*num_nodes + 3], 10.0, 1e-6);
+        TS_ASSERT_DELTA(assembler.rGetCurrentSolution()[2*num_nodes + 3], 10.0, 1e-6);
     }
 
     void TestSolve() throw(Exception)
@@ -636,8 +636,8 @@ public:
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
 
-		assembler.mCurrentSolution.clear();
-		assembler.mCurrentSolution.resize(assembler.mNumDofs, 0.0);
+		assembler.rGetCurrentSolution().clear();
+		assembler.rGetCurrentSolution().resize(assembler.mNumDofs, 0.0);
         assembler.SetKspAbsoluteTolerance(1); // way too high
         TS_ASSERT_THROWS_CONTAINS(assembler.Solve(), "KSP Absolute tolerance was too high");
     }

@@ -188,6 +188,7 @@ protected:
      *  @param rC The Lagrangian deformation tensor (F^T F)
      *  @param rInvC The inverse of C. Should be computed by the user.
      *  @param pressure The current pressure
+     *  @param elementIndex Index of the current element 
      *  @param currentQuadPointGlobalIndex The index (assuming an outer loop over elements and an inner 
      *    loop over quadrature points), of the current quadrature point.
      *  @param rT The stress will be returned in this parameter
@@ -200,6 +201,7 @@ protected:
                                                   c_matrix<double,DIM,DIM>& rC, 
                                                   c_matrix<double,DIM,DIM>& rInvC,
                                                   double pressure,
+                                                  unsigned elementIndex,
                                                   unsigned currentQuadPointGlobalIndex,
                                                   c_matrix<double,DIM,DIM>& rT,
                                                   FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,

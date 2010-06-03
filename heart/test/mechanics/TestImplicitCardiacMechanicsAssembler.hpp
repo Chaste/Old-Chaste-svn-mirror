@@ -269,10 +269,11 @@ public:
             }
             else
             {
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("blah"), "Fibre file must be a .ortho file");
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("blah.ortho"), "Could not open file");
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("heart/test/data/bad_4by4mesh_fibres.ortho"), "Error occurred when reading file");
-                assembler.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho");
+                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("blah", false), "Fibre file must be a .ortho file");
+                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("blah.ortho", false), "Could not open file");
+                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("heart/test/data/bad_4by4mesh_fibres.ortho", false), "Error occurred when reading file");
+                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("heart/test/data/badheader_4by4mesh_fibres.ortho", false), "found 32342, expected 32");
+                assembler.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho", false);
             }
 
             QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
@@ -377,7 +378,53 @@ public:
         }
     }
 
+    // this test defines a fibre direction for each quadrature point - but the fibres directions are all constant
+    // so the results can be checked against the other versions.. See CardiacElectroMechanicsProblem tests for
+    // varying fibre directions per quad point.
+    void TestDefineFibresPerQuadraturePoint()
+    {
+        QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
+        MooneyRivlinMaterialLaw<2> law(0.02);
 
+        // need to leave the mesh as unfixed as possible
+        std::vector<unsigned> fixed_nodes(2);
+        fixed_nodes[0] = 0;
+        fixed_nodes[1] = 1; 
+
+        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirectionDefinePerQuadPoint",fixed_nodes,&law);
+        
+        TS_ASSERT_THROWS_THIS( assembler.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho", true), "Fibre file must be a .orthoquad file");
+        TS_ASSERT_THROWS_CONTAINS( assembler.SetVariableFibreSheetDirections("heart/test/data/badheader_4by4mesh_fibres.orthoquad", true), "found 45430, expected 288");
+        assembler.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.orthoquad", true);
+
+        QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
+        std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints());
+        for(unsigned i=0; i<calcium_conc.size(); i++)
+        {
+            double X = quad_points.Get(i)(0);
+            // 0.0002 is the initial Ca conc in Lr91, 0.001 is the greatest Ca conc
+            // value in one of the Lr91 TestIonicModel tests
+            calcium_conc[i] = 0.0002 + 0.001*X;
+        }
+
+        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
+        assembler.SetCalciumAndVoltage(calcium_conc, voltages);
+
+        // solve for quite a long time to get some deformation
+        assembler.Solve(0,10,1);
+
+        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 7u); // hardcoded 7, this check is to make sure the jac is correctly computed
+
+        // have visually checked the answer and seen that it looks ok, so have
+        // a hardcoded test here. Node that 24 is the top-right corner node,
+        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 0.9429, 1e-2);
+        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 1.0565, 1e-2);
+
+        std::vector<double>& lambda = assembler.rGetFibreStretches();
+        TS_ASSERT_DELTA(lambda[34], 0.9693, 1e-3);
+    }  
+        
+        
 
 //    //
 //    // This test compares the implicit solver with the old dead explicit solver in
