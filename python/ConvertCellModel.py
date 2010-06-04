@@ -52,19 +52,22 @@ else:
     pycml_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pycml')
 
 # Poor man's argument parsing
-our_args = ['--cvode', '--normal', '--opt']
+our_args = ['--cvode', '--normal', '--opt', '--backward-euler']
+def arg2varname(arg):
+    return arg[2:].replace('-', '_')
 number_of_args = 0
 for arg in our_args:
     if arg in sys.argv:
         sys.argv.remove(arg)
-        exec("use_%s = True" % arg[2:])
+        exec("use_%s = True" % arg2varname(arg))
         number_of_args += 1
     else:
-        exec("use_%s = False" % arg[2:])
+        exec("use_%s = False" % arg2varname(arg))
 if number_of_args == 0:
     use_cvode = False
     use_normal = True
     use_opt = True
+    use_backward_euler = False
     number_of_args = 2
 if number_of_args > 1:
     options.append('--assume-valid')
@@ -143,6 +146,15 @@ def convert(model, output_dir):
                                   'model': model,
                                   'outfile': os.path.join(output_dir, model_base + 'CvodeOpt.cpp')}
             do_cmd(cmd)
+    
+    if use_backward_euler:
+        maple_output = os.path.splitext(model)[0] + '.out'
+        be_opts = ['-j', maple_output, '-p', '-l']
+        cmd = command_base % {'opts': ' '.join(be_opts + options),
+                              'classname': class_name + 'BackwardEuler',
+                              'model': model,
+                              'outfile': os.path.join(output_dir, model_base + 'BackwardEuler.cpp')}
+        do_cmd(cmd)
 
 
 os.chdir(pycml_dir)

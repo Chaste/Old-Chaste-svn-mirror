@@ -125,19 +125,12 @@ public:
         CheckCellModelResults("Lr91DelayedStim");
     }
 
-     /**
-      * This test is designed to quickly check that PyCml-generated code matches the Chaste interfaces,
-      * and gives expected results.
-      *
-      * To generate the Backward Euler model, do
-      *     cdchaste
-      *     cd python/pycml
-      *     ./translate.py -j ../../heart/src/odes/cellml/luo_rudy_1991.out --conf=config.xml --use-chaste-stimulus --convert-interfaces -a -p -l --row-lookup-method ../../heart/src/odes/cellml/luo_rudy_1991.cellml -o ../../heart/src/odes/cellml/luo_rudy_1991BackwardEuler.cpp
-      *
-      * \todo #1030 run PyCml automatically, rather than having to generate the .hpp files by hand.
-      */
-     void TestPyCmlCodeGeneration() throw(Exception)
-     {
+    /**
+     * This test is designed to quickly check that PyCml-generated code matches the Chaste interfaces,
+     * and gives expected results.
+     */
+    void TestPyCmlCodeGeneration() throw(Exception)
+    {
         clock_t ck_start, ck_end;
 
         //
@@ -161,7 +154,7 @@ public:
         TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
         
         // Backward Euler optimised model
-        CML_luo_rudy_1991_pe_lut_be be(p_solver, p_stimulus);
+        Cellluo_rudy_1991FromCellMLBackwardEuler be(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(be.GetVoltageIndex(), 0u);
 
         // Check that the tables exist!

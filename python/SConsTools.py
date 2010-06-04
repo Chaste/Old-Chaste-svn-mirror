@@ -427,6 +427,9 @@ def CreatePyCmlBuilder(build, buildenv):
         parts = source[0].srcnode().path.split(os.path.sep)
         return (parts[1] == 'dynamic' or
                 (parts[1] == 'build' and parts[3] == 'dynamic'))
+    def HasMapleOutput(source):
+        out_file = os.path.splitext(source[0].srcnode().abspath)[0] + '.out'
+        return os.path.exists(out_file), out_file
     def RunPyCml(target, source, env):
         script = os.path.join(Dir('#').abspath, 'python', 'ConvertCellModel.py')
         args = ['--normal', '--opt', '--cvode', '-A',
@@ -434,10 +437,11 @@ def CreatePyCmlBuilder(build, buildenv):
         if IsDynamicSource(source):
             args.remove('--cvode')
             args.append('-y')
+        if HasMapleOutput(source)[0]:
+            args.append('--backward-euler')
 # Won't work until SCons' C scanner can understand #ifdef
 #        elif 'CHASTE_CVODE' not in env['CPPDEFINES']:
 #            args.remove('--cvode')
-        # TODO: Backward Euler if .out file available
         command = [script] + args + [str(source[0])]
         rc = subprocess.call(command)
         return rc
@@ -452,6 +456,12 @@ def CreatePyCmlBuilder(build, buildenv):
                            base + 'Cvode.hpp',
                            base + 'CvodeOpt.cpp',
                            base + 'CvodeOpt.hpp'])
+        generate_be, extra_source = HasMapleOutput(source)
+        if generate_be:
+            extra_targets = [base + 'BackwardEuler.hpp',
+                             base + 'BackwardEuler.cpp']
+            env.Depends(extra_targets, extra_source)
+            target.extend(extra_targets)
         # Add dependency on pycml source code
         pycml_code = glob.glob(os.path.join(Dir('#/python/pycml').abspath, '*'))
         env.Depends(target, pycml_code)
