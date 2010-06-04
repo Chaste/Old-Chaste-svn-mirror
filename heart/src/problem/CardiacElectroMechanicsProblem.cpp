@@ -134,7 +134,7 @@ void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
         mWatchedMechanicsNodeIndex = node_index;
     }
 
-    OutputFileHandler handler(mOutputDirectory);
+    OutputFileHandler handler(mOutputDirectory,false);
     mpWatchedLocationFile = handler.OpenOutputFile("watched.txt");
 }
 
@@ -248,6 +248,8 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     if(mWriteOutput)
     {
         mOutputDirectory = outputDirectory;
+        // create the directory
+        OutputFileHandler handler(mOutputDirectory);
         mDeformationOutputDirectory = mOutputDirectory + "/deformation";
         HeartConfig::Instance()->SetOutputDirectory(mOutputDirectory + "/electrics");
         HeartConfig::Instance()->SetOutputFilenamePrefix("voltage");

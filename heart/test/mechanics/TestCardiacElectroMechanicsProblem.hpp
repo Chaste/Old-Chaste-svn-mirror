@@ -161,7 +161,12 @@ public:
         TS_ASSERT_DELTA(problem.rGetDeformedPosition()[1](0), 0.0479, 0.0002);
     }
 
-
+    //
+    //  BAD test - fails with HYPRE (for some reason HYPRE can't solve the one of the linear systems, and 
+    //  the search direction in the end doesn't decrease the residual), and also with ILU if you increase
+    //  the number of elements (whether LR91 or N98 is used). Probably the active tension is too high. 
+    //
+    //
     void TestExplicitSolverWithNash2004() throw(Exception)
     {
         HeartEventHandler::Disable();
