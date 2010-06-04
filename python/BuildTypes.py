@@ -851,7 +851,7 @@ class CrayGcc(BuildType):
     Gcc.__init__(self, *args, **kwargs)
     self.tools['mpicxx'] = 'CC'
     self._cc_flags.append('-DMPICH_IGNORE_CXX_SEEK')
-    self._cc_flags.append('-g')
+    self._cc_flags.append('-ffast-math -funroll-loops -O3')
     self.build_dir = 'craygcc'
 
 class Pgi(BuildType):
@@ -877,6 +877,22 @@ class PgiCrayOpt(PgiCray):
     PgiCray.__init__(self, *args, **kwargs)
     self._cc_flags.append('-fastsse')
     self.build_dir = 'pgicrayopt'
+
+class Pathscale(BuildType):
+  "Pathscale compiler." 
+  def __init__(self, *args, **kwargs):
+    BuildType.__init__(self, *args, **kwargs)
+    self._include_flag = ['-I']
+    self._cc_flags = ['-O3 -OPT:Ofast']
+    self.build_dir = 'pathscale'
+
+class PathscaleCray(Pathscale):
+  "Pathscale compiler on Cray."
+  def __init__(self, *args, **kwargs):
+    Pathscale.__init__(self, *args, **kwargs)
+    self.tools['mpicxx'] = 'CC'
+    self._cc_flags.append('-DMPICH_IGNORE_CXX_SEEK')
+    self.build_dir = 'pathscalecray'
 
 class Vacpp(BuildType):
   "IBM Visual Age C++ compiler"
