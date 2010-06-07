@@ -142,7 +142,7 @@ private:
 
         return new VertexMesh<3,3>(nodes, faces, elements);
     }
-    
+
 public:
 
     void TestNodeIterator() throw (Exception)
