@@ -374,11 +374,19 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     
     if(!mNoMechanoElectricFeedback)
     {
-        // set up coarse elements with contain each fine node
+        // compute the coarse elements which contain each fine node -- for transferring stretch from 
+        // mechanics solve electrics cell models
         mpMeshPair->ComputeCoarseElementsForFineNodes();
 
-        // initialise the stretches saved for each element
+        // compute the coarse elements which contain each fine element centroid -- for transferring F from
+        // mechanics solve to electrics mesh elements 
+        mpMeshPair->ComputeCoarseElementsForFineElementCentroids();
+
+        // initialise the stretches saved for each mechanics element
         mStretchesForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),1.0);
+        
+        // initialise the store of the F in each mechanics element (one constant value of F) in each 
+        mDeformationGradientsForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),identity_matrix<double>(DIM));
     }
         
     if(mWriteOutput)
@@ -465,7 +473,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         {
             //  Determine the stretch in each mechanics element (later: determine stretch, and 
             //  deformation gradient)
-            mpCardiacMechAssembler->ComputeStretchesInEachElement(mStretchesForEachMechanicsElement);
+            mpCardiacMechAssembler->ComputeDeformationGradientAndStretchInEachElement(mDeformationGradientsForEachMechanicsElement, mStretchesForEachMechanicsElement);
 
             //  Set the stretches on each of the cell models
             for(unsigned global_index = mpElectricsMesh->GetDistributedVectorFactory()->GetLow(); 
@@ -476,6 +484,9 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
                 double stretch = mStretchesForEachMechanicsElement[containing_elem];
                 mpMonodomainProblem->GetPde()->GetCardiacCell(global_index)->SetStretch(stretch);
             }
+            
+            // finish #
+            // NOW SET THE DEFORMATION GRADIENTS ON THE MONO/BI-DOMAIN ASSEMBLER - do this once #1348 is done
         }
 
 

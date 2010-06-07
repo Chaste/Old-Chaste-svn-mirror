@@ -39,6 +39,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonlinearElasticityTools.hpp"
 #include "ReplicatableVector.hpp"
 
+// helper function - the frobenius norm of a matrix (though any norm would have done).
+double MatrixNorm(c_matrix<double,2,2> mat)
+{
+    return sqrt(mat(0,0)*mat(0,0)+mat(0,1)*mat(0,1)+mat(1,0)*mat(1,0)+mat(1,1)*mat(1,1));
+}
+
+
 class TestImplicitCardiacMechanicsAssembler : public CxxTest::TestSuite
 {
 public:
@@ -331,7 +338,7 @@ public:
     }
 
     
-    void TestComputeStretchesEachElement() throw(Exception)
+    void TestComputeDeformationGradientAndStretchesEachElement() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
 
@@ -343,11 +350,27 @@ public:
         
         // compute the stretches, they should be 1
         std::vector<double> stretches(mesh.GetNumElements());
-        assembler.ComputeStretchesInEachElement(stretches);
+        std::vector<c_matrix<double,2,2> > deformation_gradients(mesh.GetNumElements());
+
+        // initialise to junk
+        for(unsigned i=0; i<stretches.size(); i++)
+        {
+            stretches[i] = 13482.534578;
+            deformation_gradients[i](0,0)
+             = deformation_gradients[i](0,1) 
+               = deformation_gradients[i](1,0)  
+                 = deformation_gradients[i](1,1) = 7777.777727777777777;
+        }
+
+
+        assembler.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
         for(unsigned i=0; i<stretches.size(); i++)
         {
             TS_ASSERT_DELTA(stretches[i], 1.0, 1e-6);
+            double err = MatrixNorm(deformation_gradients[i]-identity_matrix<double>(2));
+            TS_ASSERT_DELTA(err, 0.0, 1e-10);
         }
+        
 
         // get the current solution (displacement), and contract in the non-fibre direction
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -356,11 +379,16 @@ public:
             assembler.mCurrentSolution[2*i+j] = -0.1*mesh.GetNode(i)->rGetLocation()[j];
         }
 
-        // stretches should still be 1
-        assembler.ComputeStretchesInEachElement(stretches);
+        // stretches should still be 1, F should be equal to [1,0;0,0.9]
+        assembler.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
+        
+        c_matrix<double,2,2> correct_F = identity_matrix<double>(2);
+        correct_F(1,1) = 0.9; 
         for(unsigned i=0; i<stretches.size(); i++)
         {
             TS_ASSERT_DELTA(stretches[i], 1.0, 1e-6);
+            double err = MatrixNorm(deformation_gradients[i]-correct_F);
+            TS_ASSERT_DELTA(err, 0.0, 1e-10);
         }
 
         // contract in the fibre direction
@@ -370,11 +398,14 @@ public:
             assembler.mCurrentSolution[2*i+j] = -0.2*mesh.GetNode(i)->rGetLocation()[j];
         }
 
-        // stretches should now be 0.8
-        assembler.ComputeStretchesInEachElement(stretches);
+        // stretches should now be 0.8, F should be equal to [0.8,0;0,0.9]
+        assembler.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
+        correct_F(0,0) = 0.8; 
         for(unsigned i=0; i<stretches.size(); i++)
         {
             TS_ASSERT_DELTA(stretches[i], 0.8, 1e-3);
+            double err = MatrixNorm(deformation_gradients[i]-correct_F);
+            TS_ASSERT_DELTA(err, 0.0, 1e-10);
         }
     }
 

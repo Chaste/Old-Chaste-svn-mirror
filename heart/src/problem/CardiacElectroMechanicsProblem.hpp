@@ -135,8 +135,10 @@ protected :
     /** Whether the mFibreSheetDirectionsFile file gives the fibre info at each element, or each quadrature point */
     bool mFibreSheetDirectionsDefinedPerQuadraturePoint;
 
-    /** A vector of stretches (in the fibre direction), one for each element in the mechanics mesh) */
+    /** A vector of stretches (in the fibre direction), one for each element in the mechanics mesh */
     std::vector<double> mStretchesForEachMechanicsElement;
+    /** A vector of deformation gradients (each entry a matrix), one for each element in the mechanics mesh */
+    std::vector<c_matrix<double,DIM,DIM> > mDeformationGradientsForEachMechanicsElement;
 
     /** If this is true then the deformation is not allowed to affect the electrics
      *  (either through altering conductivities (not implemented yet anyway), or through

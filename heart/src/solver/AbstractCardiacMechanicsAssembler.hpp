@@ -248,28 +248,28 @@ public:
     virtual void Solve(double time, double nextTime, double odeTimestep)=0;
     
     
-    
-    // following method will eventually become 
-    // ComputeDeformationGradientsAndStretchesInEachElement(std::vector<c_matrix<double,DIM,DIM> >& rDeformationGradients, 
-    //                                                      std::vector<double>& rStretches)
 
     /**
-     *  Compute the stretch in the fibre direction, for each element in the mesh.
-     *  Note: using quadratic interpolation for position, the stretches actually vary linearly 
-     *  in each element. However, for computational efficiency reasons, when computing the
-     *  stretch to pass back to the cell model, we just assume the stretches are constant in
-     *  each element (ie ignoring the quadratic correction to the displacement). This means that
-     *  the (const) stretch for each element can be computed in advance and stored, and we don't
-     *  have to worry about interpolation onto the precise location of the cell-model (electrics-mesh)
-     *  node, just which element it is in. 
+     *  Compute the deformation gradient, and stretch in the fibre direction, for each element in the mesh.
+     *  Note: using quadratic interpolation for position, the deformation gradients and stretches 
+     *  actually vary linearly in each element. However, for computational efficiency reasons, when computing 
+     *  deformation gradients and stretches to pass back to the electrophysiology solver, we just assume 
+     *  they are constant in each element (ie ignoring the quadratic correction to the displacement). This means 
+     *  that  the (const) deformation gradient and stretch for each element can be computed in advance and 
+     *  stored, and we don't have to worry about interpolation onto the precise location of the cell-model (electrics-mesh)
+     *  node, just which element it is in, and ditto the electric mesh element centroid. 
      *  
-     *  To compute this constant stretch we just have to compute F using the deformed positions at the 
-     *  vertices only, with linear bases, rather than all the nodes and quadratic bases. 
+     *  To compute this (elementwise-)constant F (and from it the constant stretch), we just have to compute 
+     *  F using the deformed positions at the vertices only, with linear bases, rather than all the 
+     *  nodes and quadratic bases. 
      * 
+     *  @param rDeformationGradients A reference of a std::vector in which the deformation gradient
+     *  in each element will be returned. Must be allocated prior to being passed in.
      *  @param rStretches A reference of a std::vector in which the stretch in each element will be returned.
-     *  Must be allocated prior to being passed in
+     *  Must be allocated prior to being passed in.
      */
-    void ComputeStretchesInEachElement(std::vector<double>& rStretches);
+    void ComputeDeformationGradientAndStretchInEachElement(std::vector<c_matrix<double,DIM,DIM> >& rDeformationGradients,
+                                                             std::vector<double>& rStretches);
 };
 
 
@@ -425,7 +425,9 @@ void AbstractCardiacMechanicsAssembler<DIM>::ComputeStressAndStressDerivative(Ab
 
 
 template<unsigned DIM>
-void AbstractCardiacMechanicsAssembler<DIM>::ComputeStretchesInEachElement(std::vector<double>& rStretches)
+void AbstractCardiacMechanicsAssembler<DIM>::ComputeDeformationGradientAndStretchInEachElement(
+    std::vector<c_matrix<double,DIM,DIM> >& rDeformationGradients,
+    std::vector<double>& rStretches)
 {
     assert(rStretches.size()==this->mpQuadMesh->GetNumElements());
     
@@ -453,7 +455,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::ComputeStretchesInEachElement(std::
         mpCurrentElementFibreSheetMatrix = mpVariableFibreSheetDirections ? &(*mpVariableFibreSheetDirections)[elem_index] : &mConstantFibreSheetDirections;
         for(unsigned i=0; i<DIM; i++)
         {
-            mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(i,0);
+            mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(0,i);
         }
 
         // get the displacement at this element
@@ -483,6 +485,8 @@ void AbstractCardiacMechanicsAssembler<DIM>::ComputeStretchesInEachElement(std::
                 }
             }
         }
+
+        rDeformationGradients[elem_index] = F;
         
         // compute and save the stretch: m^T C m = ||Fm||
         c_vector<double,DIM> deformed_fibre = prod(F, mCurrentElementFibreDirection);
