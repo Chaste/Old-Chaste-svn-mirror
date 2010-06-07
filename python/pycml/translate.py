@@ -2283,6 +2283,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
                      '>::Initialise(void)')
         self.open_block()
         self.output_comment('Time units: ', self.free_vars[0].units, '\n')
+        self.writeln('this->mSystemName', self.EQ_ASSIGN, '"', self.model.name, '"', self.STMT_END)
+        self.writeln()
         def output_var(vector, var):
             if var.oxmeta_name:
                 self.writeln('this->m', vector, 'Names.push_back("', var.oxmeta_name, '");')   

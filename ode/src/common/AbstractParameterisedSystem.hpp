@@ -83,6 +83,11 @@ public:
      * Get the object which provides information about this ODE system.
      */
     boost::shared_ptr<const AbstractOdeSystemInformation> GetSystemInformation() const;
+    
+    /**
+     * Get the name of this system.
+     */
+    std::string GetSystemName() const;
 
     //
     // State variable methods

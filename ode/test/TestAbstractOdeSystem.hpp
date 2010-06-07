@@ -97,6 +97,9 @@ public:
     {
         ParameterisedOde ode;
         boost::shared_ptr<const AbstractOdeSystemInformation> p_info = ode.GetSystemInformation();
+        
+        TS_ASSERT_EQUALS(ode.GetSystemName(), "ParameterisedOde");
+        TS_ASSERT_EQUALS(p_info->GetSystemName(), "ParameterisedOde");
 
         TS_ASSERT_EQUALS(ode.GetParameter(0), 0.0);
         TS_ASSERT_EQUALS(ode.GetNumberOfParameters(), 1u);

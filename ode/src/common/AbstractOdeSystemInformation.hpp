@@ -55,6 +55,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractOdeSystemInformation
 {
 protected:
+    /** Human-friendly name for the ODE system */
+    std::string mSystemName;
 
     /** State variable names */
     std::vector<std::string> mVariableNames;
@@ -98,6 +100,11 @@ public:
      * Virtual destructor since we have virtual methods.
      */
     virtual ~AbstractOdeSystemInformation();
+    
+    /**
+     * Get the name of this system of ODEs.
+     */
+    std::string GetSystemName() const;
 
     /**
      * Set the suggested initial conditions to use.

@@ -58,6 +58,14 @@ boost::shared_ptr<const AbstractOdeSystemInformation> AbstractParameterisedSyste
     return mpSystemInfo;
 }
 
+
+template<typename VECTOR>
+std::string AbstractParameterisedSystem<VECTOR>::GetSystemName() const
+{
+    assert(mpSystemInfo);
+    return mpSystemInfo->GetSystemName();
+}
+
 //
 // State variable methods
 //

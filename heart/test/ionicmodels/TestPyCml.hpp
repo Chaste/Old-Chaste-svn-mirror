@@ -91,6 +91,9 @@ class TestPyCml : public CxxTest::TestSuite
         rCell.SetParameter(0u, 0.1);
         TS_ASSERT_EQUALS(rCell.GetParameter(0u), 0.1);
         rCell.SetParameter(0u, 23.0);
+        
+        // and the system name...
+        TS_ASSERT_EQUALS(rCell.GetSystemName(), "luo_rudy_1991");
     }
     
 public:
