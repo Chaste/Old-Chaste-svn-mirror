@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cerrno>
 
 #include "Exception.hpp"
+#include <unistd.h> // For getcwd()
 
 std::string GetCurrentWorkingDirectory()
 {
