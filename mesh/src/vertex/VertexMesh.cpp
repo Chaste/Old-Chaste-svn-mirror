@@ -746,7 +746,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshRea
     for (unsigned i=0; i<num_nodes; i++)
     {
         node_data = rMeshReader.GetNextNode();
-        unsigned is_boundary_node = (unsigned) node_data[2];
+        unsigned is_boundary_node = (unsigned) node_data[SPACE_DIM];
         node_data.pop_back();
         this->mNodes.push_back(new Node<SPACE_DIM>(i, node_data, is_boundary_node));
     }
@@ -759,7 +759,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshRea
     // Add elements
     for (unsigned elem_index=0; elem_index<num_elements; elem_index++)
     {
+        ///\todo output face data (#1377)
         ElementData element_data = rMeshReader.GetNextElementData();
+
         std::vector<Node<SPACE_DIM>*> nodes;
 
         unsigned num_nodes_in_element = element_data.NodeIndices.size();
@@ -769,7 +771,7 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshRea
             nodes.push_back(this->mNodes[element_data.NodeIndices[j]]);
         }
 
-        VertexElement<ELEMENT_DIM,SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(elem_index, nodes);
+        VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(elem_index, nodes);
         mElements.push_back(p_element);
 
         if (rMeshReader.GetNumElementAttributes() > 0)

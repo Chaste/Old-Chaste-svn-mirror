@@ -92,39 +92,21 @@ std::vector<double> VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
     if (mpMesh)
     {
-        if (SPACE_DIM==2) // in 2D output boundary node info #1076
+        // Sanity check
+        assert(this->mNumNodes == mpMesh->GetNumNodes());
+
+        std::vector<double> coordinates(SPACE_DIM+1);
+
+        // Get the node coordinates using the node iterator (thus skipping deleted nodes)
+        for (unsigned j=0; j<SPACE_DIM; j++)
         {
-            std::vector<double> coords(SPACE_DIM+1);
-
-            assert(this->mNumNodes==mpMesh->GetNumNodes());
-
-            // get the node coords using the node iterator (so to skip deleted nodes etc)
-            for (unsigned j=0; j<SPACE_DIM; j++)
-            {
-                coords[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
-            }
-            coords[SPACE_DIM] = (*(mpIters->pNodeIter))->IsBoundaryNode();
-
-            ++(*(mpIters->pNodeIter));
-
-            return coords;
+            coordinates[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
         }
-        else
-        {
-            std::vector<double> coords(SPACE_DIM);
+        coordinates[SPACE_DIM] = (*(mpIters->pNodeIter))->IsBoundaryNode();
 
-            assert(this->mNumNodes==mpMesh->GetNumNodes());
+        ++(*(mpIters->pNodeIter));
 
-            // get the node coords using the node iterator (so to skip deleted nodes etc)
-            for (unsigned j=0; j<SPACE_DIM; j++)
-            {
-                coords[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
-            }
-
-            ++(*(mpIters->pNodeIter));
-
-            return coords;
-        }
+        return coordinates;
     }
     else
     {
@@ -137,6 +119,8 @@ ElementData VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
 {
     if (mpMesh)
     {
+        ///\todo In 3D, write face data (#1076, #1377)
+
         assert(this->mNumElements==mpMesh->GetNumElements());
 
         ElementData elem_data;

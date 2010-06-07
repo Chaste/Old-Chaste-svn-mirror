@@ -42,6 +42,107 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestVertexMesh : public CxxTest::TestSuite
 {
+private:
+
+    VertexMesh<3,3>* ConstructCubeAndPyramidMesh()
+    {
+        // Make 8 nodes to assign to a cube and a pyramid element
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(4, false, 1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(5, false, 0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(6, false, 1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(7, false, 1.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(8, false, 0.5, 0.5, 1.5));
+
+        std::vector<std::vector<Node<3>*> > nodes_faces(10);
+
+        // Make 6 square faces out of these nodes
+        nodes_faces[0].push_back(nodes[0]);
+        nodes_faces[0].push_back(nodes[2]);
+        nodes_faces[0].push_back(nodes[4]);
+        nodes_faces[0].push_back(nodes[1]);
+
+        nodes_faces[1].push_back(nodes[4]);
+        nodes_faces[1].push_back(nodes[7]);
+        nodes_faces[1].push_back(nodes[5]);
+        nodes_faces[1].push_back(nodes[2]);
+
+        nodes_faces[2].push_back(nodes[7]);
+        nodes_faces[2].push_back(nodes[6]);
+        nodes_faces[2].push_back(nodes[1]);
+        nodes_faces[2].push_back(nodes[4]);
+
+        nodes_faces[3].push_back(nodes[0]);
+        nodes_faces[3].push_back(nodes[3]);
+        nodes_faces[3].push_back(nodes[5]);
+        nodes_faces[3].push_back(nodes[2]);
+
+        nodes_faces[4].push_back(nodes[1]);
+        nodes_faces[4].push_back(nodes[6]);
+        nodes_faces[4].push_back(nodes[3]);
+        nodes_faces[4].push_back(nodes[0]);
+
+        nodes_faces[5].push_back(nodes[7]);
+        nodes_faces[5].push_back(nodes[6]);
+        nodes_faces[5].push_back(nodes[3]);
+        nodes_faces[5].push_back(nodes[5]);
+
+        // Make 4 triangular faces out of these nodes
+        nodes_faces[6].push_back(nodes[6]);
+        nodes_faces[6].push_back(nodes[7]);
+        nodes_faces[6].push_back(nodes[8]);
+
+        nodes_faces[7].push_back(nodes[6]);
+        nodes_faces[7].push_back(nodes[8]);
+        nodes_faces[7].push_back(nodes[3]);
+
+        nodes_faces[8].push_back(nodes[3]);
+        nodes_faces[8].push_back(nodes[8]);
+        nodes_faces[8].push_back(nodes[5]);
+
+        nodes_faces[9].push_back(nodes[5]);
+        nodes_faces[9].push_back(nodes[8]);
+        nodes_faces[9].push_back(nodes[7]);
+
+        // Make the faces
+        std::vector<VertexElement<2,3>*> faces;
+
+        for (unsigned i=0; i<10; i++)
+        {
+            faces.push_back(new VertexElement<2,3>(i, nodes_faces[i]));
+        }
+
+        // Make the elements
+        std::vector<VertexElement<2,3>*> faces_element_0, faces_element_1;
+        std::vector<bool> orientations_0, orientations_1;
+
+        // Cube element
+        for (unsigned i=0; i<6; i++)
+        {
+            faces_element_0.push_back(faces[i]);
+            orientations_0.push_back(true);
+        }
+
+        // Pyramid element
+        for (unsigned i=6; i<10; i++)
+        {
+            faces_element_1.push_back(faces[6]);
+            orientations_1.push_back(true);
+        }
+        faces_element_1.push_back(faces[5]);
+        orientations_1.push_back(false);
+
+        std::vector<VertexElement<3,3>*> elements;
+        elements.push_back(new VertexElement<3,3>(0, faces_element_0, orientations_0));
+        elements.push_back(new VertexElement<3,3>(1, faces_element_1, orientations_1));
+
+        return new VertexMesh<3,3>(nodes, faces, elements);
+    }
+    
 public:
 
     void TestNodeIterator() throw (Exception)
@@ -233,144 +334,54 @@ public:
 
     void TestBasic3dVertexMesh()
     {
-        // Make 8 nodes to assign to a cube and a pyramid element
-        std::vector<Node<3>*> nodes;
-        nodes.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
-        nodes.push_back(new Node<3>(1, false, 1.0, 0.0, 0.0));
-        nodes.push_back(new Node<3>(2, false, 0.0, 1.0, 0.0));
-        nodes.push_back(new Node<3>(3, false, 0.0, 0.0, 1.0));
-        nodes.push_back(new Node<3>(4, false, 1.0, 1.0, 0.0));
-        nodes.push_back(new Node<3>(5, false, 0.0, 1.0, 1.0));
-        nodes.push_back(new Node<3>(6, false, 1.0, 0.0, 1.0));
-        nodes.push_back(new Node<3>(7, false, 1.0, 1.0, 1.0));
-        nodes.push_back(new Node<3>(8, false, 0.5, 0.5, 1.5));
+        VertexMesh<3,3>* p_mesh = ConstructCubeAndPyramidMesh();
 
-        std::vector<std::vector<Node<3>*> > nodes_faces(10);
+        TS_ASSERT_EQUALS(p_mesh->GetNumNodes(), 9u);
+        TS_ASSERT_EQUALS(p_mesh->GetNumFaces(), 10u);
+        TS_ASSERT_EQUALS(p_mesh->GetNumElements(), 2u);
+        TS_ASSERT_EQUALS(p_mesh->GetNumAllElements(), 2u);
 
-        // Make 6 square faces out of these nodes
-        nodes_faces[0].push_back(nodes[0]);
-        nodes_faces[0].push_back(nodes[2]);
-        nodes_faces[0].push_back(nodes[4]);
-        nodes_faces[0].push_back(nodes[1]);
+        // Test the location of one of the nodes
+        Node<3>* p_node_2 = p_mesh->GetNode(2);
+        TS_ASSERT_DELTA(p_node_2->rGetLocation()[0], 0.0, 1e-3);
+        TS_ASSERT_DELTA(p_node_2->rGetLocation()[1], 1.0, 1e-3);
+        TS_ASSERT_DELTA(p_node_2->rGetLocation()[2], 0.0, 1e-3);
 
-        nodes_faces[1].push_back(nodes[4]);
-        nodes_faces[1].push_back(nodes[7]);
-        nodes_faces[1].push_back(nodes[5]);
-        nodes_faces[1].push_back(nodes[2]);
+        // Test a couple of the elements
+        VertexElement<3,3>* p_element_0 = p_mesh->GetElement(0);
+        TS_ASSERT_EQUALS(p_element_0->GetNumNodes(), 8u);
+        TS_ASSERT_EQUALS(p_element_0->GetNumFaces(), 6u);
 
-        nodes_faces[2].push_back(nodes[7]);
-        nodes_faces[2].push_back(nodes[6]);
-        nodes_faces[2].push_back(nodes[1]);
-        nodes_faces[2].push_back(nodes[4]);
-
-        nodes_faces[3].push_back(nodes[0]);
-        nodes_faces[3].push_back(nodes[3]);
-        nodes_faces[3].push_back(nodes[5]);
-        nodes_faces[3].push_back(nodes[2]);
-
-        nodes_faces[4].push_back(nodes[1]);
-        nodes_faces[4].push_back(nodes[6]);
-        nodes_faces[4].push_back(nodes[3]);
-        nodes_faces[4].push_back(nodes[0]);
-
-        nodes_faces[5].push_back(nodes[7]);
-        nodes_faces[5].push_back(nodes[6]);
-        nodes_faces[5].push_back(nodes[3]);
-        nodes_faces[5].push_back(nodes[5]);
-
-        // Make 4 triangular faces out of these nodes
-        nodes_faces[6].push_back(nodes[6]);
-        nodes_faces[6].push_back(nodes[7]);
-        nodes_faces[6].push_back(nodes[8]);
-
-        nodes_faces[7].push_back(nodes[6]);
-        nodes_faces[7].push_back(nodes[8]);
-        nodes_faces[7].push_back(nodes[3]);
-
-        nodes_faces[8].push_back(nodes[3]);
-        nodes_faces[8].push_back(nodes[8]);
-        nodes_faces[8].push_back(nodes[5]);
-
-        nodes_faces[9].push_back(nodes[5]);
-        nodes_faces[9].push_back(nodes[8]);
-        nodes_faces[9].push_back(nodes[7]);
-
-        // Make the faces
-        std::vector<VertexElement<2,3>*> faces;
-
-        for (unsigned i=0; i<10; i++)
-        {
-            faces.push_back(new VertexElement<2,3>(i, nodes_faces[i]));
-        }
-
-        // Make the elements
-        std::vector<VertexElement<2,3>*> faces_element_0, faces_element_1;
-        std::vector<bool> orientations_0, orientations_1;
-
-        // Cube element
-        for (unsigned i=0; i<6; i++)
-        {
-            faces_element_0.push_back(faces[i]);
-            orientations_0.push_back(true);
-        }
-
-        // Pyramid element
-        for (unsigned i=6; i<10; i++)
-        {
-            faces_element_1.push_back(faces[6]);
-            orientations_1.push_back(true);
-        }
-        faces_element_1.push_back(faces[5]);
-        orientations_1.push_back(false);
-
-        std::vector<VertexElement<3,3>*> elements;
-        elements.push_back(new VertexElement<3,3>(0, faces_element_0, orientations_0));
-        elements.push_back(new VertexElement<3,3>(1, faces_element_1, orientations_1));
-
-        VertexMesh<3,3> mesh(nodes, faces, elements);
-
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9u);
-        TS_ASSERT_EQUALS(mesh.GetNumFaces(), 10u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
-        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), 2u);
-
-        // Test location of random node
-        TS_ASSERT_DELTA(mesh.GetNode(2)->rGetLocation()[0], 0.0, 1e-3);
-        TS_ASSERT_DELTA(mesh.GetNode(2)->rGetLocation()[1], 1.0, 1e-3);
-        TS_ASSERT_DELTA(mesh.GetNode(2)->rGetLocation()[2], 0.0, 1e-3);
-
-        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 8u);
-        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumFaces(), 6u);
-
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumNodes(), 5u);
-        TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNumFaces(), 5u);
+        VertexElement<3,3>* p_element_1 = p_mesh->GetElement(1);
+        TS_ASSERT_EQUALS(p_element_1->GetNumNodes(), 5u);
+        TS_ASSERT_EQUALS(p_element_1->GetNumFaces(), 5u);
 
         // Check that the nodes know which elements they are in
         std::set<unsigned> temp_list1;
         temp_list1.insert(0);
 
         // Nodes 0, 1, 2 and 4 are only in element 0
-        TS_ASSERT_EQUALS(nodes[0]->rGetContainingElementIndices(), temp_list1);
-        TS_ASSERT_EQUALS(nodes[1]->rGetContainingElementIndices(), temp_list1);
-        TS_ASSERT_EQUALS(nodes[2]->rGetContainingElementIndices(), temp_list1);
-        TS_ASSERT_EQUALS(nodes[4]->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(0)->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(1)->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(2)->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(4)->rGetContainingElementIndices(), temp_list1);
 
         // Node 3, 5, 6 and 7 are in elements 0 and 1
         temp_list1.insert(1u);
-        TS_ASSERT_EQUALS(nodes[3]->rGetContainingElementIndices(), temp_list1);
-        TS_ASSERT_EQUALS(nodes[5]->rGetContainingElementIndices(), temp_list1);
-        TS_ASSERT_EQUALS(nodes[6]->rGetContainingElementIndices(), temp_list1);
-        TS_ASSERT_EQUALS(nodes[7]->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(3)->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(5)->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(6)->rGetContainingElementIndices(), temp_list1);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(7)->rGetContainingElementIndices(), temp_list1);
 
         // Node 8 is only in element 1
         std::set<unsigned> temp_list2;
         temp_list2.insert(1u);
-        TS_ASSERT_EQUALS(nodes[8]->rGetContainingElementIndices(), temp_list2);
+        TS_ASSERT_EQUALS(p_mesh->GetNode(8)->rGetContainingElementIndices(), temp_list2);
 
         // Coverage
-        TS_ASSERT_EQUALS(mesh.SolveNodeMapping(0), 0u);
-        TS_ASSERT_EQUALS(mesh.SolveElementMapping(0), 0u);
-        TS_ASSERT_EQUALS(mesh.SolveBoundaryElementMapping(0), 0u);
+        TS_ASSERT_EQUALS(p_mesh->SolveNodeMapping(0), 0u);
+        TS_ASSERT_EQUALS(p_mesh->SolveElementMapping(0), 0u);
+        TS_ASSERT_EQUALS(p_mesh->SolveBoundaryElementMapping(0), 0u);
     }
 
     void TestGetCentroidOfElement() throw(Exception)
@@ -742,7 +753,7 @@ public:
     void TestArchive2dVertexMesh()
     {
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
-        std::string archive_file = "vertex_mesh_base.arch";
+        std::string archive_file = "vertex_mesh_2d.arch";
         ArchiveLocationInfo::SetMeshFilename("vertex_mesh");
 
         HoneycombVertexMeshGenerator generator(5, 3);
@@ -812,6 +823,96 @@ public:
             {
                 TS_ASSERT_EQUALS(p_mesh_original->GetElement(elem_index)->GetNumNodes(),
                                  p_mesh_loaded->GetElement(elem_index)->GetNumNodes());
+
+                for (unsigned local_index=0; local_index<p_mesh_original->GetElement(elem_index)->GetNumNodes(); local_index++)
+                {
+                    TS_ASSERT_EQUALS(p_mesh_original->GetElement(elem_index)->GetNodeGlobalIndex(local_index),
+                                     p_mesh_loaded->GetElement(elem_index)->GetNodeGlobalIndex(local_index));
+                }
+            }
+
+            // Tidy up
+            delete p_mesh_original;
+        }
+    }
+
+    void TestArchive3dVertexMesh()
+    {
+        FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
+        std::string archive_file = "vertex_mesh_3d.arch";
+        ArchiveLocationInfo::SetMeshFilename("vertex_mesh");
+
+        AbstractMesh<3,3>* const p_mesh = ConstructCubeAndPyramidMesh();
+
+        /*
+         * You need the const above to stop a BOOST_STATIC_ASSERTION failure.
+         * This is because the serialization library only allows you to save tracked
+         * objects while the compiler considers them const, to prevent the objects
+         * changing during the save, and so object tracking leading to wrong results.
+         *
+         * E.g. A is saved once via pointer, then changed, then saved again. The second
+         * save notes that A was saved before, so doesn't write its data again, and the
+         * change is lost.
+         */
+
+        // Create an output archive
+        {
+            TS_ASSERT_EQUALS((static_cast<VertexMesh<3,3>*>(p_mesh))->GetNumNodes(), 9u);
+            TS_ASSERT_EQUALS((static_cast<VertexMesh<3,3>*>(p_mesh))->GetNumElements(), 2u);
+            TS_ASSERT_EQUALS((static_cast<VertexMesh<3,3>*>(p_mesh))->GetNumFaces(), 10u);
+
+            // Create output archive
+            ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
+
+            // We have to serialize via a pointer here, or the derived class information is lost
+            (*p_arch) << p_mesh;
+        }
+
+        {
+            // De-serialize and compare
+            AbstractMesh<3,3>* p_mesh2;
+
+            // Create an input archive
+            ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
+            boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
+
+            // Restore from the archive
+            (*p_arch) >> p_mesh2;
+
+            VertexMesh<3,3>* p_mesh_original = static_cast<VertexMesh<3,3>*>(p_mesh2);
+            VertexMesh<3,3>* p_mesh_loaded = static_cast<VertexMesh<3,3>*>(p_mesh);
+
+            // Compare the loaded mesh against the original
+
+            TS_ASSERT_EQUALS(p_mesh_original->GetNumNodes(), p_mesh_loaded->GetNumNodes());
+
+            for (unsigned node_index=0; node_index<p_mesh_original->GetNumNodes(); node_index++)
+            {
+                Node<3>* p_node = p_mesh_original->GetNode(node_index);
+                Node<3>* p_node2 = p_mesh_loaded->GetNode(node_index);
+
+                TS_ASSERT_EQUALS(p_node->IsDeleted(), p_node2->IsDeleted());
+                TS_ASSERT_EQUALS(p_node->GetIndex(), p_node2->GetIndex());
+
+                TS_ASSERT_EQUALS(p_node->IsBoundaryNode(), p_node2->IsBoundaryNode());
+
+                for (unsigned dimension=0; dimension<3; dimension++)
+                {
+                    TS_ASSERT_DELTA(p_node->rGetLocation()[dimension], p_node2->rGetLocation()[dimension], 1e-4);
+                }
+            }
+
+            TS_ASSERT_EQUALS(p_mesh_original->GetNumElements(), p_mesh_loaded->GetNumElements());
+
+            for (unsigned elem_index=0; elem_index < p_mesh_original->GetNumElements(); elem_index++)
+            {
+                TS_ASSERT_EQUALS(p_mesh_original->GetElement(elem_index)->GetNumNodes(),
+                                 p_mesh_loaded->GetElement(elem_index)->GetNumNodes());
+
+///\todo Uncomment once archiving of faces is implemented for 3D vertex meshes (see #1076 and #1377)
+//                TS_ASSERT_EQUALS(p_mesh_original->GetElement(elem_index)->GetNumFaces(),
+//                                 p_mesh_loaded->GetElement(elem_index)->GetNumFaces());
 
                 for (unsigned local_index=0; local_index<p_mesh_original->GetElement(elem_index)->GetNumNodes(); local_index++)
                 {
@@ -1405,47 +1506,54 @@ public:
         TS_ASSERT_EQUALS(voronoi_mesh.GetNumFaces(), 4u);
 
         // Check Voronoi nodes are correct
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[0], 1.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[1], -0.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(0)->rGetLocation()[2], -0.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(1)->rGetLocation()[0], -0.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(1)->rGetLocation()[1], -0.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(1)->rGetLocation()[2], 1.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(2)->rGetLocation()[0], 1.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(2)->rGetLocation()[1], 1.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(2)->rGetLocation()[2], 1.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[0], -0.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[1], 1.25, 1e-6);
-        TS_ASSERT_DELTA(voronoi_mesh.GetNode(3)->rGetLocation()[2], -0.25, 1e-6);
+        c_vector<double, 3> node_0_location = voronoi_mesh.GetNode(0)->rGetLocation();
+        TS_ASSERT_DELTA(node_0_location[0], 1.25, 1e-6);
+        TS_ASSERT_DELTA(node_0_location[1], -0.25, 1e-6);
+        TS_ASSERT_DELTA(node_0_location[2], -0.25, 1e-6);
+
+        c_vector<double, 3> node_1_location = voronoi_mesh.GetNode(1)->rGetLocation();
+        TS_ASSERT_DELTA(node_1_location[0], -0.25, 1e-6);
+        TS_ASSERT_DELTA(node_1_location[1], -0.25, 1e-6);
+        TS_ASSERT_DELTA(node_1_location[2], 1.25, 1e-6);
+
+        c_vector<double, 3> node_2_location = voronoi_mesh.GetNode(2)->rGetLocation();
+        TS_ASSERT_DELTA(node_2_location[0], 1.25, 1e-6);
+        TS_ASSERT_DELTA(node_2_location[1], 1.25, 1e-6);
+        TS_ASSERT_DELTA(node_2_location[2], 1.25, 1e-6);
+
+        c_vector<double, 3> node_3_location = voronoi_mesh.GetNode(3)->rGetLocation();
+        TS_ASSERT_DELTA(node_3_location[0], -0.25, 1e-6);
+        TS_ASSERT_DELTA(node_3_location[1], 1.25, 1e-6);
+        TS_ASSERT_DELTA(node_3_location[2], -0.25, 1e-6);
 
         // Check Voronoi faces are correct
-        VertexElement<2,3>* p_face0 = voronoi_mesh.GetFace(0);
-        TS_ASSERT_EQUALS(p_face0->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(p_face0->GetNodeGlobalIndex(0), 3u);
-        TS_ASSERT_EQUALS(p_face0->GetNodeGlobalIndex(1), 0u);
-        TS_ASSERT_EQUALS(p_face0->GetNodeGlobalIndex(2), 2u);
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face0), 1.125, 1e-4);
+        VertexElement<2,3>* p_face_0 = voronoi_mesh.GetFace(0);
+        TS_ASSERT_EQUALS(p_face_0->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face_0->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(p_face_0->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(p_face_0->GetNodeGlobalIndex(2), 2u);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face_0), 1.125, 1e-4);
 
-        VertexElement<2,3>* p_face1 = voronoi_mesh.GetFace(1);
-        TS_ASSERT_EQUALS(p_face1->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(p_face1->GetNodeGlobalIndex(0), 3u);
-        TS_ASSERT_EQUALS(p_face1->GetNodeGlobalIndex(1), 0u);
-        TS_ASSERT_EQUALS(p_face1->GetNodeGlobalIndex(2), 1u);
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face1), 1.9485, 1e-4);
+        VertexElement<2,3>* p_face_1 = voronoi_mesh.GetFace(1);
+        TS_ASSERT_EQUALS(p_face_1->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face_1->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(p_face_1->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(p_face_1->GetNodeGlobalIndex(2), 1u);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face_1), 1.9485, 1e-4);
 
-        VertexElement<2,3>* p_face2 = voronoi_mesh.GetFace(2);
-        TS_ASSERT_EQUALS(p_face2->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(p_face2->GetNodeGlobalIndex(0), 1u);
-        TS_ASSERT_EQUALS(p_face2->GetNodeGlobalIndex(1), 0u);
-        TS_ASSERT_EQUALS(p_face2->GetNodeGlobalIndex(2), 2u);
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face2), 1.125, 1e-4);
+        VertexElement<2,3>* p_face_2 = voronoi_mesh.GetFace(2);
+        TS_ASSERT_EQUALS(p_face_2->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face_2->GetNodeGlobalIndex(0), 1u);
+        TS_ASSERT_EQUALS(p_face_2->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(p_face_2->GetNodeGlobalIndex(2), 2u);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face_2), 1.125, 1e-4);
 
-        VertexElement<2,3>* p_face3 = voronoi_mesh.GetFace(3);
-        TS_ASSERT_EQUALS(p_face3->GetNumNodes(), 3u);
-        TS_ASSERT_EQUALS(p_face3->GetNodeGlobalIndex(0), 3u);
-        TS_ASSERT_EQUALS(p_face3->GetNodeGlobalIndex(1), 1u);
-        TS_ASSERT_EQUALS(p_face3->GetNodeGlobalIndex(2), 2u);
-        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face3), 1.125, 1e-4);
+        VertexElement<2,3>* p_face_3 = voronoi_mesh.GetFace(3);
+        TS_ASSERT_EQUALS(p_face_3->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face_3->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(p_face_3->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(p_face_3->GetNodeGlobalIndex(2), 2u);
+        TS_ASSERT_DELTA(voronoi_mesh.GetAreaOfFace(p_face_3), 1.125, 1e-4);
 
         // Check Voronoi element is correct
         TS_ASSERT_EQUALS(voronoi_mesh.GetElement(0)->GetNumNodes(), 4u);
