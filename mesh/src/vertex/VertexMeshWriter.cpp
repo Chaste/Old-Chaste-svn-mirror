@@ -92,38 +92,38 @@ std::vector<double> VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 {
     if (mpMesh)
     {
-        if(SPACE_DIM==2) // in 2d Output boundary node info #1076
+        if (SPACE_DIM==2) // in 2D output boundary node info #1076
         {
-			std::vector<double> coords(SPACE_DIM+1);
+            std::vector<double> coords(SPACE_DIM+1);
 
-			assert(this->mNumNodes==mpMesh->GetNumNodes());
+            assert(this->mNumNodes==mpMesh->GetNumNodes());
 
-			// get the node coords using the node iterator (so to skip deleted nodes etc)
-			for (unsigned j=0; j<SPACE_DIM; j++)
-			{
-				coords[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
-			}
-			coords[SPACE_DIM] = (*(mpIters->pNodeIter))->IsBoundaryNode();
+            // get the node coords using the node iterator (so to skip deleted nodes etc)
+            for (unsigned j=0; j<SPACE_DIM; j++)
+            {
+                coords[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
+            }
+            coords[SPACE_DIM] = (*(mpIters->pNodeIter))->IsBoundaryNode();
 
-			++(*(mpIters->pNodeIter));
+            ++(*(mpIters->pNodeIter));
 
-			return coords;
+            return coords;
         }
         else
         {
-			std::vector<double> coords(SPACE_DIM);
+            std::vector<double> coords(SPACE_DIM);
 
-			assert(this->mNumNodes==mpMesh->GetNumNodes());
+            assert(this->mNumNodes==mpMesh->GetNumNodes());
 
-			// get the node coords using the node iterator (so to skip deleted nodes etc)
-			for (unsigned j=0; j<SPACE_DIM; j++)
-			{
-				coords[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
-			}
+            // get the node coords using the node iterator (so to skip deleted nodes etc)
+            for (unsigned j=0; j<SPACE_DIM; j++)
+            {
+                coords[j] = (*(mpIters->pNodeIter))->GetPoint()[j];
+            }
 
-			++(*(mpIters->pNodeIter));
+            ++(*(mpIters->pNodeIter));
 
-			return coords;
+            return coords;
         }
     }
     else
@@ -146,7 +146,7 @@ ElementData VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNextElement()
             unsigned old_index = (*(mpIters->pElemIter))->GetNodeGlobalIndex(j);
             elem_data.NodeIndices[j] = mpMesh->IsMeshChanging() ? mpNodeMap->GetNewIndex(old_index) : old_index;
         }
-// \todo: set attribute (#1076)
+        ///\todo: set attribute (#1076)
 
         ++(*(mpIters->pElemIter));
 
@@ -180,10 +180,10 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteVtkUsingMesh(VertexMesh<ELEM
     }
 
     mpVtkUnstructedMesh->SetPoints(p_pts);
-    p_pts->Delete(); //Reference counted
+    p_pts->Delete(); // Reference counted
     for (typename VertexMesh<ELEMENT_DIM,SPACE_DIM>::VertexElementIterator iter = rMesh.GetElementIteratorBegin();
-             iter != rMesh.GetElementIteratorEnd();
-             ++iter)
+         iter != rMesh.GetElementIteratorEnd();
+         ++iter)
     {
         vtkCell* p_cell;
         if (SPACE_DIM == 2)
@@ -323,13 +323,13 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
         {
             *p_node_file << "\t" << current_item[i];
         }
-        if (SPACE_DIM==2)  // in 2d Output boundary node info #1076
+        if (SPACE_DIM==2)  // in 2D output boundary node info #1076
         {
-        	*p_node_file << "\t" << current_item[SPACE_DIM] << "\n";
+            *p_node_file << "\t" << current_item[SPACE_DIM] << "\n";
         }
         else
         {
-        	*p_node_file << "\t" << default_marker << "\n";
+            *p_node_file << "\t" << default_marker << "\n";
         }
 
     }

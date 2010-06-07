@@ -96,17 +96,17 @@ protected:
      * Pointer to a VertexMesh object that stores the Voronoi tessellation that is dual to
      * mrMesh. The tessellation is created by calling CreateVoronoiTessellation() and can
      * be accessed by calling GetVoronoiTessellation().
-     * 
+     *
      * The tessellation can be used to compute the area and perimeter (in 2D) or volume and
      * surface area (in 3D) of the Voronoi element corresponding to each node in the Delaunay
      * mesh (including ghost nodes) by calling the methods GetVolumeOfVoronoiElement() and
-     * GetSurfaceAreaOfVoronoiElement() respectively. Each of these methods should be called 
-     * rather than the relevant method on the VertexMesh. This is because the index of a given 
-     * Node in mrMesh may not equal the index of the corresponding VertexElement in 
-     * mpVoronoiTessellation; a map between these indices may be accessed by calling the methods 
+     * GetSurfaceAreaOfVoronoiElement() respectively. Each of these methods should be called
+     * rather than the relevant method on the VertexMesh. This is because the index of a given
+     * Node in mrMesh may not equal the index of the corresponding VertexElement in
+     * mpVoronoiTessellation; a map between these indices may be accessed by calling the methods
      * GetDelaunayNodeIndexCorrespondingToVoronoiElementIndex()
      * and GetVoronoiElementIndexCorrespondingToDelaunayNodeIndex() on mpVoronoiTessellation.
-     * 
+     *
      * \todo Make this static/const? (#1075)
      */
     VertexMesh<DIM, DIM>* mpVoronoiTessellation;
@@ -242,7 +242,7 @@ public:
 
     /**
      * Set method for mWriteTissueVolumes.
-     * 
+     *
      * \todo Extend this to 3D (possibly rename to SetOutputTissueVolumes?) - see also #738
      *
      * @param writeTissueVolumes  whether to output tissue area data

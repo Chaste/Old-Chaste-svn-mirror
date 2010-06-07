@@ -103,7 +103,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Subclass of AbstractCellMutationState defining an apoptotic mutation state.
- * 
+ *
  * \todo Fixing this is part of #1285.
  */
 class ApoptoticCellMutationState : public AbstractCellMutationState

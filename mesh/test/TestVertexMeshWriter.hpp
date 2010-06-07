@@ -110,7 +110,8 @@ public:
 
     void TestMeshVtkMeshWriter3D() throw(Exception)
     {
-        // Create 3D mesh \TODO even though nodes are marked as boundary nodes they are not saved in 3D #1076
+        // Create 3D mesh
+        ///\todo even though nodes are marked as boundary nodes they are not saved in 3D #1076
         std::vector<Node<3>*> nodes;
         nodes.push_back(new Node<3>(0, true, 0.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(1, true, 1.0, 0.0, 0.0));

@@ -235,7 +235,7 @@ public:
     /**
      * Alternative 2D 'Voronoi' constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
      * which must be Delaunay (see TetrahedralMesh::CheckIsVoronoi).
-     * 
+     *
      * \todo Merge with 3D Voronoi constructor? (#1075)
      *
      * @param rMesh a tetrahedral mesh
@@ -247,7 +247,7 @@ public:
      * which must be Delaunay (see TetrahedralMesh::CheckIsVoronoi).
      *
      * \todo Merge with 2D Voronoi constructor? (#1075)
-     * 
+     *
      * @param rMesh a tetrahedral mesh
      */
     VertexMesh(TetrahedralMesh<3,3>& rMesh);
@@ -511,7 +511,7 @@ public:
 
     /**
      * A smart iterator over the elements in the mesh.
-     * 
+     *
      * \todo This is the same as in AbstractTetrahedralMesh - merge? (#1379)
      */
     class VertexElementIterator

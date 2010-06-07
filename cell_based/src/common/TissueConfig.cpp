@@ -81,10 +81,10 @@ TissueConfig::TissueConfig()
  * mMeinekeDivisionSeparation has units of cell size at equilibrium rest length
  * mMatureCellTargetArea has no units
  * mNagaiHondaDeformationEnergyParameter has units of kg s^-2 (cell size at equilibrium rest length)^-1
- * mNagaiHondaMembraneSurfaceEnergyParameter units of kg (cell size at equilibrium rest length) s^-2 
- * mNagaiHondaCellCellAdhesionEnergyParameter has units of kg (cell size at equilibrium rest length)^2 s^-2 
- * mNagaiHondaCellBoundaryAdhesionEnergyParameter units of kg (cell size at equilibrium rest length)^2 s^-2 
- * mWelikyOsterAreaParameter has units of kg (cell size at equilibrium rest length)^2 s^-2 
+ * mNagaiHondaMembraneSurfaceEnergyParameter units of kg (cell size at equilibrium rest length) s^-2
+ * mNagaiHondaCellCellAdhesionEnergyParameter has units of kg (cell size at equilibrium rest length)^2 s^-2
+ * mNagaiHondaCellBoundaryAdhesionEnergyParameter units of kg (cell size at equilibrium rest length)^2 s^-2
+ * mWelikyOsterAreaParameter has units of kg (cell size at equilibrium rest length)^2 s^-2
  * mWelikyOsterPerimeterParameter has units of kg s^-2 (cell size at equilibrium rest length)^-1
  */
 void TissueConfig::Reset()

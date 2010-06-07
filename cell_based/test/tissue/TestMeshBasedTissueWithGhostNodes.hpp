@@ -714,7 +714,7 @@ public:
 
                 TissueCell cell(p_state, p_model);
                 cell.SetBirthTime(-1.0);
-                
+
                 cells.push_back(cell);
                 location_indices.push_back(node_index);
             }

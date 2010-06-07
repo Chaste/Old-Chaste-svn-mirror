@@ -811,22 +811,22 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVolumeOfElement(unsigned index)
     if (SPACE_DIM == 2)
     {
         c_vector<double, SPACE_DIM> first_node = p_element->GetNodeLocation(0);
-    
+
         unsigned num_nodes_in_element = p_element->GetNumNodes();
-    
+
         for (unsigned local_index=0; local_index<num_nodes_in_element; local_index++)
         {
             // Find locations of current node and anticlockwise node
             c_vector<double, SPACE_DIM> current_node = p_element->GetNodeLocation(local_index);
             c_vector<double, SPACE_DIM> anticlockwise_node = p_element->GetNodeLocation((local_index+1)%num_nodes_in_element);
-    
+
             /*
              * In order to calculate the area we map the origin to (x[0],y[0])
              * then use GetVectorFromAtoB() to get node cooordiantes
              */
             c_vector<double, SPACE_DIM> transformed_current_node = GetVectorFromAtoB(first_node, current_node);
             c_vector<double, SPACE_DIM> transformed_anticlockwise_node = GetVectorFromAtoB(first_node, anticlockwise_node);
-    
+
             element_volume += 0.5*(transformed_current_node[0]*transformed_anticlockwise_node[1]
                                    - transformed_anticlockwise_node[0]*transformed_current_node[1]);
         }
@@ -842,14 +842,14 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetVolumeOfElement(unsigned index)
 
             // Get unit normal to this face
             c_vector<double, SPACE_DIM> unit_normal = GetUnitNormalToFace(p_face);
-    
+
             // Calculate the perpendicular distance from the plane of the face to the chosen apex
             c_vector<double, SPACE_DIM> base_to_apex = GetVectorFromAtoB(p_face->GetNodeLocation(0), pyramid_apex);
             double perpendicular_distance = inner_prod(base_to_apex, unit_normal);
-    
+
             // Calculate the area of the face
             double face_area = GetAreaOfFace(p_face);
-    
+
             // Use these to calculate the volume of the pyramid formed by the face and the point pyramid_apex
             element_volume += face_area * perpendicular_distance / 3;
         }
@@ -875,7 +875,7 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetSurfaceAreaOfElement(unsigned inde
             // Find locations of current node and anticlockwise node
             unsigned current_node_index = p_element->GetNodeGlobalIndex(local_index);
             unsigned anticlockwise_node_index = p_element->GetNodeGlobalIndex((local_index+1)%num_nodes_in_element);
-    
+
             surface_area += this->GetDistanceBetweenNodes(current_node_index, anticlockwise_node_index);
         }
     }

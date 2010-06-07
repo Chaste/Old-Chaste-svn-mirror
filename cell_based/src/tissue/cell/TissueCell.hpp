@@ -130,7 +130,7 @@ public:
 
     /**
      * Create a new tissue cell.
-     * 
+     *
      * @param pMutationState the mutation state of the cell
      * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.

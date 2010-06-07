@@ -465,7 +465,7 @@ public:
 
         // Create tissue
         MeshBasedTissue<2> tissue2d(mesh2d, cells2d);
-        
+
         // Create Voronoi tessellation
         tissue2d.CreateVoronoiTessellation();
 

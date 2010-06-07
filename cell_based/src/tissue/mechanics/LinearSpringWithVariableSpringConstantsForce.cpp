@@ -163,7 +163,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     {
         bool cell_A_is_apoptotic = r_cell_A.GetMutationState()->IsType<ApoptoticCellMutationState>();
         bool cell_B_is_apoptotic = r_cell_B.GetMutationState()->IsType<ApoptoticCellMutationState>();
-        
+
         if (cell_A_is_apoptotic || cell_B_is_apoptotic)
         {
             double spring_a_stiffness = 2.0 * p_config->GetMeinekeSpringStiffness();

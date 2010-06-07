@@ -220,7 +220,7 @@ public:
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(DIFFERENTIATED);
-            
+
             TissueCell cell(p_state, p_model);
             cell.SetBirthTime(-1.0);
 
@@ -373,12 +373,12 @@ public:
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(TRANSIT);
-            
+
             TissueCell cell(p_state, p_model);
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
                                                +p_params->GetSG2MDuration());
-            
+
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }

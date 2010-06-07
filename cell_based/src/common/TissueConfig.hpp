@@ -170,21 +170,21 @@ public:
      */
     double GetAreaBasedDampingConstantParameter();
     /**
-	 * @return mMeinekeSpringStiffness
-	 */
-	double GetMeinekeSpringStiffness();
-	/**
-	 * @return mMeinekeMechanicsCutOffLength
-	 */
-	double GetMeinekeMechanicsCutOffLength();
-	/**
-	 * @return mMeinekeDivisionRestingSpringLength
-	 */
-	double GetMeinekeDivisionRestingSpringLength();
-	/**
-	 * @return mMeinekeDivisionSeparation
-	 */
-	double GetMeinekeDivisionSeparation();
+     * @return mMeinekeSpringStiffness
+     */
+    double GetMeinekeSpringStiffness();
+    /**
+     * @return mMeinekeMechanicsCutOffLength
+     */
+    double GetMeinekeMechanicsCutOffLength();
+    /**
+     * @return mMeinekeDivisionRestingSpringLength
+     */
+    double GetMeinekeDivisionRestingSpringLength();
+    /**
+     * @return mMeinekeDivisionSeparation
+     */
+    double GetMeinekeDivisionSeparation();
     /**
      * @return mMatureCellTargetArea
      */
@@ -375,21 +375,21 @@ public:
      */
     void SetAreaBasedDampingConstantParameter(double);
     /**
-	* Set mMeinekeSpringStiffness.
-	*/
-	void SetMeinekeSpringStiffness(double);
-	/**
-	 * Set mMeinekeMechanicsCutOffLength.
-	 */
-	void SetMeinekeMechanicsCutOffLength(double);
-	/**
-	 * Set mMeinekeDivisionRestingSpringLength.
-	 */
-	void SetMeinekeDivisionRestingSpringLength(double);
-	/**
-	 * Set mMeinekeDivisionSeparation.
-	 */
-	void SetMeinekeDivisionSeparation(double);
+    * Set mMeinekeSpringStiffness.
+    */
+    void SetMeinekeSpringStiffness(double);
+    /**
+     * Set mMeinekeMechanicsCutOffLength.
+     */
+    void SetMeinekeMechanicsCutOffLength(double);
+    /**
+     * Set mMeinekeDivisionRestingSpringLength.
+     */
+    void SetMeinekeDivisionRestingSpringLength(double);
+    /**
+     * Set mMeinekeDivisionSeparation.
+     */
+    void SetMeinekeDivisionSeparation(double);
     /**
      * Set mMatureCellTargetArea.
      */
@@ -654,31 +654,31 @@ private:
     double mAreaBasedDampingConstantParameter;
 
     /**
-	* Spring stiffness.
-	*
-	* Represented by the parameter mu in the model by Meineke et al (2001) in
-	* their off-lattice model of the intestinal crypt
-	* (doi:10.1046/j.0960-7722.2001.00216.x).
-	*/
-	double mMeinekeSpringStiffness;
+    * Spring stiffness.
+    *
+    * Represented by the parameter mu in the model by Meineke et al (2001) in
+    * their off-lattice model of the intestinal crypt
+    * (doi:10.1046/j.0960-7722.2001.00216.x).
+    */
+    double mMeinekeSpringStiffness;
 
-	/**
-	 * Mechanics cut off length.
-	 * Used in NodeBasedTissue.
-	 */
-	double mMeinekeMechanicsCutOffLength;
+    /**
+     * Mechanics cut off length.
+     * Used in NodeBasedTissue.
+     */
+    double mMeinekeMechanicsCutOffLength;
 
-	/**
-	 * Initial separation placement of mother/daughter cells at birth
-	 */
-	double mMeinekeDivisionSeparation;
+    /**
+     * Initial separation placement of mother/daughter cells at birth
+     */
+    double mMeinekeDivisionSeparation;
 
-	/**
-	 * Initial resting spring length after cell division.
-	 * The value of this parameter should be larger than mDivisionSeparation,
-	 * because of pressure from neighbouring springs.
-	 */
-	double mMeinekeDivisionRestingSpringLength;
+    /**
+     * Initial resting spring length after cell division.
+     * The value of this parameter should be larger than mDivisionSeparation,
+     * because of pressure from neighbouring springs.
+     */
+    double mMeinekeDivisionRestingSpringLength;
 
     /**
      * Non-dimensional target area of a mature (fully-grown) TissueCell.

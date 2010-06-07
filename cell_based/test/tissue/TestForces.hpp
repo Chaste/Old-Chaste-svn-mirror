@@ -487,7 +487,7 @@ public:
             p_model->SetCellProliferativeType(DIFFERENTIATED);
 
             TissueCell cell(p_state, p_model);
-            
+
             double birth_time = 0.0 - node_index;
             cell.SetBirthTime(birth_time);
 
