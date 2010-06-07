@@ -103,7 +103,7 @@ public:
         TS_ASSERT( !(iter != empty_mesh.GetElementIteratorEnd()) );
     }
 
-    void TestMeshConstructionFromMeshReader()
+    void TestMeshConstructionFromMeshReader() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         TetrahedralMesh<2,2> mesh;
@@ -129,7 +129,7 @@ public:
         TS_ASSERT_EQUALS(mesh.IsMeshChanging(), false);
     }
 
-    void TestMeshConstructionFromMeshReaderIndexedFromOne()
+    void TestMeshConstructionFromMeshReaderIndexedFromOne() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements_indexed_from_1");
         TetrahedralMesh<2,2> mesh;
@@ -153,7 +153,7 @@ public:
         TS_ASSERT_EQUALS(iter->GetNode(1), mesh.GetNode(144));
     }
 
-    void Test3dMeshConstructionFromMeshReader()
+    void Test3dMeshConstructionFromMeshReader() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 51u);
@@ -188,7 +188,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(19)->GetPoint()[2], 0.0, 1e-6);
     }
 
-    void Test3dMeshConstructionFromMeshReader2()
+    void Test3dMeshConstructionFromMeshReader2() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 425u);
@@ -205,7 +205,7 @@ public:
     }
 
 
-    void TestMeshWithBoundaryElements()
+    void TestMeshWithBoundaryElements() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         TetrahedralMesh<2,2> mesh;
@@ -228,7 +228,7 @@ public:
         TS_ASSERT( mesh.CheckIsConforming() );
     }
 
-    void Test1DClosedMeshIn2DSpace()
+    void Test1DClosedMeshIn2DSpace() throw(Exception)
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/circle_outline");
         TetrahedralMesh<1,2> mesh;
@@ -240,7 +240,7 @@ public:
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0u);
     }
 
-    void Test1DMeshIn2DSpace()
+    void Test1DMeshIn2DSpace() throw(Exception)
     {
         TrianglesMeshReader<1,2> mesh_reader("mesh/test/data/semicircle_outline");
         TetrahedralMesh<1,2> mesh;
@@ -264,7 +264,7 @@ public:
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 3u);
     }
 
-    void Test2DClosedMeshIn3DSpace()
+    void Test2DClosedMeshIn3DSpace() throw(Exception)
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/slab_395_elements");
         TetrahedralMesh<2,3> mesh;
@@ -275,7 +275,7 @@ public:
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0u);
     }
 
-    void Test2DMeshIn3DSpace()
+    void Test2DMeshIn3DSpace() throw(Exception)
     {
         TrianglesMeshReader<2,3> mesh_reader("mesh/test/data/disk_in_3d");
         TetrahedralMesh<2,3> mesh;
@@ -293,7 +293,7 @@ public:
     }
 
 
-    void Test1DMeshCrossReference()
+    void Test1DMeshCrossReference() throw(Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         TetrahedralMesh<1,1> mesh;
@@ -352,7 +352,7 @@ public:
         TS_ASSERT_EQUALS(++elt_iter, p_node2->ContainingElementsEnd());
     }
 
-    void Test2DMeshCrossReference()
+    void Test2DMeshCrossReference() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         TetrahedralMesh<2,2> mesh;
@@ -405,7 +405,7 @@ public:
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(1), 0u);
     }
 
-    void Test3DMeshCrossReference()
+    void Test3DMeshCrossReference() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         TetrahedralMesh<3,3> mesh;
@@ -451,7 +451,7 @@ public:
         TS_ASSERT_EQUALS(p_boundary_element->GetNodeGlobalIndex(2), 10u);
     }
 
-    void TestCalculateDesignatedOwnership()
+    void TestCalculateDesignatedOwnership() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         TetrahedralMesh<3,3> mesh;
@@ -483,7 +483,7 @@ public:
 
     }
 
-    void TestNodePermutation()
+    void TestNodePermutation() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
         TetrahedralMesh<3,3> mesh;
@@ -526,7 +526,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
 
-    void TestConstructRectangleStagger()
+    void TestConstructRectangleStagger() throw(Exception)
     {
         TetrahedralMesh<2,2> mesh;
         unsigned width = 38;
@@ -594,7 +594,7 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
 
-    void TestConstructRectangleNoStagger()
+    void TestConstructRectangleNoStagger() throw(Exception)
     {
         TetrahedralMesh<2,2> mesh;
         unsigned width = 38;
@@ -657,13 +657,13 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
 
-    void TestConstruct1x1RectangularMesh()
+    void TestConstruct1x1RectangularMesh() throw(Exception)
     {
         TetrahedralMesh<2,2> rect_mesh;
         rect_mesh.ConstructRectangularMesh(1, 1, false);
     }
 
-    void TestConstructLine()
+    void TestConstructLine() throw(Exception)
     {
         TetrahedralMesh<1,1> mesh;
         unsigned width = 39;
@@ -681,7 +681,7 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
 
-    void TestConstructLineIn3D()
+    void TestConstructLineIn3D() throw(Exception)
     {
         TetrahedralMesh<1,3> mesh;
         unsigned width = 39;
@@ -698,7 +698,7 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
 
-    void TestSetOwnerships()
+    void TestSetOwnerships() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         TetrahedralMesh<2,2> mesh;
@@ -733,7 +733,7 @@ public:
         }
     }
 
-    void TestOutwardNormal3D()
+    void TestOutwardNormal3D() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> mesh;
@@ -752,7 +752,7 @@ public:
         }
     }
 
-    void TestConstructCuboid()
+    void TestConstructCuboid() throw(Exception)
     {
         TetrahedralMesh<3,3> mesh;
         unsigned width = 7;
@@ -816,7 +816,7 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
 
-    void TestPermute()
+    void TestPermute() throw(Exception)
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> mesh;
@@ -917,7 +917,7 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh2);
     }
 
-    void TestClear()
+    void TestClear() throw(Exception)
     {
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(2,3);
@@ -935,7 +935,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), 0u);
     }
 
-    void TestUnflagAllElements()
+    void TestUnflagAllElements() throw(Exception)
     {
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(1,1);
@@ -952,7 +952,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(1)->IsFlagged(), false);
     }
 
-    void TestCalculateBoundaryOfFlaggedRegion()
+    void TestCalculateBoundaryOfFlaggedRegion() throw(Exception)
     {
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(3,3);
@@ -978,7 +978,7 @@ public:
         TS_ASSERT_EQUALS(correct_boundary, boundary);
     }
 
-    void TestFlagElementsNotContainingNodes()
+    void TestFlagElementsNotContainingNodes() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         TetrahedralMesh<2,2> mesh;
@@ -996,7 +996,7 @@ public:
         TS_ASSERT_EQUALS( mesh.GetElement(3)->IsFlagged(), true);
     }
 
-    void TestCalculateBoundaryOfFlaggedRegion3D()
+    void TestCalculateBoundaryOfFlaggedRegion3D() throw(Exception)
     {
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(4,4,4);
@@ -1082,7 +1082,7 @@ public:
         TS_ASSERT_DELTA(norm_2(vector), sqrt(21.0), 1e-7);
     }
 
-    void TestMeshGetWidthAndWidthExtremesMethod()
+    void TestMeshGetWidthAndWidthExtremesMethod() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         TetrahedralMesh<2,2> mesh;
@@ -1103,7 +1103,7 @@ public:
         TS_ASSERT_DELTA(height_extremes[1], 1, 1e-6);
     }
 
-    void TestPointWeightsInElement1D()
+    void TestPointWeightsInElement1D() throw(Exception)
     {
         std::vector<Node<1>*> nodes1d;
         nodes1d.push_back(new Node<1>(0, false, 2.0));
@@ -1132,7 +1132,7 @@ public:
         delete nodes1d[1];
     }
 
-    void TestPointInElement1D()
+    void TestPointInElement1D() throw(Exception)
     {
         std::vector<Node<1>*> nodes1d;
         nodes1d.push_back(new Node<1>(0, false, 2.0));
@@ -1152,7 +1152,7 @@ public:
         delete nodes1d[1];
     }
 
-    void TestPointinMesh1D()
+    void TestPointinMesh1D() throw(Exception)
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
@@ -1180,7 +1180,7 @@ public:
         TS_ASSERT_EQUALS(indices[1], 2u);
     }
 
-    void TestPointWeightsAndInclusion2D()
+    void TestPointWeightsAndInclusion2D() throw(Exception)
     {
         std::vector<Node<2>*> nodes2d;
         nodes2d.push_back(new Node<2>(0, false, 0.0, 0.0));
@@ -1227,7 +1227,7 @@ public:
         delete nodes2d[2];
     }
 
-    void TestPointinMesh2D()
+    void TestPointinMesh2D() throw(Exception)
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_1mm_200_elements");
@@ -1270,7 +1270,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNearestElementIndexFromTestElements(point1, test_elements), 110u);
     }
 
-    void TestPointInElement3D()
+    void TestPointInElement3D() throw(Exception)
     {
         std::vector<Node<3>*> nodes3d;
         nodes3d.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
@@ -1336,7 +1336,7 @@ public:
         delete nodes3d[3];
     }
 
-    void TestPointinMesh3D()
+    void TestPointinMesh3D() throw(Exception)
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements");
@@ -1396,7 +1396,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point1,false,suggested_elements), 2992u);
     }
 
-    void TestFloatingPointIn3D()
+    void TestFloatingPointIn3D() throw(Exception)
     {
         // There's some weird failing behaviour in the refined mesh test.
         // This test duplicates it.
@@ -1421,7 +1421,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetContainingElementIndex(point_on_edge6), 142u);
     }
 
-    void TestGetAngleBetweenNodes()
+    void TestGetAngleBetweenNodes() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
         TetrahedralMesh<2,2> mesh;
@@ -1543,7 +1543,7 @@ public:
         }
     }
 
-    void TestCuboidMeshConstructors()
+    void TestCuboidMeshConstructors() throw(Exception)
     {
         CuboidMeshConstructor<1> constructor1;
         TetrahedralMesh<1,1> mesh1;
@@ -1568,7 +1568,7 @@ public:
         TS_ASSERT_EQUALS(mesh4.GetNumNodes(), 9u);
     }
 
-    void TestMeshStoresFilename()
+    void TestMeshStoresFilename() throw(Exception)
     {
         TetrahedralMesh<3,3> mesh;
         {
@@ -1586,8 +1586,50 @@ public:
 
         TS_ASSERT_THROWS_THIS(cuboid_mesh.GetMeshFileBaseName(),"This mesh was not constructed from a file.");
     }
+    
+    void TestGetExtremes() throw(Exception)
+    {
+        TetrahedralMesh<1,1> mesh1d;
+        mesh1d.ConstructLinearMesh(3);
+        c_vector<double,2> extremes1d = mesh1d.GetExtremes();
+        TS_ASSERT_DELTA(extremes1d[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes1d[1], 3.0, 1e-12);
+        
+        mesh1d.GetNode(0)->rGetModifiableLocation()[0] = -0.1;
+        mesh1d.Scale(0.5);
+        extremes1d = mesh1d.GetExtremes();
+        TS_ASSERT_DELTA(extremes1d[0], -0.05, 1e-12);
+        TS_ASSERT_DELTA(extremes1d[1], 1.5, 1e-12);
+        
+        TetrahedralMesh<2,2> mesh2d;
+        mesh2d.ConstructRectangularMesh(2,2);
+        c_vector<double,4> extremes2d = mesh2d.GetExtremes();
+        TS_ASSERT_DELTA(extremes2d[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d[1], 2.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d[2], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d[3], 2.0, 1e-12);
 
-    void TestArchiving()
+        mesh2d.Rotate(-M_PI/2);
+        mesh2d.Scale(2.0,3.0);
+        extremes2d = mesh2d.GetExtremes();
+        TS_ASSERT_DELTA(extremes2d[0],-4.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d[1], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d[2], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d[3], 6.0, 1e-12);
+        
+        TetrahedralMesh<3,3> mesh3d;
+        mesh3d.ConstructCuboid(4,5,6);
+        c_vector<double,6> extremes3d = mesh3d.GetExtremes();
+        TS_ASSERT_DELTA(extremes3d[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes3d[1], 4.0, 1e-12);
+        TS_ASSERT_DELTA(extremes3d[2], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes3d[3], 5.0, 1e-12);
+        TS_ASSERT_DELTA(extremes3d[4], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes3d[5], 6.0, 1e-12);        
+    }
+        
+    
+    void TestArchiving() throw(Exception)
     {
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
         std::string archive_file = "tetrahedral_mesh.arch";

@@ -184,6 +184,16 @@ public:
      */
     void PermuteNodes(const std::vector<unsigned>& perm);
 
+    /** 
+     *  Get the minimum and maximum x, y and z values.
+     *  @return a c_vector of size 2*SPACE_DIM, with entries [xmin xmax] in 1D, [xmin xmax ymin ymax] in 2D
+     *  and [xmin xmax ymin ymax zmin zmax] in 3D.
+     *  ///\todo: this can easily be made parallel and moved into AbstractMesh when needed.
+     */
+    c_vector<double,2*SPACE_DIM> GetExtremes();
+    
+
+
     /**
      * Return the element index for the first element that contains a test point
      *

@@ -52,12 +52,12 @@ public:
         //TS_ASSERT_EQUALS(mesh_pair.mIdenticalMeshes, false);
 
         // check min values on fine mesh have been computed correctly
-        TS_ASSERT_DELTA(mesh_pair.mMinValuesFine(0), 0.0, 1e-8);
-        TS_ASSERT_DELTA(mesh_pair.mMinValuesFine(1), 0.0, 1e-8);
-        TS_ASSERT_DELTA(mesh_pair.mMinValuesFine(2), 0.0, 1e-8);
-        TS_ASSERT_DELTA(mesh_pair.mMaxValuesFine(0), 1.0, 1e-8);
-        TS_ASSERT_DELTA(mesh_pair.mMaxValuesFine(1), 1.0, 1e-8);
-        TS_ASSERT_DELTA(mesh_pair.mMaxValuesFine(2), 1.0, 1e-8);
+        TS_ASSERT_DELTA(mesh_pair.mMinMaxValuesInFineMesh(0), 0.0, 1e-8);
+        TS_ASSERT_DELTA(mesh_pair.mMinMaxValuesInFineMesh(1), 1.0, 1e-8);
+        TS_ASSERT_DELTA(mesh_pair.mMinMaxValuesInFineMesh(2), 0.0, 1e-8);
+        TS_ASSERT_DELTA(mesh_pair.mMinMaxValuesInFineMesh(3), 1.0, 1e-8);
+        TS_ASSERT_DELTA(mesh_pair.mMinMaxValuesInFineMesh(4), 0.0, 1e-8);
+        TS_ASSERT_DELTA(mesh_pair.mMinMaxValuesInFineMesh(5), 1.0, 1e-8);
 
         mesh_pair.SetUpBoxesOnFineMesh(0.3);
 
@@ -352,6 +352,44 @@ public:
         for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
         {
             TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 0u);
+        }
+    }
+
+    
+    void TestComputeCoarseElementsForFineElementCentroids() throw(Exception)
+    {
+        TetrahedralMesh<2,2> fine_mesh;
+        fine_mesh.ConstructRectangularMesh(5,5);
+        fine_mesh.Scale(0.2, 0.2);
+
+        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1); // 2 triangular elements
+
+        FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
+        
+        mesh_pair.ComputeCoarseElementsForFineElementCentroids();
+        TS_ASSERT_EQUALS( mesh_pair.rGetCoarseElementsForFineElementCentroids().size(), fine_mesh.GetNumElements());
+        for(unsigned i=0; i<fine_mesh.GetNumElements(); i++)
+        {
+            double x = fine_mesh.GetElement(i)->CalculateCentroid()(0);
+            double y = fine_mesh.GetElement(i)->CalculateCentroid()(1);
+            if(x+y < 1.0) 
+            {
+                TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineElementCentroids()[i], 0u);
+            }
+            else
+            {
+                TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineElementCentroids()[i], 1u);
+            }
+        }
+
+        // translate the fine mesh to somewhere far away in (-1, -1) direction --> all
+        // fine elements nearest to (not contained in) coarse element 0 
+        fine_mesh.Translate(-10, -10);
+        mesh_pair.ComputeCoarseElementsForFineElementCentroids();
+        TS_ASSERT_EQUALS( mesh_pair.rGetCoarseElementsForFineElementCentroids().size(), fine_mesh.GetNumElements());
+        for(unsigned i=0; i<fine_mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS( mesh_pair.rGetCoarseElementsForFineElementCentroids()[i], 0u);
         }
     }
 

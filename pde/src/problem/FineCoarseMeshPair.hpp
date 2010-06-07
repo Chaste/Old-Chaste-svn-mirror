@@ -65,10 +65,10 @@ private:
     /** Coarse mesh (usually be a quadratic mesh) */
     QuadraticMesh<DIM>& mrCoarseMesh;
 
-    /** The min values of the nodes, for each dimension, in the fine mesh, for creating the boxes */
-    c_vector<double,DIM> mMinValuesFine;
-    /** The max values of the nodes, for each dimension, in the fine mesh, for creating the boxes */
-    c_vector<double,DIM> mMaxValuesFine;
+    /** The min and maximum values of the nodes, for each dimension, in the fine mesh, for creating the boxes */
+    c_vector<double,2*DIM> mMinMaxValuesInFineMesh;
+   // /** The max values of the nodes, for each dimension, in the fine mesh, for creating the boxes */
+   // c_vector<double,DIM> mMaxValuesFine;
 
     /** Boxes on the fine mesh domain, for easier determination of containing element for a given point */
     BoxCollection<DIM>* mpFineMeshBoxCollection;
@@ -99,10 +99,17 @@ private:
 
 
     /**  
-     *  The elements in the coarse mesh that each fine mesh node is contained in (or nearest to).
+     *  The element in the coarse mesh that each fine mesh node is contained in (or nearest to).
      *  ComputeCoarseElementsForFineNodes() needs to be called for this to be set up.
      */
     std::vector<unsigned> mCoarseElementsForFineNodes;
+    
+    /** 
+     *  The element in the coarse mesh that each fine element centroid is contained in (or nearest to).
+     *  ComputeCoarseElementsForFineElementCentroids() needs to be called for this to be set up.
+     */
+    std::vector<unsigned> mCoarseElementsForFineElementCentroids;
+    
 
 public:
     /** Constructor sets up domain size
@@ -158,6 +165,11 @@ public:
      *  Compute the element in the coarse mesh that each fine mesh node is contained in (or nearest to)
      */
     void ComputeCoarseElementsForFineNodes();
+    
+    /** 
+     *  Compute the element in the coarse mesh that each fine element centroid node is contained in (or nearest to)
+     */
+    void ComputeCoarseElementsForFineElementCentroids();
 
     /**
      * @return  A reference to the elements/weights information
@@ -176,6 +188,16 @@ public:
     {
         assert(mCoarseElementsForFineNodes.size()>0);
         return mCoarseElementsForFineNodes;
+    }
+
+    /** 
+     *  Get the elements in the coarse mesh that each fine mesh element centroid is contained in (or nearest to).
+     *  ComputeCoarseElementsForFineElementCentroids() needs to be called before calling this.
+     */
+    std::vector<unsigned>& rGetCoarseElementsForFineElementCentroids()
+    {
+        assert(mCoarseElementsForFineElementCentroids.size()>0);
+        return mCoarseElementsForFineElementCentroids;
     }
 
     /**

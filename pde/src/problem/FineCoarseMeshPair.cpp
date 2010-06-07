@@ -36,27 +36,7 @@ FineCoarseMeshPair<DIM>::FineCoarseMeshPair(TetrahedralMesh<DIM,DIM>& rFineMesh,
       mrCoarseMesh(rCoarseMesh)
 {
     // compute min and max values for the fine mesh nodes
-    for(unsigned j=0; j<DIM; j++)
-    {
-        double min = 1e200;
-        double max = -1e200;
-
-        for(unsigned i=0; i<mrFineMesh.GetNumNodes(); i++)
-        {
-            if( mrFineMesh.GetNode(i)->rGetLocation()[j] < min)
-            {
-                min = mrFineMesh.GetNode(i)->rGetLocation()[j];
-            }
-
-            if( mrFineMesh.GetNode(i)->rGetLocation()[j] > max)
-            {
-                max = mrFineMesh.GetNode(i)->rGetLocation()[j];
-            }
-        }
-
-        mMinValuesFine(j) = min;
-        mMaxValuesFine(j) = max;
-    }
+    mMinMaxValuesInFineMesh = mrFineMesh.GetExtremes();
 
     mpFineMeshBoxCollection = NULL;
     mCounters.resize(4,0);
@@ -94,11 +74,13 @@ template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
 {
     // set up the boxes. Use a domain which is a touch larger than the fine mesh
-    c_vector<double,2*DIM> min_and_max;
+    c_vector<double,2*DIM> extended_min_and_max;
     for(unsigned i=0; i<DIM; i++)
     {
-        min_and_max(2*i) = mMinValuesFine(i) - 0.05*fabs(mMinValuesFine(i));
-        min_and_max(2*i+1) = mMaxValuesFine(i) + 0.05*fabs(mMaxValuesFine(i));
+        // subtract from the minima
+        extended_min_and_max(2*i) = mMinMaxValuesInFineMesh(2*i) - 0.05*fabs(mMinMaxValuesInFineMesh(2*i));
+        // add to the maxima
+        extended_min_and_max(2*i+1) = mMinMaxValuesInFineMesh(2*i+1) + 0.05*fabs(mMinMaxValuesInFineMesh(2*i+1));
     }
 
     if(boxWidth < 0)
@@ -108,12 +90,12 @@ void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
 
         // BoxCollection creates an extra box so divide by 19 not 20.  Add a little bit on to ensure
         // minor numerical fluctuations don't change the answer.
-        boxWidth = (min_and_max(1) - min_and_max(0))/19.000000001;
+        boxWidth = (extended_min_and_max(1) - extended_min_and_max(0))/19.000000001;
 
         // determine the maximum edge length
         double max_edge_length = -1;
 
-        for (typename TetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator=mrFineMesh.EdgesBegin();
+        for (typename TetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator = mrFineMesh.EdgesBegin();
              edge_iterator!=mrFineMesh.EdgesEnd();
              ++edge_iterator)
         {
@@ -133,7 +115,7 @@ void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
         }
     }
  
-    mpFineMeshBoxCollection = new BoxCollection<DIM>(boxWidth, min_and_max);
+    mpFineMeshBoxCollection = new BoxCollection<DIM>(boxWidth, extended_min_and_max);
     mpFineMeshBoxCollection->SetupAllLocalBoxes();
 
     // for each element, if ANY of its nodes are physically in a box, put that element
@@ -354,7 +336,6 @@ void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineNodes()
     mCoarseElementsForFineNodes.resize(mrFineMesh.GetNumNodes());
     for(unsigned i=0; i<mCoarseElementsForFineNodes.size(); i++)
     {
-//todo: reference?!
         ChastePoint<DIM> point = mrFineMesh.GetNode(i)->GetPoint();
 
         try
@@ -364,6 +345,27 @@ void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineNodes()
         catch(Exception& e)
         {
             mCoarseElementsForFineNodes[i] = mrCoarseMesh.GetNearestElementIndex(point);
+        }
+    }
+}
+
+
+// todo: use boxes when this becomes inefficient....
+template<unsigned DIM>
+void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineElementCentroids()
+{
+    mCoarseElementsForFineElementCentroids.resize(mrFineMesh.GetNumElements());
+    for(unsigned i=0; i<mrFineMesh.GetNumElements(); i++)
+    {
+        c_vector<double,DIM> point_cvec = mrFineMesh.GetElement(i)->CalculateCentroid();
+        ChastePoint<DIM> point(point_cvec);
+        try
+        {
+            mCoarseElementsForFineElementCentroids[i] = mrCoarseMesh.GetContainingElementIndex(point);
+        }
+        catch(Exception& e)
+        {
+            mCoarseElementsForFineElementCentroids[i] = mrCoarseMesh.GetNearestElementIndex(point);
         }
     }
 }
