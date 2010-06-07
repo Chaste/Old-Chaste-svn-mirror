@@ -60,8 +60,9 @@ METADATA_NAMES = frozenset(
      'L_type_Ca_current_fCass_gate', 'calcium_background_current_conductance', 'transient_outward_current_conductance',
      'transient_outward_current_s_gate', 'transient_outward_current_r_gate', 'sodium_potassium_pump_current_permeability',
      'sodium_calcium_exchanger_current_maximum', 'calcium_pump_current_conductance', 'potassium_pump_current_conductance',
-     'calcium_dynamics_release_current_maxiumum', 'calcium_dynamics_leak_current_maxiumum', 'calcium_leak_current_conductance',
-     'calcium_dynamics_uptake_current_maxiumum'])
+     'calcium_dynamics_release_current_maximum', 'calcium_dynamics_leak_current_maximum', 'calcium_leak_current_conductance',
+     'calcium_dynamics_uptake_current_maximum',
+     'cytosolic_calcium_concentration'])
 
 
 
