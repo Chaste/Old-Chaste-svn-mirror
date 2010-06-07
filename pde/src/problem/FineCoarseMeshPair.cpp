@@ -329,7 +329,8 @@ void FineCoarseMeshPair<DIM>::PrintStatistics()
 }
 
 
-// todo: use boxes when this becomes inefficient....
+
+// todo #1409: use boxes as this is not coded in efficient way
 template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineNodes()
 {
@@ -350,7 +351,7 @@ void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineNodes()
 }
 
 
-// todo: use boxes when this becomes inefficient....
+// todo #1409: use boxes as this is not coded in efficient way
 template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineElementCentroids()
 {

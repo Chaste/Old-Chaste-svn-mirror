@@ -485,8 +485,15 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
                 mpMonodomainProblem->GetPde()->GetCardiacCell(global_index)->SetStretch(stretch);
             }
             
-            // finish #
+            // finish #1244 (blocked on #1348)
             // NOW SET THE DEFORMATION GRADIENTS ON THE MONO/BI-DOMAIN ASSEMBLER - do this once #1348 is done
+            // something like:
+            //   loop over electrics elements
+            //   {
+            //      unsigned containing_elem = mpMeshPair->rGetCoarseElementsForFineElementCentroids()[element_index];
+            //      F = mDeformationGradientsForEachMechanicsElement[containing_element]
+            //       ..
+            //
         }
 
 

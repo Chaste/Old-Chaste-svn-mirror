@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "PCLDUFactorisationMechanics.hpp"
 
 
-#define MECH_VERBOSE
+//#define MECH_VERBOSE
 //#define MECH_VERY_VERBOSE
 
 //// These should be commented in a commit at the moment!

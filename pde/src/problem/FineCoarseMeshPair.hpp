@@ -67,8 +67,6 @@ private:
 
     /** The min and maximum values of the nodes, for each dimension, in the fine mesh, for creating the boxes */
     c_vector<double,2*DIM> mMinMaxValuesInFineMesh;
-   // /** The max values of the nodes, for each dimension, in the fine mesh, for creating the boxes */
-   // c_vector<double,DIM> mMaxValuesFine;
 
     /** Boxes on the fine mesh domain, for easier determination of containing element for a given point */
     BoxCollection<DIM>* mpFineMeshBoxCollection;
