@@ -52,7 +52,46 @@ struct ElementAndWeights
 
 /**
  *  Class for a pair of meshes, one fine, one coarse, which should cover the same domain (or very nearly match).
- *  This class is used to set up interpolation information from one mesh to the other
+ *  This class is used to set up interpolation information from one mesh to the other.
+ * 
+ *  At the moment the functionality is very much based on the four information-transfers required in 
+ *  cardiac electromechanics problems
+ * 
+ *  (i)   Calcium (or voltage) to induce deformation: 
+ *           FINE(electrics) MESH NODEs  --->  COARSE(mechanics) MESH QUADRATURE POINTS   
+ *  (ii)  Deformation gradient (assume constant in any coarse element) for altering conductivities: 
+ *           COARSE ELEMENTS  --->  FINE ELEMENTS
+ *  (iii) Deformation gradient/fibre-stretch (assume constant in any coarse element) for cell-model 
+ *        stretch activated channels 
+ *           COARSE ELEMENTS  --->  FINE NODES 
+ *  (iv)  Voltage visualisation on coarse mesh
+ *           FINE NODES ---> COARSE NODES
+ * 
+ *  The usage of this class for each of these tasks is:
+ * 
+ *  (i) FINE NODEs  --->  COARSE QUADRATURE POINTS
+ *           FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
+ *           mesh_pair.SetUpBoxesOnFineMesh();
+ *           mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, false);
+ *           mesh_pair.rGetElementsAndWeights();
+ *  (ii) COARSE ELEMENTS  --->  FINE ELEMENTS
+ *           FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
+ *           // add boxes call here once #1409 is done 
+ *           mesh_pair.ComputeCoarseElementsForFineElementCentroids();
+ *           mesh_pair.rGetCoarseElementsForFineElementCentroids();
+ *  (iii) COARSE ELEMENTS  --->  FINE NODES
+ *           FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
+ *           // add boxes call here once #1409 is done 
+ *           mesh_pair.ComputeCoarseElementsForFineNodes();
+ *           mesh_pair.rGetCoarseElementsForFineNodes();
+ * 
+ *  Note the following should not be done at the same time as (i), as the results are stored in the same place
+ *  (iv)  FINE NODES ---> COARSE NODES
+ *           FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
+ *           mesh_pair.SetUpBoxesOnFineMesh();
+ *           mesh_pair.ComputeFineElementsAndWeightsForCoarseNodes(false);
+ *           mesh_pair.rGetElementsAndWeights();
+ *  
  */
 template <unsigned DIM>
 class FineCoarseMeshPair
@@ -62,6 +101,7 @@ friend class TestFineCoarseMeshPair;
 private:
     /** Fine mesh */
     TetrahedralMesh<DIM,DIM>& mrFineMesh;
+    
     /** Coarse mesh (usually be a quadratic mesh) */
     QuadraticMesh<DIM>& mrCoarseMesh;
 
@@ -70,6 +110,7 @@ private:
 
     /** Boxes on the fine mesh domain, for easier determination of containing element for a given point */
     BoxCollection<DIM>* mpFineMeshBoxCollection;
+    
     /** The containing elements and corresponding weights in the fine mesh for the set of points given.
      *  The points may have been quadrature points in the coarse mesh, or nodes in coarse mesh, etc.
      */
@@ -77,6 +118,7 @@ private:
 
     /** Indices of the points which were found to be outside the fine mesh */
     std::vector<unsigned> mNotInMesh;
+
     /** The corresponding weights, for the nearest elements, of the points which were found
      *  to be outside the fine mesh */
     std::vector<c_vector<double,DIM+1> > mNotInMeshNearestElementWeights;
@@ -87,14 +129,6 @@ private:
      *  Note mCounters[2] = mNotInMesh.size() = mNotInMeshNearestElementWeights.size();
      */
     std::vector<unsigned> mCounters;
-
-//// bring back this functionality if needed
-//    /** In some simulations the coarse and fine meshes will turn out to be the same (the vertices of the
-//      * coarse quadratic mesh will match the vertices of the fine mesh, though the coarse quad mesh
-//      * will have extra nodes), we should figure out if this is the case and do things differently if so
-//      */
-//    bool mIdenticalMeshes;
-
 
     /**  
      *  The element in the coarse mesh that each fine mesh node is contained in (or nearest to).
@@ -108,6 +142,17 @@ private:
      */
     std::vector<unsigned> mCoarseElementsForFineElementCentroids;
     
+    /** 
+     *  For a given point, compute the containing element and corresponding weight in the fine mesh.
+     *  @param rPoint The point
+     *  @param safeMode See documentation for ComputeFineElementsAndWeightsForCoarseQuadPoints()
+     *  @param boxForThisPoint The box containing this point
+     *  @oaram index The index into the mFineMeshElementsAndWeights std::vector
+     */
+    void ComputeFineElementAndWeightForGivenPoint(ChastePoint<DIM>& rPoint, 
+                                                  bool safeMode,
+                                                  unsigned boxForThisPoint,
+                                                  unsigned index);
 
 public:
     /** Constructor sets up domain size
@@ -135,21 +180,41 @@ public:
     void SetUpBoxesOnFineMesh(double boxWidth = -1);
 
     /**
-     * Set up the containing (fine) elements and corresponding weights for all the
-     * quadrature points in the coarse mesh. Call GetElementsAndWeights() after calling this
-     * with the index of the quad point (=the index of the quad point in a QuadraturePointsGroup=
-     * the index if the quad points were listed by looping over all the element and then
-     * looping over all the quad points).
+     *  Set up the containing (fine) elements and corresponding weights for all the
+     *  quadrature points in the coarse mesh. Call GetElementsAndWeights() after calling this
+     *  with the index of the quad point (=the index of the quad point in a QuadraturePointsGroup=
+     *  the index if the quad points were listed by looping over all the element and then
+     *  looping over all the quad points). 
+     * 
+     *  If calling this DO NOT call ComputeFineElementsAndWeightsForCoarseNodes
+     *  until you do done with this data
      * 
      *  @param rQuadRule The quadrature rule, used to determine the number of quadrature points per element.
      *  @param safeMode This method uses the elements in the boxes to guess which element a quad point is in. If a 
      *   quad point is in none of these elements, then if safeMode==true, it will then search the whole mesh.
-     *   If safeMode==false it will assume the immediately the quad point isn't in the mesh at all. safeMode=false is
+     *   If safeMode==false it will assume immediately the quad point isn't in the mesh at all. safeMode=false is
      *   will far more efficient with big meshes. It should be fine to use safeMode=false if SetUpBoxesOnFineMesh() is 
      *   called with default values. 
      */
     void ComputeFineElementsAndWeightsForCoarseQuadPoints(GaussianQuadratureRule<DIM>& rQuadRule,
                                                           bool safeMode);
+                                                          
+    /**
+     *  Set up the containing (fine) elements and corresponding weights for all the
+     *  nodes in the coarse mesh. Call GetElementsAndWeights() after calling this
+     *  with the index of the nodes. 
+     *  
+     *  If calling this DO NOT call ComputeFineElementsAndWeightsForCoarseQuadPoints
+     *  until you do done with this data.
+     * 
+     *  @param safeMode This method uses the elements in the boxes to guess which element a point is in. If a 
+     *   point is in none of these elements, then if safeMode==true, it will then search the whole mesh.
+     *   If safeMode==false it will assume immediately the point isn't in the coarse mesh at all. safeMode=false is
+     *   will far more efficient with big meshes. It should be fine to use safeMode=false if SetUpBoxesOnFineMesh() is 
+     *   called with default values. 
+     */
+    void ComputeFineElementsAndWeightsForCoarseNodes(bool safeMode);                                                          
+
 
     /**
      *  Print the number of points for which the containing element was found quickly, the number

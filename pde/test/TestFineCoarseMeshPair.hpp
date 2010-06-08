@@ -37,6 +37,53 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestFineCoarseMeshPair : public CxxTest::TestSuite
 {
 public:
+    // simple test where the whole of the coarse mesh is in one fine element
+    void TestComputeFineElemsAndWeightsForQuadPointsSimple() throw(Exception)
+    {
+        TetrahedralMesh<2,2> fine_mesh;
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        fine_mesh.ConstructFromMeshReader(mesh_reader);
+
+        QuadraticMesh<2> coarse_mesh(0.1, 0.1, 1, 1);
+        coarse_mesh.Translate(0.5,0.0); // whole of the coarse mesh in now in fine element with index 1
+
+        FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
+
+        mesh_pair.SetUpBoxesOnFineMesh();
+        GaussianQuadratureRule<2> quad_rule(3);
+        mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true);
+
+        // all coarse quadrature points should have been found in the fine mesh
+        TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
+        TS_ASSERT_EQUALS(mesh_pair.mNotInMeshNearestElementWeights.size(), 0u);
+
+        // check the elements and weights have been set up correctly
+        TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights().size(), 18u);
+
+        for(unsigned i=0; i<mesh_pair.rGetElementsAndWeights().size(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[i].ElementNum, 1u);
+        }
+
+        for(unsigned i=0; i<mesh_pair.rGetElementsAndWeights().size(); i++)
+        {
+            TS_ASSERT_LESS_THAN(mesh_pair.rGetElementsAndWeights()[i].ElementNum, fine_mesh.GetNumElements());
+
+            // All the weights should be between 0 and 1 as no coarse nodes are 
+            // Note weights = (1-psi_x-psi_y, psi_x, psi_y), where psi is the position of the
+            // point in that element when transformed to the canonical element
+            for(unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_LESS_THAN(-1e14, mesh_pair.rGetElementsAndWeights()[i].Weights(j));
+                TS_ASSERT_LESS_THAN(mesh_pair.rGetElementsAndWeights()[i].Weights(j), 1.0+1e-14);
+            }
+        }
+
+        TS_ASSERT_EQUALS(mesh_pair.mCounters[0], 18u);
+        TS_ASSERT_EQUALS(mesh_pair.mCounters[1], 0u);
+        TS_ASSERT_EQUALS(mesh_pair.mCounters[2], 0u);
+    }
+
     void TestWithCoarseContainedInFine() throw(Exception)
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
@@ -391,6 +438,52 @@ public:
         {
             TS_ASSERT_EQUALS( mesh_pair.rGetCoarseElementsForFineElementCentroids()[i], 0u);
         }
+    }
+
+    void TestComputeFineElemsAndWeightsForCoarseNodes() throw(Exception)
+    {
+        TetrahedralMesh<2,2> fine_mesh;
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
+        fine_mesh.ConstructFromMeshReader(mesh_reader);
+
+        QuadraticMesh<2> coarse_mesh(0.5, 0.5, 1, 1);
+        coarse_mesh.Translate(0.2,0.1);
+
+        FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
+
+        mesh_pair.SetUpBoxesOnFineMesh();
+        mesh_pair.ComputeFineElementsAndWeightsForCoarseNodes(true);
+
+        // all coarse quadrature points should have been found in the fine mesh
+        TS_ASSERT_EQUALS(mesh_pair.mNotInMesh.size(), 0u);
+        TS_ASSERT_EQUALS(mesh_pair.mNotInMeshNearestElementWeights.size(), 0u);
+
+        // check the elements and weights have been set up correctly
+        TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights().size(), 9u);
+
+        // check the first four nodes against what they should be
+        TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[0].ElementNum, 1u);
+        TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[1].ElementNum, 1u);
+        TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[2].ElementNum, 0u);
+        TS_ASSERT_EQUALS(mesh_pair.rGetElementsAndWeights()[3].ElementNum, 2u);
+
+        for(unsigned i=0; i<mesh_pair.rGetElementsAndWeights().size(); i++)
+        {
+            TS_ASSERT_LESS_THAN(mesh_pair.rGetElementsAndWeights()[i].ElementNum, fine_mesh.GetNumElements());
+
+            // All the weights should be between 0 and 1 as no coarse nodes are 
+            // Note weights = (1-psi_x-psi_y-psi_z, psi_x, psi_y, psi_z), where psi is the position of the
+            // point in that element when transformed to the canonical element
+            for(unsigned j=0; j<3; j++)
+            {
+                TS_ASSERT_LESS_THAN(-1e14, mesh_pair.rGetElementsAndWeights()[i].Weights(j));
+                TS_ASSERT_LESS_THAN(mesh_pair.rGetElementsAndWeights()[i].Weights(j), 1.0+1e-14);
+            }
+        }
+
+        TS_ASSERT_EQUALS(mesh_pair.mCounters[0], 9u);
+        TS_ASSERT_EQUALS(mesh_pair.mCounters[1], 0u);
+        TS_ASSERT_EQUALS(mesh_pair.mCounters[2], 0u);
     }
 
 
