@@ -270,7 +270,10 @@ public:
         {
             TS_ASSERT_LESS_THAN(start_voltage_repl[i], -90.0);
             TS_ASSERT_LESS_THAN(-90, end_voltage_repl[i]);
-        }         
+        }
+        
+        VecDestroy(start_voltage);         
+        VecDestroy(end_voltage);         
     }
 };
 #endif /*TESTCARDIACELECTROMECHANICSPROBLEM_HPP_*/
