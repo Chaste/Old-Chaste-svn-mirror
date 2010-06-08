@@ -51,4 +51,4 @@ template class ConstBoundaryCondition<3>;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(ConstBoundaryCondition);
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(ConstBoundaryCondition)

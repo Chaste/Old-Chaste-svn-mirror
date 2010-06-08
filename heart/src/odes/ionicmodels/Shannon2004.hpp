@@ -1219,7 +1219,7 @@ void OdeSystemInformation<CellShannon2004FromCellML>::Initialise(void)
 
 // Export an identifier for this class for boost serialization.
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(CellShannon2004FromCellML);
+CHASTE_CLASS_EXPORT(CellShannon2004FromCellML)
 
 namespace boost
 {

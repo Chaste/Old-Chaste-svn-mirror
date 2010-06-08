@@ -347,6 +347,14 @@ class GccDebug(Gcc):
         self._cc_flags.append('-g')
         self.build_dir = 'debug'
 
+class Ansi(GccDebug):
+    """
+    Gnu compiler conforming to ANSI C++ standard.
+    """
+    def __init__(self, *args, **kwargs):
+        super(Ansi, self).__init__(*args, **kwargs)
+        self._cc_flags.extend(['-ansi', '-pedantic'])
+        self.build_dir = 'ansi'
 
 class Coverage(GccDebug):
     """
@@ -824,6 +832,15 @@ class Intel(BuildType):
                 del self._cc_flags[i]
                 break
         self._cc_flags.append('-vec_report' + str(vec))
+
+class IntelAnsi(Intel):
+    """
+    Intel compiler conforming to C++89 standard.
+    """
+    def __init__(self, *args, **kwargs):
+        super(IntelAnsi, self).__init__(*args, **kwargs)
+        self._cc_flags.extend(['-std=c89', '-strict-ansi'])
+        self.build_dir = 'intel_ansi'
 
 class GccPower(Gcc):
   "GNU compiler on IBM POWER architecture."

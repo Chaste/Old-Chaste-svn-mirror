@@ -103,8 +103,8 @@ public:
 
 };
 
-EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 1, 1);
-EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 2, 2);
-EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 3, 3);
+EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 1, 1)
+EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 2, 2)
+EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 3, 3)
 
 #endif /*NONCACHEDTETRAHEDRALMESH_HPP_*/

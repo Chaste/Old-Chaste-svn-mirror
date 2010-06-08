@@ -144,7 +144,7 @@ public:
 
     void TestNumericalAgainstAnalyticJacobian()
     {
-        PetscInt n = 11;  // Mesh size
+        const PetscInt n = 11;  // Mesh size
         Mat numerical_jacobian;
         PetscTools::SetupMat(numerical_jacobian, n, n, (MatType) MATSEQDENSE);
 

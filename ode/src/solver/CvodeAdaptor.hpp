@@ -250,7 +250,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(CvodeAdaptor);
+CHASTE_CLASS_EXPORT(CvodeAdaptor)
 
 #endif // _CVODEADAPTOR_HPP_
 #endif // CHASTE_CVODE

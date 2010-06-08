@@ -118,10 +118,10 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp" // Must be last
-EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 1);
-EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 2);
-EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 3);
-EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 2, 2);
-EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 3, 3);
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 1)
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 3)
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 2, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 3, 3)
 
 #endif /*MONODOMAINPROBLEM_HPP_*/

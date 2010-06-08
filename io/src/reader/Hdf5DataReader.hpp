@@ -47,7 +47,7 @@ class Hdf5DataReader
 {
 private:
 
-    const static unsigned MAX_DATASET_RANK = 3;             /**< Defined in HDF5 writer too. \todo: define it once */
+    static const unsigned MAX_DATASET_RANK = 3;             /**< Defined in HDF5 writer too. \todo: define it once */
 
     std::string mDirectory;                                 /**< Directory output files will be stored in (absolute path). */
     std::string mBaseName;                                  /**< The base name for the output data files. */

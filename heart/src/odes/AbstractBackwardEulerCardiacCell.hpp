@@ -262,6 +262,6 @@ void AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart,
     }
 }
 
-TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractBackwardEulerCardiacCell);
+TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractBackwardEulerCardiacCell)
 
 #endif /*ABSTRACTBACKWARDEULERCARDIACCELL_HPP_*/

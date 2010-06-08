@@ -115,7 +115,7 @@ protected :
     bool mNoElectricsOutput;
 
     /** when to write output */
-    const static int WRITE_EVERY_NTH_TIME = 1; //hardcoded for the time being ///\todo, allow user to set this
+    static const int WRITE_EVERY_NTH_TIME = 1; //hardcoded for the time being ///\todo, allow user to set this
 
     /** Whether any location has been set to be watched (lots of output for that location */
     bool mIsWatchedLocation;

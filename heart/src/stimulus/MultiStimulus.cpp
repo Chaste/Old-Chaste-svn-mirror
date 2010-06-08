@@ -59,4 +59,4 @@ void MultiStimulus::Clear()
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(MultiStimulus);
+CHASTE_CLASS_EXPORT(MultiStimulus)

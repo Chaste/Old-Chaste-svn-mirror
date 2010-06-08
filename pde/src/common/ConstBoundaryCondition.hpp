@@ -75,7 +75,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp" // Must be last
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(ConstBoundaryCondition);
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(ConstBoundaryCondition)
 
 namespace boost
 {

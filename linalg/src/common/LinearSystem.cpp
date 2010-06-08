@@ -939,4 +939,4 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(LinearSystem);
+CHASTE_CLASS_EXPORT(LinearSystem)

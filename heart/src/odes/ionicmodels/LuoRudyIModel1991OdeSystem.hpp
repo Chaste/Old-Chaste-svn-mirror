@@ -136,7 +136,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(LuoRudyIModel1991OdeSystem);
+CHASTE_CLASS_EXPORT(LuoRudyIModel1991OdeSystem)
 
 namespace boost
 {

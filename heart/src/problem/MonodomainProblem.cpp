@@ -148,8 +148,8 @@ template class MonodomainProblem<3,3>;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 1);
-EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 2);
-EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 3);
-EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 2, 2);
-EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 3, 3);
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 1)
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 1, 3)
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 2, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainProblem, 3, 3)

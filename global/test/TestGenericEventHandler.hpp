@@ -42,7 +42,7 @@ public:
     {
         TEST1=0,
         TEST2,
-        TEST3,
+        TEST3
     } EventType;
 };
 

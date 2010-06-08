@@ -165,7 +165,7 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
     c_matrix<double, ELEMENT_DIM, SPACE_DIM> jacobian_inverse;
     double jacobian_determinant;
 
-    CalculateInverseJacobian(jacobian, jacobian_determinant, jacobian_inverse);
+    this->CalculateInverseJacobian(jacobian, jacobian_determinant, jacobian_inverse);
 
     c_vector<double, SPACE_DIM+1> circum=CalculateCircumsphere(jacobian, jacobian_inverse);
     if (SPACE_DIM == 2)
@@ -277,7 +277,7 @@ c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(const 
     double jacobian_determinant;
 
     ///\todo #1326 This method shouldn't need a new Jacobian inverse for every Psi
-    CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
+    this->CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
 
     return prod(inverse_jacobian, test_location);
 }

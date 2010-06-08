@@ -50,7 +50,7 @@ class NhsModelWithBackwardSolver : public NhsContractionModel
 {
 private:
     /** Tolerance for solving nonlinear system which require newton's method */
-    const static double mTolerance;
+    static const double mTolerance;
 
     /** Timestep for the ODEs solving */
     double mDt;

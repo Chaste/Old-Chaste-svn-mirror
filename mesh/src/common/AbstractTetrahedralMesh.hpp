@@ -447,7 +447,7 @@ public:
 
 };
 
-TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractTetrahedralMesh);
+TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractTetrahedralMesh)
 
 //////////////////////////////////////////////////////////////////////////////
 //      ElementIterator class implementation - most methods are inlined     //

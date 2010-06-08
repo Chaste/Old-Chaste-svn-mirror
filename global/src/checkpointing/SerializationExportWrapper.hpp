@@ -241,7 +241,7 @@ template<class T> struct pack<void (T)> {
  * @param P  third template parameter
  */
 #define EXPORT_TEMPLATE_CLASS3_INTERNAL(CLASS, E, S, P) \
-    CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< E,S,P >)>::type, CLASS##E##S##P );
+    CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< E,S,P >)>::type, CLASS##E##S##P )
 
 /**
  * Export a templated class with 2 parameters.
@@ -251,7 +251,7 @@ template<class T> struct pack<void (T)> {
  * @param S  second template parameter
  */
 #define EXPORT_TEMPLATE_CLASS2_INTERNAL(CLASS, E, S) \
-    CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< E,S >)>::type, CLASS##E##S );
+    CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< E,S >)>::type, CLASS##E##S )
 
 /**
  * Export a templated class with 1 parameter.
@@ -260,7 +260,7 @@ template<class T> struct pack<void (T)> {
  * @param D  template parameter
  */
 #define EXPORT_TEMPLATE_CLASS1_INTERNAL(CLASS, D) \
-    CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< D >)>::type, CLASS##D );
+    CHASTE_CLASS_EXPORT_TEMPLATED( pack<void (CLASS< D >)>::type, CLASS##D )
 
 /**
  * Export a class templated over both element and space dimension, for all valid

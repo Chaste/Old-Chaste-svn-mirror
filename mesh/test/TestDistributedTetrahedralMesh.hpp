@@ -57,7 +57,7 @@ private:
          */
         unsigned total_nodes_this_process = 0;
         {
-            unsigned num_global_nodes = rMesh.GetNumNodes();
+            const unsigned num_global_nodes = rMesh.GetNumNodes();
             unsigned nodes_owned[num_global_nodes];
             for(unsigned index=0; index<num_global_nodes; index++)
             {
@@ -102,7 +102,7 @@ private:
          */
         unsigned total_elements_this_process = 0;
         {
-            unsigned num_global_elements = rMesh.GetNumElements();
+            const unsigned num_global_elements = rMesh.GetNumElements();
             unsigned elements_owned[num_global_elements];
 
             // Create a local map of the elements this processor owns
@@ -144,7 +144,7 @@ private:
          */
         unsigned total_b_elements_this_process = 0;
         {
-            unsigned num_global_b_elements = rMesh.GetNumBoundaryElements();
+            const unsigned num_global_b_elements = rMesh.GetNumBoundaryElements();
             unsigned b_elements_owned[num_global_b_elements];
 
             // Create a local map of the boundary elements this processor owns

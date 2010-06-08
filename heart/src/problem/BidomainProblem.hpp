@@ -282,7 +282,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp" // Must be last
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainProblem);
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainProblem)
 
 
 template<unsigned DIM>

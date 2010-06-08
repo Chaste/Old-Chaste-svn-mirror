@@ -100,6 +100,6 @@ public:
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(MultiStimulus);
+CHASTE_CLASS_EXPORT(MultiStimulus)
 
 #endif /*MULTISTIMULUS_HPP_*/

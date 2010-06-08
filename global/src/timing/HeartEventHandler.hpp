@@ -43,7 +43,7 @@ class HeartEventHandler : public GenericEventHandler<13, HeartEventHandler>
 public:
 
     /** Character array holding heart event names. There are eleven heart events. */
-    const static char* EventName[13];
+    static const char* EventName[13];
 
     /** Definition of heart event types. */
     typedef enum

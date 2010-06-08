@@ -85,6 +85,6 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(HeunIvpOdeSolver);
+CHASTE_CLASS_EXPORT(HeunIvpOdeSolver)
 
 #endif //_HEUNIVPODESOLVER_HPP_

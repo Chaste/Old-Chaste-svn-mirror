@@ -95,7 +95,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(EulerIvpOdeSolver);
+CHASTE_CLASS_EXPORT(EulerIvpOdeSolver)
 
 #endif //_EULERIVPODESOLVER_HPP_
 

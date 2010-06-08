@@ -81,7 +81,7 @@ public:
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(RegularStimulus);
+CHASTE_CLASS_EXPORT(RegularStimulus)
 
 namespace boost
 {

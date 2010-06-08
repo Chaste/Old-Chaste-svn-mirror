@@ -72,7 +72,7 @@ private:
 
     long mCurrentTimeStep; /**< The current time step. */
 
-    const static unsigned DATASET_DIMS=3; /**< Defined in HDF5 reader too. \todo: define it once */
+    static const unsigned DATASET_DIMS=3; /**< Defined in HDF5 reader too. \todo: define it once */
     hsize_t mDatasetDims[DATASET_DIMS]; /**< The sizes of each variable data set. */
     
     Mat mSinglePermutation; /**< Stores a permutation as a matrix */ 

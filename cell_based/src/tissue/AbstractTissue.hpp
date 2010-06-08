@@ -551,10 +551,10 @@ enum cell_colours
     LATE_CANCER_COLOUR, // 4
     LABELLED_COLOUR, // 5
     APOPTOSIS_COLOUR, // 6
-    INVISIBLE_COLOUR, // visualizer treats '7' as invisible
+    INVISIBLE_COLOUR // visualizer treats '7' as invisible
 };
 
-TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractTissue);
+TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractTissue)
 
 //////////////////////////////////////////////////////////////////////////////
 //         Iterator class implementation - most methods are inlined         //

@@ -66,4 +66,4 @@ void RungeKutta2IvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOd
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(RungeKutta2IvpOdeSolver);
+CHASTE_CLASS_EXPORT(RungeKutta2IvpOdeSolver)

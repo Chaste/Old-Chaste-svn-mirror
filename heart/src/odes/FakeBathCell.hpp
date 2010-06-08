@@ -100,7 +100,7 @@ public:
 
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(FakeBathCell);
+CHASTE_CLASS_EXPORT(FakeBathCell)
 
 namespace boost
 {

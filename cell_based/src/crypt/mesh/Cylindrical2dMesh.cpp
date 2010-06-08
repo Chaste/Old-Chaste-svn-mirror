@@ -810,4 +810,4 @@ unsigned Cylindrical2dMesh::GetCorrespondingNodeIndex(unsigned nodeIndex)
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(Cylindrical2dMesh);
+CHASTE_CLASS_EXPORT(Cylindrical2dMesh)

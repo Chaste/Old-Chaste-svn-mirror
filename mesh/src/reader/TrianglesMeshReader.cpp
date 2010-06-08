@@ -32,10 +32,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <iostream>
 
-const static char* NODES_FILE_EXTENSION = ".node";
-const static char* ELEMENTS_FILE_EXTENSION = ".ele";
-const static char* FACES_FILE_EXTENSION = ".face";
-const static char* EDGES_FILE_EXTENSION = ".edge";
+static const char* NODES_FILE_EXTENSION = ".node";
+static const char* ELEMENTS_FILE_EXTENSION = ".ele";
+static const char* FACES_FILE_EXTENSION = ".face";
+static const char* EDGES_FILE_EXTENSION = ".edge";
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Implementation

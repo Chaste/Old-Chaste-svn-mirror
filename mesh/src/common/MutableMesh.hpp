@@ -267,6 +267,6 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(MutableMesh);
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(MutableMesh)
 
 #endif /*MUTABLEMESH_HPP_*/

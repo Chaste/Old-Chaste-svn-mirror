@@ -288,7 +288,7 @@ public:
 
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(TissueCell);
+CHASTE_CLASS_EXPORT(TissueCell)
 
 namespace boost
 {

@@ -1043,4 +1043,4 @@ template class MutableMesh<3,3>;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(MutableMesh);
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(MutableMesh)

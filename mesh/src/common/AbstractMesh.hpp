@@ -442,7 +442,7 @@ public:
 
 };
 
-TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractMesh);
+TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractMesh)
 
 //////////////////////////////////////////////////////////////////////////////
 //      NodeIterator class implementation - most methods are inlined        //

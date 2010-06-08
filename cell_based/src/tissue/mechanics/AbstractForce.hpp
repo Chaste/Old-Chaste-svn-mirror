@@ -95,6 +95,6 @@ AbstractForce<DIM>::~AbstractForce()
 {
 }
 
-TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractForce);
+TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractForce)
 
 #endif /*ABSTRACTFORCE_HPP_*/

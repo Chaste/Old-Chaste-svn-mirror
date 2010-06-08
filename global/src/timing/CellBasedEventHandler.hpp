@@ -39,7 +39,7 @@ class CellBasedEventHandler : public GenericEventHandler<9, CellBasedEventHandle
 public:
 
     /** Character array holding cell_based event names. There are nine cell_based events. */
-    const static char* EventName[9];
+    static const char* EventName[9];
 
     /** Definition of cell_based event types. */
     typedef enum

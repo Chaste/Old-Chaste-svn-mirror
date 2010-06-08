@@ -328,4 +328,4 @@ void RungeKuttaFehlbergIvpOdeSolver::Solve(AbstractOdeSystem* pOdeSystem,
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(RungeKuttaFehlbergIvpOdeSolver);
+CHASTE_CLASS_EXPORT(RungeKuttaFehlbergIvpOdeSolver)

@@ -450,7 +450,7 @@ public:
     }
 };
 
-TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacPde);
+TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacPde)
 
 #endif /*ABSTRACTCARDIACPDE_HPP_*/
 

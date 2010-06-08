@@ -209,7 +209,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(BackwardEulerIvpOdeSolver);
+CHASTE_CLASS_EXPORT(BackwardEulerIvpOdeSolver)
 
 namespace boost
 {

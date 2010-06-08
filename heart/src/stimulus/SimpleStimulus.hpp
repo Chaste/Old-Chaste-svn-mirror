@@ -94,7 +94,7 @@ public:
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(SimpleStimulus);
+CHASTE_CLASS_EXPORT(SimpleStimulus)
 
 namespace boost
 {

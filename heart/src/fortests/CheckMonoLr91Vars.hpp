@@ -59,6 +59,6 @@ void CheckMonoLr91Vars(MonodomainProblem<ELEMENT_DIM, SPACE_DIM>& problem)
             }
         }
     }
-};
+}
 
 #endif /*CHECKMONOLR91VARS_HPP_*/

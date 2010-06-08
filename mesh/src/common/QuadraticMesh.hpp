@@ -225,7 +225,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(QuadraticMesh);
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(QuadraticMesh)
 
 
 #endif /*QUADRATICMESH_HPP_*/

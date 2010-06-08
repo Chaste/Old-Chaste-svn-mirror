@@ -139,7 +139,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(DynamicallyLoadableLr91);
+CHASTE_CLASS_EXPORT(DynamicallyLoadableLr91)
 
 namespace boost
 {

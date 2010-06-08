@@ -47,7 +47,7 @@ private:
     ParallelColumnDataWriter* mpParallelWriter;
     ColumnDataReader* mpReader;
 
-    const static int num_nodes = 10;
+    static const int num_nodes = 10;
 
 public:
     void TestParallelColumnWriter()

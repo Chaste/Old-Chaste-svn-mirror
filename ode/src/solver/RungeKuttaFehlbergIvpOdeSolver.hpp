@@ -220,6 +220,6 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(RungeKuttaFehlbergIvpOdeSolver);
+CHASTE_CLASS_EXPORT(RungeKuttaFehlbergIvpOdeSolver)
 
 #endif //_RUNGEKUTTAFEHLBERGIVPODESOLVER_HPP_

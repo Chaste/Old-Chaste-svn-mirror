@@ -105,6 +105,6 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(MockEulerIvpOdeSolver);
+CHASTE_CLASS_EXPORT(MockEulerIvpOdeSolver)
 
 #endif //_MOCKEULERIVPODESOLVER_HPP_

@@ -51,7 +51,7 @@ template<class CELL, class CARDIAC_PROBLEM, unsigned DIM>
 class PerformanceTester
 {
 protected:
-    const static double mMeshWidth=0.2;//cm
+    static const double mMeshWidth=0.2;//cm
 public:
     PerformanceTester()
     : OdeTimeStep(0.0025),

@@ -590,7 +590,7 @@ public:
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(LinearSystem);
+CHASTE_CLASS_EXPORT(LinearSystem)
 
 namespace boost
 {

@@ -255,7 +255,7 @@ public:
 };
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(DistributedVectorFactory);
+CHASTE_CLASS_EXPORT(DistributedVectorFactory)
 
 namespace boost
 {

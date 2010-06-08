@@ -103,6 +103,6 @@ const AbstractTissue<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetTissue() cons
     return mpTissue;
 }
 
-TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractCellKiller);
+TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractCellKiller)
 
 #endif /*ABSTRACTCELLKILLER_HPP_*/

@@ -250,7 +250,7 @@ public :
 
 private:
 
-    const static unsigned NUMBER_NODES = 100;
+    static const unsigned NUMBER_NODES = 100;
 
     void WriteMultiStepData()
     {

@@ -53,7 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 extern "C" {
 extern void METIS_PartMeshNodal(int*, int*, int*, int*, int*, int*, int*, int*, int*);
-};
+}
 #include <parmetis.h>
 
 /**
@@ -80,7 +80,7 @@ public:
     {
         DUMB=0,
         PARMETIS_LIBRARY=1,
-        METIS_LIBRARY=2,
+        METIS_LIBRARY=2
 //        PETSC_MAT_PARTITION=3 
     } PartitionType;
 
@@ -418,7 +418,7 @@ private:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(DistributedTetrahedralMesh);
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(DistributedTetrahedralMesh)
 
 namespace boost
 {

@@ -622,7 +622,7 @@ public:
     virtual bool GetHasBath();
 };
 
-TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem);
+TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem)
 
 
 template<unsigned DIM>

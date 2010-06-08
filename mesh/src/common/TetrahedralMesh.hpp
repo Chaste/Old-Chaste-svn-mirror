@@ -391,6 +391,6 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(TetrahedralMesh);
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(TetrahedralMesh)
 
 #endif //_TETRAHEDRALMESH_HPP_

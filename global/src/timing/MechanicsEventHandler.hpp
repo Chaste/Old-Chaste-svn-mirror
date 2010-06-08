@@ -53,7 +53,7 @@ public:
     } MechanicsEventType;
 
     /** Character array holding mechanics event names. There are seven mechanics events. */
-    const static char* EventName[7];
+    static const char* EventName[7];
 };
 
 #endif /*MECHANICSEVENTHANDLER_HPP_*/

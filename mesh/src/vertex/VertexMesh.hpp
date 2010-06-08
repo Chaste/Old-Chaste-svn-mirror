@@ -578,7 +578,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(VertexMesh);
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(VertexMesh)
 
 
 //////////////////////////////////////////////////////////////////////////////

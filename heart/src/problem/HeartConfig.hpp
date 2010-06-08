@@ -1109,6 +1109,6 @@ private:
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(HeartConfig);
+CHASTE_CLASS_EXPORT(HeartConfig)
 
 #endif /*HEARTCONFIG_HPP_*/

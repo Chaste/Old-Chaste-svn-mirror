@@ -85,6 +85,6 @@ private:
 };
 
 #include "SerializationExportWrapper.hpp"
-CHASTE_CLASS_EXPORT(RungeKutta4IvpOdeSolver);
+CHASTE_CLASS_EXPORT(RungeKutta4IvpOdeSolver)
 
 #endif //_RUNGEKUTTA4IVPODESOLVER_HPP_

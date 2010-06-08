@@ -96,11 +96,11 @@ public:
 
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp" // Must be last
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 1);
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 2);
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 3);
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 2, 2);
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 3, 3);
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 1)
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 3)
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 2, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainPde, 3, 3)
 
 namespace boost
 {

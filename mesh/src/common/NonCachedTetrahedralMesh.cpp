@@ -80,6 +80,6 @@ template class NonCachedTetrahedralMesh<1,1>;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 1, 1);
-EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 2, 2);
-EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 3, 3);
+EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 1, 1)
+EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 2, 2)
+EXPORT_TEMPLATE_CLASS2(NonCachedTetrahedralMesh, 3, 3)

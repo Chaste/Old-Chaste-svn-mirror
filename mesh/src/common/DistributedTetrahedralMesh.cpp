@@ -1400,13 +1400,13 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
                                                                                        std::set<unsigned>& rNodesOwned,
                                                                                        std::set<unsigned>& rHaloNodesOwned,
                                                                                        std::vector<unsigned>& rProcessorsOffset)
- {
+{
     assert(!PetscTools::IsSequential());
     assert(ELEMENT_DIM==2 || ELEMENT_DIM==3); // Metis works with triangles and tetras
 
-    unsigned num_elements = rMeshReader.GetNumElements();
-    unsigned num_procs = PetscTools::GetNumProcs();
-    unsigned local_proc_index = PetscTools::GetMyRank();
+    const unsigned num_elements = rMeshReader.GetNumElements();
+    const unsigned num_procs = PetscTools::GetNumProcs();
+    const unsigned local_proc_index = PetscTools::GetMyRank();
 
     /*
      *  Work out initial element distribution
@@ -1690,4 +1690,4 @@ template class DistributedTetrahedralMesh<3,3>;
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_ALL_DIMS(DistributedTetrahedralMesh);
+EXPORT_TEMPLATE_CLASS_ALL_DIMS(DistributedTetrahedralMesh)

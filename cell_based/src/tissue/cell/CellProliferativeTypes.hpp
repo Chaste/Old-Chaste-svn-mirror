@@ -39,7 +39,7 @@ typedef enum CellProliferativeType_
     DIFFERENTIATED
 } CellProliferativeType;
 
-const static unsigned NUM_CELL_PROLIFERATIVE_TYPES=3;
+static const unsigned NUM_CELL_PROLIFERATIVE_TYPES=3;
 
 
 #endif /*CELLTYPES_HPP_*/

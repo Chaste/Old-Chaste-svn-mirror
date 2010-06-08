@@ -52,4 +52,4 @@ void EulerIvpOdeSolver::CalculateNextYValue(AbstractOdeSystem* pAbstractOdeSyste
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-CHASTE_CLASS_EXPORT(EulerIvpOdeSolver);
+CHASTE_CLASS_EXPORT(EulerIvpOdeSolver)
