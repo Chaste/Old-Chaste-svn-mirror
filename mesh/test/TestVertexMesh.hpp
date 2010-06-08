@@ -382,6 +382,8 @@ public:
         TS_ASSERT_EQUALS(p_mesh->SolveNodeMapping(0), 0u);
         TS_ASSERT_EQUALS(p_mesh->SolveElementMapping(0), 0u);
         TS_ASSERT_EQUALS(p_mesh->SolveBoundaryElementMapping(0), 0u);
+        
+        delete p_mesh;
     }
 
     void TestGetCentroidOfElement() throw(Exception)
@@ -924,6 +926,8 @@ public:
             // Tidy up
             delete p_mesh_original;
         }
+        
+        delete p_mesh;
     }
 
     void TestVertexElementMap()

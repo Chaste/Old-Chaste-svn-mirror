@@ -243,7 +243,7 @@ public :
      *  for that element), in the second it should have .orthoquad as the format.
      * 
      *  @param orthoFile the file containing the fibre/sheet directions
-     *  @param definedPerQuadraturePoint whether the fibre-sheet definitions are for each quadrature point in the mesh
+     *  @param definedPerQuadPoint whether the fibre-sheet definitions are for each quadrature point in the mesh
      *   (if not, one for each element is assumed).
      */
     void SetVariableFibreSheetDirectionsFile(std::string orthoFile, bool definedPerQuadPoint);

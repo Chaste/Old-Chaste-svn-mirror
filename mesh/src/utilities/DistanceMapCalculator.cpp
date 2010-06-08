@@ -81,7 +81,6 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
         //Make sure that there isn't a non-empty queue from a previous calculation
         if (!mActivePriorityNodeIndexQueue.empty())
         {
-            ///\todo #1414 coverage
             mActivePriorityNodeIndexQueue = std::priority_queue<std::pair<double, unsigned> >();
         }
         

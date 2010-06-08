@@ -193,6 +193,12 @@ public:
              TS_ASSERT_DELTA(pops/(double)trials, 1.0, 1.1); //Normally 2 or 0
         }
         
+        //Reverse - to check that cached information is flushed.
+        for (unsigned i=0; i<3; i++)
+        {
+            unsigned index=RandomNumberGenerator::Instance()->randMod(parallel_distances.size());
+            TS_ASSERT_DELTA(parallel_distance_calculator.SingleDistance(index, 9260u), parallel_distances[index], 1e-15);
+        }
         
     }
 
