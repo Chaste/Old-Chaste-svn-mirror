@@ -60,7 +60,7 @@ TimeStepper::TimeStepper(double startTime, double endTime, double dt, bool enfor
         }        
         
         double test_value=(additionalTimes[i]-startTime)/mDt;
-        if(fabs(round(test_value)-test_value)>1e-12)
+        if(fabs(floor(test_value+0.5)-test_value)>1e-12)
         {
             mAdditionalTimes.push_back(additionalTimes[i]);
         }
@@ -146,7 +146,7 @@ bool TimeStepper::IsTimeAtEnd() const
 
 unsigned TimeStepper::EstimateTimeSteps() const
 {
-    return (unsigned) round((mEnd - mStart)/mDt) + mAdditionalTimes.size();
+    return (unsigned) floor((mEnd - mStart)/mDt+0.5) + mAdditionalTimes.size();
 }
 
 unsigned TimeStepper::GetTotalTimeStepsTaken() const
