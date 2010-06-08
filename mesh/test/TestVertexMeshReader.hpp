@@ -48,7 +48,7 @@ public:
      */
     void TestFilesOpen() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d");
     }
 
 
@@ -59,7 +59,7 @@ public:
      */
     void TestNodesDataRead() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumNodes(), 7u);
 
@@ -69,7 +69,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(mesh_reader2.GetNextNode());
 
         // Reads node 3 from file when expecting number 1
-        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextNode(),"Data for node 1 missing");
+        TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextNode(), "Data for node 1 missing");
     }
 
 
@@ -80,7 +80,7 @@ public:
      */
     void TestElementsDataRead() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d");
 
         TS_ASSERT_EQUALS(mesh_reader.GetNumElements(), 2u);
 
@@ -142,7 +142,7 @@ public:
      */
     void TestGetNextNode() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d");
 
         std::vector<double> first_node;
         first_node = mesh_reader.GetNextNode();
@@ -173,7 +173,7 @@ public:
      */
     void TestGetNextElementData() throw(Exception)
     {
-        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d");
 
         std::vector<unsigned> next_element;
         for (unsigned i=0; i<mesh_reader.GetNumElements(); i++)
@@ -185,6 +185,75 @@ public:
                 "Cannot get the next line from node or element file due to incomplete data");
     }
 
+
+    /**
+     * Check that GetNextElementDataWithFaces() works. Checks that no errors are thrown for
+     * all of the elements and that an error is thrown if we try to call the
+     * function too many times.
+     */
+    void TestGetNextElementDataWithFaces() throw(Exception)
+    {
+        // First test the case where there aren't actually any faces
+        VertexMeshReader<3,3> mesh_reader1("mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d");
+
+        // This mesh should consist of a single cubic element with eight nodes and no faces
+        TS_ASSERT_EQUALS(mesh_reader1.GetNumElements(), 1u);
+
+        VertexElementData element_0_data = mesh_reader1.GetNextElementDataWithFaces();
+
+        // Test node indices
+        std::vector<unsigned> node_indices = element_0_data.NodeIndices;
+        TS_ASSERT_EQUALS(node_indices.size(), 8u);
+        for (unsigned i=0; i<8; i++)
+        {
+            TS_ASSERT_EQUALS(node_indices[i], i);
+        }
+
+        // Test there aren't any faces
+        std::vector<ElementData> faces = element_0_data.Faces;
+        TS_ASSERT_EQUALS(faces.size(), 0u);
+
+        // Test an exception is thrown if we try to access the next element
+        TS_ASSERT_THROWS_THIS(node_indices = mesh_reader1.GetNextElementDataWithFaces().NodeIndices,
+                "Cannot get the next line from node or element file due to incomplete data");
+
+        // Now test the case where there are faces
+        VertexMeshReader<3,3> mesh_reader2("mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_with_faces");
+
+        // This mesh should consist of a single tetrahedral element with four nodes and four faces
+        TS_ASSERT_EQUALS(mesh_reader2.GetNumElements(), 1u);
+
+        element_0_data = mesh_reader2.GetNextElementDataWithFaces();
+
+        // Test there are four nodes owned by this element
+        node_indices = element_0_data.NodeIndices;
+        TS_ASSERT_EQUALS(node_indices.size(), 4u);
+
+        // Test the node indices are correct (use a set comparison in case of funny business relating to tetgen versions)
+        std::set<unsigned> node_indices_expected;
+        std::set<unsigned> node_indices_returned;
+        for (unsigned i=0; i<4; i++)
+        {
+            node_indices_expected.insert(i);
+            node_indices_returned.insert(node_indices[i]);
+        }
+        TS_ASSERT_EQUALS(node_indices_expected, node_indices_returned);
+
+        // Test there are four faces owned by this element
+        faces = element_0_data.Faces;
+        TS_ASSERT_EQUALS(faces.size(), 4u);
+
+        // Test the first face has the correct index and owns the correct nodes
+        ElementData face_0 = faces[0];
+        TS_ASSERT_EQUALS(face_0.NodeIndices.size(), 3u); 
+        TS_ASSERT_EQUALS(face_0.NodeIndices[0], 3u); 
+        TS_ASSERT_EQUALS(face_0.NodeIndices[1], 0u); 
+        TS_ASSERT_EQUALS(face_0.NodeIndices[2], 2u); 
+
+        // Test an exception is thrown if we try to access the next element
+        TS_ASSERT_THROWS_THIS(node_indices = mesh_reader2.GetNextElementDataWithFaces().NodeIndices,
+                "Cannot get the next line from node or element file due to incomplete data");
+    }
 
     void TestReadingElementAttributes() throw(Exception)
     {

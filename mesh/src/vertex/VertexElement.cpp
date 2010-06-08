@@ -29,6 +29,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RandomNumberGenerator.hpp"
 #include <cassert>
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
+                                                     const std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*>& rFaces,
+                                                     const std::vector<bool>& rOrientations,
+                                                     const std::vector<Node<SPACE_DIM>*>& rNodes)
+    : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes),
+      mFaces(rFaces),
+      mOrientations(rOrientations)
+{
+    // This constructor should only be used in 3D
+    assert(SPACE_DIM == 3);
+
+    // Each face must have an associated orientation
+    assert(mFaces.size() == mOrientations.size());
+
+    // \todo this would stop 2d meshes in 3d space (#1304)
+    if (SPACE_DIM == ELEMENT_DIM)
+    {
+        // Register element with nodes
+        RegisterWithNodes();
+    }
+}
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
                                                      const std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*>& rFaces,
@@ -37,6 +61,7 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
       mFaces(rFaces),
       mOrientations(rOrientations)
 {
+    // Each face must have an associated orientation
     assert(mFaces.size() == mOrientations.size());
 
     // Make a set of nodes with mFaces

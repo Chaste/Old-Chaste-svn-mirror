@@ -729,8 +729,25 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAls
 }
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader)
+template<>
+void VertexMesh<1,1>::ConstructFromMeshReader(AbstractMeshReader<1,1>& rMeshReader)
+{
+}
+template<>
+void VertexMesh<1,2>::ConstructFromMeshReader(AbstractMeshReader<1,2>& rMeshReader)
+{
+}
+template<>
+void VertexMesh<1,3>::ConstructFromMeshReader(AbstractMeshReader<1,3>& rMeshReader)
+{
+}
+template<>
+void VertexMesh<2,3>::ConstructFromMeshReader(AbstractMeshReader<2,3>& rMeshReader)
+{
+}
+
+template<>
+void VertexMesh<2,2>::ConstructFromMeshReader(AbstractMeshReader<2,2>& rMeshReader)
 {
     // Store numbers of nodes and elements
     unsigned num_nodes = rMeshReader.GetNumNodes();
@@ -746,9 +763,9 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshRea
     for (unsigned i=0; i<num_nodes; i++)
     {
         node_data = rMeshReader.GetNextNode();
-        unsigned is_boundary_node = (unsigned) node_data[SPACE_DIM];
+        unsigned is_boundary_node = (unsigned) node_data[2];
         node_data.pop_back();
-        this->mNodes.push_back(new Node<SPACE_DIM>(i, node_data, is_boundary_node));
+        this->mNodes.push_back(new Node<2>(i, node_data, is_boundary_node));
     }
 
     rMeshReader.Reset();
@@ -759,11 +776,11 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshRea
     // Add elements
     for (unsigned elem_index=0; elem_index<num_elements; elem_index++)
     {
-        ///\todo output face data (#1377)
+        // Get the data for this element
         ElementData element_data = rMeshReader.GetNextElementData();
 
-        std::vector<Node<SPACE_DIM>*> nodes;
-
+        // Get the nodes owned by this element
+        std::vector<Node<2>*> nodes;
         unsigned num_nodes_in_element = element_data.NodeIndices.size();
         for (unsigned j=0; j<num_nodes_in_element; j++)
         {
@@ -771,7 +788,120 @@ void VertexMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMeshReader(AbstractMeshRea
             nodes.push_back(this->mNodes[element_data.NodeIndices[j]]);
         }
 
-        VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = new VertexElement<ELEMENT_DIM,SPACE_DIM>(elem_index, nodes);
+        // Use nodes and index to construct this element
+        VertexElement<2,2>* p_element = new VertexElement<2,2>(elem_index, nodes);
+        mElements.push_back(p_element);
+
+        if (rMeshReader.GetNumElementAttributes() > 0)
+        {
+            assert(rMeshReader.GetNumElementAttributes() == 1);
+            unsigned attribute_value = element_data.AttributeValue;
+            p_element->SetRegion(attribute_value);
+        }
+    }
+}
+
+template<>
+void VertexMesh<3,3>::ConstructFromMeshReader(AbstractMeshReader<3,3>& rMeshReader)
+{
+    // Store numbers of nodes and elements
+    unsigned num_nodes = rMeshReader.GetNumNodes();
+    unsigned num_elements = rMeshReader.GetNumElements();
+
+    // Reserve memory for nodes
+    this->mNodes.reserve(num_nodes);
+
+    rMeshReader.Reset();
+
+    // Add nodes
+    std::vector<double> node_data;
+    for (unsigned i=0; i<num_nodes; i++)
+    {
+        node_data = rMeshReader.GetNextNode();
+        unsigned is_boundary_node = (unsigned) node_data[3];
+        node_data.pop_back();
+        this->mNodes.push_back(new Node<3>(i, node_data, is_boundary_node));
+    }
+
+    rMeshReader.Reset();
+
+    // Reserve memory for nodes
+    mElements.reserve(rMeshReader.GetNumElements());
+
+    // Use a std::set to keep track of which faces have been added to mFaces
+    std::set<unsigned> faces_counted;
+
+    // Add elements
+    for (unsigned elem_index=0; elem_index<num_elements; elem_index++)
+    {
+        ///\todo Horrible hack! (#1076/#1377)
+        typedef VertexMeshReader<3,3> VERTEX_MESH_READER;
+        assert(dynamic_cast<VERTEX_MESH_READER*>(&rMeshReader) != NULL);
+
+        // Get the data for this element
+        VertexElementData element_data = static_cast<VERTEX_MESH_READER*>(&rMeshReader)->GetNextElementDataWithFaces();
+
+        // Get the nodes owned by this element
+        std::vector<Node<3>*> nodes;
+        unsigned num_nodes_in_element = element_data.NodeIndices.size();
+        for (unsigned j=0; j<num_nodes_in_element; j++)
+        {
+            assert(element_data.NodeIndices[j] < this->mNodes.size());
+            nodes.push_back(this->mNodes[element_data.NodeIndices[j]]);
+        }
+
+        // Get the faces owned by this element
+        std::vector<VertexElement<2,3>*> faces;
+        unsigned num_faces_in_element = element_data.Faces.size();
+        for (unsigned i=0; i<num_faces_in_element; i++)
+        {
+            // Get the data for this face
+            ElementData face_data = element_data.Faces[i];
+
+            // Get the face index
+            unsigned face_index = face_data.AttributeValue;
+
+            // Get the nodes owned by this face
+            std::vector<Node<3>*> nodes_in_face;
+            unsigned num_nodes_in_face = face_data.NodeIndices.size();
+            for (unsigned j=0; j<num_nodes_in_face; j++)
+            {
+                assert(face_data.NodeIndices[j] < this->mNodes.size());
+                nodes_in_face.push_back(this->mNodes[face_data.NodeIndices[j]]);
+            }
+
+            // Use nodes and index to construct this face
+            VertexElement<2,3>* p_face = new VertexElement<2,3>(face_index, nodes_in_face);
+
+            // If this face is not already contained in mFaces, add it, and update faces_counted...
+            if (faces_counted.find(p_face->GetIndex()) == faces_counted.end())
+            {
+                mFaces.push_back(p_face);
+                faces_counted.insert(p_face->GetIndex());
+                faces.push_back(p_face);
+            }
+            else
+            {
+                // ... otherwise use the member of mFaces with this index
+                bool face_added = false;
+                for (unsigned k=0; k<mFaces.size(); k++)
+                {
+                    if (mFaces[k]->GetIndex() == face_index)
+                    {
+                        faces.push_back(mFaces[k]);
+                        face_added = true;
+                        break;
+                    }
+                }
+                assert(face_added == true);
+            }
+        }
+
+        ///\todo Store orientations? (#1076/#1377)
+        std::vector<bool> orientations = std::vector<bool>(num_faces_in_element, true);
+
+        // Use faces and index to construct this element
+        VertexElement<3,3>* p_element = new VertexElement<3,3>(elem_index, faces, orientations, nodes);
         mElements.push_back(p_element);
 
         if (rMeshReader.GetNumElementAttributes() > 0)

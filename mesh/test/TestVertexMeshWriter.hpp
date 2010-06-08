@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <fstream>
 
+#include "MutableMesh.hpp"
 #include "HoneycombVertexMeshGenerator.hpp"
 #include "VertexMeshWriter.hpp"
 #include "VtkMeshWriter.hpp"
@@ -42,7 +43,7 @@ class TestVertexMeshWriter : public CxxTest::TestSuite
 {
 public:
 
-    void TestMeshWriter() throw(Exception)
+    void TestVertexMeshWriterIn2d() throw(Exception)
     {
         std::vector<Node<2>*> basic_nodes;
         basic_nodes.push_back(new Node<2>(0, true, 0.0, 0.0));
@@ -74,16 +75,18 @@ public:
         VertexMesh<2,2> basic_vertex_mesh(basic_nodes, basic_vertex_elements);
 
         // Create a vertex mesh writer
-        VertexMeshWriter<2,2> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh");
+        VertexMeshWriter<2,2> vertex_mesh_writer("TestVertexMeshWriterIn2d", "vertex_mesh_2d");
+
+        // Test files are written correctly
         vertex_mesh_writer.WriteFilesUsingMesh(basic_vertex_mesh);
 
-        OutputFileHandler handler("TestVertexMeshWriter", false);
-        std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.node";
-        std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.cell";
+        OutputFileHandler handler("TestVertexMeshWriterIn2d", false);
+        std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_2d.node";
+        std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_2d.cell";
 
-        //To ignore the provenance data we only go as far as
-        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file1 + " mesh/test/data/TestVertexMesh/vertex_mesh.node").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file2 + " mesh/test/data/TestVertexMesh/vertex_mesh.cell").c_str()), 0);
+        // To ignore the provenance data we only go as far as
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file1 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file2 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d.cell").c_str()), 0);
 
 #ifdef CHASTE_VTK
         std::vector<double> cell_ids;
@@ -102,16 +105,15 @@ public:
         vertex_mesh_writer.WriteVtkUsingMesh(basic_vertex_mesh);
 
         //1.5K uncompressed, 1.5K compressed
-        std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh.vtu";
-        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMesh/vertex_mesh.vtu").c_str()), 0);
+        std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_2d.vtu";
+        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d.vtu").c_str()), 0);
 
 #endif //CHASTE_VTK
     }
 
-    void TestMeshVtkMeshWriter3D() throw(Exception)
+    void TestVertexMeshWriterIn3dWithoutFaces() throw(Exception)
     {
         // Create 3D mesh
-        ///\todo even though nodes are marked as boundary nodes they are not saved in 3D #1076
         std::vector<Node<3>*> nodes;
         nodes.push_back(new Node<3>(0, true, 0.0, 0.0, 0.0));
         nodes.push_back(new Node<3>(1, true, 1.0, 0.0, 0.0));
@@ -125,11 +127,25 @@ public:
         std::vector<VertexElement<3,3>*> elements;
         elements.push_back(new VertexElement<3,3>(0, nodes));
 
+        // Make a vertex mesh
         VertexMesh<3,3> mesh3d(nodes, elements);
         TS_ASSERT_DELTA(mesh3d.GetWidth(0), 1.0, 1e-4);
         TS_ASSERT_DELTA(mesh3d.GetWidth(1), 2.0, 1e-4);
         TS_ASSERT_DELTA(mesh3d.GetWidth(2), 3.0, 1e-4);
-        VertexMeshWriter<3,3> vertex_mesh_writer("TestVertexMeshWriter", "vertex_mesh_3d", false);
+
+        // Create a vertex mesh writer
+        VertexMeshWriter<3,3> vertex_mesh_writer("TestVertexMeshWriterIn3dWithoutFaces", "vertex_mesh_3d", false);
+
+        // Test files are written correctly
+        vertex_mesh_writer.WriteFilesUsingMesh(mesh3d);
+
+        OutputFileHandler handler("TestVertexMeshWriterIn3dWithoutFaces", false);
+        std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d.node";
+        std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d.cell";
+
+        // To ignore the provenance data we only go as far as
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file1 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file2 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d.cell").c_str()), 0);
 
 #ifdef CHASTE_VTK
         std::vector<double> cell_ids;
@@ -146,11 +162,57 @@ public:
 
         vertex_mesh_writer.WriteVtkUsingMesh(mesh3d, "42");
 
-        OutputFileHandler handler("TestVertexMeshWriter", false);
-
         //1.5K uncompressed, 1.5K compressed
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_42.vtu";
-        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMesh/vertex_mesh_3d.vtu").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_42.vtu").c_str()), 0);
+#endif //CHASTE_VTK
+    }
+
+    void TestVertexMeshWriterIn3dWithFaces() throw(Exception)
+    {
+        // Create a simple 3D mesh using the Voronoi constructor
+        std::vector<Node<3>*> nodes;
+        nodes.push_back(new Node<3>(0, true,  0.0, 0.0, 0.0));
+        nodes.push_back(new Node<3>(1, true,  1.0, 1.0, 0.0));
+        nodes.push_back(new Node<3>(2, true,  1.0, 0.0, 1.0));
+        nodes.push_back(new Node<3>(3, true,  0.0, 1.0, 1.0));
+        nodes.push_back(new Node<3>(4, false, 0.5, 0.5, 0.5));
+
+        MutableMesh<3,3> delaunay_mesh(nodes);
+        VertexMesh<3,3> mesh3d(delaunay_mesh);
+
+        // Create a vertex mesh writer
+        VertexMeshWriter<3,3> vertex_mesh_writer("TestVertexMeshWriterIn3dWithFaces", "vertex_mesh_3d_with_faces", false);
+
+        // Test files are written correctly
+        vertex_mesh_writer.WriteFilesUsingMesh(mesh3d);
+
+        OutputFileHandler handler("TestVertexMeshWriterIn3dWithFaces", false);
+        std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_with_faces.node";
+        std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_with_faces.cell";
+
+        // To ignore the provenance data we only go as far as
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file1 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_with_faces.node").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file2 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_with_faces.cell").c_str()), 0);
+
+#ifdef CHASTE_VTK
+        std::vector<double> cell_ids;
+        cell_ids.push_back(0.0);
+        vertex_mesh_writer.AddCellData("Cell IDs", cell_ids);
+
+         // Add distance from origin into the node "point" data
+        std::vector<double> distance;
+        for (unsigned i=0; i<mesh3d.GetNumNodes(); i++)
+        {
+            distance.push_back(norm_2(mesh3d.GetNode(i)->rGetLocation()));
+        }
+        vertex_mesh_writer.AddPointData("Distance from origin", distance);
+
+        vertex_mesh_writer.WriteVtkUsingMesh(mesh3d, "42");
+
+        //1.5K uncompressed, 1.5K compressed
+        std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_with_faces_42.vtu";
+        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_with_faces_42.vtu").c_str()), 0);
 #endif //CHASTE_VTK
     }
 

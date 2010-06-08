@@ -133,6 +133,7 @@ std::vector<double> VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextNode()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 ElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
 {
+    // Create data structure for this element
     ElementData element_data;
 
     std::string buffer;
@@ -154,6 +155,7 @@ ElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
     unsigned num_nodes_in_element;
     buffer_stream >> num_nodes_in_element;
 
+    // Store node indices owned by this element
     unsigned node_index;
     for (unsigned i=0; i<num_nodes_in_element; i++)
     {
@@ -173,6 +175,79 @@ ElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementData()
     {
         element_data.AttributeValue = 0;
     }
+
+    mElementsRead++;
+    return element_data;
+}
+
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+VertexElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementDataWithFaces()
+{
+    // Create data structure for this element
+    VertexElementData element_data;
+
+    std::string buffer;
+    GetNextLineFromStream(mElementsFile, buffer);
+
+    std::stringstream buffer_stream(buffer);
+
+    unsigned element_index;
+    buffer_stream >> element_index;
+
+    unsigned offset = mIndexFromZero ? 0 : 1;
+    if (element_index != mElementsRead + offset)
+    {
+        std::stringstream error;
+        error << "Data for element " << mElementsRead << " missing";
+        EXCEPTION(error.str());
+    }
+
+    // Get number of nodes owned by this element
+    unsigned num_nodes_in_element;
+    buffer_stream >> num_nodes_in_element;
+
+    // Store node indices owned by this element
+    unsigned node_index;
+    for (unsigned i=0; i<num_nodes_in_element; i++)
+    {
+        buffer_stream >> node_index;
+        element_data.NodeIndices.push_back(node_index - offset);
+    }
+
+    // Get number of faces owned by this element
+    unsigned num_faces_in_element;
+    buffer_stream >> num_faces_in_element;
+
+    element_data.Faces.resize(num_faces_in_element);
+    for (unsigned j=0; j<num_faces_in_element; j++)
+    {
+        // Create data structure for this face
+        ElementData face_data;
+
+        // Get face index
+        unsigned face_index;
+        buffer_stream >> face_index;
+        face_data.AttributeValue = face_index;
+
+        // Get number of nodes owned by this face
+        unsigned num_nodes_in_face;
+        buffer_stream >> num_nodes_in_face;
+
+        // Store node indices owned by this face
+        unsigned node_index;
+        for (unsigned i=0; i<num_nodes_in_face; i++)
+        {
+            buffer_stream >> node_index;
+            face_data.NodeIndices.push_back(node_index - offset);
+        }
+
+        ///\todo Store face orientations? (#1076/#1377)
+
+        element_data.Faces[j] = face_data;
+    }
+
+    ///\todo Read element attribute (#1076/#1377)
 
     mElementsRead++;
     return element_data;

@@ -682,7 +682,7 @@ public:
     void TestMeshConstructionFromMeshReader()
     {
         // Create mesh
-        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMesh/vertex_mesh");
+        VertexMeshReader<2,2> mesh_reader("mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d");
         VertexMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
@@ -750,6 +750,76 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(1), 5u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNodeGlobalIndex(2), 6u);
         TS_ASSERT_EQUALS(mesh.GetElement(1)->GetNode(1), mesh.GetNode(5));
+    }
+
+
+    void TestMeshConstructionFromMeshReaderWithFaces()
+    {
+        // Create mesh
+        VertexMeshReader<3,3> mesh_reader("mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_with_faces");
+        VertexMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Check we have the right number of nodes, elements and faces
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumFaces(), 4u);
+
+        // Check Voronoi nodes are correct
+        c_vector<double, 3> node_0_location = mesh.GetNode(0)->rGetLocation();
+        TS_ASSERT_DELTA(node_0_location[0], 1.25, 1e-6);
+        TS_ASSERT_DELTA(node_0_location[1], -0.25, 1e-6);
+        TS_ASSERT_DELTA(node_0_location[2], -0.25, 1e-6);
+
+        c_vector<double, 3> node_1_location = mesh.GetNode(1)->rGetLocation();
+        TS_ASSERT_DELTA(node_1_location[0], -0.25, 1e-6);
+        TS_ASSERT_DELTA(node_1_location[1], -0.25, 1e-6);
+        TS_ASSERT_DELTA(node_1_location[2], 1.25, 1e-6);
+
+        c_vector<double, 3> node_2_location = mesh.GetNode(2)->rGetLocation();
+        TS_ASSERT_DELTA(node_2_location[0], 1.25, 1e-6);
+        TS_ASSERT_DELTA(node_2_location[1], 1.25, 1e-6);
+        TS_ASSERT_DELTA(node_2_location[2], 1.25, 1e-6);
+
+        c_vector<double, 3> node_3_location = mesh.GetNode(3)->rGetLocation();
+        TS_ASSERT_DELTA(node_3_location[0], -0.25, 1e-6);
+        TS_ASSERT_DELTA(node_3_location[1], 1.25, 1e-6);
+        TS_ASSERT_DELTA(node_3_location[2], -0.25, 1e-6);
+
+        // Check Voronoi faces are correct
+        VertexElement<2,3>* p_face_0 = mesh.GetFace(0);
+        TS_ASSERT_EQUALS(p_face_0->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face_0->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(p_face_0->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(p_face_0->GetNodeGlobalIndex(2), 2u);
+        TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_0), 1.125, 1e-4);
+
+        VertexElement<2,3>* p_face_1 = mesh.GetFace(1);
+        TS_ASSERT_EQUALS(p_face_1->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face_1->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(p_face_1->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(p_face_1->GetNodeGlobalIndex(2), 1u);
+        TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_1), 1.9485, 1e-4);
+
+        VertexElement<2,3>* p_face_2 = mesh.GetFace(2);
+        TS_ASSERT_EQUALS(p_face_2->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face_2->GetNodeGlobalIndex(0), 1u);
+        TS_ASSERT_EQUALS(p_face_2->GetNodeGlobalIndex(1), 0u);
+        TS_ASSERT_EQUALS(p_face_2->GetNodeGlobalIndex(2), 2u);
+        TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_2), 1.125, 1e-4);
+
+        VertexElement<2,3>* p_face_3 = mesh.GetFace(3);
+        TS_ASSERT_EQUALS(p_face_3->GetNumNodes(), 3u);
+        TS_ASSERT_EQUALS(p_face_3->GetNodeGlobalIndex(0), 3u);
+        TS_ASSERT_EQUALS(p_face_3->GetNodeGlobalIndex(1), 1u);
+        TS_ASSERT_EQUALS(p_face_3->GetNodeGlobalIndex(2), 2u);
+        TS_ASSERT_DELTA(mesh.GetAreaOfFace(p_face_3), 1.125, 1e-4);
+
+        // Check Voronoi element is correct
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumFaces(), 4u);
+        TS_ASSERT_DELTA(mesh.GetVolumeOfElement(0), 0.6495, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetSurfaceAreaOfElement(0), 5.3235, 1e-4);
     }
 
     void TestArchive2dVertexMesh()
@@ -912,9 +982,8 @@ public:
                 TS_ASSERT_EQUALS(p_mesh_original->GetElement(elem_index)->GetNumNodes(),
                                  p_mesh_loaded->GetElement(elem_index)->GetNumNodes());
 
-///\todo Uncomment once archiving of faces is implemented for 3D vertex meshes (see #1076 and #1377)
-//                TS_ASSERT_EQUALS(p_mesh_original->GetElement(elem_index)->GetNumFaces(),
-//                                 p_mesh_loaded->GetElement(elem_index)->GetNumFaces());
+                TS_ASSERT_EQUALS(p_mesh_original->GetElement(elem_index)->GetNumFaces(),
+                                 p_mesh_loaded->GetElement(elem_index)->GetNumFaces());
 
                 for (unsigned local_index=0; local_index<p_mesh_original->GetElement(elem_index)->GetNumNodes(); local_index++)
                 {

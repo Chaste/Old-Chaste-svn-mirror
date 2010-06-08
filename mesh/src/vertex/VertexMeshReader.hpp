@@ -36,6 +36,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "AbstractMeshReader.hpp"
 
+/**
+ * Helper structure that stores the nodes and any attribute value
+ * associated with a VertexElement.
+ */
+struct VertexElementData
+{
+    std::vector<unsigned> NodeIndices; /**< Vector of Node indices owned by the element. */
+    std::vector<ElementData> Faces; /**< Vector of faces owned by the element (only used in 3D). */
+    std::vector<bool> Orientations; /**< Vector of face orientations (only used in 3D). */
+    unsigned AttributeValue; /**< Attribute value associated with the element. */
+    unsigned ContainingElement; /**< Only applies to boundary elements: which element contains this boundary element. Only set if reader called with correct params */
+};
 
 /**
  * A mesh reader class for vertex-based meshes. So far implemented in 2D only.
@@ -162,9 +174,15 @@ public:
     std::vector<double> GetNextNode();
 
     /**
-     * @return the nodes of each element (and any attribute infomation, if there is any) in turn
+     * @return the nodes of each element (and any attribute infomation, if there is any) in turn.
      */
     ElementData GetNextElementData();
+
+    /**
+     * @return the nodes of each element (and any attribute infomation, if there is any) in turn, then its faces.
+     *         This method should only be called in 3D.
+     */
+    VertexElementData GetNextElementDataWithFaces();
 
 };
 

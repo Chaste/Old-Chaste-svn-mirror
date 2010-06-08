@@ -309,7 +309,7 @@ public:
 
     /**
      * Construct the mesh using a MeshReader.
-     *
+     * 
      * @param rMeshReader the mesh reader
      */
     void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM,SPACE_DIM>& rMeshReader);

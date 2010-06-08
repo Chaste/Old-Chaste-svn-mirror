@@ -134,9 +134,21 @@ public:
      */
     void AddPointData(std::string dataName, std::vector<double> dataPayload);
 
+    /**
+     * @return the coordinates of the next node to be written to file
+     */
     std::vector<double> GetNextNode();
 
+    /**
+     * @return the data (indices/attributes) of the next element to be written to file
+     */
     ElementData GetNextElement();
+
+    /**
+     * @return the data (indices/attributes) of the next element to be written to file, including its faces.
+     *         This method should only be called in 3D.
+     */
+    VertexElementData GetNextElementWithFaces();
 
     /**
      * Write mesh data to files.

@@ -48,7 +48,7 @@ private:
     /**
      * Faces of the VertexElement, which should be distinct.
      */
-    std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*> mFaces;
+    std::vector<VertexElement<ELEMENT_DIM-1, SPACE_DIM>*> mFaces;
 
     /**
      * How each face is oriented. From the perspective of the centre
@@ -81,7 +81,7 @@ private:
         // This needs to be first so that MeshBasedTissue::Validate() doesn't go mental.
         archive & mFaces;
         archive & mOrientations;
-        archive & boost::serialization::base_object<AbstractElement<ELEMENT_DIM,SPACE_DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractElement<ELEMENT_DIM, SPACE_DIM> >(*this);
     }
 
 public:
@@ -94,7 +94,7 @@ public:
      * @param rOrientations vector of orientations of the faces associated with the element
      */
     VertexElement(unsigned index,
-                  const std::vector<VertexElement<ELEMENT_DIM-1,SPACE_DIM>*>& rFaces,
+                  const std::vector<VertexElement<ELEMENT_DIM-1, SPACE_DIM>*>& rFaces,
                   const std::vector<bool>& rOrientations);
 
     /**
@@ -116,6 +116,22 @@ public:
      */
     VertexElement(unsigned index,
                   const std::vector<Node<SPACE_DIM>*>& rNodes);
+
+    /**
+     * Constructor used to specify the element completely. This ensures that
+     * the nodes and faces are owned by the element *in a specified order*.
+     * See #1076 and #1377 for more details. 
+     *
+     * @param index global index of the element
+     * @param rFaces vector of faces associated with the element
+     * @param rOrientations vector of orientations of the faces associated with the element
+     * @param rNodes vector of Nodes associated with the element
+     */
+    VertexElement(unsigned index,
+                  const std::vector<VertexElement<ELEMENT_DIM-1, SPACE_DIM>*>& rFaces,
+                  const std::vector<bool>& rOrientations,
+                  const std::vector<Node<SPACE_DIM>*>& rNodes);
+
     /**
      * Destructor.
      */
@@ -176,7 +192,7 @@ public:
      *
      * @param pFace a pointer to the new face
      */
-    void AddFace(VertexElement<ELEMENT_DIM-1,SPACE_DIM>* pFace);
+    void AddFace(VertexElement<ELEMENT_DIM-1, SPACE_DIM>* pFace);
 
     /**
      * Calculate the local index of a node given a global index
@@ -194,7 +210,7 @@ public:
      *
      * @return a pointer to the face
      */
-    VertexElement<ELEMENT_DIM-1,SPACE_DIM>* GetFace(unsigned index) const;
+    VertexElement<ELEMENT_DIM-1, SPACE_DIM>* GetFace(unsigned index) const;
 
     /**
      * Get whether the face with a given index is oriented clockwise.
