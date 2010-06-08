@@ -147,7 +147,7 @@ private:
      *  @param rPoint The point
      *  @param safeMode See documentation for ComputeFineElementsAndWeightsForCoarseQuadPoints()
      *  @param boxForThisPoint The box containing this point
-     *  @oaram index The index into the mFineMeshElementsAndWeights std::vector
+     *  @param index The index into the mFineMeshElementsAndWeights std::vector
      */
     void ComputeFineElementAndWeightForGivenPoint(ChastePoint<DIM>& rPoint, 
                                                   bool safeMode,
