@@ -177,7 +177,7 @@ double Element<ELEMENT_DIM, SPACE_DIM>::CalculateQuality()
          * Area_Eq_Tri = Pi * R^2
          * Q= (2*|Jacobian|)/3*sqrt(3)*r^2)
          */
-        return 2.0*jacobian_determinant/(3.0*sqrt(3)*circum[SPACE_DIM]);
+        return 2.0*jacobian_determinant/(3.0*sqrt(3.0)*circum[SPACE_DIM]);
     }
     assert(SPACE_DIM == 3);
     /* Want Q=(Vol_Tet / Vol_CirS) / (Vol_Plat_Tet / Vol_Plat_CirS)

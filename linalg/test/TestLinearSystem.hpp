@@ -689,7 +689,7 @@ public:
         {
             for (int col=0; col<3; col++)
             {
-                ls.SetMatrixElement(row, col, fabs(row-col));
+                ls.SetMatrixElement(row, col, (double)(abs(row-col)));
             }
         }
         ls.AssembleFinalLinearSystem();
@@ -892,7 +892,7 @@ public:
         {
             for (int col=0; col<3; col++)
             {
-                ls.SetMatrixElement(row, col, fabs(row-col));
+                ls.SetMatrixElement(row, col, (double)(abs(row-col)));
             }
         }
         ls.AssembleFinalLinearSystem();
@@ -972,7 +972,7 @@ public:
 
                 for (int col=0; col<3; col++)
                 {
-                    TS_ASSERT_DELTA(ret_array[col], fabs(row-col), 1e-9);
+                    TS_ASSERT_DELTA(ret_array[col], (double)(abs(row-col)), 1e-9);
                 }
             }
 

@@ -527,7 +527,7 @@ public:
                          values,
                          ADD_VALUES);
         }
-    };
+    }
 
     /**
      * Add multiple values to the RHS vector.
