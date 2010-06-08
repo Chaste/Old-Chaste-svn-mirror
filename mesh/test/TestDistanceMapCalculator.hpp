@@ -33,11 +33,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "DistributedTetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
+#include "RandomNumberGenerator.hpp"
 
 class TestDistanceMapCalculator : public CxxTest::TestSuite
 {
 public:
-    void joeTestDistances1D() throw (Exception)
+    void TestDistances1D() throw (Exception)
     {
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
 
@@ -82,92 +83,6 @@ public:
     }
 
 
-    void donotTestDistances2D() throw (Exception)
-    {
-        std::vector<unsigned> map_origin;
-        map_origin.push_back(0u);
-        unsigned levels = 3u;
-        std::vector<double> distances_serial;
-        {
-            //This is in a block so that we can minimise to scope of the serial mesh (to avoid using it in error)
-            TetrahedralMesh<2,2> serial_mesh;
-            //Can do this with  processes > levels
-            serial_mesh.ConstructRectangularMesh(1, levels-1);
-            TS_ASSERT_EQUALS(serial_mesh.GetNumNodes(), levels*2u);
-            TS_ASSERT_EQUALS(serial_mesh.GetNumElements(),(levels-1u)*2u);
-            TS_ASSERT_EQUALS(serial_mesh.GetNumBoundaryElements(), (levels)*2u);
-            DistanceMapCalculator<2,2> distance_calculator_serial(serial_mesh);
-            distance_calculator_serial.ComputeDistanceMap(map_origin, distances_serial);
-        }
-
-        DistributedTetrahedralMesh<2,2> parallel_mesh;
-        parallel_mesh.ConstructRectangularMesh(1, levels-1);
-
-        TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), levels*2u);
-        TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), (levels-1u)*2u);
-        TS_ASSERT_EQUALS(parallel_mesh.GetNumBoundaryElements(), (levels)*2u);
-
-        DistanceMapCalculator<2,2> distance_calculator_parallel(parallel_mesh);
-        std::vector<double> distances_parallel;
-        distance_calculator_parallel.ComputeDistanceMap(map_origin, distances_parallel);
-
-        TS_ASSERT_EQUALS(distances_serial.size(), distances_parallel.size());
-        for (unsigned index=0; index<distances_parallel.size(); index++)
-        {
-            try
-            {
-                double dist = norm_2(parallel_mesh.GetNode(index)->rGetLocation()); //throws if not owned
-                TS_ASSERT_DELTA(distances_serial[index], dist, 1e-12);
-                TS_ASSERT_DELTA(distances_parallel[index], dist, 1e-12);
-            }
-            catch (Exception &e)
-            {
-            }
-            //Is global data okay?
-            TS_ASSERT_DELTA(distances_parallel[index], distances_serial[index], 1e-12);
-        }
-    }
-
-    void donotTestDistances3D() throw (Exception)
-    {
-        std::vector<unsigned> map_origin;
-        map_origin.push_back(0u);
-        unsigned levels = 3u;
-        std::vector<double> distances_serial;
-        {
-            //This is in a block so that we can minimise to scope of the serial mesh (to avoid using it in error)
-            TetrahedralMesh<3,3> serial_mesh;
-            //Can do this with  processes > levels
-            serial_mesh.ConstructCuboid(1, 1, levels-1);
-            TS_ASSERT_EQUALS(serial_mesh.GetNumNodes(), levels*2u*2u);
-            DistanceMapCalculator<3,3> distance_calculator_serial(serial_mesh);
-            distance_calculator_serial.ComputeDistanceMap(map_origin, distances_serial);
-        }
-
-        DistributedTetrahedralMesh<3,3> parallel_mesh;
-        parallel_mesh.ConstructCuboid(1, 1, levels-1);
-        TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), levels*2u*2u);
-
-        DistanceMapCalculator<3,3> distance_calculator_parallel(parallel_mesh);
-        std::vector<double> distances_parallel;
-        distance_calculator_parallel.ComputeDistanceMap(map_origin, distances_parallel);
-
-        TS_ASSERT_EQUALS(distances_serial.size(), distances_parallel.size());
-        for (unsigned index=0; index<distances_parallel.size(); index++)
-        {
-            try
-            {
-                double dist = norm_2(parallel_mesh.GetNode(index)->rGetLocation()); //throws if not owned
-                TS_ASSERT_DELTA(distances_serial[index], dist, 1e-12);
-                TS_ASSERT_DELTA(distances_parallel[index], dist, 1e-12);
-            }
-            catch (Exception &e)
-            {
-            }
-            //Is global data okay?
-            TS_ASSERT_DELTA(distances_parallel[index], distances_serial[index], 1e-12);
-        }
-    }
 
 
     void TestDistancesToCorner() throw (Exception)
@@ -216,7 +131,8 @@ public:
         TS_ASSERT_EQUALS(distance_calculator.mRoundCounter, 1u);
         //Nodes in mesh are order such that a dumb partitioning will give a sequential handover from proc0 to proc1...
         TS_ASSERT_EQUALS(parallel_distance_calculator.mRoundCounter, PetscTools::GetNumProcs());
-
+        //Note unsigned division is okay here
+        TS_ASSERT_DELTA(parallel_distance_calculator.mPopCounter, 9261u/PetscTools::GetNumProcs(), 1u);
         for (unsigned index=0; index<distances.size(); index++)
         {
             c_vector<double, 3> node = mesh.GetNode(index)->rGetLocation();
@@ -238,9 +154,49 @@ public:
             
             TS_ASSERT_DELTA(distances[index], parallel_distances[index], 1e-15);
         }
+        
+        //Test some point-to-point distances
+        RandomNumberGenerator::Instance()->Reseed(1);
+        unsigned trials=20;
+        unsigned pops=0;
+        for (unsigned i=0; i<=trials; i++)
+        {
+            unsigned index=RandomNumberGenerator::Instance()->randMod(parallel_distances.size());
+            TS_ASSERT_DELTA(parallel_distance_calculator.SingleDistance(9260u, index), parallel_distances[index], 1e-15);
+            if (i==0)
+            {
+                if (PetscTools::IsSequential())
+                {
+                    //First call does lots of pops (but less than a full calculation)
+                    TS_ASSERT_DELTA(parallel_distance_calculator.mPopCounter, 8328u, 1u);
+                }
+                else
+                {
+                    //Early termination is unlikely
+                    
+                }
+            }
+            else
+            {
+                //Subsequent calls are likely to do fewer pops
+                //Most do two
+                pops += parallel_distance_calculator.mPopCounter;
+            }
+           
+        }
+        if (PetscTools::IsSequential())
+        {
+             TS_ASSERT_DELTA(pops/trials, 30u, 1u);
+        }
+        else
+        {
+             TS_ASSERT_DELTA(pops/(double)trials, 1.0, 1.1); //Normally 2 or 0
+        }
+        
+        
     }
 
-    void joeTestDistancesToFaceDumb()
+    void TestDistancesToFaceDumb()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
 
@@ -289,7 +245,7 @@ public:
             TS_ASSERT_DELTA(parallel_distances[index], node[0]+0.25,1e-11);
         }
     }
-    void joeTestDistancesToFace()
+    void TestDistancesToFace()
     {
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_21_nodes_side/Cube21"); // 5x5x5mm cube (internode distance = 0.25mm)
 

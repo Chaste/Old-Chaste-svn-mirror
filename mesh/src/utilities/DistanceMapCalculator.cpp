@@ -35,9 +35,13 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
     : mrMesh(rMesh),
       mWorkOnEntireMesh(true),
       mNumHalosPerProcess(NULL),
-      mRoundCounter(0u)
+      mRoundCounter(0u),
+      mPopCounter(0u),
+      mTargetNodeIndex(UINT_MAX)
 {
     mNumNodes = mrMesh.GetNumNodes();
+    
+    assert(mCachedSourceNodeIndex.size() == 0);
     DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_distributed_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh);
     if ( PetscTools::IsSequential() || p_distributed_mesh == NULL)
     {
@@ -64,12 +68,23 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
         const std::vector<unsigned>& rSourceNodeIndices,
-        std::vector<double>& rNodeDistances)
+        std::vector<double>& rNodeDistances,
+        bool reuseDistanceInformation)
 {
-    rNodeDistances.resize(mNumNodes);
-    for (unsigned index=0; index<mNumNodes; index++)
+    if (!reuseDistanceInformation || rNodeDistances.size()  != mNumNodes)
     {
-        rNodeDistances[index] = DBL_MAX;
+        rNodeDistances.resize(mNumNodes);
+        for (unsigned index=0; index<mNumNodes; index++)
+        {
+            rNodeDistances[index] = DBL_MAX;
+        }
+        //Make sure that there isn't a non-empty queue from a previous calculation
+        if (!mActivePriorityNodeIndexQueue.empty())
+        {
+            ///\todo #1414 coverage
+            mActivePriorityNodeIndexQueue = std::priority_queue<std::pair<double, unsigned> >();
+        }
+        
     }
     
     for (unsigned source_index=0; source_index<rSourceNodeIndices.size(); source_index++)
@@ -81,6 +96,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
 
     bool non_empty_queue=true;
     mRoundCounter=0;
+    mPopCounter=0;
     while (non_empty_queue)
     {
         WorkOnLocalQueue(rNodeDistances);
@@ -167,6 +183,7 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
         unsigned current_node_index = mActivePriorityNodeIndexQueue.top().second;
         double distance_when_queued=-mActivePriorityNodeIndexQueue.top().first;
         mActivePriorityNodeIndexQueue.pop();
+        mPopCounter++;
         //Only act on nodes which haven't been acted on already
         //(It's possible that a better distance has been found and already been dealt with) 
         if (distance_when_queued == rNodeDistances[current_node_index]);
@@ -201,10 +218,45 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                             PushLocal(updated_distance, neighbour_node_index);
                         }
                     }
-               }//Node
-           }//Element
+                }//Node
+            }//Element
+            if (current_node_index == mTargetNodeIndex)
+            {
+                //Premature termination if there is a single goal in mind
+                return;
+                ///\todo #1414 Can we do premature termination of remote processes?
+            }
+            
         }//If
      }//While !empty
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+double DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::SingleDistance(unsigned sourceNodeIndex, unsigned targetNodeIndex)
+{
+    if (mCachedSourceNodeIndex.size() != 1u || mCachedSourceNodeIndex[0] != sourceNodeIndex)
+    {
+        //It is not the same as the previous calculation
+        mCachedSourceNodeIndex.resize(1u);
+        mCachedSourceNodeIndex[0]=sourceNodeIndex;
+        mCachedDistances.resize(0);
+    }
+    //We are re-using the mCachedDistances vector...
+    
+    mTargetNodeIndex=targetNodeIndex;//For premature termination
+    //Make sure that if the target destination has already been through the queue
+    //that we see it again (so we don't have to flush the queue)
+    if (!mCachedDistances.empty())
+    {
+        PushLocal(mCachedDistances[targetNodeIndex], targetNodeIndex);
+    }
+    ComputeDistanceMap(mCachedSourceNodeIndex, mCachedDistances, true);
+
+    ///\todo #1414 A* metric
+    ///\todo #1414 premature termination when we find the correct one (parallel)
+    //Reset target, so we don't terminate early next time.
+    mTargetNodeIndex=UINT_MAX;
+    return mCachedDistances[targetNodeIndex];
 }
 
 /////////////////////////////////////////////////////////////////////

@@ -63,7 +63,15 @@ private:
     std::vector<unsigned> mHaloNodeIndices;
     /** Used to check parallel implementation*/
     unsigned mRoundCounter;
-
+    /** Used to check implementation for number of queue pops per calculation*/
+    unsigned mPopCounter;
+    /** Used in the calculation of point-to-point distances - this is expected to be of size==1 when it is used*/
+    std::vector<unsigned> mCachedSourceNodeIndex;
+    /** Used in the calculation of point-to-point distances.*/    
+    std::vector<double> mCachedDistances;
+    /** Used in the calculation of point-to-point distances.*/    
+    unsigned mTargetNodeIndex;
+    
     /**
      * Queue of nodes to be processed (initialised with the nodes defining the surface)
      * Priorities (given as the first in the pair for lexographical ordering) are
@@ -125,11 +133,23 @@ public:
     /**
      *  Generates a distance map of all the nodes of the mesh to the given source
      *
-     *  @param rSourceNodeIndices set of node indexes defining the source set orsurface
+     *  @param rSourceNodeIndices set of node indices defining the source set or surface
      *  @param rNodeDistances distance map computed. The method will resize it if it's not big enough.
+     *  @param reuseDistanceInformation is set to true if the rNodeDistances parameter contains 
+     *         partial/incomplete information from a previous similar calculation
      */
     void ComputeDistanceMap(const std::vector<unsigned>& rSourceNodeIndices,
-                            std::vector<double>& rNodeDistances);
+                            std::vector<double>& rNodeDistances,
+                            bool reuseDistanceInformation=false);
+    /**
+     *  Calculates a single point-to-point distance
+     *
+     *  @param sourceNodeIndex node index for source of distance computation.  Calculations will be cached so 
+     *  that multiple point-to-point distance computations will get faster. 
+     *  @param destinationNodeIndex target destination node
+     */
+    double SingleDistance(unsigned sourceNodeIndex, unsigned destinationNodeIndex);
+                            
 };
 
 #endif /*DISTANCEMAPCALCULATOR_HPP_*/
