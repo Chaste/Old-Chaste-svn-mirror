@@ -53,6 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CmguiDeformedSolutionsWriter.hpp"
 
+#include "Debug.hpp"
 
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::DetermineWatchedNodes()
@@ -653,25 +654,86 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         delete mpMonodomainProblem->mpWriter;
 
 
-        // Convert simulation data to Meshalyzer format
+        // Convert simulation data to CMGUI format
         //
         std::string input_dir = mOutputDirectory+"/electrics";
         std::string config_directory = HeartConfig::Instance()->GetOutputDirectory();
         HeartConfig::Instance()->SetOutputDirectory(input_dir);
-        Hdf5ToMeshalyzerConverter<DIM,DIM> meshalyzer_converter(input_dir, "voltage", mpElectricsMesh);
+        //Hdf5ToMeshalyzerConverter<DIM,DIM> meshalyzer_converter(input_dir, "voltage", mpElectricsMesh);
         Hdf5ToCmguiConverter<DIM,DIM> cmgui_converter(input_dir,"voltage",mpElectricsMesh);
 
         // Write mesh in a suitable form for meshalyzer
-        std::string output_directory =  mOutputDirectory + "/electrics/output";
+        //std::string output_directory =  mOutputDirectory + "/electrics/output";
         // Write the mesh
-        MeshalyzerMeshWriter<DIM,DIM> mesh_writer(output_directory, "mesh", false);
-        mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
+        //MeshalyzerMeshWriter<DIM,DIM> mesh_writer(output_directory, "mesh", false);
+        //mesh_writer.WriteFilesUsingMesh(*mpElectricsMesh);
         // Write the parameters out
-        HeartConfig::Instance()->Write();
+        //HeartConfig::Instance()->Write();
+    
+        // interpolate the electrical data onto the mechancis mesh nodes...
+        
+        Hdf5DataReader reader(input_dir,"voltage");
+        unsigned num_timesteps = reader.GetUnlimitedDimensionValues().size();
+        
+        mpMeshPair->SetUpBoxesOnFineMesh();
+        mpMeshPair->ComputeFineElementsAndWeightsForCoarseNodes(true);
+        assert(mpMeshPair->rGetElementsAndWeights().size()==mpMechanicsMesh->GetNumNodes());
+
+
+        Hdf5DataWriter* p_writer = new Hdf5DataWriter(*mpMechanicsMesh->GetDistributedVectorFactory(),
+                              HeartConfig::Instance()->GetOutputDirectory(),
+                              "voltage_mechanics_mesh",
+                              false, //don't clean
+                              false);
+        p_writer->DefineFixedDimension( mpMechanicsMesh->GetNumNodes() );
+        int voltage_column_id = p_writer->DefineVariable("V","mV");
+        p_writer->DefineUnlimitedDimension("Time","msecs");
+        p_writer->EndDefineMode();
+
+        DistributedVectorFactory factory(mpElectricsMesh->GetNumNodes());
+        Vec voltage = factory.CreateVec(); 
+        interpolated_voltages.resize(mpMechanicsMesh->GetNumNodes());
+        Vec voltage_coarse = NULL;
+
+        for(unsigned time_step=0; time_step<num_timesteps; time_step++)
+        {
+            reader.GetVariableOverNodes(voltage, "V", time_step);
+            ReplicatableVector voltage_repl(voltage);
+            
+            for(unsigned i=0; i<mpMeshPair->rGetElementsAndWeights().size(); i++)
+            {
+                double interpolated_voltage = 0;
+
+                Element<DIM,DIM>& element = *(mpElectricsMesh->GetElement(mpMeshPair->rGetElementsAndWeights()[i].ElementNum));
+                for(unsigned node_index = 0; node_index<element.GetNumNodes(); node_index++)
+                {
+                    unsigned global_node_index = element.GetNodeGlobalIndex(node_index);
+                    interpolated_voltage += voltage_repl[global_node_index]*mpMeshPair->rGetElementsAndWeights()[i].Weights(node_index);
+                }
+
+                interpolated_voltages[i] = interpolated_voltage;
+            }
+            voltage_coarse = PetscTools::CreateVec(interpolated_voltages);
+          
+            p_writer->PutUnlimitedVariable(time_step);
+            p_writer->PutVector(voltage_column_id, voltage_coarse);
+            p_writer->AdvanceAlongUnlimitedDimension();            
+        }
+
+        if(voltage_coarse!=NULL)
+        {
+            VecDestroy(voltage);
+            VecDestroy(voltage_coarse);
+        }
+
+        delete p_writer;
+        Hdf5ToCmguiConverter<DIM,DIM> converter(HeartConfig::Instance()->GetOutputDirectory(), 
+                                                "voltage_mechanics_mesh", 
+                                                mpMechanicsMesh, 
+                                                false);
 
         // reset to the default value
         HeartConfig::Instance()->SetOutputDirectory(config_directory);
-
     }
 
     if(p_cmgui_writer)

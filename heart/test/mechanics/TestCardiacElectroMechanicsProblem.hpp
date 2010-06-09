@@ -119,6 +119,8 @@ public:
         std::string command = "ls " + handler.GetOutputDirectoryFullPath() + "/electrics";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
+//#1229 - add test that voltage was interpolated correctly
+
         MechanicsEventHandler::Headings();
         MechanicsEventHandler::Report();
 
