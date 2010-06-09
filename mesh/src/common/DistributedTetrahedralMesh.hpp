@@ -80,7 +80,7 @@ public:
     {
         DUMB=0,
         PARMETIS_LIBRARY=1,
-        METIS_LIBRARY=2
+        METIS_LIBRARY=2,
         PETSC_MAT_PARTITION=3 
     } PartitionType;
 
