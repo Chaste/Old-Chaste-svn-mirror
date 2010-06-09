@@ -312,7 +312,10 @@ in your distribution it is worthwhile to install from there, e.g.
 
 Otherwise, the following will hopefully work...
 
-wget http://download.librdf.org/source/redland-1.0.10.tar.gz http://download.librdf.org/source/redland-bindings-1.0.10.1.tar.gz http://download.librdf.org/source/rasqal-0.9.19.tar.gz http://download.librdf.org/source/raptor-1.4.21.tar.gz
+wget http://download.librdf.org/source/redland-1.0.10.tar.gz 
+wget http://download.librdf.org/source/redland-bindings-1.0.10.1.tar.gz 
+wget http://download.librdf.org/source/rasqal-0.9.19.tar.gz 
+wget http://download.librdf.org/source/raptor-1.4.21.tar.gz
 
 tar -zxf raptor-1.4.21.tar.gz
 cd raptor-1.4.21/
@@ -328,7 +331,9 @@ cd rasqal-0.9.19/
 make install
 cd ..
 
-# Note that on Heart, we needed mysql-devel.x86_64 before this would build 
+# You may find you need the mysql development headers before this will build (eg. on Fedora: 
+# sudo yum install mysql-devel.x86_64. Debian: sudo aptitude install libmysqlclient-dev. 
+# Alternatively (and untested): http://dev.mysql.com/downloads/mysql/)
 tar -zxf redland-1.0.10.tar.gz
 cd redland-1.0.10
 ./configure --prefix=$CHASTE_LIBS/rdf
