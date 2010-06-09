@@ -432,10 +432,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::ComputeDeformationGradientAndStretc
     assert(rStretches.size()==this->mpQuadMesh->GetNumElements());
     
     // this will only work currently if the coarse mesh fibre info is defined per element, not per quad point 
-    if(mpVariableFibreSheetDirections)
-    {
-        assert(!mFibreSheetDirectionsDefinedByQuadraturePoint);
-    }
+    assert(!mpVariableFibreSheetDirections || !mFibreSheetDirectionsDefinedByQuadraturePoint);
    
     static c_matrix<double,DIM,NUM_VERTICES_PER_ELEMENT> element_current_displacements;
     static c_matrix<double,DIM,NUM_VERTICES_PER_ELEMENT> grad_lin_phi;
