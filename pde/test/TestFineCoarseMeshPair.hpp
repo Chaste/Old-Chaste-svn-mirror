@@ -451,6 +451,9 @@ public:
 
         FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
 
+         // need to call SetUpBoxesOnFineMesh first
+        TS_ASSERT_THROWS_CONTAINS(mesh_pair.ComputeFineElementsAndWeightsForCoarseNodes(true), "Call");
+
         mesh_pair.SetUpBoxesOnFineMesh();
         mesh_pair.ComputeFineElementsAndWeightsForCoarseNodes(true);
 
