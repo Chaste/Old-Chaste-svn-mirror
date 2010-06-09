@@ -566,7 +566,7 @@ public:
      */
     void TestComparePartitionQualities()
     {
-        unsigned num_local_nodes_ascii, num_local_nodes_binary, num_local_nodes_metis;
+        unsigned num_local_nodes_petsc_parmetis, num_local_nodes_binary, num_local_nodes_metis;
         
         {
             TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements");
@@ -586,7 +586,7 @@ public:
         {
             TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements");
             //TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart");
-            DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PARMETIS_LIBRARY);
+            DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PETSC_MAT_PARTITION);
             mesh.ConstructFromMeshReader(mesh_reader);
     
             TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
@@ -595,7 +595,7 @@ public:
     
             CheckEverythingIsAssigned<3,3>(mesh);
             
-            num_local_nodes_ascii = mesh.GetNumLocalNodes();
+            num_local_nodes_petsc_parmetis = mesh.GetNumLocalNodes();
         }
 
         {
@@ -614,25 +614,22 @@ public:
         }
         
         unsigned max_local_nodes_metis;
-        unsigned max_local_nodes_ascii;
+        unsigned max_local_nodes_petsc_parmetis;
         unsigned max_local_nodes_binary;
 
         MPI_Allreduce (&num_local_nodes_metis, &max_local_nodes_metis, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD );
-        MPI_Allreduce (&num_local_nodes_ascii, &max_local_nodes_ascii, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD );
+        MPI_Allreduce (&num_local_nodes_petsc_parmetis, &max_local_nodes_petsc_parmetis, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD );
         MPI_Allreduce (&num_local_nodes_binary, &max_local_nodes_binary, 1, MPI_UNSIGNED, MPI_MAX, PETSC_COMM_WORLD );
         
         if (PetscTools::AmMaster())
         {
-            std::cout << "METIS\tPARMETIS ASCII\tPARMETIS BINARY" << std::endl;
-            std::cout << max_local_nodes_metis << "\t" << max_local_nodes_ascii << "\t\t" << max_local_nodes_binary << std::endl;
+            std::cout << "METIS\tPETSC PARMETIS\tPARMETIS BINARY" << std::endl;
+            std::cout << max_local_nodes_metis << "\t" << max_local_nodes_petsc_parmetis << "\t\t" << max_local_nodes_binary << std::endl;
         }
+        PetscTools::Barrier();
         
-        TS_ASSERT(max_local_nodes_binary <= max_local_nodes_ascii);        
-                        
+        TS_ASSERT(num_local_nodes_petsc_parmetis <= max_local_nodes_binary);                                
     }
-        
-        
-
 
     void TestEverythingIsAssignedParMetisLibraryAsciiFiles()
     {
@@ -660,18 +657,18 @@ public:
         CheckEverythingIsAssigned<3,3>(mesh);
     }
 
-//    void TestEverythingIsAssignedPetscPartition()
-//    {
-//        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
-//        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PETSC_MAT_PARTITION);
-//        mesh.ConstructFromMeshReader(mesh_reader);
-//
-//        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
-//        TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
-//        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
-//
-//        CheckEverythingIsAssigned<3,3>(mesh);
-//    }
+    void TestEverythingIsAssignedPetscPartition()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PETSC_MAT_PARTITION);
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
+
+        CheckEverythingIsAssigned<3,3>(mesh);
+    }
 
     void TestConstruct3DWithRegions() throw (Exception)
     {
