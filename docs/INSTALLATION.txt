@@ -328,6 +328,7 @@ cd rasqal-0.9.19/
 make install
 cd ..
 
+# Note that on Heart, we needed mysql-devel.x86_64 before this would build 
 tar -zxf redland-1.0.10.tar.gz
 cd redland-1.0.10
 ./configure --prefix=$CHASTE_LIBS/rdf
@@ -338,8 +339,8 @@ tar -zxf redland-bindings-1.0.10.1.tar.gz
 cd redland-bindings-1.0.10.1
 ./configure --with-python --prefix=$CHASTE_LIBS/rdf --without-perl --without-php --without-ruby
 make
-mkdir -p $CHASTE_LIBS/rdf/python
-cp python/RDF.py python/Redland.so $CHASTE_LIBS/python/
+mkdir -p $CHASTE_LIBS/lib/python
+cp python/RDF.py python/Redland.so $CHASTE_LIBS/lib/python/
 
 ===========SET ENVIRONMENTAL VARIABLES AND PATHS:===================
 
