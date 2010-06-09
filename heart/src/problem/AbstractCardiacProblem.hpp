@@ -30,9 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCARDIACPROBLEM_HPP_
 #define ABSTRACTCARDIACPROBLEM_HPP_
 
+
+
 #include <string>
 #include <vector>
 #include <cassert>
+#include <climits>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
 #include "ChasteSerialization.hpp"
