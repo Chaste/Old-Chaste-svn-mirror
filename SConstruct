@@ -385,7 +385,7 @@ if not isinstance(build, BuildTypes.DoxygenCoverage):
             continue
         bld_dir = os.path.join(project, 'build', build_dir)
         if not os.path.exists(bld_dir):
-            os.mkdir(bld_dir)
+            os.makedirs(bld_dir)
         script = os.path.join(project, 'SConscript')
         test_log_files.append(SConscript(script, src_dir=project, build_dir=bld_dir,
                                          duplicate=0))
