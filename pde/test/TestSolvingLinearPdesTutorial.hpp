@@ -335,7 +335,7 @@ public:
          * in. To create this Petsc {{{Vec}}}, we will use a helper function in the {{{PetscTools}}}
          * class to create a {{{Vec}}} of size num_nodes, with each entry set to 1.0. Then we
          * set the initial condition on the assembler */
-        Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes(), 1.0);
+        Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), 1.0);
         assembler.SetInitialCondition(initial_condition);
 
         /* Next define the start time, end time, and timestep, and set them. */

@@ -670,13 +670,9 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     {
         if (mUseMatrixForIncompleteData)
         {
-            ///\todo #1336 - change implementation of CreateVec so it can take local ownership range
             //Make a vector of the required size
-//            output_petsc_vector = PetscTools::CreateVec(mFileFixedDimensionSize);
-            VecCreate(PETSC_COMM_WORLD, &output_petsc_vector);
-            VecSetSizes(output_petsc_vector, mNumberOwned, mFileFixedDimensionSize);
-            VecSetFromOptions(output_petsc_vector);
-            
+            output_petsc_vector = PetscTools::CreateVec(mFileFixedDimensionSize, mNumberOwned);
+          
             //Fill the vector by multiplying complete data by incomplete output matrix
             MatMult(mSingleIncompleteOutputMatrix, petscVector, output_petsc_vector);
             
@@ -787,10 +783,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
         if (mUseMatrixForIncompleteData)
         {
             //Make a vector of the required size
-//            output_petsc_vector = PetscTools::CreateVec(2*mFileFixedDimensionSize);
-            VecCreate(PETSC_COMM_WORLD, &output_petsc_vector);
-            VecSetSizes(output_petsc_vector, 2*mNumberOwned, 2*mFileFixedDimensionSize);
-            VecSetFromOptions(output_petsc_vector);
+            output_petsc_vector = PetscTools::CreateVec(2*mFileFixedDimensionSize, 2*mNumberOwned);
             
             //Fill the vector by multiplying complete data by incomplete output matrix
             MatMult(mDoubleIncompleteOutputMatrix, petscVector, output_petsc_vector);

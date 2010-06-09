@@ -156,10 +156,7 @@ public:
         // WRITE VECTOR
         // create a 10 element petsc vector
         unsigned vec_size = 10u;
-        Vec vec;
-        VecCreate(PETSC_COMM_WORLD, &vec);
-        VecSetSizes(vec, PETSC_DECIDE, vec_size);
-        VecSetFromOptions(vec);
+        Vec vec=PetscTools::CreateVec(vec_size);
         // calculate the range
         PetscInt petsc_lo, petsc_hi;
         VecGetOwnershipRange(vec, &petsc_lo, &petsc_hi);

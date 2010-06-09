@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscSetupAndFinalize.hpp"
 #include "ReplicatableVector.hpp"
+#include "PetscTools.hpp"
 
 static const int VEC_SIZE=10;
 
@@ -60,10 +61,7 @@ public:
         for (int vec_size=0; vec_size<10; vec_size++)
         {
             int lo, hi;
-            Vec temp_vec;
-            VecCreate(PETSC_COMM_WORLD, &temp_vec);
-            VecSetSizes(temp_vec, PETSC_DECIDE, vec_size);
-            VecSetFromOptions(temp_vec);
+            Vec temp_vec=PetscTools::CreateVec(vec_size);
             VecGetOwnershipRange(temp_vec,&lo,&hi);
             VecDestroy(temp_vec); // vector no longer needed
 
@@ -92,10 +90,7 @@ public:
     void TestPetscReplication()
     {
         int lo, hi;
-        Vec petsc_vec;
-        VecCreate(PETSC_COMM_WORLD, &petsc_vec);
-        VecSetSizes(petsc_vec, PETSC_DECIDE, VEC_SIZE);
-        VecSetFromOptions(petsc_vec);
+        Vec petsc_vec=PetscTools::CreateVec(VEC_SIZE);
         VecGetOwnershipRange(petsc_vec,&lo,&hi);
 
         double* p_petsc_vec;
@@ -131,10 +126,8 @@ public:
     void TestPetscReplicationUsingAlternativeConstructor()
     {
         int lo, hi;
-        Vec petsc_vec;
-        VecCreate(PETSC_COMM_WORLD, &petsc_vec);
-        VecSetSizes(petsc_vec, PETSC_DECIDE, VEC_SIZE);
-        VecSetFromOptions(petsc_vec);
+        Vec petsc_vec=PetscTools::CreateVec(VEC_SIZE);
+
         VecGetOwnershipRange(petsc_vec,&lo,&hi);
 
         double* p_petsc_vec;

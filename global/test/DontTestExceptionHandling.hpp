@@ -47,10 +47,7 @@ class TestExceptionHandling : public CxxTest::TestSuite
 public:
     void TestThrowingWithPetsc()
     {
-        Vec test_vec;
-        VecCreate(PETSC_COMM_WORLD, &test_vec);
-        VecSetSizes(test_vec, PETSC_DECIDE, 20);
-        VecSetFromOptions(test_vec);
+        Vec test_vecc=PetscTool::CreateVec(20);
 
         VecAssemblyBegin(test_vec);
         VecAssemblyEnd(test_vec);

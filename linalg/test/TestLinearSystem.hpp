@@ -326,10 +326,8 @@ public:
     void TestCreateFromVector()
     {
         const int SIZE = 5;
-        Vec test_vec;
-        VecCreate(PETSC_COMM_WORLD, &test_vec);
-        VecSetSizes(test_vec, PETSC_DECIDE, SIZE);
-        VecSetFromOptions(test_vec);
+        Vec test_vec=PetscTools::CreateVec(SIZE);
+
         LinearSystem ls(test_vec);
 
         // Check ownership ranges match
@@ -579,10 +577,7 @@ public:
         ls.SetRhsVectorElement(2, 50.0);
 
         //Set the correct answer for the intial guess
-        Vec good_guess;
-        VecCreate(PETSC_COMM_WORLD, &good_guess);
-        VecSetSizes(good_guess,PETSC_DECIDE,3);
-        VecSetFromOptions(good_guess);
+        Vec good_guess=PetscTools::CreateVec(3);
         VecSetValue(good_guess, 0, 1.0, INSERT_VALUES);
         VecSetValue(good_guess, 1, 2.0, INSERT_VALUES);
         VecSetValue(good_guess, 2, 3.0, INSERT_VALUES);

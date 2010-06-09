@@ -62,7 +62,7 @@ public:
         ////////////////////////////////////////////////////
         // test CreateVec which returns a vec of constants
         ////////////////////////////////////////////////////
-        Vec vec1 = PetscTools::CreateVec(10, 3.41);
+        Vec vec1 = PetscTools::CreateAndSetVec(10, 3.41);
         ReplicatableVector vec1_repl(vec1);
 
         TS_ASSERT_EQUALS(vec1_repl.GetSize(), 10u);
@@ -179,9 +179,7 @@ public:
 
         PetscTools::SetupMat(matrix, 10, 10, (MatType)MATMPIAIJ);
 
-        VecCreate(PETSC_COMM_WORLD, &vector);
-        VecSetSizes(vector, PETSC_DECIDE, 10);
-        VecSetFromOptions(vector);
+        vector=PetscTools::CreateVec(10);
 
         PetscInt lo, hi;
         VecGetOwnershipRange(vector, &lo, &hi);
@@ -245,5 +243,30 @@ public:
         VecDestroy(vector_read);
 
     }
+    void TestUnevenCreation()
+    {
+        //Uneven test (as in TestDistributedVectorFactory).
+        //Calculate total number of elements in the vector
+        unsigned num_procs = PetscTools::GetNumProcs();
+        unsigned total_elements = (num_procs+1)*num_procs/2;
+        unsigned my_rank=PetscTools::GetMyRank();
+
+
+        Vec petsc_vec_uneven = PetscTools::CreateVec(total_elements, my_rank+1);
+
+
+        int petsc_lo, petsc_hi;
+        VecGetOwnershipRange(petsc_vec_uneven, &petsc_lo, &petsc_hi);
+
+        unsigned expected_lo = (my_rank+1)*my_rank/2;
+        unsigned expected_hi = (my_rank+2)*(my_rank+1)/2;
+
+        TS_ASSERT_EQUALS((unsigned)petsc_lo, expected_lo);
+        TS_ASSERT_EQUALS((unsigned)petsc_hi, expected_hi);
+
+        VecDestroy(petsc_vec_uneven);
+    }
+
+    
 };
 #endif /*TESTPETSCTOOLS_HPP_*/

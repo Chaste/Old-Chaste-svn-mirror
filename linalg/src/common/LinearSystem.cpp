@@ -216,10 +216,7 @@ LinearSystem::~LinearSystem()
 
 void LinearSystem::SetupVectorAndMatrix(MatType matType)
 {
-    VecCreate(PETSC_COMM_WORLD, &mRhsVector);
-    VecSetSizes(mRhsVector, PETSC_DECIDE, mSize);
-    VecSetFromOptions(mRhsVector);
-
+    mRhsVector=PetscTools::CreateVec(mSize);
     PetscTools::SetupMat(mLhsMatrix, mSize, mSize, matType);
 
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);

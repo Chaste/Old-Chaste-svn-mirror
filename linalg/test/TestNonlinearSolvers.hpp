@@ -59,10 +59,7 @@ public:
         int length=2;
 
         // Set up initial Guess
-        Vec initial_guess;
-        VecCreate(PETSC_COMM_WORLD, &initial_guess);
-        VecSetSizes(initial_guess, PETSC_DECIDE,length);
-        VecSetFromOptions(initial_guess);
+        Vec initial_guess = PetscTools::CreateVec(length);
         VecSetValue(initial_guess, 0, -1e16, INSERT_VALUES);
         VecSetValue(initial_guess, 1, -1e8, INSERT_VALUES);
         VecAssemblyBegin(initial_guess);
@@ -82,11 +79,7 @@ public:
         int length=2;
 
         // Set up initial Guess
-        Vec initial_guess;
-        VecCreate(PETSC_COMM_WORLD, &initial_guess);
-        VecSetSizes(initial_guess, PETSC_DECIDE,length);
-        //VecSetType(initial_guess, VECSEQ);
-        VecSetFromOptions(initial_guess);
+        Vec initial_guess=PetscTools::CreateVec(length);
         VecSetValue(initial_guess, 0, 1.0, INSERT_VALUES);
         VecSetValue(initial_guess, 1, 1.0, INSERT_VALUES);
         VecAssemblyBegin(initial_guess);
@@ -131,11 +124,7 @@ public:
         int length=3;
 
         // Set up initial Guess
-        Vec initial_guess;
-        VecCreate(PETSC_COMM_WORLD, &initial_guess);
-        VecSetSizes(initial_guess, PETSC_DECIDE,length);
-        //VecSetType(initial_guess, VECSEQ);
-        VecSetFromOptions(initial_guess);
+        Vec initial_guess=PetscTools::CreateVec(length);
         VecSetValue(initial_guess, 0, 1, INSERT_VALUES);
         VecSetValue(initial_guess, 1, 1, INSERT_VALUES);
         VecSetValue(initial_guess, 2, 1, INSERT_VALUES);

@@ -335,19 +335,10 @@ PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, C
     Vec residual;
     Vec perturbed_residual;
     Vec result;
-
-    VecCreate(PETSC_COMM_WORLD, &residual);
-    VecCreate(PETSC_COMM_WORLD, &result);
-    VecCreate(PETSC_COMM_WORLD, &perturbed_residual);
-
-    VecSetSizes(residual,           PETSC_DECIDE, num_nodes);
-    VecSetSizes(result,             PETSC_DECIDE, num_nodes);
-    VecSetSizes(perturbed_residual, PETSC_DECIDE, num_nodes);
-
-    VecSetFromOptions(residual);
-    VecSetFromOptions(result);
-    VecSetFromOptions(perturbed_residual);
-
+    residual=PetscTools::CreateVec(num_nodes);
+    result=PetscTools::CreateVec(num_nodes);
+    perturbed_residual=PetscTools::CreateVec(num_nodes);
+    
     // Copy the currentGuess vector; we perturb the copy
     Vec current_guess_copy;
     PETSCEXCEPT( VecDuplicate(currentGuess, &current_guess_copy) );
@@ -525,7 +516,7 @@ Vec AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::C
 {
     assert(this->mpMesh!=NULL);
     unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
-    return PetscTools::CreateVec(size, value);
+    return PetscTools::CreateAndSetVec(size, value);
 }
 
 
@@ -534,11 +525,8 @@ bool AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::
 {
     unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
 
-    Vec initial_guess;
-    VecCreate(PETSC_COMM_WORLD, &initial_guess);
-    VecSetSizes(initial_guess, PETSC_DECIDE, size);
-    VecSetFromOptions(initial_guess);
-
+    Vec initial_guess=PetscTools::CreateVec(size);;
+    
     for (unsigned i=0; i<size; i++)
     {
         VecSetValue(initial_guess, i, 0.0, INSERT_VALUES);

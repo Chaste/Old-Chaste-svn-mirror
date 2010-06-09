@@ -72,16 +72,9 @@ public:
         TS_ASSERT_EQUALS(system(("test -f " + output_dir + "ParallelColumnWriter.info").c_str()), 0);
 
         // Set up some data in PETSc vectors
-        Vec var1, var2, var3;
-        VecCreate(PETSC_COMM_WORLD, &var1);
-        VecCreate(PETSC_COMM_WORLD, &var2);
-        VecCreate(PETSC_COMM_WORLD, &var3);
-        VecSetSizes(var1, PETSC_DECIDE, num_nodes);
-        VecSetSizes(var2, PETSC_DECIDE, num_nodes);
-        VecSetSizes(var3, PETSC_DECIDE, num_nodes+1);
-        VecSetFromOptions(var1);
-        VecSetFromOptions(var2);
-        VecSetFromOptions(var3);
+        Vec var1=PetscTools::CreateVec(num_nodes);
+        Vec var2=PetscTools::CreateVec(num_nodes);
+        Vec var3=PetscTools::CreateVec(num_nodes+1);
 
         double* var1_array,* var2_array;
         VecGetArray(var1, &var1_array);

@@ -122,7 +122,7 @@ public:
         // initialize 'solution' vector
         double initial_guess_value = 1.0;
         double h = 0.01;
-        Vec solution = PetscTools::CreateVec(mesh.GetNumNodes(), initial_guess_value);
+        Vec solution = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), initial_guess_value);
 
         NonlinearEquationPde<1> pde;
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
@@ -248,7 +248,7 @@ public:
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
 
         // Set up initial guess
-        Vec initial_guess = PetscTools::CreateVec(mesh.GetNumNodes(),1.0);
+        Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),1.0);
 
         Vec answer = assembler.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
@@ -517,7 +517,7 @@ public:
         SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
 
         // cover the bad size exception
-        Vec badly_sized_init_guess = PetscTools::CreateVec(1,1.0); // size=1
+        Vec badly_sized_init_guess = PetscTools::CreateAndSetVec(1,1.0); // size=1
         TS_ASSERT_THROWS_THIS( assembler.Solve(badly_sized_init_guess, true),
                 "Size of initial guess vector, 1, does not match size of problem, 11" );
 

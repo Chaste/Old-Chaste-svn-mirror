@@ -119,6 +119,9 @@ public:
 
     /**
      * Constructor for use in archiving.
+     * Note that this constructor is only called when the number of processes is different from the original.
+     * Therefore, the orignal local node ownership cannot be used, and a new even partition will be applied.
+     * 
      * @param pOriginalFactory  see #mpOriginalFactory
      */
     DistributedVectorFactory(DistributedVectorFactory* pOriginalFactory);

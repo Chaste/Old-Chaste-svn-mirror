@@ -111,7 +111,7 @@ public:
         double initial_voltage = -83.853;
 
         // initial condition;
-        Vec voltage = PetscTools::CreateVec(num_nodes, initial_voltage);
+        Vec voltage = PetscTools::CreateAndSetVec(num_nodes, initial_voltage);
 
         // Solve 1 (PDE) timestep using MonodomainPde
         monodomain_pde.SolveCellSystems(voltage, start_time, start_time+big_time_step);

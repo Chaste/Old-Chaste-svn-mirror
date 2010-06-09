@@ -154,29 +154,13 @@ void PetscTools::ReplicateException(bool flag)
 // Vector & Matrix creation routines
 //
 
-Vec PetscTools::CreateVec(int size)
+Vec PetscTools::CreateVec(int size, int localSize)
 {
-    assert(size>0);
+    assert(size>=0); //There is one test where we create a zero-sized vector
     Vec ret;
     VecCreate(PETSC_COMM_WORLD, &ret);
-    VecSetSizes(ret, PETSC_DECIDE, size);
+    VecSetSizes(ret, localSize, size); //localSize usually defaults to PETSC_DECIDE
     VecSetFromOptions(ret);
-    return ret;
-}
-
-Vec PetscTools::CreateVec(int size, double value)
-{
-    assert(size>0);
-    Vec ret = CreateVec(size);
-
-#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
-    VecSet(&value, ret);
-#else
-    VecSet(ret, value);
-#endif
-
-    VecAssemblyBegin(ret);
-    VecAssemblyEnd(ret);
     return ret;
 }
 
@@ -199,6 +183,22 @@ Vec PetscTools::CreateVec(std::vector<double> data)
     VecAssemblyBegin(ret);
     VecAssemblyEnd(ret);
 
+    return ret;
+}
+
+Vec PetscTools::CreateAndSetVec(int size, double value)
+{
+    assert(size>0);
+    Vec ret = CreateVec(size);
+
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    VecSet(&value, ret);
+#else
+    VecSet(ret, value);
+#endif
+
+    VecAssemblyBegin(ret);
+    VecAssemblyEnd(ret);
     return ret;
 }
 

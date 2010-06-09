@@ -84,10 +84,7 @@ DistributedVectorFactory::DistributedVectorFactory(unsigned size, PetscInt local
 #ifndef NDEBUG
     CheckForPetsc();
 #endif
-    Vec vec;
-    VecCreate(PETSC_COMM_WORLD, &vec);
-    VecSetSizes(vec, local, size);
-    VecSetFromOptions(vec);
+    Vec vec=PetscTools::CreateVec(size, local);
     CalculateOwnership(vec);
     VecDestroy(vec);
 }
@@ -97,10 +94,10 @@ DistributedVectorFactory::DistributedVectorFactory(DistributedVectorFactory* pOr
       mpOriginalFactory(pOriginalFactory)
 {
     assert(mpOriginalFactory != NULL);
-    Vec vec;
-    VecCreate(PETSC_COMM_WORLD, &vec);
-    VecSetSizes(vec, PETSC_DECIDE, mpOriginalFactory->GetProblemSize());
-    VecSetFromOptions(vec);
+    //Normally called when mpOriginalFactory->GetNumProcs() != PetscTools::GetNumProcs()
+    //so ignore mpOriginalFactory->GetLocalOwnership()
+    Vec vec=PetscTools::CreateVec(mpOriginalFactory->GetProblemSize());
+    
     CalculateOwnership(vec);
     VecDestroy(vec);
 }
@@ -144,10 +141,7 @@ bool DistributedVectorFactory::IsGlobalIndexLocal(unsigned globalIndex)
 
 Vec DistributedVectorFactory::CreateVec()
 {
-    Vec vec;
-    VecCreate(PETSC_COMM_WORLD, &vec);
-    VecSetSizes(vec, mHi-mLo, mProblemSize);
-    VecSetFromOptions(vec);
+    Vec vec=PetscTools::CreateVec(mProblemSize, mHi-mLo);
     return vec;
 }
 

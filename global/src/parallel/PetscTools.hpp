@@ -137,8 +137,17 @@ public:
      * Create a vector of the specified size. SetFromOptions is called.
      *
      * @param size  the size of the vector
+     * @param localSize  the local number of items owned by this process
+     * 
      */
-    static Vec CreateVec(int size);
+    static Vec CreateVec(int size, int localSize=PETSC_DECIDE);
+
+    /**
+     * Create a Vec from the given data.
+     *
+     * @param data  some data
+     */
+    static Vec CreateVec(std::vector<double> data);
 
     /**
      * Create a vector of the specified size with all values set to be the given
@@ -147,14 +156,7 @@ public:
      * @param size  the size of the vector
      * @param value  the value to set each entry
      */
-    static Vec CreateVec(int size, double value);
-
-    /**
-     * Create a Vec from the given data.
-     *
-     * @param data  some data
-     */
-    static Vec CreateVec(std::vector<double> data);
+    static Vec CreateAndSetVec(int size, double value);
 
     /**
      * Set up a matrix - set the size using the given parameters, the type (default MATMPIAIJ). The

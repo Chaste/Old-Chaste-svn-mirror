@@ -601,7 +601,7 @@ public:
         SimpleDg0ParabolicAssembler<2,2,true> assembler(&mesh,&pde,&bcc);
 
         // initial condition;
-        Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes(), -84.5);
+        Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), -84.5);
 
         double t_end = 1.0;
         assembler.SetTimes(0, t_end, 0.01);
@@ -646,7 +646,7 @@ public:
         assembler.SetBoundaryConditionsContainer(&bcc);
 
         // initial condition;
-        Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes(), -84.5);
+        Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), -84.5);
 
         double t_end = 1;
         assembler.SetTimes(0, t_end, 0.01);

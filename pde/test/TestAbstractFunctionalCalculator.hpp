@@ -86,14 +86,14 @@ public:
 
         VolumeCalculator<2> volume_calculator;
 
-        Vec vec = PetscTools::CreateVec(mesh.GetNumNodes(), 0.0);
+        Vec vec = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), 0.0);
 
         double result = volume_calculator.Calculate(mesh,vec);
         TS_ASSERT_DELTA(result, mesh.GetVolume(), 1e-12);
         double distributed_result = volume_calculator.Calculate(distributed_mesh,vec);
         TS_ASSERT_DELTA(result, distributed_result, 1e-12);
 
-        Vec bad_vec = PetscTools::CreateVec(mesh.GetNumNodes()+1, 0.0);
+        Vec bad_vec = PetscTools::CreateAndSetVec(mesh.GetNumNodes()+1, 0.0);
         TS_ASSERT_THROWS_THIS(volume_calculator.Calculate(mesh,bad_vec),"The solution size does not match the mesh");
 
         VecDestroy(vec);
