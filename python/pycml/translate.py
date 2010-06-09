@@ -3888,7 +3888,7 @@ class ConfigurationStore(object):
         return
 
     # TODO - move into seperate metadata class?
-    def validate_metadata(self):
+    def validate_metadata(self, assume_valid=False):
         """Check that the metadata annotations are 'sensible'.
         
         Ensures that only names we know are used, and that the same name isn't used for multiple
@@ -3896,6 +3896,8 @@ class ConfigurationStore(object):
         """
         vars = cellml_metadata.find_variables(self.doc.model, ('bqbiol:is', NSS['bqbiol']))
         self.metadata_vars = filter(lambda v: v.oxmeta_name, vars)
+        if assume_valid:
+            return
         names_used = [var.oxmeta_name for var in self.metadata_vars]
         # Check all metadata is allowed
         if frozenset(names_used) <= cellml_metadata.METADATA_NAMES:
@@ -4093,8 +4095,7 @@ def run():
         config.find_current_vars()
 
     if options.use_modifiers:
-        if not options.assume_valid:
-            config.validate_metadata()
+        config.validate_metadata(options.assume_valid)
 
     class_name = getattr(options, 'class_name', None)
     if options.augment_class_name and not class_name:

@@ -1478,6 +1478,11 @@ class cellml_component(element_base):
         self._cml_parents = {}
         self._cml_children = {}
         self._cml_units = {}
+        self._cml_created_by_pe = False
+    
+    @property
+    def ignore_component_name(self):
+        return self._cml_created_by_pe
     
     def parent(self, relationship=u'encapsulation', namespace=None,
                name=None, reln_key=None):
@@ -1634,10 +1639,11 @@ class cellml_variable(Colourable, element_base):
 
         If cellml is given as True, return the name in a form compatible with
         the CellML spec instead, i.e. component_name__variable_name, unless
-        there is a single component, in which case just use variable_name.
+        the component has its ignore_component_name property set, in which case
+        just use variable_name.
         """
         if cellml:
-            if len(self.xml_parent.xml_parent.component) == 1:
+            if self.component.ignore_component_name:
                 vn = self.name
             else:
                 vn = self.xml_parent.name + u'__' + self.name
@@ -3270,7 +3276,7 @@ class mathml_units_mixin(object):
         if hasattr(elt, '_set_in_units') and callable(elt._set_in_units):
             elt._set_in_units(units, no_act)
         elif elt.localName in [u'false', u'true']:
-            boolean = elt.component.get_units_by_name('cellml:boolean')
+            boolean = self.component.get_units_by_name('cellml:boolean')
             if boolean is not units:
                 # TODO: *blink* this should never happen
                 self._add_units_conversion(elt, boolean, units, no_act)
@@ -3278,7 +3284,7 @@ class mathml_units_mixin(object):
                 self._cml_units = units
         elif elt.localName in [u'notanumber', u'pi', u'infinity',
                                u'exponentiale']:
-            dimensionless = elt.component.get_units_by_name('dimensionless')
+            dimensionless = self.component.get_units_by_name('dimensionless')
             if dimensionless is not units:
                 # TODO: *blink* this should never happen
                 self._add_units_conversion(elt, dimensionless, units, no_act)
@@ -4028,8 +4034,9 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
                         self.variable.xml_parent._del_variable(self.variable)
                 else:
                     # Just update the name to be canonical
-                    self.xml_remove_child(unicode(self))
-                    self.xml_append(self.variable.fullname(cellml=True))
+                    self._rename()
+            elif defn is not None:
+                raise ValueError("Unexpected variable definition: " + defn.xml())
         return
 
     @staticmethod

@@ -60,6 +60,9 @@ public:
     /** Allows intervention by protocols on the cell model's ICaL conductance parameter */
     AbstractSensitivityModifier *L_type_Ca_current_conductance_modifier;
 
+    /** Allows intervention by protocols on the cytosolic Calcium concentration*/
+    AbstractSensitivityModifier *cytosolic_calcium_concentration_modifier;
+
     /**
      * Create a new cardiac cell.
      *
@@ -82,6 +85,7 @@ public:
         sodium_channel_current_conductance_modifier = &default_modifier;
         membrane_voltage_modifier = &default_modifier;
         L_type_Ca_current_conductance_modifier = &default_modifier;
+        cytosolic_calcium_concentration_modifier = &default_modifier;
     }
 };
 

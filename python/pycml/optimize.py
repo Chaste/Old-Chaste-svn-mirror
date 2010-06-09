@@ -113,6 +113,7 @@ def parteval(doc):
 
         # Collapse into a single component
         new_comp = cellml_component.create_new(doc, u'c')
+        new_comp._cml_created_by_pe = True
         old_comps = list(getattr(doc.model, u'component', []))
         doc.model._add_component(new_comp)
         # We iterate over a copy of the component list so we can
