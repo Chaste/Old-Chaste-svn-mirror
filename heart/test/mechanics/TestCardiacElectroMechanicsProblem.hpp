@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonlinearElasticityTools.hpp"
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
 #include "NumericFileComparison.hpp"
+#include "Hdf5DataReader.hpp"
 
 class TestCardiacElectroMechanicsProblem : public CxxTest::TestSuite
 {
@@ -119,14 +120,28 @@ public:
         std::string command = "ls " + handler.GetOutputDirectoryFullPath() + "/electrics";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
-//#1229 - add test that voltage was interpolated correctly
-
-        MechanicsEventHandler::Headings();
-        MechanicsEventHandler::Report();
+        // check the voltage was interpolated correctly onto the mechanics mesh, by checking one of the
+        // output voltages (times chosen when the voltage is least homogeneous) against saved values. Have
+        // manually checked the voltage in voltage_mechanics_mesh_1.exnode, in the first four nodes:
+        // 28.6512  39.5453  28.4894  39.3549
+        // are correct, since these first four nodes coincide with certain nodes in the electrics mesh.
+        Hdf5DataReader reader("TestCardiacElectroMechOneElement/electrics","voltage_mechanics_mesh");
+        Vec voltage=PetscTools::CreateVec(9);
+        reader.GetVariableOverNodes(voltage, "V", 1); // timestep=1, ie second timstep
+        ReplicatableVector voltage_repl(voltage);
+        TS_ASSERT_DELTA(voltage_repl[0], 28.6512, 2e-4);
+        TS_ASSERT_DELTA(voltage_repl[1], 39.5453, 2e-4);
+        TS_ASSERT_DELTA(voltage_repl[2], 28.4894, 2e-4);
+        TS_ASSERT_DELTA(voltage_repl[3], 39.3549, 2e-4);        
+        
+        VecDestroy(voltage);
 
         // coverage
         CardiacElectroMechProbRegularGeom<2> prob_with_bad_model(NONPHYSIOL1,0.05,1,5,&cell_factory,1,0.01,100,0.01,"");
         TS_ASSERT_THROWS_CONTAINS(prob_with_bad_model.Solve(),"Invalid");
+
+        MechanicsEventHandler::Headings();
+        MechanicsEventHandler::Report();
     }
 
     void TestWithKerchoffs() throw(Exception)
