@@ -131,6 +131,13 @@ Export('force_test_runs')
 # Don't update the provenance information (Version.cpp file).
 update_provenance = int(ARGUMENTS.get('update_provenance', 1))
 
+# Whether to build executables, or just tests
+build_exes = int(ARGUMENTS.get('exe', 0))
+Export('build_exes')
+if build_exes:
+    assert use_chaste_libs, "Cannot build executables unless building Chaste libraries"
+
+
 # Experimental support for installing Chaste as a normal collection of
 # libraries and headers.
 install_prefix = ARGUMENTS.get('install_prefix', '')
@@ -437,84 +444,14 @@ if test_summary and not compile_only:
     for targ in COMMAND_LINE_TARGETS:
         senv.Depends(targ, summary_index)
     senv.Default(summary_index)
+    # Also allow other code to add dependencies, by making the summary depend on an Alias
+    senv.Depends(summary_index, senv.Alias('test_summary_dependencies'))
     # Try to ensure it runs even if SCons thinks it's up-to-date, just to
     # re-assure the user
     senv.AlwaysBuild(summary_index)
 
 
-if ARGUMENTS.get('exe', 0):
-    assert use_chaste_libs
-    env = env.Clone()
-
-    if static_libs:
-        libpath = '#lib'
-        env.Append(LINKFLAGS=' -static ')
-        if sys.platform != 'cygwin':
-            env.Append(LINKFLAGS='-pthread ')
-    else:
-        libpath = '#linklib'
-    env.Replace(LIBPATH=[libpath] + other_libpaths)
-    env.Prepend(CPPPATH='apps/src')
-
-    exes = []
-    for main_cpp in glob.glob('apps/src/*.cpp'):
-        exes.append(env.Program(main_cpp,
-                                LIBS=['heart'] + comp_deps['heart'] + other_libs))
-
-    if not compile_only:
-        import re
-        texttest_result_line = re.compile(r'<H2>.*: 1 tests: 1 (FAILED|succeeded) </H2>')
-        def texttest_parse_function(target, source, env):
-            """Parse results from texttest to figure out if acceptance tests passed.
-            target is a dummy file, since we don't know what we'll output until we're done.
-            source is the texttest results file.
-            """
-            fp = open(str(source[0]))
-            fails, succs = 0, 0
-            for line in fp:
-                m = texttest_result_line.match(line)
-                if m:
-                    result = m.group(1)
-                    if result == 'FAILED':
-                        fails += 1
-                    else:
-                        succs += 1
-            fp.close()
-            if fails == 0 and succs == 0:
-                status = 'unknown'
-            elif fails == 0:
-                status = 'OK'
-            else:
-                status = '%d_%d' % (fails, fails+succs)
-            to_file_name = build.output_dir + '/AcceptanceTests.' + status + '.0'
-            # Remove any old copies of results from this test
-            oldfiles = glob.glob(os.path.join(build.output_dir, 'AcceptanceTests.*'))
-            for oldfile in oldfiles:
-                os.remove(oldfile)
-            # Copy results and update summary dependencies
-            env.Execute(Copy(to_file_name, str(source[0])))
-            if test_summary:
-                env.Depends(summary_index, to_file_name)
-            return None
-        parse_builder = Builder(action=texttest_parse_function)
-        env['BUILDERS']['ParseTexttest'] = parse_builder
-        # Run acceptance tests
-        print "Running acceptance tests", map(str, exes)
-        checkout_dir = Dir('#').abspath
-        texttest = build.tools['texttest'] + ' -d ' + checkout_dir + '/apps/texttest/chaste'
-        texttest_output_dir = env['ENV']['CHASTE_TEST_OUTPUT']+'/texttest_reports/chaste'
-        time_eight_hours_ago = time.time() - 8*60*60
-        canonical_test_date = time.strftime("%d%b%Y", time.localtime(time_eight_hours_ago))
-        todays_file = os.path.join(texttest_output_dir, 'test__' + canonical_test_date + '.html')
-        # The next 2 lines make sure the acceptance tests will get run, and the right results stored
-        env.Execute(Delete(todays_file))
-        env.Execute(Delete(os.path.join(env['ENV']['CHASTE_TEST_OUTPUT'], 'texttest_output')))
-        env.Command(todays_file, exes,
-                    [texttest + ' -b -c ' + checkout_dir,
-                     texttest + ' -c ' + checkout_dir + ' -s batch.GenerateHistoricalReport default'])
-        dummy = build.output_dir + '/dummy.texttest'
-        env.ParseTexttest(dummy, todays_file)
-        env.Depends('apps', [todays_file, dummy])
-        if test_summary:
-            env.Depends(summary_index, dummy)
-        
+if build_exes:
+    SConsTools.BuildExes(build, env, 'apps',
+                         components=['heart']+comp_deps['heart'],
+                         otherVars=globals())

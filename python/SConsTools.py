@@ -27,13 +27,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 """Useful functions for use by the build system."""
 
-import os
-import sys
 import glob
-import time
+import os
+import re
 import subprocess
+import sys
+import time
 
-from SCons.Script import Command, Dir, Value
+from SCons.Script import Command, Dir, Value, Copy, Delete
 import SCons.Action
 import SCons.Tool
 import SCons.Script
@@ -484,6 +485,117 @@ class PyScanner(SCons.Scanner.Classic):
         return self.base.find_include(self, include + '.py', source_dir, path)
 
 
+def CreateTexttestBuilder(build, env, otherVars):
+    """Create a builder that will run texttest and parse the results."""
+    texttest_result_line = re.compile(r'<H2>.*: 1 tests: 1 (FAILED|succeeded) </H2>')
+    def TexttestParser(target, source, env):
+        """Parse results from texttest to figure out if acceptance tests passed.
+        target is a dummy file, since we don't know what we'll output until we're done.
+        source is the texttest results file.
+        """
+        fp = open(str(source[0]))
+        fails, succs = 0, 0
+        for line in fp:
+            m = texttest_result_line.match(line)
+            if m:
+                result = m.group(1)
+                if result == 'FAILED':
+                    fails += 1
+                else:
+                    succs += 1
+        fp.close()
+        if fails == 0 and succs == 0:
+            status = 'unknown'
+        elif fails == 0:
+            status = 'OK'
+        else:
+            status = '%d_%d' % (fails, fails+succs)
+        to_file_name = build.output_dir + '/AcceptanceTests.' + status + '.0'
+        # Remove any old copies of results from this test
+        oldfiles = glob.glob(os.path.join(build.output_dir, 'AcceptanceTests.*'))
+        for oldfile in oldfiles:
+            os.remove(oldfile)
+        # Copy results and update summary dependencies
+        env.Execute(Copy(to_file_name, str(source[0])))
+        if otherVars['test_summary']:
+            env.Alias('test_summary_dependencies', to_file_name)
+        return None
+    parse_builder = env.Builder(action=TexttestParser)
+    env['BUILDERS']['ParseTexttest'] = parse_builder
+
+def RunAcceptanceTests(build, env, appsPath, testsPath, exes, otherVars):
+    """
+    If appsPath is specifically requested on the command line,
+    schedule its acceptance tests for running.
+    """
+    if not (appsPath in otherVars['COMMAND_LINE_TARGETS'] or
+            appsPath+os.path.sep in otherVars['COMMAND_LINE_TARGETS']):
+        return
+    print "Running acceptance tests", map(str, exes)
+    checkout_dir = Dir('#').abspath
+    tests_dir = Dir(testsPath).abspath
+    texttest = build.tools['texttest'] + ' -d ' + tests_dir
+    texttest_output_dir = env['ENV']['CHASTE_TEST_OUTPUT'] + '/texttest_reports/chaste'
+    time_eight_hours_ago = time.time() - 8*60*60
+    canonical_test_date = time.strftime("%d%b%Y", time.localtime(time_eight_hours_ago))
+    todays_file = os.path.join(texttest_output_dir, 'test__' + canonical_test_date + '.html')
+    # The next 2 lines make sure the acceptance tests will get run, and the right results stored
+    env.Execute(Delete(todays_file))
+    env.Execute(Delete(os.path.join(env['ENV']['CHASTE_TEST_OUTPUT'], 'texttest_output')))
+    env.Command(todays_file, exes,
+                [texttest + ' -b -c ' + checkout_dir,
+                 texttest + ' -c ' + checkout_dir + ' -s batch.GenerateHistoricalReport default'])
+    dummy = os.path.join(appsPath, 'dummy.texttest')
+    env.ParseTexttest(dummy, todays_file)
+    env.Depends(appsPath, [todays_file, dummy])
+    if otherVars['test_summary']:
+        env.Alias('test_summary_dependencies', dummy)
+
+def BuildExes(build, env, appsPath, components, otherVars, project=None):
+    """Build 'standalone' executables (i.e. with their own main(), not using cxxtest).
+    
+    apps_path should refer to a directory structure containing folders:
+      src - no subfolders, contains .cpp file(s) each defining main()
+      texttest/chaste - definitions for acceptance tests, optional
+    
+    components gives the Chaste libraries that these executables link against.
+    
+    project, if given, means we're building executables for that project, and hence
+    need to link against its library too.
+    """
+    env = env.Clone()
+    src_path = os.path.join(appsPath, 'src')
+
+    if otherVars['static_libs']:
+        libpath = '#lib'
+        env.Append(LINKFLAGS=' -static ')
+        if sys.platform != 'cygwin':
+            env.Append(LINKFLAGS='-pthread ')
+    else:
+        libpath = '#linklib'
+    env.Replace(LIBPATH=[libpath] + otherVars['other_libpaths'])
+    if project:
+        env.Prepend(LIBPATH=os.path.join(appsPath, '..', 'build', build.build_dir))
+    env.Prepend(CPPPATH=src_path)
+    env.Replace(LIBS=components + otherVars['other_libs'])
+    if project:
+        env.Prepend(LIBS=project)
+
+    exes = []
+    for main_cpp in glob.glob(os.path.join(src_path, '*.cpp')):
+        exes.append(env.Program(main_cpp))
+    #if project:
+    #    # Don't hide the executables in the build dir
+    #    env.Install(src_path, exes)
+
+    if not otherVars['compile_only']:
+        # Run acceptance tests if present
+        test_path = os.path.join(appsPath, 'texttest', 'chaste')
+        if os.path.isdir(test_path):
+            CreateTexttestBuilder(build, env, otherVars)
+            RunAcceptanceTests(build, env, appsPath, test_path, exes, otherVars)
+
+
 def ScheduleTestBuild(env, env_with_libs, testfile, prefix, use_chaste_libs):
     """Set the compilation of a single test.
     
@@ -618,6 +730,15 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
             env.RunTest(log_file, runner_exe)
             if otherVars['force_test_runs']:
                 env.AlwaysBuild(log_file)
+    
+    # Any executables to build?
+    if otherVars['build_exes']:
+        apps_path = os.path.join(Dir('#').abspath, 'projects', projectName, 'apps')
+        if os.path.isdir(apps_path):
+            BuildExes(otherVars['build'], env, apps_path,
+                      components=chasteLibsUsed,
+                      otherVars=otherVars,
+                      project=projectName)
     
     return test_log_files
 

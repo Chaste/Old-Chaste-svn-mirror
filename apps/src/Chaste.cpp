@@ -36,50 +36,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Most of the work is done by this class.  It must be included first.
 #include "CardiacSimulation.hpp"
 
+#include "ExecutableSupport.hpp"
 #include "Exception.hpp"
 #include "PetscTools.hpp"
-#include "Version.hpp"
 
 int main(int argc, char *argv[])
 {
-    PETSCEXCEPT(PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL) );
-    //Only show one copy of copyright/header
-    if (PetscTools::AmMaster())
-    {
-        std::cout << "Copyright (C) University of Oxford, 2005-2010 \n\n\
-\
-Chaste is free software: you can redistribute it and/or modify \n\
-it under the terms of the Lesser GNU General Public License as published by \n\
-the Free Software Foundation, either version 2.1 of the License, or \n\
-(at your option) any later version. \n\n\
-\
-Chaste is distributed in the hope that it will be useful, \n\
-but WITHOUT ANY WARRANTY; without even the implied warranty of \n\
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the \n\
-Lesser GNU General Public License for more details. \n\n\
-\
-You should have received a copy of the Lesser GNU General Public License \n\
-along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
+    ExecutableSupport::StandardStartup(&argc, &argv);
 
-        //Compilation information
-        std::cout << "This version of Chaste was compiled on:\n";
-        std::cout << ChasteBuildInfo::GetBuildTime() << " by " << ChasteBuildInfo::GetBuilderUnameInfo() << " (uname)\n";
-        std::cout << "from revision number " << ChasteBuildInfo::GetRevisionNumber() << " with build type " << ChasteBuildInfo::GetBuildInformation() << ".\n\n";
-    }
+    int exit_code = 0;
 
-    if (!PetscTools::IsSequential())
-    {
-        ///Information to show that Chaste is being run in parallel
-        for (unsigned i=0; i<PetscTools::GetNumProcs(); i++)
-        {
-            if (i==PetscTools::GetMyRank())
-            {
-                std::cout << "Chaste launched on process " << PetscTools::GetMyRank()
-                    << " of " << PetscTools::GetNumProcs() << "." << std::endl << std::flush;
-            }
-            PetscTools::Barrier();
-        }
-    }
     try
     {
         if (argc<2)
@@ -88,19 +54,21 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
             {
                 std::cout << "Usage: Chaste parameters_file\n";
             }
-            return -1;
+            exit_code = -1;
         }
-        std::string xml_file_name(argv[1]);
-        // Creates & runs the simulation
-        CardiacSimulation simulation(xml_file_name);
-
-        return 0;
+        else
+        {
+            std::string xml_file_name(argv[1]);
+            // Creates & runs the simulation
+            CardiacSimulation simulation(xml_file_name);
+        }
     }
-    catch (Exception& e)
+    catch (const Exception& e)
     {
         std::cout << e.GetMessage() << std::endl;
-        return 1;
+        exit_code = 1;
     }
 
-    PetscFinalize();
+    ExecutableSupport::FinalizePetsc();
+    return exit_code;
 }
