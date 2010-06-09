@@ -35,10 +35,8 @@ FineCoarseMeshPair<DIM>::FineCoarseMeshPair(TetrahedralMesh<DIM,DIM>& rFineMesh,
     : mrFineMesh(rFineMesh),
       mrCoarseMesh(rCoarseMesh)
 {
-    // compute min and max values for the fine mesh nodes
-    mMinMaxValuesInFineMesh = mrFineMesh.GetExtremes();
-
     mpFineMeshBoxCollection = NULL;
+    mpCoarseMeshBoxCollection = NULL;
     mCounters.resize(4,0);
 
 //// Bring back identical-meshes functionality if needed
@@ -67,25 +65,78 @@ FineCoarseMeshPair<DIM>::FineCoarseMeshPair(TetrahedralMesh<DIM,DIM>& rFineMesh,
 template<unsigned DIM>
 FineCoarseMeshPair<DIM>::~FineCoarseMeshPair()
 {
-    DeleteBoxCollection();
+    DeleteFineBoxCollection();
 }
+
+template<unsigned DIM>
+void FineCoarseMeshPair<DIM>::DeleteFineBoxCollection()
+{
+    if(mpFineMeshBoxCollection != NULL)
+    {
+        delete mpFineMeshBoxCollection;
+        mpFineMeshBoxCollection = NULL;
+    }
+}
+
+
+template<unsigned DIM>
+void FineCoarseMeshPair<DIM>::DeleteCoarseBoxCollection()
+{
+    if(mpCoarseMeshBoxCollection != NULL)
+    {
+        delete mpCoarseMeshBoxCollection;
+        mpCoarseMeshBoxCollection = NULL;
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+//
+//
+//   Setting up boxes methods
+//
+//
+////////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
 {
+    SetUpBoxes(mrFineMesh, boxWidth, mpFineMeshBoxCollection);
+}
+
+template<unsigned DIM>
+void FineCoarseMeshPair<DIM>::SetUpBoxesOnCoarseMesh(double boxWidth)
+{
+    SetUpBoxes(mrCoarseMesh, boxWidth, mpCoarseMeshBoxCollection);
+}
+
+
+template<unsigned DIM>
+void FineCoarseMeshPair<DIM>::SetUpBoxes(TetrahedralMesh<DIM,DIM>& rMesh,
+                                         double boxWidth,
+                                         BoxCollection<DIM>*& rpBoxCollection)
+{
+    if(rpBoxCollection)
+    {
+        delete rpBoxCollection;
+        rpBoxCollection = NULL;
+    }
+    
+    // compute min and max values for the fine mesh nodes
+    c_vector<double, 2*DIM> min_max_values = rMesh.GetExtremes();
+    
     // set up the boxes. Use a domain which is a touch larger than the fine mesh
     c_vector<double,2*DIM> extended_min_and_max;
     for(unsigned i=0; i<DIM; i++)
     {
         // subtract from the minima
-        extended_min_and_max(2*i) = mMinMaxValuesInFineMesh(2*i) - 0.05*fabs(mMinMaxValuesInFineMesh(2*i));
+        extended_min_and_max(2*i) = min_max_values(2*i) - 0.05*fabs(min_max_values(2*i));
         // add to the maxima
-        extended_min_and_max(2*i+1) = mMinMaxValuesInFineMesh(2*i+1) + 0.05*fabs(mMinMaxValuesInFineMesh(2*i+1));
+        extended_min_and_max(2*i+1) = min_max_values(2*i+1) + 0.05*fabs(min_max_values(2*i+1));
     }
 
     if(boxWidth < 0)
     {
-        // use default value = max( max_edge_length, w20),  where w20 is the width corresponding to 
+        // use default value = max(max_edge_length, w20),  where w20 is the width corresponding to 
         // 20 boxes in the x-direction 
 
         // BoxCollection creates an extra box so divide by 19 not 20.  Add a little bit on to ensure
@@ -95,8 +146,8 @@ void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
         // determine the maximum edge length
         double max_edge_length = -1;
 
-        for (typename TetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator = mrFineMesh.EdgesBegin();
-             edge_iterator!=mrFineMesh.EdgesEnd();
+        for (typename TetrahedralMesh<DIM,DIM>::EdgeIterator edge_iterator = rMesh.EdgesBegin();
+             edge_iterator!=rMesh.EdgesEnd();
              ++edge_iterator)
         {
             c_vector<double, 3> location1 = edge_iterator.GetNodeA()->rGetLocation();
@@ -115,20 +166,20 @@ void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
         }
     }
  
-    mpFineMeshBoxCollection = new BoxCollection<DIM>(boxWidth, extended_min_and_max);
-    mpFineMeshBoxCollection->SetupAllLocalBoxes();
+    rpBoxCollection = new BoxCollection<DIM>(boxWidth, extended_min_and_max);
+    rpBoxCollection->SetupAllLocalBoxes();
 
     // for each element, if ANY of its nodes are physically in a box, put that element
     // in that box
-    for(unsigned i=0; i<mrFineMesh.GetNumElements(); i++)
+    for(unsigned i=0; i<rMesh.GetNumElements(); i++)
     {
-        Element<DIM,DIM>* p_element = mrFineMesh.GetElement(i);
+        Element<DIM,DIM>* p_element = rMesh.GetElement(i);
 
         std::set<unsigned> box_indices_each_node_this_elem;
         for(unsigned j=0; j<DIM+1; j++) // num vertices per element
         {
             Node<DIM>* p_node = p_element->GetNode(j);
-            unsigned box_index = mpFineMeshBoxCollection->CalculateContainingBox(p_node);
+            unsigned box_index = rpBoxCollection->CalculateContainingBox(p_node);
             box_indices_each_node_this_elem.insert(box_index);
         }
 
@@ -136,11 +187,22 @@ void FineCoarseMeshPair<DIM>::SetUpBoxesOnFineMesh(double boxWidth)
             iter != box_indices_each_node_this_elem.end();
             ++iter)
         {
-            mpFineMeshBoxCollection->rGetBox( *iter ).AddElement(p_element);
+            rpBoxCollection->rGetBox( *iter ).AddElement(p_element);
         }
     }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////
+// 
+// 
+// ComputeFineElementsAndWeightsForCoarseQuadPoints() 
+// and 
+// ComputeFineElementsAndWeightsForCoarseNodes()
+// and common method
+//
+//
+////////////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(GaussianQuadratureRule<DIM>& rQuadRule,
@@ -200,23 +262,22 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseNodes(bool s
 }
 
 
+///\todo: could possibly merge with ComputeCoarseElementForGivenPoint(). Difference between the
+/// methods are: this uses fine mesh and fine mesh box, computes weights as well (and sets
+/// the element and weight in the vec), rather than returning the element, and this method 
+/// saves information in mCounters
 template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoint<DIM>& rPoint, 
                                                                        bool safeMode,
                                                                        unsigned boxForThisPoint,
                                                                        unsigned index)
-{                                                            
+{
     std::set<unsigned> test_element_indices;
 
     // the elements to try (initially) are those contained in the box the point is in
     // NOTE: it is possible the point to be in an element inot 'in' this box, as it is possible
     // for all element nodes to be in different boxes.
-    for(typename std::set<Element<DIM,DIM>*>::iterator elem_iter = mpFineMeshBoxCollection->rGetBox(boxForThisPoint).rGetElementsContained().begin();
-        elem_iter != mpFineMeshBoxCollection->rGetBox(boxForThisPoint).rGetElementsContained().end();
-        ++elem_iter)
-    {
-        test_element_indices.insert((*elem_iter)->GetIndex());
-    }
+    CollectElementsInContainingBox(mpFineMeshBoxCollection, boxForThisPoint, test_element_indices);
 
     unsigned elem_index;
     c_vector<double,DIM+1> weight;
@@ -239,18 +300,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoi
         // element first
         std::set<unsigned> test_element_indices;
 
-        std::set<unsigned> local_boxes = mpFineMeshBoxCollection->GetLocalBoxes(boxForThisPoint);
-        for(std::set<unsigned>::iterator local_box_iter = local_boxes.begin();
-            local_box_iter != local_boxes.end();
-            ++local_box_iter)
-        {
-            for(typename std::set<Element<DIM,DIM>*>::iterator elem_iter = mpFineMeshBoxCollection->rGetBox(*local_box_iter).rGetElementsContained().begin();
-                elem_iter != mpFineMeshBoxCollection->rGetBox(*local_box_iter).rGetElementsContained().end();
-                ++elem_iter)
-            {
-                test_element_indices.insert((*elem_iter)->GetIndex());
-            }
-        }
+        CollectElementsInLocalBoxes(mpFineMeshBoxCollection, boxForThisPoint, test_element_indices);
 
         try
         {
@@ -308,6 +358,169 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoi
     mFineMeshElementsAndWeights[index].Weights = weight;    
 }
 
+////////////////////////////////////////////////////////////////////////////////////
+//
+//
+// ComputeCoarseElementsForFineNodes
+// and 
+// ComputeCoarseElementsForFineElementCentroids
+// and common method
+//
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+
+
+template<unsigned DIM>
+void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineNodes(bool safeMode)
+{
+    if(mpCoarseMeshBoxCollection==NULL)
+    {
+        EXCEPTION("Call SetUpBoxesOnCoarseMesh() before ComputeCoarseElementsForFineNodes()");
+    }
+    
+    mCoarseElementsForFineNodes.resize(mrFineMesh.GetNumNodes());
+    for(unsigned i=0; i<mCoarseElementsForFineNodes.size(); i++)
+    {
+        ChastePoint<DIM> point = mrFineMesh.GetNode(i)->GetPoint();
+        // get the box this point is in
+        unsigned box_for_this_point = mpCoarseMeshBoxCollection->CalculateContainingBox( mrFineMesh.GetNode(i)->rGetModifiableLocation() );
+
+        mCoarseElementsForFineNodes[i] = ComputeCoarseElementForGivenPoint(point, safeMode, box_for_this_point);
+    }
+}
+
+
+template<unsigned DIM>
+void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineElementCentroids(bool safeMode)
+{
+    if(mpCoarseMeshBoxCollection==NULL)
+    {
+        EXCEPTION("Call SetUpBoxesOnCoarseMesh() before ComputeCoarseElementsForFineElementCentroids()");
+    }    
+    
+    mCoarseElementsForFineElementCentroids.resize(mrFineMesh.GetNumElements());
+    for(unsigned i=0; i<mrFineMesh.GetNumElements(); i++)
+    {
+        c_vector<double,DIM> point_cvec = mrFineMesh.GetElement(i)->CalculateCentroid();
+        ChastePoint<DIM> point(point_cvec);
+
+        // get the box this point is in
+        unsigned box_for_this_point = mpCoarseMeshBoxCollection->CalculateContainingBox( point_cvec );
+        
+        mCoarseElementsForFineElementCentroids[i] = ComputeCoarseElementForGivenPoint(point, safeMode, box_for_this_point);
+    }
+}
+
+
+///\todo: could possibly merge with ComputeFineElementAndWeightForGivenPoint(). Differences between the
+/// methods are: the other method uses fine mesh and fine mesh box, computes weights as well (and sets
+/// the element and weight in the vec), rather than returning the element, and that method 
+/// saves information in mCounters
+template<unsigned DIM>
+unsigned FineCoarseMeshPair<DIM>::ComputeCoarseElementForGivenPoint(ChastePoint<DIM>& rPoint, 
+                                                                    bool safeMode,
+                                                                    unsigned boxForThisPoint)
+{    
+    std::set<unsigned> test_element_indices;
+    CollectElementsInContainingBox(mpCoarseMeshBoxCollection, boxForThisPoint, test_element_indices);
+
+    unsigned elem_index;
+
+    try
+    {
+        elem_index = mrCoarseMesh.GetContainingElementIndex(rPoint,
+                                                            false,
+                                                            test_element_indices,
+                                                            true /* quit if not in test_elements */);        
+    }
+    catch(Exception& e)
+    {
+        // now try all the elements, but trying the elements contained in the boxes local to this
+        // element first
+        std::set<unsigned> test_element_indices;
+        CollectElementsInLocalBoxes(mpCoarseMeshBoxCollection, boxForThisPoint, test_element_indices);
+
+        try
+        {
+            elem_index = mrCoarseMesh.GetContainingElementIndex(rPoint,
+                                                                false,
+                                                                test_element_indices,
+                                                                true);
+
+        }
+        catch(Exception& e)
+        {
+            if(safeMode)
+            {
+                // try the remaining elements
+                try
+                {
+                    elem_index = mrCoarseMesh.GetContainingElementIndex(rPoint,
+                                                                        false);
+                }
+                catch (Exception& e)
+                {
+                    // the point is not in ANY element, store the nearest element and corresponding weights
+                    elem_index = mrCoarseMesh.GetNearestElementIndexFromTestElements(rPoint,test_element_indices);
+                }
+            }
+            else
+            {
+                assert(test_element_indices.size()>0); // boxes probably too small if this fails
+                
+                // immediately assume it isn't in the rest of the mesh - this should be the 
+                // case assuming the box width was chosen suitably.
+                // Store the nearest element and corresponding weights
+                elem_index = mrCoarseMesh.GetNearestElementIndexFromTestElements(rPoint,test_element_indices);
+            }
+        }
+    }
+
+    return elem_index;
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
+// 
+// helper methods for code or user
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+template<unsigned DIM>
+void FineCoarseMeshPair<DIM>::CollectElementsInContainingBox(BoxCollection<DIM>*& rpBoxCollection, 
+                                                             unsigned boxIndex,
+                                                             std::set<unsigned>& rElementIndices)
+{
+    for(typename std::set<Element<DIM,DIM>*>::iterator elem_iter = rpBoxCollection->rGetBox(boxIndex).rGetElementsContained().begin();
+        elem_iter != rpBoxCollection->rGetBox(boxIndex).rGetElementsContained().end();
+        ++elem_iter)
+    {
+        rElementIndices.insert((*elem_iter)->GetIndex());
+    }
+}
+
+
+template<unsigned DIM>
+void FineCoarseMeshPair<DIM>::CollectElementsInLocalBoxes(BoxCollection<DIM>*& rpBoxCollection, 
+                                                          unsigned boxIndex,
+                                                          std::set<unsigned>& rElementIndices)
+{
+    std::set<unsigned> local_boxes = rpBoxCollection->GetLocalBoxes(boxIndex);
+    for(std::set<unsigned>::iterator local_box_iter = local_boxes.begin();
+        local_box_iter != local_boxes.end();
+         ++local_box_iter)
+    {
+        for(typename std::set<Element<DIM,DIM>*>::iterator elem_iter = rpBoxCollection->rGetBox(*local_box_iter).rGetElementsContained().begin();
+            elem_iter != rpBoxCollection->rGetBox(*local_box_iter).rGetElementsContained().end();
+            ++elem_iter)
+        {
+            rElementIndices.insert((*elem_iter)->GetIndex());
+        }
+    }
+}
 
 template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::PrintStatistics()
@@ -328,62 +541,6 @@ void FineCoarseMeshPair<DIM>::PrintStatistics()
         }
     }
 }
-
-
-
-// todo #1409: use boxes as this is not coded in efficient way
-template<unsigned DIM>
-void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineNodes()
-{
-    mCoarseElementsForFineNodes.resize(mrFineMesh.GetNumNodes());
-    for(unsigned i=0; i<mCoarseElementsForFineNodes.size(); i++)
-    {
-        ChastePoint<DIM> point = mrFineMesh.GetNode(i)->GetPoint();
-
-        try
-        {
-            mCoarseElementsForFineNodes[i] = mrCoarseMesh.GetContainingElementIndex(point);
-        }
-        catch(Exception& e)
-        {
-            mCoarseElementsForFineNodes[i] = mrCoarseMesh.GetNearestElementIndex(point);
-        }
-    }
-}
-
-
-// todo #1409: use boxes as this is not coded in efficient way
-template<unsigned DIM>
-void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineElementCentroids()
-{
-    mCoarseElementsForFineElementCentroids.resize(mrFineMesh.GetNumElements());
-    for(unsigned i=0; i<mrFineMesh.GetNumElements(); i++)
-    {
-        c_vector<double,DIM> point_cvec = mrFineMesh.GetElement(i)->CalculateCentroid();
-        ChastePoint<DIM> point(point_cvec);
-        try
-        {
-            mCoarseElementsForFineElementCentroids[i] = mrCoarseMesh.GetContainingElementIndex(point);
-        }
-        catch(Exception& e)
-        {
-            mCoarseElementsForFineElementCentroids[i] = mrCoarseMesh.GetNearestElementIndex(point);
-        }
-    }
-}
-
-
-
-template<unsigned DIM>
-void FineCoarseMeshPair<DIM>::DeleteBoxCollection()
-{
-    if(mpFineMeshBoxCollection != NULL)
-    {
-        delete mpFineMeshBoxCollection;
-        mpFineMeshBoxCollection = NULL;
-    }
-}
-
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

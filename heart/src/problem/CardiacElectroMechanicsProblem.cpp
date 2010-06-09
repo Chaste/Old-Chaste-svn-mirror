@@ -369,17 +369,19 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     mpMeshPair = new FineCoarseMeshPair<DIM>(*mpElectricsMesh, *mpMechanicsMesh);
     mpMeshPair->SetUpBoxesOnFineMesh();
     mpMeshPair->ComputeFineElementsAndWeightsForCoarseQuadPoints(*(mpCardiacMechAssembler->GetQuadratureRule()), false);
-    mpMeshPair->DeleteBoxCollection();
+    mpMeshPair->DeleteFineBoxCollection();
     
     if(!mNoMechanoElectricFeedback)
     {
+        mpMeshPair->SetUpBoxesOnCoarseMesh();
+        
         // compute the coarse elements which contain each fine node -- for transferring stretch from 
         // mechanics solve electrics cell models
-        mpMeshPair->ComputeCoarseElementsForFineNodes();
+        mpMeshPair->ComputeCoarseElementsForFineNodes(false);
 
         // compute the coarse elements which contain each fine element centroid -- for transferring F from
         // mechanics solve to electrics mesh elements 
-        mpMeshPair->ComputeCoarseElementsForFineElementCentroids();
+        mpMeshPair->ComputeCoarseElementsForFineElementCentroids(false);
 
         // initialise the stretches saved for each mechanics element
         mStretchesForEachMechanicsElement.resize(mpMechanicsMesh->GetNumElements(),1.0);

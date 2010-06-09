@@ -105,11 +105,11 @@ private:
     /** Coarse mesh (usually be a quadratic mesh) */
     QuadraticMesh<DIM>& mrCoarseMesh;
 
-    /** The min and maximum values of the nodes, for each dimension, in the fine mesh, for creating the boxes */
-    c_vector<double,2*DIM> mMinMaxValuesInFineMesh;
-
     /** Boxes on the fine mesh domain, for easier determination of containing element for a given point */
     BoxCollection<DIM>* mpFineMeshBoxCollection;
+
+    /** Boxes on the coarse mesh domain, for easier determination of containing element for a given point */
+    BoxCollection<DIM>* mpCoarseMeshBoxCollection;
     
     /** The containing elements and corresponding weights in the fine mesh for the set of points given.
      *  The points may have been quadrature points in the coarse mesh, or nodes in coarse mesh, etc.
@@ -146,13 +146,66 @@ private:
      *  For a given point, compute the containing element and corresponding weight in the fine mesh.
      *  @param rPoint The point
      *  @param safeMode See documentation for ComputeFineElementsAndWeightsForCoarseQuadPoints()
-     *  @param boxForThisPoint The box containing this point
+     *  @param boxForThisPoint The box in the fine box collection containing this point
      *  @param index The index into the mFineMeshElementsAndWeights std::vector
      */
     void ComputeFineElementAndWeightForGivenPoint(ChastePoint<DIM>& rPoint, 
                                                   bool safeMode,
                                                   unsigned boxForThisPoint,
                                                   unsigned index);
+
+
+    /** 
+     *  For a given point, compute the containing element in the coarse mesh (returned).
+     *  @param rPoint The point
+     *  @param safeMode See documentation in ComputeCoarseElementsForFineNodes
+     *  @param boxForThisPoint The box in coarse box collection containing this point
+     */
+    unsigned ComputeCoarseElementForGivenPoint(ChastePoint<DIM>& rPoint, 
+                                               bool safeMode,
+                                               unsigned boxForThisPoint);
+
+    /**
+     *  Set up a box collection on the given mesh. Should only be called using either
+     *    SetUpBoxes(*mpFineMesh, boxWidth, mpFineBoxCollection)  (from SetUpBoxesOnFineMesh)
+     *  or 
+     *    SetUpBoxes(*mpCoarseMesh, boxWidth, mpCoarseBoxCollection)  (from SetUpBoxesOnCoarseMesh)
+     * 
+     *  @param rMesh The mesh, either *mpFineMesh or *mpCoarseMesh)
+     *  @param boxWidth box width (see SetUpBoxesOnCoarseMesh() dox)
+     *  @param rpBoxCollection reference to either mpFineBoxCollection or mpCoarseBoxCollection
+     */
+    void SetUpBoxes(TetrahedralMesh<DIM,DIM>& rMesh,
+                    double boxWidth,
+                    BoxCollection<DIM>*& rpBoxCollection);
+                    
+    
+    /** 
+     *  Helper method. Gets all the elements in the given box, in the given box collection
+     *  and puts them in the returned std::vector
+     *  @param rpBoxCollection Reference to the box collection to use (either mpFineBoxCollection 
+     *   or mpCoarseBoxCollection)
+     *  @param boxIndex box index
+     *  @rElementIndices The returned vector of element indices in that box of the box collection. Not
+     *   cleared before use.
+     */
+    void CollectElementsInContainingBox(BoxCollection<DIM>*& rpBoxCollection, 
+                                        unsigned boxIndex,
+                                        std::set<unsigned>& rElementIndices);
+    /** 
+     *  Helper method. Gets all the elements in the given box, or in a box local to the given box,
+     *  in the given box collection, and puts them in the returned std::vector
+     *  @param rpBoxCollection Reference to the box collection to use (either mpFineBoxCollection 
+     *   or mpCoarseBoxCollection)
+     *  @param boxIndex box index
+     *  @rElementIndices The returned vector of element indices in that box or a local box. Not
+     *   cleared before use.
+     */
+    void CollectElementsInLocalBoxes(BoxCollection<DIM>*& rpBoxCollection, 
+                                     unsigned boxIndex,
+                                     std::set<unsigned>& rElementIndices);
+                                             
+                    
 
 public:
     /** Constructor sets up domain size
@@ -169,7 +222,8 @@ public:
     /**
      *  Set up boxes on fine mesh. The elements contained in each box is stored, which makes
      *  finding the containing element for a given point much faster.
-     *  This should be called before ComputeFineElementsAndWeightsForCoarseQuadPoints() etc
+     *  This should be called before ComputeFineElementsAndWeightsForCoarseQuadPoints() or
+     *  ComputeFineElementsAndWeightsForCoarseNodes().
      *
      *  @param boxWidth width to use for the boxes (which will be cubes). Note that a domain
      *    which is a touch larger than the smallest containing cuboid of the fine mesh is used.
@@ -178,6 +232,21 @@ public:
      *    mesh edge length), in which case it is chosen accordingly.
      */
     void SetUpBoxesOnFineMesh(double boxWidth = -1);
+
+    /**
+     *  Set up boxes on coarse mesh. The elements contained in each box is stored, which makes
+     *  finding the containing element for a given point much faster.
+     *  This should be called before ComputeCoarseElementsForFineNodes() or
+     *  ComputeCoarseElementsForFineElementCentroids()
+     * 
+     *  @param boxWidth width to use for the boxes (which will be cubes). Note that a domain
+     *    which is a touch larger than the smallest containing cuboid of the fine mesh is used.
+     *    boxWidth defaults to a negative value, in which case a box width such that there are
+     *    approximately 20 boxes in the x-direction, unless this width is less than maximum (fine
+     *    mesh edge length), in which case it is chosen accordingly.
+     */
+    void SetUpBoxesOnCoarseMesh(double boxWidth = -1);
+
 
     /**
      *  Set up the containing (fine) elements and corresponding weights for all the
@@ -225,14 +294,29 @@ public:
 
 
     /** 
-     *  Compute the element in the coarse mesh that each fine mesh node is contained in (or nearest to)
+     *  Compute the element in the coarse mesh that each fine mesh node is contained in (or nearest to).
+     *  Call SetUpBoxesOnCoarseMesh() before, and rGetCoarseElementsForFineNodes() afterwards.
+     * 
+     *  @param safeMode This method uses the elements in the boxes to guess which element a point is in. If a 
+     *   point is in none of these elements, then if safeMode==true, it will then search the whole mesh.
+     *   If safeMode==false it will assume immediately the point isn't in the coarse mesh at all. safeMode=false is
+     *   will far more efficient with big meshes. It should be fine to use safeMode=false if SetUpBoxesOnFineMesh() is 
+     *   called with default values. 
      */
-    void ComputeCoarseElementsForFineNodes();
+    void ComputeCoarseElementsForFineNodes(bool safeMode);
     
     /** 
-     *  Compute the element in the coarse mesh that each fine element centroid node is contained in (or nearest to)
+     *  Compute the element in the coarse mesh that each fine element centroid is contained in 
+     *  (or nearest to). Call SetUpBoxesOnCoarseMesh() before, and 
+     *  rGetCoarseElementsForFineElementCentroids() afterwards.
+     *  
+     *  @param safeMode This method uses the elements in the boxes to guess which element a point is in. If a 
+     *   point is in none of these elements, then if safeMode==true, it will then search the whole mesh.
+     *   If safeMode==false it will assume immediately the point isn't in the coarse mesh at all. safeMode=false is
+     *   will far more efficient with big meshes. It should be fine to use safeMode=false if SetUpBoxesOnFineMesh() is 
+     *   called with default values. 
      */
-    void ComputeCoarseElementsForFineElementCentroids();
+    void ComputeCoarseElementsForFineElementCentroids(bool safeMode);
 
     /**
      * @return  A reference to the elements/weights information
@@ -264,10 +348,16 @@ public:
     }
 
     /**
-     *  Destroy the box collection - can be used to free memory once
-     *  ComputeFineElementsAndWeightsForCoarseQuadPoints has been called.
+     *  Destroy the box collection for the fine mesh - can be used to free memory once
+     *  ComputeFineElementsAndWeightsForCoarseQuadPoints (etc) has been called.
      */
-    void DeleteBoxCollection();
+    void DeleteFineBoxCollection();
+    
+    /**
+     *  Destroy the box collection for the coarse mesh - can be used to free memory once
+     *  ComputeCoarseElementsForFineNodes (etc) has been called.
+     */
+    void DeleteCoarseBoxCollection();
 };
 
 #endif /*FINECOARSEMESHPAIR_HPP_*/
