@@ -635,6 +635,10 @@ public:
         node_numbers.push_back(21);
         node_numbers.push_back(47);
         node_numbers.push_back(60);
+        node_numbers.push_back(61);
+        node_numbers.push_back(62);
+        node_numbers.push_back(90);
+        node_numbers.push_back(95);
         writer.DefineFixedDimension(node_numbers, number_nodes);
 
         int vm_id = writer.DefineVariable("V_m","millivolts");
@@ -1159,7 +1163,6 @@ public:
     
     void TestHdf5DataWriterFullFormatIncompleteUsingMatrix() throw(Exception)
     {
-        EXIT_IF_PARALLEL; ///todo #1336
         int number_nodes = 100;
 
         DistributedVectorFactory factory(number_nodes);
@@ -1225,7 +1228,6 @@ public:
 
     void TestHdf5DataWriterFullFormatStripedIncompleteUsingMatrix() throw(Exception)
     {
-        EXIT_IF_PARALLEL; ///todo #1336
         int number_nodes = 100;
         DistributedVectorFactory vec_factory(number_nodes);
 
@@ -1235,6 +1237,10 @@ public:
         node_numbers.push_back(21);
         node_numbers.push_back(47);
         node_numbers.push_back(60);
+        node_numbers.push_back(61);
+        node_numbers.push_back(62);
+        node_numbers.push_back(90);
+        node_numbers.push_back(95);
         writer.DefineFixedDimensionUsingMatrix(node_numbers, number_nodes);
 
         int vm_id = writer.DefineVariable("V_m","millivolts");
