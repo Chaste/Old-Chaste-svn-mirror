@@ -1,2 +1,3 @@
 Test1dFibreWithHeterogeneity.hpp
 bidomain/TestBidomainCompareWithMemfem.hpp
+TestLuoRudy91FailingSlab.hpp
