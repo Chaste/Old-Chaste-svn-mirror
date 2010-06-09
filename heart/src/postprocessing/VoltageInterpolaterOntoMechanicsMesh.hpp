@@ -88,6 +88,11 @@ public:
 
                 interpolated_voltages[i] = interpolated_voltage;
             }
+            
+            if(voltage_coarse!=NULL)
+            {
+                VecDestroy(voltage_coarse);
+            }
             voltage_coarse = PetscTools::CreateVec(interpolated_voltages);
           
             // write
