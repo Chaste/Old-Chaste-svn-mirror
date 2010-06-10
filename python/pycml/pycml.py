@@ -1328,6 +1328,63 @@ class cellml_model(element_base):
                 if var.get_type() == VarTypes.Free:
                     free_vars.append(var)
         return free_vars
+    
+    def calculate_extended_dependencies(self, nodes, prune=[],
+                                        state_vars_depend_on_odes=False,
+                                        state_vars_examined=set()):
+        """Calculate the extended dependencies of the given nodes.
+
+        Recurse into the dependency graph, in order to construct a
+        set, for each node in nodes, of all the nodes on which it
+        depends, either directly or indirectly.
+
+        Each node IS included in its own dependency set.
+
+        If prune is specified, it should be a set of nodes for which
+        we won't include their dependencies or the nodes themselves.
+        This is useful e.g. for pruning variables required for calculating
+        a stimulus if the stimulus is being provided by another method.
+        
+        If state_vars_depend_on_odes is True, then considers state variables
+        to depend on the ODE defining them.
+
+        Requires the dependency graph to be acyclic.
+
+        Return the union of all the dependency sets.
+        """
+        deps = set()
+        for node in nodes:
+            if node in prune or (isinstance(node, mathml_apply) and
+                                 isinstance(node.operator(), mathml_eq) and
+                                 isinstance(node.eq.lhs, mathml_ci) and
+                                 node.eq.lhs.variable in prune):
+                continue
+            if type(node) == tuple:
+                # This is an ODE dependency, so get the defining expression
+                # instead.
+                ode = True
+                node = node[0]._get_ode_dependency(node[1])
+                free_var = node.eq.lhs.diff.independent_variable
+            else:
+                ode = False
+            deps.add(node)
+            nodedeps = set(node._get_dependencies())
+            if ode and not node._cml_ode_has_free_var_on_rhs:
+                # ODEs depend on their independent variable.  However,
+                # when writing out code we don't want to pull the free
+                # variable in just for this, as the compiler then
+                # gives us unused variable warnings.
+                nodedeps.remove(free_var)
+            if (state_vars_depend_on_odes and isinstance(node, cellml_variable)
+                and node.get_type() == VarTypes.State
+                and node not in state_vars_examined):
+                nodedeps.update(node._get_all_expr_dependencies())
+                state_vars_examined.add(node)
+            deps.update(self.calculate_extended_dependencies(nodedeps,
+                                                             prune=prune,
+                                                             state_vars_depend_on_odes=state_vars_depend_on_odes,
+                                                             state_vars_examined=state_vars_examined))
+        return deps
 
     def _add_solver_info(self, force=False):
         """Add information for the solvers as XML.
@@ -1988,7 +2045,7 @@ class cellml_variable(Colourable, element_base):
         
         We need a separate method for this to bypass Amara's property setting checks.
         """
-        if self.get_type() != VarTypes.Constant:
+        if is_param and self.get_type() != VarTypes.Constant:
             raise ValueError("A non-constant variable (%s) cannot be set as a parameter"
                              % (self.fullname(),))
         if is_param:
@@ -2001,6 +2058,16 @@ class cellml_variable(Colourable, element_base):
     def is_derived_quantity(self):
         """Whether this variable should be included in reports of derived quantities."""
         return self.get_rdf_annotation(('pycml:derived-quantity', NSS['pycml'])) == 'yes'
+    def set_is_derived_quantity(self, is_dq):
+        """Set method for the is_derived_quantity property.
+        
+        We need a separate method for this to bypass Amara's property setting checks.
+        """
+        if is_dq:
+            val = 'yes'
+        else:
+            val = 'no'
+        self.add_rdf_annotation(('pycml:derived-quantity', NSS[u'pycml']), val)
 
     @property
     def pe_keep(self):

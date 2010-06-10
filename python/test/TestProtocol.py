@@ -23,6 +23,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 """
 
+import gc
 import os
 import sys
 import unittest
@@ -41,6 +42,12 @@ class TestProtocol(unittest.TestCase):
         doc = translate.load_model(model_file, options, pycml_path='python/pycml')
         self._doc = doc
         return doc
+    
+    def tearDown(self):
+        if hasattr(self, '_doc'):
+            pycml.cellml_metadata.remove_model(self._doc.model)
+            del self._doc.model
+            del self._doc
     
     def CreateLr91Test(self):
         doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
@@ -315,6 +322,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(src2.get_type(), pycml.VarTypes.Mapped)
         self.assertEqual(targ1.get_type(), pycml.VarTypes.Computed)
         self.assertEqual(targ2.get_type(), pycml.VarTypes.Computed)
+        self.tearDown()
         
         # Also check error cases:
         # Where we try to create a connection but there's an existing conflicting variable
@@ -323,6 +331,7 @@ class TestProtocol(unittest.TestCase):
         t2def = self.NewAssign(time2.name, u'membrane,time')
         p.inputs = [time2, t2def]
         self.assertRaises(protocol.ProtocolError, p.modify_model)
+        self.tearDown()
         
         # The following are odd cases that do actually work!
         # Where we use the real source variable as target
@@ -331,6 +340,7 @@ class TestProtocol(unittest.TestCase):
         t2def = self.NewAssign(time2.name, u'fast_sodium_current_m_gate,time')
         p.inputs = [time2, t2def]
         p.modify_model()
+        self.tearDown()
         # The order in which we add assignments shouldn't matter
         p = self.CreateLr91Test()
         n1 = u'fast_sodium_current,stim1'
@@ -340,6 +350,7 @@ class TestProtocol(unittest.TestCase):
                     self.NewAssign(n2, n1),
                     self.NewAssign(n1, u'membrane,I_stim')]
         p.modify_model()
+        self.tearDown()
         # Likewise for the order in which they appear in the model
         p = self.CreateLr91Test()
         n2 = u'fast_sodium_current,stim1'
@@ -349,3 +360,88 @@ class TestProtocol(unittest.TestCase):
                     self.NewAssign(n2, n1),
                     self.NewAssign(n1, u'membrane,I_stim')]
         p.modify_model()
+
+    def TestOutputsFilterModel(self):
+        """Test that protocol outputs are handled correctly.
+        
+        Protocol outputs are a list of variable objects that are of interest.
+        The assignments used in computing the model should be filtered so that
+        only those needed for determining the outputs are used.  This has the
+        potential to greatly simplify the model simulation.
+        
+        The only assignments should be to output variables, or nodes required
+        in computing these.  Note that if one of these nodes is a state variable,
+        we also require the dependencies of its derivative.
+        
+        In addition, any output computed variable should be annotated as a 
+        derived quantity, and any output constant annotated as a parameter, to
+        ensure they are available for querying.
+        """
+        p = self.CreateLr91Test()
+        def Var(cname,vname):
+            return self._doc.model.get_variable_by_name(unicode(cname), unicode(vname))
+        # Fix V so we don't include dV/dt in the dependencies
+        V = Var('membrane', 'V')
+        V_const = self.NewAssign(u'membrane,V', (u'-84.0', u'millivolt'))
+        p.inputs.append(V_const)
+        # Outputs of interest
+        c_icc = 'intracellular_calcium_concentration'
+        c_tdpc = 'time_dependent_potassium_current'
+        Cai = Var(c_icc, 'Cai') # State
+        Cm = Var('membrane', 'C') # Constant
+        gK = Var(c_tdpc, 'g_K') # Computed
+        p.outputs = [Cai, Cm, gK]
+        # Apply protocol
+        p.modify_model()
+        # Check model assignments are as expected
+        actual = set(self._doc.model.get_assignments())
+        time = Var('environment', 'time')
+        c_sic = 'slow_inward_current'
+        c_sicd = 'slow_inward_current_d_gate'
+        c_sicf = 'slow_inward_current_f_gate'
+        self.assertEqual(Var(c_sicd, 'd').get_type(), pycml.VarTypes.State)
+        self.assertEqual(Var(c_sicf, 'f').get_type(), pycml.VarTypes.State)
+        def VarDefn(cname, vname):
+            return Var(cname, vname)._get_dependencies()[0]
+        expected = set([V, VarDefn('membrane', 'V'), Cm, time, Cai, gK,
+                        Var('ionic_concentrations', 'Ko'), Var(c_tdpc, 'Ko'),
+                        VarDefn(c_tdpc, 'g_K'),
+                        Var(c_icc, 'time'), Var(c_icc, 'i_si'),
+                        Cai._get_ode_dependency(time),
+                        Var(c_sic, 'V'), Var(c_sic, 'Cai'),
+                        Var(c_sic, 'time'), Var(c_sic, 'V'), Var(c_sic, 'E_si'),
+                        VarDefn(c_sic, 'E_si'), VarDefn(c_sic, 'i_si'),
+                        Var(c_sic, 'd'), Var(c_sic, 'f'), Var(c_sic, 'i_si'),
+                        Var(c_sicd, 'time'), Var(c_sicd, 'V'), Var(c_sicd, 'd'),
+                        Var(c_sicd, 'alpha_d'), Var(c_sicd, 'beta_d'),
+                        VarDefn(c_sicd, 'alpha_d'), VarDefn(c_sicd, 'beta_d'),
+                        Var(c_sicd, 'd')._get_ode_dependency(time),
+                        Var(c_sicf, 'time'), Var(c_sicf, 'V'), Var(c_sicf, 'f'),
+                        Var(c_sicf, 'alpha_f'), Var(c_sicf, 'beta_f'),
+                        VarDefn(c_sicf, 'alpha_f'), VarDefn(c_sicf, 'beta_f'),
+                        Var(c_sicf, 'f')._get_ode_dependency(time)
+                        ])
+        self.assertEqual(actual, expected)
+        # Check output variables are properly annotated
+        self.assert_(Cm.is_modifiable_parameter)
+        self.assert_(Cm.pe_keep)
+        self.assertEqual(Cm.get_type(), pycml.VarTypes.Constant)
+        self.assert_(gK.is_derived_quantity)
+        self.assert_(gK.pe_keep)
+        self.assertEqual(gK.get_type(), pycml.VarTypes.Computed)
+        self.assertEqual(Cai.get_type(), pycml.VarTypes.State)
+        self.assertEqual(V.get_type(), pycml.VarTypes.Computed)
+        # Check other variables aren't annotated
+        for var in self._doc.model.get_all_variables():
+            if var not in [Cm, gK]:
+                self.failIf(var.pe_keep)
+            if var is not Cm:
+                self.failIf(var.is_modifiable_parameter)
+            if var is not gK:
+                self.failIf(var.is_derived_quantity)
+        # We also need a test that no outputs = don't change the list
+        self.tearDown()
+        p = self.CreateLr91Test()
+        orig_assignments = self._doc.model.get_assignments()[:]
+        p.modify_model()
+        self.assertEqual(orig_assignments, self._doc.model.get_assignments())

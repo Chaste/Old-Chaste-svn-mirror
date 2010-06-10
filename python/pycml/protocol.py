@@ -78,6 +78,7 @@ class Protocol(object):
         self._protocol_component = None
         self.model = model
         self.inputs = []
+        self.outputs = []
         if not multi_stage:
             raise NotImplemented
 
@@ -98,6 +99,10 @@ class Protocol(object):
         ensure a valid model.  In order for this to work, if a variable has units that
         do not already exist in the model, the object *must* have an attribute
         _cml_units referring to a suitable cellml_units instance.
+        
+        Finally, the protocol outputs will be used to prune the model's assignments
+        list so only assignments of interest are used to generate code.
+        TODO: Check interaction of this with PE.
         """
         # Add units before variables before maths so the order of inputs doesn't matter so much.
         for input in filter(lambda i: isinstance(i, cellml_units), self.inputs):
@@ -109,6 +114,7 @@ class Protocol(object):
         self._fix_model_connections()
         self._clear_model_caches()
         self._reanalyse_model()
+        self._filter_assignments()
         
     def _reanalyse_model(self):
         """Re-do the model validation steps needed for further processing of the model.
@@ -475,3 +481,41 @@ class Protocol(object):
             comp.xml_append(math)
         # Append this expression
         comp.math.xml_append(expr)
+    
+    def _filter_assignments(self):
+        """Apply protocol outputs to reduce the model size.
+        
+        Protocol outputs are a list of variable objects that are of interest.
+        The assignments used in computing the model should be filtered so that
+        only those needed for determining the outputs are used.  This has the
+        potential to greatly simplify the model simulation.
+        
+        The only assignments should be to output variables, or nodes required
+        in computing these.  Note that if one of these nodes is a state variable,
+        we also require its derivative and the dependencies thereof.
+        If there are no outputs specified, we leave the list unchanged.
+        
+        In addition, any output computed variable should be annotated as a 
+        derived quantity, and any output constant annotated as a parameter, to
+        ensure they are available for querying.  Other variables should have these
+        annotations (and pe:keep) removed.
+        """
+        # Remove existing annotations
+        for var in self.model.get_all_variables():
+            var.set_pe_keep(False)
+            var.set_is_derived_quantity(False)
+            var.set_is_modifiable_parameter(False)
+        # Add annotations for outputs
+        for var in self.outputs:
+            assert isinstance(var, cellml_variable)
+            if var.get_type() == VarTypes.Constant:
+                var.set_is_modifiable_parameter(True)
+            elif var.get_type() == VarTypes.Computed:
+                var.set_is_derived_quantity(True)
+        # Filter assignments list (slightly hacky)
+        if self.outputs:
+            needed_nodes = self.model.calculate_extended_dependencies(self.outputs,
+                                                                      state_vars_depend_on_odes=True)
+            new_assignments = filter(lambda node: node in needed_nodes,
+                                     self.model.get_assignments())
+            self.model._cml_assignments = new_assignments

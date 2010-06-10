@@ -829,50 +829,8 @@ class CellMLTranslator(object):
     # These methods allow us to calculate which equations must be
     # output in order to compute a given set of quantities.
     def calculate_extended_dependencies(self, nodes, prune=[]):
-        """Calculate the extended dependencies of the given nodes.
-
-        Recurse into the dependency graph, in order to construct a
-        set, for each node in nodes, of all the nodes on which it
-        depends, either directly or indirectly.
-
-        Each node IS included in its own dependency set.
-
-        If prune is specified, it should be a set of nodes for which
-        we won't include their dependencies or the nodes themselves.
-        This is useful for pruning variables required for calculating
-        a stimulus if the stimulus is being provided by another
-        method.
-
-        Requires the dependency graph to be acyclic.
-
-        Return the union of all the dependency sets.
-        """
-        deps = set()
-        for node in nodes:
-            if node in prune or (isinstance(node, mathml_apply) and
-                                 isinstance(node.operator(), mathml_eq) and
-                                 isinstance(node.eq.lhs, mathml_ci) and
-                                 node.eq.lhs.variable in prune):
-                continue
-            if type(node) == tuple:
-                # This is an ODE dependency, so get the defining expression
-                # instead.
-                ode = True
-                node = node[0]._get_ode_dependency(node[1])
-                free_var = node.eq.lhs.diff.independent_variable
-            else:
-                ode = False
-            deps.add(node)
-            nodedeps = node._get_dependencies()[:]
-            if ode and not node._cml_ode_has_free_var_on_rhs:
-                # ODEs depend on their independent variable.  However,
-                # when writing out code we don't want to pull the free
-                # variable in just for this, as the compiler then
-                # gives us unused variable warnings.
-                nodedeps.remove(free_var)
-            deps.update(self.calculate_extended_dependencies(nodedeps,
-                                                             prune=prune))
-        return deps
+        """Method moved to cellml_model."""
+        return self.model.calculate_extended_dependencies(nodes, prune)
 
     def output_equations(self, nodeset):
         """Output the mathematics described by nodeset.
@@ -955,7 +913,7 @@ class CellMLTranslator(object):
     #    The better lookup method is activated by --row-lookup-method.
     #
     # Memory: Extract the lookup tables into a separate class (in the
-    # same .hpp file though).  This can then be made a singleton class
+    # same .cpp file though).  This can then be made a singleton class
     # in a multi-cellular context.
     #    Chaste code generation has the option to do this, enabled by
     #    default.  Use --no-separate-lut-class to disable.
