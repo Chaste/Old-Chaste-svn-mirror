@@ -65,10 +65,6 @@ private:
     unsigned mRoundCounter;
     /** Used to check implementation for number of queue pops per calculation*/
     unsigned mPopCounter;
-    /** Used in the calculation of point-to-point distances - this is expected to be of size==1 when it is used*/
-    std::vector<unsigned> mCachedSourceNodeIndex;
-    /** Used in the calculation of point-to-point distances.*/    
-    std::vector<double> mCachedDistances;
     /** Used in the calculation of point-to-point distances.*/    
     unsigned mTargetNodeIndex;
     
@@ -135,12 +131,9 @@ public:
      *
      *  @param rSourceNodeIndices set of node indices defining the source set or surface
      *  @param rNodeDistances distance map computed. The method will resize it if it's not big enough.
-     *  @param reuseDistanceInformation is set to true if the rNodeDistances parameter contains 
-     *         partial/incomplete information from a previous similar calculation
      */
     void ComputeDistanceMap(const std::vector<unsigned>& rSourceNodeIndices,
-                            std::vector<double>& rNodeDistances,
-                            bool reuseDistanceInformation=false);
+                            std::vector<double>& rNodeDistances);
     /**
      *  Calculates a single point-to-point distance
      *

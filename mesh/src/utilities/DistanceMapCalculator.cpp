@@ -41,7 +41,6 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
 {
     mNumNodes = mrMesh.GetNumNodes();
     
-    assert(mCachedSourceNodeIndex.size() == 0);
     DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* p_distributed_mesh = dynamic_cast<DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>*>(&mrMesh);
     if ( PetscTools::IsSequential() || p_distributed_mesh == NULL)
     {
@@ -68,23 +67,14 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
         const std::vector<unsigned>& rSourceNodeIndices,
-        std::vector<double>& rNodeDistances,
-        bool reuseDistanceInformation)
+        std::vector<double>& rNodeDistances)
 {
-    if (!reuseDistanceInformation || rNodeDistances.size()  != mNumNodes)
+    rNodeDistances.resize(mNumNodes);
+    for (unsigned index=0; index<mNumNodes; index++)
     {
-        rNodeDistances.resize(mNumNodes);
-        for (unsigned index=0; index<mNumNodes; index++)
-        {
-            rNodeDistances[index] = DBL_MAX;
-        }
-        //Make sure that there isn't a non-empty queue from a previous calculation
-        if (!mActivePriorityNodeIndexQueue.empty())
-        {
-            mActivePriorityNodeIndexQueue = std::priority_queue<std::pair<double, unsigned> >();
-        }
-        
+        rNodeDistances[index] = DBL_MAX;
     }
+    assert(mActivePriorityNodeIndexQueue.empty());
     
     for (unsigned source_index=0; source_index<rSourceNodeIndices.size(); source_index++)
     {
@@ -182,11 +172,11 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
         unsigned current_node_index = mActivePriorityNodeIndexQueue.top().second;
         double distance_when_queued=-mActivePriorityNodeIndexQueue.top().first;
         mActivePriorityNodeIndexQueue.pop();
-        mPopCounter++;
         //Only act on nodes which haven't been acted on already
         //(It's possible that a better distance has been found and already been dealt with) 
         if (distance_when_queued == rNodeDistances[current_node_index]);
         {
+            mPopCounter++;
             Node<SPACE_DIM>* p_current_node = mrMesh.GetNode(current_node_index);
             // Loop over the elements containing the given node
             for(typename Node<SPACE_DIM>::ContainingElementIterator element_iterator = p_current_node->ContainingElementsBegin();
@@ -233,29 +223,28 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::SingleDistance(unsigned sourceNodeIndex, unsigned targetNodeIndex)
 {
-    if (mCachedSourceNodeIndex.size() != 1u || mCachedSourceNodeIndex[0] != sourceNodeIndex)
-    {
-        //It is not the same as the previous calculation
-        mCachedSourceNodeIndex.resize(1u);
-        mCachedSourceNodeIndex[0]=sourceNodeIndex;
-        mCachedDistances.resize(0);
-    }
+    std::vector<unsigned> source_node_index_vector;
+    source_node_index_vector.push_back(sourceNodeIndex);
+
     //We are re-using the mCachedDistances vector...
-    
     mTargetNodeIndex=targetNodeIndex;//For premature termination
-    //Make sure that if the target destination has already been through the queue
-    //that we see it again (so we don't have to flush the queue)
-    if (!mCachedDistances.empty())
-    {
-        PushLocal(mCachedDistances[targetNodeIndex], targetNodeIndex);
-    }
-    ComputeDistanceMap(mCachedSourceNodeIndex, mCachedDistances, true);
+
+    /** Used in the calculation of point-to-point distances.*/    
+    std::vector<double> distances;
+    ComputeDistanceMap(source_node_index_vector, distances);
 
     ///\todo #1414 A* metric
     ///\todo #1414 premature termination when we find the correct one (parallel)
+    
     //Reset target, so we don't terminate early next time.
     mTargetNodeIndex=UINT_MAX;
-    return mCachedDistances[targetNodeIndex];
+    //Make sure that there isn't a non-empty queue from a previous calculation
+    if (!mActivePriorityNodeIndexQueue.empty())
+    {
+        mActivePriorityNodeIndexQueue = std::priority_queue<std::pair<double, unsigned> >();
+    }
+
+    return distances[targetNodeIndex];
 }
 
 /////////////////////////////////////////////////////////////////////

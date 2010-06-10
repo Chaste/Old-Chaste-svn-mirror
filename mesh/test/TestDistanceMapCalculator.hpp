@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "RandomNumberGenerator.hpp"
 
+
+
 class TestDistanceMapCalculator : public CxxTest::TestSuite
 {
 public:
@@ -91,13 +93,15 @@ public:
 
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
+        
+        unsigned num_nodes=9261u;
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), num_nodes); // 21x21x21 nodes
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4800u);
 
         DistributedTetrahedralMesh<3,3> parallel_mesh(DistributedTetrahedralMesh<3,3>::DUMB); // No reordering;
         parallel_mesh.ConstructFromMeshReader(mesh_reader);
-        TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
+        TS_ASSERT_EQUALS(parallel_mesh.GetNumNodes(), num_nodes); // 21x21x21 nodes
         TS_ASSERT_EQUALS(parallel_mesh.GetNumElements(), 48000u);
         TS_ASSERT_EQUALS(parallel_mesh.GetNumBoundaryElements(), 4800u);
 
@@ -132,7 +136,8 @@ public:
         //Nodes in mesh are order such that a dumb partitioning will give a sequential handover from proc0 to proc1...
         TS_ASSERT_EQUALS(parallel_distance_calculator.mRoundCounter, PetscTools::GetNumProcs());
         //Note unsigned division is okay here
-        TS_ASSERT_DELTA(parallel_distance_calculator.mPopCounter, 9261u/PetscTools::GetNumProcs(), 1u);
+        TS_ASSERT_DELTA(parallel_distance_calculator.mPopCounter, num_nodes/PetscTools::GetNumProcs(), 1u);
+        TS_ASSERT_DELTA(distance_calculator.mPopCounter, num_nodes, 1u);
         for (unsigned index=0; index<distances.size(); index++)
         {
             c_vector<double, 3> node = mesh.GetNode(index)->rGetLocation();
@@ -159,39 +164,29 @@ public:
         RandomNumberGenerator::Instance()->Reseed(1);
         unsigned trials=20;
         unsigned pops=0;
-        for (unsigned i=0; i<=trials; i++)
+        unsigned sequential_pops=0;
+        for (unsigned i=0; i<trials; i++)
         {
             unsigned index=RandomNumberGenerator::Instance()->randMod(parallel_distances.size());
             TS_ASSERT_DELTA(parallel_distance_calculator.SingleDistance(9260u, index), parallel_distances[index], 1e-15);
-            if (i==0)
-            {
-                if (PetscTools::IsSequential())
-                {
-                    //First call does lots of pops (but less than a full calculation)
-                    TS_ASSERT_DELTA(parallel_distance_calculator.mPopCounter, 8328u, 1u);
-                }
-                else
-                {
-                    //Early termination is unlikely
-                    
-                }
-            }
-            else
-            {
-                //Subsequent calls are likely to do fewer pops
-                //Most do two
-                pops += parallel_distance_calculator.mPopCounter;
-            }
-           
+            TS_ASSERT_DELTA(distance_calculator.SingleDistance(9260u, index), parallel_distances[index], 1e-15);
+            pops += parallel_distance_calculator.mPopCounter;
+            sequential_pops += distance_calculator.mPopCounter;
+            TS_ASSERT_DELTA(parallel_distance_calculator.mRoundCounter, PetscTools::GetNumProcs() + 0.5 , 0.5);
         }
+        
+        TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/2, 300); 
         if (PetscTools::IsSequential())
         {
-             TS_ASSERT_DELTA(pops/trials, 30u, 1u);
+            //Early termination 
+            TS_ASSERT_EQUALS(pops, sequential_pops); 
         }
         else
         {
-             TS_ASSERT_DELTA(pops/(double)trials, 1.0, 1.1); //Normally 2 or 0
-        }
+            //Early termination on remote processes is not yet possible
+            //This may lead to multiple updates from remote
+            TS_ASSERT_DELTA(pops/(double)trials, num_nodes/PetscTools::GetNumProcs(), 700.0); 
+         }
         
         //Reverse - to check that cached information is flushed.
         for (unsigned i=0; i<3; i++)
