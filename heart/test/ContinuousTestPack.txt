@@ -23,7 +23,7 @@ postprocessing/TestHdf5ToVisualizerConverters.hpp
 postprocessing/TestPostProcessingWriter.hpp
 postprocessing/TestPropagationPropertiesCalculator.hpp
 postprocessing/TestPseudoEcgCalculator.hpp
-postprocessing/TestVoltageInterpolaterOntoMechanicsMesh
+postprocessing/TestVoltageInterpolaterOntoMechanicsMesh.hpp
 TestCardiacSimulation.hpp
 TestCardiacSimulationArchiver.hpp
 TestChasteParametersReader.hpp
