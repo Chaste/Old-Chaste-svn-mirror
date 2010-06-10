@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5ToCmguiConverter.hpp"
 #include "Hdf5DataReader.hpp"
 #include "PetscTools.hpp"
-
+#include "Hdf5DataWriter.hpp"
 
 
 /**
