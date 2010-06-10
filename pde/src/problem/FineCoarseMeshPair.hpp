@@ -186,7 +186,7 @@ private:
      *  @param rpBoxCollection Reference to the box collection to use (either mpFineBoxCollection 
      *   or mpCoarseBoxCollection)
      *  @param boxIndex box index
-     *  @rElementIndices The returned vector of element indices in that box of the box collection. Not
+     *  @param rElementIndices The returned vector of element indices in that box of the box collection. Not
      *   cleared before use.
      */
     void CollectElementsInContainingBox(BoxCollection<DIM>*& rpBoxCollection, 
@@ -198,7 +198,7 @@ private:
      *  @param rpBoxCollection Reference to the box collection to use (either mpFineBoxCollection 
      *   or mpCoarseBoxCollection)
      *  @param boxIndex box index
-     *  @rElementIndices The returned vector of element indices in that box or a local box. Not
+     *  @param rElementIndices The returned vector of element indices in that box or a local box. Not
      *   cleared before use.
      */
     void CollectElementsInLocalBoxes(BoxCollection<DIM>*& rpBoxCollection, 

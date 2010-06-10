@@ -728,26 +728,38 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAls
     return neighbouring_node_indices_not_in_this_element;
 }
 
-
+/// \cond Get Doxygen to ignore, since it's confused by these templates
 template<>
 void VertexMesh<1,1>::ConstructFromMeshReader(AbstractMeshReader<1,1>& rMeshReader)
-{
-}
-template<>
-void VertexMesh<1,2>::ConstructFromMeshReader(AbstractMeshReader<1,2>& rMeshReader)
-{
-}
-template<>
-void VertexMesh<1,3>::ConstructFromMeshReader(AbstractMeshReader<1,3>& rMeshReader)
-{
-}
-template<>
-void VertexMesh<2,3>::ConstructFromMeshReader(AbstractMeshReader<2,3>& rMeshReader)
+/// \endcond Get Doxygen to ignore, since it's confused by these templates
 {
 }
 
+/// \cond Get Doxygen to ignore, since it's confused by these templates
+template<>
+void VertexMesh<1,2>::ConstructFromMeshReader(AbstractMeshReader<1,2>& rMeshReader)
+/// \endcond Get Doxygen to ignore, since it's confused by these templates
+{
+}
+
+/// \cond Get Doxygen to ignore, since it's confused by these templates
+template<>
+void VertexMesh<1,3>::ConstructFromMeshReader(AbstractMeshReader<1,3>& rMeshReader)
+/// \endcond Get Doxygen to ignore, since it's confused by these templates
+{
+}
+
+/// \cond Get Doxygen to ignore, since it's confused by these templates
+template<>
+void VertexMesh<2,3>::ConstructFromMeshReader(AbstractMeshReader<2,3>& rMeshReader)
+/// \endcond Get Doxygen to ignore, since it's confused by these templates
+{
+}
+
+/// \cond Get Doxygen to ignore, since it's confused by these templates
 template<>
 void VertexMesh<2,2>::ConstructFromMeshReader(AbstractMeshReader<2,2>& rMeshReader)
+/// \endcond Get Doxygen to ignore, since it's confused by these templates
 {
     // Store numbers of nodes and elements
     unsigned num_nodes = rMeshReader.GetNumNodes();
@@ -801,8 +813,10 @@ void VertexMesh<2,2>::ConstructFromMeshReader(AbstractMeshReader<2,2>& rMeshRead
     }
 }
 
+/// \cond Get Doxygen to ignore, since it's confused by these templates
 template<>
 void VertexMesh<3,3>::ConstructFromMeshReader(AbstractMeshReader<3,3>& rMeshReader)
+/// \endcond Get Doxygen to ignore, since it's confused by these templates
 {
     // Store numbers of nodes and elements
     unsigned num_nodes = rMeshReader.GetNumNodes();

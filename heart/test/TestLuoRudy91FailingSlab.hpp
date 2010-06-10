@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "BackwardEulerLuoRudyIModel1991.hpp"
 
 
 
@@ -61,11 +62,15 @@ public:
 
         if ( (x<0.15+1e-6) && (y<0.15+1e-6) && (z<0.15+1e-6) ) 
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
+            //return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
+            return new BackwardEulerLuoRudyIModel1991(mpSolver, mpStimulus);
+            
+            
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
+            //return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
+            return new BackwardEulerLuoRudyIModel1991(mpSolver, mpZeroStimulus);
         }
     }
 };
@@ -89,7 +94,7 @@ public:
         std::cout << num_elem_x << " " << num_elem_y << " " << num_elem_z << "\n";  
         
         //mesh.ConstructCuboid(num_elem_x, num_elem_y, num_elem_z);
-        mesh.ConstructRectangularMesh(num_elem_x, num_elem_y);
+        mesh.ConstructRectangularMesh(num_elem_x, num_elem_y, false);
         mesh.Scale(h); 
         /*c_vector<double,2> extremes = mesh.GetExtremes();
         std::cout << extremes(0) << " "
@@ -101,7 +106,8 @@ public:
           */        
         HeartConfig::Instance()->SetOutputDirectory("TestBenchmark");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");          
- 
+        HeartConfig::Instance()->SetVisualizeWithVtk(true);
+        
         HeartConfig::Instance()->SetSimulationDuration(50); //ms
         HeartConfig::Instance()->SetUseAbsoluteTolerance(1e-7);
         std::cout << HeartConfig::Instance()->GetAbsoluteTolerance() << "\n\n";
