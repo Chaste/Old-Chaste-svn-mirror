@@ -175,7 +175,8 @@ public:
             TS_ASSERT_DELTA(parallel_distance_calculator.mRoundCounter, PetscTools::GetNumProcs() + 0.5 , 0.5);
         }
         
-        TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/2, 300); 
+        // Without A*: TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/2, 300); 
+        TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/20.0, 60); 
         if (PetscTools::IsSequential())
         {
             //Early termination 
@@ -185,7 +186,9 @@ public:
         {
             //Early termination on remote processes is not yet possible
             //This may lead to multiple updates from remote
-            TS_ASSERT_DELTA(pops/(double)trials, num_nodes/PetscTools::GetNumProcs(), 700.0); 
+            //A* Leads to even more updates on average
+            // Without A*: TS_ASSERT_DELTA(pops/(double)trials, num_nodes/PetscTools::GetNumProcs(), 700.0); 
+            TS_ASSERT_DELTA(pops/(double)trials, num_nodes/PetscTools::GetNumProcs(), 1400.0); 
          }
         
         //Reverse - to check that cached information is flushed.

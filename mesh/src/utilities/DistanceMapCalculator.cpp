@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "DistanceMapCalculator.hpp"
 #include "DistributedTetrahedralMesh.hpp" //For dynamic cast
+//#include "Debug.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
@@ -37,7 +38,8 @@ DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::DistanceMapCalculator(
       mNumHalosPerProcess(NULL),
       mRoundCounter(0u),
       mPopCounter(0u),
-      mTargetNodeIndex(UINT_MAX)
+      mTargetNodeIndex(UINT_MAX),
+      mSingleTarget(false)
 {
     mNumNodes = mrMesh.GetNumNodes();
     
@@ -76,11 +78,26 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     }
     assert(mActivePriorityNodeIndexQueue.empty());
     
-    for (unsigned source_index=0; source_index<rSourceNodeIndices.size(); source_index++)
+    if (mSingleTarget)
     {
-        unsigned node_index=rSourceNodeIndices[source_index];
-        PushLocal(0.0, node_index);
-        rNodeDistances[node_index] = 0.0;
+        assert(rSourceNodeIndices.size()==1);
+        unsigned source_node_index=rSourceNodeIndices[0];
+        //We need to make sure this is local, so that we can use the geometry
+        if (mLo<=source_node_index && source_node_index<mHi)
+        {
+            double heuristic_correction=norm_2(mrMesh.GetNode(source_node_index)->rGetLocation()-mTargetNodePoint);
+            PushLocal(heuristic_correction, source_node_index);
+            rNodeDistances[source_node_index] = heuristic_correction;
+        }
+     }
+    else
+    {
+        for (unsigned source_index=0; source_index<rSourceNodeIndices.size(); source_index++)
+        {
+            unsigned source_node_index=rSourceNodeIndices[source_index];
+            PushLocal(0.0, source_node_index);
+            rNodeDistances[source_node_index] = 0.0;
+        }
     }
 
     bool non_empty_queue=true;
@@ -178,6 +195,11 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
         {
             mPopCounter++;
             Node<SPACE_DIM>* p_current_node = mrMesh.GetNode(current_node_index);
+            double current_heuristic=0.0;
+            if (mSingleTarget)
+            {
+                 current_heuristic=norm_2(p_current_node->rGetLocation()-mTargetNodePoint);
+            }
             // Loop over the elements containing the given node
             for(typename Node<SPACE_DIM>::ContainingElementIterator element_iterator = p_current_node->ContainingElementsBegin();
                 element_iterator != p_current_node->ContainingElementsEnd();
@@ -198,9 +220,15 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                     if(neighbour_node_index != current_node_index)
                     {
 
+                        double neighbour_heuristic=0.0;
+                        if (mSingleTarget)
+                        {
+                             neighbour_heuristic=norm_2(p_neighbour_node->rGetLocation()-mTargetNodePoint);
+                        }
                         // Test if we have found a shorter path from the source to the neighbour through current node
                         double updated_distance = rNodeDistances[current_node_index] +
-                                                  norm_2(p_neighbour_node->rGetLocation() - p_current_node->rGetLocation());
+                                                  norm_2(p_neighbour_node->rGetLocation() - p_current_node->rGetLocation())
+                                                  - current_heuristic + neighbour_heuristic;
                         if ( updated_distance < rNodeDistances[neighbour_node_index] * (1.0-DBL_EPSILON) )
                         {
                             rNodeDistances[neighbour_node_index] = updated_distance;
@@ -228,16 +256,27 @@ double DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::SingleDistance(unsigned so
 
     //We are re-using the mCachedDistances vector...
     mTargetNodeIndex=targetNodeIndex;//For premature termination
+    mSingleTarget=true;
 
-    /** Used in the calculation of point-to-point distances.*/    
+    //Set up information on target (for A* guidance)
+    c_vector<double, SPACE_DIM> target_point=zero_vector<double>(SPACE_DIM);
+    if (mrMesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(mTargetNodeIndex))
+    {
+        //Owner of target node sets target_point (others have zero)
+        target_point=mrMesh.GetNode(mTargetNodeIndex)->rGetLocation();
+    }
+    //Communicate for wherever to everyone
+    MPI_Allreduce( &target_point[0], &mTargetNodePoint[0], SPACE_DIM, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
+    
+    //mTargetNodePoint;
     std::vector<double> distances;
     ComputeDistanceMap(source_node_index_vector, distances);
 
-    ///\todo #1414 A* metric
     ///\todo #1414 premature termination when we find the correct one (parallel)
     
     //Reset target, so we don't terminate early next time.
-    mTargetNodeIndex=UINT_MAX;
+    mSingleTarget=false;
+    
     //Make sure that there isn't a non-empty queue from a previous calculation
     if (!mActivePriorityNodeIndexQueue.empty())
     {

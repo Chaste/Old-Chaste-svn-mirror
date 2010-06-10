@@ -67,6 +67,10 @@ private:
     unsigned mPopCounter;
     /** Used in the calculation of point-to-point distances.*/    
     unsigned mTargetNodeIndex;
+    /** True for point-to-point distances.*/    
+    bool mSingleTarget;
+    /** Also used in the calculation of point-to-point distances with A* heuristic -- this requires a parallel communication*/    
+    c_vector<double, SPACE_DIM> mTargetNodePoint;
     
     /**
      * Queue of nodes to be processed (initialised with the nodes defining the surface)
