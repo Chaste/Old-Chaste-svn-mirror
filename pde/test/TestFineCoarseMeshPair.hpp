@@ -250,7 +250,7 @@ public:
         // and we want width > max_edge_length, so end up with 
         //   box width = 0.155563
         // (1.1 times max edge length)
-        TS_ASSERT_EQUALS(mesh_pair.mpFineMeshBoxCollection->GetNumBoxes(), 49u);
+        TS_ASSERT_EQUALS(mesh_pair.mpFineMeshBoxCollection->GetNumBoxes(), 64u);
         
         // now use a mesh with a smaller edge length
         TetrahedralMesh<2,2> fine_mesh2;
@@ -386,15 +386,27 @@ public:
         }
 
 
-//// #1409 - this bit won't work now as point outside all the boxes        
-//        // translate the fine mesh to somewhere far away in (-1, -1) direction --> all
-//        // fine nodes nearest to (not contained in) element 0 
-//        fine_mesh.Translate(-10, -10);
-//        mesh_pair.ComputeCoarseElementsForFineNodes(true);
-//        for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
-//        {
-//            TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 0u);
-//        }
+        // translate the fine mesh in the (-1, -1) direction --> all
+        // fine nodes nearest to (not contained in) element 0. We have to 
+        // make the fine mesh tiny and then translate a small amount so 
+        // that it is still in the box collection for the coarse (normally the 
+        // two meshes should overlap) 
+        fine_mesh.Scale(1e-2, 1e-2);
+        fine_mesh.Translate(-1.1e-2, -1.1e-2);
+        mesh_pair.ComputeCoarseElementsForFineNodes(true);
+        for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 0u);
+        }
+        
+        
+        // call again with safeMode=false this time (same results, faster)
+        mesh_pair.rGetCoarseElementsForFineNodes()[0] = 189342958;
+        mesh_pair.ComputeCoarseElementsForFineNodes(false);
+        for(unsigned i=0; i<fine_mesh.GetNumNodes(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 0u);
+        }
     }
 
     
@@ -428,16 +440,19 @@ public:
             }
         }
 
-//// #1409 - this bit won't work now as point outside all the boxes   
-//        // translate the fine mesh to somewhere far away in (-1, -1) direction --> all
-//        // fine elements nearest to (not contained in) coarse element 0 
-//        fine_mesh.Translate(-10, -10);
-//        mesh_pair.ComputeCoarseElementsForFineElementCentroids(true);
-//        TS_ASSERT_EQUALS( mesh_pair.rGetCoarseElementsForFineElementCentroids().size(), fine_mesh.GetNumElements());
-//        for(unsigned i=0; i<fine_mesh.GetNumElements(); i++)
-//        {
-//            TS_ASSERT_EQUALS( mesh_pair.rGetCoarseElementsForFineElementCentroids()[i], 0u);
-//        }
+        // translate the fine mesh in the (-1, -1) direction --> all
+        // fine elements nearest to (not contained in) element 0. We have to 
+        // make the fine mesh tiny and then translate a small amount so 
+        // that it is still in the box collection for the coarse (normally the 
+        // two meshes should overlap) 
+        fine_mesh.Scale(1e-2, 1e-2);
+        fine_mesh.Translate(-1.1e-2, -1.1e-2);
+        mesh_pair.ComputeCoarseElementsForFineElementCentroids(true);
+        TS_ASSERT_EQUALS( mesh_pair.rGetCoarseElementsForFineElementCentroids().size(), fine_mesh.GetNumElements());
+        for(unsigned i=0; i<fine_mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS( mesh_pair.rGetCoarseElementsForFineElementCentroids()[i], 0u);
+        }
     }
 
     void TestComputeFineElemsAndWeightsForCoarseNodes() throw(Exception)

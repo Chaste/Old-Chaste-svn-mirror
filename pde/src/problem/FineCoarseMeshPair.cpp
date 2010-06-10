@@ -128,11 +128,15 @@ void FineCoarseMeshPair<DIM>::SetUpBoxes(TetrahedralMesh<DIM,DIM>& rMesh,
     c_vector<double,2*DIM> extended_min_and_max;
     for(unsigned i=0; i<DIM; i++)
     {
+        double width = min_max_values(2*i+1) - min_max_values(2*i);
+ 
         // subtract from the minima
-        extended_min_and_max(2*i) = min_max_values(2*i) - 0.05*fabs(min_max_values(2*i));
+        extended_min_and_max(2*i) = min_max_values(2*i) - 0.05*width;
         // add to the maxima
-        extended_min_and_max(2*i+1) = min_max_values(2*i+1) + 0.05*fabs(min_max_values(2*i+1));
+        extended_min_and_max(2*i+1) = min_max_values(2*i+1) + 0.05*width;
     }
+
+
 
     if(boxWidth < 0)
     {
@@ -199,7 +203,8 @@ void FineCoarseMeshPair<DIM>::SetUpBoxes(TetrahedralMesh<DIM,DIM>& rMesh,
 // ComputeFineElementsAndWeightsForCoarseQuadPoints() 
 // and 
 // ComputeFineElementsAndWeightsForCoarseNodes()
-// and common method
+// and 
+// common method
 //
 //
 ////////////////////////////////////////////////////////////////////////////////////
@@ -364,7 +369,8 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoi
 // ComputeCoarseElementsForFineNodes
 // and 
 // ComputeCoarseElementsForFineElementCentroids
-// and common method
+// and
+// common method
 //
 //
 ////////////////////////////////////////////////////////////////////////////////////
