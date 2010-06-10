@@ -36,6 +36,7 @@ class CML_noble_varghese_kohl_noble_1998_basic_with_sac : public AbstractCardiac
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
+        archive & mStretch;
         archive & boost::serialization::base_object<AbstractCardiacCell>(*this);
     }
 private:

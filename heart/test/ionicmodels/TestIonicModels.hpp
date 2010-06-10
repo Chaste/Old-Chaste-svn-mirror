@@ -996,7 +996,7 @@ public:
 //
 //    }
 
-    void TestLR1991Archiving(void) throw(Exception)
+    void TestLR1991AndN98WithSacArchiving(void) throw(Exception)
     {
         //Archive
         OutputFileHandler handler("archive", false);
@@ -1019,11 +1019,15 @@ public:
 
             // Check Standard
             AbstractCardiacCell* const p_luo_rudy_cell = new LuoRudyIModel1991OdeSystem(p_solver, p_stimulus);
+            AbstractCardiacCell* const p_n98_with_sac = new CML_noble_varghese_kohl_noble_1998_basic_with_sac(p_solver, p_stimulus);
+
+            p_n98_with_sac->SetStretch(1.1);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             output_arch <<  p_luo_rudy_cell;
+            output_arch <<  p_n98_with_sac;
 
             // These results are in the repository and should be replicated after the load below
 //            RunOdeSolverWithIonicModel(p_luo_rudy_cell,
@@ -1031,6 +1035,7 @@ public:
 //                           "LRAfterArchiveValidData");
 
             delete p_luo_rudy_cell;
+            delete p_n98_with_sac;
         }
         // Load
         {
@@ -1039,9 +1044,16 @@ public:
 
             AbstractCardiacCell* p_luo_rudy_cell;
             input_arch >> p_luo_rudy_cell;
+            
+            AbstractCardiacCell* p_n98_with_sac;
+            input_arch >> p_n98_with_sac;
 
             TS_ASSERT_EQUALS( p_luo_rudy_cell->GetNumberOfStateVariables(), 8U );
-
+            TS_ASSERT_EQUALS( p_n98_with_sac->GetNumberOfStateVariables(), 22U );
+            
+            CML_noble_varghese_kohl_noble_1998_basic_with_sac*   p_n98_with_sac_conc
+               = dynamic_cast<CML_noble_varghese_kohl_noble_1998_basic_with_sac*>(p_n98_with_sac);
+            TS_ASSERT_DELTA( p_n98_with_sac_conc->GetStretch(), 1.1, 1e-5 );
 
             RunOdeSolverWithIonicModel(p_luo_rudy_cell,
                                        50.0,
@@ -1050,8 +1062,9 @@ public:
             CheckCellModelResults("LRAfterArchive");
 
             delete p_luo_rudy_cell;
+            delete p_n98_with_sac;
         }
-     }
+    }
 
     void TestMaleckar2009Archiving(void) throw(Exception)
     {
