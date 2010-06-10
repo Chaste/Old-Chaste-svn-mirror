@@ -176,7 +176,7 @@ public:
         }
         
         // Without A*: TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/2, 300); 
-        TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/20.0, 60); 
+        TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/20.0, 70.0); 
         if (PetscTools::IsSequential())
         {
             //Early termination 
