@@ -409,6 +409,7 @@ if test_summary and not compile_only:
     senv = env.Clone()
     # Get the directory to put results & summary in
     output_dir = build.output_dir
+    Execute(Mkdir(output_dir))
     # Remove old results. Note that this command gets run before anything is built.
     #for oldfile in os.listdir(output_dir):
     #  os.remove(os.path.join(output_dir, oldfile))

@@ -84,7 +84,7 @@ def run_test(exefile, logfile, build, run_time_flags='', echo=True):
         # Get the test status and copy log file
         test_dir = build.output_dir
         if not os.path.exists(test_dir):
-            os.mkdir(test_dir)
+            os.makedirs(test_dir)
         if not os.path.isdir(test_dir):
             print test_dir, "is not a directory; unable to copy output."
             sys.exit(1)
