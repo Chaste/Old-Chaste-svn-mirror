@@ -84,8 +84,11 @@ private:
      * Work on the Queue of node indices (grass-fire across the mesh)
      *
      * @param rNodeDistances distance map computed
+     * @return true when a single target has been found
+     * @return false when there is work remaining or the queue is flushed
+     *  
      */
-    void WorkOnLocalQueue(std::vector<double>& rNodeDistances);
+    bool WorkOnLocalQueue(std::vector<double>& rNodeDistances);
 
     /**
      * Update the local Queue of node indices using data that are from the halo nodes of remote processes.

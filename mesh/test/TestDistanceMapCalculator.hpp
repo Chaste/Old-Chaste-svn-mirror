@@ -162,7 +162,7 @@ public:
         
         //Test some point-to-point distances
         RandomNumberGenerator::Instance()->Reseed(1);
-        unsigned trials=20;
+        unsigned trials=25;
         unsigned pops=0;
         unsigned sequential_pops=0;
         for (unsigned i=0; i<trials; i++)
@@ -172,11 +172,11 @@ public:
             TS_ASSERT_DELTA(distance_calculator.SingleDistance(9260u, index), parallel_distances[index], 1e-15);
             pops += parallel_distance_calculator.mPopCounter;
             sequential_pops += distance_calculator.mPopCounter;
-            TS_ASSERT_DELTA(parallel_distance_calculator.mRoundCounter, PetscTools::GetNumProcs() + 0.5 , 0.5);
+            TS_ASSERT_LESS_THAN_EQUALS(parallel_distance_calculator.mRoundCounter, PetscTools::GetNumProcs()+2);
         }
         
         // Without A*: TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/2, 300); 
-        TS_ASSERT_DELTA(sequential_pops/(double)trials, num_nodes/20.0, 70.0); 
+        TS_ASSERT_LESS_THAN(sequential_pops/(double)trials, num_nodes/20.0); 
         if (PetscTools::IsSequential())
         {
             //Early termination 
@@ -188,7 +188,7 @@ public:
             //This may lead to multiple updates from remote
             //A* Leads to even more updates on average
             // Without A*: TS_ASSERT_DELTA(pops/(double)trials, num_nodes/PetscTools::GetNumProcs(), 700.0); 
-            TS_ASSERT_DELTA(pops/(double)trials, num_nodes/PetscTools::GetNumProcs(), 1400.0); 
+            TS_ASSERT_LESS_THAN(pops/(double)trials, num_nodes/10.0 ); 
          }
         
         //Reverse - to check that cached information is flushed.

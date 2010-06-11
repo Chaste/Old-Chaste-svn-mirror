@@ -105,14 +105,19 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::ComputeDistanceMap(
     mPopCounter=0;
     while (non_empty_queue)
     {
-        WorkOnLocalQueue(rNodeDistances);
-        non_empty_queue=UpdateQueueFromRemote(rNodeDistances);
+        bool termination=WorkOnLocalQueue(rNodeDistances);
         //Sanity - check that we aren't doing this very many times
         if (mRoundCounter++ > 3 * PetscTools::GetNumProcs())
         {
             //This line will be hit if there's a parallel distributed mesh with a really bad partition
             NEVER_REACHED;
         }
+        if (mSingleTarget && PetscTools::ReplicateBool(termination))
+        {
+            //A single process found the target already
+            break;
+        }
+        non_empty_queue=UpdateQueueFromRemote(rNodeDistances);
     }
 
 
@@ -133,7 +138,7 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
     if (mWorkOnEntireMesh)
     {
         //This update does nowt.
-        return false;
+        return !mActivePriorityNodeIndexQueue.empty();
     }
     for (unsigned bcast_process=0; bcast_process<PetscTools::GetNumProcs(); bcast_process++)
     {
@@ -181,8 +186,9 @@ bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::UpdateQueueFromRemote(std::v
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector<double>& rNodeDistances)
+bool DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector<double>& rNodeDistances)
 {
+    unsigned pop_stop = mNumNodes/(PetscTools::GetNumProcs()*20);
     while (!mActivePriorityNodeIndexQueue.empty())
     {
         // Get the next index in the queue
@@ -237,15 +243,23 @@ void DistanceMapCalculator<ELEMENT_DIM, SPACE_DIM>::WorkOnLocalQueue(std::vector
                     }
                 }//Node
             }//Element
-            if (current_node_index == mTargetNodeIndex)
+            if (mSingleTarget)
             {
-                //Premature termination if there is a single goal in mind
-                return;
-                ///\todo #1414 Can we do premature termination of remote processes?
+                if (current_node_index == mTargetNodeIndex)
+                {
+                    //Premature termination if there is a single goal in mind (and we found it)
+                    return true;
+                }
+                if (mPopCounter%pop_stop == 0)
+                {
+                    //Premature termination -- in case the work has been done
+                    return false;
+                }
             }
             
         }//If
      }//While !empty
+     return false;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
