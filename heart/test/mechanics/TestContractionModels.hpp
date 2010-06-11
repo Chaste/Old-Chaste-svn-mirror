@@ -442,7 +442,8 @@ public :
             data.push_back(active_tensions);
         }
 
-///\todo: what's with the flat peaks, when this is visualised? Is it just down to the calcium transient?
+        // Note: the flat peaks, it turns out, is due to the calcium transient - get
+        // different shape with N98 calcium instead of Lr91 calcium
 
         SimpleDataWriter writer("TestNhsIsometricTwitch", "nhs_forward.dat", data);
         
@@ -504,12 +505,18 @@ public :
         TS_ASSERT_DELTA(kerchoffs_model2.GetActiveTension(),      kerchoffs_model3.GetActiveTension(), 1e-10);
     }
 
+    // results to be compared with Figure 1D in Kerchoffs et al, Electromechanics of
+    // paced left ventricle simulated by straightforward mathematical model: comparison
+    // with experiments.
     void TestKerchoffs2003ContractionModelIsometricTwitch() throw(Exception)
     {
         std::vector<std::vector<double> > data;
     
         // three stretches
-        double stretch[3] = {0.85,1.0,1.1}; 
+        // stretches defined by giving sarcomere lengths of 1.6, 1.9, and
+        // 2.2 (compared to resting length of 1.9), as defined in paper
+        // mentioned above
+        double stretch[3] = {1.6/1.9/*=0.842*/, 1.0, 2.2/1.9/*=1.158*/}; 
 
         for(unsigned run=0; run<3; run++)
         {
@@ -533,8 +540,11 @@ public :
     
             while(!stepper.IsTimeAtEnd())
             {
-                // specify a step-change voltage since this model gets activated at V=0 and deactivated at V=-70
-                if( (stepper.GetTime()>100) && (stepper.GetTime()<600) )
+                // specify a step-change voltage since this model gets activated 
+                // at V=0 and deactivated at V=-70
+                // Specify 300ms of activity - the resultant force should be 
+                // non-zero for greater than 300ms.. 
+                if( (stepper.GetTime()>100) && (stepper.GetTime()<400) )
                 {
                     input_params.voltage = 50;
                 }
@@ -544,7 +554,7 @@ public :
                 }
                 kerchoffs_model.SetInputParameters(input_params);
     
-                kerchoffs_model.RunDoNotUpdate(stepper.GetTime(), stepper.GetNextTime(), 0.01);
+                kerchoffs_model.RunDoNotUpdate(stepper.GetTime(), stepper.GetNextTime(), 0.001);
                 kerchoffs_model.UpdateStateVariables();
     
                 times.push_back(stepper.GetTime());
@@ -562,11 +572,11 @@ public :
 
         SimpleDataWriter writer("TestKerchoffsIsometricTwitch", "results.dat", data);
 
-        // hardcoded test2, somewhere near the peak
+        // hardcoded test, somewhere near the peak
         TS_ASSERT_DELTA(data[0][274], 273, 1e-2);
-        TS_ASSERT_DELTA(data[1][274], 2.1633, 1e-2);
+        TS_ASSERT_DELTA(data[1][274], 1.2639, 1e-2);
         TS_ASSERT_DELTA(data[2][274], 60.666, 1e-2);
-        TS_ASSERT_DELTA(data[3][274], 117.469, 1e-2);
+        TS_ASSERT_DELTA(data[3][274], 146.931, 1e-2);
         TS_ASSERT_DELTA(data[1].back(), 0.0,  1e-2);
     }
 

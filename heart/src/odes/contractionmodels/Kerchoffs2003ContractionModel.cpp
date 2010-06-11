@@ -53,6 +53,7 @@ Kerchoffs2003ContractionModel::Kerchoffs2003ContractionModel()
     mStateVariables.push_back(mSarcomereLength-1.0/Ea); //steady state
 
     mIsActivated = false;
+    mElectricallyUnactivated = true;
     mActivationTime = 0.0;
     mTime = 0.0;
 }
@@ -73,8 +74,10 @@ void Kerchoffs2003ContractionModel::SetInputParameters(ContractionModelInputPara
 
     if (mIsActivated && (rInputParameters.voltage < mDeactivationVoltage))
     {
-        // inactive (resting)
-        mIsActivated = false;
+        // inactive (resting) - note don't set mIsActivated=false yet 
+        // as the cell may yet be producing force, and the code is such
+        // that if mIsActivated=false, Ta=0
+        mElectricallyUnactivated = true;
     }
 
     if (!mIsActivated && (rInputParameters.voltage > mActivationVoltage))
@@ -82,6 +85,7 @@ void Kerchoffs2003ContractionModel::SetInputParameters(ContractionModelInputPara
         // activated
         mIsActivated = true;
         mActivationTime = mTime;
+        mElectricallyUnactivated = false;
     }
 }
 
@@ -96,7 +100,7 @@ double Kerchoffs2003ContractionModel::GetActiveTension(double lc)
     double f_iso = 0;
     if(lc > a7)
     {
-        f_iso = T0 * pow((tanh(a6*(lc-a7))),2);
+        f_iso = T0 * pow(tanh(a6*(lc-a7)),2);
     }
 
     double f_twitch = 0;
@@ -108,6 +112,13 @@ double Kerchoffs2003ContractionModel::GetActiveTension(double lc)
         if(t_a < t_max)
         {
             f_twitch = pow( tanh(t_a/tr)*tanh((t_max-t_a)/td), 2);
+        }
+        else if(mElectricallyUnactivated)
+        {
+            // t_a < t_ma => f_twitch=0 => Ta=0
+            // In this case, if electrically unactivated as well, 
+            // set the state to be unactivated.
+            mIsActivated = false;
         }
     }
 

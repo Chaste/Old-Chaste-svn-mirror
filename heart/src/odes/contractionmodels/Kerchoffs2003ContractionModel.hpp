@@ -61,10 +61,15 @@ private:
 
     /** Length of the sarcomere in um. Variable "ls" in reference. Fibre-stretch is ls/ls0. */
     double mSarcomereLength;
-    /** Time (ms) of electrical activation (= time the voltage at this cell reached 40mV) */
+    /** Time (ms) of electrical activation (= time the voltage at this cell reached mActivationVoltage) */
     double mActivationTime;
-    /** Whether the cell is activated - whether the voltage has gone above 40mV without going below -70mV. */
+    /** Whether the cell is activated - whether the voltage has gone above mActivationTime
+     *  and not gone below without going below mDeactivationVoltage, and
+     *  that the cell has stopped producing force. */
     bool mIsActivated;
+    /** Whether the cell is electrically unactivated yet (whether the voltage has gone
+     *  below mDeactivationVoltage */
+    bool mElectricallyUnactivated;
 
     /**
      *  Get the active tension as a function of length of contractile element. This is private. The public
@@ -89,8 +94,7 @@ public:
 
     /**
      *  Set the input parameters. The calcium concentration is not used. If the voltage is such that activation
-     *  has occured (gone above 40mV), the state is set to active and the time saved as the activation time.
-     *  The state is set to inactive if the voltage goes below -70.
+     *  has occured (gone above mActivationVoltage), the state is set to active and the time saved as the activation time.
      *  @param rInputParameters reference to the input parameters
      */
     void SetInputParameters(ContractionModelInputParameters& rInputParameters);

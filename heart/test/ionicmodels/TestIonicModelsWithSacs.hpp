@@ -51,9 +51,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestIonicModelsWithSacs : public CxxTest::TestSuite
 {
 private:
-    //  Run normally upto stretch-time, then apply stretch and 
+    //  Run normally up to stretch-time, then apply stretch and 
     //  run until stretch-off-time, then return to stretch=1 
-    //  and run until 1s.
+    //  and run until 1000ms.
     void RunModelWithSacRecruitment(double stretch,
                                     double stretchStartTime,
                                     double stretchEndTime,
@@ -163,7 +163,7 @@ public:
                                    "TestN98WithSac", "sac800long", false);
     }
 
-//// other possibilities - all fine
+//// other possibilities - all fine - just uncomment and run
 //    void TestN98WithSacAt200msLong() throw(Exception)
 //    {
 //        double stretch = 1.1;
