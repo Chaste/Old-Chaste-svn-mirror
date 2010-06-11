@@ -866,8 +866,8 @@ public:
             // Restore from the archive
             (*p_arch) >> p_mesh2;
 
-            VertexMesh<2,2>* p_mesh_original = static_cast<VertexMesh<2,2>*>(p_mesh2);
-            VertexMesh<2,2>* p_mesh_loaded = static_cast<VertexMesh<2,2>*>(p_mesh);
+            VertexMesh<2,2>* p_mesh_original = static_cast<VertexMesh<2,2>*>(p_mesh);
+            VertexMesh<2,2>* p_mesh_loaded = static_cast<VertexMesh<2,2>*>(p_mesh2);
 
             // Compare the loaded mesh against the original
 
@@ -904,8 +904,9 @@ public:
             }
 
             // Tidy up
-            delete p_mesh_original;
+            delete p_mesh_loaded;
         }
+        //HoneycombVertexMeshGenerator deletes the original
     }
 
     void TestArchive3dVertexMesh()
@@ -952,8 +953,8 @@ public:
             // Restore from the archive
             (*p_arch) >> p_mesh2;
 
-            VertexMesh<3,3>* p_mesh_original = static_cast<VertexMesh<3,3>*>(p_mesh2);
-            VertexMesh<3,3>* p_mesh_loaded = static_cast<VertexMesh<3,3>*>(p_mesh);
+            VertexMesh<3,3>* p_mesh_original = static_cast<VertexMesh<3,3>*>(p_mesh);
+            VertexMesh<3,3>* p_mesh_loaded = static_cast<VertexMesh<3,3>*>(p_mesh2);
 
             // Compare the loaded mesh against the original
 
@@ -993,7 +994,7 @@ public:
             }
 
             // Tidy up
-            delete p_mesh_original;
+            delete p_mesh_loaded;
         }
         
         delete p_mesh;

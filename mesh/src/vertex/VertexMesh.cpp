@@ -896,6 +896,8 @@ void VertexMesh<3,3>::ConstructFromMeshReader(AbstractMeshReader<3,3>& rMeshRead
             }
             else
             {
+                //Don't need the new one.
+                delete p_face;
                 // ... otherwise use the member of mFaces with this index
                 bool face_added = false;
                 for (unsigned k=0; k<mFaces.size(); k++)
