@@ -407,6 +407,12 @@ public:
         {
             TS_ASSERT_EQUALS(mesh_pair.rGetCoarseElementsForFineNodes()[i], 0u);
         }
+        
+        // coverage:
+        //  call again
+        mesh_pair.SetUpBoxesOnCoarseMesh();
+        //  delete
+        mesh_pair.DeleteCoarseBoxCollection();
     }
 
     

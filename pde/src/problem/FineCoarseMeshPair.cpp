@@ -66,6 +66,7 @@ template<unsigned DIM>
 FineCoarseMeshPair<DIM>::~FineCoarseMeshPair()
 {
     DeleteFineBoxCollection();
+    DeleteCoarseBoxCollection();
 }
 
 template<unsigned DIM>

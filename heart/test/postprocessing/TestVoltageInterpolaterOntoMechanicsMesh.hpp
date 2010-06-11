@@ -121,6 +121,9 @@ public:
             }
         }
         assert(!invalid);
+        
+        VecDestroy(voltage_coarse);
+        VecDestroy(voltage_fine);
     }
     
     // the data in this test came from TestCardiacElectroMechanicsProblem::TestImplicitNhs2dOneMechanicsElement()
@@ -164,6 +167,9 @@ public:
         TS_ASSERT_DELTA(coarse_repl[1], fine_repl[5], 2e-9);
         TS_ASSERT_DELTA(coarse_repl[2], fine_repl[30], 1e-9);
         TS_ASSERT_DELTA(coarse_repl[3], fine_repl[35], 1e-9);
+
+        VecDestroy(voltage_coarse);
+        VecDestroy(voltage_fine);
     }
 };
 
