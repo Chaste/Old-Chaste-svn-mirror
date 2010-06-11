@@ -161,18 +161,18 @@ public:
          * which cell-cycles used to get the wnt concentration. Here, we do the same kind
          * of thing, but using the singletom {{{CellwiseData}}} class, which stores the
          * value of the current nutrient concentration, for each cell. We have to
-         * tell the {{{CellwiseData}}} object how many nodes and variables per node there
-         * are (in this case, 1 variable per node, ie the oxygen concentration), and
+         * tell the {{{CellwiseData}}} object how many cells and variables per cell there
+         * are (in this case, 1 variable per cell, ie the oxygen concentration), and
          * the tissue.
          */
-        CellwiseData<2>::Instance()->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
-        CellwiseData<2>::Instance()->SetTissue(tissue);
+        CellwiseData<2>::Instance()->SetNumCellsAndVars(tissue.GetNumRealCells(),1);
+        CellwiseData<2>::Instance()->SetTissue(&tissue);
         /* Then we have to initialise the oxygen concentration for each node (to 1.0), by
-         * calling {{{SetValue}}}. This takes in the concentration, and the node
-         * which this concentration is for .*/
+         * calling {{{SetValue}}}. This takes in the concentration, and the location index 
+         * corresponding to the cell which this concentration is for .*/
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            CellwiseData<2>::Instance()->SetValue(1.0, p_mesh->GetNode(i));
+            CellwiseData<2>::Instance()->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
         /* Next we instantiate an instance of the PDE class which we defined above.

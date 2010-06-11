@@ -50,7 +50,7 @@ private:
     static CellwiseData* mpInstance;
 
     /** A pointer to a Tissue so a cell's node can be found */
-    MeshBasedTissue<DIM>* mpTissue;
+    AbstractTissue<DIM>* mpTissue;
 
     /** Allocated memory for mData object */
     bool mAllocatedMemory;
@@ -122,34 +122,34 @@ public:
     double GetValue(TissueCell& rCell, unsigned variableNumber=0);
 
     /**
-     * Set the value for a given node and variable number.
+     * Set the value for a given location index and variable number.
      *
      * @param value the value to set
-     * @param pNode pointer to the Node
+     * @param locationIndex the location index
      * @param variableNumber the index of CellwiseData whose value is set (defaults to zero)
      */
-    void SetValue(double value, Node<DIM>* pNode, unsigned variableNumber=0);
+    void SetValue(double value, unsigned locationIndex, unsigned variableNumber=0);
 
     /**
      * Set the Tissue. Must be called before GetValue().
      *
-     * @param rTissue reference to the Tissue
+     * @param pTissue pointer to the Tissue
      */
-    void SetTissue(MeshBasedTissue<DIM>& rTissue);
+    void SetTissue(AbstractTissue<DIM>* pTissue);
 
     /**
      * @return reference to the Tissue.
      */
-    MeshBasedTissue<DIM>& rGetTissue();
+    AbstractTissue<DIM>& rGetTissue();
 
     /**
-     * Set the number of variables to be stored per cell. The constructor
-     * assumes 1 variable so only really needs to be called if numVars > 1.
+     * Set the number of cells and number of variables to be stored per cell. The constructor
+     * assumes 1 variable so this method only really needs to be called if numVars > 1.
      *
-     * @param numNodes number of nodes in the tissue
+     * @param numCells number of cells in the tissue
      * @param numVars number of variables
      */
-    void SetNumNodesAndVars(unsigned numNodes, unsigned numVars);
+    void SetNumCellsAndVars(unsigned numCells, unsigned numVars);
 
     /**
      * Force the data to return given values for all cells (only for testing).

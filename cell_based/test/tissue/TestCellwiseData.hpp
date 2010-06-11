@@ -64,7 +64,7 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a tissue
-        MeshBasedTissue<2> tissue(mesh,cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), false);
 
@@ -73,21 +73,21 @@ public:
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), false);
-        TS_ASSERT_THROWS_THIS(p_data->SetTissue(tissue),"SetTissue must be called after SetNumNodesAndVars()");
+        TS_ASSERT_THROWS_THIS(p_data->SetTissue(&tissue),"SetTissue must be called after SetNumCellsAndVars()");
 
-        p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), false);
 
-        p_data->SetTissue(tissue);
+        p_data->SetTissue(&tissue);
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
 
-        p_data->SetValue(1.23, mesh.GetNode(0));
+        p_data->SetValue(1.23, mesh.GetNode(0)->GetIndex());
         AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
         TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 1.23, 1e-12);
 
-        p_data->SetValue(2.23, mesh.GetNode(1));
+        p_data->SetValue(2.23, mesh.GetNode(1)->GetIndex());
         ++cell_iter;
         TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 2.23, 1e-12);
 
@@ -128,18 +128,18 @@ public:
 
         p_data = CellwiseData<2>::Instance();
 
-        p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 2);
-        p_data->SetTissue(tissue);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 2);
+        p_data->SetTissue(&tissue);
 
-        TS_ASSERT_THROWS_THIS(p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1),"SetNumNodesAndVars() must be called before setting the Tissue (and after a Destroy)");
+        TS_ASSERT_THROWS_THIS(p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1),"SetNumCellsAndVars() must be called before setting the Tissue (and after a Destroy)");
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
 
-        p_data->SetValue(3.23, mesh.GetNode(0), 1);
+        p_data->SetValue(3.23, mesh.GetNode(0)->GetIndex(), 1);
         AbstractTissue<2>::Iterator cell_iter2 = tissue.Begin();
 
         TS_ASSERT_DELTA(p_data->GetValue(*cell_iter2, 1), 3.23, 1e-12);
 
-        p_data->SetValue(4.23, mesh.GetNode(1), 1);
+        p_data->SetValue(4.23, mesh.GetNode(1)->GetIndex(), 1);
         ++cell_iter2;
 
         TS_ASSERT_DELTA(p_data->GetValue(*cell_iter2, 1), 4.23, 1e-12);
@@ -179,8 +179,8 @@ public:
         {
             // Set up the data store
             CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-            p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
-            p_data->SetTissue(tissue);
+            p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+            p_data->SetTissue(&tissue);
 
             // Put some data in
             unsigned i=0;
@@ -188,7 +188,7 @@ public:
                  cell_iter != tissue.End();
                  ++cell_iter)
             {
-                p_data->SetValue((double) i, tissue.GetNodeCorrespondingToCell(*cell_iter), 0);
+                p_data->SetValue((double) i, tissue.GetLocationIndexUsingCell(*cell_iter), 0);
                 i++;
             }
 
@@ -219,8 +219,7 @@ public:
             TS_ASSERT_EQUALS(p_data->mUseConstantDataForTesting, false);
 
             // We will have constructed a new tissue on load, so use the new tissue
-            MeshBasedTissue<2>& tissue = p_data->rGetTissue();
-            //p_data->SetTissue(tissue);
+            AbstractTissue<2>& tissue = p_data->rGetTissue();
 
             for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
                  cell_iter != tissue.End();

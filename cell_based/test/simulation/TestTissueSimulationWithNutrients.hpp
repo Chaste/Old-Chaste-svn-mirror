@@ -136,14 +136,14 @@ public:
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumNodesAndVars(mesh.GetNumNodes(), 1);
-        p_data->SetTissue(tissue);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetTissue(&tissue);
 
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, mesh.GetNode(i));
+            p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex());
         }
 
         // Set up PDE
@@ -238,14 +238,14 @@ public:
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
-        p_data->SetTissue(tissue);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetTissue(&tissue);
 
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, p_mesh->GetNode(i));
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
         // Set up PDE
@@ -354,14 +354,14 @@ public:
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
-        p_data->SetTissue(tissue);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetTissue(&tissue);
 
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, p_mesh->GetNode(i));
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
         // Set up PDE
@@ -435,12 +435,12 @@ public:
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
-        p_data->SetTissue(tissue);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetTissue(&tissue);
 
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, p_mesh->GetNode(i));
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
         // Set up PDE
@@ -542,14 +542,14 @@ public:
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
-        p_data->SetTissue(tissue);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetTissue(&tissue);
 
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, p_mesh->GetNode(i));
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
         // Set up PDE
@@ -703,14 +703,14 @@ public:
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
-        p_data->SetTissue(tissue);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetTissue(&tissue);
 
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, p_mesh->GetNode(i));
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
         // Set up PDE
@@ -784,14 +784,14 @@ public:
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(),1);
-        p_data->SetTissue(tissue);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetTissue(&tissue);
 
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, p_mesh->GetNode(i));
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
         // Set up PDE
@@ -893,13 +893,13 @@ public:
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumNodesAndVars(p_mesh->GetNumNodes(), 1);
-        p_data->SetTissue(tissue);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetTissue(&tissue);
 
         // Set initial conditions for CellwiseData (needed to avoid memory errors)
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, p_mesh->GetNode(i));
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
         // Set up PDE
@@ -970,14 +970,14 @@ public:
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<3>* p_data = CellwiseData<3>::Instance();
-        p_data->SetNumNodesAndVars(mesh.GetNumNodes(),1);
-        p_data->SetTissue(tissue);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetTissue(&tissue);
 
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, mesh.GetNode(i));
+            p_data->SetValue(1.0, mesh.GetNode(i)->GetIndex());
         }
 
         // Set up PDE

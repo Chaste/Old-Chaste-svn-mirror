@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "CellwiseData.hpp"
 
 
@@ -82,59 +83,60 @@ double CellwiseData<DIM>::GetValue(TissueCell& rCell, unsigned variableNumber)
     }
 
     assert(IsSetUp());
-    assert(mpTissue!=NULL);
+    assert(mpTissue != NULL);
     assert(mAllocatedMemory);
     assert(variableNumber < mNumberOfVariables);
 
-    unsigned node_index = mpTissue->GetLocationIndexUsingCell(rCell);
-    unsigned vector_index = node_index*mNumberOfVariables + variableNumber;
+    unsigned location_index = mpTissue->GetLocationIndexUsingCell(rCell);
+    unsigned vector_index = location_index*mNumberOfVariables + variableNumber;
     return mData[vector_index];
 }
 
 
 template<unsigned DIM>
-void CellwiseData<DIM>::SetValue(double value, Node<DIM>* pNode, unsigned variableNumber)
+void CellwiseData<DIM>::SetValue(double value, unsigned locationIndex, unsigned variableNumber)
 {
     assert(IsSetUp());
     assert(variableNumber < mNumberOfVariables);
-    unsigned vector_index = pNode->GetIndex()*mNumberOfVariables + variableNumber;
+
+    unsigned vector_index = locationIndex*mNumberOfVariables + variableNumber;
     mData[vector_index] = value;
 }
 
 
 template<unsigned DIM>
-void CellwiseData<DIM>::SetTissue(MeshBasedTissue<DIM>& rTissue)
+void CellwiseData<DIM>::SetTissue(AbstractTissue<DIM>* pTissue)
 {
     if (mAllocatedMemory == false)
     {
-        EXCEPTION("SetTissue must be called after SetNumNodesAndVars()");
+        EXCEPTION("SetTissue must be called after SetNumCellsAndVars()");
     }
 
-    mpTissue=&rTissue;
+    mpTissue = pTissue;
 }
 
 
 template<unsigned DIM>
-MeshBasedTissue<DIM>& CellwiseData<DIM>::rGetTissue()
+AbstractTissue<DIM>& CellwiseData<DIM>::rGetTissue()
 {
     return *mpTissue;
 }
 
 
 template<unsigned DIM>
-void CellwiseData<DIM>::SetNumNodesAndVars(unsigned numNodes, unsigned numberOfVariables)
+void CellwiseData<DIM>::SetNumCellsAndVars(unsigned numCells, unsigned numberOfVariables)
 {
     if (mpTissue!=NULL)
     {
-        EXCEPTION("SetNumNodesAndVars() must be called before setting the Tissue (and after a Destroy)");
+        EXCEPTION("SetNumCellsAndVars() must be called before setting the Tissue (and after a Destroy)");
     }
 
     assert(numberOfVariables > 0);
-    assert(mAllocatedMemory==false);
+    assert(mAllocatedMemory == false);
 
     mNumberOfVariables = numberOfVariables;
     mData.clear();
-    mData.resize(numNodes * mNumberOfVariables, 0.0);
+    mData.resize(numCells * mNumberOfVariables, 0.0);
 
     mAllocatedMemory = true;
 }
@@ -153,11 +155,11 @@ void CellwiseData<DIM>::ReallocateMemory()
     assert(mAllocatedMemory==true);
     assert(mpTissue!=NULL);
 
-    unsigned num_nodes = mpTissue->rGetMesh().GetNumNodes();
-    if (mData.size() != num_nodes*mNumberOfVariables)
+    unsigned num_cells = mpTissue->GetNumRealCells();
+    if (mData.size() != num_cells*mNumberOfVariables)
     {
         mData.clear();
-        mData.resize(num_nodes * mNumberOfVariables, 0.0);
+        mData.resize(num_cells*mNumberOfVariables, 0.0);
     }
 }
 
