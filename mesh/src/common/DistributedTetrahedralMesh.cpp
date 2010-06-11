@@ -683,10 +683,13 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
     MatGetInfo(connectivity_matrix, MAT_LOCAL, &matrix_info);
     unsigned local_num_nz = (unsigned) matrix_info.nz_used;
 
-    PetscInt* local_ia;
-    PetscMalloc((num_local_nodes+1)*sizeof(PetscInt), &local_ia);
-    PetscInt* local_ja;
-    PetscMalloc(local_num_nz*sizeof(PetscInt), &local_ja);
+    size_t size = (num_local_nodes+1)*sizeof(PetscInt);
+    void* ptr;
+    PetscMalloc(size, &ptr);
+    PetscInt* local_ia = (PetscInt*) ptr;
+    size = local_num_nz*sizeof(PetscInt);
+    PetscMalloc(size, &ptr);
+    PetscInt* local_ja = (PetscInt*) ptr;
 
     PetscInt row_num_nz;
     const PetscInt* column_indices;
