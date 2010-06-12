@@ -120,7 +120,6 @@ public:
         TS_ASSERT_THROWS_THIS(mesh_reader2.GetNextElementData(), "Data for element 1 missing");
     }
 
-
     /**
      * Checks that nodes in the input data file are numbered sequentially.
      * (In the input file nodes must appear in increasing order since the node
@@ -253,6 +252,11 @@ public:
         // Test an exception is thrown if we try to access the next element
         TS_ASSERT_THROWS_THIS(node_indices = mesh_reader2.GetNextElementDataWithFaces().NodeIndices,
                 "Cannot get the next line from node or element file due to incomplete data");
+
+        VertexMeshReader<3,3> mesh_reader3("mesh/test/data/baddata/vertex_mesh_3d_with_faces");
+
+        // Reads element 1 from file when expecting number 0
+        TS_ASSERT_THROWS_THIS(mesh_reader3.GetNextElementDataWithFaces(), "Data for element 0 missing");
     }
 
     void TestReadingElementAttributes() throw(Exception)
