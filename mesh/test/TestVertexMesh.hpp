@@ -130,7 +130,7 @@ private:
         // Pyramid element
         for (unsigned i=6; i<10; i++)
         {
-            faces_element_1.push_back(faces[6]);
+            faces_element_1.push_back(faces[i]);
             orientations_1.push_back(true);
         }
         faces_element_1.push_back(faces[5]);
