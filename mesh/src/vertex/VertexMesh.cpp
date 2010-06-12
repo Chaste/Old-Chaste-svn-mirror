@@ -884,20 +884,17 @@ void VertexMesh<3,3>::ConstructFromMeshReader(AbstractMeshReader<3,3>& rMeshRead
                 nodes_in_face.push_back(this->mNodes[face_data.NodeIndices[j]]);
             }
 
-            // Use nodes and index to construct this face
-            VertexElement<2,3>* p_face = new VertexElement<2,3>(face_index, nodes_in_face);
-
-            // If this face is not already contained in mFaces, add it, and update faces_counted...
-            if (faces_counted.find(p_face->GetIndex()) == faces_counted.end())
+            // If this face index is not already encountered, create a new face and update faces_counted...
+            if (faces_counted.find(face_index) == faces_counted.end())
             {
+                // Use nodes and index to construct this face
+                VertexElement<2,3>* p_face = new VertexElement<2,3>(face_index, nodes_in_face);
                 mFaces.push_back(p_face);
-                faces_counted.insert(p_face->GetIndex());
+                faces_counted.insert(face_index);
                 faces.push_back(p_face);
             }
             else
             {
-                //Don't need the new one.
-                delete p_face;
                 // ... otherwise use the member of mFaces with this index
                 bool face_added = false;
                 for (unsigned k=0; k<mFaces.size(); k++)

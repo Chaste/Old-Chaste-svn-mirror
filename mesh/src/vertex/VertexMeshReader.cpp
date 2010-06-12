@@ -247,7 +247,18 @@ VertexElementData VertexMeshReader<ELEMENT_DIM, SPACE_DIM>::GetNextElementDataWi
         element_data.Faces[j] = face_data;
     }
 
-    ///\todo Read element attribute (#1076/#1377)
+    if (mNumElementAttributes > 0)
+    {
+        assert(mNumElementAttributes==1);
+
+        unsigned attribute_value;
+        buffer_stream >> attribute_value;
+        element_data.AttributeValue = attribute_value;
+    }
+    else
+    {
+        element_data.AttributeValue = 0;
+    }
 
     mElementsRead++;
     return element_data;

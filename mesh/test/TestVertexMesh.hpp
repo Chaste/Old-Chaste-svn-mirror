@@ -820,6 +820,19 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNumFaces(), 4u);
         TS_ASSERT_DELTA(mesh.GetVolumeOfElement(0), 0.6495, 1e-4);
         TS_ASSERT_DELTA(mesh.GetSurfaceAreaOfElement(0), 5.3235, 1e-4);
+
+        // Create mesh in which elements have attributes
+        VertexMeshReader<3,3> mesh_reader2("mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_with_attributes");
+        VertexMesh<3,3> mesh2;
+        mesh2.ConstructFromMeshReader(mesh_reader2);
+
+        // Check we have the right number of nodes, elements and faces
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
+        TS_ASSERT_EQUALS(mesh.GetNumFaces(), 4u);
+
+        // Check element attributes
+        TS_ASSERT_EQUALS(mesh2.GetElement(0)->GetRegion(), 49u);
     }
 
     void TestArchive2dVertexMesh()
