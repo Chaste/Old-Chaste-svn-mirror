@@ -44,8 +44,7 @@ CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::CmguiMeshWriter(const std::string &rDire
     
     mElementFileHeader = CmguiElementFileHeader2D;
     mCoordinatesFileHeader = CmguiCoordinatesFileHeader2D;
-///\todo Additonal -> Additional 
-    mAdditonalFieldHeader = CmguiAdditonalFieldHeader2D;
+    mAdditionalFieldHeader = CmguiAdditionalFieldHeader2D;
     mNumNodesPerElement = ELEMENT_DIM+1;
     mReordering.resize(mNumNodesPerElement);
     for(unsigned i=0; i<mNumNodesPerElement; i++)
@@ -176,17 +175,17 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
             {
                 case 1:
                 {
-                    *p_elem_file[region_index] << CmguiAdditonalFieldHeader1D;
+                    *p_elem_file[region_index] << CmguiAdditionalFieldHeader1D;
                     break;
                 }
                 case 2:
                 {
-                    *p_elem_file[region_index] << mAdditonalFieldHeader;
+                    *p_elem_file[region_index] << mAdditionalFieldHeader;
                     break;
                 }
                 case 3:
                 {
-                    *p_elem_file[region_index] << CmguiAdditonalFieldHeader3D;
+                    *p_elem_file[region_index] << CmguiAdditionalFieldHeader3D;
                     break;
                 }
                 default:

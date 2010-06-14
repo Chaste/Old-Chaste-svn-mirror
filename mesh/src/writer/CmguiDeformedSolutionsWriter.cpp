@@ -56,7 +56,7 @@ CmguiDeformedSolutionsWriter<DIM>::CmguiDeformedSolutionsWriter(std::string outp
 //            {
 //                this->mElementFileHeader = CmguiElementFileHeader2DQuadratic;
 //                this->mCoordinatesFileHeader = CmguiCoordinatesFileHeader2DQuadratic;
-//                this->mAdditonalFieldHeader = CmguiAdditonalFieldHeader2DQuadratic;
+//                this->mAdditionalFieldHeader = CmguiAdditionalFieldHeader2DQuadratic;
 //                this->mNumNodesPerElement = 6;
 //                this->mReordering.resize(this->mNumNodesPerElement);
 //        

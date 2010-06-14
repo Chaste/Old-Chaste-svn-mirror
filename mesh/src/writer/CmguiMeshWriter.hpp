@@ -228,7 +228,7 @@ static const char CmguiCoordinatesFileHeader1D[] = " 1) coordinates, coordinate,
  * Header for additional fields in the element base file in 3D (.exelem),
  * Here we assume all additional fields will be interpolated by cmgui in the same way
  */
-static const char CmguiAdditonalFieldHeader3D[] = " field, rectangular cartesian, #Components=1\n\
+static const char CmguiAdditionalFieldHeader3D[] = " field, rectangular cartesian, #Components=1\n\
    x.  l.simplex(2;3)*l.simplex*l.simplex, no modify, standard node based.\n\
      #Nodes= 4\n\
       1.  #Values=1\n\
@@ -248,7 +248,7 @@ static const char CmguiAdditonalFieldHeader3D[] = " field, rectangular cartesian
  * Header for additional fields in the element base file in 2D (.exelem),
  * Here we assume all additional fields will be interpolated by cmgui in the same way
  */
-static const char CmguiAdditonalFieldHeader2D[] = " field, rectangular cartesian, #Components=1\n\
+static const char CmguiAdditionalFieldHeader2D[] = " field, rectangular cartesian, #Components=1\n\
    x.  l.simplex(2)*l.simplex, no modify, standard node based.\n\
      #Nodes= 3\n\
       1.  #Values=1\n\
@@ -265,7 +265,7 @@ static const char CmguiAdditonalFieldHeader2D[] = " field, rectangular cartesian
  * Header for additional fields in the element base file in 2D (.exelem)  (quadratic version),
  * Here we assume all additional fields will be interpolated by cmgui in the same way
  */
-static const char CmguiAdditonalFieldHeader2DQuadratic[] = " field, rectangular cartesian, #Components=1\n\
+static const char CmguiAdditionalFieldHeader2DQuadratic[] = " field, rectangular cartesian, #Components=1\n\
    x.  q.simplex(2)*q.simplex, no modify, standard node based.\n\
      #Nodes= 6\n\
       1.  #Values=1\n\
@@ -292,7 +292,7 @@ static const char CmguiAdditonalFieldHeader2DQuadratic[] = " field, rectangular 
  * Header for additional fields in the element base file in 1D (.exelem),
  * Here we assume all additional fields will be interpolated by cmgui in the same way
  */
-static const char CmguiAdditonalFieldHeader1D[] = " field, rectangular cartesian, #Components=1\n\
+static const char CmguiAdditionalFieldHeader1D[] = " field, rectangular cartesian, #Components=1\n\
    x.  l.Lagrange, no modify, standard node based.\n\
      #Nodes= 2\n\
       1.  #Values=1\n\
@@ -352,10 +352,10 @@ protected:
     std::string mCoordinatesFileHeader;
 
     /** 
-     *  String which is set to either CmguiAdditonalFieldHeader2D or 
-     *  CmguiAdditonalFieldHeader2DQuadratic as appropriate
+     *  String which is set to either CmguiAdditionalFieldHeader2D or 
+     *  CmguiAdditionalFieldHeader2DQuadratic as appropriate
      */ 
-    std::string mAdditonalFieldHeader;
+    std::string mAdditionalFieldHeader;
     
     /** 
      *  Number of nodes per element, eg, in 2D, 3 for linear visualisation 
