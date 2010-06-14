@@ -40,7 +40,18 @@ CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::CmguiMeshWriter(const std::string &rDire
         : AbstractTetrahedralMeshWriter<ELEMENT_DIM,SPACE_DIM>(rDirectory, rBaseName, cleanDirectory)
 {
     this->mIndexFromZero = false;
-    mGroupName = this->mBaseName;    
+    mGroupName = this->mBaseName;
+    
+    mElementFileHeader = CmguiElementFileHeader2D;
+    mCoordinatesFileHeader = CmguiCoordinatesFileHeader2D;
+///\todo Additonal -> Additional 
+    mAdditonalFieldHeader = CmguiAdditonalFieldHeader2D;
+    mNumNodesPerElement = ELEMENT_DIM+1;
+    mReordering.resize(mNumNodesPerElement);
+    for(unsigned i=0; i<mNumNodesPerElement; i++)
+    {
+        mReordering[i] = i;
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -106,7 +117,7 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
             }
             case 2:
             {
-                *p_elem_file[region_index] << CmguiElementFileHeader2D;
+                *p_elem_file[region_index] << mElementFileHeader;
                 break;
             }
             case 3:
@@ -139,7 +150,7 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
             }
             case 2:
             {
-                *p_elem_file[region_index] << CmguiCoordinatesFileHeader2D;
+                *p_elem_file[region_index] << mCoordinatesFileHeader;
                 break;
             }
             case 3:
@@ -170,7 +181,7 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
                 }
                 case 2:
                 {
-                    *p_elem_file[region_index] << CmguiAdditonalFieldHeader2D;
+                    *p_elem_file[region_index] << mAdditonalFieldHeader;
                     break;
                 }
                 case 3:
@@ -197,9 +208,9 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
         assert(elem.AttributeValue < mRegionNames.size());
            
         *p_elem_file[elem.AttributeValue] << "Element:\t" << item_num+1 << " 0 0 Nodes:\t";
-        for (unsigned i=0; i<(ELEMENT_DIM+1); i++)
+        for (unsigned i=0; i<mNumNodesPerElement; i++)
         {
-            *p_elem_file[elem.AttributeValue] << current_element[i]+1 << "\t";
+            *p_elem_file[elem.AttributeValue] << current_element[mReordering[i]]+1 << "\t";
         }
 
         *p_elem_file[elem.AttributeValue] << "\n";

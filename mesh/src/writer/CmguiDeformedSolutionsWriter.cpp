@@ -37,6 +37,46 @@ CmguiDeformedSolutionsWriter<DIM>::CmguiDeformedSolutionsWriter(std::string outp
       mpQuadraticMesh(&rQuadraticMesh),
       mFinalCounter(0)
 {
+    
+    mNumNodesToUse = mpQuadraticMesh->GetNumVertices();
+    
+//    if(quadratic)
+//    {
+//        mNumNodesToUse = mpQuadraticMesh->GetNumNodes();
+//        
+//        switch(DIM)
+//        {
+//            case 1:
+//            {
+//              
+//                break;  
+//            };
+//            
+//            case 2:
+//            {
+//                this->mElementFileHeader = CmguiElementFileHeader2DQuadratic;
+//                this->mCoordinatesFileHeader = CmguiCoordinatesFileHeader2DQuadratic;
+//                this->mAdditonalFieldHeader = CmguiAdditonalFieldHeader2DQuadratic;
+//                this->mNumNodesPerElement = 6;
+//                this->mReordering.resize(this->mNumNodesPerElement);
+//        
+//                unsigned reordering[6] = {0,5,1,4,3,2};
+//                for(unsigned i=0; i<6; i++)
+//                {
+//                    this->mReordering[i] = reordering[i];
+//                }
+//                break;
+//            }
+//            case 3:
+//            {
+//                break;
+//            }
+//            default:
+//            {
+//                NEVER_REACHED;
+//            }
+//        }
+//    }
 }
 
 template<unsigned DIM>
@@ -66,7 +106,7 @@ void CmguiDeformedSolutionsWriter<DIM>::WriteDeformationPositions(std::vector<c_
     this->WriteNodeFileHeader(p_node_file);
 
     // Write each node's data
-    for (unsigned index=0; index<mpQuadraticMesh->GetNumVertices(); index++)
+    for (unsigned index=0; index<this->GetNumNodes(); index++)
     {
         *p_node_file << "Node:\t" << index+1 << "\t";
 

@@ -71,6 +71,13 @@ static const char CmguiElementFileHeader2D[] = "Shape.  Dimension=2, simplex(2)*
  #Scale factor sets= 0\n\
  #Nodes= 3\n";
 
+/**
+ * Header for element base file in 2D (.exelem) for quadratic visualisation
+ */
+static const char CmguiElementFileHeader2DQuadratic[] = "Shape.  Dimension=2, simplex(2)*simplex\n\
+ #Scale factor sets= 0\n\
+ #Nodes= 6\n";
+ 
  /**
  * Header for element base file in 1D (.exelem)
  */
@@ -154,6 +161,55 @@ static const char CmguiCoordinatesFileHeader2D[] = " 1) coordinates, coordinate,
        Value indices:     1\n\
        Scale factor indices:   3\n";
 
+
+/**
+ * Header for element base file in 2D (.exelem) (quadratic version), this comes after 
+ * the definition of the number of fields
+ */
+static const char CmguiCoordinatesFileHeader2DQuadratic[] = " 1) coordinates, coordinate, rectangular cartesian, #Components=2\n\
+   x.  q.simplex(2)*q.simplex, no modify, standard node based.\n\
+     #Nodes= 6\n\
+      1.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   1\n\
+      2.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   2\n\
+      3.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   3\n\
+      4.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   4\n\
+      5.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   5\n\
+      6.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   6\n\
+   y.  q.simplex(2)*q.simplex, no modify, standard node based.\n\
+     #Nodes= 6\n\
+      1.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   1\n\
+      2.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   2\n\
+      3.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   3\n\
+      4.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   4\n\
+      5.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   5\n\
+      6.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   6\n";
+
+
+
 /**
  * Header for element base file in 1D (.exelem), this comes after the definition of the number of fields
  * Note that in 1D the simplex doesn't seem to work, we use Lagrange instead
@@ -206,6 +262,33 @@ static const char CmguiAdditonalFieldHeader2D[] = " field, rectangular cartesian
        Scale factor indices:   3\n";
 
 /**
+ * Header for additional fields in the element base file in 2D (.exelem)  (quadratic version),
+ * Here we assume all additional fields will be interpolated by cmgui in the same way
+ */
+static const char CmguiAdditonalFieldHeader2DQuadratic[] = " field, rectangular cartesian, #Components=1\n\
+   x.  q.simplex(2)*q.simplex, no modify, standard node based.\n\
+     #Nodes= 6\n\
+      1.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   1\n\
+      2.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   2\n\
+      3.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   3\n\
+      4.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   4\n\
+      5.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   5\n\
+      6.  #Values=1\n\
+       Value indices:     1\n\
+       Scale factor indices:   6\n";
+
+
+/**
  * Header for additional fields in the element base file in 1D (.exelem),
  * Here we assume all additional fields will be interpolated by cmgui in the same way
  */
@@ -254,6 +337,36 @@ protected:
      * the group name to stay as "solution", hence this separate variable
      */
     std::string mGroupName;
+    
+    /**
+     *  String which is set to either CmguiElementFileHeader2D or CmguiElementFileHeader2DQuadratic
+     *  as appropriate
+     */
+    std::string mElementFileHeader;
+
+    /**
+     *  String which is set to either CmguiCoordinatesFileHeader2D or 
+     *  CmguiCoordinatesFileHeader2DQuadratic as appropriate
+     */
+
+    std::string mCoordinatesFileHeader;
+
+    /** 
+     *  String which is set to either CmguiAdditonalFieldHeader2D or 
+     *  CmguiAdditonalFieldHeader2DQuadratic as appropriate
+     */ 
+    std::string mAdditonalFieldHeader;
+    
+    /** 
+     *  Number of nodes per element, eg, in 2D, 3 for linear visualisation 
+     *  and 6 for quadratic visualisation
+     */
+    unsigned mNumNodesPerElement;
+    
+    /**
+     *  Ordering of the elements nodes, from Chaste convention to CMGUI convention
+     */ 
+    std::vector<unsigned> mReordering;
 
     /**
      *  Write the header part of a node file, depending on the dimension. Short helper method,
