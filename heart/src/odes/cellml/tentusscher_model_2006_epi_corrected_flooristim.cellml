@@ -3131,7 +3131,7 @@ http://www.CellML.org/
       <variable name="K_i" units="millimolar" initial_value="136.89" public_interface="out"/>
       <variable name="K_o" units="millimolar" initial_value="5.4" public_interface="out"/>
       <variable name="time" units="millisecond" public_interface="in"/>
-      <variable name="F" units="coulomb_per_millimole" public_interface="in"/>
+      <variable name="F" units="coulomb_per_millimole" public_interface="in" cmeta:id="K_F"/>
       <variable name="Cm" units="microF_per_cm2" public_interface="in"/>
       <variable name="V_c" units="micrometre3" public_interface="in"/>
       <variable name="i_K1" units="picoA_per_picoF" public_interface="in"/>
@@ -3599,6 +3599,9 @@ http://www.CellML.org/
       </rdf:Description>
       <rdf:Description rdf:about="#ScaleFactorGks">
          <pycml:modifiable-parameter>yes</pycml:modifiable-parameter>
+      </rdf:Description>
+      <rdf:Description rdf:about="#K_F">
+         <pycml:derived-quantity>yes</pycml:derived-quantity>
       </rdf:Description>
    </rdf:RDF>
 </model>

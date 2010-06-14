@@ -1127,6 +1127,21 @@ class CellMLTranslator(object):
 
         Uses annotations from a previous analysis."""
         return expr.getAttributeNS(NSS['lut'], u'possible', '') == u'yes'
+    
+    def contained_table_indices(self, node):
+        """Return all lookup tables used directly in computing this node.
+
+        If this is an expression node, checks all its children for table
+        lookups, and returns the set of table indices used.
+        """
+        result = set()
+        if isinstance(node, amara.bindery.element_base):
+            if self.is_lookup_table(node):
+                result.add(node.table_index)
+            else:
+                for child in node.xml_children:
+                    result.update(self.contained_table_indices(child))
+        return result
 
     def output_table_lookup(self, expr, paren):
         """Output code to look up expr in the appropriate table."""
@@ -1138,8 +1153,15 @@ class CellMLTranslator(object):
                        '(_table_index_', i, ', _factor_', i, ')')
         return
 
-    def output_table_index_generation(self, indexes_as_member=False):
-        """Output code to calculate indexes into any lookup tables."""
+    def output_table_index_generation(self, indexes_as_member=False, nodeset=set()):
+        """Output code to calculate indexes into any lookup tables.
+        
+        If indexes_as_member is True then the index variables should be
+        considered to be member variables, rather than locally declared.
+        
+        If nodeset is given, then filter the table indices calculated so
+        that only those needed to compute the nodes in nodeset are defined.
+        """
         self.output_comment('Lookup table indexing')
         if indexes_as_member:
             index_type = ''
@@ -1149,7 +1171,12 @@ class CellMLTranslator(object):
             index_type = 'unsigned '
             factor_type = 'double '
             row_type = 'double* '
+        tables_to_index = set()
+        for node in nodeset:
+            tables_to_index.update(self.contained_table_indices(node))
         for key, i in self.doc.lookup_table_indexes.iteritems():
+            if nodeset and i not in tables_to_index:
+                continue
             min, max, step, var = key
             step_inverse = unicode(1 / float(step))
             offset = '_offset_' + i
@@ -1479,9 +1506,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.output_state_assignments(assign_rY=False, nodeset=nodeset)
             self.writeln()
             if self.use_lookup_tables:
-                # TODO: Filter tables by available state/protocol variables?
                 self.output_table_index_generation(
-                    indexes_as_member=self.use_backward_euler)
+                    indexes_as_member=self.use_backward_euler,
+                    nodeset=nodeset)
             # Output equations
             self.output_comment('Mathematics')
             self.output_equations(nodeset)
@@ -1921,10 +1948,17 @@ class CellMLToChasteTranslator(CellMLTranslator):
             nodeset = self.calculate_extended_dependencies(nodes)
             #print map(lambda v: v.fullname(), nodes)
             #print filter(lambda p: p[2]>0, map(debugexpr, nodeset))
-            self.output_state_assignments(nodeset=nodeset)
+            #621: check units of the ionic current
+            units_objs = map(self.get_var_units, nodes)
+            conversion, conv_nodes = self.ionic_current_units_conversion('i_ionic', units_objs)
+            conv_nodes = self.calculate_extended_dependencies(conv_nodes, prune=nodeset)
+            all_nodes = conv_nodes|nodeset
+            # Output main part of maths
+            self.output_state_assignments(nodeset=all_nodes)
             if self.use_lookup_tables:
                 self.output_table_index_generation(
-                    indexes_as_member=self.use_backward_euler)
+                    indexes_as_member=self.use_backward_euler,
+                    nodeset=all_nodes)
             self.output_equations(nodeset)
             self.writeln()
             # Assign the total current to a temporary so we can check for NaN and
@@ -1937,11 +1971,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.output_variable(varelt)
             self.writeln(self.STMT_END, indent=False)
             self.writeln('assert(!std::isnan(i_ionic));')
-            #621: check units of the ionic current
-            units_objs = map(self.get_var_units, nodes)
-            conversion, nodes_used = self.ionic_current_units_conversion('i_ionic', units_objs)
-            nodes_used = self.calculate_extended_dependencies(nodes_used, prune=nodeset)
-            self.output_equations(nodes_used)
+            self.output_equations(conv_nodes)
             self.writeln('return ', conversion, self.STMT_END)
         else:
             self.writeln('return 0.0;')
@@ -1987,12 +2017,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             v_nodeset = set()
         # State variable inputs
-        self.output_state_assignments(assign_rY=False, nodeset=nonv_nodeset|v_nodeset)
+        all_nodes = nonv_nodeset|v_nodeset
+        self.output_state_assignments(assign_rY=False, nodeset=all_nodes)
         self.writeln()
         if self.use_lookup_tables:
             # TODO: Filter tables by available state/protocol variables?
             self.output_table_index_generation(
-                indexes_as_member=self.use_backward_euler)
+                indexes_as_member=self.use_backward_euler,
+                nodeset=all_nodes)
         self.output_comment('Mathematics')
         #907: Declare dV/dt
         if dvdt:
@@ -2120,7 +2152,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         nodeset = self.calculate_extended_dependencies(nodes)
         self.output_state_assignments(nodeset=nodeset)
         if self.use_lookup_tables:
-            self.output_table_index_generation(indexes_as_member=True)
+            self.output_table_index_generation(indexes_as_member=True,
+                                               nodeset=nodeset)
         self.output_equations(nodeset)
         # Update V
         self.writeln()
@@ -2161,13 +2194,15 @@ class CellMLToChasteTranslator(CellMLTranslator):
             h = hu.operands().next()
             linear_vars.append(self.varobj(varname))
             ghs.append((g, h))
+            used_vars.update([g, h])
             used_vars.update(self._vars_in(g))
             used_vars.update(self._vars_in(h))
         # Output required equations for used variables
         nodeset = self.calculate_extended_dependencies(used_vars)
         self.output_state_assignments(nodeset=nodeset)
         if self.use_lookup_tables:
-            self.output_table_index_generation(indexes_as_member=True)
+            self.output_table_index_generation(indexes_as_member=True,
+                                               nodeset=nodeset)
         self.output_equations(nodeset)
         # Output g and h calculations
         self.writeln()
