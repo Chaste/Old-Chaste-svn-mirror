@@ -240,8 +240,28 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
     }
     
     // Set parameters
+    // Special case for backwards-compatibility: scale factors
+    for (unsigned ht_index = 0;
+         ht_index < mCellHeterogeneityAreas.size();
+         ++ht_index)
+    {
+        try
+        {
+            unsigned param_index = p_cell->GetParameterIndex("ScaleFactorGks");
+            p_cell->SetParameter(param_index, mScaleFactorGks[ht_index]);
+            param_index = p_cell->GetParameterIndex("ScaleFactorGkr");
+            p_cell->SetParameter(param_index, mScaleFactorGkr[ht_index]);
+            param_index = p_cell->GetParameterIndex("ScaleFactorIto");
+            p_cell->SetParameter(param_index, mScaleFactorIto[ht_index]);
+        }
+        catch (const Exception& e)
+        {
+            // Just ignore missing parameter errors in this case
+        }
+    }
     try
     {
+        // SetParameter elements go next so they override the old ScaleFactor* elements.
         for (unsigned ht_index = 0;
              ht_index < mCellHeterogeneityAreas.size();
              ++ht_index)
@@ -255,20 +275,6 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
                     unsigned param_index = p_cell->GetParameterIndex(param_it->first);
                     p_cell->SetParameter(param_index, param_it->second);
                 }
-            }
-            // Special case for backwards-compatibility: scale factors
-            try
-            {
-                unsigned param_index = p_cell->GetParameterIndex("ScaleFactorGks");
-                p_cell->SetParameter(param_index, mScaleFactorGks[ht_index]);
-                param_index = p_cell->GetParameterIndex("ScaleFactorGkr");
-                p_cell->SetParameter(param_index, mScaleFactorGkr[ht_index]);
-                param_index = p_cell->GetParameterIndex("ScaleFactorIto");
-                p_cell->SetParameter(param_index, mScaleFactorIto[ht_index]);
-            }
-            catch (const Exception& e)
-            {
-                // Just ignore missing parameter errors in this case
             }
         }
     }

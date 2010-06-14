@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_0">
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_1">
 
 	<Simulation>       
 		<!-- 
@@ -14,7 +14,7 @@
                 <Location unit="cm">
                     <Cuboid>
                         <LowerCoordinates x="-1.0" y="0.0" z="0.0"/>
-                        <UpperCoordinates x="10.0" y="0.0"  z="0.0"/>
+                        <UpperCoordinates x="10.0" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
             </Region><!-- REGION 1 -->
@@ -47,16 +47,19 @@
 		
         <CellHeterogeneities>
             <CellHeterogeneity> <!-- #1 -->
-                <ScaleFactorGks unit="dimensionless">0.462</ScaleFactorGks>
-                <ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
-                <ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
+                <ScaleFactorGks unit="dimensionless">0.0</ScaleFactorGks>
+                <ScaleFactorIto unit="dimensionless">1.0</ScaleFactorIto>
+                <ScaleFactorGkr unit="dimensionless">0.0</ScaleFactorGkr>
                 <Location unit="cm">
                     <Cuboid>
-                        <LowerCoordinates x="-1.0" y="-0.1" z="-1.0"/>
-                        <UpperCoordinates x="10.0" y="0.1" z="1.0"/>
+                        <LowerCoordinates x="-1.0" y="0.0" z="0.0"/>
+                        <UpperCoordinates x="10.0" y="0.0" z="0.0"/>
                     </Cuboid>
                 </Location>
-            </CellHeterogeneity>    
+	            <SetParameter name="ScaleFactorGkr" value="1.0"/>
+	            <SetParameter name="ScaleFactorGks" value="0.462"/>
+	            <SetParameter name="ScaleFactorIto" value="0.0"/>
+            </CellHeterogeneity>
  		</CellHeterogeneities>    
  		<!-- 
 			Output 
