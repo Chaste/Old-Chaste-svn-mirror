@@ -42,9 +42,36 @@ CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::CmguiMeshWriter(const std::string &rDire
     this->mIndexFromZero = false;
     mGroupName = this->mBaseName;
     
-    mElementFileHeader = CmguiElementFileHeader2D;
-    mCoordinatesFileHeader = CmguiCoordinatesFileHeader2D;
-    mAdditionalFieldHeader = CmguiAdditionalFieldHeader2D;
+    switch(ELEMENT_DIM)
+    {
+        case 1:
+        {
+            mElementFileHeader = CmguiElementFileHeader1D;
+            mCoordinatesFileHeader = CmguiCoordinatesFileHeader1D;
+            mAdditionalFieldHeader = CmguiAdditionalFieldHeader1D;
+            break;
+        }
+        case 2:
+        {
+            mElementFileHeader = CmguiElementFileHeader2D;
+            mCoordinatesFileHeader = CmguiCoordinatesFileHeader2D;
+            mAdditionalFieldHeader = CmguiAdditionalFieldHeader2D;
+            break;
+        }
+        case 3:
+        {
+            mElementFileHeader = CmguiElementFileHeader3D;
+            mCoordinatesFileHeader = CmguiCoordinatesFileHeader3D;
+            mAdditionalFieldHeader = CmguiAdditionalFieldHeader3D;
+            break;
+        }
+        default:
+        {
+            NEVER_REACHED;
+        }
+    }    
+    
+
     mNumNodesPerElement = ELEMENT_DIM+1;
     mReordering.resize(mNumNodesPerElement);
     for(unsigned i=0; i<mNumNodesPerElement; i++)
@@ -107,28 +134,7 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
         *p_elem_file[region_index] << comment;
     
         *p_elem_file[region_index] << "Group name: " << mGroupName << "\n";
-        switch (ELEMENT_DIM)
-        {
-            case 1:
-            {
-                *p_elem_file[region_index] << CmguiElementFileHeader1D;
-                break;
-            }
-            case 2:
-            {
-                *p_elem_file[region_index] << mElementFileHeader;
-                break;
-            }
-            case 3:
-            {
-                *p_elem_file[region_index] << CmguiElementFileHeader3D;
-                break;
-            }
-            default:
-            {
-                NEVER_REACHED;
-            }
-        }
+        *p_elem_file[region_index] << mElementFileHeader;
     
     
         //now we need to figure out how many additional fields we have
@@ -139,29 +145,8 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
         //and write accordingly the total number of fields
         *p_elem_file[region_index] << " #Fields="<<string_of_number_of_fields.str()<<"\n";
     
-        //first field (the coordinates field is fixed and always there
-        switch (ELEMENT_DIM)
-        {
-            case 1:
-            {
-                *p_elem_file[region_index] << CmguiCoordinatesFileHeader1D;
-                break;
-            }
-            case 2:
-            {
-                *p_elem_file[region_index] << mCoordinatesFileHeader;
-                break;
-            }
-            case 3:
-            {
-                *p_elem_file[region_index] << CmguiCoordinatesFileHeader3D;
-                break;
-            }
-            default:
-            {
-                NEVER_REACHED;
-            }
-        }
+        //first field (the coordinates field is fixed and alwys there)
+        *p_elem_file[region_index] << mCoordinatesFileHeader;
     
     
         //now write the specification for each additional field
@@ -171,29 +156,7 @@ void CmguiMeshWriter<ELEMENT_DIM,SPACE_DIM>::WriteFiles()
             std::stringstream i_string;
             i_string << i+2;
             *p_elem_file[region_index]<<i_string.str()<<")  "<<mAdditionalFieldNames[i]<<" ,";
-            switch (ELEMENT_DIM)
-            {
-                case 1:
-                {
-                    *p_elem_file[region_index] << CmguiAdditionalFieldHeader1D;
-                    break;
-                }
-                case 2:
-                {
-                    *p_elem_file[region_index] << mAdditionalFieldHeader;
-                    break;
-                }
-                case 3:
-                {
-                    *p_elem_file[region_index] << CmguiAdditionalFieldHeader3D;
-                    break;
-                }
-                default:
-                {
-                    NEVER_REACHED;
-                }
-            }
-    
+            *p_elem_file[region_index] << mAdditionalFieldHeader;
         }
     }
 

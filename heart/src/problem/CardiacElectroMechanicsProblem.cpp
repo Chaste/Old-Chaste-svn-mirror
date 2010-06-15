@@ -437,7 +437,10 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         mpCardiacMechAssembler->SetWriteOutput();
         mpCardiacMechAssembler->WriteOutput(mech_writer_counter);
 
-        p_cmgui_writer = new CmguiDeformedSolutionsWriter<DIM>(mOutputDirectory+"/deformation/cmgui", "solution", *(this->mpMechanicsMesh));
+        p_cmgui_writer = new CmguiDeformedSolutionsWriter<DIM>(mOutputDirectory+"/deformation/cmgui", 
+                                                               "solution", 
+                                                               *(this->mpMechanicsMesh),
+                                                               WRITE_QUADRATIC_MESH);
         std::vector<std::string> fields;
         fields.push_back("V");
         p_cmgui_writer->SetAdditionalFieldNames(fields);
@@ -672,8 +675,11 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         // Write the parameters out
         //HeartConfig::Instance()->Write();
     
-        // interpolate the electrical data onto the mechancis mesh nodes and write CMGUI...
-        VoltageInterpolaterOntoMechanicsMesh<DIM> converter(*mpElectricsMesh,*mpMechanicsMesh,input_dir,"voltage");
+        // interpolate the electrical data onto the mechanics mesh nodes and write CMGUI...
+        // Note: this calculates the data on ALL nodes of the mechanics mesh (incl internal,
+        // non-vertex ones), which won't be used if linear CMGUI visualisation 
+        // of the mechanics solution is used.
+        VoltageInterpolaterOntoMechanicsMesh<DIM> cnverter(*mpElectricsMesh,*mpMechanicsMesh,input_dir,"voltage");
         
         // reset to the default value
         HeartConfig::Instance()->SetOutputDirectory(config_directory);
@@ -681,7 +687,14 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
     if(p_cmgui_writer)
     {
-        p_cmgui_writer->WriteCmguiScript();
+        if(mNoElectricsOutput)
+        {
+            p_cmgui_writer->WriteCmguiScript();
+        }
+        else
+        {
+            p_cmgui_writer->WriteCmguiScript("../../electrics/cmgui_output/voltage_mechanics_mesh");
+        }
         delete p_cmgui_writer;
     }
     VecDestroy(voltage);

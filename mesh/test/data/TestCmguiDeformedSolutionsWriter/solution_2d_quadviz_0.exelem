@@ -1,0 +1,55 @@
+! Created by Chaste version 2.0.9239 on Tue, 15 Jun 2010 11:35:07 +0000.  Chaste was built on Tue, 15 Jun 2010 11:34:54 +0000 by machine (uname) 'Linux userpc60.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Wed May 26 23:34:09 UTC 2010 x86_64' using settings: default, no Chaste libraries.
+Group name: solution_2d_quadviz
+Shape.  Dimension=2, simplex(2)*simplex
+ #Scale factor sets= 0
+ #Nodes= 6
+ #Fields=1
+ 1) coordinates, coordinate, rectangular cartesian, #Components=2
+   x.  q.simplex(2)*q.simplex, no modify, standard node based.
+     #Nodes= 6
+      1.  #Values=1
+       Value indices:     1
+       Scale factor indices:   1
+      2.  #Values=1
+       Value indices:     1
+       Scale factor indices:   2
+      3.  #Values=1
+       Value indices:     1
+       Scale factor indices:   3
+      4.  #Values=1
+       Value indices:     1
+       Scale factor indices:   4
+      5.  #Values=1
+       Value indices:     1
+       Scale factor indices:   5
+      6.  #Values=1
+       Value indices:     1
+       Scale factor indices:   6
+   y.  q.simplex(2)*q.simplex, no modify, standard node based.
+     #Nodes= 6
+      1.  #Values=1
+       Value indices:     1
+       Scale factor indices:   1
+      2.  #Values=1
+       Value indices:     1
+       Scale factor indices:   2
+      3.  #Values=1
+       Value indices:     1
+       Scale factor indices:   3
+      4.  #Values=1
+       Value indices:     1
+       Scale factor indices:   4
+      5.  #Values=1
+       Value indices:     1
+       Scale factor indices:   5
+      6.  #Values=1
+       Value indices:     1
+       Scale factor indices:   6
+Element:	1 0 0 Nodes:	1	10	2	12	11	4	
+Element:	2 0 0 Nodes:	5	13	7	15	14	4	
+Element:	3 0 0 Nodes:	4	11	2	15	16	5	
+Element:	4 0 0 Nodes:	5	17	3	19	18	6	
+Element:	5 0 0 Nodes:	3	17	5	20	16	2	
+Element:	6 0 0 Nodes:	8	21	6	23	22	9	
+Element:	7 0 0 Nodes:	6	21	8	19	24	5	
+Element:	8 0 0 Nodes:	5	24	8	13	25	7	

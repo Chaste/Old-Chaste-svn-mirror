@@ -33,6 +33,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CmguiMeshWriter.hpp"
 #include "QuadraticMesh.hpp"
 
+/**
+ *  Small enumeration for representing whether we want linear
+ *  visualisation of the quadratic mesh (just vertices output)
+ *  or full quadratic visualisation
+ */
+typedef enum CmguiMeshWriteType_ 
+{ 
+    WRITE_LINEAR_MESH = 0,
+    WRITE_QUADRATIC_MESH
+} CmguiMeshWriteType;
 
 /**
  *  CmguiDeformedSolutionsWriter
@@ -80,10 +90,14 @@ public:
      *  @param baseName The base name for the Cmgui output files - the files written will be
      *   [basename_0.exnode, [basename]_0.exelem; [basename]_1.exnode, [basename]_2.exnode, ..
      *  @param rQuadraticMesh The quadratic mesh used in the mechanics simulation
+     *  @param writeType Should be equal to either WRITE_LINEAR_MESH or WRITE_QUADRATIC_MESH,
+     *   depending on whether linear visualisation of the quadratic mesh (just vertices output)
+     *   or full quadratic visualisation is required.
      */
     CmguiDeformedSolutionsWriter(std::string outputDirectory,
                                  std::string baseName,
-                                 QuadraticMesh<DIM>& rQuadraticMesh);
+                                 QuadraticMesh<DIM>& rQuadraticMesh,
+                                 CmguiMeshWriteType writeType);
 
     /**
      *  Write [basename]_0.exnode, [basename]_0.exelem using the quadratic mesh
@@ -103,8 +117,14 @@ public:
      *  Writes a small cmgui script called LoadSolutions.com, for loading the output that has been written.
      *  Assumes the output was solution_0.exnode .. solution_N.exnode, where N is the counter that was
      *  given in the last call to WriteDeformationPositions()
+     *  @param fieldBaseName If there is a field to visualise on top of the deforming mesh, give it's 
+     *    path (relative to the cmgui deformation directory), and filename prefix. Leave empty
+     *    if no field to visualise.
+     *    For example,
+     *      WriteCmguiScript("../../electrics/cmgui_output/voltage_mechanics_mesh");
+     *    for the script to read files voltage_mechanics_mesh_0.exnode .. voltage_mechanics_mesh_N.exnode.
      */
-    void WriteCmguiScript();
+    void WriteCmguiScript(std::string fieldBaseName="");
 
     /**
      *  For a simulation that has already been run, convert the chaste output to cmgui format.

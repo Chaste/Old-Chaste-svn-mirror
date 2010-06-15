@@ -32,51 +32,81 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 CmguiDeformedSolutionsWriter<DIM>::CmguiDeformedSolutionsWriter(std::string outputDirectory,
                                                                 std::string baseName,
-                                                                QuadraticMesh<DIM>& rQuadraticMesh)
+                                                                QuadraticMesh<DIM>& rQuadraticMesh,
+                                                                CmguiMeshWriteType writeType)
     : CmguiMeshWriter<DIM, DIM>(outputDirectory, baseName),
       mpQuadraticMesh(&rQuadraticMesh),
       mFinalCounter(0)
 {
     
     mNumNodesToUse = mpQuadraticMesh->GetNumVertices();
-    
-//    if(quadratic)
-//    {
-//        mNumNodesToUse = mpQuadraticMesh->GetNumNodes();
-//        
-//        switch(DIM)
-//        {
-//            case 1:
-//            {
-//              
-//                break;  
-//            };
-//            
-//            case 2:
-//            {
-//                this->mElementFileHeader = CmguiElementFileHeader2DQuadratic;
-//                this->mCoordinatesFileHeader = CmguiCoordinatesFileHeader2DQuadratic;
-//                this->mAdditionalFieldHeader = CmguiAdditionalFieldHeader2DQuadratic;
-//                this->mNumNodesPerElement = 6;
-//                this->mReordering.resize(this->mNumNodesPerElement);
-//        
-//                unsigned reordering[6] = {0,5,1,4,3,2};
-//                for(unsigned i=0; i<6; i++)
-//                {
-//                    this->mReordering[i] = reordering[i];
-//                }
-//                break;
-//            }
-//            case 3:
-//            {
-//                break;
-//            }
-//            default:
-//            {
-//                NEVER_REACHED;
-//            }
-//        }
-//    }
+
+    if(writeType==WRITE_QUADRATIC_MESH)
+    {
+        mNumNodesToUse = mpQuadraticMesh->GetNumNodes();
+        
+        switch(DIM)
+        {
+            //WriteCmguiScript Commented as CmguiDeformedSolutionsWriter is meant to correspond to
+            // output of nonlinear elasticity problems - 2d or 3d only, and there is
+            // no explicit instantiation of this class in 1d.
+            //case 1:
+            //{
+            //   this->mElementFileHeader = CmguiElementFileHeader1DQuadratic;
+            //    this->mCoordinatesFileHeader = CmguiCoordinatesFileHeader1DQuadratic;
+            //    this->mAdditionalFieldHeader = CmguiAdditionalFieldHeader1DQuadratic;
+            //    this->mNumNodesPerElement = 3;
+            //    this->mReordering.resize(this->mNumNodesPerElement);
+            //    unsigned reordering[6] = {0,2,1};
+            //    for(unsigned i=0; i<3; i++)
+            //    {
+            //        this->mReordering[i] = reordering[i];
+            //    }
+            //    break;
+            //};
+            
+            case 2:
+            {
+                this->mElementFileHeader = CmguiElementFileHeader2DQuadratic;
+                this->mCoordinatesFileHeader = CmguiCoordinatesFileHeader2DQuadratic;
+                this->mAdditionalFieldHeader = CmguiAdditionalFieldHeader2DQuadratic;
+                this->mNumNodesPerElement = 6;
+                this->mReordering.resize(this->mNumNodesPerElement);
+        
+                // Go from Chaste(tetgen ordering) (see example comments in
+                // QuadraticBasisFunction::ComputeBasisFunction() to CMGUI ordering
+                // ("psi1 increasing, then psi1 increasing")
+                unsigned reordering[6] = {0,5,1,4,3,2};
+                for(unsigned i=0; i<6; i++)
+                {
+                    this->mReordering[i] = reordering[i];
+                }
+                break;
+            }
+            case 3:
+            {
+                this->mElementFileHeader = CmguiElementFileHeader3DQuadratic;
+                this->mCoordinatesFileHeader = CmguiCoordinatesFileHeader3DQuadratic;
+                this->mAdditionalFieldHeader = CmguiAdditionalFieldHeader3DQuadratic;
+                this->mNumNodesPerElement = 10;
+                this->mReordering.resize(this->mNumNodesPerElement);
+
+                // Go from Chaste(tetgen ordering) (see example comments in
+                // QuadraticBasisFunction::ComputeBasisFunction() to CMGUI ordering
+                // ("psi1 increasing, then psi2 increasing, then psi3 increasing")
+                unsigned reordering[10] = {0,4,1,6,5,2,7,8,9,3};
+                for(unsigned i=0; i<10; i++)
+                {
+                    this->mReordering[i] = reordering[i];
+                }
+                break;
+            }
+            default:
+            {
+                NEVER_REACHED;
+            }
+        }
+    }
 }
 
 template<unsigned DIM>
@@ -120,12 +150,19 @@ void CmguiDeformedSolutionsWriter<DIM>::WriteDeformationPositions(std::vector<c_
 }
 
 template<unsigned DIM>
-void CmguiDeformedSolutionsWriter<DIM>::WriteCmguiScript()
+void CmguiDeformedSolutionsWriter<DIM>::WriteCmguiScript(std::string fieldBaseName)
 {
+    std::string field_string = "";
+    if(fieldBaseName!="")
+    {
+        field_string = " gfx read node " + fieldBaseName + "_$i time $i\n";
+    }
+    
     out_stream p_script_file = this->mpOutputFileHandler->OpenOutputFile("LoadSolutions.com");
     *p_script_file << "#\n# Cmgui script automatically generated by Chaste\n#\n"
                    << "for ($i=0; $i<=" << mFinalCounter << "; $i++) { \n"
                    << "  gfx read node " << this->mBaseName << "_$i time $i\n"
+                   << field_string
                    << "}\n"
                    << "gfx read ele " << this->mBaseName << "_0 generate_faces_and_lines\n"
                    << "gfx cr win\n\n";

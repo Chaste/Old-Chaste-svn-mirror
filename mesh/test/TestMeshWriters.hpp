@@ -512,13 +512,16 @@ public:
         TS_ASSERT(comparison_result);
     }
 
-    void TestCmguiDeformedSolutionsWriter() throw(Exception)
+    void TestCmguiDeformedSolutionsWriter2dLinearViz() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
 
-        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter", "solution", mesh);
+        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter", 
+                                                "solution", 
+                                                mesh,
+                                                WRITE_LINEAR_MESH);
 
-        // writes solution_0.exnode and solution_1.node using the mesh
+        // writes solution_0.exnode and solution_0.exelem using the mesh
         writer.WriteInitialMesh();
 
         // set up a deformed positions vector
@@ -570,12 +573,140 @@ public:
         TS_ASSERT(comparison_result);
 
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/LoadSolutions.com mesh/test/data/TestCmguiDeformedSolutionsWriter/LoadSolutions.com").c_str()), 0);
+
+        //coverage
+        writer.WriteCmguiScript("myfield");
     }
+
+
+    void TestCmguiDeformedSolutionsWriter2dQuadraticViz() throw(Exception)
+    {
+        QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
+        // displace the internal nodes so you can see if quadratically visualised or not
+        for(unsigned i=mesh.GetNumVertices(); i<mesh.GetNumNodes(); i++)
+        {
+            mesh.GetNode(i)->rGetModifiableLocation()[0] += 0.02;
+            mesh.GetNode(i)->rGetModifiableLocation()[1] += 0.02;
+        }
+
+        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriterQuadViz", 
+                                                "solution_2d_quadviz", 
+                                                mesh,
+                                                WRITE_QUADRATIC_MESH);
+
+        // writes solution_0.exnode and solution_0.exelem using the mesh
+        writer.WriteInitialMesh();
+
+        // set up a deformed positions vector
+        std::vector<c_vector<double,2> > deformed_positions(mesh.GetNumNodes(), zero_vector<double>(2));
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            deformed_positions[i](0) = 2*mesh.GetNode(i)->rGetLocation()[0];
+            deformed_positions[i](1) = 3*mesh.GetNode(i)->rGetLocation()[1];
+        }
+        // write solution_1.exnode
+        writer.WriteDeformationPositions(deformed_positions, 1);
+
+        // ..and again
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            deformed_positions[i](0) = 4*mesh.GetNode(i)->rGetLocation()[0];
+            deformed_positions[i](1) = 6*mesh.GetNode(i)->rGetLocation()[1];
+        }
+        // write solution_1.exnode
+        writer.WriteDeformationPositions(deformed_positions, 2);
+        // write LoadSolutions.com
+        writer.WriteCmguiScript();
+
+        deformed_positions.push_back(zero_vector<double>(2));
+
+        TS_ASSERT_THROWS_CONTAINS(writer.WriteDeformationPositions(deformed_positions, 3), "The size of rDeformedPositions does not match the number of nodes in the mesh");
+
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiDeformedSolutionsWriterQuadViz";
+
+        std::string node_file1 = results_dir + "/solution_2d_quadviz_0.exnode";
+        std::string node_file2 = "mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_2d_quadviz_0.exnode";
+        std::string elem_file1 = results_dir + "/solution_2d_quadviz_0.exelem";
+        std::string elem_file2 = "mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_2d_quadviz_0.exelem";
+
+        bool comparison_result = CmguiMeshWriter<2,2>::CompareCmguiFiles(node_file1,node_file2);
+        TS_ASSERT(comparison_result);
+        comparison_result = CmguiMeshWriter<2,2>::CompareCmguiFiles(elem_file1,elem_file2);
+        TS_ASSERT(comparison_result);
+
+        node_file1 = results_dir + "/solution_2d_quadviz_1.exnode";
+        node_file2 = "mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_2d_quadviz_1.exnode";
+        elem_file1 = results_dir + "/solution_2d_quadviz_2.exnode"; // Not actually an element file - a second node file to compare!
+        elem_file2 = "mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_2d_quadviz_2.exnode";
+
+        comparison_result = CmguiMeshWriter<2,2>::CompareCmguiFiles(node_file1,node_file2);
+        TS_ASSERT(comparison_result);
+
+        comparison_result = CmguiMeshWriter<2,2>::CompareCmguiFiles(elem_file1,elem_file2);
+        TS_ASSERT(comparison_result);
+    }
+
+
+    void TestCmguiDeformedSolutionsWriter3dQuadraticViz() throw(Exception)
+    {
+        QuadraticMesh<3> mesh(1.0, 2.0, 3.0, 2, 2, 1);
+        // displace the internal nodes so you can see if quadratically visualised or not
+        for(unsigned i=mesh.GetNumVertices(); i<mesh.GetNumNodes(); i++)
+        {
+            mesh.GetNode(i)->rGetModifiableLocation()[0] += 0.02;
+            mesh.GetNode(i)->rGetModifiableLocation()[1] += 0.02;
+            mesh.GetNode(i)->rGetModifiableLocation()[1] += 0.03;
+        }
+
+        CmguiDeformedSolutionsWriter<3> writer("TestCmguiDeformedSolutionsWriterQuadViz3d", 
+                                                "solution_3d_quadviz", 
+                                                mesh,
+                                                WRITE_QUADRATIC_MESH);
+
+        // writes solution_0.exnode and solution_0.exelem using the mesh
+        writer.WriteInitialMesh();
+
+        // set up a deformed positions vector
+        std::vector<c_vector<double,3> > deformed_positions(mesh.GetNumNodes(), zero_vector<double>(3));
+        for(unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            deformed_positions[i](0) = 2*mesh.GetNode(i)->rGetLocation()[0];
+            deformed_positions[i](1) = 3*mesh.GetNode(i)->rGetLocation()[1];
+            deformed_positions[i](2) = 0.5*mesh.GetNode(i)->rGetLocation()[2];
+        }
+        // write solution_1.exnode
+        writer.WriteDeformationPositions(deformed_positions, 1);
+
+        // write LoadSolutions.com
+        writer.WriteCmguiScript();
+
+        std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestCmguiDeformedSolutionsWriterQuadViz3d";
+
+        std::string node_file1 = results_dir + "/solution_3d_quadviz_0.exnode";
+        std::string node_file2 = "mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_3d_quadviz_0.exnode";
+        std::string elem_file1 = results_dir + "/solution_3d_quadviz_0.exelem";
+        std::string elem_file2 = "mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_3d_quadviz_0.exelem";
+
+        bool comparison_result = CmguiMeshWriter<2,2>::CompareCmguiFiles(node_file1,node_file2);
+        TS_ASSERT(comparison_result);
+        comparison_result = CmguiMeshWriter<2,2>::CompareCmguiFiles(elem_file1,elem_file2);
+        TS_ASSERT(comparison_result);
+
+        node_file1 = results_dir + "/solution_3d_quadviz_1.exnode";
+        node_file2 = "mesh/test/data/TestCmguiDeformedSolutionsWriter/solution_3d_quadviz_1.exnode";
+
+        comparison_result = CmguiMeshWriter<2,2>::CompareCmguiFiles(node_file1,node_file2);
+        TS_ASSERT(comparison_result);
+    }
+
 
     void TestCmguiDeformedSolutionsWriterConvertOutput() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
-        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter_ConvertOutput", "solution", mesh);
+        CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter_ConvertOutput", 
+                                               "solution",
+                                               mesh,
+                                               WRITE_LINEAR_MESH);
 
         // throws as file doesn't exist
         TS_ASSERT_THROWS_CONTAINS(writer.ConvertOutput("blahblahblah", "blah", 1), "Could not open file:");
