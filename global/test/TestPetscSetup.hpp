@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscException.hpp"
+#include "IsNan.hpp"
 
 /**
  * This tests that the initialisation of PETSc does something.
