@@ -200,14 +200,14 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
 
     c_vector<double, SPACE_DIM+1> weights;
 
-    c_vector<double, SPACE_DIM> psi=CalculatePsi(rTestPoint);
+    c_vector<double, SPACE_DIM> xi=CalculateXi(rTestPoint);
 
     //Copy 3 weights and compute the fourth weight
     weights[0]=1.0;
     for (unsigned i=1; i<=SPACE_DIM; i++)
     {
-        weights[0] -= psi[i-1];
-        weights[i] = psi[i-1];
+        weights[0] -= xi[i-1];
+        weights[i] = xi[i-1];
     }
     return weights;
 }
@@ -260,7 +260,7 @@ c_vector<double, SPACE_DIM+1> Element<ELEMENT_DIM, SPACE_DIM>::CalculateInterpol
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(const ChastePoint<SPACE_DIM>& rTestPoint)
+c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculateXi(const ChastePoint<SPACE_DIM>& rTestPoint)
 {
     //Can only test if it's a tetrahedal mesh in 3d, triangles in 2d...
     assert(ELEMENT_DIM == SPACE_DIM);
@@ -276,7 +276,7 @@ c_vector<double, SPACE_DIM> Element<ELEMENT_DIM, SPACE_DIM>::CalculatePsi(const 
     c_matrix<double, ELEMENT_DIM, SPACE_DIM> inverse_jacobian;
     double jacobian_determinant;
 
-    ///\todo #1326 This method shouldn't need a new Jacobian inverse for every Psi
+    ///\todo #1326 This method shouldn't need a new Jacobian inverse for every Xi
     this->CalculateInverseJacobian(jacobian, jacobian_determinant, inverse_jacobian);
 
     return prod(inverse_jacobian, test_location);

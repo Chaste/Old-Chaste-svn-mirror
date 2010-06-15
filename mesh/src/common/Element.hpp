@@ -117,8 +117,8 @@ public:
 
     /**
      * Calculate the interpolation weights: the vector
-     *  (psi(0), psi(1), psi(2), 1-psi(0)-psi(1)-psi(2))
-     * (in the 3D case) for a given point. (see CalculatePsi() documentation)
+     *  (1-xi(0)-xi(1)-xi(2), xi(0), xi(1), xi(2))
+     * (in the 3D case) for a given point. (see CalculateXi() documentation)
      *
      * @param rTestPoint reference to the point
      */
@@ -134,15 +134,15 @@ public:
     c_vector<double, SPACE_DIM+1> CalculateInterpolationWeightsWithProjection(const ChastePoint<SPACE_DIM>& rTestPoint);
 
     /**
-     * Calculate psi at a given point. These are the values in the canonical element, using the
-     *  the canonical element coordinate system, corresponding to the test point in this element.
-     *  For example, if the test point is node 0, psi=(1,0,0); if node 2, then psi=(0,0,1); if the
-     *  test point is halfway between nodes 0 and 1 on the edge between then, then psi=(0.5,0.5,0);
-     *  if the test point is the interior, then psi=(a,b,c), where a,b,c>0 and 1-a-b-c > 0.
+     * Calculate xi at a given point. These are the values in the canonical element, using the
+     *  the canonical element coordinate system (relative to node 0), corresponding to the test point in this element.
+     *  For example, if the test point is node 0, xi=(0,0,0); if node 2, then xi=(0,1,0); if the
+     *  test point is halfway between nodes 1 and 2 on the edge between then, then xi=(0.5,0.5,0);
+     *  if the test point is the interior, then xi=(a,b,c), where a,b,c>0 and 1-a-b-c > 0.
      *
      * @param rTestPoint reference to the point
      */
-    c_vector<double, SPACE_DIM> CalculatePsi(const ChastePoint<SPACE_DIM>& rTestPoint);
+    c_vector<double, SPACE_DIM> CalculateXi(const ChastePoint<SPACE_DIM>& rTestPoint);
 
     /**
      * Get whether a given point lies inside this element.
