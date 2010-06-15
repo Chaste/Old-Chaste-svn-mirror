@@ -500,6 +500,35 @@ class Protocol(object):
         ensure they are available for querying.  Other variables should have these
         annotations (and pe:keep) removed.
         """
+        if self.outputs:
+            # Remove parts of the model that aren't needed
+            needed_nodes = self.model.calculate_extended_dependencies(self.outputs,
+                                                                      state_vars_depend_on_odes=True)
+            for node in self.model.get_assignments()[:]:
+                if node not in needed_nodes:
+                    if isinstance(node, cellml_variable):
+                        node.component._del_variable(node)
+                    elif isinstance(node, mathml_apply):
+                        node.xml_parent.xml_remove_child(node)
+            # Update connection elements
+            for conn in list(getattr(self.model, u'connection', [])):
+                comp1 = self.model.get_component_by_name(conn.map_components.component_1)
+                comp2 = self.model.get_component_by_name(conn.map_components.component_2)
+                any_kept = False
+                for mapv in list(conn.map_variables):
+                    try:
+                        var1 = comp1.get_variable_by_name(mapv.variable_1)
+                        var2 = comp2.get_variable_by_name(mapv.variable_2)
+                        any_kept = True
+                    except KeyError:
+                        # Remove connection
+                        conn.xml_remove_child(mapv)
+                if not any_kept:
+                    self.model.xml_remove_child(conn)
+            # Filter assignments list (slightly hacky)
+            new_assignments = filter(lambda node: node in needed_nodes,
+                                     self.model.get_assignments())
+            self.model._cml_assignments = new_assignments
         # Remove existing annotations
         for var in self.model.get_all_variables():
             var.set_pe_keep(False)
@@ -512,10 +541,3 @@ class Protocol(object):
                 var.set_is_modifiable_parameter(True)
             elif var.get_type() == VarTypes.Computed:
                 var.set_is_derived_quantity(True)
-        # Filter assignments list (slightly hacky)
-        if self.outputs:
-            needed_nodes = self.model.calculate_extended_dependencies(self.outputs,
-                                                                      state_vars_depend_on_odes=True)
-            new_assignments = filter(lambda node: node in needed_nodes,
-                                     self.model.get_assignments())
-            self.model._cml_assignments = new_assignments

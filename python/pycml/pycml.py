@@ -813,6 +813,7 @@ class cellml_model(element_base):
         allow procedural code generation.  It also checks that equations
         are not cyclic (we don't support DAEs).
         """
+        self.clear_assignments() # Ensure we start from a clean slate
         try:
             self._cml_sorting_variables_stack = []
             for var in self.get_all_variables():
@@ -988,6 +989,7 @@ class cellml_model(element_base):
         if (isinstance(node, cellml_variable) or node.is_ode()):
             self._cml_sorting_variables_stack.pop()
         return
+    
     def _add_sorted_assignment(self, a):
         """
         During the topological sort, add a finished assignment to the
@@ -999,7 +1001,6 @@ class cellml_model(element_base):
         indicating an assignment due to a variable mapping.
         """
         self._cml_assignments.append(a)
-        return
     def _remove_assignment(self, a):
         """Remove the given assignment from our list.
 
@@ -1014,6 +1015,9 @@ class cellml_model(element_base):
         mathml_apply, representing top-level assignment expressions.
         """
         return self._cml_assignments
+    def clear_assignments(self):
+        """Clear the assignments list."""
+        self._cml_assignments = []
 
     def do_binding_time_analysis(self):
         """Perform a binding time analysis on the model's mathematics.
@@ -1679,6 +1683,7 @@ class cellml_variable(Colourable, element_base):
         self._cml_depends_on = []
         self._cml_depends_on_ode = {}
         self._cml_usage_count = 0
+        self.clear_colour()
 
     def __hash__(self):
         """Hashing function for variables.
@@ -1710,6 +1715,9 @@ class cellml_variable(Colourable, element_base):
 
     def __str__(self):
         return 'cellml_variable' + self.fullname()
+    
+    def __repr__(self):
+        return '<cellml_variable %s at 0x%x>' % (self.fullname(), id(self))
 
     def get_component(self):
         return self.xml_parent
@@ -3498,6 +3506,9 @@ class mathml(element_base):
         self._cml_component = None
         self._cml_model = None
         return
+    
+    def __repr__(self):
+        return '<%s (%s) at 0x%x>' % (self.__class__.__name__, str(self), id(self))
 
     def __deepcopy__(self, memo):
         """Customise copying of MathML expressions.
@@ -4148,6 +4159,7 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
         # Dependency graph edges
         self._cml_depends_on = []
         self._cml_assigns_to = None
+        self.clear_colour()
 
     def _get_dependencies(self):
         """Return the list of variables this expression depends on."""

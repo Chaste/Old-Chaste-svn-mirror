@@ -44,12 +44,14 @@ class TestProtocol(unittest.TestCase):
         return doc
     
     def tearDown(self):
+        """Avoid Redland errors at test exit."""
         if hasattr(self, '_doc'):
             pycml.cellml_metadata.remove_model(self._doc.model)
             del self._doc.model
             del self._doc
     
     def CreateLr91Test(self):
+        self.tearDown() # Just in case...
         doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
         return p
@@ -70,6 +72,23 @@ class TestProtocol(unittest.TestCase):
     
     def NewOde(self, var, bvar, rhs):
         return pycml.mathml_diff.create_new(self._doc, bvar, var, rhs)
+    
+    def FindConn(self, cv1, cv2, return_connection_element=False):
+        c1, v1 = cv1.split(',')
+        c2, v2 = cv2.split(',')
+        map_tpl = u'cml:map_%(t)ss[@%(t)s_1="%(n1)s" and @%(t)s_2="%(n2)s"]'
+        mapc1 = map_tpl % {'t':'component', 'n1':c1, 'n2':c2}
+        mapc2 = map_tpl % {'t':'component', 'n1':c2, 'n2':c1}
+        mapv1 = map_tpl % {'t':'variable', 'n1':v1, 'n2':v2}
+        mapv2 = map_tpl % {'t':'variable', 'n1':v2, 'n2':v1}
+        if return_connection_element:
+            br1, br2 = '', ']'
+        else:
+            br1, br2 = ']', ''
+        subst = {'c1':mapc1, 'v1':mapv1, 'c2':mapc2, 'v2':mapv2,
+                 'br1':br1, 'br2':br2}
+        xpath = u'cml:connection[%(c1)s%(br1)s/%(v1)s%(br2)s | cml:connection[%(c2)s%(br1)s/%(v2)s%(br2)s' % subst
+        return self._doc.model.xml_xpath(xpath)[0]
     
     def TestChangeInitialValue(self):
         doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
@@ -143,6 +162,7 @@ class TestProtocol(unittest.TestCase):
         doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
         # Add maths setting Cai to a constant, thus replacing the ODE (state->computed)
+        # TODO: What would happen if dCai/dt was used in the model?
         Cai = doc.model.get_variable_by_name(u'intracellular_calcium_concentration', u'Cai')
         time = doc.model.get_variable_by_name(u'environment', u'time')
         ode = Cai._get_ode_dependency(time)
@@ -322,7 +342,6 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(src2.get_type(), pycml.VarTypes.Mapped)
         self.assertEqual(targ1.get_type(), pycml.VarTypes.Computed)
         self.assertEqual(targ2.get_type(), pycml.VarTypes.Computed)
-        self.tearDown()
         
         # Also check error cases:
         # Where we try to create a connection but there's an existing conflicting variable
@@ -331,7 +350,6 @@ class TestProtocol(unittest.TestCase):
         t2def = self.NewAssign(time2.name, u'membrane,time')
         p.inputs = [time2, t2def]
         self.assertRaises(protocol.ProtocolError, p.modify_model)
-        self.tearDown()
         
         # The following are odd cases that do actually work!
         # Where we use the real source variable as target
@@ -340,7 +358,6 @@ class TestProtocol(unittest.TestCase):
         t2def = self.NewAssign(time2.name, u'fast_sodium_current_m_gate,time')
         p.inputs = [time2, t2def]
         p.modify_model()
-        self.tearDown()
         # The order in which we add assignments shouldn't matter
         p = self.CreateLr91Test()
         n1 = u'fast_sodium_current,stim1'
@@ -350,7 +367,6 @@ class TestProtocol(unittest.TestCase):
                     self.NewAssign(n2, n1),
                     self.NewAssign(n1, u'membrane,I_stim')]
         p.modify_model()
-        self.tearDown()
         # Likewise for the order in which they appear in the model
         p = self.CreateLr91Test()
         n2 = u'fast_sodium_current,stim1'
@@ -439,8 +455,20 @@ class TestProtocol(unittest.TestCase):
                 self.failIf(var.is_modifiable_parameter)
             if var is not gK:
                 self.failIf(var.is_derived_quantity)
+        # Check non-needed parts of the model have been removed
+        self.assertRaises(KeyError, Var, 'membrane', 'T')
+        self.assertRaises(pycml.MathsError, V._get_ode_dependency, time)
+        # Check some connection elements
+        self.assert_(self.FindConn('intracellular_calcium_concentration,time', 'environment,time'))
+        self.assertRaises(IndexError, self.FindConn, 'environment,time', 'fast_sodium_current,time')
+        self.assertRaises(IndexError, self.FindConn, 'environment,time', 'fast_sodium_current,time',
+                          return_connection_element=True)
+        self.assert_(self.FindConn('time_dependent_potassium_current,Ko', 'ionic_concentrations,Ko'))
+        self.assertRaises(IndexError, self.FindConn, 'time_dependent_potassium_current,Ki', 'ionic_concentrations,Ki')
+        # Check the model is still valid
+        p._clear_model_caches()
+        p._reanalyse_model()
         # We also need a test that no outputs = don't change the list
-        self.tearDown()
         p = self.CreateLr91Test()
         orig_assignments = self._doc.model.get_assignments()[:]
         p.modify_model()
