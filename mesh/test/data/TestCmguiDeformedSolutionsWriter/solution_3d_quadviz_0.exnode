@@ -1,0 +1,82 @@
+! Created by Chaste version 2.0.9239 on Tue, 15 Jun 2010 12:12:49 +0000.  Chaste was built on Tue, 15 Jun 2010 12:12:33 +0000 by machine (uname) 'Linux userpc60.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Wed May 26 23:34:09 UTC 2010 x86_64' using settings: default, no Chaste libraries.
+Group name: solution_3d_quadviz
+ #Fields=1
+ 1) coordinates, coordinate, rectangular cartesian, #Components=3
+   x.  Value index= 1, #Derivatives= 0
+   y.  Value index= 2, #Derivatives= 0
+   z.  Value index= 3, #Derivatives= 0
+Node:	1	0	0	0	
+Node:	2	0.5	0	0	
+Node:	3	1	0	0	
+Node:	4	0	1	0	
+Node:	5	0.5	1	0	
+Node:	6	1	1	0	
+Node:	7	0	2	0	
+Node:	8	0.5	2	0	
+Node:	9	1	2	0	
+Node:	10	0	0	3	
+Node:	11	0.5	0	3	
+Node:	12	1	0	3	
+Node:	13	0	1	3	
+Node:	14	0.5	1	3	
+Node:	15	1	1	3	
+Node:	16	0	2	3	
+Node:	17	0.5	2	3	
+Node:	18	1	2	3	
+Node:	19	0.77	1.55	1.5	
+Node:	20	1.02	1.55	3	
+Node:	21	0.77	1.05	1.5	
+Node:	22	0.77	1.05	0	
+Node:	23	1.02	1.55	1.5	
+Node:	24	1.02	1.05	1.5	
+Node:	25	0.27	1.55	0	
+Node:	26	0.52	2.05	1.5	
+Node:	27	0.27	1.55	1.5	
+Node:	28	0.27	1.05	0	
+Node:	29	0.52	1.55	0	
+Node:	30	0.52	1.55	1.5	
+Node:	31	0.52	1.05	1.5	
+Node:	32	0.27	1.05	1.5	
+Node:	33	0.02	0.55	0	
+Node:	34	0.27	0.55	0	
+Node:	35	0.27	0.55	1.5	
+Node:	36	0.02	1.05	1.5	
+Node:	37	0.27	1.05	3	
+Node:	38	0.02	0.55	1.5	
+Node:	39	0.27	1.55	3	
+Node:	40	0.02	1.55	1.5	
+Node:	41	0.02	1.55	3	
+Node:	42	0.27	2.05	3	
+Node:	43	0.77	1.55	3	
+Node:	44	0.77	2.05	3	
+Node:	45	0.52	1.55	3	
+Node:	46	0.02	1.55	0	
+Node:	47	0.27	2.05	1.5	
+Node:	48	0.27	2.05	0	
+Node:	49	0.77	2.05	1.5	
+Node:	50	0.77	1.55	0	
+Node:	51	1.02	2.05	1.5	
+Node:	52	0.77	2.05	0	
+Node:	53	0.77	0.55	0	
+Node:	54	0.52	0.55	0	
+Node:	55	0.77	0.55	1.5	
+Node:	56	0.52	0.05	1.5	
+Node:	57	0.77	0.55	3	
+Node:	58	0.52	0.55	1.5	
+Node:	59	0.52	0.55	3	
+Node:	60	0.77	1.05	3	
+Node:	61	0.77	0.05	0	
+Node:	62	1.02	0.55	0	
+Node:	63	1.02	0.55	1.5	
+Node:	64	0.77	0.05	1.5	
+Node:	65	1.02	0.55	3	
+Node:	66	0.77	0.05	3	
+Node:	67	0.27	0.05	1.5	
+Node:	68	0.27	0.05	0	
+Node:	69	1.02	0.05	1.5	
+Node:	70	1.02	1.55	0	
+Node:	71	0.02	2.05	1.5	
+Node:	72	0.27	0.55	3	
+Node:	73	0.27	0.05	3	
+Node:	74	0.02	0.05	1.5	
+Node:	75	0.02	0.55	3	

@@ -1,0 +1,127 @@
+! Created by Chaste version 2.0.9239 on Tue, 15 Jun 2010 12:12:49 +0000.  Chaste was built on Tue, 15 Jun 2010 12:12:33 +0000 by machine (uname) 'Linux userpc60.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Wed May 26 23:34:09 UTC 2010 x86_64' using settings: default, no Chaste libraries.
+Group name: solution_3d_quadviz
+Shape.  Dimension=3, simplex(2;3)*simplex*simplex
+ #Scale factor sets= 0
+ #Nodes= 10
+ #Fields=1
+ 1) coordinates, coordinate, rectangular cartesian, #Components=3
+   x.  q.simplex(2;3)*q.simplex*q.simplex, no modify, standard node based.
+     #Nodes= 10
+      1.  #Values=1
+       Value indices:     1
+       Scale factor indices:   1
+      2.  #Values=1
+       Value indices:     1
+       Scale factor indices:   2
+      3.  #Values=1
+       Value indices:     1
+       Scale factor indices:   3
+      4.  #Values=1
+       Value indices:     1
+       Scale factor indices:   4
+      5.  #Values=1
+       Value indices:     1
+       Scale factor indices:   5
+      6.  #Values=1
+       Value indices:     1
+       Scale factor indices:   6
+      7.  #Values=1
+       Value indices:     1
+       Scale factor indices:   7
+      8.  #Values=1
+       Value indices:     1
+       Scale factor indices:   8
+      9.  #Values=1
+       Value indices:     1
+       Scale factor indices:   9
+      10.  #Values=1
+       Value indices:     1
+       Scale factor indices:   10
+   y.  q.simplex(2;3)*q.simplex*q.simplex, no modify, standard node based.
+     #Nodes= 10
+      1.  #Values=1
+       Value indices:     1
+       Scale factor indices:   1
+      2.  #Values=1
+       Value indices:     1
+       Scale factor indices:   2
+      3.  #Values=1
+       Value indices:     1
+       Scale factor indices:   3
+      4.  #Values=1
+       Value indices:     1
+       Scale factor indices:   4
+      5.  #Values=1
+       Value indices:     1
+       Scale factor indices:   5
+      6.  #Values=1
+       Value indices:     1
+       Scale factor indices:   6
+      7.  #Values=1
+       Value indices:     1
+       Scale factor indices:   7
+      8.  #Values=1
+       Value indices:     1
+       Scale factor indices:   8
+      9.  #Values=1
+       Value indices:     1
+       Scale factor indices:   9
+      10.  #Values=1
+       Value indices:     1
+       Scale factor indices:   10
+   z.  q.simplex(2;3)*q.simplex*q.simplex, no modify, standard node based.
+     #Nodes= 10
+      1.  #Values=1
+       Value indices:     1
+       Scale factor indices:   1
+      2.  #Values=1
+       Value indices:     1
+       Scale factor indices:   2
+      3.  #Values=1
+       Value indices:     1
+       Scale factor indices:   3
+      4.  #Values=1
+       Value indices:     1
+       Scale factor indices:   4
+      5.  #Values=1
+       Value indices:     1
+       Scale factor indices:   5
+      6.  #Values=1
+       Value indices:     1
+       Scale factor indices:   6
+      7.  #Values=1
+       Value indices:     1
+       Scale factor indices:   7
+      8.  #Values=1
+       Value indices:     1
+       Scale factor indices:   8
+      9.  #Values=1
+       Value indices:     1
+       Scale factor indices:   9
+      10.  #Values=1
+       Value indices:     1
+       Scale factor indices:   10
+Element:	1 0 0 Nodes:	5	19	18	21	20	15	22	23	24	6	
+Element:	2 0 0 Nodes:	4	25	8	27	26	17	28	29	30	5	
+Element:	3 0 0 Nodes:	4	28	5	32	31	14	33	34	35	1	
+Element:	4 0 0 Nodes:	13	36	4	37	32	14	38	33	35	1	
+Element:	5 0 0 Nodes:	4	36	13	27	39	17	40	41	42	16	
+Element:	6 0 0 Nodes:	18	19	5	43	31	14	44	30	45	17	
+Element:	7 0 0 Nodes:	4	46	7	27	47	17	25	48	26	8	
+Element:	8 0 0 Nodes:	18	19	5	44	30	17	49	29	26	8	
+Element:	9 0 0 Nodes:	4	27	17	32	45	14	28	30	31	5	
+Element:	10 0 0 Nodes:	9	50	5	51	19	18	52	29	49	8	
+Element:	11 0 0 Nodes:	2	53	6	54	22	5	55	24	21	15	
+Element:	12 0 0 Nodes:	2	56	11	55	57	15	58	59	60	14	
+Element:	13 0 0 Nodes:	2	53	6	55	24	15	61	62	63	3	
+Element:	14 0 0 Nodes:	2	64	12	55	65	15	56	66	57	11	
+Element:	15 0 0 Nodes:	1	67	11	68	56	2	35	59	58	14	
+Element:	16 0 0 Nodes:	15	55	2	63	61	3	65	64	69	12	
+Element:	17 0 0 Nodes:	4	32	14	27	45	17	36	37	39	13	
+Element:	18 0 0 Nodes:	18	19	5	51	50	9	23	22	70	6	
+Element:	19 0 0 Nodes:	4	40	16	27	42	17	46	71	47	7	
+Element:	20 0 0 Nodes:	10	72	14	73	59	11	74	35	67	1	
+Element:	21 0 0 Nodes:	13	37	14	75	72	10	38	35	74	1	
+Element:	22 0 0 Nodes:	18	43	14	19	31	5	20	60	21	15	
+Element:	23 0 0 Nodes:	5	54	2	21	55	15	31	58	60	14	
+Element:	24 0 0 Nodes:	2	58	14	54	31	5	68	35	34	1	
