@@ -1,5 +1,6 @@
 TestArchivingHelperClasses.hpp
 TestArchiving.hpp
+TestCommandLineArguments.hpp
 TestCellBasedEventHandler.hpp
 TestChasteBuildInfo.hpp
 TestCwd.hpp
