@@ -29,8 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef COMMANDLINEARGUMENTS_HPP_
 #define COMMANDLINEARGUMENTS_HPP_
 
+#include "Exception.hpp"
+#include <string>
+#include <cassert>
+
 /**
- * A convenient holder for the command line arguments.
+ * A convenient holder for the command line arguments, with a couple of helper
+ * methods for checking whether an argument has been given or getting the 
+ * value corresponding to a given argument.
  *
  * The cxxtest harness will fill in the member variables when a test is
  * started.  They can then be read by PETSc when it is initialised.
@@ -48,6 +54,48 @@ public:
     /** Get the single instance of this class. */
     static CommandLineArguments* Instance();
 
+    /** 
+     *  Check whether a given option exists in the command line arguments.
+     *  @param argument The option as a string. This should start with "-", for
+     *    example "-implicit_scheme" "-no_output" etc.
+     */
+    bool OptionExists(std::string option)
+    {
+        assert(option.substr(0,1)=="-");
+        int index = GetIndexForArgument(option);
+        assert(index!=0);
+        return (index>0);
+    }
+    
+    /** 
+     *  Get the value for a given option, ie the argument after the option name in 
+     *  the list of command line arguments. For example, if the following arguments
+     *  were given
+     *   ./heart/build/debug/TestMyClassRunner -timestep 0.04
+     *  Then calling 
+     *    CommandLineArguments::Instance()->GetValueCorrespondingToOption("-timestep");
+     *  will return 0.04 (as a char*).
+     *  Use atoi or atof to convert the char* an int or a double(float) respectively. 
+     * 
+     *  @param option The option as a string. This should start with "-", for
+     *    example "-my_param" "-timestep" etc.
+     */
+    char* GetValueCorrespondingToOption(std::string option)
+    {
+        assert(option.substr(0,1)=="-");
+        int index = GetIndexForArgument(option);
+        assert(index!=0);
+        if(index<0)
+        {
+            EXCEPTION("Command line option '" + option + "' does not exist");
+        }
+        if(index+1==*p_argc)
+        {
+            EXCEPTION("No value given after command line option '" + option + "'");
+        }
+        return (*p_argv)[index+1];
+    } 
+
 private:
 
     /** Default constructor. Should never be called directly, call CommandLineArguments::Instance() instead.*/
@@ -61,6 +109,25 @@ private:
 
     /** The single instance of the class. */
     static CommandLineArguments* mpInstance;
+    
+    /** 
+     *  Get the index for the given argument. Returns -1 if the argument is not found.
+     *  @param argument The argument as a string. This should start with "-", for
+     *    example "-my_arg" "-timestep" etc.
+     */
+    int GetIndexForArgument(std::string argument)
+    {
+        assert(argument.substr(0,1)=="-");
+        
+        for(int i=1; i<*p_argc; i++)
+        {
+            if(argument==std::string((*p_argv)[i]))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
 };
 
 #endif // COMMANDLINEARGUMENTS_HPP_
