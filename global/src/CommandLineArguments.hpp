@@ -75,7 +75,7 @@ public:
      *  Then calling 
      *    CommandLineArguments::Instance()->GetValueCorrespondingToOption("-timestep");
      *  will return 0.04 (as a char*).
-     *  Use atoi or atof to convert the char* an int or a double(float) respectively. 
+     *  Use atoi or atof to convert the char* to an int or a double(float) respectively. 
      * 
      *  @param option The option as a string. This should start with "-", for
      *    example "-my_param" "-timestep" etc.
