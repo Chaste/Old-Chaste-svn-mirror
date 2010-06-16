@@ -14,11 +14,18 @@
         </xs:annotation>
     </xs:element>
     
+    
+    
     <xs:complexType name="pycml_config_type">
         <xs:annotation>
             <xs:documentation>Main type for the configuration of PyCml.</xs:documentation>
         </xs:annotation>
         <xs:sequence>
+            <xs:element name="command_line_args" type="command_line_args_type" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Options which can be passed on PyCml's command line.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="global" type="settings_type">
                 <xs:annotation>
                     <xs:documentation>Global settings applying to all models, unless overridden.</xs:documentation>
@@ -36,6 +43,15 @@
                     </xs:annotation>
                 </xs:element>
             </xs:sequence>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="command_line_args_type">
+        <xs:annotation>
+            <xs:documentation>A list of command line arguments.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="arg" type="xs:string" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
     

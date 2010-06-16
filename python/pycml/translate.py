@@ -3555,6 +3555,11 @@ class ConfigurationStore(object):
         """
         rules = [bt.ws_strip_element_rule(u'*')]
         config_doc = amara_parse(config_file, rules=rules)
+        # Overrides for command-line options
+        if self.options and hasattr(config_doc.pycml_config, 'command_line_args'):
+            args = map(str, config_doc.pycml_config.command_line_args.arg)
+            args.append('dummy-file')
+            get_options(args, self.options)
         # Sections to use in configuration; later sections take precedence
         sections = []
         # Use global configuration?
@@ -3912,11 +3917,14 @@ class ConfigurationStore(object):
 #                    For running as an executable                    #
 ######################################################################
 
-def get_options(args):
+def get_options(args, default_options=None):
     """get_options(args):
     Process our command-line options.
 
     args is a list of options & positional arguments.
+    
+    default_options, if given, is an instance of optparse.Values created by a
+    previous call to this function.
     """
     usage = 'usage: %prog [options] <cellml file or URI>'
     parser = optparse.OptionParser(version="%%prog %s" % __version__,
@@ -4037,7 +4045,7 @@ def get_options(args):
                       action='store_true', default=False,
                       help="if human intervention is required, fail noisily")
 
-    options, args = parser.parse_args(args)
+    options, args = parser.parse_args(args, values=default_options)
     if len(args) != 1:
         parser.error("exactly one input CellML file must be specified")
     return options, args[0]
