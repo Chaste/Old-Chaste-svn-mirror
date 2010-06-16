@@ -758,7 +758,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
     {
         local_range[i] = rProcessorsOffset[local_proc_index] + i;
     }
-    AOPetscToApplication(ordering, my_num_nodes, local_range);    
+    AOApplicationToPetsc(ordering, my_num_nodes, local_range);    
     //AOView(ordering, PETSC_VIEWER_STDOUT_WORLD);
         
     // Fill in rNodesOwned (TODO: do something smarter with iterators...)

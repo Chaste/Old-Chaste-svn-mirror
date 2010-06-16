@@ -53,6 +53,34 @@ private:
     void CheckEverythingIsAssigned(DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh)
     {
         /*
+         * Check for consistent partitions (i.e. you own or "halo-own" every node in every element you own.
+         */
+        for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator iter = rMesh.GetElementIteratorBegin();
+             iter != rMesh.GetElementIteratorEnd();
+             ++iter)
+        {
+            for (unsigned node_local_index=0; node_local_index<ELEMENT_DIM+1; node_local_index++)
+            { 
+                unsigned node_global_index = iter->GetNodeGlobalIndex(node_local_index);
+                
+                TS_ASSERT_THROWS_NOTHING(rMesh.GetNodeOrHaloNode(node_global_index));
+            }
+        }
+
+        /*
+         * Check that nodes are numbered consecutively
+         */
+        typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator prev_node = rMesh.GetNodeIteratorBegin();
+        for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator current_node = ++rMesh.GetNodeIteratorBegin();
+             current_node != rMesh.GetNodeIteratorEnd();
+             ++prev_node, ++current_node)
+        {
+            TS_ASSERT_EQUALS(prev_node->GetIndex()+1, current_node->GetIndex())
+        }
+         
+
+
+        /*
          * All the nodes have been assigned
          */
         unsigned total_nodes_this_process = 0;
