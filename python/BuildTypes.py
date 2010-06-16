@@ -47,7 +47,7 @@ class BuildType(object):
         Here we set member variables for each method to use.
         """
         self.build_type = buildType
-        self._compiler_type = 'gcc'
+        self._compiler_type = 'unknown'
         self._cc_flags = ['-Wall', '-Werror']
         self._cc_flags.append('-Wnon-virtual-dtor') #See also #270 (StyleCheck)
         self._link_flags = []
@@ -336,14 +336,18 @@ class BuildType(object):
         """
         return self._hostConfigSettings
 
-Gcc = BuildType
+class Gcc(BuildType):
+    """gcc compiler with default options."""
+    def __init__(self, *args, **kwargs):
+        super(Gcc, self).__init__(*args, **kwargs)
+        self._compiler_type = 'gcc'
 
 class GccDebug(Gcc):
     """
     gcc compiler with debug enabled.
     """
     def __init__(self, *args, **kwargs):
-        Gcc.__init__(self, *args, **kwargs)
+        super(GccDebug, self).__init__(*args, **kwargs)
         self._cc_flags.append('-g')
         self.build_dir = 'debug'
 
@@ -1223,6 +1227,13 @@ def GetBuildType(buildType):
         elif extra == 'barriers':
             obj._cc_flags.append('-DCHASTE_EVENT_BARRIERS')
             obj.build_dir += '_barriers'
+        elif extra == '32bit':
+            if isinstance(obj, Gcc):
+                obj._cc_flags.extend(['-mtune=generic', '-m32'])
+                obj.build_dir += '_32bit'
+                obj._link_flags.extend(['-mtune=generic', '-m32'])
+            else:
+                raise NotImplemented
         elif extra.startswith('hostconfig'):
             obj.SetHostConfig(extra[11:])
             obj.build_dir += '_' + extra
