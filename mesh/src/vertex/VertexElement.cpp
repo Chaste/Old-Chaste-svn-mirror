@@ -45,7 +45,6 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
     // Each face must have an associated orientation
     assert(mFaces.size() == mOrientations.size());
 
-    // \todo this would stop 2d meshes in 3d space (#1304)
     if (SPACE_DIM == ELEMENT_DIM)
     {
         // Register element with nodes
@@ -97,7 +96,6 @@ VertexElement<ELEMENT_DIM, SPACE_DIM>::VertexElement(unsigned index,
                                                      const std::vector<Node<SPACE_DIM>*>& rNodes)
     : AbstractElement<ELEMENT_DIM, SPACE_DIM>(index, rNodes)
 {
-    // \todo this would stop 2d meshes in 3d space (#1304)
     if (SPACE_DIM == ELEMENT_DIM)
     {
         RegisterWithNodes();
@@ -342,8 +340,6 @@ public:
      * Calculate the local index of a node given a global index
      * if node is not contained in element return UINT_MAX
      *
-     * \todo This method could be moved to the AbstactElement class (#1304)
-     *
      * @param globalIndex the global index of the node in the mesh
      * @return local_index.
      */
@@ -354,7 +350,7 @@ public:
      *
      * @return a pointer to the face
      */
-    VertexElement<0,SPACE_DIM>* GetFace(unsigned index) const;
+    VertexElement<0, SPACE_DIM>* GetFace(unsigned index) const;
 
     /**
      * Get whether the face with a given index is oriented clockwise.
