@@ -374,7 +374,7 @@ void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsig
     MatAssemblyBegin(mLhsMatrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(mLhsMatrix, MAT_FINAL_ASSEMBLY);
 
-    std::vector<unsigned> nonzero_rows_per_column[rRowColIndices.size()];
+    std::vector<unsigned>* p_nonzero_rows_per_column = new std::vector<unsigned>[rRowColIndices.size()];
 
     // for each column: collect all the row indices corresponding to a non-zero entry
     // We do all the columns at once, before doing the zeroing, as otherwise
@@ -390,7 +390,7 @@ void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsig
         {
             if (GetMatrixElement(row, column) != 0.0)
             {
-                nonzero_rows_per_column[index].push_back(row);
+                p_nonzero_rows_per_column[index].push_back(row);
             }
         }
     }
@@ -399,7 +399,7 @@ void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsig
     for(unsigned index=0; index<rRowColIndices.size(); index++)
     {
         // set those rows to be zero by calling MatSetValues
-        unsigned size = nonzero_rows_per_column[index].size();
+        unsigned size = p_nonzero_rows_per_column[index].size();
         PetscInt* rows = new PetscInt[size];
         PetscInt cols[1];
         double* zeros = new double[size];
@@ -408,7 +408,7 @@ void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsig
 
         for (unsigned i=0; i<size; i++)
         {
-            rows[i] = nonzero_rows_per_column[index][i];
+            rows[i] = p_nonzero_rows_per_column[index][i];
             zeros[i] = 0.0;
         }
 
@@ -416,6 +416,7 @@ void LinearSystem::ZeroMatrixRowsAndColumnsWithValueOnDiagonal(std::vector<unsig
         delete [] rows;
         delete [] zeros;
     }
+    delete[] p_nonzero_rows_per_column;
 
     // now zero the rows and add the diagonal entries
     ZeroMatrixRowsWithValueOnDiagonal(rRowColIndices, diagonalValue);
