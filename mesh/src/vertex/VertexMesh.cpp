@@ -698,21 +698,28 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeIndice
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAlsoInElement(unsigned nodeIndex, unsigned elemIndex)
 {
-    /// \todo We should probably assert here that the node is in fact contained in the element (#1305)
+    // Get a pointer to this element
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = this->GetElement(elemIndex);
+
+    // Get the indices of the nodes contained in this element
+    std::set<unsigned> node_indices_in_this_element;
+    for (unsigned local_index=0; local_index<p_element->GetNumNodes(); local_index++)
+    {
+        unsigned global_index = p_element->GetNodeGlobalIndex(local_index);
+        node_indices_in_this_element.insert(global_index);
+    }
+
+    // Check that the node is in fact contained in the element
+    if (node_indices_in_this_element.find(nodeIndex) == node_indices_in_this_element.end())
+    {
+        EXCEPTION("The given node is not contained in the given element.");
+    }
 
     // Create a set of neighbouring node indices
     std::set<unsigned> neighbouring_node_indices_not_in_this_element;
 
     // Get the indices of this node's neighbours
     std::set<unsigned> node_neighbours = GetNeighbouringNodeIndices(nodeIndex);
-
-    // Get the indices of the nodes contained in this element
-    std::set<unsigned> node_indices_in_this_element;
-    for (unsigned local_index=0; local_index<GetElement(elemIndex)->GetNumNodes(); local_index++)
-    {
-        unsigned global_index = GetElement(elemIndex)->GetNodeGlobalIndex(local_index);
-        node_indices_in_this_element.insert(global_index);
-    }
 
     // Check if each neighbour is also in this element; if not, add it to the set
     for (std::set<unsigned>::iterator iter = node_neighbours.begin();

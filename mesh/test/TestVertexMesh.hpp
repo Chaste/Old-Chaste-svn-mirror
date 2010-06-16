@@ -1079,6 +1079,11 @@ public:
         TS_ASSERT_EQUALS(node_neighbours_not_in_elem2.size(), 1u);
         TS_ASSERT_EQUALS(*(node_neighbours_not_in_elem2.begin()), 3u);
 
+        // Check an exception is thrown if we use the index of a node not contained in this element
+        TS_ASSERT_THROWS_THIS(p_mesh->GetNeighbouringNodeNotAlsoInElement(0, 2),
+                              "The given node is not contained in the given element.");
+
+        // Check element neighbours
         std::set<unsigned> element_neighbours = p_mesh->GetNeighbouringElementIndices(0);
 
         std::set<unsigned> expected_element_neighbours;
