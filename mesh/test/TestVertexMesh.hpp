@@ -1038,7 +1038,7 @@ public:
         TS_ASSERT_EQUALS(map.IsIdentityMap(), false);
     }
 
-    void TestNeighbouringNodeMethods() throw(Exception)
+    void TestNeighbouringNodeAndElementMethods() throw(Exception)
     {
         // Create mesh
         HoneycombVertexMeshGenerator generator(2, 2);
@@ -1064,20 +1064,28 @@ public:
         TS_ASSERT_EQUALS(p_mesh->GetElement(2)->GetNodeGlobalIndex(5), 8u);
 
         // Check we have the correct neighbours for node 6
-        std::set<unsigned> neighbours = p_mesh->GetNeighbouringNodeIndices(6);
+        std::set<unsigned> node_neighbours = p_mesh->GetNeighbouringNodeIndices(6);
 
-        std::set<unsigned> expected_neighbours;
-        expected_neighbours.insert(3);
-        expected_neighbours.insert(8);
-        expected_neighbours.insert(9);
+        std::set<unsigned> expected_node_neighbours;
+        expected_node_neighbours.insert(3);
+        expected_node_neighbours.insert(8);
+        expected_node_neighbours.insert(9);
 
-        TS_ASSERT_EQUALS(neighbours, expected_neighbours);
+        TS_ASSERT_EQUALS(node_neighbours, expected_node_neighbours);
 
         // Check that the only neighbour not also in element 2 is node 3
-        std::set<unsigned> neighbours_not_in_elem2 = p_mesh->GetNeighbouringNodeNotAlsoInElement(6, 2);
+        std::set<unsigned> node_neighbours_not_in_elem2 = p_mesh->GetNeighbouringNodeNotAlsoInElement(6, 2);
 
-        TS_ASSERT_EQUALS(neighbours_not_in_elem2.size(), 1u);
-        TS_ASSERT_EQUALS(*(neighbours_not_in_elem2.begin()), 3u);
+        TS_ASSERT_EQUALS(node_neighbours_not_in_elem2.size(), 1u);
+        TS_ASSERT_EQUALS(*(node_neighbours_not_in_elem2.begin()), 3u);
+
+        std::set<unsigned> element_neighbours = p_mesh->GetNeighbouringElementIndices(0);
+
+        std::set<unsigned> expected_element_neighbours;
+        expected_element_neighbours.insert(1);
+        expected_element_neighbours.insert(2);
+
+        TS_ASSERT_EQUALS(element_neighbours, expected_element_neighbours);
     }
 
     void TestCalculateMomentOfElement() throw(Exception)

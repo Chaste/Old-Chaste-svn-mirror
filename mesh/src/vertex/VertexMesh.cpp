@@ -728,6 +728,42 @@ std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringNodeNotAls
     return neighbouring_node_indices_not_in_this_element;
 }
 
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+std::set<unsigned> VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetNeighbouringElementIndices(unsigned elementIndex)
+{
+    // Get a pointer to this element
+    VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = this->GetElement(elementIndex);
+
+    // Create a set of neighbouring element indices
+    std::set<unsigned> neighbouring_element_indices;
+
+    // Loop over nodes owned by this element
+    for (unsigned local_index=0; local_index<p_element->GetNumNodes(); local_index++)
+    {
+        // Get a pointer to this node
+        Node<SPACE_DIM>* p_node = p_element->GetNode(local_index);
+
+        // Find the indices of the elements owned by this node
+        std::set<unsigned> containing_elem_indices = p_node->rGetContainingElementIndices();
+
+        // Form the union of this set with the current set of neighbouring element indices
+        std::set<unsigned> all_elements;
+        std::set_union(neighbouring_element_indices.begin(), neighbouring_element_indices.end(),
+                       containing_elem_indices.begin(), containing_elem_indices.end(),
+                       std::inserter(all_elements, all_elements.begin()));
+
+        // Update the set of neighbouring element indices
+        neighbouring_element_indices = all_elements;
+    }
+
+    // Lastly remove this element's index from the set of neighbouring element indices
+    neighbouring_element_indices.erase(elementIndex);
+
+    return neighbouring_element_indices;
+}
+
+
 /// \cond Get Doxygen to ignore, since it's confused by these templates
 template<>
 void VertexMesh<1,1>::ConstructFromMeshReader(AbstractMeshReader<1,1>& rMeshReader)
