@@ -566,7 +566,7 @@ public:
      */
     void TestComparePartitionQualities()
     {
-        unsigned num_local_nodes_petsc_parmetis, num_local_nodes_binary, num_local_nodes_metis;
+        unsigned num_local_nodes_petsc_parmetis, num_local_nodes_binary, num_local_nodes_metis, num_total_nodes;
         
         {
             TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements");
@@ -581,6 +581,7 @@ public:
             CheckEverythingIsAssigned<3,3>(mesh);
             
             num_local_nodes_metis = mesh.GetNumLocalNodes();
+            num_total_nodes=mesh.GetNumNodes();
         }
 
         {
@@ -628,7 +629,18 @@ public:
         }
         PetscTools::Barrier();
         
-        TS_ASSERT(num_local_nodes_petsc_parmetis <= max_local_nodes_binary);                                
+        TS_ASSERT(num_local_nodes_petsc_parmetis <= max_local_nodes_binary);
+        //Watch out for dumb partition and warn about it
+        if (!PetscTools::IsSequential())
+        {
+            //Dumb partition is ceil(n/p), ceil(n/p), .... [ceil(n/p) + n - p*ceil(n/p)]
+            //i.e. most processes get ceil(n/p)  = floor((n+p-1)/p)
+            unsigned max_in_dumb_partition = (num_total_nodes + PetscTools::GetNumProcs() - 1)/PetscTools::GetNumProcs(); 
+            if (max_local_nodes_petsc_parmetis ==  max_in_dumb_partition)
+            {
+                TS_TRACE("That was dumb partition -- it did not use ParMETIS");
+            }
+        }                             
     }
 
     void TestEverythingIsAssignedParMetisLibraryAsciiFiles()
