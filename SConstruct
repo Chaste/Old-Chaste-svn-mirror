@@ -70,7 +70,7 @@ debug = int(ARGUMENTS.get('debug', 0))
 Export('debug')
 
 # The type of build to perform (see python/BuildTypes.py for options)
-build_type = ARGUMENTS.get('build', 'default')
+build_type = ARGUMENTS.get('build', ARGUMENTS.get('b','default'))
 build = BuildTypes.GetBuildType(build_type)
 build.SetRevision(ARGUMENTS.get('revision', ''))
 Export('build')
@@ -82,7 +82,7 @@ if build.is_profile:
 Export('static_libs')
 
 # Whether to build Chaste libraries, or link tests against object files directly
-use_chaste_libs = int(ARGUMENTS.get('chaste_libs', 0))
+use_chaste_libs = int(ARGUMENTS.get('chaste_libs',  ARGUMENTS.get('cl', 0)))
 Export('use_chaste_libs')
 
 # Specify test_summary=0 to scons to *NOT* generate a summary html page
@@ -97,17 +97,17 @@ run_time_flags = ARGUMENTS.get('run_time_flags', '')
 
 # Specify all_tests=1 to select all tests for running (useful with
 # compile_only=1)
-all_tests = int(ARGUMENTS.get('all_tests', 0))
+all_tests = int(ARGUMENTS.get('all_tests', ARGUMENTS.get('at', 0)))
 Export('all_tests')
 
 # Specify compile_only=1 to not run any tests
-compile_only = int(ARGUMENTS.get('compile_only', 0))
+compile_only = int(ARGUMENTS.get('compile_only', ARGUMENTS.get('co', 0)))
 Export('compile_only')
 
 # To run a single test suite only, give its path (relative to the Chaste
 # root) as the test_suite=<path> argument.
 # This will force the test suite to be run even if the source is unchanged.
-single_test_suite = ARGUMENTS.get('test_suite', '')
+single_test_suite = ARGUMENTS.get('test_suite', ARGUMENTS.get('ts', ''))
 if single_test_suite:
     single_test_suite = single_test_suite.split(os.path.sep)
     if (len(single_test_suite)<2):
@@ -129,7 +129,7 @@ force_test_runs = int(ARGUMENTS.get('force_test_runs', 0))
 Export('force_test_runs')
 
 # Don't update the provenance information (Version.cpp file).
-update_provenance = int(ARGUMENTS.get('update_provenance', 1))
+update_provenance = int(ARGUMENTS.get('update_provenance', ARGUMENTS.get('up', 1)))
 
 # Whether to build executables, or just tests
 build_exes = int(ARGUMENTS.get('exe', 0))
