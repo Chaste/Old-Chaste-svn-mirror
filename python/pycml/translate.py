@@ -4007,8 +4007,11 @@ def get_options(args, default_options=None):
                       action='store_false', default=True,
                       help="don't put lookup tables in a separate class")
     parser.add_option('--row-lookup-method',
-                      action='store_true', default=False,
-                      help="add a method to look up a whole row of a table")
+                      action='store_true', default=True,
+                      help="add and use a method to look up a whole row of a table")
+    parser.add_option('--no-row-lookup-method',
+                      action='store_false', dest='row_lookup_method',
+                      help="don't add and use a method to look up a whole row of a table")
     parser.add_option('--lt-index-uses-floor',
                       action='store_true', default=False,
                       help="use floor() to calculate LT indices, instead of "

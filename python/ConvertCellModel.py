@@ -29,20 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 A little helper script to facilitate calling PyCml for common Chaste usage scenarios.
 """
 
+import operator
+import optparse
 import os
 import subprocess
 import sys
 
-options = ['--conf=config.xml',
-           '--use-chaste-stimulus',
-           '--convert-interfaces',
-           '--Wu',
-           '--row-lookup-method']
-# Other possible options:
-#   --assume-valid --no-member-vars
-#   --lt-index-uses-floor
-
-validation_options = ['-u', '--Wu']
 
 # Use external PyCml if requested
 if 'PYCML_DIR' in os.environ and os.path.isdir(os.environ['PYCML_DIR']):
@@ -51,54 +43,110 @@ if 'PYCML_DIR' in os.environ and os.path.isdir(os.environ['PYCML_DIR']):
 else:
     pycml_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pycml')
 
-# Poor man's argument parsing
-our_args = ['--cvode', '--normal', '--opt', '--backward-euler']
-def arg2varname(arg):
-    return arg[2:].replace('-', '_')
-number_of_args = 0
-for arg in our_args:
-    if arg in sys.argv:
-        sys.argv.remove(arg)
-        exec("use_%s = True" % arg2varname(arg))
-        number_of_args += 1
-    else:
-        exec("use_%s = False" % arg2varname(arg))
-if number_of_args == 0:
-    use_cvode = False
-    use_normal = True
-    use_opt = True
-    use_backward_euler = False
-    number_of_args = 2
-if number_of_args > 1:
-    options.append('--assume-valid')
+# Options that we will supply to PyCml anyway
+essential_options = ['--conf=config.xml',
+                     '--use-chaste-stimulus',
+                     '--convert-interfaces']
+validation_options = ['-u', '--Wu']
+# Options supplied if the user doesn't give a config file
+default_options = ['--Wu']
 
-if '--output-dir' in sys.argv:
-    i = sys.argv.index('--output-dir')
-    output_dir = sys.argv[i+1]
-    sys.argv[i:i+2] = []
-else:
-    output_dir = None
+# Parse command-line options
+class OptionParser(optparse.OptionParser):
+    def _process_args(self, largs, rargs, values):
+        """
+        Override to catch BadOption errors and pass these options on to PyCml.
+        """
+        while rargs:
+            arg = rargs[0]
+            if arg == "--":
+                del rargs[0]
+                return
+            elif arg[0:2] == "--":
+                try:
+                    self._process_long_opt(rargs, values)
+                except optparse.BadOptionError:
+                    largs.append(arg)
+            elif arg[0] == "-":
+                largs.append(rargs.pop(0))
+            elif self.allow_interspersed_args:
+                largs.append(arg)
+                del rargs[0]
+            else:
+                return                  # stop now, leave this arg in rargs
+usage = 'usage: %prog [options] <file1.cellml> ...'
+parser = OptionParser(usage=usage)
+parser.add_option('--opt', action='store_true', default=False,
+                  help="apply default optimisations to all generated code")
+parser.add_option('--normal', action='store_true', default=False,
+                  help="generate standard cell model code, suitable for"
+                  " use with Chaste's ODE solvers")
+parser.add_option('--cvode', action='store_true', default=False,
+                  help="generate a subclass of AbstractCvodeCell,"
+                  " i.e. that can be simulated with CVODE")
+parser.add_option('--backward-euler', action='store_true', default=False,
+                  help="generate a version of the cell model that can be"
+                  " solved using a backward Euler method.  Requires the"
+                  " presence of a .out file accompanying the CellML.")
+parser.add_option('--output-dir', action='store',
+                  help="directory to place output files in")
+parser.add_option('--config-file',
+                  action='store',
+                  help="pathname of configuration file.  This can be used to"
+                  " override options supplied on the command line, and will"
+                  " also be passed on to PyCml itself, as will any options"
+                  " not listed above.")
+options, args = parser.parse_args()
+
+# Read further arguments from config file?
+if options.config_file:
+    essential_options.append('--conf=' + options.config_file)
+    # Parse the config file and extract any options
+    sys.path[0:0] = [pycml_dir]
+    import pycml
+    rules = [pycml.bt.ws_strip_element_rule(u'*')]
+    config_doc = pycml.amara_parse(options.config_file, rules=rules)
+    if hasattr(config_doc.pycml_config, 'command_line_args'):
+        config_args = map(str, config_doc.pycml_config.command_line_args.arg)
+        options, extra_args = parser.parse_args(config_args, options)
+        args.extend(extra_args)
+    del config_doc
+
+# If no options supplied, default to --normal --opt
+option_names = ['opt', 'normal', 'cvode', 'backward_euler']
+number_of_options = len(filter(None, operator.attrgetter(*option_names)(options)))
+if number_of_options == 0:
+    options.opt = True
+    options.normal = True
+    number_of_options = 2
+
+# Whether to do a separate validation run
+if number_of_options > 1:
+    essential_options.append('--assume-valid')
 
 # What options should be passed on to PyCml?
-try:
-    end = sys.argv.index('--')
-    args = sys.argv[1:end]
-    options.extend(sys.argv[end+1:])
-except ValueError:
-    args = sys.argv[1:]
+pycml_options = filter(lambda a: not a.endswith('.cellml'), args)
+if not pycml_options:
+    pycml_options = default_options
+pycml_options.extend(essential_options)
 
-options.extend([arg for arg in args if arg[0] == '-'])
-
+# Models to process
 models = []
-for model in [arg for arg in args if arg[0] != '-']:
-    models.append(os.path.abspath(model))
-    
+for model in filter(lambda a: a.endswith('.cellml'), args):
+    if os.path.exists(model):
+        models.append(os.path.abspath(model))
+    else:
+        print >>sys.stderr, "Skipping", model, "because it does not exist"
+
 def do_cmd(cmd):
     """Print and execute a command."""
-    print cmd
-    rc = subprocess.call(cmd, shell=True)
+    print ' '.join(cmd)
+    rc = subprocess.call(cmd)
     if rc:
         sys.exit(rc)
+
+def add_out_opts(options, output_dir, classname, filename):
+    return options + ['-c', classname, '-o', os.path.join(output_dir, filename)]
 
 def convert(model, output_dir):
     """The main workhorse function."""
@@ -106,58 +154,53 @@ def convert(model, output_dir):
     model_base = os.path.basename(model)
     model_base = os.path.splitext(model_base)[0]
     class_name = "Cell" + model_base + "FromCellML"
-    if output_dir is None:
+    if not output_dir:
         output_dir = model_dir
 
-    if number_of_args > 1:
+    if number_of_options > 1:
         # Run validation separately
-        cmd = './validator.py ' + ' '.join(validation_options) + ' ' + model
+        cmd = ['./validator.py'] + validation_options + [model]
         do_cmd(cmd)
 
-    command_base = './translate.py %(opts)s -c %(classname)s %(model)s -o %(outfile)s'
+    command_base = ['./translate.py', model] + pycml_options
 
-    if use_normal:
+    if options.normal:
         # Basic class
-        cmd = command_base % {'opts': ' '.join(options),
-                              'classname': class_name,
-                              'model': model,
-                              'outfile': os.path.join(output_dir, model_base + '.cpp')}
+        cmd = add_out_opts(command_base, output_dir, class_name, model_base + '.cpp')
         do_cmd(cmd)
 
-    if use_opt and (use_normal or not use_cvode):
-        # With optimisation
-        cmd = command_base % {'opts': ' '.join(['-p -l'] + options),
-                              'classname': class_name + 'Opt',
-                              'model': model,
-                              'outfile': os.path.join(output_dir, model_base + 'Opt.cpp')}
+    if options.opt and (options.normal or number_of_options == 1):
+        # Normal with optimisation
+        cmd = add_out_opts(command_base + ['-p', '-l'], output_dir,
+                           class_name + 'Opt', model_base + 'Opt.cpp')
         do_cmd(cmd)
     
-    if use_cvode:
-        cmd = command_base % {'opts': ' '.join(['-t CVODE'] + options),
-                              'classname': class_name + 'Cvode',
-                              'model': model,
-                              'outfile': os.path.join(output_dir, model_base + 'Cvode.cpp')}
+    if options.cvode:
+        # For use with CVODE
+        cmd = add_out_opts(command_base + ['-t', 'CVODE'], output_dir,
+                           class_name + 'Cvode', model_base + 'Cvode.cpp')
         do_cmd(cmd)
 
-        if use_opt:
+        if options.opt:
             # With optimisation
-            cmd = command_base % {'opts': ' '.join(['-p -l', '-t CVODE'] + options),
-                                  'classname': class_name + 'CvodeOpt',
-                                  'model': model,
-                                  'outfile': os.path.join(output_dir, model_base + 'CvodeOpt.cpp')}
+            cmd = add_out_opts(command_base + ['-p', '-l', '-t', 'CVODE'],
+                               output_dir,
+                               class_name + 'CvodeOpt',
+                               model_base + 'CvodeOpt.cpp')
             do_cmd(cmd)
     
-    if use_backward_euler:
+    if options.backward_euler:
         maple_output = os.path.splitext(model)[0] + '.out'
         be_opts = ['-j', maple_output, '-p', '-l']
-        cmd = command_base % {'opts': ' '.join(be_opts + options),
-                              'classname': class_name + 'BackwardEuler',
-                              'model': model,
-                              'outfile': os.path.join(output_dir, model_base + 'BackwardEuler.cpp')}
+        cmd = add_out_opts(command_base + ['-j', maple_output, '-p', '-l'],
+                           output_dir,
+                           class_name + 'BackwardEuler',
+                           model_base + 'BackwardEuler.cpp')
         do_cmd(cmd)
 
 
+# TODO: This is bad for scons -j
 os.chdir(pycml_dir)
 
 for model in models:
-    convert(model, output_dir)
+    convert(model, options.output_dir)
