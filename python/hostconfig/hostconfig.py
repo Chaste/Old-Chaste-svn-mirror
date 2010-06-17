@@ -169,6 +169,32 @@ def AddHdf5(basePath):
         conf.other_libraries.extend(['hdf5', 'z'])
     return
 
+def AddXerces(basePath):
+    """Use Xerces from a non-standard location."""
+    CheckPathExists(basePath, 'Xerces')
+    # Remove existing paths
+    RemoveFromPath(conf.other_includepaths, 'xerces')
+    RemoveFromPath(conf.other_libpaths, 'xerces')
+    # Add new location
+    conf.other_includepaths.append(os.path.join(basePath, 'include'))
+    conf.other_libpaths.append(os.path.join(basePath, 'lib'))
+    if not 'xerces-c' in conf.other_libraries:
+        conf.other_libraries.append('xerces-c')
+    return
+
+def AddParMetis(basePath):
+    """Use ParMetis from a non-standard location."""
+    CheckPathExists(basePath, 'ParMetis')
+    # Remove existing paths
+    RemoveFromPath(conf.other_includepaths, 'ParMetis')
+    RemoveFromPath(conf.other_libpaths, 'ParMetis')
+    # Add new location
+    conf.other_includepaths.append(basePath)
+    conf.other_libpaths.append(basePath)
+    if not 'parmetis' in conf.other_libraries:
+        conf.other_libraries.extend(['parmetis', 'metis'])
+    return
+
 def AddXsd(basePath):
     """Use CodeSynthesis XSD from a non-standard location."""
     CheckPathExists(basePath, 'XSD')
