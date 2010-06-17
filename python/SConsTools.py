@@ -172,7 +172,7 @@ def BuildTest(target, source, env):
     runner = env['RUNNER_EXE']
     #print "Building", runner, "from", pns(source+objects)
     actual_runner = env['TestBuilder'](target=runner, source=source+objects)
-    env.Default(actual_runner)
+    env.Alias('test_exes', actual_runner)
     assert actual_runner[0] is runner # Just in case
     return None
 

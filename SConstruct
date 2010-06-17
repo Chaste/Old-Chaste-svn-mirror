@@ -389,6 +389,9 @@ if not isinstance(build, BuildTypes.DoxygenCoverage):
         script = os.path.join(project, 'SConscript')
         test_log_files.append(SConscript(script, src_dir=project, build_dir=bld_dir,
                                          duplicate=0))
+    
+    # Make sure test executables get built if compile_only=1
+    env.Default(env.Alias('test_exes'))
 
 
 # Remove the contents of build.GetTestReportDir() on a clean build
