@@ -56,7 +56,7 @@ public:
 
     /** 
      *  Check whether a given option exists in the command line arguments.
-     *  @param argument The option as a string. This should start with "-", for
+     *  @param option The option as a string. This should start with "-", for
      *    example "-implicit_scheme" "-no_output" etc.
      */
     bool OptionExists(std::string option)
