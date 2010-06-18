@@ -103,5 +103,6 @@ errors:{INTERNAL writedir}{REPLACE <texttest_dir>}
 # Handle source code line numbers
 errors:Chaste error: ([a-zA-Z./]+):([0-9]+):{REPLACE Chaste error: \1:line:}
 # Dynamically generated models generate variable output
-output:(/[^ ]*/)?heart/.*dynamic/tmp_[0-9]+_[0-9]+{REPLACE <build_path>}
+output:(/[^ ]*/)?heart/[^ ]*dynamic/tmp_[0-9]+_[0-9]+{REPLACE <build_path>}
 output:RunXsd\(\[.*\], \[(.*)\]\){REPLACE Run Xsd on \1}
+output:mpicxx .*(/[^/]+\.[a-zA-Z]+){REPLACE mpicxx <args> <path>\1}

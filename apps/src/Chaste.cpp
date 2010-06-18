@@ -44,17 +44,14 @@ int main(int argc, char *argv[])
 {
     ExecutableSupport::StandardStartup(&argc, &argv);
 
-    int exit_code = 0;
+    int exit_code = ExecutableSupport::EXIT_OK;
 
     try
     {
         if (argc<2)
         {
-            if (PetscTools::AmMaster())
-            {
-                std::cout << "Usage: Chaste parameters_file\n";
-            }
-            exit_code = -1;
+            ExecutableSupport::PrintError("Usage: Chaste parameters_file", true);
+            exit_code = ExecutableSupport::EXIT_BAD_ARGUMENTS;
         }
         else
         {
@@ -65,8 +62,8 @@ int main(int argc, char *argv[])
     }
     catch (const Exception& e)
     {
-        std::cout << e.GetMessage() << std::endl;
-        exit_code = 1;
+        ExecutableSupport::PrintError(e.GetMessage());
+        exit_code = ExecutableSupport::EXIT_ERROR;
     }
 
     ExecutableSupport::FinalizePetsc();

@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef EXECUTABLESUPPORT_HPP_
 #define EXECUTABLESUPPORT_HPP_
 
+#include <string>
+
 /**
  * Various helpful static methods for people writing their own executables
  * within the Chaste framework.
@@ -65,11 +67,38 @@ public:
      * @param pArgv  pointer to the argument list
      */
     static void StandardStartup(int* pArgc, char*** pArgv);
+    
+    /**
+     * Display an error message to the user, on stderr.
+     * 
+     * @param rMessage  the message to display
+     * @param masterOnly  whether only the master process should display the error
+     */
+    static void PrintError(const std::string& rMessage, bool masterOnly=false);
 
     /**
      * Shut down PETSc so we exit cleanly.
      */
     static void FinalizePetsc();
+    
+    /**
+     * Standard exit codes for executables to return from main():
+     * successful termination.
+     */
+    static const int EXIT_OK = 0;
+    
+    /**
+     * Standard exit codes for executables to return from main():
+     * exception thrown during execution.
+     */
+    static const int EXIT_ERROR = 1;
+    
+    /**
+     * Standard exit codes for executables to return from main():
+     * bad arguments passed on command line.
+     */
+    static const int EXIT_BAD_ARGUMENTS = 2;
+ 
 };
 
 #endif /* EXECUTABLESUPPORT_HPP_ */

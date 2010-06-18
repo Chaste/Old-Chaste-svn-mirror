@@ -43,7 +43,14 @@ public:
     {
         CommandLineArguments* p_args = CommandLineArguments::Instance();
         ExecutableSupport::StandardStartup(p_args->p_argc, p_args->p_argv);
+        std::string msg("This is not an error, it's just for coverage.");
+        ExecutableSupport::PrintError(msg);
+        ExecutableSupport::PrintError(msg, true);
         ExecutableSupport::FinalizePetsc();
+        
+        TS_ASSERT_EQUALS(ExecutableSupport::EXIT_OK, 0);
+        TS_ASSERT_EQUALS(ExecutableSupport::EXIT_ERROR, 1);
+        TS_ASSERT_EQUALS(ExecutableSupport::EXIT_BAD_ARGUMENTS, 2);
     }
 };
 
