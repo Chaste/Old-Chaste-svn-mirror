@@ -421,6 +421,14 @@ def CreateXsdBuilder(build, buildenv):
 def CreatePyCmlBuilder(build, buildenv):
     """Create a builder for running PyCml to generate C++ source code from CellML.
     
+    PyCml is run to generate as many types of output as we can.  If a .out file is
+    present, giving output from Maple, this will include backward Euler code.  A
+    -conf.xml file may be given to tune this process somewhat, by specifying extra
+    arguments to be passed to ConvertCellModel.py; it will also be used as the
+    configuration file for PyCml itself.
+    
+    CVODE code is only generated for models shipped with Chaste, not those compiled on the fly.
+    
     First step just runs with default args.  Later step will be to customize the
     process with a separate options file (e.g. <cellml_file>.opts).
     """
@@ -431,6 +439,9 @@ def CreatePyCmlBuilder(build, buildenv):
     def HasMapleOutput(source):
         out_file = os.path.splitext(source[0].srcnode().abspath)[0] + '.out'
         return os.path.exists(out_file), out_file
+    def HasConfigFile(source):
+        conf_file = os.path.splitext(source[0].srcnode().abspath)[0] + '-conf.xml'
+        return os.path.exists(conf_file), conf_file
     def RunPyCml(target, source, env):
         script = os.path.join(Dir('#').abspath, 'python', 'ConvertCellModel.py')
         args = ['--normal', '--opt', '--cvode', '-A',
@@ -438,11 +449,14 @@ def CreatePyCmlBuilder(build, buildenv):
         if IsDynamicSource(source):
             args.remove('--cvode')
             args.append('-y')
-        if HasMapleOutput(source)[0]:
-            args.append('--backward-euler')
 # Won't work until SCons' C scanner can understand #ifdef
 #        elif 'CHASTE_CVODE' not in env['CPPDEFINES']:
 #            args.remove('--cvode')
+        if HasMapleOutput(source)[0]:
+            args.append('--backward-euler')
+        has_conf, conf_file = HasConfigFile(source)
+        if has_conf:
+            args.append('--conf=' + conf_file)
         command = [script] + args + [str(source[0])]
         rc = subprocess.call(command)
         return rc
@@ -463,6 +477,9 @@ def CreatePyCmlBuilder(build, buildenv):
                              base + 'BackwardEuler.cpp']
             env.Depends(extra_targets, extra_source)
             target.extend(extra_targets)
+        has_conf, conf_file = HasConfigFile(source)
+        if has_conf:
+            env.Depends(target, conf_file)
         # Add dependency on pycml source code
         pycml_code = glob.glob(os.path.join(Dir('#/python/pycml').abspath, '*'))
         env.Depends(target, pycml_code)

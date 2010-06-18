@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<pycml_config>
+
+<command_line_args>
+  <arg>--Wu</arg>
+</command_line_args>
+
+<for_model id="tentusscher_model_2006_epi">
+  <lookup_tables>
+    <lookup_table>
+      <var type='config-name'>transmembrane_potential</var>
+      <min>-250.0001</min>
+      <max>349.9999</max>
+      <step>0.01</step>
+    </lookup_table>
+  </lookup_tables>
+  <currents>
+    <stimulus>
+      <var type='name'>membrane,i_Stim</var>
+    </stimulus>
+    <ionic_match>
+      <var type='name'>membrane,i_.*</var>
+    </ionic_match>
+  </currents>
+  <transmembrane_potential>
+    <var type='name'>membrane,V</var>
+  </transmembrane_potential>
+  <membrane_capacitance>
+    <var type='name'>membrane,Cm</var>
+  </membrane_capacitance>
+</for_model>
+
+</pycml_config>

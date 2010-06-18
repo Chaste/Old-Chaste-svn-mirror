@@ -49,7 +49,7 @@ essential_options = ['--conf=config.xml',
                      '--convert-interfaces']
 validation_options = ['-u', '--Wu']
 # Options supplied if the user doesn't give a config file
-default_options = ['--Wu']
+default_options = []
 
 # Parse command-line options
 class OptionParser(optparse.OptionParser):

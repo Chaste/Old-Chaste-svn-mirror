@@ -26,7 +26,7 @@
                     <xs:documentation>Options which can be passed on PyCml's command line.</xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="global" type="settings_type">
+            <xs:element name="global" type="settings_type" minOccurs="0">
                 <xs:annotation>
                     <xs:documentation>Global settings applying to all models, unless overridden.</xs:documentation>
                 </xs:annotation>
