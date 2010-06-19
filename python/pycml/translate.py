@@ -3520,15 +3520,9 @@ class ConfigurationStore(object):
         The root element also contains 0 or more 'for_model' elements,
         which contain settings for individual models.  These must have
         at least one of an 'id' or 'name' attribute, which specify the
-        model in question.  They can also contain:
-        
-         * a 'gating_vars' element, which has a sequence of 'var' elements
-           listing gating variables;
-         * a 'newton_vars' element, which has a sequence of 'var' elements
-           listing variables to be solved for using Newton's method,
-           or a similar non-linear solver;
-         * and anything allowable as global configuration options.  Options
-           given here override those specified globally.
+        model in question.  They can also contain anything allowable as
+        global configuration options.  Options given here override those
+        specified globally.
 
         Configuration which is identical for groups of models may be given
         using the 'for_models' element.  This has an 'ids' element as its
@@ -3553,6 +3547,7 @@ class ConfigurationStore(object):
         Some items are overridden if oxmeta annotations are present in the model, with
         the annotated variable taking precedence over the config file specification.
         """
+        DEBUG('config', "Reading configuration from ", config_file)
         rules = [bt.ws_strip_element_rule(u'*')]
         config_doc = amara_parse(config_file, rules=rules)
         # Overrides for command-line options
@@ -3576,15 +3571,6 @@ class ConfigurationStore(object):
         sections.extend(config_doc.xml_xpath(
             u'/*/for_model[@name="%s" or @id="%s"]'
             % (self.doc.model.name, model_id)))
-        # Newton variables
-        newton_vars = []
-        for section in sections:
-            if hasattr(section, 'newton_vars'):
-                for varname in section.newton_vars.var:
-                    newton_vars.append(unicode(varname).strip())
-        if newton_vars:
-            #print "Non-linear vars:", newton_vars
-            self.doc.model._cml_nonlinear_system_variables = u';'.join(newton_vars)
         # Main items of configuration
         for section in sections:
             if hasattr(section, u'lookup_tables'):
@@ -3595,11 +3581,13 @@ class ConfigurationStore(object):
                 self._parse_Vm(section.transmembrane_potential)
             if hasattr(section, u'membrane_capacitance'):
                 self._parse_Cm(section.membrane_capacitance)
-        # Now identify the variables in the model
+    
+    def finalize_config(self):
+        """Having read all the configuration files, apply to the model."""
+        # Identify the variables in the model
         self.find_transmembrane_potential()
         self.find_membrane_capacitance()
         self.find_current_vars()
-        return
 
     def _create_var_def(self, content, defn_type):
         """Create a variable definition object."""
@@ -3973,7 +3961,7 @@ def get_options(args, default_options=None):
                       action='store_true', default=False,
                       help="don't add a timestamp comment to generated files")
     parser.add_option('--config-file',
-                      action='store',
+                      action='append',
                       help="pathname of configuration file")
     parser.add_option('--omit-constants',
                       action='store_true', default=False,
@@ -4092,7 +4080,9 @@ def run():
 
     config = ConfigurationStore(doc, options=options)
     if options.config_file:
-        config.read_configuration_file(options.config_file)
+        for config_file in options.config_file:
+            config.read_configuration_file(config_file)
+        config.finalize_config()
     else:
         # Use defaults
         config.find_transmembrane_potential()
