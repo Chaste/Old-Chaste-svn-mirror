@@ -365,7 +365,7 @@ public:
             delete p_opt_cell;
             delete p_be_cell;
         }
-     }
+    }
 };
 
 

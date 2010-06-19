@@ -113,6 +113,12 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             }
             // Copy the .cellml file into the temporary folder
             EXPECT0(system, "cp " + rCellmlFullPath + " " + tmp_folder);
+            // If there's a config file, copy that too
+            std::string config_path = rCellmlFullPath.substr(0, rCellmlFullPath.length() - 7) + "-conf.xml";
+            if (FileFinder(config_path, RelativeTo::Absolute).Exists())
+            {
+                EXPECT0(system, "cp " + config_path + " " + tmp_folder);
+            }
             // Change to Chaste source folder
             EXPECT0(chdir, ChasteBuildRootDir());
             // Run scons to generate C++ code and compile it to a .so

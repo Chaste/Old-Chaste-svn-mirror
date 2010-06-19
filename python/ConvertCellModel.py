@@ -34,6 +34,7 @@ import optparse
 import os
 import subprocess
 import sys
+import tempfile
 
 
 # Use external PyCml if requested
@@ -53,6 +54,15 @@ default_options = []
 
 # Parse command-line options
 class OptionParser(optparse.OptionParser):
+    def __init__(self, *args, **kwargs):
+        if 'our_short_options' in kwargs:
+            self.__our_short_options = kwargs['our_short_options']
+            del kwargs['our_short_options']
+        else:
+            self.__our_short_options = []
+        self.__our_short_options.append('-h')
+        optparse.OptionParser.__init__(self, *args, **kwargs)
+        
     def _process_args(self, largs, rargs, values):
         """
         Override to catch BadOption errors and pass these options on to PyCml.
@@ -68,14 +78,17 @@ class OptionParser(optparse.OptionParser):
                 except optparse.BadOptionError:
                     largs.append(arg)
             elif arg[0] == "-":
-                largs.append(rargs.pop(0))
+                if arg in self.__our_short_options:
+                    self._process_short_opts(rargs, values)
+                else:
+                    largs.append(rargs.pop(0))
             elif self.allow_interspersed_args:
                 largs.append(arg)
                 del rargs[0]
             else:
                 return                  # stop now, leave this arg in rargs
 usage = 'usage: %prog [options] <file1.cellml> ...'
-parser = OptionParser(usage=usage)
+parser = OptionParser(usage=usage, our_short_options=['-y'])
 parser.add_option('--opt', action='store_true', default=False,
                   help="apply default optimisations to all generated code")
 parser.add_option('--normal', action='store_true', default=False,
@@ -96,29 +109,66 @@ parser.add_option('--config-file',
                   " override options supplied on the command line, and will"
                   " also be passed on to PyCml itself, as will any options"
                   " not listed above.")
+parser.add_option('-y', '--dll', '--dynamically-loadable',
+                  dest='dynamically_loadable',
+                  action='store_true', default=False,
+                  help="add code to allow the model to be compiled to a "
+                  "shared library and dynamically loaded.  If this option is "
+                  "given, only one type of output will be generated (so you "
+                  "can't combine, e.g. --cvode --normal).")
 options, args = parser.parse_args()
+
+option_names = ['opt', 'normal', 'cvode', 'backward_euler']
+def arg2name(arg):
+    return str(arg)[2:].replace('-', '_')
 
 # Read further arguments from config file?
 if options.config_file:
-    essential_options.append('--conf=' + options.config_file)
     # Parse the config file and extract any options
     sys.path[0:0] = [pycml_dir]
     import pycml
     rules = [pycml.bt.ws_strip_element_rule(u'*')]
     config_doc = pycml.amara_parse(options.config_file, rules=rules)
+    config_modified = False
     if hasattr(config_doc.pycml_config, 'command_line_args'):
         config_args = map(str, config_doc.pycml_config.command_line_args.arg)
         options, extra_args = parser.parse_args(config_args, options)
         args.extend(extra_args)
+        # Strip any arguments only understood by this script
+        for arg in list(config_doc.pycml_config.command_line_args.arg):
+            if arg2name(arg) in option_names:
+                arg.xml_parent.xml_remove_child(arg)
+                config_modified = True
+        if not hasattr(config_doc.pycml_config.command_line_args, 'arg'):
+            del config_doc.pycml_config.command_line_args
+    if config_modified:
+        # Write a new config file
+        fp, config_path = tempfile.mkstemp(suffix='.xml', text=True)
+        config_file = os.fdopen(fp, 'w')
+        config_doc.xml(indent=u'yes', stream=config_file)
+        config_file.close()
+        essential_options.append('--conf=' + config_path)
+    else:
+        # Just pass on the one we were given
+        essential_options.append('--conf=' + options.config_file)
     del config_doc
 
+
 # If no options supplied, default to --normal --opt
-option_names = ['opt', 'normal', 'cvode', 'backward_euler']
 number_of_options = len(filter(None, operator.attrgetter(*option_names)(options)))
 if number_of_options == 0:
-    options.opt = True
     options.normal = True
-    number_of_options = 2
+    if not options.dynamically_loadable:
+        options.opt = True
+        number_of_options = 2
+    else:
+        number_of_options = 1
+
+# Check for .so creation
+if options.dynamically_loadable:
+    if number_of_options > 1:
+        parser.error("Only one output type may be specified if creating a dynamic library")
+    essential_options.append('-y')
 
 # Whether to do a separate validation run
 if number_of_options > 1:
@@ -145,8 +195,12 @@ def do_cmd(cmd):
     if rc:
         sys.exit(rc)
 
-def add_out_opts(options, output_dir, classname, filename):
-    return options + ['-c', classname, '-o', os.path.join(output_dir, filename)]
+def add_out_opts(base_options, output_dir, classname, file_base, file_extra=''):
+    if options.dynamically_loadable:
+        filename = file_base + '.cpp'
+    else:
+        filename = file_base + file_extra + '.cpp'
+    return base_options + ['-c', classname, '-o', os.path.join(output_dir, filename)]
 
 def convert(model, output_dir):
     """The main workhorse function."""
@@ -166,19 +220,19 @@ def convert(model, output_dir):
 
     if options.normal:
         # Basic class
-        cmd = add_out_opts(command_base, output_dir, class_name, model_base + '.cpp')
+        cmd = add_out_opts(command_base, output_dir, class_name, model_base)
         do_cmd(cmd)
 
     if options.opt and (options.normal or number_of_options == 1):
         # Normal with optimisation
         cmd = add_out_opts(command_base + ['-p', '-l'], output_dir,
-                           class_name + 'Opt', model_base + 'Opt.cpp')
+                           class_name + 'Opt', model_base, 'Opt')
         do_cmd(cmd)
     
     if options.cvode:
         # For use with CVODE
         cmd = add_out_opts(command_base + ['-t', 'CVODE'], output_dir,
-                           class_name + 'Cvode', model_base + 'Cvode.cpp')
+                           class_name + 'Cvode', model_base, 'Cvode')
         do_cmd(cmd)
 
         if options.opt:
@@ -186,7 +240,7 @@ def convert(model, output_dir):
             cmd = add_out_opts(command_base + ['-p', '-l', '-t', 'CVODE'],
                                output_dir,
                                class_name + 'CvodeOpt',
-                               model_base + 'CvodeOpt.cpp')
+                               model_base, 'CvodeOpt')
             do_cmd(cmd)
     
     if options.backward_euler:
@@ -195,7 +249,7 @@ def convert(model, output_dir):
         cmd = add_out_opts(command_base + ['-j', maple_output, '-p', '-l'],
                            output_dir,
                            class_name + 'BackwardEuler',
-                           model_base + 'BackwardEuler.cpp')
+                           model_base, 'BackwardEuler')
         do_cmd(cmd)
 
 
@@ -204,3 +258,7 @@ os.chdir(pycml_dir)
 
 for model in models:
     convert(model, options.output_dir)
+
+# Clean up temporary file, if created
+if options.config_file and config_modified:
+    os.remove(config_path)

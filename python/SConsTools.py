@@ -444,16 +444,19 @@ def CreatePyCmlBuilder(build, buildenv):
         return os.path.exists(conf_file), conf_file
     def RunPyCml(target, source, env):
         script = os.path.join(Dir('#').abspath, 'python', 'ConvertCellModel.py')
-        args = ['--normal', '--opt', '--cvode', '-A',
-                '--output-dir', os.path.dirname(target[0].abspath)]
+        args = ['-A', '--output-dir', os.path.dirname(target[0].abspath)]
         if IsDynamicSource(source):
-            args.remove('--cvode')
+            # If we're creating a dynamic library, do things differently:
+            # only create a single output .so.  The helper script will recognise
+            # the -y flag.
             args.append('-y')
+        else:
+            args.extend(['--normal', '--opt', '--cvode'])
 # Won't work until SCons' C scanner can understand #ifdef
-#        elif 'CHASTE_CVODE' not in env['CPPDEFINES']:
-#            args.remove('--cvode')
-        if HasMapleOutput(source)[0]:
-            args.append('--backward-euler')
+#            if 'CHASTE_CVODE' not in env['CPPDEFINES']:
+#                args.remove('--cvode')
+            if HasMapleOutput(source)[0]:
+                args.append('--backward-euler')
         has_conf, conf_file = HasConfigFile(source)
         if has_conf:
             args.append('--conf=' + conf_file)
@@ -463,20 +466,21 @@ def CreatePyCmlBuilder(build, buildenv):
     PyCmlAction = buildenv.Action(RunPyCml)
     def PyCmlEmitter(target, source, env):
         base, ext = os.path.splitext(str(target[0]))
-        target.extend([base + '.hpp',
-                       base + 'Opt.cpp',
-                       base + 'Opt.hpp'])
+        target.append(base + '.hpp')
         if not IsDynamicSource(source):
-            target.extend([base + 'Cvode.cpp',
+            target.extend([base + 'Opt.cpp',
+                           base + 'Opt.hpp',
+                           base + 'Cvode.cpp',
                            base + 'Cvode.hpp',
                            base + 'CvodeOpt.cpp',
                            base + 'CvodeOpt.hpp'])
-        generate_be, extra_source = HasMapleOutput(source)
-        if generate_be:
-            extra_targets = [base + 'BackwardEuler.hpp',
-                             base + 'BackwardEuler.cpp']
-            env.Depends(extra_targets, extra_source)
-            target.extend(extra_targets)
+            generate_be, extra_source = HasMapleOutput(source)
+            if generate_be:
+                extra_targets = [base + 'BackwardEuler.hpp',
+                                 base + 'BackwardEuler.cpp']
+                env.Depends(extra_targets, extra_source)
+                target.extend(extra_targets)
+        # Add dependency on configuration file
         has_conf, conf_file = HasConfigFile(source)
         if has_conf:
             env.Depends(target, conf_file)

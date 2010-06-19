@@ -60,10 +60,20 @@ class TestDynamicallyLoadedCellModels : public CxxTest::TestSuite
 private:
 
     void RunLr91Test(DynamicCellModelLoader& rLoader,
-                     unsigned vIndex=4u)
+                     unsigned vIndex=4u,
+                     bool testTables=false)
     {
         AbstractCardiacCell* p_cell = CreateLr91CellFromLoader(rLoader, vIndex);
         SimulateLr91AndCompare(p_cell);
+
+        if (testTables)
+        {
+            double v = p_cell->GetVoltage();
+            p_cell->SetVoltage(-100000);
+            TS_ASSERT_THROWS_CONTAINS(p_cell->GetIIonic(), "V outside lookup table range");
+            p_cell->SetVoltage(v);
+        }
+
         delete p_cell;
     }
 
@@ -135,24 +145,6 @@ public:
         RunLr91Test(*p_loader2);
     }
 
-    /**
-     * \todo #1164 Remove this test?  TestCellmlConverter makes it slightly redundant,
-     * apart from the optimised version.
-     */
-    void TestLr91FromCellML() throw(Exception)
-    {
-        FileFinder model("heart/dynamic/libluo_rudy_1991_dyn.so", RelativeTo::ChasteSourceRoot);
-        DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::Instance()->GetLoader(model);
-        RunLr91Test(*p_loader, 0u);
-
-        FileFinder model_opt("heart/dynamic/libluo_rudy_1991_dynOpt.so", RelativeTo::ChasteSourceRoot);
-        DynamicCellModelLoader* p_loader_opt = DynamicModelLoaderRegistry::Instance()->GetLoader(model_opt);
-        RunLr91Test(*p_loader_opt, 0u);
-        
-        // Coverage
-        TS_ASSERT_EQUALS(p_loader->GetLoadableModulePath(), model.GetAbsolutePath());
-    }
-
     void TestExceptions() throw(Exception)
     {
         // Try loading a .so that doesn't exist
@@ -185,6 +177,35 @@ public:
             DynamicCellModelLoader* p_loader = DynamicModelLoaderRegistry::Instance()->GetLoader(file_finder);
             RunLr91Test(*p_loader);
         }
+    }
+
+    void TestCellmlConverterWithOptions() throw(Exception)
+    {
+        // Copy CellML file into output dir
+        std::string dirname = "TestCellmlConverterWithOptions";
+        OutputFileHandler handler(dirname);
+        if (PetscTools::AmMaster())
+        {
+            FileFinder cellml_file("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
+            EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
+        }
+        // Create options file
+        {
+            out_stream p_optfile = handler.OpenOutputFile("luo_rudy_1991_dyn-conf.xml");
+            (*p_optfile) << "<?xml version='1.0'?>" << std::endl
+                    << "<pycml_config>" << std::endl
+                    << "<command_line_args><arg>--opt</arg></command_line_args>" << std::endl
+                    << "</pycml_config>" << std::endl;
+            p_optfile->close();
+        }
+        ///\todo #454 add a for_model section (and a test of --backward-euler).
+        PetscTools::Barrier("TestCellmlConverterWithOptions_cp");
+
+        // Do the conversion
+        CellMLToSharedLibraryConverter converter;
+        FileFinder cellml_file(dirname + "/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteTestOutput);
+        DynamicCellModelLoader* p_loader = converter.Convert(cellml_file);
+        RunLr91Test(*p_loader, 0u, true);
     }
 
     void TestCellmlConverter() throw(Exception)
