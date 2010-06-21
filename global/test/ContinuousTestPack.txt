@@ -24,3 +24,4 @@ TestRandomNumberGenerator.hpp
 TestReplicatableVector.hpp
 TestTimer.hpp
 TestTimeStepper.hpp
+TestWarnings.hpp

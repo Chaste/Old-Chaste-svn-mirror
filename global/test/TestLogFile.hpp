@@ -99,7 +99,7 @@ public:
         LogFile::Close();
 
         // test no seg faults etc
-        (*LogFile::Instance()) << "this won't be written anywhere, as not log file has been created";
+        (*LogFile::Instance()) << "this won't be written anywhere, as no log file has been created";
     }
 
     void TestWritingToNewFiles()
