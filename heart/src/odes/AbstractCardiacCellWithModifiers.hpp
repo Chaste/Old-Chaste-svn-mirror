@@ -63,6 +63,9 @@ public:
     /** Allows intervention by protocols on the cytosolic Calcium concentration*/
     AbstractSensitivityModifier *cytosolic_calcium_concentration_modifier;
 
+    /** Allows intervention by protocols on the cell model's Ito conductance parameter */
+    AbstractSensitivityModifier *transient_outward_current_conductance_modifier;
+
     /**
      * Create a new cardiac cell.
      *
@@ -86,6 +89,7 @@ public:
         membrane_voltage_modifier = &default_modifier;
         L_type_Ca_current_conductance_modifier = &default_modifier;
         cytosolic_calcium_concentration_modifier = &default_modifier;
+        transient_outward_current_conductance_modifier = &default_modifier;
     }
 };
 
