@@ -32,10 +32,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <queue>
+
 /**
  * The Warnings singleton class collects warnings via the AddWarning() method
  * or the WARNING macro.  This is to provide a mechanism for informing the user of
- * error which are less severe than those demanding exceptions or assertions.  (Errors 
+ * error which are less severe than those demanding exceptions or assertions. (Errors
  * which can be repaired immediately.)
  * 
  * Warnings can be polled with GetNumWarnings() and GetNextWarningMessage().
@@ -57,19 +58,20 @@ protected:
      * Use Instance() to access the Warnings singleton.
      */
     Warnings();
+
     /**
      * Protected destructor.
      * Use Instance() to access the warnings singleton.
      */
-    static void NoisyDestroy(void);
+    static void NoisyDestroy();
  
 public:
-    
+
     /**
      * Protected destructor.
      * Use Instance() to access the warnings singleton.
      */
-    static void QuietDestroy(void);
+    static void QuietDestroy();
 
     /**
      * Make a warning with a message string and add it to the list
@@ -84,27 +86,24 @@ public:
      * Get the message associated with the exception with file and line number
      *
      * @return The message set when the exception was thrown including file and line number information
-     **/
+     */
     std::string PopWarning() const;
-    
+
     /**
      * Return a pointer to the Warnings object.
      * The object is created the first time this method is called.
      */
     static Warnings* Instance();
-    
+
     /**
      * How many warnings are in the queue
      */
     unsigned GetNumWarnings();
-    
+
     /**
      * Remove and inspect a warning
      */
     std::string GetNextWarningMessage();
-  
-
-
 };
 
 #define WARNING(message) Warnings::Instance()->AddWarning(message, __FILE__, __LINE__)
