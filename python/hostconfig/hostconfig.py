@@ -148,7 +148,7 @@ def AddBoost(basePath, version):
     boost_libs = ['boost_serialization']
     testlib = boost_libs[0]
     base = os.path.join(libpath, 'lib' + testlib)
-    matches = glob.glob(base + '*.*')
+    matches = glob.glob(base + '*.so')
     if not matches:
         raise ValueError('Boost library ' + testlib + ' not found in ' + basePath)
     suffix = os.path.splitext(matches[0][len(base):])[0]
