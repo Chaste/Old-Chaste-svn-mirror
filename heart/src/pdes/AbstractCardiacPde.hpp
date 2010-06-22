@@ -73,7 +73,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * distributed vector factory.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
-class AbstractCardiacPde
+class AbstractCardiacPde : boost::noncopyable
 {
 private:
 

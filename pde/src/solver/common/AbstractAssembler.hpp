@@ -74,7 +74,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractAssembler
+class AbstractAssembler : boost::noncopyable
 {
 protected:
 

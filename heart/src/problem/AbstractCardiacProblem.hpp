@@ -83,7 +83,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * See tutorials for usage.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractCardiacProblem
+class AbstractCardiacProblem : boost::noncopyable
 {
     friend class TestBidomainWithBathAssembler;
     friend class TestCardiacSimulationArchiver;
