@@ -613,8 +613,8 @@ public:
         }
 
         {
-            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements");
-            //TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart");
+            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_0_to_1mm_6000_elements_binary");
+            //TrianglesMeshReader<3,3> mesh_reader("heart/test/data/heart_binary");
             DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PETSC_MAT_PARTITION);
             mesh.ConstructFromMeshReader(mesh_reader);
     
@@ -709,6 +709,20 @@ public:
 
         CheckEverythingIsAssigned<3,3>(mesh);
     }
+
+    void TestEverythingIsAssignedPetscPartitionBinaryFiles()
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements_binary");
+        DistributedTetrahedralMesh<3,3> mesh(DistributedTetrahedralMesh<3,3>::PETSC_MAT_PARTITION);
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh_reader.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh_reader.GetNumElements());
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh_reader.GetNumFaces());
+
+        CheckEverythingIsAssigned<3,3>(mesh);
+    }
+
 
     void TestConstruct3DWithRegions() throw (Exception)
     {

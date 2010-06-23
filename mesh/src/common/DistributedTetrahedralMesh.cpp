@@ -142,6 +142,16 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ComputeMeshPartitioning
                 rHaloNodesOwned.insert(temp_halo_nodes.begin(), temp_halo_nodes.end());
             }
         }
+
+        if (mMetisPartitioning==PETSC_MAT_PARTITION && !PetscTools::IsSequential())
+        {
+            PetscTools::Barrier();
+            if(PetscTools::AmMaster())
+            {
+                Timer::PrintAndReset("Element and halo node assignation");
+            }
+        }        
+        
     }
     rMeshReader.Reset();
 }
@@ -634,16 +644,22 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
         num_local_elements += num_elements - (num_local_elements * num_procs);
     }
 
+    PetscTools::Barrier();
+    Timer::Reset();    
+
     /*
      * Create PETSc matrix which will have 1 for adjacent nodes.
      */
     Mat connectivity_matrix;
     PetscTools::SetupMat(connectivity_matrix, num_nodes, num_nodes, (MatType) MATMPIAIJ);
     
-    // Advance the file pointer to the first element I own (TODO: binary)
-    for (unsigned element_index = 0; element_index < first_local_element; element_index++)
-    {
-        ElementData element_data = rMeshReader.GetNextElementData();
+    if ( ! rMeshReader.IsFileFormatBinary() )
+    {        
+        // Advance the file pointer to the first element I own
+        for (unsigned element_index = 0; element_index < first_local_element; element_index++)
+        {
+            ElementData element_data = rMeshReader.GetNextElementData();
+        }
     }
 
     // In the loop below we assume that there exist edges between any pair of nodes in an element. This is
@@ -654,7 +670,16 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
     
     for (unsigned element_index = 0; element_index < num_local_elements; element_index++)
     {
-        ElementData element_data = rMeshReader.GetNextElementData();
+        ElementData element_data;
+        
+        if ( rMeshReader.IsFileFormatBinary() )
+        {
+            element_data = rMeshReader.GetElementData(first_local_element + element_index);
+        }
+        else
+        {
+            element_data = rMeshReader.GetNextElementData();
+        }        
 
         for (unsigned i=0; i<ELEMENT_DIM+1; i++)
         {
@@ -670,6 +695,12 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
     /// \todo: This assembly is likely to generate many communications. Try to interleave other operations by executing them between Begin() and End().
     MatAssemblyBegin(connectivity_matrix, MAT_FINAL_ASSEMBLY);
     MatAssemblyEnd(connectivity_matrix, MAT_FINAL_ASSEMBLY);
+
+    PetscTools::Barrier();
+    if(PetscTools::AmMaster())
+    {
+        Timer::PrintAndReset("Connectivity matrix assembly");
+    }    
 
     rMeshReader.Reset();   
 
@@ -715,6 +746,12 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
     Mat adj_matrix;
     MatCreateMPIAdj(PETSC_COMM_WORLD, num_local_nodes, num_nodes, local_ia, local_ja, NULL, &adj_matrix);
 
+    PetscTools::Barrier();
+    if(PetscTools::AmMaster())
+    {
+        Timer::PrintAndReset("Adjacency matrix creation");
+    }    
+
     // Get PETSc to call ParMETIS
     MatPartitioning part;
     MatPartitioningCreate(PETSC_COMM_WORLD, &part);
@@ -726,6 +763,12 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
     
     /// It seems to be free-ing local_ia and local_ja as a side effect
     MatDestroy(adj_matrix);
+
+    PetscTools::Barrier();
+    if(PetscTools::AmMaster())
+    {
+        Timer::PrintAndReset("PETSc-ParMETIS call");
+    }    
                 
     // Figure out who owns what - processor offsets
     PetscInt* num_nodes_per_process = new PetscInt[num_procs];        
@@ -788,7 +831,13 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
 
     AODestroy(ordering);
     ISDestroy(new_process_numbers);
-    ISDestroy(new_global_node_indices);          
+    ISDestroy(new_global_node_indices);
+    
+    PetscTools::Barrier();
+    if(PetscTools::AmMaster())
+    {
+        Timer::PrintAndReset("PETSc-ParMETIS output manipulation");
+    }    
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
