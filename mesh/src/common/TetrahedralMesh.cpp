@@ -800,34 +800,6 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::FlagElementsNotContainingNodes(std
     }
 }
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,2*SPACE_DIM> TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetExtremes()
-{
-    c_vector<double,2*SPACE_DIM> ret;
-    
-    for(unsigned dim=0; dim<SPACE_DIM; dim++)
-    { 
-        double min = 1e200;
-        double max = -1e200;
-
-        for(unsigned i=0; i<this->GetNumNodes(); i++)
-        {
-            if( this->GetNode(i)->rGetLocation()[dim] < min)
-            {
-                min = this->GetNode(i)->rGetLocation()[dim];
-            }
-            if( this->GetNode(i)->rGetLocation()[dim] > max)
-            {
-                max = this->GetNode(i)->rGetLocation()[dim];
-            }
-        }
-
-        ret(2*dim) = min;
-        ret(2*dim+1) = max;
-    }
-    return ret;   
-}
-
 
 //////////////////////////////////////////////////////////////////////////////
 //                          edge iterator class                             //

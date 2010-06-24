@@ -1302,6 +1302,17 @@ public:
         constructed_mesh.ConstructCuboid(width, height, depth);
 
         CompareParallelMeshOwnership(read_mesh, constructed_mesh);
+        
+        //Test the bounding box methods
+        ChasteCuboid<3> base_bounding_box=base_mesh.CalculateBoundingBox();
+        TS_ASSERT_EQUALS(base_bounding_box.GetWidth(0), (double) width);
+        TS_ASSERT_EQUALS(base_bounding_box.GetWidth(1), (double) height);
+        TS_ASSERT_EQUALS(base_bounding_box.GetWidth(2), (double) depth);
+        
+        ChasteCuboid<3> constructed_bounding_box=constructed_mesh.CalculateBoundingBox();
+        TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(0), (double) width);
+        TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(1), (double) height);
+        TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(2), (double) depth);
     }
 
     void TestConstructLinearMeshSmallest()

@@ -123,18 +123,18 @@ void FineCoarseMeshPair<DIM>::SetUpBoxes(TetrahedralMesh<DIM,DIM>& rMesh,
     }
     
     // compute min and max values for the fine mesh nodes
-    c_vector<double, 2*DIM> min_max_values = rMesh.GetExtremes();
+    ChasteCuboid<DIM> bounding_box = rMesh.CalculateBoundingBox();
     
     // set up the boxes. Use a domain which is a touch larger than the fine mesh
     c_vector<double,2*DIM> extended_min_and_max;
     for(unsigned i=0; i<DIM; i++)
     {
-        double width = min_max_values(2*i+1) - min_max_values(2*i);
+        double width = bounding_box.GetWidth(i);
  
         // subtract from the minima
-        extended_min_and_max(2*i) = min_max_values(2*i) - 0.05*width;
+        extended_min_and_max(2*i) = bounding_box.rGetLowerCorner()[i] - 0.05*width;
         // add to the maxima
-        extended_min_and_max(2*i+1) = min_max_values(2*i+1) + 0.05*width;
+        extended_min_and_max(2*i+1) = bounding_box.rGetUpperCorner()[i] + 0.05*width;
     }
 
 

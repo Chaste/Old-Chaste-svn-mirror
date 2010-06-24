@@ -278,13 +278,12 @@ public:
     
     /**
      * Calculate the bounding box (width extremes for all dimensions of the mesh.
-     * 
-     * \todo #1444 make it work in parallel for Distributed Tetrahedral mesh
+     * Overridden in Distribute case
      * 
      * @return The minimum and maximum co-ordinates of any node in each dimension
      * 
      */
-    ChasteCuboid<SPACE_DIM> CalculateBoundingBox() const;
+    virtual ChasteCuboid<SPACE_DIM> CalculateBoundingBox() const;
     
     /**
      * Scale the mesh.

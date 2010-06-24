@@ -1780,6 +1780,26 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ParMetisLibraryNodePart
 
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ChasteCuboid<SPACE_DIM> DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundingBox() const
+{
+
+    ChasteCuboid<SPACE_DIM> my_box=AbstractMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundingBox();
+    ChastePoint<SPACE_DIM> my_minimum_point=my_box.rGetLowerCorner();
+    ChastePoint<SPACE_DIM> my_maximum_point=my_box.rGetUpperCorner();
+    
+    c_vector<double, SPACE_DIM> global_minimum_point;
+    c_vector<double, SPACE_DIM> global_maximum_point;
+    MPI_Allreduce(&my_minimum_point.rGetLocation()[0], &global_minimum_point[0], SPACE_DIM, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
+    MPI_Allreduce(&my_maximum_point.rGetLocation()[0], &global_maximum_point[0], SPACE_DIM, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD);
+
+
+    ChastePoint<SPACE_DIM> min(global_minimum_point);
+    ChastePoint<SPACE_DIM> max(global_maximum_point);
+
+    return ChasteCuboid<SPACE_DIM>(min, max);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

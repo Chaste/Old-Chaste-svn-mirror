@@ -1585,45 +1585,45 @@ public:
         TS_ASSERT_THROWS_THIS(cuboid_mesh.GetMeshFileBaseName(),"This mesh was not constructed from a file.");
     }
     
-    void TestGetExtremes() throw(Exception)
+    void TestCalculateBoundingBox() throw(Exception)
     {
         TetrahedralMesh<1,1> mesh1d;
         mesh1d.ConstructLinearMesh(3);
-        c_vector<double,2> extremes1d = mesh1d.GetExtremes();
-        TS_ASSERT_DELTA(extremes1d[0], 0.0, 1e-12);
-        TS_ASSERT_DELTA(extremes1d[1], 3.0, 1e-12);
+        ChasteCuboid<1> extremes1d = mesh1d.CalculateBoundingBox();
+        TS_ASSERT_DELTA(extremes1d.rGetLowerCorner()[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes1d.rGetUpperCorner()[0], 3.0, 1e-12);
         
         mesh1d.GetNode(0)->rGetModifiableLocation()[0] = -0.1;
         mesh1d.Scale(0.5);
-        extremes1d = mesh1d.GetExtremes();
-        TS_ASSERT_DELTA(extremes1d[0], -0.05, 1e-12);
-        TS_ASSERT_DELTA(extremes1d[1], 1.5, 1e-12);
+        extremes1d = mesh1d.CalculateBoundingBox();
+        TS_ASSERT_DELTA(extremes1d.rGetLowerCorner()[0], -0.05, 1e-12);
+        TS_ASSERT_DELTA(extremes1d.rGetUpperCorner()[0], 1.5, 1e-12);
         
         TetrahedralMesh<2,2> mesh2d;
         mesh2d.ConstructRectangularMesh(2,2);
-        c_vector<double,4> extremes2d = mesh2d.GetExtremes();
-        TS_ASSERT_DELTA(extremes2d[0], 0.0, 1e-12);
-        TS_ASSERT_DELTA(extremes2d[1], 2.0, 1e-12);
-        TS_ASSERT_DELTA(extremes2d[2], 0.0, 1e-12);
-        TS_ASSERT_DELTA(extremes2d[3], 2.0, 1e-12);
+        ChasteCuboid<2> extremes2d = mesh2d.CalculateBoundingBox();
+        TS_ASSERT_DELTA(extremes2d.rGetLowerCorner()[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d.rGetUpperCorner()[0], 2.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d.rGetLowerCorner()[1], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d.rGetUpperCorner()[1], 2.0, 1e-12);
 
         mesh2d.Rotate(-M_PI/2);
         mesh2d.Scale(2.0,3.0);
-        extremes2d = mesh2d.GetExtremes();
-        TS_ASSERT_DELTA(extremes2d[0],-4.0, 1e-12);
-        TS_ASSERT_DELTA(extremes2d[1], 0.0, 1e-12);
-        TS_ASSERT_DELTA(extremes2d[2], 0.0, 1e-12);
-        TS_ASSERT_DELTA(extremes2d[3], 6.0, 1e-12);
+        extremes2d = mesh2d.CalculateBoundingBox();
+        TS_ASSERT_DELTA(extremes2d.rGetLowerCorner()[0],-4.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d.rGetUpperCorner()[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d.rGetLowerCorner()[1], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes2d.rGetUpperCorner()[1], 6.0, 1e-12);
         
         TetrahedralMesh<3,3> mesh3d;
         mesh3d.ConstructCuboid(4,5,6);
-        c_vector<double,6> extremes3d = mesh3d.GetExtremes();
-        TS_ASSERT_DELTA(extremes3d[0], 0.0, 1e-12);
-        TS_ASSERT_DELTA(extremes3d[1], 4.0, 1e-12);
-        TS_ASSERT_DELTA(extremes3d[2], 0.0, 1e-12);
-        TS_ASSERT_DELTA(extremes3d[3], 5.0, 1e-12);
-        TS_ASSERT_DELTA(extremes3d[4], 0.0, 1e-12);
-        TS_ASSERT_DELTA(extremes3d[5], 6.0, 1e-12);        
+        ChasteCuboid<3> extremes3d = mesh3d.CalculateBoundingBox();
+        TS_ASSERT_DELTA(extremes3d.rGetLowerCorner()[0], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes3d.rGetUpperCorner()[0], 4.0, 1e-12);
+        TS_ASSERT_DELTA(extremes3d.rGetLowerCorner()[1], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes3d.rGetUpperCorner()[1], 5.0, 1e-12);
+        TS_ASSERT_DELTA(extremes3d.rGetLowerCorner()[2], 0.0, 1e-12);
+        TS_ASSERT_DELTA(extremes3d.rGetUpperCorner()[2], 6.0, 1e-12);        
     }
         
     

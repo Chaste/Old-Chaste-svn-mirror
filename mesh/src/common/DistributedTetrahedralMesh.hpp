@@ -286,7 +286,16 @@ public:
      * @param index the global index of the node
      */
     Node<SPACE_DIM>* GetNodeOrHaloNode(unsigned index) const;
-
+    
+    /**
+     * Calculate the bounding box (width extremes for all dimensions of the mesh.
+     * Override for Distribute case
+     * 
+     * @return The minimum and maximum co-ordinates of any node in each dimension
+     * 
+     */
+    virtual ChasteCuboid<SPACE_DIM> CalculateBoundingBox() const;
+  
 private:
 
     /**
