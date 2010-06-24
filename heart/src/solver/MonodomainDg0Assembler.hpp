@@ -82,6 +82,9 @@ protected:
     /** Intracellular stimulus to be interpolated from cache*/
     double mIIntracellularStimulus;
 
+//	//#1429
+//    std::vector<double> mStateVariablesAtQuadPoint;
+//    AbstractCardiacCell* mpTheCell;
 
     /** The PDE to be solved. */
     MonodomainPde<ELEMENT_DIM,SPACE_DIM>* mpMonodomainPde;
@@ -209,6 +212,9 @@ public:
      * Destructor.
      */
     ~MonodomainDg0Assembler();
+    
+//    //#1429
+//    void InterpolateCellStateVariablesNotIonicCurrent(AbstractCardiacCell* pCell);
 };
 
 /**

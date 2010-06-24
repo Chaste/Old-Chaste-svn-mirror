@@ -53,22 +53,37 @@ AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM
      * As long as they are kept as member variables here for as long as they are
      * required in the assemblers it should all work OK.
      */
+
+//    // #1429.  Create a normal (non-matrix based) assembler and
+//    // call InterpolateCellStateVariablesNotIonicCurrent()
+//    MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
+//        = new MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+//                                                            mpMonodomainPde,
+//                                                            this->mpBoundaryConditionsContainer.get(),
+//                                                            2);
+//    // issue here if node 0 is in the bath.
+//    AbstractCardiacCell* p_cell_for_interpolation = this->mpCellFactory->CreateCardiacCellForTissueNode(0);
+//    p_assembler->InterpolateCellStateVariablesNotIonicCurrent(p_cell_for_interpolation);
+//    return p_assembler;
+
+
+     
     if(!this->mUseMatrixBasedRhsAssembly)
     {
         MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
           = new MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                mpMonodomainPde,
-                                                this->mpBoundaryConditionsContainer.get(),
-                                                2);
+                                                              mpMonodomainPde,
+                                                              this->mpBoundaryConditionsContainer.get(),
+                                                              2);
         return p_assembler;
     }
     else
     {
-        MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                        mpMonodomainPde,
-                                                        this->mpBoundaryConditionsContainer.get(),
-                                                        2);
+        MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
+          = new MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+                                                              mpMonodomainPde,
+                                                              this->mpBoundaryConditionsContainer.get(),
+                                                              2);
         return p_assembler;
     }
 }
