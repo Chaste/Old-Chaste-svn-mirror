@@ -112,7 +112,7 @@ private:
     
     /** 
      *  Get the index for the given argument. Returns -1 if the argument is not found.
-     *  @param option The argument as a string. This should start with "-", for
+     *  @param argument The argument as a string. This should start with "-", for
      *    example "-my_arg" "-timestep" etc.
      */
     int GetIndexForArgument(std::string argument)
