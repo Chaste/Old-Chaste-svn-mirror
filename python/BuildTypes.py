@@ -866,7 +866,7 @@ class GccPowerDebug(GccPower):
     self._link_flags.append('-g')
     self.build_dir = 'gccpowerdebug'
 
-class CrayGcc(BuildType):
+class CrayGcc(Gcc):
   "Cray XT platform."
   def __init__(self, *args, **kwargs):
     Gcc.__init__(self, *args, **kwargs)
