@@ -97,7 +97,7 @@ public:
         return mUpperCorner;
     }
     /** @return the lower vertex of the cuboid */
-    const ChastePoint<SPACE_DIM>& rGetLowerCorner()
+    const ChastePoint<SPACE_DIM>& rGetLowerCorner() const
     {
         return mLowerCorner;
     }
@@ -105,7 +105,7 @@ public:
     /** 
      * @param rDimension dimension
      * @return the width in a particular dimension */
-    const double GetWidth(unsigned rDimension)
+    double GetWidth(unsigned rDimension) const
     {
         assert(rDimension<SPACE_DIM);
         return mUpperCorner[rDimension] - mLowerCorner[rDimension];
