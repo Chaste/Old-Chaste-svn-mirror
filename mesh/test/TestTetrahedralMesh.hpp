@@ -1082,7 +1082,7 @@ public:
         TS_ASSERT_DELTA(norm_2(vector), sqrt(21.0), 1e-7);
     }
 
-    void TestMeshGetWidthAndWidthExtremesMethod() throw(Exception)
+    void TestMeshGetWidthAndBoundingBoxMethod() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_984_elements");
         TetrahedralMesh<2,2> mesh;
@@ -1101,6 +1101,12 @@ public:
         TS_ASSERT_DELTA(height_extremes[0], -1, 1e-6);
         TS_ASSERT_DELTA(width_extremes[1], 1, 1e-6);
         TS_ASSERT_DELTA(height_extremes[1], 1, 1e-6);
+        
+        ChasteCuboid<2> bounds=mesh.CalculateBoundingBox();
+        TS_ASSERT_DELTA(bounds.rGetUpperCorner()[0], 1, 1e-6);
+        TS_ASSERT_DELTA(bounds.rGetUpperCorner()[1], 1, 1e-6);
+        TS_ASSERT_DELTA(bounds.rGetLowerCorner()[0], -1, 1e-6);
+        TS_ASSERT_DELTA(bounds.rGetLowerCorner()[1], -1, 1e-6);
     }
 
     void TestPointWeightsInElement1D() throw(Exception)

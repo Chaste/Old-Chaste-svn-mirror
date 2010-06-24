@@ -396,11 +396,8 @@ ChasteCuboid<SPACE_DIM> HeartGeometryInformation<SPACE_DIM>::CalculateBoundingBo
 
     assert(rSurfaceNodes.size()>0);
     //Set min to DBL_MAX etc.
-    c_vector<double, SPACE_DIM> my_minimum_point;
-    for (unsigned i=0; i<SPACE_DIM; i++)
-    {
-        my_minimum_point[i]=DBL_MAX; //Start with max and work down to actual
-    }
+    c_vector<double, SPACE_DIM> my_minimum_point = scalar_vector<double>(SPACE_DIM, DBL_MAX);
+    //Set max to -DBL_MAX etc.
     c_vector<double, SPACE_DIM> my_maximum_point=-my_minimum_point;
 
     //Iterate through the set of points on the surface

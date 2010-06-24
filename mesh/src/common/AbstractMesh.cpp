@@ -213,6 +213,42 @@ c_vector<double,2> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const 
     return extremes;
 }
 
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+ChasteCuboid<SPACE_DIM> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::CalculateBoundingBox() const
+{
+    //Set min to DBL_MAX etc.
+    c_vector<double, SPACE_DIM> minimum_point = scalar_vector<double>(SPACE_DIM, DBL_MAX);
+    //Set max to -DBL_MAX etc.
+    c_vector<double, SPACE_DIM> maximum_point=-minimum_point;
+
+    //Iterate through nodes
+    /// \todo #1322 use a const version of NodeIterator here
+    for (unsigned i=0; i<mNodes.size(); i++)
+    {
+        if (!mNodes[i]->IsDeleted())
+        {
+            c_vector<double, SPACE_DIM> position  = mNodes[i]->rGetLocation();
+            //Update max/min
+            for (unsigned i=0; i<SPACE_DIM; i++)
+            {
+                if (position[i] < minimum_point[i])
+                {
+                    minimum_point[i] = position[i];
+                }
+                if (position[i] > maximum_point[i])
+                {
+                    maximum_point[i] = position[i];
+                }
+            }
+        }
+    }
+    ChastePoint<SPACE_DIM> min(minimum_point);
+    ChastePoint<SPACE_DIM> max(maximum_point);
+
+    return ChasteCuboid<SPACE_DIM>(min, max);
+}
+
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::Scale(const double xScale, const double yScale, const double zScale)
 {

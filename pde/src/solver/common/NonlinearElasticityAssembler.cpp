@@ -755,10 +755,12 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
             unsigned num_non_zeros_upper_bound = 4 + 30*mpQuadMesh->GetNode(i)->GetNumContainingElements();
             
             ///\todo #1216 The above is dubious since it allows for fully dense matrix.
+#define COVERAGE_IGNORE
             if (num_non_zeros_upper_bound > this->mNumDofs)
             {
                 num_non_zeros_upper_bound = this->mNumDofs;
             }
+#undef COVERAGE_IGNORE
             num_non_zeros_each_row[DIM*i + 0] = num_non_zeros_upper_bound;
             num_non_zeros_each_row[DIM*i + 1] = num_non_zeros_upper_bound;
             num_non_zeros_each_row[DIM*i + 2] = num_non_zeros_upper_bound;
