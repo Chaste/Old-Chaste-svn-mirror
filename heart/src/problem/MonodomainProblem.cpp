@@ -79,11 +79,11 @@ AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM
     }
     else
     {
-        MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                              mpMonodomainPde,
-                                                              this->mpBoundaryConditionsContainer.get(),
-                                                              2);
+        MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
+          = new MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+                                                                      mpMonodomainPde,
+                                                                      this->mpBoundaryConditionsContainer.get(),
+                                                                      2);
         return p_assembler;
     }
 }
