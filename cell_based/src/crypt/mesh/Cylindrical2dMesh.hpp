@@ -90,7 +90,7 @@ private:
     std::vector<unsigned > mBottomHaloNodes;
 
     /**
-     * Calls TetrahedralMesh<2,2>::GetWidthExtremes() to calculate mTop and mBottom
+     * Calls AbstractMesh<2,2>::CalculateBoundingBox() to calculate mTop and mBottom
      * for the cylindrical mesh.
      *
      * This method should only ever be called by the public ReMesh() method.

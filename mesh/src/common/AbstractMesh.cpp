@@ -177,40 +177,7 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 double AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidth(const unsigned& rDimension) const
 {
     assert(rDimension < SPACE_DIM);
-    c_vector<double,2> extremes = GetWidthExtremes(rDimension);
-    return extremes[1] - extremes[0];
-}
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-c_vector<double,2> AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetWidthExtremes(const unsigned& rDimension) const
-{
-    assert(rDimension < SPACE_DIM);
-
-    double max = -1e200;
-    double min = 1e200;
-
-    assert(mNodes.size() > 0u);
-
-    /// \todo #1322 use a const version of NodeIterator here
-    for (unsigned i=0; i<mNodes.size(); i++)
-    {
-        if (!mNodes[i]->IsDeleted())
-        {
-            double this_node_value = mNodes[i]->rGetLocation()[rDimension];
-            if (this_node_value>max)
-            {
-                max = this_node_value;
-            }
-            if (this_node_value < min)
-            {
-                min = this_node_value;
-            }
-        }
-    }
-    c_vector<double,2> extremes;
-    extremes[0] = min;
-    extremes[1] = max;
-    return extremes;
+    return CalculateBoundingBox().GetWidth(rDimension);
 }
 
 

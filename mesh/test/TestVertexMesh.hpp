@@ -655,21 +655,18 @@ public:
         TS_ASSERT_DELTA(element_perimeter_gradient[1], 1.0, 1e-6);
     }
 
-    void TestMeshGetWidthAndWidthExtremes()
+    void TestMeshGetWidthAndBoundingBoxMethod()
     {
         // Create mesh
         HoneycombVertexMeshGenerator generator(3, 3);
         VertexMesh<2,2>* p_mesh = generator.GetMesh();
 
-        // Test GetWidthExtremes() method
-        c_vector<double,2> width_extremes = p_mesh->GetWidthExtremes(0u);
-        c_vector<double,2> height_extremes = p_mesh->GetWidthExtremes(1u);
-
-        TS_ASSERT_DELTA(width_extremes[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(width_extremes[1], 3.5000, 1e-4);
-
-        TS_ASSERT_DELTA(height_extremes[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(height_extremes[1], 2.8867, 1e-4);
+        // Test CalculateBoundingBox() method
+        ChasteCuboid<2> bounds=p_mesh->CalculateBoundingBox();
+        TS_ASSERT_DELTA(bounds.rGetUpperCorner()[0], 3.50,   1e-4);
+        TS_ASSERT_DELTA(bounds.rGetUpperCorner()[1], 2.8867, 1e-4);
+        TS_ASSERT_DELTA(bounds.rGetLowerCorner()[0], 0.0,    1e-4);
+        TS_ASSERT_DELTA(bounds.rGetLowerCorner()[1], 0.0,    1e-4);
 
         // Test GetWidth() method
         double width = p_mesh->GetWidth(0);

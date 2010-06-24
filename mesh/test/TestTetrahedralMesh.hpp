@@ -1093,14 +1093,6 @@ public:
 
         TS_ASSERT_DELTA(width, 2, 1e-6);
         TS_ASSERT_DELTA(height, 2, 1e-6);
-
-        c_vector<double,2> width_extremes = mesh.GetWidthExtremes(0u);
-        c_vector<double,2> height_extremes = mesh.GetWidthExtremes(1u);
-
-        TS_ASSERT_DELTA(width_extremes[0], -1, 1e-6);
-        TS_ASSERT_DELTA(height_extremes[0], -1, 1e-6);
-        TS_ASSERT_DELTA(width_extremes[1], 1, 1e-6);
-        TS_ASSERT_DELTA(height_extremes[1], 1, 1e-6);
         
         ChasteCuboid<2> bounds=mesh.CalculateBoundingBox();
         TS_ASSERT_DELTA(bounds.rGetUpperCorner()[0], 1, 1e-6);

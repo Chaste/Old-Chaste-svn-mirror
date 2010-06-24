@@ -101,7 +101,15 @@ public:
     {
         return mLowerCorner;
     }
-
+    
+    /** 
+     * @param rDimension dimension
+     * @return the width in a particular dimension */
+    const double GetWidth(unsigned rDimension)
+    {
+        assert(rDimension<SPACE_DIM);
+        return mUpperCorner[rDimension] - mLowerCorner[rDimension];
+    }
 };
 
 #endif /*CHASTECUBOID_HPP_*/

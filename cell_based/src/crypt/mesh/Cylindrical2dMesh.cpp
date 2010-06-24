@@ -70,9 +70,9 @@ Cylindrical2dMesh::Cylindrical2dMesh(double width, std::vector<Node<2>* > nodes)
 
 void Cylindrical2dMesh::UpdateTopAndBottom()
 {
-    c_vector<double,2> extremes = GetWidthExtremes(1);
-    mBottom = extremes[0];
-    mTop = extremes[1];
+    ChasteCuboid<2> bounding_box=CalculateBoundingBox();
+    mBottom = bounding_box.rGetLowerCorner()[1];
+    mTop = bounding_box.rGetUpperCorner()[1];
 }
 
 

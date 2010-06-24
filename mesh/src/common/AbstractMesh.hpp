@@ -275,14 +275,6 @@ public:
      * @return The maximum distance between any nodes in this dimension.
      */
     virtual double GetWidth(const unsigned& rDimension) const;
-
-    /**
-     * Calculate the 'width extremes' of any dimension of the mesh.
-     * \todo #1444 deprecate
-     * @param rDimension a dimension (0,1 or 2)
-     * @return The minimum and maximum co-ordinates of any node in this dimension.
-     */
-    c_vector<double, 2> GetWidthExtremes(const unsigned& rDimension) const;
     
     /**
      * Calculate the bounding box (width extremes for all dimensions of the mesh.
