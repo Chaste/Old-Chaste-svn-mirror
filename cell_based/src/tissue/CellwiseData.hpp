@@ -169,6 +169,10 @@ public:
      */
     void ReallocateMemory();
 
+    /**
+     * @return mNumberOfVariables
+     */
+    unsigned GetNumVariables();
 };
 
 #endif /*CELLWISEDATA_HPP_*/

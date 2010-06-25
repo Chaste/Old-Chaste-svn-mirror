@@ -172,6 +172,12 @@ void CellwiseData<DIM>::SetConstantDataForTesting(std::vector<double>& rValues)
 }
 
 
+template<unsigned DIM>
+unsigned CellwiseData<DIM>::GetNumVariables()
+{
+    return mNumberOfVariables;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////

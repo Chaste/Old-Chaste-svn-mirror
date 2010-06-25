@@ -83,6 +83,8 @@ public:
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
 
+        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->GetNumVariables(), 1u);
+
         p_data->SetValue(1.23, mesh.GetNode(0)->GetIndex());
         AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
         TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 1.23, 1e-12);
@@ -133,6 +135,8 @@ public:
 
         TS_ASSERT_THROWS_THIS(p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1),"SetNumCellsAndVars() must be called before setting the Tissue (and after a Destroy)");
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
+
+        TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->GetNumVariables(), 2u);
 
         p_data->SetValue(3.23, mesh.GetNode(0)->GetIndex(), 1);
         AbstractTissue<2>::Iterator cell_iter2 = tissue.Begin();
@@ -217,6 +221,7 @@ public:
             TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
             TS_ASSERT_EQUALS(p_data->IsSetUp(), true);
             TS_ASSERT_EQUALS(p_data->mUseConstantDataForTesting, false);
+            TS_ASSERT_EQUALS(p_data->GetNumVariables(), 1u);
 
             // We will have constructed a new tissue on load, so use the new tissue
             AbstractTissue<2>& tissue = p_data->rGetTissue();

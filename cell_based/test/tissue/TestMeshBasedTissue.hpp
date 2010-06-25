@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
+#include "CellwiseData.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "MeshBasedTissue.hpp"
@@ -594,6 +595,20 @@ public:
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
 
+        // Coverage of writing CellwiseData to VTK
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 2);
+        p_data->SetTissue(&tissue);
+        for (unsigned var=0; var<2; var++)
+        {
+            for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+                 cell_iter != tissue.End();
+                 ++cell_iter)
+            {
+                p_data->SetValue((double) 3.0*var, tissue.GetLocationIndexUsingCell(*cell_iter), var);
+            }
+        }
+
         // Test set methods
         TissueConfig::Instance()->SetOutputVoronoiData(true);
         TissueConfig::Instance()->SetOutputTissueVolumes(true);
@@ -640,6 +655,9 @@ public:
         TS_ASSERT_EQUALS(cell_types[0], 5u);
         TS_ASSERT_EQUALS(cell_types[1], 0u);
         TS_ASSERT_EQUALS(cell_types[2], 0u);
+
+        // Tidy up
+        CellwiseData<2>::Destroy();
     }
 
     void TestTissueWritersIn3d()
