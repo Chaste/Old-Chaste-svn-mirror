@@ -40,7 +40,7 @@ class TestQuadraticMesh : public CxxTest::TestSuite
 {
 public:
 
-    void jTestQuadraticMesh1d() throw(Exception)
+    void TestQuadraticMesh1d() throw(Exception)
     {
         //QuadraticMesh<1> mesh("mesh/test/data/1D_0_to_1_10_elements_quadratic", false);
         QuadraticMesh<1> mesh;
@@ -70,7 +70,7 @@ public:
         }
     }
 
-    void jTestQuadraticMesh2d() throw(Exception)
+    void TestQuadraticMesh2d() throw(Exception)
     {
         QuadraticMesh<2> mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements_quadratic",2,1, false);
@@ -132,7 +132,7 @@ public:
         }
     }
 
-    void jTestQuadraticMesh3d() throw(Exception)
+    void TestQuadraticMesh3d() throw(Exception)
     {
         QuadraticMesh<3> mesh;
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1, false);
