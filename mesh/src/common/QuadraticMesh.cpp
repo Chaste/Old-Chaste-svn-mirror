@@ -131,7 +131,7 @@ QuadraticMesh<DIM>::QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, u
             unsigned global_node_index = triangle_output.trianglelist[element_index*6 + j];
             assert(global_node_index < this->mNodes.size());
             this->mElements[element_index]->AddNode( this->mNodes[global_node_index] );
-            this->mNodes[j]->AddElement(element_index);
+            this->mNodes[global_node_index]->AddElement(element_index);
         }
     }
     bool vertices_mode = true;
