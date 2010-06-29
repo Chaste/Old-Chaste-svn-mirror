@@ -881,7 +881,7 @@ class Pgi(BuildType):
     BuildType.__init__(self, *args, **kwargs)
     self.build_dir = 'pgi'
     self._include_flag = ['-I']
-    self._cc_flags = ['-g']
+    self._cc_flags = ['-g --no_using_std']
     self._link_flags = ['']
     self.build_dir = 'pgi'
 
