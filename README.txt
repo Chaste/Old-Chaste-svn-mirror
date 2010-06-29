@@ -30,7 +30,7 @@ Information on changes in this release can be found in the file
 docs/ReleaseNotes.html.
 
 Tutorial examples for this release are available at:
-https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_1.1
+https://chaste.comlab.ox.ac.uk/chaste/tutorials/release_2.1
 
 Documentation generated from the code by Doxygen is available at:
-https://chaste.comlab.ox.ac.uk/chaste/docs/release_1.1
+https://chaste.comlab.ox.ac.uk/chaste/docs/release_2.1
