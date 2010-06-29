@@ -31,6 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # Its purpose it to provide a early warning when system semaphore are being
 # used up, due to parallel tests aborting.
 
+# \todo Can we put some advice here on what to do if this test is failing 
+# How do we clean them up?!
+
 
 import os
 from pwd import getpwuid
