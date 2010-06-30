@@ -114,15 +114,15 @@ public :
         double t = PdeSimulationTime::GetTime()  +  0.01; 
         if(DIM==1)
         {
-            return -(1.0/3)*M_PI*M_PI*exp(-t)*cos(M_PI*mX[0]);
+            return (-0.5*M_PI*M_PI + 1.5)*exp(-t)*cos(M_PI*mX[0]);
         }
         else if (DIM==2)
         {
-            return -(2.0/3)*M_PI*M_PI*exp(-t)*cos(M_PI*mX[0])*cos(M_PI*mX[1]);
+            return (-0.5*M_PI*M_PI + 1.5)*exp(-t)*cos(M_PI*mX[0])*cos(M_PI*mX[1]);
         }
         else
         {
-            return -(3.0/3)*M_PI*M_PI*exp(-t)*cos(M_PI*mX[0])*cos(M_PI*mX[1])*cos(M_PI*mX[2]);
+            return (-0.5*M_PI*M_PI + 1.5)*exp(-t)*cos(M_PI*mX[0])*cos(M_PI*mX[1])*cos(M_PI*mX[2]);
         }
     }
 
@@ -151,16 +151,16 @@ public:
     {
         if(DIM==1)
         {
-            return (-(2.0/3)*M_PI*M_PI+1)*exp(-time)*cos(M_PI*mX[0]);
+            return  -M_PI*M_PI *exp(-time)*cos(M_PI*mX[0]);
         }
         else if (DIM==2)
         {
  
-            return (-(4.0/3)*M_PI*M_PI+1)*exp(-time)*cos(M_PI*mX[0])*cos(M_PI*mX[1]);
+            return  -M_PI*M_PI *exp(-time)*cos(M_PI*mX[0])*cos(M_PI*mX[1]);
         }
         else
         {
-            return (-(6.0/3)*M_PI*M_PI+1)*exp(-time)*cos(M_PI*mX[0])*cos(M_PI*mX[1])*cos(M_PI*mX[2]);
+            return  -M_PI*M_PI *exp(-time)*cos(M_PI*mX[0])*cos(M_PI*mX[1])*cos(M_PI*mX[2]);
         }
     }
 };
@@ -212,9 +212,9 @@ public:
         // timestep hardcoding below in test!
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
-        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1);
-        HeartConfig::Instance()->SetCapacitance(1);
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1));
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(2);
+        HeartConfig::Instance()->SetCapacitance(1.5);
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(2));
 
         MyCellFactory<1> cell_factory;
         
@@ -245,6 +245,14 @@ public:
                 double t = 0.01*timestep;
                 double exact_solution = exp(-t)*cos(M_PI*x);
                 
+                // for testing suitable tols:
+                if(fabs(V-exact_solution)>0.002*exp(-t))
+                {
+                    std::cout << "t, i = " << t << " " << i << "\n";
+                    std::cout << "V, exact_solution = " << V << " " << exact_solution << "\n";
+                    assert(0);
+                }
+
                 // 0.1% error tolerance. Note that the tol is scaled by exp(-t)=max(V)
                 TS_ASSERT_DELTA(V, exact_solution, 0.001*exp(-t));
             }
@@ -270,9 +278,9 @@ public:
         // timestep hardcoding below in test!
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
-        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1);
-        HeartConfig::Instance()->SetCapacitance(1);
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1,1));
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(2);
+        HeartConfig::Instance()->SetCapacitance(1.5);
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.2,0.8));
 
         MyCellFactory<2> cell_factory;
         
@@ -304,12 +312,12 @@ public:
                 double exact_solution = exp(-t)*cos(M_PI*x)*cos(M_PI*y);
                 
                 // for testing suitable tols:
-                //if(fabs(V-exact_solution)>0.002*exp(-t))
-                //{
-                //    std::cout << "t, i = " << t << " " << i << "\n";
-                //    std::cout << "V, exact_solution = " << V << " " << exact_solution << "\n";
-                //    assert(0);
-                //}
+                if(fabs(V-exact_solution)>0.002*exp(-t))
+                {
+                    std::cout << "t, i = " << t << " " << i << "\n";
+                    std::cout << "V, exact_solution = " << V << " " << exact_solution << "\n";
+                    assert(0);
+                }
 
                 //// With UNIT parameters (Am=Cm=1, sigma=(1,0; 0,1)):
                 // 10 elements each dir: passes tol = 4%, fails tol = 3%
@@ -341,9 +349,9 @@ public:
         
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
 
-        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1);
-        HeartConfig::Instance()->SetCapacitance(1); 
-        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1, 1, 1));
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(2);
+        HeartConfig::Instance()->SetCapacitance(1.5); 
+        HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.8, 0.7, 0.5));
 
         MyCellFactory<3> cell_factory;
         
@@ -377,12 +385,12 @@ public:
                 double exact_solution = exp(-t)*cos(M_PI*x)*cos(M_PI*y)*cos(M_PI*z);
                 
                 // for testing suitable tols:
-                //if(fabs(V-exact_solution)>0.02*exp(-t))
-                //{
-                //    std::cout << "t, i = " << t << " " << i << "\n";
-                //    std::cout << "V, exact_solution = " << V << " " << exact_solution << "\n";
-                //    assert(0);
-                //}
+                if(fabs(V-exact_solution)>0.03*exp(-t))
+                {
+                    std::cout << "t, i = " << t << " " << i << "\n";
+                    std::cout << "V, exact_solution = " << V << " " << exact_solution << "\n";
+                    assert(0);
+                }
 
                 //// With UNIT parameters (Am=Cm=1, sigma=(1,1,1)):
                 // 10 elements each dir: passes tol = 7%, fails tol = 6%
@@ -390,8 +398,8 @@ public:
                 //  --look reasonable compared to 2d results above, since would expect error
                 //    constant to scale with dimension
  
-                // 2% error tolerance. Note that the tol is scaled by exp(-t)=max(V)
-                TS_ASSERT_DELTA(V, exact_solution, 0.02*exp(-t));
+                // 3% error tolerance. Note that the tol is scaled by exp(-t)=max(V)
+                TS_ASSERT_DELTA(V, exact_solution, 0.03*exp(-t));
             }
         }
 
