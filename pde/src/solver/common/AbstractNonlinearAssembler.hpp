@@ -525,17 +525,8 @@ bool AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::
 {
     unsigned size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
 
-    Vec initial_guess=PetscTools::CreateVec(size);;
+    Vec initial_guess=PetscTools::CreateAndSetVec(size, 0.0);
     
-    for (unsigned i=0; i<size; i++)
-    {
-        VecSetValue(initial_guess, i, 0.0, INSERT_VALUES);
-    }
-
-    VecAssemblyBegin(initial_guess);
-    VecAssemblyEnd(initial_guess);
-
-
     Mat analytic_jacobian; //Jacobian Matrix
     Mat numerical_jacobian; //Jacobian Matrix
 
@@ -548,36 +539,16 @@ bool AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::
     mUseAnalyticalJacobian = false;
     AssembleJacobian(initial_guess, &numerical_jacobian);
 
-    bool all_less_than_tol = true;
 
-    for (unsigned i=0; i<size; i++)
-    {
-        for (unsigned j=0; j<size; j++)
-        {
-            double val_a[1];
-            double val_n[1];
-            PetscInt row[1];
-            PetscInt col[1];
-            row[0] = i;
-            col[0] = j;
-            ///\todo Get more than one value at a time
-            MatGetValues(numerical_jacobian,1,row,1,col,val_n);
-            MatGetValues(analytic_jacobian,1,row,1,col,val_a);
-
-            if(fabs(val_n[0]-val_a[0]) > tol)
-            {
-#define COVERAGE_IGNORE // would have to write a bad concrete assembler class just to cover this line
-                all_less_than_tol = false;
-#undef COVERAGE_IGNORE
-            }
-        }
-    }
-
+    MatAYPX(numerical_jacobian,-1,analytic_jacobian,DIFFERENT_NONZERO_PATTERN);
+    double norm;
+    MatNorm(numerical_jacobian,NORM_INFINITY,&norm);
+    
     MatDestroy(numerical_jacobian);
     MatDestroy(analytic_jacobian);
     VecDestroy(initial_guess);
 
-    return all_less_than_tol;
+    return (norm<tol);
 }
 
 
