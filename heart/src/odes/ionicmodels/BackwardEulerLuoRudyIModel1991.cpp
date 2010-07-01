@@ -31,6 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 
 #include <cmath>
+#include "IsNan.hpp"
+
 #include <cassert>
 //#include <iostream>
 

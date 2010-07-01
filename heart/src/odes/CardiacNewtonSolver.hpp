@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CARDIACNEWTONSOLVER_HPP_
 
 #include <cmath>
+#include "IsNan.hpp"
 
 #include "AbstractBackwardEulerCardiacCell.hpp"
 

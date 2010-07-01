@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 //#include <iostream>
 #include "Exception.hpp"
+#include "IsNan.hpp"
 
 
 //
