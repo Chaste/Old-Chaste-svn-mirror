@@ -538,9 +538,15 @@ bool AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::
 
     mUseAnalyticalJacobian = false;
     AssembleJacobian(initial_guess, &numerical_jacobian);
-
-
-    MatAYPX(numerical_jacobian,-1,analytic_jacobian,DIFFERENT_NONZERO_PATTERN);
+    
+    double minus_one = -1.0;
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+    // MatAYPX(*a, X, Y) does  Y = X + a*Y. 
+    MatAYPX(&minus_one, analytic_jacobian, numerical_jacobian);
+#else
+    // MatAYPX( Y, a, X, structure) does Y = a*Y + X. 
+    MatAYPX(numerical_jacobian, minus_one,analytic_jacobian,DIFFERENT_NONZERO_PATTERN);
+#endif
     double norm;
     MatNorm(numerical_jacobian,NORM_INFINITY,&norm);
     
