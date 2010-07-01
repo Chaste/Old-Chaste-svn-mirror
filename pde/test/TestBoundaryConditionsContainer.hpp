@@ -216,7 +216,7 @@ public:
     void TestApplyToLinearSystem()
     {
         const int SIZE = 10;
-        LinearSystem some_system(SIZE);
+        LinearSystem some_system(SIZE, SIZE);
         for (int i=0; i<SIZE; i++)
         {
             for (int j=0; j<SIZE; j++)
@@ -321,7 +321,7 @@ public:
     void TestApplyToSymmetricLinearSystem()
     {
         const int SIZE = 10;
-        LinearSystem some_system(SIZE);
+        LinearSystem some_system(SIZE, SIZE);
         some_system.SetMatrixIsSymmetric(true);
 
         for (int i=0; i<SIZE; i++)
@@ -595,7 +595,7 @@ public:
 
         DistributedVectorFactory factory(SIZE);
         Vec template_vec = factory.CreateVec(2);
-        LinearSystem some_system(template_vec);
+        LinearSystem some_system(template_vec, 2*SIZE);
         VecDestroy(template_vec);
 
         //LinearSystem some_system(2*SIZE);
@@ -676,7 +676,7 @@ public:
 
         DistributedVectorFactory factory(SIZE);
         Vec template_vec = factory.CreateVec(3);
-        LinearSystem some_system(template_vec);
+        LinearSystem some_system(template_vec, 3*SIZE);
         VecDestroy(template_vec);
 
         //LinearSystem some_system(3*SIZE);

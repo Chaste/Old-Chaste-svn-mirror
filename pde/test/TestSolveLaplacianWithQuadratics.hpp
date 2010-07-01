@@ -240,7 +240,8 @@ public:
         assert(pMesh);
         assert(pBcc);
 
-        mpLinearSystem = new LinearSystem(mpQuadMesh->GetNumNodes());
+        ///\todo #1216 Choose the row preallocation size more sensibly than just setting it to 54 below.
+        mpLinearSystem = new LinearSystem(mpQuadMesh->GetNumNodes(), 54);
         mpQuadRule = new GaussianQuadratureRule<DIM>(3);
 
         mCoeffOfU = 0.0;

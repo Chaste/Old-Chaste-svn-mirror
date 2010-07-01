@@ -50,6 +50,8 @@ class TestLinearSystem : public CxxTest::TestSuite
 public:
    void TestLinearSystem1()
     {
+        TS_ASSERT_THROWS_THIS(LinearSystem too_big_to_be_dense(20),"You must provide a rowPreallocation argument for a large sparse system");
+        
         LinearSystem ls(3);
         ls.SetMatrixIsConstant(true);
 
@@ -328,7 +330,7 @@ public:
         const int SIZE = 5;
         Vec test_vec=PetscTools::CreateVec(SIZE);
 
-        LinearSystem ls(test_vec);
+        LinearSystem ls(test_vec, 5);
 
         // Check ownership ranges match
         int lo1, hi1, lo2, hi2;
@@ -500,7 +502,7 @@ public:
         }
         dist_vec.Restore();
 
-        LinearSystem lsv(test_vec, NULL);
+        LinearSystem lsv(test_vec, (Mat) NULL);
         TS_ASSERT_EQUALS(lsv.GetSize(), size);
 
         if (dist_vec.Begin() != dist_vec.End())
@@ -524,7 +526,7 @@ public:
 
         // Now try with just a matrix
         Mat m;
-        PetscTools::SetupMat(m, size, size);
+        PetscTools::SetupMat(m, size, size, size);
 
         if (dist_vec.Begin() != dist_vec.End())
         {

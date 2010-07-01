@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscTools.hpp"
 #include "Exception.hpp"
+#include "Warnings.hpp"
 #include <iostream>
 #include <cassert>
 #include <cstring> //For strcmp etc. Needed in gcc-4.3
@@ -36,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 bool PetscTools::mPetscIsInitialised = false;
 unsigned PetscTools::mNumProcessors = 0;
 unsigned PetscTools::mRank = 0;
-unsigned PetscTools::mMaxNumNonzerosIfMatMpiAij = 54;
+//unsigned PetscTools::mMaxNumNonzerosIfMatMpiAij = 54;
 
 #ifdef DEBUG_BARRIERS
 unsigned PetscTools::mNumBarriers = 0u;
@@ -203,12 +204,18 @@ Vec PetscTools::CreateAndSetVec(int size, double value)
 }
 
 void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
-                          MatType matType,
+                          unsigned rowPreallocation,
                           int numLocalRows,
                           int numLocalColumns)
 {
     assert(numRows>0);
     assert(numColumns>0);
+    if((int) rowPreallocation>numColumns)
+    {
+        ///\todo #1216 Find all the places where this trap is sprung
+        WARNING("Preallocation failure");//+rowPreallocation+">"+numColumns);
+        rowPreallocation=numColumns;
+    }
 
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     MatCreate(PETSC_COMM_WORLD,numLocalRows,numLocalColumns,numRows,numColumns,&rMat);
@@ -217,12 +224,9 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     MatSetSizes(rMat,numLocalRows,numLocalColumns,numRows,numColumns);
 #endif
 
-    MatSetType(rMat, matType);
-
-    if (strcmp(matType,MATMPIAIJ)==0)
-    {
-        MatMPIAIJSetPreallocation(rMat, mMaxNumNonzerosIfMatMpiAij, PETSC_NULL, (PetscInt) (mMaxNumNonzerosIfMatMpiAij*0.5), PETSC_NULL);
-    }
+    MatSetType(rMat, MATMPIAIJ);
+    ///\todo #1216 Fix the 1, 0.5 hack
+    MatMPIAIJSetPreallocation(rMat, rowPreallocation, PETSC_NULL, (PetscInt) (rowPreallocation*0.5), PETSC_NULL);
 
     MatSetFromOptions(rMat);
 }
@@ -286,10 +290,4 @@ void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
     VecLoad(view, VECMPI, &rVec);
     PetscViewerDestroy(view);
 }
-
-void PetscTools::SetMaxNumNonzerosIfMatMpiAij(unsigned maxColsPerRowIfMatMpiAij)
-{
-    mMaxNumNonzerosIfMatMpiAij = maxColsPerRowIfMatMpiAij;
-}
-
 #endif //SPECIAL_SERIAL

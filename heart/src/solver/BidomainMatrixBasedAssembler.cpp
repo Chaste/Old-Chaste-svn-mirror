@@ -110,7 +110,8 @@ BidomainRhsMatrixAssembler<DIM>::BidomainRhsMatrixAssembler(AbstractTetrahedralM
 
     //DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes()); WOULD BE WRONG -- we need the maintain an uneven distribution, if given
     Vec template_vec = this->mpMesh->GetDistributedVectorFactory()->CreateVec(2);
-    this->mpLinearSystem = new LinearSystem(template_vec);
+    ///\todo #1216 Choose the row preallocation size more sensibly than just setting it to 54 below.
+    this->mpLinearSystem = new LinearSystem(template_vec, 54);
     VecDestroy(template_vec);
 
 

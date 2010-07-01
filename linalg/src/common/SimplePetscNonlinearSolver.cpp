@@ -86,7 +86,8 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
     //get the size of the jacobian from the residual
     VecGetSize(initialGuess,&N);
 
-    PetscTools::SetupMat(jacobian, N, N);
+    ///\todo #1216 fix the next line so that something more sensible than 54 is passed in
+    PetscTools::SetupMat(jacobian, N, N, 54);
 
     SNESCreate(PETSC_COMM_WORLD, &snes);
     SNESSetFunction(snes, residual, pComputeResidual, pContext);

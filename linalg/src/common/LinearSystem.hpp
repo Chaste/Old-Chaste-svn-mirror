@@ -131,9 +131,10 @@ public:
      * Constructor.
      *
      * @param lhsVectorSize  the size of the LHS vector
-     * @param matType  the type of matrix (defaults to MATMPIAIJ)
+     * @param rowPreallocation the max number of nonzero entries expected on a row
+     *  - the default value of 0 allows for small size systems to be set as dense matrices automatically
      */
-    LinearSystem(PetscInt lhsVectorSize, MatType matType=(MatType) MATMPIAIJ);
+    LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation=0);
 
     /**
      * Alternative constructor.
@@ -146,8 +147,9 @@ public:
      * bidomain simulation results.
      *
      * @param templateVector  a PETSc vec
+     * @param rowPreallocation the max number of nonzero entries expected on a row
      */
-    LinearSystem(Vec templateVector);
+    LinearSystem(Vec templateVector, unsigned rowPreallocation);
 
     /**
      * Alternative constructor.
@@ -169,21 +171,14 @@ public:
      * @param lhsVectorSize  the size of the LHS vector
      * @param lhsMatrix  the RHS matrix
      * @param rhsVector  the RHS vector
-     * @param matType  the type of matrix (defaults to MATMPIAIJ)
      */
-    LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType=(MatType) MATMPIAIJ);
+    LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector);
 
     /**
      * Destructor.
      */
     ~LinearSystem();
 
-    /**
-     * Helper method for the constructor. Initializes the LHS matrix and RHS vector.
-     *
-     * @param matType  the type of matrix
-     */
-    void SetupVectorAndMatrix(MatType matType);
 
 //    bool IsMatrixEqualTo(Mat testMatrix);
 //    bool IsRhsVectorEqualTo(Vec testVector);
@@ -654,7 +649,7 @@ inline void load_construct_data(
 #endif
      }
 
-     ::new(t)LinearSystem(size, new_mat, new_vec, (MatType)MATMPIMAIJ);
+     ::new(t)LinearSystem(size, new_mat, new_vec);
 }
 }
 } // namespace ...

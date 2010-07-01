@@ -60,9 +60,6 @@ private:
     /** The total number of processors. */
     static unsigned mNumProcessors;
 
-    /** The number of nonzeros per row that PETSc preallocates */
-    static unsigned mMaxNumNonzerosIfMatMpiAij;
-
 #ifdef DEBUG_BARRIERS
     /** Used to debug number of barriers */
     static unsigned mNumBarriers;
@@ -165,12 +162,12 @@ public:
      * @param rMat the matrix
      * @param numRows the number of rows in the matrix
      * @param numColumns the number of columns in the matrix
-     * @param matType the matrix type (defaults to MATMPIAIJ)
+     * @param rowPreallocation the max number of nonzero entries expected on a row
      * @param numLocalRows the number of local rows (defaults to PETSC_DECIDE)
      * @param numLocalColumns the number of local columns (defaults to PETSC_DECIDE)
      */
     static void SetupMat(Mat& rMat, int numRows, int numColumns,
-                         MatType matType=(MatType) MATMPIAIJ,
+                         unsigned rowPreallocation,
                          int numLocalRows=PETSC_DECIDE,
                          int numLocalColumns=PETSC_DECIDE);
 
@@ -221,16 +218,6 @@ public:
      * @param rOutputFileFullPath where to read the matrix from
      */
     static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath);
-
-    /**
-     * Set the number of nonzeros per row that PETSc will preallocate memory for.
-     *
-     * @param maxColsPerRowIfMatMpiAij The maximum number of non zeros per row. This value is problem dependent.
-     *   Since the call to set this depends on the matrix-type (eg MatMPIAIJSetPreallocation/MatSeqAIJSetPreallocation),
-     *   preallocation using this value is done only if the matrix-type is MATMPIAIJ (the default). WITH OTHER
-     *   TYPES OF MATRIX NO PREALLOCATION IS DONE AND YOU MUST PREALLOCATE MANUALLY (by calling the appropriate method)!
-     */
-    static void SetMaxNumNonzerosIfMatMpiAij(unsigned maxColsPerRowIfMatMpiAij);
 
 #endif //SPECIAL_SERIAL
 

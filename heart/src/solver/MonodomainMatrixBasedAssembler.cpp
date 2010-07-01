@@ -100,7 +100,8 @@ MonodomainRhsMatrixAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainRhsMatrixAssemble
 
     //This linear system needs a distribution from the DistributedVector class
     Vec temp_vec = pMesh->GetDistributedVectorFactory()->CreateVec();
-    this->mpLinearSystem = new LinearSystem(temp_vec);
+    ///\todo #1216 Choose the row preallocation size more sensibly than just setting it to 54 below.
+    this->mpLinearSystem = new LinearSystem(temp_vec, 54);
     VecDestroy(temp_vec);
     this->AssembleSystem(false,true);
 }

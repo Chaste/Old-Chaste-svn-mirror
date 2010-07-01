@@ -62,7 +62,8 @@ Vec SimpleNewtonNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,V
     VecDuplicate(initialGuess, &current_solution);
     VecCopy(initialGuess, current_solution);
 
-    LinearSystem linear_system(current_solution);
+    ///\todo #1216 fix the next line so that something smaller than "size" is passed in
+    LinearSystem linear_system(current_solution, size);
 
     (*pComputeResidual)(NULL, current_solution, linear_system.rGetRhsVector(), pContext);
 

@@ -651,7 +651,8 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
      * Create PETSc matrix which will have 1 for adjacent nodes.
      */
     Mat connectivity_matrix;
-    PetscTools::SetupMat(connectivity_matrix, num_nodes, num_nodes, (MatType) MATMPIAIJ);
+    ///\todo #1216 change the number 54 below (row nonzero allocation) to be nonmagic
+    PetscTools::SetupMat(connectivity_matrix, num_nodes, num_nodes, 54);
     
     if ( ! rMeshReader.IsFileFormatBinary() )
     {        

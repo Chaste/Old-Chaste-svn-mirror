@@ -712,93 +712,106 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
     //// If linear system was type MATMPIAIJ, would need to reallocate, but can't pre-allocate twice on the same matrix
     // without leaking memory. This is the call to preallocate an MPI AIJ matrix:
     // MatSeqAIJSetPreallocation(mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, (PetscInt) (num_non_zeros*0.5), PETSC_NULL);
-
-    this->mpLinearSystem = new LinearSystem(this->mNumDofs, (MatType)MATAIJ); // default Mat type is MATMPIAIJ, see above
-    this->mpPreconditionMatrixLinearSystem = new LinearSystem(this->mNumDofs, (MatType)MATAIJ); //MATAIJ is needed for precond to work
-
-    // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
-
+    unsigned num_non_zeros=0;
     if(DIM==2)
     {
-        // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.
-        unsigned num_non_zeros = 75;
-
-        if(PetscTools::GetNumProcs()==1)
-        {
-            MatSeqAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(),                   num_non_zeros, PETSC_NULL);
-            MatSeqAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
-        }
-        else
-        {
-            MatMPIAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, num_non_zeros, PETSC_NULL);
-            MatMPIAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, num_non_zeros, PETSC_NULL);
-        }
+        ///\todo work out what this should be in 2D, see commented code below which used to do this.
+        num_non_zeros = 75;
     }
     else
     {
+        ///\todo work out what this should be in 3D, see commented code below which used to do this.
         assert(DIM==3);
-
-        // in 3d we get the number of containing elements for each node and use that to obtain an upper bound
-        // for the number of non-zeros for each DOF associated with that node.
-
-        int* num_non_zeros_each_row = new int[this->mNumDofs];
-        for(unsigned i=0; i<this->mNumDofs; i++)
-        {
-            num_non_zeros_each_row[i] = 0;
-        }
-
-        for(unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
-        {
-            // this upper bound neglects the fact that two containing elements will share the same nodes..
-            // 4 = max num dofs associated with this node
-            // 30 = 3*9+3 = 3 dimensions x 9 other nodes on this element   +  3 vertices with a pressure unknown
-            unsigned num_non_zeros_upper_bound = 4 + 30*mpQuadMesh->GetNode(i)->GetNumContainingElements();
-            
-            ///\todo #1216 The above is dubious since it allows for fully dense matrix.
-#define COVERAGE_IGNORE
-            if (num_non_zeros_upper_bound > this->mNumDofs)
-            {
-                num_non_zeros_upper_bound = this->mNumDofs;
-            }
-#undef COVERAGE_IGNORE
-            num_non_zeros_each_row[DIM*i + 0] = num_non_zeros_upper_bound;
-            num_non_zeros_each_row[DIM*i + 1] = num_non_zeros_upper_bound;
-            num_non_zeros_each_row[DIM*i + 2] = num_non_zeros_upper_bound;
-
-            if(i<mpQuadMesh->GetNumVertices()) // then this is a vertex
-            {
-                num_non_zeros_each_row[DIM*mpQuadMesh->GetNumNodes() + i] = num_non_zeros_upper_bound;
-            }
-        }
-
-        if(PetscTools::GetNumProcs()==1)
-        {
-            MatSeqAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(),                   PETSC_NULL, num_non_zeros_each_row);
-            MatSeqAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row);
-        }
-        else
-        {
-            PetscInt lo, hi;
-            this->mpLinearSystem->GetOwnershipRange(lo, hi);
-            int* num_non_zeros_each_row_this_proc = new int[hi-lo];
-            for(unsigned i=0; i<unsigned(hi-lo); i++)
-            {
-                num_non_zeros_each_row_this_proc[i] = num_non_zeros_each_row[lo+i];
-            }
-
-            MatMPIAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
-            MatMPIAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
-        }
-
-        //unsigned total_non_zeros = 0;
-        //for(unsigned i=0; i<this->mNumDofs; i++)
-        //{
-        //   total_non_zeros += num_non_zeros_each_row[i];
-        //}
-        //std::cout << total_non_zeros << " versus " << 500*this->mNumDofs << "\n" << std::flush;
-
-        delete [] num_non_zeros_each_row;
+        num_non_zeros=240;
     }
+            
+
+    this->mpLinearSystem = new LinearSystem(this->mNumDofs,num_non_zeros); // default Mat type is MATMPIAIJ, see above
+    this->mpPreconditionMatrixLinearSystem = new LinearSystem(this->mNumDofs,num_non_zeros); //MATAIJ is needed for precond to work
+
+    // 3D: N elements around a point. nz < (3*10+6)N (lazy estimate). Better estimate is 23N+4?. Assume N<20 => 500ish
+
+//    if(DIM==2)
+//    {
+//        // 2D: N elements around a point => 7N+3 non-zeros in that row? Assume N<=10 (structured mesh would have N_max=6) => 73.
+//        unsigned num_non_zeros = 75;
+//
+//        if(PetscTools::IsSequential())
+//        {
+//            MatSeqAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(),                   num_non_zeros, PETSC_NULL);
+//            MatSeqAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL);
+//        }
+//        else
+//        {
+//            MatMPIAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, num_non_zeros, PETSC_NULL);
+//            MatMPIAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), num_non_zeros, PETSC_NULL, num_non_zeros, PETSC_NULL);
+//        }
+//    }
+//    else
+//    {
+//        assert(DIM==3);
+//
+//        // in 3d we get the number of containing elements for each node and use that to obtain an upper bound
+//        // for the number of non-zeros for each DOF associated with that node.
+//
+//        int* num_non_zeros_each_row = new int[this->mNumDofs];
+//        for(unsigned i=0; i<this->mNumDofs; i++)
+//        {
+//            num_non_zeros_each_row[i] = 0;
+//        }
+//
+//        for(unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
+//        {
+//            // this upper bound neglects the fact that two containing elements will share the same nodes..
+//            // 4 = max num dofs associated with this node
+//            // 30 = 3*9+3 = 3 dimensions x 9 other nodes on this element   +  3 vertices with a pressure unknown
+//            unsigned num_non_zeros_upper_bound = 4 + 30*mpQuadMesh->GetNode(i)->GetNumContainingElements();
+//            
+//            ///\todo #1216 The above is dubious since it allows for fully dense matrix.
+//#define COVERAGE_IGNORE
+//            if (num_non_zeros_upper_bound > this->mNumDofs)
+//            {
+//                num_non_zeros_upper_bound = this->mNumDofs;
+//            }
+//#undef COVERAGE_IGNORE
+//            num_non_zeros_each_row[DIM*i + 0] = num_non_zeros_upper_bound;
+//            num_non_zeros_each_row[DIM*i + 1] = num_non_zeros_upper_bound;
+//            num_non_zeros_each_row[DIM*i + 2] = num_non_zeros_upper_bound;
+//
+//            if(i<mpQuadMesh->GetNumVertices()) // then this is a vertex
+//            {
+//                num_non_zeros_each_row[DIM*mpQuadMesh->GetNumNodes() + i] = num_non_zeros_upper_bound;
+//            }
+//        }
+//
+//        if(PetscTools::IsSequential())
+//        {
+//            MatSeqAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(),                   PETSC_NULL, num_non_zeros_each_row);
+//            MatSeqAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row);
+//        }
+//        else
+//        {
+//            PetscInt lo, hi;
+//            this->mpLinearSystem->GetOwnershipRange(lo, hi);
+//            int* num_non_zeros_each_row_this_proc = new int[hi-lo];
+//            for(unsigned i=0; i<unsigned(hi-lo); i++)
+//            {
+//                num_non_zeros_each_row_this_proc[i] = num_non_zeros_each_row[lo+i];
+//            }
+//
+//            MatMPIAIJSetPreallocation(this->mpLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
+//            MatMPIAIJSetPreallocation(this->mpPreconditionMatrixLinearSystem->rGetLhsMatrix(), PETSC_NULL, num_non_zeros_each_row_this_proc, PETSC_NULL, num_non_zeros_each_row_this_proc);
+//        }
+//
+//        //unsigned total_non_zeros = 0;
+//        //for(unsigned i=0; i<this->mNumDofs; i++)
+//        //{
+//        //   total_non_zeros += num_non_zeros_each_row[i];
+//        //}
+//        //std::cout << total_non_zeros << " versus " << 500*this->mNumDofs << "\n" << std::flush;
+//
+//        delete [] num_non_zeros_each_row;
+//    }
 }
 
 

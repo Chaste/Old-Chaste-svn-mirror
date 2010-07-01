@@ -94,7 +94,7 @@ public:
         // test SetupMatrix
         ///////////////////////////////////////////////////
         Mat mat;
-        PetscTools::SetupMat(mat, 10, 11);
+        PetscTools::SetupMat(mat, 10, 11, 11);
         int m,n;
         MatGetSize(mat, &m, &n);
         TS_ASSERT_EQUALS(m, 10);
@@ -116,8 +116,7 @@ public:
         // test SetupMatrix with non-default preallocation
         ///////////////////////////////////////////////////
         Mat mat2;
-        PetscTools::SetMaxNumNonzerosIfMatMpiAij(4);
-        PetscTools::SetupMat(mat2, 12, 10);
+        PetscTools::SetupMat(mat2, 12, 10, 4);
         MatGetSize(mat2, &m, &n);
         TS_ASSERT_EQUALS(m, 12);
         TS_ASSERT_EQUALS(n, 10);
@@ -177,7 +176,7 @@ public:
         Mat matrix;
         Vec vector;
 
-        PetscTools::SetupMat(matrix, 10, 10, (MatType)MATMPIAIJ);
+        PetscTools::SetupMat(matrix, 10, 10, 10);
 
         vector=PetscTools::CreateVec(10);
 

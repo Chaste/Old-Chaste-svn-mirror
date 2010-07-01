@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Implementation
 ///////////////////////////////////////////////////////////////////////////////////
 
-LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
+LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
    :mSize(lhsVectorSize),
     mMatNullSpace(NULL),
     mDestroyMatAndVec(true),
@@ -53,7 +53,23 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL)
 {
-    SetupVectorAndMatrix(matType);
+    
+    mRhsVector=PetscTools::CreateVec(mSize);
+    if (rowPreallocation == 0)
+    {
+        //Automatic preallocation if it's a small matrix
+        if (lhsVectorSize<15)
+        {
+            rowPreallocation=lhsVectorSize;
+        }
+        else
+        {
+            EXCEPTION("You must provide a rowPreallocation argument for a large sparse system");
+        }
+    }
+    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, rowPreallocation);
+
+    VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
 
     /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
     /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
@@ -67,7 +83,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, MatType matType)
 #endif
 }
 
-LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector, MatType matType)
+LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
    :mSize(lhsVectorSize),
     mMatNullSpace(NULL),
     mDestroyMatAndVec(true),
@@ -93,7 +109,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector,
 #endif
 }
 
-LinearSystem::LinearSystem(Vec templateVector)
+LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
    :mMatNullSpace(NULL),
     mDestroyMatAndVec(true),
     mKspIsSetup(false),
@@ -109,7 +125,7 @@ LinearSystem::LinearSystem(Vec templateVector)
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
     PetscInt local_size = mOwnershipRangeHi - mOwnershipRangeLo;
 
-    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, (MatType) MATMPIAIJ, local_size, local_size);
+    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, rowPreallocation, local_size, local_size);
 
     /// \todo: if we create a linear system object outside a cardiac assembler, these are gonna
     /// be the default solver and preconditioner. Not consitent with ChasteDefaults.xml though...
@@ -214,13 +230,6 @@ LinearSystem::~LinearSystem()
 
 }
 
-void LinearSystem::SetupVectorAndMatrix(MatType matType)
-{
-    mRhsVector=PetscTools::CreateVec(mSize);
-    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, matType);
-
-    VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
-}
 
 void LinearSystem::SetMatrixElement(PetscInt row, PetscInt col, double value)
 {

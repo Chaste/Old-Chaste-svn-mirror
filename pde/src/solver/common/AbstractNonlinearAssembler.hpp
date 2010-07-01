@@ -301,7 +301,7 @@ PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, C
     // to be assembled
     this->PrepareForSolve();
     delete this->mpLinearSystem;
-    this->mpLinearSystem = new LinearSystem(residualVector, NULL);
+    this->mpLinearSystem = new LinearSystem(residualVector, (Mat) NULL);
     this->AssembleSystem(true, false, currentGuess, 0.0);
     return 0;
 }
@@ -530,8 +530,8 @@ bool AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::
     Mat analytic_jacobian; //Jacobian Matrix
     Mat numerical_jacobian; //Jacobian Matrix
 
-    PetscTools::SetupMat(analytic_jacobian, size, size);
-    PetscTools::SetupMat(numerical_jacobian, size, size);
+    PetscTools::SetupMat(analytic_jacobian, size, size, size);
+    PetscTools::SetupMat(numerical_jacobian, size, size, size);
 
     mUseAnalyticalJacobian = true;
     AssembleJacobian(initial_guess, &analytic_jacobian);
