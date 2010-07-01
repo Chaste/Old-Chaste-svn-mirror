@@ -1453,6 +1453,14 @@ double VertexMesh<ELEMENT_DIM, SPACE_DIM>::GetAreaOfFace(VertexElement<ELEMENT_D
     face_area /= abs;
     return fabs(face_area);
 }
+/// Specialization to avoid compiler error about zero-sized arrays
+#if defined(__xlC__)
+template<>
+double VertexMesh<1,1>::GetAreaOfFace(VertexElement<0,1>* pFace)
+{
+    NEVER_REACHED;
+}
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////////////

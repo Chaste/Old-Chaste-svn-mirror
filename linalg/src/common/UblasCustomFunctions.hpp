@@ -208,6 +208,9 @@ T Determinant(const boost::numeric::ublas::c_matrix<T, 1, 0>& rM)
     NEVER_REACHED;
 }
 
+#if defined(__xlC__)
+/* IBM compiler doesn't support zero-sized arrays*/
+#else
 /**
  * Return the determinant of a submatrix after removing a particular row and column
  */
@@ -234,6 +237,7 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 1, 0>& rM, const unsig
 {
     NEVER_REACHED;
 }
+#endif
 
 /**
  * Return the determinant of a submatrix after removing a particular row and column
