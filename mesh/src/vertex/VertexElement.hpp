@@ -218,4 +218,108 @@ public:
     bool FaceIsOrientatedClockwise(unsigned index) const;
 };
 
+
+//////////////////////////////////////////////////////////////////////
+//                  Specialization for 1d elements                  //
+//                                                                  //
+//                 1d elements are just edges (lines)               //
+//////////////////////////////////////////////////////////////////////
+
+/**
+ * Specialization for 1d elements so we don't get errors from Boost on some
+ * compilers.
+ */
+template<unsigned SPACE_DIM>
+class VertexElement<1, SPACE_DIM> : public AbstractElement<1,SPACE_DIM>
+{
+public:
+
+    /**
+     * Constructor which takes in a vector of nodes.
+     *
+     * @param index  the index of the element in the mesh
+     * @param rNodes the nodes owned by the element
+     */
+    VertexElement(unsigned index, const std::vector<Node<SPACE_DIM>*>& rNodes);
+
+    /**
+     * Virtual destructor, since this class has virtual methods.
+     */
+    virtual ~VertexElement();
+
+    /**
+     * Get the number of faces owned by this element.
+     */
+    unsigned GetNumFaces() const;
+
+    /**
+     * Update node at the given index.
+     *
+     * @param rIndex is an local index to which node to change
+     * @param pNode is a pointer to the replacement node
+     */
+    void UpdateNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
+
+    /**
+     * Overridden RegisterWithNodes() method.
+     *
+     * Informs all nodes forming this element that they are in this element.
+     */
+    void RegisterWithNodes();
+
+    /**
+     * Overridden MarkAsDeleted() method.
+     *
+     * Mark an element as having been removed from the mesh.
+     * Also notify nodes in the element that it has been removed.
+     */
+    void MarkAsDeleted();
+
+    /**
+     * Reset the global index of the element and update its nodes.
+     *
+     * @param index the new global index
+     */
+    void ResetIndex(unsigned index);
+
+    /**
+     * Delete a node with given local index.
+     *
+     * @param rIndex is the local index of the node to remove
+     */
+    void DeleteNode(const unsigned& rIndex);
+
+    /**
+     * Add a node to the element between nodes at rIndex and rIndex+1.
+     *
+     * @param rIndex the local index of the node after which the new node is added
+     * @param pNode a pointer to the new node
+     */
+    void AddNode(const unsigned& rIndex, Node<SPACE_DIM>* pNode);
+
+    /**
+     * Calculate the local index of a node given a global index
+     * if node is not contained in element return UINT_MAX
+     *
+     * @param globalIndex the global index of the node in the mesh
+     * @return local_index.
+     */
+    unsigned GetNodeLocalIndex(unsigned globalIndex) const;
+
+    /**
+     * @param index the global index of a specified face
+     *
+     * @return a pointer to the face
+     */
+    VertexElement<0, SPACE_DIM>* GetFace(unsigned index) const;
+
+    /**
+     * Get whether the face with a given index is oriented clockwise.
+     *
+     * @param index the index of the face
+     */
+    bool FaceIsOrientatedClockwise(unsigned index) const;
+
+};
+
 #endif /*VERTEXELEMENT_HPP_*/
