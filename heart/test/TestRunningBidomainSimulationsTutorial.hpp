@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTRUNNINGBIDOMAINSIMULATIONSTUTORIAL_HPP_
 /*
  * = An example showing how to run bidomain simulations (for monodomain, it is essentially the same) =
+ * 
  * == Introduction ==
  *
  * In this tutorial we show how Chaste is used to run a standard bidomain simulation.
@@ -101,16 +102,16 @@ private:
 
 public:
     /* Our contructor takes in nothing. It calls the constructor of {{{AbstractCardiacCellFactory}}}
-     * and we also initialise the stimulus to have magnitude 6000 (uA/cm^3) and duration 0.5 (ms).
+     * and we also initialise the stimulus to have magnitude -500000 uA/cm^3 and duration 0.5 ms.
      */
     PointStimulus2dCellFactory()
         : AbstractCardiacCellFactory<2>(),
-          mpStimulus(new SimpleStimulus(-6000.0, 0.5))
+          mpStimulus(new SimpleStimulus(-5e5, 0.5))
     {
     }
 
     /* Now we implement the pure method which needs to be implemented. We return
-     * a LR91 cell for each node, with the node at (0,0) given the non-zero stimulus,
+     * a LR91 cell for each node, with the nodes in a 0.2mm block given the non-zero stimulus,
      * and all other nodes given the zero stimulus. Note that we use {{{mpMesh}}},
      * {{{mTimestep}}}, {{{mpZeroStimulus}}} and {{{mpSolver}}} which are all
      * members of the base class. The timestep and solver are defined in the base
@@ -119,11 +120,13 @@ public:
     {
         double x = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[0];
         double y = this->GetMesh()->GetNode(nodeIndex)->rGetLocation()[1];
-        if (fabs(x)+fabs(y)<1e-6) // ie if (x,y)==(0,0). An alternative would be if(norm_2(this->mpMesh->GetNode(nodeIndex)->rGetLocation())<1e-6)
+        if (x<0.02+1e-6 && y<0.02+1e-6) // ie if x<=0.02 and y<=0.02 (and we are assuming here x,y>=0).
         {
-            /* Even if running a bidomain simulation, only the intra-cellular stimulus
-             * should be given here.  There is a separate Electrodes class for applying
-             * extra-cellular stimuli.
+            /* Create a LR91 cell with the non-zero stimulus. This is a volume stimulus, ie
+             * the function on the right-hand side of the first of the two bidomain equations.
+             * An equal and opposite extra-cellular stimulus is implicit enforced by the code,
+             * which corresponds to having zero on the right-hand side of the second of the 
+             * bidomain equations. 
              */
             return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
         }
@@ -160,10 +163,11 @@ public:
          * which is only used by the Chaste executable). Parameters in this file can be re-set
          * with {{{HeartConfig}}} if the user wishes, and other paramters such as end time must be set
          * using {{{HeartConfig}}}. Let us begin by setting the end time (in ms), the mesh to use, and the
-         * output directory and filename-prefix.
+         * output directory and filename-prefix. Note that the spatial units in cardiac Chaste is CENTIMETRES,
+         * so that mesh 2D_0_to_1mm_800_elements is a mesh over [0,0.1]x[0,0.1]. 
          */
-        HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
-        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/square_128_elements");
+        HeartConfig::Instance()->SetSimulationDuration(5.0); //ms
+        HeartConfig::Instance()->SetMeshFileName("mesh/test/data/2D_0_to_1mm_800_elements");
         HeartConfig::Instance()->SetOutputDirectory("BidomainTutorial");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");
 
@@ -186,8 +190,10 @@ public:
          */
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75, 0.19));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(6.2, 2.4));
-        /* Let us also reset the surface-area-to-volume ratio and the capacitance */
-        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0); // 1/cm
+        
+        /* This is how to reset the surface-area-to-volume ratio and the capacitance.
+         * (Here, we are actually just resetting them to their default values). */
+        HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1400); // 1/cm
         HeartConfig::Instance()->SetCapacitance(1.0); // uF/cm^2
 
         /* Now we call {{{Initialise()}}}... */
@@ -199,6 +205,14 @@ public:
          * or VTK format instead, use methods in HeartConfig, e.g.
          */
         HeartConfig::Instance()->SetVisualizeWithCmgui(true);
+
+        /* This is how to set the ode timestep (the timestep used to solve the cell models)
+         * the pde timestep (the timestep used in solving the bidomain PDE), and the 
+         * printing timestep (how often the output is written to file). The defaults are
+         * all 0.01, here we increase the printing timestep.
+         */
+        HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.1);
+
 
         /* Now we call Solve() to run the simulation.
          * Note that if you want to view the progress of longer simulations
