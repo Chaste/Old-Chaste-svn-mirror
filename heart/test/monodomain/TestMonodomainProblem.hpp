@@ -109,6 +109,11 @@ public:
     }
 
     // This is a test on a very small mesh (where there may be more processes than there are nodes)
+    //
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainProblemSimplestMesh1D() throw(Exception)
     {
         DistributedTetrahedralMesh<1,1> mesh;
@@ -159,6 +164,11 @@ public:
     }
 
     // Solve on a 1D string of cells, 1mm long with a space step of 0.1mm.
+    //
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainProblem1D() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
@@ -216,6 +226,11 @@ public:
         TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblem1d/").c_str()), 0);
     }
 
+
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainProblem1DWithRelativeTolerance() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
@@ -257,6 +272,11 @@ public:
     }
 
     // Same as TestMonodomainProblem1D, except the 1D mesh is embedded in 3D space.
+    //
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainProblem1Din3D() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
@@ -299,6 +319,10 @@ public:
         TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblem1din3d/").c_str()), 0);
     }
 
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainProblem1DWithAbsoluteTolerance() throw (Exception)
     {
         double atol = 1e-4;
@@ -344,6 +368,11 @@ public:
     // edge.
     // Should behave like the 1D case, extrapolated.
     // See also TestMonodomainSlab.hpp (nightly test) for the 3D version.
+    //
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainProblem2DWithEdgeStimulus() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
@@ -431,6 +460,11 @@ public:
 
     // Solve on a 2D 1mm by 1mm mesh (space step = 0.1mm), stimulating in the
     // very centre of the mesh.
+    //    
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainProblem2DWithPointStimulusInTheVeryCentreOfTheMesh() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));
@@ -552,6 +586,11 @@ public:
     }
 
     // Same as TestMonodomainProblem1D, but uses NO matrix based assembly.
+    //
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainWithNoMatrixBasedAssembly() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
@@ -633,6 +672,11 @@ public:
 
     }
 
+
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainWithMeshInMemoryToMeshalyzer() throw(Exception)
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));

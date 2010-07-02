@@ -83,6 +83,11 @@ public:
     // We run for 500 ms and then check that all the voltages at the final time
     // have returned to the resting potential of -84.5
     // test should take about 30mins (or less)
+    //
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainProblem2DWithPointStimulusInTheVeryCentreOfTheMesh( void )
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005, 0.0005));

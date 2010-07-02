@@ -86,6 +86,11 @@ public:
     }
 
     // first test doesn't use matrix based assembly..
+    //
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestBidomainDg01DPinned()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
@@ -181,7 +186,11 @@ public:
         }
     }
 
-
+    
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestBidomainDg01DAveragePhiEOverDifferentRows()
     {
         HeartEventHandler::Disable();
@@ -314,6 +323,12 @@ public:
      * space being grounded). Therefore, if we set sigma_e very large (relative to
      * sigma_i) in a bidomain simulation it should agree with a monodomain
      * simulation with the same parameters.
+     * 
+     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+     * surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+     * the equations have been divided through by the surface-area-to-volume ratio.
+     * (Historical reasons...)
+     * 
      */
     void TestCompareBidomainProblemWithMonodomain() throw(Exception)
     {
@@ -745,7 +760,12 @@ public:
     }
 
     /*
-     *  Simple bidomain simulation to test against in the archiving tests below
+     * Simple bidomain simulation to test against in the archiving tests below
+     * 
+     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+     * surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+     * the equations have been divided through by the surface-area-to-volume ratio.
+     * (Historical reasons...)
      */
     void TestSimpleBidomain1D() throw(Exception)
     {
@@ -786,7 +806,12 @@ public:
     }
 
     /*
-     *  Simple bidomain simulation to test against in the archiving tests below
+     * Simple bidomain simulation to test against in the archiving tests below
+     * 
+     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+     * surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+     * the equations have been divided through by the surface-area-to-volume ratio.
+     * (Historical reasons...)
      */
     void TestPermutedBidomain1D() throw(Exception)
     {
@@ -838,8 +863,13 @@ public:
     }
 
     /*
-     *  This test is almost identical to TestSimpleBidomain1D
-     *  and relies on that test generating a h5 file to check against.
+     * This test is almost identical to TestSimpleBidomain1D
+     * and relies on that test generating a h5 file to check against.
+     * 
+     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+     * surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+     * the equations have been divided through by the surface-area-to-volume ratio.
+     * (Historical reasons...)
      */
     void TestBidomainProblemInTwoHalves() throw (Exception)
     {

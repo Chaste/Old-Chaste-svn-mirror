@@ -53,6 +53,11 @@ public:
     }
 
     // Solve on a 1D string of cells, 1cm long with a space step of 0.1mm.
+    //
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainDg01DWith100elements()
     {
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
@@ -96,6 +101,11 @@ public:
     // Solve on a 1D string of cells, 1cm long with a space step of 0.5mm.
     //
     // Note that this space step ought to be too big!
+    //
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
+    // the equations have been divided through by the surface-area-to-volume ratio.
+    // (Historical reasons...)
     void TestMonodomainDg01DWith20elements()
     {
 //#ifdef NDEBUG
