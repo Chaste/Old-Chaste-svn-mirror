@@ -205,7 +205,7 @@ public:
 
 	    simulator.SetOutputDirectory("Test3DHoneycombBoxMeshWithGhostNodes");
 
-	    simulator.SetEndTime(0.01);
+	    simulator.SetEndTime(1.0);
 	    simulator.SetSamplingTimestepMultiple(12);
 
 	    simulator.Solve();
