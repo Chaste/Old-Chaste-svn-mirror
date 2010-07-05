@@ -860,7 +860,7 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
 
         if (mElemIndex != num_elements)
         {
-            Element<ELEMENT_DIM, SPACE_DIM>* p_element=mrMesh.GetElement(mElemIndex);
+            Element<ELEMENT_DIM, SPACE_DIM>* p_element = mrMesh.GetElement(mElemIndex);
             unsigned node_a_global_index = p_element->GetNodeGlobalIndex(mNodeALocalIndex);
             unsigned node_b_global_index = p_element->GetNodeGlobalIndex(mNodeBLocalIndex);
             if (node_b_global_index < node_a_global_index)
@@ -872,7 +872,7 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
             }
 
             // Check we haven't seen it before
-            current_node_pair=std::pair<unsigned, unsigned>(node_a_global_index, node_b_global_index);
+            current_node_pair = std::pair<unsigned, unsigned>(node_a_global_index, node_b_global_index);
             set_iter = mEdgesVisited.find(current_node_pair);
         }
     }
