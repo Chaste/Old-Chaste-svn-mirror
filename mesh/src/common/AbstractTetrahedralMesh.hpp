@@ -324,17 +324,48 @@ public:
                                                         double& rJacobianDeterminant) const;
 
 
+    /** 
+     *  Create a 1D mesh [0, width] with numElem elements/
+     * 
+     *  ELEMENT_DIM must be equal to 1. If SPACE_DIM > 1 then the 
+     *  y & z default to 0.0 for every node.
+     * 
+     *  @param width The width
+     *  @param numElem Number of elements
+     */
+    void ConstructLinearMesh(double width, unsigned numElem);
+
+
 
     /**
      * Construct a 1D linear grid on [0,width]
      *
-     * If SPACE_DIM > 1 then the y & z default to 0.0 for every node.
+     * ELEMENT_DIM must be equal to 1. If SPACE_DIM > 1 then the 
+     * y & z default to 0.0 for every node.
      *
      * @param width  width of the mesh (in the x-direction)
+     * 
+     * In this method the width is also THE NUMBER OF ELEMENTS IN THE x-direction.
+     *  
      * Overridden in DistributedTetrahedralMesh
      */
-     virtual void ConstructLinearMesh(unsigned width);
+    virtual void ConstructLinearMesh(unsigned width);
+    
 
+    /** 
+     *  Create a 2D mesh on [0, width]x[0 height] with numElemX elements
+     *  in the x-direction and numElemY elements in the y-direction
+     *  
+     *  @param width The width
+     *  @param height The height
+     *  @param numElemX Number of elements in the x direction
+     *  @param numElemY Number of elements in the y direction
+     *  @param stagger hether the mesh should 'jumble' up the elements (defaults to true).
+     */
+    void ConstructRectangularMesh(double width, double height,
+                                  unsigned numElemX, unsigned numElemY,
+                                  bool stagger = true);
+    
     /**
      * Construct a 2D rectangular grid on [0,width]x[0,height].
      *
@@ -344,19 +375,48 @@ public:
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
      * @param stagger  whether the mesh should 'jumble' up the elements (defaults to true)
+     * 
+     * In this method the width is also THE NUMBER OF ELEMENTS IN THE x-direction,
+     * and similarly with the y direction.
+     * 
      * Overridden in DistributedTetrahedralMesh
      */
     virtual void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
+
+
+
+    /** 
+     *  Create a 3D mesh on [0, width]x[0 height]x[0 depth with numElemX elements
+     *  in the x-direction, numElemY elements in the y-direction and numElemZ elements 
+     *  in the z-direction
+     *  
+     *  @param width The width
+     *  @param height The height
+     *  @param depth The depth
+     *  @param numElemX Number of elements in the x direction
+     *  @param numElemY Number of elements in the y direction
+     *  @param numElemZ Number of elements in the z direction
+     */
+    void ConstructCuboid(double width, double height, double depth,
+                         unsigned numElemX, unsigned numElemY, unsigned numElemZ);
 
     /**
      * Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
      *
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
-     * @param depth  depth of the mesh (in the z-direction)
+     * @param depth  depth of the mesh (in the z-direction).
+     * 
+     * In this method the width is also THE NUMBER OF ELEMENTS IN THE x-direction,
+     * and similarly with the y and z directions.
+     *  
      * Overridden in DistributedTetrahedralMesh
      */
     virtual void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
+
+
+
+
 
     /**
      * Determine whether or not the current process owns node 0 of this boundary element (tie breaker to determine which process writes

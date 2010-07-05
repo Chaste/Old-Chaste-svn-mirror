@@ -374,7 +374,7 @@ void AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
         {
             const Node<SPACE_DIM>* p_node = rElement.GetNode(i);
 
-            if (NON_HEART)
+//            if (NON_HEART)
             {
                 const c_vector<double, SPACE_DIM>& r_node_loc = p_node->rGetLocation();
                 // interpolate x

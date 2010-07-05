@@ -200,8 +200,7 @@ public:
         double h=0.01; //cm
         unsigned num_elem_x = (unsigned)round(1.0/h);
         
-        mesh.ConstructLinearMesh(num_elem_x);
-        mesh.Scale(h);
+        mesh.ConstructLinearMesh(1.0, num_elem_x);
 
         HeartConfig::Instance()->SetOutputDirectory("TestMonodomainExactSolution1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");          
@@ -266,8 +265,7 @@ public:
         unsigned num_elem_x = (unsigned)round(1.0/h);
         unsigned num_elem_y = (unsigned)round(1.0/h);
         
-        mesh.ConstructRectangularMesh(num_elem_x, num_elem_y);
-        mesh.Scale(h,h);
+        mesh.ConstructRectangularMesh(1.0, 1.0, num_elem_x, num_elem_y);
 
         HeartConfig::Instance()->SetOutputDirectory("TestMonodomainExactSolution2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");          
@@ -340,8 +338,7 @@ public:
         unsigned num_elem_y = (unsigned)round(1.0/h);
         unsigned num_elem_z = (unsigned)round(1.0/h);
         
-        mesh.ConstructCuboid(num_elem_x, num_elem_y, num_elem_z);
-        mesh.Scale(h,h,h);
+        mesh.ConstructCuboid(1.0, 1.0, 1.0, num_elem_x, num_elem_y, num_elem_z);
 
         HeartConfig::Instance()->SetOutputDirectory("TestMonodomainExactSolution3d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");          

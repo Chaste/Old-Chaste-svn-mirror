@@ -63,6 +63,10 @@ public:
 
         /* Read the mesh*/
         DistributedTetrahedralMesh<3,3> mesh;
+
+//#1455 why won't this compile??
+//      mesh.ConstructCuboid(width, height, depth, num_elem_x, num_elem_y, num_elem_z);        
+//instead of having to do this        
         mesh.ConstructCuboid(num_elem_x, num_elem_y, num_elem_z);
         mesh.Scale(width/num_elem_x, height/num_elem_y, depth/num_elem_z);
 

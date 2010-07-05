@@ -145,6 +145,17 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBou
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(double width, 
+                                                                          unsigned numElemX)
+{
+    assert(width>0);
+    assert(numElemX>0);
+    this->ConstructLinearMesh(numElemX);
+    this->Scale(width/numElemX);
+}
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width)
 {
     assert(ELEMENT_DIM == 1);
@@ -174,6 +185,23 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
 
     this->RefreshMesh();
 }
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(double width, 
+                                                                               double height, 
+                                                                               unsigned numElemX,
+                                                                               unsigned numElemY,
+                                                                               bool stagger)
+{
+    assert(width>0);
+    assert(height>0);
+    assert(numElemX>0);
+    assert(numElemY>0);
+    this->ConstructRectangularMesh(numElemX,numElemY,stagger);
+    this->Scale(width/numElemX, height/numElemY);
+}
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(unsigned width, unsigned height, bool stagger)
@@ -281,6 +309,26 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
 
     this->RefreshMesh();
 }
+
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(double width, 
+                                                                      double height,
+                                                                      double depth, 
+                                                                      unsigned numElemX,
+                                                                      unsigned numElemY,
+                                                                      unsigned numElemZ)
+{
+    assert(width>0);
+    assert(height>0);
+    assert(depth>0);
+    assert(numElemX>0);
+    assert(numElemY>0);
+    assert(numElemZ>0);
+    this->ConstructCuboid(numElemX, numElemY, numElemZ);
+    this->Scale(width/numElemX, height/numElemY, depth/numElemZ);
+}
+
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned width,

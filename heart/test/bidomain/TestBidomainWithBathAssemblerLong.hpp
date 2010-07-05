@@ -112,8 +112,7 @@ public:
         BidomainProblem<3> bidomain_problem( &cell_factory, true );
 
         TetrahedralMesh<3,3> mesh;
-        mesh.ConstructCuboid(10,10,10);
-        mesh.Scale(1.0/100.0, 1.0/100.0, 1.0/100.0);
+        mesh.ConstructCuboid(0.1, 0.1, 0.1, 10, 10, 10);
 
         // Set everything outside a central sphere (radius 0.4) to be bath
         for (unsigned i=0; i<mesh.GetNumElements(); i++)

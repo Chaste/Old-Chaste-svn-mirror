@@ -308,12 +308,9 @@ public:
     void TestSolvingParabolicPde() throw(Exception)
     {
         /* Create a 10 by 10 by 10 mesh in 3D, this time using the {{{ConstructCuboid}}} method
-         * on the mesh. */
+         * on the mesh. The first three parameters are the width, height and depth of the mesh.*/
         TetrahedralMesh<3,3> mesh;
-        mesh.ConstructCuboid(10,10,10);
-        /* This returns a mesh over the region [0,10]^3^ with 10 elements in each direction, so
-         * we have to scale it down to [0,1]^3^ */
-        mesh.Scale(1.0/10, 1.0/10, 1.0/10);
+        mesh.ConstructCuboid(1.0, 1.0, 1.0, 10, 10, 10);
 
         /* Our PDE object should be a class that is derived from the {{{AbstractLinearParabolicPde}}}.
          * We could write it ourselves as in the previous test, but since the PDE we want to solve is

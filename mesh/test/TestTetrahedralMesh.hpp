@@ -592,6 +592,12 @@ public:
 
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMeshStagger");
         mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        // test the other version of this method
+        TetrahedralMesh<2,2> mesh2;
+        mesh2.ConstructRectangularMesh(width,height, 4,5);
+        TS_ASSERT_DELTA(mesh2.GetVolume(), width*height, 1e-7);
+        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 4*5*2u);
     }
 
     void TestConstructRectangleNoStagger() throw(Exception)
@@ -657,12 +663,6 @@ public:
         mesh_writer.WriteFilesUsingMesh(mesh);
     }
 
-    void TestConstruct1x1RectangularMesh() throw(Exception)
-    {
-        TetrahedralMesh<2,2> rect_mesh;
-        rect_mesh.ConstructRectangularMesh(1, 1, false);
-    }
-
     void TestConstructLine() throw(Exception)
     {
         TetrahedralMesh<1,1> mesh;
@@ -679,6 +679,12 @@ public:
 
         TrianglesMeshWriter<1,1> mesh_writer("","LineMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        // test other version of the method
+        TetrahedralMesh<1,1> mesh2;
+        mesh2.ConstructLinearMesh(width, 2);
+        TS_ASSERT_DELTA(mesh2.GetVolume(), width, 1e-7);
+        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 2u);
     }
 
     void TestConstructLineIn3D() throw(Exception)
@@ -814,6 +820,12 @@ public:
         TS_ASSERT( mesh.CheckIsConforming() );
         TrianglesMeshWriter<3,3> mesh_writer("", "CuboidMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        // test the other version of this method
+        TetrahedralMesh<3,3> mesh2;
+        mesh2.ConstructCuboid(width,height,depth, 4,5,6);
+        TS_ASSERT_DELTA(mesh2.GetVolume(), width*height*depth, 1e-7);
+        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 4*5*6*6u);
     }
 
     void TestPermute() throw(Exception)
