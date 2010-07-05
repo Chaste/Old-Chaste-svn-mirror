@@ -323,6 +323,8 @@ public:
      * Iterator over edges in the mesh.
      *
      * This class takes care of the logic to make sure that you consider each edge exactly once.
+     *
+     * \todo There is no test of this functionality in the mesh class
      */
     class EdgeIterator
     {
@@ -357,24 +359,26 @@ public:
         EdgeIterator(TetrahedralMesh& rMesh, unsigned elemIndex);
 
     private:
-        /** Keep track of what edges have been visited */
-        std::set<std::set<unsigned> > mEdgesVisited;
+        /** Keep track of what edges have been visited
+         *  Each edge is stored as a pair of ordered indices
+         */
+        std::set< std::pair<unsigned, unsigned> > mEdgesVisited;
 
         TetrahedralMesh& mrMesh;   /**< The mesh. */
 
         unsigned mElemIndex;       /**< Element index. */
         unsigned mNodeALocalIndex; /**< Index of one node on the edge. */
         unsigned mNodeBLocalIndex; /**< Index of the other node on the edge. */
-    
+
     };
 
     /**
-     * @return iterator pointing to the first edge (ie connection between 2 nodes) of the mesh
+     * @return iterator pointing to the first edge (i.e. connection between 2 nodes) of the mesh
      */
     EdgeIterator EdgesBegin();
 
     /**
-     * @return iterator pointing to one past the last edge (ie connection between 2 nodes)
+     * @return iterator pointing to one past the last edge (i.e. connection between 2 nodes)
      * of the mesh
      */
     EdgeIterator EdgesEnd();

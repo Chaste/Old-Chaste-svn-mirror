@@ -600,7 +600,7 @@ unsigned TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetNearestElementIndexFromTest
                                                                                          std::set<unsigned> testElements)
 {
     assert(testElements.size()>0);
-    
+
     double max_min_weight = -INFINITY;
     unsigned closest_index = 0;
     for(std::set<unsigned>::iterator iter = testElements.begin();
@@ -833,11 +833,10 @@ bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::operator!=(const Tet
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::operator++()
 {
-    std::set<unsigned> current_node_pair;
-    std::set<std::set<unsigned> >::iterator set_iter;
+    std::set<std::pair<unsigned, unsigned> >::iterator set_iter;
 
     unsigned num_elements = mrMesh.GetNumAllElements();
-
+    std::pair<unsigned, unsigned> current_node_pair;
     do
     {
         // Advance to the next edge in the mesh.
@@ -863,11 +862,16 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
         {
             unsigned node_a_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeALocalIndex);
             unsigned node_b_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
+            if (node_b_global_index < node_a_global_index)
+            {
+            	//Swap them over
+            	unsigned temp = node_a_global_index;
+            	node_a_global_index = node_b_global_index;
+            	node_b_global_index = temp;
+            }
 
             // Check we haven't seen it before
-            current_node_pair.clear();
-            current_node_pair.insert(node_a_global_index);
-            current_node_pair.insert(node_b_global_index);
+            current_node_pair=std::pair<unsigned, unsigned>(node_a_global_index, node_b_global_index);
             set_iter = mEdgesVisited.find(current_node_pair);
         }
     }
@@ -893,11 +897,19 @@ TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::EdgeIterator(TetrahedralM
     mEdgesVisited.clear();
 
     // add the current node pair to the store
-    std::set<unsigned> current_node_pair;
+
     unsigned node_a_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeALocalIndex);
     unsigned node_b_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
-    current_node_pair.insert(node_a_global_index);
-    current_node_pair.insert(node_b_global_index);
+    if (node_b_global_index < node_a_global_index)
+    {
+    	//Swap them over
+    	unsigned temp = node_a_global_index;
+    	node_a_global_index = node_b_global_index;
+    	node_b_global_index = temp;
+    }
+
+    // Check we haven't seen it before
+    std::pair<unsigned, unsigned> current_node_pair=std::pair<unsigned, unsigned>(node_a_global_index, node_b_global_index);
 
     mEdgesVisited.insert(current_node_pair);
 }
