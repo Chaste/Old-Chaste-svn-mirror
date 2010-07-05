@@ -860,8 +860,9 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
 
         if (mElemIndex != num_elements)
         {
-            unsigned node_a_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeALocalIndex);
-            unsigned node_b_global_index = mrMesh.GetElement(mElemIndex)->GetNodeGlobalIndex(mNodeBLocalIndex);
+            Element<ELEMENT_DIM, SPACE_DIM>* p_element=mrMesh.GetElement(mElemIndex);
+            unsigned node_a_global_index = p_element->GetNodeGlobalIndex(mNodeALocalIndex);
+            unsigned node_b_global_index = p_element->GetNodeGlobalIndex(mNodeBLocalIndex);
             if (node_b_global_index < node_a_global_index)
             {
             	//Swap them over
