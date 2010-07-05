@@ -49,11 +49,13 @@ void Warnings::NoisyDestroy(void)
 
     if (mpInstance)
     {
-        while (!mpInstance->mLongWarningMessages.empty())
+        while (!mpInstance->mWarningMessages.empty())
         {
             //Look at my warnings please
-            std::cout<<mpInstance->mLongWarningMessages.front()<<std::endl;
-            mpInstance->mLongWarningMessages.pop();
+            //First in pair is the context
+            //Second in pair is that actual warning
+            std::cout<< mpInstance->mWarningMessages.front().first
+                     << mpInstance->mWarningMessages.front().second<<std::endl;
             mpInstance->mWarningMessages.pop();
         }
         delete mpInstance;
@@ -85,31 +87,29 @@ Warnings* Warnings::Instance()
 void 
 Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber)
 {
-    assert(mWarningMessages.size() == mLongWarningMessages.size());
-    mWarningMessages.push(rMessage);
     
     std::stringstream line_number_stream;
     line_number_stream << lineNumber;
-    mLongWarningMessages.push(std::string("\nChaste warning: ") + rFilename + ":"  + line_number_stream.str()  + ": " + rMessage);
+    std::string context=std::string("\nChaste warning: " + rFilename + ":"  + line_number_stream.str()  + ": ");
+
+    mWarningMessages.push(std::pair<std::string, std::string>(context, rMessage));
+
 }
 
 
 unsigned 
 Warnings::GetNumWarnings()
 {
-    assert(mWarningMessages.size() == mLongWarningMessages.size());
     return mWarningMessages.size();
 }  
     
 std::string Warnings::GetNextWarningMessage()
 {
-    assert(mWarningMessages.size() == mLongWarningMessages.size());
     if (mWarningMessages.empty())
     {
         EXCEPTION("There are no warnings");
     }
-    std::string message = mWarningMessages.front();
-    mLongWarningMessages.pop();
+    std::string message = mWarningMessages.front().second;  //Second in pair is the actual warning.
     mWarningMessages.pop();
 
     return message;

@@ -48,8 +48,7 @@ class Warnings
 {
 private:
     static Warnings* mpInstance; /**<  Pointer to the single instance. For use as singleton */
-    std::queue<std::string> mWarningMessages; /**< Warnings messages. */
-    std::queue<std::string> mLongWarningMessages; /**< Warnings messages - includes file and line number. */
+    std::queue<std::pair<std::string, std::string> > mWarningMessages; /**< Warnings messages.  First in pair is the context (line number etc.).  Second in pair is the actual warning, */
 
 protected:
 
@@ -60,16 +59,15 @@ protected:
     Warnings();
 
     /**
-     * Protected destructor.
-     * Use Instance() to access the warnings singleton.
+     * Protected destroyer (takes the place of a destructor, using the std::atexit directive).
      */
     static void NoisyDestroy();
  
 public:
 
     /**
-     * Protected destructor.
-     * Use Instance() to access the warnings singleton.
+     * Public destroyer (takes the place of a destructor but is called by the user to make sure 
+     * that no warnings appear)
      */
     static void QuietDestroy();
 
