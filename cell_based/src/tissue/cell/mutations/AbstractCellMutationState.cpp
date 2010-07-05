@@ -47,14 +47,14 @@ AbstractCellMutationState::~AbstractCellMutationState()
 {
 }
 
-bool AbstractCellMutationState::IsSame(AbstractCellMutationState* pOther)
+bool AbstractCellMutationState::IsSame(const AbstractCellMutationState* pOther) const
 {
     const std::type_info& r_our_info = typeid(*this);
     const std::type_info& r_their_info = typeid(*pOther);
     return r_our_info == r_their_info;
 }
 
-bool AbstractCellMutationState::IsSame(boost::shared_ptr<AbstractCellMutationState> pOther)
+bool AbstractCellMutationState::IsSame(boost::shared_ptr<const AbstractCellMutationState> pOther) const
 {
     return IsSame(pOther.get());
 }

@@ -74,6 +74,13 @@ public:
         TS_ASSERT(p_state->IsSame(p_wt_state));
         TS_ASSERT(!p_wt_state->IsSame(p_l_state.get()));
         TS_ASSERT(!p_l_state->IsSame(p_wt_state));
+
+        // Check that const-ness doesn't matter
+        TS_ASSERT(p_wt_state->IsType<const WildTypeCellMutationState>());
+        const WildTypeCellMutationState const_wt_state;
+        TS_ASSERT(p_wt_state->IsSame(&const_wt_state));
+        TS_ASSERT(const_wt_state.IsSame(p_wt_state));
+        TS_ASSERT(const_wt_state.IsSame(p_wt_state.get()));
     }
 
     void TestRegistry() throw(Exception)

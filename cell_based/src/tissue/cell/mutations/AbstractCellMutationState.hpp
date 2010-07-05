@@ -106,23 +106,21 @@ public:
     template<class SUBCLASS>
     bool IsType() const
     {
-        // We put a const_cast in here so users don't have to worry about whether the
-        // mutation object they are testing is const or not.
-        SUBCLASS* p_subclass = dynamic_cast<SUBCLASS*>(const_cast<AbstractCellMutationState*>(this));
-        return (p_subclass != NULL);
+    	SUBCLASS ref_obj;
+    	return IsSame(&ref_obj);
     }
 
     /**
      * Determine whether this mutation state is the same as another.
      * @param pOther  the mutation state to compare against.
      */
-    bool IsSame(AbstractCellMutationState* pOther);
+    bool IsSame(const AbstractCellMutationState* pOther) const;
 
     /**
      * Determine whether this mutation state is the same as another.
      * @param pOther  the mutation state to compare against.
      */
-    bool IsSame(boost::shared_ptr<AbstractCellMutationState> pOther);
+    bool IsSame(boost::shared_ptr<const AbstractCellMutationState> pOther) const;
 
     /**
      * Increment #mCellCount.
