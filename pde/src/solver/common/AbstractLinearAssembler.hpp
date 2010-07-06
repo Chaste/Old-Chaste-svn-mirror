@@ -161,6 +161,15 @@ void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
 {
     if (this->mpLinearSystem == NULL)
     {
+        unsigned preallocation=(this->mpMesh->CalculateMaximumContainingElementsPerProcess() + ELEMENT_DIM);
+        if (ELEMENT_DIM > 1)
+        {
+            //Highest connectivity is closed
+            preallocation--;
+        }
+        preallocation*=PROBLEM_DIM;
+        //PRINT_2_VARIABLES(preallocation,this->mpMesh->CalculateMaximumContainingElementsPerProcess());
+        //PRINT_2_VARIABLES(preallocation, PROBLEM_DIM);
         HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
         if (initialSolution == NULL)
         {
@@ -169,8 +178,7 @@ void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
             // are on the same processor
             Vec template_vec = this->mpMesh->GetDistributedVectorFactory()->CreateVec(PROBLEM_DIM);
             
-            ///\todo #1216 Choose the row preallocation size more sensibly than just setting it to 54 below.
-            this->mpLinearSystem = new LinearSystem(template_vec, 54);
+            this->mpLinearSystem = new LinearSystem(template_vec, preallocation);
 
             VecDestroy(template_vec);
         }
@@ -179,8 +187,7 @@ void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
             // Use the currrent solution (ie the initial solution)
             // as the template in the alternative constructor of
             // LinearSystem. This is to avoid problems with VecScatter.
-            ///\todo #1216 Choose the row preallocation size more sensibly than just setting it to 54 below.
-            this->mpLinearSystem = new LinearSystem(initialSolution, 54);
+            this->mpLinearSystem = new LinearSystem(initialSolution, preallocation);
         }
 
         this->mpLinearSystem->SetMatrixIsConstant(mMatrixIsConstant);

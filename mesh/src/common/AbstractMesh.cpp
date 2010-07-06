@@ -380,6 +380,20 @@ bool AbstractMesh<ELEMENT_DIM, SPACE_DIM>::IsMeshChanging() const
 {
     return mMeshChangesDuringSimulation;
 }
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumContainingElementsPerProcess() const
+{
+    unsigned max_num=0u;
+    for (unsigned i=0; i<mNodes.size(); i++)
+    {
+        unsigned num=mNodes[i]->GetNumContainingElements();
+        if (num>max_num)
+        {
+            max_num=num;
+        }
+    }
+    return max_num;    
+}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractMesh<ELEMENT_DIM, SPACE_DIM>::SetMeshHasChangedSinceLoading()

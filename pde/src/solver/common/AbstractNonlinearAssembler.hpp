@@ -329,15 +329,15 @@ PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, C
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, class CONCRETE>
 PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::AssembleJacobianNumerically(const Vec currentGuess, Mat* pJacobian)
 {
-    unsigned num_nodes = PROBLEM_DIM*this->mpMesh->GetNumNodes();
+    unsigned num_unknowns = PROBLEM_DIM*this->mpMesh->GetNumNodes();
 
     // Set up working vectors
     Vec residual;
     Vec perturbed_residual;
     Vec result;
-    residual=PetscTools::CreateVec(num_nodes);
-    result=PetscTools::CreateVec(num_nodes);
-    perturbed_residual=PetscTools::CreateVec(num_nodes);
+    residual=PetscTools::CreateVec(num_unknowns);
+    result=PetscTools::CreateVec(num_unknowns);
+    perturbed_residual=PetscTools::CreateVec(num_unknowns);
     
     // Copy the currentGuess vector; we perturb the copy
     Vec current_guess_copy;
@@ -358,7 +358,7 @@ PetscErrorCode AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, C
     unsigned hi = ihi;
 
     // Iterate over entries in the input vector.
-    for (unsigned global_index_outer = 0; global_index_outer < num_nodes; global_index_outer++)
+    for (unsigned global_index_outer = 0; global_index_outer < num_unknowns; global_index_outer++)
     {
         //Only perturb if we own it
         if (lo<=global_index_outer && global_index_outer<hi)

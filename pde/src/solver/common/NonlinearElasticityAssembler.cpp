@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearBasisFunction.hpp"
 #include "QuadraticBasisFunction.hpp"
 
-
+//#include "Debug.hpp"
 template<size_t DIM>
 void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
                                                        bool assembleJacobian)
@@ -856,6 +856,36 @@ NonlinearElasticityAssembler<DIM>::NonlinearElasticityAssembler(
 template<size_t DIM>
 NonlinearElasticityAssembler<DIM>::~NonlinearElasticityAssembler()
 {
+//    //Post-hoc debugging
+//    Mat matrix = this->mpLinearSystem->rGetLhsMatrix();
+//    for(unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
+//    {
+//        unsigned elements = mpQuadMesh->GetNode(i)->GetNumContainingElements();
+//        if(i<mpQuadMesh->GetNumVertices()) // then this is a vertex
+//        {
+//            TRACE("VERT");
+//        }
+//        else
+//        {
+//            TRACE("INT");
+//        }
+//        PRINT_3_VARIABLES(DIM, i, elements);
+//        for (unsigned dim=0; dim<DIM; dim++)
+//        {
+//            int row=DIM*i+dim;
+//            int ncols;
+//            MatGetRow(matrix, row, &ncols, NULL, NULL);
+//            PRINT_3_VARIABLES(i,row,ncols);
+//        }
+// 
+//        if(i<mpQuadMesh->GetNumVertices()) // then this is a vertex
+//        {
+//            int row=DIM*mpQuadMesh->GetNumNodes() + i;
+//            int ncols;
+//            MatGetRow(matrix, row, &ncols, NULL, NULL);
+//            PRINT_3_VARIABLES(i,row,ncols);
+//        }
+//    }
     delete mpQuadratureRule;
     delete mpBoundaryQuadratureRule;
 }

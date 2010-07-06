@@ -127,6 +127,7 @@ public:
         TS_ASSERT_EQUALS(iter->GetNode(1), mesh.GetNode(144));
 
         TS_ASSERT_EQUALS(mesh.IsMeshChanging(), false);
+        TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 8U);
     }
 
     void TestMeshConstructionFromMeshReaderIndexedFromOne() throw(Exception)
@@ -238,6 +239,8 @@ public:
         TS_ASSERT_EQUALS( mesh.GetNumElements(), 100u);
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 0u);
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0u);
+        TS_ASSERT_EQUALS( mesh.CalculateMaximumContainingElementsPerProcess(), 2U); //It's 1D
+        
     }
 
     void Test1DMeshIn2DSpace() throw(Exception)
@@ -818,6 +821,8 @@ public:
             TS_ASSERT_THROWS_CONTAINS(mesh.GetContainingElementIndex(out),"is not in mesh"); // full message is "Point (X,Y,Z) is not in mesh - all elements tested"
         }
         TS_ASSERT( mesh.CheckIsConforming() );
+        TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 24U); //Four surrounding cubes may have all 6 tetrahedra meeting at a node
+        
         TrianglesMeshWriter<3,3> mesh_writer("", "CuboidMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
         

@@ -274,7 +274,7 @@ public:
         }
         TS_ASSERT_EQUALS(num_boundary_elements, 4u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 4u);
-
+        
     }
 
     void TestAutomaticallyGenerated2dMesh2() throw(Exception)
@@ -319,8 +319,10 @@ public:
             //Check that all nodes have containg elements
             TS_ASSERT_LESS_THAN(0u, mesh.GetNode(i)->GetNumContainingElements());
             //Mid-point of cube will have access to all 6 elements
-            TS_ASSERT_LESS_THAN(mesh.GetNode(i)->GetNumContainingElements(), 7u);
+            TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNode(i)->GetNumContainingElements(), 6u); 
         }
+
+        TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 6U); //The midpoint, as given above
     }
 
     void TestAutomaticallyGenerated3dMesh() throw(Exception)
@@ -340,6 +342,7 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[0], 3.14159, 1e-4);
         TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[1], 2.71828183, 1e-5);
         TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[2], 2.99792, 1e-4);
+        TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 24U); //Four surrounding cubes may have all 6 tetrahedra meeting at a node
     }
 
 

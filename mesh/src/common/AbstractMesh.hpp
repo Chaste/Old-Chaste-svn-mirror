@@ -366,6 +366,13 @@ public:
      */
     bool IsMeshChanging() const;
 
+    
+    /**
+     * @return Iterates through local nodes and finds the maximum number of containing elements for all locally owned nodes
+     * Useful for determining FEM matrix fill.
+     */
+    unsigned CalculateMaximumContainingElementsPerProcess() const;
+
     /**
      * Set whether the mesh has been modified since it was read from file.
      * This prevents the archiving code just blithely storing the original,

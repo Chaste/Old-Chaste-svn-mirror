@@ -50,7 +50,7 @@ class TestLinearSystem : public CxxTest::TestSuite
 public:
    void TestLinearSystem1()
     {
-        TS_ASSERT_THROWS_THIS(LinearSystem too_big_to_be_dense(20),"You must provide a rowPreallocation argument for a large sparse system");
+        TS_ASSERT_THROWS_THIS(LinearSystem too_big_to_be_dense(20), "You must provide a rowPreallocation argument for a large sparse system");
         
         LinearSystem ls(3);
         ls.SetMatrixIsConstant(true);
