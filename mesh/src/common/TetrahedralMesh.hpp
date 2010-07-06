@@ -324,7 +324,6 @@ public:
      *
      * This class takes care of the logic to make sure that you consider each edge exactly once.
      *
-     * \todo There is no test of this functionality in the mesh class
      */
     class EdgeIterator
     {

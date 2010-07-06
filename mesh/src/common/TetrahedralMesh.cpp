@@ -833,7 +833,7 @@ bool TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::operator!=(const Tet
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator::operator++()
 {
-    std::set<std::pair<unsigned, unsigned> >::iterator set_iter;
+    bool already_seen_this_edge;
 
     unsigned num_elements = mrMesh.GetNumAllElements();
     std::pair<unsigned, unsigned> current_node_pair;
@@ -850,14 +850,15 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
 
         if (mNodeALocalIndex == 0 && mNodeBLocalIndex == 1) // advance to next element...
         {
-            mElemIndex++;
+            
             // ...skipping deleted ones
-            while (mElemIndex!=num_elements && mrMesh.GetElement(mElemIndex)->IsDeleted())
+            do
             {
                 mElemIndex++;
             }
+            while (mElemIndex!=num_elements && mrMesh.GetElement(mElemIndex)->IsDeleted());
         }
-
+         
         if (mElemIndex != num_elements)
         {
             Element<ELEMENT_DIM, SPACE_DIM>* p_element = mrMesh.GetElement(mElemIndex);
@@ -873,10 +874,14 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
 
             // Check we haven't seen it before
             current_node_pair = std::pair<unsigned, unsigned>(node_a_global_index, node_b_global_index);
-            set_iter = mEdgesVisited.find(current_node_pair);
+            already_seen_this_edge = (mEdgesVisited.count(current_node_pair) != 0);
+        }
+        else
+        {
+            already_seen_this_edge=false;
         }
     }
-    while (*this != mrMesh.EdgesEnd() && set_iter != mEdgesVisited.end());
+    while (already_seen_this_edge);
     mEdgesVisited.insert(current_node_pair);
 
     return (*this);
