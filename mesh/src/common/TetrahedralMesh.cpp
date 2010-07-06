@@ -878,7 +878,7 @@ typename TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::EdgeIterator& TetrahedralMesh<
         }
         else
         {
-            already_seen_this_edge=false;
+            already_seen_this_edge = false;
         }
     }
     while (already_seen_this_edge);
