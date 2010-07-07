@@ -80,12 +80,12 @@ struct ElementAndWeights
  *           mesh_pair.rGetElementsAndWeights();
  *  (ii) COARSE ELEMENTS  --->  FINE ELEMENTS
  *           FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
- *           // add boxes call here once #1409 is done 
+ *           mesh_pair.SetUpBoxesOnCoarseMesh();
  *           mesh_pair.ComputeCoarseElementsForFineElementCentroids();
  *           mesh_pair.rGetCoarseElementsForFineElementCentroids();
  *  (iii) COARSE ELEMENTS  --->  FINE NODES
  *           FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
- *           // add boxes call here once #1409 is done 
+ *           mesh_pair.SetUpBoxesOnCoarseMesh();
  *           mesh_pair.ComputeCoarseElementsForFineNodes();
  *           mesh_pair.rGetCoarseElementsForFineNodes();
  * 

@@ -230,7 +230,6 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
         std::stringstream stream;
         stream << mStatisticsCounters[1] << " of " << quad_point_posns.Size() << " coarse-mesh quadrature points were outside the fine mesh"; 
         WARNING(stream.str());
-std::cout << stream.str() << std::flush;
     }
 }
 

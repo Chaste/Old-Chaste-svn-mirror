@@ -94,7 +94,7 @@ Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, 
     std::string context=std::string("Chaste warning: " + rFilename + ":"  + line_number_stream.str()  + ": ");
 
     mWarningMessages.push(std::pair<std::string, std::string>(context, rMessage));
-    LOG(1, context + rMessage);
+    LOG(2, context + rMessage);
 }
 
 
