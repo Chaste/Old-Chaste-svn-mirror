@@ -150,7 +150,10 @@ def AddBoost(basePath, version):
     base = os.path.join(libpath, 'lib' + testlib)
     matches = glob.glob(base + '*.so')
     if not matches:
-        raise ValueError('Boost library ' + testlib + ' not found in ' + basePath)
+        # We might only have static libraries
+        matches = glob.glob(base + '*.a')
+        if not matches:
+            raise ValueError('Boost library ' + testlib + ' not found in ' + basePath)
     suffix = os.path.splitext(matches[0][len(base):])[0]
     for lib in boost_libs:
         conf.other_libraries.append(lib + suffix)
@@ -358,7 +361,7 @@ def Configure(build):
     prefs = build.GetPreferedVersions()
     if hasattr(conf, 'Configure') and callable(conf.Configure):
         # The machine config has a method to do its configuration, so call that first.
-        conf.Configure(prefs)
+        conf.Configure(prefs, build)
     if build.using_dealii:
         DoDealii(build)
         libraries.extend(conf.other_libraries) # Some of "other_libraries" may depend on BLAS/LAPACK, make sure they are included before them.
