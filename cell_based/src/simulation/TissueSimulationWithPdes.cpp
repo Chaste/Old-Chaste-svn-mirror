@@ -41,14 +41,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 TissueSimulationWithPdes<DIM>::TissueSimulationWithPdes(AbstractTissue<DIM>& rTissue,
 					                                    std::vector<AbstractForce<DIM>*> forceCollection,
-					                                    PdeAndBoundaryConditions<DIM>* pPdeAndBc,
+					                                    std::vector<PdeAndBoundaryConditions<DIM>*> pPdeAndBcCollection,
 					                                    bool deleteTissueAndForceCollection,
 					                                    bool initialiseCells)
     : TissueSimulation<DIM>(rTissue,
                             forceCollection,
                             deleteTissueAndForceCollection,
                             initialiseCells),
-      mpPdeAndBc(pPdeAndBc),
+      mpPdeAndBcCollection(pPdeAndBcCollection),
       mWriteAverageRadialPdeSolution(false),
       mWriteDailyAverageRadialPdeSolution(false),
       mNumRadialIntervals(0), // 'unset' value
@@ -71,15 +71,16 @@ TissueSimulationWithPdes<DIM>::~TissueSimulationWithPdes()
 }
 
 template<unsigned DIM>
-void TissueSimulationWithPdes<DIM>::SetPdeAndBc(PdeAndBoundaryConditions<DIM>* pPdeAndBc)
+void TissueSimulationWithPdes<DIM>::SetPdeAndBcCollection(std::vector<PdeAndBoundaryConditions<DIM>*> pPdeAndBcCollection)
 {
-    mpPdeAndBc = pPdeAndBc;
+	///\todo define a method for setting a single PDE
+    mpPdeAndBcCollection = pPdeAndBcCollection;
 }
 
 template<unsigned DIM>
-Vec TissueSimulationWithPdes<DIM>::GetCurrentPdeSolution()
+Vec TissueSimulationWithPdes<DIM>::GetCurrentPdeSolution(unsigned pde_index)
 {
-    return mpPdeAndBc->GetSolution();
+    return mpPdeAndBcCollection[pde_index]->GetSolution();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -133,7 +134,14 @@ void TissueSimulationWithPdes<DIM>::SetupWritePdeSolution()
 template<unsigned DIM>
 void TissueSimulationWithPdes<DIM>::UseCoarsePdeMesh(double coarseGrainScaleFactor)
 {
-    assert(mpPdeAndBc->HasAveragedSinksPde());
+    assert(!mpPdeAndBcCollection.empty());
+    for(typename std::vector<PdeAndBoundaryConditions<DIM>*>::iterator mpPdeAndBc = mpPdeAndBcCollection.begin();
+																		mpPdeAndBc!=mpPdeAndBcCollection.end();
+																		++mpPdeAndBc)
+    {
+    	assert(((*mpPdeAndBc)->HasAveragedSinksPde()));
+    }
+
     CreateCoarsePdeMesh(coarseGrainScaleFactor);
 }
 
@@ -254,8 +262,14 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
         return;
     }
 
-    assert(mpPdeAndBc);
-    assert(!mpPdeAndBc->HasAveragedSinksPde());
+    assert(!mpPdeAndBcCollection.empty());
+    for(typename std::vector<PdeAndBoundaryConditions<DIM>*>::iterator mpPdeAndBc = mpPdeAndBcCollection.begin();
+    																		mpPdeAndBc!=mpPdeAndBcCollection.end();
+    																		++mpPdeAndBc)
+    {
+    	assert((*mpPdeAndBc));
+    	assert(!((*mpPdeAndBc)->HasAveragedSinksPde()));
+    }
 
     // Note: If not using a coarse PDE mesh, we MUST be using a MeshBasedTissue
     // Make sure the mesh is in a nice state
@@ -264,79 +278,94 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
     TetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     CellwiseData<DIM>::Instance()->ReallocateMemory();
 
-    // Set up boundary conditions
-    BoundaryConditionsContainer<DIM,DIM,1> bcc;
-    ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>(mpPdeAndBc->GetBoundaryValue());
-    if (mpPdeAndBc->IsNeumannBoundaryCondition()) ///\todo test this! (#1465)
-    {
-    	for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator elem_iter = r_mesh.GetBoundaryElementIteratorBegin();
-    	     elem_iter != r_mesh.GetBoundaryElementIteratorEnd();
-	         ++elem_iter)
-	    {
-	        bcc.AddNeumannBoundaryCondition(*elem_iter, p_bc);
-	    }
-    }
-    else // assuming that if it's not Neumann, then it's Dirichlet
-    {
-    	for (typename TetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
-	         node_iter != r_mesh.GetBoundaryNodeIteratorEnd();
-	         ++node_iter)
-	    {
-            bcc.AddDirichletBoundaryCondition(*node_iter, p_bc);
-         }
-    }
+    unsigned parameter_count=0;
 
-    /*
-     * Set up assembler. This is a purpose-made elliptic assembler which must
-     * interpolate contributions to source terms from nodes onto Gauss points,
-     * because the PDE solution is only stored at the cells (nodes).
-     */
-    TissueSimulationWithPdesAssembler<DIM> assembler(&r_mesh, mpPdeAndBc->GetPde(), &bcc);
-
-    PetscInt size_of_soln_previous_step = 0;
-
-    if (mpPdeAndBc->GetSolution())
+    for(typename std::vector<PdeAndBoundaryConditions<DIM>*>::iterator mpPdeAndBc = mpPdeAndBcCollection.begin();
+																		mpPdeAndBc!=mpPdeAndBcCollection.end();
+																		++mpPdeAndBc)
     {
-        VecGetSize(mpPdeAndBc->GetSolution(), &size_of_soln_previous_step);
-    }
-    if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
-    {
-        // We make an initial guess which gets copied by the Solve method of
-        // SimpleLinearSolver, so we need to delete it too.
-        Vec initial_guess;
-        VecDuplicate(mpPdeAndBc->GetSolution(), &initial_guess);
-        VecCopy(mpPdeAndBc->GetSolution(), initial_guess);
+		// Set up boundary conditions
+		BoundaryConditionsContainer<DIM,DIM,1> bcc;
+		ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>((*mpPdeAndBc)->GetBoundaryValue());
+		if ((*mpPdeAndBc)->IsNeumannBoundaryCondition()) ///\todo test this! (#1465)
+		{
+			for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator elem_iter = r_mesh.GetBoundaryElementIteratorBegin();
+				 elem_iter != r_mesh.GetBoundaryElementIteratorEnd();
+				 ++elem_iter)
+			{
+				bcc.AddNeumannBoundaryCondition(*elem_iter, p_bc);
+			}
+		}
+		else // assuming that if it's not Neumann, then it's Dirichlet
+		{
+			for (typename TetrahedralMesh<DIM,DIM>::BoundaryNodeIterator node_iter = r_mesh.GetBoundaryNodeIteratorBegin();
+				 node_iter != r_mesh.GetBoundaryNodeIteratorEnd();
+				 ++node_iter)
+			{
+				bcc.AddDirichletBoundaryCondition(*node_iter, p_bc);
+			 }
+		}
 
-        // Use current solution as the initial guess
-        mpPdeAndBc->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
-        mpPdeAndBc->SetSolution(assembler.Solve(initial_guess));
-        VecDestroy(initial_guess);
-    }
-    else
-    {
-        if (mpPdeAndBc->GetSolution())
-        {
-            assert(size_of_soln_previous_step != 0);
-            mpPdeAndBc->DestroySolution();
-        }
-        mpPdeAndBc->SetSolution(assembler.Solve());
-    }
+		/*
+		 * Set up assembler. This is a purpose-made elliptic assembler which must
+		 * interpolate contributions to source terms from nodes onto Gauss points,
+		 * because the PDE solution is only stored at the cells (nodes).
+		 */
+		TissueSimulationWithPdesAssembler<DIM> assembler(&r_mesh, (*mpPdeAndBc)->GetPde(), &bcc);
 
-    ReplicatableVector solution_repl(mpPdeAndBc->GetSolution());
+		PetscInt size_of_soln_previous_step = 0;
 
-    // Update cellwise data
-    for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
-    {
-        double solution = solution_repl[i];
-        unsigned index = r_mesh.GetNode(i)->GetIndex();
-        CellwiseData<DIM>::Instance()->SetValue(solution, index);
+		if ((*mpPdeAndBc)->GetSolution())
+		{
+			VecGetSize((*mpPdeAndBc)->GetSolution(), &size_of_soln_previous_step);
+		}
+		if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
+		{
+			// We make an initial guess which gets copied by the Solve method of
+			// SimpleLinearSolver, so we need to delete it too.
+			Vec initial_guess;
+			VecDuplicate((*mpPdeAndBc)->GetSolution(), &initial_guess);
+			VecCopy((*mpPdeAndBc)->GetSolution(), initial_guess);
+
+			// Use current solution as the initial guess
+			(*mpPdeAndBc)->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
+			(*mpPdeAndBc)->SetSolution(assembler.Solve(initial_guess));
+			VecDestroy(initial_guess);
+		}
+		else
+		{
+			if ((*mpPdeAndBc)->GetSolution())
+			{
+				assert(size_of_soln_previous_step != 0);
+				(*mpPdeAndBc)->DestroySolution();
+			}
+			(*mpPdeAndBc)->SetSolution(assembler.Solve());
+		}
+
+		ReplicatableVector solution_repl((*mpPdeAndBc)->GetSolution());
+
+		// Update cellwise data
+		for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
+		{
+			double solution = solution_repl[i];
+			unsigned index = r_mesh.GetNode(i)->GetIndex();
+			CellwiseData<DIM>::Instance()->SetValue(solution, index, parameter_count);
+		}
+		++parameter_count;
     }
 }
 
 template<unsigned DIM>
 void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 {
-    assert(mpPdeAndBc->HasAveragedSinksPde());
+    assert(!mpPdeAndBcCollection.empty());
+    for(typename std::vector<PdeAndBoundaryConditions<DIM>*>::iterator mpPdeAndBc = mpPdeAndBcCollection.begin();
+    																		mpPdeAndBc!=mpPdeAndBcCollection.end();
+    																		++mpPdeAndBc)
+    {
+    	assert((*mpPdeAndBc));
+    	assert(((*mpPdeAndBc)->HasAveragedSinksPde()));
+    }
 
     TetrahedralMesh<DIM,DIM>& r_mesh = *mpCoarsePdeMesh;
     CellwiseData<DIM>::Instance()->ReallocateMemory();
@@ -364,124 +393,129 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
         }
     }
 
-    // Set up boundary conditions
-    BoundaryConditionsContainer<DIM,DIM,1> bcc;
-    ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>(mpPdeAndBc->GetBoundaryValue());
-    if (mpPdeAndBc->IsNeumannBoundaryCondition()) ///\todo test this! (#1465)
+    for(typename std::vector<PdeAndBoundaryConditions<DIM>*>::iterator mpPdeAndBc = mpPdeAndBcCollection.begin();
+    																		mpPdeAndBc!=mpPdeAndBcCollection.end();
+    																		++mpPdeAndBc)
     {
-    	EXCEPTION("Neumann BCs not yet implemented when using a coarse PDE mesh");
-    }
-    else
-    {
-	    // Get the set of coarse element indices that contain tissue cells
-	    std::set<unsigned> coarse_element_indices_in_map;
-	    for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
-	        cell_iter != this->mrTissue.End();
-	        ++cell_iter)
-	    {
-	        coarse_element_indices_in_map.insert(mCellPdeElementMap[&(*cell_iter)]);
-	    }
+		// Set up boundary conditions
+		BoundaryConditionsContainer<DIM,DIM,1> bcc;
+		ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>((*mpPdeAndBc)->GetBoundaryValue());
+		if ((*mpPdeAndBc)->IsNeumannBoundaryCondition()) ///\todo test this! (#1465)
+		{
+			EXCEPTION("Neumann BCs not yet implemented when using a coarse PDE mesh");
+		}
+		else
+		{
+			// Get the set of coarse element indices that contain tissue cells
+			std::set<unsigned> coarse_element_indices_in_map;
+			for (typename MeshBasedTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+				cell_iter != this->mrTissue.End();
+				++cell_iter)
+			{
+				coarse_element_indices_in_map.insert(mCellPdeElementMap[&(*cell_iter)]);
+			}
 
-	    // Find the node indices that associated with elements whose
-	    // indices are NOT in the set coarse_element_indices_in_map
-	    std::set<unsigned> coarse_mesh_boundary_node_indices;
+			// Find the node indices that associated with elements whose
+			// indices are NOT in the set coarse_element_indices_in_map
+			std::set<unsigned> coarse_mesh_boundary_node_indices;
 
-	    for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
-	    {
-	        // If the element index is NOT in the set...
-	        if (coarse_element_indices_in_map.find(i) == coarse_element_indices_in_map.end())
-	        {
-	            // ... then get the element...
-	            Element<DIM,DIM>* p_element = r_mesh.GetElement(i);
+			for (unsigned i=0; i<r_mesh.GetNumElements(); i++)
+			{
+				// If the element index is NOT in the set...
+				if (coarse_element_indices_in_map.find(i) == coarse_element_indices_in_map.end())
+				{
+					// ... then get the element...
+					Element<DIM,DIM>* p_element = r_mesh.GetElement(i);
 
-	            // ... and add its associated nodes to coarse_mesh_boundary_node_indices
-	            for (unsigned local_index=0; local_index<DIM+1; local_index++)
-	            {
-	                unsigned node_index = p_element->GetNodeGlobalIndex(local_index);
-	                coarse_mesh_boundary_node_indices.insert(node_index);
-	            }
-	        }
-	    }
+					// ... and add its associated nodes to coarse_mesh_boundary_node_indices
+					for (unsigned local_index=0; local_index<DIM+1; local_index++)
+					{
+						unsigned node_index = p_element->GetNodeGlobalIndex(local_index);
+						coarse_mesh_boundary_node_indices.insert(node_index);
+					}
+				}
+			}
 
-	    // Apply boundary condition to the nodes in the set coarse_mesh_boundary_node_indices
-	    for (std::set<unsigned>::iterator iter = coarse_mesh_boundary_node_indices.begin();
-	         iter != coarse_mesh_boundary_node_indices.end();
-	         ++iter)
-	    {
-	        bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(*iter), p_bc, 0, false);
-	    }
-    }
+			// Apply boundary condition to the nodes in the set coarse_mesh_boundary_node_indices
+			for (std::set<unsigned>::iterator iter = coarse_mesh_boundary_node_indices.begin();
+				 iter != coarse_mesh_boundary_node_indices.end();
+				 ++iter)
+			{
+				bcc.AddDirichletBoundaryCondition(r_mesh.GetNode(*iter), p_bc, 0, false);
+			}
+		}
 
-    PetscInt size_of_soln_previous_step = 0;
+		PetscInt size_of_soln_previous_step = 0;
 
-    if (mpPdeAndBc->GetSolution())
-    {
-        VecGetSize(mpPdeAndBc->GetSolution(), &size_of_soln_previous_step);
-    }
+		if ((*mpPdeAndBc)->GetSolution())
+		{
+			VecGetSize((*mpPdeAndBc)->GetSolution(), &size_of_soln_previous_step);
+		}
 
-    mpPdeAndBc->SetUpSourceTermsForAveragedSinksPde(mpCoarsePdeMesh);
+		(*mpPdeAndBc)->SetUpSourceTermsForAveragedSinksPde(mpCoarsePdeMesh);
 
-    SimpleLinearEllipticAssembler<DIM,DIM> assembler(mpCoarsePdeMesh, mpPdeAndBc->GetPde(), &bcc);
+		SimpleLinearEllipticAssembler<DIM,DIM> assembler(mpCoarsePdeMesh, (*mpPdeAndBc)->GetPde(), &bcc);
 
-    if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
-    {
-        // We make an initial guess which gets copied by the Solve method of
-        // SimpleLinearSolver, so we need to delete it too.
-        Vec initial_guess;
-        VecDuplicate(mpPdeAndBc->GetSolution(), &initial_guess);
-        VecCopy(mpPdeAndBc->GetSolution(), initial_guess);
+		if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
+		{
+			// We make an initial guess which gets copied by the Solve method of
+			// SimpleLinearSolver, so we need to delete it too.
+			Vec initial_guess;
+			VecDuplicate((*mpPdeAndBc)->GetSolution(), &initial_guess);
+			VecCopy((*mpPdeAndBc)->GetSolution(), initial_guess);
 
-        // Use current solution as the initial guess
-        mpPdeAndBc->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
-        mpPdeAndBc->SetSolution(assembler.Solve(initial_guess));
-        VecDestroy(initial_guess);
-    }
-    else
-    {
-        /*
-         * Eventually we will enable the coarse PDE mesh to change size, for example
-         * in the case of a spheroid that grows a lot (see #630). In this case we should
-         * uncomment the following code.
-         *
-        if (mCurrentPdeSolution)
-        {
-            assert(0);
-            VecDestroy(mCurrentPdeSolution);
-        }
-        *
-        */
-        mpPdeAndBc->SetSolution(assembler.Solve());
-    }
+			// Use current solution as the initial guess
+			(*mpPdeAndBc)->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
+			(*mpPdeAndBc)->SetSolution(assembler.Solve(initial_guess));
+			VecDestroy(initial_guess);
+		}
+		else
+		{
+			/*
+			 * Eventually we will enable the coarse PDE mesh to change size, for example
+			 * in the case of a spheroid that grows a lot (see #630). In this case we should
+			 * uncomment the following code.
+			 *
+			if (mCurrentPdeSolution)
+			{
+				assert(0);
+				VecDestroy(mCurrentPdeSolution);
+			}
+			*
+			*/
+			(*mpPdeAndBc)->SetSolution(assembler.Solve());
+		}
 
-    /*
-     * Update cellwise data - since the cells are not nodes on the coarse
-     * mesh, we have to interpolate from the nodes of the coarse mesh onto
-     * the cell locations.
-     */
-    ReplicatableVector solution_repl(mpPdeAndBc->GetSolution());
+		/*
+		 * Update cellwise data - since the cells are not nodes on the coarse
+		 * mesh, we have to interpolate from the nodes of the coarse mesh onto
+		 * the cell locations.
+		 */
+		ReplicatableVector solution_repl((*mpPdeAndBc)->GetSolution());
 
-    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
-        cell_iter != this->mrTissue.End();
-        ++cell_iter)
-    {
-        // Find coarse mesh element containing cell
-        unsigned elem_index = FindCoarseElementContainingCell(*cell_iter);
+		for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
+			cell_iter != this->mrTissue.End();
+			++cell_iter)
+		{
+			// Find coarse mesh element containing cell
+			unsigned elem_index = FindCoarseElementContainingCell(*cell_iter);
 
-        Element<DIM,DIM>* p_element = mpCoarsePdeMesh->GetElement(elem_index);
+			Element<DIM,DIM>* p_element = mpCoarsePdeMesh->GetElement(elem_index);
 
-        const ChastePoint<DIM>& r_position_of_cell = this->mrTissue.GetLocationOfCellCentre(*cell_iter);
+			const ChastePoint<DIM>& r_position_of_cell = this->mrTissue.GetLocationOfCellCentre(*cell_iter);
 
-        c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
+			c_vector<double,DIM+1> weights = p_element->CalculateInterpolationWeights(r_position_of_cell);
 
-        double interpolated_solution = 0.0;
-        for (unsigned i=0; i<DIM+1/*num_nodes*/; i++)
-        {
-            double nodal_value = solution_repl[ p_element->GetNodeGlobalIndex(i) ];
-            interpolated_solution += nodal_value*weights(i);
-        }
+			double interpolated_solution = 0.0;
+			for (unsigned i=0; i<DIM+1/*num_nodes*/; i++)
+			{
+				double nodal_value = solution_repl[ p_element->GetNodeGlobalIndex(i) ];
+				interpolated_solution += nodal_value*weights(i);
+			}
 
-        unsigned index = this->mrTissue.GetLocationIndexUsingCell(*cell_iter);
-        CellwiseData<DIM>::Instance()->SetValue(interpolated_solution, index);
+			unsigned index = this->mrTissue.GetLocationIndexUsingCell(*cell_iter);
+			CellwiseData<DIM>::Instance()->SetValue(interpolated_solution, index);
+		}
     }
 }
 

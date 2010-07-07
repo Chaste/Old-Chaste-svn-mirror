@@ -70,10 +70,10 @@ private:
     }
 
     /**
-     * Pointer to a linear elliptic PDE object with additional
+     * Vector of pointers to linear elliptic PDE objects with additional
      * boundary condition information.
      */
-    PdeAndBoundaryConditions<DIM>* mpPdeAndBc;
+    std::vector<PdeAndBoundaryConditions<DIM>*>mpPdeAndBcCollection;
 
     /**
      * File that the values of the PDE solution are written out to.
@@ -204,14 +204,14 @@ public:
      *
      * @param rTissue A tissue facade class (contains a mesh and cells)
      * @param forceCollection The mechanics to use in the simulation
-     * @param pPdeAndBc A pointer to a linear elliptic PDE object with additional
-     *                  boundary condition information (defaults to NULL)
+     * @param pPdeAndBcCollection A pointer to a linear elliptic PDE object with additional
+     *                            boundary condition information (defaults to NULL)
      * @param deleteTissueAndForceCollection Whether to delete the tissue on destruction to free up memory
      * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
      TissueSimulationWithPdes(AbstractTissue<DIM>& rTissue,
                               std::vector<AbstractForce<DIM>*> forceCollection,
-                              PdeAndBoundaryConditions<DIM>* pPdeAndBc=NULL,
+                              std::vector<PdeAndBoundaryConditions<DIM>*> pPdeAndBcCollection=std::vector<PdeAndBoundaryConditions<DIM>*>(),
                               bool deleteTissueAndForceCollection=false,
                               bool initialiseCells=true);
 
@@ -232,12 +232,12 @@ public:
      *
      * @param pPdeAndBc pointer to the PdeAndBoundaryConditions object
      */
-    void SetPdeAndBc(PdeAndBoundaryConditions<DIM>* pPdeAndBc);
+    void SetPdeAndBcCollection(std::vector<PdeAndBoundaryConditions<DIM>*> pPdeAndBcCollection);
 
     /**
      * Get the current solution to the PDE problem.
      */
-    Vec GetCurrentPdeSolution();
+    Vec GetCurrentPdeSolution(unsigned pde_index);
 
     /**
      * Write the final (and optionally also the daily) average
@@ -298,7 +298,7 @@ inline void load_construct_data(
     ar >> force_collection;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)TissueSimulationWithPdes<DIM>(*p_tissue, force_collection, NULL, true, false);
+    ::new(t)TissueSimulationWithPdes<DIM>(*p_tissue, force_collection, std::vector<PdeAndBoundaryConditions<DIM>*>(), true, false);
 }
 }
 } // namespace ...

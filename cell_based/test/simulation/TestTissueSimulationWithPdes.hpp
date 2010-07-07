@@ -150,6 +150,8 @@ public:
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -161,7 +163,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde_and_bc);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestPostSolveMethod");
         simulator.SetEndTime(2.0/120.0);
 
@@ -255,6 +257,8 @@ public:
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -263,7 +267,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde_and_bc);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
         simulator.SetEndTime(0.5);
 
@@ -374,6 +378,8 @@ public:
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -382,7 +388,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde_and_bc);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
         simulator.SetOutputDirectory("TissueSimulationWithPointwiseNutrientSink");
         simulator.SetEndTime(0.5);
 
@@ -456,6 +462,8 @@ public:
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -464,7 +472,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde_and_bc);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
         simulator.SetWriteAverageRadialPdeSolution(5);
@@ -568,6 +576,8 @@ public:
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -576,12 +586,12 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde_and_bc);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestCoarseNutrientMesh");
         simulator.SetEndTime(0.05);
 
         // Coverage
-        simulator.SetPdeAndBc(&pde_and_bc);
+        simulator.SetPdeAndBcCollection(pde_and_bc_collection);
 
         // Set up cell killer and pass into simulation
         OxygenBasedCellKiller<2> killer(&tissue);
@@ -629,7 +639,7 @@ public:
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
         TS_ASSERT(simulator.mpCoarsePdeMesh != NULL);
 
-        ReplicatableVector pde_solution(simulator.GetCurrentPdeSolution());
+        ReplicatableVector pde_solution(simulator.GetCurrentPdeSolution(0));
 
         // Test the nutrient concentration is equal to 1.0 at each coarse mesh node far from the cells
         for (unsigned i=0; i<pde_solution.GetSize(); i++)
@@ -733,6 +743,8 @@ public:
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -741,7 +753,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation to use a coarse PDE mesh
-        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde_and_bc);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
         simulator.SetOutputDirectory("TestCoarseNutrientMeshBoundaryConditionImplementation");
         simulator.SetEndTime(0.01);
         simulator.UseCoarsePdeMesh(2.0);
@@ -817,6 +829,8 @@ public:
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
 
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.UseCutoffPoint(1.5);
@@ -824,7 +838,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde_and_bc);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
         simulator.SetOutputDirectory("TissueSimulationWithPdesSaveAndLoad");
         simulator.SetEndTime(0.2);
 
@@ -841,7 +855,7 @@ public:
         TissueSimulationWithPdes<2>* p_simulator
             = TissueSimulationArchiver<2, TissueSimulationWithPdes<2> >::Load("TissueSimulationWithPdesSaveAndLoad", 0.2);
 
-        p_simulator->SetPdeAndBc(&pde_and_bc);
+        p_simulator->SetPdeAndBcCollection(pde_and_bc_collection);
         p_simulator->SetEndTime(0.5);
         p_simulator->Solve();
 
@@ -928,6 +942,8 @@ public:
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up mechanics system
         GeneralisedLinearSpringForce<2> linear_force;
@@ -936,7 +952,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde_and_bc);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(end_time);
 
@@ -963,7 +979,7 @@ public:
         bool is_neumann_bc2 = false;
         PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
 
-        p_simulator->SetPdeAndBc(&pde_and_bc2);
+        p_simulator->SetPdeAndBcCollection(pde_and_bc_collection);
         p_simulator->SetEndTime(2.0*end_time);
 
         // Run tissue simulation
@@ -1013,6 +1029,8 @@ public:
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<3> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+        std::vector<PdeAndBoundaryConditions<3>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
 
         // Set up force law
         GeneralisedLinearSpringForce<3> linear_force;
@@ -1021,7 +1039,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithPdes<3> simulator(tissue, force_collection, &pde_and_bc);
+        TissueSimulationWithPdes<3> simulator(tissue, force_collection, pde_and_bc_collection);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen3d");
         simulator.SetEndTime(0.5);
 

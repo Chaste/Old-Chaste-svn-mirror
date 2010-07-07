@@ -89,7 +89,6 @@ void PdeAndBoundaryConditions<DIM>::DestroySolution()
 {
 	if (mCurrentSolution)
 	{
-		std::cout << "gfab uio \n" << std::endl;
 	    VecDestroy(mCurrentSolution);
 	}
 }
