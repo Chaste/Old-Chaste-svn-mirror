@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "PetscException.hpp"
 #include "Version.hpp"
+#include "OutputFileHandler.hpp"
+#include <sys/utsname.h>
 
 void ExecutableSupport::InitializePetsc(int* pArgc, char*** pArgv)
 {
@@ -87,6 +89,55 @@ void ExecutableSupport::ShowParallelLaunching()
             PetscTools::Barrier();
         }
     }
+}
+
+void ExecutableSupport::WriteMachineInfoFile(std::string fileBaseName)
+{
+    OutputFileHandler out_file_handler("",false);
+    std::stringstream file_name;
+    file_name << fileBaseName << "." <<  PetscTools::GetMyRank();
+    out_stream out_file = out_file_handler.OpenOutputFile(file_name.str());
+    *out_file << "Process " << PetscTools::GetMyRank() << " of " 
+        << PetscTools::GetNumProcs() << "." << std::endl << std::flush;
+    
+    
+        
+    struct utsname uts_info;
+    uname(&uts_info);
+    
+    *out_file << "uname sysname  = " << uts_info.sysname << std::endl << std::flush;
+    *out_file << "uname nodename = " << uts_info.nodename << std::endl << std::flush;
+    *out_file << "uname release  = " << uts_info.release << std::endl << std::flush;
+    *out_file << "uname version  = " << uts_info.version << std::endl << std::flush;
+    *out_file << "uname machine  = " << uts_info.machine << std::endl << std::flush;
+    char buffer[100];
+    FILE * system_info;
+    
+    *out_file << "\nInformation on number and type of processors:\n";
+    system_info = popen("grep ^model.name /proc/cpuinfo" ,"r");    
+    while ( fgets(buffer, 100, system_info) != NULL )
+    {
+        *out_file << buffer;
+    }    
+    fclose(system_info);
+
+    *out_file << "\nInformation on processor caches, in the same order as above:\n";
+    system_info = popen("grep ^cache.size /proc/cpuinfo" ,"r");    
+    while ( fgets(buffer, 100, system_info) != NULL )
+    {
+        *out_file << buffer;
+    }    
+    fclose(system_info);
+    
+    *out_file << "\nInformation on system memory:\n";
+    system_info = popen("grep ^MemTotal /proc/meminfo" ,"r");    
+    while ( fgets(buffer, 100, system_info) != NULL )
+    {
+        *out_file << buffer;
+    }    
+    fclose(system_info);
+    
+    out_file->close();
 }
 
 void ExecutableSupport::StandardStartup(int* pArgc, char*** pArgv)

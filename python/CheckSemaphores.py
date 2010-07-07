@@ -31,18 +31,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # Its purpose it to provide a early warning when system semaphore are being
 # used up, due to parallel tests aborting.
 
-# \todo Can we put some advice here on what to do if this test is failing 
-# How do we clean them up?!
-
+# CLEANING UP
+# Look at  testoutput/$HOSTNAME.BUILD_TYPE/Semaphores...
+# 
+# There are 16 semaphores open, owned by 1 users:
+#	chaste (16)
+# etc.
+# On the relevant machine and with the relevant user:
+# ~/mpi/sbin/cleanipcs
+# e.g. If you want to clean "spud" on the build server
+# sudo su spud ~/mpi/sbin/cleanipcs
 
 import os
 from pwd import getpwuid
 
-#num_processors = int(os.popen('egrep -c ^processor /proc/cpuinfo').read().split()[0])
-#semaphore_limit = 4*num_processors
 
 max_semaphore_arrays=int(os.popen('ipcs -l | awk \'/max number of arrays/\'').read().split()[-1])
-#On chaste-bob server (and other Ubuntu machines) the value is max_semaphore_arrays==128
+#On the build server (and other Ubuntu machines) the value is max_semaphore_arrays==128
 #MPI starts to fail when the number of semaphores reaches 128
 semaphore_limit = 5*max_semaphore_arrays/8
 

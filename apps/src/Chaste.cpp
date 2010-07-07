@@ -66,6 +66,8 @@ int main(int argc, char *argv[])
         exit_code = ExecutableSupport::EXIT_ERROR;
     }
 
+    ExecutableSupport::WriteMachineInfoFile("machine_info");
+
     ExecutableSupport::FinalizePetsc();
     return exit_code;
 }

@@ -59,6 +59,12 @@ public:
      * Output extra diagnostics when Chaste is launched in parallel.
      */
     static void ShowParallelLaunching();
+    
+    /**
+     * Write to a log file info about the machine that ran the code
+     * @param fileBaseName base name of the file to write to 
+     */
+    static void WriteMachineInfoFile(std::string fileBaseName);
 
     /**
      * Call InitializePetsc, ShowCopyright, then ShowParallelLaunching.
