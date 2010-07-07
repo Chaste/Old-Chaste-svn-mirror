@@ -79,7 +79,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * These are the classes that will be used in these tests (note that we use a
  * tissue simulation subclass called {{{TissueSimulationWithNutrients}}}):
  */
-#include "TissueSimulationWithNutrients.hpp"
+#include "TissueSimulationWithPdes.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OxygenBasedCellKiller.hpp"
