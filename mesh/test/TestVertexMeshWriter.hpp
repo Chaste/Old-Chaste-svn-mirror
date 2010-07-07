@@ -191,6 +191,8 @@ public:
         std::string results_file1 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_with_faces.node";
         std::string results_file2 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_with_faces.cell";
 
+        //\todo #1468 the current saved results have no boundary nodes this ticket should fix that and you will need to change the saved results
+
         // To ignore the provenance data we only go as far as
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file1 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_with_faces.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + results_file2 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_with_faces.cell").c_str()), 0);

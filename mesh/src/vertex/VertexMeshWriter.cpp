@@ -337,7 +337,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
 
     // Write the node header
     unsigned num_attr = 0;
-    unsigned max_bdy_marker = 0;
+    unsigned max_bdy_marker = 1; // as we include boundary node information in the node file
     unsigned num_nodes = this->GetNumNodes();
 
     *p_node_file << num_nodes << "\t";
@@ -347,24 +347,15 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
     *p_node_file << std::setprecision(6);
 
     // Write each node's data
-    unsigned default_marker = 0;
     for (unsigned item_num=0; item_num<num_nodes; item_num++)
     {
         std::vector<double> current_item = this->GetNextNode();
         *p_node_file << item_num;
-        for (unsigned i=0; i<SPACE_DIM; i++)
+        for (unsigned i=0; i<SPACE_DIM+1; i++)
         {
             *p_node_file << "\t" << current_item[i];
         }
-        if (SPACE_DIM==2)  // in 2D output boundary node info #1076
-        {
-            *p_node_file << "\t" << current_item[SPACE_DIM] << "\n";
-        }
-        else
-        {
-            *p_node_file << "\t" << default_marker << "\n";
-        }
-
+        *p_node_file << "\n";
     }
     *p_node_file << comment << "\n";
     p_node_file->close();
@@ -399,7 +390,7 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
                 *p_element_file << "\t" << node_indices[i];
             }
 
-            ///\todo write element attribute (#1076/#1377)
+            ///\todo write element attributes if necessary
 
             // New line
             *p_element_file << "\n";
@@ -433,10 +424,10 @@ void VertexMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFiles()
             {
                 // Get the node indices owned by this face
                 std::vector<unsigned> face_node_indices = faces[j].NodeIndices;
-    
+
                 // Write this face's index and the number of nodes owned by it to file
                 *p_element_file << "\t" << faces[j].AttributeValue <<  "\t" << face_node_indices.size();
-    
+
                 // Write the node indices owned by this element to file
                 for (unsigned i=0; i<face_node_indices.size(); i++)
                 {
