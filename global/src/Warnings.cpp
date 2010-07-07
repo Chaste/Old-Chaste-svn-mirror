@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Warnings.hpp"
 #include "Exception.hpp"
+#include "LogFile.hpp"
 
 
 
@@ -90,10 +91,10 @@ Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, 
     
     std::stringstream line_number_stream;
     line_number_stream << lineNumber;
-    std::string context=std::string("\nChaste warning: " + rFilename + ":"  + line_number_stream.str()  + ": ");
+    std::string context=std::string("Chaste warning: " + rFilename + ":"  + line_number_stream.str()  + ": ");
 
     mWarningMessages.push(std::pair<std::string, std::string>(context, rMessage));
-
+    LOG(1, context + rMessage);
 }
 
 

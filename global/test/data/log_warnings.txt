@@ -1,0 +1,1 @@
+Chaste warning: ./global/test/TestWarnings.hpp:64: This one goes into a log file
