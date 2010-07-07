@@ -91,7 +91,7 @@ public:
         clock_t ck_start, ck_end;
 
         // Set stimulus
-        double magnitude_stimulus = -3;  // uA/cm2
+        double magnitude_stimulus = -3/0.095;  // uA/cm2
         double duration_stimulus = 3;  // ms
         double start_stimulus = 10.0;   // ms
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(
@@ -215,7 +215,7 @@ public:
         clock_t ck_start, ck_end;
 
         // Set stimulus
-        double magnitude_stimulus = -3;  // uA/cm2
+        double magnitude_stimulus = -3/0.095;  // uA/cm2
         double duration_stimulus = 3;  // ms
         double start_stimulus = 10.0;   // ms
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
@@ -1246,7 +1246,7 @@ public:
         // Save
         {
             // Set stimulus
-            double magnitude_stimulus = -3;  // uA/cm2
+            double magnitude_stimulus = -3/0.095;  // uA/cm2
             double duration_stimulus = 3;  // ms
             double start_stimulus = 10.0;   // ms
             boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,

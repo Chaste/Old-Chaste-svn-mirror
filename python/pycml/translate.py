@@ -1258,11 +1258,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.lookup_method_prefix = self.lt_class_name + '::Instance()->'
         return super(CellMLToChasteTranslator, self).final_configuration_hook()
     
-    def ionic_current_units_conversion(self, varname, all_units):
+    def ionic_current_units_conversion(self, varname, all_units, to_chaste=True):
         """
         Check whether the units of the transmembrane currents are as expected by
         Chaste, and return an appropriate conversion expression if not, along with
         a list of nodes used in computing this conversion.
+        
+        By default converts from model units to Chaste units.  If to_chaste is
+        False, performs the reverse conversion.
         
         There are three main cases:
         
@@ -1299,6 +1302,11 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                           [{'units': 'ampere'},
                                            {'units': 'farad', 'exponent': '-1'}])
         
+        if to_chaste:
+            times, divide = ' * ', ' / '
+        else:
+            times, divide = ' / ', ' * '
+        
         def problem(msg):
             if self.options.fully_automatic:
                 raise TranslationError(msg)
@@ -1310,20 +1318,20 @@ class CellMLToChasteTranslator(CellMLTranslator):
             conv = (model_units.get_multiplicative_factor() /
                     chaste_units.get_multiplicative_factor())
             if conv != 1:
-                conversion += ' * ' +str(conv)
+                conversion += times + str(conv)
         elif A_per_F.dimensionally_equivalent(model_units):
             # Case 2
             conv = (model_units.get_multiplicative_factor() /
                     A_per_F.get_multiplicative_factor())
             if conv != 1:
-                conversion += ' * ' + str(conv)
-            conversion += ' * HeartConfig::Instance()->GetCapacitance()'
+                conversion += times + str(conv)
+            conversion += times + 'HeartConfig::Instance()->GetCapacitance()'
         elif microamps.dimensionally_equivalent(model_units):
             # Case 3, probably
             conv = (model_units.get_multiplicative_factor() /
                     microamps.get_multiplicative_factor())
             if conv != 1:
-                conversion += ' * ' + str(conv)
+                conversion += times + str(conv)
             model_Cm = self.doc._cml_config.Cm_variable
             if model_Cm is None:
                 problem("Cannot convert ionic current from amps to uA/cm^2 "
@@ -1336,10 +1344,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 conv = (Cm_units.get_multiplicative_factor() /
                         microfarads.get_multiplicative_factor())
                 if conv != 1:
-                    conversion += ' / (' + str(conv) + ' * ' + Cm_value + ')'
+                    conversion += divide + '(' + str(conv) + ' * ' + Cm_value + ')'
                 else:
-                    conversion += ' / ' + Cm_value
-            conversion += ' * HeartConfig::Instance()->GetCapacitance()'
+                    conversion += divide + Cm_value
+            conversion += times + 'HeartConfig::Instance()->GetCapacitance()'
         else:
             problem("Units of the ionic current are not in the "
                     "dimensions expected by Chaste (uA/cm^2) and cannot "
@@ -1823,6 +1831,25 @@ class CellMLToChasteTranslator(CellMLTranslator):
             #621 TODO: maybe convert if state var dimensions include time
         self.writeln()
         return
+    
+    def get_stimulus_assignment(self):
+        """Return code for getting Chaste's stimulus current, with units conversions.
+        
+        Returns a tuple, the first item of which is the code, and the second is a
+        set of nodes required for computing the conversion.
+        """
+        expr = self.doc._cml_config.i_stim_var
+        output = self.code_name(expr) + self.EQ_ASSIGN
+        #621: convert if free var is not in milliseconds
+        if self.conversion_factor:
+            conv_time = '(1.0/%.12g)*' % self.conversion_factor
+        else:
+            conv_time = ''
+        get_stim = 'GetStimulus(' + conv_time + self.code_name(self.free_vars[0]) + ')'
+        # Convert from Chaste stimulus units (uA/cm2) to model units
+        stim_units = self.get_var_units(expr)
+        conversion, conv_nodes = self.ionic_current_units_conversion(get_stim, stim_units, False)
+        return output + conversion + self.STMT_END, conv_nodes
 
     def output_equations(self, nodeset):
         """Output the mathematics described by nodeset.
@@ -1831,6 +1858,19 @@ class CellMLToChasteTranslator(CellMLTranslator):
         Output assignments in the order given by a topological sort,
         but only include those in nodeset.
         """
+        # Special case for the stimulus current
+        if self.doc._cml_config.i_stim_var in nodeset:
+            stim_assignment, conv_nodes = self.get_stimulus_assignment()
+            conv_nodes = self.calculate_extended_dependencies(conv_nodes)
+            conv_nodes_new = conv_nodes - nodeset
+            if conv_nodes_new:
+                if conv_nodes != conv_nodes_new:
+                    # Some of nodeset is used to compute the conversion; ordering becomes tricky
+                    stim_index = self.model.get_assignments().index(self.doc._cml_config.i_stim_var)
+                    for node in conv_nodes - conv_nodes_new:
+                        if self.model.get_assignments().index(node) > stim_index:
+                            raise NotImplemented
+                self.output_equations(conv_nodes)
         for expr in (e for e in self.model.get_assignments() if e in nodeset):
             # Special-case the stimulus current
             if self.use_chaste_stimulus:
@@ -1839,17 +1879,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     clear_type = (self.kept_vars_as_members and expr.pe_keep)
                     if clear_type:
                         self.TYPE_CONST_DOUBLE = ''
-                    self.writeln(self.TYPE_CONST_DOUBLE, nl=False)
-                    self.write(self.code_name(expr))
-                    self.write(self.EQ_ASSIGN)
-                    #621: convert if free var is not in milliseconds
-                    if self.conversion_factor:
-                        conv = '(1.0/%.12g)*' % self.conversion_factor
-                    else:
-                        conv = ''
-                    self.writeln('GetStimulus(', conv,
-                                 self.code_name(self.free_vars[0]), ')',
-                                 self.STMT_END, indent=False)
+                    self.writeln(self.TYPE_CONST_DOUBLE, stim_assignment)
                     if clear_type:
                         # Remove the instance attribute, thus reverting to the class member
                         del self.TYPE_CONST_DOUBLE
