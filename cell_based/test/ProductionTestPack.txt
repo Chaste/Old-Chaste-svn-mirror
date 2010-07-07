@@ -18,3 +18,4 @@ tissue/TestCellKillers.hpp
 tissue/TestCellwiseData.hpp
 tissue/TestMeshBasedTissue.hpp
 tissue/TestNodeBasedTissue.hpp
+tissue/TestPdeAndBoundaryConditions.hpp

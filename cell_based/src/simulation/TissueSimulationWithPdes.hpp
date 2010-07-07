@@ -33,8 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueSimulation.hpp"
 
-#include "AbstractLinearEllipticPde.hpp"
-#include "AveragedSinksPde.hpp"
+#include "PdeAndBoundaryConditions.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscTools.hpp"
 
@@ -44,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A tissue simulation class that includes one or more elliptic PDEs, e.g. describing
  * the transport of nutrients and/or signalling molecules.
- * 
+ *
  * \todo Document the fact that a constant BC is imposed (#1465)
  */
 template<unsigned DIM>
@@ -71,15 +70,10 @@ private:
     }
 
     /**
-     * Current solution to the PDE problem, for use as an initial guess
-     * when solving at the next time step.
+     * Pointer to a linear elliptic PDE object with additional
+     * boundary condition information.
      */
-    Vec mCurrentPdeSolution;
-
-    /**
-     * Pointer to a linear elliptic PDE object.
-     */
-    AbstractLinearEllipticPde<DIM,DIM>* mpPde;
+    PdeAndBoundaryConditions<DIM>* mpPdeAndBc;
 
     /**
      * File that the values of the PDE solution are written out to.
@@ -210,23 +204,19 @@ public:
      *
      * @param rTissue A tissue facade class (contains a mesh and cells)
      * @param forceCollection The mechanics to use in the simulation
-     * @param pPde A pointer to a linear elliptic PDE object (defaults to NULL)
-     * @param boundaryValue The value of the constant boundary condition (defaults to zero).
-     * @param isNeumannBoundaryCondition Whether the boundary condition is Neumann (defaults to false,
-     *                                   corresponding to a Dirichlet boundary condition).
+     * @param pPdeAndBc A pointer to a linear elliptic PDE object with additional
+     *                  boundary condition information (defaults to NULL)
      * @param deleteTissueAndForceCollection Whether to delete the tissue on destruction to free up memory
      * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
      TissueSimulationWithPdes(AbstractTissue<DIM>& rTissue,
                               std::vector<AbstractForce<DIM>*> forceCollection,
-                              AbstractLinearEllipticPde<DIM,DIM>* pPde=NULL,
-                              double boundaryValue=0.0,
-                              bool isNeumannBoundaryCondition=true,
+                              PdeAndBoundaryConditions<DIM>* pPdeAndBc=NULL,
                               bool deleteTissueAndForceCollection=false,
                               bool initialiseCells=true);
 
     /**
-     * Destructor
+     * Destructor.
      *
      * Free any memory allocated by the constructor.
      * This frees the current PDE solution, if it exists.
@@ -237,12 +227,12 @@ public:
      * A small hack until we fully archive this class -
      * needed to set the PDE after loading a simulation
      * from an archive.
-     * 
+     *
      * \todo Check if archiving has been implemented yet for PDE classes (#1460)
      *
-     * @param pPde pointer to the PDE object
+     * @param pPdeAndBc pointer to the PdeAndBoundaryConditions object
      */
-    void SetPde(AbstractLinearEllipticPde<DIM,DIM>* pPde);
+    void SetPdeAndBc(PdeAndBoundaryConditions<DIM>* pPdeAndBc);
 
     /**
      * Get the current solution to the PDE problem.
@@ -308,7 +298,7 @@ inline void load_construct_data(
     ar >> force_collection;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)TissueSimulationWithPdes<DIM>(*p_tissue, force_collection, NULL, 0.0, false, true, false);
+    ::new(t)TissueSimulationWithPdes<DIM>(*p_tissue, force_collection, NULL, true, false);
 }
 }
 } // namespace ...

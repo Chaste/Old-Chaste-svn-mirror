@@ -1,0 +1,110 @@
+/*
+
+Copyright (C) University of Oxford, 2005-2010
+
+University of Oxford means the Chancellor, Masters and Scholars of the
+University of Oxford, having an administrative office at Wellington
+Square, Oxford OX1 2JD, UK.
+
+This file is part of Chaste.
+
+Chaste is free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published
+by the Free Software Foundation, either version 2.1 of the License, or
+(at your option) any later version.
+
+Chaste is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details. The offer of Chaste under the terms of the
+License is subject to the License being interpreted in accordance with
+English Law and subject to any action against the University of Oxford
+being under the jurisdiction of the English Courts.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Chaste. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
+#include "PdeAndBoundaryConditions.hpp"
+
+template<unsigned DIM>
+PdeAndBoundaryConditions<DIM>::PdeAndBoundaryConditions(AbstractLinearEllipticPde<DIM,DIM>* pPde,
+		                                                double boundaryValue,
+		                                                bool isNeumannBoundaryCondition)
+    : mpPde(pPde),
+      mBoundaryValue(boundaryValue),
+      mIsNeumannBoundaryCondition(isNeumannBoundaryCondition),
+      mCurrentSolution(NULL)
+{
+}
+
+template<unsigned DIM>
+PdeAndBoundaryConditions<DIM>::~PdeAndBoundaryConditions()
+{
+	if (mCurrentSolution)
+	{
+		VecDestroy(mCurrentSolution);
+	}
+}
+
+template<unsigned DIM>
+AbstractLinearEllipticPde<DIM,DIM>* PdeAndBoundaryConditions<DIM>::GetPde()
+{
+	return mpPde;
+}
+
+template<unsigned DIM>
+Vec PdeAndBoundaryConditions<DIM>::GetSolution()
+{
+	return mCurrentSolution;
+}
+
+template<unsigned DIM>
+void PdeAndBoundaryConditions<DIM>::SetSolution(Vec solution)
+{
+	mCurrentSolution = solution;
+}
+
+template<unsigned DIM>
+bool PdeAndBoundaryConditions<DIM>::IsNeumannBoundaryCondition()
+{
+	return mIsNeumannBoundaryCondition;
+}
+
+template<unsigned DIM>
+double PdeAndBoundaryConditions<DIM>::GetBoundaryValue()
+{
+	return mBoundaryValue;
+}
+
+template<unsigned DIM>
+bool PdeAndBoundaryConditions<DIM>::HasAveragedSinksPde()
+{
+	return (dynamic_cast<AveragedSinksPde<DIM>*>(mpPde) != NULL);
+}
+
+template<unsigned DIM>
+void PdeAndBoundaryConditions<DIM>::DestroySolution()
+{
+	if (mCurrentSolution)
+	{
+		std::cout << "gfab uio \n" << std::endl;
+	    VecDestroy(mCurrentSolution);
+	}
+}
+
+template<unsigned DIM>
+void PdeAndBoundaryConditions<DIM>::SetUpSourceTermsForAveragedSinksPde(TetrahedralMesh<DIM,DIM>* pMesh)
+{
+	assert(HasAveragedSinksPde());
+	static_cast<AveragedSinksPde<DIM>*>(mpPde)->SetupSourceTerms(*pMesh);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Explicit instantiation
+/////////////////////////////////////////////////////////////////////////////
+
+template class PdeAndBoundaryConditions<1>;
+template class PdeAndBoundaryConditions<2>;
+template class PdeAndBoundaryConditions<3>;
