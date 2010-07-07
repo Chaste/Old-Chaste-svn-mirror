@@ -40,6 +40,11 @@ public:
     // simple test where the whole of the coarse mesh is in one fine element
     void TestComputeFineElemsAndWeightsForQuadPointsSimple() throw(Exception)
     {
+        // the following checks this hasn't been accidentally committed.
+        #ifdef FINECOARSEMESHPAIR_VERBOSE
+        TS_FAIL("#define FINECOARSEMESHPAIR_VERBOSE has been uncommented");
+        #endif
+                
         TetrahedralMesh<2,2> fine_mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         fine_mesh.ConstructFromMeshReader(mesh_reader);
@@ -79,9 +84,8 @@ public:
             }
         }
 
-        TS_ASSERT_EQUALS(mesh_pair.mCounters[0], 18u);
-        TS_ASSERT_EQUALS(mesh_pair.mCounters[1], 0u);
-        TS_ASSERT_EQUALS(mesh_pair.mCounters[2], 0u);
+        TS_ASSERT_EQUALS(mesh_pair.mStatisticsCounters[0], 18u);
+        TS_ASSERT_EQUALS(mesh_pair.mStatisticsCounters[1], 0u);
     }
 
     void TestWithCoarseContainedInFine() throw(Exception)
@@ -145,9 +149,8 @@ public:
             }
         }
 
-        TS_ASSERT_EQUALS(mesh_pair.mCounters[0], 6*3*3*3u);
-        TS_ASSERT_EQUALS(mesh_pair.mCounters[1], 0u);
-        TS_ASSERT_EQUALS(mesh_pair.mCounters[2], 0u);
+        TS_ASSERT_EQUALS(mesh_pair.mStatisticsCounters[0], 6*3*3*3u);
+        TS_ASSERT_EQUALS(mesh_pair.mStatisticsCounters[1], 0u);
         mesh_pair.PrintStatistics();
 
         mesh_pair.DeleteFineBoxCollection();
@@ -205,6 +208,9 @@ public:
 
 
         mesh_pair.PrintStatistics();
+        
+        TS_ASSERT_EQUALS( Warnings::Instance()->GetNumWarnings(), 1u);
+        Warnings::Instance()->QuietDestroy();
     }
 
 ////bring back this functionality if needed    
@@ -309,6 +315,9 @@ public:
         }
 
         mesh_pair.PrintStatistics();
+
+        TS_ASSERT_EQUALS( Warnings::Instance()->GetNumWarnings(), 1u);
+        Warnings::Instance()->QuietDestroy();
     }
     
     // covers some bits that aren't covered in the tests above, 
@@ -503,9 +512,8 @@ public:
             }
         }
 
-        TS_ASSERT_EQUALS(mesh_pair.mCounters[0], 9u);
-        TS_ASSERT_EQUALS(mesh_pair.mCounters[1], 0u);
-        TS_ASSERT_EQUALS(mesh_pair.mCounters[2], 0u);
+        TS_ASSERT_EQUALS(mesh_pair.mStatisticsCounters[0], 9u);
+        TS_ASSERT_EQUALS(mesh_pair.mStatisticsCounters[1], 0u);
     }
 
 

@@ -37,29 +37,9 @@ FineCoarseMeshPair<DIM>::FineCoarseMeshPair(TetrahedralMesh<DIM,DIM>& rFineMesh,
 {
     mpFineMeshBoxCollection = NULL;
     mpCoarseMeshBoxCollection = NULL;
-    mCounters.resize(4,0);
-
-//// Bring back identical-meshes functionality if needed
-//    // check whether the two meshes are the same (ie the linear part of the quad mesh is the
-//    // linear mesh, by checking whether the number of elements match and the vertex indices of
-//    // each element match.
-//    mIdenticalMeshes = false;
-//    if(mrFineMesh.GetNumElements()==mrCoarseMesh.GetNumElements())
-//    {
-//        mIdenticalMeshes = true;
-//        for (unsigned i=0; i<mrFineMesh.GetNumElements(); i++)
-//        {
-//            for (unsigned j=0; j<mrFineMesh.GetElement(i)->GetNumNodes(); j++)
-//            {
-//                if (mrFineMesh.GetElement(i)->GetNodeGlobalIndex(j)!=mrCoarseMesh.GetElement(i)->GetNodeGlobalIndex(j) )
-//                {
-//                    mIdenticalMeshes = false;
-//                    break;
-//                }
-//            }
-//        }
-//    }
+    ResetStatisticsVariables();
 }
+
 
 
 template<unsigned DIM>
@@ -225,9 +205,16 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
     // resize the elements and weights vector.
     mFineMeshElementsAndWeights.resize(quad_point_posns.Size());
 
+    #ifdef FINECOARSEMESHPAIR_VERBOSE
+    std::cout << "\nComputing fine elements and weights for coarse quad points\n";
+    #endif
+
+    ResetStatisticsVariables();
     for(unsigned i=0; i<quad_point_posns.Size(); i++)
     {
-        //std::cout << "\r " << i << " of " << quad_point_posns.Size() << std::flush;
+        #ifdef FINECOARSEMESHPAIR_VERBOSE
+        std::cout << "\r " << i << " of " << quad_point_posns.Size() << std::flush;
+        #endif
         
         // get the box this point is in
         unsigned box_for_this_point = mpFineMeshBoxCollection->CalculateContainingBox( quad_point_posns.Get(i) );
@@ -236,6 +223,14 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseQuadPoints(G
         ChastePoint<DIM> point(quad_point_posns.Get(i));
 
         ComputeFineElementAndWeightForGivenPoint(point, safeMode, box_for_this_point, i);
+    }
+
+    if(mStatisticsCounters[1]>0)
+    {
+        std::stringstream stream;
+        stream << mStatisticsCounters[1] << " of " << quad_point_posns.Size() << " coarse-mesh quadrature points were outside the fine mesh"; 
+        WARNING(stream.str());
+std::cout << stream.str() << std::flush;
     }
 }
 
@@ -251,9 +246,16 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseNodes(bool s
     // resize the elements and weights vector.
     mFineMeshElementsAndWeights.resize(mrCoarseMesh.GetNumNodes());
 
+    #ifdef FINECOARSEMESHPAIR_VERBOSE
+    std::cout << "\nComputing fine elements and weights for coarse nodes\n";
+    #endif
+
+    ResetStatisticsVariables();
     for(unsigned i=0; i<mrCoarseMesh.GetNumNodes(); i++)
     {
-        //std::cout << "\r " << i << " of " << mrCoarseMesh.GetNumNodes() << std::flush;
+        #ifdef FINECOARSEMESHPAIR_VERBOSE
+        std::cout << "\r " << i << " of " << mrCoarseMesh.GetNumNodes() << std::flush;
+        #endif
         
         Node<DIM>* p_node = mrCoarseMesh.GetNode(i);
         
@@ -271,7 +273,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementsAndWeightsForCoarseNodes(bool s
 ///\todo: could possibly merge with ComputeCoarseElementForGivenPoint(). Difference between the
 /// methods are: this uses fine mesh and fine mesh box, computes weights as well (and sets
 /// the element and weight in the vec), rather than returning the element, and this method 
-/// saves information in mCounters
+/// saves information in mStatisticsCounters
 template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoint<DIM>& rPoint, 
                                                                        bool safeMode,
@@ -298,7 +300,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoi
                                                           true /* quit if not in test_elements */);
         weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(rPoint);
 
-        mCounters[0]++;
+        mStatisticsCounters[0]++;
     }
     catch(Exception& e)
     {
@@ -316,7 +318,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoi
                                                               true);
             weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(rPoint);
 
-            mCounters[1]++;
+            mStatisticsCounters[0]++;
 
         }
         catch(Exception& e)
@@ -329,7 +331,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoi
                     elem_index = mrFineMesh.GetContainingElementIndex(rPoint,
                                                                       false);
                     weight = mrFineMesh.GetElement(elem_index)->CalculateInterpolationWeights(rPoint);
-                    mCounters[2]++;
+                    mStatisticsCounters[0]++;
 
                 }
                 catch (Exception& e)
@@ -340,7 +342,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoi
 
                     mNotInMesh.push_back(index);
                     mNotInMeshNearestElementWeights.push_back(weight);
-                    mCounters[3]++;
+                    mStatisticsCounters[1]++;
                 }
             }
             else
@@ -355,7 +357,7 @@ void FineCoarseMeshPair<DIM>::ComputeFineElementAndWeightForGivenPoint(ChastePoi
 
                 mNotInMesh.push_back(index);
                 mNotInMeshNearestElementWeights.push_back(weight);
-                mCounters[3]++;
+                mStatisticsCounters[1]++;
             }
         }
     }
@@ -385,10 +387,20 @@ void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineNodes(bool safeMode)
     {
         EXCEPTION("Call SetUpBoxesOnCoarseMesh() before ComputeCoarseElementsForFineNodes()");
     }
-    
+
+    #ifdef FINECOARSEMESHPAIR_VERBOSE
+    std::cout << "\nComputing coarse elements for fine nodes\n";
+    #endif
+
     mCoarseElementsForFineNodes.resize(mrFineMesh.GetNumNodes());
+    
+    ResetStatisticsVariables();
     for(unsigned i=0; i<mCoarseElementsForFineNodes.size(); i++)
     {
+        #ifdef FINECOARSEMESHPAIR_VERBOSE
+        std::cout << "\r " << i << " of " << mCoarseElementsForFineNodes.size() << std::flush;
+        #endif
+        
         ChastePoint<DIM> point = mrFineMesh.GetNode(i)->GetPoint();
         // get the box this point is in
         unsigned box_for_this_point = mpCoarseMeshBoxCollection->CalculateContainingBox( mrFineMesh.GetNode(i)->rGetModifiableLocation() );
@@ -405,10 +417,20 @@ void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineElementCentroids(bool 
     {
         EXCEPTION("Call SetUpBoxesOnCoarseMesh() before ComputeCoarseElementsForFineElementCentroids()");
     }    
+
+    #ifdef FINECOARSEMESHPAIR_VERBOSE
+    std::cout << "\nComputing coarse elements for fine element centroids\n";
+    #endif
     
     mCoarseElementsForFineElementCentroids.resize(mrFineMesh.GetNumElements());
+    
+    ResetStatisticsVariables();
     for(unsigned i=0; i<mrFineMesh.GetNumElements(); i++)
     {
+        #ifdef FINECOARSEMESHPAIR_VERBOSE
+        std::cout << "\r " << i << " of " << mrFineMesh.GetNumElements() << std::flush;
+        #endif
+        
         c_vector<double,DIM> point_cvec = mrFineMesh.GetElement(i)->CalculateCentroid();
         ChastePoint<DIM> point(point_cvec);
 
@@ -423,7 +445,7 @@ void FineCoarseMeshPair<DIM>::ComputeCoarseElementsForFineElementCentroids(bool 
 ///\todo: could possibly merge with ComputeFineElementAndWeightForGivenPoint(). Differences between the
 /// methods are: the other method uses fine mesh and fine mesh box, computes weights as well (and sets
 /// the element and weight in the vec), rather than returning the element, and that method 
-/// saves information in mCounters
+/// saves information in mStatisticsCounters
 template<unsigned DIM>
 unsigned FineCoarseMeshPair<DIM>::ComputeCoarseElementForGivenPoint(ChastePoint<DIM>& rPoint, 
                                                                     bool safeMode,
@@ -439,7 +461,9 @@ unsigned FineCoarseMeshPair<DIM>::ComputeCoarseElementForGivenPoint(ChastePoint<
         elem_index = mrCoarseMesh.GetContainingElementIndex(rPoint,
                                                             false,
                                                             test_element_indices,
-                                                            true /* quit if not in test_elements */);        
+                                                            true /* quit if not in test_elements */);
+
+        mStatisticsCounters[0]++;
     }
     catch(Exception& e)
     {
@@ -455,6 +479,7 @@ unsigned FineCoarseMeshPair<DIM>::ComputeCoarseElementForGivenPoint(ChastePoint<
                                                                 test_element_indices,
                                                                 true);
 
+            mStatisticsCounters[0]++;
         }
         catch(Exception& e)
         {
@@ -465,11 +490,14 @@ unsigned FineCoarseMeshPair<DIM>::ComputeCoarseElementForGivenPoint(ChastePoint<
                 {
                     elem_index = mrCoarseMesh.GetContainingElementIndex(rPoint,
                                                                         false);
+
+                    mStatisticsCounters[0]++;
                 }
                 catch (Exception& e)
                 {
                     // the point is not in ANY element, store the nearest element and corresponding weights
                     elem_index = mrCoarseMesh.GetNearestElementIndexFromTestElements(rPoint,test_element_indices);
+                    mStatisticsCounters[1]++;
                 }
             }
             else
@@ -480,6 +508,7 @@ unsigned FineCoarseMeshPair<DIM>::ComputeCoarseElementForGivenPoint(ChastePoint<
                 // case assuming the box width was chosen suitably.
                 // Store the nearest element and corresponding weights
                 elem_index = mrCoarseMesh.GetNearestElementIndexFromTestElements(rPoint,test_element_indices);
+                mStatisticsCounters[1]++;
             }
         }
     }
@@ -492,7 +521,7 @@ unsigned FineCoarseMeshPair<DIM>::ComputeCoarseElementForGivenPoint(ChastePoint<
 
 ////////////////////////////////////////////////////////////////////////////////////
 // 
-// helper methods for code or user
+// helper methods for code
 //
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -529,19 +558,38 @@ void FineCoarseMeshPair<DIM>::CollectElementsInLocalBoxes(BoxCollection<DIM>*& r
     }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////////
+// 
+// statistics related methods
+//
+////////////////////////////////////////////////////////////////////////////////////
+
+
+template<unsigned DIM> 
+void FineCoarseMeshPair<DIM>::ResetStatisticsVariables()
+{
+    mNotInMesh.clear();
+    mNotInMeshNearestElementWeights.clear();
+    mStatisticsCounters.resize(2, 0u);
+}
+
 template<unsigned DIM>
 void FineCoarseMeshPair<DIM>::PrintStatistics()
 {
-    assert(mNotInMesh.size()==mCounters[3]);
-    assert(mNotInMesh.size()==mNotInMeshNearestElementWeights.size());
-    std::cout << "\nFineCoarseMeshPair statistics:\n";
-    std::cout << "\tNum points for which containing (fine) element was found, using box containing that point = " << mCounters[0] << "\n";
-    std::cout << "\tNum points for which containing (fine) element was in local box = " << mCounters[1] << "\n";
-    std::cout << "\tNum points for which containing (fine) element was in non-local element = " << mCounters[2] << "\n";
-    std::cout << "\tNum points for which no containing element was found in fine mesh = " << mCounters[3] << "\n";
-    if(mCounters[3]>0)
+    std::cout << "\nFineCoarseMeshPair statistics for the last-called method:\n";
+
+//    std::cout << "\tNum points for which containing element was found, using box containing that point = " << mStatisticsCounters[0] << "\n";
+//    std::cout << "\tNum points for which containing element was in local box = " << mStatisticsCounters[1] << "\n";
+//    std::cout << "\tNum points for which containing element was in an element in a non-local box = " << mStatisticsCounters[2] << "\n";
+//    std::cout << "\tNum points for which no containing element was found = " << mStatisticsCounters[3] << "\n";
+
+    std::cout << "\tNum points for which containing element was found: " << mStatisticsCounters[0] << "\n";
+    std::cout << "\tNum points for which no containing element was found = " << mStatisticsCounters[1] << "\n";
+
+    if(mNotInMesh.size()>0)
     {
-        std::cout << "\tIndices and weights for points for which no containing element was found:\n";
+        std::cout << "\tIndices and weights for points (nodes/quad points) for which no containing element was found:\n";
         for(unsigned i=0; i<mNotInMesh.size(); i++)
         {
             std::cout << "\t\t" << mNotInMesh[i] << ", " << mNotInMeshNearestElementWeights[i] << "\n";

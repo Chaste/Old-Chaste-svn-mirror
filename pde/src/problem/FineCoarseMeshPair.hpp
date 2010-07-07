@@ -34,6 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BoxCollection.hpp"
 #include "QuadraturePointsGroup.hpp"
 #include "GaussianQuadratureRule.hpp"
+#include "Warnings.hpp"
+
+
+//#define FINECOARSEMESHPAIR_VERBOSE
 
 
 /**
@@ -123,12 +127,28 @@ private:
      *  to be outside the fine mesh */
     std::vector<c_vector<double,DIM+1> > mNotInMeshNearestElementWeights;
 
-    /** 3 values, (0) number of points for which the containing element was found quickly (the element was
-     *  in the same box as the point, (1) number of points for which the containing element was found
-     *  slowly (the element was not the same box as the point, (2) num points outside the fine mesh.
-     *  Note mCounters[2] = mNotInMesh.size() = mNotInMeshNearestElementWeights.size();
+//    /** 4 values, 
+//     *   [0] number of points for which the containing element was found quickly (the element was
+//     *       in the same box as the point, 
+//     *   [1] number of points for which the containing element was found more slowly (the element 
+//     *       was not the same box as the point, but one of the neighbouring boxes), 
+//     *   [2] num points found very slowly (the elemment was not in a neighbouring box, but somewhere else)
+//     *   [3] num points not in the searched mesh at all 
+//     * 
+//     *  Note mCounters[3] = mNotInMesh.size() = mNotInMeshNearestElementWeights.size();
+//     */
+//    std::vector<unsigned> mStatisticsCounters;
+
+    /** 2 values, 
+     *   [0] number of points for which the containing element was found
+     *   [1] num points not in the searched mesh at all 
+     * 
+     *  Note, after ComputeFineElementsAndWeightsForCoarseQuadPoints() or
+     *  ComputeFineElementsAndWeightsForCoarseNodes(), then 
+     *   mCounters[1] = mNotInMesh.size() = mNotInMeshNearestElementWeights.size();
      */
-    std::vector<unsigned> mCounters;
+    std::vector<unsigned> mStatisticsCounters;
+
 
     /**  
      *  The element in the coarse mesh that each fine mesh node is contained in (or nearest to).
@@ -204,8 +224,14 @@ private:
     void CollectElementsInLocalBoxes(BoxCollection<DIM>*& rpBoxCollection, 
                                      unsigned boxIndex,
                                      std::set<unsigned>& rElementIndices);
-                                             
-                    
+    
+    
+    /** 
+     *  Resets mNotInMesh, mNotInMeshNearestElementWeights and
+     *  mStatisticsCounters
+     */
+    void ResetStatisticsVariables();                                     
+
 
 public:
     /** Constructor sets up domain size
@@ -286,9 +312,14 @@ public:
 
 
     /**
-     *  Print the number of points for which the containing element was found quickly, the number
-     *  for which the containing element was found slowly, and the number for which no containing
-     *  element was found (with the values of the weights for the latter).
+     *  Print information about the number of points found in the searched mesh. What the points 
+     *  are and which mesh was searched depends on whichever of the main Compute methods was last
+     *  called.
+     * 
+     *  If ComputeFineElementsAndWeightsForCoarseQuadPoints() or ComputeFineElementsAndWeightsForCoarseNodes() were
+     *  last called, the indices of the points that were not found to be contained in the searched mesh
+     *  are also printed, along with the weights for that point in the nearest element (which indicates how far
+     *  from the mesh the points are).
      */
     void PrintStatistics();
 
