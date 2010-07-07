@@ -87,6 +87,9 @@ private:
     bool mFilesAreBinary; /**< Whether to read all data as binary (determined by a magic number in the node file header)*/
     bool mMeshIsHexahedral; /**< Whether the mesh is hexahedral (determined by a magic number in the element file header) */
 
+    char* mNodeFileReadBuffer; /**< Buffer for node file read with std::ifstream */
+    char* mElementFileReadBuffer; /**< Buffer for element file read with std::ifstream */
+    char* mFaceFileReadBuffer; /**< Buffer for face file read with std::ifstream */
 
 //    /** The containing element for each boundary element (obtaining by doing tetgen with the -nn flag).
 //     *  In a std::vector rather than the struct to save space if not read.
@@ -113,6 +116,11 @@ public:
                         unsigned orderOfElements=1,
                         unsigned orderOfBoundaryElements=1,
                         bool readContainingElementsForBoundaryElements=false);
+
+    /**
+     * Destructor
+     */
+     ~TrianglesMeshReader();
 
     /** Returns the number of elements in the mesh */
     unsigned GetNumElements() const;
@@ -192,6 +200,13 @@ public:
     /*** Returns true if reading binary files, false if reading ascii files */
     bool IsFileFormatBinary();
 
+    /**
+     * Sets size of std:ifstream internal read buffer. Use it for tuning I/O.
+     * 
+     * @param bufferSize The size of the read buffer in bytes.
+     */
+    void SetReadBufferSize(unsigned bufferSize);
+
 private:
 
     /** Open mesh files. */
@@ -247,6 +262,7 @@ private:
      * @param rNodeIndices  The nodes we have read in.
      */
     void EnsureIndexingFromZero(std::vector<unsigned>& rNodeIndices);
+    
 };
 
 #endif //_TRIANGLESMESHREADER_HPP_

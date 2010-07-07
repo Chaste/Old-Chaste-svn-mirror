@@ -60,6 +60,9 @@ public:
     void TestFilesOpen() throw(Exception)
     {
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
+        
+        // For coverage purposes, not sure how to test this functionality...
+        mesh_reader.SetReadBufferSize(2*1024*1024); //2MB
     }
 
     /**

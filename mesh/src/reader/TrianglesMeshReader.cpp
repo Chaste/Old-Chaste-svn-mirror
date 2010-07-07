@@ -64,7 +64,10 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
       mEofException(false),
       mReadContainingElementOfBoundaryElement(readContainingElementForBoundaryElements),
       mFilesAreBinary(false),
-      mMeshIsHexahedral(false)
+      mMeshIsHexahedral(false),
+      mNodeFileReadBuffer(NULL),
+      mElementFileReadBuffer(NULL),
+      mFaceFileReadBuffer(NULL)
 {
     // Only linear and quadratic elements
     assert(orderOfElements==1 || orderOfElements==2);
@@ -100,6 +103,14 @@ TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::TrianglesMeshReader(std::string pat
 
     OpenFiles();
     ReadHeaders();
+}
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::~TrianglesMeshReader()
+{
+    delete[] mNodeFileReadBuffer; 
+    delete[] mElementFileReadBuffer;
+    delete[] mFaceFileReadBuffer;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -687,6 +698,20 @@ bool TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::IsFileFormatBinary()
 {
     return mFilesAreBinary;
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM>::SetReadBufferSize(unsigned bufferSize)
+{
+    mNodeFileReadBuffer =  new char[bufferSize];
+    mElementFileReadBuffer =  new char[bufferSize];
+    mFaceFileReadBuffer =  new char[bufferSize];
+              
+    mNodesFile.rdbuf()->pubsetbuf(mNodeFileReadBuffer, bufferSize);
+    mElementsFile.rdbuf()->pubsetbuf(mElementFileReadBuffer, bufferSize);
+    mFacesFile.rdbuf()->pubsetbuf(mFaceFileReadBuffer, bufferSize);
+    
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
