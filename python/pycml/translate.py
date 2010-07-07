@@ -3511,6 +3511,12 @@ class ConfigurationStore(object):
              current.  The value is split on ','; the first part is then
              matched against component names, and the second against
              variables in matching components.
+             
+             This is mostly redundant now, because the equation for dV/dt
+             is used first to determine the ionic currents (see documentation
+             for _find_transmembrane_currents_from_voltage_ode), and only
+             if this fails to find suitable currents will the ionic_match
+             definition be used.
          * 'transmembrane_potential'
            Defines which variable holds the transmembrane potential.
            Defaults to 'membrane,V' if not present.
@@ -3755,22 +3761,22 @@ class ConfigurationStore(object):
                 raise ConfigurationError(msg)
             else:
                 print >>sys.stderr, msg
-        # Other ionic currents just set from config file
-        self.i_ionic_vars = []
-        for defn in self.i_ionic_definitions:
-            if getattr(defn, u'type', u'name') != u'name':
-                raise ConfigurationError('Ionic current definitions have to have type "name"')
-            regexps = unicode(defn).strip().split(',')
-            comp_re = re.compile(regexps[0] + '$')
-            var_re = re.compile(regexps[1] + '$')
-            for component in getattr(self.doc.model, u'component', []):
-                if comp_re.match(unicode(component.name).strip()):
-                    for var in getattr(component, u'variable', []):
-                        if (var is not self.i_stim_var and
-                            var_re.match(unicode(var.name).strip())):
-                            self.i_ionic_vars.append(var)
+        # For other ionic currents, try using the equation for dV/dt first
+        self.i_ionic_vars = self._find_transmembrane_currents_from_voltage_ode()
+        # Otherwise use the config file
         if not self.i_ionic_vars:
-            self.i_ionic_vars = self._find_transmembrane_currents_from_voltage_ode()
+            for defn in self.i_ionic_definitions:
+                if getattr(defn, u'type', u'name') != u'name':
+                    raise ConfigurationError('Ionic current definitions have to have type "name"')
+                regexps = unicode(defn).strip().split(',')
+                comp_re = re.compile(regexps[0] + '$')
+                var_re = re.compile(regexps[1] + '$')
+                for component in getattr(self.doc.model, u'component', []):
+                    if comp_re.match(unicode(component.name).strip()):
+                        for var in getattr(component, u'variable', []):
+                            if (var is not self.i_stim_var and
+                                var_re.match(unicode(var.name).strip())):
+                                self.i_ionic_vars.append(var)
         if not self.i_ionic_vars:
             msg = "No ionic currents found; you'll have trouble generating Chaste code"
             if self.options.fully_automatic:
@@ -3817,7 +3823,7 @@ class ConfigurationStore(object):
     def annotate_metadata_for_pe(self):
         "Annotate all vars tagged with metadata so PE doesn't remove them."
         for var in self.metadata_vars:
-            var.set_pe_keep(True)        
+            var.set_pe_keep(True)
         return
 
     def find_transmembrane_potential(self):

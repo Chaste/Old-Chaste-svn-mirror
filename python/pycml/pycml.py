@@ -246,7 +246,7 @@ def make_xml_binder():
                              cellml_units)
     binder.set_binding_class(NSS[u'cml'], "unit",
                              cellml_unit)
-    for mathml_elt in ['math', 'degree', 'logbase',
+    for mathml_elt in ['math', 'degree', 'logbase', 'otherwise',
                        'diff', 'plus', 'minus', 'times', 'divide',
                        'exp', 'ln', 'power', 'root',
                        'leq', 'geq', 'lt', 'gt', 'eq', 'neq',
@@ -5825,3 +5825,10 @@ class mathml_degree(mathml, mathml_units_mixin_container):
         """Evaluate this element, by evaluating its child.
         """
         return self.eval(_child1(self))
+
+class mathml_otherwise(mathml):
+    """Class representing the MathML <otherwise> element.
+    
+    Only defined to make it inherit from mathml.
+    """
+    pass
