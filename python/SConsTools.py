@@ -644,6 +644,7 @@ def ScheduleTestBuild(env, env_with_libs, testfile, prefix, use_chaste_libs):
         env.BuildTest(runner_dummy, runner_obj, RUNNER_EXE=runner_exe)
         env.AlwaysBuild(runner_dummy)
         env.Depends(runner_exe, runner_dummy)
+        env.Alias('test_exes', runner_dummy)
         # Make sure we build the test unless the user says otherwise
         env.Default(runner_dummy)
     return runner_exe, runner_dummy

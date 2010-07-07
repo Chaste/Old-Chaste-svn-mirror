@@ -392,6 +392,9 @@ if not isinstance(build, BuildTypes.DoxygenCoverage):
     
     # Make sure test executables get built if compile_only=1
     env.Default(env.Alias('test_exes'))
+    # Work around an error on some SCons versions, by ensuring the alias has a builder
+    import SCons.Environment
+    env.Alias('test_exes')[0].builder_set(SCons.Environment.AliasBuilder)
 
 
 # Remove the contents of build.GetTestReportDir() on a clean build
