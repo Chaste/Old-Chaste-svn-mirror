@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _TISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
-#define _TISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
+#ifndef _TISSUESIMULATIONWITHPDESASSEMBLER_HPP_
+#define _TISSUESIMULATIONWITHPDESASSEMBLER_HPP_
 
 
 #include "TetrahedralMesh.hpp"
@@ -35,18 +35,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  TissueSimulationWithNutrientsAssembler
+ * TissueSimulationWithPdesAssembler
  *
- *  This is a purpose made elliptic assembler that interpolates the source terms
- *  from node onto gauss points, as for a nutrients simulation the source will only
- *  be known at the cells (nodes), not the gauss points.
+ * This is a purpose made elliptic assembler that interpolates the source terms
+ * from node onto gauss points, as for a tissue simulation with PDEs the source
+ * will only be known at the cells (nodes), not the gauss points.
  */
 template<unsigned DIM>
-class TissueSimulationWithNutrientsAssembler
-    : public SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithNutrientsAssembler<DIM> >
+class TissueSimulationWithPdesAssembler
+    : public SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithPdesAssembler<DIM> >
 {
     /** Save typing. */
-    typedef SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithNutrientsAssembler<DIM> > BaseClassType;
+    typedef SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithPdesAssembler<DIM> > BaseClassType;
     friend class AbstractStaticAssembler<DIM, DIM, 1u, true, BaseClassType>;
 
 private:
@@ -134,17 +134,17 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    TissueSimulationWithNutrientsAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
-                                  AbstractLinearEllipticPde<DIM,DIM>* pPde,
-                                  BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
-                                  unsigned numQuadPoints=2);
+    TissueSimulationWithPdesAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
+	                                  AbstractLinearEllipticPde<DIM,DIM>* pPde,
+	                                  BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
+	                                  unsigned numQuadPoints=2);
 
     /**
      *  Destructor.
      */
-    ~TissueSimulationWithNutrientsAssembler();
+    ~TissueSimulationWithPdesAssembler();
 
 };
 
 
-#endif /*_TISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_*/
+#endif /*_TISSUESIMULATIONWITHPDESASSEMBLER_HPP_*/

@@ -58,7 +58,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean drawCells = true;
     public static boolean drawSprings = false;
     public static boolean drawCircles = false;
-    public static boolean drawNutrient = false;
+    public static boolean drawPdeSolution = false;
     public static boolean drawBetaCatenin = false;
     public static boolean drawAverageStress = false;
     public static boolean drawDifferenceStress = false;
@@ -67,7 +67,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static boolean drawCylinder = false;
     public static boolean drawCylinderOverride = true;
     public static boolean ancestorsFilePresent = false;
-    public static boolean nutrientFilePresent = false;
+    public static boolean pdeSolutionFilePresent = false;
     public static boolean orientationFilePresent = false;
     public static boolean betaCateninFilePresent = false;
     public static boolean stressFilePresent = false;
@@ -100,7 +100,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static double stress_time = 0.0;
     public static double force_cutoff = 0.0;
     public static double[] times;
-    public static double[][] nutrient_values;
+    public static double[][] pde_solution_values;
     public static double[][][] beta_catenin_values;
     public static double[][][] stress_values;
 
@@ -115,7 +115,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static Checkbox cells = new Checkbox("Cells");
     public static Checkbox ghost_nodes = new Checkbox("Ghosts");
     public static Checkbox circles = new Checkbox("Cells as circles");
-    public static Checkbox nutrient = new Checkbox("Nutrient");
+    public static Checkbox pde_solution = new Checkbox("PDE solution");
     public static Checkbox beta_catenin = new Checkbox("Beta catenin");
     public static Checkbox average_stress = new Checkbox("Average Stress");
     public static Checkbox difference_stress = new Checkbox("Difference Stress");
@@ -129,7 +129,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     public static File node_file;
     public static File cell_type_file;
     public static File element_file;
-    public static File nutrient_file;
+    public static File pde_solution_file;
     public static File beta_catenin_file;
     public static File stress_file;
     public static File ancestors_file;
@@ -258,9 +258,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             }
             System.out.println("Drawing cells as circles = "+drawCircles);
         }
-        else if (cb == nutrient)
+        else if (cb == pde_solution)
         {
-            drawNutrient = state;
+            drawPdeSolution = state;
             if (state)
             {
                 drawCells = false;
@@ -272,7 +272,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 drawBetaCatenin = false;
                 beta_catenin.setState(false);
             }
-            System.out.println("Drawing nutrient = "+drawNutrient);
+            System.out.println("Drawing PDE solution = "+drawPdeSolution);
         }
         else if (cb == beta_catenin)
         {
@@ -467,7 +467,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         cells.addItemListener(this);
         ghost_nodes.addItemListener(this);
         circles.addItemListener(this);
-        nutrient.addItemListener(this);
+        pde_solution.addItemListener(this);
         beta_catenin.addItemListener(this);
         average_stress.addItemListener(this);
         difference_stress.addItemListener(this);
@@ -484,7 +484,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         checkPanel.add(axes);
         checkPanel.add(axes_equal);
         checkPanel.add(orientation);
-        checkPanel.add(nutrient);
+        checkPanel.add(pde_solution);
         checkPanel.add(beta_catenin);
         checkPanel.add(average_stress);
         checkPanel.add(difference_stress);
@@ -507,7 +507,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         springs.setState(false);
         ghost_nodes.setState(false);
         circles.setState(false);
-        nutrient.setState(false);
+        pde_solution.setState(false);
         beta_catenin.setState(false);
         average_stress.setState(false);
         difference_stress.setState(false);
@@ -544,10 +544,10 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 drawCircles = true;
                 circles.setState(true);
             }
-            else if (args[i].equals("nutrient"))
+            else if (args[i].equals("PDE"))
             {
-                drawNutrient = true;
-                nutrient.setState(true);
+                drawPdeSolution = true;
+                pde_solution.setState(true);
                 drawCells = false;
                 cells.setState(false);
             }
@@ -593,7 +593,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         node_file = new File(args[0]+"/results.viznodes");
         cell_type_file = new File(args[0]+"/results.vizcelltypes");
         element_file = new File(args[0]+"/results.vizelements");
-        nutrient_file = new File(args[0]+"/results.viznutrient");
+        pde_solution_file = new File(args[0]+"/results.vizpdesolution");
         beta_catenin_file = new File(args[0]+"/results.vizbetacatenin");
         stress_file = new File(args[0]+"/results.vizstress");
         ancestors_file = new File(args[0]+"/results.vizancestors");
@@ -615,15 +615,15 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             // were generated using a NodeBasedTissue
             elementFilePresent = false;
         }
-        if (!nutrient_file.isFile())
+        if (!pde_solution_file.isFile())
         {
-            nutrient.setVisible(false);
-            nutrient.setState(false);
-            drawNutrient = false;
+        	pde_solution.setVisible(false);
+            pde_solution.setState(false);
+            drawPdeSolution = false;
         }
         else
         {
-            nutrientFilePresent = true;
+            pdeSolutionFilePresent = true;
         }
         if (!beta_catenin_file.isFile())
         {
@@ -709,12 +709,12 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                         }
                         drawCylinder = true && drawCylinderOverride;    // this is made true only if mesh width exists
                     }
-                    if (parameter.equals("Nutrient"))
+                    if (parameter.equals("PDE"))
                     {
-                        // Overrule the previous bit since for nutrient sims, we don't want cylindrical periodicity
+                        // Overrule the previous bit since for tissue simulations with PDEs, we don't want cylindrical periodicity
                         drawCylinder = false;
-                        drawNutrient = true;
-                        nutrient.setState(true);
+                        drawPdeSolution = true;
+                        pde_solution.setState(true);
                     }
                     if (parameter.equals("BetaCatenin"))
                     {
@@ -789,9 +789,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 numElements = new int[num_lines];
                 element_nodes = new int[num_lines][];
             }
-            if (nutrientFilePresent)
+            if (pdeSolutionFilePresent)
             {
-                nutrient_values = new double[num_lines][];
+                pde_solution_values = new double[num_lines][];
             }
             if (betaCateninFilePresent)
             {
@@ -819,13 +819,13 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 line_orientation = in_orientation_file.readLine();
             }
 
-            String line_nutrient = "";
-            BufferedReader in_nutrient_file = null;
-            if (drawNutrient)
+            String line_pde_solution = "";
+            BufferedReader in_pde_solution_file = null;
+            if (drawPdeSolution)
             {
-                   nutrient_values = new double[num_lines][];
-                   in_nutrient_file = new BufferedReader(new FileReader(nutrient_file));
-                   line_nutrient = in_nutrient_file.readLine();
+                   pde_solution_values = new double[num_lines][];
+                   in_pde_solution_file = new BufferedReader(new FileReader(pde_solution_file));
+                   line_pde_solution = in_pde_solution_file.readLine();
             }
 
             String line_ancestors = "";
@@ -886,7 +886,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 {
                     st_element = new StringTokenizer(line_element);
                 }
-                StringTokenizer st_nutrient = null;
+                StringTokenizer st_pde_solution = null;
                 StringTokenizer st_ancestors = null;
                 StringTokenizer st_beta_catenin = null;
                 StringTokenizer st_stress = null;
@@ -902,15 +902,15 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     //orientation_time unused
                 }
 
-                if (drawNutrient)
+                if (drawPdeSolution)
                 {
-                    st_nutrient = new StringTokenizer(line_nutrient);
-                    Double nutrient_time = Double.valueOf(st_nutrient.nextToken());
+                    st_pde_solution = new StringTokenizer(line_pde_solution);
+                    Double pde_solution_time = Double.valueOf(st_pde_solution.nextToken());
 
-                    int nutrient_entries = st_nutrient.countTokens();
-                    if (nutrient_entries%4 != 0)
+                    int pde_solution_entries = st_pde_solution.countTokens();
+                    if (pde_solution_entries%4 != 0)
                     {
-                        System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the nutrient file is not of the required form: time,index,x,y,nutrient,index,x,y,nutrient,...");
+                        System.out.println("Warning: Results from time "+time.doubleValue()+" will not be plotted as the corresponding line of the PDE solution file is not of the required form: time,index,x,y,sol,index,x,y,sol,...");
                         break;
                     }
                 }
@@ -1015,9 +1015,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 {
                     orientations[row] = new RealPoint[memory_factor*numCells[row]];
                 }
-                if (nutrientFilePresent)
+                if (pdeSolutionFilePresent)
                 {
-                    nutrient_values[row] = new double[memory_factor*numCells[row]];
+                    pde_solution_values[row] = new double[memory_factor*numCells[row]];
                 }
                 if (ancestorsFilePresent)
                 {
@@ -1055,24 +1055,24 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     }
                     positions[row][i] = new RealPoint(d1,d2);
 
-                    if (drawNutrient)
+                    if (drawPdeSolution)
                     {
-                        if (cell_type[row][i]!=canvas.INVISIBLE_COLOUR)    // if this is not a ghost cell
+                        if (cell_type[row][i] != canvas.INVISIBLE_COLOUR)    // if this is not a ghost cell
                         {
                             String skip; // skips past unnecessary information
-                            int index = Integer.parseInt(st_nutrient.nextToken()); // index
-                            skip = st_nutrient.nextToken(); // x
-                            skip = st_nutrient.nextToken(); // y
+                            int index = Integer.parseInt(st_pde_solution.nextToken()); // index
+                            skip = st_pde_solution.nextToken(); // x
+                            skip = st_pde_solution.nextToken(); // y
 
-                            double nutrient = Double.valueOf(st_nutrient.nextToken()).doubleValue();
-                            nutrient_values[row][index] = nutrient;
+                            double pde_solution = Double.valueOf(st_pde_solution.nextToken()).doubleValue();
+                            pde_solution_values[row][index] = pde_solution;
                         }
                     }
 
                     if (drawAncestors)
                     {
                         // If this is a real cell then read in ancestor from row
-                        if (cell_type[row][i]!=canvas.INVISIBLE_COLOUR)    // if this is not a ghost cell
+                        if (cell_type[row][i] != canvas.INVISIBLE_COLOUR)    // if this is not a ghost cell
                         {
                             int ancestor_value = Integer.parseInt(st_ancestors.nextToken()); // index
                             ancestor_values[row][i] = ancestor_value;
@@ -1145,9 +1145,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 {
                     line_orientation = in_orientation_file.readLine();
                 }
-                if (drawNutrient)
+                if (drawPdeSolution)
                 {
-                    line_nutrient = in_nutrient_file.readLine();
+                    line_pde_solution = in_pde_solution_file.readLine();
                 }
                 if (drawBetaCatenin)
                 {
@@ -1167,7 +1167,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
 
             System.out.println("Writing output files = "+writeFiles);
             System.out.println("Drawing springs = "+drawSprings);
-            System.out.println("Drawing nutrient = "+drawNutrient);
+            System.out.println("Drawing PDE solution = "+drawPdeSolution);
             System.out.println("Drawing beta catenin = "+drawBetaCatenin);
             System.out.println("Drawing average stress = "+drawAverageStress);
             System.out.println("Drawing difference stress = "+drawDifferenceStress);
@@ -1526,7 +1526,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             }
         }
 
-        if (vis.drawNutrient && vis.drawCircles)
+        if (vis.drawPdeSolution && vis.drawCircles)
         {
             // Draw cell circle interiors
             for (int i=0; i<vis.numCells[vis.timeStep]; i++ )
@@ -1647,7 +1647,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
                     }
                 }
 
-                if (vis.drawNutrient && !vis.drawCircles)
+                if (vis.drawPdeSolution && !vis.drawCircles)
                 {
                     int clipx[] = new int[3];
                     int clipy[] = new int[3];
@@ -1893,7 +1893,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             {
                 SetNodeColour(i);
             }
-            if (!vis.drawNutrient)
+            if (!vis.drawPdeSolution)
             {
                 // \todo: Larger simulations would be clearer with smaller nodes
                 g2.fillOval(p.x - node_radius, p.y - node_radius, 2 * node_radius, 2 * node_radius);
@@ -1914,9 +1914,9 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             drawYAxis(tick_length);
         }
 
-        if (vis.drawNutrient)
+        if (vis.drawPdeSolution)
         {
-            drawNutrientColourBar();
+            drawPdeSolutionColourBar();
         }
         if (vis.drawBetaCatenin)
         {
@@ -1929,7 +1929,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         imageReady = true;
     }
 
-    private void drawNutrientColourBar()
+    private void drawPdeSolutionColourBar()
     {
         int panelHeight = (int) (0.8 * vis.frame.getHeight());
         int panelWidth = (int) (0.8 * vis.frame.getWidth());
@@ -1938,7 +1938,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
         int blockWidth = panelWidth/25;
         int blockHeight = panelHeight/(2*num_blocks);
 
-        // Draw nutrient colour bar
+        // Draw PDE solution colour bar
         for (int i=1; i<=num_blocks; i++)
         {
             // Calculate colour
@@ -1950,7 +1950,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             g2.fillRect(panelWidth, i*blockHeight+5, blockWidth, blockHeight);
         }
 
-        // Populate vector of labels for nutrient colour bar
+        // Populate vector of labels for PDE solution colour bar
         // If num_labels > 11 then change the decimal format as appropriate
         int num_labels = 11;
         String[] labels = new String[num_labels];
@@ -1963,7 +1963,7 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
             labels[i] = this_label_as_string;
         }
 
-        // Draw labels next to nutrient colour bar
+        // Draw labels next to PDE solution colour bar
         int block_multiple = num_blocks / (num_labels-1);
         for (int i=0; i<num_labels; i++)
         {
@@ -2320,9 +2320,9 @@ class CustomCanvas2D extends Canvas implements MouseMotionListener
 
     void SetCellColour(int index)
     {
-        if (vis.drawNutrient)
+        if (vis.drawPdeSolution)
         {
-            double conc = vis.nutrient_values[vis.timeStep][index];
+            double conc = vis.pde_solution_values[vis.timeStep][index];
 
             switch (vis.cell_type[vis.timeStep][index])
             {

@@ -13,7 +13,7 @@ mesh/TestHoneycombMeshGenerator.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
 simulation/TestTissueSimulation3d.hpp
-simulation/TestTissueSimulationWithNutrients.hpp
+simulation/TestTissueSimulationWithPdes.hpp
 tissue/TestCellKillers.hpp
 tissue/TestCellwiseData.hpp
 tissue/TestMeshBasedTissue.hpp

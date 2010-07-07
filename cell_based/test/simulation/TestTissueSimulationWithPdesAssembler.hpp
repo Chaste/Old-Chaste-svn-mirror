@@ -37,13 +37,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <pde/test/pdes/SimplePoissonEquation.hpp>
 
 #include "SimpleLinearEllipticAssembler.hpp"
-#include "TissueSimulationWithNutrientsAssembler.hpp"
+#include "TissueSimulationWithPdesAssembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ConstBoundaryCondition.hpp"
 
 
-class TestTissueSimulationWithNutrientsAssembler : public CxxTest::TestSuite
+class TestTissueSimulationWithPdesAssembler : public CxxTest::TestSuite
 {
 public:
 
@@ -66,22 +66,23 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
 
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> simple_assembler(&mesh,&pde,&bcc);
-        TissueSimulationWithNutrientsAssembler<2> nutrients_assembler(&mesh,&pde,&bcc);
+        SimpleLinearEllipticAssembler<2,2> simple_assembler(&mesh, &pde, &bcc);
+        TissueSimulationWithPdesAssembler<2> pde_assembler(&mesh, &pde, &bcc);
 
         Vec simple_result = simple_assembler.Solve();
-        Vec nutrients_result = nutrients_assembler.Solve();
+        Vec pde_result = pde_assembler.Solve();
 
         ReplicatableVector simple_result_repl(simple_result);
-        ReplicatableVector nutrients_result_repl(nutrients_result);
+        ReplicatableVector pde_result_repl(pde_result);
 
         for (unsigned i=0; i<simple_result_repl.GetSize(); i++)
         {
-            TS_ASSERT_EQUALS(simple_result_repl[i], nutrients_result_repl[i]);
+            TS_ASSERT_EQUALS(simple_result_repl[i], pde_result_repl[i]);
         }
 
+        // Tidy up
         VecDestroy(simple_result);
-        VecDestroy(nutrients_result);
+        VecDestroy(pde_result);
     }
 
 };

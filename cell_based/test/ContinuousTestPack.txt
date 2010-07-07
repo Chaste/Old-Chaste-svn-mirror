@@ -22,8 +22,8 @@ simulation/TestNutrientPdes.hpp
 simulation/TestTissueSimulation.hpp
 simulation/TestTissueSimulation3d.hpp
 simulation/TestTissueSimulationWithNodeBasedTissue.hpp
-simulation/TestTissueSimulationWithNutrients.hpp
-simulation/TestTissueSimulationWithNutrientsAssembler.hpp
+simulation/TestTissueSimulationWithPdes.hpp
+simulation/TestTissueSimulationWithPdesAssembler.hpp
 tissue/TestCellKillers.hpp
 tissue/TestCellwiseData.hpp
 tissue/TestForces.hpp

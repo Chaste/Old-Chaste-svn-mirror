@@ -550,7 +550,7 @@ void TissueSimulation<DIM>::Solve()
 
         //////////////////////////////////////////
         // PostSolve, which may be implemented by
-        // child classes (eg to solve nutrient pdes)
+        // child classes (e.g. to solve PDEs)
         //////////////////////////////////////////
         PostSolve();
 

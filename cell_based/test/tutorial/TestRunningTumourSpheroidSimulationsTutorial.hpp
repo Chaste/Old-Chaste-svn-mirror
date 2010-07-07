@@ -71,9 +71,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * in any Chaste test):
  */
 #include <cxxtest/TestSuite.h>
-/* This header file defines a helper class for generating a suitable mesh: */
+/*
+ * This header file defines a helper class for generating a suitable mesh:
+ */
 #include "HoneycombMeshGenerator.hpp"
-/* These are the classes that will be used in these tests (note that we use a
+/*
+ * These are the classes that will be used in these tests (note that we use a
  * tissue simulation subclass called {{{TissueSimulationWithNutrients}}}):
  */
 #include "TissueSimulationWithNutrients.hpp"
@@ -82,100 +85,123 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OxygenBasedCellKiller.hpp"
 #include "CellwiseNutrientSinkPde.hpp"
 #include "WildTypeCellMutationState.hpp"
-/* !PetscSetupAndFinalize.hpp must be included in all tests which use Petsc. This is
+/*
+ * !PetscSetupAndFinalize.hpp must be included in all tests which use Petsc. This is
  * a suite of data structures and routines that are used in the finite element
  * PDE solvers, which is how we solve the nutrient PDE(s).
  */
 #include "PetscSetupAndFinalize.hpp"
 
-
-/* Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}.
+/*
+ * Next, we define the test class, which inherits from {{{CxxTest::TestSuite}}}.
  */
 class TestRunningTumourSpheroidSimulationsTutorial : public CxxTest::TestSuite
 {
 public:
     void TestSpheroidTutorial() throw(Exception)
     {
-        /* This first line can be ignored, it's a macro which just says
-         * don't run this test if in parallel. */
+        /*
+         * This first line can be ignored, it's a macro which just says
+         * don't run this test if in parallel.
+         */
         EXIT_IF_PARALLEL; // defined in PetscTools.hpp
 
-        /* The first thing to do, as before, is to set up the start time and
-         * reset the parameters. */
+        /*
+         * The first thing to do, as before, is to set up the start time and
+         * reset the parameters.
+         */
         SimulationTime::Instance()->SetStartTime(0.0);
         TissueConfig::Instance()->Reset();
         TissueConfig::Instance()->SetHepaOneParameters();
 
-        /* Now we want to create a ''non-periodic'' 'honeycomb' mesh.
+        /*
+         * Now we want to create a ''non-periodic'' 'honeycomb' mesh.
          * We use the honeycomb mesh generator, as before, saying 10 cells wide
          * and 10 cells high. Note that the thickness of the ghost nodes layer is
-         * 0, ie no ghost nodes, and the {{{false}}} indicates not cylindrical.
+         * 0, i.e. no ghost nodes, and the {{{false}}} indicates not cylindrical.
          */
         HoneycombMeshGenerator generator(10, 10, 0, false);
-        /* Get the mesh. Note we call {{{GetMesh()}}} rather than {{{GetCyclindricalMesh}}},
-         * and that a {{{MutableMesh}}} is returned. */
+        /*
+         * Get the mesh. Note we call {{{GetMesh()}}} rather than {{{GetCyclindricalMesh}}},
+         * and that a {{{MutableMesh}}} is returned.
+         */
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-
-        /* Next, we need to create some cells. Unlike before, we don't just use
+        /*
+         * Next, we need to create some cells. Unlike before, we don't just use
          * a {{{CellsGenerator}}} class, but do it manually, in a loop. First,
-         * define the cells vector. */
+         * define the cells vector.
+         */
         std::vector<TissueCell> cells;
 
-        /* This line defines a mutation state to be used for all cells, of type
-         * `WildTypeCellMutationState` (i.e. 'healthy')
+        /*
+         * This line defines a mutation state to be used for all cells, of type
+         * `WildTypeCellMutationState` (i.e. 'healthy'):
          */
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
-        /* Now loop over the nodes... */
+        /*
+         * Now loop over the nodes...
+         */
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            /*.. then create a cell, giving it a particular cell cycle model
+            /*
+             * ...then create a cell, giving it a particular cell cycle model
              * - {{{SimpleOxygenBasedCellCycleModel}}}. The spatial dimension (1, 2 or 3) and
              * cell proliferative type (STEM, TRANSIT or DIFFERENTIATED) needs to be
-             * set on the cell cycle model before being passed to the cell. */
+             * set on the cell cycle model before being passed to the cell.
+             */
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
             TissueCell cell(p_state, p_model);
 
-            /* We now define a random birth time, chosen from [-T,0], where
+            /*
+             * We now define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
              * of a !HepaOne cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
                                  (  TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                   + TissueConfig::Instance()->GetSG2MDuration() );
-            /* .. then we set the birth time and push the cell back into the vector
-             * of cells. */
+            /*
+             * ...then we set the birth time and push the cell back into the vector
+             * of cells.
+             */
             cell.SetBirthTime(birth_time);
             cells.push_back(cell);
         }
 
-        /* Now that we have defined the cells, we can define the Tissue. This time it
-         * is just a mesh-based tissue (ie not a {{{MeshBasedTissueWithGhostNodes()}}}.
-         * Again, the constructor takes in the mesh and the cells vector. */
+        /*
+         * Now that we have defined the cells, we can define the Tissue. This time it
+         * is just a mesh-based tissue (i.e. not a {{{MeshBasedTissueWithGhostNodes()}}}.
+         * Again, the constructor takes in the mesh and the cells vector.
+         */
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
-        /* Recall that in the Wnt based crypt simulation, we defined a singleton class
+        /*
+         * Recall that in the Wnt based crypt simulation, we defined a singleton class
          * which cell-cycles used to get the wnt concentration. Here, we do the same kind
          * of thing, but using the singletom {{{CellwiseData}}} class, which stores the
          * value of the current nutrient concentration, for each cell. We have to
          * tell the {{{CellwiseData}}} object how many cells and variables per cell there
-         * are (in this case, 1 variable per cell, ie the oxygen concentration), and
+         * are (in this case, 1 variable per cell, i.e. the oxygen concentration), and
          * the tissue.
          */
         CellwiseData<2>::Instance()->SetNumCellsAndVars(tissue.GetNumRealCells(),1);
         CellwiseData<2>::Instance()->SetTissue(&tissue);
-        /* Then we have to initialise the oxygen concentration for each node (to 1.0), by
+        /*
+         * Then we have to initialise the oxygen concentration for each node (to 1.0), by
          * calling {{{SetValue}}}. This takes in the concentration, and the location index 
-         * corresponding to the cell which this concentration is for .*/
+         * corresponding to the cell which this concentration is for.
+         */
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             CellwiseData<2>::Instance()->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
         }
 
-        /* Next we instantiate an instance of the PDE class which we defined above.
+        /*
+         * Next we instantiate an instance of the PDE class which we defined above.
          * This will be passed into the simulator. The !CellwiseNutrientSinkPde is
          * a Pde class which inherits from !AbstractLinearEllipticPde, and represents
          * the PDE: u_xx + u_yy = k(x) u, where k(x) = 0.03 (the coefficient below)
@@ -183,7 +209,8 @@ public:
          */
         CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
 
-        /* We must now create one or more force laws, which determine the mechanics of
+        /*
+         * We must now create one or more force laws, which determine the mechanics of
          * the tissue. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring. Since this
          * model was first proposed in the context of crypt modelling by Meineke ''et al''
@@ -209,17 +236,23 @@ public:
          */
         TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
 
-        /* As with {{{CryptSimulation2d}}} (which inherits from the same base class
+        /*
+         * As with {{{CryptSimulation2d}}} (which inherits from the same base class
          * as {{{TissueSimulationWithNutrients}}}), we can set the output directory
-         * and end time. */
+         * and end time.
+         */
         simulator.SetOutputDirectory("SpheroidTutorial");
         simulator.SetEndTime(10.0);
 
-        /* Solve. */
+        /*
+         * Solve.
+         */
         simulator.Solve();
 
-        /* Finally, call {{{Destroy()}}} on the singleton classes. The results
-         * can be visualised as in the previous test. */
+        /*
+         * Finally, call {{{Destroy()}}} on the singleton classes. The results
+         * can be visualised as in the previous test.
+         */
         SimulationTime::Destroy();
         CellwiseData<2>::Destroy();
     }

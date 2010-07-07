@@ -35,9 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- *  A singleton object for storing data that certain cell cycle models
- *  need to know about, e.g. nutrient concentrations computed via some PDE
- *  for use in nutrient based cell cycle models.
+ * A singleton object for storing data that certain cell cycle models
+ * need to know about, e.g. nutrient concentrations computed via some PDE
+ * for use in nutrient based cell cycle models.
  */
 template<unsigned DIM>
 class CellwiseData

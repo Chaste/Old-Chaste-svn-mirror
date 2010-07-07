@@ -26,14 +26,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "TissueSimulationWithNutrientsAssembler.hpp"
+#include "TissueSimulationWithPdesAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "SimpleLinearEllipticAssembler.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 
 template<unsigned DIM>
-TissueSimulationWithNutrientsAssembler<DIM>::TissueSimulationWithNutrientsAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
+TissueSimulationWithPdesAssembler<DIM>::TissueSimulationWithPdesAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
                               AbstractLinearEllipticPde<DIM,DIM>* pPde,
                               BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
                               unsigned numQuadPoints) :
@@ -42,12 +42,12 @@ TissueSimulationWithNutrientsAssembler<DIM>::TissueSimulationWithNutrientsAssemb
 }
 
 template<unsigned DIM>
-TissueSimulationWithNutrientsAssembler<DIM>::~TissueSimulationWithNutrientsAssembler()
+TissueSimulationWithPdesAssembler<DIM>::~TissueSimulationWithPdesAssembler()
 {
 }
 
 template<unsigned DIM>
-c_vector<double, 1*(DIM+1)> TissueSimulationWithNutrientsAssembler<DIM>::ComputeVectorTerm(
+c_vector<double, 1*(DIM+1)> TissueSimulationWithPdesAssembler<DIM>::ComputeVectorTerm(
         c_vector<double, DIM+1>& rPhi,
         c_matrix<double, DIM, DIM+1>& rGradPhi,
         ChastePoint<DIM>& rX,
@@ -59,7 +59,7 @@ c_vector<double, 1*(DIM+1)> TissueSimulationWithNutrientsAssembler<DIM>::Compute
 }
 
 template<unsigned DIM>
-c_matrix<double, 1*(DIM+1), 1*(DIM+1)> TissueSimulationWithNutrientsAssembler<DIM>::ComputeMatrixTerm(
+c_matrix<double, 1*(DIM+1), 1*(DIM+1)> TissueSimulationWithPdesAssembler<DIM>::ComputeMatrixTerm(
         c_vector<double, DIM+1>& rPhi,
         c_matrix<double, DIM, DIM+1>& rGradPhi,
         ChastePoint<DIM>& rX,
@@ -82,21 +82,21 @@ c_matrix<double, 1*(DIM+1), 1*(DIM+1)> TissueSimulationWithNutrientsAssembler<DI
 }
 
 template<unsigned DIM>
-void TissueSimulationWithNutrientsAssembler<DIM>::ResetInterpolatedQuantities()
+void TissueSimulationWithPdesAssembler<DIM>::ResetInterpolatedQuantities()
 {
     mConstantInUSourceTerm = 0;
     mLinearInUCoeffInSourceTerm = 0;
 }
 
 template<unsigned DIM>
-void TissueSimulationWithNutrientsAssembler<DIM>::IncrementInterpolatedQuantities(double phiI, const Node<DIM>* pNode)
+void TissueSimulationWithPdesAssembler<DIM>::IncrementInterpolatedQuantities(double phiI, const Node<DIM>* pNode)
 {
     mConstantInUSourceTerm += phiI * this->mpEllipticPde->ComputeConstantInUSourceTermAtNode(*pNode);
     mLinearInUCoeffInSourceTerm += phiI * this->mpEllipticPde->ComputeLinearInUCoeffInSourceTermAtNode(*pNode);
 }
 
 template<unsigned DIM>
-void TissueSimulationWithNutrientsAssembler<DIM>::InitialiseForSolve(Vec initialSolution)
+void TissueSimulationWithPdesAssembler<DIM>::InitialiseForSolve(Vec initialSolution)
 {
     // linear system created here
     BaseClassType::InitialiseForSolve(initialSolution);
@@ -113,20 +113,20 @@ void TissueSimulationWithNutrientsAssembler<DIM>::InitialiseForSolve(Vec initial
  * is called at compile time.
  */
 template<unsigned DIM>
-struct AssemblerTraits<TissueSimulationWithNutrientsAssembler<DIM> >
+struct AssemblerTraits<TissueSimulationWithPdesAssembler<DIM> >
 {
     /** The class in which ComputeVectorTerm is defined. */
-    typedef TissueSimulationWithNutrientsAssembler<DIM> CVT_CLASS;
+    typedef TissueSimulationWithPdesAssembler<DIM> CVT_CLASS;
     /** The class in which ComputeMatrixTerm is defined. */
-    typedef TissueSimulationWithNutrientsAssembler<DIM> CMT_CLASS;
+    typedef TissueSimulationWithPdesAssembler<DIM> CMT_CLASS;
     /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
-    typedef TissueSimulationWithNutrientsAssembler<DIM> INTERPOLATE_CLASS;
+    typedef TissueSimulationWithPdesAssembler<DIM> INTERPOLATE_CLASS;
 };
 
 //////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////
 
-template class TissueSimulationWithNutrientsAssembler<1>;
-template class TissueSimulationWithNutrientsAssembler<2>;
-template class TissueSimulationWithNutrientsAssembler<3>;
+template class TissueSimulationWithPdesAssembler<1>;
+template class TissueSimulationWithPdesAssembler<2>;
+template class TissueSimulationWithPdesAssembler<3>;

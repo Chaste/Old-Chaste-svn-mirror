@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // Must be included before other cell_based headers
 #include "TissueSimulationArchiver.hpp"
 
-#include "TissueSimulationWithNutrients.hpp"
+#include "TissueSimulationWithPdes.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "OxygenBasedCellKiller.hpp"
@@ -69,7 +69,7 @@ public:
 };
 
 
-class TestTissueSimulationWithNutrients : public AbstractCellBasedTestSuite
+class TestTissueSimulationWithPdes : public AbstractCellBasedTestSuite
 {
 private:
 
@@ -153,13 +153,13 @@ public:
         GeneralisedLinearSpringForce<2> linear_force;
         // Use an extremely small cutoff so that no cells interact
         // - this is to ensure that in the Solve method, the cells don't move
-        // (we need to call Solve to set up the .viznutrient file)
+        // (we need to call Solve to set up the .vizpdesolution file)
         linear_force.UseCutoffPoint(0.0001);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde, 1.0, false);
         simulator.SetOutputDirectory("TestPostSolveMethod");
         simulator.SetEndTime(2.0/120.0);
 
@@ -258,7 +258,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde, 1.0, false);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen");
         simulator.SetEndTime(0.5);
 
@@ -289,9 +289,9 @@ public:
         OutputFileHandler handler("TissueSimulationWithOxygen", false);
         std::string results_dir = handler.GetOutputDirectoryFullPath() + "results_from_time_0";
 
-        NumericFileComparison comp_nut(results_dir + "/results.viznutrient", "cell_based/test/data/TissueSimulationWithOxygen/results.viznutrient");
+        NumericFileComparison comp_nut(results_dir + "/results.vizpdesolution", "cell_based/test/data/TissueSimulationWithOxygen/results.vizpdesolution");
         TS_ASSERT(comp_nut.CompareFiles());
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.viznutrient cell_based/test/data/TissueSimulationWithOxygen/results.viznutrient").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "/results.vizpdesolution cell_based/test/data/TissueSimulationWithOxygen/results.vizpdesolution").c_str()), 0);
 
         NumericFileComparison comp_ele(results_dir + "/results.vizelements", "cell_based/test/data/TissueSimulationWithOxygen/results.vizelements");
         TS_ASSERT(comp_ele.CompareFiles());
@@ -374,7 +374,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde, 1.0, false);
         simulator.SetOutputDirectory("TissueSimulationWithPointwiseNutrientSink");
         simulator.SetEndTime(0.5);
 
@@ -453,10 +453,10 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde, 1.0, false);
         simulator.SetOutputDirectory("TestSpheroidStatistics");
         simulator.SetEndTime(1.0/120.0);
-        simulator.SetWriteAverageRadialNutrientResults(5);
+        simulator.SetWriteAverageRadialPdeSolution(5);
 
         // Add an oxygen-dependent cell killer to the tissue simulation
         OxygenBasedCellKiller<2> killer(&tissue);
@@ -499,7 +499,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + dist_results_file + " cell_based/test/data/TestSpheroidStatistics/radial_dist.dat").c_str()), 0);
 
         // Coverage
-        TS_ASSERT_THROWS_NOTHING(simulator.WriteAverageRadialNutrientDistribution(SimulationTime::Instance()->GetTime(),5));
+        TS_ASSERT_THROWS_NOTHING(simulator.WriteAverageRadialPdeSolution(SimulationTime::Instance()->GetTime(),5));
 
         // Tidy up
         CellwiseData<2>::Destroy();
@@ -562,19 +562,19 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, NULL, &pde);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde, 1.0, false);
         simulator.SetOutputDirectory("TestCoarseNutrientMesh");
         simulator.SetEndTime(0.05);
 
         // Coverage
-        simulator.SetAveragedSinksPde(&pde);
+        simulator.SetPde(&pde);
 
         // Set up cell killer and pass into simulation
         OxygenBasedCellKiller<2> killer(&tissue);
         simulator.AddCellKiller(&killer);
 
-        // Test creation of mpCoarseNutrientMesh
-        simulator.UseCoarseNutrientMesh(10.0);
+        // Test creation of mpCoarsePdeMesh
+        simulator.UseCoarsePdeMesh(10.0);
 
         // Find centre of tissue
         c_vector<double,2> centre_of_tissue = zero_vector<double>(2);
@@ -585,48 +585,47 @@ public:
         }
         centre_of_tissue /= simulator.rGetTissue().GetNumNodes();
 
-        // Find centre of nutrient mesh
-        c_vector<double,2> centre_of_nutrient_mesh = zero_vector<double>(2);
+        // Find centre of coarse PDE mesh
+        c_vector<double,2> centre_of_coarse_pde_mesh = zero_vector<double>(2);
 
-        for (unsigned i=0; i<simulator.mpCoarseNutrientMesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<simulator.mpCoarsePdeMesh->GetNumNodes(); i++)
         {
-            centre_of_nutrient_mesh += simulator.mpCoarseNutrientMesh->GetNode(i)->rGetLocation();
+            centre_of_coarse_pde_mesh += simulator.mpCoarsePdeMesh->GetNode(i)->rGetLocation();
         }
-        centre_of_nutrient_mesh /= simulator.mpCoarseNutrientMesh->GetNumNodes();
+        centre_of_coarse_pde_mesh /= simulator.mpCoarsePdeMesh->GetNumNodes();
 
         // Test that the two centres match
-        TS_ASSERT_DELTA(centre_of_tissue[0], centre_of_nutrient_mesh[0], 1e-4);
-        TS_ASSERT_DELTA(centre_of_tissue[1], centre_of_nutrient_mesh[1], 1e-4);
+        TS_ASSERT_DELTA(centre_of_tissue[0], centre_of_coarse_pde_mesh[0], 1e-4);
+        TS_ASSERT_DELTA(centre_of_tissue[1], centre_of_coarse_pde_mesh[1], 1e-4);
 
-        // Test FindElementContainingCell and initialisation of mCellNutrientElementMap
+        // Test FindCoarseElementContainingCell and initialisation of mCellPdeElementMap
 
-        simulator.InitialiseCoarseNutrientMesh(); // coverage
+        simulator.InitialiseCoarsePdeMesh(); // coverage
 
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter != tissue.End();
             ++cell_iter)
         {
-            unsigned containing_element_index = simulator.mCellNutrientElementMap[&(*cell_iter)];
-            TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarseNutrientMesh->GetNumElements());
-            TS_ASSERT_EQUALS(containing_element_index, simulator.FindElementContainingCell(*cell_iter));
+            unsigned containing_element_index = simulator.mCellPdeElementMap[&(*cell_iter)];
+            TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarsePdeMesh->GetNumElements());
+            TS_ASSERT_EQUALS(containing_element_index, simulator.FindCoarseElementContainingCell(*cell_iter));
         }
 
         // Run tissue simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
-        TS_ASSERT(simulator.mpCoarseNutrientMesh != NULL);
+        TS_ASSERT(simulator.mpCoarsePdeMesh != NULL);
 
-        ReplicatableVector nutrient_conc(simulator.GetNutrientSolution());
+        ReplicatableVector pde_solution(simulator.GetCurrentPdeSolution());
 
-        // Test the nutrient concentration at the coarse mesh nodes is
-        // equal to 1.0 if the nodes are away from the cells
-        for (unsigned i=0; i<nutrient_conc.GetSize(); i++)
+        // Test the nutrient concentration is equal to 1.0 at each coarse mesh node far from the cells
+        for (unsigned i=0; i<pde_solution.GetSize(); i++)
         {
             c_vector<double,2> centre;
             centre(0) = 2.5; // assuming 5 by 5 honeycomb mesh
             centre(1) = 2.5;
-            c_vector<double,2> posn = simulator.mpCoarseNutrientMesh->GetNode(i)->rGetLocation();
-            double dist = norm_2(centre-posn);
-            double u = nutrient_conc[i];
+            c_vector<double,2> posn = simulator.mpCoarsePdeMesh->GetNode(i)->rGetLocation();
+            double dist = norm_2(centre - posn);
+            double u = pde_solution[i];
 
             if (dist > 4.0)
             {
@@ -634,26 +633,28 @@ public:
             }
         }
 
-        // Loop over cells, find the coarse mesh element containing it, then
-        // check the interpolated nutrient concentration is between the min
-        // and max of the nutrient concentrations on the nodes of that element
+        /*
+         * Loop over cells, find the coarse mesh element containing it, then
+         * check the interpolated PDE solution is between the min and max of
+         * the PDE solution on the nodes of that element.
+         */
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
             cell_iter != tissue.End();
             ++cell_iter)
         {
-            unsigned elem_index = simulator.mpCoarseNutrientMesh->GetContainingElementIndex(tissue.GetLocationOfCellCentre(*cell_iter));
-            Element<2,2>* p_element = simulator.mpCoarseNutrientMesh->GetElement(elem_index);
+            unsigned elem_index = simulator.mpCoarsePdeMesh->GetContainingElementIndex(tissue.GetLocationOfCellCentre(*cell_iter));
+            Element<2,2>* p_element = simulator.mpCoarsePdeMesh->GetElement(elem_index);
 
 
-            double max = std::max(nutrient_conc[p_element->GetNodeGlobalIndex(0)],
-                                  nutrient_conc[p_element->GetNodeGlobalIndex(1)]);
+            double max = std::max(pde_solution[p_element->GetNodeGlobalIndex(0)],
+                                  pde_solution[p_element->GetNodeGlobalIndex(1)]);
 
-            max = std::max(max, nutrient_conc[p_element->GetNodeGlobalIndex(2)]);
+            max = std::max(max, pde_solution[p_element->GetNodeGlobalIndex(2)]);
 
-            double min = std::min(nutrient_conc[p_element->GetNodeGlobalIndex(0)],
-                                  nutrient_conc[p_element->GetNodeGlobalIndex(1)]);
+            double min = std::min(pde_solution[p_element->GetNodeGlobalIndex(0)],
+                                  pde_solution[p_element->GetNodeGlobalIndex(1)]);
 
-            min = std::min(min, nutrient_conc[p_element->GetNodeGlobalIndex(2)]);
+            min = std::min(min, pde_solution[p_element->GetNodeGlobalIndex(2)]);
 
 
             double value_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 0);
@@ -722,11 +723,11 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Set up tissue simulation to use a coarse nutrient mesh
-        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, NULL, &pde);
+        // Set up tissue simulation to use a coarse PDE mesh
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde, 1.0, false);
         simulator.SetOutputDirectory("TestCoarseNutrientMeshBoundaryConditionImplementation");
         simulator.SetEndTime(0.01);
-        simulator.UseCoarseNutrientMesh(2.0);
+        simulator.UseCoarsePdeMesh(2.0);
 
         // Run tissue simulation
         simulator.Solve();
@@ -803,8 +804,8 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
-        simulator.SetOutputDirectory("TissueSimulationWithNutrientsSaveAndLoad");
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde, 1.0, false);
+        simulator.SetOutputDirectory("TissueSimulationWithPdesSaveAndLoad");
         simulator.SetEndTime(0.2);
 
         // Set up cell killer and pass into simulation
@@ -815,12 +816,12 @@ public:
         simulator.Solve();
 
         // Save tissue simulation
-        TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Save(&simulator);
+        TissueSimulationArchiver<2, TissueSimulationWithPdes<2> >::Save(&simulator);
 
-        TissueSimulationWithNutrients<2>* p_simulator
-            = TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Load("TissueSimulationWithNutrientsSaveAndLoad", 0.2);
+        TissueSimulationWithPdes<2>* p_simulator
+            = TissueSimulationArchiver<2, TissueSimulationWithPdes<2> >::Load("TissueSimulationWithPdesSaveAndLoad", 0.2);
+
         p_simulator->SetPde(&pde);
-
         p_simulator->SetEndTime(0.5);
         p_simulator->Solve();
 
@@ -847,8 +848,8 @@ public:
 
 
     /**
-     * This test demonstrates how to archive a TissueSimulationWithNutrients
-     * in the case where the nutrient PDE has the tissue as a member variable
+     * This test demonstrates how to archive a TissueSimulationWithPdes
+     * in the case where the PDE has the tissue as a member variable.
      */
     void TestArchivingWithCellwisePde() throw (Exception)
     {
@@ -912,7 +913,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, &pde);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(end_time);
 
@@ -920,11 +921,11 @@ public:
         simulator.Solve();
 
         // Save tissue simulation
-        TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Save(&simulator);
+        TissueSimulationArchiver<2, TissueSimulationWithPdes<2> >::Save(&simulator);
 
         // Load simulation
-        TissueSimulationWithNutrients<2>* p_simulator
-            = TissueSimulationArchiver<2, TissueSimulationWithNutrients<2> >::Load(output_directory, end_time);
+        TissueSimulationWithPdes<2>* p_simulator
+            = TissueSimulationArchiver<2, TissueSimulationWithPdes<2> >::Load(output_directory, end_time);
 
         /**
          * In this case, the PDE had a reference to the tissue. To avoid a
@@ -947,7 +948,7 @@ public:
     }
 
 
-    void Test3DTissueSimulationWithNutrients() throw(Exception)
+    void Test3DTissueSimulationWithPdes() throw(Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
 
@@ -990,7 +991,7 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up tissue simulation
-        TissueSimulationWithNutrients<3> simulator(tissue, force_collection, &pde);
+        TissueSimulationWithPdes<3> simulator(tissue, force_collection, &pde, 1.0, false);
         simulator.SetOutputDirectory("TissueSimulationWithOxygen3d");
         simulator.SetEndTime(0.5);
 
@@ -999,7 +1000,7 @@ public:
         simulator.AddCellKiller(p_killer);
 
         // Coverage
-        TS_ASSERT_THROWS_THIS(simulator.CreateCoarseNutrientMesh(10.0), "This method is only implemented in 2D");
+        TS_ASSERT_THROWS_THIS(simulator.CreateCoarsePdeMesh(10.0), "This method is only implemented in 2D");
 
         // Run tissue simulation
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());
