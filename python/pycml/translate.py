@@ -2036,14 +2036,15 @@ class CellMLToChasteTranslator(CellMLTranslator):
             dvdt = None
         if self.use_chaste_stimulus:
             i_stim = self.doc._cml_config.i_stim_var
-            nonv_nodeset = self.calculate_extended_dependencies(
-                derivs, prune=[i_stim])
-            nonv_nodeset.add(i_stim)
+            i_stim_deps = self.calculate_extended_dependencies([i_stim])
+            i_stim_deps.remove(i_stim)
         else:
-            nonv_nodeset = self.calculate_extended_dependencies(derivs)
+            i_stim_deps = set()
+        nonv_nodeset = self.calculate_extended_dependencies(
+            derivs, prune=i_stim_deps)
         if dvdt:
             v_nodeset = self.calculate_extended_dependencies(
-                [dvdt], prune=nonv_nodeset)
+                [dvdt], prune=nonv_nodeset|i_stim_deps)
         else:
             v_nodeset = set()
         # State variable inputs
