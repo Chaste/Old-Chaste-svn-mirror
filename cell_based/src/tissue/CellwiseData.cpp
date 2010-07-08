@@ -76,7 +76,12 @@ void CellwiseData<DIM>::Destroy()
 template<unsigned DIM>
 double CellwiseData<DIM>::GetValue(TissueCell& rCell, unsigned variableNumber)
 {
-    // To test a cell and cell cycle models without a tissue
+    if (variableNumber >= mNumberOfVariables)
+    {
+    	EXCEPTION("Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
+    }
+
+	// To test a cell and cell cycle models without a tissue
     if (mUseConstantDataForTesting)
     {
         return mConstantDataForTesting[variableNumber];
@@ -85,7 +90,6 @@ double CellwiseData<DIM>::GetValue(TissueCell& rCell, unsigned variableNumber)
     assert(IsSetUp());
     assert(mpTissue != NULL);
     assert(mAllocatedMemory);
-    assert(variableNumber < mNumberOfVariables);
 
     unsigned location_index = mpTissue->GetLocationIndexUsingCell(rCell);
     unsigned vector_index = location_index*mNumberOfVariables + variableNumber;
@@ -97,7 +101,10 @@ template<unsigned DIM>
 void CellwiseData<DIM>::SetValue(double value, unsigned locationIndex, unsigned variableNumber)
 {
     assert(IsSetUp());
-    assert(variableNumber < mNumberOfVariables);
+    if (variableNumber >= mNumberOfVariables)
+    {
+    	EXCEPTION("Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
+    }
 
     unsigned vector_index = locationIndex*mNumberOfVariables + variableNumber;
     mData[vector_index] = value;

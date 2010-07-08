@@ -409,6 +409,106 @@ public:
         CellwiseData<2>::Destroy();
     }
 
+    void TestWithPointwiseTwoNutrientSink() throw(Exception)
+    {
+		EXIT_IF_PARALLEL; //defined in PetscTools
+
+		TissueConfig::Instance()->SetHepaOneParameters();
+
+		// Set up mesh
+		unsigned num_cells_depth = 5;
+		unsigned num_cells_width = 5;
+		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+		MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+		// Set up cells
+		std::vector<TissueCell> cells;
+		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+		///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
+		boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
+		for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+		{
+			SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
+			p_model->SetDimension(2);
+			p_model->SetCellProliferativeType(STEM);
+			TissueCell cell(p_state, p_model);
+			double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
+									(TissueConfig::Instance()->GetHepaOneCellG1Duration()
+									+TissueConfig::Instance()->GetSG2MDuration());
+			cell.SetBirthTime(birth_time);
+
+			// Make the cell apoptotic if near the centre
+			double x = p_mesh->GetNode(i)->rGetLocation()[0];
+			double y = p_mesh->GetNode(i)->rGetLocation()[1];
+			double dist_from_centre = sqrt( (x-2.5)*(x-2.5) + (y-2.5)*(y-2.5) );
+
+			if (dist_from_centre < 1.5)
+			{
+				cell.SetMutationState(p_apoptotic_state);
+			}
+
+			cells.push_back(cell);
+		}
+
+		// Set up tissue
+		MeshBasedTissue<2> tissue(*p_mesh, cells);
+		TissueConfig::Instance()->SetOutputTissueVolumes(true); // record the spheroid radius and apoptotic radius
+
+		// Set up CellwiseData and associate it with the tissue
+		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+		p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 2);
+		p_data->SetTissue(&tissue);
+
+		// Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+		// we need to pass it some initial conditions to avoid memory errors
+		for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+		{
+			p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(),0);
+			p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(),1);
+		}
+
+		// Set up PDE
+		CellwiseNutrientSinkPde<2> pde(tissue, 0.1);
+		double boundary_value = 1.0;
+		bool is_neumann_bc = false;
+		PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+		std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+		pde_and_bc_collection.push_back(&pde_and_bc);
+		// Set up second PDE
+		CellwiseNutrientSinkPde<2> pde2(tissue, 0.1);
+		double boundary_value2 = 1.0;
+		bool is_neumann_bc2 = false;
+		PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
+		pde_and_bc_collection.push_back(&pde_and_bc2);
+
+		// Set up force law
+		GeneralisedLinearSpringForce<2> linear_force;
+		linear_force.UseCutoffPoint(1.5);
+		std::vector<AbstractForce<2>*> force_collection;
+		force_collection.push_back(&linear_force);
+
+		// Set up tissue simulation
+		TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
+		simulator.SetOutputDirectory("TissueSimulationWithPointwiseNutrientSink");
+		simulator.SetEndTime(0.5);
+
+		// Set up cell killer and pass into simulation
+		OxygenBasedCellKiller<2> killer(&tissue);
+		simulator.AddCellKiller(&killer);
+
+		// Run tissue simulation
+		TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+
+		// A few hardcoded tests to check nothing has changed
+		std::vector<double> node_5_location = simulator.GetNodeLocation(5);
+		TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
+		TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
+		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),0), 0.9702, 1e-4);
+		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),1), 0.9702, 1e-4);
+
+		// Tidy up
+		CellwiseData<2>::Destroy();
+	}
 
     void TestSpheroidStatistics() throw (Exception)
     {
@@ -561,14 +661,15 @@ public:
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 2);
         p_data->SetTissue(&tissue);
 
         // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
         // we need to pass it some initial conditions to avoid memory errors
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
-            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex());
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(),0);
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(),1);
         }
 
         // Set up PDE
@@ -578,6 +679,12 @@ public:
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
+        // Set up second PDE
+        AveragedSinksPde<2> pde2(tissue, -0.1);
+        double boundary_value2 = 1.0;
+        bool is_neumann_bc2 = false;
+        PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
+        pde_and_bc_collection.push_back(&pde_and_bc2);
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -681,10 +788,13 @@ public:
             min = std::min(min, pde_solution[p_element->GetNodeGlobalIndex(2)]);
 
 
-            double value_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 0);
+            double value0_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 0);
+            double value1_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 1);
 
-            TS_ASSERT_LESS_THAN_EQUALS(min, value_at_cell);
-            TS_ASSERT_LESS_THAN_EQUALS(value_at_cell, max);
+            TS_ASSERT_LESS_THAN_EQUALS(min, value0_at_cell);
+            TS_ASSERT_LESS_THAN_EQUALS(value0_at_cell, max);
+            TS_ASSERT_LESS_THAN_EQUALS(min, value1_at_cell);
+            TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, max);
         }
 
         // Tidy up
@@ -978,8 +1088,10 @@ public:
         double boundary_value2 = 1.0;
         bool is_neumann_bc2 = false;
         PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection2;
+        pde_and_bc_collection2.push_back(&pde_and_bc2);
 
-        p_simulator->SetPdeAndBcCollection(pde_and_bc_collection);
+        p_simulator->SetPdeAndBcCollection(pde_and_bc_collection2);
         p_simulator->SetEndTime(2.0*end_time);
 
         // Run tissue simulation
