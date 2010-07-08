@@ -66,6 +66,12 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
             EXCEPTION("You must provide a rowPreallocation argument for a large sparse system");
         }
     }
+    
+    if((int)rowPreallocation > mSize)
+    {
+        rowPreallocation = mSize;
+    }
+    
     mRhsVector=PetscTools::CreateVec(mSize);
     PetscTools::SetupMat(mLhsMatrix, mSize, mSize, rowPreallocation);
 
