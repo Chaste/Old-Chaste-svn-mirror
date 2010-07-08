@@ -675,10 +675,10 @@ public:
         }
 
         // Set up PDE
-        AveragedSinksPde<2>* p_pde = new AveragedSinksPde<2>(tissue, -0.1);
+        AveragedSinksPde<2> pde(tissue, -0.1);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
-        PdeAndBoundaryConditions<2>* p_pde_and_bc = new PdeAndBoundaryConditions<2>(p_pde, boundary_value, is_neumann_bc);
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
 
         // Set up second PDE
         AveragedSinksPde<2> pde2(tissue, -0.5);
@@ -687,7 +687,7 @@ public:
         PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
 
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(p_pde_and_bc);
+        pde_and_bc_collection.push_back(&pde_and_bc);
         pde_and_bc_collection.push_back(&pde_and_bc2);
 
         // Set up force law
@@ -785,7 +785,6 @@ public:
             unsigned elem_index = simulator.mpCoarsePdeMesh->GetContainingElementIndex(tissue.GetLocationOfCellCentre(*cell_iter));
             Element<2,2>* p_element = simulator.mpCoarsePdeMesh->GetElement(elem_index);
 
-
             double max0 = std::max(pde_solution0[p_element->GetNodeGlobalIndex(0)],
                                   pde_solution0[p_element->GetNodeGlobalIndex(1)]);
             max0 = std::max(max0, pde_solution0[p_element->GetNodeGlobalIndex(2)]);
@@ -795,17 +794,15 @@ public:
             max1 = std::max(max1, pde_solution1[p_element->GetNodeGlobalIndex(2)]);
 
             double min0 = std::min(pde_solution0[p_element->GetNodeGlobalIndex(0)],
-                                  pde_solution0[p_element->GetNodeGlobalIndex(1)]);
+                                   pde_solution0[p_element->GetNodeGlobalIndex(1)]);
             min0 = std::min(min0, pde_solution0[p_element->GetNodeGlobalIndex(2)]);
 
             double min1 = std::min(pde_solution1[p_element->GetNodeGlobalIndex(0)],
-                                  pde_solution1[p_element->GetNodeGlobalIndex(1)]);
+                                   pde_solution1[p_element->GetNodeGlobalIndex(1)]);
             min1 = std::min(min1, pde_solution1[p_element->GetNodeGlobalIndex(2)]);
 
             double value0_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 0);
             double value1_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 1);
-
-
 
             TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, value0_at_cell);
             TS_ASSERT_LESS_THAN_EQUALS(min0, value0_at_cell);
@@ -1007,18 +1004,13 @@ public:
         CellwiseData<2>::Destroy();
     }
 
-
     /**
      * This test demonstrates how to archive a TissueSimulationWithPdes
      * in the case where the PDE has the tissue as a member variable.
      */
     void TestArchivingWithCellwisePde() throw (Exception)
     {
-        if (!PetscTools::IsSequential())
-        {
-            TS_TRACE("This test does not pass in parallel yet.");
-            return;
-        }
+        EXIT_IF_PARALLEL; //defined in PetscTools
 
         TissueConfig::Instance()->SetHepaOneParameters();
 
