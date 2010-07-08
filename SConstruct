@@ -242,6 +242,11 @@ env.Append(BOPT = 'g_c++') # Needed for some versions of PETSc?
 env.Replace(CXX = build.tools['mpicxx'])
 env.Replace(AR = build.tools['ar'])
 env.Replace(CXXFILESUFFIX = '.cpp')
+env['INSTALL_PREFIX'] = install_prefix
+
+if int(ARGUMENTS.get('brief', 0)):
+    env.Replace(CXXCOMSTR = '$CXX -o $TARGET -c <flags etc. omitted> $SOURCES')
+    env.Replace(SHCXXCOMSTR = '$SHCXX -o $TARGET -c <flags etc. omitted> $SOURCES')
 
 # Any extra CCFLAGS and LINKFLAGS
 extra_flags = build.CcFlags() + ' ' + hostconfig.CcFlags()
@@ -382,6 +387,10 @@ if not isinstance(build, BuildTypes.DoxygenCoverage):
             continue
         if not os.path.exists(os.path.join(project, 'SConscript')):
             print >>sys.stderr, "Unexpected folder", project, "in projects folder."
+            continue
+        if ('install' in BUILD_TARGETS and not
+            (project in BUILD_TARGETS or project+os.sep in BUILD_TARGETS)):
+            # Only install projects if explicitly requested
             continue
         bld_dir = os.path.join(project, 'build', build_dir)
         if not os.path.exists(bld_dir):

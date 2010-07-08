@@ -412,6 +412,8 @@ def CreateXsdBuilder(build, buildenv):
     XsdAction = buildenv.Action(RunXsd)
     def XsdEmitter(target, source, env):
         hpp = os.path.splitext(str(target[0]))[0] + '.hpp'
+        t = env.Install(os.path.join(env['INSTALL_PREFIX'], 'include'), hpp)
+        env.Alias('install', t)
         return (target + [hpp], source)
     # Add XSD as a source of .cpp files
     c_file, cxx_file = SCons.Tool.createCFileBuilders(buildenv)
@@ -466,20 +468,20 @@ def CreatePyCmlBuilder(build, buildenv):
     PyCmlAction = buildenv.Action(RunPyCml)
     def PyCmlEmitter(target, source, env):
         base, ext = os.path.splitext(str(target[0]))
-        target.append(base + '.hpp')
-        if not IsDynamicSource(source):
+        assert ext == '.cpp'
+        dynamic = IsDynamicSource(source)
+        if not dynamic:
             target.extend([base + 'Opt.cpp',
-                           base + 'Opt.hpp',
                            base + 'Cvode.cpp',
-                           base + 'Cvode.hpp',
-                           base + 'CvodeOpt.cpp',
-                           base + 'CvodeOpt.hpp'])
+                           base + 'CvodeOpt.cpp'])
             generate_be, extra_source = HasMapleOutput(source)
             if generate_be:
-                extra_targets = [base + 'BackwardEuler.hpp',
-                                 base + 'BackwardEuler.cpp']
+                extra_targets = [base + 'BackwardEuler.cpp']
                 env.Depends(extra_targets, extra_source)
                 target.extend(extra_targets)
+        headers = map(lambda cpp: os.path.splitext(str(cpp))[0] + '.hpp',
+                      target)
+        target.extend(headers)
         # Add dependency on configuration file
         has_conf, conf_file = HasConfigFile(source)
         if has_conf:
@@ -487,7 +489,12 @@ def CreatePyCmlBuilder(build, buildenv):
         # Add dependency on pycml source code
         pycml_code = glob.glob(os.path.join(Dir('#/python/pycml').abspath, '*'))
         env.Depends(target, pycml_code)
+        # Install headers if requested
+        if not dynamic:
+            t = env.Install(os.path.join(env['INSTALL_PREFIX'], 'include'), headers)
+            env.Alias('install', t)
         return (target, source)
+
     # Add PyCml as a source of .cpp files
     c_file, cxx_file = SCons.Tool.createCFileBuilders(buildenv)
     cxx_file.add_action('.cellml', PyCmlAction)
