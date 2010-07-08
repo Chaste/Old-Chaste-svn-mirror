@@ -26,9 +26,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
 #ifndef ISNAN_HPP_
 #define ISNAN_HPP_
+
+/**
+ * @file
+ * Compiler workarounds, for compilers which don't include std::isnan (from C99).
+ */
 
 #if defined(__PGI) || defined(__xlC__)
 namespace std { using ::isnan; }

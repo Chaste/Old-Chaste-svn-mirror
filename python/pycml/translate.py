@@ -1450,6 +1450,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('#include "OdeSystemInformation.hpp"')
         self.writeln_hpp('#include "AbstractStimulusFunction.hpp"')
         self.writeln('#include "HeartConfig.hpp"')
+        self.writeln('#include "IsNan.hpp"')
         self.writeln()
         self.writeln_hpp()
         
