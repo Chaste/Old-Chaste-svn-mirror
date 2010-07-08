@@ -77,7 +77,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 /*
  * These are the classes that will be used in these tests (note that we use a
- * tissue simulation subclass called {{{TissueSimulationWithNutrients}}}):
+ * tissue simulation subclass called {{{TissueSimulationWithPdes}}}):
  */
 #include "TissueSimulationWithPdes.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
@@ -208,7 +208,15 @@ public:
          * if x is in a live cell, and k(x)=0 if x is within a apoptotic cell
          */
         CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
-
+        
+        /*
+         * To pass the PDE to our simulator, it needs to be encapsulated in ...
+         * (TODO)
+         */
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, 0.0, true);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
+        
         /*
          * We must now create one or more force laws, which determine the mechanics of
          * the tissue. For this test, we assume that a cell experiences a force from each
@@ -231,14 +239,14 @@ public:
 
         /*
          * The simulator object for these problems is
-         * {{{TissueSimulationWithNutrients}}}. We pass in the tissue, the
+         * {{{TissueSimulationWithPdes}}}. We pass in the tissue, the
          * mechanics system, and the PDE.
          */
-        TissueSimulationWithNutrients<2> simulator(tissue, force_collection, &pde);
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
 
         /*
          * As with {{{CryptSimulation2d}}} (which inherits from the same base class
-         * as {{{TissueSimulationWithNutrients}}}), we can set the output directory
+         * as {{{TissueSimulationWithPdes}}}), we can set the output directory
          * and end time.
          */
         simulator.SetOutputDirectory("SpheroidTutorial");
