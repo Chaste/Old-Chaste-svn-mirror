@@ -67,11 +67,6 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
         }
     }
     
-    if((int)rowPreallocation > mSize)
-    {
-        rowPreallocation = mSize;
-    }
-    
     mRhsVector=PetscTools::CreateVec(mSize);
     PetscTools::SetupMat(mLhsMatrix, mSize, mSize, rowPreallocation);
 

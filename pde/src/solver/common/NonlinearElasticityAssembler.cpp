@@ -724,6 +724,11 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
         assert(DIM==3);
         num_non_zeros=240;
     }
+
+    if(num_non_zeros > this->mNumDofs)
+    {
+        //num_non_zeros = this->mNumDofs;
+    }
             
 
     this->mpLinearSystem = new LinearSystem(this->mNumDofs,num_non_zeros); // default Mat type is MATMPIAIJ, see above
