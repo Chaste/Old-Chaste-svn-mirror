@@ -41,14 +41,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 TissueSimulationWithPdes<DIM>::TissueSimulationWithPdes(AbstractTissue<DIM>& rTissue,
 					                                    std::vector<AbstractForce<DIM>*> forceCollection,
-					                                    std::vector<PdeAndBoundaryConditions<DIM>*> pPdeAndBcCollection,
+					                                    std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection,
 					                                    bool deleteTissueAndForceCollection,
 					                                    bool initialiseCells)
     : TissueSimulation<DIM>(rTissue,
                             forceCollection,
                             deleteTissueAndForceCollection,
                             initialiseCells),
-      mpPdeAndBcCollection(pPdeAndBcCollection),
+      mPdeAndBcCollection(pdeAndBcCollection),
       mWriteAverageRadialPdeSolution(false),
       mWriteDailyAverageRadialPdeSolution(false),
       mNumRadialIntervals(0), // 'unset' value
@@ -71,16 +71,15 @@ TissueSimulationWithPdes<DIM>::~TissueSimulationWithPdes()
 }
 
 template<unsigned DIM>
-void TissueSimulationWithPdes<DIM>::SetPdeAndBcCollection(std::vector<PdeAndBoundaryConditions<DIM>*> pPdeAndBcCollection)
+void TissueSimulationWithPdes<DIM>::SetPdeAndBcCollection(std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection)
 {
-	///\todo define a method for setting a single PDE
-    mpPdeAndBcCollection = pPdeAndBcCollection;
+    mPdeAndBcCollection = pdeAndBcCollection;
 }
 
 template<unsigned DIM>
-Vec TissueSimulationWithPdes<DIM>::GetCurrentPdeSolution(unsigned pde_index)
+Vec TissueSimulationWithPdes<DIM>::GetCurrentPdeSolution(unsigned pdeIndex)
 {
-    return mpPdeAndBcCollection[pde_index]->GetSolution();
+    return mPdeAndBcCollection[pdeIndex]->GetSolution();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -134,12 +133,10 @@ void TissueSimulationWithPdes<DIM>::SetupWritePdeSolution()
 template<unsigned DIM>
 void TissueSimulationWithPdes<DIM>::UseCoarsePdeMesh(double coarseGrainScaleFactor)
 {
-    assert(!mpPdeAndBcCollection.empty());
-    for(typename std::vector<PdeAndBoundaryConditions<DIM>*>::iterator mpPdeAndBc = mpPdeAndBcCollection.begin();
-																		mpPdeAndBc!=mpPdeAndBcCollection.end();
-																		++mpPdeAndBc)
+    assert(!mPdeAndBcCollection.empty());
+    for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
-    	assert(((*mpPdeAndBc)->HasAveragedSinksPde()));
+    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSinksPde());
     }
 
     CreateCoarsePdeMesh(coarseGrainScaleFactor);
@@ -262,13 +259,12 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
         return;
     }
 
-    assert(!mpPdeAndBcCollection.empty());
-    for(typename std::vector<PdeAndBoundaryConditions<DIM>*>::iterator mpPdeAndBc = mpPdeAndBcCollection.begin();
-    																		mpPdeAndBc!=mpPdeAndBcCollection.end();
-    																		++mpPdeAndBc)
+    assert(!mPdeAndBcCollection.empty());
+
+    for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
-    	assert((*mpPdeAndBc));
-    	assert(!((*mpPdeAndBc)->HasAveragedSinksPde()));
+    	assert(mPdeAndBcCollection[pde_index]);
+    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSinksPde() == false);
     }
 
     // Note: If not using a coarse PDE mesh, we MUST be using a MeshBasedTissue
@@ -278,16 +274,18 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
     TetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     CellwiseData<DIM>::Instance()->ReallocateMemory();
 
-    unsigned parameter_count=0;
+    unsigned parameter_count = 0;
 
-    for(typename std::vector<PdeAndBoundaryConditions<DIM>*>::iterator mpPdeAndBc = mpPdeAndBcCollection.begin();
-																		mpPdeAndBc!=mpPdeAndBcCollection.end();
-																		++mpPdeAndBc)
+    // Loop over elements of mPdeAndBcCollection
+    for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
+        // Get pointer to this PdeAndBoundaryConditions object
+        PdeAndBoundaryConditions<DIM>* p_pde_and_bc = mPdeAndBcCollection[pde_index];
+
 		// Set up boundary conditions
 		BoundaryConditionsContainer<DIM,DIM,1> bcc;
-		ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>((*mpPdeAndBc)->GetBoundaryValue());
-		if ((*mpPdeAndBc)->IsNeumannBoundaryCondition()) ///\todo test this! (#1465)
+		ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>(p_pde_and_bc->GetBoundaryValue());
+		if (p_pde_and_bc->IsNeumannBoundaryCondition()) ///\todo test this! (#1465)
 		{
 			for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator elem_iter = r_mesh.GetBoundaryElementIteratorBegin();
 				 elem_iter != r_mesh.GetBoundaryElementIteratorEnd();
@@ -311,38 +309,38 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
 		 * interpolate contributions to source terms from nodes onto Gauss points,
 		 * because the PDE solution is only stored at the cells (nodes).
 		 */
-		TissueSimulationWithPdesAssembler<DIM> assembler(&r_mesh, (*mpPdeAndBc)->GetPde(), &bcc);
+		TissueSimulationWithPdesAssembler<DIM> assembler(&r_mesh, p_pde_and_bc->GetPde(), &bcc);
 
 		PetscInt size_of_soln_previous_step = 0;
 
-		if ((*mpPdeAndBc)->GetSolution())
+		if (p_pde_and_bc->GetSolution())
 		{
-			VecGetSize((*mpPdeAndBc)->GetSolution(), &size_of_soln_previous_step);
+			VecGetSize(p_pde_and_bc->GetSolution(), &size_of_soln_previous_step);
 		}
 		if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
 		{
 			// We make an initial guess which gets copied by the Solve method of
 			// SimpleLinearSolver, so we need to delete it too.
 			Vec initial_guess;
-			VecDuplicate((*mpPdeAndBc)->GetSolution(), &initial_guess);
-			VecCopy((*mpPdeAndBc)->GetSolution(), initial_guess);
+			VecDuplicate(p_pde_and_bc->GetSolution(), &initial_guess);
+			VecCopy(p_pde_and_bc->GetSolution(), initial_guess);
 
 			// Use current solution as the initial guess
-			(*mpPdeAndBc)->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
-			(*mpPdeAndBc)->SetSolution(assembler.Solve(initial_guess));
+			p_pde_and_bc->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
+			p_pde_and_bc->SetSolution(assembler.Solve(initial_guess));
 			VecDestroy(initial_guess);
 		}
 		else
 		{
-			if ((*mpPdeAndBc)->GetSolution())
+			if (p_pde_and_bc->GetSolution())
 			{
 				assert(size_of_soln_previous_step != 0);
-				(*mpPdeAndBc)->DestroySolution();
+				p_pde_and_bc->DestroySolution();
 			}
-			(*mpPdeAndBc)->SetSolution(assembler.Solve());
+			p_pde_and_bc->SetSolution(assembler.Solve());
 		}
 
-		ReplicatableVector solution_repl((*mpPdeAndBc)->GetSolution());
+		ReplicatableVector solution_repl(p_pde_and_bc->GetSolution());
 
 		// Update cellwise data
 		for (unsigned i=0; i<r_mesh.GetNumNodes(); i++)
@@ -358,13 +356,12 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
 template<unsigned DIM>
 void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 {
-    assert(!mpPdeAndBcCollection.empty());
-    for(typename std::vector<PdeAndBoundaryConditions<DIM>*>::iterator mpPdeAndBc = mpPdeAndBcCollection.begin();
-    																		mpPdeAndBc!=mpPdeAndBcCollection.end();
-    																		++mpPdeAndBc)
+    assert(!mPdeAndBcCollection.empty());
+
+    for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
-    	assert((*mpPdeAndBc));
-    	assert(((*mpPdeAndBc)->HasAveragedSinksPde()));
+    	assert(mPdeAndBcCollection[pde_index]);
+    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSinksPde() == true);
     }
 
     TetrahedralMesh<DIM,DIM>& r_mesh = *mpCoarsePdeMesh;
@@ -393,14 +390,17 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
         }
     }
 
-    for(typename std::vector<PdeAndBoundaryConditions<DIM>*>::iterator mpPdeAndBc = mpPdeAndBcCollection.begin();
-    																		mpPdeAndBc!=mpPdeAndBcCollection.end();
-    																		++mpPdeAndBc)
+    // Loop over elements of mPdeAndBcCollection
+    for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
+        // Get pointer to this PdeAndBoundaryConditions object
+        PdeAndBoundaryConditions<DIM>* p_pde_and_bc = mPdeAndBcCollection[pde_index];
+
 		// Set up boundary conditions
 		BoundaryConditionsContainer<DIM,DIM,1> bcc;
-		ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>((*mpPdeAndBc)->GetBoundaryValue());
-		if ((*mpPdeAndBc)->IsNeumannBoundaryCondition()) ///\todo test this! (#1465)
+		ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>(p_pde_and_bc->GetBoundaryValue());
+
+		if (p_pde_and_bc->IsNeumannBoundaryCondition()) ///\todo test this! (#1465)
 		{
 			EXCEPTION("Neumann BCs not yet implemented when using a coarse PDE mesh");
 		}
@@ -447,26 +447,26 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 
 		PetscInt size_of_soln_previous_step = 0;
 
-		if ((*mpPdeAndBc)->GetSolution())
+		if (p_pde_and_bc->GetSolution())
 		{
-			VecGetSize((*mpPdeAndBc)->GetSolution(), &size_of_soln_previous_step);
+			VecGetSize(p_pde_and_bc->GetSolution(), &size_of_soln_previous_step);
 		}
 
-		(*mpPdeAndBc)->SetUpSourceTermsForAveragedSinksPde(mpCoarsePdeMesh);
+		p_pde_and_bc->SetUpSourceTermsForAveragedSinksPde(mpCoarsePdeMesh);
 
-		SimpleLinearEllipticAssembler<DIM,DIM> assembler(mpCoarsePdeMesh, (*mpPdeAndBc)->GetPde(), &bcc);
+		SimpleLinearEllipticAssembler<DIM,DIM> assembler(mpCoarsePdeMesh, p_pde_and_bc->GetPde(), &bcc);
 
 		if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
 		{
 			// We make an initial guess which gets copied by the Solve method of
 			// SimpleLinearSolver, so we need to delete it too.
 			Vec initial_guess;
-			VecDuplicate((*mpPdeAndBc)->GetSolution(), &initial_guess);
-			VecCopy((*mpPdeAndBc)->GetSolution(), initial_guess);
+			VecDuplicate(p_pde_and_bc->GetSolution(), &initial_guess);
+			VecCopy(p_pde_and_bc->GetSolution(), initial_guess);
 
 			// Use current solution as the initial guess
-			(*mpPdeAndBc)->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
-			(*mpPdeAndBc)->SetSolution(assembler.Solve(initial_guess));
+			p_pde_and_bc->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
+			p_pde_and_bc->SetSolution(assembler.Solve(initial_guess));
 			VecDestroy(initial_guess);
 		}
 		else
@@ -483,7 +483,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 			}
 			*
 			*/
-			(*mpPdeAndBc)->SetSolution(assembler.Solve());
+			p_pde_and_bc->SetSolution(assembler.Solve());
 		}
 
 		/*
@@ -491,7 +491,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 		 * mesh, we have to interpolate from the nodes of the coarse mesh onto
 		 * the cell locations.
 		 */
-		ReplicatableVector solution_repl((*mpPdeAndBc)->GetSolution());
+		ReplicatableVector solution_repl(p_pde_and_bc->GetSolution());
 
 		for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
 			cell_iter != this->mrTissue.End();

@@ -43,8 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * A tissue simulation class that includes one or more elliptic PDEs, e.g. describing
  * the transport of nutrients and/or signalling molecules.
- *
- * \todo Document the fact that a constant BC is imposed (#1465)
  */
 template<unsigned DIM>
 class TissueSimulationWithPdes : public TissueSimulation<DIM>
@@ -65,15 +63,13 @@ private:
         archive & mWriteDailyAverageRadialPdeSolution;
         archive & mNumRadialIntervals;
         archive & mCellPdeElementMap;
-        archive & mBoundaryValue;
-        archive & mIsNeumannBoundaryCondition;
     }
 
     /**
      * Vector of pointers to linear elliptic PDE objects with additional
      * boundary condition information.
      */
-    std::vector<PdeAndBoundaryConditions<DIM>*>mpPdeAndBcCollection;
+    std::vector<PdeAndBoundaryConditions<DIM>*> mPdeAndBcCollection;
 
     /**
      * File that the values of the PDE solution are written out to.
@@ -110,17 +106,6 @@ private:
      * Map between cells and the elements of the coarse PDE mesh containing them.
      */
     std::map<TissueCell*, unsigned> mCellPdeElementMap;
-
-    /**
-     * The value of the boundary condition for the PDE problem.
-     */
-    double mBoundaryValue;
-
-    /**
-     * Whether the boundary condition for the PDE problem is of Neumann type
-     * (false corresponding to a Dirichlet boundary condition).
-     */
-    bool mIsNeumannBoundaryCondition;
 
     /**
      * Overridden SetupSolve() method.
@@ -204,14 +189,13 @@ public:
      *
      * @param rTissue A tissue facade class (contains a mesh and cells)
      * @param forceCollection The mechanics to use in the simulation
-     * @param pPdeAndBcCollection A pointer to a linear elliptic PDE object with additional
-     *                            boundary condition information (defaults to NULL)
+     * @param pdeAndBcCollection A vector of pointers to PdeAndBoundaryConditions objects (defaults to an empty vector0
      * @param deleteTissueAndForceCollection Whether to delete the tissue on destruction to free up memory
      * @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
      TissueSimulationWithPdes(AbstractTissue<DIM>& rTissue,
                               std::vector<AbstractForce<DIM>*> forceCollection,
-                              std::vector<PdeAndBoundaryConditions<DIM>*> pPdeAndBcCollection=std::vector<PdeAndBoundaryConditions<DIM>*>(),
+                              std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection=std::vector<PdeAndBoundaryConditions<DIM>*>(),
                               bool deleteTissueAndForceCollection=false,
                               bool initialiseCells=true);
 
@@ -230,14 +214,16 @@ public:
      *
      * \todo Check if archiving has been implemented yet for PDE classes (#1460)
      *
-     * @param pPdeAndBc pointer to the PdeAndBoundaryConditions object
+     * @param pdeAndBcCollection A vector of pointers to PdeAndBoundaryConditions objects
      */
-    void SetPdeAndBcCollection(std::vector<PdeAndBoundaryConditions<DIM>*> pPdeAndBcCollection);
+    void SetPdeAndBcCollection(std::vector<PdeAndBoundaryConditions<DIM>*> pdeAndBcCollection);
 
     /**
      * Get the current solution to the PDE problem.
+     * 
+     * @param pdeIndex The index of the PDE in the vector mPdeAndBcCollection
      */
-    Vec GetCurrentPdeSolution(unsigned pde_index);
+    Vec GetCurrentPdeSolution(unsigned pdeIndex);
 
     /**
      * Write the final (and optionally also the daily) average
@@ -248,7 +234,6 @@ public:
      * @param writeDailyResults Whether to record the average radial PDE solution
      *                          at the end of each day of the simulation (defaults to false)
      */
-
     void SetWriteAverageRadialPdeSolution(unsigned numRadialIntervals=10,
                                           bool writeDailyResults=false);
 
@@ -259,7 +244,6 @@ public:
      *                               initial width of the tissue (defaults to 10.0)
      */
     void UseCoarsePdeMesh(double coarseGrainScaleFactor=10.0);
-
 };
 
 
