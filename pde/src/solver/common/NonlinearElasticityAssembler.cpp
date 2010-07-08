@@ -727,7 +727,7 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
 
     if(num_non_zeros > this->mNumDofs)
     {
-        //num_non_zeros = this->mNumDofs;
+        num_non_zeros = this->mNumDofs;
     }
             
 
