@@ -18,7 +18,7 @@ mesh/TestHoneycombMeshGenerator.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestMirams2010WntOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
-simulation/TestNutrientPdes.hpp
+simulation/TestPdesForTissueSimulations.hpp
 simulation/TestTissueSimulation.hpp
 simulation/TestTissueSimulation3d.hpp
 simulation/TestTissueSimulationWithNodeBasedTissue.hpp

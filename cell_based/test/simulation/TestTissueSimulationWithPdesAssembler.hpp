@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _TESTTISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
-#define _TESTTISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
+#ifndef _TESTTISSUESIMULATIONWITHPDESASSEMBLER_HPP_
+#define _TESTTISSUESIMULATIONWITHPDESASSEMBLER_HPP_
 
 #include "UblasCustomFunctions.hpp"
 
@@ -87,4 +87,4 @@ public:
 
 };
 
-#endif //_TESTTISSUESIMULATIONWITHNUTRIENTSASSEMBLER_HPP_
+#endif //_TESTTISSUESIMULATIONWITHPDESASSEMBLER_HPP_

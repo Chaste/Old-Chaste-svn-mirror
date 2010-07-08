@@ -176,6 +176,7 @@ void CellwiseData<DIM>::SetConstantDataForTesting(std::vector<double>& rValues)
 {
     mConstantDataForTesting = rValues;
     mUseConstantDataForTesting = true;
+    mNumberOfVariables = 1;
 }
 
 

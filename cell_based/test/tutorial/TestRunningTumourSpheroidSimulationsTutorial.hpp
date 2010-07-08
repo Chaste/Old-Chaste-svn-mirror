@@ -83,7 +83,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OxygenBasedCellKiller.hpp"
-#include "CellwiseNutrientSinkPde.hpp"
+#include "CellwiseSourcePde.hpp"
 #include "WildTypeCellMutationState.hpp"
 /*
  * !PetscSetupAndFinalize.hpp must be included in all tests which use Petsc. This is
@@ -192,7 +192,7 @@ public:
         CellwiseData<2>::Instance()->SetTissue(&tissue);
         /*
          * Then we have to initialise the oxygen concentration for each node (to 1.0), by
-         * calling {{{SetValue}}}. This takes in the concentration, and the location index 
+         * calling {{{SetValue}}}. This takes in the concentration, and the location index
          * corresponding to the cell which this concentration is for.
          */
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
@@ -202,13 +202,13 @@ public:
 
         /*
          * Next we instantiate an instance of the PDE class which we defined above.
-         * This will be passed into the simulator. The !CellwiseNutrientSinkPde is
+         * This will be passed into the simulator. The !CellwiseSourcePde is
          * a Pde class which inherits from !AbstractLinearEllipticPde, and represents
-         * the PDE: u_xx + u_yy = k(x) u, where k(x) = 0.03 (the coefficient below)
+         * the PDE: u_xx + u_yy = k(x) u, where k(x) = -0.03 (the coefficient below)
          * if x is in a live cell, and k(x)=0 if x is within a apoptotic cell
          */
-        CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
-        
+        CellwiseSourcePde<2> pde(tissue, -0.03);
+
         /*
          * To pass the PDE to our simulator, it needs to be encapsulated in ...
          * (TODO)

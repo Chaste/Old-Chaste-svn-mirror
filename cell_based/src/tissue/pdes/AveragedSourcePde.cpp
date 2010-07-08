@@ -26,18 +26,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "AveragedSinksPde.hpp"
+#include "AveragedSourcePde.hpp"
 #include "ApoptoticCellMutationState.hpp"
 
 template<unsigned DIM>
-AveragedSinksPde<DIM>::AveragedSinksPde(MeshBasedTissue<DIM>& rTissue, double coefficient)
+AveragedSourcePde<DIM>::AveragedSourcePde(MeshBasedTissue<DIM>& rTissue, double coefficient)
     : mrTissue(rTissue),
       mCoefficient(coefficient)
 {
 }
 
 template<unsigned DIM>
-void AveragedSinksPde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh) // must be called before solve
+void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh) // must be called before solve
 {
     // Allocate memory
     mCellDensityOnCoarseElements.resize(rCoarseMesh.GetNumElements());
@@ -75,20 +75,20 @@ void AveragedSinksPde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMe
 }
 
 template<unsigned DIM>
-double AveragedSinksPde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX)
+double AveragedSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX)
 {
     return 0.0;
 }
 
 template<unsigned DIM>
-double AveragedSinksPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement) // now takes in element
+double AveragedSourcePde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement) // now takes in element
 {
     assert(!mCellDensityOnCoarseElements.empty());
     return mCoefficient*mCellDensityOnCoarseElements[pElement->GetIndex()];
 }
 
 template<unsigned DIM>
-c_matrix<double,DIM,DIM> AveragedSinksPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& rX)
+c_matrix<double,DIM,DIM> AveragedSourcePde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& rX)
 {
     return identity_matrix<double>(DIM);
 }
@@ -98,6 +98,6 @@ c_matrix<double,DIM,DIM> AveragedSinksPde<DIM>::ComputeDiffusionTerm(const Chast
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class AveragedSinksPde<1>;
-template class AveragedSinksPde<2>;
-template class AveragedSinksPde<3>;
+template class AveragedSourcePde<1>;
+template class AveragedSourcePde<2>;
+template class AveragedSourcePde<3>;

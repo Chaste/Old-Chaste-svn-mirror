@@ -26,29 +26,45 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-
-#include "SimpleNutrientPde.hpp"
+#include "CellwiseSourcePde.hpp"
+#include "ApoptoticCellMutationState.hpp"
 
 template<unsigned DIM>
-SimpleNutrientPde<DIM>::SimpleNutrientPde(double coefficient)
-    : mCoefficient(coefficient)
+CellwiseSourcePde<DIM>::CellwiseSourcePde(MeshBasedTissue<DIM>& rTissue, double coefficient)
+    : mrTissue(rTissue),
+      mCoefficient(coefficient)
 {
 }
 
 template<unsigned DIM>
-double SimpleNutrientPde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX)
+double CellwiseSourcePde<DIM>::ComputeConstantInUSourceTerm(const ChastePoint<DIM>& rX)
 {
     return 0.0;
 }
 
 template<unsigned DIM>
-double SimpleNutrientPde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement)
+double CellwiseSourcePde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoint<DIM>& rX, Element<DIM,DIM>* pElement)
 {
-    return -mCoefficient;
+    NEVER_REACHED;
+    return 0.0;
 }
 
 template<unsigned DIM>
-c_matrix<double,DIM,DIM> SimpleNutrientPde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& rX)
+double CellwiseSourcePde<DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<DIM>& rNode)
+{
+    TissueCell& r_cell = mrTissue.rGetCellUsingLocationIndex(rNode.GetIndex());
+    if (!(r_cell.GetMutationState()->IsType<ApoptoticCellMutationState>()))
+    {
+        return mCoefficient;
+    }
+    else
+    {
+        return 0.0;
+    }
+}
+
+template<unsigned DIM>
+c_matrix<double,DIM,DIM> CellwiseSourcePde<DIM>::ComputeDiffusionTerm(const ChastePoint<DIM>& rX)
 {
     return identity_matrix<double>(DIM);
 }
@@ -58,6 +74,6 @@ c_matrix<double,DIM,DIM> SimpleNutrientPde<DIM>::ComputeDiffusionTerm(const Chas
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class SimpleNutrientPde<1>;
-template class SimpleNutrientPde<2>;
-template class SimpleNutrientPde<3>;
+//template class CellwiseSourcePde<1>;
+template class CellwiseSourcePde<2>;
+template class CellwiseSourcePde<3>;

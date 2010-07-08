@@ -25,30 +25,47 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef SIMPLENUTRIENTPDE_HPP_
-#define SIMPLENUTRIENTPDE_HPP_
+#ifndef AVERAGEDSOURCEPDE_HPP_
+#define AVERAGEDSOURCEPDE_HPP_
 
+#include "MeshBasedTissue.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 
+
 /**
- *  A simple nutrient PDE which is not directly coupled to the tissue.
+ *  A PDE which calculates the source term by adding the number of cells
+ *  in the element containing that point and scaling by the element area.
  */
 template<unsigned DIM>
-class SimpleNutrientPde : public AbstractLinearEllipticPde<DIM,DIM>
+class AveragedSourcePde : public AbstractLinearEllipticPde<DIM,DIM>
 {
 private:
 
+    /** The tissue member. */
+    MeshBasedTissue<DIM>& mrTissue;
+
     /** Coefficient of consumption of nutrient by cells. */
     double mCoefficient;
+
+    /** Vector of averaged cell densities on elements of the coarse mesh. */
+    std::vector<double> mCellDensityOnCoarseElements;
 
 public:
 
     /**
      * Constructor.
      *
+     * @param rTissue reference to the tissue
      * @param coefficient the coefficient of consumption of nutrient by cells
      */
-    SimpleNutrientPde(double coefficient);
+    AveragedSourcePde(MeshBasedTissue<DIM>& rTissue, double coefficient);
+
+    /**
+     * Set up the source terms.
+     *
+     * @param rCoarseMesh reference to the coarse mesh
+     */
+    void SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseMesh);
 
     /**
      * Overridden ComputeConstantInUSourceTerm() method.
@@ -79,7 +96,6 @@ public:
      * @return a matrix.
      */
     c_matrix<double,DIM,DIM> ComputeDiffusionTerm(const ChastePoint<DIM>& rX);
-
 };
 
-#endif /*SIMPLENUTRIENTPDE_HPP_*/
+#endif /*AVERAGEDSOURCEPDE_HPP_*/

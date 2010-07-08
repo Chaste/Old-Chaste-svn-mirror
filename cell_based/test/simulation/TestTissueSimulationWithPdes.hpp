@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_
-#define TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_
+#ifndef TESTTISSUESIMULATIONWITHPDES_HPP_
+#define TESTTISSUESIMULATIONWITHPDES_HPP_
 
 #include <cxxtest/TestSuite.h>
 
@@ -40,8 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "SimpleNutrientPde.hpp"
-#include "CellwiseNutrientSinkPde.hpp"
+#include "SimpleUniformSourcePde.hpp"
+#include "CellwiseSourcePde.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "ReplicatableVector.hpp"
@@ -253,7 +253,7 @@ public:
         }
 
         // Set up PDE
-        SimpleNutrientPde<2> pde(0.1);
+        SimpleUniformSourcePde<2> pde(-0.1);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
@@ -316,7 +316,7 @@ public:
     }
 
 
-    void TestWithPointwiseNutrientSink() throw(Exception)
+    void TestWithPointwiseSource() throw(Exception)
     {
         EXIT_IF_PARALLEL; //defined in PetscTools
 
@@ -374,7 +374,7 @@ public:
         }
 
         // Set up PDE
-        CellwiseNutrientSinkPde<2> pde(tissue, 0.1);
+        CellwiseSourcePde<2> pde(tissue, -0.1);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
@@ -389,7 +389,7 @@ public:
 
         // Set up tissue simulation
         TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TissueSimulationWithPointwiseNutrientSink");
+        simulator.SetOutputDirectory("TissueSimulationWithPdes");
         simulator.SetEndTime(0.5);
 
         // Set up cell killer and pass into simulation
@@ -409,7 +409,7 @@ public:
         CellwiseData<2>::Destroy();
     }
 
-    void TestWithPointwiseTwoNutrientSink() throw(Exception)
+    void TestWithPointwiseTwoSource() throw(Exception)
     {
 		EXIT_IF_PARALLEL; //defined in PetscTools
 
@@ -468,14 +468,14 @@ public:
 		}
 
 		// Set up PDE
-		CellwiseNutrientSinkPde<2> pde(tissue, 0.1);
+		CellwiseSourcePde<2> pde(tissue, -0.1);
 		double boundary_value = 1.0;
 		bool is_neumann_bc = false;
 		PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
 		std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
 		pde_and_bc_collection.push_back(&pde_and_bc);
 		// Set up second PDE
-		CellwiseNutrientSinkPde<2> pde2(tissue, 0.8);
+		CellwiseSourcePde<2> pde2(tissue, -0.8);
 		double boundary_value2 = 1.0;
 		bool is_neumann_bc2 = false;
 		PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
@@ -489,7 +489,7 @@ public:
 
 		// Set up tissue simulation
 		TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
-		simulator.SetOutputDirectory("TissueSimulationWithPointwiseNutrientSink");
+		simulator.SetOutputDirectory("TissueSimulationWithPointwiseSource");
 		simulator.SetEndTime(0.5);
 
 		// Set up cell killer and pass into simulation
@@ -560,7 +560,7 @@ public:
         }
 
         // Set up PDE
-        SimpleNutrientPde<2> pde(0.1);
+        SimpleUniformSourcePde<2> pde(-0.1);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
@@ -627,7 +627,7 @@ public:
     }
 
 
-    void TestCoarseNutrientMesh() throw(Exception)
+    void TestCoarseSourceMesh() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -675,13 +675,13 @@ public:
         }
 
         // Set up PDE
-        AveragedSinksPde<2> pde(tissue, -0.1);
+        AveragedSourcePde<2> pde(tissue, -0.1);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
 
         // Set up second PDE
-        AveragedSinksPde<2> pde2(tissue, -0.5);
+        AveragedSourcePde<2> pde2(tissue, -0.5);
         double boundary_value2 = 1.0;
         bool is_neumann_bc2 = false;
         PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
@@ -698,7 +698,7 @@ public:
 
         // Set up tissue simulation
         TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
-        simulator.SetOutputDirectory("TestCoarseNutrientMesh");
+        simulator.SetOutputDirectory("TestCoarseSourceMesh");
         simulator.SetEndTime(0.05);
 
         // Coverage
@@ -785,6 +785,7 @@ public:
             unsigned elem_index = simulator.mpCoarsePdeMesh->GetContainingElementIndex(tissue.GetLocationOfCellCentre(*cell_iter));
             Element<2,2>* p_element = simulator.mpCoarsePdeMesh->GetElement(elem_index);
 
+
             double max0 = std::max(pde_solution0[p_element->GetNodeGlobalIndex(0)],
                                   pde_solution0[p_element->GetNodeGlobalIndex(1)]);
             max0 = std::max(max0, pde_solution0[p_element->GetNodeGlobalIndex(2)]);
@@ -794,15 +795,17 @@ public:
             max1 = std::max(max1, pde_solution1[p_element->GetNodeGlobalIndex(2)]);
 
             double min0 = std::min(pde_solution0[p_element->GetNodeGlobalIndex(0)],
-                                   pde_solution0[p_element->GetNodeGlobalIndex(1)]);
+                                  pde_solution0[p_element->GetNodeGlobalIndex(1)]);
             min0 = std::min(min0, pde_solution0[p_element->GetNodeGlobalIndex(2)]);
 
             double min1 = std::min(pde_solution1[p_element->GetNodeGlobalIndex(0)],
-                                   pde_solution1[p_element->GetNodeGlobalIndex(1)]);
+                                  pde_solution1[p_element->GetNodeGlobalIndex(1)]);
             min1 = std::min(min1, pde_solution1[p_element->GetNodeGlobalIndex(2)]);
 
             double value0_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 0);
             double value1_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 1);
+
+
 
             TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, value0_at_cell);
             TS_ASSERT_LESS_THAN_EQUALS(min0, value0_at_cell);
@@ -816,7 +819,7 @@ public:
     }
 
 
-    void TestCoarseNutrientMeshBoundaryConditionImplementation() throw(Exception)
+    void TestCoarseSourceMeshBoundaryConditionImplementation() throw(Exception)
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
@@ -863,7 +866,7 @@ public:
         }
 
         // Set up PDE
-        AveragedSinksPde<2> pde(tissue, -0.01);
+        AveragedSourcePde<2> pde(tissue, -0.01);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
@@ -949,7 +952,7 @@ public:
         }
 
         // Set up PDE
-        SimpleNutrientPde<2> pde(0.1);
+        SimpleUniformSourcePde<2> pde(-0.1);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
@@ -1004,13 +1007,18 @@ public:
         CellwiseData<2>::Destroy();
     }
 
+
     /**
      * This test demonstrates how to archive a TissueSimulationWithPdes
      * in the case where the PDE has the tissue as a member variable.
      */
     void TestArchivingWithCellwisePde() throw (Exception)
     {
-        EXIT_IF_PARALLEL; //defined in PetscTools
+        if (!PetscTools::IsSequential())
+        {
+            TS_TRACE("This test does not pass in parallel yet.");
+            return;
+        }
 
         TissueConfig::Instance()->SetHepaOneParameters();
 
@@ -1057,7 +1065,7 @@ public:
         }
 
         // Set up PDE
-        CellwiseNutrientSinkPde<2> pde(tissue, 0.03);
+        CellwiseSourcePde<2> pde(tissue, -0.03);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
@@ -1093,7 +1101,7 @@ public:
          * simulation.
          */
         MeshBasedTissue<2>* p_tissue = static_cast<MeshBasedTissue<2>*>(&(p_simulator->rGetTissue()));
-        CellwiseNutrientSinkPde<2> pde2(*p_tissue, 0.03);
+        CellwiseSourcePde<2> pde2(*p_tissue, -0.03);
         double boundary_value2 = 1.0;
         bool is_neumann_bc2 = false;
         PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
@@ -1146,7 +1154,7 @@ public:
         }
 
         // Set up PDE
-        SimpleNutrientPde<3> pde(0.1);
+        SimpleUniformSourcePde<3> pde(-0.1);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<3> pde_and_bc(&pde, boundary_value, is_neumann_bc);
@@ -1181,4 +1189,4 @@ public:
     }
 
 };
-#endif /*TESTTISSUESIMULATIONWITHNUTRIENTS_HPP_*/
+#endif /*TESTTISSUESIMULATIONWITHPDES_HPP_*/

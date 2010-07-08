@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <ctime>
 #include "PdeAndBoundaryConditions.hpp"
 #include "MeshBasedTissue.hpp"
-#include "AveragedSinksPde.hpp"
+#include "AveragedSourcePde.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
@@ -131,10 +131,10 @@ public:
 //    	TS_ASSERT_EQUALS(solution_exists, false);
 
     	// Coverage
-        TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSinksPde(), false);
+        TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSourcePde(), false);
     }
 
-    void TestWithAveragedSinksPde() throw(Exception)
+    void TestWithAveragedSourcePde() throw(Exception)
     {
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0, false);
@@ -159,7 +159,7 @@ public:
         TS_ASSERT_DELTA(coarse_mesh.GetElement(1)->CalculateCentroid()[1], 100.0/3.0, 0.1);
 
         // Set up PDE
-        AveragedSinksPde<2> pde(tissue, -1.0);
+        AveragedSourcePde<2> pde(tissue, -1.0);
         pde.SetupSourceTerms(coarse_mesh);
 
     	// Create a PdeAndBoundaryConditions object
@@ -169,11 +169,11 @@ public:
     	TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), true);
 
     	// Set up source terms for PDE using coarse mesh
-    	pde_and_bc.SetUpSourceTermsForAveragedSinksPde(&coarse_mesh);
+    	pde_and_bc.SetUpSourceTermsForAveragedSourcePde(&coarse_mesh);
 
-        TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSinksPde(), true);
+        TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSourcePde(), true);
 
-        AveragedSinksPde<2>* p_pde = static_cast<AveragedSinksPde<2>*>(pde_and_bc.GetPde());
+        AveragedSourcePde<2>* p_pde = static_cast<AveragedSourcePde<2>*>(pde_and_bc.GetPde());
 
         // Test Compute source term
         ChastePoint<2> unused_point;

@@ -25,32 +25,32 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef TESTNUTRIENTPDES_HPP_
-#define TESTNUTRIENTPDES_HPP_
+#ifndef TESTPDESFORTISSUESIMULATIONS_HPP_
+#define TESTPDESFORTISSUESIMULATIONS_HPP_
 
 #include <cxxtest/TestSuite.h>
 
 #include "MeshBasedTissue.hpp"
-#include "SimpleNutrientPde.hpp"
-#include "CellwiseNutrientSinkPde.hpp"
-#include "AveragedSinksPde.hpp"
+#include "SimpleUniformSourcePde.hpp"
+#include "CellwiseSourcePde.hpp"
+#include "AveragedSourcePde.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
-class TestNutrientPdes : public AbstractCellBasedTestSuite
+class TestPdesForTissueSimulations : public AbstractCellBasedTestSuite
 {
 public:
 
-    void TestSimpleNutrientPde()
+    void TestSimpleUniformSourcePde()
     {
         // Set up mesh
         HoneycombMeshGenerator generator(5, 5, 0, false);
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up PDE
-        SimpleNutrientPde<2> pde(1.0);
+        SimpleUniformSourcePde<2> pde(-1.0);
 
         // Test Compute source term
         ChastePoint<2> unused_point;
@@ -61,7 +61,7 @@ public:
         TS_ASSERT_DELTA(value_at_elem_1, -1.0, 1e-6);
     }
 
-    void TestCellwiseNutrientSinkPde()
+    void TestCellwiseSourcePde()
     {
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0, false);
@@ -78,7 +78,7 @@ public:
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
         // Set up PDE
-        CellwiseNutrientSinkPde<2> pde(tissue, 1.0);
+        CellwiseSourcePde<2> pde(tissue, -1.0);
 
         // Test compute source terms
         ChastePoint<2> unused_point;
@@ -99,7 +99,7 @@ public:
         RandomNumberGenerator::Destroy();
     }
 
-    void TestAveragedSinksPde()
+    void TestAveragedSourcePde()
     {
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0, false);
@@ -121,7 +121,7 @@ public:
         TS_ASSERT_DELTA(coarse_mesh.GetElement(1)->CalculateCentroid()[0], 100.0/3.0, 0.1);
         TS_ASSERT_DELTA(coarse_mesh.GetElement(1)->CalculateCentroid()[1], 100.0/3.0, 0.1);
         // Set up PDE
-        AveragedSinksPde<2> pde(tissue, -1.0);
+        AveragedSourcePde<2> pde(tissue, -1.0);
         pde.SetupSourceTerms(coarse_mesh);
 
         // Test Compute source term
@@ -140,4 +140,4 @@ public:
     }
 };
 
-#endif /*TESTNUTRIENTPDES_HPP_*/
+#endif /*TESTPDESFORTISSUESIMULATIONS_HPP_*/

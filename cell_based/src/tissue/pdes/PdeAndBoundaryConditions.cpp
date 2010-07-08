@@ -79,9 +79,9 @@ double PdeAndBoundaryConditions<DIM>::GetBoundaryValue()
 }
 
 template<unsigned DIM>
-bool PdeAndBoundaryConditions<DIM>::HasAveragedSinksPde()
+bool PdeAndBoundaryConditions<DIM>::HasAveragedSourcePde()
 {
-	return (dynamic_cast<AveragedSinksPde<DIM>*>(mpPde) != NULL);
+	return (dynamic_cast<AveragedSourcePde<DIM>*>(mpPde) != NULL);
 }
 
 template<unsigned DIM>
@@ -94,10 +94,10 @@ void PdeAndBoundaryConditions<DIM>::DestroySolution()
 }
 
 template<unsigned DIM>
-void PdeAndBoundaryConditions<DIM>::SetUpSourceTermsForAveragedSinksPde(TetrahedralMesh<DIM,DIM>* pMesh)
+void PdeAndBoundaryConditions<DIM>::SetUpSourceTermsForAveragedSourcePde(TetrahedralMesh<DIM,DIM>* pMesh)
 {
-	assert(HasAveragedSinksPde());
-	static_cast<AveragedSinksPde<DIM>*>(mpPde)->SetupSourceTerms(*pMesh);
+	assert(HasAveragedSourcePde());
+	static_cast<AveragedSourcePde<DIM>*>(mpPde)->SetupSourceTerms(*pMesh);
 }
 
 /////////////////////////////////////////////////////////////////////////////

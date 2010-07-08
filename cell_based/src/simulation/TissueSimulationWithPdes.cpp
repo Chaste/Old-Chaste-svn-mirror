@@ -137,7 +137,7 @@ void TissueSimulationWithPdes<DIM>::UseCoarsePdeMesh(double coarseGrainScaleFact
     assert(!mPdeAndBcCollection.empty());
     for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
-    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSinksPde());
+    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde());
     }
 
     CreateCoarsePdeMesh(coarseGrainScaleFactor);
@@ -265,7 +265,7 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
     for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
     	assert(mPdeAndBcCollection[pde_index]);
-    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSinksPde() == false);
+    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde() == false);
     }
 
     // Note: If not using a coarse PDE mesh, we MUST be using a MeshBasedTissue
@@ -359,7 +359,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
     for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
     	assert(mPdeAndBcCollection[pde_index]);
-    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSinksPde() == true);
+    	assert(mPdeAndBcCollection[pde_index]->HasAveragedSourcePde() == true);
     }
 
     TetrahedralMesh<DIM,DIM>& r_mesh = *mpCoarsePdeMesh;
@@ -450,7 +450,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 			VecGetSize(p_pde_and_bc->GetSolution(), &size_of_soln_previous_step);
 		}
 
-		p_pde_and_bc->SetUpSourceTermsForAveragedSinksPde(mpCoarsePdeMesh);
+		p_pde_and_bc->SetUpSourceTermsForAveragedSourcePde(mpCoarsePdeMesh);
 
 		SimpleLinearEllipticAssembler<DIM,DIM> assembler(mpCoarsePdeMesh, p_pde_and_bc->GetPde(), &bcc);
 

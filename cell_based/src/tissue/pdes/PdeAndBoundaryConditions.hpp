@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define PDEANDBOUNDARYCONDITIONS_HPP_
 
 #include "AbstractLinearEllipticPde.hpp"
-#include "AveragedSinksPde.hpp"
+#include "AveragedSourcePde.hpp"
 #include "PetscTools.hpp"
 
 /**
@@ -115,9 +115,9 @@ public:
 	double GetBoundaryValue();
 
     /**
-     * @return whether the PDE is of type AveragedSinksPde
+     * @return whether the PDE is of type AveragedSourcePde
      */
-    bool HasAveragedSinksPde();
+    bool HasAveragedSourcePde();
 
     /**
      * Call VecDestroy on mCurrentSolution.
@@ -125,12 +125,12 @@ public:
     void DestroySolution();
 
     /**
-     * In the case where mpPde is of type AveragedSinksPde, set the source terms
+     * In the case where mpPde is of type AveragedSourcePde, set the source terms
      * using the information in the given mesh.
      *
      * @param pMesh Pointer to a tetrahedral mesh
      */
-    void SetUpSourceTermsForAveragedSinksPde(TetrahedralMesh<DIM,DIM>* pMesh);
+    void SetUpSourceTermsForAveragedSourcePde(TetrahedralMesh<DIM,DIM>* pMesh);
 };
 
 #endif /* PDEANDBOUNDARYCONDITIONS_HPP_ */

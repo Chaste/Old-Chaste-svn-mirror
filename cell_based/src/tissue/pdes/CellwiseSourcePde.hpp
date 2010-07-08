@@ -25,17 +25,17 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CELLWISENUTRIENTSINKPDE_HPP_
-#define CELLWISENUTRIENTSINKPDE_HPP_
+#ifndef CELLWISESOURCEPDE_HPP_
+#define CELLWISESOURCEPDE_HPP_
 
 #include "MeshBasedTissue.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 
 /**
- *  A nutrient PDE which has a sink at each non-apoptotic cell.
+ *  A PDE which has a source at each non-apoptotic cell.
  */
 template<unsigned DIM>
-class CellwiseNutrientSinkPde : public AbstractLinearEllipticPde<DIM,DIM>
+class CellwiseSourcePde : public AbstractLinearEllipticPde<DIM,DIM>
 {
 private:
 
@@ -53,7 +53,7 @@ public:
      * @param rTissue reference to the tissue
      * @param coefficient the coefficient of consumption of nutrient by cells
      */
-    CellwiseNutrientSinkPde(MeshBasedTissue<DIM>& rTissue, double coefficient);
+    CellwiseSourcePde(MeshBasedTissue<DIM>& rTissue, double coefficient);
 
     /**
      * Overridden ComputeConstantInUSourceTerm() method.
@@ -94,4 +94,4 @@ public:
 
 };
 
-#endif /*CELLWISENUTRIENTSINKPDE_HPP_*/
+#endif /*CELLWISESOURCEPDE_HPP_*/
