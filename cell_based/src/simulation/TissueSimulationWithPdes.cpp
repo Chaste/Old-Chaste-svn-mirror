@@ -79,6 +79,7 @@ void TissueSimulationWithPdes<DIM>::SetPdeAndBcCollection(std::vector<PdeAndBoun
 template<unsigned DIM>
 Vec TissueSimulationWithPdes<DIM>::GetCurrentPdeSolution(unsigned pdeIndex)
 {
+	assert(pdeIndex<mPdeAndBcCollection.size());
     return mPdeAndBcCollection[pdeIndex]->GetSolution();
 }
 
@@ -274,8 +275,6 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
     TetrahedralMesh<DIM,DIM>& r_mesh = static_cast<MeshBasedTissue<DIM>*>(&(this->mrTissue))->rGetMesh();
     CellwiseData<DIM>::Instance()->ReallocateMemory();
 
-    unsigned parameter_count = 0;
-
     // Loop over elements of mPdeAndBcCollection
     for (unsigned pde_index=0; pde_index<mPdeAndBcCollection.size(); pde_index++)
     {
@@ -347,9 +346,8 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
 		{
 			double solution = solution_repl[i];
 			unsigned index = r_mesh.GetNode(i)->GetIndex();
-			CellwiseData<DIM>::Instance()->SetValue(solution, index, parameter_count);
+			CellwiseData<DIM>::Instance()->SetValue(solution, index, pde_index);
 		}
-		++parameter_count;
     }
 }
 
@@ -514,7 +512,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 			}
 
 			unsigned index = this->mrTissue.GetLocationIndexUsingCell(*cell_iter);
-			CellwiseData<DIM>::Instance()->SetValue(interpolated_solution, index);
+			CellwiseData<DIM>::Instance()->SetValue(interpolated_solution, index,pde_index);
 		}
     }
 }

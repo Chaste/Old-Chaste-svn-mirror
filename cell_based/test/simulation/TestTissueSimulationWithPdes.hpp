@@ -476,7 +476,7 @@ public:
 		pde_and_bc_collection.push_back(&pde_and_bc);
 		// Set up second PDE
 		CellwiseNutrientSinkPde<2> pde2(tissue, 0.8);
-		double boundary_value2 = 0.5;
+		double boundary_value2 = 1.0;
 		bool is_neumann_bc2 = false;
 		PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
 		pde_and_bc_collection.push_back(&pde_and_bc2);
@@ -504,7 +504,9 @@ public:
 		TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
 		TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
 		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),0), 0.9702, 1e-4);
-		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),1), 0.4041, 1e-4);
+		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),1), 0.8083, 1e-4);
+		TS_ASSERT_LESS_THAN(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),1),
+							p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),0));
 
 		// Tidy up
 		CellwiseData<2>::Destroy();
@@ -673,17 +675,19 @@ public:
         }
 
         // Set up PDE
-        AveragedSinksPde<2> pde(tissue, -0.1);
+        AveragedSinksPde<2>* p_pde = new AveragedSinksPde<2>(tissue, -0.1);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
-        PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
-        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
-        pde_and_bc_collection.push_back(&pde_and_bc);
+        PdeAndBoundaryConditions<2>* p_pde_and_bc = new PdeAndBoundaryConditions<2>(p_pde, boundary_value, is_neumann_bc);
+
         // Set up second PDE
-        AveragedSinksPde<2> pde2(tissue, -0.1);
+        AveragedSinksPde<2> pde2(tissue, -0.5);
         double boundary_value2 = 1.0;
         bool is_neumann_bc2 = false;
         PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
+
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(p_pde_and_bc);
         pde_and_bc_collection.push_back(&pde_and_bc2);
 
         // Set up force law
@@ -801,6 +805,9 @@ public:
             double value0_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 0);
             double value1_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 1);
 
+
+
+            TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, value0_at_cell);
             TS_ASSERT_LESS_THAN_EQUALS(min0, value0_at_cell);
             TS_ASSERT_LESS_THAN_EQUALS(value0_at_cell, max0);
             TS_ASSERT_LESS_THAN_EQUALS(min1, value1_at_cell);
