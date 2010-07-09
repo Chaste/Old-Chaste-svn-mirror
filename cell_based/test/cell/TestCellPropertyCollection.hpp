@@ -76,6 +76,26 @@ public:
 		TS_ASSERT(collection.HasPropertyType<AbstractCellProperty>());
 		TS_ASSERT(collection.HasPropertyType<AbstractCellMutationState>());
 		//TS_ASSERT(!collection.HasProperty<AbstractCellMutationState>()); <-- This won't compile
+
+		// Remove property
+		collection.RemoveProperty<WildTypeCellMutationState>();
+		TS_ASSERT(!collection.HasProperty<WildTypeCellMutationState>());
+		collection.RemoveProperty(apc1_mutation);
+		TS_ASSERT(!collection.HasProperty<ApcOneHitCellMutationState>());
+		TS_ASSERT_THROWS_THIS(collection.RemoveProperty<WildTypeCellMutationState>(),
+				              "Collection does not contain the given property type.");
+		TS_ASSERT_THROWS_THIS(collection.RemoveProperty(apc1_mutation),
+				              "Collection does not contain the given property.");
+
+		// Get matching properties
+		collection.AddProperty(wt_mutation);
+		collection.AddProperty(apc1_mutation);
+//		CellPropertyCollection mutations = collection.GetPropertiesType<AbstractCellMutationState>();
+//		CellPropertyCollection wild_types = collection.GetProperties<WildTypeCellMutationState>();
+
+		// We don't trap adding the same thing twice; is this OK?
+		collection.AddProperty(wt_mutation);
+		collection.AddProperty(wt_mutation);
 	}
 
 	// TODO: archive the collection

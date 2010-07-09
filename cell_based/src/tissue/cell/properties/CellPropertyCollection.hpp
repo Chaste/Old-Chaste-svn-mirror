@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/shared_ptr.hpp>
 
 #include "AbstractCellProperty.hpp"
+#include "Exception.hpp"
 
 class CellPropertyCollection
 {
@@ -41,6 +42,9 @@ private:
 
 	/** Type of a const iterator over the container */
 	typedef CollectionType::const_iterator ConstIteratorType;
+
+	/** Type of an iterator over the container */
+	typedef CollectionType::iterator IteratorType;
 
 	/** The properties stored in this collection. */
 	CollectionType mProperties;
@@ -102,6 +106,30 @@ public:
 		}
 		return false;
 	}
+
+	/**
+	 * Remove a property of the given type.
+	 */
+	template <typename CLASS>
+	void RemoveProperty()
+	{
+		for (IteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
+		{
+			if ((*it)->IsType<CLASS>())
+			{
+				mProperties.erase(it);
+				return;
+			}
+		}
+		EXCEPTION("Collection does not contain the given property type.");
+	}
+
+	/**
+	 * Remove the given property from this collection.
+	 *
+	 * @param rProp  the property to remove
+	 */
+	void RemoveProperty(const boost::shared_ptr<AbstractCellProperty>& rProp);
 };
 
 #endif /* CELLPROPERTYCOLLECTION_HPP_ */
