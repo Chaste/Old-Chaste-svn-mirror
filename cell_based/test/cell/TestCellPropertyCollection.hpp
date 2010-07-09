@@ -55,6 +55,7 @@ public:
     void TestPropertyCollection() throw (Exception)
     {
         CellPropertyCollection collection;
+        TS_ASSERT_EQUALS(collection.GetSize(), 0u);
 
         // Add some properties
         NEW_PROP(WildTypeCellMutationState, wt_mutation);
@@ -69,6 +70,7 @@ public:
         collection.RemoveProperty(wt_mutation_2);
 
         // Check the contents
+        TS_ASSERT_EQUALS(collection.GetSize(), 2u);
         // ...by object
         TS_ASSERT(collection.HasProperty(wt_mutation));
         TS_ASSERT(collection.HasProperty(apc1_mutation));
@@ -81,7 +83,14 @@ public:
         // ..by subclass
         TS_ASSERT(collection.HasPropertyType<AbstractCellProperty>());
         TS_ASSERT(collection.HasPropertyType<AbstractCellMutationState>());
-        //TS_ASSERT(!collection.HasProperty<AbstractCellMutationState>()); <-- This won't compile
+        //TS_ASSERT(!collection.HasProperty<AbstractCellMutationState>()); <-- This won't compile (yet)
+        // ..by iteration
+        for (CellPropertyCollection::Iterator it=collection.Begin(); it != collection.End(); ++it)
+        {
+            TS_ASSERT(collection.HasProperty(*it));
+            TS_ASSERT((*it)->IsType<WildTypeCellMutationState>() || (*it)->IsType<ApcOneHitCellMutationState>());
+            TS_ASSERT((*it)->IsSubType<AbstractCellMutationState>());
+        }
 
         // Remove property
         collection.RemoveProperty<WildTypeCellMutationState>();
@@ -93,11 +102,24 @@ public:
         TS_ASSERT_THROWS_THIS(collection.RemoveProperty(apc1_mutation),
                               "Collection does not contain the given property.");
 
+        TS_ASSERT_EQUALS(collection.GetSize(), 0u);
         // Get matching properties
         collection.AddProperty(wt_mutation);
         collection.AddProperty(apc1_mutation);
-//        CellPropertyCollection mutations = collection.GetPropertiesType<AbstractCellMutationState>();
-//        CellPropertyCollection wild_types = collection.GetProperties<WildTypeCellMutationState>();
+        CellPropertyCollection mutations = collection.GetPropertiesType<AbstractCellMutationState>();
+        TS_ASSERT_EQUALS(mutations.GetSize(), 2u);
+        CellPropertyCollection::Iterator it = mutations.Begin();
+        TS_ASSERT(collection.HasProperty(*it));
+        TS_ASSERT( (*it)->IsSubType<AbstractCellMutationState>() );
+        TS_ASSERT( (*it)->IsType<WildTypeCellMutationState>() || (*(++it))->IsType<WildTypeCellMutationState>() );
+        
+        CellPropertyCollection wild_types = collection.GetProperties<WildTypeCellMutationState>();
+        TS_ASSERT_EQUALS(wild_types.GetSize(), 1u);
+        it = wild_types.Begin();
+        TS_ASSERT( (*it)->IsType<WildTypeCellMutationState>() );
+        TS_ASSERT( *it == wild_types.GetProperty() );
+        TS_ASSERT_THROWS_THIS(collection.GetProperty(),
+                              "Can only call GetProperty on a collection of size 1.");
     }
 
     // TODO: archive the collection

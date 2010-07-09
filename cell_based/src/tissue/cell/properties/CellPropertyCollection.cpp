@@ -58,3 +58,30 @@ void CellPropertyCollection::RemoveProperty(const boost::shared_ptr<AbstractCell
         mProperties.erase(it);
     }
 }
+
+unsigned CellPropertyCollection::GetSize() const
+{
+    return mProperties.size();
+}
+
+CellPropertyCollection::Iterator CellPropertyCollection::Begin()
+{
+    return mProperties.begin();
+}
+
+CellPropertyCollection::Iterator CellPropertyCollection::End()
+{
+    return mProperties.end();
+}
+
+boost::shared_ptr<AbstractCellProperty> CellPropertyCollection::GetProperty() const
+{
+    if (GetSize() == 1)
+    {
+        return *mProperties.begin();
+    }
+    else
+    {
+        EXCEPTION("Can only call GetProperty on a collection of size 1.");
+    }
+}

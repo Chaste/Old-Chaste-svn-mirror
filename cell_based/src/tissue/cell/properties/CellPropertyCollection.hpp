@@ -130,6 +130,69 @@ public:
      * @param rProp  the property to remove
      */
     void RemoveProperty(const boost::shared_ptr<AbstractCellProperty>& rProp);
+    
+    /**
+     * Get the size of this container.
+     */
+    unsigned GetSize() const;
+    
+    /**
+     * An iterator type over this collection.
+     * Don't rely on the particular implementation of the iterator.
+     */
+    typedef CollectionType::iterator Iterator;
+    
+    /**
+     * Get an Iterator to the start of this collection. 
+     */
+    Iterator Begin();
+    
+    /**
+     * Get an Iterator to one past the end of this collection. 
+     */
+    Iterator End();
+    
+    /**
+     * If this collection contains a single property, then return it.
+     * Otherwise, throws an exception.
+     */
+    boost::shared_ptr<AbstractCellProperty> GetProperty() const;
+    
+    /**
+     * Get a sub-collection containing all our properties that are instances
+     * of the given class.
+     */
+    template <typename CLASS>
+    CellPropertyCollection GetProperties() const
+    {
+        CellPropertyCollection result;
+        for (ConstIteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
+        {
+            if ((*it)->IsType<CLASS>())
+            {
+                result.AddProperty(*it);
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * Get a sub-collection containing all our properties that are instances
+     * of the given class or any of its subclasses.
+     */
+    template <typename BASECLASS>
+    CellPropertyCollection GetPropertiesType() const
+    {
+        CellPropertyCollection result;
+        for (ConstIteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
+        {
+            if ((*it)->IsSubType<BASECLASS>())
+            {
+                result.AddProperty(*it);
+            }
+        }
+        return result;
+    }
 };
 
 #endif /* CELLPROPERTYCOLLECTION_HPP_ */
