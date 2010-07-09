@@ -284,7 +284,7 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
 		// Set up boundary conditions
 		BoundaryConditionsContainer<DIM,DIM,1> bcc;
 		ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>(p_pde_and_bc->GetBoundaryValue());
-		if (p_pde_and_bc->IsNeumannBoundaryCondition()) ///\todo test this! (#1465)
+		if (p_pde_and_bc->IsNeumannBoundaryCondition())
 		{
 			for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator elem_iter = r_mesh.GetBoundaryElementIteratorBegin();
 				 elem_iter != r_mesh.GetBoundaryElementIteratorEnd();
@@ -398,7 +398,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 		BoundaryConditionsContainer<DIM,DIM,1> bcc;
 		ConstBoundaryCondition<DIM>* p_bc = new ConstBoundaryCondition<DIM>(p_pde_and_bc->GetBoundaryValue());
 
-		if (p_pde_and_bc->IsNeumannBoundaryCondition()) ///\todo test this! (#1465)
+		if (p_pde_and_bc->IsNeumannBoundaryCondition())
 		{
 			EXCEPTION("Neumann BCs not yet implemented when using a coarse PDE mesh");
 		}

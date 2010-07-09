@@ -134,11 +134,57 @@ public:
         TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSourcePde(), false);
     }
 
+    void TestMethodsNeumann() throw(Exception)
+    {
+    	// Create a PdeAndBoundaryConditions object
+    	SimplePdeForTesting pde;
+    	double boundary_value = 0.0;
+    	bool is_neumann_bc = true;
+
+    	PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+
+    	// Test Get methods
+    	TS_ASSERT_DELTA(pde_and_bc.GetBoundaryValue(), 0.0, 1e-6);
+    	TS_ASSERT_EQUALS(pde_and_bc.IsNeumannBoundaryCondition(), true);
+    	bool solution_exists = pde_and_bc.GetSolution();
+    	TS_ASSERT_EQUALS(solution_exists, false);
+
+    	AbstractLinearEllipticPde<2,2>* p_pde = pde_and_bc.GetPde();
+    	TS_ASSERT_EQUALS(p_pde, &pde);
+
+    	// Set mCurrentSolution
+        std::vector<double> data(10);
+        for (unsigned i=0; i<10; i++)
+        {
+            data[i] = i + 0.45;
+        }
+
+        Vec vector = PetscTools::CreateVec(data);
+        pde_and_bc.SetSolution(vector);
+
+        // Test mCurrentSolution has been correctly set
+        Vec solution =  pde_and_bc.GetSolution();
+        ReplicatableVector solution_repl(solution);
+
+        TS_ASSERT_EQUALS(solution_repl.GetSize(), 10u);
+        for (unsigned i=0; i<10; i++)
+        {
+            TS_ASSERT_DELTA(solution_repl[i], i + 0.45, 1e-12);
+        }
+
+        PetscInt size_of_solution = 0;
+        VecGetSize(pde_and_bc.GetSolution(), &size_of_solution);
+        TS_ASSERT_EQUALS(size_of_solution, 10);
+
+    	// Coverage
+        TS_ASSERT_EQUALS(pde_and_bc.HasAveragedSourcePde(), false);
+    }
+
     void TestWithAveragedSourcePde() throw(Exception)
     {
         // Set up tissue
         EXIT_IF_PARALLEL; //HoneycombMeshGenerator doesn't work in parallel
-        
+
         HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;

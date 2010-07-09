@@ -476,8 +476,8 @@ public:
 		pde_and_bc_collection.push_back(&pde_and_bc);
 		// Set up second PDE
 		CellwiseSourcePde<2> pde2(tissue, -0.8);
-		double boundary_value2 = 1.0;
-		bool is_neumann_bc2 = false;
+		double boundary_value2 = 0.0; //zero flux BC
+		bool is_neumann_bc2 = true;
 		PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
 		pde_and_bc_collection.push_back(&pde_and_bc2);
 
@@ -504,7 +504,7 @@ public:
 		TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
 		TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
 		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),0), 0.9702, 1e-4);
-		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),1), 0.8083, 1e-4);
+		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),1), 0.0000, 1e-4);
 		TS_ASSERT_LESS_THAN(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),1),
 							p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),0));
 
@@ -814,10 +814,140 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, max1);
         }
 
+
         // Tidy up
         CellwiseData<2>::Destroy();
     }
 
+
+
+    void TestCoarseSourceMeshWithNeumannIsNotImplemented() throw(Exception)
+    {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
+        TissueConfig::Instance()->SetHepaOneParameters();
+
+        // Set up mesh
+        unsigned num_cells_depth = 5;
+        unsigned num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Set up cells
+        std::vector<TissueCell> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
+            p_model->SetDimension(2);
+            p_model->SetCellProliferativeType(STEM);
+
+            TissueCell cell(p_state, p_model);
+
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
+                                    (TissueConfig::Instance()->GetHepaOneCellG1Duration()
+                                    +TissueConfig::Instance()->GetSG2MDuration());
+
+            cell.SetBirthTime(birth_time);
+            cells.push_back(cell);
+        }
+
+        // Set up tissue
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+        // Set up CellwiseData and associate it with the tissue
+        CellwiseData<2>* p_data = CellwiseData<2>::Instance();
+        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 2);
+        p_data->SetTissue(&tissue);
+
+        // Since values are first passed in to CellwiseData before it is updated in PostSolve(),
+        // we need to pass it some initial conditions to avoid memory errors
+        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        {
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(),0);
+            p_data->SetValue(1.0, p_mesh->GetNode(i)->GetIndex(),1);
+        }
+
+        // Set up PDE
+        AveragedSourcePde<2> pde(tissue, -0.1);
+        double boundary_value = 0.0;
+        bool is_neumann_bc = true;
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+
+        // Set up second PDE
+        AveragedSourcePde<2> pde2(tissue, -0.5);
+        double boundary_value2 = 0.0;
+        bool is_neumann_bc2 = true;
+        PdeAndBoundaryConditions<2> pde_and_bc2(&pde2, boundary_value2, is_neumann_bc2);
+
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
+        pde_and_bc_collection.push_back(&pde_and_bc2);
+
+        // Set up force law
+        GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.UseCutoffPoint(1.5);
+        std::vector<AbstractForce<2>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up tissue simulation
+        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
+        simulator.SetOutputDirectory("TestCoarseSourceMesh");
+        simulator.SetEndTime(0.05);
+
+        // Coverage
+        simulator.SetPdeAndBcCollection(pde_and_bc_collection);
+
+        // Set up cell killer and pass into simulation
+        OxygenBasedCellKiller<2> killer(&tissue);
+        simulator.AddCellKiller(&killer);
+
+        // Test creation of mpCoarsePdeMesh
+        simulator.UseCoarsePdeMesh(10.0);
+
+        // Find centre of tissue
+        c_vector<double,2> centre_of_tissue = zero_vector<double>(2);
+
+        for (unsigned i=0; i<simulator.rGetTissue().GetNumNodes(); i++)
+        {
+            centre_of_tissue += simulator.rGetTissue().GetNode(i)->rGetLocation();
+        }
+        centre_of_tissue /= simulator.rGetTissue().GetNumNodes();
+
+        // Find centre of coarse PDE mesh
+        c_vector<double,2> centre_of_coarse_pde_mesh = zero_vector<double>(2);
+
+        for (unsigned i=0; i<simulator.mpCoarsePdeMesh->GetNumNodes(); i++)
+        {
+            centre_of_coarse_pde_mesh += simulator.mpCoarsePdeMesh->GetNode(i)->rGetLocation();
+        }
+        centre_of_coarse_pde_mesh /= simulator.mpCoarsePdeMesh->GetNumNodes();
+
+        // Test that the two centres match
+        TS_ASSERT_DELTA(centre_of_tissue[0], centre_of_coarse_pde_mesh[0], 1e-4);
+        TS_ASSERT_DELTA(centre_of_tissue[1], centre_of_coarse_pde_mesh[1], 1e-4);
+
+        // Test FindCoarseElementContainingCell and initialisation of mCellPdeElementMap
+
+        simulator.InitialiseCoarsePdeMesh(); // coverage
+
+        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+            cell_iter != tissue.End();
+            ++cell_iter)
+        {
+            unsigned containing_element_index = simulator.mCellPdeElementMap[&(*cell_iter)];
+            TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarsePdeMesh->GetNumElements());
+            TS_ASSERT_EQUALS(containing_element_index, simulator.FindCoarseElementContainingCell(*cell_iter));
+        }
+
+        // Run tissue simulation
+        TS_ASSERT_THROWS_THIS(simulator.Solve(), "Neumann BCs not yet implemented when using a coarse PDE mesh");
+
+
+
+        // Tidy up
+        CellwiseData<2>::Destroy();
+    }
 
     void TestCoarseSourceMeshBoundaryConditionImplementation() throw(Exception)
     {
