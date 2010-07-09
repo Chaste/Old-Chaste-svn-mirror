@@ -78,10 +78,10 @@ public:
      * It should be called like:
      *   bool healthy = p_property->IsType<HealthyMutationState>();
      */
-    template<class SUBCLASS>
+    template<class CLASS>
     bool IsType() const
     {
-        SUBCLASS ref_obj;
+        CLASS ref_obj;
         return IsSame(&ref_obj);
     }
 
@@ -92,12 +92,12 @@ public:
      * It should be called like:
      *   bool mutation = p_property->IsSubType<AbstractCellMutationState>();
      */
-    template<class SUBCLASS>
+    template<class BASECLASS>
     bool IsSubType() const
     {
         // We put a const_cast in here so users don't have to worry about whether the
         // property object they are testing is const or not.
-        SUBCLASS* p_subclass = dynamic_cast<SUBCLASS*>(const_cast<AbstractCellProperty*>(this));
+    	BASECLASS* p_subclass = dynamic_cast<BASECLASS*>(const_cast<AbstractCellProperty*>(this));
         return (p_subclass != NULL);
     }
 
