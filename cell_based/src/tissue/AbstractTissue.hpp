@@ -429,7 +429,7 @@ public:
     /**
      * Write the current time and node results to output files.
      */
-    void WriteTimeAndNodeResultsToFiles();
+    virtual void WriteTimeAndNodeResultsToFiles();
 
     /**
      * Calls GenerateCellResults() on each cell then calls WriteCellResultsToFiles().

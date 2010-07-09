@@ -510,15 +510,7 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
     // Write node data to file
     for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
     {
-        // Hack that covers the case where the node is associated with a cell that has just been killed (#1129) This breaks the vertex visualiser when apoptotic cells are involved.
-        bool node_corresponds_to_dead_cell = false;
-        if (mLocationCellMap[node_index])
-        {
-            node_corresponds_to_dead_cell = mLocationCellMap[node_index]->IsDead();
-        }
-
-        // Write node data to file
-        if ( !(GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
+    	if ( !GetNode(node_index)->IsDeleted())
         {
             const c_vector<double,DIM>& position = GetNode(node_index)->rGetLocation();
 

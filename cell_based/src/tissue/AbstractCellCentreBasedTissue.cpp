@@ -188,6 +188,39 @@ void AbstractCellCentreBasedTissue<DIM>::GenerateCellResultsAndWriteToFiles()
     this->WriteCellResultsToFiles(cell_type_counter, cell_cycle_phase_counter);
 }
 
+template<unsigned DIM>
+void AbstractCellCentreBasedTissue<DIM>::WriteTimeAndNodeResultsToFiles()
+{
+    double time = SimulationTime::Instance()->GetTime();
+
+    *this->mpVizNodesFile << time << "\t";
+    *this->mpVizBoundaryNodesFile << time << "\t";
+
+    // Write node data to file
+    for (unsigned node_index=0; node_index<this->GetNumNodes(); node_index++)
+    {
+    	// Hack that covers the case where the node in an AbstractCellCentreBasedTissue is associated with a cell that has just been killed (#1129) This breaks the vertex visualiser when apoptotic cells are involved.
+    	bool node_corresponds_to_dead_cell = false;
+        if (this->mLocationCellMap[node_index])
+		{
+			node_corresponds_to_dead_cell = this->mLocationCellMap[node_index]->IsDead();
+		}
+
+        // Write node data to file
+        if ( !(this->GetNode(node_index)->IsDeleted()) && !node_corresponds_to_dead_cell)
+        {
+            const c_vector<double,DIM>& position = this->GetNode(node_index)->rGetLocation();
+
+            for (unsigned i=0; i<DIM; i++)
+            {
+                *this->mpVizNodesFile << position[i] << " ";
+            }
+            *this->mpVizBoundaryNodesFile << this->GetNode(node_index)->IsBoundaryNode() << " ";
+        }
+    }
+    *this->mpVizNodesFile << "\n";
+    *this->mpVizBoundaryNodesFile << "\n";
+}
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
