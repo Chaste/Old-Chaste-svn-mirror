@@ -199,9 +199,6 @@ void TissueCell::StartApoptosis(bool setDeathTime)
     else
     {
         mDeathTime = DBL_MAX;
-        // Idea: For a vertex tissue cell, we could include the case where the area of the
-        // apopotosing cell has decreased to zero and then kill it.
-        // if ( (apoptotic) && (area=0) ) => Kill()
     }
 
     ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
