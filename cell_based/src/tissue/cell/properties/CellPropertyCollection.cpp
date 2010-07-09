@@ -28,31 +28,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellPropertyCollection.hpp"
 
-#include <algorithm>
-
 CellPropertyCollection::CellPropertyCollection()
 {
 }
 
 void CellPropertyCollection::AddProperty(const boost::shared_ptr<AbstractCellProperty>& rProp)
 {
-	mProperties.push_back(rProp);
+    if (HasProperty(rProp))
+    {
+        EXCEPTION("That property object is already in the collection.");
+    }
+    mProperties.insert(rProp);
 }
 
 bool CellPropertyCollection::HasProperty(const boost::shared_ptr<AbstractCellProperty>& rProp) const
 {
-	return (find(mProperties.begin(), mProperties.end(), rProp) != mProperties.end());
+    return (mProperties.find(rProp) != mProperties.end());
 }
 
 void CellPropertyCollection::RemoveProperty(const boost::shared_ptr<AbstractCellProperty>& rProp)
 {
-	IteratorType it = find(mProperties.begin(), mProperties.end(), rProp);
-	if (it == mProperties.end())
-	{
-		EXCEPTION("Collection does not contain the given property.");
-	}
-	else
-	{
-		mProperties.erase(it);
-	}
+    IteratorType it = mProperties.find(rProp);
+    if (it == mProperties.end())
+    {
+        EXCEPTION("Collection does not contain the given property.");
+    }
+    else
+    {
+        mProperties.erase(it);
+    }
 }

@@ -52,53 +52,55 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCellPropertyCollection : public AbstractCellBasedTestSuite
 {
 public:
-	void TestPropertyCollection() throw (Exception)
-	{
-		CellPropertyCollection collection;
+    void TestPropertyCollection() throw (Exception)
+    {
+        CellPropertyCollection collection;
 
-		// Add some properties
-		NEW_PROP(WildTypeCellMutationState, wt_mutation);
-		collection.AddProperty(wt_mutation);
-		NEW_PROP(ApcOneHitCellMutationState, apc1_mutation);
-		collection.AddProperty(apc1_mutation);
+        // Add some properties
+        NEW_PROP(WildTypeCellMutationState, wt_mutation);
+        collection.AddProperty(wt_mutation);
+        NEW_PROP(ApcOneHitCellMutationState, apc1_mutation);
+        collection.AddProperty(apc1_mutation);
+        // Can't add the same *object* twice
+        TS_ASSERT_THROWS_THIS(collection.AddProperty(wt_mutation),
+                              "That property object is already in the collection.");
+        NEW_PROP(WildTypeCellMutationState, wt_mutation_2);
+        collection.AddProperty(wt_mutation_2);
+        collection.RemoveProperty(wt_mutation_2);
 
-		// Check the contents
-		// ...by object
-		TS_ASSERT(collection.HasProperty(wt_mutation));
-		TS_ASSERT(collection.HasProperty(apc1_mutation));
-		NEW_PROP(ApcOneHitCellMutationState, apc1_mutation_2);
-		TS_ASSERT(!collection.HasProperty(apc1_mutation_2));
-		// ...by type
-		TS_ASSERT(collection.HasProperty<WildTypeCellMutationState>());
-		TS_ASSERT(collection.HasProperty<ApcOneHitCellMutationState>());
-		TS_ASSERT(!collection.HasProperty<ApcTwoHitCellMutationState>());
-		// ..by subclass
-		TS_ASSERT(collection.HasPropertyType<AbstractCellProperty>());
-		TS_ASSERT(collection.HasPropertyType<AbstractCellMutationState>());
-		//TS_ASSERT(!collection.HasProperty<AbstractCellMutationState>()); <-- This won't compile
+        // Check the contents
+        // ...by object
+        TS_ASSERT(collection.HasProperty(wt_mutation));
+        TS_ASSERT(collection.HasProperty(apc1_mutation));
+        NEW_PROP(ApcOneHitCellMutationState, apc1_mutation_2);
+        TS_ASSERT(!collection.HasProperty(apc1_mutation_2));
+        // ...by type
+        TS_ASSERT(collection.HasProperty<WildTypeCellMutationState>());
+        TS_ASSERT(collection.HasProperty<ApcOneHitCellMutationState>());
+        TS_ASSERT(!collection.HasProperty<ApcTwoHitCellMutationState>());
+        // ..by subclass
+        TS_ASSERT(collection.HasPropertyType<AbstractCellProperty>());
+        TS_ASSERT(collection.HasPropertyType<AbstractCellMutationState>());
+        //TS_ASSERT(!collection.HasProperty<AbstractCellMutationState>()); <-- This won't compile
 
-		// Remove property
-		collection.RemoveProperty<WildTypeCellMutationState>();
-		TS_ASSERT(!collection.HasProperty<WildTypeCellMutationState>());
-		collection.RemoveProperty(apc1_mutation);
-		TS_ASSERT(!collection.HasProperty<ApcOneHitCellMutationState>());
-		TS_ASSERT_THROWS_THIS(collection.RemoveProperty<WildTypeCellMutationState>(),
-				              "Collection does not contain the given property type.");
-		TS_ASSERT_THROWS_THIS(collection.RemoveProperty(apc1_mutation),
-				              "Collection does not contain the given property.");
+        // Remove property
+        collection.RemoveProperty<WildTypeCellMutationState>();
+        TS_ASSERT(!collection.HasProperty<WildTypeCellMutationState>());
+        collection.RemoveProperty(apc1_mutation);
+        TS_ASSERT(!collection.HasProperty<ApcOneHitCellMutationState>());
+        TS_ASSERT_THROWS_THIS(collection.RemoveProperty<WildTypeCellMutationState>(),
+                              "Collection does not contain the given property type.");
+        TS_ASSERT_THROWS_THIS(collection.RemoveProperty(apc1_mutation),
+                              "Collection does not contain the given property.");
 
-		// Get matching properties
-		collection.AddProperty(wt_mutation);
-		collection.AddProperty(apc1_mutation);
-//		CellPropertyCollection mutations = collection.GetPropertiesType<AbstractCellMutationState>();
-//		CellPropertyCollection wild_types = collection.GetProperties<WildTypeCellMutationState>();
+        // Get matching properties
+        collection.AddProperty(wt_mutation);
+        collection.AddProperty(apc1_mutation);
+//        CellPropertyCollection mutations = collection.GetPropertiesType<AbstractCellMutationState>();
+//        CellPropertyCollection wild_types = collection.GetProperties<WildTypeCellMutationState>();
+    }
 
-		// We don't trap adding the same thing twice; is this OK?
-		collection.AddProperty(wt_mutation);
-		collection.AddProperty(wt_mutation);
-	}
-
-	// TODO: archive the collection
+    // TODO: archive the collection
     void xTestArchiveCellProperties() throw (Exception)
     {
 //        OutputFileHandler handler("archive", false);

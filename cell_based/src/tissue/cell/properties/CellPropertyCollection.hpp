@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CELLPROPERTYCOLLECTION_HPP_
 #define CELLPROPERTYCOLLECTION_HPP_
 
-#include <list>
+#include <set>
 #include <boost/shared_ptr.hpp>
 
 #include "AbstractCellProperty.hpp"
@@ -37,99 +37,99 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class CellPropertyCollection
 {
 private:
-	/** The type of container used to store properties */
-	typedef std::list<boost::shared_ptr<AbstractCellProperty> > CollectionType;
+    /** The type of container used to store properties */
+    typedef std::set<boost::shared_ptr<AbstractCellProperty> > CollectionType;
 
-	/** Type of a const iterator over the container */
-	typedef CollectionType::const_iterator ConstIteratorType;
+    /** Type of a const iterator over the container */
+    typedef CollectionType::const_iterator ConstIteratorType;
 
-	/** Type of an iterator over the container */
-	typedef CollectionType::iterator IteratorType;
+    /** Type of an iterator over the container */
+    typedef CollectionType::iterator IteratorType;
 
-	/** The properties stored in this collection. */
-	CollectionType mProperties;
+    /** The properties stored in this collection. */
+    CollectionType mProperties;
 
 public:
-	/**
-	 * Create an empty collection of cell properties.
-	 */
-	CellPropertyCollection();
+    /**
+     * Create an empty collection of cell properties.
+     */
+    CellPropertyCollection();
 
-	/**
-	 * Add a new property to this collection.
-	 *
-	 * @param rProp  the property to add
-	 */
-	void AddProperty(const boost::shared_ptr<AbstractCellProperty>& rProp);
+    /**
+     * Add a new property to this collection.
+     *
+     * @param rProp  the property to add
+     */
+    void AddProperty(const boost::shared_ptr<AbstractCellProperty>& rProp);
 
-	/**
-	 * Test whether this collection contains the given property @b object.
-	 *
-	 * @param rProp  the property to compare against
-	 */
-	bool HasProperty(const boost::shared_ptr<AbstractCellProperty>& rProp) const;
+    /**
+     * Test whether this collection contains the given property @b object.
+     *
+     * @param rProp  the property to compare against
+     */
+    bool HasProperty(const boost::shared_ptr<AbstractCellProperty>& rProp) const;
 
-	/**
-	 * Test whether the collection contains a property that has the exact type CLASS.
-	 *
-	 * Should be used like
-	 *   bool healthy = collection.HasProperty<WildTypeCellMutationState>();
-	 */
-	template <typename CLASS>
-	bool HasProperty() const
-	{
-		for (ConstIteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
-		{
-			if ((*it)->IsType<CLASS>())
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+    /**
+     * Test whether the collection contains a property that has the exact type CLASS.
+     *
+     * Should be used like
+     *   bool healthy = collection.HasProperty<WildTypeCellMutationState>();
+     */
+    template <typename CLASS>
+    bool HasProperty() const
+    {
+        for (ConstIteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
+        {
+            if ((*it)->IsType<CLASS>())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	/**
-	 * Test whether the collection contains a property that inherits from BASECLASS.
-	 *
-	 * Should be used like
-	 *   collection.HasPropertyType<AbstractCellMutationState>();
-	 */
-	template <typename BASECLASS>
-	bool HasPropertyType() const
-	{
-		for (ConstIteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
-		{
-			if ((*it)->IsSubType<BASECLASS>())
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+    /**
+     * Test whether the collection contains a property that inherits from BASECLASS.
+     *
+     * Should be used like
+     *   collection.HasPropertyType<AbstractCellMutationState>();
+     */
+    template <typename BASECLASS>
+    bool HasPropertyType() const
+    {
+        for (ConstIteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
+        {
+            if ((*it)->IsSubType<BASECLASS>())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	/**
-	 * Remove a property of the given type.
-	 */
-	template <typename CLASS>
-	void RemoveProperty()
-	{
-		for (IteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
-		{
-			if ((*it)->IsType<CLASS>())
-			{
-				mProperties.erase(it);
-				return;
-			}
-		}
-		EXCEPTION("Collection does not contain the given property type.");
-	}
+    /**
+     * Remove a property of the given type.
+     */
+    template <typename CLASS>
+    void RemoveProperty()
+    {
+        for (IteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
+        {
+            if ((*it)->IsType<CLASS>())
+            {
+                mProperties.erase(it);
+                return;
+            }
+        }
+        EXCEPTION("Collection does not contain the given property type.");
+    }
 
-	/**
-	 * Remove the given property from this collection.
-	 *
-	 * @param rProp  the property to remove
-	 */
-	void RemoveProperty(const boost::shared_ptr<AbstractCellProperty>& rProp);
+    /**
+     * Remove the given property from this collection.
+     *
+     * @param rProp  the property to remove
+     */
+    void RemoveProperty(const boost::shared_ptr<AbstractCellProperty>& rProp);
 };
 
 #endif /* CELLPROPERTYCOLLECTION_HPP_ */
