@@ -63,6 +63,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
         {
             unsigned global_index = ownership_range_low + local_index;
             mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
+            mCellsDistributed[local_index]->SetUsedInTissueSimulation();
         }
     
         pCellFactory->FinaliseCellCreation(&mCellsDistributed,

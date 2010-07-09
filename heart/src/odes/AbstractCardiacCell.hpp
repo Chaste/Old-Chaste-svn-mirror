@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/version.hpp>
 
 #include "AbstractOdeSystem.hpp"
 #include "AbstractIvpOdeSolver.hpp"
@@ -77,6 +78,13 @@ private:
         archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
         archive & mDt;
         archive & mSetVoltageDerivativeToZero;
+        if (version > 0)
+        {
+            // Note that when loading a version 0 archive, this will be initialised to
+            // false by our constructor.  So we should get a consistent (wrong) answer
+            // with previous versions of Chaste when in tissue.
+            archive & mIsUsedInTissue;
+        }
         // archive & mVoltageIndex; - always set by constructor - called by concrete class
         // archive & mpOdeSolver; - always set by constructor - called by concrete class
         // archive & mpIntracellularStimulus; - always set by constructor - called by concrete class
@@ -98,6 +106,9 @@ protected:
      * considered fixed, and hence dV/dt set to zero.
      */
     bool mSetVoltageDerivativeToZero;
+
+    /** Whether this cell exists in a tissue, or is an isolated cell. */
+    bool mIsUsedInTissue;
 
 public:
     /** Create a new cardiac cell.
@@ -194,16 +205,40 @@ public:
      */
     double GetStimulus(double time);
 
-    /** Set the intracellular stimulus.
+    /**
+     * Set the intracellular stimulus.
+     * This should have units of uA/cm^2 for single-cell problems,
+     * or uA/cm^3 in a tissue simulation.
      * @param pStimulus  new stimulus function
      */
     void SetIntracellularStimulusFunction(boost::shared_ptr<AbstractStimulusFunction> pStimulus);
 
     /**
      * Get the value of the intracellular stimulus.
+     * This will have units of uA/cm^2 for single-cell problems,
+     * or uA/cm^3 in a tissue simulation.
+     *
      * @param time  the time at which to evaluate the stimulus
      */
     double GetIntracellularStimulus(double time);
+
+    /**
+     * Get the value of the intracellular stimulus.
+     * This will always be in units of uA/cm^2.
+     *
+     * @param time  the time at which to evaluate the stimulus
+     */
+    double GetIntracellularAreaStimulus(double time);
+
+    /**
+     * Set whether this cell object exists in the context of a tissue simulation,
+     * or can be used for single cell simulations.  This affects the units of the
+     * intracellular stimulus (see GetIntracellularStimulus) and so is used by
+     * GetIntracellularAreaStimulus to perform a units conversion if necessary.
+     *
+     * @param tissue  true if cell is in a tissue
+     */
+    void SetUsedInTissueSimulation(bool tissue=true);
 
     /**
      *  [Ca_i] is needed for mechanics, so we explcitly have a Get method (rather than
@@ -355,5 +390,6 @@ public:
 };
 
 CLASS_IS_ABSTRACT(AbstractCardiacCell)
+BOOST_CLASS_VERSION(AbstractCardiacCell, 1)
 
 #endif /*ABSTRACTCARDIACCELL_HPP_*/

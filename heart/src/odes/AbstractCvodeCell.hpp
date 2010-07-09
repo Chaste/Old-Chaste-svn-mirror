@@ -160,10 +160,20 @@ public:
 
     /**
      * Get the value of the intracellular stimulus.
-     * Shorthand for GetIntracellularStimulus.
+     * This will always be in units of uA/cm^2, because this class doesn't fit with
+     * the Chaste mono/bidomain solver hierarchy.
+     *
      * @param time  the time at which to evaluate the stimulus
      */
     double GetStimulus(double time);
+
+    /**
+     * Get the value of the intracellular stimulus.
+     * This will always be in units of uA/cm^2.
+     *
+     * @param time  the time at which to evaluate the stimulus
+     */
+    double GetIntracellularAreaStimulus(double time);
 
     /**
      * Get the initial conditions for the cell.

@@ -142,6 +142,10 @@ double AbstractCvodeCell::GetStimulus(double time)
     return mpIntracellularStimulus->GetStimulus(time);
 }
 
+double AbstractCvodeCell::GetIntracellularAreaStimulus(double time)
+{
+    return GetStimulus(time);
+}
 
 N_Vector AbstractCvodeCell::GetInitialConditions()
 {

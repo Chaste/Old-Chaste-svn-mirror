@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "AbstractCardiacCell.hpp"
+#include "HeartConfig.hpp"
 
 #include <cassert>
 #include <iostream>
@@ -39,7 +40,8 @@ AbstractCardiacCell::AbstractCardiacCell(boost::shared_ptr<AbstractIvpOdeSolver>
       mpOdeSolver(pOdeSolver),
       mDt(HeartConfig::Instance()->GetOdeTimeStep()),
       mpIntracellularStimulus(pIntracellularStimulus),
-      mSetVoltageDerivativeToZero(false)
+      mSetVoltageDerivativeToZero(false),
+      mIsUsedInTissue(false)
 {
     // The second clause is to allow for FakeBathCell.
     assert(voltageIndex < mNumberOfStateVariables || mNumberOfStateVariables == 0);
@@ -108,6 +110,26 @@ void AbstractCardiacCell::SetIntracellularStimulusFunction(boost::shared_ptr<Abs
 double AbstractCardiacCell::GetIntracellularStimulus(double time)
 {
     return mpIntracellularStimulus->GetStimulus(time);
+}
+
+double AbstractCardiacCell::GetIntracellularAreaStimulus(double time)
+{
+    double stim;
+    if (mIsUsedInTissue)
+    {
+        // Convert from uA/cm^3 to uA/cm^2 by dividing by Am
+        stim = GetIntracellularStimulus(time) / HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
+    }
+    else
+    {
+        stim = GetIntracellularStimulus(time);
+    }
+    return stim;
+}
+
+void AbstractCardiacCell::SetUsedInTissueSimulation(bool tissue)
+{
+    mIsUsedInTissue = tissue;
 }
 
 

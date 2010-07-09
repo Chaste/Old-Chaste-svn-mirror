@@ -1846,7 +1846,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             conv_time = '(1.0/%.12g)*' % self.conversion_factor
         else:
             conv_time = ''
-        get_stim = 'GetStimulus(' + conv_time + self.code_name(self.free_vars[0]) + ')'
+        get_stim = 'GetIntracellularAreaStimulus(' + conv_time + self.code_name(self.free_vars[0]) + ')'
         # Convert from Chaste stimulus units (uA/cm2) to model units
         stim_units = self.get_var_units(expr)
         conversion, conv_nodes = self.ionic_current_units_conversion(get_stim, stim_units, False)
