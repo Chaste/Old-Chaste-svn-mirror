@@ -41,6 +41,8 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
     mGhostNodeIndices.empty();
 
     std::stringstream pid; // Gives a unique filename
+    //The getpid code won't work in parallel
+    assert(PetscTools::IsSequential());
     pid << getpid();
     mMeshFilename = "2D_temporary_periodic_crypt_mesh_" + pid.str();
     Make2dPeriodicCryptMesh(mCryptWidth, ghosts);

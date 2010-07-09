@@ -477,8 +477,9 @@ unsigned FineCoarseMeshPair<DIM>::ComputeCoarseElementForGivenPoint(ChastePoint<
                                                                 false,
                                                                 test_element_indices,
                                                                 true);
-
-            mStatisticsCounters[0]++;
+            ///\todo Is this debugging code or do we need a proper test for it?
+            NEVER_REACHED;
+            //mStatisticsCounters[0]++;
         }
         catch(Exception& e)
         {
@@ -490,7 +491,9 @@ unsigned FineCoarseMeshPair<DIM>::ComputeCoarseElementForGivenPoint(ChastePoint<
                     elem_index = mrCoarseMesh.GetContainingElementIndex(rPoint,
                                                                         false);
 
-                    mStatisticsCounters[0]++;
+                    ///\todo Is this debugging code or do we need a proper test for it?
+                    NEVER_REACHED;
+                    //mStatisticsCounters[0]++;
                 }
                 catch (Exception& e)
                 {

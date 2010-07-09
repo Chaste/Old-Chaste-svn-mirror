@@ -137,6 +137,8 @@ public:
     void TestWithAveragedSourcePde() throw(Exception)
     {
         // Set up tissue
+        EXIT_IF_PARALLEL; //HoneycombMeshGenerator doesn't work in parallel
+        
         HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<TissueCell> cells;
