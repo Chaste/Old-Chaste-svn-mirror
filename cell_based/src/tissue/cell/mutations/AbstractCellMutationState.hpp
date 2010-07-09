@@ -29,7 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCELLMUTATIONSTATE_HPP_
 
 #include <boost/shared_ptr.hpp>
+#include "AbstractCellProperty.hpp"
 #include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
 
 /**
  * Base class for cell mutation states.
@@ -45,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * state, as well as what colour should be used by the visualizer to display cells
  * in each state.
  */
-class AbstractCellMutationState
+class AbstractCellMutationState : public AbstractCellProperty
 {
 private:
 
@@ -72,6 +74,7 @@ private:
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
+        archive & boost::serialization::base_object<AbstractCellProperty>(*this);
         archive & mCellCount;
         archive & mColour;
     }
@@ -95,32 +98,6 @@ public:
      * Virtual destructor, to make this class polymorphic.
      */
     virtual ~AbstractCellMutationState();
-
-    /**
-     * For convenience, wrap the dynamic_cast test for whether an instance is
-     * of a particular subclass.
-     *
-     * This should be called like:
-     *   bool healthy = p_mutation_state->IsType<HealthyMutationState>();
-     */
-    template<class SUBCLASS>
-    bool IsType() const
-    {
-    	SUBCLASS ref_obj;
-    	return IsSame(&ref_obj);
-    }
-
-    /**
-     * Determine whether this mutation state is the same as another.
-     * @param pOther  the mutation state to compare against.
-     */
-    bool IsSame(const AbstractCellMutationState* pOther) const;
-
-    /**
-     * Determine whether this mutation state is the same as another.
-     * @param pOther  the mutation state to compare against.
-     */
-    bool IsSame(boost::shared_ptr<const AbstractCellMutationState> pOther) const;
 
     /**
      * Increment #mCellCount.

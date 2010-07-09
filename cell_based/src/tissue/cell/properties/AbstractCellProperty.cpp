@@ -26,45 +26,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "AbstractCellMutationState.hpp"
-#include "Exception.hpp"
+#include "AbstractCellProperty.hpp"
 
-AbstractCellMutationState::AbstractCellMutationState()
-{
-    // Subclasses should always call the other constructor.
-    NEVER_REACHED;
-}
+#include <typeinfo>
 
-AbstractCellMutationState::AbstractCellMutationState(unsigned colour)
-    : mCellCount(0),
-      mColour(colour)
+AbstractCellProperty::AbstractCellProperty()
 {
 }
 
-AbstractCellMutationState::~AbstractCellMutationState()
+AbstractCellProperty::~AbstractCellProperty()
 {
 }
 
-void AbstractCellMutationState::IncrementCellCount()
+bool AbstractCellProperty::IsSame(const AbstractCellProperty* pOther) const
 {
-    mCellCount++;
+    const std::type_info& r_our_info = typeid(*this);
+    const std::type_info& r_their_info = typeid(*pOther);
+    return r_our_info == r_their_info;
 }
 
-void AbstractCellMutationState::DecrementCellCount()
+bool AbstractCellProperty::IsSame(boost::shared_ptr<const AbstractCellProperty> pOther) const
 {
-    if (mCellCount == 0)
-    {
-        EXCEPTION("Cannot decrement cell count: no cells have this mutation state.");
-    }
-    mCellCount--;
-}
-
-unsigned AbstractCellMutationState::GetCellCount() const
-{
-    return mCellCount;
-}
-
-unsigned AbstractCellMutationState::GetColour() const
-{
-    return mColour;
+    return IsSame(pOther.get());
 }
