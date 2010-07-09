@@ -38,7 +38,7 @@ class TestFineCoarseMeshPair : public CxxTest::TestSuite
 {
 public:
     // simple test where the whole of the coarse mesh is in one fine element
-    void TestComputeFineElemsAndWeightsForQuadPointsSimple() throw(Exception)
+    void xxxTestComputeFineElemsAndWeightsForQuadPointsSimple() throw(Exception)
     {
         // the following checks this hasn't been accidentally committed.
         #ifdef FINECOARSEMESHPAIR_VERBOSE
@@ -88,7 +88,7 @@ public:
         TS_ASSERT_EQUALS(mesh_pair.mStatisticsCounters[1], 0u);
     }
 
-    void TestWithCoarseContainedInFine() throw(Exception)
+    void xxxTestWithCoarseContainedInFine() throw(Exception)
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
@@ -157,7 +157,7 @@ public:
         TS_ASSERT(mesh_pair.mpFineMeshBoxCollection==NULL);
     }
 
-    void TestWithCoarseSlightlyOutsideFine() throw(Exception)
+    void xxxTestWithCoarseSlightlyOutsideFine() throw(Exception)
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
@@ -235,7 +235,7 @@ public:
 //        TS_ASSERT_THROWS_NOTHING(mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true));
 //    }
 
-    void TestWithDefaultBoxWidth() throw(Exception)
+    void xxxTestWithDefaultBoxWidth() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(1.0, 1.0, 10, 10);
@@ -275,7 +275,7 @@ public:
     // It is difficult to get the class to run incorrectly (ie fail without an assertion failing)
     // in non-safe mode (ie we can't just specify boxes that are too small), so we just test we
     // get the same results as in safe mode.
-    void TestNonSafeMode() throw(Exception)
+    void xxxTestNonSafeMode() throw(Exception)
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
@@ -321,7 +321,7 @@ public:
     }
     
     // covers some bits that aren't covered in the tests above, 
-    void TestOtherCoverage() throw(Exception)
+    void xxxTestOtherCoverage() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(10,10);
@@ -357,7 +357,7 @@ public:
     }
     
     
-    void TestComputeCoarseElementsForFineNodes() throw(Exception)
+    void xxxTestComputeCoarseElementsForFineNodes() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(5,5);
@@ -434,6 +434,8 @@ public:
         FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
         
         TS_ASSERT_THROWS_CONTAINS(mesh_pair.ComputeCoarseElementsForFineElementCentroids(true),"Call SetUpBoxesOnCoarseMesh()");
+
+std::cout << "HERE: ";
         
         mesh_pair.SetUpBoxesOnCoarseMesh();
         mesh_pair.ComputeCoarseElementsForFineElementCentroids(true);
@@ -453,6 +455,19 @@ public:
             }
         }
 
+        // coverage
+        mesh_pair.DeleteCoarseBoxCollection();
+        mesh_pair.SetUpBoxesOnCoarseMesh(0.8); // force a point to be found in a neighbouring box
+        mesh_pair.ComputeCoarseElementsForFineElementCentroids(true);
+
+        mesh_pair.DeleteCoarseBoxCollection();
+        mesh_pair.SetUpBoxesOnCoarseMesh(0.1); // force a point to be found in a nonlocal box
+        mesh_pair.ComputeCoarseElementsForFineElementCentroids(true);
+
+        mesh_pair.DeleteCoarseBoxCollection();
+        mesh_pair.SetUpBoxesOnCoarseMesh(); // back to default
+
+
         // translate the fine mesh in the (-1, -1) direction --> all
         // fine elements nearest to (not contained in) element 0. We have to 
         // make the fine mesh tiny and then translate a small amount so 
@@ -466,9 +481,15 @@ public:
         {
             TS_ASSERT_EQUALS( mesh_pair.rGetCoarseElementsForFineElementCentroids()[i], 0u);
         }
+        
+        // coverage
+        mesh_pair.DeleteCoarseBoxCollection();
+        mesh_pair.SetUpBoxesOnCoarseMesh(0.1);
+        mesh_pair.ComputeCoarseElementsForFineElementCentroids(true);
+        
     }
 
-    void TestComputeFineElemsAndWeightsForCoarseNodes() throw(Exception)
+    void xxxTestComputeFineElemsAndWeightsForCoarseNodes() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
