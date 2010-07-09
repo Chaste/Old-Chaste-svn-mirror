@@ -38,7 +38,7 @@ class TestFineCoarseMeshPair : public CxxTest::TestSuite
 {
 public:
     // simple test where the whole of the coarse mesh is in one fine element
-    void xxxTestComputeFineElemsAndWeightsForQuadPointsSimple() throw(Exception)
+    void TestComputeFineElemsAndWeightsForQuadPointsSimple() throw(Exception)
     {
         // the following checks this hasn't been accidentally committed.
         #ifdef FINECOARSEMESHPAIR_VERBOSE
@@ -88,7 +88,7 @@ public:
         TS_ASSERT_EQUALS(mesh_pair.mStatisticsCounters[1], 0u);
     }
 
-    void xxxTestWithCoarseContainedInFine() throw(Exception)
+    void TestWithCoarseContainedInFine() throw(Exception)
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
@@ -157,7 +157,7 @@ public:
         TS_ASSERT(mesh_pair.mpFineMeshBoxCollection==NULL);
     }
 
-    void xxxTestWithCoarseSlightlyOutsideFine() throw(Exception)
+    void TestWithCoarseSlightlyOutsideFine() throw(Exception)
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
@@ -235,7 +235,7 @@ public:
 //        TS_ASSERT_THROWS_NOTHING(mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, true));
 //    }
 
-    void xxxTestWithDefaultBoxWidth() throw(Exception)
+    void TestWithDefaultBoxWidth() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(1.0, 1.0, 10, 10);
@@ -275,7 +275,7 @@ public:
     // It is difficult to get the class to run incorrectly (ie fail without an assertion failing)
     // in non-safe mode (ie we can't just specify boxes that are too small), so we just test we
     // get the same results as in safe mode.
-    void xxxTestNonSafeMode() throw(Exception)
+    void TestNonSafeMode() throw(Exception)
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
@@ -321,7 +321,7 @@ public:
     }
     
     // covers some bits that aren't covered in the tests above, 
-    void xxxTestOtherCoverage() throw(Exception)
+    void TestOtherCoverage() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(10,10);
@@ -357,7 +357,7 @@ public:
     }
     
     
-    void xxxTestComputeCoarseElementsForFineNodes() throw(Exception)
+    void TestComputeCoarseElementsForFineNodes() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRectangularMesh(5,5);
@@ -435,8 +435,6 @@ public:
         
         TS_ASSERT_THROWS_CONTAINS(mesh_pair.ComputeCoarseElementsForFineElementCentroids(true),"Call SetUpBoxesOnCoarseMesh()");
 
-std::cout << "HERE: ";
-        
         mesh_pair.SetUpBoxesOnCoarseMesh();
         mesh_pair.ComputeCoarseElementsForFineElementCentroids(true);
         
@@ -481,15 +479,9 @@ std::cout << "HERE: ";
         {
             TS_ASSERT_EQUALS( mesh_pair.rGetCoarseElementsForFineElementCentroids()[i], 0u);
         }
-        
-        // coverage
-        mesh_pair.DeleteCoarseBoxCollection();
-        mesh_pair.SetUpBoxesOnCoarseMesh(0.1);
-        mesh_pair.ComputeCoarseElementsForFineElementCentroids(true);
-        
     }
 
-    void xxxTestComputeFineElemsAndWeightsForCoarseNodes() throw(Exception)
+    void TestComputeFineElemsAndWeightsForCoarseNodes() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
