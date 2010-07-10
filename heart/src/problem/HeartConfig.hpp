@@ -959,8 +959,8 @@ public:
     /** Set the parameters of the apd map requested
      *
      *  @param rApdMaps  each entry is a request for a map with
-     *  - a threshold (in mV)
      *  - a percentage in the range [1, 100) (ranges are not checked by this method, but during the calculation)
+     *  - a threshold (in mV)
      */
     void SetApdMaps(const std::vector<std::pair<double,double> >& rApdMaps);
 
