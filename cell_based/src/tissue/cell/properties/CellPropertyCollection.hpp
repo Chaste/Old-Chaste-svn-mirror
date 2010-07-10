@@ -34,6 +34,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellProperty.hpp"
 #include "Exception.hpp"
 
+/**
+ * Cell property collection class.
+ * 
+ * Contains methods for accessing and interrogating a set of cell properties.
+ */
 class CellPropertyCollection
 {
 private:
