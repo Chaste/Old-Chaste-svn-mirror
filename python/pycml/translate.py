@@ -1852,7 +1852,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         conversion, conv_nodes = self.ionic_current_units_conversion(get_stim, stim_units, False)
         return output + conversion + self.STMT_END, conv_nodes
 
-    def output_equations(self, nodeset):
+    def output_equations(self, nodeset, zero_stimulus=False):
         """Output the mathematics described by nodeset.
 
         nodeset represents a subset of the assignments in the model.
@@ -1861,17 +1861,21 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """
         # Special case for the stimulus current
         if self.doc._cml_config.i_stim_var in nodeset:
-            stim_assignment, conv_nodes = self.get_stimulus_assignment()
-            conv_nodes = self.calculate_extended_dependencies(conv_nodes)
-            conv_nodes_new = conv_nodes - nodeset
-            if conv_nodes_new:
-                if conv_nodes != conv_nodes_new:
-                    # Some of nodeset is used to compute the conversion; ordering becomes tricky
-                    stim_index = self.model.get_assignments().index(self.doc._cml_config.i_stim_var)
-                    for node in conv_nodes - conv_nodes_new:
-                        if self.model.get_assignments().index(node) > stim_index:
-                            raise NotImplemented
-                self.output_equations(conv_nodes)
+            if zero_stimulus:
+                i_stim = self.doc._cml_config.i_stim_var
+                stim_assignment = self.code_name(i_stim) + self.EQ_ASSIGN + '0.0' + self.STMT_END
+            else:
+                stim_assignment, conv_nodes = self.get_stimulus_assignment()
+                conv_nodes = self.calculate_extended_dependencies(conv_nodes)
+                conv_nodes_new = conv_nodes - nodeset
+                if conv_nodes_new:
+                    if conv_nodes != conv_nodes_new:
+                        # Some of nodeset is used to compute the conversion; ordering becomes tricky
+                        stim_index = self.model.get_assignments().index(self.doc._cml_config.i_stim_var)
+                        for node in conv_nodes - conv_nodes_new:
+                            if self.model.get_assignments().index(node) > stim_index:
+                                raise NotImplemented
+                    self.output_equations(conv_nodes)
         for expr in (e for e in self.model.get_assignments() if e in nodeset):
             # Special-case the stimulus current
             if self.use_chaste_stimulus:
@@ -1983,6 +1987,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
             units_objs = map(self.get_var_units, nodes)
             conversion, conv_nodes = self.ionic_current_units_conversion('i_ionic', units_objs)
             conv_nodes = self.calculate_extended_dependencies(conv_nodes, prune=nodeset)
+            # GetIIonic must not include the stimulus current
+            i_stim = self.doc._cml_config.i_stim_var
+            i_stim_deps = self.calculate_extended_dependencies([i_stim])
+            i_stim_deps.remove(i_stim)
+            nodeset -= i_stim_deps
+            conv_nodes -= i_stim_deps
             all_nodes = conv_nodes|nodeset
             # Output main part of maths
             self.output_state_assignments(nodeset=all_nodes)
@@ -1990,7 +2000,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.output_table_index_generation(
                     indexes_as_member=self.use_backward_euler,
                     nodeset=all_nodes)
-            self.output_equations(nodeset)
+            self.output_equations(nodeset, zero_stimulus=True)
             self.writeln()
             # Assign the total current to a temporary so we can check for NaN and
             # do units conversion if needed.
