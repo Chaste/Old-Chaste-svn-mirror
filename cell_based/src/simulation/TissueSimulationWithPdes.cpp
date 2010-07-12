@@ -400,7 +400,8 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 
 		if (p_pde_and_bc->IsNeumannBoundaryCondition())
 		{
-			EXCEPTION("Neumann BCs not yet implemented when using a coarse PDE mesh");
+			delete p_bc;
+            EXCEPTION("Neumann BCs not yet implemented when using a coarse PDE mesh");
 		}
 		else
 		{
