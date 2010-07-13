@@ -157,9 +157,8 @@ public:
 
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<3,3> electrics_mesh;
-        electrics_mesh.ConstructCuboid(10,10,10);
-        electrics_mesh.Scale(0.01, 0.01, 0.01);
-
+        electrics_mesh.ConstructRegularSlabMesh(0.01, 10,10,10);
+    
         QuadraticMesh<3> mechanics_mesh(0.1, 0.1, 0.1, 5, 5, 5);
 
         // fix the nodes on Z=0

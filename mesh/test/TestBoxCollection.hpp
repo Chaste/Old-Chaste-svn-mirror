@@ -143,9 +143,8 @@ public:
     void TestAddElement() throw(Exception)
     {
         TetrahedralMesh<1,1> mesh;
-        mesh.ConstructLinearMesh(2);
-        mesh.Scale(0.5);
-
+        mesh.ConstructRegularSlabMesh(0.5, 1.0);
+ 
         double width = 0.4;
         c_vector<double, 2> domain_size;
         domain_size(0) = 0.0;

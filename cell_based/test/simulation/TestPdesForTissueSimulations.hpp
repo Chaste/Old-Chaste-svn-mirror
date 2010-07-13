@@ -112,8 +112,8 @@ public:
         // Create a coarse mesh - element 1 contains all the cells,
         // element 0 contains none
         TetrahedralMesh<2,2> coarse_mesh;
-        coarse_mesh.ConstructRectangularMesh(1,1);
-        coarse_mesh.Scale(100,100);
+        coarse_mesh.ConstructRegularSlabMesh(100.0, 100.0,100.0);
+
         //Top right
         TS_ASSERT_DELTA(coarse_mesh.GetElement(0)->CalculateCentroid()[0], 200.0/3.0, 0.1);
         TS_ASSERT_DELTA(coarse_mesh.GetElement(0)->CalculateCentroid()[1], 200.0/3.0, 0.1);

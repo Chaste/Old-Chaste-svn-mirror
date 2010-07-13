@@ -214,9 +214,8 @@ public:
 
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<2,2> electrics_mesh;
-        electrics_mesh.ConstructRectangularMesh(5,5);
-        electrics_mesh.Scale(0.02, 0.02);
-
+        electrics_mesh.ConstructRegularSlabMesh(0.02, 0.1, 0.1);
+ 
         QuadraticMesh<2> mechanics_mesh(0.1, 0.1, 1, 1);
 
         // fix the nodes on x=0

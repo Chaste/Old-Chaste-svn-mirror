@@ -161,9 +161,8 @@ public:
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
-        fine_mesh.ConstructCuboid(10,10,10);
-        fine_mesh.Scale(0.1, 0.1, 0.1);
-
+        fine_mesh.ConstructRegularSlabMesh(0.1, 1.0,1.0,1.0);
+  
         // coarse mesh is slightly bigger than in previous test
         QuadraticMesh<3> coarse_mesh(1.03, 1.0, 1.0, 1, 1, 1); // xmax > 1.0
 
@@ -258,8 +257,7 @@ public:
         
         // now use a mesh with a smaller edge length
         TetrahedralMesh<2,2> fine_mesh2;
-        fine_mesh2.ConstructRectangularMesh(100,100);
-        fine_mesh2.Scale(0.01, 0.01);
+        fine_mesh2.ConstructRegularSlabMesh(0.01, 1.0,1.0);
         
         // Can use smaller boxes
         //  Proposed width = 0.0552632
@@ -279,8 +277,7 @@ public:
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
-        fine_mesh.ConstructCuboid(10,10,10);
-        fine_mesh.Scale(0.1, 0.1, 0.1);
+        fine_mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0, 1.0);
 
         QuadraticMesh<3> coarse_mesh(1.03, 1.0, 1.0, 1, 1, 1); // xmax > 1.0
 
@@ -324,8 +321,8 @@ public:
     void TestOtherCoverage() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
-        fine_mesh.ConstructRectangularMesh(10,10);
-        fine_mesh.Scale(0.1, 0.1);
+        fine_mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0);
+
 
         QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1);
     
@@ -360,8 +357,7 @@ public:
     void TestComputeCoarseElementsForFineNodes() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
-        fine_mesh.ConstructRectangularMesh(5,5);
-        fine_mesh.Scale(0.2, 0.2);
+        fine_mesh.ConstructRegularSlabMesh(0.2, 1.0, 1.0);
 
         QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1); // 2 triangular elements
     
@@ -426,8 +422,8 @@ public:
     void TestComputeCoarseElementsForFineElementCentroids() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
-        fine_mesh.ConstructRectangularMesh(5,5);
-        fine_mesh.Scale(0.2, 0.2);
+        fine_mesh.ConstructRegularSlabMesh(0.2, 1.0, 1.0);
+
 
         QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1); // 2 triangular elements
 

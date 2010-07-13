@@ -44,30 +44,6 @@ class CuboidMeshConstructor
 {
 private:
 
-    /**
-     * Construct a one-dimensional linear mesh.
-     *
-     * @param rMesh  The mesh
-     * @param width  Width of the mesh in terms of number of elements in each space dimension
-     */
-    void ConstructHyperCube(AbstractTetrahedralMesh<1,SPACE_DIM>& rMesh, unsigned width);
-
-    /**
-     * Construct a two-dimensional rectangular mesh.
-     *
-     * @param rMesh  The mesh
-     * @param width  Width of the mesh in terms of number of elements in each space dimension
-     */
-    void ConstructHyperCube(AbstractTetrahedralMesh<2,2>& rMesh, unsigned width);
-
-    /**
-     * Construct a three-dimensional cuboidal mesh.
-     *
-     * @param rMesh  The mesh
-     * @param width  Width of the mesh in terms of number of elements in each space dimension
-     */
-    void ConstructHyperCube(AbstractTetrahedralMesh<3,3>& rMesh, unsigned width);
-
     double mMeshWidth; /**< Width of the mesh.*/
     unsigned mNumElements; /**< Number of elements in the mesh. */
     unsigned mNumNodes; /**< Number of nodes in the mesh. */

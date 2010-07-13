@@ -129,35 +129,26 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
                     {
                         c_vector<double, 1> fibre_length;
                         HeartConfig::Instance()->GetFibreLength(fibre_length);
-                        unsigned slab_nodes_x = (unsigned)round(fibre_length[0]/inter_node_space);
-                        mpMesh->ConstructLinearMesh(slab_nodes_x);
+                        mpMesh->ConstructRegularSlabMesh(inter_node_space, fibre_length[0]);
                         break;
                     }
                     case 2:
                     {
                         c_vector<double, 2> sheet_dimensions; //cm
                         HeartConfig::Instance()->GetSheetDimensions(sheet_dimensions);
-                        unsigned slab_nodes_x = (unsigned)round(sheet_dimensions[0]/inter_node_space);
-                        unsigned slab_nodes_y = (unsigned)round(sheet_dimensions[1]/inter_node_space);
-                        mpMesh->ConstructRectangularMesh(slab_nodes_x, slab_nodes_y);
+                        mpMesh->ConstructRegularSlabMesh(inter_node_space, sheet_dimensions[0], sheet_dimensions[1]);
                         break;
                     }
                     case 3:
                     {
                         c_vector<double, 3> slab_dimensions; //cm
                         HeartConfig::Instance()->GetSlabDimensions(slab_dimensions);
-                        unsigned slab_nodes_x = (unsigned)round(slab_dimensions[0]/inter_node_space);
-                        unsigned slab_nodes_y = (unsigned)round(slab_dimensions[1]/inter_node_space);
-                        unsigned slab_nodes_z = (unsigned)round(slab_dimensions[2]/inter_node_space);
-                        mpMesh->ConstructCuboid(slab_nodes_x, slab_nodes_y, slab_nodes_z);
+                        mpMesh->ConstructRegularSlabMesh(inter_node_space, slab_dimensions[0], slab_dimensions[1], slab_dimensions[2]);
                         break;
                     }
                     default:
                         NEVER_REACHED;
                 }
-                // scale by mesh_scale_factor = inter_node_space;
-                mpMesh->Scale(inter_node_space, inter_node_space, inter_node_space);
-
             }
             else
             {

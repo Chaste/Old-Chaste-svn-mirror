@@ -36,23 +36,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::ConstructHyperCube(AbstractTetrahedralMesh<1,SPACE_DIM>& rMesh, unsigned width)
-{
-    rMesh.ConstructLinearMesh(width);
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::ConstructHyperCube(AbstractTetrahedralMesh<2,2>& rMesh, unsigned width)
-{
-    rMesh.ConstructRectangularMesh(width, width);
-}
-
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::ConstructHyperCube(AbstractTetrahedralMesh<3,3>& rMesh, unsigned width)
-{
-    rMesh.ConstructCuboid(width, width, width);
-}
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::Construct(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>& rMesh, unsigned meshRefinementNum, double meshWidth)
@@ -66,8 +49,7 @@ void CuboidMeshConstructor<ELEMENT_DIM, SPACE_DIM>::Construct(AbstractTetrahedra
     // Create the mesh
     unsigned mesh_size = (unsigned) SmallPow(2, meshRefinementNum+2); // number of elements in each dimension
     double scaling = mMeshWidth/(double) mesh_size;
-    ConstructHyperCube(rMesh, mesh_size);
-    rMesh.Scale(scaling, scaling, scaling);
+    rMesh.ConstructRegularSlabMesh(scaling, mMeshWidth, mMeshWidth, mMeshWidth);
     mNumElements = rMesh.GetNumElements();
     mNumNodes = rMesh.GetNumNodes();
 }

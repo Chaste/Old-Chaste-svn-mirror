@@ -1062,9 +1062,7 @@ public:
         TS_ASSERT_THROWS_THIS(small_mesh.ConstructLinearMesh(0), "There aren't enough nodes to make parallelisation worthwhile");
         
         //Works with up to 3 processes
-        small_mesh.ConstructLinearMesh(2);
-        //Scale it
-        small_mesh.Scale(10.0);
+        small_mesh.ConstructRegularSlabMesh(10.0, 20.0);
         unsigned owned=small_mesh.GetDistributedVectorFactory()->GetLocalOwnership();
         TS_ASSERT_EQUALS(small_mesh.GetNumNodes(), 3u);
         TS_ASSERT_EQUALS(small_mesh.GetNumLocalNodes(), owned);
@@ -1575,20 +1573,6 @@ public:
         delete p_mesh;
     }
 
-//    {
-//
-//        TetrahedralMesh<3,3> cuboid_mesh;
-//        cuboid_mesh.ConstructCuboid(20, 20, 20);
-//        TS_ASSERT_EQUALS(cuboid_mesh.GetNumNodes(), 9261u); // 21x21x21 nodes
-//        TS_ASSERT_EQUALS(cuboid_mesh.GetNumElements(), 48000u);
-//        TS_ASSERT_EQUALS(cuboid_mesh.GetNumBoundaryElements(), 4800u);
-//
-//        cuboid_mesh.Translate(-10,-10,-10);
-//        cuboid_mesh.Scale(0.25/10.0,0.25/10.0,0.25/10.0);
-//
-//        TrianglesMeshWriter<3,3> mesh_writer("", "Cube21");
-//        mesh_writer.WriteFilesUsingMesh(cuboid_mesh);
-//    }
 
 
     void TestLoadBadFacesException() throw (Exception)

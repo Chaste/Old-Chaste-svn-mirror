@@ -58,17 +58,11 @@ public:
         const double depth = 0.1;
 
         const unsigned num_elem_x = 8;
-        const unsigned num_elem_y = 8;
-        const unsigned num_elem_z = 8;
-
-        /* Read the mesh*/
+        const double space_step = width/num_elem_x;
+ 
+        /* Make the mesh*/
         DistributedTetrahedralMesh<3,3> mesh;
-
-//#1455 why won't this compile??
-//      mesh.ConstructCuboid(width, height, depth, num_elem_x, num_elem_y, num_elem_z);        
-//instead of having to do this        
-        mesh.ConstructCuboid(num_elem_x, num_elem_y, num_elem_z);
-        mesh.Scale(width/num_elem_x, height/num_elem_y, depth/num_elem_z);
+        mesh.ConstructRegularSlabMesh(space_step, width, height, depth);
 
         /*Create a cell factory of the type we defined above. */
         GeneralPlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(num_elem_x, width);

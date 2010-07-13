@@ -1421,10 +1421,9 @@ public:
 
         TetrahedralMesh<3,3> mesh;
 
-        mesh.ConstructCuboid(3, 3, 3);
         double third = 1.0L/3.0L;
-        mesh.Scale(third, third, third);
-
+        mesh.ConstructRegularSlabMesh(third, 1.0, 1.0, 1.0);
+   
         ChastePoint<3> point_on_edge1(5.0/6.0,   0.5,       1.0);
         ChastePoint<3> point_on_edge2(5.0L/6.0L, 0.5,       1.0);
         ChastePoint<3> point_on_edge3(5.0L/6.0L, 0.5L,      1.0L);
