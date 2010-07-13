@@ -138,7 +138,7 @@ public:
         
         
         TetrahedralMesh<2,2> mesh;
-        mesh.ConstructRectangularMesh(0.05, 0.05, 5, 5);
+        mesh.ConstructRegularSlabMesh(0.01, 0.05, 0.05);
 
         QuadraticMesh<2> mech_mesh(0.05, 0.05, 1, 1);
                 

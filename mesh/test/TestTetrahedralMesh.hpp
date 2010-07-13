@@ -532,7 +532,7 @@ public:
     void TestConstructRectangleStagger() throw(Exception)
     {
         TetrahedralMesh<2,2> mesh;
-        unsigned width = 38;
+        unsigned width = 20;
         unsigned height = 16;
 
         mesh.ConstructRectangularMesh(width, height, true);
@@ -598,7 +598,7 @@ public:
         
         // test the other version of this method
         TetrahedralMesh<2,2> mesh2;
-        mesh2.ConstructRectangularMesh(width,height, 4,5);
+        mesh2.ConstructRegularSlabMesh(4.0, width, height);
         TS_ASSERT_DELTA(mesh2.GetVolume(), width*height, 1e-7);
         TS_ASSERT_EQUALS(mesh2.GetNumElements(), 4*5*2u);
     }
@@ -685,7 +685,10 @@ public:
         
         // test other version of the method
         TetrahedralMesh<1,1> mesh2;
-        mesh2.ConstructLinearMesh(width, 2);
+        unsigned wrong_step = width/2; // 39/2=19 not 19.5
+        TS_ASSERT_THROWS_THIS(mesh2.ConstructRegularSlabMesh(wrong_step, width),"Space step does not divide the size of the mesh");
+        
+        mesh2.ConstructRegularSlabMesh(width/2.0, width);
         TS_ASSERT_DELTA(mesh2.GetVolume(), width, 1e-7);
         TS_ASSERT_EQUALS(mesh2.GetNumElements(), 2u);
     }
@@ -828,9 +831,9 @@ public:
         
         // test the other version of this method
         TetrahedralMesh<3,3> mesh2;
-        mesh2.ConstructCuboid(width,height,depth, 4,5,6);
+        mesh2.ConstructRegularSlabMesh(1.0, width, height, depth);
         TS_ASSERT_DELTA(mesh2.GetVolume(), width*height*depth, 1e-7);
-        TS_ASSERT_EQUALS(mesh2.GetNumElements(), 4*5*6*6u);
+        TS_ASSERT_EQUALS(mesh2.GetNumElements(), width*height*depth*6u);
     }
 
     void TestPermute() throw(Exception)

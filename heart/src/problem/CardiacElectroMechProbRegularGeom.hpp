@@ -81,7 +81,7 @@ public:
         // create electrics mesh
         this->mpElectricsMesh = new TetrahedralMesh<DIM,DIM>();
 
-        this->mpElectricsMesh->ConstructRectangularMesh(width, width, numElectricsElementsEachDir,numElectricsElementsEachDir);
+        this->mpElectricsMesh->ConstructRegularSlabMesh(width/numElectricsElementsEachDir, width, width);
 
         // create mechanics mesh
         this->mpMechanicsMesh = new QuadraticMesh<DIM>(width,width,numMechanicsElementsEachDir,numMechanicsElementsEachDir);

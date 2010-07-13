@@ -198,9 +198,8 @@ public:
     {
         TetrahedralMesh<1,1> mesh;
         double h=0.01; //cm
-        unsigned num_elem_x = (unsigned)round(1.0/h);
         
-        mesh.ConstructLinearMesh(1.0, num_elem_x);
+        mesh.ConstructRegularSlabMesh(h, 1.0);
 
         HeartConfig::Instance()->SetOutputDirectory("TestMonodomainExactSolution1d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");          
@@ -262,10 +261,8 @@ public:
     {
         TetrahedralMesh<2,2> mesh;
         double h=0.02; //cm
-        unsigned num_elem_x = (unsigned)round(1.0/h);
-        unsigned num_elem_y = (unsigned)round(1.0/h);
         
-        mesh.ConstructRectangularMesh(1.0, 1.0, num_elem_x, num_elem_y);
+        mesh.ConstructRegularSlabMesh(h, 1.0, 1.0);
 
         HeartConfig::Instance()->SetOutputDirectory("TestMonodomainExactSolution2d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");          
@@ -334,11 +331,8 @@ public:
     {
         TetrahedralMesh<3,3> mesh;
         double h=0.05; //cm
-        unsigned num_elem_x = (unsigned)round(1.0/h);
-        unsigned num_elem_y = (unsigned)round(1.0/h);
-        unsigned num_elem_z = (unsigned)round(1.0/h);
-        
-        mesh.ConstructCuboid(1.0, 1.0, 1.0, num_elem_x, num_elem_y, num_elem_z);
+         
+        mesh.ConstructRegularSlabMesh(h, 1.0, 1.0, 1.0);
 
         HeartConfig::Instance()->SetOutputDirectory("TestMonodomainExactSolution3d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("results");          

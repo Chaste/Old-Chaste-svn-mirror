@@ -307,10 +307,10 @@ public:
      */
     void TestSolvingParabolicPde() throw(Exception)
     {
-        /* Create a 10 by 10 by 10 mesh in 3D, this time using the {{{ConstructCuboid}}} method
-         * on the mesh. The first three parameters are the width, height and depth of the mesh.*/
+        /* Create a 10 by 10 by 10 mesh in 3D, this time using the {{{ConstructRegularSlabMesh}}} method
+         * on the mesh. The first parameter is the cartesian space-step and the other three parameters are the width, height and depth of the mesh.*/
         TetrahedralMesh<3,3> mesh;
-        mesh.ConstructCuboid(1.0, 1.0, 1.0, 10, 10, 10);
+        mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0, 1.0);
 
         /* Our PDE object should be a class that is derived from the {{{AbstractLinearParabolicPde}}}.
          * We could write it ourselves as in the previous test, but since the PDE we want to solve is

@@ -144,16 +144,6 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetWeightedDirectionForBou
     mBoundaryElements[SolveBoundaryElementMapping(elementIndex)]->CalculateWeightedDirection(rWeightedDirection, rJacobianDeterminant );
 }
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(double width, 
-                                                                          unsigned numElemX)
-{
-    assert(width>0);
-    assert(numElemX>0);
-    this->ConstructLinearMesh(numElemX);
-    this->Scale(width/numElemX);
-}
-
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsigned width)
@@ -184,22 +174,6 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructLinearMesh(unsign
     }
 
     this->RefreshMesh();
-}
-
-
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(double width, 
-                                                                               double height, 
-                                                                               unsigned numElemX,
-                                                                               unsigned numElemY,
-                                                                               bool stagger)
-{
-    assert(width>0);
-    assert(height>0);
-    assert(numElemX>0);
-    assert(numElemY>0);
-    this->ConstructRectangularMesh(numElemX,numElemY,stagger);
-    this->Scale(width/numElemX, height/numElemY);
 }
 
 
@@ -311,23 +285,6 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRectangularMesh(u
 }
 
 
-template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(double width, 
-                                                                      double height,
-                                                                      double depth, 
-                                                                      unsigned numElemX,
-                                                                      unsigned numElemY,
-                                                                      unsigned numElemZ)
-{
-    assert(width>0);
-    assert(height>0);
-    assert(depth>0);
-    assert(numElemX>0);
-    assert(numElemY>0);
-    assert(numElemZ>0);
-    this->ConstructCuboid(numElemX, numElemY, numElemZ);
-    this->Scale(width/numElemX, height/numElemY, depth/numElemZ);
-}
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -515,6 +472,48 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructCuboid(unsigned w
     this->RefreshMesh();
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructRegularSlabMesh(double spaceStep, double width, double height, double depth)
+{
+    assert(spaceStep>0);
+    assert(width>0);
+    if (ELEMENT_DIM > 1)
+    {
+        assert(height>0);
+    }
+    if (ELEMENT_DIM > 2)
+    {
+        assert(depth>0);
+    }
+    unsigned num_elem_x=(width+0.5*spaceStep)/spaceStep; //0.5*spaceStep is to ensure that rounding down snaps to correct number
+    unsigned num_elem_y=(height+0.5*spaceStep)/spaceStep; 
+    unsigned num_elem_z=(depth+0.5*spaceStep)/spaceStep;
+    
+    double actual_width_x=num_elem_x*spaceStep;
+    double actual_width_y=num_elem_y*spaceStep;
+    double actual_width_z=num_elem_z*spaceStep;
+    
+    if (  fabs (actual_width_x - width) > DBL_EPSILON 
+        ||fabs (actual_width_y - height) > DBL_EPSILON
+        ||fabs (actual_width_z - depth) > DBL_EPSILON )
+    {
+        EXCEPTION("Space step does not divide the size of the mesh");
+    }
+    
+    switch (ELEMENT_DIM)
+    {
+        case 1:
+            this->ConstructLinearMesh(num_elem_x);
+            break;
+        case 2:
+            this->ConstructRectangularMesh(num_elem_x, num_elem_y, true);//Stagger=true
+            break;
+        default:
+        case 3:
+            this->ConstructCuboid(num_elem_x, num_elem_y, num_elem_z);
+    }
+    this->Scale(spaceStep, spaceStep, spaceStep);
+}
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnershipOfBoundaryElement( unsigned faceIndex )

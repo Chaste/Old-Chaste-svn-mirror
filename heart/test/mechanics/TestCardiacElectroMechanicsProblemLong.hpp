@@ -121,7 +121,7 @@ public:
 
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<3,3> electrics_mesh;
-        electrics_mesh.ConstructCuboid(0.1, 0.1, 0.1, 10, 10, 10);
+        electrics_mesh.ConstructRegularSlabMesh(0.01, 0.1, 0.1, 0.1);
 
         QuadraticMesh<3> mechanics_mesh(0.1, 0.1, 0.1, 1, 1, 1);
 

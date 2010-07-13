@@ -324,19 +324,6 @@ public:
                                                         double& rJacobianDeterminant) const;
 
 
-    /** 
-     *  Create a 1D mesh [0, width] with numElem elements/
-     * 
-     *  ELEMENT_DIM must be equal to 1. If SPACE_DIM > 1 then the 
-     *  y & z default to 0.0 for every node.
-     * 
-     *  @param width The width
-     *  @param numElem Number of elements
-     */
-    void ConstructLinearMesh(double width, unsigned numElem);
-
-
-
     /**
      * Construct a 1D linear grid on [0,width]
      *
@@ -352,19 +339,6 @@ public:
     virtual void ConstructLinearMesh(unsigned width);
     
 
-    /** 
-     *  Create a 2D mesh on [0, width]x[0 height] with numElemX elements
-     *  in the x-direction and numElemY elements in the y-direction
-     *  
-     *  @param width The width
-     *  @param height The height
-     *  @param numElemX Number of elements in the x direction
-     *  @param numElemY Number of elements in the y direction
-     *  @param stagger hether the mesh should 'jumble' up the elements (defaults to true).
-     */
-    void ConstructRectangularMesh(double width, double height,
-                                  unsigned numElemX, unsigned numElemY,
-                                  bool stagger = true);
     
     /**
      * Construct a 2D rectangular grid on [0,width]x[0,height].
@@ -384,24 +358,8 @@ public:
     virtual void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
 
 
-
-    /** 
-     *  Create a 3D mesh on [0, width]x[0 height]x[0 depth with numElemX elements
-     *  in the x-direction, numElemY elements in the y-direction and numElemZ elements 
-     *  in the z-direction
-     *  
-     *  @param width The width
-     *  @param height The height
-     *  @param depth The depth
-     *  @param numElemX Number of elements in the x direction
-     *  @param numElemY Number of elements in the y direction
-     *  @param numElemZ Number of elements in the z direction
-     */
-    void ConstructCuboid(double width, double height, double depth,
-                         unsigned numElemX, unsigned numElemY, unsigned numElemZ);
-
-    /**
-     * Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
+     
+    /* Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
      *
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
@@ -415,6 +373,18 @@ public:
     virtual void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
 
 
+
+    /** 
+     *  Create a 1D mesh on [0, width], 2D mesh on [0, width]x[0 height] with staggering or 
+     *  3D mesh on [0, width]x[0 height]x[0 depth with a given axis-aligned space step.
+     *  If SPACE_DIM > ELEMENT_DIM then the y & z default to 0.0 for every node.
+     *  
+     *  @param spaceStep The axis-aligned space step
+     *  @param width The width (x-dimension)
+     *  @param height The height (y-dimension - ignored if ELEMENT_DIM is 1D)
+     *  @param depth The depth (z-dimension -ignored in 1D and 2D)
+     */
+    void ConstructRegularSlabMesh(double spaceStep, double width, double height=0, double depth=0);
 
 
 

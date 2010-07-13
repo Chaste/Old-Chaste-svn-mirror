@@ -92,7 +92,7 @@ public:
     {
         // fine mesh is has h=0.1, on unit cube (so 6000 elements)
         TetrahedralMesh<3,3> fine_mesh;
-        fine_mesh.ConstructCuboid(1.0, 1.0, 1.0, 10, 10, 10);
+        fine_mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0, 1.0);
 
         // coarse mesh is has h=1 on unit cube (so 6 elements)
         QuadraticMesh<3> coarse_mesh(1.0, 1.0, 1.0, 1, 1, 1);
@@ -238,7 +238,7 @@ public:
     void TestWithDefaultBoxWidth() throw(Exception)
     {
         TetrahedralMesh<2,2> fine_mesh;
-        fine_mesh.ConstructRectangularMesh(1.0, 1.0, 10, 10);
+        fine_mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0);
 
         QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1);
 

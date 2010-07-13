@@ -697,7 +697,7 @@ public:
         MonodomainProblem<2> monodomain_problem( &cell_factory );
 
         TetrahedralMesh<2,2> mesh;
-        mesh.ConstructRectangularMesh(0.1, 0.1, 10, 10, true);
+        mesh.ConstructRegularSlabMesh(0.01, 0.1, 0.1);
         monodomain_problem.SetMesh(&mesh);
         monodomain_problem.Initialise();
 
