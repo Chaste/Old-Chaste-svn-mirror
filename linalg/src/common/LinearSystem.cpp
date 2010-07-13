@@ -53,7 +53,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL)
 {
-    
+    assert(lhsVectorSize>0);
     if (rowPreallocation == 0)
     {
         //Automatic preallocation if it's a small matrix
@@ -97,6 +97,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL)
 {
+    assert(lhsVectorSize>0);
     // Conveniently, PETSc Mats and Vecs are actually pointers
     mLhsMatrix = lhsMatrix;
     mRhsVector = rhsVector;
