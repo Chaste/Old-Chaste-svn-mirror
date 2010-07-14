@@ -164,6 +164,30 @@ private:
         archive & boost::serialization::base_object<TetrahedralMesh<DIM, DIM> >(*this);
     }
 
+
+    /**
+     * Create a quadratic mesh on a rectangle from (0,0) to (numElemX,numElemY)
+     * with that number of elements in each direction. This writes a temporary node file and uses 
+     * triangle to mesh this nodefile. The method overloads the equivalent method in 
+     * AbstractTetrahedralMesh. This is private, users should call ConstructRegularSlabMesh();
+     *
+     * @param numElemX Number of elements in x-direction (also, the width of the final mesh)
+     * @param numElemY Number of elements in y-direction (also, the height of the final mesh)
+     */
+    void ConstructRectangularMesh(unsigned numElemX, unsigned numElemY);
+
+    /**
+     * Create a quadratic mesh on a cuobid from (0,0,0) to (numElemX,numElemY,numElemZ)
+     * with that number of elements in each direction. This writes a temporary node file and uses 
+     * tetgen to mesh this nodefile. The method overloads the equivalent method in 
+     * AbstractTetrahedralMesh. This is private, users should call ConstructRegularSlabMesh();
+     *
+     * @param numElemX Number of elements in x-direction (also, the width of the final mesh)
+     * @param numElemY Number of elements in y-direction (also, the height of the final mesh)
+     * @param numElemZ Number of elements in y-direction (also, the depth of the final mesh)
+     */
+    void ConstructCuboid(unsigned numElemX, unsigned numElemY, unsigned numElemZ);
+    
 public:
 
     /**
@@ -219,32 +243,6 @@ public:
      * 
      */
     void ConstructRegularSlabMesh(double spaceStep, double width, double height=0, double depth=0);
-
-//todo: do this 
-//    void Construct1dRegularSlabMesh(double h, double width);
-
-    /**
-     * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (width,height)
-     * with the given spatial stepsize. This writes a temporary node file and uses 
-     * triangle to mesh this nodefile.
-     *
-     * @param spaceStep The spatial stepsize
-     * @param width the width of the rectangle
-     * @param height the height of the rectangle
-     */
-    void Construct2dRegularSlabMesh(double h, double width, double height);
-
-    /**
-     * Create a quadratic mesh on a cuboid (so 3D only!) from (0,0,0) to (width,height,depth)
-     * with the given spatial stepsize. This writes a temporary node file and uses tetgen
-     * to mesh this nodefile.
-     *
-     * @param spaceStep The spatial stepsize
-     * @param width the width of the cuboid
-     * @param height the height of the cuboid
-     * @param depth the depth of the cuboid
-     */
-    void Construct3dRegularSlabMesh(double h, double width, double height, double depth);
 
 
     /**

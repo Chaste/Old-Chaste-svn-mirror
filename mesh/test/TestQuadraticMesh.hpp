@@ -213,6 +213,8 @@ public:
     {
         QuadraticMesh<2> mesh(1.0, 1.0, 1.0);
 
+        TS_ASSERT_THROWS_CONTAINS(QuadraticMesh<2> bad_mesh(0.645, 1.0, 1.0), "does not divide");
+
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 4u);
@@ -306,6 +308,9 @@ public:
         double width = h;
 
         QuadraticMesh<3> mesh(h, width, 2*width, 3*width);
+
+        TS_ASSERT_THROWS_CONTAINS(QuadraticMesh<3> bad_mesh(0.645, 1.0, 1.0, 1.0), "does not divide");
+
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 3*5*7u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*1*2*3u);
@@ -528,7 +533,7 @@ public:
         delete p_mesh;
     }
     
-    void TestConstructRegularMesh2d() throw(Exception)
+    void TestConstructRegularSlabMesh_Directly_2d() throw(Exception)
     {
         QuadraticMesh<2> mesh;
         mesh.ConstructRegularSlabMesh(0.1, 1.0, 2.0);
@@ -537,7 +542,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2*10*20u);
     }
 
-    void TestConstructRegularMesh3d() throw(Exception)
+    void TestConstructRegularSlabMesh_Directly_3d() throw(Exception)
     {
         QuadraticMesh<3> mesh;
         mesh.ConstructRegularSlabMesh(1.0, 1.0, 2.0, 3.0);

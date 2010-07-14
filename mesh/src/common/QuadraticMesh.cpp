@@ -40,13 +40,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(double spaceStep, double width, double height)
 {
-    Construct2dRegularSlabMesh(spaceStep, width, height);
+    ConstructRegularSlabMesh(spaceStep, width, height);
 }
 
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(double spaceStep, double width, double height, double depth)
 {
-    Construct3dRegularSlabMesh(spaceStep, width, height, depth);
+    ConstructRegularSlabMesh(spaceStep, width, height, depth);
 }
 
 template<unsigned DIM>
@@ -60,43 +60,64 @@ void QuadraticMesh<DIM>::ConstructRegularSlabMesh(double spaceStep, double width
     else if(DIM==2)
     {
         assert(width>0);
+        assert(height>0);
         assert(depth==0);
-        Construct2dRegularSlabMesh(spaceStep, width, height);
+
+        unsigned num_elem_x=(width+0.5*spaceStep)/spaceStep; //0.5*spaceStep is to ensure that rounding down snaps to correct number 
+        unsigned num_elem_y=(height+0.5*spaceStep)/spaceStep;
+
+        double actual_width_x=num_elem_x*spaceStep; 
+        double actual_width_y=num_elem_y*spaceStep; 
+       
+        if (   fabs (actual_width_x - width) > DBL_EPSILON  
+            || fabs (actual_width_y - height) > DBL_EPSILON )  
+        { 
+            EXCEPTION("Space step does not divide the size of the mesh"); 
+        }
+
+        assert(num_elem_x>0);
+        assert(num_elem_y>0);
+
+        ConstructRectangularMesh(num_elem_x, num_elem_y);
+        this->Scale(width/num_elem_x, height/num_elem_y);
     }
     else 
     {
         assert(width>0);
+        assert(height>0);
         assert(depth>0);
-        Construct3dRegularSlabMesh(spaceStep, width, height, depth);
+
+        unsigned num_elem_x=(width+0.5*spaceStep)/spaceStep; //0.5*spaceStep is to ensure that rounding down snaps to correct number 
+        unsigned num_elem_y=(height+0.5*spaceStep)/spaceStep;
+        unsigned num_elem_z=(depth+0.5*spaceStep)/spaceStep;
+
+        double actual_width_x=num_elem_x*spaceStep; 
+        double actual_width_y=num_elem_y*spaceStep; 
+        double actual_width_z=num_elem_z*spaceStep; 
+       
+        if (   fabs (actual_width_x - width) > DBL_EPSILON  
+            || fabs (actual_width_y - height) > DBL_EPSILON   
+            || fabs (actual_width_z - depth) > DBL_EPSILON )  
+        { 
+            EXCEPTION("Space step does not divide the size of the mesh"); 
+        } 
+
+        ConstructCuboid(num_elem_x, num_elem_y, num_elem_z);
+        this->Scale(width/num_elem_x, height/num_elem_y, depth/num_elem_z);
     }
 } 
 
     
 template<unsigned DIM>
-void QuadraticMesh<DIM>::Construct2dRegularSlabMesh(double spaceStep, double width, double height)
+void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned numElemY)
 {
     assert(DIM==2);
 
-    assert(width>0);
-    assert(height>0);
-
-    unsigned num_elem_x=(width+0.5*spaceStep)/spaceStep; //0.5*spaceStep is to ensure that rounding down snaps to correct number 
-    unsigned num_elem_y=(height+0.5*spaceStep)/spaceStep;
-
-    double actual_width_x=num_elem_x*spaceStep; 
-    double actual_width_y=num_elem_y*spaceStep; 
-       
-    if (   fabs (actual_width_x - width) > DBL_EPSILON  
-        || fabs (actual_width_y - height) > DBL_EPSILON )  
-    { 
-        EXCEPTION("Space step does not divide the size of the mesh"); 
-    } 
-
-    assert(num_elem_x>0);
-    assert(num_elem_y>0);
+    assert(numElemX>0);
+    assert(numElemY>0);
 
     this->mMeshIsLinear=false;
-    unsigned num_nodes=(num_elem_x+1)*(num_elem_y+1);
+    unsigned num_nodes=(numElemX+1)*(numElemY+1);
     struct triangulateio triangle_input;
     triangle_input.pointlist = (double *) malloc( num_nodes * 2 * sizeof(double));
     triangle_input.numberofpoints = num_nodes;
@@ -107,12 +128,12 @@ void QuadraticMesh<DIM>::Construct2dRegularSlabMesh(double spaceStep, double wid
     triangle_input.numberofregions = 0;
 
     unsigned new_index = 0;
-    for (unsigned j=0; j<=num_elem_y; j++)
+    for (unsigned j=0; j<=numElemY; j++)
     {
-        double y = height*j/num_elem_y;
-        for (unsigned i=0; i<=num_elem_x; i++)
+        double y = j;
+        for (unsigned i=0; i<=numElemX; i++)
         {
-            double x = width*i/num_elem_x;
+            double x = i;
 
             triangle_input.pointlist[2*new_index] = x;
             triangle_input.pointlist[2*new_index + 1] = y;
@@ -229,32 +250,14 @@ void QuadraticMesh<DIM>::Construct2dRegularSlabMesh(double spaceStep, double wid
 
 
 template<unsigned DIM>
-void QuadraticMesh<DIM>::Construct3dRegularSlabMesh(double spaceStep, double width, double height, double depth)
+void QuadraticMesh<DIM>::ConstructCuboid(unsigned numElemX, unsigned numElemY, unsigned numElemZ)
 {
     assert(DIM==3);
 
-    assert(width>0);
-    assert(height>0);
-    assert(depth>0);
 
-    unsigned num_elem_x=(width+0.5*spaceStep)/spaceStep; //0.5*spaceStep is to ensure that rounding down snaps to correct number 
-    unsigned num_elem_y=(height+0.5*spaceStep)/spaceStep;
-    unsigned num_elem_z=(depth+0.5*spaceStep)/spaceStep;
-
-    double actual_width_x=num_elem_x*spaceStep; 
-    double actual_width_y=num_elem_y*spaceStep; 
-    double actual_width_z=num_elem_z*spaceStep; 
-       
-    if (   fabs (actual_width_x - width) > DBL_EPSILON  
-        || fabs (actual_width_y - height) > DBL_EPSILON   
-        || fabs (actual_width_z - depth) > DBL_EPSILON )  
-    { 
-        EXCEPTION("Space step does not divide the size of the mesh"); 
-    } 
-
-    assert(num_elem_x>0);
-    assert(num_elem_y>0);
-    assert(num_elem_z>0);
+    assert(numElemX>0);
+    assert(numElemY>0);
+    assert(numElemZ>0);
 
     this->mMeshIsLinear=false;
     std::string tempfile_name_stem = "temp_quadmesh3d";
@@ -265,19 +268,19 @@ void QuadraticMesh<DIM>::Construct3dRegularSlabMesh(double spaceStep, double wid
     OutputFileHandler handler("");
     out_stream p_file = handler.OpenOutputFile(tempfile_name_stem+".node");
 
-    *p_file << (num_elem_x+1)*(num_elem_y+1)*(num_elem_z+1) << " 3 0 0\n";
+    *p_file << (numElemX+1)*(numElemY+1)*(numElemZ+1) << " 3 0 0\n";
     unsigned node_index = 0;
-    for (unsigned k=0; k<=num_elem_z; k++)
+    for (unsigned k=0; k<=numElemZ; k++)
     {
-        for (unsigned j=0; j<=num_elem_y; j++)
+        for (unsigned j=0; j<=numElemY; j++)
         {
-            for (unsigned i=0; i<=num_elem_x; i++)
+            for (unsigned i=0; i<=numElemX; i++)
             {
-                double x = width*i/num_elem_x;
-                double y = height*j/num_elem_y;
-                double z = depth*k/num_elem_z;
+                double x = i;
+                double y = j;
+                double z = k;
 
-                //bool on_boundary = ( (i==0) || (i==num_elem_x) || (j==0) || (j==num_elem_y) || (k==0) || (k==num_elem_z) );
+                //bool on_boundary = ( (i==0) || (i==numElemX) || (j==0) || (j==numElemY) || (k==0) || (k==numElemZ) );
                 *p_file << node_index++ << " " << x << " " << y << " " << z << "\n"; // << (on_boundary?1:0) << "\n";
             }
         }
