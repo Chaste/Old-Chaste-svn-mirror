@@ -212,9 +212,10 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
     (*p_file) << "<ChasteParameters xmlns='https://chaste.comlab.ox.ac.uk/nss/parameters/2_1'>" << std::endl;
     (*p_file) << std::endl;
     (*p_file) << "    <ResumeSimulation>" << std::endl;
-    (*p_file) << "        <ArchiveDirectory relative_to='chaste_test_output'>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;
+    (*p_file) << "        <ArchiveDirectory relative_to='cwd'>" << rArchiveDirectory << "</ArchiveDirectory>" << std::endl;
     (*p_file) << "        <SpaceDimension>" << HeartConfig::Instance()->GetSpaceDimension() << "</SpaceDimension>" << std::endl;
-    (*p_file) << "        <SimulationDuration unit='ms'>0.0</SimulationDuration>" << std::endl;
+    (*p_file) << "        <SimulationDuration unit='ms'>0.0</SimulationDuration> <!-- Edit with new simulation duration. Please "
+              << "note that the simulation does not restart at t=0 but at the time where the checkpoint was created.-->" << std::endl;
     (*p_file) << "        <Domain>" << HeartConfig::Instance()->GetDomain() << "</Domain>" << std::endl;
     (*p_file) << "        <CheckpointSimulation timestep='" << HeartConfig::Instance()->GetCheckpointTimestep()
               << "' unit='ms' max_checkpoints_on_disk='" << HeartConfig::Instance()->GetMaxCheckpointsOnDisk()
