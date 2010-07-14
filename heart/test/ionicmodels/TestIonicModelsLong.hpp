@@ -50,6 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Mahajan2008OdeSystem.hpp"
 #include "tentusscher_model_2006_epi_corrected_flooristim.hpp"
 #include "CellProperties.hpp"
+#include "HeartConfig.hpp"
 
 // Note: RunOdeSolverWithIonicModel(), CheckCellModelResults(), CompareCellModelResults()
 // are defined in RunAndCheckIonicModels.hpp

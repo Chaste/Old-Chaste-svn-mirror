@@ -92,7 +92,7 @@ public:
     void TestRegularStimulus()
     {
         double magnitude_of_stimulus = 1.0;
-        double duration_of_stimulus  = 0.5;  // ms
+        double duration_of_stimulus = 0.5;  // ms
         double period = 1000.0; // 1s
         double when = 100.0;
 
@@ -115,6 +115,8 @@ public:
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.5),
             magnitude_of_stimulus);
 
+        TS_ASSERT_DELTA(regular_stimulus.GetStimulusPeriod(),period,1e-9);
+
         //Made more sloppy
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.5+(1000*DBL_EPSILON)),
             0.0);
@@ -131,11 +133,17 @@ public:
         //An overeager floating point optimiser may fail the following test
         //by turning the stimulus off too early
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(5100.5),
-            magnitude_of_stimulus);
+                         magnitude_of_stimulus);
 
         //Made more sloppy
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(5100.5*(1+2*DBL_EPSILON)),
             0.0);
+
+        // Test SetStimulusStartTime method, by shifting the stimulus slightly
+        double delay = 10.0;
+        regular_stimulus.SetStimulusStartTime(when + delay);
+        TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(5100.5 + delay),
+                         magnitude_of_stimulus);
     }
 
     void TestRegularStimulusStopping()

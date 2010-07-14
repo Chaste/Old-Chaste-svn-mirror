@@ -137,6 +137,11 @@ void AbstractCvodeCell::SetStimulusFunction(boost::shared_ptr<AbstractStimulusFu
     mpIntracellularStimulus = pStimulus;
 }
 
+boost::shared_ptr<AbstractStimulusFunction> AbstractCvodeCell::GetStimulusFunction()
+{
+    return mpIntracellularStimulus;
+}
+
 double AbstractCvodeCell::GetStimulus(double time)
 {
     return mpIntracellularStimulus->GetStimulus(time);
@@ -405,5 +410,9 @@ N_Vector AbstractCvodeCell::CopyVector(N_Vector originalVec)
 }
 
 
+void AbstractCvodeCell::UseCellMLDefaultStimulus()
+{
+    EXCEPTION("This class has no default stimulus from CellML metadata.");
+}
 
 #endif // CHASTE_CVODE

@@ -11,6 +11,7 @@
  */
 
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
+#include "HeartConfig.hpp"
 
 CML_noble_varghese_kohl_noble_1998_basic_with_sac::CML_noble_varghese_kohl_noble_1998_basic_with_sac(
         boost::shared_ptr<AbstractIvpOdeSolver> pSolver,

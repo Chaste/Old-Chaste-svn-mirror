@@ -16,6 +16,7 @@
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "OdeSystemInformation.hpp"
+#include "HeartConfig.hpp"
 
 
 FaberRudy2000Version3::FaberRudy2000Version3(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,

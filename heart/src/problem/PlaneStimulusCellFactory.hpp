@@ -30,8 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PLANESTIMULUSCELLFACTORY_HPP_
 #define PLANESTIMULUSCELLFACTORY_HPP_
 
+#include <boost/shared_ptr.hpp>
+
 #include "AbstractCardiacCellFactory.hpp"
 #include "LogFile.hpp"
+#include "SimpleStimulus.hpp"
 
 /**
  * PlaneStimulusCellFactory provides cells within 1e-5 of x=0 with a SimpleStimulus.
@@ -52,7 +55,7 @@ public:
     PlaneStimulusCellFactory(double stimulusMagnitude=-600, double stimulusDuration=0.5)
         : AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>()
     {
-        mpStimulus = boost::shared_ptr<SimpleStimulus>(new SimpleStimulus(stimulusMagnitude, stimulusDuration));
+        mpStimulus.reset(new SimpleStimulus(stimulusMagnitude, stimulusDuration));
         LOG(1, "Defined a PlaneStimulusCellFactory<"<<SPACE_DIM<<"> with SimpleStimulus("<<stimulusMagnitude<<","<< stimulusDuration<< ")\n");
     }
 

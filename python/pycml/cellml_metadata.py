@@ -46,7 +46,8 @@ _base_uri = 'urn:chaste-pycml:dummy-rdf-base-uri'
 # Allowed metadata names, more to come
 # TODO #1209: Use a proper ontology!
 METADATA_NAMES = frozenset(
-    ['membrane_voltage', 'membrane_capacitance', 'membrane_E_R', 'membrane_stimulus_current', 'sodium_channel_current',
+    ['membrane_voltage', 'membrane_capacitance', 'membrane_E_R', 'membrane_stimulus_current', 'membrane_stimulus_current_duration',
+     'membrane_stimulus_current_amplitude','membrane_stimulus_current_period','membrane_stimulus_current_offset', 'sodium_channel_current',
      'sodium_channel_conductance', 'sodium_channel_m_gate', 'sodium_channel_h_gate', 
      'potassium_channel_current', 'potassium_channel_conductance', 'potassium_channel_n_gate', 
      'leakage_current', 'sodium_channel_current_conductance','sodium_channel_current_h_gate',

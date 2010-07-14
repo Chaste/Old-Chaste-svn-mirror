@@ -16,6 +16,7 @@
 #include "OdeSystemInformation.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "Mahajan2008OdeSystem.hpp"
+#include "HeartConfig.hpp"
 
 Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                            boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)

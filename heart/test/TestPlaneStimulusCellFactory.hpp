@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "HeartGeometryInformation.hpp"
+#include "HeartConfig.hpp"
 
 class TestPlaneStimulusCellFactory : public CxxTest::TestSuite
 {

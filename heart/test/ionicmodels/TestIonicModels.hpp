@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "RunAndCheckIonicModels.hpp"
 #include "Exception.hpp"
+#include "HeartConfig.hpp"
 
 #include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
@@ -134,6 +135,7 @@ public:
         TS_ASSERT_THROWS_THIS(n98_ode_system.GetSlowValues(slows), error_should_be);
         TS_ASSERT_THROWS_THIS(n98_ode_system.SetSlowValues(slows), error_should_be);
 
+        TS_ASSERT_THROWS_THIS(n98_ode_system.UseCellMLDefaultStimulus(),"This class has no default stimulus from CellML metadata.");
     }
      
     void TestSolveForNoble98WithSacWithSimpleStimulus(void)

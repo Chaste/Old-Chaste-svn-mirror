@@ -41,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "ZeroStimulus.hpp"
+#include "HeartConfig.hpp"
+#include "SimpleStimulus.hpp"
 #include "TimeStepper.hpp"
 #include "SimpleDataWriter.hpp"
 #include "Nash2004ContractionModel.hpp"

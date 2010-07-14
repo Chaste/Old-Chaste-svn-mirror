@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeSystem.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractStimulusFunction.hpp"
-#include "HeartConfig.hpp"
 
 #include <vector>
 
@@ -243,6 +242,14 @@ public:
      * @param tissue  true if cell is in a tissue
      */
     void SetUsedInTissueSimulation(bool tissue=true);
+
+    /**
+     * Use CellML metadata to set up the default stimulus for this cell.
+     * By default this method will always throw an exception.  For suitably annotated
+     * models, PyCml will override this to provide a RegularStimulus as defined in
+     * the CellML.
+     */
+    virtual void UseCellMLDefaultStimulus();
 
     /**
      *  [Ca_i] is needed for mechanics, so we explcitly have a Get method (rather than

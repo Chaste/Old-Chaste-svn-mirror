@@ -21,6 +21,7 @@
 #include "Exception.hpp"
 #include "OdeSystemInformation.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "HeartConfig.hpp"
 
 class CellShannon2004FromCellML : public AbstractCardiacCell
 {

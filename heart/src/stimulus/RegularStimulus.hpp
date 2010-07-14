@@ -73,10 +73,36 @@ private:
     double mStopTime;
 
 public:
+    /**
+     * Create a new stimulus.
+     *
+     * @param magnitudeOfStimulus  The size of the stimulus
+     * @param duration  How long the square wave is applied for
+     * @param period  The time between square waves being applied
+     * @param startTime  The time at which the first wave is applied
+     * @param stopTime  The time the stimulus is removed (defaults to DBL_MAX if omitted)
+     */
     RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime, double stopTime=DBL_MAX);
-    ~RegularStimulus();
+    
+    /**
+     * Get the magnitude of stimulus at time 'time'
+     *
+     * @param time  The current time
+     * @return  Magnitude of stimulus
+     */
     double GetStimulus(double time);
-
+    
+    /**
+     * @return the pacing cycle length or period of the stimulus.
+     */
+    double GetStimulusPeriod();
+    
+    /**
+     * Set the stimulus to start at a particular time.
+     *
+     * @param startTime the time the stimulus should begin.
+     */
+    void SetStimulusStartTime(double startTime);
 };
 
 #include "SerializationExportWrapper.hpp"

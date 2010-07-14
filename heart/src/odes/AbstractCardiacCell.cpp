@@ -26,10 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "AbstractCardiacCell.hpp"
-#include "HeartConfig.hpp"
 
 #include <cassert>
 #include <iostream>
+
+#include "HeartConfig.hpp"
+#include "Exception.hpp"
 
 AbstractCardiacCell::AbstractCardiacCell(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
                                          unsigned numberOfStateVariables,
@@ -132,6 +134,11 @@ void AbstractCardiacCell::SetUsedInTissueSimulation(bool tissue)
     mIsUsedInTissue = tissue;
 }
 
+void AbstractCardiacCell::UseCellMLDefaultStimulus()
+{
+    EXCEPTION("This class has no default stimulus from CellML metadata.");
+}
+
 
 double AbstractCardiacCell::GetIntracellularCalciumConcentration()
 {
@@ -183,5 +190,3 @@ const boost::shared_ptr<AbstractIvpOdeSolver> AbstractCardiacCell::GetSolver() c
 {
     return mpOdeSolver;
 }
-
-

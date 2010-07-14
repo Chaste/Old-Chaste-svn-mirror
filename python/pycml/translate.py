@@ -139,6 +139,7 @@ class CellMLTranslator(object):
 
     # Variable types
     TYPE_DOUBLE = 'double '
+    TYPE_VOID = 'void '
     TYPE_CONST_DOUBLE = 'const double '
 
     # Special constants
@@ -1448,6 +1449,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.class_inheritance += ', public AbstractDynamicallyLoadableEntity'
         self.writeln('#include "Exception.hpp"')
         self.writeln('#include "OdeSystemInformation.hpp"')
+        if self.use_modifiers:
+            self.writeln('#include "RegularStimulus.hpp"')
         self.writeln_hpp('#include "AbstractStimulusFunction.hpp"')
         self.writeln('#include "HeartConfig.hpp"')
         self.writeln('#include "IsNan.hpp"')
@@ -1532,7 +1535,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.close_block(blank_line=True)
         # Save for use in output_bottom_boilerplate to fill OdeSystemInformation
         self.derived_quantities = dqs
-
+        
+       
     def output_cell_parameters(self):
         """Output declarations, set & get methods for cell parameters.
         
@@ -1600,7 +1604,40 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     self.writeln('return ', var.initial_value, self.STMT_END)
                     self.close_block()
                     self.writeln()
-    
+            self.output_default_stimulus()
+                
+    def output_default_stimulus(self):
+        """
+        Output a default cell stimulus from the metadata specification
+        as long as the following metadata exists:
+         * membrane_stimulus_current_amplitude
+         * membrane_stimulus_current_duration
+         * membrane_stimulus_current_period
+        and optionally:
+         * membrane_stimulus_current_offset
+        
+        Ensures that the amplitude of the generated RegularStimulus is negative.
+        """
+        mandatory_args = set('membrane_stimulus_current_'+v for v in ['duration', 'amplitude', 'period'])
+        optional_arg = 'membrane_stimulus_current_offset'
+        var_names = set(v.oxmeta_name for v in self.metadata_vars)
+        if len(var_names & mandatory_args) != 3:
+            return
+
+        self.output_method_start('UseCellMLDefaultStimulus', [], self.TYPE_VOID)
+        self.open_block()
+        self.output_comment('Use the default stimulus specified by CellML metadata')
+        self.writeln('mpIntracellularStimulus.reset(new RegularStimulus(')
+        self.writeln('        -fabs(Get_membrane_stimulus_current_amplitude_constant()),')
+        self.writeln('        Get_membrane_stimulus_current_duration_constant(),')
+        self.writeln('        Get_membrane_stimulus_current_period_constant(),')
+        if optional_arg in var_names:
+            self.writeln('        Get_membrane_stimulus_current_offset_constant()));')
+        else :
+            self.writeln('        0.0));')
+        self.close_block()
+        self.writeln()
+        
     def code_name(self, var, *args, **kwargs):
         """
         Return the full name of var in a form suitable for inclusion in a
@@ -1694,6 +1731,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('{}\n')
         return
     
+  
     def output_constructor(self, params, base_class_params):
         """Output a cell constructor.
         

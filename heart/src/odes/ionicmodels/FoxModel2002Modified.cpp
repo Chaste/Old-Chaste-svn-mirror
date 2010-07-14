@@ -16,6 +16,7 @@
 #include "Exception.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "OdeSystemInformation.hpp"
+#include "HeartConfig.hpp"
 
 /**
  * Generated from CellML, and P_Ca parameter modified.

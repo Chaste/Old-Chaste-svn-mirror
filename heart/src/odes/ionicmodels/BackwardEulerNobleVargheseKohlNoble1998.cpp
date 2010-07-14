@@ -13,6 +13,7 @@
 
 #include <cmath>
 #include <cassert>
+#include <iostream>
 #include "CardiacNewtonSolver.hpp"
 #include "Exception.hpp"
 #include "OdeSystemInformation.hpp"

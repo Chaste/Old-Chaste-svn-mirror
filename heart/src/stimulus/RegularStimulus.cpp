@@ -31,15 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <cassert>
 
-/**
- * Constructor for RegularStimulus
- *
- * @param magnitudeOfStimulus  The size of the stimulus
- * @param duration  How long the square wave is applied for
- * @param period  The time between square waves being applied
- * @param startTime  The time at which the first wave is applied
- * @param stopTime  The time the stimulus is removed (defaults to DBL_MAX if omitted)
- */
 RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, double period, double startTime, double stopTime)
 {
     assert(period > 0);
@@ -55,20 +46,6 @@ RegularStimulus::RegularStimulus(double magnitudeOfStimulus, double duration, do
     mDuration += period*DBL_EPSILON;
 }
 
-/**
- * Destructor
- */
-RegularStimulus::~RegularStimulus()
-{
-    // Do nothing
-}
-
-/**
- * Get the magnitude of stimulus at time 'time'
- *
- * @param time  The current time
- * @return  Magnitude of stimulus
- */
 double RegularStimulus::GetStimulus(double time)
 {
     double beatTime = fmod(time-mStartTime,mPeriod);
@@ -83,6 +60,15 @@ double RegularStimulus::GetStimulus(double time)
     }
 }
 
+double RegularStimulus::GetStimulusPeriod()
+{
+    return mPeriod;
+}
+
+void RegularStimulus::SetStimulusStartTime(double startTime)
+{
+    mStartTime = startTime;
+}
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

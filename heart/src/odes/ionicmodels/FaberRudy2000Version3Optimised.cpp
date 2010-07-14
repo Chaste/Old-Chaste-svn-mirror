@@ -10,7 +10,7 @@
  */
 
 #include "FaberRudy2000Version3Optimised.hpp"
-
+#include "HeartConfig.hpp"
 
 FaberRudy2000Version3OptimisedLookupTables::FaberRudy2000Version3OptimisedLookupTables()
 {

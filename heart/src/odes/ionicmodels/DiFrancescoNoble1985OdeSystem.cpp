@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 //#include <iostream>
 #include "Exception.hpp"
+#include "HeartConfig.hpp"
 
 //
 // Model-scope constant parameters

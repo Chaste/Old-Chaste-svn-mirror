@@ -91,8 +91,6 @@ void OdeSystemInformation<ExceptionalCell>::Initialise(void)
 }
 #endif // CHASTE_CVODE
 
-
-
 class TestCvodeCells : public CxxTest::TestSuite
 {
 public:
@@ -119,6 +117,11 @@ public:
 
         // Cover swapping to a proper stimulus
         lr91_cvode_system.SetStimulusFunction(p_stimulus);
+
+        boost::shared_ptr<AbstractStimulusFunction> p_abs_stim = lr91_cvode_system.GetStimulusFunction();
+        double period_back = boost::static_pointer_cast<RegularStimulus>(p_abs_stim)->GetStimulusPeriod();
+        TS_ASSERT_DELTA(period_back,period,1e-7);
+        TS_ASSERT_EQUALS(p_abs_stim,p_stimulus);
 
         TS_ASSERT_EQUALS(lr91_cvode_system.GetVoltageIndex(), 4u);
         TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
@@ -219,6 +222,8 @@ public:
         bad_cell.SetStateVariables(bad_cell.GetInitialConditions());
         TS_ASSERT_THROWS_THIS(bad_cell.Solve(start_time, end_time, max_timestep),
                               "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
+
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.UseCellMLDefaultStimulus(),"This class has no default stimulus from CellML metadata.");
 #endif // CHASTE_CVODE
     }
 
