@@ -30,5 +30,22 @@
 		<KSPSolver>gmres</KSPSolver>
 		<KSPPreconditioner>jacobi</KSPPreconditioner>
 	</Numerical>
+
+	<PostProcessing>	        
+	        <!-- Calculate all APD90s for all nodes -->
+	        <ActionPotentialDurationMap threshold="-30.0" threshold_unit="mV" repolarisation_percentage="90"/>
+	        
+	        <!-- Calculate all upstroke times for all nodes (activation map) -->
+	        <UpstrokeTimeMap threshold="-30.0" threshold_unit="mV"/>
+	        
+	        <!-- Calculate all upstroke velocities for all nodes -->
+	        <MaxUpstrokeVelocityMap threshold="-30.0" threshold_unit="mV"/>
+	        
+	        <!-- Calculate conduction velocity from node indexed 10 to all nodes in mesh --> 
+	        <ConductionVelocityMap origin_node="10"/>
+
+	        <!-- Calculate conduction velocity from node indexed 20 to all nodes in mesh --> 
+	        <ConductionVelocityMap origin_node="20"/>
+	</PostProcessing>
 			    
 </ChasteParameters>
