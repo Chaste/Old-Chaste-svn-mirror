@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <unistd.h>
 #include <iostream>
+
 #include "Exception.hpp"
 #include "PetscException.hpp"
 #include "CommandLineArguments.hpp"
