@@ -28,12 +28,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTODEBASEDCELLCYCLEMODEL_HPP_
 #define ABSTRACTODEBASEDCELLCYCLEMODEL_HPP_
 
+#include <vector>
+
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractCellCycleModel.hpp"
 #include "AbstractOdeSystem.hpp"
+#include "SimulationTime.hpp"
 
 /**
  * This class contains all the things common to standard cell cycle
