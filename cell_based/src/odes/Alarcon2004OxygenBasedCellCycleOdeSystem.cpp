@@ -67,8 +67,8 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
     }
 
     // Cell-specific initial conditions
-    SetInitialCondition(3, 0.5*mMstar);
-    SetInitialCondition(5, oxygenConcentration);
+    SetDefaultInitialCondition(3, 0.5*mMstar);
+    SetDefaultInitialCondition(5, oxygenConcentration);
 }
 
 void Alarcon2004OxygenBasedCellCycleOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)

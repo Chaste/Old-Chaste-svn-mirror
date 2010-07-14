@@ -107,19 +107,21 @@ public:
     std::string GetSystemName() const;
 
     /**
-     * Set the suggested initial conditions to use.
+     * Set the default initial conditions for the ODE system. This method DOES NOT change the
+     * state variables of the ODE object on which it is called.
      *
      * @param rInitialConditions  vector containing initial values for the state variables
      */
-    void SetInitialConditions(const std::vector<double>& rInitialConditions);
+    void SetDefaultInitialConditions(const std::vector<double>& rInitialConditions);
 
     /**
-     * Set a single component of the suggested initial conditions to use.
+     * Set a single component of the default initial conditions for the ODE system. This method 
+     * DOES NOT change the state variables of the ODE object on which it is called.
      *
      * @param index  the index of the state variable in the system
      * @param initialCondition  the initial value for the state variable
      */
-    void SetInitialCondition(unsigned index, double initialCondition);
+    void SetDefaultInitialCondition(unsigned index, double initialCondition);
 
     /**
      * Get a copy of the suggested initial conditions.

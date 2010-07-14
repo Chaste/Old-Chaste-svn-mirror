@@ -133,19 +133,21 @@ public:
 
 
     /**
-     * Set the initial conditions for the ODE system.
+     * Set the default initial conditions for the ODE system. This method DOES NOT change the
+     * state variables of the ODE object on which it is called.
      *
      * @param rInitialConditions  vector containing initial values for the state variables
      */
-    void SetInitialConditions(const std::vector<double>& rInitialConditions);
+    void SetDefaultInitialConditions(const std::vector<double>& rInitialConditions);
 
     /**
-     * Set the initial condition of one state variable.
+     * Set a single component of the default initial conditions for the ODE system. This method 
+     * DOES NOT change the state variables of the ODE object on which it is called.
      *
      * @param index  the index of the state variable in the system
      * @param initialCondition  the initial value for the state variable
      */
-    void SetInitialCondition(unsigned index, double initialCondition);
+    void SetDefaultInitialCondition(unsigned index, double initialCondition);
 
     /**
      * Get the initial conditions for the ODE system.

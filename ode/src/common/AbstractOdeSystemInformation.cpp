@@ -46,13 +46,13 @@ std::string AbstractOdeSystemInformation::GetSystemName() const
     return mSystemName;
 }
 
-void AbstractOdeSystemInformation::SetInitialConditions(const std::vector<double>& rInitialConditions)
+void AbstractOdeSystemInformation::SetDefaultInitialConditions(const std::vector<double>& rInitialConditions)
 {
     assert(mInitialised);
     mInitialConditions = rInitialConditions;
 }
 
-void AbstractOdeSystemInformation::SetInitialCondition(unsigned index, double initialCondition)
+void AbstractOdeSystemInformation::SetDefaultInitialCondition(unsigned index, double initialCondition)
 {
     assert(mInitialised);
     mInitialConditions.at(index) = initialCondition;

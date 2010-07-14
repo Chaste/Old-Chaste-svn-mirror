@@ -66,24 +66,24 @@ std::string AbstractOdeSystem::DumpState(const std::string& rMessage,
 }
 
 
-void AbstractOdeSystem::SetInitialConditions(const std::vector<double>& rInitialConditions)
+void AbstractOdeSystem::SetDefaultInitialConditions(const std::vector<double>& rInitialConditions)
 {
     if (rInitialConditions.size() != mNumberOfStateVariables)
     {
         EXCEPTION("The number of initial conditions must be that of the number of state variables.");
     }
     assert(mpSystemInfo);
-    mpSystemInfo->SetInitialConditions(rInitialConditions);
+    mpSystemInfo->SetDefaultInitialConditions(rInitialConditions);
 }
 
-void AbstractOdeSystem::SetInitialCondition(unsigned index, double initialCondition)
+void AbstractOdeSystem::SetDefaultInitialCondition(unsigned index, double initialCondition)
 {
     if (index >= mNumberOfStateVariables)
     {
         EXCEPTION("Index is greater than the number of state variables.");
     }
     assert(mpSystemInfo);
-    mpSystemInfo->SetInitialCondition(index, initialCondition);
+    mpSystemInfo->SetDefaultInitialCondition(index, initialCondition);
 }
 
 std::vector<double> AbstractOdeSystem::GetInitialConditions() const

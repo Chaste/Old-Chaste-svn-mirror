@@ -85,9 +85,9 @@ public:
         std::vector<double> v(2);
         v[0] = -1.0;
         v[1] = -2.0;
-        TS_ASSERT_THROWS_THIS(ode.SetInitialConditions(v),
+        TS_ASSERT_THROWS_THIS(ode.SetDefaultInitialConditions(v),
                 "The number of initial conditions must be that of the number of state variables.");
-        TS_ASSERT_THROWS_THIS(ode.SetInitialCondition(2, -3.0),
+        TS_ASSERT_THROWS_THIS(ode.SetDefaultInitialCondition(2, -3.0),
                 "Index is greater than the number of state variables.");
         TS_ASSERT_THROWS_THIS(ode.SetStateVariables(v),
                 "The size of the passed in vector must be that of the number of state variables.");
@@ -241,7 +241,7 @@ public:
         new_state_variables.push_back(7.0);
         new_state_variables.push_back(8.0);
 
-        ode.SetInitialConditions(new_initial_conditions);
+        ode.SetDefaultInitialConditions(new_initial_conditions);
         ode.SetStateVariables(new_state_variables);
 
         initial_conditions = ode.GetInitialConditions();
@@ -251,7 +251,7 @@ public:
         TS_ASSERT_DELTA(r_state_variables[0], 7.0, 1e-12);
         TS_ASSERT_DELTA(r_state_variables[1], 8.0, 1e-12);
 
-        ode.SetInitialCondition(1, 9.0);
+        ode.SetDefaultInitialCondition(1, 9.0);
         initial_conditions = ode.GetInitialConditions();
         TS_ASSERT_DELTA(initial_conditions[0], 5.0, 1e-12);
         TS_ASSERT_DELTA(initial_conditions[1], 9.0, 1e-12);

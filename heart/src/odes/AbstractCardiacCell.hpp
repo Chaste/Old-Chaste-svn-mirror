@@ -111,7 +111,11 @@ protected:
     bool mIsUsedInTissue;
 
 public:
-    /** Create a new cardiac cell.
+    /** Create a new cardiac cell. The state variables of the cell will be 
+     *  set to AbstractOdeSystemInformation::GetInitialConditions(). Note that
+     *  calls to SetDefaultInitialConditions() on a particular instance of this class
+     *  will not modify its state variables. You can modify them directly with 
+     *  rGetStateVariables(). 
      *
      * @param pOdeSolver  the ODE solver to use when simulating this cell
      * @param numberOfStateVariables  the size of the ODE system modelling this cell
