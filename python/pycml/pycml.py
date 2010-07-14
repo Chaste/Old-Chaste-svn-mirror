@@ -1334,6 +1334,7 @@ class cellml_model(element_base):
         return free_vars
     
     def calculate_extended_dependencies(self, nodes, prune=[],
+                                        prune_deps=[],
                                         state_vars_depend_on_odes=False,
                                         state_vars_examined=set()):
         """Calculate the extended dependencies of the given nodes.
@@ -1348,6 +1349,8 @@ class cellml_model(element_base):
         we won't include their dependencies or the nodes themselves.
         This is useful e.g. for pruning variables required for calculating
         a stimulus if the stimulus is being provided by another method.
+        prune_deps is similar: dependencies of these nodes will be excluded,
+        but the nodes themselves will be included if asked for.
         
         If state_vars_depend_on_odes is True, then considers state variables
         to depend on the ODE defining them.
@@ -1367,11 +1370,19 @@ class cellml_model(element_base):
                 # This is an ODE dependency, so get the defining expression
                 # instead.
                 ode = True
+                orig_node = node
                 node = node[0]._get_ode_dependency(node[1])
+                if orig_node in prune_deps:
+                    # Include the defining expression, but skip its dependencies
+                    deps.add(node)
+                    continue
                 free_var = node.eq.lhs.diff.independent_variable
             else:
                 ode = False
             deps.add(node)
+            if node in prune_deps:
+                # Skip dependencies of this node
+                continue
             nodedeps = set(node._get_dependencies())
             if ode and not node._cml_ode_has_free_var_on_rhs:
                 # ODEs depend on their independent variable.  However,
@@ -1386,6 +1397,7 @@ class cellml_model(element_base):
                 state_vars_examined.add(node)
             deps.update(self.calculate_extended_dependencies(nodedeps,
                                                              prune=prune,
+                                                             prune_deps=prune_deps,
                                                              state_vars_depend_on_odes=state_vars_depend_on_odes,
                                                              state_vars_examined=state_vars_examined))
         return deps

@@ -828,9 +828,9 @@ class CellMLTranslator(object):
 
     # These methods allow us to calculate which equations must be
     # output in order to compute a given set of quantities.
-    def calculate_extended_dependencies(self, nodes, prune=[]):
+    def calculate_extended_dependencies(self, nodes, prune=[], prune_deps=[]):
         """Method moved to cellml_model."""
-        return self.model.calculate_extended_dependencies(nodes, prune)
+        return self.model.calculate_extended_dependencies(nodes, prune, prune_deps)
 
     def output_equations(self, nodeset):
         """Output the mathematics described by nodeset.
@@ -1980,19 +1980,15 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 raise ValueError('No ionic currents found; check your configuration file')
             nodes = map(lambda elt: self.varobj(unicode(elt)),
                         self.model.solver_info.ionic_current.var)
-            nodeset = self.calculate_extended_dependencies(nodes)
+            # GetIIonic must not include the stimulus current
+            i_stim = self.doc._cml_config.i_stim_var
+            nodeset = self.calculate_extended_dependencies(nodes, prune_deps=[i_stim])
             #print map(lambda v: v.fullname(), nodes)
             #print filter(lambda p: p[2]>0, map(debugexpr, nodeset))
             #621: check units of the ionic current
             units_objs = map(self.get_var_units, nodes)
             conversion, conv_nodes = self.ionic_current_units_conversion('i_ionic', units_objs)
-            conv_nodes = self.calculate_extended_dependencies(conv_nodes, prune=nodeset)
-            # GetIIonic must not include the stimulus current
-            i_stim = self.doc._cml_config.i_stim_var
-            i_stim_deps = self.calculate_extended_dependencies([i_stim])
-            i_stim_deps.remove(i_stim)
-            nodeset -= i_stim_deps
-            conv_nodes -= i_stim_deps
+            conv_nodes = self.calculate_extended_dependencies(conv_nodes, prune=nodeset, prune_deps=[i_stim])
             all_nodes = conv_nodes|nodeset
             # Output main part of maths
             self.output_state_assignments(nodeset=all_nodes)
@@ -2046,16 +2042,14 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             dvdt = None
         if self.use_chaste_stimulus:
-            i_stim = self.doc._cml_config.i_stim_var
-            i_stim_deps = self.calculate_extended_dependencies([i_stim])
-            i_stim_deps.remove(i_stim)
+            i_stim = [self.doc._cml_config.i_stim_var]
         else:
-            i_stim_deps = set()
+            i_stim = []
         nonv_nodeset = self.calculate_extended_dependencies(
-            derivs, prune=i_stim_deps)
+            derivs, prune_deps=i_stim)
         if dvdt:
             v_nodeset = self.calculate_extended_dependencies(
-                [dvdt], prune=nonv_nodeset|i_stim_deps)
+                [dvdt], prune=nonv_nodeset, prune_deps=i_stim)
         else:
             v_nodeset = set()
         # State variable inputs
