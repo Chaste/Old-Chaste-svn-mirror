@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CARDIACNEWTONSOLVER_HPP_
 
 #include <cmath>
+#include <boost/numeric/ublas/lu.hpp>
 #include "IsNan.hpp"
 
 #include "AbstractBackwardEulerCardiacCell.hpp"
@@ -75,18 +76,24 @@ public:
 //        const double eps = 1e-6 * rCurrentGuess[0]; // Our tolerance (should use min(guess) perhaps?)
         const double eps = 1e-6; // JonW tolerance
         double norm = 2*eps;
-
+        
+//        double initial_guess[SIZE];
+//        for (unsigned i=0; i<SIZE; i++)
+//        {
+//            initial_guess[i]=rCurrentGuess[i];
+//        }
+        
         // check that the initial guess that was given gives a valid residual
-        rCell.ComputeResidual(time, rCurrentGuess, mResidual);
+        rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
         for (unsigned i=0; i<SIZE; i++)
         {
-            assert(!std::isnan(mResidual[i]));
+            assert(!std::isnan(mResidual(i)));
         }
 
         while (norm > eps)
         {
             // Calculate Jacobian for current guess
-            rCell.ComputeJacobian(time, rCurrentGuess, mJacobian);
+            rCell.ComputeJacobian(time, rCurrentGuess,  (double (*)[SIZE])mJacobian.data());
 
 //            // Update norm (our style)
 //            norm = ComputeNorm(mResidual);
@@ -94,22 +101,29 @@ public:
             // Solve Newton linear system
             SolveLinearSystem();
 
-            // Update norm (JonW style)
-            norm = ComputeNorm(mUpdate);
+            // Update norm (Jon W style)
+            norm = norm_inf(mUpdate);
 
             // Update current guess and recalculate residual
             for (unsigned i=0; i<SIZE; i++)
             {
                 rCurrentGuess[i] -= mUpdate[i];
             }
-            rCell.ComputeResidual(time, rCurrentGuess, mResidual);
+
+
+            rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
 
             counter++;
-             
+//            PRINT_2_VARIABLES(counter, norm);
             // avoid infinite loops
             if (counter > 15)
             {
 #define COVERAGE_IGNORE
+//                PRINT_VECTOR(rCell.rGetStateVariables());
+//                for (unsigned i=0; i<SIZE; i++)
+//                {
+//                    PRINT_VARIABLE(initial_guess[i]);
+//                }
                 EXCEPTION("Newton method diverged in CardiacNewtonSolver::Solve()");
 #undef COVERAGE_IGNORE
             }
@@ -202,61 +216,86 @@ protected:
     /** Singleton pattern - protected assignment operator.  Not implemented. */
     CardiacNewtonSolver<SIZE>& operator= (const CardiacNewtonSolver<SIZE>&);
 
-    /**
-     * Compute a norm of a vector.
-     *
-     * @param vector  the vector to norm.
-     */
-    double ComputeNorm(double vector[SIZE])
-    {
-        double norm = 0.0;
-        for (unsigned i=0; i<SIZE; i++)
-        {
-            if (fabs(vector[i]) > norm)
-            {
-                norm = fabs(vector[i]);
-            }
-        }
-        return norm;
-    }
+ 
 
     /**
      * Solve a linear system to calculate the Newton update step
+     * 
+     * The linear system is
+     *  J.u = r
+     * where J,u,r are mJacobian mUpdate and mResidual.  These are all stored as c-style arrays.
+     * 
+     * This is solved by Gaussian Elimination without pivoting
+     * ~~This is solved by LU factorization (via uBLAS)~~
      */
     void SolveLinearSystem()
     {
+        //For debug
+//        double original_j[SIZE][SIZE];
+//        
+//        for (unsigned i=0; i<SIZE; i++)
+//        {
+//            for (unsigned j=0; j<SIZE; j++)
+//            {
+//                original_j[i][j] = mJacobian(i,j);
+//            }
+//        }
+        //For debug
+///\todo #1339 The following LU code produces much better answers to the linear solve, but at a massive time cost.  Why?
+//        permutation_matrix<double> P(SIZE);
+//        
+//        lu_factorize(mJacobian,P);
+//        // Now mJacobian and P contain the LU factorization of mJacobian
+//
+//        mUpdate = mResidual;
+//        lu_substitute(mJacobian,P,mUpdate);
+        
         double fact;
         for (unsigned i=0; i<SIZE; i++)
         {
             for (unsigned ii=i+1; ii<SIZE; ii++)
             {
-                fact = mJacobian[ii][i]/mJacobian[i][i];
+                fact = mJacobian(ii,i)/mJacobian(i,i);
                 for (unsigned j=i; j<SIZE; j++)
                 {
-                    mJacobian[ii][j] -= fact*mJacobian[i][j];
+                    mJacobian(ii,j) -= fact*mJacobian(i,j);
                 }
-                mResidual[ii] -= fact*mResidual[i];
+                mResidual[ii] -= fact*mResidual(i);
             }
         }
         /*This must be int, since an unsigned down-loop wouldn't terminate*/
         for (int i=SIZE-1; i>=0; i--)
         {
-            mUpdate[i] = mResidual[i];
+            mUpdate(i) = mResidual(i);
             for (unsigned j=i+1; j<SIZE; j++)
             {
-                mUpdate[i] -= mJacobian[i][j]*mUpdate[j];
+                mUpdate(i) -= mJacobian(i,j)*mUpdate(j);
             }
-            mUpdate[i] /= mJacobian[i][i];
+            mUpdate(i) /= mJacobian(i,i);
         }
+        
+        //For debug
+//        double residual[SIZE];
+//        for (unsigned i=0; i<SIZE; i++)
+//        {
+//            residual[i]=0.0;
+//            for (unsigned j=0; j<SIZE; j++)
+//            {
+//                residual[i] += original_j[i][j]*mUpdate(j);
+//            }
+//            PRINT_3_VARIABLES(residual[i], mResidual(i), residual[i]- mResidual(i));
+//        }
+        //For debug
+        
     }
 
 private:
     /** Working memory : residual vector */
-    double mResidual[SIZE];
+    c_vector<double, SIZE> mResidual;
     /** Working memory : Jacobian matrix */
-    double mJacobian[SIZE][SIZE];
+    c_matrix<double, SIZE, SIZE> mJacobian;
     /** Working memory : update vector */
-    double mUpdate[SIZE];
+    c_vector<double, SIZE>  mUpdate;
 };
 
 #endif /*CARDIACNEWTONSOLVER_HPP_*/
