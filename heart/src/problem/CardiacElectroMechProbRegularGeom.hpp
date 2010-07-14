@@ -84,7 +84,7 @@ public:
         this->mpElectricsMesh->ConstructRegularSlabMesh(width/numElectricsElementsEachDir, width, width);
 
         // create mechanics mesh
-        this->mpMechanicsMesh = new QuadraticMesh<DIM>(width,width,numMechanicsElementsEachDir,numMechanicsElementsEachDir);
+        this->mpMechanicsMesh = new QuadraticMesh<DIM>(width/numMechanicsElementsEachDir, width, width);
         LOG(2, "Width of meshes is " << width);
         LOG(2, "Num nodes in electrical and mechanical meshes are: " << this->mpElectricsMesh->GetNumNodes() << ", " << this->mpMechanicsMesh->GetNumNodes() << "\n");
 

@@ -145,7 +145,7 @@ public:
     void TestSolve3d() throw(Exception)
     {
         unsigned num_elem_each_dir = 5;
-        QuadraticMesh<3> mesh(1.0, 1.0, 1.0, num_elem_each_dir, num_elem_each_dir, num_elem_each_dir);
+        QuadraticMesh<3> mesh(1.0/num_elem, 1.0, 1.0, 1.0);
 
         // Neo-Hookean material law
         MooneyRivlinMaterialLaw<3> law(ThreeDimensionalModelProblem::c1, 0.0);

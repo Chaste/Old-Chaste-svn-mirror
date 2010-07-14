@@ -51,7 +51,7 @@ class TestImplicitCardiacMechanicsAssembler : public CxxTest::TestSuite
 public:
     void TestCompareJacobians() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
+        QuadraticMesh<2> mesh(1.0, 1.0, 1.0);
         MooneyRivlinMaterialLaw<2> law(0.02);
 
         std::vector<unsigned> fixed_nodes
@@ -133,7 +133,7 @@ public:
     // iterations
     void TestWithZeroActiveTension() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 8, 8);
+        QuadraticMesh<2> mesh(0.125, 1.0, 1.0);
         MooneyRivlinMaterialLaw<2> law(0.02);
 
         std::vector<unsigned> fixed_nodes
@@ -160,7 +160,7 @@ public:
     void TestSpecifiedCalciumCompression() throw(Exception)
     {
         // NOTE: test hardcoded for num_elem = 4
-        QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
+        QuadraticMesh<2> mesh(0.25, 1.0, 1.0);
         MooneyRivlinMaterialLaw<2> law(0.02);
 
         // need to leave the mesh as unfixed as possible
@@ -252,7 +252,7 @@ public:
         for (unsigned run=1; run<=2; run++)
         {
             // NOTE: test hardcoded for num_elem = 4
-            QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
+            QuadraticMesh<2> mesh(0.25, 1.0, 1.0);
             MooneyRivlinMaterialLaw<2> law(0.02);
 
             // need to leave the mesh as unfixed as possible
@@ -325,7 +325,7 @@ public:
     // so far (or in TestExplicitCardiacMechanicsAssembler)
     void TestCoverage() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
+        QuadraticMesh<2> mesh(1.0, 1.0, 1.0);
 
         MooneyRivlinMaterialLaw<2> law(1);
         std::vector<unsigned> fixed_nodes
@@ -340,7 +340,7 @@ public:
     
     void TestComputeDeformationGradientAndStretchesEachElement() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
+        QuadraticMesh<2> mesh(1.0, 1.0, 1.0);
 
         MooneyRivlinMaterialLaw<2> law(1);
         std::vector<unsigned> fixed_nodes
@@ -414,7 +414,7 @@ public:
     // varying fibre directions per quad point.
     void TestDefineFibresPerQuadraturePoint()
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
+        QuadraticMesh<2> mesh(0.25, 1.0, 1.0);
         MooneyRivlinMaterialLaw<2> law(0.02);
 
         // need to leave the mesh as unfixed as possible
@@ -475,7 +475,7 @@ public:
 //    void strangefailingbehaviourinparallelTestCompareWithDeadExplicitSolver() throw(Exception)
 //    {
 //        // note 8 elements is assumed in the fixed nodes
-//        QuadraticMesh<2> mesh(1.0, 1.0, 8, 8);
+//        QuadraticMesh<2> mesh(0.125, 1.0, 1.0);
 //        MooneyRivlinMaterialLaw<2> law(0.02);
 //
 //        // fix all nodes on elements containing the origin (as was done in

@@ -183,31 +183,69 @@ public:
     void ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader);
 
     /**
-     * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (xEnd,yEnd)
-     * with the given number of elements in each direction. This writes
-     * a temporary node file and uses triangle to mesh this nodefile.
+     * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (width,height)
+     * with the given spatial stepsize. This writes a temporary node file and uses 
+     * triangle to mesh this nodefile.
      *
-     * @param xEnd the width of the rectangle
-     * @param yEnd the breadth of the rectangle
-     * @param numElemX the number of elements in the x direction
-     * @param numElemY the number of elements in the y direction
+     * @param spaceStep The spatial stepsize
+     * @param width the width of the rectangle
+     * @param height the height of the rectangle
      */
-    QuadraticMesh(double xEnd, double yEnd, unsigned numElemX, unsigned numElemY);
+    QuadraticMesh(double spaceStep, double width, double height);
 
     /**
-     * Create a quadratic mesh on a cuboid (so 3D only!) from (0,0,0) to (xEnd,yEnd,zEnd)
-     * with the given number of elements in each direction. This writes
-     * a temporary node file and uses triangle to mesh this nodefile.
+     * Create a quadratic mesh on a cuboid (so 3D only!) from (0,0,0) to (width,height,depth)
+     * with the given spatial stepsize. This writes a temporary node file and uses tetgen
+     * to mesh this nodefile.
      *
-     * @param xEnd the width of the cuboid
-     * @param yEnd the breadth of the cuboid
-     * @param zEnd the height of the cuboid
-     * @param numElemX the number of elements in the x direction
-     * @param numElemY the number of elements in the y direction
-     * @param numElemZ the number of elements in the z direction
+     * @param spaceStep The spatial stepsize
+     * @param width the width of the cuboid
+     * @param height the height of the cuboid
+     * @param depth the depth of the cuboid
      */
-    QuadraticMesh(double xEnd, double yEnd, double zEnd,
-                  unsigned numElemX, unsigned numElemY, unsigned numElemZ);
+    QuadraticMesh(double spaceStep, double width, double height, double depth);
+                  
+    
+    /** 
+     *  Generic mesh for creating a slab: this calls Construct2dRegularSlabMesh()
+     *  or Construct3dRegularSlabMesh() depending on the dimension.
+     *  In 2D only the width and height need be provided (not the depth).
+     *  (Overloaded method from AbstractTetrahedralMesh).
+     * 
+     *  @param spaceStep The spatial stepsize
+     *  @param width the width of the mesh
+     *  @param height the height of the mesh
+     *  @param depth the depth of the mesh (not needed in 2D)
+     * 
+     */
+    void ConstructRegularSlabMesh(double spaceStep, double width, double height=0, double depth=0);
+
+//todo: do this 
+//    void Construct1dRegularSlabMesh(double h, double width);
+
+    /**
+     * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (width,height)
+     * with the given spatial stepsize. This writes a temporary node file and uses 
+     * triangle to mesh this nodefile.
+     *
+     * @param spaceStep The spatial stepsize
+     * @param width the width of the rectangle
+     * @param height the height of the rectangle
+     */
+    void Construct2dRegularSlabMesh(double h, double width, double height);
+
+    /**
+     * Create a quadratic mesh on a cuboid (so 3D only!) from (0,0,0) to (width,height,depth)
+     * with the given spatial stepsize. This writes a temporary node file and uses tetgen
+     * to mesh this nodefile.
+     *
+     * @param spaceStep The spatial stepsize
+     * @param width the width of the cuboid
+     * @param height the height of the cuboid
+     * @param depth the depth of the cuboid
+     */
+    void Construct3dRegularSlabMesh(double h, double width, double height, double depth);
+
 
     /**
      *  Write the boundary elements to file (in case the boundary elements were linear when read and the

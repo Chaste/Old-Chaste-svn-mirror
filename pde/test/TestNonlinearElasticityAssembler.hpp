@@ -113,7 +113,7 @@ public:
 
     void TestAssembleSystem() throw (Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 2, 2);
+        QuadraticMesh<2> mesh(0.5, 1.0, 1.0);
         ExponentialMaterialLaw<2> law(2.0, 3.0);
         std::vector<unsigned> fixed_nodes;
         fixed_nodes.push_back(0);
@@ -335,7 +335,7 @@ public:
     void TestSettingUpHeterogeneousProblem() throw(Exception)
     {
         // two element quad mesh on the square
-        QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
+        QuadraticMesh<2> mesh(1.0, 1.0, 1.0);
 
         MooneyRivlinMaterialLaw<2> law_1(1.0);
         MooneyRivlinMaterialLaw<2> law_2(5.0);
@@ -469,7 +469,7 @@ public:
         c_vector<double,2> body_force = zero_vector<double>(2);
         unsigned num_elem = 5;
 
-        QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
+        QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
         MooneyRivlinMaterialLaw<2> law(c1);
 
         std::vector<unsigned> fixed_nodes;
@@ -572,7 +572,7 @@ public:
         c_vector<double,2> body_force = zero_vector<double>(2);
 
         unsigned num_elem = 5;
-        QuadraticMesh<2> mesh(1.0, 1.0, num_elem, num_elem);
+        QuadraticMesh<2> mesh(1.0/num_elem, 1.0, 1.0);
 
         MooneyRivlinMaterialLaw<2> law(MATERIAL_PARAM);
 

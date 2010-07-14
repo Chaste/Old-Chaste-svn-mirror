@@ -167,9 +167,6 @@ public:
      *   preallocate the memory for the matrix themselves.
      * @param numLocalRows the number of local rows (defaults to PETSC_DECIDE)
      * @param numLocalColumns the number of local columns (defaults to PETSC_DECIDE)
-     * @param doPreallocation If this parameter is false then no preallocation is done
-     *   (and rowPreallocation is ignored). This allows the user to, for example, do
-     *   row-wise preallocation on the matrix afterwards. Defaults to true.
      */
     static void SetupMat(Mat& rMat, int numRows, int numColumns,
                          unsigned rowPreallocation,

@@ -514,7 +514,8 @@ public:
 
     void TestCmguiDeformedSolutionsWriter2dLinearViz() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
+        QuadraticMesh<2> mesh(0.5, 1.0, 1.0);
+        mesh.Scale(1.0, 2.0); // historical reasons
 
         CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter", 
                                                 "solution", 
@@ -581,7 +582,8 @@ public:
 
     void TestCmguiDeformedSolutionsWriter2dQuadraticViz() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
+        QuadraticMesh<2> mesh(0.5, 1.0, 2.0);
+        
         // displace the internal nodes so you can see if quadratically visualised or not
         for(unsigned i=mesh.GetNumVertices(); i<mesh.GetNumNodes(); i++)
         {
@@ -649,7 +651,7 @@ public:
 
     void TestCmguiDeformedSolutionsWriter3dQuadraticViz() throw(Exception)
     {
-        QuadraticMesh<3> mesh(1.0, 2.0, 3.0, 2, 2, 1);
+        QuadraticMesh<3> mesh(0.5, 1.0, 2.0, 3.0);
         // displace the internal nodes so you can see if quadratically visualised or not
         for(unsigned i=mesh.GetNumVertices(); i<mesh.GetNumNodes(); i++)
         {
@@ -702,7 +704,9 @@ public:
 
     void TestCmguiDeformedSolutionsWriterConvertOutput() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 2.0, 2, 2);
+        QuadraticMesh<2> mesh(0.5, 1.0, 1.0);
+        mesh.Scale(1.0, 2.0); // historical reasons
+        
         CmguiDeformedSolutionsWriter<2> writer("TestCmguiDeformedSolutionsWriter_ConvertOutput", 
                                                "solution",
                                                mesh,

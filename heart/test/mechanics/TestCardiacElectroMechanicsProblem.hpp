@@ -216,7 +216,7 @@ public:
         TetrahedralMesh<2,2> electrics_mesh;
         electrics_mesh.ConstructRegularSlabMesh(0.02, 0.1, 0.1);
  
-        QuadraticMesh<2> mechanics_mesh(0.1, 0.1, 1, 1);
+        QuadraticMesh<2> mechanics_mesh(0.1, 0.1, 0.1);
 
         // fix the nodes on x=0
         std::vector<unsigned> fixed_nodes

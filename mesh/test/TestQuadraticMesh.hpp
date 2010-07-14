@@ -211,7 +211,7 @@ public:
 
     void TestAutomaticallyGenerated2dMesh1() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
+        QuadraticMesh<2> mesh(1.0, 1.0, 1.0);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
@@ -279,11 +279,11 @@ public:
 
     void TestAutomaticallyGenerated2dMesh2() throw(Exception)
     {
-        QuadraticMesh<2> mesh(3.14159, 2.71828183, 10, 10);
+        QuadraticMesh<2> mesh(3.14159/10,  3.14159, 3.14159/2);
 
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21*21u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 200u);
-        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 121u);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21*11u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 100u);
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 11*6u);
 
         // Each element should have 6 nodes
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
@@ -295,18 +295,21 @@ public:
             TS_ASSERT_EQUALS(mesh.GetBoundaryElement(i)->GetNumNodes(), 3u);
         }
 
-        TS_ASSERT_DELTA( mesh.GetNode(120)->rGetLocation()[0], 3.14159, 1e-4);
-        TS_ASSERT_DELTA( mesh.GetNode(120)->rGetLocation()[1], 2.71828183, 1e-5);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 40u);
+        TS_ASSERT_DELTA( mesh.GetNode(65)->rGetLocation()[0], 3.14159, 1e-4);
+        TS_ASSERT_DELTA( mesh.GetNode(65)->rGetLocation()[1], 3.14159/2, 1e-5);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 30u);
     }
 
     void TestAutomaticallyGenerated3dMeshSimple() throw(Exception)
     {
-        QuadraticMesh<3> mesh(3.14159, 2.71828183, 2.99792 /* c! */, 1, 1, 1);
+        double h = 3.14159;
+        double width = h;
 
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 27u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 6u);
-        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 8u); // 6^3 = 216
+        QuadraticMesh<3> mesh(h, width, 2*width, 3*width);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 3*5*7u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*1*2*3u);
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 2*3*4u); 
 
         for (unsigned i=1; i<mesh.GetNumNodes(); i++)
         {
@@ -315,36 +318,47 @@ public:
             // Check the extra nodes aren't (0,0,0).
             // This fails with 32bit outdated binary.
             TS_ASSERT_LESS_THAN(1e-12, norm_2(x)); // assert x not equal to 0
-            
-            //Check that all nodes have containg elements
-            TS_ASSERT_LESS_THAN(0u, mesh.GetNode(i)->GetNumContainingElements());
-            //Mid-point of cube will have access to all 6 elements
-            TS_ASSERT_LESS_THAN_EQUALS(mesh.GetNode(i)->GetNumContainingElements(), 6u); 
         }
+        
+        TS_ASSERT_DELTA( mesh.GetNode(23)->rGetLocation()[0], width, 1e-8);
+        TS_ASSERT_DELTA( mesh.GetNode(23)->rGetLocation()[1], 2*width, 1e-8);
+        TS_ASSERT_DELTA( mesh.GetNode(23)->rGetLocation()[2], 3*width, 1e-8);
+        
+        
+        // second 1 by 1 by 1 mesh
+        QuadraticMesh<3> mesh2(h, width, width, width);
 
-        TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 6U); //The midpoint, as given above
-    }
-
-    void TestAutomaticallyGenerated3dMesh() throw(Exception)
-    {
-        QuadraticMesh<3> mesh(3.14159, 2.71828183, 2.99792 /* c! */, 5, 5, 5);
-
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 1331u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 750u); // 5 cubes in each direction = 125 cubes => 125 x 6 tetrahedra per cube = 750
-        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 216u); // 6^3 = 216
-
-        // Each element should have 10 nodes
-        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        for (unsigned i=1; i<mesh2.GetNumNodes(); i++)
         {
-            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 10u);
+            //Check that all nodes have containg elements
+            TS_ASSERT_LESS_THAN(0u, mesh2.GetNode(i)->GetNumContainingElements());
+            //Mid-point of cube will have access to all 6 elements
+            TS_ASSERT_LESS_THAN_EQUALS(mesh2.GetNode(i)->GetNumContainingElements(), 6u); 
         }
 
-        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[0], 3.14159, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[1], 2.71828183, 1e-5);
-        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[2], 2.99792, 1e-4);
-        TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 24U); //Four surrounding cubes may have all 6 tetrahedra meeting at a node
+        TS_ASSERT_EQUALS(mesh2.CalculateMaximumContainingElementsPerProcess(), 6U); //The midpoint, as given above
     }
 
+//    void xTestAutomaticallyGenerated3dMesh() throw(Exception)
+//    {
+//        QuadraticMesh<3> mesh(3.14159, 2.71828183, 2.99792 /* c! */, 5, 5, 5);
+//
+//        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 1331u);
+//        TS_ASSERT_EQUALS(mesh.GetNumElements(), 750u); // 5 cubes in each direction = 125 cubes => 125 x 6 tetrahedra per cube = 750
+//        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 216u); // 6^3 = 216
+//
+//        // Each element should have 10 nodes
+//        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+//        {
+//            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 10u);
+//        }
+//
+//        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[0], 3.14159, 1e-4);
+//        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[1], 2.71828183, 1e-5);
+//        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[2], 2.99792, 1e-4);
+//        TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 24U); //Four surrounding cubes may have all 6 tetrahedra meeting at a node
+//    }
+//
 
 
     void TestWritingReadingBoundaryElementsFile2d() throw(Exception)
@@ -512,6 +526,24 @@ public:
             delete p_mesh2;
         }
         delete p_mesh;
+    }
+    
+    void TestConstructRegularMesh2d() throw(Exception)
+    {
+        QuadraticMesh<2> mesh;
+        mesh.ConstructRegularSlabMesh(0.1, 1.0, 2.0);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21*41u);
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 11*21u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 2*10*20u);
+    }
+
+    void TestConstructRegularMesh3d() throw(Exception)
+    {
+        QuadraticMesh<3> mesh;
+        mesh.ConstructRegularSlabMesh(1.0, 1.0, 2.0, 3.0);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 3*5*7u);
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 2*3*4u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*1*2*3u);
     }
 };
 

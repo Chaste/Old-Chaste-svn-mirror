@@ -123,7 +123,7 @@ public:
         TetrahedralMesh<3,3> electrics_mesh;
         electrics_mesh.ConstructRegularSlabMesh(0.01, 0.1, 0.1, 0.1);
 
-        QuadraticMesh<3> mechanics_mesh(0.1, 0.1, 0.1, 1, 1, 1);
+        QuadraticMesh<3> mechanics_mesh(0.1, 0.1, 0.1, 0.1);
 
         // fix the nodes on x=0
         std::vector<unsigned> fixed_nodes
@@ -157,9 +157,9 @@ public:
 
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<3,3> electrics_mesh;
-        electrics_mesh.ConstructRegularSlabMesh(0.01, 10,10,10);
+        electrics_mesh.ConstructRegularSlabMesh(0.1, 0.1, 0.1, 0.1);
     
-        QuadraticMesh<3> mechanics_mesh(0.1, 0.1, 0.1, 5, 5, 5);
+        QuadraticMesh<3> mechanics_mesh(0.02, 0.1, 0.1, 0.1);
 
         // fix the nodes on Z=0
         std::vector<unsigned> fixed_nodes
@@ -224,7 +224,7 @@ public:
 //        electrics_mesh.ConstructCuboid(num_elem,num_elem,num_elem);
 //        electrics_mesh.Scale(1.0/num_elem, 1.0/num_elem, 1.0/num_elem);
 //
-//        QuadraticMesh<3> mechanics_mesh(1.0, 1.0, 1.0, 5, 5, 5);
+//        QuadraticMesh<3> mechanics_mesh(0.2, 1.0, 1.0, 1.0);
 //
 //        // fix the nodes on x=0
 //        std::vector<unsigned> fixed_nodes

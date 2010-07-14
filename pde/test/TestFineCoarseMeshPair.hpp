@@ -49,7 +49,7 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         fine_mesh.ConstructFromMeshReader(mesh_reader);
 
-        QuadraticMesh<2> coarse_mesh(0.1, 0.1, 1, 1);
+        QuadraticMesh<2> coarse_mesh(0.1, 0.1, 0.1);
         coarse_mesh.Translate(0.5,0.0); // whole of the coarse mesh in now in fine element with index 1
 
         FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
@@ -95,7 +95,7 @@ public:
         fine_mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0, 1.0);
 
         // coarse mesh is has h=1 on unit cube (so 6 elements)
-        QuadraticMesh<3> coarse_mesh(1.0, 1.0, 1.0, 1, 1, 1);
+        QuadraticMesh<3> coarse_mesh(1.0, 1.0, 1.0, 1.0);
 
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
 
@@ -164,7 +164,8 @@ public:
         fine_mesh.ConstructRegularSlabMesh(0.1, 1.0,1.0,1.0);
   
         // coarse mesh is slightly bigger than in previous test
-        QuadraticMesh<3> coarse_mesh(1.03, 1.0, 1.0, 1, 1, 1); // xmax > 1.0
+        QuadraticMesh<3> coarse_mesh(1.0, 1.0, 1.0, 1.0); // xmax > 1.0
+        coarse_mesh.Scale(1.03, 1.0, 1.0);
 
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
 
@@ -239,7 +240,7 @@ public:
         TetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0);
 
-        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1);
+        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1.0);
 
         FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
 
@@ -279,7 +280,8 @@ public:
         TetrahedralMesh<3,3> fine_mesh;
         fine_mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0, 1.0);
 
-        QuadraticMesh<3> coarse_mesh(1.03, 1.0, 1.0, 1, 1, 1); // xmax > 1.0
+        QuadraticMesh<3> coarse_mesh(1.0, 1.0, 1.0, 1.0); // xmax > 1.0
+        coarse_mesh.Scale(1.03, 1.0, 1.0);
 
         FineCoarseMeshPair<3> mesh_pair(fine_mesh,coarse_mesh);
         GaussianQuadratureRule<3> quad_rule(3);
@@ -323,8 +325,7 @@ public:
         TetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRegularSlabMesh(0.1, 1.0, 1.0);
 
-
-        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1);
+        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1.0);
     
         // rotate the mesh by 45 degrees, makes it possible (since boxes no longer lined up with elements)
         // for the containing element of a quad point to be in a *local* box, ie not an element 
@@ -359,7 +360,7 @@ public:
         TetrahedralMesh<2,2> fine_mesh;
         fine_mesh.ConstructRegularSlabMesh(0.2, 1.0, 1.0);
 
-        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1); // 2 triangular elements
+        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1.0); // 2 triangular elements
     
         FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
         TS_ASSERT_THROWS_CONTAINS(mesh_pair.ComputeCoarseElementsForFineNodes(true),"Call SetUpBoxesOnCoarseMesh()");
@@ -425,7 +426,7 @@ public:
         fine_mesh.ConstructRegularSlabMesh(0.2, 1.0, 1.0);
 
 
-        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1, 1); // 2 triangular elements
+        QuadraticMesh<2> coarse_mesh(1.0, 1.0, 1.0); // 2 triangular elements
 
         FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);
         
@@ -483,7 +484,7 @@ public:
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_4_elements");
         fine_mesh.ConstructFromMeshReader(mesh_reader);
 
-        QuadraticMesh<2> coarse_mesh(0.5, 0.5, 1, 1);
+        QuadraticMesh<2> coarse_mesh(0.5, 0.5, 0.5);
         coarse_mesh.Translate(0.2,0.1);
 
         FineCoarseMeshPair<2> mesh_pair(fine_mesh,coarse_mesh);

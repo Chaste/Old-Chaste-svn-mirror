@@ -384,7 +384,7 @@ public:
      *  @param height The height (y-dimension - ignored if ELEMENT_DIM is 1D)
      *  @param depth The depth (z-dimension -ignored in 1D and 2D)
      */
-    void ConstructRegularSlabMesh(double spaceStep, double width, double height=0, double depth=0);
+    virtual void ConstructRegularSlabMesh(double spaceStep, double width, double height=0, double depth=0);
 
 
 

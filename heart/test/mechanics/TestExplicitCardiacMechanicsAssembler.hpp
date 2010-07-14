@@ -45,7 +45,7 @@ class TestExplicitCardiacMechanicsAssembler : public CxxTest::TestSuite
 public:
     void TestWithSimpleContractionModel() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
+        QuadraticMesh<2> mesh(0.25, 1.0, 1.0);
         MooneyRivlinMaterialLaw<2> law(1);
 
         std::vector<unsigned> fixed_nodes
@@ -76,7 +76,7 @@ public:
     // are identical
     void TestCompareImplicitAndExplicitWithStretchIndependentContractionModel() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
+        QuadraticMesh<2> mesh(0.25, 1.0, 1.0);
 
         MooneyRivlinMaterialLaw<2> law(1);
         std::vector<unsigned> fixed_nodes
@@ -106,7 +106,7 @@ public:
     // with stretch-dependent contraction models the implicit and explicit schemes can be similar
     void TestCompareImplicitAndExplicitWithStretchDependentContractionModel() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 4, 4);
+        QuadraticMesh<2> mesh(0.25, 1.0, 1.0);
 
         MooneyRivlinMaterialLaw<2> law(1);
         std::vector<unsigned> fixed_nodes
@@ -167,7 +167,7 @@ public:
     // cover all other contraction model options which are allowed but not been used in a test so far
     void TestCoverage() throw(Exception)
     {
-        QuadraticMesh<2> mesh(1.0, 1.0, 1, 1);
+        QuadraticMesh<2> mesh(1.0, 1.0, 1.0);
 
         MooneyRivlinMaterialLaw<2> law(1);
         std::vector<unsigned> fixed_nodes
