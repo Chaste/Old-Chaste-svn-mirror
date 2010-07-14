@@ -95,7 +95,6 @@ public:
         //Currently this is purely for coverage of assembling a 3D system...
         QuadraticMesh<3> mesh;
         TrianglesMeshReader<3,3> mesh_reader1("mesh/test/data/3D_Single_tetrahedron_element_quadratic",2,1,false);
-//        TrianglesMeshReader<3,3> mesh_reader1("projects/pras/test/data/OxfordRabbitScaled/OxfordRabbitS2_quadratic",2,2);
 
         mesh.ConstructFromMeshReader(mesh_reader1);
 

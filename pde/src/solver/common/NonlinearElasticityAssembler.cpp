@@ -875,8 +875,9 @@ NonlinearElasticityAssembler<DIM>::~NonlinearElasticityAssembler()
 //            PRINT_3_VARIABLES(i,row,ncols);
 //        }
 //    }
-//    delete mpQuadratureRule;
-//    delete mpBoundaryQuadratureRule;
+
+    delete mpQuadratureRule;
+    delete mpBoundaryQuadratureRule;
 }
 
 template<size_t DIM>
