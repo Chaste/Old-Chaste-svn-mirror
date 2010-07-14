@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 *
 */
 #include <set>
+#include <cstring> //For strcmp etc. Needed in gcc-4.4
 
 #include "Hdf5DataWriter.hpp"
 
