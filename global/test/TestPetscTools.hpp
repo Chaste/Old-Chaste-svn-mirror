@@ -106,8 +106,15 @@ public:
         MatType type;
 #endif
         MatGetType(mat,&type);
-        TS_ASSERT(strcmp(type, MATMPIAIJ)==0);
-
+        if(PetscTools::IsSequential())
+        {
+            TS_ASSERT(strcmp(type, MATSEQAIJ)==0);
+        }
+        else
+        {
+            TS_ASSERT(strcmp(type, MATMPIAIJ)==0);
+        }
+        
         VecDestroy(vec1);
         VecDestroy(vec2);
         MatDestroy(mat);
@@ -122,7 +129,14 @@ public:
         TS_ASSERT_EQUALS(n, 10);
 
         MatGetType(mat2,&type);
-        TS_ASSERT(strcmp(type, MATMPIAIJ)==0);
+        if(PetscTools::IsSequential())
+        {
+            TS_ASSERT(strcmp(type, MATSEQAIJ)==0);
+        }
+        else
+        {
+            TS_ASSERT(strcmp(type, MATMPIAIJ)==0);
+        }
 
         MatInfo info;
         unsigned nonzeros_allocated;
@@ -130,12 +144,19 @@ public:
         MatGetInfo(mat2,MAT_LOCAL,&info);
         nonzeros_allocated = (unsigned) info.nz_allocated;
 
-        // Total number of nozeros that should be allocated is 36 (4*12 (12 = number of rows) in diagonal part,
-        // plus 0.5*4*12 in the off-diagonal part. These are then split between the number of processors. So, a
-        // processor that owns n rows should have 6*n nonzeros allocated.
-        PetscInt lo, hi;
-        MatGetOwnershipRange(mat2, &lo, &hi);
-        TS_ASSERT_EQUALS( nonzeros_allocated, (unsigned)(6*(hi-lo)) );
+        if(PetscTools::IsSequential())
+        {
+            TS_ASSERT_EQUALS( nonzeros_allocated, 4*12u );
+        }
+        else
+        {
+            // Total number of nozeros that should be allocated is 36 (4*12 (12 = number of rows) in diagonal part,
+            // plus 0.5*4*12 in the off-diagonal part. These are then split between the number of processors. So, a
+            // processor that owns n rows should have 6*n nonzeros allocated.
+            PetscInt lo, hi;
+            MatGetOwnershipRange(mat2, &lo, &hi);
+            TS_ASSERT_EQUALS( nonzeros_allocated, (unsigned)(6*(hi-lo)) );
+        }
 
         MatDestroy(mat2);
     }
