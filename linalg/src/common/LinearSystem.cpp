@@ -54,7 +54,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mpLDUFactorisationPC(NULL)
 {
     assert(lhsVectorSize>0);
-    if (rowPreallocation == 0)
+    if (rowPreallocation == UINT_MAX)
     {
         //Automatic preallocation if it's a small matrix
         if (lhsVectorSize<15)
@@ -68,7 +68,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     }
     
     mRhsVector=PetscTools::CreateVec(mSize);
-    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, rowPreallocation);
+    PetscTools::SetupMat(mLhsMatrix, mSize, mSize, rowPreallocation, PETSC_DECIDE, PETSC_DECIDE);
 
     VecGetOwnershipRange(mRhsVector, &mOwnershipRangeLo, &mOwnershipRangeHi);
 

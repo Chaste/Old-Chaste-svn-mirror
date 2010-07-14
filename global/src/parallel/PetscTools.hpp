@@ -156,15 +156,20 @@ public:
     static Vec CreateAndSetVec(int size, double value);
 
     /**
-     * Set up a matrix - set the size using the given parameters, the type (default MATMPIAIJ). The
-     * number of local rows and columns is by default PETSC_DECIDE. SetFromOptions is called.
+     * Set up a matrix - set the size using the given parameters. The number of local rows 
+     * and columns is by default PETSC_DECIDE. SetFromOptions is called.
      *
      * @param rMat the matrix
      * @param numRows the number of rows in the matrix
      * @param numColumns the number of columns in the matrix
      * @param rowPreallocation the max number of nonzero entries expected on a row
+     *   A value of 0 is allowed: no preallocation is then done and the user must 
+     *   preallocate the memory for the matrix themselves.
      * @param numLocalRows the number of local rows (defaults to PETSC_DECIDE)
      * @param numLocalColumns the number of local columns (defaults to PETSC_DECIDE)
+     * @param doPreallocation If this parameter is false then no preallocation is done
+     *   (and rowPreallocation is ignored). This allows the user to, for example, do
+     *   row-wise preallocation on the matrix afterwards. Defaults to true.
      */
     static void SetupMat(Mat& rMat, int numRows, int numColumns,
                          unsigned rowPreallocation,

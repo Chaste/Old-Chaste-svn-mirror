@@ -224,12 +224,24 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     MatSetSizes(rMat,numLocalRows,numLocalColumns,numRows,numColumns);
 #endif
 
-    MatSetType(rMat, MATMPIAIJ);
-    ///\todo #1216 Fix the 1, 0.5 hack
-    MatMPIAIJSetPreallocation(rMat, rowPreallocation, PETSC_NULL, (PetscInt) (rowPreallocation*0.5), PETSC_NULL);
+    MatSetType(rMat, MATAIJ);
+    
+    if(rowPreallocation>0)
+    {
+        if(PetscTools::IsSequential())
+        {
+            MatSeqAIJSetPreallocation(rMat, rowPreallocation, PETSC_NULL);
+        }
+        else
+        {
+            ///\todo #1216 Fix the 1, 0.5 hack
+            MatMPIAIJSetPreallocation(rMat, rowPreallocation, PETSC_NULL, (PetscInt) (rowPreallocation*0.5), PETSC_NULL);
+        }
+    }
 
     MatSetFromOptions(rMat);
 }
+
 
 void PetscTools::DumpPetscObject(const Mat& rMat, const std::string& rOutputFileFullPath)
 {

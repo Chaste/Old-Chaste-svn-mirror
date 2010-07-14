@@ -132,9 +132,12 @@ public:
      *
      * @param lhsVectorSize  the size of the LHS vector
      * @param rowPreallocation the max number of nonzero entries expected on a row
-     *  - the default value of 0 allows for small size systems to be set as dense matrices automatically
+     *  - a value of 0 is allowed: no preallocation is then done and the user must 
+     *    preallocate the memory for the matrix themselves.
+     *  - the default value allows for small size systems to be set as dense matrices 
+     *    automatically.
      */
-    LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation=0);
+    LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation=UINT_MAX);
 
     /**
      * Alternative constructor.
