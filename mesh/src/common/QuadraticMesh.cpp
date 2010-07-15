@@ -103,7 +103,7 @@ void QuadraticMesh<DIM>::ConstructRegularSlabMesh(double spaceStep, double width
         assert(height==0);
         assert(depth==0);
 
-        unsigned num_elem_x=(width+0.5*spaceStep)/spaceStep; //0.5*spaceStep is to ensure that rounding down snaps to correct number 
+        unsigned num_elem_x=(unsigned)((width+0.5*spaceStep)/spaceStep); //0.5*spaceStep is to ensure that rounding down snaps to correct number 
 
         double actual_width_x=num_elem_x*spaceStep; 
        
@@ -122,8 +122,8 @@ void QuadraticMesh<DIM>::ConstructRegularSlabMesh(double spaceStep, double width
         assert(height>0);
         assert(depth==0);
 
-        unsigned num_elem_x=(width+0.5*spaceStep)/spaceStep; //0.5*spaceStep is to ensure that rounding down snaps to correct number 
-        unsigned num_elem_y=(height+0.5*spaceStep)/spaceStep;
+        unsigned num_elem_x=(unsigned)((width+0.5*spaceStep)/spaceStep); //0.5*spaceStep is to ensure that rounding down snaps to correct number 
+        unsigned num_elem_y=(unsigned)((height+0.5*spaceStep)/spaceStep);
 
         double actual_width_x=num_elem_x*spaceStep; 
         double actual_width_y=num_elem_y*spaceStep; 
@@ -146,9 +146,9 @@ void QuadraticMesh<DIM>::ConstructRegularSlabMesh(double spaceStep, double width
         assert(height>0);
         assert(depth>0);
 
-        unsigned num_elem_x=(width+0.5*spaceStep)/spaceStep; //0.5*spaceStep is to ensure that rounding down snaps to correct number 
-        unsigned num_elem_y=(height+0.5*spaceStep)/spaceStep;
-        unsigned num_elem_z=(depth+0.5*spaceStep)/spaceStep;
+        unsigned num_elem_x=(unsigned)((width+0.5*spaceStep)/spaceStep); //0.5*spaceStep is to ensure that rounding down snaps to correct number 
+        unsigned num_elem_y=(unsigned)((height+0.5*spaceStep)/spaceStep);
+        unsigned num_elem_z=(unsigned)((depth+0.5*spaceStep)/spaceStep);
 
         double actual_width_x=num_elem_x*spaceStep; 
         double actual_width_y=num_elem_y*spaceStep; 
