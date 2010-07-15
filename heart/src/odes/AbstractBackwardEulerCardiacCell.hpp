@@ -205,7 +205,7 @@ OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, doubl
     //     using backward Euler
     // Check length of time interval
     double _n_steps = (tEnd - tStart) / mDt;
-    unsigned n_steps = (unsigned) round(_n_steps);
+    unsigned n_steps = (unsigned) floor(_n_steps+0.5);
     assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
 
     // Initialise solution store
@@ -245,7 +245,7 @@ void AbstractBackwardEulerCardiacCell<SIZE>::ComputeExceptVoltage(double tStart,
     // each one, to update all state variables except for V, using backward Euler.
     // Check length of time interval
     double _n_steps = (tEnd - tStart) / mDt;
-    unsigned n_steps = (unsigned) round(_n_steps);
+    unsigned n_steps = (unsigned) floor(_n_steps+0.5);
     assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
 
     // Loop over time

@@ -883,6 +883,7 @@ class Pgi(BuildType):
     self._include_flag = ['-I']
     self._cc_flags = ['-g --no_using_std']
     self._link_flags = ['']
+    self.rdynamic_link_flag = '-Bdynamic'
     self.build_dir = 'pgi'
 
 class PgiCray(Pgi):
@@ -890,6 +891,8 @@ class PgiCray(Pgi):
   def __init__(self, *args, **kwargs):
     Pgi.__init__(self, *args, **kwargs)
     self.tools['mpicxx'] = 'CC'
+    self._cc_flags.append('-DMPICH_IGNORE_CXX_SEEK')
+    self._cc_flags.append('-DBOOST_UBLAS_UNSUPPORTED_COMPILER=0')
     self.build_dir = 'pgicray'
 
 class PgiCrayOpt(PgiCray):
