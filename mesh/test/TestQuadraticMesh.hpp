@@ -42,10 +42,40 @@ public:
 
     void TestQuadraticMesh1d() throw(Exception)
     {
-        //QuadraticMesh<1> mesh("mesh/test/data/1D_0_to_1_10_elements_quadratic", false);
         QuadraticMesh<1> mesh;
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements_quadratic",2,1,false);
         mesh.ConstructFromMeshReader(mesh_reader);
+        
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 10u);
+
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 11u);
+
+        // Node 2 (ie middle) of element 0
+        TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNodeGlobalIndex(2), 11u);
+        TS_ASSERT_DELTA(mesh.GetNode(11)->rGetLocation()[0], 0.05, 1e-12);
+
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            double x = mesh.GetNode(i)->rGetLocation()[0];
+            bool is_boundary_node = mesh.GetNode(i)->IsBoundaryNode();
+            TS_ASSERT_EQUALS(is_boundary_node, ((x==0)||(x==1)));
+        }
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            // Check internal nodes have corrent element associated with them
+            std::set<unsigned> internal_node_elems;
+            internal_node_elems.insert(mesh.GetElement(i)->GetIndex());
+            TS_ASSERT_EQUALS(internal_node_elems,mesh.GetElement(i)->GetNode(2)->rGetContainingElementIndices());
+        }
+    }
+
+
+    // identical to above, except mesh is generated not read
+    void TestQuadraticMesh1dAutomaticallyGenerated() throw(Exception)
+    {
+        QuadraticMesh<1> mesh(0.1, 1.0);
+        
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 10u);
 
@@ -532,6 +562,36 @@ public:
         }
         delete p_mesh;
     }
+
+    void TestConstructRegularSlabMesh_Directly_1d() throw(Exception)
+    {
+        QuadraticMesh<1> mesh;
+        mesh.ConstructRegularSlabMesh(0.1, 1.0);
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21u);
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 11u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 10u);
+        
+        for(unsigned i=0; i<mesh.GetNumVertices(); i++)
+        {
+            TS_ASSERT_DELTA(mesh.GetNode(i)->rGetLocation()[0], (i+0.0)/10, 1e-8);
+
+            bool is_boundary = (i==0 || i+1==mesh.GetNumVertices());
+            TS_ASSERT_EQUALS(mesh.GetNode(i)->IsBoundaryNode(), is_boundary);
+
+            std::set<unsigned> containing_elems = mesh.GetNode(i)->rGetContainingElementIndices();
+            TS_ASSERT_EQUALS(containing_elems.size(), (is_boundary ? 1u : 2u));
+        }
+
+
+        for(unsigned i=mesh.GetNumVertices(); i<mesh.GetNumNodes(); i++)
+        {
+            TS_ASSERT_DELTA(mesh.GetNode(i)->rGetLocation()[0], (i-11.0)/10 + 0.05, 1e-8);
+
+            std::set<unsigned> containing_elems = mesh.GetNode(i)->rGetContainingElementIndices();
+            TS_ASSERT_EQUALS(containing_elems.size(), 1u);
+        }
+    }
+
     
     void TestConstructRegularSlabMesh_Directly_2d() throw(Exception)
     {

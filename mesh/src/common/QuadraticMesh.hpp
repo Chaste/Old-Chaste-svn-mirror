@@ -37,6 +37,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+///\todo: check node ordering [vertex, .., vertex, internal, .., internal]? and document is so
+
+
 /**
  * A concrete quadratic mesh class that inherits from TetrahedralMesh.
  */
@@ -165,6 +168,15 @@ private:
     }
 
 
+    /** 
+     * Create a quadratic mesh on the interval [0,numElemX] with numElemX elements in each 
+     * direction.This is private, users should call ConstructRegularSlabMesh();
+     *
+     * @param numElemX Number of elements in x-direction (also, the width of the final mesh)
+     */
+    void ConstructLinearMesh(unsigned numElemX);
+
+
     /**
      * Create a quadratic mesh on a rectangle from (0,0) to (numElemX,numElemY)
      * with that number of elements in each direction. This writes a temporary node file and uses 
@@ -173,7 +185,8 @@ private:
      *
      * @param numElemX Number of elements in x-direction (also, the width of the final mesh)
      * @param numElemY Number of elements in y-direction (also, the height of the final mesh)
-     * @param unused is for compatibility with linear tetrahedral meshes
+     * @param unused (defaults to true; must always be true) is for compatibility of the 
+     *   interface of this method with same name in AbstractTetrahedralMesh.
      */
     void ConstructRectangularMesh(unsigned numElemX, unsigned numElemY, bool unused=true);
 
@@ -200,35 +213,26 @@ public:
         this->mMeshIsLinear=false;
     }
 
-    /**
-     * Load a quadratic mesh from a file.
-     *
-     * @param rMeshReader the mesh reader
-     */
-    void ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader);
 
     /**
-     * Create a quadratic mesh on a rectangle (so 2D only) from (0,0) to (width,height)
-     * with the given spatial stepsize. This writes a temporary node file and uses 
-     * triangle to mesh this nodefile.
-     *
-     * @param spaceStep The spatial stepsize
-     * @param width the width of the rectangle
-     * @param height the height of the rectangle
-     */
-    QuadraticMesh(double spaceStep, double width, double height);
-
-    /**
-     * Create a quadratic mesh on a cuboid (so 3D only!) from (0,0,0) to (width,height,depth)
-     * with the given spatial stepsize. This writes a temporary node file and uses tetgen
-     * to mesh this nodefile.
+     * Create a quadratic mesh on a slab (on a line in 1D, rectangle in 2d, cuboid in 3D),
+     * with the given widths and given spacestep. In 1D height and depth need to passed in 
+     * as 0 (the default value), in 2D depth must be zero
      *
      * @param spaceStep The spatial stepsize
      * @param width the width of the cuboid
      * @param height the height of the cuboid
      * @param depth the depth of the cuboid
      */
-    QuadraticMesh(double spaceStep, double width, double height, double depth);
+    QuadraticMesh(double spaceStep, double width, double height=0, double depth=0);
+
+
+    /**
+     * Load a quadratic mesh from a file.
+     *
+     * @param rMeshReader the mesh reader
+     */
+    void ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader);
                   
     
     /** 

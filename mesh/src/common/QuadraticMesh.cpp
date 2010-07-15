@@ -37,11 +37,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #undef REAL
 #undef VOID
 
-template<unsigned DIM>
-QuadraticMesh<DIM>::QuadraticMesh(double spaceStep, double width, double height)
-{
-    ConstructRegularSlabMesh(spaceStep, width, height);
-}
+//template<unsigned DIM>
+//QuadraticMesh<DIM>::QuadraticMesh(double spaceStep, double width, double height)
+//{
+//    ConstructRegularSlabMesh(spaceStep, width, height);
+//}
 
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(double spaceStep, double width, double height, double depth)
@@ -50,12 +50,71 @@ QuadraticMesh<DIM>::QuadraticMesh(double spaceStep, double width, double height,
 }
 
 template<unsigned DIM>
+void QuadraticMesh<DIM>::ConstructLinearMesh(unsigned numElemX)
+{
+    this->mNodes.resize(2*numElemX+1);
+    mNumVertices = numElemX+1;
+    
+    // create the left-most node
+    Node<DIM>* p_edge_node = new Node<DIM>(0, true, 0.0);
+    this->mNodes[0] = p_edge_node; // create nodes
+    this->mBoundaryNodes.push_back(p_edge_node);
+    this->mBoundaryElements.push_back(new BoundaryElement<DIM-1,DIM>(0, p_edge_node) );
+    
+    for (unsigned element_index=0; element_index<numElemX; element_index++)
+    {
+        unsigned right_node_index = element_index+1;
+        unsigned mid_node_index = mNumVertices + element_index;
+        
+        double x_value_right_x = right_node_index;
+        double x_value_mid_node = x_value_right_x-0.5;
+        
+        bool is_boundary = (element_index+1==numElemX);
+        Node<DIM>* p_right_node = new Node<DIM>(right_node_index, is_boundary, x_value_right_x); 
+        Node<DIM>* p_mid_node   = new Node<DIM>(mid_node_index, false, x_value_mid_node);
+
+        this->mNodes[right_node_index] = p_right_node;
+        this->mNodes[mid_node_index] = p_mid_node;
+        
+        if (element_index+1==numElemX) // right boundary
+        {
+            this->mBoundaryNodes.push_back(p_right_node);
+            this->mBoundaryElements.push_back(new BoundaryElement<DIM-1,DIM>(1, p_right_node) );
+        }
+
+        std::vector<Node<DIM>*> nodes;
+        nodes.push_back(this->mNodes[right_node_index-1]);
+        nodes.push_back(this->mNodes[right_node_index]);
+        nodes.push_back(this->mNodes[mid_node_index]);
+        this->mElements.push_back(new Element<DIM,DIM>(element_index, nodes) );
+    }
+    
+    this->RefreshMesh();
+}
+
+
+
+template<unsigned DIM>
 void QuadraticMesh<DIM>::ConstructRegularSlabMesh(double spaceStep, double width, double height, double depth)
 {
     if(DIM==1)
     {
-        //todo
-        NEVER_REACHED;
+        assert(width>0);
+        assert(height==0);
+        assert(depth==0);
+
+        unsigned num_elem_x=(width+0.5*spaceStep)/spaceStep; //0.5*spaceStep is to ensure that rounding down snaps to correct number 
+
+        double actual_width_x=num_elem_x*spaceStep; 
+       
+        if ( fabs (actual_width_x - width) > DBL_EPSILON  )  
+        { 
+            EXCEPTION("Space step does not divide the size of the mesh"); 
+        }
+
+        assert(num_elem_x>0);
+        ConstructLinearMesh(num_elem_x);
+        this->Scale(width/num_elem_x);
     }
     else if(DIM==2)
     {
@@ -107,7 +166,7 @@ void QuadraticMesh<DIM>::ConstructRegularSlabMesh(double spaceStep, double width
     }
 } 
 
-    
+
 template<unsigned DIM>
 void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned numElemY, bool unused)
 {
