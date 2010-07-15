@@ -51,6 +51,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "luo_rudy_1991BackwardEuler.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
+#include "tentusscher_model_2006_epi_corrected_flooristim.hpp"
+#include "tentusscher_model_2006_epi_corrected_flooristimOpt.hpp"
+#include "tentusscher_model_2006_epi_corrected_flooristimBackwardEuler.hpp"
+
 #ifdef CHASTE_CVODE
 #include "luo_rudy_1991Cvode.hpp"
 #include "luo_rudy_1991CvodeOpt.hpp"
@@ -95,7 +99,20 @@ class TestPyCml : public CxxTest::TestSuite
         // and the system name...
         TS_ASSERT_EQUALS(rCell.GetSystemName(), "luo_rudy_1991");
     }
-    
+
+    void CheckCai(AbstractCardiacCell& rCell, bool hasCai, double value=0.0)
+    {
+        if (hasCai)
+        {
+            TS_ASSERT_DELTA(rCell.GetIntracellularCalciumConcentration(), value, 1e-6);
+        }
+        else
+        {
+            TS_ASSERT_THROWS_THIS(rCell.GetIntracellularCalciumConcentration(),
+                                  "AbstractCardiacCell::GetIntracellularCalciumConcentration() called. Either model has no [Ca_i] or method has not been implemented yet");
+        }
+    }
+
 public:
     /** For comparison with the test below; copied from TestIonicModels.hpp */
     void TestOdeSolverForLR91WithDelayedSimpleStimulus(void)
@@ -151,14 +168,17 @@ public:
         // Normal model
         Cellluo_rudy_1991FromCellML normal(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(normal.GetVoltageIndex(), 0u);
+        CheckCai(normal, true, 0.0002);
 
         // Optimised model
         Cellluo_rudy_1991FromCellMLOpt opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
+        CheckCai(opt, true, 0.0002);
         
         // Backward Euler optimised model
         Cellluo_rudy_1991FromCellMLBackwardEuler be(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(be.GetVoltageIndex(), 0u);
+        CheckCai(be, true, 0.0002);
 
         // Check that the tables exist!
         double v = opt.GetVoltage();
@@ -365,6 +385,27 @@ public:
             delete p_opt_cell;
             delete p_be_cell;
         }
+    }
+
+    void TestModelWithNoIntracellularCalcium() throw(Exception)
+    {
+        boost::shared_ptr<AbstractStimulusFunction> p_stimulus;
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+
+        // Normal model
+        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML normal(p_solver, p_stimulus);
+        normal.UseCellMLDefaultStimulus();
+        CheckCai(normal, false);
+
+        // Optimised model
+        Celltentusscher_model_2006_epi_corrected_flooristimFromCellMLOpt opt(p_solver, p_stimulus);
+        opt.UseCellMLDefaultStimulus();
+        CheckCai(opt, false);
+
+        // Backward Euler model
+        Celltentusscher_model_2006_epi_corrected_flooristimFromCellMLBackwardEuler be(p_solver, p_stimulus);
+        be.UseCellMLDefaultStimulus();
+        CheckCai(be, false);
     }
 };
 

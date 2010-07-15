@@ -253,10 +253,10 @@ public:
 
     /**
      *  [Ca_i] is needed for mechanics, so we explcitly have a Get method (rather than
-     *  use a get by name type method, to avoid inefficiency when using different cells
-     *  types of cells). This method by defaults throws an exception, so should be
-     *  implemented in the concrete class if IntracellularCalciumConcentration is
-     *  one of the state variables
+     *  use a get by name type method, to avoid inefficiency when using different
+     *  types of cells). This method by default throws an exception, so should be
+     *  implemented in the concrete class if intracellular (cytosolic) calcium concentration is
+     *  one of the state variables.
      */
     virtual double GetIntracellularCalciumConcentration();
     

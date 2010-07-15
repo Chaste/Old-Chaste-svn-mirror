@@ -1449,8 +1449,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.class_inheritance += ', public AbstractDynamicallyLoadableEntity'
         self.writeln('#include "Exception.hpp"')
         self.writeln('#include "OdeSystemInformation.hpp"')
-        if self.use_modifiers:
-            self.writeln('#include "RegularStimulus.hpp"')
+        self.writeln('#include "RegularStimulus.hpp"')
         self.writeln_hpp('#include "AbstractStimulusFunction.hpp"')
         self.writeln('#include "HeartConfig.hpp"')
         self.writeln('#include "IsNan.hpp"')
@@ -1595,16 +1594,16 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.close_block()
         
         # Methods associated with oxmeta annotated variables
-        if self.use_modifiers:
-            for var in self.metadata_vars:
-                if var.get_type() == VarTypes.Constant:
-                    self.output_method_start('Get_' + var.oxmeta_name + '_constant', [], self.TYPE_DOUBLE)
-                    self.open_block()
-                    self.output_comment('Constant value given in CellML')
-                    self.writeln('return ', var.initial_value, self.STMT_END)
-                    self.close_block()
-                    self.writeln()
-            self.output_default_stimulus()
+        for var in self.metadata_vars:
+            if var.get_type() == VarTypes.Constant:
+                self.output_method_start('Get_' + var.oxmeta_name + '_constant', [], self.TYPE_DOUBLE)
+                self.open_block()
+                self.output_comment('Constant value given in CellML')
+                self.writeln('return ', var.initial_value, self.STMT_END)
+                self.close_block()
+                self.writeln()
+        self.output_default_stimulus()
+        self.output_intracellular_calcium()
                 
     def output_default_stimulus(self):
         """
@@ -1624,7 +1623,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if len(var_names & mandatory_args) != 3:
             return
 
-        self.output_method_start('UseCellMLDefaultStimulus', [], self.TYPE_VOID)
+        self.output_method_start('UseCellMLDefaultStimulus', [], self.TYPE_VOID, 'public')
         self.open_block()
         self.output_comment('Use the default stimulus specified by CellML metadata')
         self.writeln('mpIntracellularStimulus.reset(new RegularStimulus(')
@@ -1635,8 +1634,23 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln('        Get_membrane_stimulus_current_offset_constant()));')
         else :
             self.writeln('        0.0));')
-        self.close_block()
-        self.writeln()
+        self.close_block(blank_line=True)
+    
+    def output_intracellular_calcium(self):
+        """
+        If a (state) variable has been annotated as cytosolic_calcium_concentration,
+        generate a GetIntracellularCalciumConcentration method.
+        """
+        # Find cytosolic_calcium_concentration
+        cai = cellml_metadata.find_variables(self.doc.model,
+                                             ('bqbiol:is', NSS['bqbiol']),
+                                             ('oxmeta:cytosolic_calcium_concentration', NSS['oxmeta']))
+        if cai and cai[0] in self.state_vars:
+            i = self.state_vars.index(cai[0])
+            self.output_method_start('GetIntracellularCalciumConcentration', [], self.TYPE_DOUBLE, 'public')
+            self.open_block()
+            self.writeln('return ', self.vector_index('mStateVariables', i), self.STMT_END)
+            self.close_block(blank_line=True)
         
     def code_name(self, var, *args, **kwargs):
         """
@@ -4168,8 +4182,7 @@ def run():
         config.find_transmembrane_potential()
         config.find_current_vars()
 
-    if options.use_modifiers:
-        config.validate_metadata(options.assume_valid)
+    config.validate_metadata(options.assume_valid)
 
     class_name = getattr(options, 'class_name', None)
     if options.augment_class_name and not class_name:
@@ -4200,8 +4213,7 @@ def run():
         if options.config_file:
             config.annotate_currents_for_pe()
         # Need to ensure pe doesn't remove metadata-annotated variables
-        if options.use_modifiers:
-            config.annotate_metadata_for_pe()
+        config.annotate_metadata_for_pe()
         optimize.parteval(doc)
 
     if options.lut:
