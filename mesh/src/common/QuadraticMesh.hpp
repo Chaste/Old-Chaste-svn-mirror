@@ -173,8 +173,9 @@ private:
      *
      * @param numElemX Number of elements in x-direction (also, the width of the final mesh)
      * @param numElemY Number of elements in y-direction (also, the height of the final mesh)
+     * @param unused is for compatibility with linear tetrahedral meshes
      */
-    void ConstructRectangularMesh(unsigned numElemX, unsigned numElemY);
+    void ConstructRectangularMesh(unsigned numElemX, unsigned numElemY, bool unused=true);
 
     /**
      * Create a quadratic mesh on a cuobid from (0,0,0) to (numElemX,numElemY,numElemZ)

@@ -109,13 +109,14 @@ void QuadraticMesh<DIM>::ConstructRegularSlabMesh(double spaceStep, double width
 
     
 template<unsigned DIM>
-void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned numElemY)
+void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned numElemY, bool unused)
 {
     assert(DIM==2);
 
     assert(numElemX>0);
     assert(numElemY>0);
-
+    assert(unused);
+    
     this->mMeshIsLinear=false;
     unsigned num_nodes=(numElemX+1)*(numElemY+1);
     struct triangulateio triangle_input;
