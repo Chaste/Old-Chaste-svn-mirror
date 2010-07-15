@@ -31,6 +31,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 unsigned TissueCell::mMaxCellId = 0;
 
+struct null_deleter
+{
+    void operator()(void const *) const
+    {
+    }
+};
 
 TissueCell::TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationState,
                        AbstractCellCycleModel* pCellCycleModel,

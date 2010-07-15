@@ -45,13 +45,6 @@ class AbstractCellCycleModel; // Circular definition (cells need to know about c
 
 class TissueCell;
 
-struct null_deleter
-{
-    void operator()(void const *) const
-    {
-    }
-};
-
 /** Cells shouldn't be copied - it doesn't make sense.  So all access is via this pointer type. */
 typedef boost::shared_ptr<TissueCell> TissueCellPtr;
 
