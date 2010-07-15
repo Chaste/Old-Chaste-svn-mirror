@@ -30,7 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <set>
 #include <boost/shared_ptr.hpp>
-
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/set.hpp>
+#include "ChasteSerialization.hpp"
 #include "AbstractCellProperty.hpp"
 #include "Exception.hpp"
 
@@ -53,6 +55,22 @@ private:
 
     /** The properties stored in this collection. */
     CollectionType mProperties;
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * We don't have any member variables yet, but let's make things easy for the future.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        // If Archive is an output archive, then '&' resolves to '<<'
+        // If Archive is an input archive, then '&' resolves to '>>'
+        archive & mProperties;
+    }
 
 public:
     /**
@@ -80,7 +98,7 @@ public:
      * Should be used like
      *   bool healthy = collection.HasProperty<WildTypeCellMutationState>();
      */
-    template <typename CLASS>
+    template<typename CLASS>
     bool HasProperty() const
     {
         for (ConstIteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
@@ -99,7 +117,7 @@ public:
      * Should be used like
      *   collection.HasPropertyType<AbstractCellMutationState>();
      */
-    template <typename BASECLASS>
+    template<typename BASECLASS>
     bool HasPropertyType() const
     {
         for (ConstIteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
@@ -115,7 +133,7 @@ public:
     /**
      * Remove a property of the given type.
      */
-    template <typename CLASS>
+    template<typename CLASS>
     void RemoveProperty()
     {
         for (IteratorType it = mProperties.begin(); it != mProperties.end(); ++it)
@@ -167,7 +185,7 @@ public:
      * Get a sub-collection containing all our properties that are instances
      * of the given class.
      */
-    template <typename CLASS>
+    template<typename CLASS>
     CellPropertyCollection GetProperties() const
     {
         CellPropertyCollection result;
@@ -185,7 +203,7 @@ public:
      * Get a sub-collection containing all our properties that are instances
      * of the given class or any of its subclasses.
      */
-    template <typename BASECLASS>
+    template<typename BASECLASS>
     CellPropertyCollection GetPropertiesType() const
     {
         CellPropertyCollection result;
