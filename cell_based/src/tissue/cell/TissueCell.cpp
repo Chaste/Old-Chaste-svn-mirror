@@ -85,7 +85,7 @@ void TissueCell::SetCellCycleModel(AbstractCellCycleModel* pCellCycleModel)
         delete mpCellCycleModel;
     }
     mpCellCycleModel = pCellCycleModel;
-    mpCellCycleModel->SetCell(shared_from_this());
+    mpCellCycleModel->SetCell(TissueCellPtr(this, null_deleter()));
 }
 
 

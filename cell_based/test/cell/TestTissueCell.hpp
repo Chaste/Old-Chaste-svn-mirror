@@ -465,7 +465,7 @@ public:
         TS_ASSERT_EQUALS(p_transit_cell->ReadyToDivide(), false);
 
         StochasticDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new StochasticDurationGenerationBasedCellCycleModel;
-        p_cell_cycle_model ->SetCellProliferativeType(TRANSIT);
+        p_cell_cycle_model->SetCellProliferativeType(TRANSIT);
 
         // This now resets the age of the cell to 0.0 so more time added in underneath
         p_transit_cell->SetCellCycleModel(p_cell_cycle_model);
@@ -1322,6 +1322,7 @@ public:
         TS_ASSERT_EQUALS(p_cell->GetCellId(), 0u);
         TS_ASSERT_EQUALS(p_cell2->GetCellId(), 1u);
     }
+
     void ThisTestBreaksSomeBuildsTestCellDivisionStops()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();

@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <iostream>
 
-#include "TissueCellPtr.hpp"
+#include "TissueCell.hpp"
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "OutputFileHandler.hpp"
@@ -119,7 +119,7 @@ public:
             {
                 if ((*cell_iterator)->ReadyToDivide())
                 {
-                    newly_born.push_back(cell_iterator->Divide());
+                    newly_born.push_back((*cell_iterator)->Divide());
                 }
                 ++cell_iterator;
                 j++;
