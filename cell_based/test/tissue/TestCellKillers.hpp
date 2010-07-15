@@ -64,7 +64,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
@@ -72,7 +72,7 @@ public:
         MeshBasedTissue<2> tissue(mesh, cells);
 
         // Get a reference to the cells held in tissue
-        std::list<TissueCell>& r_cells = tissue.rGetCells();
+        std::list<TissueCellPtr>& r_cells = tissue.rGetCells();
 
         // Check for bad probabilities being passed in
         TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&tissue, -0.1),
@@ -86,7 +86,7 @@ public:
 
         // Check that a single cell reaches apoptosis
         unsigned max_tries=0;
-        while (!r_cells.begin()->HasApoptosisBegun() && max_tries<99)
+        while (!(*r_cells.begin())->HasApoptosisBegun() && max_tries<99)
         {
             random_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
             max_tries++;
@@ -100,11 +100,11 @@ public:
         std::set< double > old_locations;
 
         bool apoptosis_cell_found = false;
-        std::list<TissueCell>::iterator cell_it = r_cells.begin();
+        std::list<TissueCellPtr>::iterator cell_it = r_cells.begin();
         ++cell_it;
         while (cell_it != r_cells.end() && !apoptosis_cell_found)
         {
-            if (cell_it->HasApoptosisBegun())
+            if ((*cell_it)->HasApoptosisBegun())
             {
                 apoptosis_cell_found = true;
             }
@@ -120,11 +120,11 @@ public:
         p_simulation_time->IncrementTimeOneStep();
 
         // Store 'locations' of cells which are not dead
-        for (std::list<TissueCell>::iterator cell_iter = r_cells.begin();
+        for (std::list<TissueCellPtr>::iterator cell_iter = r_cells.begin();
              cell_iter != r_cells.end();
              ++cell_iter)
         {
-            if (!cell_iter->IsDead())
+            if (!(*cell_iter)->IsDead())
             {
                 Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
                 c_vector<double, 2> location = p_node->rGetLocation();
@@ -137,11 +137,11 @@ public:
 
         // Check that dead cells are removed from the mesh
         std::set< double > new_locations;
-        for (std::list<TissueCell>::iterator cell_iter = r_cells.begin();
+        for (std::list<TissueCellPtr>::iterator cell_iter = r_cells.begin();
              cell_iter != r_cells.end();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
+            TS_ASSERT_EQUALS((*cell_iter)->IsDead(), false);
             Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);
@@ -163,7 +163,7 @@ public:
         mesh.Translate(-0.25,-0.25);
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
@@ -222,7 +222,7 @@ public:
         mesh.Translate(-0.25,-0.25);
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -230,10 +230,10 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_healthy_state, p_model);
-            cell.SetBirthTime(0.0);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            p_cell->SetBirthTime(0.0);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -285,7 +285,7 @@ public:
         mesh.ConstructLinearMesh(num_cells-1);
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -293,10 +293,10 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_healthy_state, p_model);
-            cell.SetBirthTime(0.0);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            p_cell->SetBirthTime(0.0);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -346,7 +346,7 @@ public:
         mesh.ConstructCuboid(4, 5, 6);
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -354,10 +354,10 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_healthy_state, p_model);
-            cell.SetBirthTime(0.0);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            p_cell->SetBirthTime(0.0);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -387,7 +387,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2>cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
@@ -404,7 +404,7 @@ public:
         OxygenBasedCellKiller<2> bad_cell_killer(&tissue);
 
         // Get a reference to the cells held in tissue
-        std::list<TissueCell>& r_cells = tissue.rGetCells();
+        std::list<TissueCellPtr>& r_cells = tissue.rGetCells();
 
         // Reset cell types to STEM
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
@@ -421,24 +421,24 @@ public:
         TS_ASSERT_THROWS_NOTHING(oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin()));
 
         // Check that a single cell reaches apoptosis
-        TS_ASSERT(!r_cells.begin()->HasApoptosisBegun());
+        TS_ASSERT(!(*r_cells.begin())->HasApoptosisBegun());
         ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
         boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
-        r_cells.begin()->SetMutationState(p_apoptotic_state);
+        (*r_cells.begin())->SetMutationState(p_apoptotic_state);
         oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
 
-        TS_ASSERT(r_cells.begin()->HasApoptosisBegun());
+        TS_ASSERT((*r_cells.begin())->HasApoptosisBegun());
 
         // Increment time to a time after death
         p_simulation_time->IncrementTimeOneStep();
 
         // Store 'locations' of cells which are not dead
         std::set< double > old_locations;
-        for (std::list<TissueCell>::iterator cell_iter = r_cells.begin();
+        for (std::list<TissueCellPtr>::iterator cell_iter = r_cells.begin();
              cell_iter != r_cells.end();
              ++cell_iter)
         {
-            if (!cell_iter->IsDead())
+            if (!(*cell_iter)->IsDead())
             {
                 Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
                 c_vector<double, 2> location = p_node->rGetLocation();
@@ -451,11 +451,11 @@ public:
 
         // Check that dead cells are removed from the mesh
         std::set< double > new_locations;
-        for (std::list<TissueCell>::iterator cell_iter = r_cells.begin();
+        for (std::list<TissueCellPtr>::iterator cell_iter = r_cells.begin();
              cell_iter != r_cells.end();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->IsDead(), false);
+            TS_ASSERT_EQUALS((*cell_iter)->IsDead(), false);
             Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);

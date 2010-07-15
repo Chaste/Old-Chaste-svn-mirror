@@ -91,8 +91,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
                                                                                                             rTissue,
                                                                                                             isCloserThanRestLength);
 
-    TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
-    TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
+    TissueCellPtr p_cell_A = rTissue.GetCellUsingLocationIndex(nodeAGlobalIndex);
+    TissueCellPtr p_cell_B = rTissue.GetCellUsingLocationIndex(nodeBGlobalIndex);
 
     if (mUseEdgeBasedSpringConstant)
     {
@@ -106,13 +106,13 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     {
         unsigned number_of_mutants = 0;
 
-        if (r_cell_A.GetMutationState()->IsType<ApcTwoHitCellMutationState>() || r_cell_A.GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
+        if (p_cell_A->GetMutationState()->IsType<ApcTwoHitCellMutationState>() || p_cell_A->GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
         {
             // If cell A is mutant
             number_of_mutants++;
         }
 
-        if (r_cell_B.GetMutationState()->IsType<ApcTwoHitCellMutationState>() || r_cell_B.GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
+        if (p_cell_B->GetMutationState()->IsType<ApcTwoHitCellMutationState>() || p_cell_B->GetMutationState()->IsType<BetaCateninOneHitCellMutationState>())
         {
             // If cell B is mutant
             number_of_mutants++;
@@ -137,8 +137,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     {
         assert(rTissue.HasMesh());
         // If using beta-cat dependent springs, both cell-cycle models had better be VanLeeuwen2009WntSwatCellCycleModel
-        AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model_A = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(r_cell_A.GetCellCycleModel());
-        AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model_B = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(r_cell_B.GetCellCycleModel());
+        AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model_A = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(p_cell_A->GetCellCycleModel());
+        AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model_B = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(p_cell_B->GetCellCycleModel());
 
         assert(!mUseEdgeBasedSpringConstant);   // This already adapts for edge lengths - don't want to do it twice.
         double beta_cat_cell_1 = p_model_A->GetMembraneBoundBetaCateninLevel();
@@ -161,8 +161,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
     if (mUseApoptoticSprings)
     {
-        bool cell_A_is_apoptotic = r_cell_A.GetMutationState()->IsType<ApoptoticCellMutationState>();
-        bool cell_B_is_apoptotic = r_cell_B.GetMutationState()->IsType<ApoptoticCellMutationState>();
+        bool cell_A_is_apoptotic = p_cell_A->GetMutationState()->IsType<ApoptoticCellMutationState>();
+        bool cell_B_is_apoptotic = p_cell_B->GetMutationState()->IsType<ApoptoticCellMutationState>();
 
         if (cell_A_is_apoptotic || cell_B_is_apoptotic)
         {

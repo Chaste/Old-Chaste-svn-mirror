@@ -131,7 +131,7 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
+        /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCellPtr}}}s.
          * To do this, we the `CryptCellsGenerator` helper class, which is templated over the type
          * of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}})
          * and the dimension. We create an empty vector of cells and pass this into the
@@ -139,7 +139,7 @@ public:
          * should be assigned random birth times, to avoid synchronous division. The
          * {{{cells}}} vector is populated once the method {{{Generate}}} is
          * called. */
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -225,7 +225,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Create the cells, using the same method as before. Here, though, we use a {{{WntCellCycleModel}}}.*/
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 

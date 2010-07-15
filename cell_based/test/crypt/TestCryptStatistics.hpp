@@ -80,7 +80,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
@@ -90,7 +90,7 @@ public:
 
         CryptStatistics crypt_statistics(crypt);
 
-        std::vector< TissueCell* > test_section = crypt_statistics.GetCryptSection(0.5,1.5,sqrt(3));
+        std::vector<TissueCellPtr> test_section = crypt_statistics.GetCryptSection(0.5,1.5,sqrt(3));
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section.size(), 6u);
@@ -99,11 +99,11 @@ public:
 
         for (unsigned i=0; i<test_section.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(*test_section[i]), expected_indices[i]);
+            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section[i]), expected_indices[i]);
         }
 
         // Test that we get a valid section when the x-values are the same
-        std::vector< TissueCell* > test_section_vertical = crypt_statistics.GetCryptSection(0.5,0.5,sqrt(3));
+        std::vector<TissueCellPtr> test_section_vertical = crypt_statistics.GetCryptSection(0.5,0.5,sqrt(3));
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_vertical.size(), 5u);
@@ -112,10 +112,10 @@ public:
 
         for (unsigned i=0; i<test_section_vertical.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(*test_section_vertical[i]), expected_indices_vertical[i]);
+            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_vertical[i]), expected_indices_vertical[i]);
         }
 
-        std::vector< TissueCell* > test_section_periodic = crypt_statistics.GetCryptSectionPeriodic(0.5,2.5,sqrt(3));
+        std::vector<TissueCellPtr> test_section_periodic = crypt_statistics.GetCryptSectionPeriodic(0.5,2.5,sqrt(3));
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic.size(), 6u);
@@ -124,10 +124,10 @@ public:
 
         for (unsigned i=0; i<test_section_periodic.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(*test_section_periodic[i]), expected_indices_periodic[i]);
+            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_periodic[i]), expected_indices_periodic[i]);
         }
 
-        std::vector< TissueCell* > test_section_periodic_2 = crypt_statistics.GetCryptSectionPeriodic(2.5,0.5,sqrt(3));
+        std::vector<TissueCellPtr> test_section_periodic_2 = crypt_statistics.GetCryptSectionPeriodic(2.5,0.5,sqrt(3));
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic_2.size(), 6u);
@@ -136,11 +136,11 @@ public:
 
         for (unsigned i=0; i<test_section_periodic_2.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(*test_section_periodic_2[i]), expected_indices_periodic_2[i]);
+            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_periodic_2[i]), expected_indices_periodic_2[i]);
         }
 
         // Test an overwritten method
-        std::vector< TissueCell* > test_section_periodic_3 = crypt_statistics.GetCryptSectionPeriodic();
+        std::vector<TissueCellPtr> test_section_periodic_3 = crypt_statistics.GetCryptSectionPeriodic();
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic_3.size(), 3u);
@@ -148,7 +148,7 @@ public:
 
         for (unsigned i=0; i<test_section_periodic_3.size(); i++)
         {
-            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(*test_section_periodic_3[i]), expected_indices_periodic_3[i]);
+            TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_periodic_3[i]), expected_indices_periodic_3[i]);
         }
     }
 
@@ -172,12 +172,12 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> temp_cells;
+        std::vector<TissueCellPtr> temp_cells;
         CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(temp_cells, p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
         // This awkward way of setting up the cells is a result of #430
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
             cells.push_back(temp_cells[location_indices[i]]);
@@ -220,7 +220,7 @@ public:
 
         // TEST CryptStatistics::GetCryptSectionPeriodic by labelling a column of cells...
         CryptStatistics crypt_statistics(crypt);
-        std::vector< TissueCell* > test_section = crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
+        std::vector<TissueCellPtr> test_section = crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
 
         boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
         for (unsigned i=0; i<test_section.size(); i++)
@@ -306,7 +306,7 @@ public:
             bool in_section = false;
             for (unsigned vector_index=0; vector_index<test_section.size(); vector_index++)
             {
-                if (test_section[vector_index] == &(*cell_iter))
+                if (test_section[vector_index] == *cell_iter)
                 {
                     in_section = true;
                 }
@@ -319,7 +319,7 @@ public:
         simulator.SetEndTime(3*time_of_each_run);
         simulator.Solve();
 
-        std::vector<TissueCell*> crypt_section = crypt_statistics.GetCryptSection(8.0,8.0);
+        std::vector<TissueCellPtr> crypt_section = crypt_statistics.GetCryptSection(8.0,8.0);
         std::vector<bool> labelled = crypt_statistics.AreCryptSectionCellsLabelled(crypt_section);
 
         // Test that the vector of booleans corresponds with a visualisation of the data -
@@ -400,12 +400,12 @@ public:
             p_simulation_time->SetStartTime(0.0);
 
             // Set up cells
-            std::vector<TissueCell> temp_cells;
+            std::vector<TissueCellPtr> temp_cells;
             CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> cells_generator;
             cells_generator.Generate(temp_cells, p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
             // This awkward way of setting up the cells is a result of #430
-            std::vector<TissueCell> cells;
+            std::vector<TissueCellPtr> cells;
             for (unsigned i=0; i<location_indices.size(); i++)
             {
                 cells.push_back(temp_cells[location_indices[i]]);
@@ -446,7 +446,7 @@ public:
             simulator.SetEndTime(2.0*time_of_each_run);
             simulator.Solve();
 
-            std::vector<TissueCell*> crypt_section = p_crypt_statistics->GetCryptSection(8.0, 8.0);
+            std::vector<TissueCellPtr> crypt_section = p_crypt_statistics->GetCryptSection(8.0, 8.0);
             labelled = p_crypt_statistics->AreCryptSectionCellsLabelled(crypt_section);
 
             // Store information from this simulation in a global vector.

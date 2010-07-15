@@ -626,13 +626,13 @@ public:
         p_simulation_time->SetStartTime(0.0);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            cells[i].SetBirthTime(-1.1); // just to make the test run a bit quicker
+            cells[i]->SetBirthTime(-1.1); // just to make the test run a bit quicker
         }
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);

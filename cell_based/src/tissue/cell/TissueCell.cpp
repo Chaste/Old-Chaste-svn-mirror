@@ -55,7 +55,7 @@ TissueCell::TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationSta
         EXCEPTION("Cell cycle model is null");
     }
 
-    mpCellCycleModel->SetCell(this);
+    mpCellCycleModel->SetCell(TissueCellPtr(this, null_deleter()));
 
     // Set Cell identifier & mutation state count
     mCellId = ++ mMaxCellId -1;
@@ -64,50 +64,6 @@ TissueCell::TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationSta
         mpMutationState->IncrementCellCount();
     }
 }
-
-
-void TissueCell::CommonCopy(const TissueCell& rOtherCell)
-{
-    // Copy private data members
-    mCanDivide = rOtherCell.mCanDivide;
-
-    // Copy 'easy' protected data members
-    mpMutationState = rOtherCell.mpMutationState;
-    mUndergoingApoptosis = rOtherCell.mUndergoingApoptosis;
-    mIsDead = rOtherCell.mIsDead;
-    mDeathTime = rOtherCell.mDeathTime;
-    mStartOfApoptosisTime = rOtherCell.mStartOfApoptosisTime;
-    mIsLogged = rOtherCell.mIsLogged;
-    mAncestor = rOtherCell.mAncestor;
-    mCellId = rOtherCell.mCellId;
-
-    // Copy cell cycle model
-    // Create a new object of the correct child type and copy its state
-    mpCellCycleModel = rOtherCell.mpCellCycleModel->CreateCellCycleModel();
-    // and inform it of the new cell object
-    mpCellCycleModel->SetCell(this);
-}
-
-
-TissueCell::TissueCell(const TissueCell& rOtherCell)
-{
-    CommonCopy(rOtherCell);
-    mpMutationState->IncrementCellCount();
-}
-
-
-TissueCell& TissueCell::operator=(const TissueCell& rOtherCell)
-{
-    // In case this is self-assignment, don't delete the cell cycle model
-    AbstractCellCycleModel* p_temp_model = mpCellCycleModel;
-    mpMutationState->DecrementCellCount();
-    CommonCopy(rOtherCell);
-    mpMutationState->IncrementCellCount();
-    // ...until after we've copied it.
-    delete p_temp_model;
-    return *this;
-}
-
 
 TissueCell::~TissueCell()
 {
@@ -123,7 +79,7 @@ void TissueCell::SetCellCycleModel(AbstractCellCycleModel* pCellCycleModel)
         delete mpCellCycleModel;
     }
     mpCellCycleModel = pCellCycleModel;
-    mpCellCycleModel->SetCell(this);
+    mpCellCycleModel->SetCell(shared_from_this());
 }
 
 
@@ -280,7 +236,7 @@ bool TissueCell::ReadyToDivide()
 }
 
 
-TissueCell TissueCell::Divide()
+TissueCellPtr TissueCell::Divide()
 {
     // Check we're allowed to divide
     assert(!IsDead());
@@ -291,11 +247,11 @@ TissueCell TissueCell::Divide()
     mpCellCycleModel->ResetForDivision();
 
     // Create daughter cell
-    TissueCell new_cell = TissueCell(mpMutationState, mpCellCycleModel->CreateCellCycleModel());
+    TissueCellPtr p_new_cell(new TissueCell(mpMutationState, mpCellCycleModel->CreateCellCycleModel()));
 
     // Initialise properties of daughter cell
-    new_cell.GetCellCycleModel()->InitialiseDaughterCell();
-    new_cell.SetAncestor(GetAncestor());
+    p_new_cell->GetCellCycleModel()->InitialiseDaughterCell();
+    p_new_cell->SetAncestor(GetAncestor());
 
-    return new_cell;
+    return p_new_cell;
 }

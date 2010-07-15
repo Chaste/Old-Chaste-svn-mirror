@@ -100,12 +100,12 @@ public:
      * Create a new tissue facade from a mesh and collection of cells.
      *
      * @param rMesh a mutable tetrahedral mesh
-     * @param rCells TissueCells corresponding to the nodes of the mesh
+     * @param rCells cells corresponding to the nodes of the mesh
      * @param locationIndices an optional vector of location indices that correspond to real cells
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      */
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
-                                  std::vector<TissueCell>& rCells,
+                                  std::vector<TissueCellPtr>& rCells,
                                   const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
                                   bool deleteMesh=false);
 
@@ -180,12 +180,12 @@ public:
      *
      * Add a new cell to the tissue and update mIsGhostNode.
      *
-     * @param rNewCell  the cell to add
+     * @param pNewCell  the cell to add
      * @param rCellDivisionVector  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
      * @returns address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    TissueCell* AddCell(TissueCell& rNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCell* pParentCell=NULL);
+    TissueCellPtr AddCell(TissueCellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCellPtr pParentCell=TissueCellPtr());
 
     /**
      * Overridden WriteVtkResultsToFile method.

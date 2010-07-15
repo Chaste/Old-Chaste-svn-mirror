@@ -116,8 +116,7 @@ public:
     WntCellCycleModel(const WntCellCycleModel& rOtherModel);
 
     /**
-     * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function
-     * (which can be called by TissueCell::CommonCopy() and isn't necessarily being born.
+     * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function.
      *
      * @param pParentOdeSystem  to copy the state of
      * @param pMutationState the mutation state of the cell (used by ODEs)

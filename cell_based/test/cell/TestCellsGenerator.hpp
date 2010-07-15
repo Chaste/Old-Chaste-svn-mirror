@@ -50,7 +50,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
@@ -59,8 +59,8 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(i), 1e-9);
-            TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
+            TS_ASSERT_DELTA(cells[i]->GetBirthTime(), -(double)(i), 1e-9);
+            TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetDimension(), 2u);
         }
 
         // Test with extra input argument
@@ -69,14 +69,14 @@ public:
         location_indices.push_back(7);
         location_indices.push_back(9);
 
-        std::vector<TissueCell> cells2;
+        std::vector<TissueCellPtr> cells2;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator2;
         cells_generator2.GenerateBasic(cells2, 3, location_indices);
 
         TS_ASSERT_EQUALS(cells2.size(), 3u);
-        TS_ASSERT_DELTA(cells2[0].GetBirthTime(), -2.0, 1e-4);
-        TS_ASSERT_DELTA(cells2[1].GetBirthTime(), -7.0, 1e-4);
-        TS_ASSERT_DELTA(cells2[2].GetBirthTime(), -9.0, 1e-4);
+        TS_ASSERT_DELTA(cells2[0]->GetBirthTime(), -2.0, 1e-4);
+        TS_ASSERT_DELTA(cells2[1]->GetBirthTime(), -7.0, 1e-4);
+        TS_ASSERT_DELTA(cells2[2]->GetBirthTime(), -9.0, 1e-4);
     }
 
     void TestGenerateGivenLocationIndicesWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
@@ -86,18 +86,18 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells again with basic
-          std::vector<TissueCell> cells;
-          CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
-          TS_ASSERT_THROWS_THIS(cells_generator.GenerateBasic(cells, 83511u, location_indices),
-                  "The size of the locationIndices vector must match the required number of output cells");
-          cells_generator.GenerateGivenLocationIndices(cells, location_indices);
+        std::vector<TissueCellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        TS_ASSERT_THROWS_THIS(cells_generator.GenerateBasic(cells, 83511u, location_indices),
+                              "The size of the locationIndices vector must match the required number of output cells");
+        cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
-          // Test that cells were generated correctly
-          for (unsigned i=0; i<cells.size(); i++)
-          {
-              TS_ASSERT_DELTA(cells[i].GetBirthTime(), -(double)(location_indices[i]), 1e-9);
-            TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
-          }
+        // Test that cells were generated correctly
+        for (unsigned i=0; i<cells.size(); i++)
+        {
+            TS_ASSERT_DELTA(cells[i]->GetBirthTime(), -(double)(location_indices[i]), 1e-9);
+            TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetDimension(), 2u);
+        }
     }
 
     void TestCryptCellsGeneratorWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
@@ -110,7 +110,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
 
         double y0 = 0.2;
         double y1 = 1.0;
@@ -126,34 +126,34 @@ public:
         for (unsigned i=0; i<cells.size(); i++)
         {
             double height = p_mesh->GetNode(i)->rGetLocation()[1];
-            unsigned generation = static_cast<FixedDurationGenerationBasedCellCycleModel*>(cells[i].GetCellCycleModel())->GetGeneration();
+            unsigned generation = static_cast<FixedDurationGenerationBasedCellCycleModel*>(cells[i]->GetCellCycleModel())->GetGeneration();
 
-            TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetDimension(), 2u);
+            TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetDimension(), 2u);
 
             if (height <= y0)
             {
                 TS_ASSERT_EQUALS(generation, 0u);
-                TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetCellProliferativeType(), STEM);
+                TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetCellProliferativeType(), STEM);
             }
             else if (height < y1)
             {
                 TS_ASSERT_EQUALS(generation, 1u);
-                TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
+                TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
             }
             else if (height < y2)
             {
                 TS_ASSERT_EQUALS(generation, 2u);
-                TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
+                TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
             }
             else if (height < y3)
             {
                 TS_ASSERT_EQUALS(generation, 3u);
-                TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
+                TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
             }
             else
             {
                 TS_ASSERT_EQUALS(generation, 4u);
-                TS_ASSERT_EQUALS(cells[i].GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
+                TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
             }
         }
     }
@@ -168,7 +168,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> generator;
         generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -183,7 +183,7 @@ public:
         for (unsigned i=0; i<cells.size(); i++)
         {
             double height = p_mesh->GetNode(i)->rGetLocation()[1];
-            unsigned generation = static_cast<StochasticDurationGenerationBasedCellCycleModel*>(cells[i].GetCellCycleModel())->GetGeneration();
+            unsigned generation = static_cast<StochasticDurationGenerationBasedCellCycleModel*>(cells[i]->GetCellCycleModel())->GetGeneration();
 
             if (height <= y0)
             {
@@ -206,18 +206,18 @@ public:
                 TS_ASSERT_EQUALS(generation, 4u);
             }
 
-            TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
+            TS_ASSERT_DELTA(cells[i]->GetBirthTime(), 0.0, 1e-9);
         }
 
         // Create cells again with basic
-        std::vector<TissueCell> new_cells;
+        std::vector<TissueCellPtr> new_cells;
         generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
 
         for (unsigned i=0; i<new_cells.size(); i++)
         {
-            TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+            TS_ASSERT_DELTA(new_cells[i]->GetBirthTime(), -(double)(i), 1e-9);
         }
     }
 
@@ -231,7 +231,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> generator;
         generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -239,7 +239,7 @@ public:
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
         // Create cells again with basic
-        std::vector<TissueCell> new_cells;
+        std::vector<TissueCellPtr> new_cells;
         generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
 
         // Test that cells were generated correctly
@@ -247,7 +247,7 @@ public:
 
         for (unsigned i=0; i<new_cells.size(); i++)
         {
-            TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+            TS_ASSERT_DELTA(new_cells[i]->GetBirthTime(), -(double)(i), 1e-9);
         }
     }
 
@@ -262,7 +262,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> generator;
         generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -271,18 +271,18 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
+            TS_ASSERT_DELTA(cells[i]->GetBirthTime(), 0.0, 1e-9);
         }
 
         // Create cells again with basic
-        std::vector<TissueCell> new_cells;
+        std::vector<TissueCellPtr> new_cells;
         generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
 
         for (unsigned i=0; i<new_cells.size(); i++)
         {
-            TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+            TS_ASSERT_DELTA(new_cells[i]->GetBirthTime(), -(double)(i), 1e-9);
         }
     }
 
@@ -297,7 +297,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<SimpleWntCellCycleModel> generator;
         generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -306,7 +306,7 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
+            TS_ASSERT_DELTA(cells[i]->GetBirthTime(), 0.0, 1e-9);
         }
     }
 
@@ -320,7 +320,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<StochasticWntCellCycleModel> generator;
         generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -329,18 +329,18 @@ public:
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            TS_ASSERT_DELTA(cells[i].GetBirthTime(), 0.0, 1e-9);
+            TS_ASSERT_DELTA(cells[i]->GetBirthTime(), 0.0, 1e-9);
         }
 
         // Create cells again with basic
-        std::vector<TissueCell> new_cells;
+        std::vector<TissueCellPtr> new_cells;
         generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
 
         for (unsigned i=0; i<new_cells.size(); i++)
         {
-            TS_ASSERT_DELTA(new_cells[i].GetBirthTime(), -(double)(i), 1e-9);
+            TS_ASSERT_DELTA(new_cells[i]->GetBirthTime(), -(double)(i), 1e-9);
         }
     }
 

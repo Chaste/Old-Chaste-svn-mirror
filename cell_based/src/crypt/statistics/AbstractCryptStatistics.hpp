@@ -89,11 +89,11 @@ public:
      * width apart then a more realistic section will be across the periodic boundary), using the
      * final parameter. This obviously requires the mesh to be cylindrical.
      *
-     * @param rCryptSection  A standard vector of pointers to TissueCells (from a call to GetCryptSection in the concrete class)
+     * @param rCryptSection  vector of cells in the section (from a call to GetCryptSection in the concrete class)
      *
      * @return  a standard vector of booleans which states whether a labelled cell is present at a corresponding position.
      */
-    std::vector<bool> AreCryptSectionCellsLabelled(std::vector<TissueCell*>& rCryptSection);
+    std::vector<bool> AreCryptSectionCellsLabelled(std::vector<TissueCellPtr>& rCryptSection);
 
 };
 

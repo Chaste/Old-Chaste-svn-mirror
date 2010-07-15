@@ -47,9 +47,9 @@ class TestTissueSimulationWithNodeBasedTissue : public AbstractCellBasedTestSuit
 {
 private:
     template<unsigned DIM>
-    std::vector<TissueCell> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
+    std::vector<TissueCellPtr> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
     {
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
@@ -60,9 +60,9 @@ private:
                                 (TissueConfig::Instance()->GetStemCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
 
-            TissueCell cell(p_state, p_model);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
         return cells;
     }
@@ -96,7 +96,7 @@ public:
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a random birth time.
-        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(p_mesh);
 
         // Create a node based tissue
         NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
@@ -141,7 +141,7 @@ public:
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a random birth time.
-        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(p_mesh);
 
         // Create a node based tissue
         NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
@@ -191,7 +191,7 @@ public:
 //        TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 //
 //        // Set up cells, one for each node. Give each a random birth time.
-//        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+//        std::vector<TissueCellPtr> cells = SetUpCells(p_mesh);
 //
 //        // Create a tissue
 //        MeshBasedTissue<2> tissue(*p_mesh, cells);
@@ -219,7 +219,7 @@ public:
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a random birth time.
-        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(p_mesh);
 
         // Create a node based tissue
         NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
@@ -232,7 +232,7 @@ public:
 
         // Set up tissue simulation
         TissueSimulation<2> simulator(node_based_tissue, force_collection);
-        simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissueCellDeath");
+        simulator.SetOutputDirectory("TestTissueSimulationWithNodeBasedTissueCellPtrDeath");
         simulator.SetEndTime(0.5);
 
         // Add cell killer
@@ -263,7 +263,7 @@ public:
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a random birth time.
-        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(p_mesh);
 
         // Create a node based tissue
         NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);
@@ -302,7 +302,7 @@ public:
         TetrahedralMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each a random birth time.
-        std::vector<TissueCell> cells = SetUpCells(p_mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(p_mesh);
 
         // Create a node based tissue
         NodeBasedTissue<2> node_based_tissue(*p_mesh, cells);

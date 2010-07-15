@@ -49,11 +49,11 @@ double OxygenBasedCellKiller<SPACE_DIM>::GetHypoxicConcentration() const
 }
 
 template <unsigned SPACE_DIM>
-void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCell& rCell)
+void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCellPtr pCell)
 {
-    if (rCell.GetMutationState()->IsType<ApoptoticCellMutationState>() && !(rCell.HasApoptosisBegun()))
+    if (pCell->GetMutationState()->IsType<ApoptoticCellMutationState>() && !(pCell->HasApoptosisBegun()))
     {
-        rCell.StartApoptosis();
+        pCell->StartApoptosis();
     }
 }
 

@@ -59,7 +59,7 @@ public:
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
@@ -99,13 +99,13 @@ public:
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
 
-        TissueCell new_cell(p_state, p_model);
-        new_cell.SetBirthTime(-1);
+        TissueCellPtr p_new_cell(new TissueCell(p_state, p_model));
+        p_new_cell->SetBirthTime(-1);
 
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 0.2;
         new_cell_location[1] = 0.3;
-        tissue.AddCell(new_cell, new_cell_location);
+        tissue.AddCell(p_new_cell, new_cell_location);
 
         TS_ASSERT_THROWS_NOTHING(p_data->ReallocateMemory());
         TS_ASSERT_EQUALS(p_data->mData.size(), tissue.rGetMesh().GetNumNodes());
@@ -173,12 +173,12 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells, one for each node. Give each a birth time of -node_index, so the age = node_index
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create a tissue
-        MeshBasedTissue<2> tissue(mesh,cells);
+        MeshBasedTissue<2> tissue(mesh, cells);
 
         // Work out where to put the archive
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);

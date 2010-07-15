@@ -87,10 +87,10 @@ private:
 protected:
 
     /** List of cells */
-    std::list<TissueCell> mCells;
+    std::list<TissueCellPtr> mCells;
 
     /** Map location (node or VertexElement) indices back to cells */
-    std::map<unsigned, TissueCell*> mLocationCellMap;
+    std::map<unsigned, TissueCellPtr> mLocationCellMap;
 
     /** Map cells to location (node or VertexElement) indices */
     std::map<TissueCell*, unsigned> mCellLocationMap;
@@ -165,7 +165,7 @@ public:
      *     and the passed-in vector cleared.
      * @param locationIndices an optional vector of location indices that correspond to real cells
      */
-    AbstractTissue(std::vector<TissueCell>& rCells,
+    AbstractTissue(std::vector<TissueCellPtr>& rCells,
                    const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
@@ -182,7 +182,7 @@ public:
     /**
      * @return reference to mCells.
      */
-    std::list<TissueCell>& rGetCells();
+    std::list<TissueCellPtr>& rGetCells();
 
     /**
      * \todo This method returns true if the tissue is a MeshBasedTissue or a
@@ -204,11 +204,11 @@ public:
     /**
      * Find where a given cell is in space.
      *
-     * @param rCell the cell
+     * @param pCell the cell
      *
      * @return the location of the cell
      */
-    virtual c_vector<double, DIM> GetLocationOfCellCentre(TissueCell& rCell)=0;
+    virtual c_vector<double, DIM> GetLocationOfCellCentre(TissueCellPtr pCell)=0;
 
     /**
      * As this method is pure virtual, it must be overridden
@@ -249,12 +249,12 @@ public:
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
-     * @param rCell the cell
+     * @param pCell the cell
      *
      * @return whether a given cell is associated with a deleted
      *         node (cell-centre models) or element (vertex models).
      */
-    virtual bool IsCellAssociatedWithADeletedLocation(TissueCell& rCell)=0;
+    virtual bool IsCellAssociatedWithADeletedLocation(TissueCellPtr pCell)=0;
 
     /**
      * Update the location of each node in the tissue given
@@ -287,7 +287,7 @@ public:
      * As this method is pure virtual, it must be overridden
      * in subclasses.
      *
-     * @param rNewCell  the cell to add
+     * @param pNewCell  the cell to add
      * @param rCellDivisionVector  a vector providing information regarding how the cell division should occur
      *     (for cell-centre tissues, this vector is the position of the daughter cell; for vertex tissues it
      *      can be used by any subclass of TissueSimulation to as a means of dictating the axis along which
@@ -296,7 +296,7 @@ public:
      *
      * @return address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way).
      */
-    virtual TissueCell* AddCell(TissueCell& rNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCell* pParentCell=NULL)=0;
+    virtual TissueCellPtr AddCell(TissueCellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCellPtr pParentCell=TissueCellPtr())=0;
 
     class Iterator; // Forward declaration; see below
 
@@ -387,7 +387,7 @@ public:
      *
      * @return the cell.
      */
-    TissueCell& rGetCellUsingLocationIndex(unsigned index);
+    TissueCellPtr GetCellUsingLocationIndex(unsigned index);
 
     /**
      * Get the location index corresponding to a given cell.
@@ -395,11 +395,11 @@ public:
      * Currently assumes there is one cell for each location index, and they are ordered identically in their vectors.
      * An assertion fails if not.
      *
-     * @param rCell the cell
+     * @param pCell the cell
      *
      * @return the location index.
      */
-    unsigned GetLocationIndexUsingCell(TissueCell& rCell);
+    unsigned GetLocationIndexUsingCell(TissueCellPtr pCell);
 
     /**
      * @return registry of mutation states used in this tissue.
@@ -472,15 +472,15 @@ public:
     public:
 
         /**
-         * Dereference the iterator giving you a *reference* to the current cell.
-         * Make sure to use a reference for the result to avoid copying cells unnecessarily.
+         * Dereference the iterator giving you a pointer to the current cell.
          */
-        inline TissueCell& operator*();
+        inline TissueCellPtr operator*();
 
         /**
-         * Member access from a pointer.
+         * Unusually for an iterator over a collection of pointers, this method
+         * allows you to access the object pointed at, rather than the pointer itself.
          */
-        inline TissueCell* operator->();
+        inline TissueCellPtr operator->();
 
         /**
          * Comparison not-equal-to.
@@ -500,7 +500,7 @@ public:
          * @param rTissue the tissue
          * @param cellIter iterator over list of cells
          */
-        Iterator(AbstractTissue& rTissue, std::list<TissueCell>::iterator cellIter);
+        Iterator(AbstractTissue& rTissue, std::list<TissueCellPtr>::iterator cellIter);
 
         /**
          * The iterator must have a virtual destructor.
@@ -527,7 +527,7 @@ public:
         AbstractTissue& mrTissue;
 
         /** Cell iterator member. */
-        std::list<TissueCell>::iterator mCellIter;
+        std::list<TissueCellPtr>::iterator mCellIter;
     };
 
     /**
@@ -561,17 +561,17 @@ TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractTissue)
 //////////////////////////////////////////////////////////////////////////////
 
 template<unsigned DIM>
-TissueCell& AbstractTissue<DIM>::Iterator::operator*()
+TissueCellPtr AbstractTissue<DIM>::Iterator::operator*()
 {
     assert(!IsAtEnd());
     return *mCellIter;
 }
 
 template<unsigned DIM>
-TissueCell* AbstractTissue<DIM>::Iterator::operator->()
+TissueCellPtr AbstractTissue<DIM>::Iterator::operator->()
 {
     assert(!IsAtEnd());
-    return &(*mCellIter);
+    return *mCellIter;
 }
 
 template<unsigned DIM>
@@ -605,7 +605,7 @@ bool AbstractTissue<DIM>::Iterator::IsAtEnd()
 }
 
 template<unsigned DIM>
-AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<TissueCell>::iterator cellIter)
+AbstractTissue<DIM>::Iterator::Iterator(AbstractTissue& rTissue, std::list<TissueCellPtr>::iterator cellIter)
     : mrTissue(rTissue),
       mCellIter(cellIter)
 {

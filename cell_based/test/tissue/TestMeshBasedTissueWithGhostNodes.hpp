@@ -60,7 +60,7 @@ public:
 
         // Set up cells, one for each node apart from one.
         // Give each a birth time of -node_index, so the age = node_index
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         std::vector<unsigned> cell_location_indices;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
@@ -68,18 +68,18 @@ public:
             AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
             p_cell_cycle_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_state, p_cell_cycle_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
             double birth_time = 0.0 - i;
-            cell.SetBirthTime(birth_time);
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
             cell_location_indices.push_back(i);
         }
 
         // Fails as the tissue constructor is not given the location indices
         // corresponding to real cells, so cannot work out which nodes are
         // ghost nodes
-        std::vector<TissueCell> cells_copy(cells);
+        std::vector<TissueCellPtr> cells_copy(cells);
         TS_ASSERT_THROWS_THIS(MeshBasedTissueWithGhostNodes<2> dodgy_tissue(mesh, cells_copy),
                 "Node 4 does not appear to be a ghost node or have a cell associated with it");
 
@@ -95,10 +95,10 @@ public:
         // So validate passes at the moment
         tissue.Validate();
 
-        // Test rGetCellUsingLocationIndex()
+        // Test GetCellUsingLocationIndex()
 
-        TS_ASSERT_THROWS_NOTHING(tissue.rGetCellUsingLocationIndex(0)); // real cell
-        TS_ASSERT_THROWS_THIS(tissue.rGetCellUsingLocationIndex(mesh.GetNumNodes()-1u),"Location index input argument does not correspond to a TissueCell"); // ghost node
+        TS_ASSERT_THROWS_NOTHING(tissue.GetCellUsingLocationIndex(0)); // real cell
+        TS_ASSERT_THROWS_THIS(tissue.GetCellUsingLocationIndex(mesh.GetNumNodes()-1u),"Location index input argument does not correspond to a TissueCell"); // ghost node
 
         // Now we label a real cell's node as a ghost
         ghost_node_indices.insert(1u);
@@ -118,7 +118,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
@@ -193,7 +193,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true); // true = mature cells
 
@@ -240,10 +240,10 @@ public:
         }
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, cell_location_indices.size());
-        cells[27].StartApoptosis();
+        cells[27]->StartApoptosis();
 
         // Create a tissue, with some random ghost nodes
         MeshBasedTissueWithGhostNodes<2> tissue_with_ghost_nodes(mesh, cells, cell_location_indices);
@@ -330,10 +330,10 @@ public:
         }
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, cell_location_indices.size());
-        cells[27].StartApoptosis();
+        cells[27]->StartApoptosis();
 
         // Create a tissue, with some random ghost nodes
         MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells, cell_location_indices);
@@ -345,13 +345,13 @@ public:
 
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
-        TissueCell new_cell(p_state, p_model);
-        new_cell.SetBirthTime(0);
+        TissueCellPtr p_new_cell(new TissueCell(p_state, p_model));
+        p_new_cell->SetBirthTime(0);
 
         c_vector<double,2> new_location;
         new_location[0] = 0.3433453454443;
         new_location[0] = 0.3435346344234;
-        tissue.AddCell(new_cell, new_location);
+        tissue.AddCell(p_new_cell, new_location);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 71u);
@@ -366,13 +366,13 @@ public:
 
         FixedDurationGenerationBasedCellCycleModel* p_model2 = new FixedDurationGenerationBasedCellCycleModel();
         p_model2->SetCellProliferativeType(STEM);
-        TissueCell new_cell2(p_state, p_model2);
-        new_cell2.SetBirthTime(0);
+        TissueCellPtr p_new_cell2(new TissueCell(p_state, p_model2));
+        p_new_cell2->SetBirthTime(0);
 
         c_vector<double,2> new_location2;
         new_location2[0] = 0.6433453454443;
         new_location2[0] = 0.6435346344234;
-        tissue.AddCell(new_cell2, new_location2);
+        tissue.AddCell(p_new_cell2, new_location2);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 71u);
@@ -385,7 +385,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        std::vector<TissueCell> cells2;
+        std::vector<TissueCellPtr> cells2;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator2;
         cells_generator2.Generate(cells2, p_mesh, location_indices, true);
 
@@ -452,7 +452,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
@@ -473,10 +473,10 @@ public:
             TS_ASSERT_EQUALS(springs_visited.find(node_pair), springs_visited.end());
             springs_visited.insert(node_pair);
 
-            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.rGetCellA()),
+            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.GetCellA()),
                              spring_iterator.GetNodeA()->GetIndex());
 
-            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.rGetCellB()),
+            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.GetCellB()),
                              spring_iterator.GetNodeB()->GetIndex());
         }
 
@@ -499,7 +499,7 @@ public:
         }
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> generator;
         generator.GenerateBasic(cells, cell_location_indices.size());
 
@@ -520,10 +520,10 @@ public:
             TS_ASSERT_EQUALS(springs_visited.find(node_pair), springs_visited.end());
             springs_visited.insert(node_pair);
 
-            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.rGetCellA()),
+            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.GetCellA()),
                              spring_iterator.GetNodeA()->GetIndex());
 
-            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.rGetCellB()),
+            TS_ASSERT_EQUALS(tissue.GetLocationIndexUsingCell(spring_iterator.GetCellB()),
                              spring_iterator.GetNodeB()->GetIndex());
         }
 
@@ -587,14 +587,14 @@ public:
         }
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
         boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
-        cells[4].SetMutationState(p_apoptotic_state); // coverage
+        cells[4]->SetMutationState(p_apoptotic_state); // coverage
 
-        TS_ASSERT_EQUALS(cells[4].GetMutationState()->IsType<ApoptoticCellMutationState>(), true);
+        TS_ASSERT_EQUALS(cells[4]->GetMutationState()->IsType<ApoptoticCellMutationState>(), true);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);
@@ -655,7 +655,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create some cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
@@ -698,7 +698,7 @@ public:
         }
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         std::vector<unsigned> location_indices;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
@@ -712,10 +712,10 @@ public:
                 FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
                 p_model->SetCellProliferativeType(TRANSIT);
 
-                TissueCell cell(p_state, p_model);
-                cell.SetBirthTime(-1.0);
+                TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+                p_cell->SetBirthTime(-1.0);
 
-                cells.push_back(cell);
+                cells.push_back(p_cell);
                 location_indices.push_back(node_index);
             }
         }
@@ -760,7 +760,7 @@ public:
         }
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         std::vector<unsigned> location_indices;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
@@ -774,10 +774,10 @@ public:
                 FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
                 p_model->SetCellProliferativeType(TRANSIT);
 
-                TissueCell cell(p_state, p_model);
-                cell.SetBirthTime(-1.0);
+                TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+                p_cell->SetBirthTime(-1.0);
 
-                cells.push_back(cell);
+                cells.push_back(p_cell);
                 location_indices.push_back(node_index);
             }
         }

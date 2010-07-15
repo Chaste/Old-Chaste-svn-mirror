@@ -52,8 +52,8 @@ double CellwiseSourcePde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoi
 template<unsigned DIM>
 double CellwiseSourcePde<DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<DIM>& rNode)
 {
-    TissueCell& r_cell = mrTissue.rGetCellUsingLocationIndex(rNode.GetIndex());
-    if (!(r_cell.GetMutationState()->IsType<ApoptoticCellMutationState>()))
+    TissueCellPtr p_cell = mrTissue.GetCellUsingLocationIndex(rNode.GetIndex());
+    if (!(p_cell->GetMutationState()->IsType<ApoptoticCellMutationState>()))
     {
         return mCoefficient;
     }

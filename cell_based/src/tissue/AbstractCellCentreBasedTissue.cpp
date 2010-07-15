@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellCentreBasedTissue.hpp"
 
 template<unsigned DIM>
-AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue(std::vector<TissueCell>& rCells,
+AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue(std::vector<TissueCellPtr>& rCells,
                                                                   const std::vector<unsigned> locationIndices)
     : AbstractTissue<DIM>(rCells, locationIndices)
 {
@@ -44,42 +44,43 @@ AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue()
 
 
 template<unsigned DIM>
-c_vector<double, DIM> AbstractCellCentreBasedTissue<DIM>::GetLocationOfCellCentre(TissueCell& rCell)
+c_vector<double, DIM> AbstractCellCentreBasedTissue<DIM>::GetLocationOfCellCentre(TissueCellPtr pCell)
 {
-    return GetNodeCorrespondingToCell(rCell)->rGetLocation();
+    return GetNodeCorrespondingToCell(pCell)->rGetLocation();
 }
 
 
 template<unsigned DIM>
-Node<DIM>* AbstractCellCentreBasedTissue<DIM>::GetNodeCorrespondingToCell(TissueCell& rCell)
+Node<DIM>* AbstractCellCentreBasedTissue<DIM>::GetNodeCorrespondingToCell(TissueCellPtr pCell)
 {
-    return this->GetNode(this->mCellLocationMap[&rCell]);
+	assert(this->mCellLocationMap.find(pCell.get()) != this->mCellLocationMap.end());
+
+    return this->GetNode(this->mCellLocationMap[pCell.get()]);
 }
 
 
 template<unsigned DIM>
-TissueCell* AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCell& rNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCell* pParentCell)
+TissueCellPtr AbstractCellCentreBasedTissue<DIM>::AddCell(TissueCellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCellPtr pParentCell)
 {
     // Create a new node
     Node<DIM>* p_new_node = new Node<DIM>(this->GetNumNodes(), rCellDivisionVector, false);   // never on boundary
     unsigned new_node_index = AddNode(p_new_node); // use copy constructor so it doesn't matter that new_node goes out of scope
 
     // Update cells vector
-    this->mCells.push_back(rNewCell);
+    this->mCells.push_back(pNewCell);
 
     // Update mappings between cells and location indices
-    TissueCell* p_created_cell = &(this->mCells.back());
-    this->mLocationCellMap[new_node_index] = p_created_cell;
-    this->mCellLocationMap[p_created_cell] = new_node_index;
+    this->mLocationCellMap[new_node_index] = pNewCell;
+    this->mCellLocationMap[pNewCell.get()] = new_node_index;
 
-    return p_created_cell;
+    return pNewCell;
 }
 
 
 template<unsigned DIM>
-bool AbstractCellCentreBasedTissue<DIM>::IsCellAssociatedWithADeletedLocation(TissueCell& rCell)
+bool AbstractCellCentreBasedTissue<DIM>::IsCellAssociatedWithADeletedLocation(TissueCellPtr pCell)
 {
-    return GetNodeCorrespondingToCell(rCell)->IsDeleted();
+    return GetNodeCorrespondingToCell(pCell)->IsDeleted();
 }
 
 
@@ -92,7 +93,7 @@ void AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(const std::vector< 
          ++cell_iter)
     {
         // Get index of node associated with cell
-        unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+        unsigned node_index = this->mCellLocationMap[(*cell_iter).get()];
 
         // Get damping constant for node
         double damping_const = this->GetDampingConstant(node_index);
@@ -112,8 +113,8 @@ void AbstractCellCentreBasedTissue<DIM>::UpdateNodeLocations(const std::vector< 
 template<unsigned DIM>
 double AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 {
-    TissueCell& cell = this->rGetCellUsingLocationIndex(nodeIndex);
-    if (cell.GetMutationState()->IsType<WildTypeCellMutationState>())
+    TissueCellPtr p_cell = this->GetCellUsingLocationIndex(nodeIndex);
+    if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
     {
         return TissueConfig::Instance()->GetDampingConstantNormal();
     }

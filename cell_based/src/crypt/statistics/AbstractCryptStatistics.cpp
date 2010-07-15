@@ -64,7 +64,7 @@ void AbstractCryptStatistics::LabelAllCellsAsHealthy()
     }
 }
 
-std::vector<bool> AbstractCryptStatistics::AreCryptSectionCellsLabelled(std::vector<TissueCell*>& rCryptSection)
+std::vector<bool> AbstractCryptStatistics::AreCryptSectionCellsLabelled(std::vector<TissueCellPtr>& rCryptSection)
 {
     std::vector<bool> crypt_section_labelled(rCryptSection.size());
 

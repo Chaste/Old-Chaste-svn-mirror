@@ -234,15 +234,15 @@ public:
         /* Now construct and initialise a large number of {{{MyCellCycleModel}}}s and
          * associated cells: */
         unsigned num_cells = 1e5;
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<num_cells; i++)
         {
             MyCellCycleModel* p_cell_cycle_model = new MyCellCycleModel;
             p_cell_cycle_model->SetCellProliferativeType(STEM);
-            TissueCell cell(p_state, p_cell_cycle_model);
-            cell.InitialiseCellCycleModel();
-            cells.push_back(cell);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
+            p_cell->InitialiseCellCycleModel();
+            cells.push_back(p_cell);
         }
 
         /* Find the mean G1 duration and test that it is within some tolerance of
@@ -252,7 +252,7 @@ public:
 
         for (unsigned i=0; i<num_cells; i++)
         {
-            sample_mean_g1_duration += cells[i].GetCellCycleModel()->GetG1Duration()/ (double) num_cells;
+            sample_mean_g1_duration += cells[i]->GetCellCycleModel()->GetG1Duration()/ (double) num_cells;
         }
 
         TS_ASSERT_DELTA(sample_mean_g1_duration, expected_mean_g1_duration, 0.1);
@@ -260,8 +260,8 @@ public:
         /* Now construct another {{{MyCellCycleModel}}} and associated cell. */
         MyCellCycleModel* p_my_model = new MyCellCycleModel;
         p_my_model->SetCellProliferativeType(TRANSIT);
-        TissueCell my_cell(p_state, p_my_model);
-        my_cell.InitialiseCellCycleModel();
+        TissueCellPtr p_my_cell(new TissueCell(p_state, p_my_model));
+        p_my_cell->InitialiseCellCycleModel();
 
         /* Use the helper method {{{CheckReadyToDivideAndPhaseIsUpdated()}}} to
          * test that this cell progresses correctly through the cell cycle. */
@@ -298,8 +298,8 @@ public:
             /* Create a cell with associated cell cycle model. */
             MyCellCycleModel* p_model = new MyCellCycleModel;
             p_model->SetCellProliferativeType(TRANSIT);
-            TissueCell cell(p_state, p_model);
-            cell.InitialiseCellCycleModel();
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            p_cell->InitialiseCellCycleModel();
 
             /* Move forward two time steps. */
             p_simulation_time->IncrementTimeOneStep();
@@ -312,11 +312,11 @@ public:
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), S_PHASE);
 
             /* Now archive the cell cycle model through its cell. */
-            TissueCell* const p_cell = &cell;
+            TissueCellPtr const p_const_cell = p_cell;
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            output_arch << p_cell;
+            output_arch << p_const_cell;
         }
 
         /* Now create an input archive. Begin by again destroying the current
@@ -329,7 +329,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
             /* Create a pointer to a cell. */
-            TissueCell* p_cell;
+            TissueCellPtr p_cell;
 
             /* Create an input archive and restore the cell from the archive. */
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -343,9 +343,6 @@ public:
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(), 2.5, 1e-12);
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), S_PHASE);
-
-            /* To avoid memory leaks, destroy the pointer to the cell. */
-            delete p_cell;
         }
 
         /* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
@@ -381,7 +378,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(5);
 
         /* Next, we create some cells. First, define the cells vector. */
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         /* Then we loop over the nodes. */
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
@@ -389,7 +386,7 @@ public:
             /* For each node we create a cell with our cell cycle model. */
             MyCellCycleModel* p_model = new MyCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             /* Now, we define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
@@ -399,8 +396,8 @@ public:
                                     (TissueConfig::Instance()->GetStemCellG1Duration()
                                         + TissueConfig::Instance()->GetSG2MDuration());
             /* We then set the birth time and push the cell back into the vector of cells. */
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         /* Now that we have defined the mesh and cells, we can define the tissue. The constructor

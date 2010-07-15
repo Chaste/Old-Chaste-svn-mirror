@@ -70,17 +70,17 @@ public:
         mesh.SetNode(10, shifted_point);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(DIFFERENTIATED);
-            TissueCell cell(p_healthy_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
             double birth_time = 0.0 - node_index;
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -135,17 +135,17 @@ public:
         mesh.ConstructLinearMesh(24);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(DIFFERENTIATED);
-            TissueCell cell(p_healthy_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
             double birth_time = 0.0 - node_index;
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -201,7 +201,7 @@ public:
         mesh.ConstructLinearMesh(22);
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -234,11 +234,11 @@ public:
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
-            TissueCell cell(p_healthy_state, p_model);
-            cell.InitialiseCellCycleModel();
-            cell.SetBirthTime(birth_time);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            p_cell->InitialiseCellCycleModel();
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -285,7 +285,7 @@ public:
         mesh.ConstructLinearMesh(3);
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -303,10 +303,10 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_healthy_state, p_model);
-            cell.SetBirthTime(birth_time);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -355,7 +355,7 @@ public:
         mesh.ConstructLinearMesh(22);
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -388,11 +388,11 @@ public:
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
-            TissueCell cell(p_healthy_state, p_model);
-            cell.InitialiseCellCycleModel();
-            cell.SetBirthTime(birth_time);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            p_cell->InitialiseCellCycleModel();
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -453,7 +453,7 @@ public:
 
         // Set up cells by iterating through the nodes
         unsigned num_cells_at_start = mesh.GetNumNodes();
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -481,11 +481,11 @@ public:
             TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel();
             p_model->SetCellProliferativeType(cell_type);
 
-            TissueCell cell(p_healthy_state, p_model);
-            cell.InitialiseCellCycleModel();
-            cell.SetBirthTime(birth_time);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            p_cell->InitialiseCellCycleModel();
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -549,7 +549,7 @@ public:
 
         // Set up cells by iterating through the nodes
         unsigned num_cells = mesh.GetNumNodes();
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<num_cells; i++)
@@ -574,11 +574,11 @@ public:
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
-            TissueCell cell(p_healthy_state, p_model);
-            cell.InitialiseCellCycleModel();
-            cell.SetBirthTime(birth_time);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            p_cell->InitialiseCellCycleModel();
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -661,7 +661,7 @@ public:
         // Set up cells by iterating through the nodes
         // (don't use any stem cells as we want to test the jiggling)
         unsigned num_cells = mesh.GetNumNodes();
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         for (unsigned i=0; i<num_cells; i++)
@@ -670,9 +670,9 @@ public:
             p_cell_cycle_model1->SetDimension(1);
             p_cell_cycle_model1->SetCellProliferativeType(TRANSIT);
             boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-            TissueCell cell(p_state, p_cell_cycle_model1);
-            cell.SetBirthTime(0.0);
-            cells.push_back(cell);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model1));
+            p_cell->SetBirthTime(0.0);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -755,7 +755,7 @@ public:
         mesh.ConstructLinearMesh(22);
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -788,10 +788,10 @@ public:
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
-            TissueCell cell(p_healthy_state, p_model);
-            cell.SetBirthTime(birth_time);
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Create tissue

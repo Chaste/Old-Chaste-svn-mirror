@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
-                                      std::vector<TissueCell>& rCells,
+                                      std::vector<TissueCellPtr>& rCells,
                                       const std::vector<unsigned> locationIndices,
                                       bool deleteMesh,
                                       bool validate)
@@ -181,24 +181,24 @@ template<unsigned DIM>
 unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
 {
     unsigned num_removed = 0;
-    for (std::list<TissueCell>::iterator it = this->mCells.begin();
+    for (std::list<TissueCellPtr>::iterator it = this->mCells.begin();
          it != this->mCells.end();
          ++it)
     {
-        if (it->IsDead())
+        if ((*it)->IsDead())
         {
             // Check if this cell is in a marked spring
-            std::vector<const std::set<TissueCell*>*> pairs_to_remove; // Pairs that must be purged
-            for (std::set<std::set<TissueCell*> >::iterator it1 = mMarkedSprings.begin();
+            std::vector<const std::set<TissueCellPtr>*> pairs_to_remove; // Pairs that must be purged
+            for (std::set<std::set<TissueCellPtr> >::iterator it1 = mMarkedSprings.begin();
                  it1 != mMarkedSprings.end();
                  ++it1)
             {
-                const std::set<TissueCell*>& r_pair = *it1;
-                for (std::set<TissueCell*>::iterator it2 = r_pair.begin();
+                const std::set<TissueCellPtr>& r_pair = *it1;
+                for (std::set<TissueCellPtr>::iterator it2 = r_pair.begin();
                      it2 != r_pair.end();
                      ++it2)
                 {
-                    if (*it2 == &(*it))
+                    if (*it2 == *it)
                     {
                         // Remember to purge this spring
                         pairs_to_remove.push_back(&r_pair);
@@ -207,7 +207,7 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
                 }
             }
             // Purge any marked springs that contained this cell
-            for (std::vector<const std::set<TissueCell*>* >::iterator pair_it = pairs_to_remove.begin();
+            for (std::vector<const std::set<TissueCellPtr>* >::iterator pair_it = pairs_to_remove.begin();
                  pair_it != pairs_to_remove.end();
                  ++pair_it)
             {
@@ -216,11 +216,11 @@ unsigned MeshBasedTissue<DIM>::RemoveDeadCells()
 
             // Remove the node from the mesh
             num_removed++;
-            mrMesh.DeleteNodePriorToReMesh(this->mCellLocationMap[&(*it)]);
+            mrMesh.DeleteNodePriorToReMesh(this->mCellLocationMap[(*it).get()]);
 
             // Update mappings between cells and location indices
-            unsigned location_index_of_removed_node = this->mCellLocationMap[&(*it)];
-            this->mCellLocationMap.erase(&(*it));
+            unsigned location_index_of_removed_node = this->mCellLocationMap[(*it).get()];
+            this->mCellLocationMap.erase((*it).get());
             this->mLocationCellMap.erase(location_index_of_removed_node);
 
             // Update vector of cells
@@ -250,33 +250,33 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         this->mLocationCellMap.clear();
         this->mCellLocationMap.clear();
 
-        for (std::list<TissueCell>::iterator it = this->mCells.begin();
+        for (std::list<TissueCellPtr>::iterator it = this->mCells.begin();
              it != this->mCells.end();
              ++it)
         {
-            unsigned old_node_index = old_map[&(*it)];
+            unsigned old_node_index = old_map[(*it).get()];
 
             // This shouldn't ever happen, as the cell vector only contains living cells
             assert(!map.IsDeleted(old_node_index));
 
             unsigned new_node_index = map.GetNewIndex(old_node_index);
-            this->mLocationCellMap[new_node_index] = &(*it);
-            this->mCellLocationMap[&(*it)] = new_node_index;
+            this->mLocationCellMap[new_node_index] = *it;
+            this->mCellLocationMap[(*it).get()] = new_node_index;
         }
     }
 
     // Purge any marked springs that are no longer springs
-    std::vector<const std::set<TissueCell*>*> springs_to_remove;
-    for (std::set<std::set<TissueCell*> >::iterator spring_it = mMarkedSprings.begin();
+    std::vector<const std::set<TissueCellPtr>*> springs_to_remove;
+    for (std::set<std::set<TissueCellPtr> >::iterator spring_it = mMarkedSprings.begin();
          spring_it != mMarkedSprings.end();
          ++spring_it)
     {
-        const std::set<TissueCell*>& r_pair = *spring_it;
+        const std::set<TissueCellPtr>& r_pair = *spring_it;
         assert(r_pair.size() == 2);
-        TissueCell* p_cell_1 = *(r_pair.begin());
-        TissueCell* p_cell_2 = *(++r_pair.begin());
-        Node<DIM>* p_node_1 = this->GetNodeCorrespondingToCell(*p_cell_1);
-        Node<DIM>* p_node_2 = this->GetNodeCorrespondingToCell(*p_cell_2);
+        TissueCellPtr p_cell_1 = *(r_pair.begin());
+        TissueCellPtr p_cell_2 = *(++r_pair.begin());
+        Node<DIM>* p_node_1 = this->GetNodeCorrespondingToCell(p_cell_1);
+        Node<DIM>* p_node_2 = this->GetNodeCorrespondingToCell(p_cell_2);
 
         bool joined = false;
 
@@ -301,7 +301,7 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     }
 
     // Remove any springs necessary
-    for (std::vector<const std::set<TissueCell*>* >::iterator spring_it = springs_to_remove.begin();
+    for (std::vector<const std::set<TissueCellPtr>* >::iterator spring_it = springs_to_remove.begin();
          spring_it != springs_to_remove.end();
          ++spring_it)
     {
@@ -341,13 +341,14 @@ void MeshBasedTissue<DIM>::UpdateGhostNodesAfterReMesh(NodeMap& rMap)
 }
 
 template<unsigned DIM>
-TissueCell* MeshBasedTissue<DIM>::AddCell(TissueCell& rNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCell* pParentCell)
+TissueCellPtr MeshBasedTissue<DIM>::AddCell(TissueCellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCellPtr pParentCell)
 {
     // Add new cell to tissue
-    TissueCell* p_created_cell = AbstractCellCentreBasedTissue<DIM>::AddCell(rNewCell, rCellDivisionVector, pParentCell);
+    TissueCellPtr p_created_cell = AbstractCellCentreBasedTissue<DIM>::AddCell(pNewCell, rCellDivisionVector, pParentCell);
+    assert(p_created_cell == pNewCell);
 
     // Mark spring between parent cell and new cell
-    std::set<TissueCell*> cell_pair = CreateCellPair(*pParentCell, *p_created_cell);
+    std::set<TissueCellPtr> cell_pair = CreateCellPair(pParentCell, p_created_cell);
     MarkSpring(cell_pair);
 
     // Return pointer to new cell
@@ -521,7 +522,7 @@ void MeshBasedTissue<DIM>::WriteVtkResultsToFile()
         assert(!this->IsGhostNode(node_index));
 
         // Get the cell corresponding to this element
-        TissueCell* p_cell = this->mLocationCellMap[node_index];
+        TissueCellPtr p_cell = this->mLocationCellMap[node_index];
 
         if (TissueConfig::Instance()->GetOutputCellAncestors())
         {
@@ -559,7 +560,7 @@ void MeshBasedTissue<DIM>::WriteVtkResultsToFile()
             unsigned num_variables = p_data->GetNumVariables();
             for (unsigned var=0; var<num_variables; var++)
             {
-                cellwise_data[var][elem_index] = p_data->GetValue(*p_cell, var);
+                cellwise_data[var][elem_index] = p_data->GetValue(p_cell, var);
             }
         }
     }
@@ -669,7 +670,7 @@ void MeshBasedTissue<DIM>::WriteTissueVolumeResultsToFile()
         if (!this->IsGhostNode(node_index))
         {
             // Get the cell corresponding to this node
-            TissueCell* p_cell =  this->mLocationCellMap[node_index];
+            TissueCellPtr p_cell =  this->mLocationCellMap[node_index];
 
             // Only bother calculating the area/volume of apoptotic cells
             if (p_cell->GetMutationState()->IsType<ApoptoticCellMutationState>())
@@ -708,7 +709,7 @@ void MeshBasedTissue<DIM>::WriteCellVolumeResultsToFile()
             *mpCellVolumesFile << node_index << " ";
 
             // Get the cell corresponding to this node
-            TissueCell* p_cell =  this->mLocationCellMap[node_index];
+            TissueCellPtr p_cell =  this->mLocationCellMap[node_index];
 
             // Write cell ID to file
             unsigned cell_index = p_cell->GetCellId();
@@ -747,17 +748,17 @@ Node<DIM>* MeshBasedTissue<DIM>::SpringIterator::GetNodeB()
 }
 
 template<unsigned DIM>
-TissueCell& MeshBasedTissue<DIM>::SpringIterator::rGetCellA()
+TissueCellPtr MeshBasedTissue<DIM>::SpringIterator::GetCellA()
 {
     assert((*this) != mrTissue.SpringsEnd());
-    return mrTissue.rGetCellUsingLocationIndex(mEdgeIter.GetNodeA()->GetIndex());
+    return mrTissue.GetCellUsingLocationIndex(mEdgeIter.GetNodeA()->GetIndex());
 }
 
 template<unsigned DIM>
-TissueCell& MeshBasedTissue<DIM>::SpringIterator::rGetCellB()
+TissueCellPtr MeshBasedTissue<DIM>::SpringIterator::GetCellB()
 {
     assert((*this) != mrTissue.SpringsEnd());
-    return mrTissue.rGetCellUsingLocationIndex(mEdgeIter.GetNodeB()->GetIndex());
+    return mrTissue.GetCellUsingLocationIndex(mEdgeIter.GetNodeB()->GetIndex());
 }
 
 template<unsigned DIM>
@@ -872,21 +873,21 @@ template<unsigned DIM>
 void MeshBasedTissue<DIM>::CheckTissueCellPointers()
 {
     bool res = true;
-    for (std::list<TissueCell>::iterator it=this->mCells.begin();
+    for (std::list<TissueCellPtr>::iterator it=this->mCells.begin();
          it!=this->mCells.end();
          ++it)
     {
-        TissueCell* p_cell = &(*it);
+        TissueCellPtr p_cell = *it;
         assert(p_cell);
         AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
         assert(p_model);
 
         // Check cell exists in tissue
-        unsigned node_index = this->mCellLocationMap[p_cell];
+        unsigned node_index = this->mCellLocationMap[p_cell.get()];
         std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
-        TissueCell& r_cell = this->rGetCellUsingLocationIndex(node_index);
+        TissueCellPtr p_cell_in_tissue = this->GetCellUsingLocationIndex(node_index);
 #define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions
-        if (&r_cell != p_cell)
+        if (p_cell_in_tissue != p_cell)
         {
             std::cout << "  Mismatch with tissue" << std::endl << std::flush;
             res = false;
@@ -903,21 +904,21 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
 #undef COVERAGE_IGNORE
 
     res = true;
-    for (std::set<std::set<TissueCell*> >::iterator it1 = mMarkedSprings.begin();
+    for (std::set<std::set<TissueCellPtr> >::iterator it1 = mMarkedSprings.begin();
          it1 != mMarkedSprings.end();
          ++it1)
     {
-        const std::set<TissueCell*>& r_pair = *it1;
+        const std::set<TissueCellPtr>& r_pair = *it1;
         assert(r_pair.size() == 2);
-        for (std::set<TissueCell*>::iterator it2 = r_pair.begin();
+        for (std::set<TissueCellPtr>::iterator it2 = r_pair.begin();
              it2 != r_pair.end();
              ++it2)
         {
-            TissueCell* p_cell = *it2;
+            TissueCellPtr p_cell = *it2;
             assert(p_cell);
             AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
             assert(p_model);
-            unsigned node_index = this->mCellLocationMap[p_cell];
+            unsigned node_index = this->mCellLocationMap[p_cell.get()];
             std::cout << "Cell at node " << node_index << " addr " << p_cell << std::endl << std::flush;
 
 #define COVERAGE_IGNORE //Debugging code.  Shouldn't fail under normal conditions
@@ -929,8 +930,8 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
             }
 
             // Check cell exists in tissue
-            TissueCell& r_cell = this->rGetCellUsingLocationIndex(node_index);
-            if (&r_cell != p_cell)
+            TissueCellPtr p_cell_in_tissue = this->GetCellUsingLocationIndex(node_index);
+            if (p_cell_in_tissue != p_cell)
             {
                 std::cout << "  Mismatch with tissue" << std::endl << std::flush;
                 res = false;
@@ -949,28 +950,28 @@ void MeshBasedTissue<DIM>::CheckTissueCellPointers()
 }
 
 template<unsigned DIM>
-std::set<TissueCell*> MeshBasedTissue<DIM>::CreateCellPair(TissueCell& rCell1, TissueCell& rCell2)
+std::set<TissueCellPtr> MeshBasedTissue<DIM>::CreateCellPair(TissueCellPtr pCell1, TissueCellPtr pCell2)
 {
-    std::set<TissueCell *> cell_pair;
-    cell_pair.insert(&rCell1);
-    cell_pair.insert(&rCell2);
+    std::set<TissueCellPtr> cell_pair;
+    cell_pair.insert(pCell1);
+    cell_pair.insert(pCell2);
     return cell_pair;
 }
 
 template<unsigned DIM>
-bool MeshBasedTissue<DIM>::IsMarkedSpring(const std::set<TissueCell*>& rCellPair)
+bool MeshBasedTissue<DIM>::IsMarkedSpring(const std::set<TissueCellPtr>& rCellPair)
 {
     return mMarkedSprings.find(rCellPair) != mMarkedSprings.end();
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::MarkSpring(std::set<TissueCell*>& rCellPair)
+void MeshBasedTissue<DIM>::MarkSpring(std::set<TissueCellPtr>& rCellPair)
 {
     mMarkedSprings.insert(rCellPair);
 }
 
 template<unsigned DIM>
-void MeshBasedTissue<DIM>::UnmarkSpring(std::set<TissueCell*>& rCellPair)
+void MeshBasedTissue<DIM>::UnmarkSpring(std::set<TissueCellPtr>& rCellPair)
 {
     mMarkedSprings.erase(rCellPair);
 }

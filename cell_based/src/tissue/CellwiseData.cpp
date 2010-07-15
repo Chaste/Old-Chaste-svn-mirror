@@ -74,7 +74,7 @@ void CellwiseData<DIM>::Destroy()
 
 
 template<unsigned DIM>
-double CellwiseData<DIM>::GetValue(TissueCell& rCell, unsigned variableNumber)
+double CellwiseData<DIM>::GetValue(TissueCellPtr pCell, unsigned variableNumber)
 {
     if (variableNumber >= mNumberOfVariables)
     {
@@ -91,7 +91,7 @@ double CellwiseData<DIM>::GetValue(TissueCell& rCell, unsigned variableNumber)
     assert(mpTissue != NULL);
     assert(mAllocatedMemory);
 
-    unsigned location_index = mpTissue->GetLocationIndexUsingCell(rCell);
+    unsigned location_index = mpTissue->GetLocationIndexUsingCell(pCell);
     unsigned vector_index = location_index*mNumberOfVariables + variableNumber;
     return mData[vector_index];
 }

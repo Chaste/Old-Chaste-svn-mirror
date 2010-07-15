@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /* These lines are very useful for debugging (visualize with 'showme').
 #include "TrianglesMeshWriter.hpp"
-TrianglesMeshWriter<2,2> mesh_writer("Cylindrical2dMeshDebug","mesh",false);
+TrianglesMeshWriter<2,2> mesh_writer("Cylindrical2dMeshDebug", "mesh", false);
 mesh_writer.WriteFilesUsingMesh(*this);
 */
 #include "Cylindrical2dMesh.hpp"

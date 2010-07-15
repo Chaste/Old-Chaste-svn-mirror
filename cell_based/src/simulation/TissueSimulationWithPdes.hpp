@@ -105,7 +105,7 @@ private:
     /**
      * Map between cells and the elements of the coarse PDE mesh containing them.
      */
-    std::map<TissueCell*, unsigned> mCellPdeElementMap;
+    std::map<TissueCellPtr, unsigned> mCellPdeElementMap;
 
     /**
      * Overridden SetupSolve() method.
@@ -145,11 +145,11 @@ private:
     /**
      * Find the index of the coarse mesh element containing a given cell.
      *
-     * @param rCell the cell
+     * @param pCell the cell
      *
      * @return the element index.
      */
-    unsigned FindCoarseElementContainingCell(TissueCell& rCell);
+    unsigned FindCoarseElementContainingCell(TissueCellPtr pCell);
 
     /**
      * Overridden PostSolve() method.

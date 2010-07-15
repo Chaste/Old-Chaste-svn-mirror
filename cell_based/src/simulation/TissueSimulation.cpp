@@ -124,13 +124,13 @@ unsigned TissueSimulation<DIM>::DoCellBirth()
             if (cell_iter->ReadyToDivide())
             {
                 // Create a new cell
-                TissueCell new_cell = cell_iter->Divide();
+                TissueCellPtr p_new_cell = cell_iter->Divide();
 
                 // Call method that determines how cell division occurs and returns a vector
                 c_vector<double, DIM> new_location = CalculateCellDivisionVector(*cell_iter);
 
                 // Add new cell to the tissue
-                mrTissue.AddCell(new_cell, new_location, &(*cell_iter));
+                mrTissue.AddCell(p_new_cell, new_location, *cell_iter);
 
                 // Update counter
                 num_births_this_step++;
@@ -169,7 +169,7 @@ const std::vector<AbstractForce<DIM>*> TissueSimulation<DIM>::rGetForceCollectio
 
 
 template<unsigned DIM>
-c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueCell& rParentCell)
+c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueCellPtr pParentCell)
 {
     /**
      * \todo Could remove this dynamic_cast by moving the code block below into
@@ -179,7 +179,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueC
     if (dynamic_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue))
     {
         // Location of parent and daughter cells
-        c_vector<double, DIM> parent_coords = mrTissue.GetLocationOfCellCentre(rParentCell);
+        c_vector<double, DIM> parent_coords = mrTissue.GetLocationOfCellCentre(pParentCell);
         c_vector<double, DIM> daughter_coords;
 
         // Get separation parameter
@@ -230,7 +230,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueC
 
         // Set the parent to use this location
         ChastePoint<DIM> parent_coords_point(parent_coords);
-        unsigned node_index = mrTissue.GetLocationIndexUsingCell(rParentCell);
+        unsigned node_index = mrTissue.GetLocationIndexUsingCell(pParentCell);
         mrTissue.SetNode(node_index, parent_coords_point);
 
         return daughter_coords;
@@ -287,7 +287,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
                     else
                     {
                         // We should never encounter nodes associated with dead cells due to where this method is called by Solve()
-                        assert(!mrTissue.rGetCellUsingLocationIndex(node_index).IsDead());
+                        assert(!mrTissue.GetCellUsingLocationIndex(node_index)->IsDead());
                     }
                 }
 

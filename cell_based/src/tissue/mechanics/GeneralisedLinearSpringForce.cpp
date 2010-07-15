@@ -104,11 +104,11 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     double rest_length = 1.0;
 
-    TissueCell& r_cell_A = rTissue.rGetCellUsingLocationIndex(nodeAGlobalIndex);
-    TissueCell& r_cell_B = rTissue.rGetCellUsingLocationIndex(nodeBGlobalIndex);
+    TissueCellPtr p_cell_A = rTissue.GetCellUsingLocationIndex(nodeAGlobalIndex);
+    TissueCellPtr p_cell_B = rTissue.GetCellUsingLocationIndex(nodeBGlobalIndex);
 
-    double ageA = r_cell_A.GetAge();
-    double ageB = r_cell_B.GetAge();
+    double ageA = p_cell_A->GetAge();
+    double ageB = p_cell_B->GetAge();
 
     assert(!std::isnan(ageA));
     assert(!std::isnan(ageB));
@@ -125,7 +125,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         {
             MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
 
-            std::set<TissueCell*> cell_pair = p_static_cast_tissue->CreateCellPair(r_cell_A, r_cell_B);
+            std::set<TissueCellPtr> cell_pair = p_static_cast_tissue->CreateCellPair(p_cell_A, p_cell_B);
 
             if (p_static_cast_tissue->IsMarkedSpring(cell_pair))
             {
@@ -154,14 +154,14 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
      * If either of the cells has begun apoptosis, then the length of the spring
      * connecting them decreases linearly with time.
      */
-    if (r_cell_A.HasApoptosisBegun())
+    if (p_cell_A->HasApoptosisBegun())
     {
-        double time_until_death_a = r_cell_A.GetTimeUntilDeath();
+        double time_until_death_a = p_cell_A->GetTimeUntilDeath();
         a_rest_length = a_rest_length * time_until_death_a / p_config->GetApoptosisTime();
     }
-    if (r_cell_B.HasApoptosisBegun())
+    if (p_cell_B->HasApoptosisBegun())
     {
-        double time_until_death_b = r_cell_B.GetTimeUntilDeath();
+        double time_until_death_b = p_cell_B->GetTimeUntilDeath();
         b_rest_length = b_rest_length * time_until_death_b / p_config->GetApoptosisTime();
     }
 

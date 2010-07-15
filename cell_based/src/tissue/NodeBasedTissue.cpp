@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
-                                      std::vector<TissueCell>& rCells,
+                                      std::vector<TissueCellPtr>& rCells,
                                       const std::vector<unsigned> locationIndices,
                                       bool deleteNodes)
     : AbstractCellCentreBasedTissue<DIM>(rCells, locationIndices),
@@ -57,7 +57,7 @@ NodeBasedTissue<DIM>::NodeBasedTissue(const std::vector<Node<DIM>* > nodes, bool
 
 template<unsigned DIM>
 NodeBasedTissue<DIM>::NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
-                                      std::vector<TissueCell>& rCells)
+                                      std::vector<TissueCellPtr>& rCells)
     : AbstractCellCentreBasedTissue<DIM>(rCells),
       mAddedNodes(false),
       mpBoxCollection(NULL),
@@ -114,7 +114,7 @@ void NodeBasedTissue<DIM>::Validate()
 
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+        unsigned node_index = this->mCellLocationMap[(*cell_iter).get()];
         validated_node[node_index] = true;
     }
 
@@ -234,7 +234,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
             }
         }
 
-        std::map<unsigned,TissueCell*> old_map = this->mLocationCellMap;
+        std::map<unsigned,TissueCellPtr> old_map = this->mLocationCellMap;
         mNodes.clear();
 
         // Clear maps
@@ -245,7 +245,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
         for (unsigned i=0; i<old_nodes.size(); i++)
         {
             // Get the living cell associated with the old node
-            TissueCell* p_live_cell = old_map[old_nodes[i]->GetIndex()];
+            TissueCellPtr p_live_cell = old_map[old_nodes[i]->GetIndex()];
 
             // Set the node up
             mNodes.push_back(old_nodes[i]);
@@ -253,7 +253,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
 
             // Set the maps up
             this->mLocationCellMap[i] = p_live_cell;
-            this->mCellLocationMap[p_live_cell] = i;
+            this->mCellLocationMap[p_live_cell.get()] = i;
         }
 
         // Remove current dead indices data
@@ -299,16 +299,16 @@ unsigned NodeBasedTissue<DIM>::RemoveDeadCells()
 {
     unsigned num_removed = 0;
 
-    for (std::list<TissueCell>::iterator cell_iter = this->mCells.begin();
+    for (std::list<TissueCellPtr>::iterator cell_iter = this->mCells.begin();
          cell_iter != this->mCells.end();
          ++cell_iter)
     {
-        if (cell_iter->IsDead())
+        if ((*cell_iter)->IsDead())
         {
             // Remove the node
             num_removed++;
             this->GetNodeCorrespondingToCell(*cell_iter)->MarkAsDeleted();
-            mDeletedNodeIndices.push_back( this->mCellLocationMap[&(*cell_iter)] );
+            mDeletedNodeIndices.push_back(this->mCellLocationMap[(*cell_iter).get()]);
             cell_iter = this->mCells.erase(cell_iter);
             --cell_iter;
         }

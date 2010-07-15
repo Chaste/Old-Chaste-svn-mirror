@@ -113,21 +113,21 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
 
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Set up tissue
@@ -218,7 +218,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -226,14 +226,14 @@ public:
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
 
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Set up tissue
@@ -329,7 +329,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
         boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
@@ -338,11 +338,11 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
-            cell.SetBirthTime(birth_time);
+            p_cell->SetBirthTime(birth_time);
 
             // Make the cell apoptotic if near the centre
             double x = p_mesh->GetNode(i)->rGetLocation()[0];
@@ -351,10 +351,10 @@ public:
 
             if (dist_from_centre < 1.5)
             {
-                cell.SetMutationState(p_apoptotic_state);
+                p_cell->SetMutationState(p_apoptotic_state);
             }
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Set up tissue
@@ -403,7 +403,7 @@ public:
         std::vector<double> node_5_location = simulator.GetNodeLocation(5);
         TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
         TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
-        TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5)), 0.9702, 1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().GetCellUsingLocationIndex(5)), 0.9702, 1e-4);
 
         // Tidy up
         CellwiseData<2>::Destroy();
@@ -422,7 +422,7 @@ public:
 		MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
 		// Set up cells
-		std::vector<TissueCell> cells;
+		std::vector<TissueCellPtr> cells;
 		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 		///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
 		boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
@@ -431,11 +431,11 @@ public:
 			SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
 			p_model->SetDimension(2);
 			p_model->SetCellProliferativeType(STEM);
-			TissueCell cell(p_state, p_model);
+			TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 			double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
 									(TissueConfig::Instance()->GetHepaOneCellG1Duration()
 									+TissueConfig::Instance()->GetSG2MDuration());
-			cell.SetBirthTime(birth_time);
+			p_cell->SetBirthTime(birth_time);
 
 			// Make the cell apoptotic if near the centre
 			double x = p_mesh->GetNode(i)->rGetLocation()[0];
@@ -444,10 +444,10 @@ public:
 
 			if (dist_from_centre < 1.5)
 			{
-				cell.SetMutationState(p_apoptotic_state);
+				p_cell->SetMutationState(p_apoptotic_state);
 			}
 
-			cells.push_back(cell);
+			cells.push_back(p_cell);
 		}
 
 		// Set up tissue
@@ -503,10 +503,10 @@ public:
 		std::vector<double> node_5_location = simulator.GetNodeLocation(5);
 		TS_ASSERT_DELTA(node_5_location[0], 0.6576, 1e-4);
 		TS_ASSERT_DELTA(node_5_location[1], 1.1358, 1e-4);
-		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),0), 0.9702, 1e-4);
-		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),1), 0.0000, 1e-4);
-		TS_ASSERT_LESS_THAN(p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),1),
-							p_data->GetValue(simulator.rGetTissue().rGetCellUsingLocationIndex(5),0));
+		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().GetCellUsingLocationIndex(5),0), 0.9702, 1e-4);
+		TS_ASSERT_DELTA(p_data->GetValue(simulator.rGetTissue().GetCellUsingLocationIndex(5),1), 0.0000, 1e-4);
+		TS_ASSERT_LESS_THAN(p_data->GetValue(simulator.rGetTissue().GetCellUsingLocationIndex(5),1),
+							p_data->GetValue(simulator.rGetTissue().GetCellUsingLocationIndex(5),0));
 
 		// Tidy up
 		CellwiseData<2>::Destroy();
@@ -525,7 +525,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
         boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
@@ -534,15 +534,15 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
-            TissueCell cell(p_state, p_model);
-            cell.SetBirthTime(-0.1);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            p_cell->SetBirthTime(-0.1);
 
             // Label three neighbouring cells as apoptotic
             if (i==12 || i==13 || i==17)
             {
-                cell.SetMutationState(p_apoptotic_state);
+                p_cell->SetMutationState(p_apoptotic_state);
             }
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Set up tissue
@@ -640,7 +640,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -648,14 +648,14 @@ public:
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
 
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Set up tissue
@@ -741,7 +741,7 @@ public:
             cell_iter != tissue.End();
             ++cell_iter)
         {
-            unsigned containing_element_index = simulator.mCellPdeElementMap[&(*cell_iter)];
+            unsigned containing_element_index = simulator.mCellPdeElementMap[*cell_iter];
             TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarsePdeMesh->GetNumElements());
             TS_ASSERT_EQUALS(containing_element_index, simulator.FindCoarseElementContainingCell(*cell_iter));
         }
@@ -805,8 +805,6 @@ public:
             double value0_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 0);
             double value1_at_cell = CellwiseData<2>::Instance()->GetValue(*cell_iter, 1);
 
-
-
             TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, value0_at_cell);
             TS_ASSERT_LESS_THAN_EQUALS(min0, value0_at_cell);
             TS_ASSERT_LESS_THAN_EQUALS(value0_at_cell, max0);
@@ -814,11 +812,9 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS(value1_at_cell, max1);
         }
 
-
         // Tidy up
         CellwiseData<2>::Destroy();
     }
-
 
 
     void TestCoarseSourceMeshWithNeumannIsNotImplemented() throw(Exception)
@@ -834,7 +830,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -842,14 +838,14 @@ public:
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
 
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Set up tissue
@@ -935,7 +931,7 @@ public:
             cell_iter != tissue.End();
             ++cell_iter)
         {
-            unsigned containing_element_index = simulator.mCellPdeElementMap[&(*cell_iter)];
+            unsigned containing_element_index = simulator.mCellPdeElementMap[*cell_iter];
             TS_ASSERT_LESS_THAN(containing_element_index, simulator.mpCoarsePdeMesh->GetNumElements());
             TS_ASSERT_EQUALS(containing_element_index, simulator.FindCoarseElementContainingCell(*cell_iter));
         }
@@ -962,7 +958,7 @@ public:
         p_mesh->Scale(5.0,1.0);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -970,14 +966,14 @@ public:
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
 
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Set up tissue
@@ -1048,7 +1044,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -1056,14 +1052,14 @@ public:
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell( p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                             (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                              +TissueConfig::Instance()->GetSG2MDuration());
 
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Set up tissue
@@ -1129,8 +1125,8 @@ public:
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
 
         // Test the CellwiseData result
-        TS_ASSERT_DELTA(p_data->GetValue(p_simulator->rGetTissue().rGetCellUsingLocationIndex(5)), 0.9604, 1e-4);
-        TS_ASSERT_DELTA(p_data->GetValue(p_simulator->rGetTissue().rGetCellUsingLocationIndex(15)), 0.9584, 1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(p_simulator->rGetTissue().GetCellUsingLocationIndex(5)), 0.9604, 1e-4);
+        TS_ASSERT_DELTA(p_data->GetValue(p_simulator->rGetTissue().GetCellUsingLocationIndex(15)), 0.9584, 1e-4);
 
         // Run tissue simulation
         delete p_simulator;
@@ -1162,7 +1158,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -1170,14 +1166,14 @@ public:
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
                                     (TissueConfig::Instance()->GetHepaOneCellG1Duration()
                                     +TissueConfig::Instance()->GetSG2MDuration());
 
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Set up tissue
@@ -1260,11 +1256,11 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh","StartMesh");
+        TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh", "StartMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> generator;
         generator.GenerateBasic(cells, mesh.GetNumNodes());
 

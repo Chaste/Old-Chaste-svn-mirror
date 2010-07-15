@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "WntConcentration.hpp"
 
-
 /** Pointer to the single instance */
 template<unsigned DIM>
 WntConcentration<DIM>* WntConcentration<DIM>::mpInstance = NULL;
@@ -74,7 +73,7 @@ void WntConcentration<DIM>::Destroy()
 
 
 template<unsigned DIM>
-double WntConcentration<DIM>::GetWntLevel(TissueCell& rCell)
+double WntConcentration<DIM>::GetWntLevel(TissueCellPtr pCell)
 {
     if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
     {
@@ -86,22 +85,31 @@ double WntConcentration<DIM>::GetWntLevel(TissueCell& rCell)
 
     double height;
 
+    /**
+     * \todo REMOVE THIS COMMENT
+     * 
+     * Up to here, everything is fine: the cell is happy, the cell cycle model
+     * is happy and the tissue is happy. Something goes wrong when height is
+     * computed.
+     */
+    
     if (mWntType==RADIAL)
     {
         double a = TissueConfig::Instance()->GetCryptProjectionParameterA();
         double b = TissueConfig::Instance()->GetCryptProjectionParameterB();
-        height = a*pow(norm_2(mpTissue->GetLocationOfCellCentre(rCell)), b);
+        height = a*pow(norm_2(mpTissue->GetLocationOfCellCentre(pCell)), b);
     }
     else
     {
-        height = mpTissue->GetLocationOfCellCentre(rCell)[DIM-1];
+        height = mpTissue->GetLocationOfCellCentre(pCell)[DIM-1];
     }
+
     return GetWntLevel(height);
 }
 
 
 template<unsigned DIM>
-c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(TissueCell& rCell)
+c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(TissueCellPtr pCell)
 {
     if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
     {
@@ -110,7 +118,7 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(TissueCell& rCell)
     assert(mpTissue!=NULL);
     assert(mTypeSet);
 
-    c_vector<double, DIM> location_of_cell = mpTissue->GetLocationOfCellCentre(rCell);
+    c_vector<double, DIM> location_of_cell = mpTissue->GetLocationOfCellCentre(pCell);
 
     return GetWntGradient(location_of_cell);
 }

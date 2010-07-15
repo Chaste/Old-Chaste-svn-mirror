@@ -28,8 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellCycleModel.hpp"
 
 AbstractCellCycleModel::AbstractCellCycleModel()
-    : mpCell(NULL),
-      mBirthTime(SimulationTime::Instance()->GetTime()),
+    : mBirthTime(SimulationTime::Instance()->GetTime()),
       mCurrentCellCyclePhase(M_PHASE),
       mG1Duration(DOUBLE_UNSET),
       mReadyToDivide(false),
@@ -44,14 +43,14 @@ AbstractCellCycleModel::~AbstractCellCycleModel()
     // delete mpCell;
 }
 
-void AbstractCellCycleModel::SetCell(TissueCell* pCell)
+void AbstractCellCycleModel::SetCell(TissueCellPtr pCell)
 {
     mpCell = pCell;
 }
 
-TissueCell* AbstractCellCycleModel::GetCell()
+TissueCellPtr AbstractCellCycleModel::GetCell()
 {
-    assert(mpCell!=NULL);
+    assert(mpCell != NULL);
     return mpCell;
 }
 

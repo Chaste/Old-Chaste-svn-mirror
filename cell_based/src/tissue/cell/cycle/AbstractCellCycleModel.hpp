@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TissueCell.hpp"
 
 class TissueCell; // Circular definition (cells need to know about cycle models and vice-versa)
-
+typedef boost::shared_ptr<TissueCell> TissueCellPtr;
 
 /**
  * The AbstractCellCycleModel contains basic information to all cell cycle models.
@@ -96,7 +96,7 @@ private:
 protected:
 
     /** The cell that this model is associated with. */
-    TissueCell* mpCell;
+    TissueCellPtr mpCell;
 
     /**
      * The time that the cell began to split from its parent
@@ -150,7 +150,7 @@ public:
      *
      * @param pCell pointer to the cell
      */
-    void SetCell(TissueCell* pCell);
+    void SetCell(TissueCellPtr pCell);
 
     /**
      * Initialise the cell cycle model at the start of a simulation.
@@ -184,7 +184,7 @@ public:
     /**
      * @return The cell which plays host to this cell cycle model.
      */
-    TissueCell* GetCell();
+    TissueCellPtr GetCell();
 
     /**
      * Set the cell's time of birth (usually not required as it should be inside
@@ -251,12 +251,7 @@ public:
      * Each concrete subclass must implement this method to create an
      * instance of that subclass.
      *
-     * This method is called by the copy constructor and operator= of
-     * TissueCell to create a copy of the cell cycle model when
-     * copying a cell.  It thus needs to create an instance of the right
-     * class which is an exact copy of this instance.
-     *
-     * This method is also called by TissueCell::Divide() to create a cell
+     * This method is called by TissueCell::Divide() to create a cell
      * cycle model for the daughter cell.  Note that the parent cell
      * cycle model will have had ResetForDivision() called just before
      * CreateCellCycleModel() is called, so performing an exact copy of the
@@ -271,11 +266,13 @@ public:
      * of course).
      *
      * @note  This base class does not define a copy constructor, despite the
-     *    fact that it contains a pointer to a TissueCell.  This is OK
+     *    fact that it contains a (smart) pointer to a TissueCell.  This is OK
      *    because the TissueCell is not deleted by our destructor, and
      *    in all cases where the copy constructor is used either the
      *    original object is immediately destroyed, or the copy is assigned
      *    to a new cell.
+     *
+     * \todo #1279 consider if we can make the creation of new cell cycle models nicer now
      */
     virtual AbstractCellCycleModel* CreateCellCycleModel()=0;
 

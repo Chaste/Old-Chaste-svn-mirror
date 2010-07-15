@@ -156,10 +156,10 @@ public:
      *  must be set for this. Note the TissueConfig::CryptLength()
      *  is used for this.
      *
-     *  @param rCell the cell at which we want the Wnt concentration
+     *  @param pCell the cell at which we want the Wnt concentration
      *  @return the Wnt concentration at this cell
      */
-    double GetWntLevel(TissueCell& rCell);
+    double GetWntLevel(TissueCellPtr pCell);
 
     /**
      *  Get the Wnt gradient at a given location in the crypt. Note the
@@ -174,9 +174,9 @@ public:
      *  must be set for this. Note the TissueConfig::CryptLength()
      *  is used for this.
      *
-     *  @param rCell the cell at which we want the Wnt gradient
+     *  @param pCell the cell at which we want the Wnt gradient
      */
-    c_vector<double, DIM> GetWntGradient(TissueCell& rCell);
+    c_vector<double, DIM> GetWntGradient(TissueCellPtr pCell);
 
     /**
      *  Set the crypt. Must be called before GetWntLevel().

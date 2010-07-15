@@ -184,7 +184,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
 
         cells_generator.Generate(cells, &mesh, std::vector<unsigned>(), false, 0.0, 3.0, 6.5, 8.0);
@@ -249,7 +249,7 @@ public:
        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
        // Set up cells
-       std::vector<TissueCell> cells;
+       std::vector<TissueCellPtr> cells;
        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
        cells_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -312,7 +312,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -397,7 +397,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
@@ -466,13 +466,13 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            cells[i].SetBirthTime(-11.5);
+            cells[i]->SetBirthTime(-11.5);
         }
 
         // Create tissue
@@ -541,7 +541,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), false);
 
@@ -596,7 +596,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -658,7 +658,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -715,7 +715,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -758,8 +758,8 @@ public:
 
         // Test the Wnt concentration result
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.rGetCellUsingLocationIndex(28)), 1.0, 1e-9);
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.rGetCellUsingLocationIndex(120)), 0.9900, 1e-4);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.GetCellUsingLocationIndex(28)), 1.0, 1e-9);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.GetCellUsingLocationIndex(120)), 0.9900, 1e-4);
         WntConcentration<2>::Destroy();
 
         // Check writing of Voronoi data
@@ -786,7 +786,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -871,8 +871,8 @@ public:
 
         // Test the Wnt concentration result
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(28)), 1.0, 1e-9);
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetTissue().rGetCellUsingLocationIndex(120)), 0.9900, 1e-4);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetTissue().GetCellUsingLocationIndex(28)), 1.0, 1e-9);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetTissue().GetCellUsingLocationIndex(120)), 0.9900, 1e-4);
 
         // Tidy up
         delete p_simulator1;
@@ -906,7 +906,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -1025,13 +1025,13 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
         for (unsigned i=0; i<cells.size(); i++)
         {
-            cells[i].SetBirthTime(-11.5);
+            cells[i]->SetBirthTime(-11.5);
         }
 
         // Create tissue
@@ -1080,7 +1080,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -1109,10 +1109,10 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
 
-        simulator.rGetTissue().rGetCellUsingLocationIndex(57).SetMutationState(p_labelled);
-        simulator.rGetTissue().rGetCellUsingLocationIndex(56).SetMutationState(p_apc1);
-        simulator.rGetTissue().rGetCellUsingLocationIndex(51).SetMutationState(p_apc2);
-        simulator.rGetTissue().rGetCellUsingLocationIndex(63).SetMutationState(p_bcat1);
+        simulator.rGetTissue().GetCellUsingLocationIndex(57)->SetMutationState(p_labelled);
+        simulator.rGetTissue().GetCellUsingLocationIndex(56)->SetMutationState(p_apc1);
+        simulator.rGetTissue().GetCellUsingLocationIndex(51)->SetMutationState(p_apc2);
+        simulator.rGetTissue().GetCellUsingLocationIndex(63)->SetMutationState(p_bcat1);
         TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         // Run simulation
@@ -1172,11 +1172,11 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, &mesh, std::vector<unsigned>(), false, 0.0, 3.0, 6.5, 8.0);
 
-        cells[60].SetBirthTime(-50.0);
+        cells[60]->SetBirthTime(-50.0);
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(mesh, cells);
@@ -1218,7 +1218,7 @@ public:
         conf_mesh.AddNode(p_node);
 
         // Create cells
-        std::vector<TissueCell> conf_cells;
+        std::vector<TissueCellPtr> conf_cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> cells_generator;
         cells_generator.Generate(conf_cells, &conf_mesh, std::vector<unsigned>(), true);
 
@@ -1253,7 +1253,7 @@ public:
         conf_mesh.AddNode(p_node);
 
         // Create cells
-        std::vector<TissueCell> conf_cells;
+        std::vector<TissueCellPtr> conf_cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> cells_generator;
         cells_generator.Generate(conf_cells, &conf_mesh, std::vector<unsigned>(), true);
 
@@ -1300,7 +1300,7 @@ public:
         cyl_mesh.AddNode(p_node);
 
         // Create cells
-        std::vector<TissueCell> cyl_cells;
+        std::vector<TissueCellPtr> cyl_cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> cells_generator;
         cells_generator.Generate(cyl_cells, &cyl_mesh, std::vector<unsigned>(), true);
 
@@ -1335,7 +1335,7 @@ public:
         cyl_mesh.AddNode(p_node);
 
         // Create cells
-        std::vector<TissueCell> cyl_cells;
+        std::vector<TissueCellPtr> cyl_cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> cells_generator;
         cells_generator.Generate(cyl_cells, &cyl_mesh, std::vector<unsigned>(), true);
 
@@ -1382,7 +1382,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);// true = mature cells
 
@@ -1436,7 +1436,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -1476,7 +1476,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);
 
@@ -1529,18 +1529,18 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);
         TS_ASSERT_EQUALS(cells.size(), 16u);
 
         // Bestow mutations on some cells
-        cells[0].SetMutationState(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-        cells[1].SetMutationState(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>());
-        cells[2].SetMutationState(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
-        cells[3].SetMutationState(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
-        cells[4].SetMutationState(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
-        cells[2].SetBirthTime(1.5-(TissueConfig::Instance()->GetStemCellG1Duration()
+        cells[0]->SetMutationState(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        cells[1]->SetMutationState(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>());
+        cells[2]->SetMutationState(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
+        cells[3]->SetMutationState(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
+        cells[4]->SetMutationState(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
+        cells[2]->SetBirthTime(1.5-(TissueConfig::Instance()->GetStemCellG1Duration()
                                    + TissueConfig::Instance()->GetSG2MDuration()));
 
         // Create tissue
@@ -1725,7 +1725,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -1790,12 +1790,12 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> temp_cells;
+        std::vector<TissueCellPtr> temp_cells;
         CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(temp_cells, p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
         // This awkward way of setting up the cells is a result of #430
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
             cells.push_back(temp_cells[location_indices[i]]);

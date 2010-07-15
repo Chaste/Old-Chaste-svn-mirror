@@ -98,17 +98,17 @@ public :
      * @param yTop the y coordinate of the top of the line (defaults to crypt_length +2, to get the cells near the top)
      * @param periodic whether periodicity is accounted for (defaults to false)
      *
-     * @return  an ordered list of pointes to TissueCells from the bottom to the top of the crypt.
+     * @return  an ordered list of TissueCellPtrs from the bottom to the top of the crypt.
      *
      * Note that placing calls to functions with side-effects (eg. changing the random seed)
      * in the default arguments is DANGEROUS.  There is no guarantee that the compiler will
      * execute these in a sensible order.
      * It appears that Intel goes left-to-right and Gcc goes right-to-left.
      */
-     std::vector<TissueCell*> GetCryptSection(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
-                                              double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
-                                              double yTop = TissueConfig::Instance()->GetCryptLength() + 2.0,
-                                              bool periodic = false);
+     std::vector<TissueCellPtr> GetCryptSection(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
+                                                double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
+                                                double yTop = TissueConfig::Instance()->GetCryptLength() + 2.0,
+                                                bool periodic = false);
 
 
 
@@ -128,11 +128,11 @@ public :
      * @param xTop the x coordinate of the top of the line (defaults to a random number U[0,crypt_width])
      * @param yTop the y coordinate of the top of the line (defaults to crypt_length +2, to get the cells near the top)
      *
-     * @return an ordered list of pointes to TissueCells from the bottom to the top of the crypt.
+     * @return an ordered list of TissueCellPtrs from the bottom to the top of the crypt.
      */
-    std::vector<TissueCell*> GetCryptSectionPeriodic(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
-                                                     double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
-                                                     double yTop = TissueConfig::Instance()->GetCryptLength() + 2.0);
+    std::vector<TissueCellPtr> GetCryptSectionPeriodic(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
+                                                       double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
+                                                       double yTop = TissueConfig::Instance()->GetCryptLength() + 2.0);
 
 };
 

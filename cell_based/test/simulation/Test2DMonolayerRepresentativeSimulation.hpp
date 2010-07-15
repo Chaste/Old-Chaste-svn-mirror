@@ -63,7 +63,7 @@ public:
         TissueConfig::Instance()->SetMaxTransitGenerations(UINT_MAX);
 
         // Create some cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -74,9 +74,9 @@ public:
                                 (TissueConfig::Instance()->GetStemCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
 
-            TissueCell cell(p_state, p_model);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Create a tissue

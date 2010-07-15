@@ -128,7 +128,7 @@ protected:
      * Currently used to track cells in the process of dividing
      * (which are represented as two cells joined by a shorter spring).
      */
-    std::set<std::set<TissueCell*> > mMarkedSprings;
+    std::set<std::set<TissueCellPtr> > mMarkedSprings;
 
     /** Results file for elements. */
     out_stream mpVizElementsFile;
@@ -168,13 +168,13 @@ public:
      * There must be precisely 1 cell for each node of the mesh.
      *
      * @param rMesh a mutable tetrahedral mesh
-     * @param rCells TissueCells corresponding to the nodes of the mesh
+     * @param rCells cells corresponding to the nodes of the mesh
      * @param locationIndices an optional vector of location indices that correspond to real cells
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
      * @param validate whether to validate the tissue
      */
     MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
-                    std::vector<TissueCell>& rCells,
+                    std::vector<TissueCellPtr>& rCells,
                     const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
                     bool deleteMesh=false,
                     bool validate=true);
@@ -275,13 +275,13 @@ public:
      *
      * Add a new cell to the tissue and update mIsGhostNode.
      *
-     * @param rNewCell  the cell to add
+     * @param pNewCell  the cell to add
      * @param rCellDivisionVector  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
      *
      * @return address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    virtual TissueCell* AddCell(TissueCell& rNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCell* pParentCell=NULL);
+    virtual TissueCellPtr AddCell(TissueCellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCellPtr pParentCell=TissueCellPtr());
 
     /**
      * Overridden CreateOutputFiles() method.
@@ -418,14 +418,14 @@ public:
         Node<DIM>* GetNodeB();
 
         /**
-         * Get a *reference* to the cell at end A of the spring.
+         * Get the cell at end A of the spring.
          */
-        TissueCell& rGetCellA();
+        TissueCellPtr GetCellA();
 
         /**
-         * Get a *reference* to the cell at end B of the spring.
+         * Get the cell at end B of the spring.
          */
-        TissueCell& rGetCellB();
+        TissueCellPtr GetCellB();
 
         /**
          * Comparison not-equal-to.
@@ -478,31 +478,31 @@ public:
      * Helper method that returns a set of pointers to two given TissueCells.
      * Used by the spring marking routines.
      *
-     * @param rCell1 a TissueCell
-     * @param rCell2 a TissueCell
+     * @param pCell1 a TissueCell
+     * @param pCell2 a TissueCell
      */
-    std::set<TissueCell*> CreateCellPair(TissueCell& rCell1, TissueCell& rCell2);
+    std::set<TissueCellPtr> CreateCellPair(TissueCellPtr pCell1, TissueCellPtr pCell2);
 
     /**
      * @param rCellPair a set of pointers to TissueCells
      *
      * @return whether the spring between two given cells is marked.
      */
-    bool IsMarkedSpring(const std::set<TissueCell*>& rCellPair);
+    bool IsMarkedSpring(const std::set<TissueCellPtr>& rCellPair);
 
     /**
      * Mark the spring between the given cells.
      *
      * @param rCellPair a set of pointers to TissueCells
      */
-    void MarkSpring(std::set<TissueCell*>& rCellPair);
+    void MarkSpring(std::set<TissueCellPtr>& rCellPair);
 
     /**
      * Stop marking the spring between the given cells.
      *
      * @param rCellPair a set of pointers to TissueCells
      */
-    void UnmarkSpring(std::set<TissueCell*>& rCellPair);
+    void UnmarkSpring(std::set<TissueCellPtr>& rCellPair);
 
 };
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov

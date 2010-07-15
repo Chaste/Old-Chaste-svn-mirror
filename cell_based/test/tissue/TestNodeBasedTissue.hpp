@@ -49,21 +49,21 @@ class TestNodeBasedTissue : public AbstractCellBasedTestSuite
 private:
 
     template<unsigned DIM>
-    std::vector<TissueCell> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
+    std::vector<TissueCellPtr> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
     {
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time = 0.0 - i;
-            cell.SetBirthTime(birth_time);
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
         return cells;
     }
@@ -78,7 +78,7 @@ private:
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(&mesh);
         unsigned num_cells = cells.size();
 
         // Create the tissue
@@ -124,7 +124,7 @@ public:
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(&mesh);
 
         // Get a std::vector of nodes from the mesh
         std::vector<Node<2>* > nodes;
@@ -137,7 +137,7 @@ public:
 
         // Create the tissue
         unsigned num_cells = cells.size();
-        std::vector<TissueCell> cells_copy(cells);
+        std::vector<TissueCellPtr> cells_copy(cells);
         NodeBasedTissue<2> node_based_tissue(nodes, cells);
 
         TS_ASSERT_EQUALS(node_based_tissue.rGetNodes().size(), mesh.GetNumNodes());
@@ -165,19 +165,19 @@ public:
         // Set up cells, one for each node apart from one.
         // Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
             p_cell_cycle_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_state, p_cell_cycle_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
 
             double birth_time = 0.0 - i;
-            cell.SetBirthTime(birth_time);
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Get a std::vector of nodes from the mesh
@@ -189,17 +189,17 @@ public:
             nodes.push_back(p_node);
         }
         // Fails as no cell corresponding to node 4
-        std::vector<TissueCell> cells_copy(cells);
+        std::vector<TissueCellPtr> cells_copy(cells);
         TS_ASSERT_THROWS_THIS(NodeBasedTissue<2> tissue(nodes, cells_copy),
                               "Node 4 does not appear to have a cell associated with it");
 
         // Add another cell
         FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_cycle_model->SetCellProliferativeType(STEM);
-        TissueCell cell(p_state, p_cell_cycle_model);
+        TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
         double birth_time = -4.0;
-        cell.SetBirthTime(birth_time);
-        cells.push_back(cell);
+        p_cell->SetBirthTime(birth_time);
+        cells.push_back(p_cell);
 
         NodeBasedTissue<2> tissue(nodes, cells);
 
@@ -239,17 +239,17 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         FixedDurationGenerationBasedCellCycleModel* p_model0 = new FixedDurationGenerationBasedCellCycleModel();
         p_model0->SetCellProliferativeType(STEM);
-        TissueCell cell0(p_state, p_model0);
-        cell0.SetBirthTime(-1);
+        TissueCellPtr p_cell0(new TissueCell(p_state, p_model0));
+        p_cell0->SetBirthTime(-1);
 
         FixedDurationGenerationBasedCellCycleModel* p_model1 = new FixedDurationGenerationBasedCellCycleModel();
         p_model1->SetCellProliferativeType(STEM);
-        TissueCell cell1(p_state, p_model1);
-        cell1.SetBirthTime(-1);
+        TissueCellPtr p_cell1(new TissueCell(p_state, p_model1));
+        p_cell1->SetBirthTime(-1);
 
-        std::vector<TissueCell> cells;
-        cells.push_back(cell0);
-        cells.push_back(cell1);
+        std::vector<TissueCellPtr> cells;
+        cells.push_back(p_cell0);
+        cells.push_back(p_cell1);
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(nodes, cells);
@@ -257,14 +257,14 @@ public:
         // Create a new cell, DON'T set the node index, set birth time=-1
         FixedDurationGenerationBasedCellCycleModel* p_model2 = new FixedDurationGenerationBasedCellCycleModel();
         p_model2->SetCellProliferativeType(STEM);
-        TissueCell cell2(p_state, p_model2);
-        cell2.SetBirthTime(-1);
+        TissueCellPtr p_cell2(new TissueCell(p_state, p_model2));
+        p_cell2->SetBirthTime(-1);
 
         c_vector<double,2> cell2_location;
         cell2_location[0] = 2.0;
         cell2_location[1] = 2.0;
 
-        node_based_tissue.AddCell(cell2, cell2_location);
+        node_based_tissue.AddCell(p_cell2, cell2_location);
     }
 
     void TestSetNodeAndAddCell()
@@ -276,7 +276,7 @@ public:
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(&mesh);
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
@@ -313,7 +313,7 @@ public:
         delete p_node;
 
         // Remove a cell so as to populate mDeletedNodeIndices (for coverage)
-        node_based_tissue.rGetCellUsingLocationIndex(0).Kill();
+        node_based_tissue.GetCellUsingLocationIndex(0)->Kill();
         node_based_tissue.RemoveDeadCells();
 
         // Test AddNode again
@@ -339,14 +339,14 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
-        TissueCell cell(p_state, p_model);
-        cell.SetBirthTime(-1);
+        TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+        p_cell->SetBirthTime(-1);
 
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 2.0;
         new_cell_location[1] = 2.0;
 
-        node_based_tissue.AddCell(cell, new_cell_location);
+        node_based_tissue.AddCell(p_cell, new_cell_location);
 
         // Tissue should have updated nodes and cells
         TS_ASSERT_EQUALS(node_based_tissue.GetNumNodes(), old_num_nodes+1);
@@ -358,7 +358,7 @@ public:
         TS_ASSERT_DELTA(node_based_tissue.GetNode(old_num_nodes)->rGetLocation()[1], 2.0, 1e-12);
 
         // Check the index of the new cell
-        TissueCell& new_cell = node_based_tissue.rGetCells().back();
+        TissueCellPtr& new_cell = node_based_tissue.rGetCells().back();
         TS_ASSERT_EQUALS(node_based_tissue.GetLocationIndexUsingCell(new_cell), old_num_nodes);
     }
 
@@ -374,9 +374,9 @@ public:
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(&mesh);
 
-        cells[27].StartApoptosis();
+        cells[27]->StartApoptosis();
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
@@ -422,10 +422,10 @@ public:
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(&mesh);
 
         // Make one cell start apoptosis
-        cells[27].StartApoptosis();
+        cells[27]->StartApoptosis();
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
@@ -438,12 +438,12 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
-        TissueCell new_cell(p_state, p_model);
-        new_cell.SetBirthTime(0);
+        TissueCellPtr p_new_cell(new TissueCell(p_state, p_model));
+        p_new_cell->SetBirthTime(0);
         c_vector<double,2> new_location;
         new_location[0] = 0.3433453454443;
         new_location[1] = 0.3435346344234;
-        node_based_tissue.AddCell(new_cell, new_location);
+        node_based_tissue.AddCell(p_new_cell, new_location);
 
         // Test that the numbers of nodes and cells has been updated
         TS_ASSERT_EQUALS(node_based_tissue.GetNumNodes(), 82u);
@@ -463,13 +463,13 @@ public:
         // Add another cell to the tissue
         FixedDurationGenerationBasedCellCycleModel* p_model2 = new FixedDurationGenerationBasedCellCycleModel();
         p_model2->SetCellProliferativeType(STEM);
-        TissueCell new_cell2(p_state, p_model2);
-        new_cell2.SetBirthTime(0);
+        TissueCellPtr p_new_cell2(new TissueCell(p_state, p_model2));
+        p_new_cell2->SetBirthTime(0);
 
         c_vector<double,2> new_location2;
         new_location2[0] = 0.6433453454443;
         new_location2[1] = 0.6435346344234;
-        node_based_tissue.AddCell(new_cell2, new_location2);
+        node_based_tissue.AddCell(p_new_cell2, new_location2);
 
         // Test that the numbers of nodes and cells has been updated
         TS_ASSERT_EQUALS(node_based_tissue.GetNumNodes(), 82u);
@@ -485,7 +485,7 @@ public:
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(&mesh);
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
@@ -529,7 +529,7 @@ public:
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(&mesh);
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
@@ -557,7 +557,7 @@ public:
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCell> cells = SetUpCells(&mesh);
+        std::vector<TissueCellPtr> cells = SetUpCells(&mesh);
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
@@ -570,13 +570,13 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(node_based_tissue.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(node_based_tissue.GetMutationRegistry()->Get<ApoptoticCellMutationState>());
 
-        node_based_tissue.rGetCellUsingLocationIndex(0).GetCellCycleModel()->SetCellProliferativeType(TRANSIT);
-        node_based_tissue.rGetCellUsingLocationIndex(0).SetMutationState(p_labelled);
-        node_based_tissue.rGetCellUsingLocationIndex(1).GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
-        node_based_tissue.rGetCellUsingLocationIndex(1).SetMutationState(p_apc1);
-        node_based_tissue.rGetCellUsingLocationIndex(2).SetMutationState(p_apc2);
-        node_based_tissue.rGetCellUsingLocationIndex(3).SetMutationState(p_bcat1);
-        node_based_tissue.rGetCellUsingLocationIndex(4).SetMutationState(p_apoptotic_state);
+        node_based_tissue.GetCellUsingLocationIndex(0)->GetCellCycleModel()->SetCellProliferativeType(TRANSIT);
+        node_based_tissue.GetCellUsingLocationIndex(0)->SetMutationState(p_labelled);
+        node_based_tissue.GetCellUsingLocationIndex(1)->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
+        node_based_tissue.GetCellUsingLocationIndex(1)->SetMutationState(p_apc1);
+        node_based_tissue.GetCellUsingLocationIndex(2)->SetMutationState(p_apc2);
+        node_based_tissue.GetCellUsingLocationIndex(3)->SetMutationState(p_bcat1);
+        node_based_tissue.GetCellUsingLocationIndex(4)->SetMutationState(p_apoptotic_state);
         node_based_tissue.SetCellAncestorsToLocationIndices();
 
         std::string output_directory = "TestNodeBasedTissueWriters";
@@ -631,14 +631,14 @@ public:
         TetrahedralMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time;
             if (i==1)
@@ -657,12 +657,12 @@ public:
             {
                 birth_time = -23.5;
             }
-            cell.SetBirthTime(birth_time);
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
-        cells[0].GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
+        cells[0]->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
 
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
@@ -713,7 +713,7 @@ public:
 
             // Set up cells, one for each node. Give each a birth time of -node_index,
             // so the age = node_index
-            std::vector<TissueCell> cells = SetUpCells(&mesh);
+            std::vector<TissueCellPtr> cells = SetUpCells(&mesh);
 
             // Create a tissue
             NodeBasedTissue<2>* const p_tissue = new NodeBasedTissue<2>(mesh, cells);

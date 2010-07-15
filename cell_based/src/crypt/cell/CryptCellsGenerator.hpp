@@ -90,7 +90,7 @@ public:
      * @param initialiseCells  whether to initialise the cell cycle models as each
      *   cell is created
      */
-    void Generate(std::vector<TissueCell>& rCells,
+    void Generate(std::vector<TissueCellPtr>& rCells,
                   AbstractMesh<2,2>* pMesh,
                   const std::vector<unsigned> locationIndices,
                   bool randomBirthTimes,
@@ -104,7 +104,7 @@ public:
 
 template<class CELL_CYCLE_MODEL>
 void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
-                                      std::vector<TissueCell>& rCells,
+                                      std::vector<TissueCellPtr>& rCells,
                                       AbstractMesh<2,2>* pMesh,
                                       const std::vector<unsigned> locationIndices,
                                       bool randomBirthTimes,
@@ -225,21 +225,21 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
         p_cell_cycle_model->SetCellProliferativeType(cell_type);
 
         boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-        TissueCell cell(p_state, p_cell_cycle_model);
+        TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
         if (initialiseCells)
         {
-            cell.InitialiseCellCycleModel();
+            p_cell->InitialiseCellCycleModel();
         }
 
-        cell.SetBirthTime(birth_time);
+        p_cell->SetBirthTime(birth_time);
 
         if (locationIndices.empty())
         {
-            rCells.push_back(cell);
+            rCells.push_back(p_cell);
         }
         else if ( std::find(locationIndices.begin(), locationIndices.end(), i) != locationIndices.end() )
         {
-            rCells.push_back(cell);
+            rCells.push_back(p_cell);
         }
     }
 }

@@ -100,9 +100,9 @@ public:
     /**
      * Overridden method to test a given cell for apoptosis.
      *
-     * @param rCell the cell to test for apoptosis
+     * @param pCell the cell to test for apoptosis
      */
-    void TestAndLabelSingleCellForApoptosis(TissueCell& rCell);
+    void TestAndLabelSingleCellForApoptosis(TissueCellPtr pCell);
 
     /**
      *  Loop over cells and start apoptosis randomly, based on the user-set

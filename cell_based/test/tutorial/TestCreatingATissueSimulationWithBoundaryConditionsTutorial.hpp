@@ -222,13 +222,13 @@ public:
         /* Get the mesh using the {{{GetMesh()}}} method. */
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCell}}}s.
+        /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCellPtr}}}s.
          * To do this, we can use a static method on the {{{CellsGenerator}}} helper class.
          * The {{{<FixedDurationGenerationBasedCellCycleModel, 2>}}} defines the
          * cell-cycle model and that it is in 2d. We create an empty vector of cells
          * and pass this into the method along with the mesh. The {{{cells}}} vector is
          * populated once the method {{{GenerateBasic}}} is called. */
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 

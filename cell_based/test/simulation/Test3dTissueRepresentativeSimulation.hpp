@@ -176,7 +176,7 @@ public:
 
 	    // Now only assign cells to real_node_indices
 
-	    std::vector<TissueCell> cells;
+	    std::vector<TissueCellPtr> cells;
 		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
 	    for (std::vector<unsigned>::iterator real_node_iter=real_node_indices.begin();
@@ -185,8 +185,8 @@ public:
 	    {
 	    	FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
 	    	p_model->SetCellProliferativeType(DIFFERENTIATED);
-	    	TissueCell cell(p_state, p_model);
-	        cells.push_back(cell);
+	    	TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+	        cells.push_back(p_cell);
 	    }
 
 	    TS_ASSERT_EQUALS(real_node_indices.size(), cells.size());

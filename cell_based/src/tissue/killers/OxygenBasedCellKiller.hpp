@@ -84,9 +84,9 @@ public:
      *  is less than some probability of death (which scales linearly with the
      *  local oxygen concentration).
      *
-     *  @param rCell reference to the cell to test for apoptosis.
+     *  @param pCell  the cell to test for apoptosis.
      */
-    void TestAndLabelSingleCellForApoptosis(TissueCell& rCell);
+    void TestAndLabelSingleCellForApoptosis(TissueCellPtr pCell);
 
     /**
      * Loop over cells and start apoptosis if the cell has been undergone

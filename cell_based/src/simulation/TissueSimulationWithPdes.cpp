@@ -228,7 +228,7 @@ void TissueSimulationWithPdes<DIM>::InitialiseCoarsePdeMesh()
         // Find the element of mpCoarsePdeMesh that contains this cell
         const ChastePoint<DIM>& r_position_of_cell = this->mrTissue.GetLocationOfCellCentre(*cell_iter);
         unsigned elem_index = mpCoarsePdeMesh->GetContainingElementIndex(r_position_of_cell);
-        mCellPdeElementMap[&(*cell_iter)] = elem_index;
+        mCellPdeElementMap[*cell_iter] = elem_index;
     }
 }
 
@@ -411,7 +411,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 				cell_iter != this->mrTissue.End();
 				++cell_iter)
 			{
-				coarse_element_indices_in_map.insert(mCellPdeElementMap[&(*cell_iter)]);
+				coarse_element_indices_in_map.insert(mCellPdeElementMap[*cell_iter]);
 			}
 
 			// Find the node indices that associated with elements whose
@@ -519,10 +519,10 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 }
 
 template<unsigned DIM>
-unsigned TissueSimulationWithPdes<DIM>::FindCoarseElementContainingCell(TissueCell& rCell)
+unsigned TissueSimulationWithPdes<DIM>::FindCoarseElementContainingCell(TissueCellPtr pCell)
 {
     // Get containing element at last timestep from mCellPdeElementMap
-    unsigned old_element_index = mCellPdeElementMap[&rCell];
+    unsigned old_element_index = mCellPdeElementMap[pCell];
 
     // Create a std::set of guesses for the current containing element
     std::set<unsigned> test_elements;
@@ -543,11 +543,11 @@ unsigned TissueSimulationWithPdes<DIM>::FindCoarseElementContainingCell(TissueCe
     }
 
     // Find new element, using the previous one as a guess
-    const ChastePoint<DIM>& r_cell_position = this->mrTissue.GetLocationOfCellCentre(rCell);
+    const ChastePoint<DIM>& r_cell_position = this->mrTissue.GetLocationOfCellCentre(pCell);
     unsigned new_element_index = mpCoarsePdeMesh->GetContainingElementIndex(r_cell_position, false, test_elements);
 
     // Update mCellPdeElementMap
-    mCellPdeElementMap[&rCell] = new_element_index;
+    mCellPdeElementMap[pCell] = new_element_index;
 
     return new_element_index;
 }
@@ -640,14 +640,14 @@ void TissueSimulationWithPdes<DIM>::WriteAverageRadialPdeSolution(double time, u
     centre /= ((double) this->mrTissue.GetNumNodes());
 
     // Calculate the distance between each node and the centre of the tissue, as well as the maximum of these
-    std::map<double, TissueCell*> distance_cell_map;
+    std::map<double, TissueCellPtr> distance_cell_map;
     double max_distance_from_centre = 0.0;
     for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mrTissue.Begin();
          cell_iter != this->mrTissue.End();
          ++cell_iter)
     {
         double distance = norm_2(this->mrTissue.GetLocationOfCellCentre(*cell_iter) - centre);
-        distance_cell_map[distance] = &(*cell_iter);
+        distance_cell_map[distance] = *cell_iter;
 
         if (distance > max_distance_from_centre)
         {
@@ -670,13 +670,13 @@ void TissueSimulationWithPdes<DIM>::WriteAverageRadialPdeSolution(double time, u
         unsigned counter = 0;
         double average_solution = 0.0;
 
-        for (std::map<double, TissueCell*>::iterator iter = distance_cell_map.begin();
+        for (std::map<double, TissueCellPtr>::iterator iter = distance_cell_map.begin();
              iter != distance_cell_map.end();
              ++iter)
         {
             if (iter->first > lower_radius && iter->first <= radius_intervals[i])
             {
-                average_solution += CellwiseData<DIM>::Instance()->GetValue(*(iter->second));
+                average_solution += CellwiseData<DIM>::Instance()->GetValue(iter->second);
                 counter++;
             }
         }

@@ -132,7 +132,7 @@ public:
          * a {{{CellsGenerator}}} class, but do it manually, in a loop. First,
          * define the cells vector.
          */
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
 
         /*
          * This line defines a mutation state to be used for all cells, of type
@@ -154,7 +154,7 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             /*
              * We now define a random birth time, chosen from [-T,0], where
@@ -168,8 +168,8 @@ public:
              * ...then we set the birth time and push the cell back into the vector
              * of cells.
              */
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         /*

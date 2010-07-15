@@ -72,47 +72,47 @@ public:
      * @param rCells a vector of cells
      * @param locationIndices an optional vector of location indices that correspond to real cells
      */
-    AbstractCellCentreBasedTissue(std::vector<TissueCell>& rCells,
+    AbstractCellCentreBasedTissue(std::vector<TissueCellPtr>& rCells,
                                   const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * Overridden GetLocationOfCellCentre() method.
      * Find where a given cell is in space.
      *
-     * @param rCell the cell
+     * @param pCell the cell
      *
      * @return the location of the node corresponding to this cell.
      */
-    c_vector<double, DIM> GetLocationOfCellCentre(TissueCell& rCell);
+    c_vector<double, DIM> GetLocationOfCellCentre(TissueCellPtr pCell);
 
     /**
      * Get a pointer to the node corresponding to a given cell.
      *
-     * @param rCell the cell
+     * @param pCell the cell
      *
      * @return address of the node
      */
-    Node<DIM>* GetNodeCorrespondingToCell(TissueCell& rCell);
+    Node<DIM>* GetNodeCorrespondingToCell(TissueCellPtr pCell);
 
     /**
      * Add a new cell to the tissue.
      *
-     * @param rNewCell  the cell to add
+     * @param pNewCell  the cell to add
      * @param rCellDivisionVector  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
      *
      * @returns address of cell as it appears in the cell list
      */
-    TissueCell* AddCell(TissueCell& rNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCell* pParentCell=NULL);
+    TissueCellPtr AddCell(TissueCellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCellPtr pParentCell=TissueCellPtr());
 
     /**
      * Overridden IsCellAssociatedWithADeletedLocation() method.
      *
-     * @param rCell the cell
+     * @param pCell the cell
      *
      * @return whether a given cell is associated with a deleted node.
      */
-    bool IsCellAssociatedWithADeletedLocation(TissueCell& rCell);
+    bool IsCellAssociatedWithADeletedLocation(TissueCellPtr pCell);
 
     /**
      * Overridden UpdateNodeLocations() method.

@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
      MutableMesh<DIM, DIM>& rMesh,
-     std::vector<TissueCell>& rCells,
+     std::vector<TissueCellPtr>& rCells,
      const std::vector<unsigned> locationIndices,
      bool deleteMesh)
              : MeshBasedTissue<DIM>(rMesh, rCells, locationIndices, deleteMesh, false) // do not call the base class Validate()
@@ -184,13 +184,14 @@ c_vector<double, DIM> MeshBasedTissueWithGhostNodes<DIM>::CalculateForceBetweenN
 }
 
 template<unsigned DIM>
-TissueCell* MeshBasedTissueWithGhostNodes<DIM>::AddCell(TissueCell& rNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCell* pParentCell)
+TissueCellPtr MeshBasedTissueWithGhostNodes<DIM>::AddCell(TissueCellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCellPtr pParentCell)
 {
     // Add new cell to tissue
-    TissueCell* p_created_cell = MeshBasedTissue<DIM>::AddCell(rNewCell, rCellDivisionVector, pParentCell);
+    TissueCellPtr p_created_cell = MeshBasedTissue<DIM>::AddCell(pNewCell, rCellDivisionVector, pParentCell);
+    assert(p_created_cell == pNewCell);
 
     // Update size of mIsGhostNode if necessary
-    unsigned new_node_index = this->mCellLocationMap[p_created_cell];
+    unsigned new_node_index = this->mCellLocationMap[p_created_cell.get()];
 
     if (this->GetNumNodes() > this->mIsGhostNode.size())
     {
@@ -212,7 +213,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::Validate()
     // Look through all of the cells and record what node they are associated with.
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        unsigned node_index = this->mCellLocationMap[&(*cell_iter)];
+        unsigned node_index = this->mCellLocationMap[(*cell_iter).get()];
 
         // If the node attached to this cell is labelled as a ghost node, then throw an error
         if (mIsGhostNode[node_index])
@@ -298,7 +299,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
         if (!this->IsGhostNode(node_index))
         {
             // Get the cell corresponding to this element
-            TissueCell* p_cell = this->mLocationCellMap[node_index];
+            TissueCellPtr p_cell = this->mLocationCellMap[node_index];
 
             if (TissueConfig::Instance()->GetOutputCellAncestors())
             {

@@ -50,7 +50,7 @@ private:
     {
         MutableMesh<3,3>* p_mesh = new MutableMesh<3,3>;
         p_mesh->ConstructCuboid(width, height, depth);
-        TrianglesMeshWriter<3,3> mesh_writer("","3dSpringMesh");
+        TrianglesMeshWriter<3,3> mesh_writer("", "3dSpringMesh");
         mesh_writer.WriteFilesUsingMesh(*p_mesh);
 
         return p_mesh;
@@ -80,24 +80,24 @@ public:
 
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<num_cells; i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
             p_model->SetGeneration(0);
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
-            if (i == 50u)
+            if (i == 50)
             {
-                cell.SetBirthTime(-50.0);
+                p_cell->SetBirthTime(-50.0);
             }
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
-        MeshBasedTissue<3> tissue(mesh,cells);
+        MeshBasedTissue<3> tissue(mesh, cells);
 
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.UseCutoffPoint(1.5);
@@ -119,25 +119,31 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
-        p_model->SetCellProliferativeType(STEM);
-        TissueCell cell(p_state, p_model);
 
-        std::vector<TissueCell> cells;
-        for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
+        std::vector<TissueCellPtr> cells;
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            cell.SetBirthTime(0.0);
-            cells.push_back(cell);
+	        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+	        p_model->SetCellProliferativeType(STEM);
+
+        	TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+
+            if (i == mesh.GetNumNodes()-1)
+            {
+            	// Setting last cell to undergo cell birth
+            	p_cell->SetBirthTime(-50.0);
+            }
+            else
+            {
+            	p_cell->SetBirthTime(0.0);
+            }
+            cells.push_back(p_cell);
         }
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 4u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 1u);
 
-        // Setting last cell to undergo cell birth
-        cell.SetBirthTime(-50.0);
-        cells.push_back(cell);
-
-        MeshBasedTissue<3> tissue(mesh,cells);
+        MeshBasedTissue<3> tissue(mesh, cells);
 
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.UseCutoffPoint(1.5);
@@ -146,7 +152,7 @@ public:
 
         TissueSimulation<3> simulator(tissue, force_collection);
 
-        TrianglesMeshWriter<3,3> mesh_writer1("Test3DCellBirth","StartMesh");
+        TrianglesMeshWriter<3,3> mesh_writer1("Test3DCellBirth", "StartMesh");
         mesh_writer1.WriteFilesUsingMesh(mesh);
 
         simulator.SetOutputDirectory("Test3DCellBirth");
@@ -168,28 +174,28 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh","StartMesh");
+        TrianglesMeshWriter<3,3> mesh_writer("TestSolveMethodSpheroidSimulation3DMesh", "StartMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
 
         // Set up cells by iterating through the mesh nodes
         unsigned num_cells = mesh.GetNumAllNodes();
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<num_cells; i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
             p_model->SetGeneration(0);
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
-            cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
+            p_cell->SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                ( TissueConfig::Instance()->GetStemCellG1Duration()
                                  + TissueConfig::Instance()->GetSG2MDuration()   ));
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
-        MeshBasedTissue<3> tissue(mesh,cells);
+        MeshBasedTissue<3> tissue(mesh, cells);
 
         GeneralisedLinearSpringForce<3> linear_force;
         linear_force.UseCutoffPoint(1.5);
@@ -229,8 +235,8 @@ public:
 
         // Set up cells by iterating through the mesh nodes
         unsigned num_nodes = p_mesh->GetNumAllNodes();
-        std::vector<TissueCell> cells;
-        std::vector<TissueCell> cells2;
+        std::vector<TissueCellPtr> cells;
+        std::vector<TissueCellPtr> cells2;
         std::vector<unsigned> location_indices;
 
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -258,18 +264,18 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
             p_model->SetGeneration(0);
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
-            cell.SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
+            p_cell->SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
                                 (  TissueConfig::Instance()->GetStemCellG1Duration() +
                                    TissueConfig::Instance()->GetSG2MDuration()  ));
 
-            cells2.push_back(cell);
+            cells2.push_back(p_cell);
 
             if ( norm_2(node_location - spheroid_centre) <= 0.5*sqrt(3)*1.01*((double) min_spatial_dimension)/3.0 )
             {
                 location_indices.push_back(i);
-                cells.push_back(cell);
+                cells.push_back(p_cell);
             }
         }
 
@@ -336,7 +342,7 @@ public:
 
             TS_ASSERT_EQUALS(num_cells, 65u);
             TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.1, 1e-9);
-            TissueCell cell = p_simulator->rGetTissue().rGetCellUsingLocationIndex(23u);
+            TissueCellPtr p_cell = p_simulator->rGetTissue().GetCellUsingLocationIndex(23u);
             TS_ASSERT_DELTA(p_simulator->rGetTissue().GetNode(23)->rGetLocation()[2], 0.930292, 1e-4);
 
             delete p_simulator;

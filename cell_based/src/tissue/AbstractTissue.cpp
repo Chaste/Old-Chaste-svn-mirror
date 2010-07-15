@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeBasedCellCycleModel.hpp"
 
 template<unsigned DIM>
-AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCell>& rCells,
+AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCellPtr>& rCells,
                                     const std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
       mTissueContainsMesh(false),
@@ -52,12 +52,12 @@ AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCell>& rCells,
     }
 
     // Set up the map between location indices and cells
-    std::list<TissueCell>::iterator it = mCells.begin();
+    std::list<TissueCellPtr>::iterator it = mCells.begin();
     for (unsigned i=0; it != mCells.end(); ++it, ++i)
     {
         unsigned index = locationIndices.empty() ? i : locationIndices[i]; // assume that the ordering matches
-        mLocationCellMap[index] = &(*it);
-        mCellLocationMap[&(*it)] = index;
+        mLocationCellMap[index] = *it;
+        mCellLocationMap[(*it).get()] = index;
     }
 
     // Initialise cell counts to zero
@@ -81,14 +81,14 @@ AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCell>& rCells,
 template<unsigned DIM>
 void AbstractTissue<DIM>::InitialiseCells()
 {
-    for (std::list<TissueCell>::iterator iter=mCells.begin(); iter!=mCells.end(); ++iter)
+    for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        iter->InitialiseCellCycleModel();
+        cell_iter->InitialiseCellCycleModel();
     }
 }
 
 template<unsigned DIM>
-std::list<TissueCell>& AbstractTissue<DIM>::rGetCells()
+std::list<TissueCellPtr>& AbstractTissue<DIM>::rGetCells()
 {
     return mCells;
 }
@@ -115,7 +115,7 @@ void AbstractTissue<DIM>::SetCellAncestorsToLocationIndices()
 {
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)
     {
-        cell_iter->SetAncestor(mCellLocationMap[&(*cell_iter)]);
+        cell_iter->SetAncestor(mCellLocationMap[(*cell_iter).get()]);
     }
 }
 
@@ -173,15 +173,15 @@ const std::vector<unsigned>& AbstractTissue<DIM>::rGetCellCyclePhaseCount() cons
 }
 
 template<unsigned DIM>
-TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
+TissueCellPtr AbstractTissue<DIM>::GetCellUsingLocationIndex(unsigned index)
 {
     // Get a pointer to the cell corresponding to this location index
-    TissueCell* p_cell = mLocationCellMap[index];
+    TissueCellPtr p_cell = mLocationCellMap[index];
 
-    // Unless this pointer is null, return a reference to the cell
+    // Unless this pointer is null, return the cell
     if (p_cell)
     {
-        return *p_cell;
+        return p_cell;
     }
     else
     {
@@ -190,9 +190,9 @@ TissueCell& AbstractTissue<DIM>::rGetCellUsingLocationIndex(unsigned index)
 }
 
 template<unsigned DIM>
-unsigned AbstractTissue<DIM>::GetLocationIndexUsingCell(TissueCell& rCell)
+unsigned AbstractTissue<DIM>::GetLocationIndexUsingCell(TissueCellPtr pCell)
 {
-    return mCellLocationMap[&rCell];
+    return mCellLocationMap[pCell.get()];
 }
 
 template<unsigned DIM>
@@ -315,7 +315,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
 
     unsigned colour = STEM_COLOUR;
 
-    TissueCell* p_cell = mLocationCellMap[locationIndex];
+    TissueCellPtr p_cell = mLocationCellMap[locationIndex];
 
     if (p_config->GetOutputCellCyclePhases())
     {
@@ -419,7 +419,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         *mpCellAgesFile << locationIndex << " ";
 
         // Write cell location
-        c_vector<double, DIM> cell_location = GetLocationOfCellCentre(*p_cell);
+        c_vector<double, DIM> cell_location = GetLocationOfCellCentre(p_cell);
 
         for (unsigned i=0; i<DIM; i++)
         {
@@ -582,7 +582,7 @@ void AbstractTissue<DIM>::WriteCellIdDataToFile()
          ++cell_iter)
     {
         unsigned cell_id = cell_iter->GetCellId();
-        unsigned location_index = mCellLocationMap[&(*cell_iter)];
+        unsigned location_index = mCellLocationMap[(*cell_iter).get()];
         *mpCellIdFile << " " << cell_id << " " << location_index;
 
         c_vector<double, DIM> coords = GetLocationOfCellCentre(*cell_iter);

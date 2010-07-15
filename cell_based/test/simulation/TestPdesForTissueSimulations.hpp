@@ -66,14 +66,14 @@ public:
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         // Make one cell apoptotic
         ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
         boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
-        cells[0].SetMutationState(p_apoptotic_state);
+        cells[0]->SetMutationState(p_apoptotic_state);
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
 
@@ -86,8 +86,8 @@ public:
 
         TS_ASSERT_DELTA(constant_in_u_source_term, 0.0, 1e-6);
 
-        Node<2>* p_node_0 = tissue.GetNodeCorrespondingToCell(tissue.rGetCellUsingLocationIndex(0));
-        Node<2>* p_node_1 = tissue.GetNodeCorrespondingToCell(tissue.rGetCellUsingLocationIndex(1));
+        Node<2>* p_node_0 = tissue.GetNodeCorrespondingToCell(tissue.GetCellUsingLocationIndex(0));
+        Node<2>* p_node_1 = tissue.GetNodeCorrespondingToCell(tissue.GetCellUsingLocationIndex(1));
 
         double source_term_at_node_0 = pde.ComputeLinearInUCoeffInSourceTermAtNode(*p_node_0);
         double source_term_at_node_1 = pde.ComputeLinearInUCoeffInSourceTermAtNode(*p_node_1);
@@ -104,7 +104,7 @@ public:
         // Set up tissue
         HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
         MeshBasedTissue<2> tissue(*p_mesh, cells);

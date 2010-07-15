@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "WntCellCycleModel.hpp"
 
-
 WntCellCycleModel::WntCellCycleModel()
     : AbstractWntOdeBasedCellCycleModel()
 {}
@@ -83,7 +82,6 @@ void WntCellCycleModel::Initialise()
 {
     assert(mpOdeSystem == NULL);
     assert(mpCell != NULL);
-
     double wnt_level = GetWntLevel();
 
     mpOdeSystem = new WntCellCycleOdeSystem(wnt_level, mpCell->GetMutationState());

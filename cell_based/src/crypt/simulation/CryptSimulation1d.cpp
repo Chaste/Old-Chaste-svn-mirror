@@ -44,10 +44,10 @@ CryptSimulation1d::CryptSimulation1d(AbstractTissue<1>& rTissue,
 }
 
 
-c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCell& rParentCell)
+c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCellPtr pParentCell)
 {
     // Location of parent and daughter cells
-    c_vector<double, 1> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(rParentCell);
+    c_vector<double, 1> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(pParentCell);
     c_vector<double, 1> daughter_coords;
 
     // Get separation parameter
@@ -92,7 +92,7 @@ c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCell& r
     // Set the parent to use this location
     ChastePoint<1> parent_coords_point(parent_coords);
 
-    unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(rParentCell);
+    unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(pParentCell);
     mrTissue.SetNode(node_index, parent_coords_point);
 
     return daughter_coords;

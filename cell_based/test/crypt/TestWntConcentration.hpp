@@ -240,7 +240,7 @@ public:
         wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.6818, 1e-4);
 
-        // Test GetWntLevel(TissueCell*) method
+        // Test GetWntLevel(TissueCellPtr) method
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
@@ -250,21 +250,21 @@ public:
         // Translate mesh so that its centre is at (0,0)
         mesh.Translate(-0.5,-0.5);
 
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
             double birth_time = 0.0 - i;
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Create a crypt
-        MeshBasedTissue<2> crypt(mesh,cells);
+        MeshBasedTissue<2> crypt(mesh, cells);
         p_params->SetCryptLength(1.0);
         p_wnt->SetTissue(crypt);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // fully set up now
@@ -291,7 +291,7 @@ public:
         {
             TS_ASSERT_DELTA(p_wnt->GetWntLevel(*cell_iter), wnt_at_cell0, 1e-12);
 
-            // Test GetWntGradient(TissueCell*) method
+            // Test GetWntGradient(TissueCellPtr) method
             c_vector<double,2> cell_location = crypt.GetLocationOfCellCentre(*cell_iter);
             double r = norm_2(cell_location);
 
@@ -403,23 +403,23 @@ public:
 
         std::vector<WntCellCycleModel*> models;
 
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
             double birth_time = 0.0 - i;
-            cell.SetBirthTime(birth_time);
+            p_cell->SetBirthTime(birth_time);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
             models.push_back(p_model);
         }
 
         // Create the crypt
-        MeshBasedTissue<2> crypt(mesh,cells);
+        MeshBasedTissue<2> crypt(mesh, cells);
 
         TissueConfig::Instance()->SetCryptLength(1.0);
 
@@ -433,7 +433,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            const WntCellCycleModel* p_model = (WntCellCycleModel*) cell_iter->GetCellCycleModel();
+        	WntCellCycleModel* p_model = static_cast<WntCellCycleModel*>(cell_iter->GetCellCycleModel());
             std::vector<double> proteins = p_model->GetProteinConcentrations();
 
             if (crypt.GetLocationOfCellCentre(*cell_iter)[1]==0.0)

@@ -121,12 +121,12 @@ public:
 //        }
 //        file->close();
 
-        ColumnDataWriter writer("TysonNovak","TysonNovak");
+        ColumnDataWriter writer("TysonNovak", "TysonNovak");
         if (PetscTools::AmMaster()) // if master process
         {
 
             int step_per_row = 1;
-            int time_var_id = writer.DefineUnlimitedDimension("Time","s");
+            int time_var_id = writer.DefineUnlimitedDimension("Time", "s");
 
             std::vector<int> var_ids;
             for (unsigned i=0; i<tyson_novak_system.rGetStateVariableNames().size(); i++)

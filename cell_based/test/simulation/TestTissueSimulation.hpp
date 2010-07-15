@@ -102,7 +102,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<StochasticWntCellCycleModel> cell_generator;
         cell_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -159,7 +159,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Create a differentiated cell for each node
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -170,9 +170,9 @@ public:
                                 (TissueConfig::Instance()->GetStemCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
 
-            TissueCell cell(p_state, p_model);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Create a tissue
@@ -214,17 +214,17 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create a differentiated cell for each non-ghost node
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(DIFFERENTIATED);
 
-            TissueCell cell(p_state, p_model);
-            cell.SetBirthTime(-1.0);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            p_cell->SetBirthTime(-1.0);
 
-            cells.push_back(cell);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -264,7 +264,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
         // Set up cells, one for each node. Give each cell a random birth time.
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -274,9 +274,9 @@ public:
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (TissueConfig::Instance()->GetStemCellG1Duration()
                                     + TissueConfig::Instance()->GetSG2MDuration() );
-            TissueCell cell(p_state, p_model);
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Create a tissue
@@ -321,7 +321,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells, one for each node. Give each cell a random birth time.
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -367,20 +367,20 @@ public:
         p_params->SetCryptWidth(crypt_width);
 
         // Set up cells
-        std::vector<TissueCell> cells;
+        std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<location_indices.size(); i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(TRANSIT);
 
-            TissueCell cell(p_state, p_model);
+            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
                                                +p_params->GetSG2MDuration());
 
-            cell.SetBirthTime(birth_time);
-            cells.push_back(cell);
+            p_cell->SetBirthTime(birth_time);
+            cells.push_back(p_cell);
         }
 
         // Create tissue
@@ -397,8 +397,8 @@ public:
         simulator.SetEndTime(1.0);
 
         TissueConfig::Instance()->SetApoptosisTime(2.0);
-        tissue.rGetCellUsingLocationIndex(14).StartApoptosis();
-        tissue.rGetCellUsingLocationIndex(15).StartApoptosis();
+        tissue.GetCellUsingLocationIndex(14)->StartApoptosis();
+        tissue.GetCellUsingLocationIndex(15)->StartApoptosis();
         simulator.SetNoBirth(true);
 
         // Run tissue simulation

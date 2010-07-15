@@ -28,8 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TISSUECELL_HPP_
 #define TISSUECELL_HPP_
 
-#include "ChasteSerialization.hpp"
+#include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/shared_ptr.hpp>
 
 #include "CellProliferativeTypes.hpp"
@@ -40,15 +43,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 
+class TissueCell;
+
+struct null_deleter
+{
+    void operator()(void const *) const
+    {
+    }
+};
+
+/** Cells shouldn't be copied - it doesn't make sense.  So all access is via this pointer type. */
+typedef boost::shared_ptr<TissueCell> TissueCellPtr;
 
 /**
- * Tissue cell is the basic container for all the biological information about a cell.
+ * TissueCell is the basic container for all the biological information about a cell.
  * It contains the cell cycle model and all other biological properties such as mutation
  * state, cell type, whether it is undergoing apoptosis or not.
  *
- * This class should not store any spatial information - TissueCells are linked to space by the Tissue classes.
+ * This class should not store any spatial information - tissue cells are linked to space by the AbstractTissue subclasses.
  */
-class TissueCell
+class TissueCell : boost::noncopyable, public boost::enable_shared_from_this<TissueCell> 
 {
 private:
 
@@ -119,13 +133,6 @@ protected:
     /** Whether the cell is being tracked specially. */
     bool mIsLogged;
 
-    /**
-     * Contains code common to both the copy constructor and operator=.
-     *
-     * @param rOtherCell  An existing TissueCell
-     */
-    void CommonCopy(const TissueCell& rOtherCell);
-
 public:
 
     /**
@@ -144,19 +151,6 @@ public:
      * Destructor, which frees the memory allocated for our cell cycle model.
      */
     ~TissueCell();
-
-    /**
-     * Create a new tissue cell that is a copy of an existing cell
-     * @param rOtherCell  An existing TissueCell
-     */
-    TissueCell(const TissueCell& rOtherCell);
-
-    /**
-     * Copy all the attributes of one cell to another.
-     *
-     * @param rOtherCell  An existing TissueCell
-     */
-    TissueCell& operator=(const TissueCell& rOtherCell);
 
     /**
      * Set the birth time of the cell - can be negative so that your cells have an age when a simulation begins
@@ -221,7 +215,7 @@ public:
      *
      * @return the new daughter cell
      */
-    TissueCell Divide();
+    TissueCellPtr Divide();
 
     /**
      * Make the cell enter apoptosis and sets #mDeathTime using the apoptosis

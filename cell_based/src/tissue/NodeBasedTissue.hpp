@@ -140,12 +140,12 @@ public:
      * Note that the tissue will take responsibility for freeing the memory used by the nodes.
      *
      * @param nodes a vector of Nodes
-     * @param rCells a vector of TissueCells
+     * @param rCells a vector of cells
      * @param locationIndices an optional vector of location indices that correspond to real cells
      * @param deleteNodes whether to delete nodes in destructor
      */
     NodeBasedTissue(const std::vector<Node<DIM>* > nodes,
-                    std::vector<TissueCell>& rCells,
+                    std::vector<TissueCellPtr>& rCells,
                     const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
                     bool deleteNodes=true);
 
@@ -168,10 +168,10 @@ public:
      * create a mesh than a set of nodes.
      *
      * @param rMesh any mesh.
-     * @param rCells a vector of TissueCells.
+     * @param rCells a vector of cells.
      */
     NodeBasedTissue(const AbstractMesh<DIM,DIM>& rMesh,
-                    std::vector<TissueCell>& rCells);
+                    std::vector<TissueCellPtr>& rCells);
 
     /**
      * Destructor.
