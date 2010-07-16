@@ -46,18 +46,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveLocationInfo.hpp"
 #include "VectorHelperFunctions.hpp"
 
-#include "luo_rudy_1991.hpp"
-#include "luo_rudy_1991Opt.hpp"
-#include "luo_rudy_1991BackwardEuler.hpp"
+#include "LuoRudy1991.hpp"
+#include "LuoRudy1991Opt.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 
-#include "tentusscher_model_2006_epi_corrected_flooristim.hpp"
-#include "tentusscher_model_2006_epi_corrected_flooristimOpt.hpp"
-#include "tentusscher_model_2006_epi_corrected_flooristimBackwardEuler.hpp"
+#include "TenTusscher2006Epi.hpp"
+#include "TenTusscher2006EpiOpt.hpp"
+#include "TenTusscher2006EpiBackwardEuler.hpp"
 
 #ifdef CHASTE_CVODE
-#include "luo_rudy_1991Cvode.hpp"
-#include "luo_rudy_1991CvodeOpt.hpp"
+#include "LuoRudy1991Cvode.hpp"
+#include "LuoRudy1991CvodeOpt.hpp"
 #endif // CHASTE_CVODE
 
 class TestPyCml : public CxxTest::TestSuite
@@ -166,17 +166,17 @@ public:
         double i_ionic = 1.9411; // test value
 
         // Normal model
-        Cellluo_rudy_1991FromCellML normal(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellML normal(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(normal.GetVoltageIndex(), 0u);
         CheckCai(normal, true, 0.0002);
 
         // Optimised model
-        Cellluo_rudy_1991FromCellMLOpt opt(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellMLOpt opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(opt.GetVoltageIndex(), 0u);
         CheckCai(opt, true, 0.0002);
         
         // Backward Euler optimised model
-        Cellluo_rudy_1991FromCellMLBackwardEuler be(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellMLBackwardEuler be(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(be.GetVoltageIndex(), 0u);
         CheckCai(be, true, 0.0002);
 
@@ -202,10 +202,10 @@ public:
 
 #ifdef CHASTE_CVODE
         // CVODE version
-        Cellluo_rudy_1991FromCellMLCvode cvode_cell(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellMLCvode cvode_cell(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(cvode_cell.GetVoltageIndex(), 0u);
         // Optimised CVODE version
-        Cellluo_rudy_1991FromCellMLCvodeOpt cvode_opt(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellMLCvodeOpt cvode_opt(p_solver, p_stimulus);
         TS_ASSERT_EQUALS(cvode_opt.GetVoltageIndex(), 0u);
         // Check that the tables exist!
         v = opt.GetVoltage();
@@ -393,17 +393,17 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
         // Normal model
-        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML normal(p_solver, p_stimulus);
+        CellTenTusscher2006EpiFromCellML normal(p_solver, p_stimulus);
         normal.UseCellMLDefaultStimulus();
         CheckCai(normal, false);
 
         // Optimised model
-        Celltentusscher_model_2006_epi_corrected_flooristimFromCellMLOpt opt(p_solver, p_stimulus);
+        CellTenTusscher2006EpiFromCellMLOpt opt(p_solver, p_stimulus);
         opt.UseCellMLDefaultStimulus();
         CheckCai(opt, false);
 
         // Backward Euler model
-        Celltentusscher_model_2006_epi_corrected_flooristimFromCellMLBackwardEuler be(p_solver, p_stimulus);
+        CellTenTusscher2006EpiFromCellMLBackwardEuler be(p_solver, p_stimulus);
         be.UseCellMLDefaultStimulus();
         CheckCai(be, false);
     }

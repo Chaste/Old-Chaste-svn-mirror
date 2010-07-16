@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerFoxModel2002Modified.hpp"
 #include "Maleckar2009OdeSystem.hpp"
 #include "Mahajan2008OdeSystem.hpp"
-#include "tentusscher_model_2006_epi_corrected_flooristim.hpp"
+#include "TenTusscher2006Epi.hpp"
 #include "CellProperties.hpp"
 #include "HeartConfig.hpp"
 
@@ -89,7 +89,7 @@ public:
 
         // Solve using Backward Euler
         HeartConfig::Instance()->SetOdeTimeStep(0.01);
-        BackwardEulerFoxModel2002Modified backward_system(p_stimulus);
+        BackwardEulerFoxModel2002Modified backward_system(p_solver, p_stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&backward_system,
                                    end_time,
@@ -238,7 +238,7 @@ public:
         const std::string endo_file = "TT_endo";
         const std::string LQT_file = "TT_LQT";
 
-        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML TT_model_epi(p_solver, p_stimulus);
+        CellTenTusscher2006EpiFromCellML TT_model_epi(p_solver, p_stimulus);
         unsigned param_ito = TT_model_epi.GetParameterIndex("ScaleFactorIto");
         unsigned param_gkr = TT_model_epi.GetParameterIndex("ScaleFactorGkr");
         unsigned param_gks = TT_model_epi.GetParameterIndex("ScaleFactorGks");
@@ -252,7 +252,7 @@ public:
                                    100,
                                    false);
 
-        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML TT_model_mid(p_solver, p_stimulus);
+        CellTenTusscher2006EpiFromCellML TT_model_mid(p_solver, p_stimulus);
         TT_model_mid.SetParameter(param_ito, 1.0);
         TT_model_mid.SetParameter(param_gkr, 1.0);
         TT_model_mid.SetParameter(param_gks, 0.25);
@@ -263,7 +263,7 @@ public:
                                    100,
                                    false);
 
-        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML TT_model_endo(p_solver, p_stimulus);
+        CellTenTusscher2006EpiFromCellML TT_model_endo(p_solver, p_stimulus);
         TT_model_endo.SetParameter(param_ito, 0.165);
         TT_model_endo.SetParameter(param_gkr, 1.0);
         TT_model_endo.SetParameter(param_gks, 0.66);
@@ -274,7 +274,7 @@ public:
                                    100,
                                    false);
 
-        Celltentusscher_model_2006_epi_corrected_flooristimFromCellML TT_model_LQT(p_solver, p_stimulus);
+        CellTenTusscher2006EpiFromCellML TT_model_LQT(p_solver, p_stimulus);
         TT_model_LQT.SetParameter(param_ito, 1.0);
         TT_model_LQT.SetParameter(param_gkr, 0.0);
         TT_model_LQT.SetParameter(param_gks, 1.0);

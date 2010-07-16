@@ -48,11 +48,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 
-#include "tentusscher_model_2006_epi_corrected_flooristim.hpp"
-#include "BackwardEulerTenTusscher2006.hpp"
+#include "TenTusscher2006Epi.hpp"
+#include "TenTusscher2006EpiBackwardEuler.hpp"
 #include "ArchiveLocationInfo.hpp"
-
-
 
 
 
@@ -76,7 +74,7 @@ public:
             
         boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus());
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        BackwardEulerTenTusscher2006 tt06_backward_euler(p_solver, p_stimulus);
+        CellTenTusscher2006EpiFromCellMLBackwardEuler tt06_backward_euler(p_solver, p_stimulus);
         
         tt06_backward_euler.rGetStateVariables() = dodgy_state_vars;
         tt06_backward_euler.ComputeExceptVoltage(0.0, 3*step);
@@ -99,10 +97,8 @@ DEBUG: counter = 14, norm = 0.0108333
 DEBUG: counter = 15, norm = 0.000441591
 DEBUG: counter = 16, norm = 1.92038e-06
 DEBUG: counter = 17, norm = 3.78497e-11
-*/            
-        
+*/
     }
-
 };
 
 

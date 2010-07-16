@@ -38,11 +38,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainProblem.hpp"
 #include <petscvec.h>
 #include <vector>
+#include <boost/shared_ptr.hpp>
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "BackwardEulerLuoRudyIModel1991.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
 #include "RegularStimulus.hpp"
 #include "RandomNumberGenerator.hpp"
+#include "AbstractIvpOdeSolver.hpp"
 
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {
@@ -62,14 +64,15 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
+        boost::shared_ptr<AbstractIvpOdeSolver> p_solver;
         if (GetMesh()->GetNode(node)->GetPoint()[0] == 0.0)
         {
             //std::cout << node+1 << "\n";
-            return new BackwardEulerLuoRudyIModel1991(mpRegStimulus);
+            return new CellLuoRudy1991FromCellMLBackwardEuler(p_solver, mpRegStimulus);
         }
         else
         {
-            return new BackwardEulerLuoRudyIModel1991(mpZeroStimulus);
+            return new CellLuoRudy1991FromCellMLBackwardEuler(p_solver, mpZeroStimulus);
         }
     }
 };

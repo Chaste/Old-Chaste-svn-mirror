@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <math.h>
 
-#include "BackwardEulerLuoRudyIModel1991.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "PerformanceTester.hpp"
 
@@ -51,11 +51,11 @@ public:
     void TestPerf() throw(Exception)
     {
         // write headings
-        PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2>::DisplayHeadings();
+        PerformanceTester<CellLuoRudy1991FromCellMLBackwardEuler, BidomainProblem<2>, 2>::DisplayHeadings();
         HeartEventHandler::Headings();
 
         // base line
-        PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
+        PerformanceTester<CellLuoRudy1991FromCellMLBackwardEuler, BidomainProblem<2>, 2> tester;
         tester.SimTime=0.0025;
         tester.MeshNum=3;
         tester.Run();

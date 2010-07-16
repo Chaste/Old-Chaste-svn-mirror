@@ -91,7 +91,7 @@ std::vector<double> GetVoltages(ColumnDataReader& rReader)
 
 std::vector<double> GetIntracellularCalcium(ColumnDataReader& rReader)
 {
-    //Rather Ugly, we can't currently guarantee what the name of the voltage column is,
+    //Rather Ugly, we can't currently guarantee what the name of the calcium column is,
     //hence we try to cover the most common possibilities
     std::vector<double> cai;
     if (rReader.HasValues("CaI"))
@@ -102,6 +102,10 @@ std::vector<double> GetIntracellularCalcium(ColumnDataReader& rReader)
     {
         cai = rReader.GetValues("Cai");
     }
+    else if (rReader.HasValues("cytosolic_calcium_concentration"))
+    {
+    	cai = rReader.GetValues("cytosolic_calcium_concentration");
+    }
     else
     {
         EXCEPTION("Model intracellular calcium is not recognised.");
@@ -111,12 +115,16 @@ std::vector<double> GetIntracellularCalcium(ColumnDataReader& rReader)
 
 std::vector<double> GetHGate(ColumnDataReader& rReader)
 {
-    //Rather Ugly, we can't currently guarantee what the name of the voltage column is,
+    //Rather Ugly, we can't currently guarantee what the name of the h gate column is,
     //hence we try to cover the most common possibilities
     std::vector<double> h_values;
     if (rReader.HasValues("h"))
     {
         h_values = rReader.GetValues("h");
+    }
+    else if (rReader.HasValues("fast_sodium_current_h_gate__h"))
+    {
+        h_values = rReader.GetValues("fast_sodium_current_h_gate__h");
     }
     else
     {

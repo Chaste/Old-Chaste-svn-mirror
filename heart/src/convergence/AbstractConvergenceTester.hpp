@@ -85,18 +85,17 @@ public:
      * @param numElemAcross this allows us to deduce the mesh step size.
      */
 
-    RampedQuarterStimulusCellFactory(double meshWidth, unsigned numElemAcross)
+    RampedQuarterStimulusCellFactory(double meshWidth, unsigned numElemAcross, double fullStim=-1e7)
         : AbstractCardiacCellFactory<DIM>(),
           mMeshWidth(meshWidth),
           mStepSize(meshWidth/numElemAcross),
           mLevels(numElemAcross/4)
     {
         assert(numElemAcross%4 == 0); //numElemAcross is supposed to be a multiple of 4
-        double full_stim=-1000000;
 
         for (unsigned level=0; level<mLevels; level++)
         {
-            double this_stim=full_stim - (level*full_stim)/mLevels;
+            double this_stim = fullStim - (level*fullStim)/mLevels;
             //this_stim is full_stim at the zero level and would be zero at level=mLevels
             mpStimuli.push_back((boost::shared_ptr<SimpleStimulus>)new SimpleStimulus(this_stim, 0.5));
         }
@@ -111,8 +110,8 @@ public:
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
         double x = this->GetMesh()->GetNode(node)->GetPoint()[0];
-        double d_level=x/mStepSize;
-        unsigned level=(unsigned) d_level;
+        double d_level = x/mStepSize;
+        unsigned level = (unsigned) d_level;
         assert(fabs(level-d_level) < DBL_MAX); //x ought to really be a multiple of the step size
 
         if (level < mLevels)
@@ -291,9 +290,6 @@ public:
             HeartConfig::Instance()->SetOutputDirectory("Convergence");
             HeartConfig::Instance()->SetOutputFilenamePrefix("Results");
 
-            //Don't use parallel mesh for now
-            //HeartConfig::Instance()->SetMeshFileName( constructor.Construct(this->MeshNum, mMeshWidth) );
-
             DistributedTetrahedralMesh<DIM, DIM> mesh;
             constructor.Construct(mesh, this->MeshNum, mMeshWidth);
 
@@ -318,13 +314,13 @@ public:
                     }
                     else
                     {
-                        p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(num_ele_across, constructor.GetWidth());
+                        p_cell_factory = new GeneralPlaneStimulusCellFactory<CELL, DIM>(num_ele_across, constructor.GetWidth(), false, this->AbsoluteStimulus);
                     }
                     break;
                 }
                 case QUARTER:
                 {
-                    p_cell_factory = new RampedQuarterStimulusCellFactory<CELL, DIM>(constructor.GetWidth(), num_ele_across);
+                    p_cell_factory = new RampedQuarterStimulusCellFactory<CELL, DIM>(constructor.GetWidth(), num_ele_across, this->AbsoluteStimulus);
                     break;
                 }
             }

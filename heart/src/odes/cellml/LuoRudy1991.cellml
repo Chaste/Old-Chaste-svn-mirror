@@ -1611,7 +1611,7 @@ The breakdown of the model into components and the definition of encapsulation a
       <variable units="millimolar" public_interface="out" name="Ko" initial_value="5.4"/>
    </component>
    <component name="intracellular_calcium_concentration">
-      <variable units="millimolar" public_interface="out" name="Cai" initial_value="0.0002" cmeta:id="cytosolic_calcium_concentration"/>
+      <variable units="millimolar" public_interface="out" name="Cai" initial_value="0.0002" cmeta:id="Cai"/>
       <variable units="millisecond" public_interface="in" name="time"/>
       <variable units="microA_per_cm2" public_interface="in" name="i_si"/>
       <math xmlns="http://www.w3.org/1998/Math/MathML">
@@ -2019,8 +2019,8 @@ The breakdown of the model into components and the definition of encapsulation a
   <rdf:Description rdf:about="#FonRT">
     <derived-quantity xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</derived-quantity>
   </rdf:Description>
-   <rdf:Description rdf:about="#cytosolic_calcium_concentration">
-      <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#cytosolic_calcium_concentration"/>
-   </rdf:Description>
+  <rdf:Description rdf:about="#Cai">
+    <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#cytosolic_calcium_concentration"/>
+  </rdf:Description>
 </rdf:RDF>
 </model>

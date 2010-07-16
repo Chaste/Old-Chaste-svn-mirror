@@ -55,7 +55,7 @@ public:
 
     }
     /**
-     * @return true to give up convergence when either the Ode time-step is unreasonably small.
+     * @return true to give up convergence when the Ode time-step is unreasonably small.
      */
     bool GiveUpConvergence()
     {

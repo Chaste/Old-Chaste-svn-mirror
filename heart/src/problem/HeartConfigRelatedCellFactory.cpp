@@ -152,13 +152,13 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
             case(cp::ionic_models_available_type::LuoRudyIBackwardEuler):
             {
-                p_cell = new BackwardEulerLuoRudyIModel1991(intracellularStimulus);
+                p_cell = new CellLuoRudy1991FromCellMLBackwardEuler(this->mpSolver, intracellularStimulus);
                 break;
             }
 
             case(cp::ionic_models_available_type::Fox2002BackwardEuler):
             {
-                p_cell = new BackwardEulerFoxModel2002Modified(intracellularStimulus);
+                p_cell = new BackwardEulerFoxModel2002Modified(this->mpSolver, intracellularStimulus);
                 break;
             }
 
@@ -176,7 +176,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
             case(cp::ionic_models_available_type::tenTusscher2006):
             {
-                p_cell = new Celltentusscher_model_2006_epi_corrected_flooristimFromCellML(this->mpSolver, intracellularStimulus);
+                p_cell = new CellTenTusscher2006EpiFromCellML(this->mpSolver, intracellularStimulus);
                 break;
             }
 

@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <math.h>
 
-#include "BackwardEulerLuoRudyIModel1991.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "PerformanceTester.hpp"
 
@@ -56,11 +56,11 @@ public:
         PetscOptionsSetValue("-log_summary", "");
 
         // write headings
-        PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3>::DisplayHeadings();
+        PerformanceTester<CellLuoRudy1991FromCellMLBackwardEuler, BidomainProblem<3>, 3>::DisplayHeadings();
         HeartEventHandler::Headings();
 
         // base line
-        PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<3>, 3> tester;
+        PerformanceTester<CellLuoRudy1991FromCellMLBackwardEuler, BidomainProblem<3>, 3> tester;
         tester.MeshNum=1;
         tester.Run();
 

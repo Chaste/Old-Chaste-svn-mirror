@@ -22,7 +22,7 @@
       <!-- Only one var allowed here -->
       <var type='config-name'>transmembrane_potential</var>
       <min>-100.0001</min>
-      <max>59.9999</max>
+      <max>99.9999</max>
       <step>0.01</step>
     </lookup_table>
   </lookup_tables>
@@ -70,26 +70,6 @@
       <var type='config-name'>transmembrane_potential</var>
       <min>-250.0001</min>
       <max>349.9999</max>
-    </lookup_table>
-  </lookup_tables>
-</for_model>
-
-<for_model id="wiggle">
-  <lookup_tables>
-    <lookup_table>
-      <var>membrane,V</var>
-      <max>151.9999</max>
-    </lookup_table>
-  </lookup_tables>
-</for_model>
-
-<for_model id="wiggle2">
-  <lookup_tables>
-    <lookup_table>
-      <var>membrane,V</var>
-      <min>0</min>
-      <max>100</max>
-      <step>0.01</step>
     </lookup_table>
   </lookup_tables>
 </for_model>

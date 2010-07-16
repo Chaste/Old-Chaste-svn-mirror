@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <math.h>
 
-#include "BackwardEulerLuoRudyIModel1991.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "PerformanceTester.hpp"
 
@@ -52,11 +52,11 @@ public:
         HeartConfig::Instance()->SetKSPPreconditioner("bjacobi");
         PetscOptionsSetValue("-log_summary", "");
         // write headings
-        PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2>::DisplayHeadings();
+        PerformanceTester<CellLuoRudy1991FromCellMLBackwardEuler, BidomainProblem<2>, 2>::DisplayHeadings();
         HeartEventHandler::Headings();
 
         // base line test
-        PerformanceTester<BackwardEulerLuoRudyIModel1991, BidomainProblem<2>, 2> tester;
+        PerformanceTester<CellLuoRudy1991FromCellMLBackwardEuler, BidomainProblem<2>, 2> tester;
         tester.MeshNum=2;
         tester.SimTime=4.0;
         tester.Run();

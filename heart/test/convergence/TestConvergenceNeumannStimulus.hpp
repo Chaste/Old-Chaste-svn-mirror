@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <cmath>
 
-#include "BackwardEulerLuoRudyIModel1991.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "PdeConvergenceTester.hpp"
 #include "SpaceConvergenceTester.hpp"
@@ -56,7 +56,7 @@ public:
 
     void TestConvergenceMonodomain1d()
     {
-        PdeConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
+        PdeConvergenceTester<CellLuoRudy1991FromCellMLBackwardEuler, MonodomainProblem<1>, 1, 1> tester;
         tester.Stimulus=NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
@@ -65,7 +65,7 @@ public:
 
     void TestSpaceConvergence1d()
     {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<1>, 1, 1> tester;
+        SpaceConvergenceTester<CellLuoRudy1991FromCellMLBackwardEuler, MonodomainProblem<1>, 1, 1> tester;
         tester.Stimulus=NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
@@ -74,7 +74,7 @@ public:
 
     void TestSpaceConvergence2d()
     {
-        SpaceConvergenceTester<BackwardEulerLuoRudyIModel1991, MonodomainProblem<2>, 2, 1> tester;
+        SpaceConvergenceTester<CellLuoRudy1991FromCellMLBackwardEuler, MonodomainProblem<2>, 2, 1> tester;
         tester.Stimulus=NEUMANN;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);

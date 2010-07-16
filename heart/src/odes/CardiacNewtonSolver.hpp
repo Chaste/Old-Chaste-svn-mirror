@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * It would be nice to have a test of this class directly, but you need a cardiac
  * cell in order to test it.  So all tests occur when testing particular cardiac
- * cells, e.g. the BackwardEulerLuoRudyIModel1991.
+ * cells, e.g. the LuoRudy1991BackwardEuler.
  */
 template<unsigned SIZE>
 class CardiacNewtonSolver

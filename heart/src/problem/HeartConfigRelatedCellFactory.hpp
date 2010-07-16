@@ -52,13 +52,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "BackwardEulerFoxModel2002Modified.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "BackwardEulerLuoRudyIModel1991.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
 #include "FoxModel2002Modified.hpp"
 #include "FaberRudy2000Version3.hpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
 #include "Mahajan2008OdeSystem.hpp"
-#include "tentusscher_model_2006_epi_corrected_flooristim.hpp"
+#include "TenTusscher2006Epi.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "Maleckar2009OdeSystem.hpp"
 
