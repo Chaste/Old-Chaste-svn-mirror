@@ -68,7 +68,16 @@ public:
         TS_ASSERT_EQUALS(system(("cmp " + results_dir + "log_warnings.txt  global/test/data/log_warnings.txt").c_str()), 0);
         Warnings::QuietDestroy();
     }
-
+    
+    void TestWarningOnceOnly()
+    {
+        for(unsigned year=1970; year<2200; year+=4)
+        {
+            WARN_ONCE_ONLY("Don't get your hopes up, England are not going to win the World Cup.");
+        }
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
+        Warnings::QuietDestroy();
+    }
  };
 
 #endif //_TESTWARNINGS_HPP_

@@ -106,4 +106,23 @@ public:
 
 #define WARNING(message) Warnings::Instance()->AddWarning(message, __FILE__, __LINE__)
 
+/** 
+ *  Warn only the first time line is reached. Note: this does not base whether to not warn
+ *  again on the message content, just on whether the line of code where this macro is placed
+ *  has been reached. In other words:
+ * 
+ *  for(unsigned i=0; i<10; i++)
+ *  {
+ *     WARN_ONCE_ONLY("Don't make me angry");
+ *  }
+ *  
+ *  will print once, whereas
+ * 
+ *  WARN_ONCE_ONLY("You wouldn't like me when I'm angry");
+ *  WARN_ONCE_ONLY("You wouldn't like me when I'm angry");
+ * 
+ *  will warn twice.
+ */
+#define WARN_ONCE_ONLY(message) {static bool first=true; if(first){WARNING((message));first=false;} }
+
 #endif // _WARNINGS_HPP_
