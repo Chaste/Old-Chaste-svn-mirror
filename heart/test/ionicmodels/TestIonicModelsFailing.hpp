@@ -80,23 +80,23 @@ public:
         tt06_backward_euler.ComputeExceptVoltage(0.0, 3*step);
 /*
 The test from Miguel (might converge with a bit more work)
-DEBUG: counter = 1, norm = 0.0076568
-DEBUG: counter = 2, norm = 0.00494596
-DEBUG: counter = 3, norm = 0.00198722
-DEBUG: counter = 4, norm = 0.00556094
-DEBUG: counter = 5, norm = 0.00538928
-DEBUG: counter = 6, norm = 0.00952744
-DEBUG: counter = 7, norm = 0.0232987
-DEBUG: counter = 8, norm = 0.0144165
-DEBUG: counter = 9, norm = 0.00606122
-DEBUG: counter = 10, norm = 0.00353937
-DEBUG: counter = 11, norm = 0.00196135
-DEBUG: counter = 12, norm = 0.0148738
-DEBUG: counter = 13, norm = 0.0230241
-DEBUG: counter = 14, norm = 0.0108333
-DEBUG: counter = 15, norm = 0.000441591
-DEBUG: counter = 16, norm = 1.92038e-06
-DEBUG: counter = 17, norm = 3.78497e-11
+DEBUG: counter = 0, "Reset" = Reset, ComputeNorm(mResidual) = 0.00121263
+DEBUG: counter = 1, norm_of_update = 0.0076568, ComputeNorm(mResidual) = 0.0154734
+DEBUG: counter = 2, norm_of_update = 0.00494596, ComputeNorm(mResidual) = 0.0028677
+DEBUG: counter = 3, norm_of_update = 0.00198722, ComputeNorm(mResidual) = 0.0012319
+DEBUG: counter = 4, norm_of_update = 0.00556094, ComputeNorm(mResidual) = 0.00500664
+DEBUG: counter = 5, norm_of_update = 0.00538928, ComputeNorm(mResidual) = 0.0012021
+DEBUG: counter = 6, norm_of_update = 0.00952744, ComputeNorm(mResidual) = 0.00769432
+DEBUG: counter = 7, norm_of_update = 0.0232987, ComputeNorm(mResidual) = 0.0343558
+DEBUG: counter = 8, norm_of_update = 0.0144165, ComputeNorm(mResidual) = 0.00122956
+DEBUG: counter = 9, norm_of_update = 0.00606122, ComputeNorm(mResidual) = 0.0103205
+DEBUG: counter = 10, norm_of_update = 0.00353937, ComputeNorm(mResidual) = 0.00248515
+DEBUG: counter = 11, norm_of_update = 0.00196135, ComputeNorm(mResidual) = 0.00119336
+DEBUG: counter = 12, norm_of_update = 0.0148738, ComputeNorm(mResidual) = 0.00752786
+DEBUG: counter = 13, norm_of_update = 0.0230241, ComputeNorm(mResidual) = 0.00998154
+DEBUG: counter = 14, norm_of_update = 0.0108333, ComputeNorm(mResidual) = 0.000366517
+DEBUG: counter = 15, norm_of_update = 0.000441591, ComputeNorm(mResidual) = 1.58233e-06
+DEBUG: counter = 16, norm_of_update = 1.92038e-06, ComputeNorm(mResidual) = 3.1187e-11
 */
     }
 };

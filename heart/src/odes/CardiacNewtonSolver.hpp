@@ -30,8 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include "IsNan.hpp"
-
 #include "AbstractBackwardEulerCardiacCell.hpp"
+
+
+//#include "Debug.hpp"
 
 /**
  * Specialised Newton solver for solving the nonlinear systems arising when
@@ -74,28 +76,29 @@ public:
         unsigned counter = 0;
 //        const double eps = 1e-6 * rCurrentGuess[0]; // Our tolerance (should use min(guess) perhaps?)
         const double eps = 1e-6; // JonW tolerance
-        double norm = 2*eps;
+        double norm_of_update = 2*eps;
 
         // check that the initial guess that was given gives a valid residual
         rCell.ComputeResidual(time, rCurrentGuess, mResidual);
+//        PRINT_3_VARIABLES(counter, "Reset", ComputeNorm(mResidual));
         for (unsigned i=0; i<SIZE; i++)
         {
             assert(!std::isnan(mResidual[i]));
         }
 
-        while (norm > eps)
+        while (norm_of_update > eps)
         {
             // Calculate Jacobian for current guess
             rCell.ComputeJacobian(time, rCurrentGuess, mJacobian);
 
 //            // Update norm (our style)
-//            norm = ComputeNorm(mResidual);
+//            norm_of_update = ComputeNorm(mResidual);
 
             // Solve Newton linear system
             SolveLinearSystem();
 
             // Update norm (JonW style)
-            norm = ComputeNorm(mUpdate);
+            norm_of_update = ComputeNorm(mUpdate);
 
             // Update current guess and recalculate residual
             for (unsigned i=0; i<SIZE; i++)
@@ -105,7 +108,8 @@ public:
             rCell.ComputeResidual(time, rCurrentGuess, mResidual);
 
             counter++;
-             
+//            PRINT_3_VARIABLES(counter, norm_of_update, ComputeNorm(mResidual));
+           
             // avoid infinite loops
             if (counter > 15)
             {
@@ -114,6 +118,7 @@ public:
 #undef COVERAGE_IGNORE
             }
         }
+        assert( ComputeNorm(mResidual) < 1e-10);
     }
 
 /////// Alternative version of Solve which uses damping factors - may be
