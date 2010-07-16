@@ -272,7 +272,7 @@ public:
      *    original object is immediately destroyed, or the copy is assigned
      *    to a new cell.
      *
-     * \todo #1279 consider if we can make the creation of new cell cycle models nicer now
+     * \todo consider if we can make the creation of new cell cycle models nicer now (see #1491)
      */
     virtual AbstractCellCycleModel* CreateCellCycleModel()=0;
 

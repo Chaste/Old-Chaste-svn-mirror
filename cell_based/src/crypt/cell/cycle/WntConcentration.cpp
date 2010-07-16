@@ -85,14 +85,6 @@ double WntConcentration<DIM>::GetWntLevel(TissueCellPtr pCell)
 
     double height;
 
-    /**
-     * \todo REMOVE THIS COMMENT
-     * 
-     * Up to here, everything is fine: the cell is happy, the cell cycle model
-     * is happy and the tissue is happy. Something goes wrong when height is
-     * computed.
-     */
-    
     if (mWntType==RADIAL)
     {
         double a = TissueConfig::Instance()->GetCryptProjectionParameterA();
