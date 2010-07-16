@@ -170,7 +170,7 @@ private:
 
     /** 
      * Create a quadratic mesh on the interval [0,numElemX] with numElemX elements in each 
-     * direction.This is private, users should call ConstructRegularSlabMesh();
+     * direction.  This is private, users should call ConstructRegularSlabMesh();
      *
      * @param numElemX Number of elements in x-direction (also, the width of the final mesh)
      */
@@ -233,21 +233,6 @@ public:
      * @param rMeshReader the mesh reader
      */
     void ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader);
-                  
-    
-    /** 
-     *  Generic mesh for creating a slab: this calls Construct2dRegularSlabMesh()
-     *  or Construct3dRegularSlabMesh() depending on the dimension.
-     *  In 2D only the width and height need be provided (not the depth).
-     *  (Overloaded method from AbstractTetrahedralMesh).
-     * 
-     *  @param spaceStep The spatial stepsize
-     *  @param width the width of the mesh
-     *  @param height the height of the mesh
-     *  @param depth the depth of the mesh (not needed in 2D)
-     * 
-     */
-    void ConstructRegularSlabMesh(double spaceStep, double width, double height=0, double depth=0);
 
 
     /**

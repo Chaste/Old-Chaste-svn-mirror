@@ -37,16 +37,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #undef REAL
 #undef VOID
 
-//template<unsigned DIM>
-//QuadraticMesh<DIM>::QuadraticMesh(double spaceStep, double width, double height)
-//{
-//    ConstructRegularSlabMesh(spaceStep, width, height);
-//}
 
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(double spaceStep, double width, double height, double depth)
 {
-    ConstructRegularSlabMesh(spaceStep, width, height, depth);
+    this->ConstructRegularSlabMesh(spaceStep, width, height, depth);
 }
 
 template<unsigned DIM>
@@ -93,78 +88,6 @@ void QuadraticMesh<DIM>::ConstructLinearMesh(unsigned numElemX)
 }
 
 
-
-template<unsigned DIM>
-void QuadraticMesh<DIM>::ConstructRegularSlabMesh(double spaceStep, double width, double height, double depth)
-{
-    if(DIM==1)
-    {
-        assert(width>0);
-        assert(height==0);
-        assert(depth==0);
-
-        unsigned num_elem_x=(unsigned)((width+0.5*spaceStep)/spaceStep); //0.5*spaceStep is to ensure that rounding down snaps to correct number 
-
-        double actual_width_x=num_elem_x*spaceStep; 
-       
-        if ( fabs (actual_width_x - width) > DBL_EPSILON  )  
-        { 
-            EXCEPTION("Space step does not divide the size of the mesh"); 
-        }
-
-        assert(num_elem_x>0);
-        ConstructLinearMesh(num_elem_x);
-        this->Scale(width/num_elem_x);
-    }
-    else if(DIM==2)
-    {
-        assert(width>0);
-        assert(height>0);
-        assert(depth==0);
-
-        unsigned num_elem_x=(unsigned)((width+0.5*spaceStep)/spaceStep); //0.5*spaceStep is to ensure that rounding down snaps to correct number 
-        unsigned num_elem_y=(unsigned)((height+0.5*spaceStep)/spaceStep);
-
-        double actual_width_x=num_elem_x*spaceStep; 
-        double actual_width_y=num_elem_y*spaceStep; 
-       
-        if (   fabs (actual_width_x - width) > DBL_EPSILON  
-            || fabs (actual_width_y - height) > DBL_EPSILON )  
-        { 
-            EXCEPTION("Space step does not divide the size of the mesh"); 
-        }
-
-        assert(num_elem_x>0);
-        assert(num_elem_y>0);
-
-        ConstructRectangularMesh(num_elem_x, num_elem_y);
-        this->Scale(width/num_elem_x, height/num_elem_y);
-    }
-    else 
-    {
-        assert(width>0);
-        assert(height>0);
-        assert(depth>0);
-
-        unsigned num_elem_x=(unsigned)((width+0.5*spaceStep)/spaceStep); //0.5*spaceStep is to ensure that rounding down snaps to correct number 
-        unsigned num_elem_y=(unsigned)((height+0.5*spaceStep)/spaceStep);
-        unsigned num_elem_z=(unsigned)((depth+0.5*spaceStep)/spaceStep);
-
-        double actual_width_x=num_elem_x*spaceStep; 
-        double actual_width_y=num_elem_y*spaceStep; 
-        double actual_width_z=num_elem_z*spaceStep; 
-       
-        if (   fabs (actual_width_x - width) > DBL_EPSILON  
-            || fabs (actual_width_y - height) > DBL_EPSILON   
-            || fabs (actual_width_z - depth) > DBL_EPSILON )  
-        { 
-            EXCEPTION("Space step does not divide the size of the mesh"); 
-        } 
-
-        ConstructCuboid(num_elem_x, num_elem_y, num_elem_z);
-        this->Scale(width/num_elem_x, height/num_elem_y, depth/num_elem_z);
-    }
-} 
 
 
 template<unsigned DIM>
