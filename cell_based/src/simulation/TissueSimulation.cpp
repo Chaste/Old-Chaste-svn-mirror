@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellCentreBasedTissue.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
+#include "Version.hpp"
 
 template<unsigned DIM>
 TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
@@ -492,6 +493,8 @@ void TissueSimulation<DIM>::Solve()
 
     mrTissue.WriteResultsToFiles();
 
+    OutputSimulationSetup();
+
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::SETUP);
 
     // Initialise a vector of forces on node
@@ -642,6 +645,89 @@ void TissueSimulation<DIM>::UpdateTissue()
         EXCEPTION("Tissue has had births or deaths but mUpdateTissue is set to false, please set it to true.");
     }
     CellBasedEventHandler::EndEvent(CellBasedEventHandler::UPDATETISSUE);
+}
+
+template<unsigned DIM>
+void TissueSimulation<DIM>::OutputSimulationSetup()
+{
+    // Create Output file
+    OutputFileHandler output_file_handler(this->mSimulationOutputDirectory + "/", false);
+
+    out_stream ParameterFile = output_file_handler.OpenOutputFile("results.parameters");
+
+    /*
+     * Things to store:
+     *  * Name of the test ran
+     *  * Provenence data
+     *    * Revision number
+     *    * Machine info
+     *    * Date
+     *  * Tissue Type (`VertexBased`, `MeshBased`, `NodeBased` .etc.)
+     *    * Mesh parameters
+     *  * Force/Update laws used
+     *  * Timestep data
+     *    * Output Steps
+     *    * End time
+     *  * Parameters from `TissueConfig`
+     */
+
+    *ParameterFile << ChasteBuildInfo::GetProvenanceString()<< " \n";
+
+
+
+
+    *ParameterFile <<  "Parameters from TissueConfig \n";
+	TissueConfig* p_inst = TissueConfig::Instance();
+	*ParameterFile << "SG2MDuration \t" << p_inst->GetSG2MDuration() << " \n";
+    *ParameterFile << "SDuration \t" << p_inst->GetSDuration() << " \n";
+    *ParameterFile << "G2Duration \t" << p_inst->GetG2Duration() << " \n";
+    *ParameterFile << "MDuration \t" << p_inst->GetMDuration() << " \n";
+    *ParameterFile << "StemCellG1Duration \t" << p_inst->GetStemCellG1Duration() << " \n";
+    *ParameterFile << "TransitCellG1Duration \t" << p_inst->GetTransitCellG1Duration() << " \n";
+    *ParameterFile << "HepaOneCellG1Duration \t" << p_inst->GetHepaOneCellG1Duration() << " \n";
+    *ParameterFile << "MinimumGapDuration \t" << p_inst->GetMinimumGapDuration() << " \n";
+    *ParameterFile << "MaxTransitGenerations \t" << p_inst->GetMaxTransitGenerations() << " \n";
+    *ParameterFile << "CryptLength \t" << p_inst->GetCryptLength() << " \n";
+    *ParameterFile << "CryptWidth \t" << p_inst->GetCryptWidth() << " \n";
+    *ParameterFile << "SpringStiffness \t" << p_inst->GetMeinekeSpringStiffness() << " \n";
+    *ParameterFile << "MechanicsCutOffLength \t" << p_inst->GetMeinekeMechanicsCutOffLength() << " \n";
+    *ParameterFile << "DampingConstantNormal \t" << p_inst->GetDampingConstantNormal() << " \n";
+    *ParameterFile << "DampingConstantMutant \t" << p_inst->GetDampingConstantMutant() << " \n";
+    *ParameterFile << "BetaCatSpringScaler \t" << p_inst->GetBetaCatSpringScaler() << " \n";
+    *ParameterFile << "ApoptosisTime \t" << p_inst->GetApoptosisTime() << " \n";
+    *ParameterFile << "HepaOneCellHypoxicConcentration \t" << p_inst->GetHepaOneCellHypoxicConcentration() << " \n";
+    *ParameterFile << "HepaOneCellQuiescentConcentration \t" << p_inst->GetHepaOneCellQuiescentConcentration() << " \n";
+    *ParameterFile << "WntStemThreshold \t" << p_inst->GetWntStemThreshold() << " \n";
+    *ParameterFile << "WntTransitThreshold \t" << p_inst->GetWntTransitThreshold() << " \n";
+    *ParameterFile << "WntLabelledThreshold \t" << p_inst->GetWntLabelledThreshold() << " \n";
+    *ParameterFile << "WntConcentrationParameter \t" << p_inst->GetWntConcentrationParameter() << " \n";
+    *ParameterFile << "CriticalHypoxicDuration \t" << p_inst->GetCriticalHypoxicDuration() << " \n";
+    *ParameterFile << "CryptProjectionParameterA \t" << p_inst->GetCryptProjectionParameterA() << " \n";
+    *ParameterFile << "CryptProjectionParameterB \t" << p_inst->GetCryptProjectionParameterB() << " \n";
+    *ParameterFile << "ApoptoticSpringTensionStiffness \t" << p_inst->GetApoptoticSpringTensionStiffness() << " \n";
+    *ParameterFile << "ApoptoticSpringCompressionStiffness \t" << p_inst->GetApoptoticSpringCompressionStiffness() << " \n";
+    *ParameterFile << "WntChemotaxisStrength \t" << p_inst->GetWntChemotaxisStrength() << " \n";
+    *ParameterFile << "SymmetricDivisionProbability \t" << p_inst->GetSymmetricDivisionProbability() << " \n";
+    *ParameterFile << "AreaBasedDampingConstantParameter \t" << p_inst->GetAreaBasedDampingConstantParameter() << " \n";
+    *ParameterFile << "NagaiHondaDeformationEnergyParameter \t" << p_inst->GetNagaiHondaDeformationEnergyParameter() << " \n";
+    *ParameterFile << "NagaiHondaMembraneSurfaceEnergyParameter \t" << p_inst->GetNagaiHondaMembraneSurfaceEnergyParameter() << " \n";
+    *ParameterFile << "NagaiHondaCellCellAdhesionEnergyParameter \t" << p_inst->GetNagaiHondaCellCellAdhesionEnergyParameter() << " \n";
+    *ParameterFile << "NagaiHondaCellBoundaryAdhesionEnergyParameter \t" << p_inst->GetNagaiHondaCellBoundaryAdhesionEnergyParameter() << " \n";
+    *ParameterFile << "WelikyOsterAreaParameter \t" << p_inst->GetWelikyOsterAreaParameter() << " \n";
+    *ParameterFile << "WelikyOsterPerimeterParameter \t" << p_inst->GetWelikyOsterPerimeterParameter() << " \n";
+    *ParameterFile << "OutputCellIdData \t" << p_inst->GetOutputCellIdData() << " \n";
+    *ParameterFile << "OutputCellMutationStates \t" << p_inst->GetOutputCellMutationStates() << " \n";
+    *ParameterFile << "OutputCellAncestors \t" << p_inst->GetOutputCellAncestors() << " \n";
+    *ParameterFile << "OutputCellProliferativeTypes \t" << p_inst->GetOutputCellProliferativeTypes() << " \n";
+    *ParameterFile << "OutputCellVariables \t" << p_inst->GetOutputCellVariables() << " \n";
+    *ParameterFile << "OutputCellCyclePhases \t" << p_inst->GetOutputCellCyclePhases() << " \n";
+    *ParameterFile << "OutputCellAges \t" << p_inst->GetOutputCellAges() << " \n";
+    *ParameterFile << "OutputCellAreas \t" << p_inst->GetOutputCellVolumes() << " \n";
+    *ParameterFile << "OutputVoronoiData \t" << p_inst->GetOutputVoronoiData() << " \n";
+    *ParameterFile << "OutputTissueAreas \t" << p_inst->GetOutputTissueVolumes() << " \n";
+    *ParameterFile << "OutputNodeVelocities \t" << p_inst->GetOutputNodeVelocities() << " \n";
+
+    ParameterFile->close();
 }
 
 /////////////////////////////////////////////////////////////////////////////

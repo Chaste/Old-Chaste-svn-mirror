@@ -260,6 +260,12 @@ protected:
      */
     void UpdateTissue();
 
+    /**
+     * Helper method to output all the simulations parameters and information to file.
+     */
+    void OutputSimulationSetup();
+
+
 public:
 
     /**

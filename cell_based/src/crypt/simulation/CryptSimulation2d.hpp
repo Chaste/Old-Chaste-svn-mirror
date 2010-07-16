@@ -112,11 +112,6 @@ protected:
     void SetupSolve();
 
     /**
-     * Helper method to output all the simulations parameters to file
-     */
-    void OutputParameters();
-
-    /**
      * Overridden PostSolve() method.
      *
      * Write current beta catenin results to file if required.
