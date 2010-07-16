@@ -31,8 +31,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 unsigned TissueCell::mMaxCellId = 0;
 
+/**
+ * null_deleter means "doesn't delete" rather than "deletes nulls".
+ *
+ * Sometimes it is desirable to create a shared_ptr to an already existing object, so that the shared_ptr 
+ * does not attempt to destroy the object when there are no more references left. As an example, the 
+ * factory function:
+ * 
+ * shared_ptr<X> createX();
+ * in certain situations may need to return a pointer to a statically allocated X instance.
+ * 
+ * The solution is to use a custom deleter that does nothing:
+ */
 struct null_deleter
 {
+    /** Does not delete */
     void operator()(void const *) const
     {
     }

@@ -566,6 +566,7 @@ public:
     void TestConstructRegularSlabMesh_Directly_1d() throw(Exception)
     {
         QuadraticMesh<1> mesh;
+        TS_ASSERT_THROWS_THIS(mesh.ConstructRegularSlabMesh(0.75, 1.0), "Space step does not divide the size of the mesh");
         mesh.ConstructRegularSlabMesh(0.1, 1.0);
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21u);
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 11u);
