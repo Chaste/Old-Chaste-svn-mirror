@@ -157,7 +157,7 @@ class CellMLValidator(object):
         else:
             if not os.path.isfile(source):
                 res = False
-                logger.error('File ' + source + ' does not exist.')
+                logging.getLogger('validator').error('File ' + source + ' does not exist.')
             else:
                 stream = file(source, 'r')
         # Parse & validate
@@ -185,7 +185,7 @@ class CellMLValidator(object):
                     res = False
                     break
             if not res:
-                logger.error(sio.getvalue())
+                logging.getLogger('validator').error(sio.getvalue())
             sio.close()
             DEBUG('validator', 'Finished Schematron:', res)
             

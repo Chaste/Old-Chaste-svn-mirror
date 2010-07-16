@@ -52,7 +52,7 @@ class TestProtocol(unittest.TestCase):
     
     def CreateLr91Test(self):
         self.tearDown() # Just in case...
-        doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
+        doc = self.LoadModel('heart/src/odes/cellml/LuoRudy1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
         return p
     
@@ -91,7 +91,7 @@ class TestProtocol(unittest.TestCase):
         return self._doc.model.xml_xpath(xpath)[0]
     
     def TestChangeInitialValue(self):
-        doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
+        doc = self.LoadModel('heart/src/odes/cellml/LuoRudy1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
         # Change initial value for V
         v_init = u'-80'
@@ -159,7 +159,7 @@ class TestProtocol(unittest.TestCase):
         
         Covers the cases of variables originally of type State, Computed, and Constant.
         """
-        doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
+        doc = self.LoadModel('heart/src/odes/cellml/LuoRudy1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
         # Add maths setting Cai to a constant, thus replacing the ODE (state->computed)
         # TODO: What would happen if dCai/dt was used in the model?
@@ -204,7 +204,7 @@ class TestProtocol(unittest.TestCase):
         
         Covers the cases of variables originally of type State, Computed, and Constant.
         """
-        doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
+        doc = self.LoadModel('heart/src/odes/cellml/LuoRudy1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
         # state->state: membrane,V
         V = doc.model.get_variable_by_name(u'membrane', u'V')
@@ -255,7 +255,7 @@ class TestProtocol(unittest.TestCase):
     def TestAddNewVariables(self):
         """Test we can add new variables along with defining mathematics.
         """
-        doc = self.LoadModel('heart/src/odes/cellml/luo_rudy_1991.cellml')
+        doc = self.LoadModel('heart/src/odes/cellml/LuoRudy1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
         # Add a new 'I_total' variable and computation
         I_total = self.NewVariable(u'membrane,I_total', u'microA_per_cm2')
