@@ -35,6 +35,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 class TestWarnings: public CxxTest::TestSuite
 {
+private:
+
+	void ThrowWarning()
+	{
+		WARN_ONCE_ONLY("Ozzy is Hungry.");
+	}
+
 public:
     void TestGetMessage()
     {
@@ -77,6 +84,19 @@ public:
         }
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
         Warnings::QuietDestroy();
+    }
+
+    void TestWarningOnlyOnceReset()
+    {
+    	for(unsigned i=0; i<10; i++)
+    	{
+    		ThrowWarning();
+        }
+    	TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
+    	Warnings::QuietDestroy();
+
+    	ThrowWarning();
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u); // This should be 1
     }
  };
 
