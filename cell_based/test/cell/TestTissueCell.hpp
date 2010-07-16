@@ -100,23 +100,23 @@ public:
         collection.AddProperty(apc1_mutation);
 
         // Create a cell
-        TissueCellPtr p_cell(new TissueCell(p_state, p_model, false, &collection));
+        TissueCellPtr p_cell(new TissueCell(p_state, p_model, false, collection));
         p_cell->SetBirthTime(-1.0);
         p_cell->InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(p_cell->GetCellCycleModel())->GetGeneration(), 0u);
 
         // Test cell property collection
-        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->GetSize(), 2u);
-        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty(wt_mutation), true);
-        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty(apc1_mutation), true);
-        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty(apc1_mutation_2), false);
-        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty(apc2_mutation), false);
-        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty<WildTypeCellMutationState>(), true);
-        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty<ApcOneHitCellMutationState>(), true);
-        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty<ApcTwoHitCellMutationState>(), false);
-        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasPropertyType<AbstractCellProperty>(), true);
-        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasPropertyType<AbstractCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().GetSize(), 2u);
+        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty(wt_mutation), true);
+        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty(apc1_mutation), true);
+        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty(apc1_mutation_2), false);
+        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty(apc2_mutation), false);
+        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty<WildTypeCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty<ApcOneHitCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty<ApcTwoHitCellMutationState>(), false);
+        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasPropertyType<AbstractCellProperty>(), true);
+        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasPropertyType<AbstractCellMutationState>(), true);
 
         // Now age cell
         p_simulation_time->IncrementTimeOneStep(); // t=8
@@ -137,17 +137,19 @@ public:
         TS_ASSERT_DELTA(p_daughter_cell->GetAge(), 0.0, 1e-9);
 
         // Test cell property collection has been inherited correctly during division
-        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->GetSize(), 2u);
+        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().GetSize(), 2u);
 
-        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty(wt_mutation), true);
-        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty(apc1_mutation), true);
-        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty(apc1_mutation_2), false);
-        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty(apc2_mutation), false);
-        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty<WildTypeCellMutationState>(), true);
-        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty<ApcOneHitCellMutationState>(), true);
-        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty<ApcTwoHitCellMutationState>(), false);
-        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasPropertyType<AbstractCellProperty>(), true);
-        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasPropertyType<AbstractCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty(wt_mutation), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty(apc1_mutation), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty(apc1_mutation_2), false);
+        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty(apc2_mutation), false);
+        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty<WildTypeCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty<ApcOneHitCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty<ApcTwoHitCellMutationState>(), false);
+        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasPropertyType<AbstractCellProperty>(), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasPropertyType<AbstractCellMutationState>(), true);
+
+        TS_ASSERT(&(p_daughter_cell->rGetCellPropertyCollection()) != &(p_cell->rGetCellPropertyCollection()));
     }
 
     void TestCellsAgeingCorrectly() throw(Exception)
@@ -1210,7 +1212,7 @@ public:
 	        collection.AddProperty(apc1_mutation);
 
             // Create cell
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_cell_model, false, &collection));
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_cell_model, false, collection));
             p_cell->InitialiseCellCycleModel();
             p_simulation_time->IncrementTimeOneStep();
 
@@ -1259,24 +1261,20 @@ public:
             AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
             TS_ASSERT_EQUALS(p_model->GetCell(), p_cell);
 
-            CellPropertyCollection* p_collection = p_cell->GetCellPropertyCollection();
-            TS_ASSERT(p_collection != NULL);
-            TS_ASSERT_EQUALS(p_collection->GetSize(), 2u);
-	        TS_ASSERT_EQUALS(p_collection->HasProperty<WildTypeCellMutationState>(), true);
-	        TS_ASSERT_EQUALS(p_collection->HasProperty<ApcOneHitCellMutationState>(), true);
-	        TS_ASSERT_EQUALS(p_collection->HasProperty<ApcTwoHitCellMutationState>(), false);
-	        TS_ASSERT_EQUALS(p_collection->HasPropertyType<AbstractCellProperty>(), true);
-	        TS_ASSERT_EQUALS(p_collection->HasPropertyType<AbstractCellMutationState>(), true);
+            CellPropertyCollection& collection = p_cell->rGetCellPropertyCollection();
+            TS_ASSERT_EQUALS(collection.GetSize(), 2u);
+	        TS_ASSERT_EQUALS(collection.HasProperty<WildTypeCellMutationState>(), true);
+	        TS_ASSERT_EQUALS(collection.HasProperty<ApcOneHitCellMutationState>(), true);
+	        TS_ASSERT_EQUALS(collection.HasProperty<ApcTwoHitCellMutationState>(), false);
+	        TS_ASSERT_EQUALS(collection.HasPropertyType<AbstractCellProperty>(), true);
+	        TS_ASSERT_EQUALS(collection.HasPropertyType<AbstractCellMutationState>(), true);
 
-	        for (CellPropertyCollection::Iterator it = p_collection->Begin(); it != p_collection->End(); ++it)
+	        for (CellPropertyCollection::Iterator it = collection.Begin(); it != collection.End(); ++it)
 	        {
-	            TS_ASSERT_EQUALS(p_collection->HasProperty(*it), true);
+	            TS_ASSERT_EQUALS(collection.HasProperty(*it), true);
 	            TS_ASSERT((*it)->IsType<WildTypeCellMutationState>() || (*it)->IsType<ApcOneHitCellMutationState>());
 	            TS_ASSERT_EQUALS((*it)->IsSubType<AbstractCellMutationState>(), true);
 	        }
-
-            // Tidy up
-            delete p_collection;
         }
     }
 

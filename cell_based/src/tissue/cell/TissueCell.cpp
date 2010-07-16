@@ -54,9 +54,9 @@ struct null_deleter
 TissueCell::TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationState,
                        AbstractCellCycleModel* pCellCycleModel,
                        bool archiving,
-                       CellPropertyCollection* pCellPropertyCollection)
+                       CellPropertyCollection cellPropertyCollection)
     : mCanDivide(false),
-      mpCellPropertyCollection(pCellPropertyCollection),
+      mCellPropertyCollection(cellPropertyCollection),
       mpMutationState(pMutationState),
       mpCellCycleModel(pCellCycleModel),
       mAncestor(UNSIGNED_UNSET), // Has to be set by a SetAncestor() call (usually from Tissue)
@@ -139,14 +139,14 @@ boost::shared_ptr<AbstractCellMutationState> TissueCell::GetMutationState() cons
     return mpMutationState;
 }
 
-CellPropertyCollection* TissueCell::GetCellPropertyCollection()
+CellPropertyCollection& TissueCell::rGetCellPropertyCollection()
 {
-    return mpCellPropertyCollection;
+    return mCellPropertyCollection;
 }
 
-CellPropertyCollection* TissueCell::GetCellPropertyCollection() const
+const CellPropertyCollection& TissueCell::rGetCellPropertyCollection() const
 {
-    return mpCellPropertyCollection;
+    return mCellPropertyCollection;
 }
 
 void TissueCell::SetLogged()
@@ -264,7 +264,7 @@ TissueCellPtr TissueCell::Divide()
     mpCellCycleModel->ResetForDivision();
 
     // Create daughter cell
-    TissueCellPtr p_new_cell(new TissueCell(mpMutationState, mpCellCycleModel->CreateCellCycleModel(), false, mpCellPropertyCollection));
+    TissueCellPtr p_new_cell(new TissueCell(mpMutationState, mpCellCycleModel->CreateCellCycleModel(), false, mCellPropertyCollection));
 
     // Initialise properties of daughter cell
     p_new_cell->GetCellCycleModel()->InitialiseDaughterCell();
