@@ -96,7 +96,8 @@ public:
     	Warnings::QuietDestroy();
 
     	ThrowWarning();
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u); // This should be 1
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
+        Warnings::QuietDestroy();
     }
  };
 

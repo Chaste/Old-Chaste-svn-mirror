@@ -26,12 +26,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include <cmath>
-#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
-#include <queue>
+#include <algorithm>
 
 #include "Warnings.hpp"
 #include "Exception.hpp"
@@ -47,30 +45,28 @@ Warnings::Warnings()
 
 void Warnings::NoisyDestroy(void)
 {
-
     if (mpInstance)
     {
-        while (!mpInstance->mWarningMessages.empty())
+        for (WarningsContainerType::iterator it = mpInstance->mWarningMessages.begin();
+             it != mpInstance->mWarningMessages.end();
+             ++it)
         {
             //Look at my warnings please
             //First in pair is the context
             //Second in pair is that actual warning
-            std::cout<< mpInstance->mWarningMessages.front().first
-                     << mpInstance->mWarningMessages.front().second<<std::endl;
-            mpInstance->mWarningMessages.pop();
+            std::cout << it->first << it->second << std::endl;
         }
         delete mpInstance;
-        mpInstance=NULL;
+        mpInstance = NULL;
     }
 }
 
 void Warnings::QuietDestroy(void)
 {
-
     if (mpInstance)
     {
         delete mpInstance;
-        mpInstance=NULL;
+        mpInstance = NULL;
     }
 }
 
@@ -86,14 +82,24 @@ Warnings* Warnings::Instance()
 
 
 void 
-Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber)
+Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber, bool onlyOnce)
 {
     
     std::stringstream line_number_stream;
     line_number_stream << lineNumber;
-    std::string context=std::string("Chaste warning: " + rFilename + ":"  + line_number_stream.str()  + ": ");
+    std::string context("Chaste warning: " + rFilename + ":"  + line_number_stream.str()  + ": ");
+    std::pair<std::string, std::string> item(context, rMessage);
+    
+    if (onlyOnce)
+    {
+        WarningsContainerType::iterator it = find(mWarningMessages.begin(), mWarningMessages.end(), item);
+        if (it != mWarningMessages.end())
+        {
+            return;
+        }
+    }
 
-    mWarningMessages.push(std::pair<std::string, std::string>(context, rMessage));
+    mWarningMessages.push_back(item);
     LOG(1, context + rMessage);
 }
 
@@ -111,7 +117,7 @@ std::string Warnings::GetNextWarningMessage()
         EXCEPTION("There are no warnings");
     }
     std::string message = mWarningMessages.front().second;  //Second in pair is the actual warning.
-    mWarningMessages.pop();
+    mWarningMessages.pop_front();
 
     return message;
 }

@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _WARNINGS_HPP_
 
 #include <string>
-#include <queue>
+#include <deque>
 
 /**
  * The Warnings singleton class collects warnings via the AddWarning() method
@@ -48,7 +48,11 @@ class Warnings
 {
 private:
     static Warnings* mpInstance; /**<  Pointer to the single instance. For use as singleton */
-    std::queue<std::pair<std::string, std::string> > mWarningMessages; /**< Warnings messages.  First in pair is the context (line number etc.).  Second in pair is the actual warning, */
+    
+    /** Container type for warnings */
+    typedef std::deque<std::pair<std::string, std::string> > WarningsContainerType;
+    
+    WarningsContainerType mWarningMessages; /**< Warnings messages.  First in pair is the context (line number etc.).  Second in pair is the actual warning, */
 
 protected:
 
@@ -77,8 +81,9 @@ public:
      * @param rMessage  the message
      * @param rFilename  which source file threw the exception
      * @param lineNumber  which line number of the source file threw the exception
+     * @param onlyOnce  whether to only log the first warning thrown from this location
      */
-    void AddWarning(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber);
+    void AddWarning(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber, bool onlyOnce=false);
 
     /**
      * Get the message associated with the exception with file and line number
@@ -123,6 +128,6 @@ public:
  * 
  *  will warn twice.
  */
-#define WARN_ONCE_ONLY(message) {static bool first=true; if(first){WARNING((message));first=false;} }
+#define WARN_ONCE_ONLY(message) Warnings::Instance()->AddWarning(message, __FILE__, __LINE__, true)
 
 #endif // _WARNINGS_HPP_
