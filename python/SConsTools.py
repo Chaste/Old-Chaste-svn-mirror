@@ -148,10 +148,6 @@ def BuildTest(target, source, env):
                         has_source = True
                         source_filename = base + '.cpp'
                     else:
-                        if parts[1] == 'build':
-                            # It's a generated source file
-                            parts = [component] + parts[3:]
-                            base = os.path.join(*parts)[:-len(ext)]
                         for ext in chaste_source_exts:
                             source_filename = base + ext
                             has_source = source_filename in env['CHASTE_OBJECTS']
@@ -175,6 +171,16 @@ def BuildTest(target, source, env):
     env.Alias('test_exes', actual_runner)
     assert actual_runner[0] is runner # Just in case
     return None
+
+def RegisterObjects(env, key, objs):
+    """Record how objects get built, for the benefit of BuildTest."""
+    env['CHASTE_OBJECTS'][key] = objs
+    # If the source is something from which C++ is generated, then we need to add objects
+    # under other keys, too, to make sure they are found.
+    for obj in objs:
+        src = obj.sources[0]
+        if src.is_derived():
+            env['CHASTE_OBJECTS'][src.path] = [obj]
 
 def pns(nodes):
   """Pretty-print nodes for debugging"""
@@ -723,8 +729,7 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
         for source_file in files + testsource:
             objs = env.StaticObject(source_file)
             key = os.path.join('projects', projectName, source_file)
-            #print projectName, "source", key
-            env['CHASTE_OBJECTS'][key] = objs
+            RegisterObjects(env, key, objs)
 
     # Make test output depend on shared libraries, so if implementation changes
     # then tests are re-run.
@@ -866,8 +871,7 @@ def DoComponentSConscript(component, otherVars):
         for source_file in files + testsource:
             objs = env.StaticObject(source_file)
             key = os.path.join(component, str(source_file))
-            #print component, "source", key, "gives", map(str, objs)
-            env['CHASTE_OBJECTS'][key] = objs
+            RegisterObjects(env, key, objs)
     
     # Determine libraries to link against.
     # Note that order does matter!

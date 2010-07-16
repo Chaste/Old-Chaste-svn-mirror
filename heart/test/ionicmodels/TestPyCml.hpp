@@ -55,6 +55,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TenTusscher2006EpiOpt.hpp"
 #include "TenTusscher2006EpiBackwardEuler.hpp"
 
+// Note: only using the optimised model, to test linking with chaste_libs=0!
+#include "NobleVargheseKohlNoble1998aOpt.hpp"
+
 #ifdef CHASTE_CVODE
 #include "LuoRudy1991Cvode.hpp"
 #include "LuoRudy1991CvodeOpt.hpp"
@@ -406,6 +409,10 @@ public:
         CellTenTusscher2006EpiFromCellMLBackwardEuler be(p_solver, p_stimulus);
         be.UseCellMLDefaultStimulus();
         CheckCai(be, false);
+        
+        // N98
+        CellNobleVargheseKohlNoble1998aFromCellMLOpt n98opt(p_solver, p_stimulus);
+        CheckCai(n98opt, false);
     }
 };
 
