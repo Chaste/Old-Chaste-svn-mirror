@@ -210,10 +210,24 @@ public:
         CellwiseSourcePde<2> pde(tissue, -0.03);
 
         /*
-         * To pass the PDE to our simulator, it needs to be encapsulated in ...
-         * (TODO)
+         * To pass the PDE to our simulator, it first needs to be encapsulated in a 
+         * {{{PdeAndBoundaryConditions}}} object, together with the boundary condition for
+         * the PDE. The latter is specified by the second and third arguments of the 
+         * {{{PdeAndBoundaryConditions}}} constructor below: the second argument defines the value
+         * of the boundary condition and the third argument defines whether it is of Neumann type
+         * (true) or Dirichlet type (false). Thus, in our case, we are a specifying no-flux
+         * boundary condition. Note that we currently cannot impose more than one boundary
+         * condition for each PDE (so that e.g. we cannot impose a zero-flux boundary condition
+         * on some part of the boundary and a fixed-value boundary condition on the rest).
          */
         PdeAndBoundaryConditions<2> pde_and_bc(&pde, 0.0, true);
+
+        /*
+         * After having created a {{{PdeAndBoundaryConditions}}} object, we then pass it
+         * into a vector of pointers. This allows us to define any number of PDEs within
+         * the tissue simulation, in a similar way to how we create a vector of force laws
+         * (see below).
+         */
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
         
