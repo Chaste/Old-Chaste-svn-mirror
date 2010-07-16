@@ -53,8 +53,10 @@ struct null_deleter
 
 TissueCell::TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationState,
                        AbstractCellCycleModel* pCellCycleModel,
-                       bool archiving)
+                       bool archiving,
+                       CellPropertyCollection* pCellPropertyCollection)
     : mCanDivide(false),
+      mpCellPropertyCollection(pCellPropertyCollection),
       mpMutationState(pMutationState),
       mpCellCycleModel(pCellCycleModel),
       mAncestor(UNSIGNED_UNSET), // Has to be set by a SetAncestor() call (usually from Tissue)
@@ -90,7 +92,6 @@ TissueCell::~TissueCell()
     delete mpCellCycleModel;
 }
 
-
 void TissueCell::SetCellCycleModel(AbstractCellCycleModel* pCellCycleModel)
 {
     if (mpCellCycleModel != pCellCycleModel)
@@ -101,12 +102,10 @@ void TissueCell::SetCellCycleModel(AbstractCellCycleModel* pCellCycleModel)
     mpCellCycleModel->SetCell(TissueCellPtr(this, null_deleter()));
 }
 
-
 AbstractCellCycleModel* TissueCell::GetCellCycleModel() const
 {
     return mpCellCycleModel;
 }
-
 
 void TissueCell::InitialiseCellCycleModel()
 {
@@ -118,18 +117,15 @@ double TissueCell::GetAge() const
     return mpCellCycleModel->GetAge();
 }
 
-
 double TissueCell::GetBirthTime() const
 {
     return mpCellCycleModel->GetBirthTime();
 }
 
-
 void TissueCell::SetBirthTime(double birthTime)
 {
     mpCellCycleModel->SetBirthTime(birthTime);
 }
-
 
 void TissueCell::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
 {
@@ -138,24 +134,30 @@ void TissueCell::SetMutationState(boost::shared_ptr<AbstractCellMutationState> p
     mpMutationState->IncrementCellCount();
 }
 
-
 boost::shared_ptr<AbstractCellMutationState> TissueCell::GetMutationState() const
 {
     return mpMutationState;
 }
 
+CellPropertyCollection* TissueCell::GetCellPropertyCollection()
+{
+    return mpCellPropertyCollection;
+}
+
+CellPropertyCollection* TissueCell::GetCellPropertyCollection() const
+{
+    return mpCellPropertyCollection;
+}
 
 void TissueCell::SetLogged()
 {
     mIsLogged = true;
 }
 
-
 bool TissueCell::IsLogged()
 {
     return mIsLogged;
 }
-
 
 void TissueCell::StartApoptosis(bool setDeathTime)
 {
@@ -181,7 +183,6 @@ void TissueCell::StartApoptosis(bool setDeathTime)
     SetMutationState(p_apoptotic_state);
 }
 
-
 bool TissueCell::HasApoptosisBegun() const
 {
     return mUndergoingApoptosis;
@@ -202,7 +203,6 @@ double TissueCell::GetTimeUntilDeath() const
     return mDeathTime - SimulationTime::Instance()->GetTime();
 }
 
-
 bool TissueCell::IsDead()
 {
     if (mUndergoingApoptosis)
@@ -214,7 +214,6 @@ bool TissueCell::IsDead()
     }
     return mIsDead;
 }
-
 
 void TissueCell::Kill()
 {
@@ -254,7 +253,6 @@ bool TissueCell::ReadyToDivide()
     return mCanDivide;
 }
 
-
 TissueCellPtr TissueCell::Divide()
 {
     // Check we're allowed to divide
@@ -266,7 +264,7 @@ TissueCellPtr TissueCell::Divide()
     mpCellCycleModel->ResetForDivision();
 
     // Create daughter cell
-    TissueCellPtr p_new_cell(new TissueCell(mpMutationState, mpCellCycleModel->CreateCellCycleModel()));
+    TissueCellPtr p_new_cell(new TissueCell(mpMutationState, mpCellCycleModel->CreateCellCycleModel(), false, mpCellPropertyCollection));
 
     // Initialise properties of daughter cell
     p_new_cell->GetCellCycleModel()->InitialiseDaughterCell();

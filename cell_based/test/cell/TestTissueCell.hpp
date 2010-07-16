@@ -76,6 +76,79 @@ public:
         TS_ASSERT_DELTA(p_cell->GetCellCycleModel()->GetCell()->GetBirthTime(), -0.5, 1e-6);
     }
 
+    void TestWithCellPropertyCollection() throw(Exception)
+    {
+    	// Set up SimulationTime
+    	SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(24, 3);
+
+        // Create a cell mutation state
+        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+
+        // Create a cell cycle model
+        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+        p_model->SetCellProliferativeType(STEM);
+
+        boost::shared_ptr<AbstractCellProperty> wt_mutation(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> apc1_mutation(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> apc1_mutation_2(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> apc2_mutation(new ApcTwoHitCellMutationState);
+
+        // Create a cell property collection (for the time being, populate with mutation states)
+        CellPropertyCollection collection;
+        collection.AddProperty(wt_mutation);
+        collection.AddProperty(apc1_mutation);
+
+        // Create a cell
+        TissueCellPtr p_cell(new TissueCell(p_state, p_model, false, &collection));
+        p_cell->SetBirthTime(-1.0);
+        p_cell->InitialiseCellCycleModel();
+
+        TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(p_cell->GetCellCycleModel())->GetGeneration(), 0u);
+
+        // Test cell property collection
+        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->GetSize(), 2u);
+        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty(wt_mutation), true);
+        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty(apc1_mutation), true);
+        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty(apc1_mutation_2), false);
+        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty(apc2_mutation), false);
+        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty<WildTypeCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty<ApcOneHitCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasProperty<ApcTwoHitCellMutationState>(), false);
+        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasPropertyType<AbstractCellProperty>(), true);
+        TS_ASSERT_EQUALS(p_cell->GetCellPropertyCollection()->HasPropertyType<AbstractCellMutationState>(), true);
+
+        // Now age cell
+        p_simulation_time->IncrementTimeOneStep(); // t=8
+        TS_ASSERT_EQUALS(p_cell->ReadyToDivide(), false);
+
+        p_simulation_time->IncrementTimeOneStep(); // t=16
+        TS_ASSERT_EQUALS(p_cell->ReadyToDivide(), false);
+
+        p_simulation_time->IncrementTimeOneStep(); // t=24
+        TS_ASSERT_EQUALS(p_cell->ReadyToDivide(), true);
+
+        // Divide cell
+        TissueCellPtr p_daughter_cell = p_cell->Divide();
+
+        TS_ASSERT_EQUALS(p_cell->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(p_daughter_cell->GetCellCycleModel())->GetGeneration(), 1u);
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
+        TS_ASSERT_DELTA(p_daughter_cell->GetAge(), 0.0, 1e-9);
+
+        // Test cell property collection has been inherited correctly during division
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->GetSize(), 2u);
+
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty(wt_mutation), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty(apc1_mutation), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty(apc1_mutation_2), false);
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty(apc2_mutation), false);
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty<WildTypeCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty<ApcOneHitCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasProperty<ApcTwoHitCellMutationState>(), false);
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasPropertyType<AbstractCellProperty>(), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->GetCellPropertyCollection()->HasPropertyType<AbstractCellMutationState>(), true);
+    }
 
     void TestCellsAgeingCorrectly() throw(Exception)
     {
@@ -134,7 +207,6 @@ public:
         TS_ASSERT_EQUALS(p_live_cell->IsDead(), true);
     }
 
-
     void TestCellDivision()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -148,7 +220,7 @@ public:
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
 
-        p_simulation_time->IncrementTimeOneStep();//t=6
+        p_simulation_time->IncrementTimeOneStep(); //t=6
 
         // Cover bad cell cycle model
 
@@ -216,7 +288,6 @@ public:
         TS_ASSERT_EQUALS(p_daughter_cell->ReadyToDivide(), true);
     }
 
-
     /*
      * ReadyToDivide() now calls UpdateCellProliferativeType() where appropriate.
      * (at the moment in Wnt-dependent cells).
@@ -274,7 +345,6 @@ public:
         // Tidy up
         WntConcentration<2>::Destroy();
     }
-
 
     void Test0DBucket()
     {
@@ -350,7 +420,6 @@ public:
         TS_ASSERT_EQUALS(transit_cells[59], 2u);
         TS_ASSERT_EQUALS(differentiated_cells[59], 8u);
     }
-
 
     void TestWithFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
@@ -429,7 +498,6 @@ public:
         TS_ASSERT_EQUALS(p_stochastic_differentiated_cell->ReadyToDivide(), false);
     }
 
-
     void TestStochasticCycleModel() throw(Exception)
     {
         // Go up in steps of 0.01 to test stochasticity in cell cycle models
@@ -486,7 +554,6 @@ public:
         TissueCellPtr p_daughter_cell2 = p_transit_cell->Divide();
         TS_ASSERT(typeid(p_daughter_cell2->GetCellCycleModel()) == typeid(p_transit_cell->GetCellCycleModel()));
     }
-
 
     void Test0DBucketStochastic()
     {
@@ -583,7 +650,6 @@ public:
 
         TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
     }
-
 
     void TestInitialise0DBucket()
     {
@@ -692,7 +758,6 @@ public:
         TS_ASSERT_EQUALS(differentiated_cells[59], 23u);
     }
 
-
     /*
      * We are checking that the TissueCellPtrs work with the Wnt cell cycle models here
      * That division of wnt cells and stuff works OK.
@@ -772,6 +837,7 @@ public:
             }
         }
 
+        // Tidy up
         WntConcentration<2>::Destroy();
     }
 
@@ -857,6 +923,7 @@ public:
             }
         }
 
+        // Tidy up
         WntConcentration<2>::Destroy();
     }
 
@@ -1003,7 +1070,6 @@ public:
         TS_ASSERT_EQUALS(p_cell->IsDead(), true);
     }
 
-
     void TestCantDivideIfUndergoingApoptosis()
     {
         // We are going to start at t=0 and jump up to t=25
@@ -1023,14 +1089,13 @@ public:
         TS_ASSERT_EQUALS(p_cell->ReadyToDivide(), false);
     }
 
-
     void Test0DBucketWithDeath()
     {
         double end_time = 92.0;
-        int time_steps = 92;
+        unsigned num_time_steps = 92;
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_time_steps);
 
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 
@@ -1041,17 +1106,17 @@ public:
 
         std::vector<TissueCellPtr> cells;
         std::vector<TissueCellPtr> newly_born;
-        std::vector<unsigned> stem_cells(time_steps);
-        std::vector<unsigned> transit_cells(time_steps);
-        std::vector<unsigned> differentiated_cells(time_steps);
-        std::vector<unsigned> dead_cells(time_steps);
-        std::vector<double> times(time_steps);
+        std::vector<unsigned> stem_cells(num_time_steps);
+        std::vector<unsigned> transit_cells(num_time_steps);
+        std::vector<unsigned> differentiated_cells(num_time_steps);
+        std::vector<unsigned> dead_cells(num_time_steps);
+        std::vector<double> times(num_time_steps);
 
         cells.push_back(p_stem_cell);
         std::vector<TissueCellPtr>::iterator cell_iterator;
 
-        unsigned i=0;
-        while (p_simulation_time->GetTime()< end_time)
+        unsigned i = 0;
+        while (p_simulation_time->GetTime() < end_time)
         {
             // Produce the offspring of the cells
 
@@ -1113,43 +1178,55 @@ public:
             i++;
         }
 
-        TS_ASSERT_EQUALS(stem_cells[time_steps-1], 1u);
-        TS_ASSERT_EQUALS(transit_cells[time_steps-1], 2u);
-        TS_ASSERT_EQUALS(differentiated_cells[time_steps-1], 8u);
-        TS_ASSERT_EQUALS(dead_cells[time_steps-1], 8u);
+        TS_ASSERT_EQUALS(stem_cells[num_time_steps-1], 1u);
+        TS_ASSERT_EQUALS(transit_cells[num_time_steps-1], 2u);
+        TS_ASSERT_EQUALS(differentiated_cells[num_time_steps-1], 8u);
+        TS_ASSERT_EQUALS(dead_cells[num_time_steps-1], 8u);
     }
-
 
     void TestArchiveCell() throw(Exception)
     {
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "cell->arch";
 
+
         // Archive a cell
         {
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
+            // Create mutation state
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
 
+            // Create cell cycle model
             FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
             p_cell_model->SetCellProliferativeType(STEM);
-            TissueCellPtr p_stem_cell(new TissueCell(p_healthy_state, p_cell_model));
-            p_stem_cell->InitialiseCellCycleModel();
+
+            // Create cell property collection
+	        CellPropertyCollection collection;
+	        boost::shared_ptr<AbstractCellProperty> wt_mutation(new WildTypeCellMutationState);
+	        collection.AddProperty(wt_mutation);
+	        boost::shared_ptr<AbstractCellProperty> apc1_mutation(new ApcOneHitCellMutationState);
+	        collection.AddProperty(apc1_mutation);
+
+            // Create cell
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_cell_model, false, &collection));
+            p_cell->InitialiseCellCycleModel();
             p_simulation_time->IncrementTimeOneStep();
 
-            TS_ASSERT_EQUALS(p_stem_cell->GetAge(), 0.5);
+            TS_ASSERT_EQUALS(p_cell->GetAge(), 0.5);
 
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            TissueCellPtr const p_cell = p_stem_cell;
+            TissueCellPtr const p_const_cell = p_cell;
 
             // Write the cell to the archive
             output_arch << static_cast<const SimulationTime&> (*p_simulation_time);
-            output_arch << p_cell;
+            output_arch << p_const_cell;
 
+            // Tidy up
             SimulationTime::Destroy();
         }
 
@@ -1162,26 +1239,44 @@ public:
 
             // Initialize a cell
 
-            TissueCellPtr p_stem_cell;
+            TissueCellPtr p_cell;
 
             // Restore the cell
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
             input_arch >> *p_simulation_time;
-            input_arch >> p_stem_cell;
+            input_arch >> p_cell;
 
             // Check the simulation time has been restored (through the cell)
             TS_ASSERT_EQUALS(p_simulation_time->GetTime(), 0.5);
             TS_ASSERT_EQUALS(p_simulation_time->GetTimeStep(), 0.5);
 
-            TS_ASSERT_EQUALS(p_stem_cell->GetAge(), 0.5);
-            TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(p_stem_cell->GetCellCycleModel())->GetGeneration(), 0u);
-            TS_ASSERT_EQUALS(p_stem_cell->GetCellCycleModel()->GetCellProliferativeType(), STEM);
+            TS_ASSERT_EQUALS(p_cell->GetAge(), 0.5);
+            TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(p_cell->GetCellCycleModel())->GetGeneration(), 0u);
+            TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->GetCellProliferativeType(), STEM);
 
-            AbstractCellCycleModel* p_model = p_stem_cell->GetCellCycleModel();
+            AbstractCellCycleModel* p_model = p_cell->GetCellCycleModel();
+            TS_ASSERT_EQUALS(p_model->GetCell(), p_cell);
 
-            TS_ASSERT_EQUALS(p_model->GetCell(), p_stem_cell);
+            CellPropertyCollection* p_collection = p_cell->GetCellPropertyCollection();
+            TS_ASSERT(p_collection != NULL);
+            TS_ASSERT_EQUALS(p_collection->GetSize(), 2u);
+	        TS_ASSERT_EQUALS(p_collection->HasProperty<WildTypeCellMutationState>(), true);
+	        TS_ASSERT_EQUALS(p_collection->HasProperty<ApcOneHitCellMutationState>(), true);
+	        TS_ASSERT_EQUALS(p_collection->HasProperty<ApcTwoHitCellMutationState>(), false);
+	        TS_ASSERT_EQUALS(p_collection->HasPropertyType<AbstractCellProperty>(), true);
+	        TS_ASSERT_EQUALS(p_collection->HasPropertyType<AbstractCellMutationState>(), true);
+
+	        for (CellPropertyCollection::Iterator it = p_collection->Begin(); it != p_collection->End(); ++it)
+	        {
+	            TS_ASSERT_EQUALS(p_collection->HasProperty(*it), true);
+	            TS_ASSERT((*it)->IsType<WildTypeCellMutationState>() || (*it)->IsType<ApcOneHitCellMutationState>());
+	            TS_ASSERT_EQUALS((*it)->IsSubType<AbstractCellMutationState>(), true);
+	        }
+
+            // Tidy up
+            delete p_collection;
         }
     }
 
@@ -1238,6 +1333,7 @@ public:
         TS_ASSERT_EQUALS(p_wnt_cell3->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(p_wnt_cell4->ReadyToDivide(), false);
 
+        // Tidy up
         WntConcentration<2>::Destroy();
     }
 

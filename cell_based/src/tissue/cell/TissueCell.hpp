@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
 #include "CellMutationStateRegistry.hpp"
+#include "CellPropertyCollection.hpp"
+
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 
@@ -77,6 +79,7 @@ private:
         // If Archive is an input archive, then '&' resolves to '>>'
         // These first four are also dealt with by {load,save}_construct_data
         archive & mCanDivide;
+        archive & mpCellPropertyCollection;
         archive & mpMutationState;
         archive & mpCellCycleModel;
         archive & mUndergoingApoptosis;
@@ -92,6 +95,11 @@ private:
 protected:
 
     // NB - if you add any member variables, make sure CommonCopy includes them.
+
+    /**
+     * The cell's property collection.
+     */
+    CellPropertyCollection* mpCellPropertyCollection;
 
     /** The cell's mutation state. */
     boost::shared_ptr<AbstractCellMutationState> mpMutationState;
@@ -134,11 +142,13 @@ public:
      * @param pMutationState the mutation state of the cell
      * @param pCellCycleModel  the cell cycle model to use to decide when the cell divides.
      *      This MUST be allocated using new, and will be deleted when the cell is destroyed.
-     * @param archiving  whether this constructor is being called by the archiver - do things slightly differently!
+     * @param archiving  whether this constructor is being called by the archiver - do things slightly differently! (defaults to false)
+     * @param pCellPropertyCollection the cell property collection (defaults to NULL)
      */
     TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationState,
                AbstractCellCycleModel* pCellCycleModel,
-               bool archiving = false);
+               bool archiving=false,
+               CellPropertyCollection* pCellPropertyCollection=NULL);
 
     /**
      * Destructor, which frees the memory allocated for our cell cycle model.
@@ -195,6 +205,17 @@ public:
      * @param pMutationState the cell's mutation state
      */
     void SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState);
+
+    /**
+     * Get method for #mpCellPropertyCollection.
+     */
+    CellPropertyCollection* GetCellPropertyCollection();
+
+    /**
+     * Get method for #mpCellPropertyCollection.
+     * Used in archiving
+     */
+    CellPropertyCollection* GetCellPropertyCollection() const;
 
     /**
      * Determine if this cell is ready to divide at the current simulation time.
@@ -290,10 +311,13 @@ inline void save_construct_data(
 {
     // Save data required to construct instance
     const boost::shared_ptr<AbstractCellMutationState> p_mutation_state = t->GetMutationState();
-    const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
-
     ar << p_mutation_state;
+
+    const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
     ar << p_cell_cycle_model;
+
+    const CellPropertyCollection* const p_cell_property_collection = t->GetCellPropertyCollection();
+    ar << p_cell_property_collection;
 }
 
 /**
@@ -305,14 +329,18 @@ inline void load_construct_data(
 {
     // Retrieve data from archive required to construct new instance
     boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-    AbstractCellCycleModel* p_cell_cycle_model;
-
     ar >> p_mutation_state;
+
+    AbstractCellCycleModel* p_cell_cycle_model;
     ar >> p_cell_cycle_model;
+
     bool archiving = true;
 
+    CellPropertyCollection* p_cell_property_collection;
+    ar >> p_cell_property_collection;
+
     // Invoke inplace constructor to initialize instance
-    ::new(t)TissueCell(p_mutation_state, p_cell_cycle_model, archiving);
+    ::new(t)TissueCell(p_mutation_state, p_cell_cycle_model, archiving, p_cell_property_collection);
 }
 }
 } // namespace ...
