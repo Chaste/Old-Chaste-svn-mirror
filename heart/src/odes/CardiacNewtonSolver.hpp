@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include "IsNan.hpp"
+#include "UblasCustomFunctions.hpp"
 #include "AbstractBackwardEulerCardiacCell.hpp"
 
 
@@ -79,7 +80,7 @@ public:
         double norm_of_update = 2*eps;
 
         // check that the initial guess that was given gives a valid residual
-        rCell.ComputeResidual(time, rCurrentGuess, mResidual);
+        rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
 //        PRINT_3_VARIABLES(counter, "Reset", ComputeNorm(mResidual));
         for (unsigned i=0; i<SIZE; i++)
         {
@@ -89,8 +90,11 @@ public:
         while (norm_of_update > eps)
         {
             // Calculate Jacobian for current guess
-            rCell.ComputeJacobian(time, rCurrentGuess, mJacobian);
-
+            rCell.ComputeJacobian(time, rCurrentGuess, (double (*)[SIZE]) mJacobian.data());
+//            PRINT_VARIABLE(mJacobian);
+            
+//            c_matrix<double, SIZE, SIZE> copy=mJacobian;
+//            lu_factorize(mJacobian);
 //            // Update norm (our style)
 //            norm_of_update = ComputeNorm(mResidual);
 
@@ -98,14 +102,14 @@ public:
             SolveLinearSystem();
 
             // Update norm (JonW style)
-            norm_of_update = ComputeNorm(mUpdate);
+            norm_of_update = norm_inf(mUpdate);
 
             // Update current guess and recalculate residual
             for (unsigned i=0; i<SIZE; i++)
             {
                 rCurrentGuess[i] -= mUpdate[i];
             }
-            rCell.ComputeResidual(time, rCurrentGuess, mResidual);
+            rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
 
             counter++;
 //            PRINT_3_VARIABLES(counter, norm_of_update, ComputeNorm(mResidual));
@@ -118,7 +122,7 @@ public:
 #undef COVERAGE_IGNORE
             }
         }
-        assert( ComputeNorm(mResidual) < 1e-10);
+        assert( norm_inf(mResidual) < 1e-10);
     }
 
 /////// Alternative version of Solve which uses damping factors - may be
@@ -208,37 +212,24 @@ protected:
     CardiacNewtonSolver<SIZE>& operator= (const CardiacNewtonSolver<SIZE>&);
 
     /**
-     * Compute a norm of a vector.
-     *
-     * @param vector  the vector to norm.
-     */
-    double ComputeNorm(double vector[SIZE])
-    {
-        double norm = 0.0;
-        for (unsigned i=0; i<SIZE; i++)
-        {
-            if (fabs(vector[i]) > norm)
-            {
-                norm = fabs(vector[i]);
-            }
-        }
-        return norm;
-    }
-
-    /**
      * Solve a linear system to calculate the Newton update step
+     * 
+     * This is solving 
+     *  Jacbian . update = residual
+     * for update given values of the Jacobian matrix and residual
+     * 
+     * The implementation does Gaussian elimination with no pivotting and no underflow checking
      */
     void SolveLinearSystem()
     {
-        double fact;
         for (unsigned i=0; i<SIZE; i++)
         {
             for (unsigned ii=i+1; ii<SIZE; ii++)
             {
-                fact = mJacobian[ii][i]/mJacobian[i][i];
+                double fact = mJacobian(ii, i)/mJacobian(i,i);
                 for (unsigned j=i; j<SIZE; j++)
                 {
-                    mJacobian[ii][j] -= fact*mJacobian[i][j];
+                    mJacobian(ii,j) -= fact*mJacobian(i,j);
                 }
                 mResidual[ii] -= fact*mResidual[i];
             }
@@ -249,19 +240,19 @@ protected:
             mUpdate[i] = mResidual[i];
             for (unsigned j=i+1; j<SIZE; j++)
             {
-                mUpdate[i] -= mJacobian[i][j]*mUpdate[j];
+                mUpdate[i] -= mJacobian(i,j)*mUpdate[j];
             }
-            mUpdate[i] /= mJacobian[i][i];
+            mUpdate[i] /= mJacobian(i,i);
         }
     }
 
 private:
     /** Working memory : residual vector */
-    double mResidual[SIZE];
+    c_vector<double, SIZE> mResidual;
     /** Working memory : Jacobian matrix */
-    double mJacobian[SIZE][SIZE];
+    c_matrix<double, SIZE, SIZE> mJacobian;
     /** Working memory : update vector */
-    double mUpdate[SIZE];
+    c_vector<double, SIZE> mUpdate;
 };
 
 #endif /*CARDIACNEWTONSOLVER_HPP_*/
