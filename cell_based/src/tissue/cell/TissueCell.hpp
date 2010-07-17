@@ -311,8 +311,8 @@ inline void save_construct_data(
     const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
     ar << p_cell_cycle_model;
 
-    const CellPropertyCollection* const p_cell_property_collection = &(t->rGetCellPropertyCollection());
-    ar << p_cell_property_collection;
+    const CellPropertyCollection& r_cell_property_collection = t->rGetCellPropertyCollection();
+    ar << r_cell_property_collection;
 }
 
 /**
@@ -331,11 +331,11 @@ inline void load_construct_data(
 
     bool archiving = true;
 
-    CellPropertyCollection* p_cell_property_collection;
-    ar >> p_cell_property_collection;
+    CellPropertyCollection cell_property_collection;
+    ar >> cell_property_collection;
 
     // Invoke inplace constructor to initialize instance
-    ::new(t)TissueCell(p_mutation_state, p_cell_cycle_model, archiving, *p_cell_property_collection);
+    ::new(t)TissueCell(p_mutation_state, p_cell_cycle_model, archiving, cell_property_collection);
 }
 }
 } // namespace ...
