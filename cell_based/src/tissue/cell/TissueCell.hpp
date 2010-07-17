@@ -92,9 +92,6 @@ private:
     }
 
 protected:
-
-    // NB - if you add any member variables, make sure CommonCopy includes them.
-
     /**
      * The cell's property collection.
      */
@@ -206,12 +203,12 @@ public:
     void SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState);
 
     /**
-     * @return reference to #mpCellPropertyCollection.
+     * @return reference to #mCellPropertyCollection.
      */
     CellPropertyCollection& rGetCellPropertyCollection();
 
     /**
-     * @return reference to #mpCellPropertyCollection (used in archiving).
+     * @return reference to #mCellPropertyCollection (used in archiving).
      */
     const CellPropertyCollection& rGetCellPropertyCollection() const;
 

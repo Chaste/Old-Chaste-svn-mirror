@@ -68,7 +68,7 @@ template <class CELL, unsigned DIM>
 class RampedQuarterStimulusCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
-    /** define a new vector  of stimuluses - one for each step in x-direction*/
+    /** define a new vector of stimuli - one for each step in x-direction*/
     std::vector< boost::shared_ptr<SimpleStimulus> > mpStimuli;
     /** Width (x-width) of mesh*/
     double mMeshWidth;
@@ -80,11 +80,12 @@ private:
     unsigned mLevels;
 public:
 
-    /** Constructor
+    /**
+     * Constructor.
      * @param meshWidth x-width of mesh
      * @param numElemAcross this allows us to deduce the mesh step size.
+     * @param fullStim  the maximum stimulus level
      */
-
     RampedQuarterStimulusCellFactory(double meshWidth, unsigned numElemAcross, double fullStim=-1e7)
         : AbstractCardiacCellFactory<DIM>(),
           mMeshWidth(meshWidth),
