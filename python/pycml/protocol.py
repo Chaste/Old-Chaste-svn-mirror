@@ -525,7 +525,7 @@ class Protocol(object):
                         conn.xml_remove_child(mapv)
                 if not any_kept:
                     self.model.xml_remove_child(conn)
-            # Filter assignments list (slightly hacky)
+            # Filter assignments list
             new_assignments = filter(lambda node: node in needed_nodes,
                                      self.model.get_assignments())
             self.model._cml_assignments = new_assignments
@@ -541,3 +541,7 @@ class Protocol(object):
                 var.set_is_modifiable_parameter(True)
             elif var.get_type() == VarTypes.Computed:
                 var.set_is_derived_quantity(True)
+            elif var.get_type() == VarTypes.Mapped:
+                var.set_pe_keep(True)
+            else:
+                assert var.get_type() in [VarTypes.State, VarTypes.Free]
