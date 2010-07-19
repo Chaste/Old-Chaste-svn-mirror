@@ -54,7 +54,7 @@ AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM
      * required in the assemblers it should all work OK.
      */
 
-//    // #1429.  Create a normal (non-matrix based) assembler and
+//    // #1462.  Create a normal (non-matrix based) assembler and
 //    // call InterpolateCellStateVariablesNotIonicCurrent()
 //    MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
 //        = new MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,

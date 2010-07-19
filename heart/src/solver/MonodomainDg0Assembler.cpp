@@ -70,7 +70,7 @@ c_vector<double,1*(ELEMENT_DIM+1)> MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
     double Cm = mpConfig->GetCapacitance();
     
-//    //#1429
+//    //#1462
 //    if(mpTheCell)
 //    {
 //        for(unsigned i=0; i<mpTheCell->rGetStateVariables().size(); i++)
@@ -102,7 +102,7 @@ void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::ResetInterpolatedQuantities(
     mIionic=0;
     mIIntracellularStimulus=0;
     
-//    //#1429
+//    //#1462
 //    if(mpTheCell)
 //    {
 //        for(unsigned i=0; i<mStateVariablesAtQuadPoint.size(); i++)
@@ -122,7 +122,7 @@ void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantit
     mIionic                 += phiI * mpMonodomainPde->rGetIionicCacheReplicated()[ node_global_index ];
     mIIntracellularStimulus += phiI * mpMonodomainPde->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
 
-//    //#1429 (note: could put the 'mIionic +=' line above in an else clause below)
+//    //#1462 (note: could put the 'mIionic +=' line above in an else clause below)
 //    if(mpTheCell)
 //    {
 //        for(unsigned i=0; i<mStateVariablesAtQuadPoint.size(); i++)
@@ -187,7 +187,7 @@ MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::MonodomainDg0Assembler(
 
     mpConfig = HeartConfig::Instance();
     
-//    //#1429
+//    //#1462
 //    mpTheCell = NULL;
 }
 
@@ -197,7 +197,7 @@ MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::~MonodomainDg0Assembler()
 }
 
 
-////#1429
+////#1462
 //template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 //void MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>::InterpolateCellStateVariablesNotIonicCurrent(AbstractCardiacCell* pCell)
 //{

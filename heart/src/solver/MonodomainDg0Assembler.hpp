@@ -82,7 +82,7 @@ protected:
     /** Intracellular stimulus to be interpolated from cache*/
     double mIIntracellularStimulus;
 
-//	//#1429
+//	//#1462
 //    std::vector<double> mStateVariablesAtQuadPoint;
 //    AbstractCardiacCell* mpTheCell;
 
@@ -213,7 +213,7 @@ public:
      */
     ~MonodomainDg0Assembler();
     
-//    //#1429
+//    //#1462
 //    void InterpolateCellStateVariablesNotIonicCurrent(AbstractCardiacCell* pCell);
 };
 
