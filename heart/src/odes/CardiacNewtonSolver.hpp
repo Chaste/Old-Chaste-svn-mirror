@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "IsNan.hpp"
 #include "UblasCustomFunctions.hpp"
 #include "AbstractBackwardEulerCardiacCell.hpp"
-
+#include "Warnings.hpp"
 /**
  * Specialised Newton solver for solving the nonlinear systems arising when
  * simulating a cardiac cell using Backward Euler.
@@ -99,6 +99,10 @@ public:
             rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
             norm_of_residual=norm_inf(mResidual);
             //assert (norm_of_residual < norm_of_previous_residual); ///\todo #1339
+            if (norm_of_residual > norm_of_previous_residual) ///\todo #1339
+            {
+                WARNING("Residual increasing");
+            }
             counter++;
            
             // avoid infinite loops
