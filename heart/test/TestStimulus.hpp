@@ -101,6 +101,16 @@ public:
                                          period,
                                          when);
 
+        // Test get/set methods on RegularStimulus
+        TS_ASSERT_DELTA(regular_stimulus.GetPeriod(),period,1e-9);
+        regular_stimulus.SetPeriod(period + 100);
+        TS_ASSERT_DELTA(regular_stimulus.GetPeriod(),period+100,1e-9);
+        regular_stimulus.SetPeriod(period);
+
+        TS_ASSERT_DELTA(regular_stimulus.GetMagnitude(),magnitude_of_stimulus,1e-9);
+        TS_ASSERT_DELTA(regular_stimulus.GetDuration(),duration_of_stimulus,1e-9);
+        TS_ASSERT_DELTA(regular_stimulus.GetStartTime(),when,1e-9);
+
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(0.0),
             0.0);
 
@@ -115,7 +125,7 @@ public:
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.5),
             magnitude_of_stimulus);
 
-        TS_ASSERT_DELTA(regular_stimulus.GetStimulusPeriod(),period,1e-9);
+        TS_ASSERT_DELTA(regular_stimulus.GetPeriod(),period,1e-9);
 
         //Made more sloppy
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(100.5+(1000*DBL_EPSILON)),
@@ -141,7 +151,7 @@ public:
 
         // Test SetStimulusStartTime method, by shifting the stimulus slightly
         double delay = 10.0;
-        regular_stimulus.SetStimulusStartTime(when + delay);
+        regular_stimulus.SetStartTime(when + delay);
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(5100.5 + delay),
                          magnitude_of_stimulus);
     }

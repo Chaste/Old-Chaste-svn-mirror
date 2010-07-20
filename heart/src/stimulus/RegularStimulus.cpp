@@ -60,12 +60,32 @@ double RegularStimulus::GetStimulus(double time)
     }
 }
 
-double RegularStimulus::GetStimulusPeriod()
+double RegularStimulus::GetPeriod()
 {
     return mPeriod;
 }
 
-void RegularStimulus::SetStimulusStartTime(double startTime)
+double RegularStimulus::GetMagnitude()
+{
+    return mMagnitudeOfStimulus;
+}
+
+double RegularStimulus::GetDuration()
+{
+    return mDuration;
+}
+
+double RegularStimulus::GetStartTime()
+{
+    return mStartTime;
+}
+
+void RegularStimulus::SetPeriod(double period)
+{
+    mPeriod = period;
+}
+
+void RegularStimulus::SetStartTime(double startTime)
 {
     mStartTime = startTime;
 }

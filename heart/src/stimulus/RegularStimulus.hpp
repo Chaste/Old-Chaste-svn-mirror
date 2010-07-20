@@ -95,14 +95,34 @@ public:
     /**
      * @return the pacing cycle length or period of the stimulus.
      */
-    double GetStimulusPeriod();
+    double GetPeriod();
+
+    /**
+     * @return the height of the stimulus square wave (magnitude of current).
+     */
+    double GetMagnitude();
+
+    /**
+     * @return the duration of the stimulus square wave.
+     */
+    double GetDuration();
     
+    /**
+     * @return the start time of the stimulus square wave.
+     */
+    double GetStartTime();
+
+    /**
+     * set the pacing cycle length ('period') of the stimulus.
+     */
+    void SetPeriod(double period);
+
     /**
      * Set the stimulus to start at a particular time.
      *
      * @param startTime the time the stimulus should begin.
      */
-    void SetStimulusStartTime(double startTime);
+    void SetStartTime(double startTime);
 };
 
 #include "SerializationExportWrapper.hpp"
