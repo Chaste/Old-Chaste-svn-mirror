@@ -33,9 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "AbstractBackwardEulerCardiacCell.hpp"
 
-
-//#include "Debug.hpp"
-
 /**
  * Specialised Newton solver for solving the nonlinear systems arising when
  * simulating a cardiac cell using Backward Euler.
@@ -75,30 +72,19 @@ public:
                double rCurrentGuess[SIZE])
     {
         unsigned counter = 0;
-//        const double eps = 1e-6 * rCurrentGuess[0]; // Our tolerance (should use min(guess) perhaps?)
         const double eps = 1e-6; // JonW tolerance
-        double norm_of_update = 2*eps;
 
         // check that the initial guess that was given gives a valid residual
         rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
-//        PRINT_3_VARIABLES(counter, "Reset", ComputeNorm(mResidual));
-        for (unsigned i=0; i<SIZE; i++)
-        {
-            assert(!std::isnan(mResidual[i]));
-        }
-
-        while (norm_of_update > eps)
+        double norm_of_residual = norm_inf(mResidual);
+        assert(!std::isnan(norm_of_residual));
+        double norm_of_update=0.0; //Properly initialised in the loop
+        do
         {
             // Calculate Jacobian for current guess
-            rCell.ComputeJacobian(time, rCurrentGuess, (double (*)[SIZE]) mJacobian.data());
-//            PRINT_VARIABLE(mJacobian);
+            rCell.ComputeJacobian(time, rCurrentGuess, mJacobian);
             
-//            c_matrix<double, SIZE, SIZE> copy=mJacobian;
-//            lu_factorize(mJacobian);
-//            // Update norm (our style)
-//            norm_of_update = ComputeNorm(mResidual);
-
-            // Solve Newton linear system
+            // Solve Newton linear system for mUpdate, given mJacobian and mResidual
             SolveLinearSystem();
 
             // Update norm (JonW style)
@@ -109,10 +95,11 @@ public:
             {
                 rCurrentGuess[i] -= mUpdate[i];
             }
+            double norm_of_previous_residual = norm_of_residual;
             rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
-
+            norm_of_residual=norm_inf(mResidual);
+            assert (norm_of_residual < norm_of_previous_residual); ///\todo #1339
             counter++;
-//            PRINT_3_VARIABLES(counter, norm_of_update, ComputeNorm(mResidual));
            
             // avoid infinite loops
             if (counter > 15)
@@ -122,84 +109,12 @@ public:
 #undef COVERAGE_IGNORE
             }
         }
-        assert( norm_inf(mResidual) < 1e-10);
+        while (norm_of_update > eps);
+        assert(norm_of_residual < 1e-10); //This line is for corelation - in case we use norm_of_residual as convergence criterion
     }
 
-/////// Alternative version of Solve which uses damping factors - may be
-/////// needed in the future if a system which is difficult to solve and
-/////// Newton diverges. THINK THIS IS NOT CURRENTLY WORKING - compare
-/////// with above solve before use.
-////
-////    void Solve(AbstractBackwardEulerCardiacCell<SIZE> &rCell,
-////               double time,
-////               double rCurrentGuess[SIZE])
-////    {
-////        unsigned counter = 0;
-////        double TOL = 1e-3;// * rCurrentGuess[0]; // Our tolerance (should use min(guess) perhaps?)
-////
-////        rCell.ComputeResidual(time, rCurrentGuess, mResidual);
-////        for (unsigned i=0; i<SIZE; i++)
-////        {
-////            assert(!std::isnan(mResidual[i]));
-////        }
-////
-////        double norm = ComputeNorm(mResidual);
-////
-////        std::vector<double> damping_values;
-////        damping_values.push_back(-0.1);
-////        for (unsigned i=1; i<=12; i++)
-////        {
-////            double val = double(i)/10;
-////            damping_values.push_back(val);
-////        }
-////
-////        while (norm > TOL)
-////        {
-////            // Calculate Jacobian and mResidual for current guess
-////            rCell.ComputeJacobian(time, rCurrentGuess, mJacobian);
-////
-////            // Solve Newton linear system
-////            SolveLinearSystem();
-////
-////            // go through all the possible damping values and
-////            // choose the one which gives the smallest residual-norm
-////            double best_damping_value = 1;
-////            double best_residual_norm = DBL_MAX;
-////            for (unsigned j=0; j<damping_values.size(); j++)
-////            {
-////                double test_vec[SIZE];
-////                for (unsigned i=0; i<SIZE; i++)
-////                {
-////                    assert(!std::isnan( mUpdate[i] ));
-////                    test_vec[i] = rCurrentGuess[i] - damping_values[j]*mUpdate[i];
-////                }
-////                double test_resid[SIZE];
-////                rCell.ComputeResidual(time, test_vec, test_resid);
-////                double test_vec_residual_norm = ComputeNorm(test_resid);
-////                // std::cout << "s,|r|,|old resid|= " << damping_values[j] << " " << test_vec_residual_norm << " " << norm << std::endl;
-////                if(test_vec_residual_norm <= best_residual_norm)
-////                {
-////                    best_damping_value = damping_values[j];
-////                    best_residual_norm = test_vec_residual_norm;
-////                }
-////            }
-////
-////            // check best residual norm was smaller than previous
-////            // norm
-////            assert(best_residual_norm < norm);
-////
-////            // apply update
-////            for (unsigned i=0; i<SIZE; i++)
-////            {
-////                rCurrentGuess[i] -= best_damping_value*mUpdate[i];
-////            }
-////            norm = best_residual_norm;
-////            rCell.ComputeResidual(time, rCurrentGuess, mResidual);
-////
-////            counter++;
-////            assert(counter < 15); // avoid infinite loops
-////        }
-////    }
+
+
 
 
 protected:
@@ -226,10 +141,10 @@ protected:
         {
             for (unsigned ii=i+1; ii<SIZE; ii++)
             {
-                double fact = mJacobian(ii, i)/mJacobian(i,i);
+                double fact = mJacobian[ii][i]/mJacobian[i][i];
                 for (unsigned j=i; j<SIZE; j++)
                 {
-                    mJacobian(ii,j) -= fact*mJacobian(i,j);
+                    mJacobian[ii][j] -= fact*mJacobian[i][j];
                 }
                 mResidual[ii] -= fact*mResidual[i];
             }
@@ -240,9 +155,9 @@ protected:
             mUpdate[i] = mResidual[i];
             for (unsigned j=i+1; j<SIZE; j++)
             {
-                mUpdate[i] -= mJacobian(i,j)*mUpdate[j];
+                mUpdate[i] -= mJacobian[i][j]*mUpdate[j];
             }
-            mUpdate[i] /= mJacobian(i,i);
+            mUpdate[i] /= mJacobian[i][i];
         }
     }
 
@@ -250,7 +165,7 @@ private:
     /** Working memory : residual vector */
     c_vector<double, SIZE> mResidual;
     /** Working memory : Jacobian matrix */
-    c_matrix<double, SIZE, SIZE> mJacobian;
+    double mJacobian[SIZE][SIZE];
     /** Working memory : update vector */
     c_vector<double, SIZE> mUpdate;
 };
