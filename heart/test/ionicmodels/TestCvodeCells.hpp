@@ -119,7 +119,7 @@ public:
         lr91_cvode_system.SetStimulusFunction(p_stimulus);
 
         boost::shared_ptr<AbstractStimulusFunction> p_abs_stim = lr91_cvode_system.GetStimulusFunction();
-        double period_back = boost::static_pointer_cast<RegularStimulus>(p_abs_stim)->GetStimulusPeriod();
+        double period_back = boost::static_pointer_cast<RegularStimulus>(p_abs_stim)->GetPeriod();
         TS_ASSERT_DELTA(period_back,period,1e-7);
         TS_ASSERT_EQUALS(p_abs_stim,p_stimulus);
 
