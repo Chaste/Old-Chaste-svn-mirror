@@ -98,7 +98,7 @@ public:
             double norm_of_previous_residual = norm_of_residual;
             rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
             norm_of_residual=norm_inf(mResidual);
-            assert (norm_of_residual < norm_of_previous_residual); ///\todo #1339
+            //assert (norm_of_residual < norm_of_previous_residual); ///\todo #1339
             counter++;
            
             // avoid infinite loops
