@@ -509,5 +509,60 @@ public:
         }
     }
 
+    void TestIsElementOnBoundary()
+    {
+    	{
+    		//2D element in 2D
+
+    		// Create nodes
+			std::vector<Node<2>*> nodes;
+
+			// This is a square
+			nodes.push_back(new Node<2>(3, false, 0.0, 0.0));
+			nodes.push_back(new Node<2>(2, false, 1.0, 0.0));
+			nodes.push_back(new Node<2>(1, false, 1.0, 1.0));
+			nodes.push_back(new Node<2>(0, false, 0.0, 1.0));
+
+			// Create element
+			VertexElement<2,2> vertex_element(INDEX_IS_NOT_USED, nodes);
+
+			TS_ASSERT(!vertex_element.IsElementOnBoundary());
+
+			nodes[0]->SetAsBoundaryNode();
+
+			TS_ASSERT(vertex_element.IsElementOnBoundary());
+
+			// Tidy up
+			for (unsigned i=0; i<nodes.size(); i++)
+			{
+				delete nodes[i];
+			}
+    	}
+    	{
+    		//1D element in 2D
+			// Create nodes
+			std::vector<Node<2>*> nodes;
+
+			// This is a line
+			nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
+			nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
+
+			// Create element
+			VertexElement<1,2> vertex_element(INDEX_IS_NOT_USED, nodes);
+
+			TS_ASSERT(!vertex_element.IsElementOnBoundary());
+
+			nodes[0]->SetAsBoundaryNode();
+
+			TS_ASSERT(vertex_element.IsElementOnBoundary());
+
+			// Tidy up
+			for (unsigned i=0; i<nodes.size(); i++)
+			{
+				delete nodes[i];
+			}
+		}
+	}
+
 };
 #endif /*TESTVERTEXELEMENT_HPP_*/

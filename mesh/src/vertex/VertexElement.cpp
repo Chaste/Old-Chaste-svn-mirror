@@ -257,6 +257,21 @@ bool VertexElement<ELEMENT_DIM, SPACE_DIM>::FaceIsOrientatedClockwise(unsigned i
     return mOrientations[index];
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+bool VertexElement<ELEMENT_DIM, SPACE_DIM>::IsElementOnBoundary() const
+{
+    bool is_element_on_boundary = false;
+    for (unsigned i=0; i<this->mNodes.size(); i++)
+    {
+        if (this->GetNode(i)->IsBoundaryNode())
+        {
+        	is_element_on_boundary = true;
+        	break;
+        }
+    }
+    return is_element_on_boundary;
+}
+
 //////////////////////////////////////////////////////////////////////
 //                  Specialization for 1d elements                  //
 //                                                                  //
@@ -384,6 +399,23 @@ bool VertexElement<1, SPACE_DIM>::FaceIsOrientatedClockwise(unsigned index) cons
 {
     return false;
 }
+
+template<unsigned SPACE_DIM>
+bool VertexElement<1, SPACE_DIM>::IsElementOnBoundary() const
+{
+    bool is_element_on_boundary = false;
+    for (unsigned i=0; i<this->mNodes.size(); i++)
+    {
+        if (this->GetNode(i)->IsBoundaryNode())
+        {
+        	is_element_on_boundary = true;
+        	break;
+        }
+    }
+    return is_element_on_boundary;
+}
+
+
 
 
 /////////////////////////////////////////////////////////////////////////////////////

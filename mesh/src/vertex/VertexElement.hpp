@@ -216,6 +216,14 @@ public:
      * @param index the index of the face
      */
     bool FaceIsOrientatedClockwise(unsigned index) const;
+
+    /**
+     * Get whether or not the element is on the boundary by seeing if contains boundary nodes.
+     *
+     * @return whether or not the element is on the boundary.
+     */
+    bool IsElementOnBoundary() const;
+
 };
 
 
@@ -320,6 +328,12 @@ public:
      */
     bool FaceIsOrientatedClockwise(unsigned index) const;
 
+    /**
+     * Get whether or not the element is on the boundary by seeing if contains boundary nodes.
+     *
+     * @return whether or not the element is on the boundary.
+     */
+    bool IsElementOnBoundary() const;
 };
 
 #endif /*VERTEXELEMENT_HPP_*/
