@@ -53,6 +53,7 @@ protected: // Give access of these members to subclasses
 
     unsigned mNumNodes; /**< Total number of nodes in mesh/mesh-reader*/
     unsigned mNumElements; /**< Total number of elements in mesh/mesh-reader*/
+    unsigned mNumBoundaryElements; /**< Total number of boundary elements in mesh/mesh-reader*/
 
 public:
 

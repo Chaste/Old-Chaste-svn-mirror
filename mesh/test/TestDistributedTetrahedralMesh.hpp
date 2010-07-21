@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 #include "ArchiveOpener.hpp"
 #include "FileFinder.hpp"
+#include "MeshalyzerMeshWriter.hpp"
 
 #include "RandomNumberGenerator.hpp"
 
@@ -1459,6 +1460,41 @@ public:
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_cube_2mm_12_elements.node "+ output_dir + "/seq_cube_2mm_12_elements.node").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_cube_2mm_12_elements.ele "+ output_dir + "/seq_cube_2mm_12_elements.ele").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_cube_2mm_12_elements.face "+ output_dir + "/seq_cube_2mm_12_elements.face").c_str()), 0);
+    }
+    
+    void TestEfficientParallelWriting3D()
+    {
+        TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
+        TetrahedralMesh<3,3> sequential_mesh;
+        sequential_mesh.ConstructFromMeshReader(reader);
+        MeshalyzerMeshWriter<3,3> mesh_writer1("TestDistributedMeshWriter", "seq_cube_2mm_12_elements", false);
+        mesh_writer1.WriteFilesUsingMesh(sequential_mesh);
+
+        DistributedTetrahedralMesh<3,3> distributed_mesh(DistributedTetrahedralMesh<3,3>::DUMB); //Makes sure that there is no permutation
+        AbstractTetrahedralMesh<3,3> *p_distributed_mesh = &distributed_mesh; //Hide the fact that it's distributed from the compiler
+
+        distributed_mesh.ConstructFromMeshReader(reader);
+        MeshalyzerMeshWriter<3,3> mesh_writer2("TestDistributedMeshWriter", "par_efficient_cube_2mm_12_elements", false);
+        mesh_writer2.WriteFilesUsingMesh(*p_distributed_mesh, false);
+
+        std::string output_dir = mesh_writer1.GetOutputDirectory();
+
+        /// \todo: #1494  Only node files are identical. Find a way of testing element and face files.
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_efficient_cube_2mm_12_elements.pts "+ output_dir + "/seq_cube_2mm_12_elements.pts").c_str()), 0);
+
+        // Master process sorts element and face file and the rest wait before comparing.
+        if (PetscTools::AmMaster())
+        {
+            system(("sort " + output_dir + "/seq_cube_2mm_12_elements.tetras > " + output_dir + "seq_sorted.tetras").c_str());       
+            system(("sort " + output_dir + "/par_efficient_cube_2mm_12_elements.tetras > " + output_dir + "par_eff_sorted.tetras").c_str());
+
+            system(("sort " + output_dir + "/seq_cube_2mm_12_elements.tri > " + output_dir + "seq_sorted.tri").c_str());       
+            system(("sort " + output_dir + "/par_efficient_cube_2mm_12_elements.tri > " + output_dir + "par_eff_sorted.tri").c_str());
+        }       
+        PetscTools::Barrier();
+                
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "seq_sorted.tetras " + output_dir + "par_eff_sorted.tetras").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "seq_sorted.tri " + output_dir + "par_eff_sorted.tri").c_str()), 0);
     }
 
 

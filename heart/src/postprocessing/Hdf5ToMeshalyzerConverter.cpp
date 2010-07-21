@@ -100,7 +100,8 @@ Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToMeshalyzerConverter(std:
     //Normal case is that the in-memory mesh is converted
     if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false )
     {
-        mesh_writer.WriteFilesUsingMesh(*(this->mpMesh));
+        // The second argument tells the writer to not follow original element ordering for performance reasons.
+        mesh_writer.WriteFilesUsingMesh(*(this->mpMesh), false);
     }
     else
     {

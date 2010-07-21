@@ -63,18 +63,36 @@ private:
     /**
      * Write a parallel mesh to file. Used by the serialization methods
      *
+     * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering.
+     *                                     Optimisations can be applied if this is not needed. 
      */
-    virtual void WriteFilesUsingParallelMesh();
+    virtual void WriteFilesUsingParallelMesh(bool keepOriginalElementIndexing=true);
+
+    /**
+     * Create output files and add headers.
+     */
+    virtual void CreateFilesWithHeaders();
+    
+    /**
+     * Append local mesh data to output files.
+     */
+    virtual void AppendLocalDataToFiles();
+    
+    /**
+     * Append footers to output files.
+     */
+    virtual void WriteFilesFooter();
 
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh; /**<Pointer to the mesh (if we are writing from the a mesh)*/
-    unsigned mNodesPerElement; /**< Same as (ELEMENT_DIM+1), except when writing a quadratic mesh!*/
-    DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpParallelMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
-
-    MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>* mpIters; /**< Handy iterators so that we know the next node/element to be written */
 
     NodeMap* mpNodeMap; /**<Node map to be used when writing a mesh that has deleted nodes*/
 
 protected:
+
+    unsigned mNodesPerElement; /**< Same as (ELEMENT_DIM+1), except when writing a quadratic mesh!*/
+
+    DistributedTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpParallelMesh; /**< Another pointer to the mesh, produced by dynamic cast*/
+    MeshWriterIterators<ELEMENT_DIM,SPACE_DIM>* mpIters; /**< Handy iterators so that we know the next node/element to be written */
 
     bool mIndexFromZero; /**< True if input data is numbered from zero, false otherwise */
     bool mWriteMetaFile; /**< Whether to write a metafile (only used by MeshylazerMeshWriter) */
@@ -103,10 +121,13 @@ public:
      * Write a const mesh to file. Used by the serialization methods and avoids iterators...
      *
      * @param rMesh the mesh
+     * @param keepOriginalElementIndexing  Whether to write the mesh with the same element ordering.
+     *                                     Optimisations can be applied if this is not needed. 
      * 
      * \todo #1322 Mesh should really be const!
      */
-    virtual void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh);
+    virtual void WriteFilesUsingMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rMesh, 
+                                     bool keepOriginalElementIndexing=true);
 
 
    /**

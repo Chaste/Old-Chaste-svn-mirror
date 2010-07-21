@@ -71,7 +71,7 @@ unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumElements()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::GetNumBoundaryFaces()
 {
-    return mBoundaryFaceData.size();
+    return mNumBoundaryElements;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -108,6 +108,7 @@ void AbstractMeshWriter<ELEMENT_DIM, SPACE_DIM>::WriteFilesUsingMeshReader(
     mpMeshReader = &rMeshReader;
     mNumNodes = mpMeshReader->GetNumNodes();
     mNumElements = mpMeshReader->GetNumElements();
+    mNumBoundaryElements = mpMeshReader->GetNumFaces();
 
     if (!PetscTools::AmMaster())
     {
