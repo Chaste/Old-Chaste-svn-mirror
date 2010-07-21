@@ -97,7 +97,7 @@ public:
         CARDIAC_PROBLEM cardiac_problem(&cell_factory);
 
         HeartConfig::Instance()->SetMeshFileName(output_file_handler.GetOutputDirectoryFullPath()+mesh_filename);
-        HeartConfig::Instance()->SetOutputDirectory ("Convergence");
+        HeartConfig::Instance()->SetOutputDirectory ("Performance");
         HeartConfig::Instance()->SetOutputFilenamePrefix ("Results");
 
 //        cardiac_problem.SetLinearSolverRelativeTolerance(KspRtol);
@@ -119,7 +119,7 @@ public:
         }
         catch (Exception e)
         {
-            std::cout<<"Warning - this run threw an exception.  Check convergence results\n";
+            std::cout<<"Warning - this run threw an exception.  Check performance results\n";
             throw(e);
         }
 
