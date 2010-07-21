@@ -26,6 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "SimpleWntCellCycleModel.hpp"
+#include "PetscTools.hpp"
 
 SimpleWntCellCycleModel::SimpleWntCellCycleModel()
  : mUseCellProliferativeTypeDependentG1Duration(false)

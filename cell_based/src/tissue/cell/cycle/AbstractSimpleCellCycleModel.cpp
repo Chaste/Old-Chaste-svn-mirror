@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "AbstractSimpleCellCycleModel.hpp"
-
+#include "PetscTools.hpp"
 
 void AbstractSimpleCellCycleModel::Initialise()
 {
