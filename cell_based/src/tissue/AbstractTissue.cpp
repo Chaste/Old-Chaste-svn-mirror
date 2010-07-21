@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractTissue.hpp"
 #include "AbstractOdeBasedCellCycleModel.hpp"
+#include "PetscTools.hpp"
 
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCellPtr>& rCells,
