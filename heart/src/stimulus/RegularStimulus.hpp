@@ -114,6 +114,8 @@ public:
 
     /**
      * set the pacing cycle length ('period') of the stimulus.
+     * 
+     * @param period  The stimulus pacing cycle length to use.
      */
     void SetPeriod(double period);
 
