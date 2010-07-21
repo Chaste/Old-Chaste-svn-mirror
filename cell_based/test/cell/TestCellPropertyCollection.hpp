@@ -28,10 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTCELLPROPERTYCOLLECTION_HPP_
 #define TESTCELLPROPERTYCOLLECTION_HPP_
 
-#include "AbstractCellBasedTestSuite.hpp"
-
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
+
+#include "AbstractCellBasedTestSuite.hpp"
 
 #include <boost/shared_ptr.hpp>
 
@@ -130,55 +130,51 @@ public:
 
         // Archive a cell property collection
         {
-        	// Create a cell property collection
-        	CellPropertyCollection collection;
+            // Create a cell property collection
+            CellPropertyCollection collection;
 
-	        NEW_PROP(BetaCateninOneHitCellMutationState, bcat1_mutation);
-	        collection.AddProperty(bcat1_mutation);
-	        NEW_PROP(ApcOneHitCellMutationState, apc1_mutation);
-	        collection.AddProperty(apc1_mutation);
+            NEW_PROP(BetaCateninOneHitCellMutationState, bcat1_mutation);
+            collection.AddProperty(bcat1_mutation);
+            NEW_PROP(ApcOneHitCellMutationState, apc1_mutation);
+            collection.AddProperty(apc1_mutation);
 
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             // Write the cell to the archive
-            const CellPropertyCollection* const p_const_collection = &collection;
-            output_arch << p_const_collection;
+            output_arch << static_cast<const CellPropertyCollection>(collection);
         }
 
         // Restore cell property collection
         {
-            CellPropertyCollection* p_collection;
+            CellPropertyCollection collection;
 
             // Restore the cell property collection
             std::ifstream ifs(archive_filename.c_str());
             boost::archive::text_iarchive input_arch(ifs);
 
-            input_arch >> p_collection;
+            input_arch >> collection;
 
-			// Test that the collection was archived correctly
-	        TS_ASSERT_EQUALS(p_collection->GetSize(), 2u);
+            // Test that the collection was archived correctly
+            TS_ASSERT_EQUALS(collection.GetSize(), 2u);
 
-	        TS_ASSERT_EQUALS(p_collection->HasProperty<BetaCateninOneHitCellMutationState>(), true);
-	        TS_ASSERT_EQUALS(p_collection->HasProperty<ApcOneHitCellMutationState>(), true);
-	        TS_ASSERT_EQUALS(p_collection->HasProperty<ApcTwoHitCellMutationState>(), false);
+            TS_ASSERT_EQUALS(collection.HasProperty<BetaCateninOneHitCellMutationState>(), true);
+            TS_ASSERT_EQUALS(collection.HasProperty<ApcOneHitCellMutationState>(), true);
+            TS_ASSERT_EQUALS(collection.HasProperty<ApcTwoHitCellMutationState>(), false);
 
-	        NEW_PROP(ApcOneHitCellMutationState, apc1_mutation_2);
-	        TS_ASSERT_EQUALS(p_collection->HasProperty(apc1_mutation_2), false);
+            NEW_PROP(ApcOneHitCellMutationState, apc1_mutation_2);
+            TS_ASSERT_EQUALS(collection.HasProperty(apc1_mutation_2), false);
 
-	        TS_ASSERT_EQUALS(p_collection->HasPropertyType<AbstractCellProperty>(), true);
-	        TS_ASSERT_EQUALS(p_collection->HasPropertyType<AbstractCellMutationState>(), true);
+            TS_ASSERT_EQUALS(collection.HasPropertyType<AbstractCellProperty>(), true);
+            TS_ASSERT_EQUALS(collection.HasPropertyType<AbstractCellMutationState>(), true);
 
-	        for (CellPropertyCollection::Iterator it = p_collection->Begin(); it != p_collection->End(); ++it)
-	        {
-	            TS_ASSERT_EQUALS(p_collection->HasProperty(*it), true);
-	            TS_ASSERT((*it)->IsType<BetaCateninOneHitCellMutationState>() || (*it)->IsType<ApcOneHitCellMutationState>());
-	            TS_ASSERT_EQUALS((*it)->IsSubType<AbstractCellMutationState>(), true);
-	        }
-
-            // Tidy up
-            delete p_collection;
+            for (CellPropertyCollection::Iterator it = collection.Begin(); it != collection.End(); ++it)
+            {
+                TS_ASSERT_EQUALS(collection.HasProperty(*it), true);
+                TS_ASSERT((*it)->IsType<BetaCateninOneHitCellMutationState>() || (*it)->IsType<ApcOneHitCellMutationState>());
+                TS_ASSERT_EQUALS((*it)->IsSubType<AbstractCellMutationState>(), true);
+            }
         }
     }
 };
