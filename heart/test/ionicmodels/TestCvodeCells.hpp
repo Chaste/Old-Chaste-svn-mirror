@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTCVODECELLS_HPP_
 #define TESTCVODECELLS_HPP_
 
-#include "Lr91Cvode.hpp"
+#include "LuoRudy1991Cvode.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "Shannon2004.hpp"
 #include "Shannon2004Cvode.hpp"
@@ -114,7 +114,7 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
         // Make a model that uses Cvode directly:
-        Lr91Cvode lr91_cvode_system(p_solver, p_zero_stimulus);
+        CellLuoRudy1991FromCellMLCvode lr91_cvode_system(p_solver, p_zero_stimulus);
 
         // Cover swapping to a proper stimulus
         lr91_cvode_system.SetStimulusFunction(p_stimulus);
@@ -124,7 +124,7 @@ public:
         TS_ASSERT_DELTA(period_back,period,1e-7);
         TS_ASSERT_EQUALS(p_abs_stim,p_stimulus);
 
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetVoltageIndex(), 4u);
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetVoltageIndex(), 0u);
         TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
 
         // 'Traditional' Chaste cell model for comparison of results:
@@ -168,9 +168,9 @@ public:
         
         // Test parameter
         TS_ASSERT_EQUALS(lr91_cvode_system.GetNumberOfParameters(), 1u);
-        TS_ASSERT_EQUALS(lr91_cvode_system.rGetParameterNames()[0], "fast_sodium_current__g_Na");
+        TS_ASSERT_EQUALS(lr91_cvode_system.rGetParameterNames()[0], "fast_sodium_current_conductance");
         TS_ASSERT_EQUALS(lr91_cvode_system.rGetParameterUnits()[0], "milliS_per_cm2");
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetParameterIndex("fast_sodium_current__g_Na"), 0u);
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetParameterIndex("fast_sodium_current_conductance"), 0u);
         TS_ASSERT_EQUALS(lr91_cvode_system.GetParameterUnits(0u), "milliS_per_cm2");
         TS_ASSERT_EQUALS(lr91_cvode_system.GetParameter(0u), 23.0);
         lr91_cvode_system.SetParameter(0u, 10.0);
@@ -188,10 +188,10 @@ public:
         boost::shared_ptr<const AbstractOdeSystemInformation> p_sys_info = lr91_cvode_system.GetSystemInformation();
         TS_ASSERT(p_sys_info->rGetStateVariableNames() == lr91_cvode_system.rGetStateVariableNames());
         TS_ASSERT(p_sys_info->rGetStateVariableUnits() == lr91_cvode_system.rGetStateVariableUnits());
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableIndex("V"),
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableIndex("membrane_voltage"),
                          lr91_cvode_system.GetVoltageIndex());
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariable(4),lr91_cvode_system.GetVoltage());
-        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableUnits(4),"mV");
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariable(0),lr91_cvode_system.GetVoltage());
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetStateVariableUnits(0), "millivolt");
 
         TS_ASSERT_DELTA(lr91_cvode_system.GetRelativeTolerance(), 1e-4, 1e-10);
         TS_ASSERT_DELTA(lr91_cvode_system.GetAbsoluteTolerance(), 1e-6, 1e-10);
@@ -209,7 +209,7 @@ public:
                                   "mxstep steps taken before reaching tout");
         // Kill the cell
         boost::shared_ptr<SimpleStimulus> p_boom_stimulus(new SimpleStimulus(-50000, 2.0, 1.0));
-        Lr91Cvode lr91_boom(p_solver, p_boom_stimulus);
+        CellLuoRudy1991FromCellMLCvode lr91_boom(p_solver, p_boom_stimulus);
         TS_ASSERT_THROWS_CONTAINS(OdeSolution solution_boom = lr91_boom.Solve(start_time, end_time, max_timestep, sampling_time),
                                   " failed repeatedly or with |h| = hmin.");
         lr91_boom.SetStateVariables(lr91_boom.GetInitialConditions());
