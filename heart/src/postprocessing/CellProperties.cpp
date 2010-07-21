@@ -193,13 +193,13 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
 {
     CheckExceededThreshold();
 
-    double prev_v = -DBL_MAX;
+    double prev_v = mrVoltage[0];
     unsigned APcounter=0;//will keep count of the APDs that we calculate
     bool apd_is_calculated=true;//this will ensure we hit the target only once per AP.
     std::vector<double> apds;
     double target = DBL_MAX;
 
-    for (unsigned i=0; i<mrTime.size(); i++)
+    for (unsigned i=1; i<mrTime.size(); i++)
     {
         double t = mrTime[i];
         double v = mrVoltage[i];
@@ -219,7 +219,8 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
             //and we are told this apd is not calculated yet.
             if ( prev_v>v && prev_v>=target && v<=target && apd_is_calculated==false)
             {
-                apds.push_back (t - mOnsets[APcounter]); ///\todo #913 linear interpolation here too?
+                // Linear interpolation of target crossing time.
+                apds.push_back (t - mOnsets[APcounter] - ( (v-target)/(v-prev_v) )*(t-mrTime[i-1]) );
                 APcounter++;
                 apd_is_calculated = true;
             }

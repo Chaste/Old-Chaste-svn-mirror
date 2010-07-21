@@ -122,6 +122,7 @@ public:
         // Now calculate the properties
         std::vector<double> voltage=solution.GetVariableAtIndex(4);
         CellProperties cell_props(voltage, solution.rGetTimes()); // Use default threshold
+        double timestep = solution.rGetTimes()[1] - solution.rGetTimes()[0];
         unsigned size = cell_props.GetMaxUpstrokeVelocities().size();
 
         TS_ASSERT_DELTA(cell_props.GetMaxUpstrokeVelocities()[size-1], 418.4795, 0.001);
@@ -130,9 +131,9 @@ public:
         TS_ASSERT_DELTA(cell_props.GetRestingPotentials()[size-1], -84.4395, 0.0001);
         TS_ASSERT_DELTA(cell_props.GetActionPotentialAmplitudes()[size-1], 127.606, 0.001);
         TS_ASSERT_DELTA(cell_props.GetLastPeakPotential(), 43.1665, 0.0001);
-        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(20), 6.66416, 0.00001);
-        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(50), 271.184, 0.001);
-        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(90), 361.544, 0.001); // Should use penultimate AP
+        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(20), 6.66416, timestep);
+        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(50), 271.184, timestep);
+        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(90), 361.544, timestep); // Should use penultimate AP
         TS_ASSERT_DELTA(cell_props.GetTimesAtMaxUpstrokeVelocity()[size-1], 3100.7300, 0.001);
     }
 
@@ -166,16 +167,17 @@ public:
         TS_ASSERT_EQUALS(cell_properties.GetMaxUpstrokeVelocities()[size-1], cell_properties.GetLastMaxUpstrokeVelocity() );
 
         // Then check against hardcoded values (checked manually from the file)
-        TS_ASSERT_DELTA(apds[0], 185.37, 0.1);
-        TS_ASSERT_DELTA(apds[1], 186.3, 0.1);
-        TS_ASSERT_DELTA(apds[2], 185.3, 0.1);
-        TS_ASSERT_DELTA(apds[3], 184.3, 0.1);
-        TS_ASSERT_DELTA(apds[4], 183.3, 0.1);
-        TS_ASSERT_DELTA(apds[5], 183.3, 0.1);
-        TS_ASSERT_DELTA(apds[6], 180.2, 0.1);
-        TS_ASSERT_DELTA(apds[7], 177.3, 0.1);
-        TS_ASSERT_DELTA(apds[8], 175.3, 0.1);
-        TS_ASSERT_DELTA(apds[size-1], 175.3, 0.1);
+        double timestep = times[1] - times[0];
+        TS_ASSERT_DELTA(apds[0], 185.37, timestep);
+        TS_ASSERT_DELTA(apds[1], 186.3, timestep);
+        TS_ASSERT_DELTA(apds[2], 185.3, timestep);
+        TS_ASSERT_DELTA(apds[3], 184.3, timestep);
+        TS_ASSERT_DELTA(apds[4], 183.3, timestep);
+        TS_ASSERT_DELTA(apds[5], 183.3, timestep);
+        TS_ASSERT_DELTA(apds[6], 180.2, timestep);
+        TS_ASSERT_DELTA(apds[7], 177.3, timestep);
+        TS_ASSERT_DELTA(apds[8], 175.3, timestep);
+        TS_ASSERT_DELTA(apds[size-1], 175.3, timestep);
 
         // Check against hardcoded resting values (checked manually from the file)
         std::vector<double> resting_values = cell_properties.GetRestingPotentials();
