@@ -108,9 +108,7 @@ public:
             // avoid infinite loops
             if (counter > 15)
             {
-#define COVERAGE_IGNORE
-                EXCEPTION("Newton method diverged in CardiacNewtonSolver::Solve()");
-#undef COVERAGE_IGNORE
+                NEVER_REACHED;
             }
         }
         while (norm_of_update > eps);

@@ -56,15 +56,6 @@ public:
         //NB The following test will fail if the number of lines above is changed drastically... (that's why method GetShortMessage() was introduced).
         TS_ASSERT_THROWS_EQUALS(EXCEPTION("Hello. I'm an exception"), const Exception &err,
                                 err.GetMessage().find("Hello. I\'m an exception",0), 51u); // This appears at position 51 in full message (a bit more robust?!)
-
-        TS_ASSERT_THROWS_EQUALS(NEVER_REACHED,  const Exception &err,
-                err.GetShortMessage(), "Should have been impossible to reach this line of code");
-
-        // Our own shorthand macro for the above method
-        TS_ASSERT_THROWS_THIS(NEVER_REACHED, "Should have been impossible to reach this line of code");
-        // Further shorthand macro which just checks that the message thrown contains the string
-        TS_ASSERT_THROWS_CONTAINS(NEVER_REACHED, "Should");
-
     }
 
     void TestCheckMethods()

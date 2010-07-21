@@ -35,6 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cfloat>
 
 #include "Exception.hpp"
+#include "PetscTools.hpp"
+
 
 /**
  * Represents an abstract stimulus function. Sub-classes will implement the

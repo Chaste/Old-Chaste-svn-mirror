@@ -101,8 +101,6 @@ public:
 
 #define EXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
 
-#define NEVER_REACHED EXCEPTION("Should have been impossible to reach this line of code")
-
 // This is to cope with NDEBUG causing variables to not be used, since they are only
 // used in assert()s
 #ifdef NDEBUG

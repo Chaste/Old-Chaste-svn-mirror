@@ -47,6 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TINY DBL_EPSILON
 
 #include "Exception.hpp"
+#include "PetscTools.hpp"
 
 
 

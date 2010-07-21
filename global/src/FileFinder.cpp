@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "Exception.hpp"
 #include "GetCurrentWorkingDirectory.hpp"
+#include "PetscTools.hpp"
 #include <fstream>
 #include <cassert>
 #include <sys/stat.h>

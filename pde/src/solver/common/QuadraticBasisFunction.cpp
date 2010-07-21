@@ -30,6 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 
 #include "QuadraticBasisFunction.hpp"
+#include "PetscTools.hpp"
 
 
 /** Specialization for 0d.

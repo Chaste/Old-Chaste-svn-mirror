@@ -220,9 +220,24 @@ public:
      * @param rOutputFileFullPath where to read the matrix from
      */
     static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath);
+    
+#endif //SPECIAL_SERIAL (ifndef)
 
-#endif //SPECIAL_SERIAL
+    /**
+     * Level 4 error (Termination).  Execution cannot continue from this point and hence
+     * should be terminated (even when running with NDEBUG).
+     * 
+     * @param rMessage An error message to appear on the screen
+     * @param rFilename  which source file produced the termination error
+     * @param lineNumber  which line number of the source file produced the termination error
+     */
+    static void Terminate(const std::string& rMessage, const std::string& rFilename, unsigned lineNumber);
+
 
 };
+
+// We might also want: #define TERMINATE(message) PetscTools::Terminate(message, __FILE__, __LINE__)
+
+#define NEVER_REACHED  PetscTools::Terminate("Should have been impossible to reach this line of code", __FILE__, __LINE__)
 
 #endif /*PETSCTOOLS_HPP_*/

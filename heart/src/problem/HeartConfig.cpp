@@ -840,9 +840,10 @@ double HeartConfig::GetInterNodeSpace() const
             break;
         default:
             NEVER_REACHED;
+#define COVERAGE_IGNORE
+            return 0.0; //To fool the compiler
+#undef COVERAGE_IGNORE
     }
-
-
 }
 
 std::string HeartConfig::GetMeshName() const
