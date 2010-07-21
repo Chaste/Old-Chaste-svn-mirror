@@ -38,6 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
+// For archiving?
+#include "WildTypeCellMutationState.hpp"
+
 class TestCellsGenerator : public AbstractCellBasedTestSuite
 {
 public:

@@ -3774,6 +3774,8 @@ class ConfigurationStore(object):
                 var = self.V_variable
             elif unicode(defn) == u'membrane_capacitance':
                 var = self.Cm_variable
+            else:
+                raise ConfigurationError('"' + str(defn) + '" is not a valid configuration file variable name')
         else:
             raise ConfigurationError('"' + defn_type + '" is not a valid variable definition type')
         return var

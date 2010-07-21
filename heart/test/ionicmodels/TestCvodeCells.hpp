@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Shannon2004.hpp"
 #include "Shannon2004Cvode.hpp"
 
+#include "HeartConfig.hpp"
 #include "RegularStimulus.hpp"
 #include "SimpleStimulus.hpp"
 #include "ZeroStimulus.hpp"
