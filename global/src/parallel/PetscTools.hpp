@@ -236,7 +236,7 @@ public:
 
 };
 
-// We might also want: #define TERMINATE(message) PetscTools::Terminate(message, __FILE__, __LINE__)
+#define TERMINATE(message) PetscTools::Terminate(message, __FILE__, __LINE__)
 
 #define NEVER_REACHED  PetscTools::Terminate("Should have been impossible to reach this line of code", __FILE__, __LINE__)
 

@@ -108,7 +108,7 @@ public:
             // avoid infinite loops
             if (counter > 15)
             {
-                NEVER_REACHED;
+                TERMINATE("Newton method diverged in CardiacNewtonSolver::Solve()");
             }
         }
         while (norm_of_update > eps);

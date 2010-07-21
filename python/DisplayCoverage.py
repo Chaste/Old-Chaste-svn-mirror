@@ -204,6 +204,7 @@ for src_file in src_files:
                     if not (ignore or src_line_stripped in ['{', '}', 'NEVER_REACHED;'] or
                             (src_line_stripped.startswith('return') and
                              src_line_stripped[6] in [';', ' ']) or
+                            (src_line_stripped.startswith('TERMINATE(') or
                             (src_line_stripped.startswith('assert(DIM') or
                              src_line_stripped.startswith('assert(ELEM_DIM') or
                              src_line_stripped.startswith('assert(SPACE_DIM') or
