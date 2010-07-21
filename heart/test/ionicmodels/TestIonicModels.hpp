@@ -60,7 +60,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "LuoRudy1991BackwardEuler.hpp"
 
-#include "FoxModel2002Modified.hpp"
+#include "FoxModel2002.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
 
 #include "FaberRudy2000Version3.hpp"
@@ -620,7 +620,7 @@ public:
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.002, 0.002, 0.002); // 0.005 leads to NaNs.
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        FoxModel2002Modified fox_ode_system(p_solver, p_stimulus);
+        CellFoxModel2002FromCellML fox_ode_system(p_solver, p_stimulus);
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
         BackwardEulerFoxModel2002Modified backward_system(p_stimulus);
