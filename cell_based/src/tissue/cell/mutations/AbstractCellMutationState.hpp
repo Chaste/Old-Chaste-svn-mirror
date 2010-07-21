@@ -32,7 +32,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellProperty.hpp"
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
-#include "PetscTools.hpp"
 
 /**
  * Base class for cell mutation states.
