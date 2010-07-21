@@ -751,7 +751,7 @@ def _checkBuildFailure(test_set_dir, overall_status, colour):
       if line.startswith('scons: building terminated because of errors.') or \
          line.strip().endswith('(errors occurred during build).') or \
          line.startswith('  File "SConstruct", line '):
-        overall_status = 'Build failed.  ' + overall_status
+        overall_status = 'Build failed (check build log for ***).  ' + overall_status
         colour = 'red'
         break
       if not found_semget and 'semget failed for setnum' in line:
