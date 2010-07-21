@@ -539,9 +539,7 @@ class Protocol(object):
             assert isinstance(var, cellml_variable)
             if var.get_type() == VarTypes.Constant:
                 var.set_is_modifiable_parameter(True)
-            elif var.get_type() == VarTypes.Computed:
+            elif var.get_type() in [VarTypes.Computed, VarTypes.Mapped]:
                 var.set_is_derived_quantity(True)
-            elif var.get_type() == VarTypes.Mapped:
-                var.set_pe_keep(True)
             else:
                 assert var.get_type() in [VarTypes.State, VarTypes.Free]

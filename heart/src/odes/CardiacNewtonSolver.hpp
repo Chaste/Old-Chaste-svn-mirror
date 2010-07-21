@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasCustomFunctions.hpp"
 #include "AbstractBackwardEulerCardiacCell.hpp"
 #include "Warnings.hpp"
+
 /**
  * Specialised Newton solver for solving the nonlinear systems arising when
  * simulating a cardiac cell using Backward Euler.
@@ -112,7 +113,7 @@ public:
             }
         }
         while (norm_of_update > eps);
-        assert(norm_of_residual < 1e-10); //This line is for corelation - in case we use norm_of_residual as convergence criterion
+        assert(norm_of_residual < 2e-10); //This line is for corelation - in case we use norm_of_residual as convergence criterion
     }
 
 

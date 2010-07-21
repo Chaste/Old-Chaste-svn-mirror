@@ -1,0 +1,1498 @@
+    |\^/|     Maple 12 (SUN SPARC SOLARIS)
+._|\|   |/|_. Copyright (c) Maplesoft, a division of Waterloo Maple Inc. 2008
+ \  MAPLE  /  All rights reserved. Maple is a trademark of
+ <____ ____>  Waterloo Maple Inc.
+      |       Type ? for help.
+1
+var_membrane__R := 8314.472
+var_membrane__T := 310
+var_membrane__F := 96485.3415
+var_membrane__Cm := .95e-4
+var_membrane__time := var_environment__time
+var_reversal_potentials__K_i := var_intracellular_potassium_concentration__K_i
+var_reversal_potentials__R := 8314.472
+var_reversal_potentials__T := 310
+var_reversal_potentials__F := 96485.3415
+var_extracellular_potassium_concentration__K_o := 4
+var_reversal_potentials__K_o := 4
+var_reversal_potentials__E_K := 26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i)
+var_time_independent_potassium_current__E_K := 26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i)
+var_time_independent_potassium_current__K_o := 4
+var_time_independent_potassium_current__R := 8314.472
+var_time_independent_potassium_current__V := var_membrane__V
+var_time_independent_potassium_current__T := 310
+var_time_independent_potassium_current__K_mk1 := 10
+var_time_independent_potassium_current__g_K1 := .5
+var_time_independent_potassium_current__F := 96485.3415
+var_time_independent_potassium_current__i_K1 := .1428571429*(var_membrane__V-26\
+.71376066*ln(4/var_intracellular_potassium_concentration__K_i))/(1+exp(.\
+4679236355e-1*var_membrane__V-1.250000000*ln(4/
+var_intracellular_potassium_concentration__K_i)-.4679236355))
+var_membrane__i_K1 := .1428571429*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))/(1+exp(.4679236355e-1*
+var_membrane__V-1.250000000*ln(4/var_intracellular_potassium_concentration__K_i
+)-.4679236355))
+var_transient_outward_current__s := var_transient_outward_current_s_gate__s
+var_transient_outward_current__r := var_transient_outward_current_r_gate__r
+var_transient_outward_current__g_to := .5e-2
+var_transient_outward_current__V := var_membrane__V
+var_transient_outward_current__E_K := 26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i)
+var_transient_outward_current__g_tos := 0
+var_transient_outward_current__i_to := .5e-2*
+var_transient_outward_current_s_gate__s*var_transient_outward_current_r_gate__r
+*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))
+var_membrane__i_to := .5e-2*var_transient_outward_current_s_gate__s*
+var_transient_outward_current_r_gate__r*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))
+var_rapid_delayed_rectifier_potassium_current__g_Kr2 := .13e-2
+var_rapid_delayed_rectifier_potassium_current__g_Kr1 := .21e-2
+var_rapid_delayed_rectifier_potassium_current__xr1 := 
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1
+var_rapid_delayed_rectifier_potassium_current__xr2 := 
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2
+var_rapid_delayed_rectifier_potassium_current__V := var_membrane__V
+var_rapid_delayed_rectifier_potassium_current__E_K := 26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i)
+var_rapid_delayed_rectifier_potassium_current__i_Kr := (.21e-2*
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1+.13e-2*
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2)/(1+exp(.4464285714\
+e-1*var_membrane__V+.4017857143))*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))
+var_membrane__i_Kr := (.21e-2*
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1+.13e-2*
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2)/(1+exp(.4464285714\
+e-1*var_membrane__V+.4017857143))*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))
+var_slow_delayed_rectifier_potassium_current__xs := 
+var_slow_delayed_rectifier_potassium_current_xs_gate__xs
+var_extracellular_sodium_concentration__Na_o := 140
+var_reversal_potentials__Na_o := 140
+var_reversal_potentials__Na_i := var_intracellular_sodium_concentration__Na_i
+var_reversal_potentials__P_kna := .3e-1
+var_reversal_potentials__E_Ks := 26.71376066*ln(8.20/(
+var_intracellular_potassium_concentration__K_i+.3e-1*
+var_intracellular_sodium_concentration__Na_i))
+var_slow_delayed_rectifier_potassium_current__E_Ks := 26.71376066*ln(8.20/(
+var_intracellular_potassium_concentration__K_i+.3e-1*
+var_intracellular_sodium_concentration__Na_i))
+var_slow_delayed_rectifier_potassium_current__g_Ks := .26e-2
+var_slow_delayed_rectifier_potassium_current__V := var_membrane__V
+var_slow_delayed_rectifier_potassium_current__i_Ks := .26e-2*
+var_slow_delayed_rectifier_potassium_current_xs_gate__xs^2*(var_membrane__V-26.\
+71376066*ln(8.20/(var_intracellular_potassium_concentration__K_i+.3e-1*
+var_intracellular_sodium_concentration__Na_i)))
+var_membrane__i_Ks := .26e-2*
+var_slow_delayed_rectifier_potassium_current_xs_gate__xs^2*(var_membrane__V-26.\
+71376066*ln(8.20/(var_intracellular_potassium_concentration__K_i+.3e-1*
+var_intracellular_sodium_concentration__Na_i)))
+var_L_type_Ca_channel__d := var_L_type_Ca_channel_d_gate__d
+var_L_type_Ca_channel__FrICa := 1
+var_L_type_Ca_channel__f := var_L_type_Ca_channel_f_gate__f
+var_L_type_Ca_channel__K_o := 4
+var_L_type_Ca_channel__K_i := var_intracellular_potassium_concentration__K_i
+var_L_type_Ca_channel__F := 96485.3415
+var_L_type_Ca_channel__P_Ca_L := .1
+var_L_type_Ca_channel__T := 310
+var_L_type_Ca_channel__P_CaK := .2e-2
+var_L_type_Ca_channel__V := var_membrane__V
+var_L_type_Ca_channel__f2 := var_L_type_Ca_channel_f2_gate__f2
+var_L_type_Ca_channel__R := 8314.472
+var_L_type_Ca_channel__i_Ca_L_K_cyt := 0.
+var_membrane__i_Ca_L_K_cyt := 0.
+var_L_type_Ca_channel__f2ds := var_L_type_Ca_channel_f2ds_gate__f2ds
+var_L_type_Ca_channel__i_Ca_L_K_ds := .7486778165e-5*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_potassium_concentration__K_i-4*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))
+var_membrane__i_Ca_L_K_ds := .7486778165e-5*var_L_type_Ca_channel_d_gate__d*
+var_L_type_Ca_channel_f_gate__f*var_L_type_Ca_channel_f2ds_gate__f2ds*(
+var_membrane__V-50)/(1-exp(-.3743389084e-1*var_membrane__V+1.871694542))*(6.499\
+300411*var_intracellular_potassium_concentration__K_i-4*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))
+var_sodium_potassium_pump__i_NaK_max := .7
+var_sodium_potassium_pump__Na_i := var_intracellular_sodium_concentration__Na_i
+var_sodium_potassium_pump__K_o := 4
+var_sodium_potassium_pump__K_mNa := 40
+var_sodium_potassium_pump__K_mK := 1
+var_sodium_potassium_pump__i_NaK := .5600000000*
+var_intracellular_sodium_concentration__Na_i/(40+
+var_intracellular_sodium_concentration__Na_i)
+var_membrane__i_NaK := .5600000000*var_intracellular_sodium_concentration__Na_i
+/(40+var_intracellular_sodium_concentration__Na_i)
+var_fast_sodium_current__g_Na := 2.5
+var_fast_sodium_current__h := var_fast_sodium_current_h_gate__h
+var_fast_sodium_current__V := var_membrane__V
+var_reversal_potentials__E_mh := 26.71376066*ln(140.48/(
+var_intracellular_sodium_concentration__Na_i+.12*
+var_intracellular_potassium_concentration__K_i))
+var_fast_sodium_current__E_mh := 26.71376066*ln(140.48/(
+var_intracellular_sodium_concentration__Na_i+.12*
+var_intracellular_potassium_concentration__K_i))
+var_fast_sodium_current__m := var_fast_sodium_current_m_gate__m
+var_fast_sodium_current__i_Na := 2.5*var_fast_sodium_current_m_gate__m^3*
+var_fast_sodium_current_h_gate__h*(var_membrane__V-26.71376066*ln(140.48/(
+var_intracellular_sodium_concentration__Na_i+.12*
+var_intracellular_potassium_concentration__K_i)))
+var_membrane__i_Na := 2.5*var_fast_sodium_current_m_gate__m^3*
+var_fast_sodium_current_h_gate__h*(var_membrane__V-26.71376066*ln(140.48/(
+var_intracellular_sodium_concentration__Na_i+.12*
+var_intracellular_potassium_concentration__K_i)))
+var_sodium_background_current__V := var_membrane__V
+var_reversal_potentials__E_Na := 26.71376066*ln(140/
+var_intracellular_sodium_concentration__Na_i)
+var_sodium_background_current__E_Na := 26.71376066*ln(140/
+var_intracellular_sodium_concentration__Na_i)
+var_sodium_background_current__g_bna := .6e-3
+var_sodium_background_current__i_b_Na := .6e-3*var_membrane__V-.1602825640e-1*
+ln(140/var_intracellular_sodium_concentration__Na_i)
+var_membrane__i_b_Na := .6e-3*var_membrane__V-.1602825640e-1*ln(140/
+var_intracellular_sodium_concentration__Na_i)
+var_persistent_sodium_current__g_pna := .4e-2
+var_persistent_sodium_current__V := var_membrane__V
+var_persistent_sodium_current__E_Na := 26.71376066*ln(140/
+var_intracellular_sodium_concentration__Na_i)
+var_persistent_sodium_current__i_p_Na := .4e-2/(1+exp(-1/8*var_membrane__V-13/2
+))*(var_membrane__V-26.71376066*ln(140/
+var_intracellular_sodium_concentration__Na_i))
+var_membrane__i_p_Na := .4e-2/(1+exp(-1/8*var_membrane__V-13/2))*(
+var_membrane__V-26.71376066*ln(140/var_intracellular_sodium_concentration__Na_i
+))
+var_L_type_Ca_channel__P_CaNa := .1e-1
+var_L_type_Ca_channel__Na_o := 140
+var_L_type_Ca_channel__Na_i := var_intracellular_sodium_concentration__Na_i
+var_L_type_Ca_channel__i_Ca_L_Na_cyt := 0.
+var_membrane__i_Ca_L_Na_cyt := 0.
+var_L_type_Ca_channel__i_Ca_L_Na_ds := .3743389084e-4*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_sodium_concentration__Na_i-140*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))
+var_membrane__i_Ca_L_Na_ds := .3743389084e-4*var_L_type_Ca_channel_d_gate__d*
+var_L_type_Ca_channel_f_gate__f*var_L_type_Ca_channel_f2ds_gate__f2ds*(
+var_membrane__V-50)/(1-exp(-.3743389084e-1*var_membrane__V+1.871694542))*(6.499\
+300411*var_intracellular_sodium_concentration__Na_i-140*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))
+var_sodium_calcium_exchanger__Na_i := 
+var_intracellular_sodium_concentration__Na_i
+var_sodium_calcium_exchanger__n_NaCa := 3
+var_sodium_calcium_exchanger__gamma := .5
+var_sodium_calcium_exchanger__F := 96485.3415
+var_sodium_calcium_exchanger__Na_o := 140
+var_sodium_calcium_exchanger__FRiNaCa := .1e-2
+var_sodium_calcium_exchanger__R := 8314.472
+var_sodium_calcium_exchanger__Ca_i := 
+var_intracellular_calcium_concentration__Ca_i
+var_sodium_calcium_exchanger__T := 310
+var_sodium_calcium_exchanger__V := var_membrane__V
+var_sodium_calcium_exchanger__d_NaCa := 0
+var_extracellular_calcium_concentration__Ca_o := 2
+var_sodium_calcium_exchanger__Ca_o := 2
+var_sodium_calcium_exchanger__k_NaCa := .5e-3
+var_sodium_calcium_exchanger__i_NaCa_cyt := .4995e-3*(2*exp(.1871694541e-1*
+var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-2744000*exp(-.\
+1871694541e-1*var_membrane__V)*var_intracellular_calcium_concentration__Ca_i)/(
+1+144.9275362*var_intracellular_calcium_concentration__Ca_i)
+var_membrane__i_NaCa_cyt := .4995e-3*(2*exp(.1871694541e-1*var_membrane__V)*
+var_intracellular_sodium_concentration__Na_i^3-2744000*exp(-.1871694541e-1*
+var_membrane__V)*var_intracellular_calcium_concentration__Ca_i)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_i)
+var_sodium_calcium_exchanger__Ca_ds := 
+var_intracellular_calcium_concentration__Ca_ds
+var_sodium_calcium_exchanger__i_NaCa_ds := .5e-6*(2*exp(.1871694541e-1*
+var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-2744000*exp(-.\
+1871694541e-1*var_membrane__V)*var_intracellular_calcium_concentration__Ca_ds)/
+(1+144.9275362*var_intracellular_calcium_concentration__Ca_ds)
+var_membrane__i_NaCa_ds := .5e-6*(2*exp(.1871694541e-1*var_membrane__V)*
+var_intracellular_sodium_concentration__Na_i^3-2744000*exp(-.1871694541e-1*
+var_membrane__V)*var_intracellular_calcium_concentration__Ca_ds)/(1+144.9275362
+*var_intracellular_calcium_concentration__Ca_ds)
+var_L_type_Ca_channel__Ca_i := var_intracellular_calcium_concentration__Ca_i
+var_L_type_Ca_channel__Ca_o := 2
+var_L_type_Ca_channel__i_Ca_L_Ca_cyt := 0.
+var_membrane__i_Ca_L_Ca_cyt := 0.
+var_L_type_Ca_channel__i_Ca_L_Ca_ds := .1497355634e-1*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.7486778168e\
+-1*var_membrane__V+3.743389084))*(42.24090583*
+var_intracellular_calcium_concentration__Ca_i-2*exp(-.7486778168e-1*
+var_membrane__V+3.743389084))
+var_membrane__i_Ca_L_Ca_ds := .1497355634e-1*var_L_type_Ca_channel_d_gate__d*
+var_L_type_Ca_channel_f_gate__f*var_L_type_Ca_channel_f2ds_gate__f2ds*(
+var_membrane__V-50)/(1-exp(-.7486778168e-1*var_membrane__V+3.743389084))*(42.24\
+090583*var_intracellular_calcium_concentration__Ca_i-2*exp(-.7486778168e-1*
+var_membrane__V+3.743389084))
+var_reversal_potentials__Ca_o := 2
+var_reversal_potentials__Ca_i := var_intracellular_calcium_concentration__Ca_i
+var_reversal_potentials__E_Ca := 13.35688033*ln(2/
+var_intracellular_calcium_concentration__Ca_i)
+var_calcium_background_current__E_Ca := 13.35688033*ln(2/
+var_intracellular_calcium_concentration__Ca_i)
+var_calcium_background_current__g_bca := .25e-3
+var_calcium_background_current__V := var_membrane__V
+var_calcium_background_current__i_b_Ca := .25e-3*var_membrane__V-.3339220082e-2
+*ln(2/var_intracellular_calcium_concentration__Ca_i)
+var_membrane__i_b_Ca := .25e-3*var_membrane__V-.3339220082e-2*ln(2/
+var_intracellular_calcium_concentration__Ca_i)
+var_membrane__stim_end := 100000
+var_membrane__stim_amplitude := -3
+var_membrane__stim_duration := .3e-2
+var_membrane__stim_period := 1
+var_membrane__stim_start := .1
+var_membrane__i_Stim := `if`(.1 <= var_environment__time and 
+var_environment__time <= 100000 and var_environment__time-floor(
+var_environment__time-.1) <= .103,var_membrane__stim_amplitude,0)
+var_rapid_delayed_rectifier_potassium_current__time := var_environment__time
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__V := var_membrane__V
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__alpha_xr1 := 50/(1+exp(
+-1/9*var_membrane__V+5/9))
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__beta_xr1 := .5e-1*exp(-\
+1/15*var_membrane__V+4/3)
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__time := 
+var_environment__time
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__V := var_membrane__V
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__alpha_xr2 := 50/(1+exp(
+-1/9*var_membrane__V+5/9))
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__beta_xr2 := .4*exp(-(1/
+30*var_membrane__V+1)^3)
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__time := 
+var_environment__time
+var_slow_delayed_rectifier_potassium_current__time := var_environment__time
+var_slow_delayed_rectifier_potassium_current_xs_gate__V := var_membrane__V
+var_slow_delayed_rectifier_potassium_current_xs_gate__alpha_xs := 14/(1+exp(-1/
+9*var_membrane__V+40/9))
+var_slow_delayed_rectifier_potassium_current_xs_gate__beta_xs := exp(-1/45*
+var_membrane__V)
+var_slow_delayed_rectifier_potassium_current_xs_gate__time := 
+var_environment__time
+var_fast_sodium_current__time := var_environment__time
+var_fast_sodium_current_m_gate__V := var_membrane__V
+var_fast_sodium_current_m_gate__E0_m := var_membrane__V+41
+var_fast_sodium_current_m_gate__delta_m := .1e-4
+var_fast_sodium_current_m_gate__alpha_m := `if`(abs(var_membrane__V+41) < .1e-4
+,2000,200*var_fast_sodium_current_m_gate__E0_m/(1-exp(-.1*
+var_fast_sodium_current_m_gate__E0_m)))
+var_fast_sodium_current_m_gate__beta_m := 8000*exp(-.56e-1*var_membrane__V-3.69\
+6)
+var_fast_sodium_current_m_gate__time := var_environment__time
+var_fast_sodium_current_h_gate__V := var_membrane__V
+var_fast_sodium_current_h_gate__shift_h := 0
+var_fast_sodium_current_h_gate__alpha_h := 20*exp(-.125*var_membrane__V-9.375)
+var_fast_sodium_current_h_gate__beta_h := 2000/(1+320*exp(-.1*var_membrane__V-7\
+.5))
+var_fast_sodium_current_h_gate__time := var_environment__time
+var_L_type_Ca_channel__Ca_ds := var_intracellular_calcium_concentration__Ca_ds
+var_L_type_Ca_channel__time := var_environment__time
+var_L_type_Ca_channel__Km_f2 := 100000
+var_L_type_Ca_channel__Km_f2ds := .1e-2
+var_L_type_Ca_channel__R_decay := 20
+var_L_type_Ca_channel_d_gate__V := var_membrane__V
+var_L_type_Ca_channel_d_gate__E0_d := var_membrane__V+19
+var_L_type_Ca_channel_d_gate__alpha_d := `if`(abs(var_membrane__V+19) < .1e-3,
+120,30*var_L_type_Ca_channel_d_gate__E0_d/(1-exp(-1/4*
+var_L_type_Ca_channel_d_gate__E0_d)))
+var_L_type_Ca_channel_d_gate__beta_d := `if`(abs(var_membrane__V+19) < .1e-3,
+120,12*var_L_type_Ca_channel_d_gate__E0_d/(exp(1/10*
+var_L_type_Ca_channel_d_gate__E0_d)-1))
+var_L_type_Ca_channel_d_gate__time := var_environment__time
+var_L_type_Ca_channel_d_gate__speed_d := 3
+var_L_type_Ca_channel_f_gate__V := var_membrane__V
+var_L_type_Ca_channel_f_gate__E0_f := var_membrane__V+34
+var_L_type_Ca_channel_f_gate__delta_f := .1e-3
+var_L_type_Ca_channel_f_gate__alpha_f := `if`(abs(var_membrane__V+34) < .1e-3,
+25,6.25*var_L_type_Ca_channel_f_gate__E0_f/(exp(1/4*
+var_L_type_Ca_channel_f_gate__E0_f)-1))
+var_L_type_Ca_channel_f_gate__beta_f := 12/(1+exp(-1/4*var_membrane__V-17/2))
+var_L_type_Ca_channel_f_gate__time := var_environment__time
+var_L_type_Ca_channel_f_gate__speed_f := .3
+var_L_type_Ca_channel_f2_gate__Km_f2 := 100000
+var_L_type_Ca_channel_f2_gate__Ca_i := 
+var_intracellular_calcium_concentration__Ca_i
+var_L_type_Ca_channel_f2_gate__time := var_environment__time
+var_L_type_Ca_channel_f2ds_gate__Km_f2ds := .1e-2
+var_L_type_Ca_channel_f2ds_gate__R_decay := 20
+var_L_type_Ca_channel_f2ds_gate__Ca_ds := 
+var_intracellular_calcium_concentration__Ca_ds
+var_L_type_Ca_channel_f2ds_gate__time := var_environment__time
+var_transient_outward_current__time := var_environment__time
+var_transient_outward_current_s_gate__V := var_membrane__V
+var_transient_outward_current_s_gate__alpha_s := .33e-1*exp(-1/17*
+var_membrane__V)
+var_transient_outward_current_s_gate__beta_s := 33/(1+exp(-.125*var_membrane__V
+-1.250))
+var_transient_outward_current_s_gate__time := var_environment__time
+var_transient_outward_current_r_gate__V := var_membrane__V
+var_transient_outward_current_r_gate__time := var_environment__time
+var_sarcoplasmic_reticulum_calcium_pump__Ca_i := 
+var_intracellular_calcium_concentration__Ca_i
+var_sarcoplasmic_reticulum_calcium_pump__Ca_up := 
+var_intracellular_calcium_concentration__Ca_up
+var_sarcoplasmic_reticulum_calcium_pump__alpha_up := .4
+var_sarcoplasmic_reticulum_calcium_pump__beta_up := .3e-1
+var_sarcoplasmic_reticulum_calcium_pump__K_srca := .5
+var_sarcoplasmic_reticulum_calcium_pump__K_xcs := .4
+var_sarcoplasmic_reticulum_calcium_pump__K_cyca := .3e-3
+var_sarcoplasmic_reticulum_calcium_pump__K_1 := .2400000000e-3
+var_sarcoplasmic_reticulum_calcium_pump__K_2 := 
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3
+var_sarcoplasmic_reticulum_calcium_pump__i_up := .4*
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)-.7200000000e-5*
+var_intracellular_calcium_concentration__Ca_up/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)
+var_calcium_translocation__Ca_rel := 
+var_intracellular_calcium_concentration__Ca_rel
+var_calcium_translocation__Ca_up := 
+var_intracellular_calcium_concentration__Ca_up
+var_calcium_translocation__i_trans := 50*
+var_intracellular_calcium_concentration__Ca_up-50*
+var_intracellular_calcium_concentration__Ca_rel
+var_calcium_release__K_m_rel := 250
+var_calcium_release__K_leak_rate := .5e-1
+var_calcium_release__Ca_rel := var_intracellular_calcium_concentration__Ca_rel
+var_calcium_release__i_rel := (250*var_calcium_release__ActFrac^2/(
+var_calcium_release__ActFrac+.25)^2+.5e-1)*
+var_intracellular_calcium_concentration__Ca_rel
+var_calcium_release__V := var_membrane__V
+var_calcium_release__VoltDep := exp(.8e-1*var_membrane__V-3.20)
+var_calcium_release__K_m_Ca_cyt := .5e-3
+var_calcium_release__Ca_i := var_intracellular_calcium_concentration__Ca_i
+var_calcium_release__CaiReg := var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)
+var_calcium_release__Ca_ds := var_intracellular_calcium_concentration__Ca_ds
+var_calcium_release__K_m_Ca_ds := .1e-1
+var_calcium_release__CadsReg := var_intracellular_calcium_concentration__Ca_ds/
+(var_intracellular_calcium_concentration__Ca_ds+.1e-1)
+var_calcium_release__RegBindSite := 
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1)
+var_calcium_release__ActRate := 500*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2
+var_calcium_release__InactRate := 60+500*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2
+var_calcium_release__PrecFrac := 1-var_calcium_release__ActFrac-
+var_calcium_release__ProdFrac
+var_calcium_release__SpeedRel := `if`(var_membrane__V < -50,5,1)
+var_calcium_release__time := var_environment__time
+var_intracellular_calcium_concentration__V_up_ratio := .1e-1
+var_intracellular_calcium_concentration__V_rel_ratio := .1
+var_intracellular_calcium_concentration__V_e_ratio := .4
+var_intracellular_calcium_concentration__V_i_ratio := .49
+var_intracellular_calcium_concentration__radius := .12e-1
+var_intracellular_calcium_concentration__length := .74e-1
+var_intracellular_calcium_concentration__V_Cell := .3347681132e-4
+var_intracellular_calcium_concentration__V_i := .1640363755e-4
+var_intracellular_sodium_concentration__V_i := .1640363755e-4
+var_intracellular_sodium_concentration__time := var_environment__time
+var_intracellular_sodium_concentration__F := 96485.3415
+var_intracellular_sodium_concentration__i_Na := 2.5*
+var_fast_sodium_current_m_gate__m^3*var_fast_sodium_current_h_gate__h*(
+var_membrane__V-26.71376066*ln(140.48/(
+var_intracellular_sodium_concentration__Na_i+.12*
+var_intracellular_potassium_concentration__K_i)))
+var_intracellular_sodium_concentration__i_b_Na := .6e-3*var_membrane__V-.\
+1602825640e-1*ln(140/var_intracellular_sodium_concentration__Na_i)
+var_intracellular_sodium_concentration__i_p_Na := .4e-2/(1+exp(-1/8*
+var_membrane__V-13/2))*(var_membrane__V-26.71376066*ln(140/
+var_intracellular_sodium_concentration__Na_i))
+var_intracellular_sodium_concentration__i_Ca_L_Na_cyt := 0.
+var_intracellular_sodium_concentration__i_Ca_L_Na_ds := .3743389084e-4*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_sodium_concentration__Na_i-140*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))
+var_intracellular_sodium_concentration__i_NaK := .5600000000*
+var_intracellular_sodium_concentration__Na_i/(40+
+var_intracellular_sodium_concentration__Na_i)
+var_intracellular_sodium_concentration__i_NaCa_cyt := .4995e-3*(2*exp(.\
+1871694541e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-\
+2744000*exp(-.1871694541e-1*var_membrane__V)*
+var_intracellular_calcium_concentration__Ca_i)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_i)
+var_intracellular_potassium_concentration__V_i := .1640363755e-4
+var_intracellular_potassium_concentration__i_K1 := .1428571429*(var_membrane__V
+-26.71376066*ln(4/var_intracellular_potassium_concentration__K_i))/(1+exp(.\
+4679236355e-1*var_membrane__V-1.250000000*ln(4/
+var_intracellular_potassium_concentration__K_i)-.4679236355))
+var_intracellular_potassium_concentration__i_Kr := (.21e-2*
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1+.13e-2*
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2)/(1+exp(.4464285714\
+e-1*var_membrane__V+.4017857143))*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))
+var_intracellular_potassium_concentration__i_Ks := .26e-2*
+var_slow_delayed_rectifier_potassium_current_xs_gate__xs^2*(var_membrane__V-26.\
+71376066*ln(8.20/(var_intracellular_potassium_concentration__K_i+.3e-1*
+var_intracellular_sodium_concentration__Na_i)))
+var_intracellular_potassium_concentration__i_Ca_L_K_cyt := 0.
+var_intracellular_potassium_concentration__i_Ca_L_K_ds := .7486778165e-5*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_potassium_concentration__K_i-4*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))
+var_intracellular_potassium_concentration__i_to := .5e-2*
+var_transient_outward_current_s_gate__s*var_transient_outward_current_r_gate__r
+*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))
+var_intracellular_potassium_concentration__i_NaK := .5600000000*
+var_intracellular_sodium_concentration__Na_i/(40+
+var_intracellular_sodium_concentration__Na_i)
+var_intracellular_potassium_concentration__time := var_environment__time
+var_intracellular_potassium_concentration__F := 96485.3415
+var_intracellular_calcium_concentration__Calmod := .2e-1
+var_intracellular_calcium_concentration__Trop := .5e-1
+var_intracellular_calcium_concentration__alpha_Calmod := 100000
+var_intracellular_calcium_concentration__beta_Calmod := 50
+var_intracellular_calcium_concentration__alpha_Trop := 100000
+var_intracellular_calcium_concentration__beta_Trop := 200
+var_intracellular_calcium_concentration__V_ds_ratio := .1
+var_intracellular_calcium_concentration__Kdecay := 10
+var_intracellular_calcium_concentration__i_up := .4*
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)-.7200000000e-5*
+var_intracellular_calcium_concentration__Ca_up/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)
+var_intracellular_calcium_concentration__i_trans := 50*
+var_intracellular_calcium_concentration__Ca_up-50*
+var_intracellular_calcium_concentration__Ca_rel
+var_intracellular_calcium_concentration__i_rel := (250*
+var_calcium_release__ActFrac^2/(var_calcium_release__ActFrac+.25)^2+.5e-1)*
+var_intracellular_calcium_concentration__Ca_rel
+var_intracellular_calcium_concentration__i_NaCa_cyt := .4995e-3*(2*exp(.\
+1871694541e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-\
+2744000*exp(-.1871694541e-1*var_membrane__V)*
+var_intracellular_calcium_concentration__Ca_i)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_i)
+var_intracellular_calcium_concentration__i_NaCa_ds := .5e-6*(2*exp(.1871694541e\
+-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-2744000*exp(
+-.1871694541e-1*var_membrane__V)*var_intracellular_calcium_concentration__Ca_ds
+)/(1+144.9275362*var_intracellular_calcium_concentration__Ca_ds)
+var_intracellular_calcium_concentration__i_Ca_L_Ca_cyt := 0.
+var_intracellular_calcium_concentration__i_Ca_L_Ca_ds := .1497355634e-1*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.7486778168e\
+-1*var_membrane__V+3.743389084))*(42.24090583*
+var_intracellular_calcium_concentration__Ca_i-2*exp(-.7486778168e-1*
+var_membrane__V+3.743389084))
+var_intracellular_calcium_concentration__i_b_Ca := .25e-3*var_membrane__V-.\
+3339220082e-2*ln(2/var_intracellular_calcium_concentration__Ca_i)
+var_intracellular_calcium_concentration__F := 96485.3415
+var_intracellular_calcium_concentration__time := var_environment__time
+d_dt_membrane__V := -10526.31579*`if`(.1 <= var_environment__time and 
+var_environment__time <= 100000 and var_environment__time-floor(
+var_environment__time-.1) <= .103,var_membrane__stim_amplitude,0)-1503.759399*(
+var_membrane__V-26.71376066*ln(4/var_intracellular_potassium_concentration__K_i
+))/(1+exp(.4679236355e-1*var_membrane__V-1.250000000*ln(4/
+var_intracellular_potassium_concentration__K_i)-.4679236355))-52.63157895*
+var_transient_outward_current_s_gate__s*var_transient_outward_current_r_gate__r
+*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))-10526.31579*(.21e-2*
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1+.13e-2*
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2)/(1+exp(.4464285714\
+e-1*var_membrane__V+.4017857143))*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))-27.36842105*
+var_slow_delayed_rectifier_potassium_current_xs_gate__xs^2*(var_membrane__V-26.\
+71376066*ln(8.20/(var_intracellular_potassium_concentration__K_i+.3e-1*
+var_intracellular_sodium_concentration__Na_i)))-5894.736842*
+var_intracellular_sodium_concentration__Na_i/(40+
+var_intracellular_sodium_concentration__Na_i)-26315.78948*
+var_fast_sodium_current_m_gate__m^3*var_fast_sodium_current_h_gate__h*(
+var_membrane__V-26.71376066*ln(140.48/(
+var_intracellular_sodium_concentration__Na_i+.12*
+var_intracellular_potassium_concentration__K_i)))-8.947368422*var_membrane__V+
+168.7184884*ln(140/var_intracellular_sodium_concentration__Na_i)-42.10526316/(1
++exp(-1/8*var_membrane__V-13/2))*(var_membrane__V-26.71376066*ln(140/
+var_intracellular_sodium_concentration__Na_i))-.3940409562*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_sodium_concentration__Na_i-140*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))-5.257894737*(2*exp(.1871694541e-1*var_membrane__V
+)*var_intracellular_sodium_concentration__Na_i^3-2744000*exp(-.1871694541e-1*
+var_membrane__V)*var_intracellular_calcium_concentration__Ca_i)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_i)-.5263157895e-2*(2*exp(.\
+1871694541e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-\
+2744000*exp(-.1871694541e-1*var_membrane__V)*
+var_intracellular_calcium_concentration__Ca_ds)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_ds)-157.6163825*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.7486778168e\
+-1*var_membrane__V+3.743389084))*(42.24090583*
+var_intracellular_calcium_concentration__Ca_i-2*exp(-.7486778168e-1*
+var_membrane__V+3.743389084))-.7880819121e-1*var_L_type_Ca_channel_d_gate__d*
+var_L_type_Ca_channel_f_gate__f*var_L_type_Ca_channel_f2ds_gate__f2ds*(
+var_membrane__V-50)/(1-exp(-.3743389084e-1*var_membrane__V+1.871694542))*(6.499\
+300411*var_intracellular_potassium_concentration__K_i-4*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))+35.14968508*ln(2/
+var_intracellular_calcium_concentration__Ca_i)
+d_dt_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1 := 50/(1+exp(-1/9*
+var_membrane__V+5/9))*(1-
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1)-.5e-1*exp(-1/15*
+var_membrane__V+4/3)*
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1
+d_dt_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2 := 50/(1+exp(-1/9*
+var_membrane__V+5/9))*(1-
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2)-.4*exp(-(1/30*
+var_membrane__V+1)^3)*
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2
+d_dt_slow_delayed_rectifier_potassium_current_xs_gate__xs := 14/(1+exp(-1/9*
+var_membrane__V+40/9))*(1-
+var_slow_delayed_rectifier_potassium_current_xs_gate__xs)-exp(-1/45*
+var_membrane__V)*var_slow_delayed_rectifier_potassium_current_xs_gate__xs
+d_dt_fast_sodium_current_m_gate__m := `if`(abs(var_membrane__V+41) < .1e-4,2000
+,200*var_fast_sodium_current_m_gate__E0_m/(1-exp(-.1*
+var_fast_sodium_current_m_gate__E0_m)))*(1-var_fast_sodium_current_m_gate__m)-\
+8000*exp(-.56e-1*var_membrane__V-3.696)*var_fast_sodium_current_m_gate__m
+d_dt_fast_sodium_current_h_gate__h := 20*exp(-.125*var_membrane__V-9.375)*(1-
+var_fast_sodium_current_h_gate__h)-2000/(1+320*exp(-.1*var_membrane__V-7.5))*
+var_fast_sodium_current_h_gate__h
+d_dt_L_type_Ca_channel_d_gate__d := 3*`if`(abs(var_membrane__V+19) < .1e-3,120,
+30*var_L_type_Ca_channel_d_gate__E0_d/(1-exp(-1/4*
+var_L_type_Ca_channel_d_gate__E0_d)))*(1-var_L_type_Ca_channel_d_gate__d)-3*
+`if`(abs(var_membrane__V+19) < .1e-3,120,12*var_L_type_Ca_channel_d_gate__E0_d/
+(exp(1/10*var_L_type_Ca_channel_d_gate__E0_d)-1))*
+var_L_type_Ca_channel_d_gate__d
+d_dt_L_type_Ca_channel_f_gate__f := .3*`if`(abs(var_membrane__V+34) < .1e-3,25,
+6.25*var_L_type_Ca_channel_f_gate__E0_f/(exp(1/4*
+var_L_type_Ca_channel_f_gate__E0_f)-1))*(1-var_L_type_Ca_channel_f_gate__f)-3.6
+/(1+exp(-1/4*var_membrane__V-17/2))*var_L_type_Ca_channel_f_gate__f
+d_dt_L_type_Ca_channel_f2_gate__f2 := 1-
+var_intracellular_calcium_concentration__Ca_i/(100000+
+var_intracellular_calcium_concentration__Ca_i)-
+var_L_type_Ca_channel_f2_gate__f2
+d_dt_L_type_Ca_channel_f2ds_gate__f2ds := 20-20*
+var_intracellular_calcium_concentration__Ca_ds/(.1e-2+
+var_intracellular_calcium_concentration__Ca_ds)-20*
+var_L_type_Ca_channel_f2ds_gate__f2ds
+d_dt_transient_outward_current_s_gate__s := .33e-1*exp(-1/17*var_membrane__V)*(
+1-var_transient_outward_current_s_gate__s)-33/(1+exp(-.125*var_membrane__V-1.25\
+0))*var_transient_outward_current_s_gate__s
+d_dt_transient_outward_current_r_gate__r := 333/(1+exp(-1/5*var_membrane__V-4/5
+))-333*var_transient_outward_current_r_gate__r
+d_dt_calcium_release__ActFrac := 500*(1-var_calcium_release__ActFrac-
+var_calcium_release__ProdFrac)*`if`(var_membrane__V < -50,5,1)*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2-
+var_calcium_release__ActFrac*`if`(var_membrane__V < -50,5,1)*(60+500*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2)
+d_dt_calcium_release__ProdFrac := var_calcium_release__ActFrac*`if`(
+var_membrane__V < -50,5,1)*(60+500*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2)-`if`(var_membrane__V
+< -50,5,1)*var_calcium_release__ProdFrac
+d_dt_intracellular_sodium_concentration__Na_i := -1.579568650*
+var_fast_sodium_current_m_gate__m^3*var_fast_sodium_current_h_gate__h*(
+var_membrane__V-26.71376066*ln(140.48/(
+var_intracellular_sodium_concentration__Na_i+.12*
+var_intracellular_potassium_concentration__K_i)))-.2527309840e-2/(1+exp(-1/8*
+var_membrane__V-13/2))*(var_membrane__V-26.71376066*ln(140/
+var_intracellular_sodium_concentration__Na_i))-.3790964760e-3*var_membrane__V+.\
+1012709253e-1*ln(140/var_intracellular_sodium_concentration__Na_i)-1.061470133*
+var_intracellular_sodium_concentration__Na_i/(40+
+var_intracellular_sodium_concentration__Na_i)-.9467934488e-3*(2*exp(.1871694541\
+e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-2744000*exp
+(-.1871694541e-1*var_membrane__V)*var_intracellular_calcium_concentration__Ca_i
+)/(1+144.9275362*var_intracellular_calcium_concentration__Ca_i)-.2365176017e-4*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_sodium_concentration__Na_i-140*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))
+d_dt_intracellular_potassium_concentration__K_i := -.9026106574e-1*(
+var_membrane__V-26.71376066*ln(4/var_intracellular_potassium_concentration__K_i
+))/(1+exp(.4679236355e-1*var_membrane__V-1.250000000*ln(4/
+var_intracellular_potassium_concentration__K_i)-.4679236355))-.6318274600*(.21e\
+-2*var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1+.13e-2*
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2)/(1+exp(.4464285714\
+e-1*var_membrane__V+.4017857143))*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))-.1642751396e-2*
+var_slow_delayed_rectifier_potassium_current_xs_gate__xs^2*(var_membrane__V-26.\
+71376066*ln(8.20/(var_intracellular_potassium_concentration__K_i+.3e-1*
+var_intracellular_sodium_concentration__Na_i)))-.4730352032e-5*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_potassium_concentration__K_i-4*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))-.3159137300e-2*
+var_transient_outward_current_s_gate__s*var_transient_outward_current_r_gate__r
+*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))+.7076467552*
+var_intracellular_sodium_concentration__Na_i/(40+
+var_intracellular_sodium_concentration__Na_i)
+d_dt_intracellular_calcium_concentration__Ca_Trop := 100000*
+var_intracellular_calcium_concentration__Ca_i*(.5e-1-
+var_intracellular_calcium_concentration__Ca_Trop)-200*
+var_intracellular_calcium_concentration__Ca_Trop
+d_dt_intracellular_calcium_concentration__Ca_Calmod := 100000*
+var_intracellular_calcium_concentration__Ca_i*(.2e-1-
+var_intracellular_calcium_concentration__Ca_Calmod)-50*
+var_intracellular_calcium_concentration__Ca_Calmod
+d_dt_intracellular_calcium_concentration__Ca_i := -.7897843250e-4*
+var_membrane__V+.1054905472e-2*ln(2/
+var_intracellular_calcium_concentration__Ca_i)+.3155978162e-3*(2*exp(.\
+1871694541e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-\
+2744000*exp(-.1871694541e-1*var_membrane__V)*
+var_intracellular_calcium_concentration__Ca_i)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_i)+.3159137300e-6*(2*exp(.\
+1871694541e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-\
+2744000*exp(-.1871694541e-1*var_membrane__V)*
+var_intracellular_calcium_concentration__Ca_ds)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_ds)+1.0*
+var_intracellular_calcium_concentration__Ca_ds+.2040816327*(250*
+var_calcium_release__ActFrac^2/(var_calcium_release__ActFrac+.25)^2+.5e-1)*
+var_intracellular_calcium_concentration__Ca_rel-100000*
+var_intracellular_calcium_concentration__Ca_i*(.2e-1-
+var_intracellular_calcium_concentration__Ca_Calmod)+50*
+var_intracellular_calcium_concentration__Ca_Calmod-100000*
+var_intracellular_calcium_concentration__Ca_i*(.5e-1-
+var_intracellular_calcium_concentration__Ca_Trop)+200*
+var_intracellular_calcium_concentration__Ca_Trop-.4*
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)+.7200000000e-5*
+var_intracellular_calcium_concentration__Ca_up/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)
+d_dt_intracellular_calcium_concentration__Ca_ds := -.4730352036e-1*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.7486778168e\
+-1*var_membrane__V+3.743389084))*(42.24090583*
+var_intracellular_calcium_concentration__Ca_i-2*exp(-.7486778168e-1*
+var_membrane__V+3.743389084))-10*var_intracellular_calcium_concentration__Ca_ds
+d_dt_intracellular_calcium_concentration__Ca_up := 19.60000000*
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)-.3528000000e-3*
+var_intracellular_calcium_concentration__Ca_up/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)-50*
+var_intracellular_calcium_concentration__Ca_up+50*
+var_intracellular_calcium_concentration__Ca_rel
+d_dt_intracellular_calcium_concentration__Ca_rel := 5.000000000*
+var_intracellular_calcium_concentration__Ca_up-5.000000000*
+var_intracellular_calcium_concentration__Ca_rel-(250*
+var_calcium_release__ActFrac^2/(var_calcium_release__ActFrac+.25)^2+.5e-1)*
+var_intracellular_calcium_concentration__Ca_rel
+g_var_L_type_Ca_channel_f2_gate__f2 := var_L_type_Ca_channel_f2_gate__f2-
+var_L_type_Ca_channel_f2_gate__f2_old-delta_t*(1-
+var_intracellular_calcium_concentration__Ca_i/(100000+
+var_intracellular_calcium_concentration__Ca_i)-
+var_L_type_Ca_channel_f2_gate__f2)
+g_var_L_type_Ca_channel_f2ds_gate__f2ds := 
+var_L_type_Ca_channel_f2ds_gate__f2ds-var_L_type_Ca_channel_f2ds_gate__f2ds_old
+-delta_t*(20-20*var_intracellular_calcium_concentration__Ca_ds/(.1e-2+
+var_intracellular_calcium_concentration__Ca_ds)-20*
+var_L_type_Ca_channel_f2ds_gate__f2ds)
+g_var_calcium_release__ActFrac := var_calcium_release__ActFrac-
+var_calcium_release__ActFrac_old-delta_t*(500*(1-var_calcium_release__ActFrac-
+var_calcium_release__ProdFrac)*`if`(var_membrane__V < -50,5,1)*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2-
+var_calcium_release__ActFrac*`if`(var_membrane__V < -50,5,1)*(60+500*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2))
+g_var_calcium_release__ProdFrac := var_calcium_release__ProdFrac-
+var_calcium_release__ProdFrac_old-delta_t*(var_calcium_release__ActFrac*`if`(
+var_membrane__V < -50,5,1)*(60+500*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2)-`if`(var_membrane__V
+< -50,5,1)*var_calcium_release__ProdFrac)
+g_var_intracellular_calcium_concentration__Ca_Calmod := 
+var_intracellular_calcium_concentration__Ca_Calmod-
+var_intracellular_calcium_concentration__Ca_Calmod_old-delta_t*(100000*
+var_intracellular_calcium_concentration__Ca_i*(.2e-1-
+var_intracellular_calcium_concentration__Ca_Calmod)-50*
+var_intracellular_calcium_concentration__Ca_Calmod)
+g_var_intracellular_calcium_concentration__Ca_Trop := 
+var_intracellular_calcium_concentration__Ca_Trop-
+var_intracellular_calcium_concentration__Ca_Trop_old-delta_t*(100000*
+var_intracellular_calcium_concentration__Ca_i*(.5e-1-
+var_intracellular_calcium_concentration__Ca_Trop)-200*
+var_intracellular_calcium_concentration__Ca_Trop)
+g_var_intracellular_calcium_concentration__Ca_ds := 
+var_intracellular_calcium_concentration__Ca_ds-
+var_intracellular_calcium_concentration__Ca_ds_old-delta_t*(-.4730352036e-1*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.7486778168e\
+-1*var_membrane__V+3.743389084))*(42.24090583*
+var_intracellular_calcium_concentration__Ca_i-2*exp(-.7486778168e-1*
+var_membrane__V+3.743389084))-10*var_intracellular_calcium_concentration__Ca_ds
+)
+g_var_intracellular_calcium_concentration__Ca_i := 
+var_intracellular_calcium_concentration__Ca_i-
+var_intracellular_calcium_concentration__Ca_i_old-delta_t*(-.7897843250e-4*
+var_membrane__V+.1054905472e-2*ln(2/
+var_intracellular_calcium_concentration__Ca_i)+.3155978162e-3*(2*exp(.\
+1871694541e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-\
+2744000*exp(-.1871694541e-1*var_membrane__V)*
+var_intracellular_calcium_concentration__Ca_i)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_i)+.3159137300e-6*(2*exp(.\
+1871694541e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-\
+2744000*exp(-.1871694541e-1*var_membrane__V)*
+var_intracellular_calcium_concentration__Ca_ds)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_ds)+1.0*
+var_intracellular_calcium_concentration__Ca_ds+.2040816327*(250*
+var_calcium_release__ActFrac^2/(var_calcium_release__ActFrac+.25)^2+.5e-1)*
+var_intracellular_calcium_concentration__Ca_rel-100000*
+var_intracellular_calcium_concentration__Ca_i*(.2e-1-
+var_intracellular_calcium_concentration__Ca_Calmod)+50*
+var_intracellular_calcium_concentration__Ca_Calmod-100000*
+var_intracellular_calcium_concentration__Ca_i*(.5e-1-
+var_intracellular_calcium_concentration__Ca_Trop)+200*
+var_intracellular_calcium_concentration__Ca_Trop-.4*
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)+.7200000000e-5*
+var_intracellular_calcium_concentration__Ca_up/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3))
+g_var_intracellular_calcium_concentration__Ca_rel := 
+var_intracellular_calcium_concentration__Ca_rel-
+var_intracellular_calcium_concentration__Ca_rel_old-delta_t*(5.000000000*
+var_intracellular_calcium_concentration__Ca_up-5.000000000*
+var_intracellular_calcium_concentration__Ca_rel-(250*
+var_calcium_release__ActFrac^2/(var_calcium_release__ActFrac+.25)^2+.5e-1)*
+var_intracellular_calcium_concentration__Ca_rel)
+g_var_intracellular_calcium_concentration__Ca_up := 
+var_intracellular_calcium_concentration__Ca_up-
+var_intracellular_calcium_concentration__Ca_up_old-delta_t*(19.60000000*
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)-.3528000000e-3*
+var_intracellular_calcium_concentration__Ca_up/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)-50*
+var_intracellular_calcium_concentration__Ca_up+50*
+var_intracellular_calcium_concentration__Ca_rel)
+g_var_intracellular_potassium_concentration__K_i := 
+var_intracellular_potassium_concentration__K_i-
+var_intracellular_potassium_concentration__K_i_old-delta_t*(-.9026106574e-1*(
+var_membrane__V-26.71376066*ln(4/var_intracellular_potassium_concentration__K_i
+))/(1+exp(.4679236355e-1*var_membrane__V-1.250000000*ln(4/
+var_intracellular_potassium_concentration__K_i)-.4679236355))-.6318274600*(.21e\
+-2*var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1+.13e-2*
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2)/(1+exp(.4464285714\
+e-1*var_membrane__V+.4017857143))*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))-.1642751396e-2*
+var_slow_delayed_rectifier_potassium_current_xs_gate__xs^2*(var_membrane__V-26.\
+71376066*ln(8.20/(var_intracellular_potassium_concentration__K_i+.3e-1*
+var_intracellular_sodium_concentration__Na_i)))-.4730352032e-5*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_potassium_concentration__K_i-4*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))-.3159137300e-2*
+var_transient_outward_current_s_gate__s*var_transient_outward_current_r_gate__r
+*(var_membrane__V-26.71376066*ln(4/
+var_intracellular_potassium_concentration__K_i))+.7076467552*
+var_intracellular_sodium_concentration__Na_i/(40+
+var_intracellular_sodium_concentration__Na_i))
+g_var_intracellular_sodium_concentration__Na_i := 
+var_intracellular_sodium_concentration__Na_i-
+var_intracellular_sodium_concentration__Na_i_old-delta_t*(-1.579568650*
+var_fast_sodium_current_m_gate__m^3*var_fast_sodium_current_h_gate__h*(
+var_membrane__V-26.71376066*ln(140.48/(
+var_intracellular_sodium_concentration__Na_i+.12*
+var_intracellular_potassium_concentration__K_i)))-.2527309840e-2/(1+exp(-1/8*
+var_membrane__V-13/2))*(var_membrane__V-26.71376066*ln(140/
+var_intracellular_sodium_concentration__Na_i))-.3790964760e-3*var_membrane__V+.\
+1012709253e-1*ln(140/var_intracellular_sodium_concentration__Na_i)-1.061470133*
+var_intracellular_sodium_concentration__Na_i/(40+
+var_intracellular_sodium_concentration__Na_i)-.9467934488e-3*(2*exp(.1871694541\
+e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-2744000*exp
+(-.1871694541e-1*var_membrane__V)*var_intracellular_calcium_concentration__Ca_i
+)/(1+144.9275362*var_intracellular_calcium_concentration__Ca_i)-.2365176017e-4*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_sodium_concentration__Na_i-140*exp(-.3743389084e-1*
+var_membrane__V+1.871694542)))
+"--var_L_type_Ca_channel_f2_gate__f2/var_L_type_Ca_channel_f2_gate__f2--"
+1+delta_t
+"--var_L_type_Ca_channel_f2_gate__f2/var_L_type_Ca_channel_f2ds_gate__f2ds--"
+0
+"--var_L_type_Ca_channel_f2_gate__f2/var_calcium_release__ActFrac--"
+0
+"--var_L_type_Ca_channel_f2_gate__f2/var_calcium_release__ProdFrac--"
+0
+"--var_L_type_Ca_channel_f2_gate__f2/var_intracellular_calcium_concentration__C\
+a_Calmod--"
+0
+"--var_L_type_Ca_channel_f2_gate__f2/var_intracellular_calcium_concentration__C\
+a_Trop--"
+0
+"--var_L_type_Ca_channel_f2_gate__f2/var_intracellular_calcium_concentration__C\
+a_ds--"
+0
+"--var_L_type_Ca_channel_f2_gate__f2/var_intracellular_calcium_concentration__C\
+a_i--"
+-delta_t*(-1/(100000+var_intracellular_calcium_concentration__Ca_i)+
+var_intracellular_calcium_concentration__Ca_i/(100000+
+var_intracellular_calcium_concentration__Ca_i)^2)
+"--var_L_type_Ca_channel_f2_gate__f2/var_intracellular_calcium_concentration__C\
+a_rel--"
+0
+"--var_L_type_Ca_channel_f2_gate__f2/var_intracellular_calcium_concentration__C\
+a_up--"
+0
+"--var_L_type_Ca_channel_f2_gate__f2/var_intracellular_potassium_concentration_\
+_K_i--"
+0
+"--var_L_type_Ca_channel_f2_gate__f2/var_intracellular_sodium_concentration__Na\
+_i--"
+0
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_L_type_Ca_channel_f2_gate__f2--"
+0
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_L_type_Ca_channel_f2ds_gate__f2ds-\
+-"
+1+20*delta_t
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_calcium_release__ActFrac--"
+0
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_calcium_release__ProdFrac--"
+0
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_intracellular_calcium_concentratio\
+n__Ca_Calmod--"
+0
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_intracellular_calcium_concentratio\
+n__Ca_Trop--"
+0
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_intracellular_calcium_concentratio\
+n__Ca_ds--"
+-delta_t*(-20/(.1e-2+var_intracellular_calcium_concentration__Ca_ds)+20*
+var_intracellular_calcium_concentration__Ca_ds/(.1e-2+
+var_intracellular_calcium_concentration__Ca_ds)^2)
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_intracellular_calcium_concentratio\
+n__Ca_i--"
+0
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_intracellular_calcium_concentratio\
+n__Ca_rel--"
+0
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_intracellular_calcium_concentratio\
+n__Ca_up--"
+0
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_intracellular_potassium_concentrat\
+ion__K_i--"
+0
+"--var_L_type_Ca_channel_f2ds_gate__f2ds/var_intracellular_sodium_concentration\
+__Na_i--"
+0
+"--var_calcium_release__ActFrac/var_L_type_Ca_channel_f2_gate__f2--"
+0
+"--var_calcium_release__ActFrac/var_L_type_Ca_channel_f2ds_gate__f2ds--"
+0
+"--var_calcium_release__ActFrac/var_calcium_release__ActFrac--"
+1-delta_t*(-500*`if`(var_membrane__V < -50,5,1)*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2-`if`(var_membrane__V <
+-50,5,1)*(60+500*(var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2))
+"--var_calcium_release__ActFrac/var_calcium_release__ProdFrac--"
+500*delta_t*`if`(var_membrane__V < -50,5,1)*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2
+"--var_calcium_release__ActFrac/var_intracellular_calcium_concentration__Ca_Cal\
+mod--"
+0
+"--var_calcium_release__ActFrac/var_intracellular_calcium_concentration__Ca_Tro\
+p--"
+0
+"--var_calcium_release__ActFrac/var_intracellular_calcium_concentration__Ca_ds-\
+-"
+-delta_t*(1000*(1-var_calcium_release__ActFrac-var_calcium_release__ProdFrac)*
+`if`(var_membrane__V < -50,5,1)*(var_intracellular_calcium_concentration__Ca_i/
+(var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))*((1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1)-(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1)^2)-1000*
+var_calcium_release__ActFrac*`if`(var_membrane__V < -50,5,1)*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))*((1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1)-(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1)^2))
+"--var_calcium_release__ActFrac/var_intracellular_calcium_concentration__Ca_i--\
+"
+-delta_t*(1000*(1-var_calcium_release__ActFrac-var_calcium_release__ProdFrac)*
+`if`(var_membrane__V < -50,5,1)*(var_intracellular_calcium_concentration__Ca_i/
+(var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))*(1/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)^2+(-1/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)^2)*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))-1000*
+var_calcium_release__ActFrac*`if`(var_membrane__V < -50,5,1)*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))*(1/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)^2+(-1/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)^2)*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1)))
+"--var_calcium_release__ActFrac/var_intracellular_calcium_concentration__Ca_rel\
+--"
+0
+"--var_calcium_release__ActFrac/var_intracellular_calcium_concentration__Ca_up-\
+-"
+0
+"--var_calcium_release__ActFrac/var_intracellular_potassium_concentration__K_i-\
+-"
+0
+"--var_calcium_release__ActFrac/var_intracellular_sodium_concentration__Na_i--"
+0
+"--var_calcium_release__ProdFrac/var_L_type_Ca_channel_f2_gate__f2--"
+0
+"--var_calcium_release__ProdFrac/var_L_type_Ca_channel_f2ds_gate__f2ds--"
+0
+"--var_calcium_release__ProdFrac/var_calcium_release__ActFrac--"
+-delta_t*`if`(var_membrane__V < -50,5,1)*(60+500*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))^2)
+"--var_calcium_release__ProdFrac/var_calcium_release__ProdFrac--"
+1+delta_t*`if`(var_membrane__V < -50,5,1)
+"--var_calcium_release__ProdFrac/var_intracellular_calcium_concentration__Ca_Ca\
+lmod--"
+0
+"--var_calcium_release__ProdFrac/var_intracellular_calcium_concentration__Ca_Tr\
+op--"
+0
+"--var_calcium_release__ProdFrac/var_intracellular_calcium_concentration__Ca_ds\
+--"
+-1000*delta_t*var_calcium_release__ActFrac*`if`(var_membrane__V < -50,5,1)*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))*((1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1)-(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1)^2)
+"--var_calcium_release__ProdFrac/var_intracellular_calcium_concentration__Ca_i-\
+-"
+-1000*delta_t*var_calcium_release__ActFrac*`if`(var_membrane__V < -50,5,1)*(
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+(1-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3))*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))*(1/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)-
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)^2+(-1/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)+
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.5e-3)^2)*
+var_intracellular_calcium_concentration__Ca_ds/(
+var_intracellular_calcium_concentration__Ca_ds+.1e-1))
+"--var_calcium_release__ProdFrac/var_intracellular_calcium_concentration__Ca_re\
+l--"
+0
+"--var_calcium_release__ProdFrac/var_intracellular_calcium_concentration__Ca_up\
+--"
+0
+"--var_calcium_release__ProdFrac/var_intracellular_potassium_concentration__K_i\
+--"
+0
+"--var_calcium_release__ProdFrac/var_intracellular_sodium_concentration__Na_i--\
+"
+0
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_L_type_Ca_channel_f2_\
+gate__f2--"
+0
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_L_type_Ca_channel_f2d\
+s_gate__f2ds--"
+0
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_calcium_release__ActF\
+rac--"
+0
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_calcium_release__Prod\
+Frac--"
+0
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_intracellular_calcium\
+_concentration__Ca_Calmod--"
+1-delta_t*(-100000*var_intracellular_calcium_concentration__Ca_i-50)
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_intracellular_calcium\
+_concentration__Ca_Trop--"
+0
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_intracellular_calcium\
+_concentration__Ca_ds--"
+0
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_intracellular_calcium\
+_concentration__Ca_i--"
+-delta_t*(2000.00-100000*var_intracellular_calcium_concentration__Ca_Calmod)
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_intracellular_calcium\
+_concentration__Ca_rel--"
+0
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_intracellular_calcium\
+_concentration__Ca_up--"
+0
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_intracellular_potassi\
+um_concentration__K_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_Calmod/var_intracellular_sodium_\
+concentration__Na_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_Trop/var_L_type_Ca_channel_f2_ga\
+te__f2--"
+0
+"--var_intracellular_calcium_concentration__Ca_Trop/var_L_type_Ca_channel_f2ds_\
+gate__f2ds--"
+0
+"--var_intracellular_calcium_concentration__Ca_Trop/var_calcium_release__ActFra\
+c--"
+0
+"--var_intracellular_calcium_concentration__Ca_Trop/var_calcium_release__ProdFr\
+ac--"
+0
+"--var_intracellular_calcium_concentration__Ca_Trop/var_intracellular_calcium_c\
+oncentration__Ca_Calmod--"
+0
+"--var_intracellular_calcium_concentration__Ca_Trop/var_intracellular_calcium_c\
+oncentration__Ca_Trop--"
+1-delta_t*(-100000*var_intracellular_calcium_concentration__Ca_i-200)
+"--var_intracellular_calcium_concentration__Ca_Trop/var_intracellular_calcium_c\
+oncentration__Ca_ds--"
+0
+"--var_intracellular_calcium_concentration__Ca_Trop/var_intracellular_calcium_c\
+oncentration__Ca_i--"
+-delta_t*(5000.00-100000*var_intracellular_calcium_concentration__Ca_Trop)
+"--var_intracellular_calcium_concentration__Ca_Trop/var_intracellular_calcium_c\
+oncentration__Ca_rel--"
+0
+"--var_intracellular_calcium_concentration__Ca_Trop/var_intracellular_calcium_c\
+oncentration__Ca_up--"
+0
+"--var_intracellular_calcium_concentration__Ca_Trop/var_intracellular_potassium\
+_concentration__K_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_Trop/var_intracellular_sodium_co\
+ncentration__Na_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_ds/var_L_type_Ca_channel_f2_gate\
+__f2--"
+0
+"--var_intracellular_calcium_concentration__Ca_ds/var_L_type_Ca_channel_f2ds_ga\
+te__f2ds--"
+.4730352036e-1*delta_t*var_L_type_Ca_channel_d_gate__d*
+var_L_type_Ca_channel_f_gate__f*(var_membrane__V-50)/(1-exp(-.7486778168e-1*
+var_membrane__V+3.743389084))*(42.24090583*
+var_intracellular_calcium_concentration__Ca_i-2*exp(-.7486778168e-1*
+var_membrane__V+3.743389084))
+"--var_intracellular_calcium_concentration__Ca_ds/var_calcium_release__ActFrac-\
+-"
+0
+"--var_intracellular_calcium_concentration__Ca_ds/var_calcium_release__ProdFrac\
+--"
+0
+"--var_intracellular_calcium_concentration__Ca_ds/var_intracellular_calcium_con\
+centration__Ca_Calmod--"
+0
+"--var_intracellular_calcium_concentration__Ca_ds/var_intracellular_calcium_con\
+centration__Ca_Trop--"
+0
+"--var_intracellular_calcium_concentration__Ca_ds/var_intracellular_calcium_con\
+centration__Ca_ds--"
+1+10*delta_t
+"--var_intracellular_calcium_concentration__Ca_ds/var_intracellular_calcium_con\
+centration__Ca_i--"
+1.998143549*delta_t*var_L_type_Ca_channel_d_gate__d*
+var_L_type_Ca_channel_f_gate__f*var_L_type_Ca_channel_f2ds_gate__f2ds*(
+var_membrane__V-50)/(1-exp(-.7486778168e-1*var_membrane__V+3.743389084))
+"--var_intracellular_calcium_concentration__Ca_ds/var_intracellular_calcium_con\
+centration__Ca_rel--"
+0
+"--var_intracellular_calcium_concentration__Ca_ds/var_intracellular_calcium_con\
+centration__Ca_up--"
+0
+"--var_intracellular_calcium_concentration__Ca_ds/var_intracellular_potassium_c\
+oncentration__K_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_ds/var_intracellular_sodium_conc\
+entration__Na_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_i/var_L_type_Ca_channel_f2_gate_\
+_f2--"
+0
+"--var_intracellular_calcium_concentration__Ca_i/var_L_type_Ca_channel_f2ds_gat\
+e__f2ds--"
+0
+"--var_intracellular_calcium_concentration__Ca_i/var_calcium_release__ActFrac--\
+"
+-.2040816327*delta_t*(500*var_calcium_release__ActFrac/(
+var_calcium_release__ActFrac+.25)^2-500*var_calcium_release__ActFrac^2/(
+var_calcium_release__ActFrac+.25)^3)*
+var_intracellular_calcium_concentration__Ca_rel
+"--var_intracellular_calcium_concentration__Ca_i/var_calcium_release__ProdFrac-\
+-"
+0
+"--var_intracellular_calcium_concentration__Ca_i/var_intracellular_calcium_conc\
+entration__Ca_Calmod--"
+-delta_t*(100000*var_intracellular_calcium_concentration__Ca_i+50)
+"--var_intracellular_calcium_concentration__Ca_i/var_intracellular_calcium_conc\
+entration__Ca_Trop--"
+-delta_t*(100000*var_intracellular_calcium_concentration__Ca_i+200)
+"--var_intracellular_calcium_concentration__Ca_i/var_intracellular_calcium_conc\
+entration__Ca_ds--"
+-delta_t*(-.8668672751*exp(-.1871694541e-1*var_membrane__V)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_ds)-.4578459854e-4*(2*exp(.\
+1871694541e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-\
+2744000*exp(-.1871694541e-1*var_membrane__V)*
+var_intracellular_calcium_concentration__Ca_ds)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_ds)^2+1.0)
+"--var_intracellular_calcium_concentration__Ca_i/var_intracellular_calcium_conc\
+entration__Ca_i--"
+1-delta_t*(-.1054905472e-2/var_intracellular_calcium_concentration__Ca_i-866.00\
+04077*exp(-.1871694541e-1*var_membrane__V)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_i)-.4573881393e-1*(2*exp(.\
+1871694541e-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-\
+2744000*exp(-.1871694541e-1*var_membrane__V)*
+var_intracellular_calcium_concentration__Ca_i)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_i)^2-7000.00+100000*
+var_intracellular_calcium_concentration__Ca_Calmod+100000*
+var_intracellular_calcium_concentration__Ca_Trop-.4/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)+.4*
+var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)^2-.7200000000e-5*
+var_intracellular_calcium_concentration__Ca_up/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)^2)
+"--var_intracellular_calcium_concentration__Ca_i/var_intracellular_calcium_conc\
+entration__Ca_rel--"
+-delta_t*(51.02040818*var_calcium_release__ActFrac^2/(
+var_calcium_release__ActFrac+.25)^2+.1020408164e-1)
+"--var_intracellular_calcium_concentration__Ca_i/var_intracellular_calcium_conc\
+entration__Ca_up--"
+-delta_t*(.9600000000e-4*var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)^2+.7200000000e-5/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)-.1728000000e-8*
+var_intracellular_calcium_concentration__Ca_up/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)^2)
+"--var_intracellular_calcium_concentration__Ca_i/var_intracellular_potassium_co\
+ncentration__K_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_i/var_intracellular_sodium_conce\
+ntration__Na_i--"
+-delta_t*(.1893586897e-2*exp(.1871694541e-1*var_membrane__V)*
+var_intracellular_sodium_concentration__Na_i^2/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_i)+.1895482380e-5*exp(.1871694541e-\
+1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^2/(1+144.927536\
+2*var_intracellular_calcium_concentration__Ca_ds))
+"--var_intracellular_calcium_concentration__Ca_rel/var_L_type_Ca_channel_f2_gat\
+e__f2--"
+0
+"--var_intracellular_calcium_concentration__Ca_rel/var_L_type_Ca_channel_f2ds_g\
+ate__f2ds--"
+0
+"--var_intracellular_calcium_concentration__Ca_rel/var_calcium_release__ActFrac\
+--"
+delta_t*(500*var_calcium_release__ActFrac/(var_calcium_release__ActFrac+.25)^2-\
+500*var_calcium_release__ActFrac^2/(var_calcium_release__ActFrac+.25)^3)*
+var_intracellular_calcium_concentration__Ca_rel
+"--var_intracellular_calcium_concentration__Ca_rel/var_calcium_release__ProdFra\
+c--"
+0
+"--var_intracellular_calcium_concentration__Ca_rel/var_intracellular_calcium_co\
+ncentration__Ca_Calmod--"
+0
+"--var_intracellular_calcium_concentration__Ca_rel/var_intracellular_calcium_co\
+ncentration__Ca_Trop--"
+0
+"--var_intracellular_calcium_concentration__Ca_rel/var_intracellular_calcium_co\
+ncentration__Ca_ds--"
+0
+"--var_intracellular_calcium_concentration__Ca_rel/var_intracellular_calcium_co\
+ncentration__Ca_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_rel/var_intracellular_calcium_co\
+ncentration__Ca_rel--"
+1-delta_t*(-5.050000000-250*var_calcium_release__ActFrac^2/(
+var_calcium_release__ActFrac+.25)^2)
+"--var_intracellular_calcium_concentration__Ca_rel/var_intracellular_calcium_co\
+ncentration__Ca_up--"
+-5.000000000*delta_t
+"--var_intracellular_calcium_concentration__Ca_rel/var_intracellular_potassium_\
+concentration__K_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_rel/var_intracellular_sodium_con\
+centration__Na_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_up/var_L_type_Ca_channel_f2_gate\
+__f2--"
+0
+"--var_intracellular_calcium_concentration__Ca_up/var_L_type_Ca_channel_f2ds_ga\
+te__f2ds--"
+0
+"--var_intracellular_calcium_concentration__Ca_up/var_calcium_release__ActFrac-\
+-"
+0
+"--var_intracellular_calcium_concentration__Ca_up/var_calcium_release__ProdFrac\
+--"
+0
+"--var_intracellular_calcium_concentration__Ca_up/var_intracellular_calcium_con\
+centration__Ca_Calmod--"
+0
+"--var_intracellular_calcium_concentration__Ca_up/var_intracellular_calcium_con\
+centration__Ca_Trop--"
+0
+"--var_intracellular_calcium_concentration__Ca_up/var_intracellular_calcium_con\
+centration__Ca_ds--"
+0
+"--var_intracellular_calcium_concentration__Ca_up/var_intracellular_calcium_con\
+centration__Ca_i--"
+-delta_t*(19.60000000/(var_intracellular_calcium_concentration__Ca_i+.\
+2400000000e-3*var_intracellular_calcium_concentration__Ca_up+.42e-3)-19.6000000\
+0*var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)^2+.3528000000e-3*
+var_intracellular_calcium_concentration__Ca_up/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)^2)
+"--var_intracellular_calcium_concentration__Ca_up/var_intracellular_calcium_con\
+centration__Ca_rel--"
+-50*delta_t
+"--var_intracellular_calcium_concentration__Ca_up/var_intracellular_calcium_con\
+centration__Ca_up--"
+1-delta_t*(-.4704000000e-2*var_intracellular_calcium_concentration__Ca_i/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)^2-.3528000000e-3/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)+.8467200000e-7*
+var_intracellular_calcium_concentration__Ca_up/(
+var_intracellular_calcium_concentration__Ca_i+.2400000000e-3*
+var_intracellular_calcium_concentration__Ca_up+.42e-3)^2-50)
+"--var_intracellular_calcium_concentration__Ca_up/var_intracellular_potassium_c\
+oncentration__K_i--"
+0
+"--var_intracellular_calcium_concentration__Ca_up/var_intracellular_sodium_conc\
+entration__Na_i--"
+0
+"--var_intracellular_potassium_concentration__K_i/var_L_type_Ca_channel_f2_gate\
+__f2--"
+0
+"--var_intracellular_potassium_concentration__K_i/var_L_type_Ca_channel_f2ds_ga\
+te__f2ds--"
+.4730352032e-5*delta_t*var_L_type_Ca_channel_d_gate__d*
+var_L_type_Ca_channel_f_gate__f*(var_membrane__V-50)/(1-exp(-.3743389084e-1*
+var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_potassium_concentration__K_i-4*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))
+"--var_intracellular_potassium_concentration__K_i/var_calcium_release__ActFrac-\
+-"
+0
+"--var_intracellular_potassium_concentration__K_i/var_calcium_release__ProdFrac\
+--"
+0
+"--var_intracellular_potassium_concentration__K_i/var_intracellular_calcium_con\
+centration__Ca_Calmod--"
+0
+"--var_intracellular_potassium_concentration__K_i/var_intracellular_calcium_con\
+centration__Ca_Trop--"
+0
+"--var_intracellular_potassium_concentration__K_i/var_intracellular_calcium_con\
+centration__Ca_ds--"
+0
+"--var_intracellular_potassium_concentration__K_i/var_intracellular_calcium_con\
+centration__Ca_i--"
+0
+"--var_intracellular_potassium_concentration__K_i/var_intracellular_calcium_con\
+centration__Ca_rel--"
+0
+"--var_intracellular_potassium_concentration__K_i/var_intracellular_calcium_con\
+centration__Ca_up--"
+0
+"--var_intracellular_potassium_concentration__K_i/var_intracellular_potassium_c\
+oncentration__K_i--"
+1-delta_t*(-2.411212507/var_intracellular_potassium_concentration__K_i/(1+exp(.\
+4679236355e-1*var_membrane__V-1.250000000*ln(4/
+var_intracellular_potassium_concentration__K_i)-.4679236355))+.1128263322*(
+var_membrane__V-26.71376066*ln(4/var_intracellular_potassium_concentration__K_i
+))/(1+exp(.4679236355e-1*var_membrane__V-1.250000000*ln(4/
+var_intracellular_potassium_concentration__K_i)-.4679236355))^2/
+var_intracellular_potassium_concentration__K_i*exp(.4679236355e-1*
+var_membrane__V-1.250000000*ln(4/var_intracellular_potassium_concentration__K_i
+)-.4679236355)-16.87848754*(.21e-2*
+var_rapid_delayed_rectifier_potassium_current_xr1_gate__xr1+.13e-2*
+var_rapid_delayed_rectifier_potassium_current_xr2_gate__xr2)/(1+exp(.4464285714\
+e-1*var_membrane__V+.4017857143))/
+var_intracellular_potassium_concentration__K_i-.4388406762e-1*
+var_slow_delayed_rectifier_potassium_current_xs_gate__xs^2/(
+var_intracellular_potassium_concentration__K_i+.3e-1*
+var_intracellular_sodium_concentration__Na_i)-.3074397891e-4*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542))-.8439243772e-1*
+var_transient_outward_current_s_gate__s*var_transient_outward_current_r_gate__r
+/var_intracellular_potassium_concentration__K_i)
+"--var_intracellular_potassium_concentration__K_i/var_intracellular_sodium_conc\
+entration__Na_i--"
+-delta_t*(-.1316522028e-2*
+var_slow_delayed_rectifier_potassium_current_xs_gate__xs^2/(
+var_intracellular_potassium_concentration__K_i+.3e-1*
+var_intracellular_sodium_concentration__Na_i)+.7076467552/(40+
+var_intracellular_sodium_concentration__Na_i)-.7076467552*
+var_intracellular_sodium_concentration__Na_i/(40+
+var_intracellular_sodium_concentration__Na_i)^2)
+"--var_intracellular_sodium_concentration__Na_i/var_L_type_Ca_channel_f2_gate__\
+f2--"
+0
+"--var_intracellular_sodium_concentration__Na_i/var_L_type_Ca_channel_f2ds_gate\
+__f2ds--"
+.2365176017e-4*delta_t*var_L_type_Ca_channel_d_gate__d*
+var_L_type_Ca_channel_f_gate__f*(var_membrane__V-50)/(1-exp(-.3743389084e-1*
+var_membrane__V+1.871694542))*(6.499300411*
+var_intracellular_sodium_concentration__Na_i-140*exp(-.3743389084e-1*
+var_membrane__V+1.871694542))
+"--var_intracellular_sodium_concentration__Na_i/var_calcium_release__ActFrac--"
+0
+"--var_intracellular_sodium_concentration__Na_i/var_calcium_release__ProdFrac--\
+"
+0
+"--var_intracellular_sodium_concentration__Na_i/var_intracellular_calcium_conce\
+ntration__Ca_Calmod--"
+0
+"--var_intracellular_sodium_concentration__Na_i/var_intracellular_calcium_conce\
+ntration__Ca_Trop--"
+0
+"--var_intracellular_sodium_concentration__Na_i/var_intracellular_calcium_conce\
+ntration__Ca_ds--"
+0
+"--var_intracellular_sodium_concentration__Na_i/var_intracellular_calcium_conce\
+ntration__Ca_i--"
+-delta_t*(2598.001224*exp(-.1871694541e-1*var_membrane__V)/(1+144.9275362*
+var_intracellular_calcium_concentration__Ca_i)+.1372164418*(2*exp(.1871694541e-\
+1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^3-2744000*exp(-
+.1871694541e-1*var_membrane__V)*var_intracellular_calcium_concentration__Ca_i)/
+(1+144.9275362*var_intracellular_calcium_concentration__Ca_i)^2)
+"--var_intracellular_sodium_concentration__Na_i/var_intracellular_calcium_conce\
+ntration__Ca_rel--"
+0
+"--var_intracellular_sodium_concentration__Na_i/var_intracellular_calcium_conce\
+ntration__Ca_up--"
+0
+"--var_intracellular_sodium_concentration__Na_i/var_intracellular_potassium_con\
+centration__K_i--"
+5.063546263*delta_t*var_fast_sodium_current_m_gate__m^3*
+var_fast_sodium_current_h_gate__h/(var_intracellular_sodium_concentration__Na_i
++.12*var_intracellular_potassium_concentration__K_i)
+"--var_intracellular_sodium_concentration__Na_i/var_intracellular_sodium_concen\
+tration__Na_i--"
+1-delta_t*(-42.19621886*var_fast_sodium_current_m_gate__m^3*
+var_fast_sodium_current_h_gate__h/(var_intracellular_sodium_concentration__Na_i
++.12*var_intracellular_potassium_concentration__K_i)-.6751395018e-1/(1+exp(-1/8
+*var_membrane__V-13/2))/var_intracellular_sodium_concentration__Na_i-.\
+1012709253e-1/var_intracellular_sodium_concentration__Na_i-1.061470133/(40+
+var_intracellular_sodium_concentration__Na_i)+1.061470133*
+var_intracellular_sodium_concentration__Na_i/(40+
+var_intracellular_sodium_concentration__Na_i)^2-.5680760693e-2*exp(.1871694541e\
+-1*var_membrane__V)*var_intracellular_sodium_concentration__Na_i^2/(1+144.92753\
+62*var_intracellular_calcium_concentration__Ca_i)-.1537198946e-3*
+var_L_type_Ca_channel_d_gate__d*var_L_type_Ca_channel_f_gate__f*
+var_L_type_Ca_channel_f2ds_gate__f2ds*(var_membrane__V-50)/(1-exp(-.3743389084e\
+-1*var_membrane__V+1.871694542)))
+memory used=1.8MB, alloc=0.9MB, time=0.43

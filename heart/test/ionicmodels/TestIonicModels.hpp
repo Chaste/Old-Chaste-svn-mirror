@@ -69,7 +69,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NobleVargheseKohlNoble1998a.hpp"
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
 #include "NobleVargheseKohlNoble1998aOpt.hpp"
-#include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
+#include "NobleVargheseKohlNoble1998aBackwardEuler.hpp"
 #include "Mahajan2008OdeSystem.hpp"
 #include "BackwardEulerMahajanModel2008.hpp"
 #include "TenTusscher2006Epi.hpp"
@@ -677,7 +677,7 @@ public:
         clock_t ck_start, ck_end;
 
         // Set stimulus
-        double magnitude_stimulus = -3;  // uA/cm2
+        double magnitude_stimulus = -3/0.095;  // uA/cm2
         double duration_stimulus = 3;  // ms
         double start_stimulus = 10.0;   // ms
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
@@ -692,7 +692,8 @@ public:
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
-        BackwardEulerNobleVargheseKohlNoble1998 n98_backward_system(p_multi_stim);
+        boost::shared_ptr<AbstractIvpOdeSolver> p_no_solver;
+        CellNobleVargheseKohlNoble1998aFromCellMLBackwardEuler n98_backward_system(p_no_solver, p_multi_stim);
 
         // Solve and write to file
         ck_start = clock();
@@ -1124,6 +1125,7 @@ public:
             delete p_maleckar_cell;
         }
     }
+    
     void TestBackwardCellsArchiving(void) throw(Exception)
     {
         //Archive
@@ -1131,24 +1133,30 @@ public:
         handler.SetArchiveDirectory();
         std::string archive_filename =  ArchiveLocationInfo::GetProcessUniqueFilePath("backward_cells.arch");
 
+        double time_step = 0.01;
+        
         // Save
         {
             // Set stimulus
             double magnitude_stimulus = -3;  // uA/cm2
+            double magnitude_stimulus_noble = magnitude_stimulus/0.095;  // uA/cm2
             double duration_stimulus = 3;  // ms
             double start_stimulus = 10.0;   // ms
+            
             boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
                                                                             duration_stimulus,
                                                                             start_stimulus));
-
-            double time_step = 0.01;
+                                                                            
+            boost::shared_ptr<SimpleStimulus> p_noble_stimulus(new SimpleStimulus(magnitude_stimulus_noble,
+                                                                                  duration_stimulus,
+                                                                                  start_stimulus));                                          
 
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
             boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
             AbstractCardiacCell* const p_backward_cell1 = new CellLuoRudy1991FromCellMLBackwardEuler(p_solver, p_stimulus);
             AbstractCardiacCell* const p_backward_cell2 = new BackwardEulerFoxModel2002Modified(p_solver, p_stimulus);
-            AbstractCardiacCell* const p_backward_cell3 = new BackwardEulerNobleVargheseKohlNoble1998(p_solver, p_stimulus);
+            AbstractCardiacCell* const p_backward_cell3 = new CellNobleVargheseKohlNoble1998aFromCellMLBackwardEuler(p_solver, p_noble_stimulus);
             AbstractCardiacCell* const p_backward_cell4 = new BackwardEulerMahajanModel2008(p_solver, p_stimulus);
             AbstractCardiacCell* const p_backward_cell5 = new CellTenTusscher2006EpiFromCellMLBackwardEuler(p_solver, p_stimulus);
 
@@ -1173,7 +1181,6 @@ public:
 //            RunOdeSolverWithIonicModel(p_backward_cell3,
 //                                       50.0,
 //                                       "Backward3AfterArchiveValidData");
-
             delete p_backward_cell1;
             delete p_backward_cell2;
             delete p_backward_cell3;
@@ -1209,11 +1216,11 @@ public:
             RunOdeSolverWithIonicModel(p_backward_cell2,
                                        50.0,
                                        "Backward2AfterArchive");
-
+            
             RunOdeSolverWithIonicModel(p_backward_cell3,
                                        50.0,
                                        "Backward3AfterArchive");
-
+            
             RunOdeSolverWithIonicModel(p_backward_cell4,
                                        50.0,
                                        "Backward4AfterArchive");

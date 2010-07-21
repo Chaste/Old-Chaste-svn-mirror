@@ -7,8 +7,6 @@
 
 <command_line_args>
   <arg>-m</arg>
-  <arg>--cvode</arg>
-  <arg>--normal</arg> 
 </command_line_args>
 
   <for_model id="shannon_wang_puglisi_weber_bers_2004_model_updated">

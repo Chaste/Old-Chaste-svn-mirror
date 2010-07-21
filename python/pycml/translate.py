@@ -1876,12 +1876,15 @@ class CellMLToChasteTranslator(CellMLTranslator):
         """Return code for creating a new vector with the given size."""
         return ''.join(map(str, [self.TYPE_VECTOR, vector, '(', size, ')', self.STMT_END]))
 
-    def output_nonlinear_state_assignments(self):
+    def output_nonlinear_state_assignments(self, nodeset=None):
         """Output assignments for nonlinear state variables."""
+        if nodeset:
+            var_names = set([self.code_name(node) for node in nodeset if isinstance(node, cellml_variable)])
         for i, varname in enumerate(self.nonlinear_system_vars):
-            self.writeln('double ', varname, self.EQ_ASSIGN,
-                         self.vector_index('rCurrentGuess', i), self.STMT_END)
-            #621 TODO: maybe convert if state var dimensions include time
+            if not nodeset or varname in var_names:
+                self.writeln('double ', varname, self.EQ_ASSIGN,
+                             self.vector_index('rCurrentGuess', i), self.STMT_END)
+                #621 TODO: maybe convert if state var dimensions include time
         self.writeln()
         return
     
@@ -2163,7 +2166,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     self.nonlinear_system_vars)
         nodeset = self.calculate_extended_dependencies(nodes)
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
-        self.output_nonlinear_state_assignments()
+        self.output_nonlinear_state_assignments(nodeset=nodeset)
         self.output_equations(nodeset)
         self.writeln()
         # Fill in residual
@@ -2198,7 +2201,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             used_vars.update(self._vars_in(entry.math))
         nodeset = self.calculate_extended_dependencies(used_vars)
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
-        self.output_nonlinear_state_assignments()
+        self.output_nonlinear_state_assignments(nodeset=nodeset)
         if self.conversion_factor:
             self.writeln('const double dt = ', self.conversion_factor,
                          ' * mDt;\n');
