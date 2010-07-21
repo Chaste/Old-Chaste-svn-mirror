@@ -1,3 +1,4 @@
 Test1dFibreWithHeterogeneity.hpp
 bidomain/TestBidomainCompareWithMemfem.hpp
 ionicmodels/TestIonicModelsFailing.hpp
+mechanics/TestCardiacElectroMechanicsProblemLong.hpp

@@ -1,6 +1,5 @@
 bidomain/TestBidomain3D.hpp
 bidomain/TestBidomainWithBathAssemblerLong.hpp
-mechanics/TestCardiacElectroMechanicsProblemLong.hpp
 convergence/TestConvergenceEfficiency.hpp
 convergence/TestConvergenceNeumannStimulus.hpp
 convergence/TestConvergenceNightly.hpp
