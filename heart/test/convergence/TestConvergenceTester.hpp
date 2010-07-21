@@ -98,7 +98,7 @@ public:
     {
         PdeConvergenceTester<CellLuoRudy1991FromCellMLBackwardEuler, MonodomainProblem<1>, 1, 1> tester;
         tester.MeshNum=1;
-        tester.AbsoluteStimulus = -5e5; // The default of -1e7 causes V to go out of range for lookup tables
+        tester.AbsoluteStimulus = -5e6; // The default of -1e7 causes V to go out of range for lookup tables
         tester.Stimulus=QUARTER;
         tester.RelativeConvergenceCriterion=5e-4;
         tester.Converge(__FUNCTION__);
