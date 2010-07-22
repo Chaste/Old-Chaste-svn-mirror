@@ -225,6 +225,8 @@ public:
                               "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
 
         TS_ASSERT_THROWS_THIS(lr91_cvode_system.UseCellMLDefaultStimulus(),"This class has no default stimulus from CellML metadata.");
+#else
+        std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE
     }
 
@@ -307,6 +309,8 @@ public:
         // Tidy up
         state_vars->ops->nvdestroy(state_vars);
         state_vars_after_solve->ops->nvdestroy(state_vars_after_solve);
+#else
+        std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE
     }
 };
