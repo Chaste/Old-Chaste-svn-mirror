@@ -235,7 +235,7 @@ public:
 
     void TestOdeConvergencein1DWithBackwardN98() throw(Exception)
     {
-        OdeConvergenceTester<CellNobleVargheseKohlNoble1998aFromCellMLOpt,  MonodomainProblem<1>, 1, 1> tester;
+        OdeConvergenceTester<CellNobleVargheseKohlNoble1998aFromCellMLBackwardEuler,  MonodomainProblem<1>, 1, 1> tester;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_DELTA(tester.OdeTimeStep, 0.005, 1e-10);
@@ -243,7 +243,7 @@ public:
 
     void TestOdePdeConvergencein1DWithBackwardN98() throw(Exception)
     {
-        OdePdeConvergenceTester<CellNobleVargheseKohlNoble1998aFromCellMLOpt,  MonodomainProblem<1>, 1, 1> tester;
+        OdePdeConvergenceTester<CellNobleVargheseKohlNoble1998aFromCellMLBackwardEuler,  MonodomainProblem<1>, 1, 1> tester;
         tester.NeumannStimulus = 5000;
         tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);
