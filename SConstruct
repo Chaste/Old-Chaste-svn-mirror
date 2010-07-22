@@ -140,7 +140,7 @@ if build_exes:
 
 # Experimental support for installing Chaste as a normal collection of
 # libraries and headers.
-install_prefix = ARGUMENTS.get('install_prefix', '')
+install_prefix = ARGUMENTS.get('install_prefix', '/usr/local')
 Export('install_prefix')
 if 'install' in BUILD_TARGETS:
     assert use_chaste_libs, "Cannot install unless building Chaste libraries"

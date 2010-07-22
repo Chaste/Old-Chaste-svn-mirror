@@ -187,19 +187,34 @@ for model in filter(lambda a: a.endswith('.cellml'), args):
     else:
         print >>sys.stderr, "Skipping", model, "because it does not exist"
 
-def do_cmd(cmd):
-    """Print and execute a command."""
+def do_cmd(cmd, outputs):
+    """Print and execute a command.
+    
+    If the command fails, remove any generated outputs and exit.
+    """
     print ' '.join(cmd)
     rc = subprocess.call(cmd)
     if rc:
+        for output in outputs:
+            try:
+                os.remove(output)
+            except OSError:
+                pass
         sys.exit(rc)
 
 def add_out_opts(base_options, output_dir, classname, file_base, file_extra=''):
+    """Add options specifying output path and class name.
+    
+    Returns extended options list and list of output file paths.
+    """
     if options.dynamically_loadable:
         filename = file_base + '.cpp'
     else:
         filename = file_base + file_extra + '.cpp'
-    return base_options + ['-c', classname, '-o', os.path.join(output_dir, filename)]
+    cpp_path = os.path.join(output_dir, filename)
+    full_options = base_options + ['-c', classname, '-o', cpp_path]
+    outputs = [cpp_path, cpp_path[:-3] + 'hpp']
+    return (full_options, outputs)
 
 def convert(model, output_dir):
     """The main workhorse function."""
@@ -213,43 +228,45 @@ def convert(model, output_dir):
     if number_of_options > 1:
         # Run validation separately
         cmd = ['./validator.py'] + validation_options + [model]
-        do_cmd(cmd)
+        output_base = os.path.join(output_dir, model_base)
+        outputs = [output_base + '.hpp', output_base + '.cpp']
+        do_cmd(cmd, outputs)
 
     command_base = ['./translate.py', model] + pycml_options
 
     if options.normal:
         # Basic class
-        cmd = add_out_opts(command_base, output_dir, class_name, model_base)
-        do_cmd(cmd)
+        cmd, outputs = add_out_opts(command_base, output_dir, class_name, model_base)
+        do_cmd(cmd, outputs)
 
     if options.opt and (options.normal or number_of_options == 1):
         # Normal with optimisation
-        cmd = add_out_opts(command_base + ['-p', '-l'], output_dir,
-                           class_name + 'Opt', model_base, 'Opt')
-        do_cmd(cmd)
+        cmd, outputs = add_out_opts(command_base + ['-p', '-l'], output_dir,
+                                    class_name + 'Opt', model_base, 'Opt')
+        do_cmd(cmd, outputs)
     
     if options.cvode:
         # For use with CVODE
-        cmd = add_out_opts(command_base + ['-t', 'CVODE'], output_dir,
-                           class_name + 'Cvode', model_base, 'Cvode')
-        do_cmd(cmd)
+        cmd, outputs = add_out_opts(command_base + ['-t', 'CVODE'], output_dir,
+                                    class_name + 'Cvode', model_base, 'Cvode')
+        do_cmd(cmd, outputs)
 
         if options.opt:
             # With optimisation
-            cmd = add_out_opts(command_base + ['-p', '-l', '-t', 'CVODE'],
-                               output_dir,
-                               class_name + 'CvodeOpt',
-                               model_base, 'CvodeOpt')
-            do_cmd(cmd)
+            cmd, outputs = add_out_opts(command_base + ['-p', '-l', '-t', 'CVODE'],
+                                        output_dir,
+                                        class_name + 'CvodeOpt',
+                                        model_base, 'CvodeOpt')
+            do_cmd(cmd, outputs)
     
     if options.backward_euler:
         maple_output = os.path.splitext(model)[0] + '.out'
         be_opts = ['-j', maple_output, '-p', '-l']
-        cmd = add_out_opts(command_base + ['-j', maple_output, '-p', '-l'],
-                           output_dir,
-                           class_name + 'BackwardEuler',
-                           model_base, 'BackwardEuler')
-        do_cmd(cmd)
+        cmd, outputs = add_out_opts(command_base + ['-j', maple_output, '-p', '-l'],
+                                    output_dir,
+                                    class_name + 'BackwardEuler',
+                                    model_base, 'BackwardEuler')
+        do_cmd(cmd, outputs)
 
 
 # TODO: This is bad for scons -j
