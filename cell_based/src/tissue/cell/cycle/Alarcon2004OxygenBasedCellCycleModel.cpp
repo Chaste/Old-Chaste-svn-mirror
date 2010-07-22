@@ -48,10 +48,10 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel()
 
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                                                            const unsigned& rDimension,
-                                                                           boost::shared_ptr<AbstractCellMutationState> pMutationState)
+                                                                           bool isLabelled)
 {
     mDimension = rDimension;
-    mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], pMutationState);
+    mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], isLabelled);
 
     // Set the model to be the same as the parent cell
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
@@ -79,27 +79,29 @@ AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateCellCycleMod
 
 void Alarcon2004OxygenBasedCellCycleModel::Initialise()
 {
-    assert(mpOdeSystem==NULL);
-    assert(mpCell!=NULL);
+    assert(mpOdeSystem == NULL);
+    assert(mpCell != NULL);
+
+    bool is_labelled = mpCell->rGetCellPropertyCollection().HasProperty<CellLabel>();
 
     switch (mDimension)
     {
         case 1:
         {
             const unsigned DIM = 1;
-            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
+            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), is_labelled);
             break;
         }
         case 2:
         {
             const unsigned DIM = 2;
-            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
+            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), is_labelled);
             break;
         }
         case 3:
         {
             const unsigned DIM = 3;
-            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), mpCell->GetMutationState());
+            mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), is_labelled);
             break;
         }
         default:
@@ -139,8 +141,9 @@ bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
             NEVER_REACHED;
     }
 
-    // Use the cell's current mutation status as another input
-    static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
+    // Use whether the cell is currently labelled as another input
+    bool is_labelled = mpCell->rGetCellPropertyCollection().HasProperty<CellLabel>();
+    static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetIsLabelled(is_labelled);
 
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
     return msSolver.StoppingEventOccurred();

@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/split_member.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 
 #include <cfloat>
 
@@ -40,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "CellwiseData.hpp"
-#include "AbstractCellMutationState.hpp"
+#include "CellLabel.hpp"
 #include "Exception.hpp"
 
 /**
@@ -59,6 +58,10 @@ private:
      */
     static RungeKutta4IvpOdeSolver msSolver;
 
+    /** Whether the cell associated with this cell cycle model is labelled (this affects the ODE system). */
+    bool mIsLabelled;
+
+    ///\todo Archiving could be tidied up for this class
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -72,8 +75,8 @@ private:
     {
         assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
-        boost::shared_ptr<AbstractCellMutationState> p_mutation_state = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->GetMutationState();
-        archive & p_mutation_state;
+        bool is_labelled = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->IsLabelled();
+        archive & is_labelled;
     }
     /**
      * Load the cell cycle model and ODE system from archive.
@@ -88,16 +91,16 @@ private:
         // here.  This is a horrible hack, but avoids having to regenerate test archives...
         assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
-        boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-        archive & p_mutation_state;
-        static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(p_mutation_state);
+        bool is_labelled;
+        archive & is_labelled;
+        static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetIsLabelled(is_labelled);
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 public:
 
     /**
-     * Default constructor, variables are set by abstract classes.
+     * Default constructor.
      */
     Alarcon2004OxygenBasedCellCycleModel();
 
@@ -114,12 +117,12 @@ public:
      * A private constructor for archiving.
      *
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
-     * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
+     * @param isLabelled whether the cell associated with this cell cycle model is labelled (this affects the ODE system)
      */
     Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
                                          const unsigned& rDimension,
-                                         boost::shared_ptr<AbstractCellMutationState> pMutationState);
+                                         bool isLabelled);
 
     /**
      * Resets the oxygen-based model to the start of the cell cycle
@@ -199,10 +202,10 @@ inline void load_construct_data(
     {
         state_vars.push_back(0.0);
     }
-    boost::shared_ptr<AbstractCellMutationState> p_state;
     unsigned dimension = 1;
+    bool is_labelled = false;
 
-    ::new(t)Alarcon2004OxygenBasedCellCycleModel(state_vars, dimension, p_state);
+    ::new(t)Alarcon2004OxygenBasedCellCycleModel(state_vars, dimension, is_labelled);
 }
 }
 } // namespace ...

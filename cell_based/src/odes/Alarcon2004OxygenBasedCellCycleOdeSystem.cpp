@@ -28,9 +28,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)
+Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, bool isLabelled)
     : AbstractOdeSystem(6),
-      mpMutationState(pMutationState)
+      mIsLabelled(isLabelled)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>);
 
@@ -46,34 +46,25 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
      */
     Init(); // set up parameters
 
-    // parameter values taken from the Alarcon et al. (2004) paper
-    if (!pMutationState)
+    // Parameter values are taken from the Alarcon et al. (2004) paper
+    if (mIsLabelled) // labelled "cancer" cells
     {
-        // do nothing
+        ma1 = 0.04;
+        mc1 = 0.007;
+        mxThreshold = 0.04; ///\todo should this be 0.004??
+        myThreshold = 0.05;
     }
-    else if (pMutationState->IsType<WildTypeCellMutationState>())    // normal cells
+    else // normal cells
     {
         ma1 = 0.05;
         mc1 = 0.1;
         mxThreshold = 0.004;
         myThreshold = 0.2;
     }
-    else // cancer cells
-    {
-        ma1 = 0.04;
-        mc1 = 0.007;
-        mxThreshold = 0.04; // should this be 0.004??
-        myThreshold = 0.05;
-    }
 
     // Cell-specific initial conditions
     SetDefaultInitialCondition(3, 0.5*mMstar);
     SetDefaultInitialCondition(5, oxygenConcentration);
-}
-
-void Alarcon2004OxygenBasedCellCycleOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
-{
-    mpMutationState = pMutationState;
 }
 
 Alarcon2004OxygenBasedCellCycleOdeSystem::~Alarcon2004OxygenBasedCellCycleOdeSystem()
@@ -83,7 +74,7 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::~Alarcon2004OxygenBasedCellCycleOdeSys
 
 void Alarcon2004OxygenBasedCellCycleOdeSystem::Init()
 {
-    // Parameter values taken from the Alarcon et al. (2004) paper
+    // Parameter values are taken from the Alarcon et al. (2004) paper
     ma2 = 1.0;
     ma3 = 0.25;
     ma4 = 0.04;
@@ -126,17 +117,15 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
     dx = ((1 + mb3*u)*(1-x))/(mJ3 + 1 - x) - (mb4*mass*x*y)/(mJ4 + x);
     dy = ma4 -(ma1 + ma2*x + ma3*z)*y;
 
-    assert( mpMutationState->IsType<WildTypeCellMutationState>()
-            || mpMutationState->IsType<LabelledCellMutationState>() );
 
-    // Parameter values taken from the Alarcon et al. (2004) paper
-    if (mpMutationState->IsType<WildTypeCellMutationState>())    // normal cells
-    {
-        dz = mc1*(1 - mass/mMstar) - mc2*oxygen_concentration*z/(mB + oxygen_concentration);
-    }
-    else // cancer cells
+    // Parameter values are taken from the Alarcon et al. (2004) paper
+    if (mIsLabelled) // labelled "cancer" cells
     {
         dz = mc1 - mc2*oxygen_concentration*z/(mB + oxygen_concentration);
+    }
+    else // normal cells
+    {
+        dz = mc1*(1 - mass/mMstar) - mc2*oxygen_concentration*z/(mB + oxygen_concentration);
     }
 
     dmass = mEta*mass*(1 - mass/mMstar);
@@ -149,11 +138,6 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
     rDY[3] = 60.0*dmass;
     rDY[4] = 60.0*du;
     rDY[5] = 0.0; // do not change the oxygen concentration
-}
-
-boost::shared_ptr<AbstractCellMutationState> Alarcon2004OxygenBasedCellCycleOdeSystem::GetMutationState()
-{
-    return mpMutationState;
 }
 
 bool Alarcon2004OxygenBasedCellCycleOdeSystem::CalculateStoppingEvent(double time, const std::vector<double>& rY)
@@ -189,4 +173,14 @@ void CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>::Ini
     this->mInitialConditions.push_back(NAN); // will be filled in later
 
     this->mInitialised = true;
+}
+
+void Alarcon2004OxygenBasedCellCycleOdeSystem::SetIsLabelled(bool isLabelled)
+{
+    mIsLabelled = isLabelled;
+}
+
+bool Alarcon2004OxygenBasedCellCycleOdeSystem::IsLabelled()
+{
+    return mIsLabelled;
 }

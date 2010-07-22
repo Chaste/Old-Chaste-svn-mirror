@@ -39,8 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "RungeKuttaFehlbergIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "WildTypeCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 
 /**
  * This class contains tests for Alarcon2004OxygenBasedCellCycleOdeSystem,
@@ -61,10 +59,8 @@ public:
         double time = 0.0;
         double oxygen_concentration = 1.0;
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        Alarcon2004OxygenBasedCellCycleOdeSystem normal_system(oxygen_concentration, p_healthy);
-        Alarcon2004OxygenBasedCellCycleOdeSystem cancer_system(oxygen_concentration, p_labelled);
+        Alarcon2004OxygenBasedCellCycleOdeSystem normal_system(oxygen_concentration, false);
+        Alarcon2004OxygenBasedCellCycleOdeSystem cancer_system(oxygen_concentration, true);
 
         std::vector<double> initial_conditions = normal_system.GetInitialConditions();
 
@@ -102,8 +98,8 @@ public:
          */
         oxygen_concentration = 0.1;
 
-        Alarcon2004OxygenBasedCellCycleOdeSystem normal_system2(oxygen_concentration, p_healthy);
-        Alarcon2004OxygenBasedCellCycleOdeSystem cancer_system2(oxygen_concentration, p_labelled);
+        Alarcon2004OxygenBasedCellCycleOdeSystem normal_system2(oxygen_concentration, false);
+        Alarcon2004OxygenBasedCellCycleOdeSystem cancer_system2(oxygen_concentration, true);
 
         std::vector<double> normal_derivs2(initial_conditions.size());
         normal_system2.SetDefaultInitialCondition(2, 0.1);
@@ -141,8 +137,7 @@ public:
     {
         // Set up
         double oxygen_concentration = 1.0;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        Alarcon2004OxygenBasedCellCycleOdeSystem alarcon_system(oxygen_concentration, p_state);
+        Alarcon2004OxygenBasedCellCycleOdeSystem alarcon_system(oxygen_concentration, false);
 
         // Create ODE solvers
         RungeKutta4IvpOdeSolver rk4_solver;

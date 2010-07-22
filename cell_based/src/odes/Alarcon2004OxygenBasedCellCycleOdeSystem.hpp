@@ -93,18 +93,18 @@ private:
     /** Dimensionless parameter y_THR. */
     double myThreshold;
 
-    /** The mutation state of the cell associated with this cell cycle model. */
-    boost::shared_ptr<AbstractCellMutationState> mpMutationState;
+    /** Whether the cell associated with this cell cycle ODE system is labelled (this affects the ODE system). */
+    bool mIsLabelled;
 
 public:
 
     /**
      * Constructor.
      *
-     * @param oxygenConcentration is a non-dimensional oxygen concentration value between 0 and 1.
-     * @param pMutationState affects the ODE system
+     * @param oxygenConcentration is a non-dimensional oxygen concentration value between 0 and 1
+     * @param isLabelled whether the cell associated with this cell cycle ODE system is labelled (this affects the ODE system)
      */
-    Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState);
+    Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, bool isLabelled);
 
     /**
      * Destructor.
@@ -115,23 +115,6 @@ public:
      * Initialise parameter values.
      */
     void Init();
-
-    /**
-     * Set the mutation state of the cell.
-     *
-     * This should be called by the relevant cell cycle model before any solving
-     * of the ODE system (as it is used to evaluate the Y derivatives).
-     *
-     * @param pMutationState the mutation state
-     */
-    void SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState);
-
-    /**
-     * Called by the archive function on the cell cycle model.
-     *
-     * @return #mpMutationState
-     */
-    boost::shared_ptr<AbstractCellMutationState> GetMutationState();
 
     /**
      * Compute the RHS of the Alarcon et al. (2004) system of ODEs.
@@ -155,6 +138,15 @@ public:
      */
     bool CalculateStoppingEvent(double time, const std::vector<double>& rY);
 
+    /**
+     * Set #mIsLabelled.
+     */
+    void SetIsLabelled(bool isLabelled);
+
+    /**
+     * Get method for mIsLabelled.
+     */
+    bool IsLabelled();
 };
 
 #endif /*_ALARCON2004OXYGENBASEDCELLCYCLEODESYSTEM_HPP_*/
