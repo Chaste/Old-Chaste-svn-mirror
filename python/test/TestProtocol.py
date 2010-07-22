@@ -396,7 +396,7 @@ class TestProtocol(unittest.TestCase):
         def Var(cname,vname):
             return self._doc.model.get_variable_by_name(unicode(cname), unicode(vname))
         # Fix V so we don't include dV/dt in the dependencies
-        V = Var('membrane', 'V')
+        V = self._doc.model.get_variable_by_oxmeta_name('membrane_voltage')
         V_const = self.NewAssign(u'membrane,V', (u'-84.0', u'millivolt'))
         p.inputs.append(V_const)
         # Outputs of interest

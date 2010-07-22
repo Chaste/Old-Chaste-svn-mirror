@@ -489,6 +489,25 @@ class cellml_model(element_base):
         """
         return self._cml_variables[(compname, varname)]
     
+    def get_variable_by_oxmeta_name(self, name, throw=True):
+        """
+        Get the unique variable in this model with the given Oxford metadata
+        name annotation.
+        
+        If throw is True, will raise ValueError if there is no such variable.
+        """
+        vars = cellml_metadata.find_variables(self,
+                                             ('bqbiol:is', NSS['bqbiol']),
+                                             ('oxmeta:'+str(name), NSS['oxmeta']))
+        if len(vars) == 1:
+            var = vars[0]
+        elif throw:
+            raise ValueError('"%s" does not name a unique variable (matches: %s)'
+                             % (name, str(vars)))
+        else:
+            var = None
+        return var
+    
     def get_all_variables(self):
         """Return an iterator over the variables in the model."""
         for comp in getattr(self, u'component', []):

@@ -2022,5 +2022,8 @@ The breakdown of the model into components and the definition of encapsulation a
   <rdf:Description rdf:about="#Cai">
     <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#cytosolic_calcium_concentration"/>
   </rdf:Description>
+  <rdf:Description rdf:about="#membrane_voltage">
+    <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_voltage"/>
+  </rdf:Description>
 </rdf:RDF>
 </model>

@@ -1642,10 +1642,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         generate a GetIntracellularCalciumConcentration method.
         """
         # Find cytosolic_calcium_concentration
-        cai = cellml_metadata.find_variables(self.doc.model,
-                                             ('bqbiol:is', NSS['bqbiol']),
-                                             ('oxmeta:cytosolic_calcium_concentration', NSS['oxmeta']))
-        if cai and cai[0] in self.state_vars:
+        cai = self.doc.model.get_variable_by_oxmeta_name('cytosolic_calcium_concentration', throw=False)
+        if cai and cai in self.state_vars:
             i = self.state_vars.index(cai[0])
             self.output_method_start('GetIntracellularCalciumConcentration', [], self.TYPE_DOUBLE, 'public')
             self.open_block()
@@ -3765,11 +3763,7 @@ class ConfigurationStore(object):
                 if var:
                     var = var[0]
         elif defn_type == u'oxmeta':
-            var = cellml_metadata.find_variables(self.doc.model,
-                                                 ('bqbiol:is', NSS['bqbiol']),
-                                                 ('oxmeta:'+str(defn), NSS['oxmeta']))
-            if var:
-                var = var[0]
+            var = self.doc.model.get_variable_by_oxmeta_name(str(defn), throw=False)
         elif defn_type == u'config-name':
             if unicode(defn) == u'stimulus':
                 var = self.i_stim_var
