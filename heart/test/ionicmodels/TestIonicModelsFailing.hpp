@@ -59,16 +59,15 @@ class TestIonicModelsFailing : public CxxTest::TestSuite
 public:
 
 
-    void TestBackwardEulerBug() throw (Exception)
+    void TestBackwardEulerDifficultCase() throw (Exception)
     {
 
         //These data come from Miguel's test (see #1339)        
         double dodgy_state_vars_array[19] = {-6.15475,0.00808679,0.284434,0.00633525,0.994096,0.0321343,0.402544,0.730188,0.856068,0.959682,0.998295,0.912007,0.02408,0.000115671,3.63196,0.00175538,0.937932,8.62141,136.891};
         std::vector<double> dodgy_state_vars(dodgy_state_vars_array,dodgy_state_vars_array+19);
         
-        double step=0.1; // This was supposed to fail with step=0.05, but doesn't -- due to the accuracy of the initial state variables?
+        double step=0.1;
         
-       // step=0.05; //Will pass REMOVE TO WORK ON #1339
         
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(step, step, step);
             

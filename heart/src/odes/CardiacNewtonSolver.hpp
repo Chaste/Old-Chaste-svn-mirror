@@ -34,6 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractBackwardEulerCardiacCell.hpp"
 #include "Warnings.hpp"
 
+#include "Debug.hpp"
+
+
 /**
  * Specialised Newton solver for solving the nonlinear systems arising when
  * simulating a cardiac cell using Backward Euler.
@@ -92,23 +95,48 @@ public:
             norm_of_update = norm_inf(mUpdate);
 
             // Update current guess and recalculate residual
+            double norm_of_new_guess=0.0;
             for (unsigned i=0; i<SIZE; i++)
             {
                 rCurrentGuess[i] -= mUpdate[i];
+                norm_of_new_guess += rCurrentGuess[i];
             }
             double norm_of_previous_residual = norm_of_residual;
             rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
             norm_of_residual=norm_inf(mResidual);
             if (norm_of_residual > norm_of_previous_residual && norm_of_update > eps)
             {
+#define COVERAGE_IGNORE
+                //Second part of guard:
                 //Note that if norm_of_update < eps (converged) then it's
                 //likely that both the residual and the previous residual were
                 //close to the root.
-#define COVERAGE_IGNORE
-                WARNING("Residual increasing");
+                
+                //Work out where the biggest change in the guess has happened.
+                double relative_change_max=0.0;
+                unsigned relative_change_direction=0;
+                for (unsigned i=0; i<SIZE; i++)
+                {
+                    double relative_change=fabs(mUpdate[i])/fabs(rCurrentGuess[i]);
+                    if (relative_change > relative_change_max)
+                    {
+                       relative_change_max = relative_change;
+                       relative_change_direction = i;
+                    }
+                }
+
+                if(relative_change_max > 1.0)
+                {
+                    //Only walk 0.2 of the way in that direction (put back 0.8)
+                    rCurrentGuess[relative_change_direction] += 0.8*mUpdate[relative_change_direction];
+                    rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
+                    norm_of_residual=norm_inf(mResidual);
+                    WARNING("Residual increasing and one direction changing radically - back tracking in that direction");
+                }
 #undef COVERAGE_IGNORE
             }
             counter++;
+            
            
             // avoid infinite loops
             if (counter > 15)
