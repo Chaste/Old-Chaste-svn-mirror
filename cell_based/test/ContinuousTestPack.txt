@@ -1,4 +1,5 @@
 cell/TestCellMutationStates.hpp
+cell/TestCellProperties.hpp
 cell/TestCellPropertyCollection.hpp
 cell/TestCellsGenerator.hpp
 cell/TestOdeBasedCellCycleModels.hpp
