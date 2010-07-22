@@ -106,7 +106,6 @@ public:
             norm_of_residual=norm_inf(mResidual);
             if (norm_of_residual > norm_of_previous_residual && norm_of_update > eps)
             {
-#define COVERAGE_IGNORE
                 //Second part of guard:
                 //Note that if norm_of_update < eps (converged) then it's
                 //likely that both the residual and the previous residual were
@@ -133,7 +132,6 @@ public:
                     norm_of_residual=norm_inf(mResidual);
                     WARNING("Residual increasing and one direction changing radically - back tracking in that direction");
                 }
-#undef COVERAGE_IGNORE
             }
             counter++;
             
