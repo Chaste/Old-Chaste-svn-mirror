@@ -405,7 +405,8 @@ class TestProtocol(unittest.TestCase):
         Cai = Var(c_icc, 'Cai') # State
         Cm = Var('membrane', 'C') # Constant
         gK = Var(c_tdpc, 'g_K') # Computed
-        p.outputs = [Cai, Cm, gK]
+        V_tdpc = Var(c_tdpc, 'V') # Mapped
+        p.outputs = [Cai, Cm, gK, V_tdpc]
         # Apply protocol
         p.modify_model()
         # Check model assignments are as expected
@@ -420,7 +421,7 @@ class TestProtocol(unittest.TestCase):
             return Var(cname, vname)._get_dependencies()[0]
         expected = set([V, VarDefn('membrane', 'V'), Cm, time, Cai, gK,
                         Var('ionic_concentrations', 'Ko'), Var(c_tdpc, 'Ko'),
-                        VarDefn(c_tdpc, 'g_K'),
+                        VarDefn(c_tdpc, 'g_K'), V_tdpc,
                         Var(c_icc, 'time'), Var(c_icc, 'i_si'),
                         Cai._get_ode_dependency(time),
                         Var(c_sic, 'V'), Var(c_sic, 'Cai'),
@@ -438,21 +439,30 @@ class TestProtocol(unittest.TestCase):
                         ])
         self.assertEqual(actual, expected)
         # Check output variables are properly annotated
+        self.assert_(Cm.is_output_variable)
         self.assert_(Cm.is_modifiable_parameter)
         self.assert_(Cm.pe_keep)
         self.assertEqual(Cm.get_type(), pycml.VarTypes.Constant)
+        self.assert_(gK.is_output_variable)
         self.assert_(gK.is_derived_quantity)
         self.assert_(gK.pe_keep)
         self.assertEqual(gK.get_type(), pycml.VarTypes.Computed)
+        self.assert_(V_tdpc.is_output_variable)
+        self.assert_(V_tdpc.is_derived_quantity)
+        self.assert_(V_tdpc.pe_keep)
+        self.assertEqual(V_tdpc.get_type(), pycml.VarTypes.Mapped)
+        self.assert_(Cai.is_output_variable)
+        self.assert_(Cai.pe_keep)
         self.assertEqual(Cai.get_type(), pycml.VarTypes.State)
         self.assertEqual(V.get_type(), pycml.VarTypes.Computed)
         # Check other variables aren't annotated
         for var in self._doc.model.get_all_variables():
-            if var not in [Cm, gK]:
+            if var not in [Cm, gK, Cai, V_tdpc]:
                 self.failIf(var.pe_keep)
+                self.failIf(var.is_output_variable)
             if var is not Cm:
                 self.failIf(var.is_modifiable_parameter)
-            if var is not gK:
+            if var not in [gK, V_tdpc]:
                 self.failIf(var.is_derived_quantity)
         # Check non-needed parts of the model have been removed
         self.assertRaises(KeyError, Var, 'membrane', 'T')

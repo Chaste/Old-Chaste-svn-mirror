@@ -1949,6 +1949,14 @@ class cellml_variable(Colourable, element_base):
         source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
         return cellml_metadata.get_target(self.model, source, property)
 
+    def set_rdf_annotation_from_boolean(self, property, is_yes):
+        """Set an RDF annotation as 'yes' or 'no' depending on a boolean value."""
+        if is_yes:
+            val = 'yes'
+        else:
+            val = 'no'
+        self.add_rdf_annotation(property, val)
+
     def _set_binding_time(self, bt):
         """Set the binding time of this variable.
         
@@ -2068,11 +2076,7 @@ class cellml_variable(Colourable, element_base):
         if is_param and self.get_type() != VarTypes.Constant:
             raise ValueError("A non-constant variable (%s) cannot be set as a parameter"
                              % (self.fullname(),))
-        if is_param:
-            val = 'yes'
-        else:
-            val = 'no'
-        self.add_rdf_annotation(('pycml:modifiable-parameter', NSS[u'pycml']), val)
+        self.set_rdf_annotation_from_boolean(('pycml:modifiable-parameter', NSS[u'pycml']), is_param)
 
     @property
     def is_derived_quantity(self):
@@ -2083,28 +2087,32 @@ class cellml_variable(Colourable, element_base):
         
         We need a separate method for this to bypass Amara's property setting checks.
         """
-        if is_dq:
-            val = 'yes'
-        else:
-            val = 'no'
-        self.add_rdf_annotation(('pycml:derived-quantity', NSS[u'pycml']), val)
+        self.set_rdf_annotation_from_boolean(('pycml:derived-quantity', NSS[u'pycml']), is_dq)
+
+    @property
+    def is_output_variable(self):
+        """Whether a protocol has requested this variable as a model output."""
+        return self.get_rdf_annotation(('pycml:output-variable', NSS['pycml'])) == 'yes'
+    def set_is_output_variable(self, is_ov):
+        """Set method for the is_output_variable property.
+        
+        We need a separate method for this to bypass Amara's property setting checks.
+        """
+        self.set_rdf_annotation_from_boolean(('pycml:output-variable', NSS[u'pycml']), is_ov)
 
     @property
     def pe_keep(self):
         """Whether PE should retain this variable in the specialised model."""
         return (self.get_rdf_annotation(('pe:keep', NSS[u'pe'])) == 'yes' or
                 self.is_modifiable_parameter or
-                self.is_derived_quantity)
+                self.is_derived_quantity or
+                self.is_output_variable)
     def set_pe_keep(self, keep):
         """Set method for the pe_keep property.
         
         We need a separate method for this to bypass Amara's property setting checks.
         """
-        if keep:
-            val = 'yes'
-        else:
-            val = 'no'
-        self.add_rdf_annotation(('pe:keep', NSS[u'pe']), val)
+        self.set_rdf_annotation_from_boolean(('pe:keep', NSS[u'pe']), keep)
 
     @property
     def oxmeta_name(self):

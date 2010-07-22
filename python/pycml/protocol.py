@@ -537,6 +537,7 @@ class Protocol(object):
         # Add annotations for outputs
         for var in self.outputs:
             assert isinstance(var, cellml_variable)
+            var.set_is_output_variable(True)
             if var.get_type() == VarTypes.Constant:
                 var.set_is_modifiable_parameter(True)
             elif var.get_type() in [VarTypes.Computed, VarTypes.Mapped]:
