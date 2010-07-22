@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeConvergenceTester.hpp"
 #include "OdePdeConvergenceTester.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "BackwardEulerNobleVargheseKohlNoble1998.hpp"
+#include "NobleVargheseKohlNoble1998aBackwardEuler.hpp"
 #include "NobleVargheseKohlNoble1998a.hpp"
 #include "NobleVargheseKohlNoble1998aOpt.hpp"
 
@@ -226,7 +226,7 @@ public:
 
     void TestSpaceConvergencein1DWithBackwardN98() throw(Exception)
     {
-        SpaceConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
+        SpaceConvergenceTester<CellNobleVargheseKohlNoble1998aFromCellMLOpt,  MonodomainProblem<1>, 1, 1> tester;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
@@ -235,7 +235,7 @@ public:
 
     void TestOdeConvergencein1DWithBackwardN98() throw(Exception)
     {
-        OdeConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
+        OdeConvergenceTester<CellNobleVargheseKohlNoble1998aFromCellMLOpt,  MonodomainProblem<1>, 1, 1> tester;
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_DELTA(tester.OdeTimeStep, 0.005, 1e-10);
@@ -243,7 +243,7 @@ public:
 
     void TestOdePdeConvergencein1DWithBackwardN98() throw(Exception)
     {
-        OdePdeConvergenceTester<BackwardEulerNobleVargheseKohlNoble1998,  MonodomainProblem<1>, 1, 1> tester;
+        OdePdeConvergenceTester<CellNobleVargheseKohlNoble1998aFromCellMLOpt,  MonodomainProblem<1>, 1, 1> tester;
         tester.NeumannStimulus = 5000;
         tester.Stimulus = NEUMANN;
         tester.Converge(__FUNCTION__);

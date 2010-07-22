@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "EulerIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-#include "FoxModel2002Modified.hpp"
+#include "FoxModel2002.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
 #include "Maleckar2009OdeSystem.hpp"
 #include "Mahajan2008OdeSystem.hpp"
@@ -74,7 +74,7 @@ public:
         HeartConfig::Instance()->SetOdeTimeStep(0.002); // 0.005 leads to NaNs.
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        FoxModel2002Modified fox_ode_system(p_solver, p_stimulus);
+        CellFoxModel2002FromCellML fox_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();
