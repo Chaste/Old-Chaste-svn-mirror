@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 A little helper script to facilitate calling PyCml for common Chaste usage scenarios.
 """
 
-import operator
 import optparse
 import os
 import subprocess
@@ -155,7 +154,7 @@ if options.config_file:
 
 
 # If no options supplied, default to --normal --opt
-number_of_options = len(filter(None, operator.attrgetter(*option_names)(options)))
+number_of_options = len(filter(None, [getattr(options, opt_name) for opt_name in option_names]))
 if number_of_options == 0:
     options.normal = True
     if not options.dynamically_loadable:
