@@ -99,10 +99,14 @@ public:
             double norm_of_previous_residual = norm_of_residual;
             rCell.ComputeResidual(time, rCurrentGuess, mResidual.data());
             norm_of_residual=norm_inf(mResidual);
-            //assert (norm_of_residual < norm_of_previous_residual); ///\todo #1339
-            if (norm_of_residual > norm_of_previous_residual) ///\todo #1339
+            if (norm_of_residual > norm_of_previous_residual && norm_of_update > eps)
             {
+                //Note that if norm_of_update < eps (converged) then it's
+                //likely that both the residual and the previous residual were
+                //close to the root.
+#define COVERAGE_IGNORE
                 WARNING("Residual increasing");
+#undef COVERAGE_IGNORE
             }
             counter++;
            
