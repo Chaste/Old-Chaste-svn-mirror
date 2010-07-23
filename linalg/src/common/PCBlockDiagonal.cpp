@@ -48,6 +48,9 @@ PCBlockDiagonal::~PCBlockDiagonal()
 
     VecDestroy(mPCContext.x2_subvector);
     VecDestroy(mPCContext.y2_subvector);
+    
+    VecScatterDestroy(mPCContext.A11_scatter_ctx);
+    VecScatterDestroy(mPCContext.A22_scatter_ctx);    
 }
 
 void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
@@ -62,6 +65,72 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
     MatGetSize(system_matrix, &num_rows, &num_columns);
     assert(num_rows==num_columns);
 
+    // Create subvectors x1, x2, y1, y2
+    assert(num_rows%2 == 0); /// \todo: odd number of rows, impossible in Bidomain?
+    mPCContext.x1_subvector = PetscTools::CreateVec(num_rows/2);
+    mPCContext.x2_subvector = PetscTools::CreateVec(num_rows/2);
+    mPCContext.y1_subvector = PetscTools::CreateVec(num_rows/2);
+    mPCContext.y2_subvector = PetscTools::CreateVec(num_rows/2);
+
+    // Create scatter contexts
+    {
+        // Needed by VecScatterCreate in order to find out parallel layout.
+        Vec dummy_vec = PetscTools::CreateVec(num_rows);
+
+        IS A11_rows, A22_rows;        
+        ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 2, &A11_rows);
+        ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 1, 2, &A22_rows);   
+        
+        IS all_vector;    
+        ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 1, &all_vector);
+        
+        VecScatterCreate(dummy_vec, A11_rows, mPCContext.x1_subvector, all_vector, &mPCContext.A11_scatter_ctx);    
+        VecScatterCreate(dummy_vec, A22_rows, mPCContext.x2_subvector, all_vector, &mPCContext.A22_scatter_ctx);
+        
+        ISDestroy(A11_rows);
+        ISDestroy(A22_rows);
+        ISDestroy(all_vector);
+    }
+            
+    // Get matrix sublock A11        
+    {
+        // Work out local row range for subblock A11 (same as x1 or y1) 
+        PetscInt low, high, global_size;
+        VecGetOwnershipRange(mPCContext.x1_subvector, &low, &high);
+        VecGetSize(mPCContext.x1_subvector, &global_size);        
+        assert(global_size == num_rows/2);       
+        
+        IS A11_local_rows;
+        IS A11_columns;
+        ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &A11_local_rows);
+        ISCreateStride(PETSC_COMM_WORLD, global_size, 0, 2, &A11_columns);
+    
+        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+    
+        ISDestroy(A11_local_rows);
+        ISDestroy(A11_columns);
+    }
+
+    // Get matrix sublock A22
+    {
+        // Work out local row range for subblock A22 (same as x2 or y2) 
+        PetscInt low, high, global_size;
+        VecGetOwnershipRange(mPCContext.x2_subvector, &low, &high);
+        VecGetSize(mPCContext.x2_subvector, &global_size);        
+        assert(global_size == num_rows/2);       
+        
+        IS A22_local_rows;
+        IS A22_columns;
+        ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low+1, 2, &A22_local_rows);
+        ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &A22_columns);
+    
+        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+    
+        ISDestroy(A22_local_rows);
+        ISDestroy(A22_columns);
+    }
+
+    // Register call-back function and its context
     PCSetType(mPetscPCObject, PCSHELL);
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     PCShellSetApply(mPetscPCObject, PCBlockDiagonalApply, (void*) &mPCContext);
@@ -72,31 +141,6 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
     PCShellSetApply(mPetscPCObject, PCBlockDiagonalApply);
 #endif
 
-    // Get matrix sublock A11
-    IS A11_rows, A11_columns;
-    ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 2, &A11_rows);
-    ISCreateStride(PETSC_COMM_WORLD, num_columns/2, 0, 2, &A11_columns);
-
-    MatGetSubMatrix(system_matrix, A11_rows, A11_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
-
-    ISDestroy(A11_rows);
-    ISDestroy(A11_columns);
-
-    // Get matrix sublock A22
-    IS A22_rows, A22_columns;
-    ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 1, 2, &A22_rows);
-    ISCreateStride(PETSC_COMM_WORLD, num_columns/2, 1, 2, &A22_columns);
-
-    MatGetSubMatrix(system_matrix, A22_rows, A22_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
-
-    ISDestroy(A22_rows);
-    ISDestroy(A22_columns);
-
-    // Allocate memory
-    mPCContext.x1_subvector = PetscTools::CreateVec(num_rows/2);
-    mPCContext.x2_subvector = PetscTools::CreateVec(num_rows/2);
-    mPCContext.y1_subvector = PetscTools::CreateVec(num_rows/2);
-    mPCContext.y2_subvector = PetscTools::CreateVec(num_rows/2);
 }
 
 void PCBlockDiagonal::PCBlockDiagonalSetUp()
@@ -108,7 +152,7 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
 
     // Set up amg preconditioner for block A11
     PCCreate(PETSC_COMM_WORLD, &(mPCContext.PC_amg_A11));
-    PCSetType(mPCContext.PC_amg_A11, PCBJACOBI);
+    PCSetType(mPCContext.PC_amg_A11, PCHYPRE);
     PCSetOperators(mPCContext.PC_amg_A11, mPCContext.A11_matrix_subblock, mPCContext.A11_matrix_subblock, DIFFERENT_NONZERO_PATTERN);//   SAME_PRECONDITIONER);
     PCSetFromOptions(mPCContext.PC_amg_A11);
     PCSetUp(mPCContext.PC_amg_A11);
@@ -123,77 +167,58 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
 
 PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
 {
-    /// \todo refactoring: create a method for scattering and another for reversing
-
-    // Cast the pointer to a PC context to our defined type
+    // Cast the context pointer to PCBlockDiagonalContext
     PCBlockDiagonal::PCBlockDiagonalContext* block_diag_context = (PCBlockDiagonal::PCBlockDiagonalContext*) pc_context;
     assert(block_diag_context!=NULL);
 
-    /////////////////////
-    PetscInt num_rows;
-    VecGetSize(x, &num_rows);
-
-    IS A11_rows;
-    ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 2, &A11_rows);
-
-    VecScatter A11_scatter_ctx;
-    VecScatterCreate(x, A11_rows, block_diag_context->x1_subvector, PETSC_NULL, &A11_scatter_ctx);
+    /*
+     * Scatter x = [x1 x2]'
+     */
+//PETSc-3.x.x or PETSc-2.3.3
+#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
+    VecScatterBegin(block_diag_context->A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterEnd(block_diag_context->A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
+#else
+    VecScatterBegin(x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A11_scatter_ctx);
+    VecScatterEnd(x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A11_scatter_ctx);
+#endif
 
 //PETSc-3.x.x or PETSc-2.3.3
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
-    VecScatterEnd(A11_scatter_ctx, x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterBegin(block_diag_context->A22_scatter_ctx, x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD);
+    VecScatterEnd(block_diag_context->A22_scatter_ctx, x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD);
 #else
-    VecScatterBegin(x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
-    VecScatterEnd(x, block_diag_context->x1_subvector, INSERT_VALUES, SCATTER_FORWARD, A11_scatter_ctx);
+    VecScatterBegin(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A22_scatter_ctx);
+    VecScatterEnd(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, block_diag_context->A22_scatter_ctx);
 #endif
 
-    IS A22_rows;
-    ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 1, 2, &A22_rows);
-
-    VecScatter A22_scatter_ctx;
-    VecScatterCreate(x, A22_rows, block_diag_context->x2_subvector, PETSC_NULL, &A22_scatter_ctx);
-
-//PETSc-3.x.x or PETSc-2.3.3
-#if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A22_scatter_ctx, x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD);
-    VecScatterEnd(A22_scatter_ctx, x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD);
-#else
-    VecScatterBegin(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, A22_scatter_ctx);
-    VecScatterEnd(x, block_diag_context->x2_subvector, INSERT_VALUES, SCATTER_FORWARD, A22_scatter_ctx);
-#endif
-
-
+    /*
+     *  y1 = AMG(A11)*x1
+     *  y2 = AMG(A22)*x2
+     */
     PCApply(block_diag_context->PC_amg_A11, block_diag_context->x1_subvector, block_diag_context->y1_subvector);
     PCApply(block_diag_context->PC_amg_A22, block_diag_context->x2_subvector, block_diag_context->y2_subvector);
 
-    ////////////////////
-
+    /*
+     * Gather y = [y1 y2]'
+     */
 //PETSc-3.x.x or PETSc-2.3.3
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
-    VecScatterEnd(A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterBegin(block_diag_context->A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterEnd(block_diag_context->A11_scatter_ctx, block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
 #else
-    VecScatterBegin(block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
-    VecScatterEnd(block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A11_scatter_ctx);
+    VecScatterBegin(block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A11_scatter_ctx);
+    VecScatterEnd(block_diag_context->y1_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A11_scatter_ctx);
 #endif
 
 //PETSc-3.x.x or PETSc-2.3.3
 #if ( (PETSC_VERSION_MAJOR == 3) || (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 3)) //2.3.3 or 3.x.x
-    VecScatterBegin(A22_scatter_ctx, block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
-    VecScatterEnd(A22_scatter_ctx, block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterBegin(block_diag_context->A22_scatter_ctx, block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
+    VecScatterEnd(block_diag_context->A22_scatter_ctx, block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE);
 #else
-    VecScatterBegin(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A22_scatter_ctx);
-    VecScatterEnd(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, A22_scatter_ctx);
+    VecScatterBegin(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A22_scatter_ctx);
+    VecScatterEnd(block_diag_context->y2_subvector, y, INSERT_VALUES, SCATTER_REVERSE, block_diag_context->A22_scatter_ctx);
 #endif
-
-    ////////////////////
-
-    ISDestroy(A11_rows);
-    ISDestroy(A22_rows);
-
-    VecScatterDestroy(A11_scatter_ctx);
-    VecScatterDestroy(A22_scatter_ctx);
 
     return 0;
 }

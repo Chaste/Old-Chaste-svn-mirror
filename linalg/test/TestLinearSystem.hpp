@@ -1131,7 +1131,7 @@ public:
             unsigned block_jacobi_its = ls.GetNumIterations();
             VecDestroy(solution);
 
-            ls.SetPcType("ldufactorisation");
+            ls.SetPcType("blockdiagonal");
             solution = ls.Solve(/*no guess provided*/);
             unsigned ldu_its = ls.GetNumIterations();
             VecDestroy(solution);

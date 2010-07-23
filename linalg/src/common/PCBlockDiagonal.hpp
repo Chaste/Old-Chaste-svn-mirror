@@ -87,6 +87,8 @@ public:
         Vec x2_subvector;/**<  Used to store the second half of the vector to be preconditioned*/
         Vec y1_subvector;/**<  Used to store the first half of the preconditioned vector*/
         Vec y2_subvector;/**<  Used to store the second half of the preconditioned vector*/
+        VecScatter A11_scatter_ctx;    
+        VecScatter A22_scatter_ctx;        
 
     } PCBlockDiagonalContext;
 
