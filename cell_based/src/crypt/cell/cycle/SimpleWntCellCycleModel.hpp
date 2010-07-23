@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 // Needed here to avoid serialization errors
 #include "WildTypeCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
+#include "CellLabel.hpp"
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"

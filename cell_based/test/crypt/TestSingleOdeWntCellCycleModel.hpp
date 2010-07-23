@@ -40,8 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "CellLabel.hpp"
 
 class TestSingleOdeWntCellCycleModel : public AbstractCellBasedTestSuite
 {
@@ -94,8 +94,8 @@ public:
         // Divide the cell
         TS_ASSERT_EQUALS(p_cell->ReadyToDivide(), true);
         TissueCellPtr p_cell2 = p_cell->Divide();
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        p_cell->SetMutationState(p_labelled);
+        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+        p_cell->AddCellProperty(p_label);
 
         SingleOdeWntCellCycleModel* p_cycle_model2 = static_cast<SingleOdeWntCellCycleModel*> (p_cell2->GetCellCycleModel());
 

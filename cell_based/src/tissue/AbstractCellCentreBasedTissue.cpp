@@ -114,7 +114,7 @@ template<unsigned DIM>
 double AbstractCellCentreBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
 {
     TissueCellPtr p_cell = this->GetCellUsingLocationIndex(nodeIndex);
-    if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
+    if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>() && !p_cell->rGetCellPropertyCollection().HasProperty<CellLabel>())
     {
         return TissueConfig::Instance()->GetDampingConstantNormal();
     }

@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "AbstractCryptStatistics.hpp"
-#include "CellMutationStateRegistry.hpp"
+#include "CellPropertyRegistry.hpp"
 
 AbstractCryptStatistics::AbstractCryptStatistics(MeshBasedTissue<2>& rCrypt)
     : mrCrypt(rCrypt)
@@ -42,13 +42,18 @@ void AbstractCryptStatistics::LabelSPhaseCells()
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
+    	boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
+
         if (cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE)
         {
-            // This should only be done for healthy or labelled populations, not mutants (at the moment anyway)
-            assert( cell_iter->GetMutationState()->IsType<WildTypeCellMutationState>()
-                    || cell_iter->GetMutationState()->IsType<LabelledCellMutationState>() );
-            boost::shared_ptr<AbstractCellMutationState> p_labelled(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
-            cell_iter->SetMutationState(p_labelled);
+            // This should only be done for wild type cells (at the moment anyway)
+            assert(cell_iter->GetMutationState()->IsType<WildTypeCellMutationState>());
+
+            // Label this cell
+            if (!cell_iter->rGetCellPropertyCollection().HasProperty<CellLabel>());
+            {
+            	cell_iter->AddCellProperty(p_label);
+            }
         }
     }
 }
@@ -61,6 +66,7 @@ void AbstractCryptStatistics::LabelAllCellsAsHealthy()
          ++cell_iter)
     {
         cell_iter->SetMutationState(p_wildtype);
+        cell_iter->RemoveCellProperty<CellLabel>();
     }
 }
 
@@ -70,7 +76,7 @@ std::vector<bool> AbstractCryptStatistics::AreCryptSectionCellsLabelled(std::vec
 
     for (unsigned vector_index=0; vector_index<rCryptSection.size(); vector_index++)
     {
-        if (rCryptSection[vector_index]->GetMutationState()->IsType<LabelledCellMutationState>())
+        if (rCryptSection[vector_index]->rGetCellPropertyCollection().HasProperty<CellLabel>())
         {
             crypt_section_labelled[vector_index] = true;
         }

@@ -78,17 +78,37 @@ TissueCell::TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationSta
 
     mpCellCycleModel->SetCell(TissueCellPtr(this, null_deleter()));
 
-    // Set Cell identifier & mutation state count
+    // Set cell identifier
     mCellId = ++ mMaxCellId -1;
+
     if (!archiving)
     {
+    	// Set mutation state count
         mpMutationState->IncrementCellCount();
+
+        // Set cell label count
+        ///\todo generalize this code (#1285)
+        if (mCellPropertyCollection.HasProperty<CellLabel>())
+        {
+        	CellPropertyCollection cell_label_collection = mCellPropertyCollection.GetProperties<CellLabel>();
+        	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(cell_label_collection.GetProperty());
+        	p_label->IncrementCellCount();
+        }
     }
 }
 
 TissueCell::~TissueCell()
 {
     mpMutationState->DecrementCellCount();
+
+    ///\todo generalize this code (#1285)
+    if (mCellPropertyCollection.HasProperty<CellLabel>())
+    {
+    	CellPropertyCollection cell_label_collection = mCellPropertyCollection.GetProperties<CellLabel>();
+    	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(cell_label_collection.GetProperty());
+    	p_label->DecrementCellCount();
+    }
+
     delete mpCellCycleModel;
 }
 
@@ -147,6 +167,17 @@ CellPropertyCollection& TissueCell::rGetCellPropertyCollection()
 const CellPropertyCollection& TissueCell::rGetCellPropertyCollection() const
 {
     return mCellPropertyCollection;
+}
+
+void TissueCell::AddCellProperty(const boost::shared_ptr<AbstractCellProperty>& rProperty)
+{
+	mCellPropertyCollection.AddProperty(rProperty);
+
+    if (rProperty->IsType<CellLabel>())
+    {
+    	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(rProperty);
+    	p_label->IncrementCellCount();
+    }
 }
 
 void TissueCell::SetLogged()

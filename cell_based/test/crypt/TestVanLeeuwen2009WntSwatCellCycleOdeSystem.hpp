@@ -48,7 +48,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
 
 class TestVanLeeuwen2009WntSwatCellCycleOdeSystem : public CxxTest::TestSuite
@@ -59,7 +58,8 @@ public:
     {
         double wnt_level = 1.0;
 
-        TS_ASSERT_THROWS_THIS(VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system(3,wnt_level),"You must set up this cell cycle ODE system with hypothesis one or two.");
+        TS_ASSERT_THROWS_THIS(VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system(3,wnt_level),
+                              "You must set up this cell cycle ODE system with hypothesis one or two.");
 
         VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system(1,wnt_level);
 
@@ -172,8 +172,8 @@ public:
     {
         double time = 0.0;
         double wnt_level = 0.0;
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system2(1, wnt_level, p_labelled);
+        boost::shared_ptr<AbstractCellMutationState> p_wt_state(new WildTypeCellMutationState);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_cell_cycle_system2(1, wnt_level, p_wt_state);
         std::vector<double> initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
         std::vector<double> derivs(initial_conditions.size());
 
@@ -392,8 +392,8 @@ public:
     void TestVanLeeuwen2009WntSwatCellCycleSolver() throw(Exception)
     {
         double wnt_level = 1.0;
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_labelled);
+        boost::shared_ptr<AbstractCellMutationState> p_wt_state(new WildTypeCellMutationState);
+        VanLeeuwen2009WntSwatCellCycleOdeSystem wnt_system(1, wnt_level, p_wt_state);
 
         // Solve system using rk4 solver
 

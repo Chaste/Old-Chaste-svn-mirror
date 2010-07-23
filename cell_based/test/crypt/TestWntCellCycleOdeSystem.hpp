@@ -41,7 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
 
 class TestWntCellCycleOdeSystem : public CxxTest::TestSuite
@@ -77,8 +76,8 @@ public:
          * And the same for a high Wnt level
          */
         wnt_level = 1.0;
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        WntCellCycleOdeSystem wnt_cell_cycle_system2(wnt_level, p_labelled);
+        boost::shared_ptr<AbstractCellMutationState> p_wt_state(new WildTypeCellMutationState);
+        WntCellCycleOdeSystem wnt_cell_cycle_system2(wnt_level, p_wt_state);
         initial_conditions = wnt_cell_cycle_system2.GetInitialConditions();
 
         TS_ASSERT_DELTA(initial_conditions[6]+initial_conditions[7], 0.6002, 1e-4);
@@ -176,8 +175,8 @@ public:
     void TestWntCellCycleSolver() throw(Exception)
     {
         double wnt_level = 1.0;
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
-        WntCellCycleOdeSystem wnt_system(wnt_level, p_labelled);
+        boost::shared_ptr<AbstractCellMutationState> p_wt_state(new WildTypeCellMutationState);
+        WntCellCycleOdeSystem wnt_system(wnt_level, p_wt_state);
         // Solve system using rk4 solver
         // Matlab's strictest bit uses 0.01 below and relaxes it on flatter bits.
 

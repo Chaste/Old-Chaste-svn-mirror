@@ -45,8 +45,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "CellLabel.hpp"
 
 class TestForces : public AbstractCellBasedTestSuite
 {
@@ -350,11 +350,12 @@ public:
 
         // Set cells' mutation states
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
         boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+
         tissue.GetCellUsingLocationIndex(0)->SetMutationState(p_state);
-        tissue.GetCellUsingLocationIndex(1)->SetMutationState(p_labelled);
+        tissue.GetCellUsingLocationIndex(1)->AddCellProperty(p_label);
         tissue.GetCellUsingLocationIndex(2)->SetMutationState(p_apc2);
         tissue.GetCellUsingLocationIndex(3)->SetMutationState(p_bcat1);
 

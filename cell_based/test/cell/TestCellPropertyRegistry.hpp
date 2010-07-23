@@ -40,7 +40,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "ApoptoticCellMutationState.hpp"
 #include "OutputFileHandler.hpp"
 #include "CellPropertyRegistry.hpp"
@@ -121,7 +120,6 @@ public:
 
         std::vector<boost::shared_ptr<AbstractCellProperty> > property_ordering;
         property_ordering.push_back(p_instance->Get<WildTypeCellMutationState>());
-        property_ordering.push_back(p_instance->Get<LabelledCellMutationState>());
         property_ordering.push_back(p_instance->Get<ApcOneHitCellMutationState>());
         property_ordering.push_back(p_instance->Get<ApoptoticCellMutationState>());
         property_ordering.push_back(p_instance->Get<CellLabel>());
@@ -133,12 +131,11 @@ public:
         TS_ASSERT_THROWS_THIS(p_instance->SpecifyOrdering(property_ordering), "An ordering has already been specified.");
 
         std::vector<boost::shared_ptr<AbstractCellProperty> > properties = p_instance->rGetAllCellProperties();
-        TS_ASSERT_EQUALS(properties.size(), 5u);
+        TS_ASSERT_EQUALS(properties.size(), 4u);
         TS_ASSERT(properties[0]->IsType<WildTypeCellMutationState>());
-        TS_ASSERT(properties[1]->IsType<LabelledCellMutationState>());
-        TS_ASSERT(properties[2]->IsType<ApcOneHitCellMutationState>());
-        TS_ASSERT(properties[3]->IsType<ApoptoticCellMutationState>());
-        TS_ASSERT(properties[4]->IsType<CellLabel>());
+        TS_ASSERT(properties[1]->IsType<ApcOneHitCellMutationState>());
+        TS_ASSERT(properties[2]->IsType<ApoptoticCellMutationState>());
+        TS_ASSERT(properties[3]->IsType<CellLabel>());
 
         // The ordering must be complete
         TS_ASSERT_THROWS_THIS(p_instance->Get<BetaCateninOneHitCellMutationState>(),

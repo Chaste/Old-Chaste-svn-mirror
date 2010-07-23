@@ -47,11 +47,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-
+#include "CellLabel.hpp"
+#include "CellPropertyRegistry.hpp"
 
 /**
  * Simple cell killer which just kills a single cell.
@@ -920,10 +920,12 @@ public:
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(crypt.GetMutationRegistry()->Get<LabelledCellMutationState>());
+        
         boost::shared_ptr<AbstractCellMutationState> p_apc1(crypt.GetMutationRegistry()->Get<ApcOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(crypt.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>());
-        cell_iterator->SetMutationState(p_labelled);
+        boost::shared_ptr<AbstractCellProperty> p_label(crypt.GetCellPropertyRegistry()->Get<CellLabel>());
+
+        cell_iterator->AddCellProperty(p_label);
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
         cell_iterator->SetMutationState(p_apc1);
@@ -981,13 +983,12 @@ public:
         }
 
         std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 6u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count[0], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count[0], 2u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count[2], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count[3], 0u); // No APC two hit
-        TS_ASSERT_EQUALS(cell_mutation_state_count[4], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count[5], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count[2], 0u); // No APC two hit
+        TS_ASSERT_EQUALS(cell_mutation_state_count[3], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count[4], 0u);
 
         std::vector<unsigned> cell_type_count = simulator.rGetTissue().rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count.size(), 3u);
@@ -1104,12 +1105,12 @@ public:
 
         // Test that labelling a few cells doesn't make any difference to the simulation
         // and therefore log them in the visualizer files for the next test to check.
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
         boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
         boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
 
-        simulator.rGetTissue().GetCellUsingLocationIndex(57)->SetMutationState(p_labelled);
+        simulator.rGetTissue().GetCellUsingLocationIndex(57)->AddCellProperty(p_label);
         simulator.rGetTissue().GetCellUsingLocationIndex(56)->SetMutationState(p_apc1);
         simulator.rGetTissue().GetCellUsingLocationIndex(51)->SetMutationState(p_apc2);
         simulator.rGetTissue().GetCellUsingLocationIndex(63)->SetMutationState(p_bcat1);
@@ -1539,7 +1540,7 @@ public:
         cells[1]->SetMutationState(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>());
         cells[2]->SetMutationState(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
         cells[3]->SetMutationState(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
-        cells[4]->SetMutationState(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
+        cells[4]->AddCellProperty(CellPropertyRegistry::Instance()->Get<CellLabel>());
         cells[2]->SetBirthTime(1.5-(TissueConfig::Instance()->GetStemCellG1Duration()
                                    + TissueConfig::Instance()->GetSG2MDuration()));
 
@@ -1548,19 +1549,19 @@ public:
 
         // Each cell count has been initialized to the correct size and computed
         std::vector<unsigned> cell_mutation_state_count1 = crypt.GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_state_count1.size(), 6u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count1[0], 12u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count1.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count1[0], 13u);
         TS_ASSERT_EQUALS(cell_mutation_state_count1[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count1[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count1[3], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count1[4], 1u);
 
         // However, using the cell mutation objects, they have counted!
-        TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 12u);
-        TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
-        TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
         TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(crypt.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
+
+      	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(crypt.GetCellPropertyRegistry()->Get<CellLabel>());
+        TS_ASSERT_EQUALS(p_label->GetCellCount(), 1u);
 
         std::vector<unsigned> cell_type_count1 = crypt.rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count1.size(), 3u);
@@ -1593,19 +1594,21 @@ public:
 
         // Each cell count has now been computed since WriteCellResultsToFiles() has been called
         std::vector<unsigned> cell_mutation_state_count3 = simulator.rGetTissue().GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_state_count3.size(), 6u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count3[0], 13u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count3.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count3[0], 14u);
         TS_ASSERT_EQUALS(cell_mutation_state_count3[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count3[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count3[3], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count3[4], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count3[5], 0u);
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count3[4], 0u);
+
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApoptoticCellMutationState>()->GetCellCount(), 0u);
+
+      	p_label = boost::dynamic_pointer_cast<CellLabel>(crypt.GetCellPropertyRegistry()->Get<CellLabel>());
+        TS_ASSERT_EQUALS(p_label->GetCellCount(), 1u);
 
         std::vector<unsigned> cell_type_count3 = crypt.rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count3.size(), 3u);
@@ -1625,41 +1628,46 @@ public:
         TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Check the original simulation's counts haven't changed
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApoptoticCellMutationState>()->GetCellCount(), 0u);
+
+      	p_label = boost::dynamic_pointer_cast<CellLabel>(crypt.GetCellPropertyRegistry()->Get<CellLabel>());
+        TS_ASSERT_EQUALS(p_label->GetCellCount(), 1u);
 
         // Load the simulation
-        CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("TestMutationStateCellCount",1.0);
+        CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("TestMutationStateCellCount", 1.0);
 
         // Check the original simulation's counts haven't changed
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetMutationRegistry()->Get<ApoptoticCellMutationState>()->GetCellCount(), 0u);
+
+      	p_label = boost::dynamic_pointer_cast<CellLabel>(crypt.GetCellPropertyRegistry()->Get<CellLabel>());
+        TS_ASSERT_EQUALS(p_label->GetCellCount(), 1u);
 
         // In the loaded simulation, we want the various cell counts to be saved
         // (so that simulations which quit when a certain population is removed don't stop too soon)
         std::vector<unsigned> cell_mutation_state_count4 = p_simulator->rGetTissue().GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_state_count4.size(), 6u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count4[0], 13u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count4.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count4[0], 14u);
         TS_ASSERT_EQUALS(cell_mutation_state_count4[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count4[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count4[3], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count4[4], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count4[5], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count4[4], 0u);
 
-        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 13u);
-        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
         TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<ApoptoticCellMutationState>()->GetCellCount(), 0u);
+
+      	p_label = boost::dynamic_pointer_cast<CellLabel>(crypt.GetCellPropertyRegistry()->Get<CellLabel>());
+        TS_ASSERT_EQUALS(p_label->GetCellCount(), 1u);
 
         std::vector<unsigned> cell_type_count4 = crypt.rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count4.size(), 3u);
@@ -1681,20 +1689,21 @@ public:
 
         // The cell mutation state count has now been computed since WriteCellResultsToFiles() has been called
         std::vector<unsigned> cell_mutation_state_count5 = p_simulator->rGetTissue().GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_state_count5.size(), 6u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count5[0], 14u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count5[1], 2u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count5[2], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count5[3], 2u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count5[4], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count5[5], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count5.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count5[0], 16u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count5[1], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count5[2], 2u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count5[3], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count5[4], 0u);
 
-        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
-        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<LabelledCellMutationState>()->GetCellCount(), 2u);
+        TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<WildTypeCellMutationState>()->GetCellCount(), 16u);
         TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 2u);
         TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_simulator->rGetTissue().GetMutationRegistry()->Get<ApoptoticCellMutationState>()->GetCellCount(), 0u);
+
+      	p_label = boost::dynamic_pointer_cast<CellLabel>(crypt.GetCellPropertyRegistry()->Get<CellLabel>());
+        TS_ASSERT_EQUALS(p_label->GetCellCount(), 1u);
 
         std::vector<unsigned> cell_type_count5 = p_simulator->rGetTissue().rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count5.size(), 3u);

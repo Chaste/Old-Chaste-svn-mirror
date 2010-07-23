@@ -161,10 +161,6 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     {
         wnt_division_threshold = healthy_threshold;
     }
-    else if (mpCell->GetMutationState()->IsType<LabelledCellMutationState>())
-    {
-        wnt_division_threshold = labelled_threshold;
-    }
     else if (mpCell->GetMutationState()->IsType<ApcOneHitCellMutationState>())
     {
         // should be less than healthy values
@@ -183,6 +179,11 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
     else
     {
         NEVER_REACHED;
+    }
+
+    if (mpCell->rGetCellPropertyCollection().HasProperty<CellLabel>())
+    {
+        wnt_division_threshold = labelled_threshold;
     }
 
     double wnt_level = GetWntLevel();

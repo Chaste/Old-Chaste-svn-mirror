@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 // Needed here to avoid serialization errors
 #include "WildTypeCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
+#include "CellLabel.hpp"
 
 /**
  * Abstract crypt statistics class.
@@ -63,8 +63,7 @@ public:
      * (2001) in their off-lattice model of the intestinal crypt
      * (doi:10.1046/j.0960-7722.2001.00216.x).
      *
-     * Cells which are in S phase have their mutation state changed
-     * from WildTypeCellMutationState to LabelledCellMutationState.
+     * Cells which are in S phase are labelled using the CellLabel cell property.
      *
      * In Owen Sansom's experiments this is called twice; once at the
      * beginning and once at the end of an hour to simulate uptake of the

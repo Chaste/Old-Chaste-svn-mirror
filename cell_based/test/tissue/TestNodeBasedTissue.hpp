@@ -41,8 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "CellLabel.hpp"
+#include "CellPropertyRegistry.hpp"
 
 class TestNodeBasedTissue : public AbstractCellBasedTestSuite
 {
@@ -564,14 +565,14 @@ public:
 
         // For coverage of WriteResultsToFiles()
         boost::shared_ptr<AbstractCellMutationState> p_state(node_based_tissue.GetMutationRegistry()->Get<WildTypeCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(node_based_tissue.GetMutationRegistry()->Get<LabelledCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_apc1(node_based_tissue.GetMutationRegistry()->Get<ApcOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_apc2(node_based_tissue.GetMutationRegistry()->Get<ApcTwoHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(node_based_tissue.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(node_based_tissue.GetMutationRegistry()->Get<ApoptoticCellMutationState>());
+        boost::shared_ptr<AbstractCellProperty> p_label(node_based_tissue.GetCellPropertyRegistry()->Get<CellLabel>());
 
         node_based_tissue.GetCellUsingLocationIndex(0)->GetCellCycleModel()->SetCellProliferativeType(TRANSIT);
-        node_based_tissue.GetCellUsingLocationIndex(0)->SetMutationState(p_labelled);
+        node_based_tissue.GetCellUsingLocationIndex(0)->AddCellProperty(p_label);
         node_based_tissue.GetCellUsingLocationIndex(1)->GetCellCycleModel()->SetCellProliferativeType(DIFFERENTIATED);
         node_based_tissue.GetCellUsingLocationIndex(1)->SetMutationState(p_apc1);
         node_based_tissue.GetCellUsingLocationIndex(2)->SetMutationState(p_apc2);
@@ -605,13 +606,12 @@ public:
 
         // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = node_based_tissue.GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_states.size(), 6u);
-        TS_ASSERT_EQUALS(cell_mutation_states[0], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_states[0], 1u);
         TS_ASSERT_EQUALS(cell_mutation_states[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_states[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_states[3], 1u);
         TS_ASSERT_EQUALS(cell_mutation_states[4], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_states[5], 1u);
 
         // Test the GetCellProliferativeTypeCount function
         std::vector<unsigned> cell_types = node_based_tissue.rGetCellProliferativeTypeCount();

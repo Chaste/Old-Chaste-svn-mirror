@@ -73,7 +73,7 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
     double m; // gradient of line
     double offset;
 
-    if (xBottom<xTop)
+    if (xBottom < xTop)
     {
         offset = -crypt_width;
     }

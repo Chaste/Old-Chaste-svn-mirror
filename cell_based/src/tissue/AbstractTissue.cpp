@@ -35,7 +35,8 @@ AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCellPtr>& rCells,
                                     const std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
       mTissueContainsMesh(false),
-      mpMutationStateRegistry(CellMutationStateRegistry::Instance()->TakeOwnership())
+      mpMutationStateRegistry(CellMutationStateRegistry::Instance()->TakeOwnership()),
+      mpCellPropertyRegistry(CellPropertyRegistry::Instance()->TakeOwnership())
 {
     // There must be at least one cell
     assert(!mCells.empty());
@@ -203,6 +204,12 @@ boost::shared_ptr<CellMutationStateRegistry> AbstractTissue<DIM>::GetMutationReg
 }
 
 template<unsigned DIM>
+boost::shared_ptr<CellPropertyRegistry> AbstractTissue<DIM>::GetCellPropertyRegistry()
+{
+    return mpCellPropertyRegistry;
+}
+
+template<unsigned DIM>
 void AbstractTissue<DIM>::SetDefaultMutationStateOrdering()
 {
     boost::shared_ptr<CellMutationStateRegistry> p_registry = GetMutationRegistry();
@@ -210,7 +217,6 @@ void AbstractTissue<DIM>::SetDefaultMutationStateOrdering()
     {
         std::vector<boost::shared_ptr<AbstractCellMutationState> > mutations;
         mutations.push_back(p_registry->Get<WildTypeCellMutationState>());
-        mutations.push_back(p_registry->Get<LabelledCellMutationState>());
         mutations.push_back(p_registry->Get<ApcOneHitCellMutationState>());
         mutations.push_back(p_registry->Get<ApcTwoHitCellMutationState>());
         mutations.push_back(p_registry->Get<BetaCateninOneHitCellMutationState>());
@@ -242,7 +248,7 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool 
     if (p_config->GetOutputCellMutationStates())
     {
         mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
-        *mpCellMutationStatesFile << "Time\t Healthy\t Labelled\t APC_1\t APC_2\t BETA_CAT\t Apoptotic \n";
+        *mpCellMutationStatesFile << "Time\t Healthy\t APC_1\t APC_2\t BETA_CAT\t Apoptotic \n";
     }
     if (p_config->GetOutputCellProliferativeTypes())
     {
@@ -390,6 +396,12 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         if (!p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
         {
             colour = p_cell->GetMutationState()->GetColour();
+        }
+        if (p_cell->rGetCellPropertyCollection().HasProperty<CellLabel>())
+        {
+        	CellPropertyCollection collection = p_cell->rGetCellPropertyCollection().GetProperties<CellLabel>();
+        	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(collection.GetProperty());
+        	colour = p_label->GetColour();
         }
     }
 

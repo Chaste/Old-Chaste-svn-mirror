@@ -37,11 +37,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellProliferativeTypes.hpp"
 #include "AbstractCellMutationState.hpp"
+#include "CellLabel.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
 #include "CellMutationStateRegistry.hpp"
 #include "CellPropertyCollection.hpp"
-
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
 
@@ -211,6 +211,50 @@ public:
      * @return reference to #mCellPropertyCollection (used in archiving).
      */
     const CellPropertyCollection& rGetCellPropertyCollection() const;
+
+    /**
+     * Add a cell property to the cell. Use this method instead of calling
+     *     rGetCellPropertyCollection().AddProperty()
+     * directly, to ensure that the cell property keeps correct track of the
+     * number of cells with it (if this is done).
+     * 
+     * @param rProperty the property to add
+     */
+    void AddCellProperty(const boost::shared_ptr<AbstractCellProperty>& rProperty);
+
+    /**
+     * Remove a cell property of the given type. Use this method instead of
+     * calling
+     *     rGetCellPropertyCollection().AddProperty()
+     * directly, to ensure that the cell property keeps correct track of the
+     * number of cells with it (if this is done).
+     */
+    template<typename CLASS>
+    void RemoveCellProperty()
+    {
+    	bool cell_has_property = false;
+
+    	for (std::set<boost::shared_ptr<AbstractCellProperty> >::iterator property_iter = mCellPropertyCollection.Begin();
+    	     property_iter != mCellPropertyCollection.End();
+    	     ++property_iter)
+    	{
+    		if ((*property_iter)->IsType<CLASS>())
+    		{
+    			cell_has_property = true;
+
+    			if ((*property_iter)->IsType<CellLabel>())
+			    {
+			    	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(*property_iter);
+			    	p_label->DecrementCellCount();
+			    }
+    		}
+    	}
+
+    	if (cell_has_property)
+    	{
+    	    mCellPropertyCollection.RemoveProperty<CLASS>();
+    	}
+    }
 
     /**
      * Determine if this cell is ready to divide at the current simulation time.

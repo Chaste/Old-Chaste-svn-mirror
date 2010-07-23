@@ -44,10 +44,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
+#include "CellLabel.hpp"
 
 class TestSimpleCellCycleModels : public AbstractCellBasedTestSuite
 {
@@ -232,8 +232,8 @@ public:
         // Divide the cell
         TS_ASSERT_EQUALS(p_cell->ReadyToDivide(), true);
         TissueCellPtr p_cell2 = p_cell->Divide();
-        boost::shared_ptr<AbstractCellMutationState> p_lab_mutation(new LabelledCellMutationState);
-        p_cell->SetMutationState(p_lab_mutation);
+        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
+        p_cell->AddCellProperty(p_label);
 
         SimpleWntCellCycleModel* p_cycle_model2 = static_cast<SimpleWntCellCycleModel*> (p_cell2->GetCellCycleModel());
 
@@ -353,7 +353,8 @@ public:
         TissueCellPtr p_cell5 = p_cell4->Divide();
         TS_ASSERT_EQUALS(p_cell4->GetCellCycleModel()->GetCellProliferativeType(), STEM);
         TS_ASSERT_EQUALS(p_cell5->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
-        p_cell2->SetMutationState(p_lab_mutation);
+
+        p_cell2->AddCellProperty(p_label);
 
         // Now reduce the Wnt concentration
         wnt_level = p_params->GetWntStemThreshold() - 0.01;

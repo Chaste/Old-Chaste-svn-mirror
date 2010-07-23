@@ -40,8 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 #include "SloughingCellKiller.hpp"
 #include "ApcOneHitCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "CellLabel.hpp"
 
 /**
  * Note that all these tests call setUp() and tearDown() before running,
@@ -222,10 +222,10 @@ public:
         CryptStatistics crypt_statistics(crypt);
         std::vector<TissueCellPtr> test_section = crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
 
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
         for (unsigned i=0; i<test_section.size(); i++)
         {
-            test_section[i]->SetMutationState(p_labelled);
+            test_section[i]->AddCellProperty(p_label);
         }
 
         simulator.Solve();
@@ -242,12 +242,11 @@ public:
         // TEST crypt_statistics::LabelSPhaseCells
 
         // First remove labels
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            cell_iter->SetMutationState(p_state);
+            cell_iter->RemoveCellProperty<CellLabel>();
         }
 
         crypt_statistics.LabelSPhaseCells();
@@ -258,9 +257,8 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            bool is_labelled = cell_iter->GetMutationState()->IsType<LabelledCellMutationState>();
-
-            bool in_s_phase = cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE;
+            bool is_labelled = cell_iter->rGetCellPropertyCollection().HasProperty<CellLabel>();
+            bool in_s_phase = (cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase() == S_PHASE);
 
             TS_ASSERT_EQUALS(is_labelled, in_s_phase);
 
@@ -269,22 +267,24 @@ public:
                 counter++;
             }
         }
-        TS_ASSERT_EQUALS(counter,15u);
 
-        // TEST crypt_statistics::LabelAllCellsAsHealthy
-        // Check this function sets all cells back to be wild type cells.
+        TS_ASSERT_EQUALS(counter, 15u);
+
+        // Test that LabelAllCellsAsHealthy sets all cells back to be UNLABELLED wild type cells
         crypt_statistics.LabelAllCellsAsHealthy();
+
         // Iterate over cells checking for correct labels
         counter = 0;
         for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            TS_ASSERT_EQUALS(cell_iter->GetMutationState()->IsType<WildTypeCellMutationState>(),true);
+            TS_ASSERT_EQUALS(cell_iter->GetMutationState()->IsType<WildTypeCellMutationState>(), true);
+            TS_ASSERT_EQUALS(cell_iter->rGetCellPropertyCollection().HasProperty<CellLabel>(), false);
             counter++;
         }
 
-        TS_ASSERT_EQUALS(counter,simulator.rGetTissue().GetNumRealCells());
+        TS_ASSERT_EQUALS(counter, simulator.rGetTissue().GetNumRealCells());
 
         crypt_statistics.LabelSPhaseCells();
 
@@ -326,7 +326,7 @@ public:
         // only the third cell had been labelled
         for (unsigned vector_index=0; vector_index<labelled.size(); vector_index++)
         {
-            if (vector_index==2u)
+            if (vector_index == 2u)
             {
                 TS_ASSERT_EQUALS(labelled[vector_index], true);
             }
@@ -449,7 +449,7 @@ public:
             std::vector<TissueCellPtr> crypt_section = p_crypt_statistics->GetCryptSection(8.0, 8.0);
             labelled = p_crypt_statistics->AreCryptSectionCellsLabelled(crypt_section);
 
-            // Store information from this simulation in a global vector.
+            // Store information from this simulation in a global vector
             for (unsigned cell_index=0; cell_index < labelled.size(); cell_index++)
             {
                 TS_ASSERT(cell_index < labelled_cells_counter.size());
@@ -477,7 +477,7 @@ public:
             percentage_of_labelled_cells[index] = (double) labelled_cells_counter[index]/num_simulations;
         }
 
-         //Write data to file
+        // Write data to file
         SimpleDataWriter writer1(output_directory, "percentage_of_labelled_cells.dat", percentage_of_labelled_cells, false);
 
         // Test against previous run

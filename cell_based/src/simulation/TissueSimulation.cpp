@@ -662,7 +662,7 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
      *    * Revision number
      *    * Machine info
      *    * Date
-     *  * Tissue Type (`VertexBased`, `MeshBased`, `NodeBased` .etc.)
+     *  * Tissue Type (`VertexBased`, `MeshBased`, `NodeBased` etc.)
      *    * Mesh parameters
      *  * Force/Update laws used
      *  * Timestep data

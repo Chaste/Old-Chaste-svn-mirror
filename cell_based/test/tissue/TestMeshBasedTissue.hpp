@@ -44,8 +44,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
+#include "CellLabel.hpp"
+#include "CellPropertyRegistry.hpp"
 
 class TestMeshBasedTissue : public AbstractCellBasedTestSuite
 {
@@ -157,9 +158,9 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Give cells 0 and 1 specific mutations to enable later testing
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
         boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
-        cells[0]->SetMutationState(p_labelled);
+        cells[0]->AddCellProperty(p_label);
         cells[1]->SetMutationState(p_apc1);
 
         // Create tissue
@@ -172,7 +173,7 @@ public:
         std::set<TissueCellPtr>::iterator cell_pair_iter = cell_pair.begin();
 
         TissueCellPtr p_cell0 = *cell_pair_iter;
-        TS_ASSERT_EQUALS(p_cell0->GetMutationState(), p_labelled);
+        TS_ASSERT_EQUALS(p_cell0->rGetCellPropertyCollection().HasProperty<CellLabel>(), true);
 
         ++cell_pair_iter;
         TissueCellPtr p_cell1 = *cell_pair_iter;
@@ -197,16 +198,16 @@ public:
 
         // Bestow mutations on some cells
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(new LabelledCellMutationState);
         boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
         boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
 
         cells[0]->SetMutationState(p_state);
         cells[1]->SetMutationState(p_apc1);
         cells[2]->SetMutationState(p_apc2);
         cells[3]->SetMutationState(p_bcat1);
-        cells[4]->SetMutationState(p_labelled);
+        cells[4]->AddCellProperty(p_label);
 
         // Create tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
@@ -580,17 +581,17 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Cover mutation state reporting
-        boost::shared_ptr<AbstractCellMutationState> p_labelled(CellMutationStateRegistry::Instance()->Get<LabelledCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_apc1(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_apc2(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
+        boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
 
         cells[0]->SetMutationState(p_apoptotic_state);
         cells[1]->SetMutationState(p_apc1);
         cells[2]->SetMutationState(p_apc2);
         cells[3]->SetMutationState(p_bcat1);
-        cells[4]->SetMutationState(p_labelled);
+        cells[4]->AddCellProperty(p_label);
 
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -641,13 +642,12 @@ public:
 
         // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = tissue.GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_states.size(), 6u);
-        TS_ASSERT_EQUALS(cell_mutation_states[0], 0u);
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_states[0], 1u);
         TS_ASSERT_EQUALS(cell_mutation_states[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_states[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_states[3], 1u);
         TS_ASSERT_EQUALS(cell_mutation_states[4], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_states[5], 1u);
 
         // Test the GetCellProliferativeTypeCount function - we should have 4 stem cells and 1 dead cell (for coverage)
         std::vector<unsigned> cell_types = tissue.rGetCellProliferativeTypeCount();
@@ -720,13 +720,12 @@ public:
 
         // Test the GetCellMutationStateCount function
         std::vector<unsigned> cell_mutation_states = tissue.GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_states.size(), 6u);
+        TS_ASSERT_EQUALS(cell_mutation_states.size(), 5u);
         TS_ASSERT_EQUALS(cell_mutation_states[0], 4u);
         TS_ASSERT_EQUALS(cell_mutation_states[1], 0u);
         TS_ASSERT_EQUALS(cell_mutation_states[2], 0u);
         TS_ASSERT_EQUALS(cell_mutation_states[3], 0u);
-        TS_ASSERT_EQUALS(cell_mutation_states[4], 0u);
-        TS_ASSERT_EQUALS(cell_mutation_states[5], 1u);
+        TS_ASSERT_EQUALS(cell_mutation_states[4], 1u);
 
         // Test the GetCellProliferativeTypeCount function
         std::vector<unsigned> cell_types = tissue.rGetCellProliferativeTypeCount();

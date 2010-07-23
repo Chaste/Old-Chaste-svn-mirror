@@ -46,13 +46,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Node.hpp"
 
 #include "CellMutationStateRegistry.hpp"
+#include "CellPropertyRegistry.hpp"
+
 // Needed here to avoid serialization errors (on Boost<1.37)
 #include "WildTypeCellMutationState.hpp"
-#include "LabelledCellMutationState.hpp"
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "ApoptoticCellMutationState.hpp"
+#include "CellLabel.hpp"
 
 /**
  * An abstract facade class encapsulating a tissue.
@@ -82,6 +84,7 @@ private:
         archive & mCellCyclePhaseCount;
         archive & mTissueContainsMesh;
         archive & mpMutationStateRegistry;
+        archive & mpCellPropertyRegistry;
     }
 
 protected:
@@ -131,11 +134,14 @@ protected:
     /** Results file for boundary nodes. */
     out_stream mpVizBoundaryNodesFile;
 
-    /** Whether the tissue contains a mesh */
+    /** Whether the tissue contains a mesh. */
     bool mTissueContainsMesh;
 
-    /** Cell mutation state registry */
+    /** Cell mutation state registry. */
     boost::shared_ptr<CellMutationStateRegistry> mpMutationStateRegistry;
+
+    /** Cell property registry. */
+    boost::shared_ptr<CellPropertyRegistry> mpCellPropertyRegistry;
 
     /**
      * Check consistency of our internal data structures.
@@ -323,11 +329,10 @@ public:
      *
      * @return The number of cells of each mutation state (evaluated at each visualizer output)
      * [0] = healthy count
-     * [1] = labelled cells
-     * [2] = APC one hit
-     * [3] = APC two hit
-     * [4] = beta catenin one hit
-     * [5] = apoptotic
+     * [1] = APC one hit
+     * [2] = APC two hit
+     * [3] = beta catenin one hit
+     * [4] = apoptotic
      */
     std::vector<unsigned> GetCellMutationStateCount();
 
@@ -405,6 +410,11 @@ public:
      * @return registry of mutation states used in this tissue.
      */
     boost::shared_ptr<CellMutationStateRegistry> GetMutationRegistry();
+
+    /**
+     * @return registry of cell properties used in this tissue.
+     */
+    boost::shared_ptr<CellPropertyRegistry> GetCellPropertyRegistry();
 
     /**
      * Set a default ordering on mutation states, so that existing tests don't need to
