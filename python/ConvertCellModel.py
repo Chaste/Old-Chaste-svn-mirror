@@ -102,6 +102,9 @@ parser.add_option('--backward-euler', action='store_true', default=False,
                   " presence of a .out file accompanying the CellML.")
 parser.add_option('--output-dir', action='store',
                   help="directory to place output files in")
+parser.add_option('--show-outputs', action='store_true', default=False,
+                  help="don't actually run PyCml, just show what files would"
+                  " be generated, one per line")
 parser.add_option('--config-file',
                   action='store',
                   help="pathname of configuration file.  This can be used to"
@@ -131,15 +134,20 @@ if options.config_file:
     config_modified = False
     if hasattr(config_doc.pycml_config, 'command_line_args'):
         config_args = map(str, config_doc.pycml_config.command_line_args.arg)
-        options, extra_args = parser.parse_args(config_args, options)
-        args.extend(extra_args)
-        # Strip any arguments only understood by this script
+        # Strip from the file any arguments only understood by this script
         for arg in list(config_doc.pycml_config.command_line_args.arg):
             if arg2name(arg) in option_names:
                 arg.xml_parent.xml_remove_child(arg)
                 config_modified = True
         if not hasattr(config_doc.pycml_config.command_line_args, 'arg'):
             del config_doc.pycml_config.command_line_args
+        # If the config file supplied such arguments, then pretend there weren't
+        # any on the command line, since we can't turn options off.
+        if config_modified:
+            for option in option_names:
+                setattr(options, option, False)
+        options, extra_args = parser.parse_args(config_args, options)
+        args.extend(extra_args)
     if config_modified:
         # Write a new config file
         fp, config_path = tempfile.mkstemp(suffix='.xml', text=True)
@@ -187,20 +195,30 @@ for model in filter(lambda a: a.endswith('.cellml'), args):
     else:
         print >>sys.stderr, "Skipping", model, "because it does not exist"
 
+def tidy_up():
+    """Clean up temporary file, if created."""
+    if options.config_file and config_modified:
+        os.remove(config_path)
+
 def do_cmd(cmd, outputs):
     """Print and execute a command.
     
     If the command fails, remove any generated outputs and exit.
     """
-    print ' '.join(cmd)
-    rc = subprocess.call(cmd)
-    if rc:
+    if options.show_outputs:
         for output in outputs:
-            try:
-                os.remove(output)
-            except OSError:
-                pass
-        sys.exit(rc)
+            print output
+    else:
+        print ' '.join(cmd)
+        rc = subprocess.call(cmd)
+        if rc:
+            for output in outputs:
+                try:
+                    os.remove(output)
+                except OSError:
+                    pass
+            tidy_up()
+            sys.exit(rc)
 
 def add_out_opts(base_options, output_dir, classname, file_base, file_extra=''):
     """Add options specifying output path and class name.
@@ -228,9 +246,7 @@ def convert(model, output_dir):
     if number_of_options > 1:
         # Run validation separately
         cmd = ['./validator.py'] + validation_options + [model]
-        output_base = os.path.join(output_dir, model_base)
-        outputs = [output_base + '.hpp', output_base + '.cpp']
-        do_cmd(cmd, outputs)
+        do_cmd(cmd, [])
 
     command_base = ['./translate.py', model] + pycml_options
 
@@ -269,12 +285,10 @@ def convert(model, output_dir):
         do_cmd(cmd, outputs)
 
 
-# TODO: This is bad for scons -j
+# TODO #1493: This is bad for scons -j
 os.chdir(pycml_dir)
 
 for model in models:
     convert(model, options.output_dir)
 
-# Clean up temporary file, if created
-if options.config_file and config_modified:
-    os.remove(config_path)
+tidy_up()

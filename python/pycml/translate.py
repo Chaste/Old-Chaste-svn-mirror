@@ -4022,7 +4022,7 @@ def get_options(args, default_options=None):
     parser.add_option('-u', '--units-conversions',
                       action='store_true', default=False,
                       help="add explicit units conversion mathematics")
-    parser.add_option('-c', '--class-name',
+    parser.add_option('-c', '--class-name', default=None,
                       help="explicitly set the name of the generated class")
     parser.add_option('-a', '--augment-class-name',
                       dest='augment_class_name', action='store_true',
@@ -4183,7 +4183,13 @@ def run():
 
     config.validate_metadata(options.assume_valid)
 
-    class_name = getattr(options, 'class_name', None)
+    # These bits could do with improving, as they annotate more than is really needed!
+    # We need to ensure PE doesn't remove ionic currents needed for GetIIonic
+    config.annotate_currents_for_pe()
+    # "Need" to ensure pe doesn't remove metadata-annotated variables (when using modifiers or default stimulus?)
+    config.annotate_metadata_for_pe()
+
+    class_name = options.class_name
     if options.augment_class_name and not class_name:
         class_name = u'CML_' + doc.model.name.replace('-', '_')
         if options.pe:
@@ -4209,10 +4215,6 @@ def run():
 
     if options.pe:
         # Do partial evaluation
-        if options.config_file:
-            config.annotate_currents_for_pe()
-        # Need to ensure pe doesn't remove metadata-annotated variables
-        config.annotate_metadata_for_pe()
         optimize.parteval(doc)
 
     if options.lut:

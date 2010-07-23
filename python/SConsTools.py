@@ -450,8 +450,8 @@ def CreatePyCmlBuilder(build, buildenv):
     def HasConfigFile(source):
         conf_file = os.path.splitext(source[0].srcnode().abspath)[0] + '-conf.xml'
         return os.path.exists(conf_file), conf_file
-    def RunPyCml(target, source, env):
-        script = os.path.join(Dir('#').abspath, 'python', 'ConvertCellModel.py')
+    script = os.path.join(Dir('#').abspath, 'python', 'ConvertCellModel.py')
+    def GetArgs(target, source, env):
         args = ['-A', '--output-dir', os.path.dirname(target[0].abspath)]
         if IsDynamicSource(source):
             # If we're creating a dynamic library, do things differently:
@@ -468,27 +468,29 @@ def CreatePyCmlBuilder(build, buildenv):
         has_conf, conf_file = HasConfigFile(source)
         if has_conf:
             args.append('--conf=' + conf_file)
+        return args
+    def RunPyCml(target, source, env):
+        args = GetArgs(target, source, env)
         command = [script] + args + [str(source[0])]
+        print "Running", command
         rc = subprocess.call(command)
         return rc
     PyCmlAction = buildenv.Action(RunPyCml)
     def PyCmlEmitter(target, source, env):
-        base, ext = os.path.splitext(str(target[0]))
-        assert ext == '.cpp'
-        dynamic = IsDynamicSource(source)
-        if not dynamic:
-            target.extend([base + 'Opt.cpp',
-                           base + 'Cvode.cpp',
-                           base + 'CvodeOpt.cpp'])
-            generate_be, extra_source = HasMapleOutput(source)
-            if generate_be:
-                extra_targets = [base + 'BackwardEuler.cpp']
-                env.Depends(extra_targets, extra_source)
-                target.extend(extra_targets)
-        headers = map(lambda cpp: os.path.splitext(str(cpp))[0] + '.hpp',
-                      target)
-        target.extend(headers)
-        # Add dependency on configuration file
+        args = GetArgs(target, source, env)
+        args.append('--show-outputs')
+        command = [script] + args + [str(source[0])]
+        process = subprocess.Popen(command, stdout=subprocess.PIPE)
+        filelist = process.communicate()[0]
+        if process.returncode != 0:
+            print filelist
+            raise IOError('Failed to run PyCml; return code = ' + str(process.returncode))
+        # Adjust targets to match what the script will actually create
+        target = map(lambda s: s.strip(), filelist.split())
+        # Make sure the targets depend on everything they might need
+        has_maple, maple_output = HasMapleOutput(source)
+        if has_maple:
+            env.Depends(target, maple_output)
         has_conf, conf_file = HasConfigFile(source)
         if has_conf:
             env.Depends(target, conf_file)
@@ -496,7 +498,8 @@ def CreatePyCmlBuilder(build, buildenv):
         pycml_code = glob.glob(os.path.join(Dir('#/python/pycml').abspath, '*'))
         env.Depends(target, pycml_code)
         # Install headers if requested
-        if not dynamic:
+        if not IsDynamicSource(source):
+            headers = [t for t in target if t.endswith('.hpp')]
             t = env.Install(os.path.join(env['INSTALL_PREFIX'], 'include'), headers)
             env.Alias('install', t)
         return (target, source)
