@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <vector>
+#include <cstdlib> // For EXIT_FAILURE
 
 #ifndef SPECIAL_SERIAL
 #include <petsc.h>
@@ -238,6 +239,6 @@ public:
 
 #define TERMINATE(message) PetscTools::Terminate(message, __FILE__, __LINE__)
 
-#define NEVER_REACHED  PetscTools::Terminate("Should have been impossible to reach this line of code", __FILE__, __LINE__)
+#define NEVER_REACHED  PetscTools::Terminate("Should have been impossible to reach this line of code", __FILE__, __LINE__); exit(EXIT_FAILURE)
 
 #endif /*PETSCTOOLS_HPP_*/

@@ -327,7 +327,7 @@ void PetscTools::Terminate(const std::string& rMessage, const std::string& rFile
     }
     else
     {
-        exit(EXIT_FAILURE); // #include <stdlib.h>
+        exit(EXIT_FAILURE);
         
     } 
 }
