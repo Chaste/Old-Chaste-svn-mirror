@@ -62,12 +62,15 @@ public:
      *
      * @param pContext [optional] A pointer to a class that may have to be used in the
      *  ComputeResidual and ComputeJacobian functions
-     *
+     * 
+     * @param fill the expected maximum number of nonzeros in a row of the Jacobian matrix
+     * 
      * @return Returns a PETSc Vec of the solution.
      */
     virtual Vec Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                       Vec initialGuess,
+                      unsigned fill,
                       void* pContext)=0;
     /**
      * Destructor.

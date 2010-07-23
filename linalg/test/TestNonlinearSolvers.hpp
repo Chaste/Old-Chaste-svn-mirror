@@ -64,7 +64,7 @@ public:
         VecSetValue(initial_guess, 1, -1e8, INSERT_VALUES);
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
-        TS_ASSERT_THROWS_THIS(solver_newton.Solve(&ComputeTestResidual, &(ComputeTestJacobian), initial_guess, NULL),
+        TS_ASSERT_THROWS_THIS(solver_newton.Solve(&ComputeTestResidual, &(ComputeTestJacobian), initial_guess, length, NULL),
                 "Iteration 27, unable to find damping factor such that residual decreases in update direction");
         VecDestroy(initial_guess);
     }
@@ -87,11 +87,11 @@ public:
 
         // solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual, &ComputeTestJacobian,
-                                              initial_guess, NULL);
+                                              initial_guess, length, NULL);
 
         // solve using newton method
         Vec answer_newton = solver_newton.Solve(&ComputeTestResidual, &ComputeTestJacobian,
-                                                initial_guess, NULL);
+                                                initial_guess, length, NULL);
 
 
 
@@ -134,13 +134,13 @@ public:
 
         // solve using petsc solver
         Vec answer_petsc = solver_petsc.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
-                                              initial_guess, NULL);
+                                              initial_guess, length, NULL);
 
         // solve using newton method
         solver_newton.SetTolerance(1e-10);                      // to cover this method
         solver_newton.SetWriteStats();                          // to cover this method
         Vec answer_newton = solver_newton.Solve(&ComputeTestResidual3d, &ComputeTestJacobian3d,
-                                                initial_guess, NULL);
+                                                initial_guess, length, NULL);
 
 
 

@@ -84,6 +84,7 @@ private:
 
     /** PETSc vector storing an initial guess for the solution. */
     Vec mInitialGuess;
+    unsigned mFillSize; /**< Calculated in InitialiseForSolve and used to communicate connectivity information from the mesh to the nonlinear solver*/
 
 protected:
 
@@ -428,6 +429,7 @@ void AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::
     PetscInt size_of_init_guess;
     VecGetSize(initialGuess, &size_of_init_guess);
     PetscInt problem_size = PROBLEM_DIM * this->mpMesh->GetNumNodes();
+    mFillSize = PROBLEM_DIM * this->mpMesh->CalculateMaximumNodeConnectivityPerProcess();
     if (size_of_init_guess != problem_size)
     {
         std::stringstream error_message;
@@ -452,6 +454,7 @@ Vec AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>::S
     Vec answer = this->mpSolver->Solve(&AbstractNonlinearAssembler_AssembleResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>,
                                        &AbstractNonlinearAssembler_AssembleJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CONCRETE>,
                                        currentSolutionOrGuess,
+                                       mFillSize, 
                                        this);
     return answer;
 }

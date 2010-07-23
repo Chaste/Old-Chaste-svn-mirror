@@ -72,6 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Vec,Vec,void*),
                                       PetscErrorCode (*pComputeJacobian)(SNES,Vec,Mat*,Mat*,MatStructure*,void*),
                                       Vec initialGuess,
+                                      unsigned fill,
                                       void* pContext)
 {
     SNES snes;
@@ -86,8 +87,7 @@ Vec SimplePetscNonlinearSolver::Solve(PetscErrorCode (*pComputeResidual)(SNES,Ve
     //get the size of the jacobian from the residual
     VecGetSize(initialGuess,&N);
 
-    ///\todo #1216 fix the next line so that something more sensible than 54 is passed in
-    PetscTools::SetupMat(jacobian, N, N, 54);
+    PetscTools::SetupMat(jacobian, N, N, fill);
 
     SNESCreate(PETSC_COMM_WORLD, &snes);
     SNESSetFunction(snes, residual, pComputeResidual, pContext);
