@@ -140,6 +140,8 @@ public:
 
     /**
      * Set #mIsLabelled.
+     * 
+     * @param isLabelled whether the cell associated with this cell cycle ODE system is labelled (this affects the ODE system)
      */
     void SetIsLabelled(bool isLabelled);
 
