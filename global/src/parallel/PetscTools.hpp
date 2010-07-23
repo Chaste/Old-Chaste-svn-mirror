@@ -239,6 +239,33 @@ public:
 
 #define TERMINATE(message) PetscTools::Terminate(message, __FILE__, __LINE__)
 
+/*
+ *  The exit statement at the end of NEVER_REACHED is not really needed but prevents g++ from complaining about 
+ * uninitialised variables when you have code that looks like:
+ * 
+ *   RelativeTo::Value relative_to;
+ *   switch (rPath.relative_to())
+ *   {
+ *       case cp::relative_to_type::cwd:
+ *           relative_to = RelativeTo::CWD;
+ *           break;
+ *       case cp::relative_to_type::chaste_test_output:
+ *           relative_to = RelativeTo::ChasteTestOutput;
+ *           break;
+ *       case cp::relative_to_type::chaste_source_root:
+ *           relative_to = RelativeTo::ChasteSourceRoot;
+ *           break;
+ *       case cp::relative_to_type::absolute:
+ *           relative_to = RelativeTo::Absolute;
+ *           break;
+ *       default:
+ *           NEVER_REACHED;
+ *           break;
+ *   }
+ * 
+ *  relative_to is considered potentially uninitialised in the default branch unless the compiler finds a exit, 
+ * assert or throw statement. 
+ */
 #define NEVER_REACHED  PetscTools::Terminate("Should have been impossible to reach this line of code", __FILE__, __LINE__); exit(EXIT_FAILURE)
 
 #endif /*PETSCTOOLS_HPP_*/
