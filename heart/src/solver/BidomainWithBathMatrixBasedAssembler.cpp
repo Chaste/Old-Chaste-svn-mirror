@@ -108,8 +108,8 @@ BidomainWithBathRhsMatrixAssembler<DIM>::BidomainWithBathRhsMatrixAssembler(Abst
 
     //DistributedVector::SetProblemSize(this->mpMesh->GetNumNodes()); WOULD BE WRONG -- we need the maintain an uneven distribution, if given
     Vec template_vec = this->mpMesh->GetDistributedVectorFactory()->CreateVec(2);
-    ///\todo #1216 Choose the row preallocation size more sensibly than just setting it to 54 below.
-    this->mpLinearSystem = new LinearSystem(template_vec, 54);
+    unsigned preallocation = 2*this->mpMesh->CalculateMaximumNodeConnectivityPerProcess();//2 unknowns per node
+    this->mpLinearSystem = new LinearSystem(template_vec, preallocation);
     VecDestroy(template_vec);
 
 

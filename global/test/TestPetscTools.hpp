@@ -159,6 +159,11 @@ public:
         }
 
         MatDestroy(mat2);
+        
+        Mat mat_over_allocate;
+        PetscTools::SetupMat(mat_over_allocate, 12, 12, 13);
+        MatDestroy(mat_over_allocate);
+        
     }
 
     void TestBarrier()

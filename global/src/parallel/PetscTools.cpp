@@ -213,7 +213,6 @@ void PetscTools::SetupMat(Mat& rMat, int numRows, int numColumns,
     assert(numColumns>0);
     if((int) rowPreallocation>numColumns)
     {
-        ///\todo #1216 Find all the places where this trap is sprung
         WARNING("Preallocation failure: requested number of nonzeros per row greater than number of columns");//+rowPreallocation+">"+numColumns);
         rowPreallocation=numColumns;
     }
