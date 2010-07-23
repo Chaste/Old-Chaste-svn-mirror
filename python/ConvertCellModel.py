@@ -127,32 +127,48 @@ def arg2name(arg):
 # Read further arguments from config file?
 if options.config_file:
     # Parse the config file and extract any options
-    sys.path[0:0] = [pycml_dir]
-    import pycml
-    rules = [pycml.bt.ws_strip_element_rule(u'*')]
-    config_doc = pycml.amara_parse(options.config_file, rules=rules)
+    import xml.dom.minidom
+    def getText(nodelist):
+        rc = []
+        for node in nodelist:
+            if node.nodeType == node.TEXT_NODE:
+                rc.append(node.data)
+        return ''.join(rc)
+    config_doc = xml.dom.minidom.parse(options.config_file)
     config_modified = False
-    if hasattr(config_doc.pycml_config, 'command_line_args'):
-        config_args = map(str, config_doc.pycml_config.command_line_args.arg)
+    cl_args_elt = config_doc.getElementsByTagName('command_line_args')
+    if cl_args_elt:
+        cl_args_elt = cl_args_elt[0]
+        arg_elts = cl_args_elt.getElementsByTagName('arg')
+        config_args = []
         # Strip from the file any arguments only understood by this script
-        for arg in list(config_doc.pycml_config.command_line_args.arg):
+        for arg_elt in arg_elts:
+            arg = getText(arg_elt.childNodes)
+            config_args.append(arg)
             if arg2name(arg) in option_names:
-                arg.xml_parent.xml_remove_child(arg)
+                cl_args_elt.removeChild(arg_elt)
                 config_modified = True
-        if not hasattr(config_doc.pycml_config.command_line_args, 'arg'):
-            del config_doc.pycml_config.command_line_args
-        # If the config file supplied such arguments, then pretend there weren't
-        # any on the command line, since we can't turn options off.
         if config_modified:
+            # If the config file supplied such arguments, then pretend there weren't
+            # any on the command line, since we can't turn options off.
             for option in option_names:
                 setattr(options, option, False)
+            # An empty command_line_args isn't allowed
+            for node in cl_args_elt.childNodes:
+                if node.nodeType == node.ELEMENT_NODE:
+                    break
+            else:
+                for node in config_doc.childNodes:
+                    if node.nodeType == node.ELEMENT_NODE:
+                        node.removeChild(cl_args_elt)
+        # Parse additional options
         options, extra_args = parser.parse_args(config_args, options)
         args.extend(extra_args)
     if config_modified:
         # Write a new config file
         fp, config_path = tempfile.mkstemp(suffix='.xml', text=True)
         config_file = os.fdopen(fp, 'w')
-        config_doc.xml(indent=u'yes', stream=config_file)
+        config_doc.writexml(config_file)
         config_file.close()
         essential_options.append('--conf=' + config_path)
     else:
