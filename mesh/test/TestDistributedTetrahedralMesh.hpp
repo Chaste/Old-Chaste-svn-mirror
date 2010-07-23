@@ -1313,6 +1313,7 @@ public:
         TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(1), (double) height);
         TS_ASSERT_EQUALS(constructed_bounding_box.GetWidth(2), (double) depth);
         TS_ASSERT_EQUALS(constructed_mesh.CalculateMaximumContainingElementsPerProcess(), 24U);  //Four surrounding cubes may have all 6 tetrahedra meeting at a node
+        TS_ASSERT_EQUALS(constructed_mesh.CalculateMaximumNodeConnectivityPerProcess(), 15U);  //Four surrounding cubes may have all 6 tetrahedra meeting at a node
  
     }
 

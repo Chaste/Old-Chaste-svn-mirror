@@ -403,6 +403,16 @@ public:
      * @param elementIndex is the global index of the element
      */
     virtual bool CalculateDesignatedOwnershipOfElement( unsigned elementIndex );
+    
+    /**
+     * @return Iterates through local nodes and finds the node with the/a maximum number of 
+     * containing elements for all locally owned nodes.  At that representative node the
+     * node connectivity (number of nodes in forward star) is determined. 
+     * 
+     * Useful for determining FEM matrix fill.
+     */
+    unsigned CalculateMaximumNodeConnectivityPerProcess() const;
+    
 
 
     //////////////////////////////////////////////////////////////////////

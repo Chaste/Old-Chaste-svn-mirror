@@ -549,7 +549,37 @@ bool AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateDesignatedOwnersh
         }
 }
 
-
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumNodeConnectivityPerProcess() const
+{
+    unsigned max_num=0u;
+    unsigned connected_node_index=0u;
+    for (unsigned local_node_index=0; local_node_index<this->mNodes.size(); local_node_index++)
+    {
+        unsigned num=this->mNodes[local_node_index]->GetNumContainingElements();
+        if (num>max_num)
+        {
+            max_num=num;
+            connected_node_index=local_node_index;
+        }
+    }
+    
+    //connected_node_index now has the index of a maximally connected node
+    std::set<unsigned> forward_star_nodes;
+    unsigned nodes_per_element = this->GetElement(0)->GetNumNodes(); //Usually ELEMENT_DIM+1, except in Quadratic case
+    for (typename Node<SPACE_DIM>::ContainingElementIterator it = this->mNodes[connected_node_index]->ContainingElementsBegin();
+        it != this->mNodes[connected_node_index]->ContainingElementsEnd();
+        ++it)
+    {
+        
+        Element<ELEMENT_DIM, SPACE_DIM>* p_elem=this->GetElement(*it);
+        for (unsigned i=0; i<nodes_per_element; i++)
+        {
+            forward_star_nodes.insert(p_elem->GetNodeGlobalIndex(i));
+        }
+    }
+    return forward_star_nodes.size();    
+}
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

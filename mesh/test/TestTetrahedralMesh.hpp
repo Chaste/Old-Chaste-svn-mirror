@@ -128,6 +128,7 @@ public:
 
         TS_ASSERT_EQUALS(mesh.IsMeshChanging(), false);
         TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 8U);
+        TS_ASSERT_EQUALS(mesh.CalculateMaximumNodeConnectivityPerProcess(),  9U);
     }
 
     void TestMeshConstructionFromMeshReaderIndexedFromOne() throw(Exception)

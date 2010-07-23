@@ -240,8 +240,9 @@ public:
         assert(pMesh);
         assert(pBcc);
 
-        ///\todo #1216 Choose the row preallocation size more sensibly than just setting it to 54 below.
-        mpLinearSystem = new LinearSystem(mpQuadMesh->GetNumNodes(), 54);
+        unsigned preallocation=mpQuadMesh->CalculateMaximumNodeConnectivityPerProcess(); //The midpoint, as given above
+
+        mpLinearSystem = new LinearSystem(mpQuadMesh->GetNumNodes(), preallocation);
         mpQuadRule = new GaussianQuadratureRule<DIM>(3);
 
         mCoeffOfU = 0.0;

@@ -372,28 +372,35 @@ public:
         }
 
         TS_ASSERT_EQUALS(mesh2.CalculateMaximumContainingElementsPerProcess(), 6U); //The midpoint, as given above
+        //There are  8 vertex nodes in the cube
+        //There are 12 internal nodes on the cube edges
+        //There are  6 internal nodes on the diagonals to the cube faces
+        //There is   1 interal node on the separating diagonal
+        // 8V + 19I = 27 nodes 
+        TS_ASSERT_EQUALS(mesh2.CalculateMaximumNodeConnectivityPerProcess(), 27U); //The midpoint, as given above
     }
 
-//    void xTestAutomaticallyGenerated3dMesh() throw(Exception)
-//    {
-//        QuadraticMesh<3> mesh(3.14159, 2.71828183, 2.99792 /* c! */, 5, 5, 5);
-//
-//        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 1331u);
-//        TS_ASSERT_EQUALS(mesh.GetNumElements(), 750u); // 5 cubes in each direction = 125 cubes => 125 x 6 tetrahedra per cube = 750
-//        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 216u); // 6^3 = 216
-//
-//        // Each element should have 10 nodes
-//        for (unsigned i=0; i<mesh.GetNumElements(); i++)
-//        {
-//            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 10u);
-//        }
-//
-//        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[0], 3.14159, 1e-4);
-//        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[1], 2.71828183, 1e-5);
-//        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[2], 2.99792, 1e-4);
-//        TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 24U); //Four surrounding cubes may have all 6 tetrahedra meeting at a node
-//    }
-//
+    void TestAutomaticallyGenerated3dMesh() throw(Exception)
+    {
+        QuadraticMesh<3> mesh(0.5,  2.5, 2.5, 2.5);
+
+        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 1331u);
+        TS_ASSERT_EQUALS(mesh.GetNumElements(), 750u); // 5 cubes in each direction = 125 cubes => 125 x 6 tetrahedra per cube = 750
+        TS_ASSERT_EQUALS(mesh.GetNumVertices(), 216u); // 6^3 = 216
+
+        // Each element should have 10 nodes
+        for (unsigned i=0; i<mesh.GetNumElements(); i++)
+        {
+            TS_ASSERT_EQUALS(mesh.GetElement(i)->GetNumNodes(), 10u);
+        }
+
+        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[0], 2.5, 1e-4);
+        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[1], 2.5, 1e-5);
+        TS_ASSERT_DELTA(mesh.GetNode(215)->rGetLocation()[2], 2.5, 1e-4);
+        TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 24U); //Four surrounding cubes may have all 6 tetrahedra meeting at a node
+        TS_ASSERT_EQUALS(mesh.CalculateMaximumNodeConnectivityPerProcess(), 65U);
+    }
+
 
 
     void TestWritingReadingBoundaryElementsFile2d() throw(Exception)

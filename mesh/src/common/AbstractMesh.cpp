@@ -384,9 +384,9 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumContainingElementsPerProcess() const
 {
     unsigned max_num=0u;
-    for (unsigned i=0; i<mNodes.size(); i++)
+    for (unsigned local_node_index=0; local_node_index<mNodes.size(); local_node_index++)
     {
-        unsigned num=mNodes[i]->GetNumContainingElements();
+        unsigned num=mNodes[local_node_index]->GetNumContainingElements();
         if (num>max_num)
         {
             max_num=num;

@@ -161,15 +161,9 @@ void AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CON
 {
     if (this->mpLinearSystem == NULL)
     {
-        unsigned preallocation=(this->mpMesh->CalculateMaximumContainingElementsPerProcess() + ELEMENT_DIM);
-        if (ELEMENT_DIM > 1)
-        {
-            //Highest connectivity is closed
-            preallocation--;
-        }
+        unsigned preallocation=this->mpMesh->CalculateMaximumNodeConnectivityPerProcess();
         preallocation*=PROBLEM_DIM;
-        //PRINT_2_VARIABLES(preallocation,this->mpMesh->CalculateMaximumContainingElementsPerProcess());
-        //PRINT_2_VARIABLES(preallocation, PROBLEM_DIM);
+
         HeartEventHandler::BeginEvent(HeartEventHandler::COMMUNICATION);
         if (initialSolution == NULL)
         {
