@@ -2077,6 +2077,9 @@ class cellml_variable(Colourable, element_base):
             else:
                 raise EvaluationError("Variable " + self.fullname() +
                                       " has no initial value set.")
+        elif self.get_type() == VarTypes.Computed and self._get_binding_time() == BINDING_TIMES.static:
+            # Evaluate the defining expression
+            val = self._cml_depends_on[0].evaluate()
         else:
             raise EvaluationError("Unable to find a suitable value for" +
                                   " variable " + self.fullname())

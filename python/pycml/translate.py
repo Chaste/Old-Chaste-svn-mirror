@@ -3804,7 +3804,7 @@ class ConfigurationStore(object):
                 if v is not self.i_stim_var:
                     # Check units
                     u = v.component.get_units_by_name(v.units)
-                    if u == stim_units:
+                    if u.dimensionally_equivalent(stim_units):
                         ionic_vars.append(v)
             elif isinstance(expr, mathml_apply):
                 for o in expr.operands():
