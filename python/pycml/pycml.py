@@ -476,6 +476,9 @@ class cellml_model(element_base):
         self._cml_assignments = []
     
     def __del__(self):
+        self.clean_up()
+        
+    def clean_up(self):
         """Try to get the RDF library to clean up nicely."""
         cellml_metadata.remove_model(self)
 
@@ -4451,10 +4454,15 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
             else:
                 opers = self.operands()
                 opers.next()
+                # Make sure exponent is static
+                expt = opers.next()
+                if self._get_element_binding_time(expt) != BINDING_TIMES.static:
+                    raise UnitsError(self, 'Unable to units check power with an exponent that can vary at run-time',
+                                     warn=True,
+                                     level=logging.WARNING_TRANSLATE_ERROR)
                 # Try to evaluate the exponent
                 try:
-                    # TODO: Make sure exponent is static
-                    expt = self.eval(opers.next())
+                    expt = self.eval(expt)
                 except EvaluationError, e:
                     raise UnitsError(self, u' '.join([
                         u'Unable to evaluate the exponent of a power element:',
@@ -4483,8 +4491,12 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
             # TODO: If units on the first operand are dimensionless,
             # then so is the result.
             if not type(degree) is float:
+                # Make sure degree is static
+                if self._get_element_binding_time(degree) != BINDING_TIMES.static:
+                    raise UnitsError(self, 'Unable to units check root with a degree that can vary at run-time',
+                                     warn=True,
+                                     level=logging.WARNING_TRANSLATE_ERROR)
                 try:
-                    # TODO: Ensure degree is static
                     degree = self.eval(degree)
                 except EvaluationError, e:
                     raise UnitsError(self, u' '.join([
@@ -4516,8 +4528,12 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
             # operand, over the units of the term in the bvar qualifier
             # raised to the value of the degree qualifier
             if not type(degree) is float:
+                # Make sure exponent is static
+                if self._get_element_binding_time(degree) != BINDING_TIMES.static:
+                    raise UnitsError(self, 'Unable to units check derivative with a degree that can vary at run-time',
+                                     warn=True,
+                                     level=logging.WARNING_TRANSLATE_ERROR)
                 try:
-                    # TODO: Ensure degree is static
                     degree = self.eval(degree)
                 except EvaluationError, e:
                     raise UnitsError(self, u' '.join([

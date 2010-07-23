@@ -211,6 +211,7 @@ class CellMLValidator(object):
         if return_doc:
             return (res, doc)
         else:
+            doc.model.clean_up()
             return res
 
 

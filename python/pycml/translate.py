@@ -4010,9 +4010,44 @@ def get_options(args, default_options=None):
     usage = 'usage: %prog [options] <cellml file or URI>'
     parser = optparse.OptionParser(version="%%prog %s" % __version__,
                                    usage=usage)
+    # What type of translation is being performed
+    parser.add_option('-T', '--translate',
+                      dest='translate', action='store_true',
+                      default=True,
+                      help="output computer code [default]")
+    parser.add_option('-C', '--output-cellml',
+                      dest='translate', action='store_false',
+                      help="output an annotated CellML file instead of translating, "
+                      " on stdout unless -o specified")
+    translators = sorted(CellMLTranslator.translators)
+    parser.add_option('-t', '--translate-type',
+                      type='choice', choices=translators,
+                      default='Chaste', metavar='TYPE',
+                      help="the type of code to output [default: %default].  "
+                      "Choices: " + str(translators))
     parser.add_option('-o', dest='outfilename', metavar='OUTFILE',
                       help="write program code to OUTFILE [default action is"
                       " to use the input filename with a different extension]")
+    # Global adjustment settings
+    parser.add_option('--config-file',
+                      action='append',
+                      help="pathname of configuration file")
+    parser.add_option('-A', '--fully-automatic',
+                      action='store_true', default=False,
+                      help="if human intervention is required, fail noisily")
+    parser.add_option('--assume-valid',
+                      action='store_true', default=False,
+                      help="skip some of the model validation checks")
+    parser.add_option('-V', '--transmembrane-potential',
+                      default=None, metavar='POT_VAR',
+                      help=
+                      "POT_VAR is the full name of the variable representing"
+                      " the transmembrane potential.  If not specified here,"
+                      " the configuration file will be used.  Defaults to "
+                      "'membrane,V'.")
+    parser.add_option('-d', '--debug', action='store_true', default=False,
+                      help="output debug info to stderr")
+    # What optimisations/transformations to do
     parser.add_option('-l', '--lookup-tables',
                       dest='lut', action='store_true', default=False,
                       help="perform a lookup table analysis")
@@ -4022,6 +4057,17 @@ def get_options(args, default_options=None):
     parser.add_option('-u', '--units-conversions',
                       action='store_true', default=False,
                       help="add explicit units conversion mathematics")
+    parser.add_option('--Wu', '--warn-on-units-errors',
+                      action='store_true', default=False,
+                      dest='warn_on_units_errors',
+                      help="give a warning instead of an error for"
+                      " dimensional inconsistencies")
+    parser.add_option('-j', '--maple-output',
+                      metavar='FILENAME', default=None,
+                      help="file containing output from a Maple script "
+                      "generated using -J.  The generated code/CellML will "
+                      "then contain a symbolic Jacobian as computed by Maple.")
+    # Settings tweaking the generated code
     parser.add_option('-c', '--class-name', default=None,
                       help="explicitly set the name of the generated class")
     parser.add_option('-a', '--augment-class-name',
@@ -4029,33 +4075,13 @@ def get_options(args, default_options=None):
                       default=False,
                       help="alter the class name to show what transformations"
                       " are used")
-    parser.add_option('-C', '--output-cellml',
-                      dest='translate', action='store_false',
-                      help="output an annotated CellML file, on stdout unless"
-                      " -o specified")
-    parser.add_option('-T', '--translate',
-                      dest='translate', action='store_true',
-                      default=True,
-                      help="output computer code [default]")
-    translators = sorted(CellMLTranslator.translators)
-    parser.add_option('-t', '--translate-type',
-                      type='choice', choices=translators,
-                      default='Chaste', metavar='TYPE',
-                      help="the type of code to output [default: %default].  "
-                      "Choices: " + str(translators))
-    parser.add_option('-d', '--debug', action='store_true', default=False,
-                      help="output debug info to stderr")
-    parser.add_option('--Wu', '--warn-on-units-errors',
-                      action='store_true', default=False,
-                      dest='warn_on_units_errors',
-                      help="give a warning instead of an error for"
-                      " dimensional inconsistencies")
     parser.add_option('--no-timestamp',
                       action='store_true', default=False,
                       help="don't add a timestamp comment to generated files")
-    parser.add_option('--config-file',
-                      action='append',
-                      help="pathname of configuration file")
+    parser.add_option('-J', '--do-jacobian-analysis',
+                      action='store_true', default=False,
+                      help="experimental Jacobian analysis; implies -t Maple")
+    # Options specific to Maple output
     parser.add_option('--omit-constants',
                       action='store_true', default=False,
                       help="when generating Maple code, don't include "
@@ -4065,25 +4091,30 @@ def get_options(args, default_options=None):
                       help="make generated Maple code compute the full Jacobian"
                       " matrix, rather than just that for the nonlinear portion"
                       " of the ODE system")
-    parser.add_option('-J', '--do-jacobian-analysis',
+    # Options specific to Chaste output
+    parser.add_option('-y', '--dll', '--dynamically-loadable',
+                      dest='dynamically_loadable',
                       action='store_true', default=False,
-                      help="experimental Jacobian analysis; implies -t Maple")
-    parser.add_option('-V', '--transmembrane-potential',
-                      default=None, metavar='POT_VAR',
-                      help=
-                      "POT_VAR is the full name of the variable representing"
-                      " the transmembrane potential.  If not specified here,"
-                      " the configuration file will be used.  Defaults to "
-                      "'membrane,V'.")
-    parser.add_option('-j', '--maple-output',
-                      metavar='FILENAME', default=None,
-                      help="file containing output from a Maple script "
-                      "generated using -J.  The generated code/CellML will "
-                      "then contain a symbolic Jacobian as computed by Maple.")
+                      help="add code to allow the model to be compiled to a "
+                      "shared library and dynamically loaded"
+                      " (only works if -t Chaste is used)")
     parser.add_option('--use-chaste-stimulus',
                       action='store_true', default=False,
                       help="when generating Chaste code, use Chaste's stimulus"
                       " rather than that defined in the model")
+    parser.add_option('-i', '--convert-interfaces',
+                      action='store_true', default=False,
+                      help="perform units conversions at interfaces to Chaste."
+                      " (only works if -t Chaste is used)")
+    parser.add_option('-m', '--use-modifiers',
+                      action='store_true', default=False,
+                      help="[experimental] add modifier functions for certain"
+                      " metadata-annotated variables for use in sensitivity analysis"
+                      " (only works if -t Chaste is used)")
+    parser.add_option('--protocol',
+                      help="[experimental] specify a simulation protocol to apply to"
+                      " the model prior to translation")
+    # Settings for lookup tables
     parser.add_option('--no-separate-lut-class', dest='separate_lut_class',
                       action='store_false', default=True,
                       help="don't put lookup tables in a separate class")
@@ -4102,32 +4133,14 @@ def get_options(args, default_options=None):
                       help="constraint lookup table index variables to remain"
                       " within the bounds specified, rather than throwing an"
                       " exception if they go outside the bounds")
-    parser.add_option('-i', '--convert-interfaces',
-                      action='store_true', default=False,
-                      help="perform units conversions at interfaces to Chaste. "
-                      "(only works if -t Chaste is used)")
-    parser.add_option('--assume-valid',
-                      action='store_true', default=False,
-                      help="skip some of the model validation checks")
-    parser.add_option('--no-member-vars', dest='kept_vars_as_members',
-                      action='store_false', default=True,
-                      help="[debug] don't store kept variables as members")
     parser.add_option('--bad-lt-layout-for-cache', dest='bad_tables_for_cache',
                       action='store_true', default=False,
                       help="[debug] use the old LT layout, with poorer cache"
                       " performance")
-    parser.add_option('-m', '--use-modifiers',
-                      dest='use_modifiers', action='store_true', default=False,
-                      help="add modifier functions for certain metadata-annotated "
-                      "variables for use in sensitivity analysis [experimental]")
-    parser.add_option('-y', '--dll', '--dynamically-loadable',
-                      dest='dynamically_loadable',
-                      action='store_true', default=False,
-                      help="add code to allow the model to be compiled to a "
-                      "shared library and dynamically loaded")
-    parser.add_option('-A', '--fully-automatic',
-                      action='store_true', default=False,
-                      help="if human intervention is required, fail noisily")
+    # Settings for partial evaluation
+    parser.add_option('--no-member-vars', dest='kept_vars_as_members',
+                      action='store_false', default=True,
+                      help="[debug] don't store kept variables as members")
 
     options, args = parser.parse_args(args, values=default_options)
     if len(args) != 1:
