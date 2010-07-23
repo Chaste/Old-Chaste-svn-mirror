@@ -1467,20 +1467,27 @@ public:
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_2mm_12_elements");
         TetrahedralMesh<3,3> sequential_mesh;
         sequential_mesh.ConstructFromMeshReader(reader);
-        MeshalyzerMeshWriter<3,3> mesh_writer1("TestDistributedMeshWriter", "seq_cube_2mm_12_elements", false);
-        mesh_writer1.WriteFilesUsingMesh(sequential_mesh);
+        MeshalyzerMeshWriter<3,3> mesh_writer("TestDistributedMeshWriter", "seq_cube_2mm_12_elements", false);
+        mesh_writer.WriteFilesUsingMesh(sequential_mesh);
+        MeshalyzerMeshWriter<3,3> mesh_writer_cg("TestDistributedMeshWriter", "seq_cube_2mm_12_elements_cg", false, true); //Don't clean, Do use CG
+        mesh_writer_cg.WriteFilesUsingMesh(sequential_mesh);
 
         DistributedTetrahedralMesh<3,3> distributed_mesh(DistributedTetrahedralMesh<3,3>::DUMB); //Makes sure that there is no permutation
         AbstractTetrahedralMesh<3,3> *p_distributed_mesh = &distributed_mesh; //Hide the fact that it's distributed from the compiler
 
         distributed_mesh.ConstructFromMeshReader(reader);
-        MeshalyzerMeshWriter<3,3> mesh_writer2("TestDistributedMeshWriter", "par_efficient_cube_2mm_12_elements", false);
-        mesh_writer2.WriteFilesUsingMesh(*p_distributed_mesh, false);
+        MeshalyzerMeshWriter<3,3> mesh_writer_par("TestDistributedMeshWriter", "par_efficient_cube_2mm_12_elements", false);
+        mesh_writer_par.WriteFilesUsingMesh(*p_distributed_mesh, false);  //"false == Don't presevre element ordering
 
-        std::string output_dir = mesh_writer1.GetOutputDirectory();
+        MeshalyzerMeshWriter<3,3> mesh_writer_par_cg("TestDistributedMeshWriter", "par_efficient_cube_2mm_12_elements_cg", false, true); //Don't clean, Do use CG
+        mesh_writer_par_cg.WriteFilesUsingMesh(*p_distributed_mesh, false);  //"false == Don't presevre element ordering
 
-        /// \todo: #1494  Only node files are identical. Find a way of testing element and face files.
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+
         TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_efficient_cube_2mm_12_elements.pts "+ output_dir + "/seq_cube_2mm_12_elements.pts").c_str()), 0);
+        
+        //cg output is indexed from 1, but the pts file doesn't have indices
+        TS_ASSERT_EQUALS(system(("diff -I \"Created by Chaste\" " + output_dir + "/par_efficient_cube_2mm_12_elements_cg.pts "+ output_dir + "/seq_cube_2mm_12_elements_cg.pts").c_str()), 0);
 
         // Master process sorts element and face file and the rest wait before comparing.
         if (PetscTools::AmMaster())

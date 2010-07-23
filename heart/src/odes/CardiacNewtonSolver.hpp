@@ -34,9 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractBackwardEulerCardiacCell.hpp"
 #include "Warnings.hpp"
 
-#include "Debug.hpp"
-
-
 /**
  * Specialised Newton solver for solving the nonlinear systems arising when
  * simulating a cardiac cell using Backward Euler.
