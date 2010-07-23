@@ -4184,6 +4184,11 @@ def run():
     options, model_file = get_options(sys.argv[1:])
     doc = load_model(model_file, options)
 
+    # Apply protocol, if given
+    if options.protocol:
+        import protocol
+        protocol.apply_protocol_file(doc, options.protocol)
+
     config = ConfigurationStore(doc, options=options)
     if options.config_file:
         for config_file in options.config_file:

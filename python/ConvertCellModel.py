@@ -75,6 +75,9 @@ class OptionParser(optparse.OptionParser):
                 try:
                     self._process_long_opt(rargs, values)
                 except optparse.BadOptionError:
+                    if '=' in arg:
+                        # _process_long_opt puts the value as the next option
+                        del rargs[0]
                     largs.append(arg)
             elif arg[0] == "-":
                 if arg in self.__our_short_options:

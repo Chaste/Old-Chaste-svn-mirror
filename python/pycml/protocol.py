@@ -544,3 +544,23 @@ class Protocol(object):
                 var.set_is_derived_quantity(True)
             else:
                 assert var.get_type() in [VarTypes.State, VarTypes.Free]
+
+
+def apply_protocol_file(doc, proto_file_path):
+    """Apply the protocol defined in the given file to a model.
+    
+    Initially, this method is primarily to allow testing the protocol system.
+    Hence we assume the protocol file is Python code which has a method
+    apply_protocol(doc) to do the donkey work.
+    """
+    import imp
+    import os
+    proto_dir = os.path.dirname(proto_file_path)
+    proto_file_name = os.path.basename(proto_file_path)
+    proto_module_name = os.path.splitext(proto_file_name)[0]
+    (file, pathname, desc) = imp.find_module(proto_module_name, [proto_dir])
+    try:
+        proto = imp.load_module(proto_module_name, file, pathname, desc)
+    finally:
+        file.close()
+    proto.apply_protocol(doc)
