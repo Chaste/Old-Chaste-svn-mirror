@@ -186,11 +186,10 @@ public:
     /**
      * Write data for two variables from a Petsc vector to the dataset.
      *
-     * @param firstVariableID the first variable column in the HDF5 file 
-     * @param secondVariableID the first variable column in the HDF5 file 
+     * @param variableIDs vector of IDs of variables of the columns in the HDF5 file
      * @param petscVector the data
      */
-    void PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector);
+    void PutStripedVector(std::vector<int> variableIDs, Vec petscVector);
 
     /**
      * Write a single value for the unlimited variable (e.g. time) to the dataset.

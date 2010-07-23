@@ -554,6 +554,10 @@ public:
         int phi_e_id = writer.DefineVariable("Phi_e", "millivolts");
         int ina_id = writer.DefineVariable("I_Na", "milliamperes");
 
+        std::vector<int> striped_variable_IDs;
+        striped_variable_IDs.push_back(vm_id);
+        striped_variable_IDs.push_back(phi_e_id);
+
         writer.DefineUnlimitedDimension("Time", "msec");
 
         writer.EndDefineMode();
@@ -594,7 +598,7 @@ public:
 
             writer.PutVector(node_id, node_number);
             writer.PutVector(ina_id, petsc_data_short);
-            writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long);
+            writer.PutStripedVector(striped_variable_IDs, petsc_data_long);
             writer.PutUnlimitedVariable(time_step);
             writer.AdvanceAlongUnlimitedDimension();
         }
@@ -624,6 +628,58 @@ public:
         VecDestroy(petsc_data_short);
     }
 
+    void TestHdf5DataWriterFullFormatStripedWith3Variables() throw(Exception)
+	{
+        int number_nodes = 100;
+        DistributedVectorFactory vec_factory(number_nodes);
+
+        Hdf5DataWriter writer(vec_factory, "hdf5", "hdf5_test_full_format_striped_3vars", false);
+        writer.DefineFixedDimension(number_nodes);
+
+        int vm_id = writer.DefineVariable("V_m", "millivolts");
+        int phi_e_id = writer.DefineVariable("Phi_e", "millivolts");
+        int ina_id = writer.DefineVariable("I_Na", "milliamperes");
+
+        std::vector<int> striped_variable_IDs;
+        striped_variable_IDs.push_back(vm_id);
+        striped_variable_IDs.push_back(phi_e_id);
+        striped_variable_IDs.push_back(ina_id);
+
+        writer.DefineUnlimitedDimension("Time", "msec");
+
+        writer.EndDefineMode();
+
+        DistributedVectorFactory factory(number_nodes);
+
+        Vec petsc_data = factory.CreateVec(3);
+        DistributedVector distributed_vector = factory.CreateDistributedVector(petsc_data);
+        DistributedVector::Stripe vm_stripe(distributed_vector, 0);
+        DistributedVector::Stripe phi_e_stripe(distributed_vector,1);
+        DistributedVector::Stripe ina_stripe(distributed_vector,2);
+
+        for (unsigned time_step=0; time_step<10; time_step++)
+        {
+            for (DistributedVector::Iterator index = distributed_vector.Begin();
+                 index!= distributed_vector.End();
+                 ++index)
+            {
+                vm_stripe[index] =  time_step*1000 + index.Global*2;
+                phi_e_stripe[index] =  time_step*1000 + index.Global*2+1;
+                ina_stripe[index] = -56.0;
+            }
+            distributed_vector.Restore();
+
+            writer.PutStripedVector(striped_variable_IDs, petsc_data);
+            writer.PutUnlimitedVariable(time_step);
+            writer.AdvanceAlongUnlimitedDimension();
+        }
+        writer.Close();
+
+        TS_ASSERT(CompareFilesViaHdf5DataReader("hdf5", "hdf5_test_full_format_striped_3vars", true,
+                                                "io/test/data", "hdf5_test_full_format_striped_3vars", false));
+        VecDestroy(petsc_data);
+
+	}
     void TestHdf5DataWriterFullFormatStripedIncomplete() throw(Exception)
     {
         int number_nodes = 100;
@@ -643,6 +699,10 @@ public:
 
         int vm_id = writer.DefineVariable("V_m","millivolts");
         int phi_e_id = writer.DefineVariable("Phi_e","millivolts");
+
+        std::vector<int> variable_IDs;
+        variable_IDs.push_back(vm_id);
+        variable_IDs.push_back(phi_e_id);
 
         writer.DefineUnlimitedDimension("Time", "msec");
 
@@ -665,11 +725,10 @@ public:
             }
             distributed_vector_long.Restore();
 
-            writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long);
+            writer.PutStripedVector(variable_IDs, petsc_data_long);
             writer.PutUnlimitedVariable(time_step);
             writer.AdvanceAlongUnlimitedDimension();
         }
-
         writer.Close();
 
 //        if (PetscTools::AmMaster())
@@ -690,6 +749,36 @@ public:
                                                 "io/test/data", "hdf5_test_full_format_striped_incomplete", false));
 
         VecDestroy(petsc_data_long);
+        writer.Close();
+
+        //Now cover two exceptions
+        //one is the unsupported PutStripedVector for incomplete data and 3 vars...
+        int first = writer.DefineVariable("first","millivolts");
+        int second = writer.DefineVariable("second","millivolts");
+        int third = writer.DefineVariable("third","milliAmps");
+
+        std::vector<int> three_variable_IDs;
+        three_variable_IDs.push_back(first);
+        three_variable_IDs.push_back(second);
+        three_variable_IDs.push_back(third);
+        writer.EndDefineMode();
+
+        Vec petsc_data_3vars = factory.CreateVec(3);
+        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(three_variable_IDs, petsc_data_3vars),
+								"The PutStripedVector functionality for incomplete data is supported for only 2 stripes");
+
+        VecDestroy(petsc_data_3vars);
+        writer.Close();
+
+        //and one is the case when we pass in a short vector to the PutStripedVector method
+        int single_var = writer.DefineVariable("only","one");
+        std::vector<int> one_ID;
+        one_ID.push_back(single_var);
+        writer.EndDefineMode();
+        Vec petsc_data_1var = factory.CreateVec(1);
+        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(one_ID, petsc_data_1var),
+								"The PutStripedVector method requires at least two variables ID. If only one is needed, use PutVector method instead");
+
     }
 
     void TestNonImplementedFeatures()
@@ -703,6 +792,14 @@ public:
         int vm_id = writer.DefineVariable("V_m","millivolts");
         int ina_id = writer.DefineVariable("I_Na","milliamperes");
         int phi_e_id = writer.DefineVariable("Phi_e","millivolts");
+
+        std::vector<int> unoredred_variable_IDs;
+        unoredred_variable_IDs.push_back(vm_id);
+        unoredred_variable_IDs.push_back(phi_e_id);
+
+        std::vector<int> ordered_variable_IDs;
+        ordered_variable_IDs.push_back(vm_id);
+        ordered_variable_IDs.push_back(ina_id);
 
         writer.EndDefineMode();
 
@@ -731,12 +828,12 @@ public:
 
         writer.PutVector(ina_id, petsc_data_short);
         //Try to write striped data in the wrong columns
-        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long),
+        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(unoredred_variable_IDs, petsc_data_long),
                 "Columns should be consecutive. Try reordering them.");
         //Try to write data of wrong size
         TS_ASSERT_THROWS_THIS(writer.PutVector(ina_id, petsc_data_long),
                 "Vector size doesn\'t match fixed dimension");
-        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(vm_id, ina_id, petsc_data_short),
+        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(ordered_variable_IDs, petsc_data_short),
                 "Vector size doesn\'t match fixed dimension");
 
         writer.Close();
@@ -929,6 +1026,10 @@ public:
         int phi_e_id = 3;
         int ina_id = 4;
 
+        std::vector<int> variable_IDs;
+        variable_IDs.push_back(vm_id);
+        variable_IDs.push_back(phi_e_id);
+
         DistributedVectorFactory factory(number_nodes);
 
         Vec petsc_data_short = vec_factory.CreateVec();
@@ -963,7 +1064,7 @@ public:
                 "Cannot write data while in define mode.");
         TS_ASSERT_THROWS_THIS(writer.PutVector(ina_id, petsc_data_short),
                 "Cannot write data while in define mode.");
-        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long),
+        TS_ASSERT_THROWS_THIS(writer.PutStripedVector(variable_IDs, petsc_data_long),
                 "Cannot write data while in define mode.");
         TS_ASSERT_THROWS_THIS(writer.PutUnlimitedVariable(0.0),
                 "Cannot write data while in define mode.");
@@ -1090,6 +1191,10 @@ public:
         int vm_id = writer.DefineVariable("V_m", "millivolts");
         int phi_e_id = writer.DefineVariable("Phi_e", "millivolts");
      
+        std::vector<int> variable_IDs;
+        variable_IDs.push_back(vm_id);
+        variable_IDs.push_back(phi_e_id);
+
         std::vector<unsigned> rotation_perm;
         std::vector<unsigned> identity_perm;
         std::vector<unsigned> short_perm;
@@ -1147,7 +1252,7 @@ public:
             phi_e_stripe[index] = 1000 + index.Global;
         }
         distributed_vector_long.Restore();
-        writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long);
+        writer.PutStripedVector(variable_IDs, petsc_data_long);
 
 
         writer.Close();
@@ -1246,6 +1351,10 @@ public:
         int vm_id = writer.DefineVariable("V_m","millivolts");
         int phi_e_id = writer.DefineVariable("Phi_e","millivolts");
 
+        std::vector<int> striped_variable_IDs;
+        striped_variable_IDs.push_back(vm_id);
+        striped_variable_IDs.push_back(phi_e_id);
+
         writer.DefineUnlimitedDimension("Time", "msec");
 
         writer.EndDefineMode();
@@ -1267,7 +1376,7 @@ public:
             }
             distributed_vector_long.Restore();
 
-            writer.PutStripedVector(vm_id, phi_e_id, petsc_data_long);
+            writer.PutStripedVector(striped_variable_IDs, petsc_data_long);
             writer.PutUnlimitedVariable(time_step);
             writer.AdvanceAlongUnlimitedDimension();
         }

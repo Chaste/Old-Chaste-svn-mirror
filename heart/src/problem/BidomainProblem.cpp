@@ -274,7 +274,10 @@ template<unsigned DIM>
 void BidomainProblem<DIM>::WriteOneStep(double time, Vec voltageVec)
 {
     this->mpWriter->PutUnlimitedVariable(time);
-    this->mpWriter->PutStripedVector(this->mVoltageColumnId, mExtracelluarColumnId, voltageVec);
+    std::vector<int> variable_ids;
+    variable_ids.push_back(this->mVoltageColumnId);
+    variable_ids.push_back(mExtracelluarColumnId);
+    this->mpWriter->PutStripedVector(variable_ids, voltageVec);
     AbstractCardiacProblem<DIM,DIM,2>::WriteExtraVariablesOneStep();
 }
 

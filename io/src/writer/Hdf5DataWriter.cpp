@@ -710,19 +710,29 @@ void Hdf5DataWriter::PutVector(int variableID, Vec petscVector)
     }
 }
 
-void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID, Vec petscVector)
+void Hdf5DataWriter::PutStripedVector(std::vector<int> variableIDs, Vec petscVector)
 {
     if (mIsInDefineMode)
     {
         EXCEPTION("Cannot write data while in define mode.");
     }
 
-    const int NUM_STRIPES=2;
+    if (variableIDs.size() <= 1)
+    {
+    	EXCEPTION("The PutStripedVector method requires at least two variables ID. If only one is needed, use PutVector method instead");
+    }
+
+    const int NUM_STRIPES=variableIDs.size();
+
+    int firstVariableID=variableIDs[0];
 
     // Currently the method only works with consecutive columns, can be extended if needed
-    if (secondVariableID-firstVariableID != 1)
+    for (unsigned i = 1; i < variableIDs.size(); i++)
     {
-        EXCEPTION("Columns should be consecutive. Try reordering them.");
+		if (variableIDs[i]-variableIDs[i-1] != 1)
+		{
+			EXCEPTION("Columns should be consecutive. Try reordering them.");
+		}
     }
 
     int vector_size;
@@ -761,7 +771,7 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
 
     // Select hyperslab in the file
     hsize_t start[DATASET_DIMS] = {mCurrentTimeStep, mOffset, firstVariableID};
-    hsize_t stride[DATASET_DIMS] = {1, 1, secondVariableID-firstVariableID};
+    hsize_t stride[DATASET_DIMS] = {1, 1, 1};//we are imposing contiguous variables, hence the stride is 1 (3rd component)
     hsize_t block_size[DATASET_DIMS] = {1, mNumberOwned, 1};
     hsize_t number_blocks[DATASET_DIMS] = {1, 1, NUM_STRIPES};
 
@@ -781,33 +791,40 @@ void Hdf5DataWriter::PutStripedVector(int firstVariableID, int secondVariableID,
     }
     else
     {
-        if (mUseMatrixForIncompleteData)
-        {
-            //Make a vector of the required size
-            output_petsc_vector = PetscTools::CreateVec(2*mFileFixedDimensionSize, 2*mNumberOwned);
-            
-            //Fill the vector by multiplying complete data by incomplete output matrix
-            MatMult(mDoubleIncompleteOutputMatrix, petscVector, output_petsc_vector);
-            
-            double* p_petsc_vector_incomplete;
-            VecGetArray(output_petsc_vector, &p_petsc_vector_incomplete);
-                     
-            H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, p_petsc_vector_incomplete);
-        }
-        else
-        {
-            // Make a local copy of the data you own
-            double local_data[mNumberOwned*NUM_STRIPES];
-            for (unsigned i=0; i<mNumberOwned; i++)
-            {
-                ///\todo Use distributed vector functionality here?
-                unsigned local_node_number=mIncompleteNodeIndices[mOffset+i] - mLo;
-                local_data[NUM_STRIPES*i]   = p_petsc_vector[ local_node_number*NUM_STRIPES ];
-                local_data[NUM_STRIPES*i+1] = p_petsc_vector[ local_node_number*NUM_STRIPES + 1];
-            }
+    	if(variableIDs.size() < 3) //incomplete data and striped vector is supported only for NUM_STRIPES=2...for the moment
+    	{
+			if (mUseMatrixForIncompleteData)
+			{
+				//Make a vector of the required size
+				output_petsc_vector = PetscTools::CreateVec(2*mFileFixedDimensionSize, 2*mNumberOwned);
 
-            H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, local_data);
-        }
+				//Fill the vector by multiplying complete data by incomplete output matrix
+				MatMult(mDoubleIncompleteOutputMatrix, petscVector, output_petsc_vector);
+
+				double* p_petsc_vector_incomplete;
+				VecGetArray(output_petsc_vector, &p_petsc_vector_incomplete);
+
+				H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, p_petsc_vector_incomplete);
+			}
+			else
+			{
+				// Make a local copy of the data you own
+				double local_data[mNumberOwned*NUM_STRIPES];
+				for (unsigned i=0; i<mNumberOwned; i++)
+				{
+					///\todo Use distributed vector functionality here?
+					unsigned local_node_number=mIncompleteNodeIndices[mOffset+i] - mLo;
+					local_data[NUM_STRIPES*i]   = p_petsc_vector[ local_node_number*NUM_STRIPES ];
+					local_data[NUM_STRIPES*i+1] = p_petsc_vector[ local_node_number*NUM_STRIPES + 1];
+				}
+
+				H5Dwrite(mDatasetId, H5T_NATIVE_DOUBLE, memspace, hyperslab_space, property_list_id, local_data);
+			}
+    	}
+    	else
+    	{
+    		EXCEPTION("The PutStripedVector functionality for incomplete data is supported for only 2 stripes");
+    	}
     }
 
     VecRestoreArray(output_petsc_vector, &p_petsc_vector);

@@ -145,9 +145,12 @@ private:
             if (PROBLEM_DIM==2)
             {
                 int phie_col = writer.DefineVariable("Phie","mV");
+                std::vector<int> variable_ids;
+                variable_ids.push_back(vm_col);
+                variable_ids.push_back(phie_col);
                 writer.EndDefineMode();
                 writer.PutUnlimitedVariable(0.0);
-                writer.PutStripedVector(vm_col, phie_col, mSolution);
+                writer.PutStripedVector(variable_ids, mSolution);
             }
 
             writer.Close();
