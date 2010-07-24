@@ -131,6 +131,9 @@ Export('force_test_runs')
 # Don't update the provenance information (Version.cpp file).
 update_provenance = int(ARGUMENTS.get('update_provenance', ARGUMENTS.get('up', 1)))
 
+# Whether to kill the tests if they run too long (limit in seconds, 0 means don't kill)
+test_time_limit = int(ARGUMENTS.get('test_time_limit', 0))
+
 # Whether to build executables, or just tests
 build_exes = int(ARGUMENTS.get('exe', 0))
 Export('build_exes')
@@ -286,7 +289,7 @@ test = Builder(action='cxxtest/cxxtestgen.py --error-printer -o $TARGET $SOURCES
 import TestRunner
 def TestDescription(target, source, env):
     return "Running '%s'" % (source[0])
-test_action = Action(TestRunner.get_build_function(build, run_time_flags),
+test_action = Action(TestRunner.get_build_function(build, run_time_flags, test_time_limit),
                      TestDescription, varlist=['buildsig'])
 runtest = Builder(action=test_action)
 env['BUILDERS']['Test'] = test

@@ -47,13 +47,36 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # It will be created if necessary.
 # The .log file basename, without extension, will be prepended to the status.
 
-import os, sys, time
+import os
+import signal
+import subprocess
+import sys
+import time
+import threading
+
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
 def help():
     print "Usage:",sys.argv[0],\
         "<test exe> <.log file> <build type> [run time flags] [--no-stdout]"
 
-def run_test(exefile, logfile, build, run_time_flags='', echo=True):
+def kill_test(pid):
+    """Recursively kill pid and all its children.
+    
+    Requires 'easy_install psutil' to function.
+    """
+    try:
+        for proc in psutil.process_iter():
+            if proc.ppid == pid:
+                kill_test(proc.pid)
+        os.kill(pid, signal.SIGTERM)
+    except (psutil.NoSuchProcess, OSError):
+        pass
+
+def run_test(exefile, logfile, build, run_time_flags='', echo=True, time_limit=0):
     """Actually run the given test."""
     # Find out how we're supposed to run tests under this build type
     if exefile.startswith("python/CheckFor"):
@@ -68,13 +91,24 @@ def run_test(exefile, logfile, build, run_time_flags='', echo=True):
     if not log_fp:
         raise IOError("Unable to open log file")
     start_time = time.time()
-    test_fp = os.popen(command, 'r')
-    for line in test_fp:
+    test_proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    if time_limit and psutil:
+        # Set a Timer to kill the test if it runs too long
+        def do_kill(pid=test_proc.pid):
+            kill_test(pid)
+            log_fp.write('\n\nTest killed due to exceeding time limit of %d seconds\n\n' % time_limit)
+        kill_timer = threading.Timer(time_limit, do_kill)
+        kill_timer.start()
+    for line in test_proc.stdout:
         log_fp.write(line)
         if echo:
             print line,
-    exit_code = test_fp.close()
+    exit_code = test_proc.wait()
     end_time = time.time()
+    if time_limit and psutil:
+        kill_timer.cancel()
+        # Make sure we don't close the log file before the killer writes to it (if it does)
+        kill_timer.join()
     log_fp.close()
 
     #print "Time",end_time,start_time
@@ -133,14 +167,14 @@ if __name__ == '__main__':
     run_test(exefile, logfile, build, run_time_flags, echo)
 
 # Builder function for running via SCons
-def get_build_function(build, run_time_flags=''):
+def get_build_function(build, run_time_flags='', test_time_limit=0):
     """Return a function that can be used as a Builder by SCons."""
     
     def build_function(target, source, env):
         # Set up the environment from env['ENV']
         os.environ.update(env['ENV'])
         # Run the test
-        log = run_test(str(source[0]), str(target[0]), build, run_time_flags)
+        log = run_test(str(source[0]), str(target[0]), build, run_time_flags, time_limit=test_time_limit)
         # Note the extra dependency of the copied log file
         #env.SideEffect(log, target)
         env.Depends(os.path.join(os.path.dirname(log), 'index.html'), log)
