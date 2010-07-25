@@ -90,6 +90,8 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
         ISDestroy(A11_rows);
         ISDestroy(A22_rows);
         ISDestroy(all_vector);
+        
+        VecDestroy(dummy_vec);        
     }
             
     // Get matrix sublock A11        

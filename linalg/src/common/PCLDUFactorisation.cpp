@@ -46,10 +46,8 @@ PCLDUFactorisation::~PCLDUFactorisation()
 
     VecDestroy(mPCContext.x1_subvector);
     VecDestroy(mPCContext.y1_subvector);
-
     VecDestroy(mPCContext.x2_subvector);
     VecDestroy(mPCContext.y2_subvector);
-
     VecDestroy(mPCContext.z);
     VecDestroy(mPCContext.temp);
     
@@ -96,6 +94,8 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
         ISDestroy(A11_rows);
         ISDestroy(A22_rows);
         ISDestroy(all_vector);
+        
+        VecDestroy(dummy_vec);
     }
 
 
