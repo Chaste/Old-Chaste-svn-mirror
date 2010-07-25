@@ -523,6 +523,7 @@ class cellml_model(element_base):
 
     def _del_variable(self, varname, compname):
         """Remove a variable from the model."""
+        
         del self._cml_variables[(compname, varname)]
 
     def _add_component(self, comp):
@@ -1680,6 +1681,8 @@ class cellml_component(element_base):
         return
     def _del_variable(self, var):
         """Remove a variable from this component."""
+        # Remove metadata about the variable
+        var.remove_rdf_annotations()
         # Remove the element
         self.xml_remove_child(var)
         # Remove from dictionary
@@ -1970,6 +1973,13 @@ class cellml_variable(Colourable, element_base):
         property = cellml_metadata.create_rdf_node(property)
         source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
         return cellml_metadata.get_target(self.model, source, property)
+    
+    def remove_rdf_annotations(self):
+        """Remove all RDF annotations about this variable."""
+        meta_id = self.getAttributeNS(NSS['cmeta'], u'id')
+        if meta_id:
+            source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
+            cellml_metadata.remove_statements(self.model, source, None, None)
 
     def set_rdf_annotation_from_boolean(self, property, is_yes):
         """Set an RDF annotation as 'yes' or 'no' depending on a boolean value."""

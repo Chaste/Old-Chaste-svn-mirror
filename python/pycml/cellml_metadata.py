@@ -160,6 +160,17 @@ def replace_statement(cellml_model, source, property, target):
     statement = RDF.Statement(subject=source, predicate=property, object=target)
     rdf_model.append(statement)
 
+def remove_statements(cellml_model, source, property, target):
+    """Remove all statements matching (source,property,target).
+    
+    Any of these may be None to match anything.
+    """
+    _debug("remove_statements(", source, ",", property, ",", target, ")")
+    rdf_model = _get_rdf_from_model(cellml_model)
+    query = RDF.Statement(subject=source, predicate=property, object=target)
+    for statement in rdf_model.find_statements(query):
+        del rdf_model[statement]
+
 def get_target(cellml_model, source, property):
     """Get the target of property from source.
     
