@@ -53,7 +53,7 @@ private:
     std::vector<TissueCellPtr> SetUpCells(TetrahedralMesh<DIM,DIM>* pMesh)
     {
         std::vector<TissueCellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
         for (unsigned i=0; i<pMesh->GetNumNodes(); i++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -564,11 +564,11 @@ public:
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
 
         // For coverage of WriteResultsToFiles()
-        boost::shared_ptr<AbstractCellMutationState> p_state(node_based_tissue.GetMutationRegistry()->Get<WildTypeCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_apc1(node_based_tissue.GetMutationRegistry()->Get<ApcOneHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_apc2(node_based_tissue.GetMutationRegistry()->Get<ApcTwoHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_bcat1(node_based_tissue.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(node_based_tissue.GetMutationRegistry()->Get<ApoptoticCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(node_based_tissue.GetCellPropertyRegistry()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc1 = boost::dynamic_pointer_cast<AbstractCellMutationState>(node_based_tissue.GetCellPropertyRegistry()->Get<ApcOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc2 = boost::dynamic_pointer_cast<AbstractCellMutationState>(node_based_tissue.GetCellPropertyRegistry()->Get<ApcTwoHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1 = boost::dynamic_pointer_cast<AbstractCellMutationState>(node_based_tissue.GetCellPropertyRegistry()->Get<BetaCateninOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(node_based_tissue.GetCellPropertyRegistry()->Get<ApoptoticCellMutationState>());
         boost::shared_ptr<AbstractCellProperty> p_label(node_based_tissue.GetCellPropertyRegistry()->Get<CellLabel>());
 
         node_based_tissue.GetCellUsingLocationIndex(0)->GetCellCycleModel()->SetCellProliferativeType(TRANSIT);

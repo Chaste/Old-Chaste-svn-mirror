@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CellsGenerator.hpp"
 
-#include "CellMutationStateRegistry.hpp"
+#include "CellPropertyRegistry.hpp"
 #include "TetrahedralMesh.hpp"
 #include "VertexMesh.hpp"
 
@@ -114,7 +114,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
                                       double y3,
                                       bool initialiseCells)
 {
-    CellMutationStateRegistry::Instance()->Clear();
+    CellPropertyRegistry::Instance()->Clear();
 
     RandomNumberGenerator* p_random_num_gen = RandomNumberGenerator::Instance();
 
@@ -224,7 +224,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
         }
         p_cell_cycle_model->SetCellProliferativeType(cell_type);
 
-        boost::shared_ptr<AbstractCellMutationState> p_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
         TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
         if (initialiseCells)
         {

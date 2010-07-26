@@ -60,7 +60,7 @@ void AbstractCryptStatistics::LabelSPhaseCells()
 
 void AbstractCryptStatistics::LabelAllCellsAsHealthy()
 {
-    boost::shared_ptr<AbstractCellMutationState> p_wildtype(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+    boost::shared_ptr<AbstractCellMutationState> p_wildtype = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
     for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)

@@ -581,10 +581,10 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Cover mutation state reporting
-        boost::shared_ptr<AbstractCellMutationState> p_apc1(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_apc2(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_bcat1(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc1 = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApcOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc2 = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1 = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
         boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
 
         cells[0]->SetMutationState(p_apoptotic_state);
@@ -682,7 +682,7 @@ public:
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
         cells[4]->SetMutationState(p_apoptotic_state); // coverage
 
         // Create tissue

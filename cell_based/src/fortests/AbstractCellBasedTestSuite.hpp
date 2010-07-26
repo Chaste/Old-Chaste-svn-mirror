@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimulationTime.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "TissueConfig.hpp"
-#include "CellMutationStateRegistry.hpp"
+#include "CellPropertyRegistry.hpp"
 
 /**
  * This class provides setUp and tearDown methods that are common to
@@ -54,7 +54,7 @@ protected:
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
         TissueConfig::Instance()->Reset();
-        CellMutationStateRegistry::Instance()->Clear();
+        CellPropertyRegistry::Instance()->Clear();
     }
 
     /**

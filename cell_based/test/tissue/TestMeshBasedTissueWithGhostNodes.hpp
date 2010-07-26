@@ -591,7 +591,7 @@ public:
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
         cells[4]->SetMutationState(p_apoptotic_state); // coverage
 
         TS_ASSERT_EQUALS(cells[4]->GetMutationState()->IsType<ApoptoticCellMutationState>(), true);

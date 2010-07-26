@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
-#include "CellMutationStateRegistry.hpp"
+#include "CellPropertyRegistry.hpp"
 #include "CellPropertyCollection.hpp"
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
@@ -200,7 +200,7 @@ public:
      *
      * @param pMutationState the cell's mutation state
      */
-    void SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState);
+    void SetMutationState(boost::shared_ptr<AbstractCellProperty> pMutationState);
 
     /**
      * @return reference to #mCellPropertyCollection.

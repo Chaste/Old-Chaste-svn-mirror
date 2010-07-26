@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "ApoptoticCellMutationState.hpp"
-#include "CellMutationStateRegistry.hpp"
+#include "CellPropertyRegistry.hpp"
 
 SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel()
     : mTimeSpentInG1Phase(0.0),
@@ -152,7 +152,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
         if (mCurrentHypoxicDuration > TissueConfig::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {
             ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-            boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
+            boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
             mpCell->SetMutationState(p_apoptotic_state);
         }
     }

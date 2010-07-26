@@ -44,8 +44,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/shared_ptr.hpp>
 
 #include "Node.hpp"
-
-#include "CellMutationStateRegistry.hpp"
 #include "CellPropertyRegistry.hpp"
 
 // Needed here to avoid serialization errors (on Boost<1.37)
@@ -83,7 +81,6 @@ private:
         archive & mCellProliferativeTypeCount;
         archive & mCellCyclePhaseCount;
         archive & mTissueContainsMesh;
-        archive & mpMutationStateRegistry;
         archive & mpCellPropertyRegistry;
     }
 
@@ -136,9 +133,6 @@ protected:
 
     /** Whether the tissue contains a mesh. */
     bool mTissueContainsMesh;
-
-    /** Cell mutation state registry. */
-    boost::shared_ptr<CellMutationStateRegistry> mpMutationStateRegistry;
 
     /** Cell property registry. */
     boost::shared_ptr<CellPropertyRegistry> mpCellPropertyRegistry;
@@ -405,11 +399,6 @@ public:
      * @return the location index.
      */
     unsigned GetLocationIndexUsingCell(TissueCellPtr pCell);
-
-    /**
-     * @return registry of mutation states used in this tissue.
-     */
-    boost::shared_ptr<CellMutationStateRegistry> GetMutationRegistry();
 
     /**
      * @return registry of cell properties used in this tissue.

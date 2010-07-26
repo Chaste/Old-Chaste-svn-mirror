@@ -141,10 +141,6 @@ public:
         TS_ASSERT_THROWS_THIS(p_instance->Get<BetaCateninOneHitCellMutationState>(),
                 "Cannot add a new cell property not specified in the ordering.");
         p_instance->Clear();
-
-        p_instance->Get<BetaCateninOneHitCellMutationState>();
-        TS_ASSERT_THROWS_THIS(p_instance->SpecifyOrdering(property_ordering),
-                "The given ordering doesn't include all cell properties in the registry.");
     }
 
     void TestArchiveCellLabel() throw(Exception)

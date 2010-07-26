@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellBasedTestSuite.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "TissueCell.hpp"
-#include "CellMutationStateRegistry.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
@@ -182,7 +181,7 @@ public:
         FixedDurationGenerationBasedCellCycleModel fixed_model;
         SimulationTime::Destroy();
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         TS_ASSERT_THROWS_THIS(TissueCellPtr p_bad_cell(new TissueCell(p_healthy_state, &fixed_model)),
                               "TissueCell is setting up a cell cycle model but SimulationTime has not been set up");
@@ -249,7 +248,7 @@ public:
 
         // Cover bad cell cycle model
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         TS_ASSERT_THROWS_THIS(TissueCellPtr p_bad_cell2(new TissueCell(p_healthy_state, NULL)), "Cell cycle model is null");
 
@@ -321,7 +320,7 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200, 20);
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
@@ -378,7 +377,7 @@ public:
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, time_steps);
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
@@ -460,7 +459,7 @@ public:
         TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
 
         p_simulation_time->IncrementTimeOneStep();
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         //  Creating different types of cells with different cell cycle models at SimulationTime = 6 hours
         FixedDurationGenerationBasedCellCycleModel* p_stem_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -541,7 +540,7 @@ public:
         }
 
         // Now at t=6.00
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_transit_model = new FixedDurationGenerationBasedCellCycleModel();
         p_transit_model->SetCellProliferativeType(TRANSIT);
@@ -608,7 +607,7 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(70.0, 70);
-            boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+            boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
@@ -682,7 +681,7 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(60.0, 60);
 
         std::vector<TissueCellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_stem_model = new FixedDurationGenerationBasedCellCycleModel();
         p_stem_model->SetCellProliferativeType(STEM);
@@ -801,7 +800,7 @@ public:
 
         double wnt_stimulus = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
         p_cell_cycle_model1->SetDimension(2);
@@ -889,7 +888,7 @@ public:
         double wnt_stimulus = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         StochasticWntCellCycleModel* p_cell_model = new StochasticWntCellCycleModel();
         p_cell_model->SetDimension(2);
@@ -966,7 +965,7 @@ public:
         unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(200.0/60.0, num_steps+1);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         TysonNovakCellCycleModel* p_cell_model = new TysonNovakCellCycleModel();
         p_cell_model->SetCellProliferativeType(TRANSIT);
@@ -1024,7 +1023,7 @@ public:
         unsigned num_steps=100000;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20000.0/60.0, num_steps+1);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         TysonNovakCellCycleModel* p_cell_model = new TysonNovakCellCycleModel();
         p_cell_model->SetCellProliferativeType(TRANSIT);
@@ -1058,7 +1057,7 @@ public:
         TissueConfig* p_params = TissueConfig::Instance();
         TS_ASSERT_EQUALS(p_params->GetApoptosisTime(), 0.25);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_model->SetCellProliferativeType(TRANSIT);
@@ -1101,7 +1100,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_model->SetCellProliferativeType(TRANSIT);
@@ -1122,7 +1121,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_time_steps);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_model->SetCellProliferativeType(STEM);
@@ -1221,7 +1220,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0, 4);
 
             // Create mutation state
-            boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+            boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
             // Create cell cycle model
             FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -1320,10 +1319,10 @@ public:
         double wnt_stimulus = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_stimulus);
 
-        boost::shared_ptr<AbstractCellMutationState> p_wt_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_apc_one_hit_state(CellMutationStateRegistry::Instance()->Get<ApcOneHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_apc_two_hit_state(CellMutationStateRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_bcat_one_hit_state(CellMutationStateRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_wt_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc_one_hit_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApcOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc_two_hit_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_bcat_one_hit_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
 
         WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
@@ -1366,7 +1365,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 1);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_model->SetCellProliferativeType(STEM);
@@ -1398,7 +1397,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 2);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_model->SetCellProliferativeType(STEM);
@@ -1425,7 +1424,7 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(25, 2);
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_model->SetCellProliferativeType(STEM);
@@ -1462,7 +1461,7 @@ public:
         p_simulation_time->IncrementTimeOneStep();
         // SimulationTime returns 6 hours
 
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_model->SetCellProliferativeType(STEM);

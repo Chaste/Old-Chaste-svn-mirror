@@ -35,7 +35,6 @@ AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCellPtr>& rCells,
                                     const std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
       mTissueContainsMesh(false),
-      mpMutationStateRegistry(CellMutationStateRegistry::Instance()->TakeOwnership()),
       mpCellPropertyRegistry(CellPropertyRegistry::Instance()->TakeOwnership())
 {
     // There must be at least one cell
@@ -143,14 +142,18 @@ std::vector<unsigned> AbstractTissue<DIM>::GetCellMutationStateCount()
     // An ordering must have been specified for cell mutation states
     SetDefaultMutationStateOrdering();
 
-    const std::vector<boost::shared_ptr<AbstractCellMutationState> >& r_mutation_states
-        = GetMutationRegistry()->rGetAllMutationStates();
+    const std::vector<boost::shared_ptr<AbstractCellProperty> >& r_cell_properties = 
+        mpCellPropertyRegistry->rGetAllCellProperties();
 
-    std::vector<unsigned> cell_mutation_state_count(r_mutation_states.size());
-    for (unsigned i=0; i<r_mutation_states.size(); i++)
+    std::vector<unsigned> cell_mutation_state_count;
+    for (unsigned i=0; i<r_cell_properties.size(); i++)
     {
-        cell_mutation_state_count[i] = r_mutation_states[i]->GetCellCount();
+        if (r_cell_properties[i]->IsSubType<AbstractCellMutationState>())
+        {
+            cell_mutation_state_count.push_back(boost::dynamic_pointer_cast<AbstractCellMutationState>(r_cell_properties[i])->GetCellCount());
+        }
     }
+
     return cell_mutation_state_count;
 }
 
@@ -198,12 +201,6 @@ unsigned AbstractTissue<DIM>::GetLocationIndexUsingCell(TissueCellPtr pCell)
 }
 
 template<unsigned DIM>
-boost::shared_ptr<CellMutationStateRegistry> AbstractTissue<DIM>::GetMutationRegistry()
-{
-    return mpMutationStateRegistry;
-}
-
-template<unsigned DIM>
 boost::shared_ptr<CellPropertyRegistry> AbstractTissue<DIM>::GetCellPropertyRegistry()
 {
     return mpCellPropertyRegistry;
@@ -212,10 +209,10 @@ boost::shared_ptr<CellPropertyRegistry> AbstractTissue<DIM>::GetCellPropertyRegi
 template<unsigned DIM>
 void AbstractTissue<DIM>::SetDefaultMutationStateOrdering()
 {
-    boost::shared_ptr<CellMutationStateRegistry> p_registry = GetMutationRegistry();
+    boost::shared_ptr<CellPropertyRegistry> p_registry = GetCellPropertyRegistry();
     if (!p_registry->HasOrderingBeenSpecified())
     {
-        std::vector<boost::shared_ptr<AbstractCellMutationState> > mutations;
+        std::vector<boost::shared_ptr<AbstractCellProperty> > mutations;
         mutations.push_back(p_registry->Get<WildTypeCellMutationState>());
         mutations.push_back(p_registry->Get<ApcOneHitCellMutationState>());
         mutations.push_back(p_registry->Get<ApcTwoHitCellMutationState>());
@@ -463,18 +460,23 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellPr
     // Write cell mutation state data to file if required
     if (p_config->GetOutputCellMutationStates())
     {
-        ///\todo Merge with code in GetCellMutationStateCount()?
+        ///\todo Merge with code in GetCellMutationStateCount()? (#1285)
 
         // An ordering must be specified for cell mutation states
         SetDefaultMutationStateOrdering();
 
-        const std::vector<boost::shared_ptr<AbstractCellMutationState> >& r_mutation_states
-            = GetMutationRegistry()->rGetAllMutationStates();
+        const std::vector<boost::shared_ptr<AbstractCellProperty> >& r_cell_properties = 
+        mpCellPropertyRegistry->rGetAllCellProperties();
 
-        for (unsigned i=0; i<r_mutation_states.size(); i++)
+        std::vector<unsigned> cell_mutation_state_count;
+        for (unsigned i=0; i<r_cell_properties.size(); i++)
         {
-            *mpCellMutationStatesFile << r_mutation_states[i]->GetCellCount() << "\t";
+            if (r_cell_properties[i]->IsSubType<AbstractCellMutationState>())
+            {
+                *mpCellMutationStatesFile << boost::dynamic_pointer_cast<AbstractCellMutationState>(r_cell_properties[i])->GetCellCount() << "\t";
+            }
         }
+
         *mpCellMutationStatesFile << "\n";
     }
 

@@ -69,16 +69,19 @@ void CellPropertyRegistry::SpecifyOrdering(const std::vector<boost::shared_ptr<A
     {
         EXCEPTION("An ordering has already been specified.");
     }
+
+    ///\todo probably a much more efficient way to do this (#1285)
+    std::vector<boost::shared_ptr<AbstractCellProperty> > temp_vector = rOrdering;
     for (unsigned i=0; i<mCellProperties.size(); i++)
     {
         std::vector<boost::shared_ptr<AbstractCellProperty> >::const_iterator it
             = find(rOrdering.begin(), rOrdering.end(), mCellProperties[i]);
         if (it == rOrdering.end())
         {
-            EXCEPTION("The given ordering doesn't include all cell properties in the registry.");
+            temp_vector.push_back(mCellProperties[i]);
         }
     }
-    mCellProperties = rOrdering;
+    mCellProperties = temp_vector;
 
     mOrderingHasBeenSpecified = true;
 }

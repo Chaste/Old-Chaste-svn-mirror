@@ -147,10 +147,12 @@ void TissueCell::SetBirthTime(double birthTime)
     mpCellCycleModel->SetBirthTime(birthTime);
 }
 
-void TissueCell::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
+void TissueCell::SetMutationState(boost::shared_ptr<AbstractCellProperty> pMutationState)
 {
+    assert(pMutationState->IsSubType<AbstractCellMutationState>());
+    boost::shared_ptr<AbstractCellMutationState> p_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(pMutationState);
     mpMutationState->DecrementCellCount();
-    mpMutationState = pMutationState;
+    mpMutationState = p_state;
     mpMutationState->IncrementCellCount();
 }
 
@@ -210,7 +212,7 @@ void TissueCell::StartApoptosis(bool setDeathTime)
     }
 
     ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-    boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(CellMutationStateRegistry::Instance()->Get<ApoptoticCellMutationState>());
+    boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
     SetMutationState(p_apoptotic_state);
 }
 

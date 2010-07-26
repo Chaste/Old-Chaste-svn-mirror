@@ -41,12 +41,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
-#include "CellMutationStateRegistry.hpp"
 #include "ApcOneHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
+#include "Debug.hpp"
 
 class TestCryptSimulation1d : public AbstractCellBasedTestSuite
 {
@@ -661,7 +661,7 @@ public:
         // (don't use any stem cells as we want to test the jiggling)
         unsigned num_cells = mesh.GetNumNodes();
         std::vector<TissueCellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(CellMutationStateRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         for (unsigned i=0; i<num_cells; i++)
         {
@@ -681,8 +681,8 @@ public:
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
 
-        boost::shared_ptr<AbstractCellMutationState> p_apc1(crypt.GetMutationRegistry()->Get<ApcOneHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_bcat1(crypt.GetMutationRegistry()->Get<BetaCateninOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_apc1 = boost::dynamic_pointer_cast<AbstractCellMutationState>(crypt.GetCellPropertyRegistry()->Get<ApcOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellMutationState> p_bcat1 = boost::dynamic_pointer_cast<AbstractCellMutationState>(crypt.GetCellPropertyRegistry()->Get<BetaCateninOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellProperty> p_label(crypt.GetCellPropertyRegistry()->Get<CellLabel>());
 
         cell_iterator->AddCellProperty(p_label);
@@ -771,7 +771,7 @@ public:
             else if (i < 15)
             {
                 cell_type = TRANSIT;
-                generation = 1 + (i - 1) / 5;
+                generation = 1 + (i - 1)/5;
                 birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
                                                     + p_params->GetSG2MDuration());
             }
