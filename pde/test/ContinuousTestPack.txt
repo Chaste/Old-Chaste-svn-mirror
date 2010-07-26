@@ -1,4 +1,5 @@
 Test1D3DLinearEllipticAssembler.hpp
+TestAbstractFeObjectAssembler.hpp
 TestAbstractFunctionalCalculator.hpp
 TestBoundaryConditionsContainer.hpp
 TestConstBoundaryCondition.hpp
