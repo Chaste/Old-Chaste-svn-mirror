@@ -31,6 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractFeObjectAssembler.hpp"
 #include "TetrahedralMesh.hpp"
+#include "MassMatrixAssembler.hpp"
+#include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 // simple assembler which just returns a c_vector of ones for each quad point
@@ -222,6 +224,7 @@ public:
 
     // Test matrix assembly
     // only test the 1d one as here as more difficult to write down correct matrix on paper
+    // Tested better with 2d mass matrix below 
     void TestBasicMatrixAssemblers() throw(Exception)
     {
         TetrahedralMesh<1,1> mesh;
@@ -434,6 +437,143 @@ public:
         TS_ASSERT_DELTA(vec_repl[1], 0.5*mesh.GetNode(1)->GetNumContainingElements(), 1e-4);
         TS_ASSERT_DELTA(vec_repl[2], 0.5*mesh.GetNode(2)->GetNumContainingElements()+1, 1e-4);
         TS_ASSERT_DELTA(vec_repl[3], 0.5*mesh.GetNode(3)->GetNumContainingElements()+1, 1e-4);
+    }
+
+
+    
+    void TestMassMatrixAssembler1d() throw(Exception)
+    {
+        TetrahedralMesh<1,1> mesh;
+        double h = 0.1;
+        mesh.ConstructRegularSlabMesh(h, 0.5); 
+
+        Mat mat;
+        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), mesh.GetNumNodes()); 
+        
+        MassMatrixAssembler<1,1> assembler(&mesh);
+
+        assembler.SetMatrixToAssemble(mat);
+        assembler.Assemble();
+
+        MatAssemblyBegin(mat, MAT_FINAL_ASSEMBLY);
+        MatAssemblyEnd(mat, MAT_FINAL_ASSEMBLY);
+
+        int lo, hi;
+        MatGetOwnershipRange(mat, &lo, &hi);
+        
+        for(unsigned i=lo; i<(unsigned)hi; i++)
+        {
+            for(unsigned j=0; j<mesh.GetNumNodes(); j++)
+            {
+                double value = GetMatrixEntry(mat,i,j);
+                if(i>0 && i<mesh.GetNumNodes()-1)
+                {
+                    // All rows except first and last should look like
+                    // [0, .., 0, h/6, 4h/6, h/6, 0, .., 0]
+                    if(j==i)
+                    {
+                        TS_ASSERT_DELTA(value, 4.0*h/6.0, 1e-5);
+                    }
+                    else if(j==i+1 || j+1==i)
+                    {
+                        TS_ASSERT_DELTA(value, 1.0*h/6.0, 1e-5);
+                    }
+                    else
+                    {
+                        TS_ASSERT_DELTA(value, 0.0, 1e-5);
+                    }
+                }
+                if(i==0)
+                {
+                    // top row: [2h/6, h/6, 0, .., 0]
+                    if(j==i)
+                    {
+                        TS_ASSERT_DELTA(value, 2.0*h/6.0, 1e-5);
+                    }
+                    else if(j==i+1)
+                    {
+                        TS_ASSERT_DELTA(value, 1.0*h/6.0, 1e-5);
+                    }
+                    else
+                    {
+                        TS_ASSERT_DELTA(value, 0.0, 1e-5);
+                    }
+                }
+                if(i+1==mesh.GetNumNodes())
+                {
+                    // bottom row: [0, .., 0, h/6, 2h/6]
+                    if(j==i)
+                    {
+                        TS_ASSERT_DELTA(value, 2.0*h/6.0, 1e-5);
+                    }
+                    else if(j+1==i)
+                    {
+                        TS_ASSERT_DELTA(value, 1.0*h/6.0, 1e-5);
+                    }
+                    else
+                    {
+                        TS_ASSERT_DELTA(value, 0.0, 1e-5);
+                    }
+                }
+                    
+            }
+        }
+    }
+
+
+    void TestMassMatrixAssembler2d() throw(Exception)
+    {
+        TetrahedralMesh<2,2> mesh;
+        TrianglesMeshReader<2,2> reader("mesh/test/data/square_2_elements"); // so we know the exact connectivity
+        mesh.ConstructFromMeshReader(reader);
+
+        Mat mat;
+        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), mesh.GetNumNodes()); 
+        
+        MassMatrixAssembler<2,2> assembler(&mesh);
+
+        assembler.SetMatrixToAssemble(mat);
+        assembler.Assemble();
+
+        MatAssemblyBegin(mat, MAT_FINAL_ASSEMBLY);
+        MatAssemblyEnd(mat, MAT_FINAL_ASSEMBLY);
+        
+        int lo, hi;
+        MatGetOwnershipRange(mat, &lo, &hi);
+        
+        // check against exact answers
+        
+        if(lo==0)
+        {
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,0), 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,1), 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,2),    0.0, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,3), 1.0/24, 1e-6);
+        }
+        
+        if(lo<=1 && 1<hi)
+        {
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,0), 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,1), 1.0/6,  1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,2), 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,3), 1.0/12, 1e-6);
+        }
+        
+        if(lo<=2 && 2<hi)
+        {
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,0),    0.0, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,1), 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,2), 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,3), 1.0/24, 1e-6);
+        }
+
+        if(lo<=3 && 3<hi)
+        {
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,0), 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,1), 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,2), 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,3), 1.0/6 , 1e-6);
+        }
     }
 };    
 #endif /*TESTABSTRACTFEOBJECTASSEMBLER_HPP_*/
