@@ -442,7 +442,7 @@ public:
         CellLuoRudy1991FromCellMLBackwardEuler lr91_backward_euler(p_solver, p_stimulus);
 
         // some models have this implemented so they can be used in mechanics simulations
-        TS_ASSERT_DELTA(lr91_backward_euler.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
+        TS_ASSERT_DELTA(lr91_backward_euler.GetIntracellularCalciumConcentration(), 0.0002, 1e-5);
 
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_backward_euler,

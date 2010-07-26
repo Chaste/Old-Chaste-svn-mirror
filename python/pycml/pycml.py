@@ -1679,10 +1679,11 @@ class cellml_component(element_base):
         # Add to dictionary
         self.xml_parent._add_variable(var, var.name, self.name)
         return
-    def _del_variable(self, var):
+    def _del_variable(self, var, keep_annotations=False):
         """Remove a variable from this component."""
-        # Remove metadata about the variable
-        var.remove_rdf_annotations()
+        if not keep_annotations:
+            # Remove metadata about the variable
+            var.remove_rdf_annotations()
         # Remove the element
         self.xml_remove_child(var)
         # Remove from dictionary
@@ -1933,6 +1934,11 @@ class cellml_variable(Colourable, element_base):
             model = self.xml_parent.xml_parent
             model._pe_repeat = u'yes'
         return
+    
+    @property
+    def cmeta_id(self):
+        """Get the value of the cmeta:id attribute, or the empty string if not set."""
+        return self.getAttributeNS(NSS['cmeta'], u'id')
 
     def add_rdf_annotation(self, property, target):
         """Add an RDF annotation about this variable.
@@ -1948,7 +1954,7 @@ class cellml_variable(Colourable, element_base):
         will be created if it does not exist.  Any existing annotations with
         the same source and property will be removed.
         """
-        meta_id = self.getAttributeNS(NSS['cmeta'], u'id')
+        meta_id = self.cmeta_id
         if not meta_id:
             # Create ID for this variable, so we can refer to it in RDF
             meta_id = unicode(self.fullname(cellml=True))
@@ -1967,7 +1973,7 @@ class cellml_variable(Colourable, element_base):
         and the given property.  If no annotation is found (or if the variable does
         not have a cmeta:id), returns None.
         """
-        meta_id = self.getAttributeNS(NSS['cmeta'], u'id')
+        meta_id = self.cmeta_id
         if not meta_id:
             return None
         property = cellml_metadata.create_rdf_node(property)
@@ -1976,8 +1982,9 @@ class cellml_variable(Colourable, element_base):
     
     def remove_rdf_annotations(self):
         """Remove all RDF annotations about this variable."""
-        meta_id = self.getAttributeNS(NSS['cmeta'], u'id')
+        meta_id = self.cmeta_id
         if meta_id:
+            print "Removing annotations for", self, meta_id
             source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
             cellml_metadata.remove_statements(self.model, source, None, None)
 

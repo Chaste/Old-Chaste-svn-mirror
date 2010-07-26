@@ -136,7 +136,7 @@ def parteval(doc):
                     var.get_type() != VarTypes.Mapped) or var.pe_keep:
                     debug('Moving variable', var.fullname())
                     # Remove from where it was
-                    comp._del_variable(var)
+                    comp._del_variable(var, keep_annotations=True)
                     # Set name to canonical version
                     var.name = var.fullname(cellml=True)
                     # Place in new component

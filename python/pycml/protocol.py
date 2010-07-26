@@ -417,7 +417,8 @@ class Protocol(object):
                 assert hasattr(orig_var, n) == hasattr(var, n), "You are not allowed to change a variable's interfaces"
                 if hasattr(var, n):
                     assert getattr(orig_var, n) == getattr(var, n), "You are not allowed to change a variable's interfaces"
-            comp._del_variable(orig_var)
+            # Only keep RDF annotations if the cmeta:id is unchanged
+            comp._del_variable(orig_var, keep_annotations=(orig_var.cmeta_id == var.cmeta_id))
         var.name = vname
         comp._add_variable(var)
 
