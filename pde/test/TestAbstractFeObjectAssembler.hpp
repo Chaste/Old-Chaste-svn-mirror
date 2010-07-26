@@ -521,7 +521,7 @@ public:
     }
 
 
-    void TestMassMatrixAssembler2d() throw(Exception)
+    void TestMassMatrixAssembler2dIncludingScaleFactor() throw(Exception)
     {
         TetrahedralMesh<2,2> mesh;
         TrianglesMeshReader<2,2> reader("mesh/test/data/square_2_elements"); // so we know the exact connectivity
@@ -530,7 +530,8 @@ public:
         Mat mat;
         PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), mesh.GetNumNodes()); 
         
-        MassMatrixAssembler<2,2> assembler(&mesh);
+        double scale_factor = 2.464525345;
+        MassMatrixAssembler<2,2> assembler(&mesh, scale_factor);
 
         assembler.SetMatrixToAssemble(mat);
         assembler.Assemble();
@@ -545,34 +546,34 @@ public:
         
         if(lo==0)
         {
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,0), 1.0/12, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,1), 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,2),    0.0, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,3), 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,0)/scale_factor, 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,1)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,2)/scale_factor,    0.0, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,0,3)/scale_factor, 1.0/24, 1e-6);
         }
         
         if(lo<=1 && 1<hi)
         {
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,0), 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,1), 1.0/6,  1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,2), 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,3), 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,0)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,1)/scale_factor, 1.0/6,  1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,2)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,1,3)/scale_factor, 1.0/12, 1e-6);
         }
         
         if(lo<=2 && 2<hi)
         {
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,0),    0.0, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,1), 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,2), 1.0/12, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,3), 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,0)/scale_factor,    0.0, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,1)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,2)/scale_factor, 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,2,3)/scale_factor, 1.0/24, 1e-6);
         }
 
         if(lo<=3 && 3<hi)
         {
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,0), 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,1), 1.0/12, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,2), 1.0/24, 1e-6);
-            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,3), 1.0/6 , 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,0)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,1)/scale_factor, 1.0/12, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,2)/scale_factor, 1.0/24, 1e-6);
+            TS_ASSERT_DELTA(GetMatrixEntry(mat,3,3)/scale_factor, 1.0/6 , 1e-6);
         }
     }
 };    
