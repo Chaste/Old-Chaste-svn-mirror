@@ -1984,7 +1984,6 @@ class cellml_variable(Colourable, element_base):
         """Remove all RDF annotations about this variable."""
         meta_id = self.cmeta_id
         if meta_id:
-            print "Removing annotations for", self, meta_id
             source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
             cellml_metadata.remove_statements(self.model, source, None, None)
 

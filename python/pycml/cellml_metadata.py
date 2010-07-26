@@ -169,7 +169,6 @@ def remove_statements(cellml_model, source, property, target):
     rdf_model = _get_rdf_from_model(cellml_model)
     query = RDF.Statement(subject=source, predicate=property, object=target)
     for statement in rdf_model.find_statements(query):
-        print "Removing stmt", statement
         del rdf_model[statement]
 
 def get_target(cellml_model, source, property):

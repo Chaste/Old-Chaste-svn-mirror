@@ -1242,7 +1242,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
                       'convert_interfaces': False,
                       'kept_vars_as_members': True,
                       'use_modifiers': False,
-                      'dynamically_loadable': False
+                      'dynamically_loadable': False,
+                      'use_protocol': False
                       }
         for key, default in our_kwargs.iteritems():
             setattr(self, key, kwargs.get(key, default))
@@ -1447,6 +1448,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if self.dynamically_loadable:
             self.writeln_hpp('#include "AbstractDynamicallyLoadableEntity.hpp"')
             self.class_inheritance += ', public AbstractDynamicallyLoadableEntity'
+        if self.use_protocol:
+            self.writeln_hpp('#include "AbstractSystemWithOutputs.hpp"')
+            self.class_inheritance += ', public AbstractSystemWithOutputs<' + self.base_class_name + ',' + self.TYPE_VECTOR + '>'
         self.writeln('#include "Exception.hpp"')
         self.writeln('#include "OdeSystemInformation.hpp"')
         self.writeln('#include "RegularStimulus.hpp"')
@@ -1494,11 +1498,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         Looks for variables annotated with pycml:derived-quantity=yes, and generates
         a method to compute all these variables from a given state.
         """
-        dqs = cellml_metadata.find_variables(self.model,
-                                             ('pycml:derived-quantity', NSS['pycml']),
-                                             'yes')
-        # Reduce intra-run variation
-        dqs.sort(key=lambda v: v.fullname())
+        dqs = self.derived_quantities
         if dqs:
             self.output_method_start('ComputeDerivedQuantities',
                                      [self.TYPE_DOUBLE + self.code_name(self.free_vars[0]),
@@ -1532,8 +1532,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
                              self.code_name(var), self.STMT_END)
             self.writeln('return dqs', self.STMT_END)
             self.close_block(blank_line=True)
-        # Save for use in output_bottom_boilerplate to fill OdeSystemInformation
-        self.derived_quantities = dqs
         
        
     def output_cell_parameters(self):
@@ -1604,6 +1602,13 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.writeln()
         self.output_default_stimulus()
         self.output_intracellular_calcium()
+        
+        # Find & store derived quantities, for use elsewhere
+        self.derived_quantities = cellml_metadata.find_variables(self.model,
+                                                                 ('pycml:derived-quantity', NSS['pycml']),
+                                                                 'yes')
+        # Reduce intra-run variation
+        self.derived_quantities.sort(key=lambda v: v.fullname())
                 
     def output_default_stimulus(self):
         """
@@ -1764,15 +1769,40 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln(param, comma, indent_offset=3)
         self.open_block()
         self.output_comment('Time units: ', self.free_vars[0].units, '\n')
-        self.writeln('mpSystemInfo = OdeSystemInformation<',
+        self.writeln('this->mpSystemInfo = OdeSystemInformation<',
                      self.class_name, '>::Instance();')
         self.writeln('Init();\n')
         #666 - initialise parameters
         for var in self.cell_parameters:
             if var.get_type() == VarTypes.Constant:
-                self.writeln(self.vector_index('mParameters', var._cml_param_index),
+                self.writeln(self.vector_index('this->mParameters', var._cml_param_index),
                              self.EQ_ASSIGN, var.initial_value, self.STMT_END, ' ',
                              self.COMMENT_START, var.fullname(), ' [', var.units, ']')
+        #1354 - specify protocol outputs
+        if self.use_protocol:
+            outputs = cellml_metadata.find_variables(self.model,
+                                                     ('pycml:output-variable', NSS['pycml']),
+                                                     'yes')
+            if outputs:
+                self.output_comment('Protocol outputs')
+                self.writeln(self.vector_initialise('this->mOutputsInfo', len(outputs)))
+                for i, output in enumerate(outputs):
+                    print "Protocol output", i, output
+                    self.writeln(self.vector_index('this->mOutputsInfo', i), self.EQ_ASSIGN,
+                                 'std::make_pair(', nl=False)
+                    if output.get_type() == VarTypes.Free:
+                        self.writeln('UNSIGNED_UNSET, FREE', indent=False, nl=False)
+                    elif output.get_type() == VarTypes.State:
+                        self.writeln(self.state_vars.index(output), ', STATE', indent=False, nl=False)
+                    elif output.is_derived_quantity:
+                        self.writeln(self.derived_quantities.index(output), ', DERIVED', indent=False, nl=False)
+                    elif output.is_modifiable_parameter:
+                        self.writeln(self.cell_parameters.index(output), ', PARAMETER', indent=False, nl=False)
+                    else:
+                        raise ValueError('Unexpected protocol output: ' + str(output))
+                    self.writeln(')', self.STMT_END, indent=False)
+                self.writeln()
+        # Lookup table generation, if not in a singleton
         if self.use_lookup_tables and not self.separate_lut_class:
             self.output_lut_generation()
         self.close_block()
@@ -1873,6 +1903,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
     def vector_create(self, vector, size):
         """Return code for creating a new vector with the given size."""
         return ''.join(map(str, [self.TYPE_VECTOR, vector, '(', size, ')', self.STMT_END]))
+    
+    def vector_initialise(self, vector, size):
+        """Return code for creating an already-declared vector with the given size."""
+        return ''.join(map(str, [vector, '.resize(', size, ')', self.STMT_END]))
 
     def output_nonlinear_state_assignments(self, nodeset=None):
         """Output assignments for nonlinear state variables."""
@@ -2505,6 +2539,10 @@ class CellMLToCvodeTranslator(CellMLToChasteTranslator):
         """Return code for creating a new vector with the given size."""
         return ''.join(map(str, [self.TYPE_VECTOR, vector, self.EQ_ASSIGN,
                                  'N_VNew_Serial(', size, ')', self.STMT_END]))
+
+    def vector_initialise(self, vector, size):
+        """Return code for creating an already-declared vector with the given size."""
+        return ''.join(map(str, [vector, self.EQ_ASSIGN, 'N_VNew_Serial(', size, ')', self.STMT_END]))
 
     def output_top_boilerplate(self):
         """Output top boilerplate code.
@@ -4281,6 +4319,7 @@ def run():
             transargs['kept_vars_as_members'] = options.kept_vars_as_members
             transargs['use_modifiers'] = options.use_modifiers
             transargs['dynamically_loadable'] = options.dynamically_loadable
+            transargs['use_protocol'] = bool(options.protocol)
         t = klass(**initargs)
         t.translate(doc, model_file, output_filename, class_name=class_name, **transargs)
         cellml_metadata.remove_model(doc.model)
