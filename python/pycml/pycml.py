@@ -511,6 +511,16 @@ class cellml_model(element_base):
             var = None
         return var
     
+    def get_variable_by_cmeta_id(self, cmeta_id):
+        """
+        Get the unique variable in this model with the given cmeta:id attribute value.
+        """
+        vars = self.xml_xpath(u'cml:component/cml:variable[@cmeta:id="%s"]' % cmeta_id)
+        if len(vars) != 1:
+            raise ValueError('"%s" does not ID a unique variable (matches: %s)'
+                             % (cmeta_id, str(vars)))
+        return vars[0]
+    
     def get_all_variables(self):
         """Return an iterator over the variables in the model."""
         for comp in getattr(self, u'component', []):

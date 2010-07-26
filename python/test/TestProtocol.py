@@ -206,7 +206,7 @@ class TestProtocol(unittest.TestCase):
         doc = self.LoadModel('heart/src/odes/cellml/LuoRudy1991.cellml')
         p = protocol.Protocol(doc.model, multi_stage=True)
         # state->state: membrane,V
-        V = doc.model.get_variable_by_name(u'membrane', u'V')
+        V = doc.model.get_variable_by_cmeta_id('membrane_voltage')
         self.failUnlessEqual(V.get_type(), pycml.VarTypes.State)
         time = doc.model.get_variable_by_name(u'membrane', u'time')
         V_old = V._get_ode_dependency(time)
