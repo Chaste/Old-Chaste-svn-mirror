@@ -168,9 +168,14 @@ public:
 
             block_diag_its = ls.GetNumIterations();
 
+            // Coverage (setting PC type after using blockdiagonal solve)
+            ls.SetPcType("blockdiagonal");
+
             MatDestroy(system_matrix);
             VecDestroy(system_rhs);
             VecDestroy(solution);
+
+
         }
         Timer::Print("Block diagonal preconditioner");
 
