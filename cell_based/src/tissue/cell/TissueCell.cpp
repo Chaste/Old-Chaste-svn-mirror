@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "TissueCell.hpp"
-#include "ApoptoticCellMutationState.hpp"
+#include "ApoptoticCellProperty.hpp"
 
 unsigned TissueCell::mMaxCellId = 0;
 
@@ -92,13 +92,12 @@ TissueCell::TissueCell(boost::shared_ptr<AbstractCellProperty> pMutationState,
     	// Set mutation state count
         mpMutationState->IncrementCellCount();
 
-        // Set cell label count
-        ///\todo generalize this code (#1285)
-        if (mCellPropertyCollection.HasProperty<CellLabel>())
+        // Increment cell count for each cell property in mCellPropertyCollection
+        for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
+             property_iter != mCellPropertyCollection.End();
+             ++property_iter)
         {
-        	CellPropertyCollection cell_label_collection = mCellPropertyCollection.GetProperties<CellLabel>();
-        	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(cell_label_collection.GetProperty());
-        	p_label->IncrementCellCount();
+        	(*property_iter)->IncrementCellCount();
         }
     }
 }
@@ -107,12 +106,12 @@ TissueCell::~TissueCell()
 {
     mpMutationState->DecrementCellCount();
 
-    ///\todo generalize this code (#1285)
-    if (mCellPropertyCollection.HasProperty<CellLabel>())
+    // Decrement cell count for each cell property in mCellPropertyCollection
+    for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
+         property_iter != mCellPropertyCollection.End();
+         ++property_iter)
     {
-    	CellPropertyCollection cell_label_collection = mCellPropertyCollection.GetProperties<CellLabel>();
-    	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(cell_label_collection.GetProperty());
-    	p_label->DecrementCellCount();
+        (*property_iter)->DecrementCellCount();
     }
 
     delete mpCellCycleModel;
@@ -155,7 +154,11 @@ void TissueCell::SetBirthTime(double birthTime)
 
 void TissueCell::SetMutationState(boost::shared_ptr<AbstractCellProperty> pMutationState)
 {
-    assert(pMutationState->IsSubType<AbstractCellMutationState>());
+    if (!pMutationState->IsSubType<AbstractCellMutationState>())
+    {
+        EXCEPTION("Attempting to give cell a cell mutation state is not a subtype of AbstractCellMutationState");
+    }
+
     boost::shared_ptr<AbstractCellMutationState> p_state = boost::static_pointer_cast<AbstractCellMutationState>(pMutationState);
     mpMutationState->DecrementCellCount();
     mpMutationState = p_state;
@@ -179,12 +182,11 @@ const CellPropertyCollection& TissueCell::rGetCellPropertyCollection() const
 
 void TissueCell::AddCellProperty(const boost::shared_ptr<AbstractCellProperty>& rProperty)
 {
-	mCellPropertyCollection.AddProperty(rProperty);
-
-    if (rProperty->IsType<CellLabel>())
+    ///\todo Be stricter and throw an exception if rProperty is already in mCellPropertyCollection? (#1285)
+    if (!mCellPropertyCollection.HasProperty(rProperty))
     {
-    	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(rProperty);
-    	p_label->IncrementCellCount();
+    	mCellPropertyCollection.AddProperty(rProperty);
+        rProperty->IncrementCellCount();
     }
 }
 
@@ -217,9 +219,7 @@ void TissueCell::StartApoptosis(bool setDeathTime)
         mDeathTime = DBL_MAX;
     }
 
-    ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-    boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::static_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
-    SetMutationState(p_apoptotic_state);
+    AddCellProperty(CellPropertyRegistry::Instance()->Get<ApoptoticCellProperty>());
 }
 
 bool TissueCell::HasApoptosisBegun() const
@@ -282,7 +282,7 @@ void TissueCell::ResetMaxCellId()
 bool TissueCell::ReadyToDivide()
 {
     assert(!IsDead());
-    if (mUndergoingApoptosis || mpMutationState->IsType<ApoptoticCellMutationState>())
+    if (mUndergoingApoptosis || HasCellProperty<ApoptoticCellProperty>())
     {
         return false;
     }

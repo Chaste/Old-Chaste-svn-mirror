@@ -554,8 +554,8 @@ public:
         // Force the cell to be apoptotic
         for (unsigned i=0; i<num_steps; i++)
         {
-            TS_ASSERT(!(p_apoptotic_cell->GetMutationState()->IsType<ApoptoticCellMutationState>()) ||
-                      p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
+            TS_ASSERT(!(p_apoptotic_cell->HasCellProperty<ApoptoticCellProperty>())
+                        || p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
             // Note that we need to pass in the updated G1 duration
@@ -563,7 +563,7 @@ public:
         }
 
         // Test that the cell is updated to be apoptotic
-        TS_ASSERT_EQUALS(p_apoptotic_cell->GetMutationState()->IsType<ApoptoticCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_apoptotic_cell->HasCellProperty<ApoptoticCellProperty>(), true);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
         // Tidy up
@@ -733,8 +733,8 @@ public:
         // Force the cell to be apoptotic
         for (unsigned i=0; i<num_steps; i++)
         {
-            TS_ASSERT(!(p_apoptotic_cell->GetMutationState()->IsType<ApoptoticCellMutationState>()) ||
-                      p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
+            TS_ASSERT(!(p_apoptotic_cell->HasCellProperty<ApoptoticCellProperty>())
+                        || p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
             // Note that we need to pass in the updated G1 duration
@@ -742,7 +742,7 @@ public:
         }
 
         // Test that the cell is updated to be apoptotic
-        TS_ASSERT_EQUALS(p_apoptotic_cell->GetMutationState()->IsType<ApoptoticCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_apoptotic_cell->HasCellProperty<ApoptoticCellProperty>(), true);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
         // Coverage

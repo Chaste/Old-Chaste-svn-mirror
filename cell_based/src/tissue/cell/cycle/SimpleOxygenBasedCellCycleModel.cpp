@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "ApoptoticCellMutationState.hpp"
+#include "ApoptoticCellProperty.hpp"
 #include "CellPropertyRegistry.hpp"
 
 SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel()
@@ -55,7 +55,9 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 {
     // mG1Duration is set when the cell cycle model is given a cell
 
-    if (!(mpCell->GetMutationState()->IsType<ApoptoticCellMutationState>()))
+    bool cell_is_apoptotic = mpCell->HasCellProperty<ApoptoticCellProperty>();
+
+    if (!cell_is_apoptotic)
     {
         UpdateHypoxicDuration();
 
@@ -96,7 +98,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 
             if (oxygen_concentration < quiescent_concentration)
             {
-                mG1Duration += (1 - std::max(oxygen_concentration,0.0)/quiescent_concentration)*dt;
+                mG1Duration += (1 - std::max(oxygen_concentration, 0.0)/quiescent_concentration)*dt;
                 mTimeSpentInG1Phase += dt;
             }
         }
@@ -111,7 +113,7 @@ AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
 
 void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
 {
-    assert(!(mpCell->GetMutationState()->IsType<ApoptoticCellMutationState>()));
+    assert(!(mpCell->HasCellProperty<ApoptoticCellProperty>()));
     assert(!mpCell->HasApoptosisBegun());
 
     // Get cell's oxygen concentration
@@ -151,9 +153,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
         double prob_of_death = 0.9 - 0.5*(oxygen_concentration/hypoxic_concentration);
         if (mCurrentHypoxicDuration > TissueConfig::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {
-            ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-            boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
-            mpCell->SetMutationState(p_apoptotic_state);
+            mpCell->AddCellProperty(CellPropertyRegistry::Instance()->Get<ApoptoticCellProperty>());
         }
     }
     else

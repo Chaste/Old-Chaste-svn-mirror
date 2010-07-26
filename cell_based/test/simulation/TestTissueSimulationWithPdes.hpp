@@ -331,8 +331,8 @@ public:
         // Set up cells
         std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
+
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -351,7 +351,7 @@ public:
 
             if (dist_from_centre < 1.5)
             {
-                p_cell->SetMutationState(p_apoptotic_state);
+                p_cell->AddCellProperty(p_apoptotic_state);
             }
 
             cells.push_back(p_cell);
@@ -424,8 +424,8 @@ public:
 		// Set up cells
 		std::vector<TissueCellPtr> cells;
 		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-		///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-		boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
+		boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
+
 		for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
 		{
 			SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -444,7 +444,7 @@ public:
 
 			if (dist_from_centre < 1.5)
 			{
-				p_cell->SetMutationState(p_apoptotic_state);
+				p_cell->AddCellProperty(p_apoptotic_state);
 			}
 
 			cells.push_back(p_cell);
@@ -527,8 +527,8 @@ public:
         // Set up cells
         std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
+
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
@@ -540,7 +540,7 @@ public:
             // Label three neighbouring cells as apoptotic
             if (i==12 || i==13 || i==17)
             {
-                p_cell->SetMutationState(p_apoptotic_state);
+                p_cell->AddCellProperty(p_apoptotic_state);
             }
             cells.push_back(p_cell);
         }
@@ -592,7 +592,7 @@ public:
              cell_iter != tissue.End();
              ++cell_iter)
         {
-            if (cell_iter->GetMutationState()->IsType<ApoptoticCellMutationState>())
+            if (cell_iter->HasCellProperty<ApoptoticCellProperty>())
             {
                 num_apoptotic_cells++;
             }

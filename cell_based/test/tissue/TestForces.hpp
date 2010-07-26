@@ -433,20 +433,19 @@ public:
         stretched_tissue.InitialiseCells();
 
         // Set one of the non-boundary cells to be necrotic
-        ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
-        stretched_tissue.GetCellUsingLocationIndex(6)->SetMutationState(p_apoptotic_state);
+        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
+        stretched_tissue.GetCellUsingLocationIndex(6)->AddCellProperty(p_apoptotic_state);
 
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
         linear_force.SetApoptoticSprings(true);
 
-        TS_ASSERT_EQUALS(stretched_tissue.GetCellUsingLocationIndex(6)->GetMutationState()->IsType<ApoptoticCellMutationState>(), true);
+        TS_ASSERT_EQUALS(stretched_tissue.GetCellUsingLocationIndex(6)->HasCellProperty<ApoptoticCellProperty>(), true);
         TS_ASSERT_DELTA(norm_2(linear_force.CalculateForceBetweenNodes(6, 10, stretched_tissue)), 3.3333, 1e-4);
 
         // Set a neighbouring cell to be necrotic
-        stretched_tissue.GetCellUsingLocationIndex(10)->SetMutationState(p_apoptotic_state);
+        stretched_tissue.GetCellUsingLocationIndex(10)->AddCellProperty(p_apoptotic_state);
 
-        TS_ASSERT_EQUALS(stretched_tissue.GetCellUsingLocationIndex(10)->GetMutationState()->IsType<ApoptoticCellMutationState>(), true);
+        TS_ASSERT_EQUALS(stretched_tissue.GetCellUsingLocationIndex(10)->HasCellProperty<ApoptoticCellProperty>(), true);
         TS_ASSERT_DELTA(norm_2(linear_force.CalculateForceBetweenNodes(6, 10, stretched_tissue)), 1.8750, 1e-4);
 
         // Now do similar tests for a squashed tissue
@@ -461,14 +460,14 @@ public:
         MeshBasedTissueWithGhostNodes<2> squashed_tissue(*p_mesh2, cells2, location_indices2);
         squashed_tissue.InitialiseCells();
 
-        squashed_tissue.GetCellUsingLocationIndex(6)->SetMutationState(p_apoptotic_state);
+        squashed_tissue.GetCellUsingLocationIndex(6)->AddCellProperty(p_apoptotic_state);
 
         LinearSpringWithVariableSpringConstantsForce<2> linear_force2;
         linear_force2.SetApoptoticSprings(true);
 
         TS_ASSERT_DELTA( norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_tissue)), 4.0909, 1e-4);
 
-        squashed_tissue.GetCellUsingLocationIndex(10)->SetMutationState(p_apoptotic_state);
+        squashed_tissue.GetCellUsingLocationIndex(10)->AddCellProperty(p_apoptotic_state);
 
         TS_ASSERT_DELTA( norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_tissue)), 2.8125, 1e-4);
     }

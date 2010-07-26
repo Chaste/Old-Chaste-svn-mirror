@@ -181,7 +181,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
         NEVER_REACHED;
     }
 
-    if (mpCell->rGetCellPropertyCollection().HasProperty<CellLabel>())
+    if (mpCell->HasCellProperty<CellLabel>())
     {
         wnt_division_threshold = labelled_threshold;
     }

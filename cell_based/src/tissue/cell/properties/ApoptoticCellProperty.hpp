@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CELLLABEL_HPP_
-#define CELLLABEL_HPP_
+#ifndef APOPTOTICCELLPROPERTY_HPP_
+#define APOPTOTICCELLPROPERTY_HPP_
 
 #include <boost/shared_ptr.hpp>
 #include "AbstractCellProperty.hpp"
@@ -34,16 +34,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 /**
- * Cell label class.
+ * Apoptotic cell property.
  *
  * Each TissueCell owns a CellPropertyCollection, which may include a shared pointer 
- * to an object of this type. When a TissueCell that is labelled divides, the daughter
- * cells are both labelled. 
+ * to an object of this type.
  *
- * The CellLabel object keeps track of the number of cells that have the label, as well
- * as what colour should be used by the visualizer to display cells with the label.
+ * The ApoptoticCellProperty object keeps track of the number of cells that are apoptotic, as well
+ * as what colour should be used by the visualizer to display cells that are apoptotic.
  */
-class CellLabel : public AbstractCellProperty
+class ApoptoticCellProperty : public AbstractCellProperty
 {
 private:
 
@@ -74,14 +73,14 @@ public:
     /**
      * Constructor.
      *
-     * @param colour  what colour cells with this label should be in the visualizer (defaults to 5)
+     * @param colour  what colour cells with this property should be in the visualizer (defaults to 6)
      */
-    CellLabel(unsigned colour=5);
+    ApoptoticCellProperty(unsigned colour=6);
 
     /**
      * Destructor.
      */
-    virtual ~CellLabel();
+    virtual ~ApoptoticCellProperty();
 
     /**
      * Get #mColour.
@@ -91,6 +90,6 @@ public:
 
 #include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(CellLabel)
+CHASTE_CLASS_EXPORT(ApoptoticCellProperty)
 
-#endif /* CELLLABEL_HPP_ */
+#endif /* APOPTOTICCELLPROPERTY_HPP_ */

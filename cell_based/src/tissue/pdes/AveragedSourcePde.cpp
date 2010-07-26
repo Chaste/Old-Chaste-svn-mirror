@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AveragedSourcePde.hpp"
-#include "ApoptoticCellMutationState.hpp"
+#include "ApoptoticCellProperty.hpp"
 
 template<unsigned DIM>
 AveragedSourcePde<DIM>::AveragedSourcePde(MeshBasedTissue<DIM>& rTissue, double coefficient)
@@ -54,9 +54,7 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
         const ChastePoint<DIM>& r_position_of_cell = mrTissue.GetLocationOfCellCentre(*cell_iter);
         unsigned elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
 
-        boost::shared_ptr<AbstractCellMutationState> p_mutation_state = cell_iter->GetMutationState();
-
-        bool cell_is_apoptotic = (p_mutation_state->IsType<ApoptoticCellMutationState>());
+        bool cell_is_apoptotic = cell_iter->template HasCellProperty<ApoptoticCellProperty>();
 
         if (!cell_is_apoptotic)
         {

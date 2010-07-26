@@ -388,7 +388,7 @@ public:
 
         // Create cells
         std::vector<TissueCellPtr> cells;
-        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2>cells_generator;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Create tissue
@@ -423,9 +423,8 @@ public:
         // Check that a single cell reaches apoptosis
         TS_ASSERT_EQUALS((*r_cells.begin())->HasApoptosisBegun(), false);
 
-        ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state(new ApoptoticCellMutationState);
-        (*r_cells.begin())->SetMutationState(p_apoptotic_state);
+        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(CellPropertyRegistry::Instance()->Get<ApoptoticCellProperty>());
+        (*r_cells.begin())->AddCellProperty(p_apoptotic_state);
         oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
 
         TS_ASSERT((*r_cells.begin())->HasApoptosisBegun());

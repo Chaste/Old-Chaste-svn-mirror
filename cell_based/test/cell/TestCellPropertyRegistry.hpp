@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "ApoptoticCellMutationState.hpp"
+#include "ApoptoticCellProperty.hpp"
 #include "OutputFileHandler.hpp"
 #include "CellPropertyRegistry.hpp"
 
@@ -57,7 +57,7 @@ public:
         p_label->DecrementCellCount();
         TS_ASSERT_EQUALS(p_label->GetCellCount(), 0u);
         TS_ASSERT_THROWS_THIS(p_label->DecrementCellCount(),
-                "Cannot decrement cell count: no cells have this label.");
+                "Cannot decrement cell count: no cells have this cell property");
         TS_ASSERT_EQUALS(p_label->GetColour(), 5u);
 
         TS_ASSERT_EQUALS(p_label->IsType<CellLabel>(), true);
@@ -121,7 +121,7 @@ public:
         std::vector<boost::shared_ptr<AbstractCellProperty> > property_ordering;
         property_ordering.push_back(p_instance->Get<WildTypeCellMutationState>());
         property_ordering.push_back(p_instance->Get<ApcOneHitCellMutationState>());
-        property_ordering.push_back(p_instance->Get<ApoptoticCellMutationState>());
+        property_ordering.push_back(p_instance->Get<ApoptoticCellProperty>());
         property_ordering.push_back(p_instance->Get<CellLabel>());
 
         TS_ASSERT_EQUALS(p_instance->HasOrderingBeenSpecified(), false);
@@ -132,14 +132,10 @@ public:
 
         std::vector<boost::shared_ptr<AbstractCellProperty> > properties = p_instance->rGetAllCellProperties();
         TS_ASSERT_EQUALS(properties.size(), 4u);
-        TS_ASSERT(properties[0]->IsType<WildTypeCellMutationState>());
-        TS_ASSERT(properties[1]->IsType<ApcOneHitCellMutationState>());
-        TS_ASSERT(properties[2]->IsType<ApoptoticCellMutationState>());
-        TS_ASSERT(properties[3]->IsType<CellLabel>());
-
-        // The ordering must be complete
-        TS_ASSERT_THROWS_THIS(p_instance->Get<BetaCateninOneHitCellMutationState>(),
-                "Cannot add a new cell property not specified in the ordering.");
+        TS_ASSERT_EQUALS(properties[0]->IsType<WildTypeCellMutationState>(), true);
+        TS_ASSERT_EQUALS(properties[1]->IsType<ApcOneHitCellMutationState>(), true);
+        TS_ASSERT_EQUALS(properties[2]->IsType<ApoptoticCellProperty>(), true);
+        TS_ASSERT_EQUALS(properties[3]->IsType<CellLabel>(), true);
         p_instance->Clear();
     }
 

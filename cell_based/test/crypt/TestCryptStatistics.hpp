@@ -257,7 +257,7 @@ public:
              cell_iter != crypt.End();
              ++cell_iter)
         {
-            bool is_labelled = cell_iter->rGetCellPropertyCollection().HasProperty<CellLabel>();
+            bool is_labelled = cell_iter->HasCellProperty<CellLabel>();
             bool in_s_phase = (cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase() == S_PHASE);
 
             TS_ASSERT_EQUALS(is_labelled, in_s_phase);
@@ -280,7 +280,7 @@ public:
              ++cell_iter)
         {
             TS_ASSERT_EQUALS(cell_iter->GetMutationState()->IsType<WildTypeCellMutationState>(), true);
-            TS_ASSERT_EQUALS(cell_iter->rGetCellPropertyCollection().HasProperty<CellLabel>(), false);
+            TS_ASSERT_EQUALS(cell_iter->HasCellProperty<CellLabel>(), false);
             counter++;
         }
 

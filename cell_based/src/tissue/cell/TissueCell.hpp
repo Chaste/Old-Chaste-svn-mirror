@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellProliferativeTypes.hpp"
 #include "AbstractCellMutationState.hpp"
 #include "CellLabel.hpp"
+#include "ApoptoticCellProperty.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
 #include "CellPropertyRegistry.hpp"
@@ -241,19 +242,26 @@ public:
     		if ((*property_iter)->IsType<CLASS>())
     		{
     			cell_has_property = true;
-
-    			if ((*property_iter)->IsType<CellLabel>())
-			    {
-			    	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(*property_iter);
-			    	p_label->DecrementCellCount();
-			    }
+                (*property_iter)->DecrementCellCount();
+                break;
     		}
     	}
 
+        ///\todo Be stricter and throw an exception if cell does not have this property? (#1285)
     	if (cell_has_property)
     	{
     	    mCellPropertyCollection.RemoveProperty<CLASS>();
     	}
+    }
+
+    /**
+     * Test whether the cell property collection contains a property that has the exact type CLASS.
+     * Just calls mCellPropertyCollection.HasProperty().
+     */
+    template<typename CLASS>
+    bool HasCellProperty() const
+    {
+        return mCellPropertyCollection.HasProperty<CLASS>();
     }
 
     /**

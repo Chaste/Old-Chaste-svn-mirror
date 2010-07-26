@@ -82,7 +82,7 @@ void Alarcon2004OxygenBasedCellCycleModel::Initialise()
     assert(mpOdeSystem == NULL);
     assert(mpCell != NULL);
 
-    bool is_labelled = mpCell->rGetCellPropertyCollection().HasProperty<CellLabel>();
+    bool is_labelled = mpCell->HasCellProperty<CellLabel>();
 
     switch (mDimension)
     {
@@ -142,7 +142,7 @@ bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
     }
 
     // Use whether the cell is currently labelled as another input
-    bool is_labelled = mpCell->rGetCellPropertyCollection().HasProperty<CellLabel>();
+    bool is_labelled = mpCell->HasCellProperty<CellLabel>();
     static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetIsLabelled(is_labelled);
 
     msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);

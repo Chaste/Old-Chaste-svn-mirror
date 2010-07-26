@@ -51,7 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
-#include "ApoptoticCellMutationState.hpp"
+#include "ApoptoticCellProperty.hpp"
 #include "CellLabel.hpp"
 
 /**
@@ -326,7 +326,6 @@ public:
      * [1] = APC one hit
      * [2] = APC two hit
      * [3] = beta catenin one hit
-     * [4] = apoptotic
      */
     std::vector<unsigned> GetCellMutationStateCount();
 

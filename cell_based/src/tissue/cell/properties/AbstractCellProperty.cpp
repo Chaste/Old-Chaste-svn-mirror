@@ -27,10 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCellProperty.hpp"
+#include "Exception.hpp"
 
 #include <typeinfo>
 
 AbstractCellProperty::AbstractCellProperty()
+    : mCellCount(0)
 {
 }
 
@@ -48,4 +50,23 @@ bool AbstractCellProperty::IsSame(const AbstractCellProperty* pOther) const
 bool AbstractCellProperty::IsSame(boost::shared_ptr<const AbstractCellProperty> pOther) const
 {
     return IsSame(pOther.get());
+}
+
+void AbstractCellProperty::IncrementCellCount()
+{
+    mCellCount++;
+}
+
+void AbstractCellProperty::DecrementCellCount()
+{
+    if (mCellCount == 0)
+    {
+        EXCEPTION("Cannot decrement cell count: no cells have this cell property");
+    }
+    mCellCount--;
+}
+
+unsigned AbstractCellProperty::GetCellCount() const
+{
+    return mCellCount;
 }

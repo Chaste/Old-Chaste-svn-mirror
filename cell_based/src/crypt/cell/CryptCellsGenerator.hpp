@@ -225,7 +225,9 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
         p_cell_cycle_model->SetCellProliferativeType(cell_type);
 
         boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
+
         TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
+
         if (initialiseCells)
         {
             p_cell->InitialiseCellCycleModel();

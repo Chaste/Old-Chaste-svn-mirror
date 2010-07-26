@@ -41,6 +41,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class AbstractCellProperty
 {
 private:
+
+    /**
+     * The number of cells with this mutation state.
+     */
+    unsigned mCellCount;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -54,6 +60,7 @@ private:
     {
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
+        archive & mCellCount;
     }
 
 public:
@@ -113,6 +120,20 @@ public:
      */
     bool IsSame(boost::shared_ptr<const AbstractCellProperty> pOther) const;
 
+    /**
+     * Increment #mCellCount.
+     */
+    void IncrementCellCount();
+
+    /**
+     * Decrement #mCellCount.
+     */
+    void DecrementCellCount();
+
+    /**
+     * Get #mCellCount
+     */
+    unsigned GetCellCount() const;
 };
 
 #endif /* ABSTRACTCELLPROPERTY_HPP_ */

@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
-#include "ApoptoticCellMutationState.hpp"
 
 #include "CellPropertyRegistry.hpp"
 
@@ -61,7 +60,7 @@ public:
         p_state->DecrementCellCount();
         TS_ASSERT_EQUALS(p_state->GetCellCount(), 0u);
         TS_ASSERT_THROWS_THIS(p_state->DecrementCellCount(),
-                "Cannot decrement cell count: no cells have this mutation state.");
+                "Cannot decrement cell count: no cells have this cell property");
         TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
 
         TS_ASSERT_EQUALS(p_state->IsType<WildTypeCellMutationState>(), true);
@@ -89,7 +88,7 @@ public:
 
         // Archive a mutation state
         {
-            AbstractCellMutationState* p_state = new ApcOneHitCellMutationState();
+            ApcOneHitCellMutationState* p_state = new ApcOneHitCellMutationState();
             p_state->IncrementCellCount();
 
             TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
@@ -100,7 +99,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             // Write the cell to the archive
-            const AbstractCellMutationState* const p_const_state = p_state;
+            const AbstractCellProperty* const p_const_state = p_state;
             output_arch << p_const_state;
 
             delete p_state;
@@ -108,7 +107,7 @@ public:
 
         // Restore mutation state
         {
-            AbstractCellMutationState* p_state;
+            AbstractCellProperty* p_state;
 
             // Restore the mutation state
             std::ifstream ifs(archive_filename.c_str());
@@ -117,10 +116,10 @@ public:
             input_arch >> p_state;
 
             TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-            TS_ASSERT_EQUALS(p_state->GetColour(), 3u);
 
             ApcOneHitCellMutationState* p_real_state = dynamic_cast<ApcOneHitCellMutationState*>(p_state);
             TS_ASSERT(p_real_state != NULL);
+            TS_ASSERT_EQUALS(p_real_state->GetColour(), 3u);
 
             // Tidy up
             delete p_state;

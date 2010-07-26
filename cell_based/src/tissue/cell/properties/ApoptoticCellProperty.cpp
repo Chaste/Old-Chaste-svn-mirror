@@ -26,13 +26,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "ApoptoticCellMutationState.hpp"
+#include "ApoptoticCellProperty.hpp"
 
-ApoptoticCellMutationState::ApoptoticCellMutationState()
-    : AbstractCellMutationState(6)
-{}
+ApoptoticCellProperty::ApoptoticCellProperty(unsigned colour)
+    : AbstractCellProperty(),
+      mColour(colour)
+{
+}
 
+ApoptoticCellProperty::~ApoptoticCellProperty()
+{
+}
+
+unsigned ApoptoticCellProperty::GetColour() const
+{
+    return mColour;
+}
 
 #include "SerializationExportWrapperForCpp.hpp"
 // Declare identifier for the serializer
-CHASTE_CLASS_EXPORT(ApoptoticCellMutationState)
+CHASTE_CLASS_EXPORT(ApoptoticCellProperty)

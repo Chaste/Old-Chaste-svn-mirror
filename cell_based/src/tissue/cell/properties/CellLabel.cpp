@@ -27,37 +27,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "CellLabel.hpp"
-#include "Exception.hpp"
-#include "PetscTools.hpp"
-
 
 CellLabel::CellLabel(unsigned colour)
-    : mCellCount(0),
+    : AbstractCellProperty(),
       mColour(colour)
 {
 }
 
 CellLabel::~CellLabel()
 {
-}
-
-void CellLabel::IncrementCellCount()
-{
-    mCellCount++;
-}
-
-void CellLabel::DecrementCellCount()
-{
-    if (mCellCount == 0)
-    {
-        EXCEPTION("Cannot decrement cell count: no cells have this label.");
-    }
-    mCellCount--;
-}
-
-unsigned CellLabel::GetCellCount() const
-{
-    return mCellCount;
 }
 
 unsigned CellLabel::GetColour() const

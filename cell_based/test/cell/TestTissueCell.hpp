@@ -113,9 +113,9 @@ public:
         TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty(p_apc1_mutation), true);
         TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty(p_apc1_mutation_2), false);
         TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty(p_apc2_mutation), false);
-        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty<WildTypeCellMutationState>(), true);
-        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty<ApcOneHitCellMutationState>(), true);
-        TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty<ApcTwoHitCellMutationState>(), false);
+        TS_ASSERT_EQUALS(p_cell->HasCellProperty<WildTypeCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_cell->HasCellProperty<ApcOneHitCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_cell->HasCellProperty<ApcTwoHitCellMutationState>(), false);
         TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasPropertyType<AbstractCellProperty>(), true);
         TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasPropertyType<AbstractCellMutationState>(), true);
 
@@ -123,22 +123,21 @@ public:
         boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
 
         TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty(p_label), false);
-        TS_ASSERT_EQUALS(boost::static_pointer_cast<CellLabel>(p_label)->GetCellCount(), 0u);
+        TS_ASSERT_EQUALS(p_label->GetCellCount(), 0u);
 
         p_cell->AddCellProperty(p_label);
 
         TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty(p_label), true);
-        TS_ASSERT_EQUALS(boost::static_pointer_cast<CellLabel>(p_label)->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(p_label->GetCellCount(), 1u);
 
         CellPropertyCollection cell_label_collection = p_cell->rGetCellPropertyCollection().GetProperties<CellLabel>();
-        boost::shared_ptr<CellLabel> p_cell_label = boost::static_pointer_cast<CellLabel>(cell_label_collection.GetProperty());
-        TS_ASSERT_EQUALS(p_cell_label->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(cell_label_collection.GetProperty()->GetCellCount(), 1u);
 
         // Test removing a cell property
         p_cell->RemoveCellProperty<CellLabel>();
 
         TS_ASSERT_EQUALS(p_cell->rGetCellPropertyCollection().HasProperty(p_label), false);
-        TS_ASSERT_EQUALS(boost::static_pointer_cast<CellLabel>(p_label)->GetCellCount(), 0u);
+        TS_ASSERT_EQUALS(p_label->GetCellCount(), 0u);
 
         // Now age cell
         p_simulation_time->IncrementTimeOneStep(); // t=8
@@ -165,9 +164,9 @@ public:
         TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty(p_apc1_mutation), true);
         TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty(p_apc1_mutation_2), false);
         TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty(p_apc2_mutation), false);
-        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty<WildTypeCellMutationState>(), true);
-        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty<ApcOneHitCellMutationState>(), true);
-        TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasProperty<ApcTwoHitCellMutationState>(), false);
+        TS_ASSERT_EQUALS(p_daughter_cell->HasCellProperty<WildTypeCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->HasCellProperty<ApcOneHitCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_daughter_cell->HasCellProperty<ApcTwoHitCellMutationState>(), false);
         TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasPropertyType<AbstractCellProperty>(), true);
         TS_ASSERT_EQUALS(p_daughter_cell->rGetCellPropertyCollection().HasPropertyType<AbstractCellMutationState>(), true);
 
@@ -188,7 +187,7 @@ public:
                               "TissueCell is setting up a cell cycle model but SimulationTime has not been set up");
 
         // Cell wasn't created - count should be zero
-        TS_ASSERT_EQUALS(boost::static_pointer_cast<AbstractCellMutationState>(p_healthy_state)->GetCellCount(), 0u);
+        TS_ASSERT_EQUALS(p_healthy_state->GetCellCount(), 0u);
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
@@ -198,7 +197,7 @@ public:
                               "Cell cycle model is null");
 
         // Cell wasn't created - count should be zero
-        TS_ASSERT_EQUALS(boost::static_pointer_cast<AbstractCellMutationState>(p_healthy_state)->GetCellCount(), 0u);
+        TS_ASSERT_EQUALS(p_healthy_state->GetCellCount(), 0u);
 
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
@@ -209,8 +208,11 @@ public:
         TissueCellPtr p_stem_cell(new TissueCell(p_healthy_state, p_model));
         p_stem_cell->InitialiseCellCycleModel();
 
+        TS_ASSERT_THROWS_THIS(p_stem_cell->SetMutationState(p_label),
+                              "Attempting to give cell a cell mutation state is not a subtype of AbstractCellMutationState");
+
         // Cell was created - count should be one
-        TS_ASSERT_EQUALS(boost::static_pointer_cast<AbstractCellMutationState>(p_healthy_state)->GetCellCount(), 1u);
+        TS_ASSERT_EQUALS(p_healthy_state->GetCellCount(), 1u);
 
         p_simulation_time->IncrementTimeOneStep();
 
@@ -279,7 +281,7 @@ public:
 
         TS_ASSERT_EQUALS(p_stem_cell->ReadyToDivide(), false);
 
-        p_simulation_time->IncrementTimeOneStep();//t=30
+        p_simulation_time->IncrementTimeOneStep(); //t=30
 
         TS_ASSERT_EQUALS(p_stem_cell->ReadyToDivide(), true);
 

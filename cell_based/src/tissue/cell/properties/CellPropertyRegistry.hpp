@@ -154,16 +154,9 @@ boost::shared_ptr<AbstractCellProperty> CellPropertyRegistry::Get()
     }
     if (!p_property)
     {
-        if (mOrderingHasBeenSpecified)
-        {
-            EXCEPTION("Cannot add a new cell property not specified in the ordering.");
-        }
-        else
-        {
-            // Create a new mutation state
-            p_property.reset(new SUBCLASS);
-            mCellProperties.push_back(p_property);
-        }
+        // Create a new mutation state
+        p_property.reset(new SUBCLASS);
+        mCellProperties.push_back(p_property);
     }
     return p_property;
 }

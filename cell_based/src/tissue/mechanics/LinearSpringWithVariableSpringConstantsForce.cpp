@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshBasedTissue.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
-#include "ApoptoticCellMutationState.hpp"
+#include "ApoptoticCellProperty.hpp"
 
 template<unsigned DIM>
 LinearSpringWithVariableSpringConstantsForce<DIM>::LinearSpringWithVariableSpringConstantsForce()
@@ -161,8 +161,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
     if (mUseApoptoticSprings)
     {
-        bool cell_A_is_apoptotic = p_cell_A->GetMutationState()->IsType<ApoptoticCellMutationState>();
-        bool cell_B_is_apoptotic = p_cell_B->GetMutationState()->IsType<ApoptoticCellMutationState>();
+        bool cell_A_is_apoptotic = p_cell_A->HasCellProperty<ApoptoticCellProperty>();
+        bool cell_B_is_apoptotic = p_cell_B->HasCellProperty<ApoptoticCellProperty>();
 
         if (cell_A_is_apoptotic || cell_B_is_apoptotic)
         {

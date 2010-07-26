@@ -150,7 +150,7 @@ std::vector<unsigned> AbstractTissue<DIM>::GetCellMutationStateCount()
     {
         if (r_cell_properties[i]->IsSubType<AbstractCellMutationState>())
         {
-            cell_mutation_state_count.push_back(boost::static_pointer_cast<AbstractCellMutationState>(r_cell_properties[i])->GetCellCount());
+            cell_mutation_state_count.push_back(r_cell_properties[i]->GetCellCount());
         }
     }
 
@@ -217,7 +217,6 @@ void AbstractTissue<DIM>::SetDefaultMutationStateOrdering()
         mutations.push_back(p_registry->Get<ApcOneHitCellMutationState>());
         mutations.push_back(p_registry->Get<ApcTwoHitCellMutationState>());
         mutations.push_back(p_registry->Get<BetaCateninOneHitCellMutationState>());
-        mutations.push_back(p_registry->Get<ApoptoticCellMutationState>());
         p_registry->SpecifyOrdering(mutations);
     }
 }
@@ -245,7 +244,8 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool 
     if (p_config->GetOutputCellMutationStates())
     {
         mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
-        *mpCellMutationStatesFile << "Time\t Healthy\t APC_1\t APC_2\t BETA_CAT\t Apoptotic \n";
+        ///\todo change this code to allow for arbitrary cell mutation states (#1285)
+        *mpCellMutationStatesFile << "Time\t Healthy\t APC_1\t APC_2\t BETA_CAT \n";
     }
     if (p_config->GetOutputCellProliferativeTypes())
     {
@@ -394,7 +394,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         {
             colour = p_cell->GetMutationState()->GetColour();
         }
-        if (p_cell->rGetCellPropertyCollection().HasProperty<CellLabel>())
+        if (p_cell->HasCellProperty<CellLabel>())
         {
         	CellPropertyCollection collection = p_cell->rGetCellPropertyCollection().GetProperties<CellLabel>();
         	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(collection.GetProperty());
@@ -402,7 +402,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         }
     }
 
-    if (p_cell->GetMutationState()->IsType<ApoptoticCellMutationState>() || p_cell->HasApoptosisBegun())
+    if (p_cell->HasCellProperty<ApoptoticCellProperty>() || p_cell->HasApoptosisBegun())
     {
         // For any type of cell set the colour to this if it is undergoing apoptosis
         colour = APOPTOSIS_COLOUR;
@@ -473,7 +473,7 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellPr
         {
             if (r_cell_properties[i]->IsSubType<AbstractCellMutationState>())
             {
-                *mpCellMutationStatesFile << boost::static_pointer_cast<AbstractCellMutationState>(r_cell_properties[i])->GetCellCount() << "\t";
+                *mpCellMutationStatesFile << r_cell_properties[i]->GetCellCount() << "\t";
             }
         }
 

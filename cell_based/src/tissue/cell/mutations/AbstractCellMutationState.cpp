@@ -27,7 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCellMutationState.hpp"
-#include "Exception.hpp"
 #include "PetscTools.hpp"
 
 AbstractCellMutationState::AbstractCellMutationState()
@@ -37,32 +36,13 @@ AbstractCellMutationState::AbstractCellMutationState()
 }
 
 AbstractCellMutationState::AbstractCellMutationState(unsigned colour)
-    : mCellCount(0),
+    : AbstractCellProperty(),
       mColour(colour)
 {
 }
 
 AbstractCellMutationState::~AbstractCellMutationState()
 {
-}
-
-void AbstractCellMutationState::IncrementCellCount()
-{
-    mCellCount++;
-}
-
-void AbstractCellMutationState::DecrementCellCount()
-{
-    if (mCellCount == 0)
-    {
-        EXCEPTION("Cannot decrement cell count: no cells have this mutation state.");
-    }
-    mCellCount--;
-}
-
-unsigned AbstractCellMutationState::GetCellCount() const
-{
-    return mCellCount;
 }
 
 unsigned AbstractCellMutationState::GetColour() const

@@ -52,11 +52,6 @@ class AbstractCellMutationState : public AbstractCellProperty
 private:
 
     /**
-     * The number of cells with this mutation state.
-     */
-    unsigned mCellCount;
-
-    /**
      * Colour for use by visualizer.
      */
     unsigned mColour;
@@ -75,7 +70,6 @@ private:
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractCellProperty>(*this);
-        archive & mCellCount;
         archive & mColour;
     }
 
@@ -98,21 +92,6 @@ public:
      * Virtual destructor, to make this class polymorphic.
      */
     virtual ~AbstractCellMutationState();
-
-    /**
-     * Increment #mCellCount.
-     */
-    void IncrementCellCount();
-
-    /**
-     * Decrement #mCellCount.
-     */
-    void DecrementCellCount();
-
-    /**
-     * Get #mCellCount
-     */
-    unsigned GetCellCount() const;
 
     /**
      * Get #mColour.

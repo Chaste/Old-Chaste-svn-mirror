@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "CellwiseSourcePde.hpp"
-#include "ApoptoticCellMutationState.hpp"
+#include "ApoptoticCellProperty.hpp"
 
 template<unsigned DIM>
 CellwiseSourcePde<DIM>::CellwiseSourcePde(MeshBasedTissue<DIM>& rTissue, double coefficient)
@@ -52,15 +52,18 @@ double CellwiseSourcePde<DIM>::ComputeLinearInUCoeffInSourceTerm(const ChastePoi
 template<unsigned DIM>
 double CellwiseSourcePde<DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Node<DIM>& rNode)
 {
+    double coefficient = 0.0;
+
     TissueCellPtr p_cell = mrTissue.GetCellUsingLocationIndex(rNode.GetIndex());
-    if (!(p_cell->GetMutationState()->IsType<ApoptoticCellMutationState>()))
+
+    bool cell_is_apoptotic = p_cell->HasCellProperty<ApoptoticCellProperty>();
+
+    if (!cell_is_apoptotic)
     {
-        return mCoefficient;
+        coefficient = mCoefficient;
     }
-    else
-    {
-        return 0.0;
-    }
+
+    return coefficient;
 }
 
 template<unsigned DIM>

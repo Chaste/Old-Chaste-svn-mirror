@@ -42,17 +42,15 @@ void AbstractCryptStatistics::LabelSPhaseCells()
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
-    	boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
-
         if (cell_iter->GetCellCycleModel()->GetCurrentCellCyclePhase()== S_PHASE)
         {
             // This should only be done for wild type cells (at the moment anyway)
             assert(cell_iter->GetMutationState()->IsType<WildTypeCellMutationState>());
 
             // Label this cell
-            if (!cell_iter->rGetCellPropertyCollection().HasProperty<CellLabel>());
+            if (!cell_iter->HasCellProperty<CellLabel>());
             {
-            	cell_iter->AddCellProperty(p_label);
+            	cell_iter->AddCellProperty(CellPropertyRegistry::Instance()->Get<CellLabel>());
             }
         }
     }
@@ -60,12 +58,11 @@ void AbstractCryptStatistics::LabelSPhaseCells()
 
 void AbstractCryptStatistics::LabelAllCellsAsHealthy()
 {
-    boost::shared_ptr<AbstractCellProperty> p_wildtype(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
     for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
-        cell_iter->SetMutationState(p_wildtype);
+        cell_iter->SetMutationState(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
         cell_iter->RemoveCellProperty<CellLabel>();
     }
 }
@@ -76,7 +73,7 @@ std::vector<bool> AbstractCryptStatistics::AreCryptSectionCellsLabelled(std::vec
 
     for (unsigned vector_index=0; vector_index<rCryptSection.size(); vector_index++)
     {
-        if (rCryptSection[vector_index]->rGetCellPropertyCollection().HasProperty<CellLabel>())
+        if (rCryptSection[vector_index]->HasCellProperty<CellLabel>())
         {
             crypt_section_labelled[vector_index] = true;
         }

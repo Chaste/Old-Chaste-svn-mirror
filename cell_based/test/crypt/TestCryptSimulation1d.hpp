@@ -721,12 +721,11 @@ public:
         }
 
         std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().GetCellMutationStateCount();
-        TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 5u);
+        TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 4u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[0], 2u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[2], 0u); // No APC two hit
         TS_ASSERT_EQUALS(cell_mutation_state_count[3], 1u);
-        TS_ASSERT_EQUALS(cell_mutation_state_count[4], 0u); // No apoptotic
 
         std::vector<unsigned> cell_type_count = simulator.rGetTissue().rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count.size(), 3u);
