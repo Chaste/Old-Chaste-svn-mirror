@@ -141,7 +141,7 @@ public:
      * @param archiving  whether this constructor is being called by the archiver - do things slightly differently! (defaults to false)
      * @param cellPropertyCollection the cell property collection (defaults to NULL)
      */
-    TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationState,
+    TissueCell(boost::shared_ptr<AbstractCellProperty> pMutationState,
                AbstractCellCycleModel* pCellCycleModel,
                bool archiving=false,
                CellPropertyCollection cellPropertyCollection=CellPropertyCollection());
@@ -244,7 +244,7 @@ public:
 
     			if ((*property_iter)->IsType<CellLabel>())
 			    {
-			    	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(*property_iter);
+			    	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(*property_iter);
 			    	p_label->DecrementCellCount();
 			    }
     		}

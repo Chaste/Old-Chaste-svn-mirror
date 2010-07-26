@@ -150,7 +150,7 @@ std::vector<unsigned> AbstractTissue<DIM>::GetCellMutationStateCount()
     {
         if (r_cell_properties[i]->IsSubType<AbstractCellMutationState>())
         {
-            cell_mutation_state_count.push_back(boost::dynamic_pointer_cast<AbstractCellMutationState>(r_cell_properties[i])->GetCellCount());
+            cell_mutation_state_count.push_back(boost::static_pointer_cast<AbstractCellMutationState>(r_cell_properties[i])->GetCellCount());
         }
     }
 
@@ -397,7 +397,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         if (p_cell->rGetCellPropertyCollection().HasProperty<CellLabel>())
         {
         	CellPropertyCollection collection = p_cell->rGetCellPropertyCollection().GetProperties<CellLabel>();
-        	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(collection.GetProperty());
+        	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(collection.GetProperty());
         	colour = p_label->GetColour();
         }
     }
@@ -473,7 +473,7 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellPr
         {
             if (r_cell_properties[i]->IsSubType<AbstractCellMutationState>())
             {
-                *mpCellMutationStatesFile << boost::dynamic_pointer_cast<AbstractCellMutationState>(r_cell_properties[i])->GetCellCount() << "\t";
+                *mpCellMutationStatesFile << boost::static_pointer_cast<AbstractCellMutationState>(r_cell_properties[i])->GetCellCount() << "\t";
             }
         }
 

@@ -94,7 +94,7 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCellP
         p_cell_cycle_model->SetDimension(DIM);
         p_cell_cycle_model->SetCellProliferativeType(STEM);
 
-        boost::shared_ptr<AbstractCellMutationState> p_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
         TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
 
         double birth_time;
@@ -129,7 +129,7 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vec
         p_cell_cycle_model->SetDimension(DIM);
         p_cell_cycle_model->SetCellProliferativeType(STEM);
 
-        boost::shared_ptr<AbstractCellMutationState> p_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
+        boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
 

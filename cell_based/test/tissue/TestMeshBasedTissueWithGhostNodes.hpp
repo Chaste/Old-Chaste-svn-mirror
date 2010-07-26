@@ -62,7 +62,7 @@ public:
         // Give each a birth time of -node_index, so the age = node_index
         std::vector<TissueCellPtr> cells;
         std::vector<unsigned> cell_location_indices;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
             AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -341,7 +341,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 81u);
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), 70u);
 
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
 
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
@@ -591,7 +591,7 @@ public:
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
+        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
         cells[4]->SetMutationState(p_apoptotic_state); // coverage
 
         TS_ASSERT_EQUALS(cells[4]->GetMutationState()->IsType<ApoptoticCellMutationState>(), true);
@@ -699,7 +699,7 @@ public:
         // Set up cells by iterating through the nodes
         std::vector<TissueCellPtr> cells;
         std::vector<unsigned> location_indices;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
 
         // Loop over nodes
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
@@ -761,7 +761,7 @@ public:
         // Set up cells by iterating through the nodes
         std::vector<TissueCellPtr> cells;
         std::vector<unsigned> location_indices;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
 
         // Loop over nodes
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)

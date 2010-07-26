@@ -51,13 +51,12 @@ struct null_deleter
     }
 };
 
-TissueCell::TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationState,
+TissueCell::TissueCell(boost::shared_ptr<AbstractCellProperty> pMutationState,
                        AbstractCellCycleModel* pCellCycleModel,
                        bool archiving,
                        CellPropertyCollection cellPropertyCollection)
     : mCanDivide(false),
       mCellPropertyCollection(cellPropertyCollection),
-      mpMutationState(pMutationState),
       mpCellCycleModel(pCellCycleModel),
       mAncestor(UNSIGNED_UNSET), // Has to be set by a SetAncestor() call (usually from Tissue)
       mDeathTime(DBL_MAX), // This has to be initialised for archiving,
@@ -81,6 +80,13 @@ TissueCell::TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationSta
     // Set cell identifier
     mCellId = ++ mMaxCellId -1;
 
+    if (!pMutationState->IsSubType<AbstractCellMutationState>())
+    {
+        EXCEPTION("Attempting to create cell with a cell mutation state is not a subtype of AbstractCellMutationState");
+    }
+
+    mpMutationState = boost::static_pointer_cast<AbstractCellMutationState>(pMutationState);
+
     if (!archiving)
     {
     	// Set mutation state count
@@ -91,7 +97,7 @@ TissueCell::TissueCell(boost::shared_ptr<AbstractCellMutationState> pMutationSta
         if (mCellPropertyCollection.HasProperty<CellLabel>())
         {
         	CellPropertyCollection cell_label_collection = mCellPropertyCollection.GetProperties<CellLabel>();
-        	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(cell_label_collection.GetProperty());
+        	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(cell_label_collection.GetProperty());
         	p_label->IncrementCellCount();
         }
     }
@@ -105,7 +111,7 @@ TissueCell::~TissueCell()
     if (mCellPropertyCollection.HasProperty<CellLabel>())
     {
     	CellPropertyCollection cell_label_collection = mCellPropertyCollection.GetProperties<CellLabel>();
-    	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(cell_label_collection.GetProperty());
+    	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(cell_label_collection.GetProperty());
     	p_label->DecrementCellCount();
     }
 
@@ -150,7 +156,7 @@ void TissueCell::SetBirthTime(double birthTime)
 void TissueCell::SetMutationState(boost::shared_ptr<AbstractCellProperty> pMutationState)
 {
     assert(pMutationState->IsSubType<AbstractCellMutationState>());
-    boost::shared_ptr<AbstractCellMutationState> p_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(pMutationState);
+    boost::shared_ptr<AbstractCellMutationState> p_state = boost::static_pointer_cast<AbstractCellMutationState>(pMutationState);
     mpMutationState->DecrementCellCount();
     mpMutationState = p_state;
     mpMutationState->IncrementCellCount();
@@ -177,7 +183,7 @@ void TissueCell::AddCellProperty(const boost::shared_ptr<AbstractCellProperty>& 
 
     if (rProperty->IsType<CellLabel>())
     {
-    	boost::shared_ptr<CellLabel> p_label = boost::dynamic_pointer_cast<CellLabel>(rProperty);
+    	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(rProperty);
     	p_label->IncrementCellCount();
     }
 }
@@ -212,7 +218,7 @@ void TissueCell::StartApoptosis(bool setDeathTime)
     }
 
     ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-    boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
+    boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::static_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
     SetMutationState(p_apoptotic_state);
 }
 

@@ -152,7 +152,7 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
         if (mCurrentHypoxicDuration > TissueConfig::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {
             ///\todo Fix this usage of cell mutation state (see #1145, #1267 and #1285)
-            boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
+            boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
             mpCell->SetMutationState(p_apoptotic_state);
         }
     }

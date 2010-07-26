@@ -127,48 +127,6 @@ public:
         }
     }
 
-    ///\todo uncomment or remove (#1285)
-//    void TestArchiveRegistry() throw(Exception)
-//    {
-//        OutputFileHandler handler("archive", false);
-//        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mutation.arch";
-//
-//        // Save
-//        {
-//            boost::shared_ptr<AbstractCellMutationState> p_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
-//            p_state->IncrementCellCount();
-//
-//            const CellPropertyRegistry* const p_registry = CellPropertyRegistry::Instance()->TakeOwnership();
-//
-//            // Create an output archive
-//            std::ofstream ofs(archive_filename.c_str());
-//            boost::archive::text_oarchive output_arch(ofs);
-//
-//            // Write the cell to the archive
-//            output_arch << p_registry;
-//
-//            delete p_registry;
-//        }
-//
-//        // Restore boost::shared_ptr to mutation state
-//        {
-//            // Initialize a mutation state
-//            CellPropertyRegistry* p_registry;
-//
-//            // Restore the mutation state
-//            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
-//            boost::archive::text_iarchive input_arch(ifs);
-//
-//            input_arch >> p_registry;
-//
-//            boost::shared_ptr<AbstractCellMutationState> p_state = p_registry->Get<WildTypeCellMutationState>();
-//
-//            TS_ASSERT_EQUALS(p_state->GetCellCount(), 1u);
-//            TS_ASSERT_EQUALS(p_state->GetColour(), 0u);
-//
-//            delete p_registry;
-//        }
-//    }
 };
 
 #endif /* TESTCELLMUTATIONSTATES_HPP_ */

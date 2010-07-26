@@ -112,7 +112,7 @@ public:
         // Give each a birth time of -node_index,
         // so the age = node_index
         std::vector<TissueCellPtr> cells;
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes()-1; i++)
         {
             AbstractCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
@@ -159,7 +159,7 @@ public:
 
         // Give cells 0 and 1 specific mutations to enable later testing
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
-        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_apc1(new ApcOneHitCellMutationState);
         cells[0]->AddCellProperty(p_label);
         cells[1]->SetMutationState(p_apc1);
 
@@ -197,10 +197,10 @@ public:
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
         // Bestow mutations on some cells
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
-        boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_apc1(new ApcOneHitCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_apc2(new ApcTwoHitCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_bcat1(new BetaCateninOneHitCellMutationState);
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
 
         cells[0]->SetMutationState(p_state);
@@ -241,7 +241,7 @@ public:
         std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
-        boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_apc2(new ApcTwoHitCellMutationState);
         cells[9]->SetMutationState(p_apc2);
 
         MeshBasedTissue<2> tissue(*p_mesh, cells);
@@ -305,7 +305,7 @@ public:
         unsigned old_num_cells = tissue.rGetCells().size();
 
         // Create a new cell, DON'T set the node index, set birth time=-1
-        boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+        boost::shared_ptr<AbstractCellProperty> p_state(new WildTypeCellMutationState);
 
         FixedDurationGenerationBasedCellCycleModel* p_cell_cycle_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_cycle_model->SetCellProliferativeType(STEM);
@@ -581,10 +581,10 @@ public:
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
         // Cover mutation state reporting
-        boost::shared_ptr<AbstractCellMutationState> p_apc1 = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApcOneHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_apc2 = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_bcat1 = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
+        boost::shared_ptr<AbstractCellProperty> p_apc1(CellPropertyRegistry::Instance()->Get<ApcOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellProperty> p_apc2(CellPropertyRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
+        boost::shared_ptr<AbstractCellProperty> p_bcat1(CellPropertyRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
+        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
         boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
 
         cells[0]->SetMutationState(p_apoptotic_state);
@@ -682,7 +682,7 @@ public:
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        boost::shared_ptr<AbstractCellMutationState> p_apoptotic_state = boost::dynamic_pointer_cast<AbstractCellMutationState>(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
+        boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(CellPropertyRegistry::Instance()->Get<ApoptoticCellMutationState>());
         cells[4]->SetMutationState(p_apoptotic_state); // coverage
 
         // Create tissue
