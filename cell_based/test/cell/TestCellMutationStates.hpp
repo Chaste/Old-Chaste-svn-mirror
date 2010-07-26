@@ -127,6 +127,7 @@ public:
         }
     }
 
+    ///\todo uncomment or remove (#1285)
 //    void TestArchiveRegistry() throw(Exception)
 //    {
 //        OutputFileHandler handler("archive", false);
