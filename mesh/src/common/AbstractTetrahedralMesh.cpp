@@ -563,7 +563,18 @@ unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumNodeCo
             connected_node_index=local_node_index;
         }
     }
-    
+    if (max_num == 0u)
+    {
+#define COVERAGE_IGNORE
+        //Coverage of this block requires a mesh regular slab mesh with the number of
+        //elements in the primary dimension less than (num_procs - 1), e.g.
+        //a 1D mesh one element wide with num_procs >=3.
+         
+        //This process owns no nodes and thus owns none of the mesh
+        assert(this->mNodes.size() == 0u);
+        return(0u);
+#undef COVERAGE_IGNORE
+    }
     //connected_node_index now has the index of a maximally connected node
     std::set<unsigned> forward_star_nodes;
     unsigned nodes_per_element = this->mElements[0]->GetNumNodes(); //Usually ELEMENT_DIM+1, except in Quadratic case
