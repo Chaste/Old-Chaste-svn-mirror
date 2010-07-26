@@ -566,12 +566,11 @@ unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumNodeCo
     
     //connected_node_index now has the index of a maximally connected node
     std::set<unsigned> forward_star_nodes;
-    unsigned nodes_per_element = this->GetElement(0)->GetNumNodes(); //Usually ELEMENT_DIM+1, except in Quadratic case
+    unsigned nodes_per_element = this->mElements[0]->GetNumNodes(); //Usually ELEMENT_DIM+1, except in Quadratic case
     for (typename Node<SPACE_DIM>::ContainingElementIterator it = this->mNodes[connected_node_index]->ContainingElementsBegin();
         it != this->mNodes[connected_node_index]->ContainingElementsEnd();
         ++it)
     {
-        
         Element<ELEMENT_DIM, SPACE_DIM>* p_elem=this->GetElement(*it);
         for (unsigned i=0; i<nodes_per_element; i++)
         {

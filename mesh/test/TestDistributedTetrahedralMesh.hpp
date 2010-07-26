@@ -249,12 +249,14 @@ public:
             {
                 unsigned region = mesh.GetElement(i)->GetRegion();
                 TS_ASSERT_EQUALS(region, i%5+1);
+                TS_ASSERT_EQUALS(i, mesh.GetElement(i)->GetIndex());
             }
             catch(Exception& e)
             {
                 // I don't own this element do I?
             }
         }
+        TS_ASSERT_EQUALS(mesh.CalculateMaximumNodeConnectivityPerProcess(), 3U);
     }
 
     void TestConstructFromMeshReader2DWithoutReordering()
