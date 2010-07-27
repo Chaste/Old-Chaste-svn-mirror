@@ -712,7 +712,7 @@ public:
         Vec petsc_data_long = factory.CreateVec(2);
         DistributedVector distributed_vector_long = factory.CreateDistributedVector(petsc_data_long);
         DistributedVector::Stripe vm_stripe(distributed_vector_long, 0);
-        DistributedVector::Stripe phi_e_stripe(distributed_vector_long,1 );
+        DistributedVector::Stripe phi_e_stripe(distributed_vector_long, 1);
 
         for (unsigned time_step=0; time_step<2; time_step++)
         {
@@ -778,7 +778,7 @@ public:
         Vec petsc_data_1var = factory.CreateVec(1);
         TS_ASSERT_THROWS_THIS(writer.PutStripedVector(one_ID, petsc_data_1var),
 								"The PutStripedVector method requires at least two variables ID. If only one is needed, use PutVector method instead");
-
+        VecDestroy(petsc_data_1var);
     }
 
     void TestNonImplementedFeatures()
