@@ -227,6 +227,7 @@ public:
     void TestSpaceConvergencein1DWithBackwardN98() throw(Exception)
     {
         SpaceConvergenceTester<CellNobleVargheseKohlNoble1998aFromCellMLOpt,  MonodomainProblem<1>, 1, 1> tester;
+        tester.AbsoluteStimulus = -5e6; // The default of -1e7 causes V to go out of range for lookup tables
         tester.Converge(__FUNCTION__);
         TS_ASSERT(tester.Converged);
         TS_ASSERT_EQUALS(tester.MeshNum, 5u);
