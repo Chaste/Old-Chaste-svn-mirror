@@ -71,7 +71,7 @@ private:
      *         output will be stored (user shouldn't care about this).
      * @return full pathname to the output directory
      */
-    std::string MakeFoldersAndReturnFullPath(const std::string& rDirectory);
+    std::string MakeFoldersAndReturnFullPath(const std::string& rDirectory) const;
 
 public:
     /**
@@ -107,12 +107,12 @@ public:
      * Return the full pathname to the directory this object will create files
      * in.
      */
-    std::string GetOutputDirectoryFullPath();
+    std::string GetOutputDirectoryFullPath() const;
 
     /**
      * Helper method to set up ArchiveLocationInfo.
      */
-    void SetArchiveDirectory();
+    void SetArchiveDirectory() const;
 
     /**
      * Open an output file in our directory, and check it was opened successfully.
@@ -124,7 +124,7 @@ public:
      * @return  a managed pointer to the opened file stream.
      */
     out_stream OpenOutputFile(const std::string& rFileName,
-                              std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
+                              std::ios_base::openmode mode=std::ios::out | std::ios::trunc) const;
 
 
     /**
@@ -142,7 +142,7 @@ public:
     out_stream OpenOutputFile(const std::string& rFileName,
                               unsigned number,
                               const std::string& rFileFormat,
-                              std::ios_base::openmode mode=std::ios::out | std::ios::trunc);
+                              std::ios_base::openmode mode=std::ios::out | std::ios::trunc) const;
 
 };
 

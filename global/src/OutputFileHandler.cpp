@@ -102,7 +102,7 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
 }
 
 
-std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& rDirectory)
+std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& rDirectory) const
 {
     std::string directory_root = GetChasteTestOutputDirectory();
     std::string directory = directory_root + rDirectory;
@@ -130,13 +130,13 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
 }
 
 
-std::string OutputFileHandler::GetOutputDirectoryFullPath()
+std::string OutputFileHandler::GetOutputDirectoryFullPath() const
 {
     return mDirectory;
 }
 
 out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
-                                             std::ios_base::openmode mode)
+                                             std::ios_base::openmode mode) const
 {
     out_stream p_output_file(new std::ofstream((mDirectory+rFileName).c_str(), mode));
     if (!p_output_file->is_open())
@@ -150,14 +150,14 @@ out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
 out_stream OutputFileHandler::OpenOutputFile(const std::string& rFileName,
                                              unsigned number,
                                              const std::string& rFileFormat,
-                                             std::ios_base::openmode mode)
+                                             std::ios_base::openmode mode) const
 {
     std::stringstream string_stream;
     string_stream << rFileName << number << rFileFormat;
     return OpenOutputFile(string_stream.str(), mode);
 }
 
-void OutputFileHandler::SetArchiveDirectory()
+void OutputFileHandler::SetArchiveDirectory() const
 {
     FileFinder dir(GetOutputDirectoryFullPath(), RelativeTo::Absolute);
     ArchiveLocationInfo::SetArchiveDirectory(dir);
