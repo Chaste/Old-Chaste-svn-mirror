@@ -528,6 +528,10 @@ public:
 		TS_ASSERT_EQUALS(square_vertex_element.IsElementOnBoundary(), true);
 
 		// Tidy up
+		for (unsigned i=0; i<nodes.size(); i++)
+        {
+            delete nodes[i];
+        }
 		nodes.clear();
 
 		// Now test with a line element in 2D
