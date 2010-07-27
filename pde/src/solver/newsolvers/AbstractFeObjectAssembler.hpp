@@ -359,17 +359,22 @@ public:
     
     /**
      *  Set the matrix that needs to be assembled. Requires CAN_ASSEMBLE_MATRIX==true.
+     *  @param rMatToAssemble Reference to the matrix
      */
     void SetMatrixToAssemble(Mat& rMatToAssemble);
 
     /**
      *  Set the vector that needs to be assembled. Requires CAN_ASSEMBLE_VECTOR==true.
+     *  @param rVecToAssemble Reference to the vector
+     *  @param zeroVectorBeforeAssembly Whether to zero the vector before assembling 
+     *   (otherwise it is just added to)
      */
-    void SetVectorToAssemble(Vec& rVecToAssemble, bool addToVector);
+    void SetVectorToAssemble(Vec& rVecToAssemble, bool zeroVectorBeforeAssembly);
 
     /** 
      *  Set a current solution vector the will be used in AssembleOnElement can passed
      *  up to ComputeMatrixTerm() or ComputeVectorTerm()
+     *  @param currentSolution Current solution vector.
      */
     void SetCurrentSolution(Vec currentSolution);
 

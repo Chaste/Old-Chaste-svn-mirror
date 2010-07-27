@@ -210,6 +210,8 @@ private:
         {
             TS_ASSERT_DELTA(vec_repl[i], volume_of_element*mesh.GetNode(i)->GetNumContainingElements(), 1e-4);
         }
+
+        VecDestroy(vec);
     } 
 
 public:
@@ -252,6 +254,8 @@ public:
                 TS_ASSERT_DELTA(value, h, 1e-4);
             }
         }
+
+        MatDestroy(mat);
     } 
 
     // Test the ability to assemble both a vector and a matrix
@@ -358,7 +362,11 @@ public:
                 double value = GetMatrixEntry(mat,i,j);
                 TS_ASSERT_DELTA(value, h, 1e-4);
             }
-        }        
+        }
+
+        VecDestroy(vec);
+        MatDestroy(mat);
+
     }
     
     // Test surface element intregral additions in 1d
@@ -402,6 +410,8 @@ public:
         {
             TS_ASSERT_DELTA(vec_repl[i], h*mesh.GetNode(i)->GetNumContainingElements()+offset, 1e-4);
         }
+
+        VecDestroy(vec);
     }
 
     // Test surface element intregral additions in 2d
@@ -437,6 +447,8 @@ public:
         TS_ASSERT_DELTA(vec_repl[1], 0.5*mesh.GetNode(1)->GetNumContainingElements(), 1e-4);
         TS_ASSERT_DELTA(vec_repl[2], 0.5*mesh.GetNode(2)->GetNumContainingElements()+1, 1e-4);
         TS_ASSERT_DELTA(vec_repl[3], 0.5*mesh.GetNode(3)->GetNumContainingElements()+1, 1e-4);
+
+        VecDestroy(vec);
     }
 
 
@@ -518,6 +530,8 @@ public:
                     
             }
         }
+
+        MatDestroy(mat);
     }
 
 
@@ -575,6 +589,8 @@ public:
             TS_ASSERT_DELTA(GetMatrixEntry(mat,3,2)/scale_factor, 1.0/24, 1e-6);
             TS_ASSERT_DELTA(GetMatrixEntry(mat,3,3)/scale_factor, 1.0/6 , 1e-6);
         }
+
+      //  MatDestroy(mat);
     }
 };    
 #endif /*TESTABSTRACTFEOBJECTASSEMBLER_HPP_*/

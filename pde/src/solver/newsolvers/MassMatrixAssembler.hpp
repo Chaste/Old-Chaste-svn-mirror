@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Simple implementation of AbstractFeObjectAssembler which provides mass matrices
  *  for a given mesh, multiplied by a scale factor if required. In other words, the matrix
  *   
- *  M_{ij} = k \integral_{domain}  phi_i(x) phi_j(x) dV
+ *  M_{ij} = k integral_{domain}  phi_i(x) phi_j(x) dV
  * 
  *  where phi_i is the i-th (linear) basis function and k the scale factor (constant 
  *  throughout the mesh).
