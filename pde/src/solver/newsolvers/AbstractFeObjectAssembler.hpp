@@ -736,9 +736,7 @@ bool NON_HEART = true;
                 for (unsigned index_of_unknown=0; index_of_unknown<(NON_HEART ? PROBLEM_DIM : 1); index_of_unknown++)
                 {
                     // If we have a current solution (e.g. this is a dynamic problem)
-                    // get the value in a usable form.rElement
-
-                    // NOTE - currentSolutionOrGuess input is actually now redundant at this point -
+                    // interpolate the value at this quad point
 
                     // NOTE - following assumes that, if say there are two unknowns u and v, they
                     // are stored in the current solution vector as

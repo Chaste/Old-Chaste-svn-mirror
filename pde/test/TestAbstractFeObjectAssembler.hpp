@@ -35,6 +35,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
+//Todo PROBLEM_DIM>1 is not tested here, so only in coupled PDE solves
+
+
 // simple assembler which just returns a c_vector of ones for each quad point
 //  => final 'b' vector for each element will be equal to elem_vol*(1,..,1) 
 template<unsigned DIM>
@@ -157,6 +160,31 @@ public:
     }
 };
 
+
+
+
+// Assembler for checking the current solution is interpolated and passed up into here 
+class TestingAssembler : public AbstractFeObjectAssembler<1,1,1,true,false> 
+{
+private:
+    c_vector<double,1*(1+1)> ComputeVectorTerm(
+        c_vector<double, 1+1>& rPhi,
+        c_matrix<double, 1, 1+1>& rGradPhi,
+        ChastePoint<1>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double, 1, 1>& rGradU,
+        Element<1,1>* pElement)
+    {
+        TS_ASSERT_LESS_THAN(0.0, rX[0]);             // check x is not 0.0 
+        TS_ASSERT_DELTA(rU(0), 10 + 10*rX[0], 1e-6); // check u,x interpolated properly
+        return zero_vector<double>(1+1);
+    }
+public:
+    TestingAssembler(AbstractTetrahedralMesh<1,1>* pMesh)
+        : AbstractFeObjectAssembler<1,1,1,true,false>(pMesh)
+    {        
+    }
+};
 
 // Petsc is rubbish.
 double GetMatrixEntry(Mat& rMat, unsigned i, unsigned j)
@@ -590,7 +618,30 @@ public:
             TS_ASSERT_DELTA(GetMatrixEntry(mat,3,3)/scale_factor, 1.0/6 , 1e-6);
         }
 
-      //  MatDestroy(mat);
+        MatDestroy(mat);
+    }
+    
+    void TestInterpolationOfPositionAndCurrentSolution() throw(Exception)
+    {
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructRegularSlabMesh(1.0, 1.0);
+
+        std::vector<double> u(2);
+        u[0] = 10.0;
+        u[1] = 20.0;
+        Vec current_solution = PetscTools::CreateVec(u);
+        Vec vec = PetscTools::CreateVec(mesh.GetNumNodes()); 
+        
+        TestingAssembler assembler(&mesh);
+
+        assembler.SetVectorToAssemble(vec,true);
+        assembler.SetCurrentSolution(current_solution);
+        
+        // No tests here, there are two TS_ASSERTS insider TestingAssembler::ComputeVectorTerm()
+        assembler.Assemble();
+        
+        VecDestroy(vec);
+        VecDestroy(current_solution);
     }
 };    
 #endif /*TESTABSTRACTFEOBJECTASSEMBLER_HPP_*/
