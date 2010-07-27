@@ -38,6 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include "CvodeAdaptor.hpp"
+#include "OutputFileHandler.hpp"
+#include "OdeSolution.hpp"
+
 #include "Ode1.hpp"
 #include "OdeFirstOrder.hpp"
 #include "OdeSecondOrder.hpp"

@@ -35,6 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+
 #include "OdeSolution.hpp"
 #include "CellProperties.hpp"
 #include "RegularStimulus.hpp"

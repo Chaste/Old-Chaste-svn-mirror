@@ -30,11 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ODESOLUTION_HPP_
 #define _ODESOLUTION_HPP_
 
+#include <vector>
+#include <string>
 #include <fstream>
 #include <sstream>
 #include <boost/shared_ptr.hpp>
 
-#include "ColumnDataWriter.hpp"
 #include "AbstractOdeSystemInformation.hpp"
 class AbstractOdeSystem;
 

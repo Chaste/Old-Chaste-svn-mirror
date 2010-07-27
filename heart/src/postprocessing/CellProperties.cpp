@@ -26,10 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
+#include <cmath>
+#include <sstream>
 
 #include "CellProperties.hpp"
 #include "Exception.hpp"
-#include <cmath>
 
 
 enum APPhases { BELOWTHRESHOLD , ABOVETHRESHOLD };

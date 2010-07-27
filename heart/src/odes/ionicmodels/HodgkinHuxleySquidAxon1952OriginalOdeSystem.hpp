@@ -28,10 +28,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _HODGKINHUXLEYSQUIDAXON1952ORIGINALODESYSTEM_HPP_
 #define _HODGKINHUXLEYSQUIDAXON1952ORIGINALODESYSTEM_HPP_
 
-
-#include "AbstractStimulusFunction.hpp"
-#include "AbstractCardiacCell.hpp"
 #include <vector>
+#include <boost/shared_ptr.hpp>
+
+#include "AbstractCardiacCell.hpp"
+#include "AbstractStimulusFunction.hpp"
+#include "AbstractIvpOdeSolver.hpp"
 
 /**
  * The Hodgkin--Huxley squid giant axon model from 1952.

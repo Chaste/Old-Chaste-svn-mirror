@@ -36,6 +36,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/version.hpp>
 
+// This is only needed to prevent compilation errors on PETSc 2.2/Boost 1.33.1 combo
+#include "UblasVectorInclude.hpp"
+
 #include "AbstractOdeSystem.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractStimulusFunction.hpp"

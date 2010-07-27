@@ -25,21 +25,18 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef UBLASINCLUDES_HPP_
-#define UBLASINCLUDES_HPP_
 
-/**
- * @file
- * Convenience header for including ublas types in default namespace
- */
+#include "AbstractStimulusFunction.hpp"
 
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
+#include "PetscTools.hpp"
 
-#include <boost/numeric/ublas/matrix_proxy.hpp>
-#include <boost/numeric/ublas/matrix_expression.hpp>
-#include <boost/numeric/ublas/io.hpp>
 
-using namespace boost::numeric::ublas;
+AbstractStimulusFunction::~AbstractStimulusFunction()
+{
+}
 
-#endif /*UBLASINCLUDES_HPP_*/
+void AbstractStimulusFunction::Clear()
+{
+    //Needed in one or more derived classes
+    NEVER_REACHED;
+}

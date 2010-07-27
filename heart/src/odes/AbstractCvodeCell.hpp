@@ -34,6 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <boost/shared_ptr.hpp>
 
+// This is only needed to prevent compilation errors on PETSc 2.2/Boost 1.33.1 combo
+#include "UblasVectorInclude.hpp"
+
 // Chaste headers
 #include "OdeSolution.hpp"
 #include "AbstractOdeSystemInformation.hpp"

@@ -36,18 +36,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <cassert>
 #include <climits>
+
+#include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
-#include "ChasteSerialization.hpp"
 #include <boost/serialization/split_member.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include "ClassIsAbstract.hpp"
+
+#include "AbstractTetrahedralMesh.hpp"
 #include "AbstractCardiacCell.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacPde.hpp"
 #include "AbstractDynamicAssemblerMixin.hpp"
-#include "AbstractTetrahedralMesh.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "DistributedVectorFactory.hpp"
 #include "Hdf5DataReader.hpp"

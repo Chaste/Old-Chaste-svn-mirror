@@ -30,14 +30,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTBACKWARDEULERCARDIACCELL_HPP_
 #define ABSTRACTBACKWARDEULERCARDIACCELL_HPP_
 
+#include <cassert>
+#include <cmath>
+
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 #include "ClassIsAbstract.hpp"
+
 #include "AbstractCardiacCell.hpp"
 #include "Exception.hpp"
-
-#include <cassert>
-#include <cmath>
+#include "PetscTools.hpp"
 
 /**
  * This is the base class for cardiac cells solved using a (decoupled) backward

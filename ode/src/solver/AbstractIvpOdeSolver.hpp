@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTIVPODESOLVER_HPP_
 #define _ABSTRACTIVPODESOLVER_HPP_
 
+#include <vector>
+
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 

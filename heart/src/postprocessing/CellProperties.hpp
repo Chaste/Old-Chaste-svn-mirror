@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _CELLPROPERTIES_HPP_
 #define _CELLPROPERTIES_HPP_
 
-#include "OdeSolution.hpp"
+#include <vector>
 
 /**
  * Class to calculate various physiological properties from the results of a

@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
+#include <boost/serialization/split_member.hpp>
 
 #include <vector>
 #include <string>
@@ -45,7 +46,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 #include "ArchiveLocationInfo.hpp"
 
-#include <boost/serialization/split_member.hpp>
 
 /**
  * Abstract base class for all tetrahedral meshes (inherits from AbstractMesh).

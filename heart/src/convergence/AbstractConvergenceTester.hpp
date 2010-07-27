@@ -32,6 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
+
 #include <petscvec.h>
 #include <vector>
 #include <iostream>

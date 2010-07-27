@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cfloat>
 
 #include "Exception.hpp"
-#include "PetscTools.hpp"
 
 
 /**
@@ -70,17 +69,12 @@ public:
     /**
      * Destructor.
      */
-    virtual ~AbstractStimulusFunction()
-    {}
+    virtual ~AbstractStimulusFunction();
 
     /**
      * Clear is used to managed memory in subclasses where the destructor may or may not need to clean up.
      */
-    void virtual Clear()
-    {
-        //Needed in one or more derived classes
-        NEVER_REACHED;
-    }
+    virtual void Clear();
 };
 
 CLASS_IS_ABSTRACT(AbstractStimulusFunction)

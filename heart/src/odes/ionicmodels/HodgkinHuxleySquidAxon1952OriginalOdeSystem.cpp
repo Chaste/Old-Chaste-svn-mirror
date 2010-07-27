@@ -26,7 +26,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
-#include "AbstractOdeSystem.hpp"
 #include "OdeSystemInformation.hpp"
 #include <cmath>
 
