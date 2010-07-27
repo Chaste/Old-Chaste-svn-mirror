@@ -258,7 +258,13 @@ def convert(model, output_dir):
     model_dir = os.path.dirname(model)
     model_base = os.path.basename(model)
     model_base = os.path.splitext(model_base)[0]
-    class_name = "Cell" + model_base.replace('-', '_') + "FromCellML"
+    if options.dynamically_loadable:
+        # If you try to use both normal and dynamic cells in the same test,
+        # strange things happen otherwise!
+        name_prefix = 'Dynamic'
+    else:
+        name_prefix = 'Cell'
+    class_name = name_prefix + model_base.replace('-', '_') + "FromCellML"
     if not output_dir:
         output_dir = model_dir
 

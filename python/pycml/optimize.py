@@ -101,8 +101,14 @@ def parteval(doc):
             else:
                 for e in doc.model.xml_element_children(elt):
                     rename_vars(e)
-        for expr in (e for e in doc.model.get_assignments()
-                     if isinstance(e, mathml_apply)):
+        for expr in [e for e in doc.model.get_assignments()
+                     if isinstance(e, mathml_apply)]:
+            # If the assigned-to variable isn't used or kept, remove the assignment
+            if isinstance(expr.eq.lhs, mathml_ci):
+                var = expr.eq.lhs.variable
+                if not (var.get_usage_count() or var.pe_keep):
+                    doc.model._remove_assignment(expr)
+                    continue
             rename_vars(expr.eq.lhs)
 
         # Tidy up kept variables, in case they aren't referenced in an eq'n.
@@ -502,6 +508,31 @@ class LookupTableAnalyser(object):
                 n += 1
             expr.xml_set_attribute((u'lut:table_index', NSS['lut']),
                                    doc.lookup_table_indexes[key])
+        
+        # Re-do dependency analysis so that an expression using lookup
+        # tables only depends on the keying variable.
+        for expr in (e for e in doc.model.get_assignments()
+                     if isinstance(e, mathml_apply)):
+            expr.classify_variables(root=True,
+                                    dependencies_only=True,
+                                    needs_special_treatment=self.calculate_dependencies)
+
+    def calculate_dependencies(self, expr):
+        """Determine the dependencies of an expression that might use a lookup table.
+
+        This method is suitable for use as the needs_special_treatment function in
+        mathml_apply.classify_variables.  It is used to override the default recursion
+        into sub-trees.  It takes a single sub-tree as argument, and returns either
+        the dependency set for that sub-tree, or None to use the default recursion.
+        
+        Expressions that can use a lookup table only depend on the keying variable.
+        """
+        if expr.getAttributeNS(NSS['lut'], u'possible', '') == u'yes':
+            key_var_name = expr.getAttributeNS(NSS['lut'], u'var')
+            key_var = expr.component.get_variable_by_name(key_var_name).get_source_variable(recurse=True)
+            return set([key_var])
+        # If not a table, use default behaviour
+        return None
 
 
 ######################################################################

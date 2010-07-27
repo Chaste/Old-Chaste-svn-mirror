@@ -111,8 +111,10 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             { // Some optimised builds see ret as unused if this line is just assert(ret==0);
                 NEVER_REACHED;
             }
-            // Copy the .cellml file into the temporary folder
-            EXPECT0(system, "cp " + rCellmlFullPath + " " + tmp_folder);
+            // Copy the .cellml file (and any relevant others) into the temporary folder
+            size_t dot_pos = rCellmlFullPath.rfind('.');
+            std::string cellml_base = rCellmlFullPath.substr(0, dot_pos);
+            EXPECT0(system, "cp " + cellml_base + "* " + tmp_folder);
             // If there's a config file, copy that too
             std::string config_path = rCellmlFullPath.substr(0, rCellmlFullPath.length() - 7) + "-conf.xml";
             if (FileFinder(config_path, RelativeTo::Absolute).Exists())

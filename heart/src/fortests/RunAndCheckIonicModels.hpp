@@ -47,7 +47,8 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell* pOdeSystem,
                                 bool doComputeExceptVoltage=true);
 
 void CheckCellModelResults(const std::string& rBaseResultsFilename,
-                           std::string validResultsBasename = "");
+                           std::string validResultsBasename = "",
+                           double tolerance = 1e-3);
 
 std::vector<double> GetVoltages(ColumnDataReader& rReader);
 
@@ -169,7 +170,8 @@ std::vector<double> GetHGate(ColumnDataReader& rReader)
  * or another source e.g. Alan's COR
  */
 void CheckCellModelResults(const std::string& rBaseResultsFilename,
-                           std::string validResultsBasename)
+                           std::string validResultsBasename,
+                           double tolerance)
 {
     // read data entries for the new file
     ColumnDataReader data_reader("TestIonicModels", rBaseResultsFilename);
@@ -191,7 +193,7 @@ void CheckCellModelResults(const std::string& rBaseResultsFilename,
     {
         TS_ASSERT_DELTA(times[i], valid_times[i], 1e-12);
         // adjust tol to data
-        TS_ASSERT_DELTA(voltages[i], valid_voltages[i], 1e-3); // comparing against a file written to 5sf
+        TS_ASSERT_DELTA(voltages[i], valid_voltages[i], tolerance); // comparing against a file written to 5sf
     }
 }
 

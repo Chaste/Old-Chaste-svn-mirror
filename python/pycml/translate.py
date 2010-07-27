@@ -877,12 +877,17 @@ class CellMLTranslator(object):
     def _vars_in(self, expr):
         """Return a list of variable objects used in the given expression.
 
-        DO include state variables."""
+        Will include state variables.  Also if an expression is being
+        replaced by a lookup table, will only return the table key variable.
+        """
         res = set()
-        if isinstance(expr, mathml_ci):
+        if self.use_lookup_tables and isinstance(expr, mathml) and self.is_lookup_table(expr):
+            key_var = self.varobj(expr.getAttributeNS(NSS['lut'], u'var'))
+            key_var = key_var.get_source_variable(recurse=True)
+            res.add(key_var)
+        elif isinstance(expr, mathml_ci):
             varname = unicode(expr)
             varobj = self.varobj(varname.strip())
-            #if varobj not in self.state_vars:
             if varobj:
                 res.add(varobj)
         elif isinstance(expr, mathml_apply) and \
@@ -1450,7 +1455,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.class_inheritance += ', public AbstractDynamicallyLoadableEntity'
         if self.use_protocol:
             self.writeln_hpp('#include "AbstractSystemWithOutputs.hpp"')
-            self.class_inheritance += ', public AbstractSystemWithOutputs<' + self.base_class_name + ',' + self.TYPE_VECTOR + '>'
+            aswo_base_class = base_class or 'AbstractCardiacCell'
+            self.class_inheritance += ', public AbstractSystemWithOutputs<' + aswo_base_class + ',' + self.TYPE_VECTOR + '>'
         self.writeln('#include "Exception.hpp"')
         self.writeln('#include "OdeSystemInformation.hpp"')
         self.writeln('#include "RegularStimulus.hpp"')
@@ -1787,7 +1793,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.output_comment('Protocol outputs')
                 self.writeln(self.vector_initialise('this->mOutputsInfo', len(outputs)))
                 for i, output in enumerate(outputs):
-                    print "Protocol output", i, output
                     self.writeln(self.vector_index('this->mOutputsInfo', i), self.EQ_ASSIGN,
                                  'std::make_pair(', nl=False)
                     if output.get_type() == VarTypes.Free:

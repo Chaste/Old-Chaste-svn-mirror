@@ -1779,15 +1779,17 @@ class cellml_variable(Colourable, element_base):
         """
         Add a dependency of this variable, e.g. an expression defining
         it, or a variable it's mapped from.
-        Triggers a validation error if we already have a dependency,
+        Triggers a validation error if we already have another dependency,
         since a variable can't be defined in more than one way.
         """
         if self._cml_depends_on:
-            # Multiple dependencies. TODO: Give more info.
-            raise MathsError(dep, u' '.join([
-                u'The variable',self.fullname(),
-                u'gets its value from multiple locations.']))
-        self._cml_depends_on.append(dep)
+            if not dep in self._cml_depends_on:
+                # Multiple dependencies. TODO: Give more info.
+                raise MathsError(dep, u' '.join([
+                    u'The variable',self.fullname(),
+                    u'gets its value from multiple locations.']))
+        else:
+            self._cml_depends_on.append(dep)
         return
     def _get_dependencies(self):
         """
@@ -1805,11 +1807,13 @@ class cellml_variable(Colourable, element_base):
         """
         independent_var = independent_var.get_source_variable(recurse=True)
         if independent_var in self._cml_depends_on_ode:
-            # Multiple definitions.  TODO: Give more info.
-            raise MathsError(expr, u''.join([
-                u'There are multiple definitions of the ODE d',self.fullname(),
-                u'/d',independent_var.fullname()]))
-        self._cml_depends_on_ode[independent_var] = expr
+            if self._cml_depends_on_ode[independent_var] != expr:
+                # Multiple definitions.  TODO: Give more info.
+                raise MathsError(expr, u''.join([
+                    u'There are multiple definitions of the ODE d',self.fullname(),
+                    u'/d',independent_var.fullname()]))
+        else:
+            self._cml_depends_on_ode[independent_var] = expr
         return
     def _get_ode_dependency(self, independent_var, context=None):
         """
@@ -4636,7 +4640,9 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
                         iface, u'set to "in".']))
         return
 
-    def classify_variables(self, root=False):
+    def classify_variables(self, root=False,
+                           dependencies_only=False,
+                           needs_special_treatment=lambda n: None):
         """
         Classify variables in this expression according to how they are
         used.
@@ -4646,6 +4652,19 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
         list, to represent edges of a dependency graph.
         Also, if root is True then this node is the root of an expression
         (so it will be an application of eq); treat the LHS differently.
+        
+        If dependencies_only then the variable classification will not be
+        done, only dependencies will be analysed.  This is useful for doing
+        a 'light' re-analysis if the dependency set has been reduced; if the
+        set has increased then the topological sort of equations may need to
+        be redone.
+        
+        The function needs_special_treatment may be supplied to override the
+        default recursion into sub-trees.  It takes a single sub-tree as
+        argument, and should either return the dependency set for that
+        sub-tree, or None to use the default recursion.  This is used when
+        re-analysing dependencies after applying lookup tables, since table
+        lookups only depend on the keying variable.
         """
         dependencies = set()
         ode_indep_var = None
@@ -4654,8 +4673,9 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
             # This is a derivative dy/dx on the RHS of an assignment.
             # Store the dependency as a pair (y,x)
             dependencies.add((op.dependent_variable, op.independent_variable))
-            # Set variable types
-            op._set_var_types()
+            if not dependencies_only:
+                # Set variable types
+                op._set_var_types()
         else:
             opers = self.operands()
             if root:
@@ -4665,34 +4685,37 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
                     # Direct assignment to variable
                     var = lhs.variable
                     var._add_dependency(self)
-                    # Check for possibly conflicting types
-                    t = var.get_type()
-                    if t == VarTypes.Constant or t == VarTypes.MaybeConstant:
-                        self.model.validation_warning(
-                            u' '.join([
-                            u'Variable',var.fullname(),u'is assigned to',
-                            u'and has an initial value set.']),
-                            level=logging.WARNING_TRANSLATE_ERROR)
-                    elif t == VarTypes.State or t == VarTypes.Free:
-                        self.model.validation_warning(
-                            u' '.join([
-                            u'Variable',var.fullname(),u'is assigned to',
-                            u'and appears on the LHS of an ODE.']),
-                            level=logging.WARNING_TRANSLATE_ERROR)
-                    var._set_type(VarTypes.Computed)
                     self._cml_assigns_to = var
+                    if not dependencies_only:
+                        # Check for possibly conflicting types
+                        t = var.get_type()
+                        if t == VarTypes.Constant or t == VarTypes.MaybeConstant:
+                            self.model.validation_warning(
+                                u' '.join([
+                                u'Variable',var.fullname(),u'is assigned to',
+                                u'and has an initial value set.']),
+                                level=logging.WARNING_TRANSLATE_ERROR)
+                        elif t == VarTypes.State or t == VarTypes.Free:
+                            self.model.validation_warning(
+                                u' '.join([
+                                u'Variable',var.fullname(),u'is assigned to',
+                                u'and appears on the LHS of an ODE.']),
+                                level=logging.WARNING_TRANSLATE_ERROR)
+                        var._set_type(VarTypes.Computed)
                 elif lhs.localName == u'apply':
                     # This could be an ODE
                     diff = lhs.operator()
                     if diff.localName == u'diff':
                         # It is an ODE. TODO: Record it somewhere?
-                        diff._set_var_types()
+                        if not dependencies_only:
+                            diff._set_var_types()
                         dep = diff.dependent_variable
                         indep = diff.independent_variable
                         dep._add_ode_dependency(indep, self)
                         # An ODE should depend on its independent variable
                         ode_indep_var = indep
-                        indep._used()
+                        if not dependencies_only:
+                            indep._used()
                         # TODO: Hack; may remove.
                         self._cml_assigns_to = (dep, indep)
                     else:
@@ -4706,14 +4729,20 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
 
             # Consider operands other than the LHS of an assignment
             for oper in opers:
+                # TODO: What about elements like root which could have a ci in degree?
                 if isinstance(oper, (mathml_apply, mathml_piecewise)):
                     # Recurse
-                    dependencies.update(oper.classify_variables())
+                    child_deps = needs_special_treatment(oper)
+                    if child_deps is None:
+                        child_deps = oper.classify_variables(dependencies_only=dependencies_only,
+                                                             needs_special_treatment=needs_special_treatment)
+                    dependencies.update(child_deps)
                 elif oper.localName == u'ci':
                     # We have a straightforward dependency
                     var = oper.variable
                     dependencies.add(var)
-                    var._used()
+                    if not dependencies_only:
+                        var._used()
 
         if ode_indep_var:
             # ODEs should depend on their independent variable.
@@ -5020,12 +5049,25 @@ class mathml_piecewise(mathml_constructor, mathml_units_mixin):
         our_units.set_expression(self)
         return self._cml_units
 
-    def classify_variables(self):
-        """piecewise.classify_variables():
-        Classify variables in this expression according to how they are
-        used.
+    def classify_variables(self, dependencies_only=False,
+                           needs_special_treatment=lambda n: None):
+        """Classify variables in this expression according to how they are used.
+        
         In the process, compute and return a set of variables on which
         this expression depends.
+
+        If dependencies_only then the variable classification will not be
+        done, only dependencies will be analysed.  This is useful for doing
+        a 'light' re-analysis if the dependency set has been reduced; if the
+        set has increased then the topological sort of equations may need to
+        be redone.
+        
+        The function needs_special_treatment may be supplied to override the
+        default recursion into sub-trees.  It takes a single sub-tree as
+        argument, and should either return the dependency set for that
+        sub-tree, or None to use the default recursion.  This is used when
+        re-analysing dependencies after applying lookup tables, since table
+        lookups only depend on the keying variable.
         """
         dependencies = set()
         pieces = list(getattr(self, u'piece', []))
@@ -5035,12 +5077,17 @@ class mathml_piecewise(mathml_constructor, mathml_units_mixin):
             for e in self.xml_element_children(piece):
                 if isinstance(e, (mathml_apply, mathml_piecewise)):
                     # Recurse
-                    dependencies.update(e.classify_variables())
+                    child_deps = needs_special_treatment(e)
+                    if child_deps is None:
+                        child_deps = e.classify_variables(dependencies_only=dependencies_only,
+                                                          needs_special_treatment=needs_special_treatment)
+                    dependencies.update(child_deps)
                 elif e.localName == u'ci':
                     # We have a straightforward dependency
                     var = e.variable
                     dependencies.add(var)
-                    var._used()
+                    if not dependencies_only:
+                        var._used()
         return dependencies
 
     def evaluate(self):
