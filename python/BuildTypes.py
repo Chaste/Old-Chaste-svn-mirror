@@ -152,6 +152,8 @@ class BuildType(object):
             return 'Test output unrecognised'
         elif status == 'MPI':
             return 'MPI semaphore error'
+        elif status == 'Killed':
+            return 'Test killed'
         else:
             return status.replace('_', '/') + ' tests failed (RED)'
 
@@ -174,6 +176,7 @@ class BuildType(object):
         ok, ok_count = re.compile('OK!'), 0
         infrastructure_ok = re.compile('Infrastructure test passed ok.')
         mpi_error = 'semget failed for setnum = '
+        test_killed = 'Test killed due to exceeding time limit'
 
         first_line = True
         for line in logFile:
@@ -192,6 +195,9 @@ class BuildType(object):
             m = infrastructure_ok.match(line)
             if m:
                 ok_count = self._num_processes
+                break
+            if line.startswith(test_killed):
+                status = 'Killed'
                 break
         
         if ok_count > 0 and status == 'Unknown':
