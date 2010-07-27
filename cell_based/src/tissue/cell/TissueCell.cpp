@@ -85,13 +85,13 @@ TissueCell::TissueCell(boost::shared_ptr<AbstractCellProperty> pMutationState,
         EXCEPTION("Attempting to create cell with a cell mutation state is not a subtype of AbstractCellMutationState");
     }
 
-    mpMutationState = boost::static_pointer_cast<AbstractCellMutationState>(pMutationState);
+    if (!mCellPropertyCollection.HasProperty(pMutationState))
+    {
+        mCellPropertyCollection.AddProperty(pMutationState);
+    }
 
     if (!archiving)
     {
-    	// Set mutation state count
-        mpMutationState->IncrementCellCount();
-
         // Increment cell count for each cell property in mCellPropertyCollection
         for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
              property_iter != mCellPropertyCollection.End();
@@ -104,8 +104,6 @@ TissueCell::TissueCell(boost::shared_ptr<AbstractCellProperty> pMutationState,
 
 TissueCell::~TissueCell()
 {
-    mpMutationState->DecrementCellCount();
-
     // Decrement cell count for each cell property in mCellPropertyCollection
     for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
          property_iter != mCellPropertyCollection.End();
@@ -159,15 +157,21 @@ void TissueCell::SetMutationState(boost::shared_ptr<AbstractCellProperty> pMutat
         EXCEPTION("Attempting to give cell a cell mutation state is not a subtype of AbstractCellMutationState");
     }
 
-    boost::shared_ptr<AbstractCellMutationState> p_state = boost::static_pointer_cast<AbstractCellMutationState>(pMutationState);
-    mpMutationState->DecrementCellCount();
-    mpMutationState = p_state;
-    mpMutationState->IncrementCellCount();
+    boost::shared_ptr<AbstractCellMutationState> p_old_mutation_state = GetMutationState();
+    p_old_mutation_state->DecrementCellCount();
+    mCellPropertyCollection.RemoveProperty(p_old_mutation_state);
+
+    AddCellProperty(pMutationState);
 }
 
 boost::shared_ptr<AbstractCellMutationState> TissueCell::GetMutationState() const
 {
-    return mpMutationState;
+    CellPropertyCollection mutation_state_collection = mCellPropertyCollection.GetPropertiesType<AbstractCellMutationState>();
+
+    ///\todo allow a cell to have less/more than one mutation state? (#1285)
+    assert(mutation_state_collection.GetSize() == 1);
+
+    return boost::static_pointer_cast<AbstractCellMutationState>(mutation_state_collection.GetProperty());
 }
 
 CellPropertyCollection& TissueCell::rGetCellPropertyCollection()
@@ -303,7 +307,7 @@ TissueCellPtr TissueCell::Divide()
     mpCellCycleModel->ResetForDivision();
 
     // Create daughter cell
-    TissueCellPtr p_new_cell(new TissueCell(mpMutationState, mpCellCycleModel->CreateCellCycleModel(), false, mCellPropertyCollection));
+    TissueCellPtr p_new_cell(new TissueCell(GetMutationState(), mpCellCycleModel->CreateCellCycleModel(), false, mCellPropertyCollection));
 
     // Initialise properties of daughter cell
     p_new_cell->GetCellCycleModel()->InitialiseDaughterCell();

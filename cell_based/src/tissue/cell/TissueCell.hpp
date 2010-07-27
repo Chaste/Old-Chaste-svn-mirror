@@ -80,7 +80,6 @@ private:
         // If Archive is an input archive, then '&' resolves to '>>'
         // These first four are also dealt with by {load,save}_construct_data
         archive & mCanDivide;
-        archive & mpMutationState;
         archive & mpCellCycleModel;
         archive & mUndergoingApoptosis;
         archive & mDeathTime;
@@ -93,38 +92,34 @@ private:
     }
 
 protected:
-    /**
-     * The cell's property collection.
-     */
+
+    /** The cell's property collection. */
     CellPropertyCollection mCellPropertyCollection;
 
-    /** The cell's mutation state. */
-    boost::shared_ptr<AbstractCellMutationState> mpMutationState;
-
-    /** The cell's cell-cycle model */
+    /** The cell's cell-cycle model. */
     AbstractCellCycleModel* mpCellCycleModel;
 
-    /** An index which is inherited by all children of this cell */
+    /** An index which is inherited by all children of this cell. */
     unsigned mAncestor;
 
-    /** An identifier which is unique to this cell */
+    /** An identifier which is unique to this cell. */
     unsigned mCellId;
 
-    /** maximum cell identifier */
+    /** maximum cell identifier. */
     static unsigned mMaxCellId;
 
-    /** When the cell will/did die */
+    /** When the cell will/did die. */
     double mDeathTime;
 
-    /** When the cell was commanded to start apoptosis */
+    /** When the cell was commanded to start apoptosis. */
     double mStartOfApoptosisTime;
 
-    /** Whether the cell is currently in apoptosis - don't divide */
+    /** Whether the cell is currently in apoptosis - don't divide. */
     bool mUndergoingApoptosis;
 
     /**
      * Whether the cell is dead or not (they exist in the Tissue until they are
-     * removed by AbstractTissue::RemoveDeadCells()
+     * removed by AbstractTissue::RemoveDeadCells().
      */
     bool mIsDead;
 
@@ -192,14 +187,14 @@ public:
     double GetStartOfApoptosisTime() const;
 
     /**
-     * Get method for #mpMutationState.
+     * Get the cell's current mutation state.
      */
     boost::shared_ptr<AbstractCellMutationState> GetMutationState() const;
 
     /**
-     * Set method for #mpMutationState.
+     * Set the cell's current mutation state.
      *
-     * @param pMutationState the cell's mutation state
+     * @param pMutationState the cell's new mutation state
      */
     void SetMutationState(boost::shared_ptr<AbstractCellProperty> pMutationState);
 
