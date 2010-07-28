@@ -106,10 +106,6 @@ public:
      */
     double GetDampingConstantMutant();
     /**
-     * @return mBetaCatSpringScaler
-     */
-    double GetBetaCatSpringScaler();
-    /**
      * @return mApoptosisTime
      */
     double GetApoptosisTime();
@@ -134,10 +130,6 @@ public:
      */
     double GetWntLabelledThreshold();
     /**
-     * @return mWntConcentrationParameter
-     */
-    double GetWntConcentrationParameter();
-    /**
      * @return mCriticalHypoxicDuration
      */
     double GetCriticalHypoxicDuration();
@@ -149,22 +141,6 @@ public:
      * @return mCryptProjectionParameterB
      */
     double GetCryptProjectionParameterB();
-    /**
-     * @return mApoptoticSpringTensionStiffness
-     */
-    double GetApoptoticSpringTensionStiffness();
-    /**
-     * @return mApoptoticSpringCompressionStiffness
-     */
-    double GetApoptoticSpringCompressionStiffness();
-    /**
-     * @return mWntChemotaxisStrength
-     */
-    double GetWntChemotaxisStrength();
-    /**
-     * @return mSymmetricDivisionProbability
-     */
-    double GetSymmetricDivisionProbability();
     /**
      * @return mAreaBasedDampingConstantParameter
      */
@@ -189,30 +165,6 @@ public:
      * @return mMatureCellTargetArea
      */
     double GetMatureCellTargetArea();
-    /**
-     * @return mNagaiHondaDeformationEnergyParameter
-     */
-    double GetNagaiHondaDeformationEnergyParameter();
-    /**
-     * @return mNagaiHondaMembraneSurfaceEnergyParameter
-     */
-    double GetNagaiHondaMembraneSurfaceEnergyParameter();
-    /**
-     * @return mCellCellAdhesionEnergyParameter
-     */
-    double GetNagaiHondaCellCellAdhesionEnergyParameter();
-    /**
-     * @return mNagaiHondaCellBoundaryAdhesionEnergyParameter
-     */
-    double GetNagaiHondaCellBoundaryAdhesionEnergyParameter();
-    /**
-     * @return mWelikyOsterAreaParameter.
-     */
-    double GetWelikyOsterAreaParameter();
-    /**
-     * @return mWelikyOsterPerimeterParameter.
-     */
-    double GetWelikyOsterPerimeterParameter();
     /**
      * @return mOutputCellIdData
      */
@@ -307,10 +259,6 @@ public:
      */
     void SetDampingConstantMutant(double);
     /**
-     * Set mBetaCatSpringScaler.
-     */
-    void SetBetaCatSpringScaler(double);
-    /**
      * Set mApoptosisTime.
      */
     void SetApoptosisTime(double);
@@ -335,10 +283,6 @@ public:
      */
     void SetWntLabelledThreshold(double);
     /**
-     * Set mWntConcentrationParameter.
-     */
-    void SetWntConcentrationParameter(double);
-    /**
      * Set mCriticalHypoxicDuration.
      */
     void SetCriticalHypoxicDuration(double);
@@ -354,22 +298,6 @@ public:
      * Set mCryptProjectionParameterB.
      */
     void SetCryptProjectionParameterB(double);
-    /**
-     * Set mApoptoticSpringTensionStiffness.
-     */
-    void SetApoptoticSpringTensionStiffness(double);
-    /**
-     * Set mApoptoticSpringCompressionStiffness.
-     */
-    void SetApoptoticSpringCompressionStiffness(double);
-    /**
-     * Set mWntChemotaxisStrength.
-     */
-    void SetWntChemotaxisStrength(double);
-    /**
-     * Set mSymmetricDivisionProbability.
-     */
-    void SetSymmetricDivisionProbability(double);
     /**
      * Set mAreaBasedDampingConstantParameter.
      */
@@ -394,30 +322,6 @@ public:
      * Set mMatureCellTargetArea.
      */
     void SetMatureCellTargetArea(double);
-    /**
-     * Set mNagaiHondaDeformationEnergyParameter.
-     */
-    void SetNagaiHondaDeformationEnergyParameter(double);
-    /**
-     * Set mNagaiHondaMembraneSurfaceEnergyParameter.
-     */
-    void SetNagaiHondaMembraneSurfaceEnergyParameter(double);
-    /**
-     * Set mNagaiHondaCellCellAdhesionEnergyParameter.
-     */
-    void SetNagaiHondaCellCellAdhesionEnergyParameter(double);
-    /**
-     * Set mNagaiHondaCellBoundaryAdhesionEnergyParameter.
-     */
-    void SetNagaiHondaCellBoundaryAdhesionEnergyParameter(double);
-    /**
-     * Set mWelikyOsterAreaParameter.
-     */
-    void SetWelikyOsterAreaParameter(double);
-    /**
-     * Set mWelikyOsterPerimeterParameter.
-     */
-    void SetWelikyOsterPerimeterParameter(double);
     /**
      * Set mOutputCellIdData.
      */
@@ -562,11 +466,6 @@ private:
     double mDampingConstantMutant;
 
     /**
-     * Scaling factor for beta catenin to spring strength
-     */
-    double mBetaCatSpringScaler;
-
-    /**
      * The time it takes for a cell to fully undergo apoptosis
      */
     double mApoptosisTime;
@@ -601,17 +500,6 @@ private:
     double mWntLabelledThreshold;
 
     /**
-     * For LINEAR or RADIAL
-     * The proportion of the crypt that has a Wnt gradient.
-     * The Wnt concentration goes from one at the base to zero at this height up the crypt.
-     *
-     * For EXPONENTIAL
-     * The parameter lambda in the Wnt concentration
-     * Wnt = exp ( - height / lambda)
-     */
-    double mWntConcentrationParameter;
-
-    /**
      * Non-dimensionalized critical hypoxic duration.
      */
     double mCriticalHypoxicDuration;
@@ -627,26 +515,6 @@ private:
      * surface is given in cylindrical polar coordinates by z = a*r^b.
      */
     double mCryptProjectionParameterB;
-
-    /**
-     * Non-dimensionalized 'stiffness' of a apoptotic cell under tension.
-     */
-    double mApoptoticSpringTensionStiffness;
-
-    /**
-     * Non-dimensionalized 'stiffness' of a apoptotic cell under compression.
-     */
-    double mApoptoticSpringCompressionStiffness;
-
-    /**
-     * Strength of Wnt-based chemotactic force.
-     */
-    double mWntChemotaxisStrength;
-
-    /**
-     * Probability of symmetric division.
-     */
-    double mSymmetricDivisionProbability;
 
     /**
      * Non-dimensional parameter d0 for use in area-based damping constant calculations.
@@ -685,42 +553,6 @@ private:
      * For use in vertex-based models.
      */
     double mMatureCellTargetArea;
-
-    /**
-     * Cell deformation energy parameter.
-     * For use in Nagai and Honda type vertex-based models.
-     */
-    double mNagaiHondaDeformationEnergyParameter;
-
-    /**
-     * Cell membrane energy parameter.
-     * For use in Nagai and Honda type vertex-based models.
-     */
-    double mNagaiHondaMembraneSurfaceEnergyParameter;
-
-    /**
-     * Cell-cell adhesion energy parameter.
-     * For use in Nagai and Honda type vertex-based models.
-     */
-    double mNagaiHondaCellCellAdhesionEnergyParameter;
-
-    /**
-     * Cell-boundary adhesion energy parameter.
-     * For use in Nagai and Honda type vertex-based models.
-     */
-    double mNagaiHondaCellBoundaryAdhesionEnergyParameter;
-
-    /**
-     * Area parameter.
-     * For use in Weliky and Oster type vertex-based models.
-     */
-    double mWelikyOsterAreaParameter;
-
-    /**
-     * Perimeter parameter.
-     * For use in Weliky and Oster type vertex-based models.
-     */
-    double mWelikyOsterPerimeterParameter;
 
     /** Whether to write cell ID data to file. */
     bool mOutputCellIdData;
@@ -791,33 +623,21 @@ private:
         archive & mCryptWidth;
         archive & mDampingConstantNormal;
         archive & mDampingConstantMutant;
-        archive & mBetaCatSpringScaler;
         archive & mApoptosisTime;
         archive & mHepaOneCellHypoxicConcentration;
         archive & mHepaOneCellQuiescentConcentration;
         archive & mWntTransitThreshold;
         archive & mWntStemThreshold;
         archive & mWntLabelledThreshold;
-        archive & mWntConcentrationParameter;
         archive & mCriticalHypoxicDuration;
         archive & mCryptProjectionParameterA;
         archive & mCryptProjectionParameterB;
-        archive & mApoptoticSpringTensionStiffness;
-        archive & mApoptoticSpringCompressionStiffness;
-        archive & mWntChemotaxisStrength;
-        archive & mSymmetricDivisionProbability;
         archive & mAreaBasedDampingConstantParameter;
         archive & mMeinekeSpringStiffness;
         archive & mMeinekeMechanicsCutOffLength;
         archive & mMeinekeDivisionRestingSpringLength;
         archive & mMeinekeDivisionSeparation;
         archive & mMatureCellTargetArea;
-        archive & mNagaiHondaDeformationEnergyParameter;
-        archive & mNagaiHondaMembraneSurfaceEnergyParameter;
-        archive & mNagaiHondaCellCellAdhesionEnergyParameter;
-        archive & mNagaiHondaCellBoundaryAdhesionEnergyParameter;
-        archive & mWelikyOsterAreaParameter;
-        archive & mWelikyOsterPerimeterParameter;
         archive & mOutputCellIdData;
         archive & mOutputCellMutationStates;
         archive & mOutputCellAncestors;

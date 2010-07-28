@@ -40,7 +40,10 @@ LinearSpringWithVariableSpringConstantsForce<DIM>::LinearSpringWithVariableSprin
       mMutantMutantMultiplier(DOUBLE_UNSET),
       mNormalMutantMultiplier(DOUBLE_UNSET),
       mUseBCatSprings(false),
-      mUseApoptoticSprings(false)
+      mUseApoptoticSprings(false),
+      mBetaCatSpringScaler(18.14/6.0), // scale spring constant with beta-catenin level (divided by 6 for heaxagonal cells)
+      mApoptoticSpringTensionStiffness(15.0*0.25),
+      mApoptoticSpringCompressionStiffness(15.0*0.75)
 {
 }
 
@@ -155,8 +158,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
         double min_beta_Cat_of_two_cells = std::min(beta_cat_on_cell_1_edge, beta_cat_on_cell_2_edge);
 
-        double beta_cat_scaling_factor = p_config->GetBetaCatSpringScaler();
-        multiplication_factor *= min_beta_Cat_of_two_cells / beta_cat_scaling_factor;
+        multiplication_factor *= min_beta_Cat_of_two_cells / mBetaCatSpringScaler;
     }
 
     if (mUseApoptoticSprings)
@@ -173,22 +175,22 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
             {
                 if (!isCloserThanRestLength) // if under tension
                 {
-                    spring_a_stiffness = p_config->GetApoptoticSpringTensionStiffness();
+                    spring_a_stiffness = mApoptoticSpringTensionStiffness;
                 }
                 else // if under compression
                 {
-                    spring_a_stiffness = p_config->GetApoptoticSpringCompressionStiffness();
+                    spring_a_stiffness = mApoptoticSpringCompressionStiffness;
                 }
             }
             if (cell_B_is_apoptotic)
             {
                 if (!isCloserThanRestLength) // if under tension
                 {
-                    spring_b_stiffness = p_config->GetApoptoticSpringTensionStiffness();
+                    spring_b_stiffness = mApoptoticSpringTensionStiffness;
                 }
                 else // if under compression
                 {
-                    spring_b_stiffness = p_config->GetApoptoticSpringCompressionStiffness();
+                    spring_b_stiffness = mApoptoticSpringCompressionStiffness;
                 }
             }
 
@@ -219,7 +221,44 @@ void LinearSpringWithVariableSpringConstantsForce<DIM>::AddForceContribution(std
     }
 }
 
+template<unsigned DIM>
+double LinearSpringWithVariableSpringConstantsForce<DIM>::GetBetaCatSpringScaler()
+{
+    return mBetaCatSpringScaler;
+}
 
+template<unsigned DIM>
+void LinearSpringWithVariableSpringConstantsForce<DIM>::SetBetaCatSpringScaler(double betaCatSpringScaler)
+{
+    assert(betaCatSpringScaler > 0.0);
+    mBetaCatSpringScaler = betaCatSpringScaler;
+}
+
+template<unsigned DIM>
+double LinearSpringWithVariableSpringConstantsForce<DIM>::GetApoptoticSpringTensionStiffness()
+{
+    return mApoptoticSpringTensionStiffness;
+}
+
+template<unsigned DIM>
+void LinearSpringWithVariableSpringConstantsForce<DIM>::SetApoptoticSpringTensionStiffness(double apoptoticSpringTensionStiffness)
+{
+    assert(apoptoticSpringTensionStiffness >= 0.0);
+    mApoptoticSpringTensionStiffness = apoptoticSpringTensionStiffness;
+}
+
+template<unsigned DIM>
+double LinearSpringWithVariableSpringConstantsForce<DIM>::GetApoptoticSpringCompressionStiffness()
+{
+    return mApoptoticSpringCompressionStiffness;
+}
+
+template<unsigned DIM>
+void LinearSpringWithVariableSpringConstantsForce<DIM>::SetApoptoticSpringCompressionStiffness(double apoptoticSpringCompressionStiffness)
+{
+    assert(apoptoticSpringCompressionStiffness >= 0.0);
+    mApoptoticSpringCompressionStiffness = apoptoticSpringCompressionStiffness;
+}
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////

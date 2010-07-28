@@ -59,33 +59,21 @@ TissueConfig::TissueConfig()
  * mCryptLength has units of cell size at equilibrium rest length
  * mDampingConstantNormal has units of kg s^-1
  * mDampingConstantMutant has units of kg s^-1
- * mBetaCatSpringScaler has no units
  * mApoptosisTime has units of hours
  * mHepaOneCellHypoxicConcentration has no units
  * mHepaOneCellQuiescentConcentration has no units
  * mWntTransitThreshold has no units
  * mWntStemThreshold has no units
  * mWntLabelledThreshold has no units
- * mWntConcentrationParameter has no units (proportion of mCryptLength)
  * mCriticalHypoxicDuration has units of hours
  * mCryptProjectionParameterA has no units
  * mCryptProjectionParameterB has no units
- * mApoptoticSpringTensionStiffness has the same units as mSpringStiffness
- * mApoptoticSpringCompressionStiffness has the same units as mSpringStiffness
- * mWntChemotaxisStrength has no units
- * mSymmetricDivisionProbability has no units
  * mAreaBasedDampingConstantParameter has no units
  * mMeinekeSpringStiffness has units of N/m = kg s^-2
  * mMeinekeMechanicsCutOffLength has units of cell size at equilibrium rest length
  * mMeinekeDivisionRestingSpringLength has units of cell size at equilibrium rest length
  * mMeinekeDivisionSeparation has units of cell size at equilibrium rest length
  * mMatureCellTargetArea has no units
- * mNagaiHondaDeformationEnergyParameter has units of kg s^-2 (cell size at equilibrium rest length)^-1
- * mNagaiHondaMembraneSurfaceEnergyParameter units of kg (cell size at equilibrium rest length) s^-2
- * mNagaiHondaCellCellAdhesionEnergyParameter has units of kg (cell size at equilibrium rest length)^2 s^-2
- * mNagaiHondaCellBoundaryAdhesionEnergyParameter units of kg (cell size at equilibrium rest length)^2 s^-2
- * mWelikyOsterAreaParameter has units of kg (cell size at equilibrium rest length)^2 s^-2
- * mWelikyOsterPerimeterParameter has units of kg s^-2 (cell size at equilibrium rest length)^-1
  */
 void TissueConfig::Reset()
 {
@@ -103,21 +91,16 @@ void TissueConfig::Reset()
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
     mDampingConstantNormal = 1.0;   // denoted by nu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mDampingConstantMutant = 1.0;
-    mBetaCatSpringScaler = 18.14 / 6.0; // this scales the spring constant with the amount of beta-catenin
-                                        // (divided by 6 as a cell normally is a hexagon)
+
     mApoptosisTime = 0.25;          // cell takes 15 min to fully undergo apoptosis
     mHepaOneCellHypoxicConcentration = 0.4;
     mHepaOneCellQuiescentConcentration = 1.0;
     mWntStemThreshold = 0.8;
     mWntTransitThreshold = 0.65;
     mWntLabelledThreshold = 0.65;
-    mWntConcentrationParameter = 1.0;
     mCriticalHypoxicDuration = 2.0;
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
-
-    mWntChemotaxisStrength = 100.0;
-    mSymmetricDivisionProbability = 0.0;
 
     mAreaBasedDampingConstantParameter = 0.1;
 
@@ -130,37 +113,11 @@ void TissueConfig::Reset()
     mMeinekeDivisionRestingSpringLength = 0.5;
     mMeinekeDivisionSeparation = 0.3;
 
-    mApoptoticSpringTensionStiffness = 0.25*mMeinekeSpringStiffness;
-    mApoptoticSpringCompressionStiffness = 0.75*mMeinekeSpringStiffness;
-
     /*
      * The following Parameters are specific to vertex based models
      */
 
     mMatureCellTargetArea = 1.0; //0.785398163;//pi/4.0; used to be 1
-
-    /*
-     * The following four parameters are used in vertex-based tissue simulations
-     * based on the mechanical model proposed by T. Nagai and H. Honda ("A dynamic
-     * cell model for the formation of epithelial tissues", Philosophical Magazine
-     * Part B 81:699-719). They are rescaled such that mDampingConstantNormal takes
-     * the default value 1, whereas Nagai and Honda (who denote the parameter by nu)
-     * take the value 0.01.
-     */
-    mNagaiHondaDeformationEnergyParameter = 100.0; // This is 1.0 in the Nagai & Honda paper
-    mNagaiHondaMembraneSurfaceEnergyParameter = 10.0;  // This is 0.1 the Nagai & Honda paper
-    mNagaiHondaCellCellAdhesionEnergyParameter = 1.0; // This is 0.01 the Nagai & Honda paper
-    mNagaiHondaCellBoundaryAdhesionEnergyParameter = 1.0; // This is 0.01 the Nagai & Honda paper
-
-    /**
-     * The following two parameters are used in vertex-based tissue simulations
-     * based on the mechanical model proposed by M. Weliky and G. Oster ("The
-     * mechanical basis of cell rearrangement. I. Epithelial morphogenesis during
-     * Fundulus epiboly", Development 109:373-386). Their default values are our
-     * estimates, since they are not given in the Weliky & Oster paper.
-     */
-    mWelikyOsterAreaParameter = 1.0;
-    mWelikyOsterPerimeterParameter = 1.0;
 
     mOutputCellIdData = false;
     mOutputCellMutationStates = false;
@@ -231,10 +188,6 @@ double TissueConfig::GetDampingConstantMutant()
 {
     return mDampingConstantMutant;
 }
-double TissueConfig::GetBetaCatSpringScaler()
-{
-    return mBetaCatSpringScaler;
-}
 double TissueConfig::GetApoptosisTime()
 {
     return mApoptosisTime;
@@ -259,10 +212,6 @@ double TissueConfig::GetWntLabelledThreshold()
 {
     return mWntLabelledThreshold;
 }
-double TissueConfig::GetWntConcentrationParameter()
-{
-    return mWntConcentrationParameter;
-}
 double TissueConfig::GetCriticalHypoxicDuration()
 {
     return mCriticalHypoxicDuration;
@@ -274,22 +223,6 @@ double TissueConfig::GetCryptProjectionParameterA()
 double TissueConfig::GetCryptProjectionParameterB()
 {
     return mCryptProjectionParameterB;
-}
-double TissueConfig::GetApoptoticSpringTensionStiffness()
-{
-    return mApoptoticSpringTensionStiffness;
-}
-double TissueConfig::GetApoptoticSpringCompressionStiffness()
-{
-    return mApoptoticSpringCompressionStiffness;
-}
-double TissueConfig::GetWntChemotaxisStrength()
-{
-    return mWntChemotaxisStrength;
-}
-double TissueConfig::GetSymmetricDivisionProbability()
-{
-    return mSymmetricDivisionProbability;
 }
 double TissueConfig::GetAreaBasedDampingConstantParameter()
 {
@@ -314,30 +247,6 @@ double TissueConfig::GetMeinekeDivisionSeparation()
 double TissueConfig::GetMatureCellTargetArea()
 {
     return mMatureCellTargetArea;
-}
-double TissueConfig::GetNagaiHondaDeformationEnergyParameter()
-{
-    return mNagaiHondaDeformationEnergyParameter;
-}
-double TissueConfig::GetNagaiHondaMembraneSurfaceEnergyParameter()
-{
-    return mNagaiHondaMembraneSurfaceEnergyParameter;
-}
-double TissueConfig::GetNagaiHondaCellCellAdhesionEnergyParameter()
-{
-    return mNagaiHondaCellCellAdhesionEnergyParameter;
-}
-double TissueConfig::GetNagaiHondaCellBoundaryAdhesionEnergyParameter()
-{
-    return mNagaiHondaCellBoundaryAdhesionEnergyParameter;
-}
-double TissueConfig::GetWelikyOsterAreaParameter()
-{
-    return mWelikyOsterAreaParameter;
-}
-double TissueConfig::GetWelikyOsterPerimeterParameter()
-{
-    return mWelikyOsterPerimeterParameter;
 }
 bool TissueConfig::GetOutputCellIdData()
 {
@@ -447,11 +356,6 @@ void TissueConfig::SetDampingConstantMutant(double dampingConstantMutant)
     assert(dampingConstantMutant > 0.0);
     mDampingConstantMutant = dampingConstantMutant;
 }
-void TissueConfig::SetBetaCatSpringScaler(double betaCatSpringScaler)
-{
-    assert(betaCatSpringScaler > 0.0);
-    mBetaCatSpringScaler = betaCatSpringScaler;
-}
 void TissueConfig::SetApoptosisTime(double apoptosisTime)
 {
     assert(apoptosisTime > 0.0);
@@ -487,12 +391,6 @@ void TissueConfig::SetWntLabelledThreshold(double wntThreshold)
     assert(wntThreshold>=0.0);
     mWntLabelledThreshold = wntThreshold;
 }
-void TissueConfig::SetWntConcentrationParameter(double top)
-{
-    assert(top > 0.0);
-    //assert(top <= 1.0); This doesn't apply for exponential Wnt gradients.
-    mWntConcentrationParameter = top;
-}
 void TissueConfig::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
 {
     assert(criticalHypoxicDuration>=0.0);
@@ -511,27 +409,6 @@ void TissueConfig::SetCryptProjectionParameterB(double cryptProjectionParameterB
 {
     assert(cryptProjectionParameterB>=0.0);
     mCryptProjectionParameterB = cryptProjectionParameterB;
-}
-void TissueConfig::SetApoptoticSpringTensionStiffness(double apoptoticSpringTensionStiffness)
-{
-    assert(apoptoticSpringTensionStiffness>=0.0);
-    mApoptoticSpringTensionStiffness = apoptoticSpringTensionStiffness;
-}
-void TissueConfig::SetApoptoticSpringCompressionStiffness(double apoptoticSpringCompressionStiffness)
-{
-    assert(apoptoticSpringCompressionStiffness>=0.0);
-    mApoptoticSpringCompressionStiffness = apoptoticSpringCompressionStiffness;
-}
-void TissueConfig::SetWntChemotaxisStrength(double wntChemotaxisStrength)
-{
-    assert(wntChemotaxisStrength>=0.0);
-    mWntChemotaxisStrength = wntChemotaxisStrength;
-}
-void TissueConfig::SetSymmetricDivisionProbability(double symmetricDivisionProbability)
-{
-    assert(symmetricDivisionProbability<=1.0);
-    assert(symmetricDivisionProbability>=0.0);
-    mSymmetricDivisionProbability = symmetricDivisionProbability;
 }
 void TissueConfig::SetAreaBasedDampingConstantParameter(double areaBasedDampingConstantParameter)
 {
@@ -565,30 +442,6 @@ void TissueConfig::SetMatureCellTargetArea(double matureCellTargetArea)
 {
     assert(matureCellTargetArea>=0.0);
     mMatureCellTargetArea = matureCellTargetArea;
-}
-void TissueConfig::SetNagaiHondaDeformationEnergyParameter(double deformationEnergyParameter)
-{
-    mNagaiHondaDeformationEnergyParameter = deformationEnergyParameter;
-}
-void TissueConfig::SetNagaiHondaMembraneSurfaceEnergyParameter(double membraneSurfaceEnergyParameter)
-{
-    mNagaiHondaMembraneSurfaceEnergyParameter = membraneSurfaceEnergyParameter;
-}
-void TissueConfig::SetNagaiHondaCellCellAdhesionEnergyParameter(double cellCellAdhesionEnergyParameter)
-{
-    mNagaiHondaCellCellAdhesionEnergyParameter = cellCellAdhesionEnergyParameter;
-}
-void TissueConfig::SetNagaiHondaCellBoundaryAdhesionEnergyParameter(double cellBoundaryAdhesionEnergyParameter)
-{
-    mNagaiHondaCellBoundaryAdhesionEnergyParameter = cellBoundaryAdhesionEnergyParameter;
-}
-void TissueConfig::SetWelikyOsterAreaParameter(double welikyOsterAreaParameter)
-{
-    mWelikyOsterAreaParameter = welikyOsterAreaParameter;
-}
-void TissueConfig::SetWelikyOsterPerimeterParameter(double welikyOsterPerimeterParameter)
-{
-    mWelikyOsterPerimeterParameter = welikyOsterPerimeterParameter;
 }
 void TissueConfig::SetOutputCellIdData(bool writeCellIdData)
 {

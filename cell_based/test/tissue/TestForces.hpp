@@ -409,7 +409,7 @@ public:
 
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.5*8.59312/18.14, 1e-5);
 
-        TissueConfig::Instance()->SetBetaCatSpringScaler(20/6.0);
+        linear_force.SetBetaCatSpringScaler(20/6.0);
         TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(20, 21, crypt)), 1.5*8.59312/20.0, 1e-5);
 
         // Tidy up
@@ -463,9 +463,14 @@ public:
         squashed_tissue.GetCellUsingLocationIndex(6)->AddCellProperty(p_apoptotic_state);
 
         LinearSpringWithVariableSpringConstantsForce<2> linear_force2;
+
+        // Test set/get methods
+        TS_ASSERT_DELTA(linear_force2.GetApoptoticSpringTensionStiffness(), 3.75, 1e-6);
+        TS_ASSERT_DELTA(linear_force2.GetApoptoticSpringCompressionStiffness(), 11.25, 1e-6);
+
         linear_force2.SetApoptoticSprings(true);
 
-        TS_ASSERT_DELTA( norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_tissue)), 4.0909, 1e-4);
+        TS_ASSERT_DELTA(norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_tissue)), 4.0909, 1e-4);
 
         squashed_tissue.GetCellUsingLocationIndex(10)->AddCellProperty(p_apoptotic_state);
 
@@ -748,6 +753,9 @@ public:
             p_linear_force->SetMutantSprings(true, 0.2, 0.3);
             p_linear_force->SetBetaCateninSprings(true);
             p_linear_force->SetApoptoticSprings(true);
+            p_linear_force->SetBetaCatSpringScaler(20/6.0);
+            p_linear_force->SetApoptoticSpringTensionStiffness(4.0);
+            p_linear_force->SetApoptoticSpringCompressionStiffness(5.0);
 
             output_arch << p_linear_force;
         }
@@ -774,6 +782,9 @@ public:
             TS_ASSERT_EQUALS(p_linear_force->mUseApoptoticSprings, true);
             TS_ASSERT_DELTA(p_linear_force->mMutantMutantMultiplier, 0.2, 1e-12);
             TS_ASSERT_DELTA(p_linear_force->mNormalMutantMultiplier, 0.3, 1e-12);
+            TS_ASSERT_DELTA(p_linear_force->mBetaCatSpringScaler, 20/6.0, 1e-12);
+            TS_ASSERT_DELTA(p_linear_force->mApoptoticSpringTensionStiffness, 4.0, 1e-12);
+            TS_ASSERT_DELTA(p_linear_force->mApoptoticSpringCompressionStiffness, 5.0, 1e-12);
 
             delete p_linear_force;
         }

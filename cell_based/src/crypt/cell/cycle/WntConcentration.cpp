@@ -31,7 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 WntConcentration<DIM>* WntConcentration<DIM>::mpInstance = NULL;
 
-
 template<unsigned DIM>
 WntConcentration<DIM>* WntConcentration<DIM>::Instance()
 {
@@ -48,18 +47,17 @@ WntConcentration<DIM>::WntConcentration()
       mpTissue(NULL),
       mTypeSet(false),
       mConstantWntValueForTesting(0),
-      mUseConstantWntValueForTesting(false)
+      mUseConstantWntValueForTesting(false),
+      mWntConcentrationParameter(1.0)
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
 }
 
-
 template<unsigned DIM>
 WntConcentration<DIM>::~WntConcentration()
 {
 }
-
 
 template<unsigned DIM>
 void WntConcentration<DIM>::Destroy()
@@ -70,7 +68,6 @@ void WntConcentration<DIM>::Destroy()
         mpInstance = NULL;
     }
 }
-
 
 template<unsigned DIM>
 double WntConcentration<DIM>::GetWntLevel(TissueCellPtr pCell)
@@ -99,7 +96,6 @@ double WntConcentration<DIM>::GetWntLevel(TissueCellPtr pCell)
     return GetWntLevel(height);
 }
 
-
 template<unsigned DIM>
 c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(TissueCellPtr pCell)
 {
@@ -115,20 +111,17 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(TissueCellPtr pCell)
     return GetWntGradient(location_of_cell);
 }
 
-
 template<unsigned DIM>
 void WntConcentration<DIM>::SetTissue(AbstractTissue<DIM>& rTissue)
 {
     mpTissue = &rTissue;
 }
 
-
 template<unsigned DIM>
 WntConcentrationType WntConcentration<DIM>::GetType()
 {
     return mWntType;
 }
-
 
 template<unsigned DIM>
 void WntConcentration<DIM>::SetType(WntConcentrationType type)
@@ -140,7 +133,6 @@ void WntConcentration<DIM>::SetType(WntConcentrationType type)
     mWntType = type;
     mTypeSet = true;
 }
-
 
 template<unsigned DIM>
 double WntConcentration<DIM>::GetWntLevel(double height)
@@ -156,11 +148,9 @@ double WntConcentration<DIM>::GetWntLevel(double height)
     // The first type of Wnt concentration to try
     if (mWntType==LINEAR || mWntType==RADIAL)
     {
-        double top_of_wnt = mpTissueConfig->GetWntConcentrationParameter(); // of crypt height.
-        if ((height >= -1e-9) && (height < top_of_wnt*crypt_height))
+        if ((height >= -1e-9) && (height < mWntConcentrationParameter*crypt_height))
         {
-            wnt_level = 1.0 - height/(top_of_wnt*crypt_height);
-
+            wnt_level = 1.0 - height/(mWntConcentrationParameter*crypt_height);
         }
         else
         {
@@ -170,10 +160,9 @@ double WntConcentration<DIM>::GetWntLevel(double height)
 
     if (mWntType==EXPONENTIAL)
     {
-        double lambda = mpTissueConfig->GetWntConcentrationParameter(); // of crypt height.
         if ((height >= -1e-9) && (height < crypt_height))
         {
-            wnt_level = exp(- height/(crypt_height*lambda));
+            wnt_level = exp(-height/(crypt_height*mWntConcentrationParameter));
         }
         else
         {
@@ -186,7 +175,6 @@ double WntConcentration<DIM>::GetWntLevel(double height)
     return wnt_level;
 }
 
-
 template<unsigned DIM>
 c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM>& rLocation)
 {
@@ -195,13 +183,12 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
     if (mWntType!=NONE)
     {
         double crypt_height = mpTissueConfig->GetCryptLength();
-        double top_of_wnt = mpTissueConfig->GetWntConcentrationParameter(); // of crypt height.
 
         if (mWntType==LINEAR)
         {
-            if ((rLocation[DIM-1] >= -1e-9) && (rLocation[DIM-1] < top_of_wnt*crypt_height))
+            if ((rLocation[DIM-1] >= -1e-9) && (rLocation[DIM-1] < mWntConcentrationParameter*crypt_height))
             {
-                wnt_gradient[DIM-1] = -1.0/(top_of_wnt*crypt_height);
+                wnt_gradient[DIM-1] = -1.0/(mWntConcentrationParameter*crypt_height);
             }
         }
         else if (mWntType==RADIAL) // RADIAL Wnt concentration
@@ -209,13 +196,13 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
             double a = TissueConfig::Instance()->GetCryptProjectionParameterA();
             double b = TissueConfig::Instance()->GetCryptProjectionParameterB();
             double r = norm_2(rLocation);
-            double r_critical = pow(top_of_wnt*crypt_height/a, 1.0/b);
+            double r_critical = pow(mWntConcentrationParameter*crypt_height/a, 1.0/b);
 
             double dwdr = 0.0;
 
-            if ( r>=-1e-9 && r<r_critical )
+            if (r>=-1e-9 && r<r_critical)
             {
-                dwdr = -top_of_wnt*crypt_height*pow(r, b-1.0)/a;
+                dwdr = -mWntConcentrationParameter*crypt_height*pow(r, b-1.0)/a;
             }
 
             for (unsigned i=0; i<DIM; i++)
@@ -231,7 +218,6 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
     return wnt_gradient;
 }
 
-
 template<unsigned DIM>
 bool WntConcentration<DIM>::IsWntSetUp()
 {
@@ -242,7 +228,6 @@ bool WntConcentration<DIM>::IsWntSetUp()
     }
     return result;
 }
-
 
 template<unsigned DIM>
 void WntConcentration<DIM>::SetConstantWntValueForTesting(double value)
@@ -259,6 +244,18 @@ void WntConcentration<DIM>::SetConstantWntValueForTesting(double value)
     }
 }
 
+template<unsigned DIM>
+double WntConcentration<DIM>::GetWntConcentrationParameter()
+{
+    return mWntConcentrationParameter;
+}
+
+template<unsigned DIM>
+void WntConcentration<DIM>::SetWntConcentrationParameter(double wntConcentrationParameter)
+{
+    assert(wntConcentrationParameter > 0.0);
+    mWntConcentrationParameter = wntConcentrationParameter;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

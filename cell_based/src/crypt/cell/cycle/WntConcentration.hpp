@@ -67,8 +67,8 @@ private:
     /**
      * The type of WntConcentration current options are
      *  NONE - returns zero everywhere
-     *  LINEAR - decreases from 1 to zero at height specified by TissueConfig::mWntConcentrationParameter
-     *  RADIAL - decreases from 1 to zero at height specified by TissueConfig::mWntConcentrationParameter
+     *  LINEAR - decreases from 1 to zero at height specified by mWntConcentrationParameter
+     *  RADIAL - decreases from 1 to zero at height specified by mWntConcentrationParameter
      */
     WntConcentrationType mWntType;
 
@@ -93,6 +93,17 @@ private:
      */
     bool mUseConstantWntValueForTesting;
 
+    /**
+     * For LINEAR or RADIAL Wnt type:
+     * The proportion of the crypt that has a Wnt gradient.
+     * The Wnt concentration goes from one at the base to zero at this height up the crypt.
+     *
+     * For EXPONENTIAL Wnt type:
+     * The parameter lambda in the Wnt concentration
+     * Wnt = exp(-height/lambda)
+     */
+    double mWntConcentrationParameter;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -112,6 +123,7 @@ private:
         archive & mTypeSet;
         archive & mConstantWntValueForTesting;
         archive & mUseConstantWntValueForTesting;
+        archive & mWntConcentrationParameter;
     }
 
 protected:
@@ -217,6 +229,17 @@ public:
      */
     bool IsWntSetUp();
 
+    /**
+     * @return mWntConcentrationParameter
+     */
+    double GetWntConcentrationParameter();
+
+    /**
+     * Set mWntConcentrationParameter.
+     * 
+     * @param wntConcentrationParameter the new value of mWntConcentrationParameter
+     */
+    void SetWntConcentrationParameter(double wntConcentrationParameter);
 };
 
 #endif /*WNTCONCENTRATION_HPP_*/

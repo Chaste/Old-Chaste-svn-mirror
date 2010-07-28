@@ -86,7 +86,7 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        TissueConfig::Instance()->SetWntConcentrationParameter(1.0/3.0);
+        WntConcentration<2>::Instance()->SetWntConcentrationParameter(1.0/3.0);
         WntConcentration<2>::Instance()->SetTissue(crypt);
 
         GeneralisedLinearSpringForce<2> linear_force;

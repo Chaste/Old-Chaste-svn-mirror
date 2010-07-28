@@ -67,27 +67,39 @@ private :
         archive & mNormalMutantMultiplier;
         archive & mUseBCatSprings;
         archive & mUseApoptoticSprings;
+        archive & mBetaCatSpringScaler;
+        archive & mApoptoticSpringTensionStiffness;
+        archive & mApoptoticSpringCompressionStiffness;
     }
 
 protected :
 
-    /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false) */
+    /** Whether to use spring constant proportional to cell-cell contact length/area (defaults to false). */
     bool mUseEdgeBasedSpringConstant;
 
-    /** Whether to use different stiffnesses depending on whether either cell is a mutant */
+    /** Whether to use different stiffnesses depending on whether either cell is a mutant. */
     bool mUseMutantSprings;
 
-    /** Multiplier for spring stiffness if mutant */
+    /** Multiplier for spring stiffness if mutant. */
     double mMutantMutantMultiplier;
 
-    /** Multiplier for spring stiffness if mutant */
+    /** Multiplier for spring stiffness if mutant. */
     double mNormalMutantMultiplier;
 
-    /** Use springs which are dependent on beta-catenin levels */
+    /** Use springs which are dependent on beta-catenin levels. */
     bool mUseBCatSprings;
 
-    /** Use springs which are dependent on whether cells are apoptotic */
+    /** Use springs which are dependent on whether cells are apoptotic. */
     bool mUseApoptoticSprings;
+
+    /** Scaling factor for beta catenin to spring strength. */
+    double mBetaCatSpringScaler;
+
+    /** Non-dimensionalized 'stiffness' of a apoptotic cell under tension. */
+    double mApoptoticSpringTensionStiffness;
+
+    /** Non-dimensionalized 'stiffness' of a apoptotic cell under compression. */
+    double mApoptoticSpringCompressionStiffness;
 
 public :
 
@@ -159,6 +171,41 @@ public :
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                               AbstractTissue<DIM>& rTissue);
 
+    /**
+     * @return mBetaCatSpringScaler
+     */
+    double GetBetaCatSpringScaler();
+
+    /**
+     * Set mBetaCatSpringScaler.
+     * 
+     * @param betaCatSpringScaler the new value of mBetaCatSpringScaler
+     */
+    void SetBetaCatSpringScaler(double betaCatSpringScaler);
+
+    /**
+     * @return mApoptoticSpringTensionStiffness
+     */
+    double GetApoptoticSpringTensionStiffness();
+
+    /**
+     * Set mApoptoticSpringTensionStiffness.
+     * 
+     * @param apoptoticSpringTensionStiffness the new value of mApoptoticSpringTensionStiffness
+     */
+    void SetApoptoticSpringTensionStiffness(double apoptoticSpringTensionStiffness);
+
+    /**
+     * @return mApoptoticSpringCompressionStiffness
+     */
+    double GetApoptoticSpringCompressionStiffness();
+
+    /**
+     * Set mApoptoticSpringCompressionStiffness.
+     * 
+     * @param apoptoticSpringCompressionStiffness the new value of mApoptoticSpringCompressionStiffness
+     */
+    void SetApoptoticSpringCompressionStiffness(double apoptoticSpringCompressionStiffness);
 };
 
 #include "SerializationExportWrapper.hpp"

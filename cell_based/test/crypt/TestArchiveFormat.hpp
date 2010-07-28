@@ -115,20 +115,14 @@ public:
         TS_ASSERT_DELTA(p_inst->GetMeinekeSpringStiffness(), 30.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetDampingConstantNormal(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetDampingConstantMutant(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetBetaCatSpringScaler(), 18.14/6.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetApoptosisTime(), 0.25, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetHepaOneCellHypoxicConcentration(), 0.4, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetHepaOneCellQuiescentConcentration(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetWntStemThreshold(), 0.8, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetWntTransitThreshold(), 0.65, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetWntConcentrationParameter(), 1.0/3.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCriticalHypoxicDuration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptProjectionParameterA(), 0.5, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptProjectionParameterB(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetApoptoticSpringTensionStiffness(), 0.25*15.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetApoptoticSpringCompressionStiffness(), 0.75*15.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetWntChemotaxisStrength(), 100.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetSymmetricDivisionProbability(), 0.0, 1e-12);
 
         // Tidy up
         SimulationTime::Destroy();

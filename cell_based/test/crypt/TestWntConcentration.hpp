@@ -124,7 +124,7 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(EXPONENTIAL);
 
-        TS_ASSERT_EQUALS(TissueConfig::Instance()->GetWntConcentrationParameter(),1.0);
+        TS_ASSERT_EQUALS(p_wnt->GetWntConcentrationParameter(),1.0);
 
         double height = 100;
         double wnt_level = 0.0;
@@ -147,7 +147,7 @@ public:
         // For a change in lambda
         TissueConfig::Instance()->SetCryptLength(30.0);
         crypt_length = 30.0;
-        TissueConfig::Instance()->SetWntConcentrationParameter(0.5);
+        p_wnt->SetWntConcentrationParameter(0.5);
         wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, exp(-(height/crypt_length)/0.5), 1e-9);
 
@@ -171,7 +171,7 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
         TissueConfig* p_params = TissueConfig::Instance();
-        p_params->SetWntConcentrationParameter(1.0/3.0);
+        p_wnt->SetWntConcentrationParameter(1.0/3.0);
 
         double height = 100;
         double wnt_level = 0.0;
