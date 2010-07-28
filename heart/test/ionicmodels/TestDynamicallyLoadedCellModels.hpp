@@ -61,15 +61,17 @@ private:
 
     void RunLr91Test(DynamicCellModelLoader& rLoader,
                      unsigned vIndex=4u,
-                     bool testTables=false)
+                     bool testTables=false,
+                     double tolerance=1e-3,
+                     double tableTestV=-100000)
     {
         AbstractCardiacCell* p_cell = CreateLr91CellFromLoader(rLoader, vIndex);
-        SimulateLr91AndCompare(p_cell);
+        SimulateLr91AndCompare(p_cell, tolerance);
 
         if (testTables)
         {
             double v = p_cell->GetVoltage();
-            p_cell->SetVoltage(-100000);
+            p_cell->SetVoltage(tableTestV);
             TS_ASSERT_THROWS_CONTAINS(p_cell->GetIIonic(), "V outside lookup table range");
             p_cell->SetVoltage(v);
         }
@@ -77,7 +79,8 @@ private:
         delete p_cell;
     }
 
-    void SimulateLr91AndCompare(AbstractCardiacCell* pCell)
+    void SimulateLr91AndCompare(AbstractCardiacCell* pCell,
+                                double tolerance=1e-3)
     {
         double end_time = 1000.0; //One second in milliseconds
         // Solve and write to file
@@ -90,7 +93,7 @@ private:
         std::cout << "\n\tSolve time: " << forward << std::endl;
 
         // Compare with 'normal' LR91 model results
-        CheckCellModelResults("DynamicallyLoadableLr91", "Lr91DelayedStim");
+        CheckCellModelResults("DynamicallyLoadableLr91", "Lr91DelayedStim", tolerance);
 
         // Test GetIIonic against hardcoded result from TestIonicModels.hpp
         RunOdeSolverWithIonicModel(pCell,
@@ -124,7 +127,37 @@ private:
 
         return p_cell;
     }
+
+    void CreateOptionsFile(const OutputFileHandler& rHandler,
+                           const std::string& rModelName,
+                           const std::vector<std::string>& rArgs,
+                           const std::string& rExtraXml="")
+    {
+        {
+            out_stream p_optfile = rHandler.OpenOutputFile(rModelName + "-conf.xml");
+            (*p_optfile) << "<?xml version='1.0'?>" << std::endl
+                         << "<pycml_config>" << std::endl
+                         << "<command_line_args>" << std::endl;
+            for (unsigned i=0; i<rArgs.size(); i++)
+            {
+                (*p_optfile) << "<arg>" << rArgs[i] << "</arg>" << std::endl;
+            }
+            (*p_optfile) << "</command_line_args>" << std::endl
+                         << rExtraXml
+                         << "</pycml_config>" << std::endl;
+            p_optfile->close();
+        }
+        PetscTools::Barrier("CreateOptionsFile");
+    }
     
+    void CopyFile(const OutputFileHandler& rDestDir,
+                  const FileFinder& rSourceFile)
+    {
+        if (PetscTools::AmMaster())
+        {
+            EXPECT0(system, "cp " + rSourceFile.GetAbsolutePath() + " " + rDestDir.GetOutputDirectoryFullPath());
+        }
+    }
 public:
     /**
      * This is based on TestOdeSolverForLR91WithDelayedSimpleStimulus from
@@ -183,29 +216,45 @@ public:
     {
         // Copy CellML file into output dir
         std::string dirname = "TestCellmlConverterWithOptions";
+        std::string model = "LuoRudy1991";
         OutputFileHandler handler(dirname);
-        if (PetscTools::AmMaster())
-        {
-            FileFinder cellml_file("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
-            EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler.GetOutputDirectoryFullPath());
-        }
+        FileFinder cellml_file("heart/src/odes/cellml/" + model + ".cellml", RelativeTo::ChasteSourceRoot);
+        CopyFile(handler, cellml_file);
         // Create options file
-        {
-            out_stream p_optfile = handler.OpenOutputFile("luo_rudy_1991_dyn-conf.xml");
-            (*p_optfile) << "<?xml version='1.0'?>" << std::endl
-                    << "<pycml_config>" << std::endl
-                    << "<command_line_args><arg>--opt</arg></command_line_args>" << std::endl
-                    << "</pycml_config>" << std::endl;
-            p_optfile->close();
-        }
-        ///\todo #454 add a for_model section (and a test of --backward-euler).
-        PetscTools::Barrier("TestCellmlConverterWithOptions_cp");
+        std::vector<std::string> args;
+        args.push_back("--opt");
+        CreateOptionsFile(handler, model, args);
 
         // Do the conversion
         CellMLToSharedLibraryConverter converter;
-        FileFinder cellml_file(dirname + "/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteTestOutput);
-        DynamicCellModelLoader* p_loader = converter.Convert(cellml_file);
+        FileFinder copied_file(dirname + "/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+        DynamicCellModelLoader* p_loader = converter.Convert(copied_file);
         RunLr91Test(*p_loader, 0u, true);
+
+        // Backward Euler
+        args[0] = "--backward-euler";
+        OutputFileHandler handler2(dirname + "BE");
+        CopyFile(handler2, cellml_file);
+        FileFinder maple_output_file("heart/src/odes/cellml/LuoRudy1991.out", RelativeTo::ChasteSourceRoot);
+        CopyFile(handler2, maple_output_file);
+        CreateOptionsFile(handler2, model, args);
+        FileFinder copied_file2(dirname + "BE/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+        p_loader = converter.Convert(copied_file2);
+        RunLr91Test(*p_loader, 0u, true, 0.3);
+
+        // With a for_model section
+        args[0] = "--opt";
+        // args.push_back("--cvode"); ///\todo #1505
+        OutputFileHandler handler3(dirname + "CO");
+        CopyFile(handler3, cellml_file);
+        std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
+                + "<var type='config-name'>transmembrane_potential</var>"
+                + "<max>69.9999</max>"
+                + "</lookup_table></lookup_tables></for_model>\n";
+        CreateOptionsFile(handler3, model, args, for_model);
+        FileFinder copied_file3(dirname + "CO/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+        p_loader = converter.Convert(copied_file3);
+        RunLr91Test(*p_loader, 0u, true, 1e-3, 70);
     }
 
     void TestCellmlConverter() throw(Exception)

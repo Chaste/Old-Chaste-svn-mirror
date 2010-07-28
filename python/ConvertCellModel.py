@@ -190,9 +190,15 @@ if number_of_options == 0:
     else:
         number_of_options = 1
 
+# Special case for -y --cvode --opt
+if number_of_options == 2 and options.cvode and options.opt:
+    dyn_cvode_opt = True
+else:
+    dyn_cvode_opt = False
+
 # Check for .so creation
 if options.dynamically_loadable:
-    if number_of_options > 1:
+    if number_of_options > 1 and not dyn_cvode_opt:
         parser.error("Only one output type may be specified if creating a dynamic library")
     essential_options.append('-y')
 
@@ -288,9 +294,10 @@ def convert(model, output_dir):
     
     if options.cvode:
         # For use with CVODE
-        cmd, outputs = add_out_opts(command_base + ['-t', 'CVODE'], output_dir,
-                                    class_name + 'Cvode', model_base, 'Cvode')
-        do_cmd(cmd, outputs)
+        if not dyn_cvode_opt:
+            cmd, outputs = add_out_opts(command_base + ['-t', 'CVODE'], output_dir,
+                                        class_name + 'Cvode', model_base, 'Cvode')
+            do_cmd(cmd, outputs)
 
         if options.opt:
             # With optimisation
