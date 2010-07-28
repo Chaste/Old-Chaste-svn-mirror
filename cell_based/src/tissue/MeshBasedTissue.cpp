@@ -263,6 +263,8 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
             this->mLocationCellMap[new_node_index] = *it;
             this->mCellLocationMap[(*it).get()] = new_node_index;
         }
+
+        this->Validate();
     }
 
     // Purge any marked springs that are no longer springs
@@ -307,8 +309,6 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     {
         mMarkedSprings.erase(**spring_it);
     }
-
-    this->Validate();
 
     // Tessellate if needed
     if (DIM==2 || DIM==3)

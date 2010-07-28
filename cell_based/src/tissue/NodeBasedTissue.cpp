@@ -217,13 +217,13 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     if (hasHadBirthsOrDeaths)
     {
         // Create and reserve space for a temporary vector
-        std::vector<Node<DIM>* > old_nodes;
+        std::vector<Node<DIM>*> old_nodes;
         old_nodes.reserve(mNodes.size());
 
         // Store all non-deleted nodes in the temporary vector
         for (unsigned i=0; i<mNodes.size(); i++)
         {
-            if ( !mNodes[i]->IsDeleted() )
+            if (!mNodes[i]->IsDeleted())
             {
                 old_nodes.push_back(mNodes[i]);
             }
