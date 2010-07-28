@@ -133,7 +133,7 @@ public:
         HeartConfig::Instance()->Reset();
     }
 
-    void TestSpaceConvergenceBidomainIn1DWithAbsoluteTolerance() throw(Exception)
+    void xxTestSpaceConvergenceBidomainIn1DWithAbsoluteTolerance() throw(Exception)
     {
         // Zero pivot detected in Cholesky factorisation for mesh 1. This is not an error and it may always happen when using bjacobi with singular systems.
         HeartConfig::Instance()->SetKSPPreconditioner("jacobi");
