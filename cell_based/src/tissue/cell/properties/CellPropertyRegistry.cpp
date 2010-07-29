@@ -70,7 +70,6 @@ void CellPropertyRegistry::SpecifyOrdering(const std::vector<boost::shared_ptr<A
         EXCEPTION("An ordering has already been specified.");
     }
 
-    ///\todo probably a much more efficient way to do this (#1285)
     std::vector<boost::shared_ptr<AbstractCellProperty> > temp_vector = rOrdering;
     for (unsigned i=0; i<mCellProperties.size(); i++)
     {

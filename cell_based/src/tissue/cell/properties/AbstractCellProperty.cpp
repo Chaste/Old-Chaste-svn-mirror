@@ -31,6 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <typeinfo>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 AbstractCellProperty::AbstractCellProperty()
     : mCellCount(0)
 {
@@ -69,4 +72,9 @@ void AbstractCellProperty::DecrementCellCount()
 unsigned AbstractCellProperty::GetCellCount() const
 {
     return mCellCount;
+}
+
+std::string AbstractCellProperty::GetIdentifier() const
+{
+    return boost::serialization::type_info_implementation<AbstractCellProperty>::type::get_derived_extended_type_info(*this)->get_key();
 }

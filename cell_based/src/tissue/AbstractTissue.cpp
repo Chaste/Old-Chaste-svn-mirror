@@ -243,9 +243,25 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool 
     }
     if (p_config->GetOutputCellMutationStates())
     {
+        // An ordering must be specified for cell mutation states
+        SetDefaultMutationStateOrdering();
+
         mpCellMutationStatesFile = output_file_handler.OpenOutputFile("cellmutationstates.dat");
-        ///\todo change this code to allow for arbitrary cell mutation states (#1285)
-        *mpCellMutationStatesFile << "Time\t Healthy\t APC_1\t APC_2\t BETA_CAT \n";
+
+        *mpCellMutationStatesFile << "Time\t ";
+
+        const std::vector<boost::shared_ptr<AbstractCellProperty> >& r_cell_properties = 
+            mpCellPropertyRegistry->rGetAllCellProperties();
+    
+        std::vector<unsigned> cell_mutation_state_count;
+        for (unsigned i=0; i<r_cell_properties.size(); i++)
+        {
+            if (r_cell_properties[i]->IsSubType<AbstractCellMutationState>())
+            {
+                *mpCellMutationStatesFile << r_cell_properties[i]->GetIdentifier() << "\t ";
+            }
+        }
+        *mpCellMutationStatesFile << "\n";
     }
     if (p_config->GetOutputCellProliferativeTypes())
     {

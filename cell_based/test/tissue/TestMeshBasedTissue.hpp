@@ -640,6 +640,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cell_based/test/data/TestTissueWritersIn2d/results.vizcelltypes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissueareas.dat       cell_based/test/data/TestTissueWritersIn2d/tissueareas.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestTissueWritersIn2d/cellareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat         cell_based/test/data/TestTissueWritersIn2d/cellmutationstates.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "voronoi.dat           cell_based/test/data/TestTissueWritersIn2d/voronoi.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function
@@ -716,6 +717,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cell_based/test/data/TestTissueWritersIn3d/results.vizcelltypes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissueareas.dat       cell_based/test/data/TestTissueWritersIn3d/tissueareas.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestTissueWritersIn3d/cellareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat         cell_based/test/data/TestTissueWritersIn3d/cellmutationstates.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "voronoi.dat           cell_based/test/data/TestTissueWritersIn3d/voronoi.dat").c_str()), 0);
 
         // Test the GetCellMutationStateCount function

@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BetaCateninOneHitCellMutationState.hpp"
 
 #include "OutputFileHandler.hpp"
+#include "Debug.hpp"
 
 #define NEW_PROP(type, name) boost::shared_ptr<AbstractCellProperty> name(new type)
 
@@ -57,25 +58,28 @@ public:
         TS_ASSERT_EQUALS(collection.GetSize(), 0u);
 
         // Add some properties
-        NEW_PROP(WildTypeCellMutationState, wt_mutation);
-        collection.AddProperty(wt_mutation);
-        NEW_PROP(ApcOneHitCellMutationState, apc1_mutation);
-        collection.AddProperty(apc1_mutation);
+        NEW_PROP(WildTypeCellMutationState, p_wt_mutation);
+
+        TS_ASSERT_EQUALS(p_wt_mutation->GetIdentifier(), "WildTypeCellMutationState");
+
+        collection.AddProperty(p_wt_mutation);
+        NEW_PROP(ApcOneHitCellMutationState, p_apc1_mutation);
+        collection.AddProperty(p_apc1_mutation);
 
         // Test we can't add the same *object* twice
-        TS_ASSERT_THROWS_THIS(collection.AddProperty(wt_mutation),
+        TS_ASSERT_THROWS_THIS(collection.AddProperty(p_wt_mutation),
                               "That property object is already in the collection.");
-        NEW_PROP(WildTypeCellMutationState, wt_mutation_2);
-        collection.AddProperty(wt_mutation_2);
-        collection.RemoveProperty(wt_mutation_2);
+        NEW_PROP(WildTypeCellMutationState, p_wt_mutation_2);
+        collection.AddProperty(p_wt_mutation_2);
+        collection.RemoveProperty(p_wt_mutation_2);
 
         // Check the contents
         TS_ASSERT_EQUALS(collection.GetSize(), 2u);
         // ...by object
-        TS_ASSERT_EQUALS(collection.HasProperty(wt_mutation), true);
-        TS_ASSERT_EQUALS(collection.HasProperty(apc1_mutation), true);
-        NEW_PROP(ApcOneHitCellMutationState, apc1_mutation_2);
-        TS_ASSERT_EQUALS(collection.HasProperty(apc1_mutation_2), false);
+        TS_ASSERT_EQUALS(collection.HasProperty(p_wt_mutation), true);
+        TS_ASSERT_EQUALS(collection.HasProperty(p_apc1_mutation), true);
+        NEW_PROP(ApcOneHitCellMutationState, p_apc1_mutation_2);
+        TS_ASSERT_EQUALS(collection.HasProperty(p_apc1_mutation_2), false);
         // ...by type
         TS_ASSERT_EQUALS(collection.HasProperty<WildTypeCellMutationState>(), true);
         TS_ASSERT_EQUALS(collection.HasProperty<ApcOneHitCellMutationState>(), true);
@@ -95,18 +99,18 @@ public:
         // Remove property
         collection.RemoveProperty<WildTypeCellMutationState>();
         TS_ASSERT_EQUALS(collection.HasProperty<WildTypeCellMutationState>(), false);
-        collection.RemoveProperty(apc1_mutation);
+        collection.RemoveProperty(p_apc1_mutation);
         TS_ASSERT_EQUALS(collection.HasProperty<ApcOneHitCellMutationState>(), false);
         TS_ASSERT_THROWS_THIS(collection.RemoveProperty<WildTypeCellMutationState>(),
                               "Collection does not contain the given property type.");
-        TS_ASSERT_THROWS_THIS(collection.RemoveProperty(apc1_mutation),
+        TS_ASSERT_THROWS_THIS(collection.RemoveProperty(p_apc1_mutation),
                               "Collection does not contain the given property.");
 
         TS_ASSERT_EQUALS(collection.GetSize(), 0u);
 
         // Get matching properties
-        collection.AddProperty(wt_mutation);
-        collection.AddProperty(apc1_mutation);
+        collection.AddProperty(p_wt_mutation);
+        collection.AddProperty(p_apc1_mutation);
         CellPropertyCollection mutations = collection.GetPropertiesType<AbstractCellMutationState>();
         TS_ASSERT_EQUALS(mutations.GetSize(), 2u);
         CellPropertyCollection::Iterator it = mutations.Begin();
@@ -133,10 +137,10 @@ public:
             // Create a cell property collection
             CellPropertyCollection collection;
 
-            NEW_PROP(BetaCateninOneHitCellMutationState, bcat1_mutation);
-            collection.AddProperty(bcat1_mutation);
-            NEW_PROP(ApcOneHitCellMutationState, apc1_mutation);
-            collection.AddProperty(apc1_mutation);
+            NEW_PROP(BetaCateninOneHitCellMutationState, p_bcat1_mutation);
+            collection.AddProperty(p_bcat1_mutation);
+            NEW_PROP(ApcOneHitCellMutationState, p_apc1_mutation);
+            collection.AddProperty(p_apc1_mutation);
 
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
@@ -163,8 +167,8 @@ public:
             TS_ASSERT_EQUALS(collection.HasProperty<ApcOneHitCellMutationState>(), true);
             TS_ASSERT_EQUALS(collection.HasProperty<ApcTwoHitCellMutationState>(), false);
 
-            NEW_PROP(ApcOneHitCellMutationState, apc1_mutation_2);
-            TS_ASSERT_EQUALS(collection.HasProperty(apc1_mutation_2), false);
+            NEW_PROP(ApcOneHitCellMutationState, p_apc1_mutation_2);
+            TS_ASSERT_EQUALS(collection.HasProperty(p_apc1_mutation_2), false);
 
             TS_ASSERT_EQUALS(collection.HasPropertyType<AbstractCellProperty>(), true);
             TS_ASSERT_EQUALS(collection.HasPropertyType<AbstractCellMutationState>(), true);

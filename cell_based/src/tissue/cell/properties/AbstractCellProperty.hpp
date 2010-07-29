@@ -134,6 +134,14 @@ public:
      * Get #mCellCount
      */
     unsigned GetCellCount() const;
+
+    /**
+     * Return the unique identifier. This method uses Boost's serialization's
+     * extended_type_info and returns the identifier of the derived class
+     * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
+     * derived class, and is usually just the name of the class).
+     */
+    std::string GetIdentifier() const;
 };
 
 #endif /* ABSTRACTCELLPROPERTY_HPP_ */
