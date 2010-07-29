@@ -128,6 +128,46 @@ public :
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
 
+    //This test covers the case when the hdf5 file contains 3 variables (e.g., after solving a problem with PROBLEM_DIM=3)
+    void TesMeshalyzerConversion3Variables() throw(Exception)
+    {
+        OutputFileHandler handler("TesMeshalyzerConversion3Variables");
+
+        // firstly, copy ./heart/test/data/Bidomain1d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
+        // as that is where the reader reads from.
+        CopyToTestOutputDirectory("heart/test/data/three_variables/3_vars.h5",
+                                  "TestHdf5ToMeshalyzerConverter");
+
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // convert
+        HeartConfig::Instance()->SetOutputDirectory("TesMeshalyzerConversion3Variables");
+        Hdf5ToMeshalyzerConverter<1,1> converter("TesMeshalyzerConversion3Variables",  "extended_bidomain", &mesh);
+
+        // compare the first voltage file
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+        std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TesMeshalyzerConversion3Variables/output/extended_bidomain_Vm_1.dat "
+                                     + "heart/test/data/three_variables/extended_bidomain_Vm_1.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        // compare the second voltage file
+
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TesMeshalyzerConversion3Variables/output/extended_bidomain_Vm_2.dat "
+                                     + "heart/test/data/three_variables/extended_bidomain_Vm_2.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+        // compare the Phi_e file
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/extended_bidomain_Phi_e.dat "
+                         + "heart/test/data/Bidomain1d/extended_bidomain_Phi_e.dat";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+
+       // compare the time information file
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_times.info "
+                         + "heart/test/data/Bidomain1d/extended_bidomain_times.info";
+        TS_ASSERT_EQUALS(system(command.c_str()), 0);
+    }
 
     void TestMonodomainCmguiConversion3D() throw(Exception)
     {
@@ -157,7 +197,6 @@ public :
                                      + " heart/test/data/CmguiData/monodomain/cube_2mm_12_elements_1.exnode";
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
-
 
     void TestBidomainCmguiConversion3D() throw(Exception)
     {
@@ -292,6 +331,38 @@ public :
         TS_ASSERT_EQUALS(system(command_second_time_step.c_str()), 0);
     }
 
+    void TestCmguiConversion1DWith3Variables() throw(Exception)
+    {
+        std::string working_directory = "TestHdf5ToCmguiConverter3Vars";
+        OutputFileHandler handler(working_directory);
+
+        CopyToTestOutputDirectory("heart/test/data/three_variables/3_vars.h5",
+                                  working_directory);
+
+        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
+        TetrahedralMesh<1,1> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // convert
+        HeartConfig::Instance()->SetOutputFilenamePrefix("3_vars");
+        HeartConfig::Instance()->SetOutputDirectory(working_directory);
+        Hdf5ToCmguiConverter<1,1> converter(working_directory, "3_vars", &mesh);
+
+        // compare the voltage file with a correct version that visualizes both Vs and Phie correctly in cmgui
+        std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+
+        std::string command_node_mesh_file = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/3_vars.exnode"
+                                     + " heart/test/data/CmguiData/extended_bidomain/3_vars.exnode";
+        TS_ASSERT_EQUALS(system(command_node_mesh_file.c_str()), 0);
+
+        std::string command_element_mesh_file = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/3_vars.exelem"
+                                     + " heart/test/data/CmguiData/extended_bidomain/3_vars.exelem";
+        TS_ASSERT_EQUALS(system(command_node_mesh_file.c_str()), 0);
+
+        std::string command_data_file= "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/cmgui_output/3_vars_25.exnode"
+                                     + " heart/test/data/CmguiData/extended_bidomain/3_vars_25.exnode";
+        TS_ASSERT_EQUALS(system(command_data_file.c_str()), 0);
+    }
 
     void TestBidomainVtkConversion3D() throw(Exception)
     {
@@ -359,7 +430,7 @@ public :
     {
         std::string directory = "TestHdf5ConverterExceptions";
 
-        CopyToTestOutputDirectory("io/test/data/hdf5_test_full_format.h5", // doesn't have one or two variables
+        CopyToTestOutputDirectory("heart/test/data/hdf5_4vars.h5", // doesn't have one, two or three variables (it has 4)
                                   directory);
 
         HeartConfig::Instance()->SetOutputDirectory(directory);
@@ -368,26 +439,12 @@ public :
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        TS_ASSERT_THROWS_THIS( MESHA_3D converter(directory, "hdf5_test_full_format", &mesh),
-                "Data has zero or more than two variables - doesn\'t appear to be mono or bidomain");
-
-        CopyToTestOutputDirectory("heart/test/data/bad_heart_data_1.h5", // monodomain, with "Volt" instead of "V"
-                                  directory);
-
-        TS_ASSERT_THROWS_THIS( CMGUI_3D converter(directory, "bad_heart_data_1", &mesh),
-                "One variable, but it is not called \'V\'");
-
-        CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
-                                  directory);
-
-        TS_ASSERT_THROWS_THIS( VTK_3D converter(directory, "bad_heart_data_2", &mesh),
-                "Two variables, but they are not called \'V\' and \'Phi_e\'");
-
-        CopyToTestOutputDirectory("heart/test/data/bad_heart_data_2.h5", // bidomain, with "Volt" instead of "V"
-                                  directory);
+        TS_ASSERT_THROWS_THIS( MESHA_3D converter(directory, "hdf5_4vars", &mesh),
+                "Data has zero or more than three variables - doesn't appear to be mono, bidomain or extended bidomain");
 
         CopyToTestOutputDirectory("heart/test/data/CmguiData/monodomain/2D_0_to_1mm_400_elements.h5",
                                   directory);
+
         TS_ASSERT_THROWS_THIS( CMGUI_3D converter(directory, "2D_0_to_1mm_400_elements", &mesh),
                 "Mesh and HDF5 file have a different number of nodes");
     }

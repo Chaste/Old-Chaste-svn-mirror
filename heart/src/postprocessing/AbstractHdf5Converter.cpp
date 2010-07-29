@@ -44,37 +44,16 @@ AbstractHdf5Converter<ELEMENT_DIM, SPACE_DIM>::AbstractHdf5Converter(std::string
     this->mpReader = new Hdf5DataReader(inputDirectory, this->mFileBaseName);
     //Create new directory in which to store everything
     mpOutputFileHandler = new OutputFileHandler(HeartConfig::Instance()->GetOutputDirectory() + "/" + subdirectoryName, false);
-    // check the data file read has one or two variables (ie V; or V and PhiE)
+    // check the data file read has one, two or three variables
     std::vector<std::string> variable_names = this->mpReader->GetVariableNames();
     mNumVariables = variable_names.size();
-    if(mNumVariables==0 || mNumVariables>2)
+    if(mNumVariables==0 || mNumVariables>3)
     {
         delete mpReader;
         delete mpOutputFileHandler;
-        EXCEPTION("Data has zero or more than two variables - doesn't appear to be mono or bidomain");
+        EXCEPTION("Data has zero or more than three variables - doesn't appear to be mono, bidomain or extended bidomain");//see #1499 and #1502
     }
 
-    // if one variable, it is a monodomain problem
-    if(mNumVariables==1)
-    {
-        if(variable_names[0]!="V")
-        {
-            delete mpReader;
-            delete mpOutputFileHandler;
-            EXCEPTION("One variable, but it is not called 'V'");
-        }
-    }
-
-    // if two variables, it is a bidomain problem
-    if(variable_names.size()==2)
-    {
-        if(variable_names[0]!="V" || variable_names[1]!="Phi_e")
-        {
-            delete mpReader;
-            delete mpOutputFileHandler;
-            EXCEPTION("Two variables, but they are not called 'V' and 'Phi_e'");
-        }
-    }
     if (mpReader->GetNumberOfRows() != mpMesh->GetNumNodes())
     {
         delete mpReader;

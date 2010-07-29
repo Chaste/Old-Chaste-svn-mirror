@@ -42,7 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 {
-    assert(type=="Mono" || type=="Bi");
+    assert(type=="Mono" || type=="Bi" || type=="ExtendedBi");
     out_stream p_file=out_stream(NULL);
 
     unsigned num_nodes = this->mpReader->GetNumberOfRows();
@@ -52,6 +52,7 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
 
     Vec data = factory.CreateVec();//for V
     Vec data_phie = factory.CreateVec();//for phi_e
+    Vec data_second_cell = factory.CreateVec();//for the V of the second cell, used in extended bidomain problems.
 
     for (unsigned time_step=0; time_step<num_timesteps; time_step++)
     {
@@ -65,16 +66,28 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
         }
 
         //read the data for this time step
-        this->mpReader->GetVariableOverNodes(data, "V", time_step);
+        this->mpReader->GetVariableOverNodes(data, this->mpReader->GetVariableNames()[0], time_step);
         ReplicatableVector repl_data(data);
         assert(repl_data.GetSize()==num_nodes);
 
-        //get the data for phie only if needed
+        //get the data for phie and V of the second cell, only if needed
+        ReplicatableVector repl_data_second_cell;//V for the second cell, only used if needed.
         ReplicatableVector repl_data_phie;
         if (type=="Bi")
         {
             repl_data_phie.Resize(num_nodes);
-            this->mpReader->GetVariableOverNodes(data_phie, "Phi_e", time_step);
+            this->mpReader->GetVariableOverNodes(data_phie, this->mpReader->GetVariableNames()[1], time_step);
+            repl_data_phie.ReplicatePetscVector(data_phie);
+        }
+        if (type=="ExtendedBi")
+        {
+        	repl_data_second_cell.Resize(num_nodes);
+            this->mpReader->GetVariableOverNodes(data_second_cell, this->mpReader->GetVariableNames()[1], time_step);
+            repl_data_second_cell.ReplicatePetscVector(data_second_cell);
+
+            //same three lines as the case of type= Bi but in this case, phi_e is in the third position.
+            repl_data_phie.Resize(num_nodes);
+            this->mpReader->GetVariableOverNodes(data_phie, this->mpReader->GetVariableNames()[2], time_step);
             repl_data_phie.ReplicatePetscVector(data_phie);
         }
 
@@ -89,15 +102,21 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
             //we need two fields for bidomain and one only for monodomain
             if(type=="Mono")
             {
-               *p_file << "#Fields=1" << "\n" << " 1) " << "V , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
+               *p_file << "#Fields=1" << "\n" << " 1) " <<this->mpReader->GetVariableNames()[0]<< " , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
             }
-            else
+            else if(type=="Bi")
             {
-               *p_file << "#Fields=2" << "\n" << " 1) " << "V , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
+                *p_file << "#Fields=2" << "\n" << " 1) " <<this->mpReader->GetVariableNames()[0]<< " , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
                 //the details of the second field
-               *p_file << "\n" << " 2) " << "Phi_e , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
+               *p_file << "\n" << " 2) " <<this->mpReader->GetVariableNames()[1]<< " , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
             }
-
+            else//the other option is only extended bidomain at the moment
+            {
+            	*p_file << "#Fields=3" << "\n" << " 1) " <<this->mpReader->GetVariableNames()[0]<< " , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
+            	//the details of the second and third field
+            	*p_file << "\n" << " 2) " <<this->mpReader->GetVariableNames()[1]<< " , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
+            	*p_file << "\n" << " 3) " <<this->mpReader->GetVariableNames()[2]<< " , field, rectangular cartesian, #Components=1" << "\n" << "x.  Value index=1, #Derivatives=0, #Versions=1"<<"\n";
+            }
             //write the data
             for(unsigned i=0; i<num_nodes; i++)
             {
@@ -108,11 +127,17 @@ void Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
                 {
                     *p_file <<  repl_data_phie[i] << "\n";
                 }
+                if (type=="ExtendedBi")
+                {
+                	*p_file <<  repl_data_second_cell[i] << "\n";
+                	*p_file <<  repl_data_phie[i] << "\n";
+                }
             }
         }
     }
     VecDestroy(data);
     VecDestroy(data_phie);
+    VecDestroy(data_second_cell);
 
     if(PetscTools::AmMaster())
     {
@@ -129,14 +154,21 @@ Hdf5ToCmguiConverter<ELEMENT_DIM,SPACE_DIM>::Hdf5ToCmguiConverter(std::string in
 {
     //Used to inform the mesh of the data names
     std::vector<std::string> field_names;
-    field_names.push_back("V");
+    field_names.push_back(this->mpReader->GetVariableNames()[0]);
     Write("Mono");
     if(this->mNumVariables==2)
     {
         Write("Bi");
-        field_names.push_back("Phi_e");
+        field_names.push_back(this->mpReader->GetVariableNames()[1]);
     }
-
+    if(this->mNumVariables==3)//using the case of three variables for the extended bidomain problem
+    {
+        Write("ExtendedBi");
+        field_names.clear();//name of variables will be different. Two Vs and one phi_e afterwards.
+        field_names.push_back(this->mpReader->GetVariableNames()[0]);
+        field_names.push_back(this->mpReader->GetVariableNames()[1]);
+        field_names.push_back(this->mpReader->GetVariableNames()[2]);
+    }
     //Write mesh in a suitable form for cmgui
     std::string output_directory =  HeartConfig::Instance()->GetOutputDirectory() + "/cmgui_output";
     
