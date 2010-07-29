@@ -34,15 +34,21 @@ programming language code, primarily C++ compatible with Chaste, but
 supporting a few other languages also (and easily extensible).
 """
 
+import optparse
+import os
+import re
+import time
+import sys
+
+# Make sure PyCml is on sys.path
+pycml_path = os.path.dirname(os.path.realpath(__file__))
+sys.path[0:0] = [pycml_path]
+
 # Common CellML processing stuff
 import pycml
 from pycml import *  # Put contents in the local namespace as well
 import validator
 import optimize
-
-import optparse
-import re
-import time
 
 
 __version__ = "$Revision$"[11:-2]
@@ -4191,7 +4197,7 @@ def get_options(args, default_options=None):
     return options, args[0]
 
 
-def load_model(model_file, options, pycml_path=''):
+def load_model(model_file, options):
     """Load and validate a CellML model."""
     if options.debug:
         formatter = logging.Formatter(fmt="%(name)s: %(message)s")
@@ -4205,7 +4211,7 @@ def load_model(model_file, options, pycml_path=''):
     # model is invalid
     notifier = NotifyHandler(level=logging.WARNING_TRANSLATE_ERROR)
     logging.getLogger('validator').addHandler(notifier)
-    v = validator.CellMLValidator(pycml_path=pycml_path)
+    v = validator.CellMLValidator()
     valid, doc = v.validate(model_file, True,
                             warn_on_units_errors=options.warn_on_units_errors,
                             assume_valid=options.assume_valid)

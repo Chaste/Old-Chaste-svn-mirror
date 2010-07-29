@@ -38,7 +38,7 @@ class TestProtocol(unittest.TestCase):
     def LoadModel(self, model_filename, options=[]):
         args = ['-C', '-A', '--assume-valid', model_filename] + options
         options, model_file = translate.get_options(args)
-        doc = translate.load_model(model_file, options, pycml_path='python/pycml')
+        doc = translate.load_model(model_file, options)
         self._doc = doc
         return doc
     

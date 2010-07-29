@@ -41,10 +41,10 @@ if 'PYCML_DIR' in os.environ and os.path.isdir(os.environ['PYCML_DIR']):
     print 'Using external PyCml from PYCML_DIR =', os.environ['PYCML_DIR']
     pycml_dir = os.environ['PYCML_DIR']
 else:
-    pycml_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'pycml')
+    pycml_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'pycml')
 
 # Options that we will supply to PyCml anyway
-essential_options = ['--conf=config.xml',
+essential_options = ['--conf=' + os.path.join(pycml_dir, 'config.xml'),
                      '--use-chaste-stimulus',
                      '--convert-interfaces']
 validation_options = ['-u', '--Wu']
@@ -276,10 +276,10 @@ def convert(model, output_dir):
 
     if number_of_options > 1:
         # Run validation separately
-        cmd = ['./validator.py'] + validation_options + [model]
+        cmd = [os.path.join(pycml_dir, 'validator.py')] + validation_options + [model]
         do_cmd(cmd, [])
 
-    command_base = ['./translate.py', model] + pycml_options
+    command_base = [os.path.join(pycml_dir, 'translate.py'), model] + pycml_options
 
     if options.normal:
         # Basic class
@@ -317,8 +317,6 @@ def convert(model, output_dir):
         do_cmd(cmd, outputs)
 
 
-# TODO #1493: This is bad for scons -j
-os.chdir(pycml_dir)
 
 for model in models:
     convert(model, options.output_dir)

@@ -28,25 +28,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # Validator for CellML 1.0
 # Author: Jonathan Cooper
 
-# TODO: Create a proper testsuite!
+# TODO: Create a proper testsuite (or get UOA to do so)!
 
 # We want 1/2==0.5
 from __future__ import division
 
+import optparse
+import os
+import sys
 
-__version__ = "$Revision$"[11:-2]
-
+# Make sure PyCml is on sys.path
+pycml_path = os.path.dirname(os.path.realpath(__file__))
+sys.path[0:0] = [pycml_path]
 
 # Common CellML processing stuff
 import pycml
 from pycml import *  # Put contents in the local namespace as well
 
-import optparse
+__version__ = "$Revision$"[11:-2]
 
 
 
 class CellMLValidator(object):
-    def __init__(self, pycml_path=''):
+    def __init__(self):
         """Initialise a validator for CellML files."""
         # Create validator from RELAX NG schema
         self.relaxng_validator = RelaxNGValidator(os.path.join(pycml_path,
@@ -54,14 +58,16 @@ class CellMLValidator(object):
         
         # Create validator from Schematron schema
         regen = False
-        t1 = os.stat(os.path.join(pycml_path, 'cellml1.0.stron'))
+        stron_file = os.path.join(pycml_path, 'cellml1.0.stron')
+        stron_py = os.path.join(pycml_path, 'schematron.py')
+        t1 = os.stat(stron_file)
         try:
-            t2 = os.stat(os.path.join(pycml_path, 'schematron.py'))
+            t2 = os.stat(stron_py)
         except OSError:
             regen = True
         if regen or t1.st_mtime > t2.st_mtime:
             # Re-generate validator script
-            os.system('scimitar -o schematron.py cellml1.0.stron')
+            os.system('scimitar -o %s %s' % (stron_py, stron_file))
         # Import script
         import schematron
         self.schematron_validator = schematron.validate
