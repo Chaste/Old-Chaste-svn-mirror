@@ -32,11 +32,11 @@ fp = open('/etc/issue')
 ubuntu_ver = fp.read().split()[1]
 fp.close()
 if ubuntu_ver == 'lucid':
-    ubuntu_ver = '10.04'
+    ubuntu_ver = [10,04]
 else:
-    ubuntu_ver = float(ubuntu_ver)
+    ubuntu_ver = map(int, ubuntu_ver.split('.')[0:2]) 
 
-if ubuntu_ver >= 9.10:
+if ubuntu_ver >= [9,10]:
     petsc_ver = 3
     petsc_3_0_path = '/usr/lib/petscdir/3.0.0/'
 else:
@@ -62,7 +62,7 @@ if petsc_ver == 3:
     libs_for_petsc.append('scotch')
 else:
     libs_for_petsc.append('sidl')
-if ubuntu_ver >= 9.10:
+if ubuntu_ver >= [9,10]:
     boost_suffix = '-mt'
 else:
     boost_suffix = ''
