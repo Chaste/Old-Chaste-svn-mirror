@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCELLPROPERTY_HPP_
 #define ABSTRACTCELLPROPERTY_HPP_
 
+#include <string>
 #include <boost/shared_ptr.hpp>
 #include "ChasteSerialization.hpp"
 

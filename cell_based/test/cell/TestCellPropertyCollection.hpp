@@ -45,7 +45,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BetaCateninOneHitCellMutationState.hpp"
 
 #include "OutputFileHandler.hpp"
-#include "Debug.hpp"
 
 #define NEW_PROP(type, name) boost::shared_ptr<AbstractCellProperty> name(new type)
 
