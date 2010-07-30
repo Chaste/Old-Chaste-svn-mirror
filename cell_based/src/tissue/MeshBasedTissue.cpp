@@ -42,7 +42,8 @@ MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
       mrMesh(rMesh),
       mpVoronoiTessellation(NULL),
       mDeleteMesh(deleteMesh),
-      mUseAreaBasedDampingConstant(false)
+      mUseAreaBasedDampingConstant(false),
+      mAreaBasedDampingConstantParameter(0.1)
 {
     // This must always be true
     assert(this->mCells.size() <= mrMesh.GetNumNodes());
@@ -119,7 +120,7 @@ double MeshBasedTissue<DIM>::GetDampingConstant(unsigned nodeIndex)
         assert(DIM==2);
 
         double rest_length = 1.0;
-        double d0 = TissueConfig::Instance()->GetAreaBasedDampingConstantParameter();
+        double d0 = mAreaBasedDampingConstantParameter;
 
         /**
          * Compute the parameter d1 such that d0+A*d1=1, where A is the equilibrium area
@@ -977,6 +978,18 @@ void MeshBasedTissue<DIM>::UnmarkSpring(std::set<TissueCellPtr>& rCellPair)
     mMarkedSprings.erase(rCellPair);
 }
 
+template<unsigned DIM>
+double MeshBasedTissue<DIM>::GetAreaBasedDampingConstantParameter()
+{
+    return mAreaBasedDampingConstantParameter;
+}
+
+template<unsigned DIM>
+void MeshBasedTissue<DIM>::SetAreaBasedDampingConstantParameter(double areaBasedDampingConstantParameter)
+{
+    assert(areaBasedDampingConstantParameter >= 0.0);
+    mAreaBasedDampingConstantParameter = areaBasedDampingConstantParameter;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

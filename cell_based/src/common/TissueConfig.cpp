@@ -60,7 +60,6 @@ TissueConfig::TissueConfig()
  * mDampingConstantMutant has units of kg s^-1
  * mCryptProjectionParameterA has no units
  * mCryptProjectionParameterB has no units
- * mAreaBasedDampingConstantParameter has no units
  * mMeinekeSpringStiffness has units of N/m = kg s^-2
  * mMeinekeMechanicsCutOffLength has units of cell size at equilibrium rest length
  * mMeinekeDivisionRestingSpringLength has units of cell size at equilibrium rest length
@@ -84,8 +83,6 @@ void TissueConfig::Reset()
 
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
-
-    mAreaBasedDampingConstantParameter = 0.1;
 
     /*
      * The following Parameters are specific to cell-centre based models, which are based on the
@@ -171,10 +168,6 @@ double TissueConfig::GetCryptProjectionParameterA()
 double TissueConfig::GetCryptProjectionParameterB()
 {
     return mCryptProjectionParameterB;
-}
-double TissueConfig::GetAreaBasedDampingConstantParameter()
-{
-    return mAreaBasedDampingConstantParameter;
 }
 double TissueConfig::GetMeinekeSpringStiffness()
 {
@@ -309,11 +302,6 @@ void TissueConfig::SetCryptProjectionParameterB(double cryptProjectionParameterB
 {
     assert(cryptProjectionParameterB >= 0.0);
     mCryptProjectionParameterB = cryptProjectionParameterB;
-}
-void TissueConfig::SetAreaBasedDampingConstantParameter(double areaBasedDampingConstantParameter)
-{
-    assert(areaBasedDampingConstantParameter >= 0.0);
-    mAreaBasedDampingConstantParameter = areaBasedDampingConstantParameter;
 }
 void TissueConfig::SetMeinekeSpringStiffness(double springStiffness)
 {

@@ -78,6 +78,7 @@ private:
 
         archive & mMarkedSprings;
         archive & mUseAreaBasedDampingConstant;
+        archive & mAreaBasedDampingConstantParameter;
 
         // In its present form, a call to MeshBasedTissue::Validate() here
         // would result in a seg fault in the situation where we are actually loading
@@ -144,6 +145,12 @@ protected:
 
     /** Whether to use a viscosity that is linear in the cell area, rather than constant. */
     bool mUseAreaBasedDampingConstant;
+
+    /**
+     * Non-dimensional parameter d0 for use in area-based damping constant calculations.
+     */
+    double mAreaBasedDampingConstantParameter;
+
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 
     /**
@@ -504,6 +511,17 @@ public:
      */
     void UnmarkSpring(std::set<TissueCellPtr>& rCellPair);
 
+    /**
+     * @return mAreaBasedDampingConstantParameter
+     */
+    double GetAreaBasedDampingConstantParameter();
+
+    /**
+     * Set mAreaBasedDampingConstantParameter.
+     * 
+     * @param areaBasedDampingConstantParameter the new value of mAreaBasedDampingConstantParameter
+     */
+    void SetAreaBasedDampingConstantParameter(double areaBasedDampingConstantParameter);
 };
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 

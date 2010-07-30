@@ -110,10 +110,6 @@ public:
      */
     double GetCryptProjectionParameterB();
     /**
-     * @return mAreaBasedDampingConstantParameter
-     */
-    double GetAreaBasedDampingConstantParameter();
-    /**
      * @return mMeinekeSpringStiffness
      */
     double GetMeinekeSpringStiffness();
@@ -238,10 +234,6 @@ public:
      * Set mCryptProjectionParameterB.
      */
     void SetCryptProjectionParameterB(double);
-    /**
-     * Set mAreaBasedDampingConstantParameter.
-     */
-    void SetAreaBasedDampingConstantParameter(double);
     /**
     * Set mMeinekeSpringStiffness.
     */
@@ -409,11 +401,6 @@ private:
     double mCryptProjectionParameterB;
 
     /**
-     * Non-dimensional parameter d0 for use in area-based damping constant calculations.
-     */
-    double mAreaBasedDampingConstantParameter;
-
-    /**
     * Spring stiffness.
     *
     * Represented by the parameter mu in the model by Meineke et al (2001) in
@@ -510,7 +497,6 @@ private:
         archive & mDampingConstantMutant;
         archive & mCryptProjectionParameterA;
         archive & mCryptProjectionParameterB;
-        archive & mAreaBasedDampingConstantParameter;
         archive & mMeinekeSpringStiffness;
         archive & mMeinekeMechanicsCutOffLength;
         archive & mMeinekeDivisionRestingSpringLength;

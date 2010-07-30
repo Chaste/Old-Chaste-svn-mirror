@@ -693,7 +693,6 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     *ParameterFile << "DampingConstantMutant \t" << p_inst->GetDampingConstantMutant() << "\n";
     *ParameterFile << "CryptProjectionParameterA \t" << p_inst->GetCryptProjectionParameterA() << "\n";
     *ParameterFile << "CryptProjectionParameterB \t" << p_inst->GetCryptProjectionParameterB() << "\n";
-    *ParameterFile << "AreaBasedDampingConstantParameter \t" << p_inst->GetAreaBasedDampingConstantParameter() << "\n";
     *ParameterFile << "OutputCellIdData \t" << p_inst->GetOutputCellIdData() << "\n";
     *ParameterFile << "OutputCellMutationStates \t" << p_inst->GetOutputCellMutationStates() << "\n";
     *ParameterFile << "OutputCellAncestors \t" << p_inst->GetOutputCellAncestors() << "\n";

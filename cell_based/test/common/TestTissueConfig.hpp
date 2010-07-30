@@ -69,7 +69,6 @@ private:
         TS_ASSERT_DELTA(p_inst->GetDampingConstantMutant(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptProjectionParameterA(), 0.5, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptProjectionParameterB(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetAreaBasedDampingConstantParameter(), 0.1, 1e-12);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellIdData(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellMutationStates(), false);
         TS_ASSERT_EQUALS(p_inst->GetOutputCellAncestors(), false);
@@ -108,7 +107,6 @@ public:
         p_inst->SetDampingConstantMutant(3.0);
         p_inst->SetCryptProjectionParameterA(0.8);
         p_inst->SetCryptProjectionParameterB(1.3);
-        p_inst->SetAreaBasedDampingConstantParameter(75.4);
         p_inst->SetOutputCellIdData(true);
         p_inst->SetOutputCellMutationStates(true);
         p_inst->SetOutputCellAncestors(true);
@@ -144,7 +142,6 @@ public:
         p_inst1->SetDampingConstantMutant(3.0);
         p_inst1->SetCryptProjectionParameterA(0.8);
         p_inst1->SetCryptProjectionParameterB(1.3);
-        p_inst1->SetAreaBasedDampingConstantParameter(75.4);
         p_inst1->SetOutputCellIdData(true);
         p_inst1->SetOutputCellMutationStates(true);
         p_inst1->SetOutputCellAncestors(true);
@@ -174,7 +171,6 @@ public:
         TS_ASSERT_DELTA(p_inst2->GetDampingConstantMutant(), 3.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetCryptProjectionParameterA(), 0.8, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetCryptProjectionParameterB(), 1.3, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetAreaBasedDampingConstantParameter(), 75.4, 1e-12);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellIdData(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellMutationStates(), true);
         TS_ASSERT_EQUALS(p_inst2->GetOutputCellAncestors(), true);
@@ -212,7 +208,6 @@ public:
             p_inst1->SetDampingConstantMutant(3.0);
             p_inst1->SetCryptProjectionParameterA(0.8);
             p_inst1->SetCryptProjectionParameterB(1.3);
-            p_inst1->SetAreaBasedDampingConstantParameter(75.4);
             p_inst1->SetOutputCellIdData(true);
             p_inst1->SetOutputCellMutationStates(true);
             p_inst1->SetOutputCellAncestors(true);
@@ -250,7 +245,6 @@ public:
             p_inst1->SetDampingConstantMutant(2.0);
             p_inst1->SetCryptProjectionParameterA(0.5);
             p_inst1->SetCryptProjectionParameterB(2.0);
-            p_inst1->SetAreaBasedDampingConstantParameter(0.1);
             p_inst1->SetOutputCellIdData(false);
             p_inst1->SetOutputCellMutationStates(false);
             p_inst1->SetOutputCellAncestors(false);
@@ -286,7 +280,6 @@ public:
             TS_ASSERT_DELTA(p_inst1->GetDampingConstantMutant(), 3.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetCryptProjectionParameterA(), 0.8, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetCryptProjectionParameterB(), 1.3, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetAreaBasedDampingConstantParameter(), 75.4, 1e-12);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellIdData(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellMutationStates(), true);
             TS_ASSERT_EQUALS(p_inst1->GetOutputCellAncestors(), true);
