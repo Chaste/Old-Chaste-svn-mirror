@@ -129,43 +129,43 @@ public :
     }
 
     //This test covers the case when the hdf5 file contains 3 variables (e.g., after solving a problem with PROBLEM_DIM=3)
-    void TesMeshalyzerConversion3Variables() throw(Exception)
+    void TestMeshalyzerConversion3Variables() throw(Exception)
     {
-        OutputFileHandler handler("TesMeshalyzerConversion3Variables");
+        OutputFileHandler handler("TestMeshalyzerConversion3Variables");
 
         // firstly, copy ./heart/test/data/Bidomain1d/*.h5 to CHASTE_TEST_OUTPUT/TestHdf5ToMeshalyzerConverter,
         // as that is where the reader reads from.
         CopyToTestOutputDirectory("heart/test/data/three_variables/3_vars.h5",
-                                  "TestHdf5ToMeshalyzerConverter");
+                                  "TestMeshalyzerConversion3Variables");
 
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_100_elements");
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // convert
-        HeartConfig::Instance()->SetOutputDirectory("TesMeshalyzerConversion3Variables");
-        Hdf5ToMeshalyzerConverter<1,1> converter("TesMeshalyzerConversion3Variables",  "extended_bidomain", &mesh);
+        HeartConfig::Instance()->SetOutputDirectory("TestMeshalyzerConversion3Variables");
+        Hdf5ToMeshalyzerConverter<1,1> converter("TestMeshalyzerConversion3Variables",  "3_vars", &mesh);
 
         // compare the first voltage file
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
-        std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TesMeshalyzerConversion3Variables/output/extended_bidomain_Vm_1.dat "
+        std::string command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestMeshalyzerConversion3Variables/output/3_vars_Vm_1.dat "
                                      + "heart/test/data/three_variables/extended_bidomain_Vm_1.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         // compare the second voltage file
 
-        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TesMeshalyzerConversion3Variables/output/extended_bidomain_Vm_2.dat "
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestMeshalyzerConversion3Variables/output/3_vars_Vm_2.dat "
                                      + "heart/test/data/three_variables/extended_bidomain_Vm_2.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
         // compare the Phi_e file
-        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/extended_bidomain_Phi_e.dat "
-                         + "heart/test/data/Bidomain1d/extended_bidomain_Phi_e.dat";
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestMeshalyzerConversion3Variables/output/3_vars_Phi_e.dat "
+                         + "heart/test/data/three_variables/extended_bidomain_Phi_e.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
 
        // compare the time information file
-        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestHdf5ToMeshalyzerConverter/output/bidomain_times.info "
-                         + "heart/test/data/Bidomain1d/extended_bidomain_times.info";
+        command = "diff -a -I \"Created by Chaste\" " + test_output_directory + "/TestMeshalyzerConversion3Variables/output/3_vars_times.info "
+                         + "heart/test/data/three_variables/extended_bidomain_times.info";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
     }
 
