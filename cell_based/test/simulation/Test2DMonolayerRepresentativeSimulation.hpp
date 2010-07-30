@@ -59,9 +59,6 @@ public:
         HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(3.5);
 
-        // Set parameters
-        TissueConfig::Instance()->SetMaxTransitGenerations(UINT_MAX);
-
         // Create some cells
         std::vector<TissueCellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
@@ -69,6 +66,7 @@ public:
         {
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(TRANSIT);
+            p_model->SetMaxTransitGenerations(UINT_MAX);
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
                                 (TissueConfig::Instance()->GetStemCellG1Duration()

@@ -84,6 +84,7 @@ private:
         archive & mUndergoingApoptosis;
         archive & mDeathTime;
         archive & mStartOfApoptosisTime;
+        archive & mApoptosisTime;
         archive & mIsDead;
         archive & mIsLogged;
         archive & mAncestor;
@@ -113,6 +114,9 @@ protected:
 
     /** When the cell was commanded to start apoptosis. */
     double mStartOfApoptosisTime;
+
+    /** The time it takes for a cell to fully undergo apoptosis. Has units of hours. */
+    double mApoptosisTime;
 
     /** Whether the cell is currently in apoptosis - don't divide. */
     bool mUndergoingApoptosis;
@@ -185,6 +189,18 @@ public:
      * Get the time at which apoptosis was commanded to start.
      */
     double GetStartOfApoptosisTime() const;
+
+    /**
+     * @return mApoptosisTime
+     */
+    double GetApoptosisTime() const;
+
+    /**
+     * Set mApoptosisTime.
+     * 
+     * @param apoptosisTime the new value of mApoptosisTime
+     */
+    void SetApoptosisTime(double apoptosisTime);
 
     /**
      * Get the cell's current mutation state.

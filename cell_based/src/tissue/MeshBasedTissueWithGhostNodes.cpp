@@ -124,8 +124,8 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateGhostPositions(double dt)
     }
 
     // Calculate forces on ghost nodes
-    for (typename MutableMesh<DIM, DIM>::EdgeIterator edge_iterator=this->mrMesh.EdgesBegin();
-        edge_iterator!=this->mrMesh.EdgesEnd();
+    for (typename MutableMesh<DIM, DIM>::EdgeIterator edge_iterator = this->mrMesh.EdgesBegin();
+        edge_iterator != this->mrMesh.EdgesEnd();
         ++edge_iterator)
     {
         unsigned nodeA_global_index = edge_iterator.GetNodeA()->GetIndex();
@@ -166,7 +166,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateGhostPositions(double dt)
 template<unsigned DIM>
 c_vector<double, DIM> MeshBasedTissueWithGhostNodes<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
 {
-    assert(rNodeAGlobalIndex!=rNodeBGlobalIndex);
+    assert(rNodeAGlobalIndex != rNodeBGlobalIndex);
     c_vector<double, DIM> unit_difference;
     c_vector<double, DIM> node_a_location = this->GetNode(rNodeAGlobalIndex)->rGetLocation();
     c_vector<double, DIM> node_b_location = this->GetNode(rNodeBGlobalIndex)->rGetLocation();

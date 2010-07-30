@@ -259,6 +259,7 @@ void LinearSpringWithVariableSpringConstantsForce<DIM>::SetApoptoticSpringCompre
     assert(apoptoticSpringCompressionStiffness >= 0.0);
     mApoptoticSpringCompressionStiffness = apoptoticSpringCompressionStiffness;
 }
+
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////

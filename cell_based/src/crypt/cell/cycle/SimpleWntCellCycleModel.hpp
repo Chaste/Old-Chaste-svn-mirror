@@ -64,6 +64,9 @@ private:
         archive & *p_gen;
 
         archive & mUseCellProliferativeTypeDependentG1Duration;
+        archive & mWntStemThreshold;
+        archive & mWntTransitThreshold;
+        archive & mWntLabelledThreshold;
     }
 
     /**
@@ -71,6 +74,21 @@ private:
      * For use in SetG1Duration().
      */
     bool mUseCellProliferativeTypeDependentG1Duration;
+
+    /**
+     * Non-dimensionalized Wnt threshold, above which cells behave as stem cells.
+     */
+    double mWntStemThreshold;
+
+    /**
+     * Non-dimensionalized Wnt threshold, above which cells progress through the cell cycle.
+     */
+    double mWntTransitThreshold;
+
+    /**
+     * Non-dimensionalized Wnt threshold, above which labelled cells progress through the cell cycle.
+     */
+    double mWntLabelledThreshold;
 
 protected:
 
@@ -130,6 +148,42 @@ public:
      * Overridden CanCellTerminallyDifferentiate() method.
      */
     virtual bool CanCellTerminallyDifferentiate();
+
+    /**
+     * @return mWntStemThreshold
+     */
+    double GetWntStemThreshold();
+
+    /**
+     * Set mWntStemThreshold.
+     * 
+     * @param wntStemThreshold the value of mWntStemThreshold
+     */
+    void SetWntStemThreshold(double wntStemThreshold);
+
+    /**
+     * @return mWntTransitThreshold
+     */
+    double GetWntTransitThreshold();
+
+    /**
+     * Set mWntTransitThreshold.
+     * 
+     * @param wntTransitThreshold the value of mWntTransitThreshold
+     */
+    void SetWntTransitThreshold(double wntTransitThreshold);
+
+    /**
+     * @return mWntLabelledThreshold
+     */
+    double GetWntLabelledThreshold();
+
+    /**
+     * Set mWntLabelledThreshold.
+     * 
+     * @param wntLabelledThreshold the value of mWntLabelledThreshold
+     */
+    void SetWntLabelledThreshold(double wntLabelledThreshold);
 };
 
 #include "SerializationExportWrapper.hpp"

@@ -55,15 +55,20 @@ private:
         archive & mTimeSpentInG1Phase;
         archive & mCurrentHypoxicDuration;
         archive & mCurrentHypoxiaOnsetTime;
+        archive & mHypoxicConcentration;
+        archive & mQuiescentConcentration;
+        archive & mCriticalHypoxicDuration;
     }
 
     /**
      * The time spent in G1 phase so far.
+     * Has units of hours.
      */
     double mTimeSpentInG1Phase;
 
     /**
      * How long the current period of hypoxia has lasted.
+     * Has units of hours.
      */
     double mCurrentHypoxicDuration;
 
@@ -71,6 +76,26 @@ private:
      * The time when the current period of hypoxia began.
      */
     double mCurrentHypoxiaOnsetTime;
+
+    /**
+     * Non-dimensionalized oxygen concentration below which cells are
+     * considered to be hypoxic. A prolonged period of hypoxia causes
+     * the cell to become apoptotic.
+     */
+    double mHypoxicConcentration;
+
+    /**
+     * Non-dimensionalized oxygen concentration below which cells are
+     * considered to be quiescent and slow their progress through the
+     * G1 phase of the cell cycle.
+     */
+    double mQuiescentConcentration;
+
+    /**
+     * Non-dimensionalized critical hypoxic duration.
+     * Has units of hours.
+     */
+    double mCriticalHypoxicDuration;
 
 public:
 
@@ -105,6 +130,42 @@ public:
      * this cell cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
+
+    /**
+     * @return mHypoxicConcentration
+     */
+    double GetHypoxicConcentration();
+
+    /**
+     * Set method for mHypoxicConcentration.
+     * 
+     * @param hypoxicConcentration the new value of mHypoxicConcentration
+     */
+    void SetHypoxicConcentration(double hypoxicConcentration);
+
+    /**
+     * @return mQuiescentConcentration
+     */
+    double GetQuiescentConcentration();
+
+    /**
+     * Set method for mQuiescentConcentration.
+     * 
+     * @param quiescentConcentration the new value of mQuiescentConcentration
+     */
+    void SetQuiescentConcentration(double quiescentConcentration);
+
+    /**
+     * @return mCriticalHypoxicDuration
+     */
+    double GetCriticalHypoxicDuration();
+
+    /**
+     * Set method for mCriticalHypoxicDuration.
+     * 
+     * @param criticalHypoxicDuration the new value of mCriticalHypoxicDuration
+     */
+    void SetCriticalHypoxicDuration(double criticalHypoxicDuration);
 };
 
 // Declare identifier for the serializer

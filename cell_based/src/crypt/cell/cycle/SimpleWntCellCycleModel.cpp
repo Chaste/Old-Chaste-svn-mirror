@@ -29,7 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 SimpleWntCellCycleModel::SimpleWntCellCycleModel()
- : mUseCellProliferativeTypeDependentG1Duration(false)
+    : mUseCellProliferativeTypeDependentG1Duration(false),
+      mWntStemThreshold(0.8),
+      mWntTransitThreshold(0.65),
+      mWntLabelledThreshold(0.65)
 {
 }
 
@@ -148,14 +151,12 @@ WntConcentrationType SimpleWntCellCycleModel::GetWntType()
 
 void SimpleWntCellCycleModel::UpdateCellCyclePhase()
 {
-    TissueConfig* p_params = TissueConfig::Instance();
-
     // The cell can divide if the Wnt concentration >= wnt_division_threshold
     double wnt_division_threshold = DBL_MAX;
 
     // Set up under what level of Wnt stimulus a cell will divide
-    double healthy_threshold = p_params->GetWntTransitThreshold();
-    double labelled_threshold = p_params->GetWntLabelledThreshold();
+    double healthy_threshold = mWntTransitThreshold;
+    double labelled_threshold = mWntLabelledThreshold;
 
     if (mpCell->GetMutationState()->IsType<WildTypeCellMutationState>())
     {
@@ -195,7 +196,7 @@ void SimpleWntCellCycleModel::UpdateCellCyclePhase()
         CellProliferativeType cell_type = TRANSIT;
 
         // For a RADIAL Wnt type, override the cell type to STEM if the Wnt stimulus exceeds a higher threshold
-        if ( (wnt_type == RADIAL) && (wnt_level > p_params->GetWntStemThreshold()) )
+        if ( (wnt_type == RADIAL) && (wnt_level > mWntStemThreshold) )
         {
             cell_type = STEM;
         }
@@ -225,6 +226,42 @@ void SimpleWntCellCycleModel::InitialiseDaughterCell()
 bool SimpleWntCellCycleModel::CanCellTerminallyDifferentiate()
 {
     return false;
+}
+
+double SimpleWntCellCycleModel::GetWntStemThreshold()
+{
+    return mWntStemThreshold;
+}
+
+void SimpleWntCellCycleModel::SetWntStemThreshold(double wntStemThreshold)
+{
+    assert(wntStemThreshold <= 1.0);
+    assert(wntStemThreshold >= 0.0);
+    mWntStemThreshold = wntStemThreshold;
+}
+
+double SimpleWntCellCycleModel::GetWntTransitThreshold()
+{
+    return mWntTransitThreshold;
+}
+
+void SimpleWntCellCycleModel::SetWntTransitThreshold(double wntTransitThreshold)
+{
+    assert(wntTransitThreshold <= 1.0);
+    assert(wntTransitThreshold >= 0.0);
+    mWntTransitThreshold = wntTransitThreshold;
+}
+
+double SimpleWntCellCycleModel::GetWntLabelledThreshold()
+{
+    return mWntLabelledThreshold;
+}
+
+void SimpleWntCellCycleModel::SetWntLabelledThreshold(double wntLabelledThreshold)
+{
+    assert(wntLabelledThreshold <= 1.0);
+    assert(wntLabelledThreshold >= 0.0);
+    mWntLabelledThreshold = wntLabelledThreshold;
 }
 
 // Serialization for Boost >= 1.36

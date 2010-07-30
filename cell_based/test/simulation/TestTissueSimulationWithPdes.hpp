@@ -103,8 +103,6 @@ public:
         EXIT_IF_PARALLEL; // defined in PetscTools
 
         // Change the hypoxic concentration, just for this test
-        TissueConfig::Instance()->SetHepaOneCellHypoxicConcentration(0.9);
-        TissueConfig::Instance()->SetHepaOneCellQuiescentConcentration(0.9);
         TissueConfig::Instance()->SetHepaOneParameters();
 
         // Set up mesh
@@ -120,6 +118,9 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
+            p_model->SetHypoxicConcentration(0.9);
+            p_model->SetQuiescentConcentration(0.9);
+
             TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
@@ -190,7 +191,7 @@ public:
             TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), analytic_solution, 1e-2);
 
             // Second part of test - check that each cell's hypoxic duration is correctly updated
-            if ( p_data->GetValue(*cell_iter) >= TissueConfig::Instance()->GetHepaOneCellHypoxicConcentration() )
+            if (p_data->GetValue(*cell_iter) >= p_oxygen_model->GetHypoxicConcentration())
             {
                 TS_ASSERT_DELTA(p_oxygen_model->GetCurrentHypoxicDuration(), 0.0, 1e-5);
             }

@@ -45,9 +45,6 @@ class OxygenBasedCellKiller : public AbstractCellKiller<SPACE_DIM>
 {
 private:
 
-    /** The oxygen concentration below which cells become hypoxic. */
-    double mHypoxicConcentration;
-
     friend class boost::serialization::access;
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
@@ -61,22 +58,8 @@ public:
      * Constructor.
      *
      * @param pTissue pointer to the tissue.
-     * @param concentration oxygen concentration below which cells become hypoxic.
      */
-    OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue,
-                          double concentration=TissueConfig::Instance()->GetHepaOneCellHypoxicConcentration());
-
-    /**
-     * Set method for mHypoxicConcentration.
-     *
-     * @param hypoxicConcentration the oxygen concentration below which cells become hypoxic.
-     */
-    void SetHypoxicConcentration(double hypoxicConcentration);
-
-    /**
-     * @return mHypoxicConcentration.
-     */
-    double GetHypoxicConcentration() const;
+    OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue);
 
     /**
      *  Starts apoptosis if the cell has has been hypoxic for longer than
@@ -114,8 +97,6 @@ inline void save_construct_data(
     // Save data required to construct instance
     const AbstractTissue<DIM>* const p_tissue = t->GetTissue();
     ar << p_tissue;
-    double conc = t->GetHypoxicConcentration();
-    ar << conc;
 }
 
 /**
@@ -128,11 +109,9 @@ inline void load_construct_data(
     // Retrieve data from archive required to construct new instance
     AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
-    double conc;
-    ar >> conc;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)OxygenBasedCellKiller<DIM>(p_tissue, conc);
+    ::new(t)OxygenBasedCellKiller<DIM>(p_tissue);
 }
 }
 } // namespace ...

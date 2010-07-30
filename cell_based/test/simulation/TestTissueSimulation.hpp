@@ -396,7 +396,8 @@ public:
         simulator.SetOutputDirectory("2dSpheroidApoptosis");
         simulator.SetEndTime(1.0);
 
-        TissueConfig::Instance()->SetApoptosisTime(2.0);
+        tissue.GetCellUsingLocationIndex(14)->SetApoptosisTime(2.0);
+        tissue.GetCellUsingLocationIndex(15)->SetApoptosisTime(2.0);
         tissue.GetCellUsingLocationIndex(14)->StartApoptosis();
         tissue.GetCellUsingLocationIndex(15)->StartApoptosis();
         simulator.SetNoBirth(true);
@@ -404,7 +405,8 @@ public:
         // Run tissue simulation
         simulator.Solve();
 
-        /* We track the locations of two dying cells (a and b) and two
+        /*
+         * We track the locations of two dying cells (a and b) and two
          * live cells adjacent to them (c and d)
          *
          * All cells begin distance 1 apart.

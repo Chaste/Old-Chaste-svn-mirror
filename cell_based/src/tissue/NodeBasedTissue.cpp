@@ -279,7 +279,7 @@ void NodeBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     }
 
     double cut_off_length = TissueConfig::Instance()->GetMeinekeMechanicsCutOffLength();
-    if (cut_off_length==DBL_MAX)
+    if (cut_off_length == DBL_MAX)
     {
         std::string error =  std::string("NodeBasedTissue cannot create boxes if the cut-off length has not been set - ")
                            + std::string("Call UseCutoffPoint() on the force law, or SetMeinekeMechanicsCutOffLength on TissueConfig");

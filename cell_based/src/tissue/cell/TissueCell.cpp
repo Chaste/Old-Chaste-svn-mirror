@@ -59,8 +59,9 @@ TissueCell::TissueCell(boost::shared_ptr<AbstractCellProperty> pMutationState,
       mCellPropertyCollection(cellPropertyCollection),
       mpCellCycleModel(pCellCycleModel),
       mAncestor(UNSIGNED_UNSET), // Has to be set by a SetAncestor() call (usually from Tissue)
-      mDeathTime(DBL_MAX), // This has to be initialised for archiving,
+      mDeathTime(DBL_MAX), // This has to be initialised for archiving
       mStartOfApoptosisTime(DBL_MAX),
+      mApoptosisTime(0.25), // cell takes 15 min to fully undergo apoptosis
       mUndergoingApoptosis(false),
       mIsDead(false),
       mIsLogged(false)
@@ -216,7 +217,7 @@ void TissueCell::StartApoptosis(bool setDeathTime)
     mStartOfApoptosisTime = SimulationTime::Instance()->GetTime();
     if (setDeathTime)
     {
-        mDeathTime = mStartOfApoptosisTime + TissueConfig::Instance()->GetApoptosisTime();
+        mDeathTime = mStartOfApoptosisTime + mApoptosisTime;
     }
     else
     {
@@ -234,6 +235,17 @@ bool TissueCell::HasApoptosisBegun() const
 double TissueCell::GetStartOfApoptosisTime() const
 {
     return mStartOfApoptosisTime;
+}
+
+double TissueCell::GetApoptosisTime() const
+{
+    return mApoptosisTime;
+}
+
+void TissueCell::SetApoptosisTime(double apoptosisTime)
+{
+    assert(apoptosisTime > 0.0);
+    mApoptosisTime = apoptosisTime;
 }
 
 double TissueCell::GetTimeUntilDeath() const

@@ -60,6 +60,7 @@ private:
     {
         archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
         archive & mGeneration;
+        archive & mMaxTransitGenerations;
     }
 
 protected:
@@ -67,6 +68,8 @@ protected:
     /** The generation of this cell (STEM cells have a generation of 0) */
     unsigned mGeneration;
 
+    /** How many generations a transit cell lives for before becoming fully differentiated. */
+    unsigned mMaxTransitGenerations;
 public:
 
     /**
@@ -100,6 +103,18 @@ public:
      * Returns the cell's generation.
      */
     unsigned GetGeneration() const;
+
+    /**
+     * Set mMaxTransitGenerations.
+     * 
+     * param maxTransitGenerations the new value of mMaxTransitGenerations
+     */
+    void SetMaxTransitGenerations(unsigned maxTransitGenerations);
+
+    /**
+     * @return mMaxTransitGenerations
+     */
+    unsigned GetMaxTransitGenerations() const;
 };
 
 CLASS_IS_ABSTRACT(AbstractSimpleGenerationBasedCellCycleModel)

@@ -54,18 +54,10 @@ TissueConfig::TissueConfig()
  * mSDuration has units of hours
  * mG2Duration has units of hours
  * mMDuration has units of hours
- * mMaxTransitGenerations has no units
  * mCryptWidth has units of cell size at equilibrium rest length
  * mCryptLength has units of cell size at equilibrium rest length
  * mDampingConstantNormal has units of kg s^-1
  * mDampingConstantMutant has units of kg s^-1
- * mApoptosisTime has units of hours
- * mHepaOneCellHypoxicConcentration has no units
- * mHepaOneCellQuiescentConcentration has no units
- * mWntTransitThreshold has no units
- * mWntStemThreshold has no units
- * mWntLabelledThreshold has no units
- * mCriticalHypoxicDuration has units of hours
  * mCryptProjectionParameterA has no units
  * mCryptProjectionParameterB has no units
  * mAreaBasedDampingConstantParameter has no units
@@ -73,7 +65,6 @@ TissueConfig::TissueConfig()
  * mMeinekeMechanicsCutOffLength has units of cell size at equilibrium rest length
  * mMeinekeDivisionRestingSpringLength has units of cell size at equilibrium rest length
  * mMeinekeDivisionSeparation has units of cell size at equilibrium rest length
- * mMatureCellTargetArea has no units
  */
 void TissueConfig::Reset()
 {
@@ -86,19 +77,11 @@ void TissueConfig::Reset()
     mG2Duration = 4.0;              // apparently 3-4 hours normally
     mMDuration = 1.0;               // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
 
-    mMaxTransitGenerations = 3u;    // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mCryptWidth = 10.0;
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
     mDampingConstantNormal = 1.0;   // denoted by nu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mDampingConstantMutant = 1.0;
 
-    mApoptosisTime = 0.25;          // cell takes 15 min to fully undergo apoptosis
-    mHepaOneCellHypoxicConcentration = 0.4;
-    mHepaOneCellQuiescentConcentration = 1.0;
-    mWntStemThreshold = 0.8;
-    mWntTransitThreshold = 0.65;
-    mWntLabelledThreshold = 0.65;
-    mCriticalHypoxicDuration = 2.0;
     mCryptProjectionParameterA = 0.5;
     mCryptProjectionParameterB = 2.0;
 
@@ -116,9 +99,6 @@ void TissueConfig::Reset()
     /*
      * The following Parameters are specific to vertex based models
      */
-
-    mMatureCellTargetArea = 1.0; //0.785398163;//pi/4.0; used to be 1
-
     mOutputCellIdData = false;
     mOutputCellMutationStates = false;
     mOutputCellAncestors = false;
@@ -168,10 +148,6 @@ double TissueConfig::GetMDuration()
 {
     return mMDuration;
 }
-unsigned TissueConfig::GetMaxTransitGenerations()
-{
-    return mMaxTransitGenerations;
-}
 double TissueConfig::GetCryptLength()
 {
     return mCryptLength;
@@ -187,34 +163,6 @@ double TissueConfig::GetDampingConstantNormal()
 double TissueConfig::GetDampingConstantMutant()
 {
     return mDampingConstantMutant;
-}
-double TissueConfig::GetApoptosisTime()
-{
-    return mApoptosisTime;
-}
-double TissueConfig::GetHepaOneCellHypoxicConcentration()
-{
-    return mHepaOneCellHypoxicConcentration;
-}
-double TissueConfig::GetHepaOneCellQuiescentConcentration()
-{
-    return mHepaOneCellQuiescentConcentration;
-}
-double TissueConfig::GetWntTransitThreshold()
-{
-    return mWntTransitThreshold;
-}
-double TissueConfig::GetWntStemThreshold()
-{
-    return mWntStemThreshold;
-}
-double TissueConfig::GetWntLabelledThreshold()
-{
-    return mWntLabelledThreshold;
-}
-double TissueConfig::GetCriticalHypoxicDuration()
-{
-    return mCriticalHypoxicDuration;
 }
 double TissueConfig::GetCryptProjectionParameterA()
 {
@@ -243,10 +191,6 @@ double TissueConfig::GetMeinekeDivisionRestingSpringLength()
 double TissueConfig::GetMeinekeDivisionSeparation()
 {
     return mMeinekeDivisionSeparation;
-}
-double TissueConfig::GetMatureCellTargetArea()
-{
-    return mMatureCellTargetArea;
 }
 bool TissueConfig::GetOutputCellIdData()
 {
@@ -332,10 +276,6 @@ void TissueConfig::SetMDuration(double MDuration)
     assert(MDuration > 0.0);
     mMDuration = MDuration;
 }
-void TissueConfig::SetMaxTransitGenerations(unsigned maxTransitGens)
-{
-    mMaxTransitGenerations = maxTransitGens;
-}
 void TissueConfig::SetCryptLength(double cryptLength)
 {
     assert(cryptLength > 0.0);
@@ -356,63 +296,23 @@ void TissueConfig::SetDampingConstantMutant(double dampingConstantMutant)
     assert(dampingConstantMutant > 0.0);
     mDampingConstantMutant = dampingConstantMutant;
 }
-void TissueConfig::SetApoptosisTime(double apoptosisTime)
-{
-    assert(apoptosisTime > 0.0);
-    mApoptosisTime = apoptosisTime;
-}
-void TissueConfig::SetHepaOneCellHypoxicConcentration(double hepaOneCellHypoxicConcentration)
-{
-    assert(hepaOneCellHypoxicConcentration<=1.0);
-    assert(hepaOneCellHypoxicConcentration>=0.0);
-    mHepaOneCellHypoxicConcentration = hepaOneCellHypoxicConcentration;
-}
-void TissueConfig::SetHepaOneCellQuiescentConcentration(double hepaOneCellQuiescentConcentration)
-{
-    assert(hepaOneCellQuiescentConcentration<=1.0);
-    assert(hepaOneCellQuiescentConcentration>=0.0);
-    mHepaOneCellQuiescentConcentration = hepaOneCellQuiescentConcentration;
-}
-void TissueConfig::SetWntTransitThreshold(double wntThreshold)
-{
-    assert(wntThreshold<=1.0);
-    assert(wntThreshold>=0.0);
-    mWntTransitThreshold = wntThreshold;
-}
-void TissueConfig::SetWntStemThreshold(double wntThreshold)
-{
-    assert(wntThreshold<=1.0);
-    assert(wntThreshold>=0.0);
-    mWntStemThreshold = wntThreshold;
-}
-void TissueConfig::SetWntLabelledThreshold(double wntThreshold)
-{
-    assert(wntThreshold<=1.0);
-    assert(wntThreshold>=0.0);
-    mWntLabelledThreshold = wntThreshold;
-}
-void TissueConfig::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
-{
-    assert(criticalHypoxicDuration>=0.0);
-    mCriticalHypoxicDuration = criticalHypoxicDuration;
-}
 void TissueConfig::SetHepaOneParameters()
 {
     mStemCellG1Duration = mHepaOneCellG1Duration;
 }
 void TissueConfig::SetCryptProjectionParameterA(double cryptProjectionParameterA)
 {
-    assert(cryptProjectionParameterA>=0.0);
+    assert(cryptProjectionParameterA >= 0.0);
     mCryptProjectionParameterA = cryptProjectionParameterA;
 }
 void TissueConfig::SetCryptProjectionParameterB(double cryptProjectionParameterB)
 {
-    assert(cryptProjectionParameterB>=0.0);
+    assert(cryptProjectionParameterB >= 0.0);
     mCryptProjectionParameterB = cryptProjectionParameterB;
 }
 void TissueConfig::SetAreaBasedDampingConstantParameter(double areaBasedDampingConstantParameter)
 {
-    assert(areaBasedDampingConstantParameter>=0.0);
+    assert(areaBasedDampingConstantParameter >= 0.0);
     mAreaBasedDampingConstantParameter = areaBasedDampingConstantParameter;
 }
 void TissueConfig::SetMeinekeSpringStiffness(double springStiffness)
@@ -427,8 +327,8 @@ void TissueConfig::SetMeinekeMechanicsCutOffLength(double mechanicsCutOffLength)
 }
 void TissueConfig::SetMeinekeDivisionRestingSpringLength(double divisionRestingSpringLength)
 {
-    assert(divisionRestingSpringLength<=1.0);
-    assert(divisionRestingSpringLength>=0.0);
+    assert(divisionRestingSpringLength <= 1.0);
+    assert(divisionRestingSpringLength >= 0.0);
 
     mMeinekeDivisionRestingSpringLength = divisionRestingSpringLength;
 }
@@ -437,11 +337,6 @@ void TissueConfig::SetMeinekeDivisionSeparation(double divisionSeparation)
     assert(divisionSeparation<=1.0);
     assert(divisionSeparation>=0.0);
     mMeinekeDivisionSeparation = divisionSeparation;
-}
-void TissueConfig::SetMatureCellTargetArea(double matureCellTargetArea)
-{
-    assert(matureCellTargetArea>=0.0);
-    mMatureCellTargetArea = matureCellTargetArea;
 }
 void TissueConfig::SetOutputCellIdData(bool writeCellIdData)
 {

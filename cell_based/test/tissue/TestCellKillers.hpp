@@ -54,7 +54,6 @@ public:
     void TestRandomCellKiller() throw(Exception)
     {
         // Set up singleton classes
-        TissueConfig* p_params = TissueConfig::Instance();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(32.0, 32);
 
@@ -67,6 +66,8 @@ public:
         std::vector<TissueCellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        double death_time = p_simulation_time->GetTime() + cells[0]->GetApoptosisTime();
 
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
@@ -85,7 +86,7 @@ public:
         RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
 
         // Check that a single cell reaches apoptosis
-        unsigned max_tries=0;
+        unsigned max_tries = 0;
         while (!(*r_cells.begin())->HasApoptosisBegun() && max_tries<99)
         {
             random_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin());
@@ -114,7 +115,6 @@ public:
         TS_ASSERT_EQUALS(apoptosis_cell_found, true);
 
         // Increment time to a time after cell death
-        double death_time = p_simulation_time->GetTime() + p_params->GetApoptosisTime();
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->ResetEndTimeAndNumberOfTimeSteps(death_time+1.0, 1);
         p_simulation_time->IncrementTimeOneStep();
@@ -567,11 +567,7 @@ public:
             // Serialize via pointer
             OxygenBasedCellKiller<2>* const p_cell_killer = &cell_killer;
 
-            p_cell_killer->SetHypoxicConcentration(0.3);
-
             output_arch << p_cell_killer;
-
-            TS_ASSERT_DELTA(p_cell_killer->GetHypoxicConcentration(), 0.3, 1e-5);
        }
 
        {
@@ -584,9 +580,9 @@ public:
             // Restore from the archive
             input_arch >> p_cell_killer;
 
-            // Test we have restored the sloughing properties correctly
-            TS_ASSERT_DELTA(p_cell_killer->GetHypoxicConcentration(), 0.3, 1e-5);
+            TS_ASSERT(p_cell_killer != NULL);
 
+            // Tidy up
             delete p_cell_killer;
         }
     }

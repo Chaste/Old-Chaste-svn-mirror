@@ -33,7 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 SimpleOxygenBasedCellCycleModel::SimpleOxygenBasedCellCycleModel()
     : mTimeSpentInG1Phase(0.0),
-      mCurrentHypoxicDuration(0.0)
+      mCurrentHypoxicDuration(0.0),
+      mHypoxicConcentration(0.4),
+      mQuiescentConcentration(1.0),
+      mCriticalHypoxicDuration(2.0)
 {
     mCurrentHypoxiaOnsetTime = SimulationTime::Instance()->GetTime();
 }
@@ -94,11 +97,10 @@ void SimpleOxygenBasedCellCycleModel::UpdateCellCyclePhase()
         {
             // Update G1 duration based on oxygen concentration
             double dt = SimulationTime::Instance()->GetTimeStep();
-            double quiescent_concentration = TissueConfig::Instance()->GetHepaOneCellQuiescentConcentration();
 
-            if (oxygen_concentration < quiescent_concentration)
+            if (oxygen_concentration < mQuiescentConcentration)
             {
-                mG1Duration += (1 - std::max(oxygen_concentration, 0.0)/quiescent_concentration)*dt;
+                mG1Duration += (1 - std::max(oxygen_concentration, 0.0)/mQuiescentConcentration)*dt;
                 mTimeSpentInG1Phase += dt;
             }
         }
@@ -110,6 +112,7 @@ AbstractCellCycleModel* SimpleOxygenBasedCellCycleModel::CreateCellCycleModel()
 {
     return new SimpleOxygenBasedCellCycleModel(*this);
 }
+
 
 void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
 {
@@ -142,16 +145,14 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
             NEVER_REACHED;
     }
 
-    double hypoxic_concentration = TissueConfig::Instance()->GetHepaOneCellHypoxicConcentration();
-
-    if (oxygen_concentration < hypoxic_concentration)
+    if (oxygen_concentration < mHypoxicConcentration)
     {
         // Update the duration of the current period of hypoxia
         mCurrentHypoxicDuration = (SimulationTime::Instance()->GetTime() - mCurrentHypoxiaOnsetTime);
 
         // Include a little bit of stochasticity here
-        double prob_of_death = 0.9 - 0.5*(oxygen_concentration/hypoxic_concentration);
-        if (mCurrentHypoxicDuration > TissueConfig::Instance()->GetCriticalHypoxicDuration() && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
+        double prob_of_death = 0.9 - 0.5*(oxygen_concentration/mHypoxicConcentration);
+        if (mCurrentHypoxicDuration > mCriticalHypoxicDuration && RandomNumberGenerator::Instance()->ranf() < prob_of_death)
         {
             mpCell->AddCellProperty(CellPropertyRegistry::Instance()->Get<ApoptoticCellProperty>());
         }
@@ -164,6 +165,46 @@ void SimpleOxygenBasedCellCycleModel::UpdateHypoxicDuration()
     }
 }
 
+
+double SimpleOxygenBasedCellCycleModel::GetHypoxicConcentration()
+{
+    return mHypoxicConcentration;
+}
+
+
+void SimpleOxygenBasedCellCycleModel::SetHypoxicConcentration(double hypoxicConcentration)
+{
+    assert(hypoxicConcentration<=1.0);
+    assert(hypoxicConcentration>=0.0);
+    mHypoxicConcentration = hypoxicConcentration;
+}
+
+
+double SimpleOxygenBasedCellCycleModel::GetQuiescentConcentration()
+{
+    return mQuiescentConcentration;
+}
+
+
+void SimpleOxygenBasedCellCycleModel::SetQuiescentConcentration(double quiescentConcentration)
+{
+    assert(quiescentConcentration <= 1.0);
+    assert(quiescentConcentration >= 0.0);
+    mQuiescentConcentration = quiescentConcentration;
+}
+
+
+double SimpleOxygenBasedCellCycleModel::GetCriticalHypoxicDuration()
+{
+    return mCriticalHypoxicDuration;
+}
+
+
+void SimpleOxygenBasedCellCycleModel::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
+{
+    assert(criticalHypoxicDuration >= 0.0);
+    mCriticalHypoxicDuration = criticalHypoxicDuration;
+}
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

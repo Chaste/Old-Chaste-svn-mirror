@@ -74,7 +74,12 @@ public:
 
         TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M_PHASE);
         TS_ASSERT_EQUALS(p_stem_model->GetGeneration(), 0u);
+        TS_ASSERT_EQUALS(p_stem_model->GetMaxTransitGenerations(), 3u);
         TS_ASSERT_EQUALS(p_stem_model->CanCellTerminallyDifferentiate(), true);
+
+        p_stem_model->SetMaxTransitGenerations(6);
+        TS_ASSERT_EQUALS(p_stem_model->GetMaxTransitGenerations(), 6u);
+        p_stem_model->SetMaxTransitGenerations(3);
 
         TS_ASSERT_EQUALS(p_stem_cell->GetCellCycleModel()->GetCellProliferativeType(),STEM);
 
@@ -213,6 +218,18 @@ public:
         TS_ASSERT_EQUALS(p_cycle_model->GetDimension(), 2u);
         p_cycle_model->SetCellProliferativeType(STEM);
 
+        TS_ASSERT_DELTA(p_cycle_model->GetWntStemThreshold(), 0.8, 1e-6);
+        TS_ASSERT_DELTA(p_cycle_model->GetWntTransitThreshold(), 0.65, 1e-6);
+
+        p_cycle_model->SetWntStemThreshold(0.4);
+        p_cycle_model->SetWntTransitThreshold(0.5);
+
+        TS_ASSERT_DELTA(p_cycle_model->GetWntStemThreshold(), 0.4, 1e-6);
+        TS_ASSERT_DELTA(p_cycle_model->GetWntTransitThreshold(), 0.5, 1e-6);
+
+        p_cycle_model->SetWntStemThreshold(0.8);
+        p_cycle_model->SetWntTransitThreshold(0.65);
+
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_cycle_model));
@@ -320,7 +337,7 @@ public:
         RandomNumberGenerator::Instance()->Reseed(0);
 
         // Set up the Wnt concentration
-        wnt_level = p_params->GetWntStemThreshold() + 0.01;
+        wnt_level = 0.81;
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetType(RADIAL);
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
@@ -357,7 +374,7 @@ public:
         p_cell2->AddCellProperty(p_label);
 
         // Now reduce the Wnt concentration
-        wnt_level = p_params->GetWntStemThreshold() - 0.01;
+        wnt_level = 0.79;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 
         // The numbers for the G1 durations are taken from
@@ -540,7 +557,7 @@ public:
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*TissueConfig::Instance()->GetCriticalHypoxicDuration(), num_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*p_hepa_one_model2->GetCriticalHypoxicDuration(), num_steps);
 
         // Create a cell with a simple oxygen-based cell cycle model
         SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel;
@@ -555,7 +572,7 @@ public:
         for (unsigned i=0; i<num_steps; i++)
         {
             TS_ASSERT(!(p_apoptotic_cell->HasCellProperty<ApoptoticCellProperty>())
-                        || p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
+                        || p_simulation_time->GetTime() >= p_cell_model->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
             // Note that we need to pass in the updated G1 duration
@@ -610,7 +627,6 @@ public:
         // are updated correctly
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
-
 
         StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel;
         p_model->SetDimension(2);
@@ -717,7 +733,7 @@ public:
         SimulationTime::Destroy();
         p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*TissueConfig::Instance()->GetCriticalHypoxicDuration(), num_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(2.0*p_hepa_one_model2->GetCriticalHypoxicDuration(), num_steps);
 
         // Create a cell with a simple oxygen-based cell cycle model
         StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel;
@@ -734,7 +750,7 @@ public:
         for (unsigned i=0; i<num_steps; i++)
         {
             TS_ASSERT(!(p_apoptotic_cell->HasCellProperty<ApoptoticCellProperty>())
-                        || p_simulation_time->GetTime() >= TissueConfig::Instance()->GetCriticalHypoxicDuration());
+                        || p_simulation_time->GetTime() >= p_cell_model->GetCriticalHypoxicDuration());
             p_simulation_time->IncrementTimeOneStep();
 
             // Note that we need to pass in the updated G1 duration
@@ -1053,7 +1069,7 @@ public:
         archive_filename = handler2.GetOutputDirectoryFullPath() + "crypt_projection_cell_cycle.arch";
 
         // Set up the Wnt concentration
-        wnt_level = p_params->GetWntStemThreshold() - 0.01;
+        wnt_level = 0.79;
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
 

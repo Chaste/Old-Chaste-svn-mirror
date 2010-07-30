@@ -29,23 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApoptoticCellProperty.hpp"
 
 template <unsigned SPACE_DIM>
-OxygenBasedCellKiller<SPACE_DIM>::OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue,
-                                                        double concentration)
-    : AbstractCellKiller<SPACE_DIM>(pTissue),
-      mHypoxicConcentration(concentration)
+OxygenBasedCellKiller<SPACE_DIM>::OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue)
+    : AbstractCellKiller<SPACE_DIM>(pTissue)
 {
-}
-
-template <unsigned SPACE_DIM>
-void OxygenBasedCellKiller<SPACE_DIM>::SetHypoxicConcentration(double hypoxicConcentration)
-{
-    mHypoxicConcentration = hypoxicConcentration;
-}
-
-template <unsigned SPACE_DIM>
-double OxygenBasedCellKiller<SPACE_DIM>::GetHypoxicConcentration() const
-{
-    return mHypoxicConcentration;
 }
 
 template <unsigned SPACE_DIM>

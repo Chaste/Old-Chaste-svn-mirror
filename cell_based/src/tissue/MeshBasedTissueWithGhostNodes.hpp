@@ -49,6 +49,7 @@ template<unsigned DIM>
 class MeshBasedTissueWithGhostNodes : public MeshBasedTissue<DIM>
 {
 private:
+
     /** Just so that the test can test the private functions */
     friend class TestMeshBasedTissueWithGhostNodes;
 

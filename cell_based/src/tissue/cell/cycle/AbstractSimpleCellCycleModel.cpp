@@ -43,7 +43,7 @@ void AbstractSimpleCellCycleModel::InitialiseDaughterCell()
 
 void AbstractSimpleCellCycleModel::SetG1Duration()
 {
-    assert(mpCell!=NULL);
+    assert(mpCell != NULL);
 
     switch (mCellProliferativeType)
     {

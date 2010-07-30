@@ -186,6 +186,7 @@ public:
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);

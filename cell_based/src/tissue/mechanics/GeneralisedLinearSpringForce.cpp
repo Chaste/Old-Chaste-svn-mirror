@@ -119,7 +119,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
      * If the cells are both newly divided, then the rest length of the spring
      * connecting them grows linearly with time, until 1 hour after division.
      */
-    if ( ageA < m_duration && ageB < m_duration )
+    if (ageA < m_duration && ageB < m_duration)
     {
         if (rTissue.HasMesh())
         {
@@ -157,12 +157,12 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     if (p_cell_A->HasApoptosisBegun())
     {
         double time_until_death_a = p_cell_A->GetTimeUntilDeath();
-        a_rest_length = a_rest_length * time_until_death_a / p_config->GetApoptosisTime();
+        a_rest_length = a_rest_length * time_until_death_a / p_cell_A->GetApoptosisTime();
     }
     if (p_cell_B->HasApoptosisBegun())
     {
         double time_until_death_b = p_cell_B->GetTimeUntilDeath();
-        b_rest_length = b_rest_length * time_until_death_b / p_config->GetApoptosisTime();
+        b_rest_length = b_rest_length * time_until_death_b / p_cell_B->GetApoptosisTime();
     }
 
     rest_length = a_rest_length + b_rest_length;

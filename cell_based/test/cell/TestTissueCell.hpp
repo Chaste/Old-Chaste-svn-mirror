@@ -1066,20 +1066,18 @@ public:
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(0.6, 3);
 
-        // This test needs particular apoptosis time
-        TissueConfig* p_params = TissueConfig::Instance();
-        TS_ASSERT_EQUALS(p_params->GetApoptosisTime(), 0.25);
-
         boost::shared_ptr<AbstractCellProperty> p_healthy_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
         p_cell_model->SetCellProliferativeType(TRANSIT);
+
         TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_cell_model));
         p_cell->InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(p_cell->HasApoptosisBegun(), false);
         TS_ASSERT_EQUALS(p_cell->IsDead(), false);
         TS_ASSERT_THROWS_THIS(p_cell->GetTimeUntilDeath(),"Shouldn\'t be checking time until apoptosis as it isn\'t set");
+        TS_ASSERT_DELTA(p_cell->GetApoptosisTime(), 0.25, 1e-6);
 
         p_simulation_time->IncrementTimeOneStep(); // t=0.2
 
@@ -1499,8 +1497,7 @@ public:
 
         std::vector<TissueCellPtr>::iterator cell_iterator;
 
-        TS_ASSERT_EQUALS(p_params->GetMaxTransitGenerations(), 3u);
-        unsigned int expected_num_cells[6];
+        unsigned expected_num_cells[6];
         expected_num_cells[0] = 0;
         expected_num_cells[1] = 1;
         expected_num_cells[2] = 2;

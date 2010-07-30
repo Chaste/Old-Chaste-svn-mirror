@@ -30,14 +30,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 AbstractSimpleGenerationBasedCellCycleModel::AbstractSimpleGenerationBasedCellCycleModel()
     : AbstractSimpleCellCycleModel(),
-      mGeneration(0)
+      mGeneration(0),
+      mMaxTransitGenerations(3) // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
 {
 }
 
 void AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision()
 {
     mGeneration++;
-    if (mGeneration > TissueConfig::Instance()->GetMaxTransitGenerations())
+    if (mGeneration > mMaxTransitGenerations)
     {
         mCellProliferativeType = DIFFERENTIATED;
     }
@@ -65,7 +66,7 @@ void AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell()
      * is always of type transit or differentiated.
      */
     mCellProliferativeType = TRANSIT;
-    if (mGeneration > TissueConfig::Instance()->GetMaxTransitGenerations())
+    if (mGeneration > mMaxTransitGenerations)
     {
         mCellProliferativeType = DIFFERENTIATED;
     }
@@ -82,4 +83,14 @@ void AbstractSimpleGenerationBasedCellCycleModel::SetGeneration(unsigned generat
 unsigned AbstractSimpleGenerationBasedCellCycleModel::GetGeneration() const
 {
     return mGeneration;
+}
+
+void AbstractSimpleGenerationBasedCellCycleModel::SetMaxTransitGenerations(unsigned maxTransitGenerations)
+{
+    mMaxTransitGenerations = maxTransitGenerations;
+}
+
+unsigned AbstractSimpleGenerationBasedCellCycleModel::GetMaxTransitGenerations() const
+{
+    return mMaxTransitGenerations;
 }

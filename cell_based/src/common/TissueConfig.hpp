@@ -86,10 +86,6 @@ public:
      */
     double GetMDuration();
     /**
-     * @return mMaxTransitGenerations
-     */
-    unsigned GetMaxTransitGenerations();
-    /**
      * @return mCryptLength
      */
     double GetCryptLength();
@@ -105,34 +101,6 @@ public:
      * @return mDampingConstantMutant
      */
     double GetDampingConstantMutant();
-    /**
-     * @return mApoptosisTime
-     */
-    double GetApoptosisTime();
-    /**
-     * @return mHepaOneCellHypoxicConcentration
-     */
-    double GetHepaOneCellHypoxicConcentration();
-    /**
-     * @return mHepaOneCellQuiescentConcentration
-     */
-    double GetHepaOneCellQuiescentConcentration();
-    /**
-     * @return mWntTransitThreshold
-     */
-    double GetWntTransitThreshold();
-    /**
-     * @return mWntStemThreshold
-     */
-    double GetWntStemThreshold();
-    /**
-     * @return mWntLabelledThreshold
-     */
-    double GetWntLabelledThreshold();
-    /**
-     * @return mCriticalHypoxicDuration
-     */
-    double GetCriticalHypoxicDuration();
     /**
      * @return mCryptProjectionParameterA
      */
@@ -239,10 +207,6 @@ public:
      */
     void SetMDuration(double);
     /**
-     * Set mMaxTransitGenerations.
-     */
-    void SetMaxTransitGenerations(unsigned);
-    /**
      * Set mCryptLength.
      */
     void SetCryptLength(double);
@@ -259,33 +223,9 @@ public:
      */
     void SetDampingConstantMutant(double);
     /**
-     * Set mApoptosisTime.
-     */
-    void SetApoptosisTime(double);
-    /**
-     * Set mHepaOneCellHypoxicConcentration.
-     */
-    void SetHepaOneCellHypoxicConcentration(double);
-    /**
-     * Set mHepaOneCellQuiescentConcentration.
-     */
-    void SetHepaOneCellQuiescentConcentration(double);
-    /**
-     * Set mWntTransitThreshold.
-     */
-    void SetWntTransitThreshold(double);
-    /**
      * Set mWntStemThreshold.
      */
     void SetWntStemThreshold(double);
-    /**
-     * Set mWntLabelledThreshold.
-     */
-    void SetWntLabelledThreshold(double);
-    /**
-     * Set mCriticalHypoxicDuration.
-     */
-    void SetCriticalHypoxicDuration(double);
     /**
      * Set mHepaOneParameters.
      */
@@ -318,10 +258,6 @@ public:
      * Set mMeinekeDivisionSeparation.
      */
     void SetMeinekeDivisionSeparation(double);
-    /**
-     * Set mMatureCellTargetArea.
-     */
-    void SetMatureCellTargetArea(double);
     /**
      * Set mOutputCellIdData.
      */
@@ -436,11 +372,6 @@ private:
     double mMDuration;
 
     /**
-     * How many generations a transit cell lives for before becoming fully differentiated.
-     */
-    unsigned mMaxTransitGenerations;
-
-    /**
      * The length of the crypt, non-dimensionalised with cell length.
      * This parameter determines when cells are sloughed from the crypt.
      */
@@ -464,45 +395,6 @@ private:
      * Damping constant for mutant cells.
      */
     double mDampingConstantMutant;
-
-    /**
-     * The time it takes for a cell to fully undergo apoptosis
-     */
-    double mApoptosisTime;
-
-    /**
-     * Non-dimensionalized oxygen concentration below which HEPA-1 cells are
-     * considered to be hypoxic.
-     * A prolonged period of hypoxia causes the cell to become apoptotic.
-     */
-    double mHepaOneCellHypoxicConcentration;
-
-    /**
-     * Non-dimensionalized oxygen concentration below which HEPA-1 cells are
-     * considered to be quiescent and slow their progress through the G1 phase
-     * of the cell cycle.
-     */
-    double mHepaOneCellQuiescentConcentration;
-
-    /**
-     * Non-dimensionalized Wnt threshold, above which cells progress through the cell cycle.
-     */
-    double mWntTransitThreshold;
-
-    /**
-     * Non-dimensionalized Wnt threshold, above which cells behave as stem cells.
-     */
-    double mWntStemThreshold;
-
-    /**
-     * Non-dimensionalized Wnt threshold, above which labelled cells progress through the cell cycle.
-     */
-    double mWntLabelledThreshold;
-
-    /**
-     * Non-dimensionalized critical hypoxic duration.
-     */
-    double mCriticalHypoxicDuration;
 
     /**
      * Parameter a, for use in crypt projection simulations, in which the crypt
@@ -547,12 +439,6 @@ private:
      * because of pressure from neighbouring springs.
      */
     double mMeinekeDivisionRestingSpringLength;
-
-    /**
-     * Non-dimensional target area of a mature (fully-grown) TissueCell.
-     * For use in vertex-based models.
-     */
-    double mMatureCellTargetArea;
 
     /** Whether to write cell ID data to file. */
     bool mOutputCellIdData;
@@ -618,18 +504,10 @@ private:
         archive & mSDuration;
         archive & mG2Duration;
         archive & mMDuration;
-        archive & mMaxTransitGenerations;
         archive & mCryptLength;
         archive & mCryptWidth;
         archive & mDampingConstantNormal;
         archive & mDampingConstantMutant;
-        archive & mApoptosisTime;
-        archive & mHepaOneCellHypoxicConcentration;
-        archive & mHepaOneCellQuiescentConcentration;
-        archive & mWntTransitThreshold;
-        archive & mWntStemThreshold;
-        archive & mWntLabelledThreshold;
-        archive & mCriticalHypoxicDuration;
         archive & mCryptProjectionParameterA;
         archive & mCryptProjectionParameterB;
         archive & mAreaBasedDampingConstantParameter;
@@ -637,7 +515,6 @@ private:
         archive & mMeinekeMechanicsCutOffLength;
         archive & mMeinekeDivisionRestingSpringLength;
         archive & mMeinekeDivisionSeparation;
-        archive & mMatureCellTargetArea;
         archive & mOutputCellIdData;
         archive & mOutputCellMutationStates;
         archive & mOutputCellAncestors;
