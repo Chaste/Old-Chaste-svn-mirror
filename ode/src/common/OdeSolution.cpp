@@ -38,7 +38,7 @@ OdeSolution::OdeSolution()
 {
 }
 
-unsigned OdeSolution::GetNumberOfTimeSteps()
+unsigned OdeSolution::GetNumberOfTimeSteps() const
 {
     return mNumberOfTimeSteps;
 }
@@ -55,7 +55,7 @@ void OdeSolution::SetOdeSystemInformation(boost::shared_ptr<const AbstractOdeSys
     mpOdeSystemInformation = pOdeSystemInfo;
 }
 
-std::vector<double> OdeSolution::GetVariableAtIndex(unsigned index)
+std::vector<double> OdeSolution::GetVariableAtIndex(unsigned index) const
 {
     std::vector<double> answer;
     answer.reserve(mSolutions.size());
@@ -73,7 +73,17 @@ std::vector<double>& OdeSolution::rGetTimes()
     return mTimes;
 }
 
+const std::vector<double>& OdeSolution::rGetTimes() const
+{
+    return mTimes;
+}
+
 std::vector<std::vector<double> >& OdeSolution::rGetSolutions()
+{
+    return mSolutions;
+}
+
+const std::vector<std::vector<double> >& OdeSolution::rGetSolutions() const
 {
     return mSolutions;
 }

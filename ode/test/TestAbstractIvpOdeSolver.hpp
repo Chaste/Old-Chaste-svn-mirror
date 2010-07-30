@@ -41,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
+#include "OdeSolution.hpp"
+
 #include "Ode1.hpp"
 #include "Ode2.hpp"
 #include "Ode4.hpp"
@@ -49,6 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSecondOrderWithEvents.hpp"
 #include "OdeThirdOrder.hpp"
 #include "ParameterisedOde.hpp"
+
 #include "NumericFileComparison.hpp"
 
 #include "PetscTools.hpp"
@@ -66,11 +69,10 @@ private :
     {
         // Initialise the instances of our ODE system and solution classes
         Ode1 ode_system;
-        OdeSolution solutions;
 
         // Solving the ODE problem. Note that dt and the sampling time are different
         std::vector<double> state_variables = ode_system.GetInitialConditions();
-        solutions = rSolver.Solve(&ode_system, state_variables, startTime, endTime, dt, samplingTime);
+        const OdeSolution solutions = rSolver.Solve(&ode_system, state_variables, startTime, endTime, dt, samplingTime);
 
         int num_timesteps = solutions.GetNumberOfTimeSteps();
 
@@ -80,14 +82,19 @@ private :
 
         // Also check the size of the data is correct
         TS_ASSERT_EQUALS(solutions.rGetSolutions().size(), (unsigned) (num_timesteps+1));
+        TS_ASSERT_EQUALS(solutions.rGetTimes().size(), (unsigned) (num_timesteps+1));
 
         int last = num_timesteps;
 
-        // Test to solution is correct
+        // Test the solution is correct
         double testvalue = solutions.rGetSolutions()[last][0];
 
         // Exact solution of Ode1 is y=t-t0
         TS_ASSERT_DELTA(testvalue, endTime-startTime, 0.01);
+        
+        // For coverage of OdeSolution
+        std::vector<double> var0 = solutions.GetVariableAtIndex(0);
+        TS_ASSERT_DELTA(var0[last], testvalue, 1e-12);
 
         // Test second version of Solve
         ode_system.SetStateVariables(ode_system.GetInitialConditions());

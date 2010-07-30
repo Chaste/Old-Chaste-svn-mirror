@@ -77,7 +77,7 @@ public:
      *
      * @return mNumberOfTimeSteps
      */
-    unsigned GetNumberOfTimeSteps();
+    unsigned GetNumberOfTimeSteps() const;
 
     /**
      * Set the number of timesteps.
@@ -99,7 +99,7 @@ public:
      *
      * @param index  the index of the state variable in the system
      */
-    std::vector<double> GetVariableAtIndex(unsigned index);
+    std::vector<double> GetVariableAtIndex(unsigned index) const;
 
     /**
      * Get the times at which the solution to the ODE system is stored.
@@ -109,11 +109,25 @@ public:
     std::vector<double>& rGetTimes();
 
     /**
+     * Get the times at which the solution to the ODE system is stored.
+     *
+     * @return mTimes.
+     */
+    const std::vector<double>& rGetTimes() const;
+
+    /**
      * Get the values of the solution to the ODE system at each timestep.
      *
      * @return mSolutions.
      */
     std::vector<std::vector<double> >& rGetSolutions();
+    
+    /**
+     * Get the values of the solution to the ODE system at each timestep.
+     *
+     * @return mSolutions.
+     */
+    const std::vector<std::vector<double> >& rGetSolutions() const;
     
     /**
      * Get the derived quantities for this ODE system at each timestep.
