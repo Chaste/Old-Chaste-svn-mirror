@@ -104,8 +104,8 @@ errors:{INTERNAL writedir}{REPLACE <texttest_dir>}
 errors:Chaste error: ([a-zA-Z./]+):([0-9]+):{REPLACE Chaste error: \1:line:}
 # Dynamically generated models generate variable output
 output:{INTERNAL writedir}{REPLACE <texttest_dir>}
-output:/[^ ]+/Chaste{REPLACE <chaste_dir>}
+output:/[^ ]+/(Chaste|[_a-zA-Z0-9]+-[-_0-9]+){REPLACE <chaste_dir>}
 output:(/[^ ]*/)?heart/[^ ]*dynamic/tmp_[0-9]+_[0-9]+{REPLACE <build_path>}
 output:RunXsd\(\[.*\], \[(.*)\]\){REPLACE Run Xsd on \1}
 output:mpicxx .*(/[^/]+\.[a-zA-Z]+){REPLACE mpicxx <args> <path>\1}
-output:Running \['.*/python/ConvertCellModel.py', '-A', '--output-dir', '<build_path>', '-y', '<build_path>/(.*).cellml'\]{REPLACE Running PyCml on \1}
+output:Running \['.*/python/ConvertCellModel.py', '-A', '--output-dir', '<chaste_dir>/<build_path>', '-y', '<build_path>/(.*).cellml'\]{REPLACE Running PyCml on \1}
