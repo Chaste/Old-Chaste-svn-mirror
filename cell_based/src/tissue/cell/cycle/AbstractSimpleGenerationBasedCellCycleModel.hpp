@@ -107,7 +107,7 @@ public:
     /**
      * Set mMaxTransitGenerations.
      * 
-     * param maxTransitGenerations the new value of mMaxTransitGenerations
+     * @param maxTransitGenerations the new value of mMaxTransitGenerations
      */
     void SetMaxTransitGenerations(unsigned maxTransitGenerations);
 
