@@ -44,31 +44,30 @@ public:
 
     void TestBasicFunctionality() throw (Exception)
     {
-        unsigned system_size = 2662;
-
         /*
-         *  PetscTools::ReadPetscObject() doesn't load the matrix with the original parallel layout.
-         * For p=2 it puts 1331 rows in each processor. This wouldn't be possible in a real bidomain
-         * simulation because implies that V an Phi_e for node 665 being solved in different processors.
-         * 
-         *  This is not necessarily an issue at LinearSystem level, but worth taking into account in 
-         * the rest of the test (e.g. DistributedVector::Stride won't work properly)
+         *  We need to make sure here that the matrix is loaded with the appropriate parallel layout. Petsc's 
+         * default puts 1331 rows in each processor. This wouldn't be possible in a real bidomain simulation 
+         * because implies that equations V_665 an Phi_e_665 are solved in different processors.
          */
+        unsigned num_nodes = 1331;
+        DistributedVectorFactory factory(num_nodes);        
+        Vec parallel_layout = factory.CreateVec(2);
 
         Mat system_matrix;
-        PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
+        PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
-        // Set b = A * [1 0 1 0 ... 1 0]'
-        std::vector<double> values;
-        for (unsigned node_index=0; node_index<system_size/2; node_index++)
+        // Set rhs = A * [1 0 1 0 ... 1 0]'        
+        Vec one_zeros = factory.CreateVec(2);
+        Vec rhs = factory.CreateVec(2);
+
+        for (unsigned node_index=0; node_index<2*num_nodes; node_index+=2)
         {
-            values.push_back(1.0);
-            values.push_back(0.0);
-        }    
-        assert(values.size() == system_size);
-
-        Vec one_zeros = PetscTools::CreateVec(values);
-        Vec rhs = PetscTools::CreateVec(system_size);
+            VecSetValue(one_zeros, node_index, 1.0, INSERT_VALUES);
+            VecSetValue(one_zeros, node_index+1, 0.0, INSERT_VALUES);
+        }       
+        VecAssemblyBegin(one_zeros);
+        VecAssemblyEnd(one_zeros);
+                      
         MatMult(system_matrix, one_zeros, rhs);
         VecDestroy(one_zeros);
 
@@ -82,10 +81,13 @@ public:
 
         Vec solution = ls.Solve();
 
-        ReplicatableVector rep_solution;
-        rep_solution.ReplicatePetscVector(solution);
+        DistributedVector distributed_solution = factory.CreateDistributedVector(solution);
+        DistributedVector::Stripe vm(distributed_solution, 0);
+        DistributedVector::Stripe phi_e(distributed_solution, 1);
 
-        for (unsigned index = 0; index < rep_solution.GetSize(); index += 2)
+        for (DistributedVector::Iterator index = distributed_solution.Begin();
+             index!= distributed_solution.End();
+             ++index)
         {
             /*
              * Although we're trying to enforce the solution to be [1 0 ... 1 0], the system is singular and
@@ -95,7 +97,7 @@ public:
              * If we were using PETSc null space, it would find the solution that satisfies x'*v=0,
              * being v the null space of the system (v=[1 1 ... 1])
              */
-            TS_ASSERT_DELTA(rep_solution[index] - rep_solution[index+1], 1.0, 1e-6);
+            TS_ASSERT_DELTA(vm[index] - phi_e[index], 1.0, 1e-6);
         }
 
         // Coverage (setting PC type after first solve)
@@ -120,6 +122,10 @@ public:
 
     void TestBetterThanNoPreconditioning()
     {
+        unsigned num_nodes = 1331;
+        DistributedVectorFactory factory(num_nodes);
+        Vec parallel_layout = factory.CreateVec(2);
+        
         unsigned point_jacobi_its;
         unsigned block_diag_its;
 
@@ -127,11 +133,11 @@ public:
         {
             Mat system_matrix;
             //Note that this test deadlocks if the file's not on the disk
-            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
+            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
             Vec system_rhs;
             //Note that this test deadlocks if the file's not on the disk
-            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
+            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
 
@@ -152,11 +158,11 @@ public:
         {
             Mat system_matrix;
             //Note that this test deadlocks if the file's not on the disk
-            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat");
+            PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
             Vec system_rhs;
             //Note that this test deadlocks if the file's not on the disk
-            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec");
+            PetscTools::ReadPetscObject(system_rhs, "linalg/test/data/matrices/cube_6000elems_half_activated.vec", parallel_layout);
 
             LinearSystem ls = LinearSystem(system_rhs, system_matrix);
 
@@ -174,8 +180,6 @@ public:
             MatDestroy(system_matrix);
             VecDestroy(system_rhs);
             VecDestroy(solution);
-
-
         }
         Timer::Print("Block diagonal preconditioner");
 

@@ -65,21 +65,31 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
 
     PetscInt num_rows, num_columns;
     MatGetSize(system_matrix, &num_rows, &num_columns);
-    assert(num_rows==num_columns);
 
-    // Allocate memory
-    assert(num_rows%2 == 0); /// \todo: odd number of rows, impossible in Bidomain?    
-    mPCContext.x1_subvector = PetscTools::CreateVec(num_rows/2);
-    mPCContext.x2_subvector = PetscTools::CreateVec(num_rows/2);
-    mPCContext.y1_subvector = PetscTools::CreateVec(num_rows/2);
-    mPCContext.y2_subvector = PetscTools::CreateVec(num_rows/2);
-    mPCContext.z = PetscTools::CreateVec(num_rows/2);
-    mPCContext.temp = PetscTools::CreateVec(num_rows/2);
+    PetscInt num_local_rows, num_local_columns;
+    MatGetLocalSize(system_matrix, &num_local_rows, &num_local_columns);
+
+    // odd number of rows: impossible in Bidomain.
+    // odd number of local rows: impossible if V_m and phi_e for each node are stored in the same processor.
+    if ((num_rows%2 != 0) || (num_local_rows%2 != 0))
+    {
+        TERMINATE("Wrong matrix parallel layout detected in PCLDUFactorisation.");
+    }
+
+    // Allocate memory     
+    unsigned subvector_num_rows = num_rows/2;    
+    unsigned subvector_local_rows = num_local_rows/2;
+    mPCContext.x1_subvector = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
+    mPCContext.x2_subvector = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
+    mPCContext.y1_subvector = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
+    mPCContext.y2_subvector = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
+    mPCContext.z = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
+    mPCContext.temp = PetscTools::CreateVec(subvector_num_rows, subvector_local_rows);
 
     // Create scatter contexts
     {
         // Needed by VecScatterCreate in order to find out parallel layout.
-        Vec dummy_vec = PetscTools::CreateVec(num_rows);
+        Vec dummy_vec = PetscTools::CreateVec(num_rows, num_local_rows);
 
         IS A11_rows, A22_rows;        
         ISCreateStride(PETSC_COMM_WORLD, num_rows/2, 0, 2, &A11_rows);

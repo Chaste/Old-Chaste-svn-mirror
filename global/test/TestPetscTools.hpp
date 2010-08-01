@@ -268,6 +268,56 @@ public:
         VecDestroy(vector_read);
 
     }
+
+    /*
+     *  This test reuses the 10x10 matrix written to disc in the previous test. It reads it 
+     * back in with a different parallel layout. For p=2 it is partitioned in 6 and 4 rows, 
+     * for p=3 4, 4, and 2. 
+     */    
+    void TestReadWithNonDefaultParallelLayout()
+    {
+        DistributedVectorFactory factory(5);        
+        Vec parallel_layout = factory.CreateVec(2);
+
+        PetscInt lo, hi;
+        VecGetOwnershipRange(parallel_layout, &lo, &hi);
+
+        Mat matrix_read;
+        Vec vector_read;
+
+        OutputFileHandler handler("DumpPetscObjects", false);
+        std::string output_dir = handler.GetOutputDirectoryFullPath();
+
+        PetscTools::ReadPetscObject(matrix_read, output_dir + "ten_times_ten.mat", parallel_layout);
+        PetscTools::ReadPetscObject(vector_read, output_dir + "ten_times_ten.vec", parallel_layout);
+
+        double* p_vector_read;
+        VecGetArray(vector_read, &p_vector_read);
+
+        for (PetscInt row=0; row<10; row++)
+        {
+            if (lo<=row && row<hi)
+            {
+                for (PetscInt col=0; col<10; col++)
+                {
+                    double value;
+                    MatGetValues(matrix_read, 1, &row, 1, &col, &value);
+                    TS_ASSERT_EQUALS(value, (double) 10*row+col+1);
+                }
+
+            unsigned local_index = row-lo;
+            TS_ASSERT_EQUALS(p_vector_read[local_index], (double)row);
+            }
+        }
+
+        VecRestoreArray(vector_read, &p_vector_read);
+
+        MatDestroy(matrix_read);
+        VecDestroy(vector_read);
+        
+    }
+    
+    
     void TestUnevenCreation()
     {
         //Uneven test (as in TestDistributedVectorFactory).

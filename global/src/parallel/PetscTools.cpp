@@ -277,8 +277,15 @@ void PetscTools::DumpPetscObject(const Vec& rVec, const std::string& rOutputFile
     PetscViewerDestroy(view);
 }
 
-void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath)
+void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath, Vec rParallelLayout)
 {
+    /*
+     *  PETSc (as of 3.1) doesn't provide any method for loading a Mat object with a user-defined parallel 
+     * layout, i.e. there's no equivalent to VecLoadIntoVector for Mat's. 
+     * 
+     * It seems to be in their future plans though: http://lists.mcs.anl.gov/pipermail/petsc-users/2010-March/006062.html
+     */
+        
     PetscViewer view;
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     PetscViewerFileType type = PETSC_FILE_RDONLY;
@@ -290,9 +297,31 @@ void PetscTools::ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPa
                           type, &view);
     MatLoad(view, MATMPIAIJ, &rMat);
     PetscViewerDestroy(view);
+    
+    if (rParallelLayout != NULL)
+    {
+        /*
+         *  The idea is to copy rMat into a matrix that has the appropriate
+         * parallel layout. Inefficient...
+         */
+        PetscInt num_rows, num_local_rows;
+        
+        VecGetSize(rParallelLayout, &num_rows);
+        VecGetLocalSize(rParallelLayout, &num_local_rows);               
+        
+        Mat temp_mat;
+        /// \todo: #1082 work out appropriate nz allocation.
+        PetscTools::SetupMat(temp_mat, num_rows, num_rows, 100, num_local_rows, num_local_rows);
+     
+        MatCopy(rMat, temp_mat, DIFFERENT_NONZERO_PATTERN);        
+        
+        MatDestroy(rMat);
+        rMat = temp_mat;
+        
+    }        
 }
 
-void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath)
+void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath, Vec rParallelLayout)
 {
     PetscViewer view;
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
@@ -303,7 +332,15 @@ void PetscTools::ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPa
 
     PetscViewerBinaryOpen(PETSC_COMM_WORLD, rOutputFileFullPath.c_str(),
                           type, &view);
-    VecLoad(view, VECMPI, &rVec);
+    if (rParallelLayout == NULL)
+    {
+        VecLoad(view, VECMPI, &rVec);
+    }
+    else
+    {
+        VecDuplicate(rParallelLayout, &rVec);
+        VecLoadIntoVector(view, rVec);
+    }
     PetscViewerDestroy(view);
 }
 #endif //SPECIAL_SERIAL (ifndef)

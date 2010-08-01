@@ -211,16 +211,18 @@ public:
      *
      * @param rMat a matrix
      * @param rOutputFileFullPath where to read the matrix from
+     * @param rParallelLayout If provided, rMat will have the same parallel layout. Its content is irrelevant. 
      */
-    static void ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath);
+    static void ReadPetscObject(Mat& rMat, const std::string& rOutputFileFullPath, Vec rParallelLayout=NULL);
 
     /**
      * Read a previously dumped Petsc object from disk.
      *
      * @param rVec a vector
      * @param rOutputFileFullPath where to read the matrix from
+     * @param rParallelLayout If provided, rMat will have the same parallel layout. Its content is irrelevant. 
      */
-    static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath);
+    static void ReadPetscObject(Vec& rVec, const std::string& rOutputFileFullPath, Vec rParallelLayout=NULL);
     
 #endif //SPECIAL_SERIAL (ifndef)
 
