@@ -244,7 +244,12 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
     conf.petsc_2_2_path = getattr(conf, 'petsc_2_2_path', None)
     conf.petsc_2_3_path = getattr(conf, 'petsc_2_3_path', None)
     conf.petsc_3_0_path = getattr(conf, 'petsc_3_0_path', None)
+    conf.petsc_path = getattr(conf, 'petsc_path', None)
     requested_version = version
+    if version == '3.1' and (conf.petsc_path is None or
+                             not os.path.isdir(conf.petsc_path)):
+        # Use 3.0 instead
+        version = '3.0'
     if version == '3.0' and (conf.petsc_3_0_path is None or 
                              not os.path.isdir(conf.petsc_3_0_path)):
         # Use 2.3 instead
@@ -257,6 +262,18 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
                              not os.path.isdir(conf.petsc_2_2_path)):
         # Raise a friendly error
         ConfigError('PETSc %s requested, but no path for this or an earlier version given in the host config.' % requested_version)
+    
+    def GetBuildName():
+        if production:
+            build_name = conf.petsc_build_name_production
+        elif profile:
+            build_name = conf.petsc_build_name_profile
+        elif optimised:
+            build_name = conf.petsc_build_name_optimized
+        else:
+            build_name = conf.petsc_build_name
+        return build_name
+    
     if version == '2.2':
         petsc_base = os.path.abspath(conf.petsc_2_2_path)
         # Gracefully fall back to optimised/non-opt if the requested one isn't there
@@ -273,29 +290,16 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
     elif version == '2.3':
         petsc_base = os.path.abspath(conf.petsc_2_3_path)
         CheckPathExists(petsc_base, 'PETSc')
-        if production:
-            build_name = conf.petsc_build_name_production
-        elif profile:
-            optimised = False
-            build_name = conf.petsc_build_name_profile
-        elif optimised:
-            build_name = conf.petsc_build_name_optimized
-        else:
-            build_name = conf.petsc_build_name
+        build_name = GetBuildName()
         libpath = os.path.join(petsc_base, 'lib', build_name)
         incpaths.append(os.path.join(petsc_base, 'bmake', build_name))
-    else: #version == '3.0'
-        petsc_base = os.path.abspath(conf.petsc_3_0_path)
-        CheckPathExists(petsc_base, 'PETSc')
-        if production:
-            build_name = conf.petsc_build_name_production
-        elif profile:
-            optimised = False
-            build_name = conf.petsc_build_name_profile
-        elif optimised:
-            build_name = conf.petsc_build_name_optimized
+    elif version in ['3.0', '3.1']:
+        if version == '3.0':
+            petsc_base = os.path.abspath(conf.petsc_3_0_path)
         else:
-            build_name = conf.petsc_build_name
+            petsc_base = os.path.abspath(conf.petsc_path)
+        CheckPathExists(petsc_base, 'PETSc')
+        build_name = GetBuildName()
         libpath = os.path.join(petsc_base, build_name, 'lib')
         incpaths.append(os.path.join(petsc_base, build_name, 'include'))
         # PETSc 3 allows us to automatically download openmpi.
@@ -307,13 +311,18 @@ def DoPetsc(version, optimised, profile=False, production=False, includesOnly=Fa
             conf.tools['mpicxx'] = os.path.abspath(os.path.join(binpath, 'mpicxx'))
         if os.path.exists(os.path.join(binpath, 'mpirun')):
             conf.tools['mpirun'] = os.path.abspath(os.path.join(binpath, 'mpirun'))
+    else:
+        ConfigError('Unrecognised PETSc version requested: ' + version)
     incpaths.append(os.path.join(petsc_base, 'include'))
     if not includesOnly:
         libpaths.append(libpath)
-        libraries.extend(['petscts', 'petscsnes', 'petscksp', 'petscdm', 
-                          'petscmat', 'petscvec', 'petsc'])
-        if sys.platform == 'cygwin':
-            libraries.extend(['gdi32', 'user32', 'advapi32', 'kernel32', 'dl'])
+        if version == '3.1':
+            libraries.append('petsc')
+        else:
+            libraries.extend(['petscts', 'petscsnes', 'petscksp', 'petscdm', 
+                              'petscmat', 'petscvec', 'petsc'])
+            if sys.platform == 'cygwin':
+                libraries.extend(['gdi32', 'user32', 'advapi32', 'kernel32', 'dl'])
 
 def DoDealii(build):
     """Add Deal.II include & library paths, and libraries.
