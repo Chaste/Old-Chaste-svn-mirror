@@ -87,11 +87,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestIonicModels : public CxxTest::TestSuite
 {
 public:
-
-
-
-
-
     void TestSolveForNoble98WithSimpleStimulus(void)
     {
         clock_t ck_start, ck_end;
@@ -116,7 +111,10 @@ public:
         ck_start = clock();
         RunOdeSolverWithIonicModel(&n98_ode_system,
                                    150.0,
-                                   "N98RegResult");
+                                   "N98RegResult",
+                                   100,
+                                   true,
+                                   true);
         ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tForward: " << forward << std::endl;
@@ -195,7 +193,7 @@ public:
         clock_t ck_start, ck_end;
 
         // Set stimulus
-        boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus());
+        boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus);
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         double time_step = 0.01;
 
@@ -344,8 +342,8 @@ public:
         TS_ASSERT_DELTA( fhn61_ode_system.GetIIonic(), -0.0058, 1e-3);
 
         // some coverage
-        boost::shared_ptr<SimpleStimulus> p_another_stimulus(new SimpleStimulus(-200,1.0, 0.0));
-        boost::shared_ptr<SimpleStimulus> p_intra_stimulus(new SimpleStimulus(-100,1.0, 0.0));
+        boost::shared_ptr<SimpleStimulus> p_another_stimulus(new SimpleStimulus(-200, 1.0, 0.0));
+        boost::shared_ptr<SimpleStimulus> p_intra_stimulus(new SimpleStimulus(-100, 1.0, 0.0));
         FitzHughNagumo1961OdeSystem another_fhn61_ode_system(p_solver, p_stimulus);
 
         another_fhn61_ode_system.SetStimulusFunction(p_another_stimulus);
@@ -441,13 +439,16 @@ public:
         // Solve using backward euler (and lookup tables)
         CellLuoRudy1991FromCellMLBackwardEuler lr91_backward_euler(p_solver, p_stimulus);
 
-        // some models have this implemented so they can be used in mechanics simulations
+        // Some models have this implemented so they can be used in mechanics simulations
         TS_ASSERT_DELTA(lr91_backward_euler.GetIntracellularCalciumConcentration(), 0.0002, 1e-5);
 
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_backward_euler,
                                    end_time,
-                                   "Lr91BackwardEuler");
+                                   "Lr91BackwardEuler",
+                                   100,
+                                   true,
+                                   true);
         ck_end = clock();
         double backward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
 
@@ -1320,7 +1321,7 @@ public:
         
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(step, step, step);
             
-        boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus());
+        boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus);
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
         CellTenTusscher2006EpiFromCellMLBackwardEuler tt06_backward_euler(p_solver, p_stimulus);
         

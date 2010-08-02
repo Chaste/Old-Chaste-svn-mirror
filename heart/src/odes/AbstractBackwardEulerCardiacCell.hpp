@@ -125,9 +125,10 @@ public:
      *
      * @param tStart  beginning of the time interval to simulate
      * @param tEnd  end of the time interval to simulate
-     * @return  the values of each state variable, at #mDt intervals.
+     * @param tSamp  sampling interval for returned results (defaults to #mDt)
+     * @return  the values of each state variable, at intervals of tSamp.
      */
-    virtual OdeSolution Compute(double tStart, double tEnd);
+    virtual OdeSolution Compute(double tStart, double tEnd, double tSamp=0.0);
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
@@ -199,16 +200,23 @@ AbstractBackwardEulerCardiacCell<SIZE>::~AbstractBackwardEulerCardiacCell()
 {}
 
 template <unsigned SIZE>
-OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, double tEnd)
+OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, double tEnd, double tSamp)
 {
     // In this method, we iterate over timesteps, doing the following for each:
     //   - update V using a forward Euler step
     //   - call ComputeExceptVoltage(t) to update the remaining state variables
     //     using backward Euler
+    
     // Check length of time interval
-    double _n_steps = (tEnd - tStart) / mDt;
-    unsigned n_steps = (unsigned) floor(_n_steps+0.5);
-    assert(fabs(tStart+n_steps*mDt - tEnd) < 1e-12);
+    if (tSamp < mDt)
+    {
+        tSamp = mDt;
+    }
+    double _n_steps = (tEnd - tStart) / tSamp;
+    const unsigned n_steps = (unsigned) floor(_n_steps+0.5);
+    assert(fabs(tStart+n_steps*tSamp - tEnd) < 1e-12);
+    const unsigned n_small_steps = (unsigned) floor(tSamp/mDt+0.5);
+    assert(fabs(mDt*n_small_steps - tSamp) < 1e-12);
 
     // Initialise solution store
     OdeSolution solutions;
@@ -221,20 +229,23 @@ OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, doubl
     double curr_time;
     for (unsigned i=0; i<n_steps; i++)
     {
-        curr_time = tStart + i*mDt;
+        for (unsigned j=0; j<n_small_steps; j++)
+        {
+            curr_time = tStart + i*tSamp + j*mDt;
 
-        // Compute next value of V
-        UpdateTransmembranePotential(curr_time);
+            // Compute next value of V
+            UpdateTransmembranePotential(curr_time);
+    
+            // Compute other state variables
+            ComputeOneStepExceptVoltage(curr_time);
 
-        // Compute other state variables
-        ComputeOneStepExceptVoltage(curr_time);
+            // check gating variables are still in range
+            VerifyStateVariables();
+        }
 
         // Update solutions
         solutions.rGetSolutions().push_back(rGetStateVariables());
         solutions.rGetTimes().push_back(curr_time+mDt);
-
-        // check gating variables are still in range
-        VerifyStateVariables();
     }
 
     return solutions;

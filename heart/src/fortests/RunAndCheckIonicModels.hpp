@@ -39,12 +39,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ColumnDataReader.hpp"
 
 #include "AbstractCardiacCell.hpp"
+#include "HeartConfig.hpp"
 
 void RunOdeSolverWithIonicModel(AbstractCardiacCell* pOdeSystem,
                                 double endTime,
                                 std::string filename,
                                 int stepPerRow=100,
-                                bool doComputeExceptVoltage=true);
+                                bool doComputeExceptVoltage=true,
+                                bool useSamplingInterval=false);
 
 void CheckCellModelResults(const std::string& rBaseResultsFilename,
                            std::string validResultsBasename = "",
@@ -68,7 +70,8 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell* pOdeSystem,
                                 double endTime,
                                 std::string filename,
                                 int stepPerRow,
-                                bool doComputeExceptVoltage)
+                                bool doComputeExceptVoltage,
+                                bool useSamplingInterval)
 {
     double start_time = 0.0;
 
@@ -93,8 +96,16 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell* pOdeSystem,
     }
 
     // Solve and write to file
-    OdeSolution solution = pOdeSystem->Compute(start_time, endTime);
-    solution.WriteToFile("TestIonicModels",filename,"ms",stepPerRow,false,4);
+    if (useSamplingInterval)
+    {
+        OdeSolution solution = pOdeSystem->Compute(start_time, endTime, HeartConfig::Instance()->GetOdeTimeStep() * stepPerRow);
+        solution.WriteToFile("TestIonicModels", filename, "ms", 1, false, 4);
+    }
+    else
+    {
+        OdeSolution solution = pOdeSystem->Compute(start_time, endTime);
+        solution.WriteToFile("TestIonicModels", filename, "ms", stepPerRow, false, 4);
+    }
 }
 
 std::vector<double> GetVoltages(ColumnDataReader& rReader)

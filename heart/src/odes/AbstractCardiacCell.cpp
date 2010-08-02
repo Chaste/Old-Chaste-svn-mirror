@@ -60,9 +60,13 @@ void AbstractCardiacCell::Init()
 }
 
 
-OdeSolution AbstractCardiacCell::Compute(double tStart, double tEnd)
+OdeSolution AbstractCardiacCell::Compute(double tStart, double tEnd, double tSamp)
 {
-    return mpOdeSolver->Solve(this, rGetStateVariables(), tStart, tEnd, mDt, mDt);
+    if (tSamp < mDt)
+    {
+        tSamp = mDt;
+    }
+    return mpOdeSolver->Solve(this, rGetStateVariables(), tStart, tEnd, mDt, tSamp);
 }
 
 

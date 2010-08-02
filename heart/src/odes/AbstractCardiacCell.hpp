@@ -143,12 +143,13 @@ public:
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep #mDt.
+     * with timestep #mDt, and return state variable values.
      *
      * @param tStart  beginning of the time interval to simulate
      * @param tEnd  end of the time interval to simulate
+     * @param tSamp  sampling interval for returned results (defaults to #mDt)
      */
-    virtual OdeSolution Compute(double tStart, double tEnd);
+    virtual OdeSolution Compute(double tStart, double tEnd, double tSamp=0.0);
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
