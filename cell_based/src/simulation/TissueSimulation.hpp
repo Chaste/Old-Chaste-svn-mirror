@@ -125,6 +125,9 @@ protected:
     /** The mechanics used to determine the new location of the cells */
     std::vector<AbstractForce<DIM>*> mForceCollection;
 
+    /** Whether to write the node velocities to a file. */
+    bool mOutputNodeVelocities;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -161,6 +164,7 @@ protected:
         archive & mCellKillers;
         archive & mSamplingTimestepMultiple;
         archive & mForceCollection;
+        archive & mOutputNodeVelocities;
     }
 
     /**
@@ -392,6 +396,18 @@ public:
      * @return const reference to mForceCollection (used in archiving).
      */
     const std::vector<AbstractForce<DIM>*> rGetForceCollection() const;
+
+    /**
+     * @return mOutputNodeVelocities
+     */
+    bool GetOutputNodeVelocities();
+
+    /**
+     * Set mOutputNodeVelocities.
+     * 
+     * @param outputNodeVelocities the new value of mOutputNodeVelocities
+     */
+    void SetOutputNodeVelocities(bool outputNodeVelocities);
 };
 
 

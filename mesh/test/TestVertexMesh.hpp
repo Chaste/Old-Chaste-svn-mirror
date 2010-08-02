@@ -58,55 +58,34 @@ private:
         nodes.push_back(new Node<3>(7, false, 1.0, 1.0, 1.0));
         nodes.push_back(new Node<3>(8, false, 0.5, 0.5, 1.5));
 
+        // Make six square faces and four triangular faces out of these nodes
         std::vector<std::vector<Node<3>*> > nodes_faces(10);
-
-        // Make 6 square faces out of these nodes
-        nodes_faces[0].push_back(nodes[0]);
-        nodes_faces[0].push_back(nodes[2]);
-        nodes_faces[0].push_back(nodes[4]);
-        nodes_faces[0].push_back(nodes[1]);
-
-        nodes_faces[1].push_back(nodes[4]);
-        nodes_faces[1].push_back(nodes[7]);
-        nodes_faces[1].push_back(nodes[5]);
-        nodes_faces[1].push_back(nodes[2]);
-
-        nodes_faces[2].push_back(nodes[7]);
-        nodes_faces[2].push_back(nodes[6]);
-        nodes_faces[2].push_back(nodes[1]);
-        nodes_faces[2].push_back(nodes[4]);
-
-        nodes_faces[3].push_back(nodes[0]);
-        nodes_faces[3].push_back(nodes[3]);
-        nodes_faces[3].push_back(nodes[5]);
-        nodes_faces[3].push_back(nodes[2]);
-
-        nodes_faces[4].push_back(nodes[1]);
-        nodes_faces[4].push_back(nodes[6]);
-        nodes_faces[4].push_back(nodes[3]);
-        nodes_faces[4].push_back(nodes[0]);
-
-        nodes_faces[5].push_back(nodes[7]);
-        nodes_faces[5].push_back(nodes[6]);
-        nodes_faces[5].push_back(nodes[3]);
-        nodes_faces[5].push_back(nodes[5]);
-
-        // Make 4 triangular faces out of these nodes
-        nodes_faces[6].push_back(nodes[6]);
-        nodes_faces[6].push_back(nodes[7]);
-        nodes_faces[6].push_back(nodes[8]);
-
-        nodes_faces[7].push_back(nodes[6]);
-        nodes_faces[7].push_back(nodes[8]);
-        nodes_faces[7].push_back(nodes[3]);
-
-        nodes_faces[8].push_back(nodes[3]);
-        nodes_faces[8].push_back(nodes[8]);
-        nodes_faces[8].push_back(nodes[5]);
-
-        nodes_faces[9].push_back(nodes[5]);
-        nodes_faces[9].push_back(nodes[8]);
-        nodes_faces[9].push_back(nodes[7]);
+        unsigned node_indices_face_0[4] = {0, 2, 4, 1};
+        unsigned node_indices_face_1[4] = {4, 7, 5, 2};
+        unsigned node_indices_face_2[4] = {7, 6, 1, 4};
+        unsigned node_indices_face_3[4] = {0, 3, 5, 2};
+        unsigned node_indices_face_4[4] = {1, 6, 3, 0};
+        unsigned node_indices_face_5[4] = {7, 6, 3, 5};
+        unsigned node_indices_face_6[3] = {6, 7, 8};
+        unsigned node_indices_face_7[3] = {6, 8, 3};
+        unsigned node_indices_face_8[3] = {3, 8, 5};
+        unsigned node_indices_face_9[3] = {5, 8, 7};
+        for (unsigned i=0; i<4; i++)
+        {
+            nodes_faces[0].push_back(nodes[node_indices_face_0[i]]);
+            nodes_faces[1].push_back(nodes[node_indices_face_1[i]]);
+            nodes_faces[2].push_back(nodes[node_indices_face_2[i]]);
+            nodes_faces[3].push_back(nodes[node_indices_face_3[i]]);
+            nodes_faces[4].push_back(nodes[node_indices_face_4[i]]);
+            nodes_faces[5].push_back(nodes[node_indices_face_5[i]]);
+            if (i < 3)
+            {
+                nodes_faces[6].push_back(nodes[node_indices_face_6[i]]);
+                nodes_faces[7].push_back(nodes[node_indices_face_7[i]]);
+                nodes_faces[8].push_back(nodes[node_indices_face_8[i]]);
+                nodes_faces[9].push_back(nodes[node_indices_face_9[i]]);
+            }
+        }
 
         // Make the faces
         std::vector<VertexElement<2,3>*> faces;

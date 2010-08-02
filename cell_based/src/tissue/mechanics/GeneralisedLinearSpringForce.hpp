@@ -74,7 +74,19 @@ private :
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractTwoBodyInteractionForce<DIM> >(*this);
+        archive & mMeinekeDivisionRestingSpringLength;
     }
+
+protected:
+    
+    /**
+     * Initial resting spring length after cell division.
+     * Has units of cell size at equilibrium rest length
+     * 
+     * The value of this parameter should be larger than mDivisionSeparation,
+     * because of pressure from neighbouring springs.
+     */
+    double mMeinekeDivisionRestingSpringLength;
 
 public :
 
@@ -123,6 +135,17 @@ public :
                                                      unsigned nodeBGlobalIndex,
                                                      AbstractTissue<DIM>& rTissue);
 
+    /**
+     * @return mMeinekeDivisionRestingSpringLength
+     */
+    double GetMeinekeDivisionRestingSpringLength();
+
+    /**
+     * Set mMeinekeDivisionRestingSpringLength.
+     * 
+     * @param divisionRestingSpringLength the new value of mMeinekeDivisionRestingSpringLength
+     */
+    void SetMeinekeDivisionRestingSpringLength(double divisionRestingSpringLength);
 };
 
 #include "SerializationExportWrapper.hpp"

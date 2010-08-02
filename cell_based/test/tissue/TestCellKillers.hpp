@@ -373,8 +373,8 @@ public:
 
     void TestOxygenBasedCellKiller() throw(Exception)
     {
-        // Set up
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         double end_time = 1.0;

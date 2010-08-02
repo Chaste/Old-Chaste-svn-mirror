@@ -82,6 +82,14 @@ private:
         archive & mCellCyclePhaseCount;
         archive & mTissueContainsMesh;
         archive & mpCellPropertyRegistry;
+        archive & mOutputCellIdData;
+        archive & mOutputCellMutationStates;
+        archive & mOutputCellAncestors;
+        archive & mOutputCellProliferativeTypes;
+        archive & mOutputCellVariables;
+        archive & mOutputCellCyclePhases;
+        archive & mOutputCellAges;
+        archive & mOutputCellVolumes;
     }
 
 protected:
@@ -137,12 +145,35 @@ protected:
     /** Cell property registry. */
     boost::shared_ptr<CellPropertyRegistry> mpCellPropertyRegistry;
 
+    /** Whether to write cell ID data to file. */
+    bool mOutputCellIdData;
+
+    /** Whether to count the number of each cell mutation state and output to file. */
+    bool mOutputCellMutationStates;
+
+    /** Whether to output the ancestor of each cell to a visualizer file. */
+    bool mOutputCellAncestors;
+
+    /** Whether to count the number of each cell type and output to file. */
+    bool mOutputCellProliferativeTypes;
+
+    /** Whether to write the cell variables to a file. */
+    bool mOutputCellVariables;
+
+    /** Whether to write the cell cycle phases to a file. */
+    bool mOutputCellCyclePhases;
+
+    /** Whether to write the cell ages to a file. */
+    bool mOutputCellAges;
+
+    /** Whether to write the cell volumes (in 3D) or areas (in 2D) to a file. */
+    bool mOutputCellVolumes;
+
     /**
      * Check consistency of our internal data structures.
      */
     virtual void Validate()=0;
-
-protected:
+    
     /**
      * Constructor for use by archiving only. Please use the other constructor.
      *
@@ -458,6 +489,102 @@ public:
      * Close any output files.
      */
     virtual void CloseOutputFiles();
+
+    /**
+     * @return mOutputCellIdData
+     */
+    bool GetOutputCellIdData();
+
+    /**
+     * @return mOutputCellMutationStates
+     */
+    bool GetOutputCellMutationStates();
+
+    /**
+     * @return mOutputCellAncestors
+     */
+    bool GetOutputCellAncestors();
+
+    /**
+     * @return mOutputCellProliferativeTypes
+     */
+    bool GetOutputCellProliferativeTypes();
+
+    /**
+     * @return mOutputCellVariables
+     */
+    bool GetOutputCellVariables();
+
+    /**
+     * @return mOutputCellCyclePhases
+     */
+    bool GetOutputCellCyclePhases();
+
+    /**
+     * @return mOutputCellAges
+     */
+    bool GetOutputCellAges();
+
+    /**
+     * @return mOutputCellVolumes
+     */
+    bool GetOutputCellVolumes();
+
+    /**
+     * Set mOutputCellIdData.
+     * 
+     * @param outputCellIdData the new value of mOutputCellIdData
+     */
+    void SetOutputCellIdData(bool outputCellIdData);
+
+    /**
+     * Set mOutputCellMutationStates.
+     * 
+     * @param outputCellMutationStates the new value of mOutputCellMutationStates
+     */
+    void SetOutputCellMutationStates(bool outputCellMutationStates);
+
+    /**
+     * Set mOutputCellAncestors.
+     * 
+     * @param outputCellAncestors the new value of mOutputCellAncestors
+     */
+    void SetOutputCellAncestors(bool outputCellAncestors);
+
+    /**
+     * Set mOutputCellProliferativeTypes.
+     * 
+     * @param outputCellProliferativeTypes the new value of mOutputCellProliferativeTypes
+     */
+    void SetOutputCellProliferativeTypes(bool outputCellProliferativeTypes);
+
+    /**
+     * Set mOutputCellVariables.
+     * 
+     * @param outputCellVariables the new value of mOutputCellVariables
+     */
+    void SetOutputCellVariables(bool outputCellVariables);
+
+    /**
+     * Set mOutputCellCyclePhases.
+     * 
+     * @param outputCellCyclePhases the new value of mOutputCellCyclePhases
+     */
+    void SetOutputCellCyclePhases(bool outputCellCyclePhases);
+
+    /**
+     * Set mOutputCellAges.
+     * 
+     * @param outputCellAges the new value of mOutputCellAges
+     */
+    void SetOutputCellAges(bool outputCellAges);
+
+    /**
+     * Set mOutputCellVolumes.
+     * 
+     * @param outputCellVolumes the new value of mOutputCellVolumes
+     */
+    void SetOutputCellVolumes(bool outputCellVolumes);
 
     /**
      * Iterator class allows one to iterate over cells in the tissue.

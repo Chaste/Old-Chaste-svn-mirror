@@ -51,7 +51,7 @@ c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCellPtr
     c_vector<double, 1> daughter_coords;
 
     // Get separation parameter
-    double separation = TissueConfig::Instance()->GetMeinekeDivisionSeparation();
+    double separation = mpStaticCastTissue->GetMeinekeDivisionSeparation();
 
     // Make a random direction vector of the required length
     c_vector<double, 1> random_vector;

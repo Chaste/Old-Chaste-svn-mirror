@@ -52,9 +52,9 @@ void StochasticWntCellCycleModel::SetG2Duration()
     mG2Duration = p_gen->NormalRandomDeviate(mean, standard_deviation);
 
     // Check that the normal random deviate has not returned a small or negative G2 duration
-    if (mG2Duration < p_config->GetMinimumGapDuration())
+    if (mG2Duration < mMinimumGapDuration)
     {
-        mG2Duration = p_config->GetMinimumGapDuration();
+        mG2Duration = mMinimumGapDuration;
     }
 }
 

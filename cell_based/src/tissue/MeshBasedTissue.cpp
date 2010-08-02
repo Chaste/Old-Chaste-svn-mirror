@@ -43,7 +43,9 @@ MeshBasedTissue<DIM>::MeshBasedTissue(MutableMesh<DIM, DIM>& rMesh,
       mpVoronoiTessellation(NULL),
       mDeleteMesh(deleteMesh),
       mUseAreaBasedDampingConstant(false),
-      mAreaBasedDampingConstantParameter(0.1)
+      mAreaBasedDampingConstantParameter(0.1),
+      mOutputVoronoiData(false),
+      mOutputTissueVolumes(false)
 {
     // This must always be true
     assert(this->mCells.size() <= mrMesh.GetNumNodes());
@@ -315,8 +317,7 @@ void MeshBasedTissue<DIM>::Update(bool hasHadBirthsOrDeaths)
     if (DIM==2 || DIM==3)
     {
         CellBasedEventHandler::BeginEvent(CellBasedEventHandler::TESSELLATION);
-        if (mUseAreaBasedDampingConstant || TissueConfig::Instance()->GetOutputVoronoiData() ||
-            TissueConfig::Instance()->GetOutputTissueVolumes() || TissueConfig::Instance()->GetOutputCellVolumes() )
+        if (mUseAreaBasedDampingConstant || mOutputVoronoiData || mOutputTissueVolumes || this->mOutputCellVolumes)
         {
             CreateVoronoiTessellation();
         }
@@ -369,15 +370,15 @@ void MeshBasedTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpVizElementsFile = output_file_handler.OpenOutputFile("results.vizelements");
 
-    if (TissueConfig::Instance()->GetOutputVoronoiData())
+    if (mOutputVoronoiData)
     {
         mpVoronoiFile = output_file_handler.OpenOutputFile("voronoi.dat");
     }
-    if (TissueConfig::Instance()->GetOutputTissueVolumes())
+    if (mOutputTissueVolumes)
     {
         mpTissueVolumesFile = output_file_handler.OpenOutputFile("tissueareas.dat");
     }
-    if (TissueConfig::Instance()->GetOutputCellVolumes())
+    if (this->mOutputCellVolumes)
     {
         mpCellVolumesFile = output_file_handler.OpenOutputFile("cellareas.dat");
     }
@@ -397,15 +398,15 @@ void MeshBasedTissue<DIM>::CloseOutputFiles()
 
     mpVizElementsFile->close();
 
-    if (TissueConfig::Instance()->GetOutputVoronoiData())
+    if (mOutputVoronoiData)
     {
         mpVoronoiFile->close();
     }
-    if (TissueConfig::Instance()->GetOutputTissueVolumes())
+    if (mOutputTissueVolumes)
     {
         mpTissueVolumesFile->close();
     }
-    if (TissueConfig::Instance()->GetOutputCellVolumes())
+    if (this->mOutputCellVolumes)
     {
         mpCellVolumesFile->close();
     }
@@ -462,15 +463,15 @@ void MeshBasedTissue<DIM>::WriteResultsToFiles()
 
     if (mpVoronoiTessellation!=NULL)
     {
-        if (TissueConfig::Instance()->GetOutputVoronoiData())
+        if (mOutputVoronoiData)
         {
             WriteVoronoiResultsToFile();
         }
-        if (TissueConfig::Instance()->GetOutputTissueVolumes())
+        if (mOutputTissueVolumes)
         {
             WriteTissueVolumeResultsToFile();
         }
-        if (TissueConfig::Instance()->GetOutputCellVolumes())
+        if (this->mOutputCellVolumes)
         {
             WriteCellVolumeResultsToFile();
         }
@@ -525,32 +526,32 @@ void MeshBasedTissue<DIM>::WriteVtkResultsToFile()
         // Get the cell corresponding to this element
         TissueCellPtr p_cell = this->mLocationCellMap[node_index];
 
-        if (TissueConfig::Instance()->GetOutputCellAncestors())
+        if (this->mOutputCellAncestors)
         {
             double ancestor_index = (p_cell->GetAncestor() == UNSIGNED_UNSET) ? (-1.0) : (double)p_cell->GetAncestor();
             cell_ancestors[elem_index] = ancestor_index;
         }
-        if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
+        if (this->mOutputCellProliferativeTypes)
         {
             double cell_type = p_cell->GetCellCycleModel()->GetCellProliferativeType();
             cell_types[elem_index] = cell_type;
         }
-        if (TissueConfig::Instance()->GetOutputCellMutationStates())
+        if (this->mOutputCellMutationStates)
         {
             double mutation_state = p_cell->GetMutationState()->GetColour();
             cell_mutation_states[elem_index] = mutation_state;
         }
-        if (TissueConfig::Instance()->GetOutputCellAges())
+        if (this->mOutputCellAges)
         {
             double age = p_cell->GetAge();
             cell_ages[elem_index] = age;
         }
-        if (TissueConfig::Instance()->GetOutputCellCyclePhases())
+        if (this->mOutputCellCyclePhases)
         {
             double cycle_phase = p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase();
             cell_cycle_phases[elem_index] = cycle_phase;
         }
-        if (TissueConfig::Instance()->GetOutputCellVolumes())
+        if (this->mOutputCellVolumes)
         {
             double cell_volume = mpVoronoiTessellation->GetVolumeOfElement(elem_index);
             cell_volumes[elem_index] = cell_volume;
@@ -566,27 +567,27 @@ void MeshBasedTissue<DIM>::WriteVtkResultsToFile()
         }
     }
 
-    if (TissueConfig::Instance()->GetOutputCellProliferativeTypes())
+    if (this->mOutputCellProliferativeTypes)
     {
         mesh_writer.AddCellData("Cell types", cell_types);
     }
-    if (TissueConfig::Instance()->GetOutputCellAncestors())
+    if (this->mOutputCellAncestors)
     {
         mesh_writer.AddCellData("Ancestors", cell_ancestors);
     }
-    if (TissueConfig::Instance()->GetOutputCellMutationStates())
+    if (this->mOutputCellMutationStates)
     {
         mesh_writer.AddCellData("Mutation states", cell_mutation_states);
     }
-    if (TissueConfig::Instance()->GetOutputCellAges())
+    if (this->mOutputCellAges)
     {
         mesh_writer.AddCellData("Ages", cell_ages);
     }
-    if (TissueConfig::Instance()->GetOutputCellCyclePhases())
+    if (this->mOutputCellCyclePhases)
     {
         mesh_writer.AddCellData("Cycle phases", cell_cycle_phases);
     }
-    if (TissueConfig::Instance()->GetOutputCellVolumes())
+    if (this->mOutputCellVolumes)
     {
         mesh_writer.AddCellData("Cell volumes", cell_volumes);
     }
@@ -989,6 +990,30 @@ void MeshBasedTissue<DIM>::SetAreaBasedDampingConstantParameter(double areaBased
 {
     assert(areaBasedDampingConstantParameter >= 0.0);
     mAreaBasedDampingConstantParameter = areaBasedDampingConstantParameter;
+}
+
+template<unsigned DIM>
+bool MeshBasedTissue<DIM>::GetOutputVoronoiData()
+{
+    return mOutputVoronoiData;
+}
+
+template<unsigned DIM>
+void MeshBasedTissue<DIM>::SetOutputVoronoiData(bool outputVoronoiData)
+{
+    mOutputVoronoiData = outputVoronoiData;
+}
+
+template<unsigned DIM>
+bool MeshBasedTissue<DIM>::GetOutputTissueVolumes()
+{
+    return mOutputTissueVolumes;
+}
+
+template<unsigned DIM>
+void MeshBasedTissue<DIM>::SetOutputTissueVolumes(bool outputTissueVolumes)
+{
+    mOutputTissueVolumes = outputTissueVolumes;
 }
 
 /////////////////////////////////////////////////////////////////////////////

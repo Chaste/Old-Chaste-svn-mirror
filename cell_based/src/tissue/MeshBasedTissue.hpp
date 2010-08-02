@@ -79,12 +79,9 @@ private:
         archive & mMarkedSprings;
         archive & mUseAreaBasedDampingConstant;
         archive & mAreaBasedDampingConstantParameter;
+        archive & mOutputVoronoiData;
+        archive & mOutputTissueVolumes;
 
-        // In its present form, a call to MeshBasedTissue::Validate() here
-        // would result in a seg fault in the situation where we are actually loading
-        // a MeshBasedTissueWithGhostNodes. Commenting out this call breaks no tests.
-
-        //this->Update();
         this->Validate();
     }
 
@@ -146,10 +143,14 @@ protected:
     /** Whether to use a viscosity that is linear in the cell area, rather than constant. */
     bool mUseAreaBasedDampingConstant;
 
-    /**
-     * Non-dimensional parameter d0 for use in area-based damping constant calculations.
-     */
+    /** Non-dimensional parameter d0 for use in area-based damping constant calculations. */
     double mAreaBasedDampingConstantParameter;
+
+    /** Whether to write cell volume and surface area (in 3D) or area and perimeter (in 2D) information to file. */
+    bool mOutputVoronoiData;
+
+    /** Whether to write the tissue volumes (in 3D) or areas (in 2D)  to file. */
+    bool mOutputTissueVolumes;
 
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 
@@ -212,11 +213,11 @@ public:
     bool UseAreaBasedDampingConstant();
 
     /**
-     * Set method for mWriteVoronoiData.
+     * Set method for mOutputVoronoiData.
      *
-     * @param writeVoronoiData whether to output cell area and perimeter information
+     * @param outputVoronoiData whether to output cell area and perimeter information
      */
-    void SetOutputVoronoiData(bool writeVoronoiData);
+    void SetOutputVoronoiData(bool outputVoronoiData);
 
     /**
      * Overridden AddNode() method.
@@ -246,15 +247,6 @@ public:
      * @return the damping constant for the given TissueCell.
      */
     double GetDampingConstant(unsigned nodeIndex);
-
-    /**
-     * Set method for mWriteTissueVolumes.
-     *
-     * \todo Extend this to 3D (possibly rename to SetOutputTissueVolumes?) - see also #738
-     *
-     * @param writeTissueVolumes  whether to output tissue area data
-     */
-    void SetOutputTissueVolumes(bool writeTissueVolumes);
 
     /**
      * Set method for mUseAreaBasedDampingConstant.
@@ -522,6 +514,23 @@ public:
      * @param areaBasedDampingConstantParameter the new value of mAreaBasedDampingConstantParameter
      */
     void SetAreaBasedDampingConstantParameter(double areaBasedDampingConstantParameter);
+
+    /**
+     * @return mOutputVoronoiData
+     */
+    bool GetOutputVoronoiData();
+
+    /**
+     * @return mOutputTissueVolumes
+     */
+    bool GetOutputTissueVolumes();
+
+    /**
+     * Set mOutputTissueVolumes.
+     * 
+     * @param outputTissueVolumes the new value of mOutputTissueVolumes
+     */
+    void SetOutputTissueVolumes(bool outputTissueVolumes);
 };
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 

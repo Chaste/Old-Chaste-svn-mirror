@@ -583,11 +583,11 @@ public:
         std::string output_directory = "TestNodeBasedTissueWriters";
         OutputFileHandler output_file_handler(output_directory, false);
 
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
-        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
-        TissueConfig::Instance()->SetOutputCellAncestors(true);
-        TissueConfig::Instance()->SetOutputCellAges(true);
+        node_based_tissue.SetOutputCellMutationStates(true);
+        node_based_tissue.SetOutputCellProliferativeTypes(true);
+        node_based_tissue.SetOutputCellCyclePhases(true);
+        node_based_tissue.SetOutputCellAncestors(true);
+        node_based_tissue.SetOutputCellAges(true);
 
         TS_ASSERT_THROWS_NOTHING(node_based_tissue.CreateOutputFiles(output_directory, false));
 
@@ -678,7 +678,7 @@ public:
         std::string output_directory = "TestWritingCellCyclePhases";
         OutputFileHandler output_file_handler(output_directory, false);
 
-        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+        node_based_tissue.SetOutputCellCyclePhases(true);
 
         node_based_tissue.CreateOutputFiles(output_directory, false);
         node_based_tissue.WriteResultsToFiles();

@@ -403,6 +403,7 @@ public:
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        crypt.SetOutputCellMutationStates(true);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -412,7 +413,6 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetEndTime(0.1);
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         // These are for coverage and use the defaults
         simulator.SetDt(1.0/120.0);
@@ -721,6 +721,7 @@ public:
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        crypt.SetOutputCellCyclePhases(true); // for coverage
 
         // We have a Wnt Gradient - but not Wnt dependent cells
         // so that the test runs quickly, but we test archiving of it!
@@ -740,7 +741,6 @@ public:
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
-        TissueConfig::Instance()->SetOutputCellCyclePhases(true); // for coverage
 
         // Run simulation
         simulator.Solve();
@@ -914,7 +914,11 @@ public:
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Cover the write Voronoi data method
-        TissueConfig::Instance()->SetOutputVoronoiData(true);
+        crypt.SetOutputVoronoiData(true);
+        crypt.SetOutputTissueVolumes(true);
+        crypt.SetOutputCellVolumes(true);
+        crypt.SetOutputCellAncestors(true);
+        crypt.SetOutputCellAges(true);
 
         AbstractTissue<2>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
@@ -952,24 +956,16 @@ public:
 
         // Cover exceptions
         TS_ASSERT_THROWS_THIS(simulator.rGetTissue().GetCellMutationStateCount(),
-                              "Call TissueConfig::Instance()->SetOutputCellMutationStates(true) before using this function");
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+                              "Call SetOutputCellMutationStates(true) before using this function");
+        simulator.rGetTissue().SetOutputCellMutationStates(true);
 
         TS_ASSERT_THROWS_THIS(simulator.rGetTissue().rGetCellProliferativeTypeCount(),
-                              "Call TissueConfig::Instance()->SetOutputCellProliferativeTypes(true) before using this function");
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
+                              "Call SetOutputCellProliferativeTypes(true) before using this function");
+        simulator.rGetTissue().SetOutputCellProliferativeTypes(true);
 
         TS_ASSERT_THROWS_THIS(simulator.rGetTissue().rGetCellCyclePhaseCount(),
-                              "Call TissueConfig::Instance()->SetOutputCellCyclePhases(true) before using this function");
-
-        TissueConfig::Instance()->SetOutputVoronoiData(true);
-        TissueConfig::Instance()->SetOutputTissueVolumes(true);
-        TissueConfig::Instance()->SetOutputCellVolumes(true);
-        TissueConfig::Instance()->SetOutputCellAncestors(true);
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
-        TissueConfig::Instance()->SetOutputCellAges(true);
-        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+                              "Call SetOutputCellCyclePhases(true) before using this function");
+        crypt.SetOutputCellCyclePhases(true);
 
         // Run simulation
         simulator.Solve();
@@ -1037,6 +1033,9 @@ public:
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Cover writing logged cell
+        crypt.SetOutputCellIdData(true);
+
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -1050,9 +1049,6 @@ public:
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
-
-        // Cover writing logged cell
-        TissueConfig::Instance()->SetOutputCellIdData(true);
 
         simulator.Solve();
 
@@ -1113,7 +1109,7 @@ public:
         simulator.rGetTissue().GetCellUsingLocationIndex(56)->SetMutationState(p_apc1);
         simulator.rGetTissue().GetCellUsingLocationIndex(51)->SetMutationState(p_apc2);
         simulator.rGetTissue().GetCellUsingLocationIndex(63)->SetMutationState(p_bcat1);
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
+        simulator.rGetTissue().SetOutputCellMutationStates(true);
 
         // Run simulation
         simulator.Solve();
@@ -1205,8 +1201,6 @@ public:
     {
         // Set up model parameters
         TissueConfig::Instance()->Reset();
-        TissueConfig::Instance()->SetMeinekeDivisionRestingSpringLength(0.9);//Only coverage
-        TissueConfig::Instance()->SetMeinekeDivisionSeparation(0.1);
 
         // Make a parent node
         c_vector<double,2> location;
@@ -1224,11 +1218,13 @@ public:
 
         // Create tissue
         MeshBasedTissue<2> conf_crypt(conf_mesh, conf_cells);
+        conf_crypt.SetMeinekeDivisionSeparation(0.1);
 
         AbstractTissue<2>::Iterator conf_iter = conf_crypt.Begin();
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetMeinekeDivisionRestingSpringLength(0.9); // coverage
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -1238,7 +1234,7 @@ public:
         c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*conf_iter);
         c_vector<double, 2> new_parent_location = conf_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = conf_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetMeinekeDivisionSeparation(), 1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), conf_crypt.GetMeinekeDivisionSeparation(), 1e-7);
     }
 
 
@@ -1284,7 +1280,7 @@ public:
             TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
             TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
             TS_ASSERT_LESS_THAN_EQUALS(location[1], daughter_location[1]);
-            TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetMeinekeDivisionSeparation(), 1e-7);
+            TS_ASSERT_DELTA(norm_2(parent_to_daughter), conf_crypt.GetMeinekeDivisionSeparation(), 1e-7);
        }
     }
 
@@ -1320,7 +1316,7 @@ public:
         c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*cyl_iter);
         c_vector<double, 2> new_parent_location = cyl_mesh.GetNode(0)->rGetLocation();
         c_vector<double, 2> parent_to_daughter = cyl_mesh.GetVectorFromAtoB(new_parent_location, daughter_location);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetMeinekeDivisionSeparation(), 1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), cyl_crypt.GetMeinekeDivisionSeparation(), 1e-7);
     }
 
 
@@ -1360,7 +1356,7 @@ public:
         TS_ASSERT_DELTA(new_parent_location[0], location[0], 1e-7);
         TS_ASSERT_DELTA(new_parent_location[1], location[1], 1e-7);
         TS_ASSERT_LESS_THAN_EQUALS(location[1], daughter_location[1]);
-        TS_ASSERT_DELTA(norm_2(parent_to_daughter), TissueConfig::Instance()->GetMeinekeDivisionSeparation(), 1e-7);
+        TS_ASSERT_DELTA(norm_2(parent_to_daughter), cyl_crypt.GetMeinekeDivisionSeparation(), 1e-7);
     }
 
 
@@ -1517,10 +1513,6 @@ public:
      */
     void TestCellCountInitialization()
     {
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
-        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
-
         // Create mesh
         HoneycombMeshGenerator generator(4, 4, 0, true, 1.0);
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
@@ -1545,6 +1537,10 @@ public:
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+
+        crypt.SetOutputCellMutationStates(true);
+        crypt.SetOutputCellProliferativeTypes(true);
+        crypt.SetOutputCellCyclePhases(true);
 
         // Each cell count has been initialized to the correct size and computed
         std::vector<unsigned> cell_mutation_state_count1 = crypt.GetCellMutationStateCount();
@@ -1805,6 +1801,10 @@ public:
         // Set up crypt
         MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, location_indices);
 
+        // Set simulation to output cell types and cell ancestors
+        p_crypt->SetOutputCellMutationStates(true);
+        p_crypt->SetOutputCellAncestors(true);
+
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -1813,10 +1813,6 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(*p_crypt, force_collection, false, false);
         simulator.SetOutputDirectory(output_directory);
-        TissueConfig::Instance()->SetOutputCellAncestors(true);
-
-        // Set simulation to output cell types
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         // Set length of simulation here
         double time_of_each_run = 10.0*simulator.GetDt(); // for each run

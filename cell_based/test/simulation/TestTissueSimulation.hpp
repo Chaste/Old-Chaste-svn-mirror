@@ -108,7 +108,10 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        TissueConfig::Instance()->SetOutputTissueVolumes(true);
+        tissue.SetOutputTissueVolumes(true);
+        tissue.SetOutputCellVariables(true);
+        tissue.SetOutputCellCyclePhases(true);
+        tissue.SetOutputCellAges(true);
 
         // Set up Wnt Gradient
         WntConcentration<2>::Instance()->SetType(LINEAR);
@@ -125,10 +128,6 @@ public:
         simulator.SetEndTime(0.5);
 
         TS_ASSERT_DELTA(simulator.GetDt(), 1.0/120.0, 1e-12);
-
-        TissueConfig::Instance()->SetOutputCellVariables(true);
-        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
-        TissueConfig::Instance()->SetOutputCellAges(true);
 
         // Run tissue simulation
         TS_ASSERT_EQUALS(simulator.GetOutputDirectory(), "TissueSimulationWritingProteins");
@@ -190,7 +189,8 @@ public:
         simulator.SetEndTime(0.5);
 
         // Record node velocities
-        TissueConfig::Instance()->SetOutputNodeVelocities(true);
+        TS_ASSERT_EQUALS(simulator.GetOutputNodeVelocities(), false);
+        simulator.SetOutputNodeVelocities(true);
 
         // Run simulation
         simulator.Solve();
@@ -242,7 +242,7 @@ public:
         simulator.SetEndTime(0.5);
 
         // Record node velocities
-        TissueConfig::Instance()->SetOutputNodeVelocities(true);
+        simulator.SetOutputNodeVelocities(true);
 
         // Run simulation
         simulator.Solve();

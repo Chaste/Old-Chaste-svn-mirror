@@ -62,14 +62,6 @@ public:
      */
     double GetTransitCellG1Duration();
     /**
-     * @return mHepaOneCellG1Duration
-     */
-    double GetHepaOneCellG1Duration();
-    /**
-     * @return mMinimumGapDuration
-     */
-    double GetMinimumGapDuration();
-    /**
      * @return mSDuration + mG2Duration + mMDuration
      */
     double GetSG2MDuration();
@@ -118,61 +110,9 @@ public:
      */
     double GetMeinekeMechanicsCutOffLength();
     /**
-     * @return mMeinekeDivisionRestingSpringLength
-     */
-    double GetMeinekeDivisionRestingSpringLength();
-    /**
-     * @return mMeinekeDivisionSeparation
-     */
-    double GetMeinekeDivisionSeparation();
-    /**
      * @return mMatureCellTargetArea
      */
     double GetMatureCellTargetArea();
-    /**
-     * @return mOutputCellIdData
-     */
-    bool GetOutputCellIdData();
-    /**
-     * @return mOutputCellMutationStates
-     */
-    bool GetOutputCellMutationStates();
-    /**
-     * @return mOutputCellAncestors
-     */
-    bool GetOutputCellAncestors();
-    /**
-     * @return mOutputCellProliferativeTypes
-     */
-    bool GetOutputCellProliferativeTypes();
-    /**
-     * @return mOutputCellVariables
-     */
-    bool GetOutputCellVariables();
-    /**
-     * @return mOutputCellCyclePhases
-     */
-    bool GetOutputCellCyclePhases();
-    /**
-     * @return mOutputCellAges
-     */
-    bool GetOutputCellAges();
-    /**
-     * @return mOutputCellVolumes
-     */
-    bool GetOutputCellVolumes();
-    /**
-     * @return mOutputVoronoiData
-     */
-    bool GetOutputVoronoiData();
-    /**
-     * @return mOutputTissueVolumes
-     */
-    bool GetOutputTissueVolumes();
-    /**
-     * @return mOutputNodeVelocities
-     */
-    bool GetOutputNodeVelocities();
 
     /**
      * Set mStemCellG1Duration.
@@ -182,14 +122,6 @@ public:
      * Set mTransitCellG1Duration.
      */
     void SetTransitCellG1Duration(double);
-    /**
-     * Set mHepaOneCellG1Duration.
-     */
-    void SetHepaOneCellG1Duration(double);
-    /**
-     * Set mMinimumGapDuration.
-     */
-    void SetMinimumGapDuration(double);
     /**
      * Set mSDuration.
      */
@@ -223,10 +155,6 @@ public:
      */
     void SetWntStemThreshold(double);
     /**
-     * Set mHepaOneParameters.
-     */
-    void SetHepaOneParameters();
-    /**
      * Set mCryptProjectionParameterA.
      */
     void SetCryptProjectionParameterA(double);
@@ -242,58 +170,6 @@ public:
      * Set mMeinekeMechanicsCutOffLength.
      */
     void SetMeinekeMechanicsCutOffLength(double);
-    /**
-     * Set mMeinekeDivisionRestingSpringLength.
-     */
-    void SetMeinekeDivisionRestingSpringLength(double);
-    /**
-     * Set mMeinekeDivisionSeparation.
-     */
-    void SetMeinekeDivisionSeparation(double);
-    /**
-     * Set mOutputCellIdData.
-     */
-    void SetOutputCellIdData(bool);
-    /**
-     * Set mOutputCellMutationStates.
-     */
-    void SetOutputCellMutationStates(bool);
-    /**
-     * Set mOutputCellAncestors.
-     */
-    void SetOutputCellAncestors(bool);
-    /**
-     * Set mOutputCellProliferativeTypes.
-     */
-    void SetOutputCellProliferativeTypes(bool);
-    /**
-     * Set mOutputCellVariables.
-     */
-    void SetOutputCellVariables(bool);
-    /**
-     * Set mOutputCellCyclePhases.
-     */
-    void SetOutputCellCyclePhases(bool);
-    /**
-     * Set mOutputCellAges.
-     */
-    void SetOutputCellAges(bool);
-    /**
-     * Set mOutputCellVolumes.
-     */
-    void SetOutputCellVolumes(bool);
-    /**
-     * Set mOutputVoronoiData.
-     */
-    void SetOutputVoronoiData(bool);
-      /**
-     * Set mOutputTissueVolumes.
-     */
-    void SetOutputTissueVolumes(bool);
-    /**
-     * Set mOutputNodeVelocities.
-     */
-    void SetOutputNodeVelocities(bool);
 
     /**
      *  Reset all parameters to their defaults
@@ -334,19 +210,6 @@ private:
      * May be used as a mean duration for stochastic cell cycle models.
      */
     double mTransitCellG1Duration;
-
-    /**
-     * Duration of G1 phase for HEPA-1 cells, for use in monolayer/spheroid simulations.
-     * May be used as a mean duration for stochastic cell cycle models.
-     */
-    double mHepaOneCellG1Duration;
-
-    /**
-     * Minimum possbile duration of either of the gap phases (G1 or G2).
-     * Used to guarantee a strictly positive duration in cell cycle models that
-     * use normal random deviates for G1 or G2 phases.
-     */
-    double mMinimumGapDuration;
 
     /**
      * Duration of S phase for all cell types.
@@ -415,62 +278,6 @@ private:
      */
     double mMeinekeMechanicsCutOffLength;
 
-    /**
-     * Initial separation placement of mother/daughter cells at birth
-     */
-    double mMeinekeDivisionSeparation;
-
-    /**
-     * Initial resting spring length after cell division.
-     * The value of this parameter should be larger than mDivisionSeparation,
-     * because of pressure from neighbouring springs.
-     */
-    double mMeinekeDivisionRestingSpringLength;
-
-    /** Whether to write cell ID data to file. */
-    bool mOutputCellIdData;
-
-    /**
-     * Whether to count the number of each cell mutation
-     * state and output to file.
-     */
-    bool mOutputCellMutationStates;
-
-    /**
-     * Whether to output the ancestor of each cell to a
-     * visualizer file.
-     */
-    bool mOutputCellAncestors;
-
-    /**
-     * Whether to count the number of each cell type and output
-     * to file.
-     */
-    bool mOutputCellProliferativeTypes;
-
-    /**
-     * Whether to write the cell variables to a file.
-     */
-    bool mOutputCellVariables;
-
-    /** Whether to write the cell cycle phases to a file. */
-    bool mOutputCellCyclePhases;
-
-    /** Whether to write the cell ages to a file. */
-    bool mOutputCellAges;
-
-    /** Whether to write the cell volumes (in 3D) or areas (in 2D) to a file. */
-    bool mOutputCellVolumes;
-
-    /** Whether to write cell volume and surface area (in 3D) or area and perimeter (in 2D) information to file. */
-    bool mOutputVoronoiData;
-
-    /** Whether to write the tissue volumes (in 3D) or areas (in 2D)  to file. */
-    bool mOutputTissueVolumes;
-
-    /** Whether to write the node velocities to a file. */
-    bool mOutputNodeVelocities;
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -486,8 +293,6 @@ private:
     {
         archive & mStemCellG1Duration;
         archive & mTransitCellG1Duration;
-        archive & mHepaOneCellG1Duration;
-        archive & mMinimumGapDuration;
         archive & mSDuration;
         archive & mG2Duration;
         archive & mMDuration;
@@ -499,19 +304,6 @@ private:
         archive & mCryptProjectionParameterB;
         archive & mMeinekeSpringStiffness;
         archive & mMeinekeMechanicsCutOffLength;
-        archive & mMeinekeDivisionRestingSpringLength;
-        archive & mMeinekeDivisionSeparation;
-        archive & mOutputCellIdData;
-        archive & mOutputCellMutationStates;
-        archive & mOutputCellAncestors;
-        archive & mOutputCellProliferativeTypes;
-        archive & mOutputCellVariables;
-        archive & mOutputCellCyclePhases;
-        archive & mOutputCellAges;
-        archive & mOutputCellVolumes;
-        archive & mOutputVoronoiData;
-        archive & mOutputTissueVolumes;
-        archive & mOutputNodeVelocities;
     }
 };
 

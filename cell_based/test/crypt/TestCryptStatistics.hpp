@@ -186,6 +186,9 @@ public:
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Set tissue to output cell types
+        crypt.SetOutputCellMutationStates(true);
+
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -195,9 +198,6 @@ public:
 
         simulator.SetOutputDirectory(output_directory);
         double time_of_each_run = simulator.GetDt(); // for each run
-
-        // Set simulation to output cell types
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
@@ -415,6 +415,9 @@ public:
             // Set up crypt
             p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, location_indices);
 
+            // Set tissue to output cell types
+            p_crypt->SetOutputCellMutationStates(true);
+
             // Set up force law
             GeneralisedLinearSpringForce<2> linear_force;
             std::vector<AbstractForce<2>*> force_collection;
@@ -423,9 +426,6 @@ public:
             // Set up crypt simulation
             CryptSimulation2d simulator(*p_crypt, force_collection, false, false);
             simulator.SetOutputDirectory(output_directory);
-
-            // Set simulation to output cell types
-            TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
             // Set length of simulation here
             time_of_each_run = 10.0*simulator.GetDt(); // for each run

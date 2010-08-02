@@ -62,9 +62,6 @@ public:
 	 */
 	void Test3DHoneycombMeshWithGhostNodes() throw (Exception)
 	{
-		TissueConfig::Instance()->SetOutputVoronoiData(true);
-		TissueConfig::Instance()->SetOutputCellAncestors(true);
-
 		/*   	   _ _ _ _ _
 		 *        /        /|
 		 *       /        / |
@@ -191,7 +188,9 @@ public:
 
 	    TS_ASSERT_EQUALS(real_node_indices.size(), cells.size());
 
-	    MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, real_node_indices);		// Mesh contains real and ghost nodes, cells only real cells
+	    MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, real_node_indices);
+	    tissue.SetOutputVoronoiData(true);
+	    tissue.SetOutputCellAncestors(true);
 
 	    TS_ASSERT_EQUALS(ghost_node_indices.size(), tissue.GetGhostNodeIndices().size());
 

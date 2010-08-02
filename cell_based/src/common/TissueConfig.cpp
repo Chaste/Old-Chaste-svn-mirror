@@ -49,8 +49,6 @@ TissueConfig::TissueConfig()
 /**
  * mStemCellG1Duration has units of hours
  * mTransitCellG1Duration has units of hours
- * mHepaOneCellG1Duration has units of hours
- * mMinimumGapDuration has units of hours
  * mSDuration has units of hours
  * mG2Duration has units of hours
  * mMDuration has units of hours
@@ -62,16 +60,12 @@ TissueConfig::TissueConfig()
  * mCryptProjectionParameterB has no units
  * mMeinekeSpringStiffness has units of N/m = kg s^-2
  * mMeinekeMechanicsCutOffLength has units of cell size at equilibrium rest length
- * mMeinekeDivisionRestingSpringLength has units of cell size at equilibrium rest length
- * mMeinekeDivisionSeparation has units of cell size at equilibrium rest length
  */
 void TissueConfig::Reset()
 {
     // Default parameter values
     mStemCellG1Duration = 14.0;
     mTransitCellG1Duration = 2.0;
-    mHepaOneCellG1Duration = 8.0;   // taken from Owen et al, 2004 (doi:10.1016/j.jtbi.2003.09.004)
-    mMinimumGapDuration = 0.01;     // educated guess
     mSDuration = 5.0;               // apparently between 5-6 hours normally
     mG2Duration = 4.0;              // apparently 3-4 hours normally
     mMDuration = 1.0;               // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
@@ -90,23 +84,6 @@ void TissueConfig::Reset()
      */
     mMeinekeSpringStiffness = 15.0;        // denoted by mu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mMeinekeMechanicsCutOffLength = DBL_MAX; // This needs to be set by a caller
-    mMeinekeDivisionRestingSpringLength = 0.5;
-    mMeinekeDivisionSeparation = 0.3;
-
-    /*
-     * The following Parameters are specific to vertex based models
-     */
-    mOutputCellIdData = false;
-    mOutputCellMutationStates = false;
-    mOutputCellAncestors = false;
-    mOutputCellProliferativeTypes = false;
-    mOutputCellVariables = false;
-    mOutputCellCyclePhases = false;
-    mOutputCellAges = false;
-    mOutputCellVolumes = false;
-    mOutputVoronoiData = false;
-    mOutputTissueVolumes = false;
-    mOutputNodeVelocities = false;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -120,14 +97,6 @@ double TissueConfig::GetStemCellG1Duration()
 double TissueConfig::GetTransitCellG1Duration()
 {
     return mTransitCellG1Duration;
-}
-double TissueConfig::GetHepaOneCellG1Duration()
-{
-    return mHepaOneCellG1Duration;
-}
-double TissueConfig::GetMinimumGapDuration()
-{
-    return mMinimumGapDuration;
 }
 double TissueConfig::GetSG2MDuration()
 {
@@ -177,58 +146,6 @@ double TissueConfig::GetMeinekeMechanicsCutOffLength()
 {
     return mMeinekeMechanicsCutOffLength;
 }
-double TissueConfig::GetMeinekeDivisionRestingSpringLength()
-{
-    return mMeinekeDivisionRestingSpringLength;
-}
-double TissueConfig::GetMeinekeDivisionSeparation()
-{
-    return mMeinekeDivisionSeparation;
-}
-bool TissueConfig::GetOutputCellIdData()
-{
-    return mOutputCellIdData;
-}
-bool TissueConfig::GetOutputCellMutationStates()
-{
-    return mOutputCellMutationStates;
-}
-bool TissueConfig::GetOutputCellAncestors()
-{
-    return mOutputCellAncestors;
-}
-bool TissueConfig::GetOutputCellProliferativeTypes()
-{
-    return mOutputCellProliferativeTypes;
-}
-bool TissueConfig::GetOutputCellVariables()
-{
-    return mOutputCellVariables;
-}
-bool TissueConfig::GetOutputCellCyclePhases()
-{
-    return mOutputCellCyclePhases;
-}
-bool TissueConfig::GetOutputCellAges()
-{
-    return mOutputCellAges;
-}
-bool TissueConfig::GetOutputCellVolumes()
-{
-    return mOutputCellVolumes;
-}
-bool TissueConfig::GetOutputVoronoiData()
-{
-    return mOutputVoronoiData;
-}
-bool TissueConfig::GetOutputTissueVolumes()
-{
-    return mOutputTissueVolumes;
-}
-bool TissueConfig::GetOutputNodeVelocities()
-{
-    return mOutputNodeVelocities;
-}
 
 ///////////////////////////////////////////////////////////////////////
 // Setter methods
@@ -243,16 +160,6 @@ void TissueConfig::SetTransitCellG1Duration(double transitCellG1Duration)
 {
     assert(transitCellG1Duration > 0.0);
     mTransitCellG1Duration = transitCellG1Duration;
-}
-void TissueConfig::SetHepaOneCellG1Duration(double hepaOneCellG1Duration)
-{
-    assert(hepaOneCellG1Duration > 0.0);
-    mHepaOneCellG1Duration = hepaOneCellG1Duration;
-}
-void TissueConfig::SetMinimumGapDuration(double minimumGapDuration)
-{
-    assert(minimumGapDuration > 0.0);
-    mMinimumGapDuration = minimumGapDuration;
 }
 void TissueConfig::SetSDuration(double SDuration)
 {
@@ -289,10 +196,6 @@ void TissueConfig::SetDampingConstantMutant(double dampingConstantMutant)
     assert(dampingConstantMutant > 0.0);
     mDampingConstantMutant = dampingConstantMutant;
 }
-void TissueConfig::SetHepaOneParameters()
-{
-    mStemCellG1Duration = mHepaOneCellG1Duration;
-}
 void TissueConfig::SetCryptProjectionParameterA(double cryptProjectionParameterA)
 {
     assert(cryptProjectionParameterA >= 0.0);
@@ -312,61 +215,4 @@ void TissueConfig::SetMeinekeMechanicsCutOffLength(double mechanicsCutOffLength)
 {
     assert(mechanicsCutOffLength > 0.0);
     mMeinekeMechanicsCutOffLength = mechanicsCutOffLength;
-}
-void TissueConfig::SetMeinekeDivisionRestingSpringLength(double divisionRestingSpringLength)
-{
-    assert(divisionRestingSpringLength <= 1.0);
-    assert(divisionRestingSpringLength >= 0.0);
-
-    mMeinekeDivisionRestingSpringLength = divisionRestingSpringLength;
-}
-void TissueConfig::SetMeinekeDivisionSeparation(double divisionSeparation)
-{
-    assert(divisionSeparation<=1.0);
-    assert(divisionSeparation>=0.0);
-    mMeinekeDivisionSeparation = divisionSeparation;
-}
-void TissueConfig::SetOutputCellIdData(bool writeCellIdData)
-{
-    mOutputCellIdData = writeCellIdData;
-}
-void TissueConfig::SetOutputCellMutationStates(bool outputCellMutationStates)
-{
-    mOutputCellMutationStates = outputCellMutationStates;
-}
-void TissueConfig::SetOutputCellAncestors(bool outputCellAncestors)
-{
-    mOutputCellAncestors = outputCellAncestors;
-}
-void TissueConfig::SetOutputCellProliferativeTypes(bool outputCellProliferativeTypes)
-{
-    mOutputCellProliferativeTypes = outputCellProliferativeTypes;
-}
-void TissueConfig::SetOutputCellVariables(bool outputCellVariables)
-{
-    mOutputCellVariables = outputCellVariables;
-}
-void TissueConfig::SetOutputCellCyclePhases(bool outputCellCyclePhases)
-{
-    mOutputCellCyclePhases = outputCellCyclePhases;
-}
-void TissueConfig::SetOutputCellAges(bool outputCellAges)
-{
-    mOutputCellAges = outputCellAges;
-}
-void TissueConfig::SetOutputCellVolumes(bool outputCellVolumes)
-{
-    mOutputCellVolumes = outputCellVolumes;
-}
-void TissueConfig::SetOutputVoronoiData(bool outputVoronoiData)
-{
-    mOutputVoronoiData = outputVoronoiData;
-}
-void TissueConfig::SetOutputTissueVolumes(bool outputTissueVolumes)
-{
-    mOutputTissueVolumes = outputTissueVolumes;
-}
-void TissueConfig::SetOutputNodeVelocities(bool outputNodeVelocities)
-{
-    mOutputNodeVelocities = outputNodeVelocities;
 }

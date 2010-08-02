@@ -83,6 +83,7 @@ private:
         archive & mReadyToDivide;
         archive & mDimension;
         archive & mCellProliferativeType;
+        archive & mMinimumGapDuration;
     }
 
     /**
@@ -127,6 +128,15 @@ protected:
      * The cell type - defined in CellProliferativeTypes.hpp.
      */
     CellProliferativeType mCellProliferativeType;
+
+    /**
+     * Minimum possbile duration of either of the gap phases (G1 or G2).
+     * Has units of hours.
+     * 
+     * Used to guarantee a strictly positive duration in cell cycle models that
+     * use normal random deviates for G1 or G2 phases.
+     */
+    double mMinimumGapDuration;
 
 public:
 
@@ -329,6 +339,18 @@ public:
      * @param cellType the cell's type
      */
     void SetCellProliferativeType(CellProliferativeType cellType);
+
+    /**
+     * @return mMinimumGapDuration
+     */
+    double GetMinimumGapDuration();
+
+    /**
+     * Set mMinimumGapDuration.
+     * 
+     * @param minimumGapDuration the new value of mMinimumGapDuration
+     */
+    void SetMinimumGapDuration(double minimumGapDuration);
 };
 
 

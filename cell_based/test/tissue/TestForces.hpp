@@ -91,6 +91,14 @@ public:
         MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
         GeneralisedLinearSpringForce<2> linear_force;
 
+        // Test set/get method
+        TS_ASSERT_DELTA(linear_force.GetMeinekeDivisionRestingSpringLength(), 0.5, 1e-6);
+
+        linear_force.SetMeinekeDivisionRestingSpringLength(0.8);
+        TS_ASSERT_DELTA(linear_force.GetMeinekeDivisionRestingSpringLength(), 0.8, 1e-6);
+
+        linear_force.SetMeinekeDivisionRestingSpringLength(0.5);
+
         /*
          ************************************************************************
          ************************************************************************

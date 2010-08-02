@@ -116,7 +116,9 @@ public:
 
         double hepa_one_cell_birth_time = p_simulation_time->GetTime();
 
-        p_params->SetHepaOneParameters();
+        p_params->SetStemCellG1Duration(8.0);
+        p_params->SetTransitCellG1Duration(8.0);
+
         FixedDurationGenerationBasedCellCycleModel* p_hepa_one_model = new FixedDurationGenerationBasedCellCycleModel;
         p_hepa_one_model->SetCellProliferativeType(STEM);
 
@@ -127,7 +129,7 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
 
-            CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, p_params->GetHepaOneCellG1Duration());
+            CheckReadyToDivideAndPhaseIsUpdated(p_hepa_one_model, 8.0);
         }
 
         TS_ASSERT_DELTA(p_hepa_one_model->GetAge() + hepa_one_cell_birth_time, p_simulation_time->GetTime(), 1e-9);
@@ -137,6 +139,8 @@ public:
     void TestStochasticDurationGenerationBasedCellCycleModel() throw(Exception)
     {
         TissueConfig* p_params = TissueConfig::Instance();
+        p_params->SetStemCellG1Duration(8.0);
+        p_params->SetTransitCellG1Duration(8.0);
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_steps = 100;
@@ -176,7 +180,6 @@ public:
             CheckReadyToDivideAndPhaseIsUpdated(p_diff_model, 132);  // any old number
         }
 
-        p_params->SetHepaOneParameters();
         StochasticDurationGenerationBasedCellCycleModel* p_hepa_one_model = new StochasticDurationGenerationBasedCellCycleModel;
         p_hepa_one_model->SetCellProliferativeType(STEM);
 
@@ -448,17 +451,17 @@ public:
 
     void TestSimpleOxygenBasedCellCycleModel() throw(Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
-        p_params->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
-        // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are
-        // updated correctly
+        // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are updated correctly
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
 
         SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
         p_model->SetDimension(2);
         p_model->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
@@ -500,9 +503,7 @@ public:
 
         unsigned num_steps = 100;
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
-            4.0*(p_params->GetHepaOneCellG1Duration()
-                  +p_params->GetSG2MDuration()     ), num_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(4.0*18.0, num_steps);
 
         // Set up constant oxygen concentration
         std::vector<double> oxygen_concentration;
@@ -620,17 +621,17 @@ public:
 
     void TestStochasticOxygenBasedCellCycleModel() throw(Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
-        p_params->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
-        // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration
-        // are updated correctly
+        // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are updated correctly
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
 
         StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel;
         p_model->SetDimension(2);
         p_model->SetCellProliferativeType(STEM);
+
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
@@ -672,9 +673,7 @@ public:
 
         unsigned num_steps = 100;
         p_simulation_time->SetStartTime(0.0);
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
-            4.0*(p_params->GetHepaOneCellG1Duration()
-                  +p_params->GetSG2MDuration()     ), num_steps);
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(4.0*18.0, num_steps);
 
         // Set up constant oxygen_concentration
         std::vector<double> oxygen_concentration;
@@ -761,12 +760,13 @@ public:
         TS_ASSERT_EQUALS(p_apoptotic_cell->HasCellProperty<ApoptoticCellProperty>(), true);
         TS_ASSERT_EQUALS(p_cell_model->GetCurrentHypoxicDuration(), 2.04);
 
-        // Coverage
-        TissueConfig::Instance()->SetMinimumGapDuration(1e20);
-
         StochasticOxygenBasedCellCycleModel* p_cell_model2 = new StochasticOxygenBasedCellCycleModel;
         p_cell_model2->SetDimension(2);
         p_cell_model2->SetCellProliferativeType(STEM);
+
+        // Coverage
+        p_cell_model2->SetMinimumGapDuration(1e20);
+
         TissueCellPtr p_cell2(new TissueCell(p_state, p_cell_model2));
         p_cell2->InitialiseCellCycleModel();
 

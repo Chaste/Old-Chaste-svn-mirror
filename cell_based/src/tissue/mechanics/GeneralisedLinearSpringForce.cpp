@@ -31,7 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 template<unsigned DIM>
 GeneralisedLinearSpringForce<DIM>::GeneralisedLinearSpringForce()
-   : AbstractTwoBodyInteractionForce<DIM>()
+   : AbstractTwoBodyInteractionForce<DIM>(),
+     mMeinekeDivisionRestingSpringLength(0.5)
 {
 }
 
@@ -130,7 +131,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
             if (p_static_cast_tissue->IsMarkedSpring(cell_pair))
             {
                 // Spring rest length increases from a small value to the normal rest length over 1 hour
-                double lambda = p_config->GetMeinekeDivisionRestingSpringLength();
+                double lambda = mMeinekeDivisionRestingSpringLength;
                 rest_length = lambda + (1.0 - lambda) * ageA/m_duration;
             }
             if (ageA + SimulationTime::Instance()->GetTimeStep() >= m_duration)
@@ -142,7 +143,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         else
         {
             // Spring rest length increases from mDivisionRestingSpringLength to normal rest length, 1.0, over 1 hour
-            double lambda = p_config->GetMeinekeDivisionRestingSpringLength();
+            double lambda = mMeinekeDivisionRestingSpringLength;
             rest_length = lambda + (1.0 - lambda) * ageA/m_duration;
         }
     }
@@ -205,6 +206,20 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     }
 }
 
+template<unsigned DIM>
+double GeneralisedLinearSpringForce<DIM>::GetMeinekeDivisionRestingSpringLength()
+{
+    return mMeinekeDivisionRestingSpringLength;
+}
+
+template<unsigned DIM>
+void GeneralisedLinearSpringForce<DIM>::SetMeinekeDivisionRestingSpringLength(double divisionRestingSpringLength)
+{
+    assert(divisionRestingSpringLength <= 1.0);
+    assert(divisionRestingSpringLength >= 0.0);
+
+    mMeinekeDivisionRestingSpringLength = divisionRestingSpringLength;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

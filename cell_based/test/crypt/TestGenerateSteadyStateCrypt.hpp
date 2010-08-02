@@ -85,6 +85,9 @@ public:
 
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
+        // Set tissue to output cell types
+        crypt.SetOutputCellMutationStates(true);
+
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetWntConcentrationParameter(1.0/3.0);
         WntConcentration<2>::Instance()->SetTissue(crypt);
@@ -95,9 +98,6 @@ public:
 
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory(output_directory);
-
-        // Set simulation to output cell types
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
 
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);

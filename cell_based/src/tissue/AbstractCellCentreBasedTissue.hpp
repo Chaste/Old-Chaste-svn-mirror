@@ -55,9 +55,17 @@ private:
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractTissue<DIM> >(*this);
+        archive & mMeinekeDivisionSeparation;
     }
 
 protected:
+
+    /**
+     * Initial separation placement of mother/daughter cells at birth.
+     * Has units of cell size at equilibrium rest length
+     */
+    double mMeinekeDivisionSeparation;
+
     /**
      * Constructor for use by archiving - doesn't take in cells, since these are dealt
      * with by the serialize method.
@@ -171,6 +179,18 @@ public:
      * @return whether the node is a ghost node
      */
     virtual bool IsGhostNode(unsigned index);
+
+    /**
+     * @return mMeinekeDivisionSeparation
+     */
+    double GetMeinekeDivisionSeparation();
+
+    /**
+     * Set mMeinekeDivisionSeparation.
+     * 
+     * @param divisionSeparation the new value of mMeinekeDivisionSeparation
+     */
+    void SetMeinekeDivisionSeparation(double divisionSeparation);
 };
 
 #endif /*ABSTRACTCELLCENTREBASEDTISSUE_HPP_*/

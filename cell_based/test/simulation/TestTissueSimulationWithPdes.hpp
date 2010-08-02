@@ -102,8 +102,8 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        // Change the hypoxic concentration, just for this test
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         // Set up mesh
         MutableMesh<2,2> mesh;
@@ -123,10 +123,7 @@ public:
 
             TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
-            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                    (TissueConfig::Instance()->GetHepaOneCellG1Duration()
-                                    +TissueConfig::Instance()->GetSG2MDuration());
-
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
         }
@@ -208,9 +205,10 @@ public:
 
     void TestWithOxygen() throw(Exception)
     {
-        EXIT_IF_PARALLEL; //defined in PetscTools
+        EXIT_IF_PARALLEL; // defined in PetscTools
 
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         // Set up mesh
         unsigned num_cells_depth = 5;
@@ -229,17 +227,14 @@ public:
 
             TissueCellPtr p_cell(new TissueCell(p_state, p_model));
 
-            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
-                                    (TissueConfig::Instance()->GetHepaOneCellG1Duration()
-                                    +TissueConfig::Instance()->GetSG2MDuration());
-
+            double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
         }
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        TissueConfig::Instance()->SetOutputTissueVolumes(true); // record the spheroid radius and apoptotic radius
+        tissue.SetOutputTissueVolumes(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -319,9 +314,10 @@ public:
 
     void TestWithPointwiseSource() throw(Exception)
     {
-        EXIT_IF_PARALLEL; //defined in PetscTools
+        EXIT_IF_PARALLEL; // defined in PetscTools
 
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         // Set up mesh
         unsigned num_cells_depth = 5;
@@ -340,9 +336,8 @@ public:
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
             TissueCellPtr p_cell(new TissueCell(p_state, p_model));
-            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
-                                    (TissueConfig::Instance()->GetHepaOneCellG1Duration()
-                                    +TissueConfig::Instance()->GetSG2MDuration());
+
+            double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
             p_cell->SetBirthTime(birth_time);
 
             // Make the cell apoptotic if near the centre
@@ -360,7 +355,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        TissueConfig::Instance()->SetOutputTissueVolumes(true); // record the spheroid radius and apoptotic radius
+        tissue.SetOutputTissueVolumes(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -412,9 +407,10 @@ public:
 
     void TestWithPointwiseTwoSource() throw(Exception)
     {
-		EXIT_IF_PARALLEL; //defined in PetscTools
+		EXIT_IF_PARALLEL; // defined in PetscTools
 
-		TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
 		// Set up mesh
 		unsigned num_cells_depth = 5;
@@ -432,10 +428,9 @@ public:
 			SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
 			p_model->SetDimension(2);
 			p_model->SetCellProliferativeType(STEM);
+
 			TissueCellPtr p_cell(new TissueCell(p_state, p_model));
-			double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
-									(TissueConfig::Instance()->GetHepaOneCellG1Duration()
-									+TissueConfig::Instance()->GetSG2MDuration());
+			double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
 			p_cell->SetBirthTime(birth_time);
 
 			// Make the cell apoptotic if near the centre
@@ -453,7 +448,7 @@ public:
 
 		// Set up tissue
 		MeshBasedTissue<2> tissue(*p_mesh, cells);
-		TissueConfig::Instance()->SetOutputTissueVolumes(true); // record the spheroid radius and apoptotic radius
+		tissue.SetOutputTissueVolumes(true); // record the spheroid radius and apoptotic radius
 
 		// Set up CellwiseData and associate it with the tissue
 		CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -517,7 +512,8 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         // Set up mesh
         unsigned num_cells_depth = 5;
@@ -548,7 +544,7 @@ public:
 
         // Set up tissue
         MeshBasedTissue<2> tissue(*p_mesh, cells);
-        TissueConfig::Instance()->SetOutputTissueVolumes(true); // record the spheroid radius and apoptotic radius
+        tissue.SetOutputTissueVolumes(true); // record the spheroid radius and apoptotic radius
 
         // Set up CellwiseData and associate it with the tissue
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
@@ -632,7 +628,8 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         // Set up mesh
         unsigned num_cells_depth = 5;
@@ -650,12 +647,9 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             TissueCellPtr p_cell(new TissueCell(p_state, p_model));
-
-            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                    (TissueConfig::Instance()->GetHepaOneCellG1Duration()
-                                    +TissueConfig::Instance()->GetSG2MDuration());
-
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
             p_cell->SetBirthTime(birth_time);
+
             cells.push_back(p_cell);
         }
 
@@ -822,7 +816,8 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         // Set up mesh
         unsigned num_cells_depth = 5;
@@ -840,12 +835,9 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             TissueCellPtr p_cell(new TissueCell(p_state, p_model));
-
-            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                    (TissueConfig::Instance()->GetHepaOneCellG1Duration()
-                                    +TissueConfig::Instance()->GetSG2MDuration());
-
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
             p_cell->SetBirthTime(birth_time);
+
             cells.push_back(p_cell);
         }
 
@@ -950,7 +942,8 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         // Create a cigar-shaped mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
@@ -968,12 +961,9 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             TissueCellPtr p_cell(new TissueCell(p_state, p_model));
-
-            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                    (TissueConfig::Instance()->GetHepaOneCellG1Duration()
-                                    +TissueConfig::Instance()->GetSG2MDuration());
-
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
             p_cell->SetBirthTime(birth_time);
+
             cells.push_back(p_cell);
         }
 
@@ -1036,7 +1026,8 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         // Set up mesh
         unsigned num_cells_depth = 5;
@@ -1054,12 +1045,9 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             TissueCellPtr p_cell(new TissueCell(p_state, p_model));
-
-            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
-                                            (TissueConfig::Instance()->GetHepaOneCellG1Duration()
-                                             +TissueConfig::Instance()->GetSG2MDuration());
-
+            double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
             p_cell->SetBirthTime(birth_time);
+
             cells.push_back(p_cell);
         }
 
@@ -1147,7 +1135,8 @@ public:
             return;
         }
 
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         std::string output_directory = "TestArchivingWithCellwisePde";
         double end_time = 0.1;
@@ -1168,12 +1157,9 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             TissueCellPtr p_cell(new TissueCell(p_state, p_model));
-
-            double birth_time = -1.0 - ( (double) i/p_mesh->GetNumNodes() )*
-                                    (TissueConfig::Instance()->GetHepaOneCellG1Duration()
-                                    +TissueConfig::Instance()->GetSG2MDuration());
-
+            double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
             p_cell->SetBirthTime(birth_time);
+
             cells.push_back(p_cell);
         }
 
@@ -1249,9 +1235,10 @@ public:
 
     void Test3DTissueSimulationWithPdes() throw(Exception)
     {
-        EXIT_IF_PARALLEL; //defined in PetscTools
+        EXIT_IF_PARALLEL; // defined in PetscTools
 
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         MutableMesh<3,3> mesh;

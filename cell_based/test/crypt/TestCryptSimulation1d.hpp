@@ -582,6 +582,7 @@ public:
 
         // Create tissue
         MeshBasedTissue<1> crypt(mesh, cells);
+        crypt.SetOutputCellProliferativeTypes(true);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
@@ -591,7 +592,6 @@ public:
         // Set up crypt simulation
         CryptSimulation1d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt1dTestCorrectCellNumbers");
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
         simulator.SetEndTime(40);
 
         // Add sloughing cell killer to simulation
@@ -676,6 +676,9 @@ public:
         // Create tissue
         MeshBasedTissue<1> crypt(mesh, cells);
 
+        crypt.SetOutputCellMutationStates(true);
+        crypt.SetOutputCellProliferativeTypes(true);
+
         AbstractTissue<1>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
@@ -706,8 +709,6 @@ public:
         CryptSimulation1d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt1DWntMatureCells");
         simulator.SetEndTime(0.01);
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
 
         // Run simulation
         simulator.Solve();

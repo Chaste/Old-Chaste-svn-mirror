@@ -599,14 +599,14 @@ public:
         MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);
 
         // Test set methods
-        TissueConfig::Instance()->SetOutputVoronoiData(true);
-        TissueConfig::Instance()->SetOutputTissueVolumes(true);
-        TissueConfig::Instance()->SetOutputCellVolumes(true);
-        TissueConfig::Instance()->SetOutputCellAncestors(true);
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
-        TissueConfig::Instance()->SetOutputCellAges(true);
-        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+        tissue.SetOutputVoronoiData(true);
+        tissue.SetOutputTissueVolumes(true);
+        tissue.SetOutputCellVolumes(true);
+        tissue.SetOutputCellAncestors(true);
+        tissue.SetOutputCellMutationStates(true);
+        tissue.SetOutputCellProliferativeTypes(true);
+        tissue.SetOutputCellAges(true);
+        tissue.SetOutputCellCyclePhases(true);
 
         // This method is usually called by Update()
         tissue.CreateVoronoiTessellation();
@@ -681,9 +681,6 @@ public:
         // Set up the simulation time
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
-        // Set output config
-        TissueConfig::Instance()->SetOutputVoronoiData(true);
-
         // Create 2D mesh with ghost nodes
         MutableMesh<2,2> mesh;
         mesh.ConstructRectangularMesh(6, 6);
@@ -719,6 +716,7 @@ public:
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> tissue(mesh, cells, location_indices);
+        tissue.SetOutputVoronoiData(true);
 
         // Create Voronoi tessellation
         tissue.CreateVoronoiTessellation();
@@ -742,9 +740,6 @@ public:
     {
         // Set up the simulation time
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
-
-        // Set output config
-        TissueConfig::Instance()->SetOutputVoronoiData(true);
 
         // Create 3D mesh with ghost nodes
         MutableMesh<3,3> mesh;
@@ -781,6 +776,7 @@ public:
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);
+        tissue.SetOutputVoronoiData(true);
 
         // Create Voronoi tessellation
         tissue.CreateVoronoiTessellation();

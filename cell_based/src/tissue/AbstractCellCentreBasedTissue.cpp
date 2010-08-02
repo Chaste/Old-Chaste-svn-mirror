@@ -31,14 +31,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue(std::vector<TissueCellPtr>& rCells,
                                                                   const std::vector<unsigned> locationIndices)
-    : AbstractTissue<DIM>(rCells, locationIndices)
+    : AbstractTissue<DIM>(rCells, locationIndices),
+      mMeinekeDivisionSeparation(0.3) // educated guess
 {
 }
 
 
 template<unsigned DIM>
 AbstractCellCentreBasedTissue<DIM>::AbstractCellCentreBasedTissue()
-    : AbstractTissue<DIM>()
+    : AbstractTissue<DIM>(),
+      mMeinekeDivisionSeparation(0.3) // educated guess
 {
 }
 
@@ -223,6 +225,19 @@ void AbstractCellCentreBasedTissue<DIM>::WriteTimeAndNodeResultsToFiles()
     *this->mpVizBoundaryNodesFile << "\n";
 }
 
+template<unsigned DIM>
+double AbstractCellCentreBasedTissue<DIM>::GetMeinekeDivisionSeparation()
+{
+    return mMeinekeDivisionSeparation;
+}
+
+template<unsigned DIM>
+void AbstractCellCentreBasedTissue<DIM>::SetMeinekeDivisionSeparation(double divisionSeparation)
+{
+    assert(divisionSeparation <= 1.0);
+    assert(divisionSeparation >= 0.0);
+    mMeinekeDivisionSeparation = divisionSeparation;
+}
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

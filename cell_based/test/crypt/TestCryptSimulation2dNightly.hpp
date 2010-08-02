@@ -102,7 +102,8 @@ public:
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
-
+        crypt.SetOutputCellProliferativeTypes(true);
+        
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -111,7 +112,6 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DHoneycombMesh");
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
         simulator.SetEndTime(12.0);
 
         // Create cell killer and pass in to crypt simulation
@@ -163,7 +163,8 @@ public:
 
         // Create tissue
         MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
-        TissueConfig::Instance()->SetOutputVoronoiData(true);
+        crypt.SetOutputVoronoiData(true);
+        crypt.SetOutputCellProliferativeTypes(true);
 
         // Set the first cell to be logged
         crypt.Begin()->SetLogged();
@@ -176,7 +177,6 @@ public:
         // Create crypt simulation from tissue and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Monolayer");
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
         simulator.SetEndTime(1);
 
         // Run simulation
@@ -719,8 +719,11 @@ public:
         CryptCellsGenerator<SimpleWntCellCycleModel> cell_generator;
         cell_generator.Generate(cells, p_mesh, location_indices, true);
 
-        // Create crypt
+        // Create tissue
         MeshBasedTissue<2> crypt(*p_mesh, cells);
+
+        // Set tissue to output cell types
+        crypt.SetOutputCellProliferativeTypes(true);
 
         // Set up instance of WntConcentration singleton and associate it with crypt
         WntConcentration<2>::Instance()->SetType(LINEAR);
@@ -736,9 +739,6 @@ public:
 
         // Set where to output simulation results
         simulator.SetOutputDirectory(output_directory);
-
-        // Set simulation to output cell types
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
 
         // Set length of simulation
         simulator.SetEndTime(20.0);

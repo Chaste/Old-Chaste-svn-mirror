@@ -32,7 +32,8 @@ AbstractCellCycleModel::AbstractCellCycleModel()
       mCurrentCellCyclePhase(M_PHASE),
       mG1Duration(DOUBLE_UNSET),
       mReadyToDivide(false),
-      mDimension(0)
+      mDimension(0),
+      mMinimumGapDuration(0.01) // an educated guess
 {
 }
 
@@ -157,4 +158,15 @@ void AbstractCellCycleModel::SetCellProliferativeType(CellProliferativeType cell
 CellProliferativeType AbstractCellCycleModel::GetCellProliferativeType() const
 {
     return mCellProliferativeType;
+}
+
+void AbstractCellCycleModel::SetMinimumGapDuration(double minimumGapDuration)
+{
+    assert(minimumGapDuration > 0.0);
+    mMinimumGapDuration = minimumGapDuration;
+}
+
+double AbstractCellCycleModel::GetMinimumGapDuration()
+{
+    return mMinimumGapDuration;
 }

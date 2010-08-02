@@ -73,6 +73,12 @@ private:
         TS_ASSERT_EQUALS(tissue.rGetMesh().GetNumNodes(), mesh.GetNumNodes());
         TS_ASSERT_EQUALS(tissue.rGetCells().size(), num_cells);
 
+        // Test set/get method of member variable
+        TS_ASSERT_DELTA(tissue.GetMeinekeDivisionSeparation(), 0.3, 1e-6);
+        tissue.SetMeinekeDivisionSeparation(0.5);
+        TS_ASSERT_DELTA(tissue.GetMeinekeDivisionSeparation(), 0.5, 1e-6);
+        tissue.SetMeinekeDivisionSeparation(0.3);
+
         unsigned counter = 0;
         for (typename AbstractTissue<DIM>::Iterator cell_iter = tissue.Begin();
              cell_iter != tissue.End();
@@ -172,14 +178,12 @@ public:
         // Check the cell pair was created correctly
         std::set<TissueCellPtr>::iterator cell_pair_iter = cell_pair.begin();
 
-        ///\todo Work out the reason for this strange swap in ordering (#1285)
-
         TissueCellPtr p_cell0 = *cell_pair_iter;
-        TS_ASSERT_EQUALS(p_cell0->GetMutationState()->IsType<ApcOneHitCellMutationState>(), true);
+        TS_ASSERT_EQUALS(p_cell0->HasCellProperty<CellLabel>(), true);
 
         ++cell_pair_iter;
         TissueCellPtr p_cell1 = *cell_pair_iter;
-        TS_ASSERT_EQUALS(p_cell1->HasCellProperty<CellLabel>(), true);
+        TS_ASSERT_EQUALS(p_cell1->GetMutationState()->IsType<ApcOneHitCellMutationState>(), true);
     }
 
     void TestGetDampingConstant()
@@ -598,6 +602,16 @@ public:
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
 
+        // Test set/get methods
+        TS_ASSERT_EQUALS(tissue.GetOutputVoronoiData(), false);
+        TS_ASSERT_EQUALS(tissue.GetOutputCellIdData(), false);
+
+        tissue.SetOutputVoronoiData(true);
+        tissue.SetOutputCellIdData(true);
+
+        TS_ASSERT_EQUALS(tissue.GetOutputVoronoiData(), true);
+        TS_ASSERT_EQUALS(tissue.GetOutputCellIdData(), true);
+
         // Coverage of writing CellwiseData to VTK
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
         p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 2);
@@ -613,14 +627,13 @@ public:
         }
 
         // Test set methods
-        TissueConfig::Instance()->SetOutputVoronoiData(true);
-        TissueConfig::Instance()->SetOutputTissueVolumes(true);
-        TissueConfig::Instance()->SetOutputCellVolumes(true);
-        TissueConfig::Instance()->SetOutputCellAncestors(true);
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
-        TissueConfig::Instance()->SetOutputCellAges(true);
-        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+        tissue.SetOutputTissueVolumes(true);
+        tissue.SetOutputCellVolumes(true);
+        tissue.SetOutputCellAncestors(true);
+        tissue.SetOutputCellMutationStates(true);
+        tissue.SetOutputCellProliferativeTypes(true);
+        tissue.SetOutputCellAges(true);
+        tissue.SetOutputCellCyclePhases(true);
 
         // This method is usually called by Update()
         tissue.CreateVoronoiTessellation();
@@ -690,14 +703,14 @@ public:
         MeshBasedTissue<3> tissue(mesh, cells);
 
         // Test set methods
-        TissueConfig::Instance()->SetOutputVoronoiData(true);
-        TissueConfig::Instance()->SetOutputTissueVolumes(true);
-        TissueConfig::Instance()->SetOutputCellVolumes(true);
-        TissueConfig::Instance()->SetOutputCellAncestors(true);
-        TissueConfig::Instance()->SetOutputCellMutationStates(true);
-        TissueConfig::Instance()->SetOutputCellProliferativeTypes(true);
-        TissueConfig::Instance()->SetOutputCellAges(true);
-        TissueConfig::Instance()->SetOutputCellCyclePhases(true);
+        tissue.SetOutputVoronoiData(true);
+        tissue.SetOutputTissueVolumes(true);
+        tissue.SetOutputCellVolumes(true);
+        tissue.SetOutputCellAncestors(true);
+        tissue.SetOutputCellMutationStates(true);
+        tissue.SetOutputCellProliferativeTypes(true);
+        tissue.SetOutputCellAges(true);
+        tissue.SetOutputCellCyclePhases(true);
 
         // This method is usually called by Update()
         tissue.CreateVoronoiTessellation();

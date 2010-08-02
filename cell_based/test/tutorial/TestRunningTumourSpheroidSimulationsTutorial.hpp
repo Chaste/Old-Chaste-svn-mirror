@@ -112,7 +112,8 @@ public:
          */
         SimulationTime::Instance()->SetStartTime(0.0);
         TissueConfig::Instance()->Reset();
-        TissueConfig::Instance()->SetHepaOneParameters();
+        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
+        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         /*
          * Now we want to create a ''non-periodic'' 'honeycomb' mesh.
@@ -159,10 +160,10 @@ public:
             /*
              * We now define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
-             * of a !HepaOne cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
+             * of a 'stem' cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                 (  TissueConfig::Instance()->GetHepaOneCellG1Duration()
+                                 (  TissueConfig::Instance()->GetStemCellG1Duration()
                                   + TissueConfig::Instance()->GetSG2MDuration() );
             /*
              * ...then we set the birth time and push the cell back into the vector

@@ -35,7 +35,15 @@ AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCellPtr>& rCells,
                                     const std::vector<unsigned> locationIndices)
     : mCells(rCells.begin(), rCells.end()),
       mTissueContainsMesh(false),
-      mpCellPropertyRegistry(CellPropertyRegistry::Instance()->TakeOwnership())
+      mpCellPropertyRegistry(CellPropertyRegistry::Instance()->TakeOwnership()),
+      mOutputCellIdData(false),
+      mOutputCellMutationStates(false),
+      mOutputCellAncestors(false),
+      mOutputCellProliferativeTypes(false),
+      mOutputCellVariables(false),
+      mOutputCellCyclePhases(false),
+      mOutputCellAges(false),
+      mOutputCellVolumes(false)
 {
     // There must be at least one cell
     assert(!mCells.empty());
@@ -134,9 +142,9 @@ std::set<unsigned> AbstractTissue<DIM>::GetCellAncestors()
 template<unsigned DIM>
 std::vector<unsigned> AbstractTissue<DIM>::GetCellMutationStateCount()
 {
-    if (TissueConfig::Instance()->GetOutputCellMutationStates()==false)
+    if (!mOutputCellMutationStates)
     {
-        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellMutationStates(true) before using this function");
+        EXCEPTION("Call SetOutputCellMutationStates(true) before using this function");
     }
 
     // An ordering must have been specified for cell mutation states
@@ -160,9 +168,9 @@ std::vector<unsigned> AbstractTissue<DIM>::GetCellMutationStateCount()
 template<unsigned DIM>
 const std::vector<unsigned>& AbstractTissue<DIM>::rGetCellProliferativeTypeCount() const
 {
-    if (TissueConfig::Instance()->GetOutputCellProliferativeTypes()==false)
+    if (!mOutputCellProliferativeTypes)
     {
-        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellProliferativeTypes(true) before using this function");
+        EXCEPTION("Call SetOutputCellProliferativeTypes(true) before using this function");
     }
     return mCellProliferativeTypeCount;
 }
@@ -170,9 +178,9 @@ const std::vector<unsigned>& AbstractTissue<DIM>::rGetCellProliferativeTypeCount
 template<unsigned DIM>
 const std::vector<unsigned>& AbstractTissue<DIM>::rGetCellCyclePhaseCount() const
 {
-    if (TissueConfig::Instance()->GetOutputCellCyclePhases()==false)
+    if (!mOutputCellCyclePhases)
     {
-        EXCEPTION("Call TissueConfig::Instance()->SetOutputCellCyclePhases(true) before using this function");
+        EXCEPTION("Call SetOutputCellCyclePhases(true) before using this function");
     }
     return mCellCyclePhaseCount;
 }
@@ -229,19 +237,16 @@ void AbstractTissue<DIM>::SetDefaultMutationStateOrdering()
 template<unsigned DIM>
 void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool cleanOutputDirectory)
 {
-    // Helper pointer
-    TissueConfig* p_config = TissueConfig::Instance();
-
     OutputFileHandler output_file_handler(rDirectory, cleanOutputDirectory);
     mpVizNodesFile = output_file_handler.OpenOutputFile("results.viznodes");
     mpVizBoundaryNodesFile = output_file_handler.OpenOutputFile("results.vizboundarynodes");
     mpVizCellProliferativeTypesFile = output_file_handler.OpenOutputFile("results.vizcelltypes");
 
-    if (p_config->GetOutputCellAncestors())
+    if (mOutputCellAncestors)
     {
         mpVizCellAncestorsFile = output_file_handler.OpenOutputFile("results.vizancestors");
     }
-    if (p_config->GetOutputCellMutationStates())
+    if (mOutputCellMutationStates)
     {
         // An ordering must be specified for cell mutation states
         SetDefaultMutationStateOrdering();
@@ -263,23 +268,23 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool 
         }
         *mpCellMutationStatesFile << "\n";
     }
-    if (p_config->GetOutputCellProliferativeTypes())
+    if (mOutputCellProliferativeTypes)
     {
         mpCellProliferativeTypesFile = output_file_handler.OpenOutputFile("celltypes.dat");
     }
-    if (p_config->GetOutputCellVariables())
+    if (mOutputCellVariables)
     {
         mpCellVariablesFile = output_file_handler.OpenOutputFile("cellvariables.dat");
     }
-    if (p_config->GetOutputCellCyclePhases())
+    if (mOutputCellCyclePhases)
     {
         mpCellCyclePhasesFile = output_file_handler.OpenOutputFile("cellcyclephases.dat");
     }
-    if (p_config->GetOutputCellAges())
+    if (mOutputCellAges)
     {
         mpCellAgesFile = output_file_handler.OpenOutputFile("cellages.dat");
     }
-    if (p_config->GetOutputCellIdData())
+    if (mOutputCellIdData)
     {
         mpCellIdFile = output_file_handler.OpenOutputFile("loggedcell.dat");
     }
@@ -288,38 +293,35 @@ void AbstractTissue<DIM>::CreateOutputFiles(const std::string& rDirectory, bool 
 template<unsigned DIM>
 void AbstractTissue<DIM>::CloseOutputFiles()
 {
-    // Helper pointer
-    TissueConfig* p_config = TissueConfig::Instance();
-
     mpVizNodesFile->close();
     mpVizBoundaryNodesFile->close();
     mpVizCellProliferativeTypesFile->close();
 
-    if (p_config->GetOutputCellMutationStates())
+    if (mOutputCellMutationStates)
     {
         mpCellMutationStatesFile->close();
     }
-    if (p_config->GetOutputCellProliferativeTypes())
+    if (mOutputCellProliferativeTypes)
     {
         mpCellProliferativeTypesFile->close();
     }
-    if (p_config->GetOutputCellVariables())
+    if (mOutputCellVariables)
     {
         mpCellVariablesFile->close();
     }
-    if (p_config->GetOutputCellCyclePhases())
+    if (mOutputCellCyclePhases)
     {
         mpCellCyclePhasesFile->close();
     }
-    if (p_config->GetOutputCellAncestors())
+    if (mOutputCellAncestors)
     {
         mpVizCellAncestorsFile->close();
     }
-    if (p_config->GetOutputCellAges())
+    if (mOutputCellAges)
     {
         mpCellAgesFile->close();
     }
-    if (p_config->GetOutputCellIdData())
+    if (mOutputCellIdData)
     {
         mpCellIdFile->close();
     }
@@ -330,14 +332,11 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
                                               std::vector<unsigned>& rCellProliferativeTypeCounter,
                                               std::vector<unsigned>& rCellCyclePhaseCounter)
 {
-    // Helper pointer
-    TissueConfig* p_config = TissueConfig::Instance();
-
     unsigned colour = STEM_COLOUR;
 
     TissueCellPtr p_cell = mLocationCellMap[locationIndex];
 
-    if (p_config->GetOutputCellCyclePhases())
+    if (mOutputCellCyclePhases)
     {
         // Update rCellCyclePhaseCounter
         switch (p_cell->GetCellCycleModel()->GetCurrentCellCyclePhase())
@@ -362,7 +361,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
         }
     }
 
-    if (p_config->GetOutputCellAncestors())
+    if (mOutputCellAncestors)
     {
         // Set colour dependent on cell ancestor and write to file
         colour = p_cell->GetAncestor();
@@ -380,21 +379,21 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     {
         case STEM:
             colour = STEM_COLOUR;
-            if (p_config->GetOutputCellProliferativeTypes())
+            if (mOutputCellProliferativeTypes)
             {
                 rCellProliferativeTypeCounter[0]++;
             }
             break;
         case TRANSIT:
             colour = TRANSIT_COLOUR;
-            if (p_config->GetOutputCellProliferativeTypes())
+            if (mOutputCellProliferativeTypes)
             {
                 rCellProliferativeTypeCounter[1]++;
             }
             break;
         case DIFFERENTIATED:
             colour = DIFFERENTIATED_COLOUR;
-            if (p_config->GetOutputCellProliferativeTypes())
+            if (mOutputCellProliferativeTypes)
             {
                 rCellProliferativeTypeCounter[2]++;
             }
@@ -403,7 +402,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
             NEVER_REACHED;
     }
 
-    if (p_config->GetOutputCellMutationStates())
+    if (mOutputCellMutationStates)
     {
         // Set colour dependent on cell mutation state
         if (!p_cell->GetMutationState()->IsType<WildTypeCellMutationState>())
@@ -425,7 +424,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     }
 
     // Write cell variable data to file if required
-    if ( p_config->GetOutputCellVariables() && dynamic_cast<AbstractOdeBasedCellCycleModel*>(p_cell->GetCellCycleModel()) )
+    if (mOutputCellVariables && dynamic_cast<AbstractOdeBasedCellCycleModel*>(p_cell->GetCellCycleModel()) )
     {
         // Write location index corresponding to cell
         *mpCellVariablesFile << locationIndex << " ";
@@ -439,7 +438,7 @@ void AbstractTissue<DIM>::GenerateCellResults(unsigned locationIndex,
     }
 
     // Write cell age data to file if required
-    if (p_config->GetOutputCellAges())
+    if (mOutputCellAges)
     {
         // Write location index corresponding to cell
         *mpCellAgesFile << locationIndex << " ";
@@ -463,41 +462,27 @@ template<unsigned DIM>
 void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellProliferativeTypeCounter,
                                                   std::vector<unsigned>& rCellCyclePhaseCounter)
 {
-    // Helper pointer
-    TissueConfig* p_config = TissueConfig::Instance();
-
     *mpVizCellProliferativeTypesFile << "\n";
 
-    if (p_config->GetOutputCellAncestors())
+    if (mOutputCellAncestors)
     {
         *mpVizCellAncestorsFile << "\n";
     }
 
     // Write cell mutation state data to file if required
-    if (p_config->GetOutputCellMutationStates())
+    if (mOutputCellMutationStates)
     {
-        ///\todo Merge with code in GetCellMutationStateCount()? (#1285)
+        std::vector<unsigned> mutation_state_count = GetCellMutationStateCount();
 
-        // An ordering must be specified for cell mutation states
-        SetDefaultMutationStateOrdering();
-
-        const std::vector<boost::shared_ptr<AbstractCellProperty> >& r_cell_properties = 
-        mpCellPropertyRegistry->rGetAllCellProperties();
-
-        std::vector<unsigned> cell_mutation_state_count;
-        for (unsigned i=0; i<r_cell_properties.size(); i++)
+        for (unsigned i=0; i<mutation_state_count.size(); i++)
         {
-            if (r_cell_properties[i]->IsSubType<AbstractCellMutationState>())
-            {
-                *mpCellMutationStatesFile << r_cell_properties[i]->GetCellCount() << "\t";
-            }
+            *mpCellMutationStatesFile << mutation_state_count[i] << "\t";
         }
-
         *mpCellMutationStatesFile << "\n";
     }
 
     // Write cell type data to file if required
-    if (p_config->GetOutputCellProliferativeTypes())
+    if (mOutputCellProliferativeTypes)
     {
         for (unsigned i=0; i<mCellProliferativeTypeCount.size(); i++)
         {
@@ -507,13 +492,13 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellPr
         *mpCellProliferativeTypesFile << "\n";
     }
 
-    if (p_config->GetOutputCellVariables())
+    if (mOutputCellVariables)
     {
         *mpCellVariablesFile << "\n";
     }
 
     // Write cell cycle phase data to file if required
-    if (p_config->GetOutputCellCyclePhases())
+    if (mOutputCellCyclePhases)
     {
         for (unsigned i=0; i<mCellCyclePhaseCount.size(); i++)
         {
@@ -524,7 +509,7 @@ void AbstractTissue<DIM>::WriteCellResultsToFiles(std::vector<unsigned>& rCellPr
     }
 
     // Write cell age data to file if required
-    if (p_config->GetOutputCellAges())
+    if (mOutputCellAges)
     {
         *mpCellAgesFile << "\n";
     }
@@ -559,36 +544,33 @@ void AbstractTissue<DIM>::WriteTimeAndNodeResultsToFiles()
 template<unsigned DIM>
 void AbstractTissue<DIM>::WriteResultsToFiles()
 {
-    // Helper pointer
-    TissueConfig* p_config = TissueConfig::Instance();
-
     WriteTimeAndNodeResultsToFiles();
 
     double time = SimulationTime::Instance()->GetTime();
 
     *mpVizCellProliferativeTypesFile << time << "\t";
 
-    if (p_config->GetOutputCellAncestors())
+    if (mOutputCellAncestors)
     {
         *mpVizCellAncestorsFile << time << "\t";
     }
-    if (p_config->GetOutputCellMutationStates())
+    if (mOutputCellMutationStates)
     {
         *mpCellMutationStatesFile << time << "\t";
     }
-    if (p_config->GetOutputCellProliferativeTypes())
+    if (mOutputCellProliferativeTypes)
     {
         *mpCellProliferativeTypesFile << time << "\t";
     }
-    if (p_config->GetOutputCellVariables())
+    if (mOutputCellVariables)
     {
         *mpCellVariablesFile << time << "\t";
     }
-    if (p_config->GetOutputCellCyclePhases())
+    if (mOutputCellCyclePhases)
     {
         *mpCellCyclePhasesFile << time << "\t";
     }
-    if (p_config->GetOutputCellAges())
+    if (mOutputCellAges)
     {
         *mpCellAgesFile << time << "\t";
     }
@@ -596,7 +578,7 @@ void AbstractTissue<DIM>::WriteResultsToFiles()
     GenerateCellResultsAndWriteToFiles();
 
     // Write logged cell data if required
-    if (p_config->GetOutputCellIdData())
+    if (mOutputCellIdData)
     {
         WriteCellIdDataToFile();
     }
@@ -625,6 +607,101 @@ void AbstractTissue<DIM>::WriteCellIdDataToFile()
     *mpCellIdFile << "\n";
 }
 
+template<unsigned DIM>
+bool AbstractTissue<DIM>::GetOutputCellIdData()
+{
+    return mOutputCellIdData;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::GetOutputCellMutationStates()
+{
+    return mOutputCellMutationStates;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::GetOutputCellAncestors()
+{
+    return mOutputCellAncestors;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::GetOutputCellProliferativeTypes()
+{
+    return mOutputCellProliferativeTypes;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::GetOutputCellVariables()
+{
+    return mOutputCellVariables;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::GetOutputCellCyclePhases()
+{
+    return mOutputCellCyclePhases;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::GetOutputCellAges()
+{
+    return mOutputCellAges;
+}
+
+template<unsigned DIM>
+bool AbstractTissue<DIM>::GetOutputCellVolumes()
+{
+    return mOutputCellVolumes;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetOutputCellIdData(bool writeCellIdData)
+{
+    mOutputCellIdData = writeCellIdData;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetOutputCellMutationStates(bool outputCellMutationStates)
+{
+    mOutputCellMutationStates = outputCellMutationStates;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetOutputCellAncestors(bool outputCellAncestors)
+{
+    mOutputCellAncestors = outputCellAncestors;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetOutputCellProliferativeTypes(bool outputCellProliferativeTypes)
+{
+    mOutputCellProliferativeTypes = outputCellProliferativeTypes;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetOutputCellVariables(bool outputCellVariables)
+{
+    mOutputCellVariables = outputCellVariables;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetOutputCellCyclePhases(bool outputCellCyclePhases)
+{
+    mOutputCellCyclePhases = outputCellCyclePhases;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetOutputCellAges(bool outputCellAges)
+{
+    mOutputCellAges = outputCellAges;
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::SetOutputCellVolumes(bool outputCellVolumes)
+{
+    mOutputCellVolumes = outputCellVolumes;
+}
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation

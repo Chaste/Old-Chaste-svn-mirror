@@ -904,12 +904,12 @@ public:
             }
         }
 
-        // Coverage
-        TissueConfig::Instance()->SetMinimumGapDuration(1e20);
-
         StochasticWntCellCycleModel* p_cell_model2 = new StochasticWntCellCycleModel();
         p_cell_model2->SetDimension(2);
         p_cell_model2->SetCellProliferativeType(STEM);
+
+        // Coverage
+        p_cell_model2->SetMinimumGapDuration(1e20);
 
         TissueCellPtr p_cell2(new TissueCell(p_healthy_state, p_cell_model2));
         p_cell2->InitialiseCellCycleModel();
@@ -923,8 +923,6 @@ public:
 
     void TestAlarcon2004OxygenBasedCellCycleModel() throw(Exception)
     {
-        TissueConfig::Instance()->SetHepaOneParameters();
-
         // Set up SimulationTime
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(20.0, 2);
@@ -1400,9 +1398,6 @@ public:
 
     void TestArchiveAlarcon2004OxygenBasedCellCycleModels()
     {
-        // Set up
-        TissueConfig::Instance()->SetHepaOneParameters();
-
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "alarcon_cell_cycle.arch";
 

@@ -54,7 +54,8 @@ TissueSimulation<DIM>::TissueSimulation(AbstractTissue<DIM>& rTissue,
       mNumBirths(0),
       mNumDeaths(0),
       mSamplingTimestepMultiple(1),
-      mForceCollection(forceCollection)
+      mForceCollection(forceCollection),
+      mOutputNodeVelocities(false)
 {
     mpConfig = TissueConfig::Instance();
 
@@ -184,7 +185,7 @@ c_vector<double, DIM> TissueSimulation<DIM>::CalculateCellDivisionVector(TissueC
         c_vector<double, DIM> daughter_coords;
 
         // Get separation parameter
-        double separation = TissueConfig::Instance()->GetMeinekeDivisionSeparation();
+        double separation = static_cast<AbstractCellCentreBasedTissue<DIM>*>(&mrTissue)->GetMeinekeDivisionSeparation();
 
         // Make a random direction vector of the required length
         c_vector<double, DIM> random_vector;
@@ -266,7 +267,7 @@ void TissueSimulation<DIM>::UpdateNodePositions(const std::vector< c_vector<doub
     ApplyTissueBoundaryConditions(old_node_locations);
 
     // Write node velocities to file if required
-    if ( TissueConfig::Instance()->GetOutputNodeVelocities() )
+    if (mOutputNodeVelocities)
     {
         if (SimulationTime::Instance()->GetTimeStepsElapsed()%mSamplingTimestepMultiple==0)
         {
@@ -465,7 +466,7 @@ void TissueSimulation<DIM>::Solve()
 
     mpVizSetupFile = output_file_handler.OpenOutputFile("results.vizsetup");
 
-    if (TissueConfig::Instance()->GetOutputNodeVelocities())
+    if (mOutputNodeVelocities)
     {
         OutputFileHandler output_file_handler2(results_directory+"/", false);
         mpNodeVelocitiesFile = output_file_handler2.OpenOutputFile("nodevelocities.dat");
@@ -585,7 +586,7 @@ void TissueSimulation<DIM>::Solve()
 
     mrTissue.CloseOutputFiles();
 
-    if (TissueConfig::Instance()->GetOutputNodeVelocities())
+    if (mOutputNodeVelocities)
     {
         mpNodeVelocitiesFile->close();
     }
@@ -673,7 +674,7 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
 
     *ParameterFile << ChasteBuildInfo::GetProvenanceString()<< "\n";
 
-    *ParameterFile << typeid(mrTissue).name() << "\n";
+    *ParameterFile << typeid(mrTissue).name() << "\n"; ///\todo replace with extended type info id (see #1453)
     *ParameterFile << "\n";
     *ParameterFile <<  "Parameters from TissueConfig \n";
 	TissueConfig* p_inst = TissueConfig::Instance();
@@ -683,8 +684,6 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     *ParameterFile << "MDuration \t" << p_inst->GetMDuration() << "\n";
     *ParameterFile << "StemCellG1Duration \t" << p_inst->GetStemCellG1Duration() << "\n";
     *ParameterFile << "TransitCellG1Duration \t" << p_inst->GetTransitCellG1Duration() << "\n";
-    *ParameterFile << "HepaOneCellG1Duration \t" << p_inst->GetHepaOneCellG1Duration() << "\n";
-    *ParameterFile << "MinimumGapDuration \t" << p_inst->GetMinimumGapDuration() << "\n";
     *ParameterFile << "CryptLength \t" << p_inst->GetCryptLength() << "\n";
     *ParameterFile << "CryptWidth \t" << p_inst->GetCryptWidth() << "\n";
     *ParameterFile << "SpringStiffness \t" << p_inst->GetMeinekeSpringStiffness() << "\n";
@@ -693,19 +692,20 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     *ParameterFile << "DampingConstantMutant \t" << p_inst->GetDampingConstantMutant() << "\n";
     *ParameterFile << "CryptProjectionParameterA \t" << p_inst->GetCryptProjectionParameterA() << "\n";
     *ParameterFile << "CryptProjectionParameterB \t" << p_inst->GetCryptProjectionParameterB() << "\n";
-    *ParameterFile << "OutputCellIdData \t" << p_inst->GetOutputCellIdData() << "\n";
-    *ParameterFile << "OutputCellMutationStates \t" << p_inst->GetOutputCellMutationStates() << "\n";
-    *ParameterFile << "OutputCellAncestors \t" << p_inst->GetOutputCellAncestors() << "\n";
-    *ParameterFile << "OutputCellProliferativeTypes \t" << p_inst->GetOutputCellProliferativeTypes() << "\n";
-    *ParameterFile << "OutputCellVariables \t" << p_inst->GetOutputCellVariables() << "\n";
-    *ParameterFile << "OutputCellCyclePhases \t" << p_inst->GetOutputCellCyclePhases() << "\n";
-    *ParameterFile << "OutputCellAges \t" << p_inst->GetOutputCellAges() << "\n";
-    *ParameterFile << "OutputCellAreas \t" << p_inst->GetOutputCellVolumes() << "\n";
-    *ParameterFile << "OutputVoronoiData \t" << p_inst->GetOutputVoronoiData() << "\n";
-    *ParameterFile << "OutputTissueAreas \t" << p_inst->GetOutputTissueVolumes() << "\n";
-    *ParameterFile << "OutputNodeVelocities \t" << p_inst->GetOutputNodeVelocities() << "\n";
 
     ParameterFile->close();
+}
+
+template<unsigned DIM>
+bool TissueSimulation<DIM>::GetOutputNodeVelocities()
+{
+    return mOutputNodeVelocities;
+}
+
+template<unsigned DIM>
+void TissueSimulation<DIM>::SetOutputNodeVelocities(bool outputNodeVelocities)
+{
+    mOutputNodeVelocities = outputNodeVelocities;
 }
 
 /////////////////////////////////////////////////////////////////////////////
