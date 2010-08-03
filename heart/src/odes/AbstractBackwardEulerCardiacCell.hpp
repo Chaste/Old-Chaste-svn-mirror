@@ -226,7 +226,7 @@ OdeSolution AbstractBackwardEulerCardiacCell<SIZE>::Compute(double tStart, doubl
     solutions.SetOdeSystemInformation(this->mpSystemInfo);
 
     // Loop over time
-    double curr_time;
+    double curr_time = tStart;
     for (unsigned i=0; i<n_steps; i++)
     {
         for (unsigned j=0; j<n_small_steps; j++)
