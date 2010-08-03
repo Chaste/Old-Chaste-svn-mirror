@@ -223,15 +223,19 @@ public:
 
         TS_ASSERT_DELTA(p_cycle_model->GetWntStemThreshold(), 0.8, 1e-6);
         TS_ASSERT_DELTA(p_cycle_model->GetWntTransitThreshold(), 0.65, 1e-6);
+        TS_ASSERT_DELTA(p_cycle_model->GetWntLabelledThreshold(), 0.65, 1e-6);
 
         p_cycle_model->SetWntStemThreshold(0.4);
         p_cycle_model->SetWntTransitThreshold(0.5);
+        p_cycle_model->SetWntLabelledThreshold(0.3);
 
         TS_ASSERT_DELTA(p_cycle_model->GetWntStemThreshold(), 0.4, 1e-6);
         TS_ASSERT_DELTA(p_cycle_model->GetWntTransitThreshold(), 0.5, 1e-6);
+        TS_ASSERT_DELTA(p_cycle_model->GetWntLabelledThreshold(), 0.3, 1e-6);
 
         p_cycle_model->SetWntStemThreshold(0.8);
         p_cycle_model->SetWntTransitThreshold(0.65);
+        p_cycle_model->SetWntLabelledThreshold(0.65);
 
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
@@ -524,6 +528,11 @@ public:
         p_diff_model->SetDimension(2);
         p_diff_model->SetCellProliferativeType(DIFFERENTIATED);
 
+        // Coverage
+        TS_ASSERT_DELTA(p_diff_model->GetCriticalHypoxicDuration(), 2.0, 1e-6);
+        p_diff_model->SetCriticalHypoxicDuration(0.5);
+        TS_ASSERT_DELTA(p_diff_model->GetCriticalHypoxicDuration(), 0.5, 1e-6);
+
         TissueCellPtr p_diff_cell(new TissueCell(p_state, p_diff_model));
         p_diff_cell->InitialiseCellCycleModel();
 
@@ -631,6 +640,19 @@ public:
         StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel;
         p_model->SetDimension(2);
         p_model->SetCellProliferativeType(STEM);
+
+        // Coverage
+        TS_ASSERT_DELTA(p_model->GetHypoxicConcentration(), 0.4, 1e-6);
+        TS_ASSERT_DELTA(p_model->GetQuiescentConcentration(), 1.0, 1e-6);
+        TS_ASSERT_DELTA(p_model->GetCriticalHypoxicDuration(), 2.0, 1e-6);
+
+        p_model->SetHypoxicConcentration(0.5);
+        p_model->SetQuiescentConcentration(0.5);
+        p_model->SetCriticalHypoxicDuration(3.0);
+
+        TS_ASSERT_DELTA(p_model->GetHypoxicConcentration(), 0.5, 1e-6);
+        TS_ASSERT_DELTA(p_model->GetQuiescentConcentration(), 0.5, 1e-6);
+        TS_ASSERT_DELTA(p_model->GetCriticalHypoxicDuration(), 3.0, 1e-6);
 
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         TissueCellPtr p_cell(new TissueCell(p_state, p_model));
