@@ -314,7 +314,7 @@ public:
 
         MatDestroy(matrix_read);
         VecDestroy(vector_read);
-        
+        VecDestroy(parallel_layout);        
     }
     
     

@@ -56,6 +56,8 @@ public:
         Mat system_matrix;
         PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/cube_6000elems_half_activated.mat", parallel_layout);
 
+        VecDestroy(parallel_layout);
+
         // Set rhs = A * [1 0 1 0 ... 1 0]'        
         Vec one_zeros = factory.CreateVec(2);
         Vec rhs = factory.CreateVec(2);
@@ -186,6 +188,7 @@ public:
         std::cout << block_diag_its << " " << point_jacobi_its << std::endl;
         TS_ASSERT_LESS_THAN_EQUALS(block_diag_its, point_jacobi_its);
 
+        VecDestroy(parallel_layout);
     }
 };
 
