@@ -655,7 +655,8 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       </math>
    </component>
    <component name="INa_h_gate">
-      <variable name="h" units="dimensionless" initial_value="0.987140350343" public_interface="out"/>
+      <!-- Note: added an id so it has a consistent name in Chaste -->
+      <variable name="h" units="dimensionless" initial_value="0.987140350343" public_interface="out" cmeta:id="h"/>
       <variable name="alpha_h" units="per_millisecond"/>
       <variable name="beta_h" units="per_millisecond"/>
       <variable name="tau_h" units="millisecond"/>

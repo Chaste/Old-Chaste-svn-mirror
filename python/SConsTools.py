@@ -452,7 +452,7 @@ def CreatePyCmlBuilder(build, buildenv):
         return os.path.exists(conf_file), conf_file
     script = os.path.join(Dir('#').abspath, 'python', 'ConvertCellModel.py')
     def GetArgs(target, source, env):
-        args = ['-A', '--output-dir', os.path.dirname(target[0].abspath)]
+        args = ['-A', '-p', '--output-dir', os.path.dirname(target[0].abspath)]
         if IsDynamicSource(source):
             # If we're creating a dynamic library, do things differently:
             # only create a single output .so.  The helper script will recognise
