@@ -1271,6 +1271,39 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.lookup_method_prefix = self.lt_class_name + '::Instance()->'
         return super(CellMLToChasteTranslator, self).final_configuration_hook()
     
+    def determine_units_conversion(self, varobj, to_chaste=True):
+        """Determine if we needs to units-convert the given quantity.
+        
+        Will check if varobj has units dimensionally equivalent to those of time
+        or the stimulus current.  If it does, then a conversion may be required.
+        Returns an appropriate conversion expression (just the code_name of the
+        variable if no conversion is required) paired with a list of nodes used
+        in computing this conversion.
+        
+        By default converts from model units to Chaste units.  If to_chaste is
+        False, performs the reverse conversion.
+        """
+        var_units = self.get_var_units(varobj)
+        conversion = self.code_name(varobj)
+        nodes_used = []
+        # Units to check against
+        ms = cellml_units.create_new(
+            self.model, 'milliseconds',
+            [{'units': 'second', 'prefix': 'milli'}])
+        current_units = self.get_var_units(self.doc._cml_config.i_stim_var)
+        if var_units.dimensionally_equivalent(ms): # Check against time
+            if not var_units.equals(ms):
+                if not to_chaste:
+                    conversion_factor = (ms.get_multiplicative_factor() /
+                                         var_units.get_multiplicative_factor())
+                else:
+                    conversion_factor = (var_units.get_multiplicative_factor() /
+                                         ms.get_multiplicative_factor())
+                conversion += ' * ' + str(conversion_factor)
+        elif var_units.dimensionally_equivalent(current_units): # Check against current
+            conversion, nodes_used = self.ionic_current_units_conversion(conversion, var_units, to_chaste)
+        return conversion, nodes_used
+    
     def ionic_current_units_conversion(self, varname, all_units, to_chaste=True):
         """
         Check whether the units of the transmembrane currents are as expected by
@@ -1609,7 +1642,13 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.output_method_start('Get_' + var.oxmeta_name + '_constant', [], self.TYPE_DOUBLE)
                 self.open_block()
                 self.output_comment('Constant value given in CellML')
-                self.writeln('return ', var.initial_value, self.STMT_END)
+                self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(var), self.EQ_ASSIGN,
+                             var.initial_value, self.STMT_END)
+                conversion, nodes_used = self.determine_units_conversion(var)
+                if nodes_used:
+                    nodeset = self.calculate_extended_dependencies(nodes_used)
+                    self.output_equations(nodeset)
+                self.writeln('return ', conversion, self.STMT_END)
                 self.close_block()
                 self.writeln()
         self.output_default_stimulus()
