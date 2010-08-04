@@ -344,6 +344,11 @@ class element_base(amara.bindery.element_base):
                    for attr, (qname, ns_) in self.xml_attributes.items() ]
         attr_dict = dict(zip(keys, values))
         return attr_dict.get((ns, local), default)
+    
+    @property
+    def cmeta_id(self):
+        """Get the value of the cmeta:id attribute, or the empty string if not set."""
+        return self.getAttributeNS(NSS['cmeta'], u'id')
 
     def xml_element_children(self, elt=None):
         """Return an iterable over child elements of this element."""
@@ -1522,6 +1527,17 @@ class cellml_model(element_base):
             solver_info.xml_append(ionic_elt)
         return
 
+    def is_self_excitatory(self):
+        """Determine whether this model is self-excitatory,
+        i.e. does not require an external stimulus.
+        """
+        meta_id = self.cmeta_id
+        if not meta_id:
+            return False
+        property = cellml_metadata.create_rdf_node(('pycml:is-self-excitatory', NSS['pycml']))
+        source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
+        return cellml_metadata.get_target(self, source, property) == 'yes'
+
     def xml(self, stream=None, writer=None, **wargs):
         """Serialize back to XML.
         If stream is given, output to stream.
@@ -1948,11 +1964,6 @@ class cellml_variable(Colourable, element_base):
             model = self.xml_parent.xml_parent
             model._pe_repeat = u'yes'
         return
-    
-    @property
-    def cmeta_id(self):
-        """Get the value of the cmeta:id attribute, or the empty string if not set."""
-        return self.getAttributeNS(NSS['cmeta'], u'id')
 
     def add_rdf_annotation(self, property, target):
         """Add an RDF annotation about this variable.

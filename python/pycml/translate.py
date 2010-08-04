@@ -3927,15 +3927,16 @@ class ConfigurationStore(object):
 
     def find_current_vars(self):
         """Find the variables representing currents."""
-        # Try metadata first for i_stim (TODO #1209: and other currents)
-        self.i_stim_var = self._find_var('membrane_stimulus_current', self.i_stim_definitions)
-        if not self.i_stim_var:
-            # No match :(
-            msg = "No stimulus current found; you'll have trouble generating Chaste code"
-            if self.options.fully_automatic:
-                raise ConfigurationError(msg)
-            else:
-                print >>sys.stderr, msg
+        # Find the stimulus current, if it exists for this kind of model (some are self-excitatory)
+        if not self.doc.model.is_self_excitatory():
+            self.i_stim_var = self._find_var('membrane_stimulus_current', self.i_stim_definitions)
+            if not self.i_stim_var:
+                # No match :(
+                msg = "No stimulus current found; you'll have trouble generating Chaste code"
+                if self.options.fully_automatic:
+                    raise ConfigurationError(msg)
+                else:
+                    print >>sys.stderr, msg
         # For other ionic currents, try using the equation for dV/dt first
         self.i_ionic_vars = self._find_transmembrane_currents_from_voltage_ode()
         # Otherwise use the config file
