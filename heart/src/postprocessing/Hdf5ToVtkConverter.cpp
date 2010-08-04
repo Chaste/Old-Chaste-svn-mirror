@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVector.hpp"
 #include "DistributedVectorFactory.hpp"
 #include "VtkMeshWriter.hpp"
-#include "GenericMeshReader.hpp"    
+#include "GenericMeshReader.hpp"
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -59,46 +59,32 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
     // Loop over time steps
     for (unsigned time_step=0; time_step<num_timesteps; time_step++) //num_timesteps; time_step++)
     {
-        this->mpReader->GetVariableOverNodes(data, "V", time_step); // Gets V at this time step from HDF5 archive
-        ReplicatableVector repl_data(data);
-        std::vector<double> v_for_vtk;
-        v_for_vtk.resize(num_nodes);
-        for (unsigned index=0; index<num_nodes; index++)
+        // Loop over variables
+        for( unsigned variable = 0; variable < this->mNumVariables; variable++ )
         {
-            v_for_vtk[index]  = repl_data[index];
-        }
+            std::string variable_name = this->mpReader->GetVariableNames()[variable];
 
-        std::ostringstream V_point_data_name;
-        V_point_data_name << "V_" << std::setw(6) << std::setfill('0') << time_step;
-
-        if (PetscTools::AmMaster())
-        {
-            // Add V into the node "point" data
-            vtk_writer.AddPointData(V_point_data_name.str(), v_for_vtk);
-        }
-        if(this->mNumVariables==2)
-        {
-            this->mpReader->GetVariableOverNodes(data, "Phi_e", time_step); // Gets Phi at this time step from HDF5 archive
-            ReplicatableVector repl_phi(data);
-            std::vector<double> phi_for_vtk;
-            phi_for_vtk.resize(num_nodes);
+            this->mpReader->GetVariableOverNodes(data, variable_name, time_step); // Gets variable at this time step from HDF5 archive
+            ReplicatableVector repl_data(data);
+            std::vector<double> data_for_vtk;
+            data_for_vtk.resize(num_nodes);
             for (unsigned index=0; index<num_nodes; index++)
             {
-                phi_for_vtk[index]  = repl_phi[index];
+                data_for_vtk[index]  = repl_data[index];
             }
 
-            std::ostringstream Phi_point_data_name;
-            Phi_point_data_name << "Phi_e_" << std::setw(6) << std::setfill('0') << time_step;
+            std::ostringstream variable_point_data_name;
+            variable_point_data_name << variable_name << "_" << std::setw(6) << std::setfill('0') << time_step;
 
             if (PetscTools::AmMaster())
             {
-                // Add Phi into the node "point" data
-                vtk_writer.AddPointData(Phi_point_data_name.str(), phi_for_vtk);
+                // Add V into the node "point" data
+                vtk_writer.AddPointData(variable_point_data_name.str(), data_for_vtk);
             }
         }
     }
     VecDestroy(data);
-    
+
     // Normally the in-memory mesh is converted:
     if (HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering() == false)
     {
@@ -112,8 +98,8 @@ Hdf5ToVtkConverter<ELEMENT_DIM, SPACE_DIM>::Hdf5ToVtkConverter(std::string input
         std::string original_file=this->mpMesh->GetMeshFileBaseName();
         GenericMeshReader<ELEMENT_DIM, SPACE_DIM> original_mesh_reader(original_file);
         vtk_writer.WriteFilesUsingMeshReader(original_mesh_reader);
-    }    
-    
+    }
+
 #endif //CHASTE_VTK
 
 }
