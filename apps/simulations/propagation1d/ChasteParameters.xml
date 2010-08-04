@@ -9,7 +9,7 @@
 			Problem definition 
 		-->
 		<SpaceDimension>1</SpaceDimension>
-	    <SimulationDuration unit="ms">10.0</SimulationDuration>
+	    <SimulationDuration unit="ms">1000.0</SimulationDuration>
 	    <Domain>Mono</Domain>
 	    <IonicModels>
 	    	<Default><Hardcoded>LuoRudyI</Hardcoded></Default>
@@ -30,6 +30,7 @@
 				<Strength unit="uA/cm^3">-25500.0</Strength>
 				<Duration unit="ms">2.0</Duration>
 				<Delay unit="ms">0</Delay>
+				<Period unit="ms">100</Period>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="0.0" y="-0.1" z="-1.0"/>

@@ -39,6 +39,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractChasteRegion.hpp"
 #include "HeartFileFinder.hpp"
 
+#include "SimpleStimulus.hpp"
+#include "RegularStimulus.hpp"
+
 #include <string>
 #include <istream>
 #include <fstream>
@@ -867,7 +870,7 @@ cp::media_type HeartConfig::GetConductivityMedia() const
 }
 
 template <unsigned DIM>
-void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied,
+void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& rStimuliApplied,
                              std::vector<ChasteCuboid<DIM> >& rStimulatedAreas) const
 {
     CheckSimulationIsDefined("Stimuli");
@@ -911,10 +914,39 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rS
                     NEVER_REACHED;
                     break;
             }
-
-            boost::shared_ptr<SimpleStimulus> stim(new SimpleStimulus(stimulus.Strength(),
-                                                                      stimulus.Duration(),
-                                                                      stimulus.Delay()));
+            
+            boost::shared_ptr<AbstractStimulusFunction> stim;           
+            
+            if (stimulus.Period().present())
+            {
+                if (stimulus.StopTime().present())
+                {
+                    stim.reset(new RegularStimulus(stimulus.Strength(),
+                                                   stimulus.Duration(),
+                                                   stimulus.Period().get(),
+                                                   stimulus.Delay(),
+                                                   stimulus.StopTime().get()));                
+                }
+                else
+                {
+                    stim.reset(new RegularStimulus(stimulus.Strength(),
+                                                   stimulus.Duration(),
+                                                   stimulus.Period().get(),
+                                                   stimulus.Delay()));
+                }
+                                
+            }
+            else
+            {
+                if (stimulus.StopTime().present())
+                {
+                    EXCEPTION("Stop time can not be defined for SimpleStimulus. Use Duration instead.");
+                }                
+                
+                stim.reset(new SimpleStimulus(stimulus.Strength(),
+                                              stimulus.Duration(),
+                                              stimulus.Delay()));
+            }
             rStimuliApplied.push_back( stim );
         }
         else
@@ -2937,17 +2969,17 @@ void XmlTransforms::CheckForIluPreconditioner(xercesc::DOMDocument* pDocument,
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
  */
 template void HeartConfig::GetIonicModelRegions<3u>(std::vector<ChasteCuboid<3u> >& , std::vector<cp::ionic_model_selection_type>&) const;
-template void HeartConfig::GetStimuli<3u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<3u> >& ) const;
+template void HeartConfig::GetStimuli<3u>(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& , std::vector<ChasteCuboid<3u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*) ;
 template void HeartConfig::GetConductivityHeterogeneities<3u>(std::vector<AbstractChasteRegion<3u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
 template void HeartConfig::GetIonicModelRegions<2u>(std::vector<ChasteCuboid<2u> >& , std::vector<cp::ionic_model_selection_type>&) const;
-template void HeartConfig::GetStimuli<2u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<2u> >& ) const;
+template void HeartConfig::GetStimuli<2u>(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& , std::vector<ChasteCuboid<2u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*) ;
 template void HeartConfig::GetConductivityHeterogeneities<2u>(std::vector<AbstractChasteRegion<2u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 
 template void HeartConfig::GetIonicModelRegions<1u>(std::vector<ChasteCuboid<1u> >& , std::vector<cp::ionic_model_selection_type>&) const;
-template void HeartConfig::GetStimuli<1u>(std::vector<boost::shared_ptr<SimpleStimulus> >& , std::vector<ChasteCuboid<1u> >& ) const;
+template void HeartConfig::GetStimuli<1u>(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& , std::vector<ChasteCuboid<1u> >& ) const;
 template void HeartConfig::GetCellHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector<double>& ,std::vector<double>& ,std::vector<double>& ,std::vector<std::map<std::string, double> >*);
 template void HeartConfig::GetConductivityHeterogeneities<1u>(std::vector<AbstractChasteRegion<1u>* >& ,std::vector< c_vector<double,3> >& ,std::vector< c_vector<double,3> >& ) const;
 /**

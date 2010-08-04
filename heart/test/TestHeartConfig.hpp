@@ -129,31 +129,35 @@ public:
         double inter_node_space = HeartConfig::Instance()->GetInterNodeSpace();
         TS_ASSERT_EQUALS(inter_node_space, 0.1);
 
-        std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
+        std::vector<boost::shared_ptr<AbstractStimulusFunction> > stimuli_applied;
         std::vector<ChasteCuboid<3> > stimulated_areas;
         HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas);
 
-        TS_ASSERT_EQUALS(stimuli_applied.size(), 2u);
-        TS_ASSERT_EQUALS(stimulated_areas.size(), 2u);
+        TS_ASSERT_EQUALS(stimuli_applied.size(), 4u);
+        TS_ASSERT_EQUALS(stimulated_areas.size(), 4u);
 
         TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0), -25500.0);
         TS_ASSERT_EQUALS(stimuli_applied[0]->GetStimulus(0.6), 0.0);
 
+        TS_ASSERT_EQUALS(stimuli_applied[2]->GetStimulus(0.0), 0.0);
+        TS_ASSERT_EQUALS(stimuli_applied[2]->GetStimulus(2.0), -25500.0);
+        TS_ASSERT_EQUALS(stimuli_applied[2]->GetStimulus(3.6), 0.0);
+
         //covering the 2D case
         std::vector<ChasteCuboid<2> > stimulated_areas_2D;
-        std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied_2D;
+        std::vector<boost::shared_ptr<AbstractStimulusFunction> > stimuli_applied_2D;
         HeartConfig::Instance()->GetStimuli(stimuli_applied_2D, stimulated_areas_2D);
 
-        TS_ASSERT_EQUALS(stimuli_applied_2D.size(), 2u);
-        TS_ASSERT_EQUALS(stimulated_areas_2D.size(), 2u);
+        TS_ASSERT_EQUALS(stimuli_applied_2D.size(), 4u);
+        TS_ASSERT_EQUALS(stimulated_areas_2D.size(), 4u);
 
         //covering the 1D case
         std::vector<ChasteCuboid<1> > stimulated_areas_1D;
-        std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied_1D;
+        std::vector<boost::shared_ptr<AbstractStimulusFunction> > stimuli_applied_1D;
         HeartConfig::Instance()->GetStimuli(stimuli_applied_1D, stimulated_areas_1D);
 
-        TS_ASSERT_EQUALS(stimuli_applied_1D.size(), 2u);
-        TS_ASSERT_EQUALS(stimulated_areas_1D.size(), 2u);
+        TS_ASSERT_EQUALS(stimuli_applied_1D.size(), 4u);
+        TS_ASSERT_EQUALS(stimulated_areas_1D.size(), 4u);
 
         TS_ASSERT(stimulated_areas[1].DoesContain(ChastePoint<3>(-2, 0, -2)));
         TS_ASSERT( ! stimulated_areas[1].DoesContain(ChastePoint<3>(-6, -6, -6)));
@@ -568,7 +572,7 @@ public:
                                   "Definition of transmural layers is not allowed for conductivities heterogeneities, you may use fibre orientation support instead");
 
              //covering the case when the user specify transmural layers for stimulated areas (not yet supported)...
-            std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
+            std::vector<boost::shared_ptr<AbstractStimulusFunction> > stimuli_applied;
             std::vector<ChasteCuboid<3> > stimulated_area;
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area),
                                   "Definition of transmural layers is not yet supported for specifying stimulated areas, please use cuboids instead");
@@ -1189,6 +1193,16 @@ public:
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistentCheckpointTimestep.xml"),
                 "Checkpoint time-step should be a multiple of printing time-step");
 
+        // Stimulus defined with end time but not period
+        HeartConfig::Reset();
+        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersWrongSimpleStimulusDefinition.xml");
+
+        std::vector<boost::shared_ptr<AbstractStimulusFunction> > stimuli_applied;
+        std::vector<ChasteCuboid<3> > stimulated_areas;        
+
+        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_areas),
+                "Stop time can not be defined for SimpleStimulus. Use Duration instead.");
+
         //Can't open a directory
         HeartConfig::Reset();
         HeartConfig::Instance()->SetOutputDirectory("../../../");
@@ -1432,7 +1446,7 @@ public:
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetMeshName(), "LoadMesh information is not available in a resumed simulation.")
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetConductivityMedia(), "LoadMesh information is not available in a resumed simulation.")
 
-        std::vector<boost::shared_ptr<SimpleStimulus> > stimuli_applied;
+        std::vector<boost::shared_ptr<AbstractStimulusFunction> > stimuli_applied;
         std::vector<ChasteCuboid<3> > stimulated_area;
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetStimuli(stimuli_applied, stimulated_area), "Stimuli information is not available in a resumed simulation.")
 

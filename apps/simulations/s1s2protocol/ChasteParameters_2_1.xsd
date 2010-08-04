@@ -361,6 +361,18 @@
             stimulus.</xs:documentation>
         </xs:annotation>
       </xs:element>
+      <xs:element name="Period" type="time_type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Period is an optinal element. If defined, the stimulus is reapplied every
+            period ms. Note that in this scenario Delay is only applied once.</xs:documentation>
+        </xs:annotation>
+      </xs:element>      
+      <xs:element name="StopTime" type="time_type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>StopTime is an optinal element. It can only happen if Period has been previously defined.
+            If defined, the train of stimuli will stop at the given time.</xs:documentation>
+        </xs:annotation>
+      </xs:element>      
       <xs:element name="Location" type="location_type">
         <xs:annotation>
           <xs:documentation>Location of the nodes at which to apply this

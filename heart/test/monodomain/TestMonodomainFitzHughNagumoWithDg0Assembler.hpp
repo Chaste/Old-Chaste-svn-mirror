@@ -40,6 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 
+#include "SimpleStimulus.hpp"
+
 #include "FitzHughNagumo1961OdeSystem.hpp"
 #include "ReplicatableVector.hpp"
 

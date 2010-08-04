@@ -93,8 +93,8 @@ public:
     {
         double magnitude_of_stimulus = 1.0;
         double duration_of_stimulus = 0.5;  // ms
-        double period = 1000.0; // 1s
-        double when = 100.0;
+        double period = 1.0; // 1s
+        double when = 2.0;
 
         RegularStimulus regular_stimulus(magnitude_of_stimulus,
                                          duration_of_stimulus,

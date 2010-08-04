@@ -37,7 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ArchiveLocationInfo.hpp"
 #include "ChasteParameters_2_1.hpp"
-#include "SimpleStimulus.hpp"
+
+#include "AbstractStimulusFunction.hpp"
 #include "ChasteCuboid.hpp"
 #include "ChasteEllipsoid.hpp"
 #include "AbstractTetrahedralMesh.hpp"
@@ -358,7 +359,7 @@ public:
      * \todo There is no set method
      */
      template<unsigned DIM>
-    void GetStimuli(std::vector<boost::shared_ptr<SimpleStimulus> >& rStimuliApplied, std::vector<ChasteCuboid<DIM> >& rStimulatedAreas) const;
+    void GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunction> >& rStimuliApplied, std::vector<ChasteCuboid<DIM> >& rStimulatedAreas) const;
 
     /**
      * Reads from the XML file the cellular hetrogeneities. It fugures out whether the user specified a cuboid
