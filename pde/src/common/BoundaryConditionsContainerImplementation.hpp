@@ -448,7 +448,11 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
     // are kept.
 #if PETSC_VERSION_MAJOR == 3
+ #if PETSC_VERSION_MINOR == 1
+    MatSetOption(jacobian, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE);
+ #else
     MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS, PETSC_TRUE);
+ #endif
 #else
     MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS);
 #endif

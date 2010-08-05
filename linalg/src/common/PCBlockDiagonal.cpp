@@ -118,7 +118,14 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &A11_local_rows);
         ISCreateStride(PETSC_COMM_WORLD, global_size, 0, 2, &A11_columns);
     
-        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1)
+        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns,
+			MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+#else
+        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE, 
+			MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+#endif
+
     
         ISDestroy(A11_local_rows);
         ISDestroy(A11_columns);
@@ -137,7 +144,13 @@ void PCBlockDiagonal::PCBlockDiagonalCreate(KSP& rKspObject)
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low+1, 2, &A22_local_rows);
         ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &A22_columns);
     
-        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1)
+        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns,
+			MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+#else
+        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE, 
+			MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+#endif
     
         ISDestroy(A22_local_rows);
         ISDestroy(A22_columns);
@@ -178,8 +191,17 @@ void PCBlockDiagonal::PCBlockDiagonalSetUp()
     PCSetUp(mPCContext.PC_amg_A22);
 }
 
+#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
+PetscErrorCode PCBlockDiagonalApply(PC pc_object, Vec x, Vec y)
+{
+  void* pc_context;
+
+  PCShellGetContext(pc_object, &pc_context);   
+#else
 PetscErrorCode PCBlockDiagonalApply(void* pc_context, Vec x, Vec y)
 {
+#endif
+
     // Cast the context pointer to PCBlockDiagonalContext
     PCBlockDiagonal::PCBlockDiagonalContext* block_diag_context = (PCBlockDiagonal::PCBlockDiagonalContext*) pc_context;
     assert(block_diag_context!=NULL);

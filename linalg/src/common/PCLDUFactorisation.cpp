@@ -122,8 +122,13 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &A11_local_rows);
         ISCreateStride(PETSC_COMM_WORLD, global_size, 0, 2, &A11_columns);
     
-        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
-    
+#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1)
+        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns,
+			MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+#else
+        MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns, PETSC_DECIDE,
+			MAT_INITIAL_MATRIX, &mPCContext.A11_matrix_subblock);
+#endif    
         ISDestroy(A11_local_rows);
         ISDestroy(A11_columns);
     }
@@ -140,8 +145,14 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
         IS A22_columns;
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low+1, 2, &A22_local_rows);
         ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &A22_columns);
-    
-        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+
+#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1)
+        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns,
+			MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+#else
+        MatGetSubMatrix(system_matrix, A22_local_rows, A22_columns, PETSC_DECIDE, 
+			MAT_INITIAL_MATRIX, &mPCContext.A22_matrix_subblock);
+#endif
     
         ISDestroy(A22_local_rows);
         ISDestroy(A22_columns);
@@ -160,7 +171,13 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
         ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &B_local_rows);
         ISCreateStride(PETSC_COMM_WORLD, global_size, 1, 2, &B_columns);
     
-        MatGetSubMatrix(system_matrix, B_local_rows, B_columns, PETSC_DECIDE, MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);        
+#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1)
+        MatGetSubMatrix(system_matrix, B_local_rows, B_columns,
+			MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);        
+#else
+        MatGetSubMatrix(system_matrix, B_local_rows, B_columns, PETSC_DECIDE, 
+			MAT_INITIAL_MATRIX, &mPCContext.B_matrix_subblock);
+#endif
     
         ISDestroy(B_local_rows);
         ISDestroy(B_columns);
@@ -249,9 +266,16 @@ void PCLDUFactorisation::PCLDUFactorisationSetUp()
     PCSetFromOptions(mPCContext.PC_amg_A22);
     PCSetUp(mPCContext.PC_amg_A22);
 }
+#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
+PetscErrorCode PCLDUFactorisationApply(PC pc_object, Vec x, Vec y)
+{
+  void* pc_context;
 
+  PCShellGetContext(pc_object, &pc_context);   
+#else
 PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y)
 {
+#endif
     /// \todo refactoring: create a method for scattering and another for reversing
 
     // Cast the pointer to a PC context to our defined type

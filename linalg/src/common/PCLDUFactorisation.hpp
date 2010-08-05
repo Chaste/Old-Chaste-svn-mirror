@@ -47,7 +47,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  @param x unpreconditioned residual.
  *  @param y preconditioned residual. y = inv(M)*x
  */
+#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
+PetscErrorCode PCLDUFactorisationApply(PC pc_object, Vec x, Vec y);
+#else
 PetscErrorCode PCLDUFactorisationApply(void* pc_context, Vec x, Vec y);
+#endif
 
 /**
  *  This class defines a PETSc-compliant purpouse-build preconditioner.
