@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "Hdf5DataReader.hpp"
-
+#include "SimpleStimulus.hpp"
 
 class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
 {

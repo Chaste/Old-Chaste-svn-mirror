@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "TrianglesMeshReader.hpp"
+#include "SimpleStimulus.hpp"
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
 

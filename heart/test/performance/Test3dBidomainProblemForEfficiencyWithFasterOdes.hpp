@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RegularStimulus.hpp"
 #include "RandomNumberGenerator.hpp"
 #include "AbstractIvpOdeSolver.hpp"
+#include "SimpleStimulus.hpp"
 
 class BidomainFaceStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {

@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Hdf5DataReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
+#include "SimpleStimulus.hpp"
 
 #include "FaberRudy2000Version3.hpp"
 #include "AbstractCardiacCellFactory.hpp"

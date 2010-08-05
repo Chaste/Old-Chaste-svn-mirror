@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-
+#include "SimpleStimulus.hpp"
 
 class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
 {

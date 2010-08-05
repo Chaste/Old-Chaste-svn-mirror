@@ -42,6 +42,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "FitzHughNagumo1961OdeSystem.hpp"
+#include "SimpleStimulus.hpp"
 
 class BidomainPointStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {

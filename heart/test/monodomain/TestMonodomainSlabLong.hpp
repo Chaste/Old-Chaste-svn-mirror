@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellFactory.hpp"
 #include "TetrahedralMesh.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "SimpleStimulus.hpp"
 
 class CornerStimulusCellFactory : public AbstractCardiacCellFactory<3>
 {

@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "ReplicatableVector.hpp"
 #include "CheckMonoLr91Vars.hpp"
-
+#include "SimpleStimulus.hpp"
 
 #include <ctime>
 
