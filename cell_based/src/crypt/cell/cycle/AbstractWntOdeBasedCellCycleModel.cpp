@@ -36,6 +36,7 @@ AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel()
 #ifdef CHASTE_CVODE
     boost::shared_ptr<CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor> >
         p_solver(CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor>::Instance());
+    p_solver->Initialise();
     // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so
     p_solver->CheckForStoppingEvents();
     p_solver->SetMaxSteps(10000);

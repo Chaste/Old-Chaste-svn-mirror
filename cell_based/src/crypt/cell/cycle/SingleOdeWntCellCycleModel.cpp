@@ -38,6 +38,7 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel()
 #ifdef CHASTE_CVODE
     boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor> >
         p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance());
+    p_solver->Initialise();
     p_solver->SetMaxSteps(10000);
     mpOdeSolver = p_solver;
 #else
