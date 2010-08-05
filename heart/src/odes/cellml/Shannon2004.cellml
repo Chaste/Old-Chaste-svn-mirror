@@ -156,7 +156,7 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
             </rdf:Description>
          </rdf:RDF>
       </variable>
-      <variable name="stim_period" units="millisecond" initial_value="3000" cmeta:id="membrane_stimulus_current_period">
+      <variable name="stim_period" units="millisecond" initial_value="300" cmeta:id="membrane_stimulus_current_period">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
             <rdf:Description rdf:about="#membrane_stimulus_current_period">
                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_stimulus_current_period"/>
