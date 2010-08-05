@@ -47,8 +47,8 @@ AbstractVanLeeuwen2009WntSwatCellCycleModel::AbstractVanLeeuwen2009WntSwatCellCy
 
 void AbstractVanLeeuwen2009WntSwatCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
 {
-    assert(mpOdeSystem!=NULL);
-    assert(mpCell!=NULL);
+    assert(mpOdeSystem != NULL);
+    assert(mpCell != NULL);
     double beta_catenin_level =   mpOdeSystem->rGetStateVariables()[16]
                                 + mpOdeSystem->rGetStateVariables()[17]
                                 + mpOdeSystem->rGetStateVariables()[18]
@@ -68,8 +68,8 @@ void AbstractVanLeeuwen2009WntSwatCellCycleModel::ChangeCellProliferativeTypeDue
 
 void AbstractVanLeeuwen2009WntSwatCellCycleModel::Initialise()
 {
-    assert(mpOdeSystem==NULL);
-    assert(mpCell!=NULL);
+    assert(mpOdeSystem == NULL);
+    assert(mpCell != NULL);
 
     double wnt_level = GetWntLevel();
 
@@ -96,11 +96,11 @@ bool AbstractVanLeeuwen2009WntSwatCellCycleModel::SolveOdeToTime(double currentT
     // Use the cell's current mutation status as another input
     static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
 
-    msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
+    mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
 
     mLastTime = currentTime; // normally done in Abstract class, but no harm in doing it here to prevent following line throwing an error.
     UpdateCellProliferativeType();
-    return msSolver.StoppingEventOccurred();
+    return mpOdeSolver->StoppingEventOccurred();
 }
 
 

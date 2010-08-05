@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCellCycleModel.hpp"
 #include "AbstractOdeSystem.hpp"
+#include "AbstractCellCycleModelOdeSolver.hpp"
 #include "SimulationTime.hpp"
 
 /**
@@ -60,7 +61,7 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        assert(mpOdeSystem!=NULL);
+        assert(mpOdeSystem != NULL);
         archive & mpOdeSystem->rGetStateVariables();
         archive & mLastTime;
         archive & mDivideTime;
@@ -72,6 +73,14 @@ protected:
 
     /** The system of ODEs for the cell cycle model. */
     AbstractOdeSystem* mpOdeSystem;
+
+    /**
+     * The ODE solver.
+     * 
+     * Subclasses need to set this in their constructor to point to an instance
+     * of a suitable class. See for example the CellCycleModelOdeSolver class.
+     */
+    boost::shared_ptr<AbstractCellCycleModelOdeSolver> mpOdeSolver;
 
     /** The last time the cell cycle ODEs were evaluated.*/
     double mLastTime;
@@ -131,14 +140,13 @@ public:
     virtual bool SolveOdeToTime(double currentTime)=0;
 
     /**
-     * This method must be implemented by each subclass
+     * Get the time at which the ODE stopping event occurred.
+     * Only called in those subclasses for which stopping events
+     * are defined.
      *
-     * When the ODEs have reached a stopping event it returns the time at which
-     * the ODEs stopped running so a delay can be added in for S-G2-M phases if necessary.
-     *
-     * @return The time at which the ODE reached its stopping event.
+     * @return the time at which the ODE system reached its stopping event
      */
-    virtual double GetOdeStopTime()=0;
+    double GetOdeStopTime();
 
     /**
      * This overrides the AbstractCellCycleModel::SetBirthTime(double birthTime)

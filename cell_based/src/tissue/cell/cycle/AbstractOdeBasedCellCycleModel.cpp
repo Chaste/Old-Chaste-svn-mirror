@@ -34,15 +34,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime)
-        : mpOdeSystem(NULL),
-          mLastTime(lastTime),
-          mDivideTime(lastTime),
-          mFinishedRunningOdes(false),
-          mG2PhaseStartTime(DBL_MAX)
+    : mpOdeSystem(NULL),
+      mLastTime(lastTime),
+      mDivideTime(lastTime),
+      mFinishedRunningOdes(false),
+      mG2PhaseStartTime(DBL_MAX)
 {
     AbstractCellCycleModel::SetBirthTime(lastTime);
 }
-
 
 AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(const AbstractOdeBasedCellCycleModel& rOtherModel)
     : AbstractCellCycleModel(rOtherModel),
@@ -54,15 +53,13 @@ AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(const AbstractOde
 {
 }
 
-
 AbstractOdeBasedCellCycleModel::~AbstractOdeBasedCellCycleModel()
 {
-    if (mpOdeSystem!=NULL)
+    if (mpOdeSystem != NULL)
     {
         delete mpOdeSystem;
     }
 }
-
 
 void AbstractOdeBasedCellCycleModel::SetBirthTime(double birthTime)
 {
@@ -71,26 +68,23 @@ void AbstractOdeBasedCellCycleModel::SetBirthTime(double birthTime)
     mDivideTime = birthTime;
 }
 
-
 std::vector<double> AbstractOdeBasedCellCycleModel::GetProteinConcentrations() const
 {
-    assert(mpOdeSystem!=NULL);
+    assert(mpOdeSystem != NULL);
     return mpOdeSystem->rGetStateVariables();
 }
 
-
 void AbstractOdeBasedCellCycleModel::SetProteinConcentrationsForTestsOnly(double lastTime, std::vector<double> proteinConcentrations)
 {
-    assert(mpOdeSystem!=NULL);
+    assert(mpOdeSystem != NULL);
     assert(proteinConcentrations.size()==mpOdeSystem->rGetStateVariables().size());
     mLastTime = lastTime;
     mpOdeSystem->SetStateVariables(proteinConcentrations);
 }
 
-
 void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
 {
-    assert(mpOdeSystem!=NULL);
+    assert(mpOdeSystem != NULL);
 
     double current_time = SimulationTime::Instance()->GetTime();
 
@@ -159,7 +153,6 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
     }
 }
 
-
 void AbstractOdeBasedCellCycleModel::ResetForDivision()
 {
     assert(mFinishedRunningOdes);
@@ -169,4 +162,10 @@ void AbstractOdeBasedCellCycleModel::ResetForDivision()
     mFinishedRunningOdes = false;
     mG1Duration = DBL_MAX;
     mDivideTime = DBL_MAX;
+}
+
+double AbstractOdeBasedCellCycleModel::GetOdeStopTime()
+{
+    assert(mpOdeSolver->StoppingEventOccurred());
+    return mpOdeSolver->GetStoppingTime();
 }

@@ -33,8 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "CvodeAdaptor.hpp"
 #include "WntConcentration.hpp"
 
 /**
@@ -69,19 +67,6 @@ private:
 
 protected:
 
-#ifdef CHASTE_CVODE
-    /** The ODE solver. */
-    static CvodeAdaptor msSolver;
-#else
-    /** The ODE solver. */
-    static RungeKutta4IvpOdeSolver msSolver;
-#endif //CHASTE_CVODE
-
-    /**
-     * @return time when the ODEs reached their stopping condition.
-     */
-    virtual double GetOdeStopTime();
-
     /**
      * Get the Wnt level experienced by the cell.
      */
@@ -105,6 +90,11 @@ public:
      * @param rOtherModel the cell cycle model being copied.
      */
     AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& rOtherModel);
+
+    /**
+     * Destructor.
+     */
+    ~AbstractWntOdeBasedCellCycleModel();
 
     /**
      * Resets the Wnt Model to the start of the cell cycle (this model does not cycle naturally)

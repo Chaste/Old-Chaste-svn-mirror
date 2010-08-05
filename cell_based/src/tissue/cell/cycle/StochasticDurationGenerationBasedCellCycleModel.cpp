@@ -36,7 +36,7 @@ AbstractCellCycleModel* StochasticDurationGenerationBasedCellCycleModel::CreateC
 
 void StochasticDurationGenerationBasedCellCycleModel::SetG1Duration()
 {
-    assert(mpCell!=NULL);
+    assert(mpCell != NULL);
 
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 

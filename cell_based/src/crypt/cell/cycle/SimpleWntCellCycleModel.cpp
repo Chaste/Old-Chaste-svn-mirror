@@ -51,7 +51,7 @@ void SimpleWntCellCycleModel::SetUseCellProliferativeTypeDependentG1Duration(boo
 
 void SimpleWntCellCycleModel::SetG1Duration()
 {
-    assert(mpCell!=NULL);
+    assert(mpCell != NULL);
 
     TissueConfig* p_params = TissueConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();

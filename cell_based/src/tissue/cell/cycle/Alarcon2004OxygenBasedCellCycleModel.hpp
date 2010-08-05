@@ -36,27 +36,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "BackwardEulerIvpOdeSolver.hpp"
 #include "CellwiseData.hpp"
 #include "CellLabel.hpp"
 #include "Exception.hpp"
 
 /**
- * Oxygen-dependent cell cycle model.
- *
- * Note also that this model currently only works in 2D, since the
- * SolveOdeToTime() and GetDivideTime() methods involve instances of
- * CellwiseData<2>.
+ * Oxygen-dependent ODE-based cell cycle model. Published by Alarcon et al.
+ * (doi:10.1016/j.jtbi.2004.04.016).
  */
 class Alarcon2004OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModelWithStoppingEvent
 {
 private:
-
-    /**
-     * Fourth-order Runge-Kutta solver for ODE system.
-     */
-    static RungeKutta4IvpOdeSolver msSolver;
 
     /** Whether the cell associated with this cell cycle model is labelled (this affects the ODE system). */
     bool mIsLabelled;
@@ -151,16 +141,9 @@ public:
      * Solve the ODEs up to the current time and return whether a stopping event occurred.
      *
      * @param currentTime the current time
-     * @return whether a stopping event occured
+     * @return whether a stopping event occurred
      */
     bool SolveOdeToTime(double currentTime);
-
-    /**
-     * Get the time at which the ODE stopping event occured.
-     *
-     * @return the stopping event time
-     */
-    double GetOdeStopTime();
 };
 
 // Declare identifier for the serializer

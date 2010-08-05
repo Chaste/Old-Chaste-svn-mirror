@@ -27,16 +27,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "UblasIncludes.hpp"
 #include "SingleOdeWntCellCycleModel.hpp"
+#include "CellCycleModelOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
+#include "CvodeAdaptor.hpp"
 
+SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel()
+    : mpOdeSystem(NULL),
+      mLastTime(DBL_MAX) // Ensure this is set properly before we try to use it.
+{
 #ifdef CHASTE_CVODE
-CvodeAdaptor SingleOdeWntCellCycleModel::msSolver;
+    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor> >
+        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance());
+    p_solver->SetMaxSteps(10000);
+    mpOdeSolver = p_solver;
 #else
-RungeKutta4IvpOdeSolver SingleOdeWntCellCycleModel::msSolver;
+    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver> >
+        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+    p_solver->Initialise();
+    mpOdeSolver = p_solver;
 #endif //CHASTE_CVODE
+}
 
 SingleOdeWntCellCycleModel::~SingleOdeWntCellCycleModel()
 {
-    delete mpOdeSystem;
+    if (mpOdeSystem != NULL)
+    {
+        delete mpOdeSystem;
+    }
 }
 
 AbstractCellCycleModel* SingleOdeWntCellCycleModel::CreateCellCycleModel()
@@ -54,6 +71,16 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(const SingleOdeWntCellCyc
     {
         mpOdeSystem = new Mirams2010WntOdeSystem(*static_cast<Mirams2010WntOdeSystem*>(rOtherModel.mpOdeSystem));
     }
+#ifdef CHASTE_CVODE
+    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor> >
+        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance());
+    mpOdeSolver = p_solver;
+#else
+    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver> >
+        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+    p_solver->Initialise();
+    mpOdeSolver = p_solver;
+#endif //CHASTE_CVODE
 }
 
 void SingleOdeWntCellCycleModel::UpdateCellCyclePhase()
@@ -73,9 +100,19 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(std::vector<double>& rPar
 {
     SetDimension(rDimension),
     SetUseCellProliferativeTypeDependentG1Duration(useTypeDependentG1);
+
 #ifdef CHASTE_CVODE
-        msSolver.SetMaxSteps(10000);
-#endif // CHASTE_CVODE
+    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor> >
+        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance());
+    p_solver->SetMaxSteps(10000);
+    mpOdeSolver = p_solver;
+#else
+    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver> >
+        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+    p_solver->Initialise();
+    mpOdeSolver = p_solver;
+#endif //CHASTE_CVODE
+
     // Set the other initial conditions to be the same as the parent cell
     mpOdeSystem = new Mirams2010WntOdeSystem(rParentProteinConcentrations[2], pMutationState);
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
@@ -104,8 +141,8 @@ void SingleOdeWntCellCycleModel::Initialise()
 
 void SingleOdeWntCellCycleModel::UpdateBetaCateninLevel()
 {
-    assert(mpOdeSystem!=NULL);
-    assert(mpCell!=NULL);
+    assert(mpOdeSystem != NULL);
+    assert(mpCell != NULL);
     assert(mLastTime < DBL_MAX - 1e5);
 
     // We run the cell cycle ODEs whatever time we are interested in
@@ -124,15 +161,15 @@ void SingleOdeWntCellCycleModel::UpdateBetaCateninLevel()
     double current_time = SimulationTime::Instance()->GetTime();
     if (mLastTime < current_time)
     {
-        msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, current_time, dt);
+        mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, current_time, dt);
         mLastTime = current_time;
     }
 }
 
 void SingleOdeWntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
 {
-    assert(mpOdeSystem!=NULL);
-    assert(mpCell!=NULL);
+    assert(mpOdeSystem != NULL);
+    assert(mpCell != NULL);
 
     CellProliferativeType cell_type = TRANSIT;
     if (GetBetaCateninConcentration() < GetBetaCateninDivisionThreshold())

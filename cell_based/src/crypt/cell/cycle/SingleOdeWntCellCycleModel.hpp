@@ -37,8 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleWntCellCycleModel.hpp"
 #include "Mirams2010WntOdeSystem.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "CvodeAdaptor.hpp"
+#include "AbstractCellCycleModelOdeSolver.hpp"
 
 /**
  * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
@@ -132,13 +131,13 @@ private:
      */
     void UpdateBetaCateninLevel();
 
-#ifdef CHASTE_CVODE
-    /** The ODE solver. */
-    static CvodeAdaptor msSolver;
-#else
-    /** The ODE solver. */
-    static RungeKutta4IvpOdeSolver msSolver;
-#endif //CHASTE_CVODE
+    /**
+     * The ODE solver.
+     * 
+     * Subclasses need to set this in their constructor to point to an instance
+     * of a suitable class. See for example the CellCycleModelOdeSolver class.
+     */
+    boost::shared_ptr<AbstractCellCycleModelOdeSolver> mpOdeSolver;
 
     /** The last time at which the ODEs were solved up to */
     double mLastTime;
@@ -148,14 +147,7 @@ public:
     /**
      * Default constructor.
      */
-    SingleOdeWntCellCycleModel()
-      :   mpOdeSystem(NULL),
-          mLastTime(DBL_MAX) // Ensure this is set properly before we try to use it.
-    {
-#ifdef CHASTE_CVODE
-        msSolver.SetMaxSteps(10000);
-#endif // CHASTE_CVODE
-    };
+    SingleOdeWntCellCycleModel();
 
     /**
      * A 'private' constructor for archiving.

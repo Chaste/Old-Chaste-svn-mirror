@@ -34,8 +34,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
 #include "TysonNovak2001OdeSystem.hpp"
-#include "BackwardEulerIvpOdeSolver.hpp"
-#include "CvodeAdaptor.hpp"
 #include "Exception.hpp"
 
 /**
@@ -52,14 +50,6 @@ class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModelWithStoppi
 private:
 
     friend class TestOdeBasedCellCycleModels;
-
-#ifdef CHASTE_CVODE
-    /** A solver object for the ODE system - in this case a CVODE solver */
-    static CvodeAdaptor msSolver;
-#else
-    /** A solver object for the ODE system - in this case a chaste Backward Euler solver */
-    static BackwardEulerIvpOdeSolver msSolver;
-#endif  //CHASTE_CVODE
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -107,16 +97,9 @@ public:
      * Solve the ODEs up to the current time and return whether a stopping event occurred.
      *
      * @param currentTime the current time
-     * @return whether a stopping event occured
+     * @return whether a stopping event occurred
      */
     bool SolveOdeToTime(double currentTime);
-
-    /**
-     * Get the time at which the ODE stopping event occured.
-     *
-     * @return the stopping event time
-     */
-    double GetOdeStopTime();
 
     /**
      * Get the duration of the cell's S phase.

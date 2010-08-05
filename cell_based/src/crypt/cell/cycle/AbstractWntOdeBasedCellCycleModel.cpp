@@ -27,20 +27,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "PetscTools.hpp"
-
-#ifdef CHASTE_CVODE
-CvodeAdaptor AbstractWntOdeBasedCellCycleModel::msSolver;
-#else
-RungeKutta4IvpOdeSolver AbstractWntOdeBasedCellCycleModel::msSolver;
-#endif //CHASTE_CVODE
+#include "CellCycleModelOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
+#include "CvodeAdaptor.hpp"
 
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel()
 {
 #ifdef CHASTE_CVODE
-    // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so.
-    msSolver.CheckForStoppingEvents();
-    msSolver.SetMaxSteps(10000);
-    //msSolver.SetTolerances(1e-6, 1e-8);
+    boost::shared_ptr<CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor> >
+        p_solver(CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor>::Instance());
+    // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so
+    p_solver->CheckForStoppingEvents();
+    p_solver->SetMaxSteps(10000);
+    mpOdeSolver = p_solver;
+#else
+    boost::shared_ptr<CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
+        p_solver(CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+    p_solver->Initialise();
+    mpOdeSolver = p_solver;
 #endif //CHASTE_CVODE
 }
 
@@ -48,12 +52,20 @@ AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const Abstr
     : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
 {
     mDimension = rOtherModel.mDimension;
+
+#ifdef CHASTE_CVODE
+    boost::shared_ptr<CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor> >
+        p_solver(CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor>::Instance());
+    mpOdeSolver = p_solver;
+#else
+    boost::shared_ptr<CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
+        p_solver(CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+    mpOdeSolver = p_solver;
+#endif //CHASTE_CVODE
 }
 
-double AbstractWntOdeBasedCellCycleModel::GetOdeStopTime()
+AbstractWntOdeBasedCellCycleModel::~AbstractWntOdeBasedCellCycleModel()
 {
-    assert(msSolver.StoppingEventOccurred());
-    return msSolver.GetStoppingTime();
 }
 
 double AbstractWntOdeBasedCellCycleModel::GetWntLevel()
@@ -92,7 +104,7 @@ void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
 {
     AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
 
-    assert(mpOdeSystem!=NULL);
+    assert(mpOdeSystem != NULL);
 
     // This model needs the protein concentrations and phase resetting to G0/G1.
     // Keep the Wnt pathway in the same state but reset the cell cycle part
@@ -106,8 +118,8 @@ void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
 
 void AbstractWntOdeBasedCellCycleModel::UpdateCellProliferativeType()
 {
-    assert(mpOdeSystem!=NULL);
-    assert(mpCell!=NULL);
+    assert(mpOdeSystem != NULL);
+    assert(mpCell != NULL);
     if (SimulationTime::Instance()->GetTime() > mLastTime)
     {
         EXCEPTION("WntCellCycleModel::UpdateCellProliferativeType() should only be called when the cell cycle model has been evaluated to the current time\n");

@@ -25,10 +25,21 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "Alarcon2004OxygenBasedCellCycleModel.hpp"
+#include "CellCycleModelOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
 
 
-RungeKutta4IvpOdeSolver Alarcon2004OxygenBasedCellCycleModel::msSolver;
+Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel()
+    : AbstractOdeBasedCellCycleModelWithStoppingEvent()
+{
+    boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
+        p_solver(CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+    p_solver->Initialise();
+    mpOdeSolver = p_solver;
+}
+
 
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel& rOtherModel)
     : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
@@ -37,12 +48,9 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const
     {
         mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(*static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
     }
-}
-
-
-Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel()
-    : AbstractOdeBasedCellCycleModelWithStoppingEvent()
-{
+    boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
+        p_solver(CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+    mpOdeSolver = p_solver;
 }
 
 
@@ -55,13 +63,17 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const
 
     // Set the model to be the same as the parent cell
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
+
+    boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
+        p_solver(CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+    mpOdeSolver = p_solver;
 }
 
 
 void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
 {
     AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
-    assert(mpOdeSystem!=NULL);
+    assert(mpOdeSystem != NULL);
 
     // This model needs the protein concentrations and phase resetting to G0/G1.
     // Keep the oxygen concentration the same but reset everything else
@@ -145,17 +157,9 @@ bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
     bool is_labelled = mpCell->HasCellProperty<CellLabel>();
     static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetIsLabelled(is_labelled);
 
-    msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
-    return msSolver.StoppingEventOccurred();
+    mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
+    return mpOdeSolver->StoppingEventOccurred();
 }
-
-
-double Alarcon2004OxygenBasedCellCycleModel::GetOdeStopTime()
-{
-    assert(msSolver.StoppingEventOccurred());
-    return msSolver.GetStoppingTime();
-}
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

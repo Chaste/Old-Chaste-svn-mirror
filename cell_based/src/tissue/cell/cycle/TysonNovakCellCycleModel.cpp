@@ -26,21 +26,29 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "TysonNovakCellCycleModel.hpp"
-
-#ifdef CHASTE_CVODE
-CvodeAdaptor TysonNovakCellCycleModel::msSolver;
-#else
-BackwardEulerIvpOdeSolver TysonNovakCellCycleModel::msSolver(6);
-#endif //CHASTE_CVODE
+#include "CellCycleModelOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
+#include "CvodeAdaptor.hpp"
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel()
 {
     mpOdeSystem = new TysonNovak2001OdeSystem;
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+
 #ifdef CHASTE_CVODE
-    msSolver.CheckForStoppingEvents();
-    msSolver.SetMaxSteps(10000);
-    msSolver.SetTolerances(1e-6, 1e-8);
+    boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor> >
+        p_solver(CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor>::Instance());
+    // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so
+    p_solver->CheckForStoppingEvents();
+    p_solver->SetMaxSteps(10000);
+    p_solver->SetTolerances(1e-6, 1e-8);
+    mpOdeSolver = p_solver;
+#else
+    boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> >
+        p_solver(CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance());
+    p_solver->SetSizeOfOdeSystem(6);
+    p_solver->Initialise();
+    mpOdeSolver = p_solver;
 #endif //CHASTE_CVODE
 }
 
@@ -51,13 +59,22 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleMode
     {
         mpOdeSystem = new TysonNovak2001OdeSystem(*static_cast<TysonNovak2001OdeSystem*>(rOtherModel.mpOdeSystem));
     }
+#ifdef CHASTE_CVODE
+    boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor> >
+        p_solver(CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor>::Instance());
+    mpOdeSolver = p_solver;
+#else
+    boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> >
+        p_solver(CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance());
+    mpOdeSolver = p_solver;
+#endif //CHASTE_CVODE
 }
 
 void TysonNovakCellCycleModel::ResetForDivision()
 {
     AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
 
-    assert(mpOdeSystem!=NULL);
+    assert(mpOdeSystem != NULL);
 
     /**
      * This model needs the protein concentrations and phase resetting to G0/G1.
@@ -95,15 +112,9 @@ bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
 {
     double dt = 0.1/60.0;
 
-    msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
+    mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
 
-    return msSolver.StoppingEventOccurred();
-}
-
-double TysonNovakCellCycleModel::GetOdeStopTime()
-{
-    assert(msSolver.StoppingEventOccurred());
-    return msSolver.GetStoppingTime();
+    return mpOdeSolver->StoppingEventOccurred();
 }
 
 double TysonNovakCellCycleModel::GetSDuration()

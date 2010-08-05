@@ -62,8 +62,8 @@ AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 
 void WntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
 {
-    assert(mpOdeSystem!=NULL);
-    assert(mpCell!=NULL);
+    assert(mpOdeSystem != NULL);
+    assert(mpCell != NULL);
     double beta_catenin_level = mpOdeSystem->rGetStateVariables()[6] + mpOdeSystem->rGetStateVariables()[7];
 
     CellProliferativeType cell_type = TRANSIT;
@@ -108,11 +108,11 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
     // Use the cell's current mutation status as another input
     static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
 
-    msSolver.SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
+    mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
 
     mLastTime = currentTime;// normally done in Abstract class, but no harm in doing it here to prevent following line throwing an error.
     UpdateCellProliferativeType();
-    return msSolver.StoppingEventOccurred();
+    return mpOdeSolver->StoppingEventOccurred();
 }
 
 
