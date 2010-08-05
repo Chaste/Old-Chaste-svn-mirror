@@ -27,6 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AbstractCellCycleModelOdeSolver.hpp"
+#include "CvodeAdaptor.hpp"
 #include "Exception.hpp"
 
 AbstractCellCycleModelOdeSolver::AbstractCellCycleModelOdeSolver()
@@ -71,20 +72,29 @@ void AbstractCellCycleModelOdeSolver::SetSizeOfOdeSystem(unsigned sizeOfOdeSyste
 void AbstractCellCycleModelOdeSolver::CheckForStoppingEvents()
 {
 #ifdef CHASTE_CVODE
-    mpOdeSolver->CheckForStoppingEvents();
+    if (boost::dynamic_pointer_cast<CvodeAdaptor>(mpOdeSolver))
+    {
+        (boost::static_pointer_cast<CvodeAdaptor>(mpOdeSolver))->CheckForStoppingEvents();
+    }
 #endif //CHASTE_CVODE
 }
 
 void AbstractCellCycleModelOdeSolver::SetMaxSteps(long int numSteps)
 {
 #ifdef CHASTE_CVODE
-    mpOdeSolver->SetMaxSteps(numSteps);
+    if (boost::dynamic_pointer_cast<CvodeAdaptor>(mpOdeSolver))
+    {
+        (boost::static_pointer_cast<CvodeAdaptor>(mpOdeSolver))->SetMaxSteps(numSteps);
+    }
 #endif //CHASTE_CVODE
 }
 
 void AbstractCellCycleModelOdeSolver::SetTolerances(double relTol, double absTol)
 {
 #ifdef CHASTE_CVODE
-    mpOdeSolver->SetTolerances(relTol, absTol);
+    if (boost::dynamic_pointer_cast<CvodeAdaptor>(mpOdeSolver))
+    {
+        (boost::static_pointer_cast<CvodeAdaptor>(mpOdeSolver))->SetTolerances(relTol, absTol);
+    }
 #endif //CHASTE_CVODE
 }
