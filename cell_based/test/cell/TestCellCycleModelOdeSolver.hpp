@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
-
+#include "CvodeAdaptor.hpp"
 #include "OdeSystemInformation.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 
