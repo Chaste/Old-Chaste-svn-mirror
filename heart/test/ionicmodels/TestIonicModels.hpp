@@ -55,7 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "CellProperties.hpp"
 
-#include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
+#include "HodgkinHuxley1952.hpp"
 #include "FitzHughNagumo1961OdeSystem.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "LuoRudy1991BackwardEuler.hpp"
@@ -274,14 +274,14 @@ public:
         clock_t ck_start, ck_end;
 
         // Set stimulus
-        double magnitude_stimulus = 20.0;  // uA/cm2
+        double magnitude_stimulus = -20.0;  // uA/cm2
         double duration_stimulus = 0.5;  // ms
         double start_stimulus = 10.0;   // ms
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude_stimulus,
                                                                         duration_stimulus,
                                                                         start_stimulus));
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(p_solver, p_stimulus);
+        CellHodgkinHuxley1952FromCellML hh52_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();

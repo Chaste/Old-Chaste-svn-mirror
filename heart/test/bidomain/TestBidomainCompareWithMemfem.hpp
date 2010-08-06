@@ -30,8 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTBIDOMAINCOMPAREWITHMEMFEM_HPP_
 #define TESTBIDOMAINCOMPAREWITHMEMFEM_HPP_
 
-
-
 #include <cxxtest/TestSuite.h>
 #include "BidomainProblem.hpp"
 #include <petscvec.h>
@@ -40,8 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
-#include "FitzHughNagumo1961OdeSystem.hpp"
 #include "SimpleStimulus.hpp"
 
 class BidomainPointStimulusCellFactory : public AbstractCardiacCellFactory<3>

@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include <iostream>
 #include <vector>
 
+#include "HodgkinHuxley1952.hpp"
 #include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "SimpleStimulus.hpp"
 
@@ -56,7 +57,8 @@ public:
 
         boost::shared_ptr<AbstractIvpOdeSolver> p_solver; // We don't actually need a solver
 
-        HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(p_solver, p_stimulus);
+        CellHodgkinHuxley1952FromCellML hh52_ode_system(p_solver, p_stimulus);
+        //HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(p_solver, p_stimulus);
 
         double v_singularity[2];
         v_singularity[0]=-65;
@@ -132,7 +134,7 @@ public:
 
             for (int j=0; j<4; j++)
             {
-                // std::cout << j << std::endl;
+                //std::cout << j << "\t" << rhsright[j] << "\t" << rhsleft[j] << "\t" << rhs_at_singularity[j] << std::endl;
                 TS_ASSERT_DELTA((rhsright[j]+rhsleft[j])/2, rhs_at_singularity[j], 0.1);
             }
         }

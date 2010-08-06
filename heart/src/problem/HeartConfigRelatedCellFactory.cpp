@@ -202,7 +202,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
             case(cp::ionic_models_available_type::HodgkinHuxley):
             {
-                p_cell = new HodgkinHuxleySquidAxon1952OriginalOdeSystem(this->mpSolver, intracellularStimulus);
+                p_cell = new CellHodgkinHuxley1952FromCellML(this->mpSolver, intracellularStimulus);
                 break;
             }
 
