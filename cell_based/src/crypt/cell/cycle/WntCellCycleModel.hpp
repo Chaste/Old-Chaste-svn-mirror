@@ -116,27 +116,6 @@ public:
     WntCellCycleModel(const WntCellCycleModel& rOtherModel);
 
     /**
-     * A private constructor for daughter cells called by the CreateDaughterCellCycleModel function.
-     *
-     * @param pParentOdeSystem  to copy the state of
-     * @param pMutationState the mutation state of the cell (used by ODEs)
-     * @param birthTime the simulation time when the cell divided (birth time of parent cell)
-     * @param lastTime last time the cell cycle model was evaluated
-     * @param inSG2MPhase whether the cell is in S-G2-M (not evaluating ODEs and just waiting)
-     * @param readyToDivide whether the cell is ready to divide
-     * @param divideTime if in the future this is the time at which the cell is going to divide
-     * @param dimension the spatial dimension
-     */
-    WntCellCycleModel(AbstractOdeSystem* pParentOdeSystem,
-                      boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                      double birthTime,
-                      double lastTime,
-                      bool inSG2MPhase,
-                      bool readyToDivide,
-                      double divideTime,
-                      unsigned dimension);
-
-    /**
      * A private constructor for archiving.
      *
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
