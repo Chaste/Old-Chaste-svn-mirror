@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A simple cell factory for bath problems, applying a SimpleStimulus for
  * 0.5ms at a single point.
  */
-template<unsigned DIM>
+template<unsigned DIM, class CELLTYPE=LuoRudyIModel1991OdeSystem>
 class BathCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:
@@ -96,11 +96,11 @@ public:
 
         if (is_centre)
         {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver, mpStimulus);
+            return new CELLTYPE(this->mpSolver, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mpZeroStimulus);
+            return new CELLTYPE(this->mpSolver, this->mpZeroStimulus);
         }
     }
 };
