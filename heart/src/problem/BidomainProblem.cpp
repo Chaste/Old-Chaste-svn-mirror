@@ -28,8 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BidomainProblem.hpp"
-#include "SimpleBidomainSolver.hpp"
-#include "BidomainSolver.hpp"
+#include "BasicBidomainSolver.hpp"
+#include "MatrixBasedBidomainSolver.hpp"
 #include "HeartConfig.hpp"
 #include "Exception.hpp"
 #include "DistributedVector.hpp"
@@ -128,19 +128,19 @@ AbstractDynamicLinearPdeSolver<DIM, DIM, 2>* BidomainProblem<DIM>::CreateSolver(
      */
     if (!this->mUseMatrixBasedRhsAssembly)
     {
-        mpSolver = new SimpleBidomainSolver<DIM,DIM>(mHasBath, 
-                                                     this->mpMesh,
-                                                     mpBidomainPde,
-                                                     this->mpBoundaryConditionsContainer.get(),
-                                                     2);
+        mpSolver = new BasicBidomainSolver<DIM,DIM>(mHasBath, 
+                                                    this->mpMesh,
+                                                    mpBidomainPde,
+                                                    this->mpBoundaryConditionsContainer.get(),
+                                                    2);
     }
     else
     {
-        mpSolver = new BidomainSolver<DIM,DIM>(mHasBath, 
-                                               this->mpMesh,
-                                               mpBidomainPde,
-                                               this->mpBoundaryConditionsContainer.get(),
-                                               2);
+        mpSolver = new MatrixBasedBidomainSolver<DIM,DIM>(mHasBath, 
+                                                          this->mpMesh,
+                                                          mpBidomainPde,
+                                                          this->mpBoundaryConditionsContainer.get(),
+                                                          2);
     }
 
     try

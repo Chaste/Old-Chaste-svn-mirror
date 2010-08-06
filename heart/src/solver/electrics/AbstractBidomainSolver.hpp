@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractDynamicLinearPdeSolver.hpp"
 #include "BidomainPde.hpp"
 #include "HeartConfig.hpp"
-
+#include "BidomainAssembler.hpp"
 
 /**
  *  Abstract Bidomain class containing some common functionality
@@ -51,6 +51,18 @@ protected:
 
     /** Boundary conditions */    
     BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* mpBoundaryConditions;
+
+    /**
+     *  The bidomain assembler, used to set up the LHS matrix,
+     *  (but not used to set uo the RHS)
+     */
+    BidomainAssembler<ELEM_DIM,SPACE_DIM>* mpBidomainAssembler;
+    
+    /**
+     *  Number of quadrature points per dimension (only saved so it can be
+     *  passed to the assembler)
+     */
+    unsigned mNumQuadPoints;
 
     /** Used when intialising null-space solver to resolve singularity*/
     bool mNullSpaceCreated;
@@ -141,14 +153,13 @@ public:
     AbstractBidomainSolver(bool bathSimulation,
                            AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
                            BidomainPde<SPACE_DIM>* pPde,
-                           BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* pBoundaryConditions);
+                           BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* pBoundaryConditions,
+                           unsigned numQuadPoints = 2);
                        
     /**
      *  Destructor
      */     
-    virtual ~AbstractBidomainSolver()
-    {
-    }
+    virtual ~AbstractBidomainSolver();
 
     /**
      *  Set the nodes at which phi_e (the extracellular potential) is fixed to

@@ -26,67 +26,54 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "SimpleBidomainSolver.hpp"
+#include "BasicBidomainSolver.hpp"
 
 
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-SimpleBidomainSolver<ELEM_DIM,SPACE_DIM>::SimpleBidomainSolver(
+BasicBidomainSolver<ELEM_DIM,SPACE_DIM>::BasicBidomainSolver(
             bool bathSimulation,
             AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
             BidomainPde<SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, 2>* pBcc,
             unsigned numQuadPoints)
-    : AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>(bathSimulation,pMesh,pPde,pBcc),
-      mNumQuadPoints(numQuadPoints)
+    : AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>(bathSimulation,pMesh,pPde,pBcc,numQuadPoints)
 {
-    assert(numQuadPoints > 0);
-    
     pPde->SetCacheReplication(true);
-    mpBidomainAssembler = NULL;
-}
-
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-SimpleBidomainSolver<ELEM_DIM,SPACE_DIM>::~SimpleBidomainSolver()
-{
-    if(mpBidomainAssembler)
-    {
-        delete mpBidomainAssembler;
-    }
 }
 
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void SimpleBidomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
+void BasicBidomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
 {
     assert(this->mpLinearSystem->rGetLhsMatrix() != NULL);
     assert(this->mpLinearSystem->rGetRhsVector() != NULL);
     assert(currentSolution != NULL);
 
     // create assembler
-    if(!mpBidomainAssembler)
+    if(!this->mpBidomainAssembler)
     {
         InitialiseAssembler();
     } 
 
     // use assembler to assemble LHS matrix and RHS vector
 
-    mpBidomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
-    mpBidomainAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), true);
+    this->mpBidomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
+    this->mpBidomainAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), true);
 
     // MUST be called every timestep in case the bcc has been reset, see comment in
     // this->ResetBoundaryConditionsContainer()
-    mpBidomainAssembler->SetApplyNeummanBoundaryConditionsToVector(this->mpBoundaryConditions);
+    this->mpBidomainAssembler->SetApplyNeummanBoundaryConditionsToVector(this->mpBoundaryConditions);
 
-    mpBidomainAssembler->SetCurrentSolution(currentSolution);
+    this->mpBidomainAssembler->SetCurrentSolution(currentSolution);
    
     if(computeMatrix)
     {
-        mpBidomainAssembler->Assemble();
+        this->mpBidomainAssembler->Assemble();
     }
     else
     {
-        mpBidomainAssembler->AssembleVector();
+        this->mpBidomainAssembler->AssembleVector();
     }
 
     this->mpLinearSystem->AssembleRhsVector();
@@ -104,17 +91,17 @@ void SimpleBidomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolu
 
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void SimpleBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseAssembler()
+void BasicBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseAssembler()
 {
-    if(!mpBidomainAssembler)
+    if(!this->mpBidomainAssembler)
     {
         if(this->mBathSimulation)
         {
-            mpBidomainAssembler = new BidomainWithBathAssembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,this->mNumQuadPoints);
         }
         else
         {
-            mpBidomainAssembler = new BidomainAssembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainAssembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,this->mNumQuadPoints);
         }
     }        
 }
@@ -124,7 +111,7 @@ void SimpleBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseAssembler()
 // explicit instantiation
 ///////////////////////////////////////////////////////
 
-template class SimpleBidomainSolver<1,1>;
-template class SimpleBidomainSolver<2,2>;
-template class SimpleBidomainSolver<3,3>;
+template class BasicBidomainSolver<1,1>;
+template class BasicBidomainSolver<2,2>;
+template class BasicBidomainSolver<3,3>;
 

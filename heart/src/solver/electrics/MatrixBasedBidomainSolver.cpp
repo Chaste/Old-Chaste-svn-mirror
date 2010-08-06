@@ -27,12 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#include "BidomainSolver.hpp"
+#include "MatrixBasedBidomainSolver.hpp"
 #include "BidomainAssembler.hpp"
 #include "BidomainWithBathAssembler.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
+void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
 {
     if (this->mpLinearSystem != NULL)
     {
@@ -55,7 +55,7 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSoluti
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
+void MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
         Vec currentSolution,
         bool computeMatrix)
 {
@@ -64,15 +64,15 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
     assert(currentSolution != NULL);
 
     // create assembler
-    if(!mpBidomainAssembler)
+    if(!this->mpBidomainAssembler)
     {
         if(this->mBathSimulation)
         {
-            mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,this->mNumQuadPoints);
         }
         else
         {
-            mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,this->mNumQuadPoints);
         }
     }    
 
@@ -82,8 +82,8 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
     /////////////////////////////////////////
     if(computeMatrix)
     {
-        mpBidomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
-        mpBidomainAssembler->AssembleMatrix();
+        this->mpBidomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
+        this->mpBidomainAssembler->AssembleMatrix();
 
         // the BidomainMassMatrixAssembler deals with the mass matrix
         // for both bath and nonbath problems 
@@ -176,16 +176,16 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
     // apply Neumann boundary conditions
     /////////////////////////////////////////
 
-    mpBidomainAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
+    this->mpBidomainAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
 
     // MUST be called every timestep in case the bcc has been reset, see comment in
     // this->ResetBoundaryConditionsContainer()
-    mpBidomainAssembler->SetApplyNeummanBoundaryConditionsToVector(this->mpBoundaryConditions);
+    this->mpBidomainAssembler->SetApplyNeummanBoundaryConditionsToVector(this->mpBoundaryConditions);
 
-    mpBidomainAssembler->OnlyAssembleOnSurfaceElements();
+    this->mpBidomainAssembler->OnlyAssembleOnSurfaceElements();
     // note: don't need this for neumann bcs, would introduce parallel replication overhead
     //mpBidomainAssembler->SetCurrentSolution(currentSolution);
-    mpBidomainAssembler->AssembleVector();
+    this->mpBidomainAssembler->AssembleVector();
 
     this->mpLinearSystem->AssembleRhsVector();
 
@@ -205,33 +205,22 @@ void BidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(
 
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-BidomainSolver<ELEMENT_DIM,SPACE_DIM>::BidomainSolver(
+MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedBidomainSolver(
         bool bathSimulation,
         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
         BidomainPde<SPACE_DIM>* pPde,
         BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
         unsigned numQuadPoints)
-    : AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>(bathSimulation,pMesh,pPde,pBoundaryConditions),
-      mNumQuadPoints(numQuadPoints)
+    : AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>(bathSimulation,pMesh,pPde,pBoundaryConditions)
 {
-    assert(pPde);
-    assert(pBoundaryConditions);
-    assert(numQuadPoints > 0);    
-    
     // Tell pde there's no need to replicate ionic caches
     pPde->SetCacheReplication(false);
     mVecForConstructingRhs = NULL;
-    mpBidomainAssembler = NULL;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-BidomainSolver<ELEMENT_DIM,SPACE_DIM>::~BidomainSolver()
+MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedBidomainSolver()
 {
-    if(mpBidomainAssembler)
-    {
-        delete mpBidomainAssembler;
-    }
-    
     if(mVecForConstructingRhs)
     {
         VecDestroy(mVecForConstructingRhs);
@@ -243,7 +232,7 @@ BidomainSolver<ELEMENT_DIM,SPACE_DIM>::~BidomainSolver()
 // explicit instantiation
 ///////////////////////////////////////////////////////
 
-template class BidomainSolver<1,1>;
-template class BidomainSolver<2,2>;
-template class BidomainSolver<3,3>;
+template class MatrixBasedBidomainSolver<1,1>;
+template class MatrixBasedBidomainSolver<2,2>;
+template class MatrixBasedBidomainSolver<3,3>;
 

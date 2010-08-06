@@ -26,12 +26,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "MonodomainSolver.hpp"
+#include "MatrixBasedMonodomainSolver.hpp"
 #include "MassMatrixAssembler.hpp"
 
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void MonodomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
+void MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
 {
     assert(this->mpLinearSystem->rGetLhsMatrix() != NULL);
     assert(this->mpLinearSystem->rGetRhsVector() != NULL);
@@ -123,13 +123,13 @@ void MonodomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution
 
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void MonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
+void MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
 {
     if (this->mpLinearSystem != NULL)
     {
         return;
     }
-    SimpleMonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(initialSolution);
+    AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(initialSolution);
 
     // initialise matrix-based RHS vector and matrix, and use the linear
     // system rhs as a template
@@ -147,11 +147,12 @@ void MonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolutio
 
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MonodomainSolver<ELEM_DIM,SPACE_DIM>::MonodomainSolver(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                                                       MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
-                                                       BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
-                                                       unsigned numQuadPoints)
-    : SimpleMonodomainSolver<ELEM_DIM,SPACE_DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)
+MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
+            AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+            MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
+            BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
+            unsigned numQuadPoints)
+    : AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)
 {
     // Tell pde there's no need to replicate ionic caches
     pPde->SetCacheReplication(false);
@@ -162,7 +163,7 @@ MonodomainSolver<ELEM_DIM,SPACE_DIM>::MonodomainSolver(AbstractTetrahedralMesh<E
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MonodomainSolver<ELEM_DIM,SPACE_DIM>::~MonodomainSolver()
+MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::~MatrixBasedMonodomainSolver()
 {
     if(mVecForConstructingRhs)
     {
@@ -180,7 +181,7 @@ MonodomainSolver<ELEM_DIM,SPACE_DIM>::~MonodomainSolver()
 
 //// #1462
 //template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-//void MonodomainSolver<ELEM_DIM,SPACE_DIM>::IncludeCorrection(AbstractCardiacCell* pCell)
+//void MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::IncludeCorrection(AbstractCardiacCell* pCell)
 //{
 //    mpMonodomainCorrectionTermAssembler 
 //        = new MonodomainCorrectionTermAssembler<ELEM_DIM,SPACE_DIM>(pCell, this->mpMesh,this->mpMonodomainPde,this->mNumQuadPoints);
@@ -190,9 +191,9 @@ MonodomainSolver<ELEM_DIM,SPACE_DIM>::~MonodomainSolver()
 // explicit instantiation
 ///////////////////////////////////////////////////////
 
-template class MonodomainSolver<1,1>;
-template class MonodomainSolver<1,2>;
-template class MonodomainSolver<1,3>;
-template class MonodomainSolver<2,2>;
-template class MonodomainSolver<3,3>;
+template class MatrixBasedMonodomainSolver<1,1>;
+template class MatrixBasedMonodomainSolver<1,2>;
+template class MatrixBasedMonodomainSolver<1,3>;
+template class MatrixBasedMonodomainSolver<2,2>;
+template class MatrixBasedMonodomainSolver<3,3>;
 

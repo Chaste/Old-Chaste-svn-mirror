@@ -1,4 +1,3 @@
-
 /*
 
 Copyright (C) University of Oxford, 2005-2010
@@ -28,9 +27,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+#ifndef MATRIXBASEDBIDOMAINSOLVER_HPP_
+#define MATRIXBASEDBIDOMAINSOLVER_HPP_
 
-#ifndef SIMPLEBIDOMAINSOLVER_HPP_
-#define SIMPLEBIDOMAINSOLVER_HPP_
 
 #include "UblasIncludes.hpp"
 
@@ -38,76 +37,73 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <petscvec.h>
 
-#include "BidomainAssembler.hpp"
-#include "BidomainWithBathAssembler.hpp"
+#include "AbstractFeObjectAssembler.hpp"
 #include "AbstractBidomainSolver.hpp"
 #include "HeartConfig.hpp"
+#include "BidomainAssembler.hpp"
+#include "BidomainMassMatrixAssembler.hpp"
 
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
-
 /**
- *  A simple bidomain solver, which uses assembly to set up the right-hand-side (RHS)
- *  vector of the linear system to be solved. Much slower than BidomainSolver, 
- *  which computes the RHS with a matrix-vector product.
- */ 
+ *  A better Bidomain solver (better than BasicModomainSolver, from which it
+ *  inherits), which computes the right-hand-side (RHS) vector of the linear 
+ *  system to be solved using matrix-vector products, rather than assembly.
+ *  Massively more efficient than BasicBidomainSolver
+ */
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-class SimpleBidomainSolver :
-      public AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>
+class MatrixBasedBidomainSolver : public AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>
 {
-protected:
-    /**
-     *  The bidomain assembler, used to set up the LHS matrix
-     *  and RHS vector in this solver (not used for RHS set in
-     *  BidomainSolver)
+private:
+    /** Mass matrix, used to computing the RHS vector (actually: mass-matrix in
+     *  voltage-voltage block, zero elsewhere
      */
-    BidomainAssembler<ELEM_DIM,SPACE_DIM>* mpBidomainAssembler;
-    
-    /**
-     *  Number of quadrature points per dimension (only saved so it can be
-     *  passed to the assembler)
-     */
-    unsigned mNumQuadPoints;
+    Mat mMassMatrix;
 
     /** 
-     *  Implemented SetupLinearSystem() method, which uses
-     *  the BidomainAssembler to assemble the LHS matrix if required,
-     *  and uses the BidomainAssembler to *assemble* the RHS vector.
-     *  Much slower than doing matrix-based RHS setup, which is done
-     *  in BidomainSolver
+     *  The vector multiplied by the mass matrix. Ie, if the linear system to
+     *  be solved is Ax=b, this vector is z where b=Mz.
+     */
+    Vec mVecForConstructingRhs;
+
+    /** Overloaded InitialiseForSolve() which calls base version but also
+     *  initialises mMassMatrix and mVecForConstructingRhs
+     * 
+     *  @param initialSolution initial solution
+     */
+    void InitialiseForSolve(Vec initialSolution);
+
+    /** 
+     *  Implementation of SetupLinearSystem() which uses the assembler to compute the
+     *  LHS matrix, but sets up the RHS vector using the mass-matrix (constructed 
+     *  using a separate assembler) multiplied by a vector
      * 
      *  @param currentSolution Solution at current time
      *  @param computeMatrix Whether to compute the matrix of the linear system
      */
     void SetupLinearSystem(Vec currentSolution, bool computeMatrix);
 
-    /** 
-     *  Initialise the bidomain assembler. Can be overloaded
-     */
-    virtual void InitialiseAssembler();
+
 
 public:
-
     /**
      * Constructor
      *
      * @param bathSimulation Whether the simulation involves a perfusing bath
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
-     * @param pBcc pointer to the boundary conditions
+     * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    SimpleBidomainSolver(bool bathSimulation,
-                         AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                         BidomainPde<SPACE_DIM>* pPde,
-                         BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, 2>* pBcc,
-                         unsigned numQuadPoints = 2);
+    MatrixBasedBidomainSolver(bool bathSimulation,
+                              AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+                              BidomainPde<SPACE_DIM>* pPde,
+                              BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* pBoundaryConditions,
+                              unsigned numQuadPoints = 2);
 
-    /**
-     * Destructor.
-     */
-    ~SimpleBidomainSolver();
+    ~MatrixBasedBidomainSolver();
 };
 
 
-#endif /*SIMPLEBIDOMAINSOLVER_HPP_*/
+#endif /*MATRIXBASEDBIDOMAINSOLVER_HPP_*/
+

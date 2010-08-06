@@ -26,26 +26,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef MONODOMAINSOLVER_HPP_
-#define MONODOMAINSOLVER_HPP_
+#ifndef MATRIXBASEDMONODOMAINSOLVER_HPP_
+#define MATRIXBASEDMONODOMAINSOLVER_HPP_
 
-#include "MonodomainPde.hpp"
-#include "MonodomainAssembler.hpp"
-#include "SimpleMonodomainSolver.hpp"
+#include "AbstractMonodomainSolver.hpp"
 #include "MassMatrixAssembler.hpp"
 
 ////#1462
 //#include "MonodomainCorrectionTermAssembler.hpp"
 
 /**
- *  A better Monodomain solver (better than SimpleMonodomainSolver, from which it
- *  inherits), which computes the right-hand-side (RHS) vector of the linear 
- *  system to be solved using matrix-vector products, rather than assembly.
- *  Massively more efficient than SimpleMonodomainSolver
+ *  A better Monodomain solver (better than BasicMonodomainSolver), which 
+ *  computes the right-hand-side (RHS) vector of the linear system to be 
+ *  solved using matrix-vector products, rather than assembly.
+ *  Massively more efficient than BasicMonodomainSolver
  */ 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-class MonodomainSolver
-   : public SimpleMonodomainSolver<ELEM_DIM,SPACE_DIM> 
+class MatrixBasedMonodomainSolver
+   : public AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM> 
 {
 private:
     /** The mass matrix, used to computing the RHS vector */
@@ -88,15 +86,15 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    MonodomainSolver(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                     MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
-                     BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
-                     unsigned numQuadPoints = 2);
+    MatrixBasedMonodomainSolver(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+                                MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
+                                BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
+                                unsigned numQuadPoints = 2);
                      
     /**
      *  Destructor
      */
-    ~MonodomainSolver();
+    ~MatrixBasedMonodomainSolver();
     
     
 //    // #1462
@@ -105,4 +103,4 @@ public:
 
 
 
-#endif /*MONODOMAINSOLVER_HPP_*/
+#endif /*MATRIXBASEDMONODOMAINSOLVER_HPP_*/

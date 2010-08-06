@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 #include "ReplicatableVector.hpp"
-#include "MonodomainSolver.hpp"
-#include "SimpleMonodomainSolver.hpp"
+#include "BasicMonodomainSolver.hpp"
+#include "MatrixBasedMonodomainSolver.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateCardiacPde()
@@ -56,20 +56,20 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELE
      
     if(!this->mUseMatrixBasedRhsAssembly)
     {
-        SimpleMonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_solver
-          = new SimpleMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                              mpMonodomainPde,
-                                                              this->mpBoundaryConditionsContainer.get(),
-                                                              2);
+        BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_solver
+          = new BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+                                                             mpMonodomainPde,
+                                                             this->mpBoundaryConditionsContainer.get(),
+                                                             2);
         return p_solver;
     }
     else
     {
-        MonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_solver
-          = new MonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                        mpMonodomainPde,
-                                                        this->mpBoundaryConditionsContainer.get(),
-                                                        2);
+        MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_solver
+          = new MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+                                                                   mpMonodomainPde,
+                                                                   this->mpBoundaryConditionsContainer.get(),
+                                                                   2);
         return p_solver;
     }
 }

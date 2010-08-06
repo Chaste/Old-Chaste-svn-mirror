@@ -198,11 +198,13 @@ AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::AbstractBidomainSolver(
             bool bathSimulation,
             AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
             BidomainPde<SPACE_DIM>* pPde,
-            BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* pBoundaryConditions)
+            BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* pBoundaryConditions,
+            unsigned numQuadPoints)
     : AbstractDynamicLinearPdeSolver<ELEM_DIM,SPACE_DIM,2>(pMesh),
       mBathSimulation(bathSimulation),
       mpBidomainPde(pPde),
-      mpBoundaryConditions(pBoundaryConditions)
+      mpBoundaryConditions(pBoundaryConditions),
+      mNumQuadPoints(numQuadPoints)
 {
     assert(pPde != NULL);
     assert(pBoundaryConditions != NULL);
@@ -214,6 +216,17 @@ AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::AbstractBidomainSolver(
 
     mRowForAverageOfPhiZeroed = INT_MAX; //this->mpLinearSystem->GetSize() - 1;
     mpConfig = HeartConfig::Instance();
+
+    mpBidomainAssembler = NULL; // can't initialise until know what dt is
+}
+
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::~AbstractBidomainSolver()
+{
+    if(mpBidomainAssembler)
+    {
+        delete mpBidomainAssembler;
+    }
 }
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
