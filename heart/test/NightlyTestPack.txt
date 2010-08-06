@@ -1,5 +1,5 @@
 bidomain/TestBidomain3D.hpp
-bidomain/TestBidomainWithBathAssemblerLong.hpp
+bidomain/TestBidomainWithBathLong.hpp
 convergence/TestConvergenceEfficiency.hpp
 convergence/TestConvergenceNeumannStimulus.hpp
 convergence/TestConvergenceNightly.hpp

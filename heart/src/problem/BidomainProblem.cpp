@@ -115,46 +115,46 @@ AbstractCardiacPde<DIM> * BidomainProblem<DIM>::CreateCardiacPde()
 }
 
 template<unsigned DIM>
-AbstractDynamicLinearPdeSolver<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssembler()
+AbstractDynamicLinearPdeSolver<DIM, DIM, 2>* BidomainProblem<DIM>::CreateSolver()
 {
     /*
      * NOTE: The this->mpBoundaryConditionsContainer.get() lines below convert a
-     * boost::shared_ptr to a normal pointer, as this is what the assemblers are
+     * boost::shared_ptr to a normal pointer, as this is what the solvers are
      * expecting. We have to be a bit careful though as boost could decide to delete
      * them whenever it feels like as it won't count the assembers as using them.
      *
      * As long as they are kept as member variables here for as long as they are
-     * required in the assemblers it should all work OK.
+     * required in the solvers it should all work OK.
      */
     if (!this->mUseMatrixBasedRhsAssembly)
     {
-        mpAssembler = new SimpleBidomainSolver<DIM,DIM>(mHasBath, 
-                                                        this->mpMesh,
-                                                        mpBidomainPde,
-                                                        this->mpBoundaryConditionsContainer.get(),
-                                                        2);
+        mpSolver = new SimpleBidomainSolver<DIM,DIM>(mHasBath, 
+                                                     this->mpMesh,
+                                                     mpBidomainPde,
+                                                     this->mpBoundaryConditionsContainer.get(),
+                                                     2);
     }
     else
     {
-        mpAssembler = new BidomainSolver<DIM,DIM>(mHasBath, 
-                                                  this->mpMesh,
-                                                  mpBidomainPde,
-                                                  this->mpBoundaryConditionsContainer.get(),
-                                                  2);
+        mpSolver = new BidomainSolver<DIM,DIM>(mHasBath, 
+                                               this->mpMesh,
+                                               mpBidomainPde,
+                                               this->mpBoundaryConditionsContainer.get(),
+                                               2);
     }
 
     try
     {
-        mpAssembler->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
-        mpAssembler->SetRowForAverageOfPhiZeroed(mRowForAverageOfPhiZeroed);
+        mpSolver->SetFixedExtracellularPotentialNodes(mFixedExtracellularPotentialNodes);
+        mpSolver->SetRowForAverageOfPhiZeroed(mRowForAverageOfPhiZeroed);
     }
     catch (const Exception& e)
     {
-        delete mpAssembler;
+        delete mpSolver;
         throw e;
     }
 
-    return mpAssembler;
+    return mpSolver;
 }
 
 template<unsigned DIM>
@@ -185,7 +185,7 @@ void BidomainProblem<DIM>::SetFixedExtracellularPotentialNodes(std::vector<unsig
     mFixedExtracellularPotentialNodes.resize(nodes.size());
     for (unsigned i=0; i<nodes.size(); i++)
     {
-        // the assembler checks that the nodes[i] is less than
+        // the solver checks that the nodes[i] is less than
         // the number of nodes in the mesh so this is not done here
         mFixedExtracellularPotentialNodes[i] = nodes[i];
     }
@@ -297,11 +297,11 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
         //assert(this->mpDefaultBoundaryConditionsContainer);
 
         // Note, no point calling this->SetBoundaryConditionsContainer() as the
-        // assembler has already been created..
-        mpAssembler->ResetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer().get());
+        // solver has already been created..
+        mpSolver->ResetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer().get());
 
         // ..but we set mpBcc anyway, so the local mpBcc is
-        // the same as the one being used in the assembler...
+        // the same as the one being used in the solver...
         this->mpBoundaryConditionsContainer = mpElectrodes->GetBoundaryConditionsContainer();
 
         /// \todo #1159 #1324 heart/src/problem/AbstractCardiacProblem.hpp:657 expects both pointing at the same place when unarchiving
@@ -309,20 +309,20 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
 
         // At t==0 or after checkpointing we won't have a system assembled at this stage: BCs will be applied once the matrix
         // is assembled. Dirichlet BCs will be present at the time of assembly and no null space will be created either.
-        if ( mpAssembler->GetLinearSystem() != NULL )
+        if ( mpSolver->GetLinearSystem() != NULL )
         {
             // System matrix is assembled once at the beginning of the simulation. After that, nobody will take care
             // of applying new BC to the system matrix. Must be triggered explicitly.
             if (mpElectrodes->HasGroundedElectrode())
             {
-                this->mpBoundaryConditionsContainer->ApplyDirichletToLinearProblem( *(mpAssembler->GetLinearSystem()),
+                this->mpBoundaryConditionsContainer->ApplyDirichletToLinearProblem( *(mpSolver->GetLinearSystem()),
                                                                                    true, false);
             }
 
             // If a grounded electrode is switched on, the linear system is not singular anymore. Remove the null space.
             if (mpElectrodes->HasGroundedElectrode())
             {
-                mpAssembler->GetLinearSystem()->RemoveNullSpace();
+                mpSolver->GetLinearSystem()->RemoveNullSpace();
             }
         }
     }
@@ -350,15 +350,15 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
         // have a sensible way of doing this, therefore we reassemble the system.
         if (mpElectrodes->HasGroundedElectrode())
         {
-            delete mpAssembler;
-            AbstractCardiacProblem<DIM,DIM,2>::mpAssembler = CreateAssembler();
+            delete mpSolver;
+            AbstractCardiacProblem<DIM,DIM,2>::mpSolver = CreateSolver();
         }
 
         // Note, no point calling this->SetBoundaryConditionsContainer() as the
-        // assembler has already been created..
-        mpAssembler->ResetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer.get());
+        // solver has already been created..
+        mpSolver->ResetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer.get());
         // ..but we set mpBcc to be mpDefaultBcc anyway, so the local mpBcc is
-        // the same as the one being used in the assembler...
+        // the same as the one being used in the solver...
         this->mpBoundaryConditionsContainer = this->mpDefaultBoundaryConditionsContainer;
     }
 }

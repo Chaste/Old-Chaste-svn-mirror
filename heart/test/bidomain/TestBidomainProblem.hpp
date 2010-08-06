@@ -299,7 +299,7 @@ public:
             bidomain_problem.Initialise();
         }
 
-        // Coverage of the exception in the assembler itself
+        // Coverage of the exception in the solver itself
         BoundaryConditionsContainer<1,1,2> container;
 
         BidomainSolver<1,1> bidomain_solver(false,

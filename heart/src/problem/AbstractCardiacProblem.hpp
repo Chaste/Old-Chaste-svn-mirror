@@ -87,7 +87,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 class AbstractCardiacProblem : boost::noncopyable
 {
-    friend class TestBidomainWithBathAssembler;
+    friend class TestBidomainWithBath;
     friend class TestCardiacSimulationArchiver;
 
     /** To save typing */
@@ -120,7 +120,7 @@ private:
         //archive & mNodeColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mpWriter; // Created by InitialiseWriter, called from Solve
         archive & mpCardiacPde;
-        //archive & mpAssembler; // Only exists during calls to the Solve method
+        //archive & mpSolver; // Only exists during calls to the Solve method
         bool has_solution = (mSolution != NULL);
         archive & has_solution;
         if (has_solution)
@@ -187,7 +187,7 @@ private:
         //archive & mNodeColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mpWriter; // Created by InitialiseWriter, called from Solve
         archive & mpCardiacPde;
-        //archive & mpAssembler; // Only exists during calls to the Solve method
+        //archive & mpSolver; // Only exists during calls to the Solve method
         bool has_solution;
         archive & has_solution;
         if (has_solution)
@@ -334,7 +334,7 @@ protected:
     /** It is convenient to also have a separate variable for default (zero-Neumann) boundary conditions */
     BccType mpDefaultBoundaryConditionsContainer;
     /** The PDE solver */
-    AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
+    AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpSolver;
     /** The cell factory creates the cells for each node */
     AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* mpCellFactory;
     /** The mesh. Can either by passed in, or the mesh filename can be set */
@@ -361,11 +361,11 @@ protected:
     virtual AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* CreateCardiacPde() =0;
 
     /**
-     * Subclasses must override this method to create a suitable assembler object.
+     * Subclasses must override this method to create a suitable solver object.
      *
      * This class will take responsibility for freeing the object when it is finished with.
      */
-    virtual AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
+    virtual AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* CreateSolver() =0;
 
 protected:
 	/**
@@ -491,9 +491,9 @@ public:
 
     /**
      *  First performs some checks by calling  the PreSolveChecks method.
-     *  It creates an assembler to which it passes the boundary conditions specified by the user
+     *  It creates an solver to which it passes the boundary conditions specified by the user
      *  (otherwise it passes the defauls bcc).
-     *   It then calls the Solve method in the assembler class.
+     *   It then calls the Solve method on the solver class.
      *   It also handles the output, if necessary.
      *
      * @note This method is collective, and hence must be called by all processes.

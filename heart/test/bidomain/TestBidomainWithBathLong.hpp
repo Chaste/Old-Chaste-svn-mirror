@@ -27,14 +27,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTBIDOMAINWITHBATHASSEMBLERLONG_HPP_
-#define TESTBIDOMAINWITHBATHASSEMBLERLONG_HPP_
+#ifndef TESTBIDOMAINWITHBATHLONG_HPP_
+#define TESTBIDOMAINWITHBATHLONG_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include <vector>
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
-#include "BidomainWithBathAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "HeartRegionCodes.hpp"
@@ -95,7 +94,7 @@ public:
 
 
 
-class TestBidomainWithBathAssemblerLong : public CxxTest::TestSuite
+class TestBidomainWithBathLong : public CxxTest::TestSuite
 {
 public:
     void Test3dBathIntracellularStimulation() throw (Exception)
@@ -288,4 +287,4 @@ public:
 };
 
 
-#endif /*TESTBIDOMAINWITHBATHASSEMBLERLONG_HPP_*/
+#endif /*TESTBIDOMAINWITHBATHLONG_HPP_*/

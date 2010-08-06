@@ -33,6 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleLinearEllipticSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
+//todo: at some point this class should renamed to TissueSimulationWithPdesSolver
+
 
 /**
  * TissueSimulationWithPdesAssembler

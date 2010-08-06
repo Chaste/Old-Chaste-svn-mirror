@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef TESTBIDOMAINWITHBATHASSEMBLER_HPP_
-#define TESTBIDOMAINWITHBATHASSEMBLER_HPP_
+#ifndef TESTBIDOMAINWITHBATH_HPP_
+#define TESTBIDOMAINWITHBATH_HPP_
 
 #include "CardiacSimulationArchiver.hpp"
 
@@ -50,7 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainSolver.hpp"
 
 
-class TestBidomainWithBathAssembler : public CxxTest::TestSuite
+class TestBidomainWithBath : public CxxTest::TestSuite
 {
 public:
     void tearDown()
@@ -60,8 +60,7 @@ public:
 
     void TestLabellingNodes() throw (Exception)
     {
-        // all this is just to create a mesh, pde and bcc to pass to the new
-        // type of assembler
+        // all this is just to create a mesh, pde and bcc to pass to the solver
         HeartConfig::Instance()->SetSimulationDuration(0.01);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_10_elements_with_two_attributes");
         HeartConfig::Instance()->SetOutputDirectory("bidomain_bath");
@@ -75,8 +74,8 @@ public:
         BidomainPde<1>* p_pde = bidomain_problem.GetBidomainPde();
         BoundaryConditionsContainer<1,1,2> bcc;
 
-        // Create the bidomain with bath assembler.
-        BidomainSolver<1,1> assembler(true, p_mesh, p_pde, &bcc);
+        // Create the bidomain with bath solver
+        BidomainSolver<1,1> solver(true, p_mesh, p_pde, &bcc);
 
         // the middle 4 elements are 'heart' elements (ie region=0),
         // so the middle 5 nodes should be heart nodes
@@ -97,8 +96,7 @@ public:
 
     void TestFailsIfNoBathElements() throw (Exception)
     {
-        // all this is just to create a mesh, pde and bcc to pass to the new
-        // type of assembler
+        // all this is just to create a mesh, pde and bcc to pass to the solver
         HeartConfig::Instance()->SetSimulationDuration(1.0);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_100_elements");
         HeartConfig::Instance()->SetOutputDirectory("bidomain_bath");
@@ -815,4 +813,4 @@ public:
     }
 };
 
-#endif /*TESTBIDOMAINWITHBATHASSEMBLER_HPP_*/
+#endif /*TESTBIDOMAINWITHBATH_HPP_*/

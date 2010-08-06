@@ -65,12 +65,12 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(2), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticSolver<2,2> simple_assembler(&mesh, &pde, &bcc);
-        TissueSimulationWithPdesAssembler<2> pde_assembler(&mesh, &pde, &bcc);
+        // assembler
+        SimpleLinearEllipticSolver<2,2> simple_solver(&mesh, &pde, &bcc);
+        TissueSimulationWithPdesAssembler<2> pde_solver(&mesh, &pde, &bcc);
 
-        Vec simple_result = simple_assembler.Solve();
-        Vec pde_result = pde_assembler.Solve();
+        Vec simple_result = simple_solver.Solve();
+        Vec pde_result = pde_solver.Solve();
 
         ReplicatableVector simple_result_repl(simple_result);
         ReplicatableVector pde_result_repl(pde_result);

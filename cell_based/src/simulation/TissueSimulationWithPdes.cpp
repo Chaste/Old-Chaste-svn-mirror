@@ -304,11 +304,11 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
 		}
 
 		/*
-		 * Set up assembler. This is a purpose-made elliptic assembler which must
+		 * Set up solver. This is a purpose-made elliptic solver which must
 		 * interpolate contributions to source terms from nodes onto Gauss points,
 		 * because the PDE solution is only stored at the cells (nodes).
 		 */
-		TissueSimulationWithPdesAssembler<DIM> assembler(&r_mesh, p_pde_and_bc->GetPde(), &bcc);
+		TissueSimulationWithPdesAssembler<DIM> solver(&r_mesh, p_pde_and_bc->GetPde(), &bcc);
 
 		PetscInt size_of_soln_previous_step = 0;
 
@@ -326,7 +326,7 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
 
 			// Use current solution as the initial guess
 			p_pde_and_bc->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
-			p_pde_and_bc->SetSolution(assembler.Solve(initial_guess));
+			p_pde_and_bc->SetSolution(solver.Solve(initial_guess));
 			VecDestroy(initial_guess);
 		}
 		else
@@ -336,7 +336,7 @@ void TissueSimulationWithPdes<DIM>::SolvePde()
 				assert(size_of_soln_previous_step != 0);
 				p_pde_and_bc->DestroySolution();
 			}
-			p_pde_and_bc->SetSolution(assembler.Solve());
+			p_pde_and_bc->SetSolution(solver.Solve());
 		}
 
 		ReplicatableVector solution_repl(p_pde_and_bc->GetSolution());
@@ -453,7 +453,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 
 		p_pde_and_bc->SetUpSourceTermsForAveragedSourcePde(mpCoarsePdeMesh);
 
-		SimpleLinearEllipticSolver<DIM,DIM> assembler(mpCoarsePdeMesh, p_pde_and_bc->GetPde(), &bcc);
+		SimpleLinearEllipticSolver<DIM,DIM> solver(mpCoarsePdeMesh, p_pde_and_bc->GetPde(), &bcc);
 
 		if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
 		{
@@ -465,7 +465,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 
 			// Use current solution as the initial guess
 			p_pde_and_bc->DestroySolution(); // Solve method makes its own mCurrentPdeSolution
-			p_pde_and_bc->SetSolution(assembler.Solve(initial_guess));
+			p_pde_and_bc->SetSolution(solver.Solve(initial_guess));
 			VecDestroy(initial_guess);
 		}
 		else
@@ -482,7 +482,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 			}
 			*
 			*/
-			p_pde_and_bc->SetSolution(assembler.Solve());
+			p_pde_and_bc->SetSolution(solver.Solve());
 		}
 
 		/*

@@ -100,7 +100,7 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
-    friend class TestBidomainWithBathAssembler;
+    friend class TestBidomainWithBath;
     friend class TestCardiacSimulationArchiver;
 
 protected:
@@ -136,17 +136,17 @@ protected:
     void AnalyseMeshForBath();
 
     /**
-     * We need to save the assembler that is being used to be able to switch
+     * We need to save the solver that is being used to be able to switch
      * off the electrodes (by adding default boundary conditions to the
-     * assembler)
+     * solver)
      */
-    AbstractBidomainSolver<DIM,DIM>* mpAssembler;
+    AbstractBidomainSolver<DIM,DIM>* mpSolver;
 
     /** Create our bidomain PDE object */
     virtual AbstractCardiacPde<DIM> *CreateCardiacPde();
 
-    /** Create a suitable bidomain assembler */
-    virtual AbstractDynamicLinearPdeSolver<DIM,DIM,2>* CreateAssembler();
+    /** Create a suitable bidomain solver */
+    virtual AbstractDynamicLinearPdeSolver<DIM,DIM,2>* CreateSolver();
 
 public:
     /**

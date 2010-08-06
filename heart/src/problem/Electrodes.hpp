@@ -57,7 +57,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class Electrodes
 {
-friend class TestBidomainWithBathAssembler;
+friend class TestBidomainWithBath;
 friend class TestElectrodes;
 
 private:

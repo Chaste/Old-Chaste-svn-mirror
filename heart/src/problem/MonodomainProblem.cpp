@@ -41,50 +41,36 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* MonodomainProblem<ELEMENT_DIM, SPACE_
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateAssembler()
+AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateSolver()
 {
     assert(mpMonodomainPde);
     /*
      * NOTE: The this->mpBoundaryConditionsContainer.get() lines below convert a
-     * boost::shared_ptr to a normal pointer, as this is what the assemblers are
+     * boost::shared_ptr to a normal pointer, as this is what the solvers are
      * expecting. We have to be a bit careful though as boost could decide to delete
      * them whenever it feels like as it won't count the assembers as using them.
      *
      * As long as they are kept as member variables here for as long as they are
-     * required in the assemblers it should all work OK.
+     * required in the solvers it should all work OK.
      */
-
-//    // #1462.  Create a normal (non-matrix based) assembler and
-//    // call InterpolateCellStateVariablesNotIonicCurrent()
-//    MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
-//        = new MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-//                                                            mpMonodomainPde,
-//                                                            this->mpBoundaryConditionsContainer.get(),
-//                                                            2);
-//    // issue here if node 0 is in the bath.
-//    AbstractCardiacCell* p_cell_for_interpolation = this->mpCellFactory->CreateCardiacCellForTissueNode(0);
-//    p_assembler->InterpolateCellStateVariablesNotIonicCurrent(p_cell_for_interpolation);
-//    return p_assembler;
-
-
      
     if(!this->mUseMatrixBasedRhsAssembly)
     {
-        SimpleMonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_assembler
+        SimpleMonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_solver
           = new SimpleMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
                                                               mpMonodomainPde,
                                                               this->mpBoundaryConditionsContainer.get(),
                                                               2);
-        return p_assembler;
+        return p_solver;
     }
     else
     {
-        MonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_assembler
+        MonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_solver
           = new MonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
                                                         mpMonodomainPde,
                                                         this->mpBoundaryConditionsContainer.get(),
                                                         2);
-        return p_assembler;
+        return p_solver;
     }
 }
 

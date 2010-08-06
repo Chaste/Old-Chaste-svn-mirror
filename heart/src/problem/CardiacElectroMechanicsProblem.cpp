@@ -222,7 +222,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mContractionModel = contractionModel;
 
     // create the monodomain problem. Note the we use this to set up the cells,
-    // get an initial condition (voltage) vector, and get an assembler. We won't
+    // get an initial condition (voltage) vector, and get an solver. We won't
     // ever call solve on the MonodomainProblem
     assert(pCellFactory != NULL);
     mpMonodomainProblem = new MonodomainProblem<DIM>(pCellFactory);
@@ -411,10 +411,10 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     p_bcc->DefineZeroNeumannOnMeshBoundary(mpElectricsMesh, 0);
     mpMonodomainProblem->SetBoundaryConditionsContainer(p_bcc);
 
-    // get an electrics assembler from the problem. Note that we don't call
+    // get an electrics solver from the problem. Note that we don't call
     // Solve() on the CardiacProblem class, we do the looping here.
-    AbstractDynamicLinearPdeSolver<DIM,DIM,1>* p_electrics_assembler
-       = mpMonodomainProblem->CreateAssembler();
+    AbstractDynamicLinearPdeSolver<DIM,DIM,1>* p_electrics_solver
+       = mpMonodomainProblem->CreateSolver();
 
     // set up initial voltage etc
     Vec voltage=NULL; //This will be set and used later
@@ -514,10 +514,10 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             double next_time = stepper.GetTime() + (i+1)*mElectricsTimeStep;
 
             // solve the electrics
-            p_electrics_assembler->SetTimes(current_time, next_time, mElectricsTimeStep);
-            p_electrics_assembler->SetInitialCondition( initial_voltage );
+            p_electrics_solver->SetTimes(current_time, next_time, mElectricsTimeStep);
+            p_electrics_solver->SetInitialCondition( initial_voltage );
 
-            voltage = p_electrics_assembler->Solve();
+            voltage = p_electrics_solver->Solve();
 
             PetscReal min_voltage, max_voltage;
             VecMax(voltage,PETSC_NULL,&max_voltage); //the second param is where the index would be returned
@@ -536,7 +536,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         }
 
 //// when using *Cinverse* in electrics
-//        p_electrics_assembler->SetMatrixIsNotAssembled();
+//        p_electrics_solver->SetMatrixIsNotAssembled();
 
 
         /////////////////////////////////////////////////////////////////////////
@@ -698,7 +698,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         delete p_cmgui_writer;
     }
     VecDestroy(voltage);
-    delete p_electrics_assembler;
+    delete p_electrics_solver;
 
     MechanicsEventHandler::EndEvent(MechanicsEventHandler::ALL);
 }

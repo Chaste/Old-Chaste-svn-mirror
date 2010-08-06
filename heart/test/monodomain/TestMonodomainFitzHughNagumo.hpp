@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _TESTMONODOMAINFITZHUGHNAGUMOWITHDG0ASSEMBLER_HPP_
-#define _TESTMONODOMAINFITZHUGHNAGUMOWITHDG0ASSEMBLER_HPP_
+#ifndef _TESTMONODOMAINFITZHUGHNAGUMO_HPP_
+#define _TESTMONODOMAINFITZHUGHNAGUMO_HPP_
 
 
 #include <cxxtest/TestSuite.h>
@@ -70,7 +70,7 @@ public:
     }
 };
 
-class TestMonodomainFitzHughNagumoWithDg0Assembler : public CxxTest::TestSuite
+class TestMonodomainFitzHughNagumo : public CxxTest::TestSuite
 {
 public:
 
@@ -146,4 +146,4 @@ public:
         }
     }
 };
-#endif //_TESTMONODOMAINFITZHUGHNAGUMOWITHDG0ASSEMBLER_HPP_
+#endif //_TESTMONODOMAINFITZHUGHNAGUMO_HPP_

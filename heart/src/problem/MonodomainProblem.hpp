@@ -69,8 +69,8 @@ public:
     /** Create our monodomain PDE */
     AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM>* CreateCardiacPde();
 
-    /** Create an suitable assembler for monodomain problems */
-    AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* CreateAssembler();
+    /** Create an suitable solver for monodomain problems */
+    AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* CreateSolver();
 
 public:
     /**

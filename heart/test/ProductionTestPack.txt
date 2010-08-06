@@ -6,7 +6,7 @@ convergence/TestConvergenceTester.hpp
 ionicmodels/TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
-monodomain/TestMonodomainFitzHughNagumoWithDg0Assembler.hpp
+monodomain/TestMonodomainFitzHughNagumo.hpp
 monodomain/TestMonodomainPde.hpp
 TestPlaneStimulusCellFactory.hpp
 postprocessing/TestPropagationPropertiesCalculator.hpp

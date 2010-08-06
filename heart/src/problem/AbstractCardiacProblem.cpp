@@ -51,7 +51,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mWriteInfo(false),
       mPrintOutput(true),
       mpCardiacPde(NULL),
-      mpAssembler(NULL),
+      mpSolver(NULL),
       mpCellFactory(pCellFactory),
       mpMesh(NULL),
       mSolution(NULL),
@@ -77,7 +77,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mTimeColumnId(UINT_MAX),
       mNodeColumnId(UINT_MAX),
       mpCardiacPde(NULL),
-      mpAssembler(NULL),
+      mpSolver(NULL),
       mpCellFactory(NULL),
       mpMesh(NULL),
       mSolution(NULL),
@@ -329,8 +329,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         mpBoundaryConditionsContainer = mpDefaultBoundaryConditionsContainer;
     }
 
-    assert(mpAssembler==NULL);
-    mpAssembler = CreateAssembler(); // passes mpBoundaryConditionsContainer to assember
+    assert(mpSolver==NULL);
+    mpSolver = CreateSolver(); // passes mpBoundaryConditionsContainer to solver
 
     // If we have already run a simulation, use the old solution as initial condition
     Vec initial_condition;
@@ -365,7 +365,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         {
             delete mpWriter;
             mpWriter = NULL;
-            delete mpAssembler;
+            delete mpSolver;
             if (mSolution != initial_condition)
             {
                 VecDestroy(initial_condition);
@@ -401,20 +401,20 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
     while ( !stepper.IsTimeAtEnd() )
     {
         // solve from now up to the next printing time
-        mpAssembler->SetTimes(stepper.GetTime(), stepper.GetNextTime(), HeartConfig::Instance()->GetPdeTimeStep());
-        mpAssembler->SetInitialCondition( initial_condition );
+        mpSolver->SetTimes(stepper.GetTime(), stepper.GetNextTime(), HeartConfig::Instance()->GetPdeTimeStep());
+        mpSolver->SetInitialCondition( initial_condition );
 
         AtBeginningOfTimestep(stepper.GetTime());
 
         try
         {
-            mSolution = mpAssembler->Solve();
+            mSolution = mpSolver->Solve();
         }
         catch (Exception &e)
         {
             // Free memory.
-            delete mpAssembler;
-            mpAssembler=NULL;
+            delete mpSolver;
+            mpSolver=NULL;
             //VecDestroy(initial_condition);
 #ifndef NDEBUG
             PetscTools::ReplicateException(true);
@@ -465,9 +465,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Solve()
         OnEndOfTimestep(stepper.GetTime());
     }
 
-    // Free assembler
-    delete mpAssembler;
-    mpAssembler=NULL;
+    // Free solver
+    delete mpSolver;
+    mpSolver = NULL;
 
     // close the file that stores voltage values
     progress_reporter.PrintFinalising();
