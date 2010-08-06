@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BoundaryConditionsContainer.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "EllipticPdeWithLinearSource.hpp"
-#include "SimpleLinearEllipticAssembler.hpp"
+#include "SimpleLinearEllipticSolver.hpp"
 
 // There is assembler hiearchy for assembler which use quadratic bases (ie the elasticity
 // solvers). Therefore, to test the quadratic bases/structure we first wrote this
@@ -331,9 +331,9 @@ public:
         BoundaryConditionsContainer<2,2,1> bcc_lin;
         bcc_lin.DefineZeroDirichletOnMeshBoundary(&mesh);
 
-        SimpleLinearEllipticAssembler<2,2> assembler_lin(&mesh,&pde,&bcc_lin);
+        SimpleLinearEllipticSolver<2,2> solver_lin(&mesh,&pde,&bcc_lin);
 
-        Vec solution_lin = assembler_lin.Solve();
+        Vec solution_lin = solver_lin.Solve();
         ReplicatableVector sol_lin_repl(solution_lin);
 
 
@@ -387,9 +387,9 @@ public:
         BoundaryConditionsContainer<3,3,1> bcc_lin;
         bcc_lin.DefineZeroDirichletOnMeshBoundary(&mesh);
 
-        SimpleLinearEllipticAssembler<3,3> assembler_lin(&mesh,&pde,&bcc_lin);
+        SimpleLinearEllipticSolver<3,3> solver_lin(&mesh,&pde,&bcc_lin);
 
-        Vec solution_lin = assembler_lin.Solve();
+        Vec solution_lin = solver_lin.Solve();
         ReplicatableVector sol_lin_repl(solution_lin);
 
         // compare results - the following assumes the vertex nodes in the

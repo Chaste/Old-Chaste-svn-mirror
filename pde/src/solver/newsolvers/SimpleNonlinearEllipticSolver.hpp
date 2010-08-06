@@ -25,47 +25,23 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_
-#define _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_
 
-#include "AbstractNonlinearAssembler.hpp"
-#include "BoundaryConditionsContainer.hpp"
+#ifndef SIMPLENONLINEARELLIPTICSOLVER_HPP_
+#define SIMPLENONLINEARELLIPTICSOLVER_HPP_
+
+#include "AbstractNonlinearAssemblerSolverHybrid.hpp"
 #include "AbstractNonlinearEllipticPde.hpp"
-#include "AbstractTetrahedralMesh.hpp"
 
-
-/**
- * Concrete simple class that assembles and solves the nonlinear system
- * for a nonlinear elliptic PDE.
- *
- * USAGE: call the constructor with the mesh, pde and boundary conditions,
- * then call Solve() with the initial guess.
- *
- * \todo [old todo, maybe not true anymore after refactor(?)] #1298
- * This class could do with some tidying. More (3D) tests are also needed.
- * It probably needs re-writing to take advantage of parallel machines.
+/** 
+ *  Solver of nonlinear elliptic PDEs
  */
-template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class SimpleNonlinearEllipticAssembler
-    : public AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> >
+template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+class SimpleNonlinearEllipticSolver : public AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM,SPACE_DIM,1>
 {
-public:
-    static const unsigned E_DIM = ELEMENT_DIM; /**< The element dimension (to save typing). */
-    static const unsigned S_DIM = SPACE_DIM; /**< The space dimension (to save typing). */
-    static const unsigned P_DIM = 1u; /**< The problem dimension (to save typing). */
-
-    typedef SimpleNonlinearEllipticAssembler<ELEMENT_DIM, SPACE_DIM> SelfType; /**< This type (to save typing). */
-    typedef AbstractNonlinearAssembler<ELEMENT_DIM, SPACE_DIM, 1, SelfType> BaseClassType; /**< Base class type (to save typing). */
-
 private:
-    friend class AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, 1, true, SelfType>;
-    // Allow tests to access private members, in order to test computation of
-    // residual & jacobian directly.
-    friend class TestSimpleNonlinearEllipticAssembler;
-
     /** The PDE to be solved. */
     AbstractNonlinearEllipticPde<SPACE_DIM>* mpNonlinearEllipticPde;
-
+    
     /**
      * This method returns the matrix to be added to element stiffness matrix
      * for a given gauss point. The arguments are the bases, bases gradients,
@@ -80,13 +56,13 @@ private:
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
-    virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
-        c_vector<double, ELEMENT_DIM+1>& rPhi,
-        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
+    virtual c_matrix<double,1*(ELEM_DIM+1),1*(ELEM_DIM+1)> ComputeMatrixTerm(
+        c_vector<double, ELEM_DIM+1>& rPhi,
+        c_matrix<double, SPACE_DIM, ELEM_DIM+1>& rGradPhi,
         ChastePoint<SPACE_DIM>& rX,
         c_vector<double,1>& rU,
         c_matrix<double,1,SPACE_DIM>& rGradU,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
+        Element<ELEM_DIM,SPACE_DIM>* pElement);
 
     /**
      * This method returns the vector to be added to element stiffness vector
@@ -102,13 +78,13 @@ private:
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
-    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
-        c_vector<double, ELEMENT_DIM+1>& rPhi,
-        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
+    virtual c_vector<double,1*(ELEM_DIM+1)> ComputeVectorTerm(
+        c_vector<double, ELEM_DIM+1>& rPhi,
+        c_matrix<double, SPACE_DIM, ELEM_DIM+1>& rGradPhi,
         ChastePoint<SPACE_DIM>& rX,
         c_vector<double,1>& rU,
         c_matrix<double,1,SPACE_DIM>& rGradU,
-        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
+        Element<ELEM_DIM,SPACE_DIM>* pElement);
 
     /**
      * This method returns the vector to be added to element stiffness vector
@@ -121,26 +97,25 @@ private:
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rX The point in space
      */
-    virtual c_vector<double, 1*ELEMENT_DIM> ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-        c_vector<double, ELEMENT_DIM>& rPhi,
+    virtual c_vector<double, 1*ELEM_DIM> ComputeVectorSurfaceTerm(
+        const BoundaryElement<ELEM_DIM-1,SPACE_DIM>& rSurfaceElement,
+        c_vector<double, ELEM_DIM>& rPhi,
         ChastePoint<SPACE_DIM>& rX);
 
-public :
-
+public:
     /**
-     * Constructor - takes in the mesh, pde and boundary conditions container to be solved. Can
-     * also define the number of quad points (in each dimension), the default value of which is 2.
+     * Constructor
      *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
      * @param pBoundaryConditions pointer to the boundary conditions
-     * @param numQuadPoints number of quadrature points (defaults to 2)
+     * @param numQuadPoints number of quadrature points in each dimension to use per element (defaults to 2)
      */
-    SimpleNonlinearEllipticAssembler(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
-                                     AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
-                                     BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
-                                     unsigned numQuadPoints = 2);
+    SimpleNonlinearEllipticSolver(AbstractTetrahedralMesh<ELEM_DIM, SPACE_DIM>* pMesh,
+                                  AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
+                                  BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, 1>* pBoundaryConditions,
+                                  unsigned numQuadPoints=2);
 };
 
-#endif  // _SIMPLENONLINEARELLIPTICASSEMBLER_HPP_
+
+#endif /*SIMPLENONLINEARELLIPTICSOLVER_HPP_*/

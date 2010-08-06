@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LinearPdeWithZeroSource.hpp"
 #include "EllipticPdeWithLinearSource.hpp"
 #include "EllipticPdeWithRadialLinearSource.hpp"
-#include "SimpleLinearEllipticAssembler.hpp"
+#include "SimpleLinearEllipticSolver.hpp"
 #include <vector>
 #include <cmath>
 #include "BoundaryConditionsContainer.hpp"
@@ -50,115 +50,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscSetupAndFinalize.hpp"
 
-class TestSimpleLinearEllipticAssembler : public CxxTest::TestSuite
+class TestSimpleLinearEllipticSolver : public CxxTest::TestSuite
 {
 public:
-
-    /// \todo: the following 3 inactivated tests produce a segfault since no mesh is being passed to the assembler (first NULL argument)
-
-    void dontTestAssembleOnElement()
-    {
-        SimplePoissonEquation<1,1> pde;
-        std::vector<Node<1>*> nodes;
-        nodes.push_back(new Node<1>(0, false, 1.0));
-        nodes.push_back(new Node<1>(1, false, 3));
-        Element<1,1> element(INDEX_IS_NOT_USED, nodes);
-        c_matrix<double, 2, 2> ael;
-        c_vector<double, 2> bel;
-        SimpleLinearEllipticAssembler<1,1> assembler(NULL,&pde,NULL);
-
-        // the two 'true' say assemble the vector and assemble the matrix
-        assembler.AssembleOnElement(element, ael, bel, true, true);
-
-        TS_ASSERT_DELTA(ael(0,0),0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
-
-        TS_ASSERT_DELTA(bel(0),1, 1e-12);
-        TS_ASSERT_DELTA(bel(1),1, 1e-12);
-
-        // Free memory for nodes
-        delete nodes[0];
-        delete nodes[1];
-    }
-
-    void dontTestAssembleOnElement2DCanonical()
-    {
-        SimplePoissonEquation<2,2> pde;
-        std::vector<Node<2>*> nodes;
-        nodes.push_back(new Node<2>(0, false, 0.0, 0.0));
-        nodes.push_back(new Node<2>(1, false, 1.0, 0.0));
-        nodes.push_back(new Node<2>(2, false, 0.0, 1.0));
-        Element<2,2> element(INDEX_IS_NOT_USED, nodes);
-        c_matrix<double, 3, 3> ael;
-        c_vector<double, 3> bel;
-
-        SimpleLinearEllipticAssembler<2,2> assembler(NULL,&pde,NULL);
-
-        // the two 'true' say assemble the vector and assemble the matrix
-        assembler.AssembleOnElement(element, ael, bel, true, true);
-
-        TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
-        TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(0,2),-0.5, 1e-12);
-
-        TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(1,2),0.0, 1e-12);
-
-        TS_ASSERT_DELTA(ael(2,0),-0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(2,1),0.0, 1e-12);
-        TS_ASSERT_DELTA(ael(2,2),0.5, 1e-12);
-
-        TS_ASSERT_DELTA(bel(0),1.0/6.0, 1e-12);
-        TS_ASSERT_DELTA(bel(1),1.0/6.0, 1e-12);
-        TS_ASSERT_DELTA(bel(2),1.0/6.0, 1e-12);
-
-        // Free memory for nodes
-        delete nodes[0];
-        delete nodes[1];
-        delete nodes[2];
-    }
-
-    void dontTestAssembleOnElement2DGeneral()
-    {
-        SimplePoissonEquation<2,2> pde;
-        std::vector<Node<2>*> nodes;
-        nodes.push_back(new Node<2>(0, false, 4.0, 3.0));
-        nodes.push_back(new Node<2>(1, false, 6.0, 4.0));
-        nodes.push_back(new Node<2>(2, false, 3.0, 5.0));
-        Element<2,2> element(INDEX_IS_NOT_USED, nodes);
-        c_matrix<double, 3, 3> ael;
-        c_vector<double, 3> bel;
-
-        SimpleLinearEllipticAssembler<2,2> assembler(NULL,&pde,NULL);
-
-        // the two 'true' say assemble the vector and assemble the matrix
-        assembler.AssembleOnElement(element, ael, bel, true, true);
-
-        TS_ASSERT_DELTA(ael(0,0),1.0, 1e-12);
-        TS_ASSERT_DELTA(ael(0,1),-0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(0,2),-0.5, 1e-12);
-
-        TS_ASSERT_DELTA(ael(1,0),-0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(1,1),0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(1,2),0.0, 1e-12);
-
-        TS_ASSERT_DELTA(ael(2,0),-0.5, 1e-12);
-        TS_ASSERT_DELTA(ael(2,1),0.0, 1e-12);
-        TS_ASSERT_DELTA(ael(2,2),0.5, 1e-12);
-
-        TS_ASSERT_DELTA(bel(0),5.0/6.0, 1e-12);
-        TS_ASSERT_DELTA(bel(1),5.0/6.0, 1e-12);
-        TS_ASSERT_DELTA(bel(2),5.0/6.0, 1e-12);
-
-        // Free memory for nodes
-        delete nodes[0];
-        delete nodes[1];
-        delete nodes[2];
-    }
-
     void TestWithPoissonsEquationAndMeshReader()
     {
         // Create mesh from mesh reader
@@ -182,10 +76,10 @@ public:
         ConstBoundaryCondition<1>* p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<1,1> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
         // Solution should be u = 0.5*x*(3-x)
@@ -220,10 +114,10 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<1,1> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
         for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
@@ -259,10 +153,10 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<1,1> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
         for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
@@ -296,10 +190,10 @@ public:
             }
         }
 
-        // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<2,2> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
         TS_ASSERT_DELTA(result_repl[4], 1.0/12.0, 0.001);
 
@@ -331,10 +225,10 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<2,2> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
         for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
@@ -371,10 +265,10 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_neumann_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<1,1> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
         for (unsigned i=0; i<result_repl.GetSize(); i++)
         {
@@ -436,10 +330,10 @@ public:
             iter1++;
         }
 
-        // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<2,2> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
 
         // Check result
         double* p_result;
@@ -498,10 +392,10 @@ public:
             iter++;
         }
 
-        // Assembler
-        SimpleLinearEllipticAssembler<3,3> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<3,3> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
         //Solution should be -1/6*(x^2 + y^2 +z^2)
@@ -563,10 +457,10 @@ public:
             surf_iter++;
         }
 
-        // Assembler
-        SimpleLinearEllipticAssembler<3,3> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<3,3> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
         //Solution should be -1/6*(x^2 + y^2 +z^2)
@@ -603,10 +497,10 @@ public:
         unsigned last_node = (unsigned)(mesh.GetNumNodes()-1);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(last_node), p_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticAssembler<1,1> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<1,1> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
         // Solution should be u = a sin(x) + cos(x), where a = (2-cos1)/sin1
@@ -648,10 +542,10 @@ public:
             bcc.AddDirichletBoundaryCondition(*iter, p_boundary_condition);
         }
 
-        // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<2,2> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
         // Solution should be u = exp(xy)
@@ -667,7 +561,7 @@ public:
         VecDestroy(result);
     }
 
-    // Test that the assembler can read an ordering file and assign the correct number of
+    // Test that the solver can read an ordering file and assign the correct number of
     // nodes to each processor.
     void TestOrdering() throw(Exception)
     {
@@ -684,11 +578,8 @@ public:
             SimplePoissonEquation<2,2> pde;
             BoundaryConditionsContainer<2,2,1> bcc;
 
-            // Assembler
-            SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
-
-            // Hi and Lo set up in PrepareForSolve
-            assembler.PrepareForSolve();
+            // Solver
+            SimpleLinearEllipticSolver<2,2> solver(&mesh,&pde,&bcc);
 
             // test set up correctly
             PetscInt petsc_lo, petsc_hi;
@@ -729,10 +620,10 @@ public:
         ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM> solver(&mesh,&pde,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
         // Solution should be u = 0.5*x*(3-x)

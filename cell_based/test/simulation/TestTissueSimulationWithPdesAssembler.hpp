@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <pde/test/pdes/SimplePoissonEquation.hpp>
 
-#include "SimpleLinearEllipticAssembler.hpp"
+#include "SimpleLinearEllipticSolver.hpp"
 #include "TissueSimulationWithPdesAssembler.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -66,7 +66,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(3), p_boundary_condition);
 
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> simple_assembler(&mesh, &pde, &bcc);
+        SimpleLinearEllipticSolver<2,2> simple_assembler(&mesh, &pde, &bcc);
         TissueSimulationWithPdesAssembler<2> pde_assembler(&mesh, &pde, &bcc);
 
         Vec simple_result = simple_assembler.Solve();

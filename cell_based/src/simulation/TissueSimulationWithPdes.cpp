@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleDataWriter.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
-#include "SimpleLinearEllipticAssembler.hpp"
+#include "SimpleLinearEllipticSolver.hpp"
 #include "TissueSimulationWithPdesAssembler.hpp"
 #include "CellwiseData.hpp"
 #include "AbstractTwoBodyInteractionForce.hpp"
@@ -453,7 +453,7 @@ void TissueSimulationWithPdes<DIM>::SolvePdeUsingCoarseMesh()
 
 		p_pde_and_bc->SetUpSourceTermsForAveragedSourcePde(mpCoarsePdeMesh);
 
-		SimpleLinearEllipticAssembler<DIM,DIM> assembler(mpCoarsePdeMesh, p_pde_and_bc->GetPde(), &bcc);
+		SimpleLinearEllipticSolver<DIM,DIM> assembler(mpCoarsePdeMesh, p_pde_and_bc->GetPde(), &bcc);
 
 		if (size_of_soln_previous_step == (int)r_mesh.GetNumNodes())
 		{

@@ -39,11 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacProblem.hpp"
 #include "AbstractCardiacPde.hpp"
-#include "AbstractDynamicAssemblerMixin.hpp"
+#include "AbstractBidomainSolver.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "Electrodes.hpp"
 #include "BidomainPde.hpp"
-#include "BidomainDg0Assembler.hpp"
 #include "HeartRegionCodes.hpp"
 #include "DistributedTetrahedralMesh.hpp"
 
@@ -141,13 +140,13 @@ protected:
      * off the electrodes (by adding default boundary conditions to the
      * assembler)
      */
-    BidomainDg0Assembler<DIM,DIM>* mpAssembler;
+    AbstractBidomainSolver<DIM,DIM>* mpAssembler;
 
     /** Create our bidomain PDE object */
     virtual AbstractCardiacPde<DIM> *CreateCardiacPde();
 
     /** Create a suitable bidomain assembler */
-    virtual AbstractDynamicAssemblerMixin<DIM, DIM, 2>* CreateAssembler();
+    virtual AbstractDynamicLinearPdeSolver<DIM,DIM,2>* CreateAssembler();
 
 public:
     /**

@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include "TetrahedralMesh.hpp"
 #include "SimplePoissonEquation.hpp"
-#include "SimpleLinearEllipticAssembler.hpp"
+#include "SimpleLinearEllipticSolver.hpp"
 #include <vector>
 #include <cmath>
 #include "BoundaryConditionsContainer.hpp"
@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscSetupAndFinalize.hpp"
 
-class Test1D3DLinearEllipticAssembler : public CxxTest::TestSuite
+class Test1D3DLinearEllipticSolver : public CxxTest::TestSuite
 {
 public:
 
@@ -67,8 +67,8 @@ public:
         ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
 
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
@@ -103,8 +103,8 @@ public:
         ConstBoundaryCondition<SPACE_DIM>* p_boundary_condition = new ConstBoundaryCondition<SPACE_DIM>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
 
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);
@@ -143,8 +143,8 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(20), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(30), p_boundary_condition);
 
-        // Assembler
-        SimpleLinearEllipticAssembler<ELEMENT_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearEllipticSolver<ELEMENT_DIM,SPACE_DIM> assembler(&mesh,&pde,&bcc);
 
         Vec result = assembler.Solve();
         ReplicatableVector result_repl(result);

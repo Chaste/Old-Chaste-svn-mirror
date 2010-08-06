@@ -246,7 +246,6 @@ public:
 
     /**
      * Test if there is a Neumann boundary condition defined on the given element.
-     * Used by SimpleLinearEllipticAssembler.
      *
      * \todo #1321
      * This is a horrendously inefficient fix. Perhaps have flag in element object?

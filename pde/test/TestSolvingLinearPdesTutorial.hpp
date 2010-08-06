@@ -40,8 +40,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * = Examples showing how to solve linear elliptic and parabolic PDEs =
  *
  * In this tutorial we show how Chaste can be used to solve linear PDEs. The first test
- * uses the {{{SimpleLinearEllipticAssembler}}} to solve a linear elliptic PDE, and the
- * second test uses the {{{SimpleDg0ParabolicAssembler}}} to solve a parabolic time-dependent
+ * uses the {{{SimpleLinearEllipticSolver}}} to solve a linear elliptic PDE, and the
+ * second test uses the {{{SimpleLinearParabolicSolver}}} to solve a parabolic time-dependent
  * linear PDE
  *
  * EMPTYLINE
@@ -55,9 +55,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "UblasCustomFunctions.hpp"
 /* This is the class that is needed to solve a linear elliptic pde */
-#include "SimpleLinearEllipticAssembler.hpp"
+#include "SimpleLinearEllipticSolver.hpp"
 /* This is the class that is needed to solve a linear parabolic PDE */
-#include "SimpleDg0ParabolicAssembler.hpp"
+#include "SimpleLinearParabolicSolver.hpp"
 /* This is a parabolic PDE, one of the PDEs we will solve */
 #include "HeatEquationWithSourceTerm.hpp"
 /* We will also solve this PDE */
@@ -243,17 +243,16 @@ public:
 
 
 
-        /* Next we define the assembler - the solver of the PDE. (Assembler is a bit of a
-         * misnomer - assemblers both assemble the finite element equations, and solve them.
+        /* Next we define the solver of the PDE. 
          * To solve {{{AbstractLinearEllipticPde}}} (which is the type of pde {{{MyPde}}} is),
-         * we use a {{{SimpleLinearEllipticAssembler}}}. The assembler, again templated over
+         * we use a {{{SimpleLinearEllipticSolver}}}. The solver, again templated over
          * {{{ELEMENT_DIM}}} and {{{SPACE_DIM}}}, needs to be given (pointers to) the mesh,
          * pde and boundary conditions.
          */
-        SimpleLinearEllipticAssembler<2,2> assembler(&mesh,&pde,&bcc);
+        SimpleLinearEllipticSolver<2,2> solver(&mesh,&pde,&bcc);
 
         /* To solve, just call {{{Solve()}}}. A Petsc vector is returned. */
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
 
         /* It is a pain to access the individual components of a Petsc vector, even in
          * sequential. A helper class called {{{ReplicatableVector}}} has been created. Create
@@ -322,36 +321,35 @@ public:
         BoundaryConditionsContainer<3,3,1> bcc;
         bcc.DefineConstantDirichletOnMeshBoundary(&mesh, 1.0);
 
-        /* Create an instance of the assembler, passing in the mesh, pde and boundary conditions.
-         * The '{{{true}}}' template parameter says this is a NON_HEART problem (so the certain
-         * optimisations for cardiac problems are not used). */
-        SimpleDg0ParabolicAssembler<3,3,true> assembler(&mesh,&pde,&bcc);
+        /* Create an instance of the solver, passing in the mesh, pde and boundary conditions.
+         */
+        SimpleLinearParabolicSolver<3,3> solver(&mesh,&pde,&bcc);
 
-        /* For parabolic problems, initial conditions are also needed. The assembler will expect
+        /* For parabolic problems, initial conditions are also needed. The solver will expect
          * a Petsc vector, where the i-th entry is the initial solution at node i, to be passed
          * in. To create this Petsc {{{Vec}}}, we will use a helper function in the {{{PetscTools}}}
          * class to create a {{{Vec}}} of size num_nodes, with each entry set to 1.0. Then we
-         * set the initial condition on the assembler */
+         * set the initial condition on the solver */
         Vec initial_condition = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), 1.0);
-        assembler.SetInitialCondition(initial_condition);
+        solver.SetInitialCondition(initial_condition);
 
         /* Next define the start time, end time, and timestep, and set them. */
         double t_start = 0;
         double t_end = 1;
         double dt = 0.01;
-        assembler.SetTimes(t_start, t_end, dt);
+        solver.SetTimes(t_start, t_end, dt);
 
         /* Now we can solve the problem. The {{{Vec}}} that is returned can be passed into a
          * {{{ReplicatableVector}}} as before
          */
-        Vec solution = assembler.Solve();
+        Vec solution = solver.Solve();
         ReplicatableVector solution_repl(solution);
 
         /* Let's also solve the equivalent static PDE, ie set du/dt=0, so 0=div(gradu) + u. This
          * is easy, as the PDE class has already been defined */
         SimplePoissonEquation<3,3> static_pde;
-        SimpleLinearEllipticAssembler<3,3> static_assembler(&mesh, &static_pde, &bcc);
-        Vec static_solution = static_assembler.Solve();
+        SimpleLinearEllipticSolver<3,3> static_solver(&mesh, &static_pde, &bcc);
+        Vec static_solution = static_solver.Solve();
         ReplicatableVector static_solution_repl(static_solution);
 
         /* We can now compare the solution of the parabolic PDE at t=1 with the static solution,

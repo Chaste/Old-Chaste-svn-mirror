@@ -1,3 +1,4 @@
+
 /*
 
 Copyright (C) University of Oxford, 2005-2010
@@ -26,30 +27,48 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef BIDOMAINWITHBATHASSEMBLER_HPP_
-#define BIDOMAINWITHBATHASSEMBLER_HPP_
 
-#include "BidomainDg0Assembler.hpp"
+#ifndef BIDOMAINASSEMBLER_HPP_
+#define BIDOMAINASSEMBLER_HPP_
+
+#include "AbstractFeObjectAssembler.hpp"
+#include "BidomainPde.hpp"
 #include "HeartConfig.hpp"
 
-// IMPORTANT NOTE: the inheritance of BidomainWithBathAssembler has to be 'virtual'
-// because BidomainDg0Assembler will be the top class in a 'dreaded diamond':
-//      A
-//     / \     A = BidomainDg0Assembler, B = BidomainWithBathAssembler,
-//    B   C    C = BidomainMatrixBasedAssembler, D = BidomainWithBathMatrixBasedAssembler
-//     \ /
-//      D
-//
-// B and C must use virtual inheritence of A in order for D to only contain 1 instance
-// of the member variables in A
-
-/** Assembler for a bidomain simulation with a perfusing bath.
+/**
+ *  Assembler for assembling the LHS matrix and RHS vector of the linear
+ *  systems solved in bidomain problems
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-class BidomainWithBathAssembler
-    : public virtual BidomainDg0Assembler<ELEMENT_DIM, SPACE_DIM>
+class BidomainAssembler : public AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,true,true,CARDIAC>
 {
-public:
+protected:
+    /** The PDE to be solved. */
+    BidomainPde<SPACE_DIM>* mpBidomainPde;
+    /** Local cache of the configuration singleton instance*/
+    HeartConfig* mpConfig;
+    /** Ionic current to be interpolated from cache*/
+    double mIionic;
+    /** Intracellular stimulus to be interpolated from cache*/
+    double mIIntracellularStimulus;
+    /** Extracellular stimulus to be interpolated from cache*/
+    double mIExtracellularStimulus;
+    /** Timestep (used in LHS matrix creation) */
+    double mDt;
+    
+    /**
+     * Overridden ResetInterpolatedQuantities() method.
+     */
+    void ResetInterpolatedQuantities();
+
+    /**
+     * Overridden IncrementInterpolatedQuantities() method.
+     *
+     * @param phiI
+     * @param pNode
+     */
+    void IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode);
+
 
     /**
      * ComputeMatrixTerm()
@@ -73,12 +92,15 @@ public:
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
-     * The term to be added to the element stiffness vector.
+     *  ComputeVectorTerm()
+     *
+     *  This method is called by AssembleOnElement() and tells the assembler
+     *  the contribution to add to the element stiffness vector.
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rGradPhi Basis gradients, rGradPhi(i,j) = d(phi_j)/d(X_i)
      * @param rX The point in space
-     * @param rU The unknown as a vector, u(i) = u_i
+     * @param u The unknown as a vector, u(i) = u_i
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
@@ -86,35 +108,47 @@ public:
         c_vector<double, ELEMENT_DIM+1> &rPhi,
         c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
         ChastePoint<SPACE_DIM> &rX,
-        c_vector<double,2> &rU,
+        c_vector<double,2> &u,
         c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
         Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
-     *  This alters the linear system so that all rows and columns corresponding to
-     *  bath nodes voltages are zero, except for the diagonal (set to 1). The
-     *  corresponding rhs vector entry is also set to 0, so the equation for the
-     *  bath node voltage is 1*V = 0.
+     * ComputeVectorSurfaceTerm()
      *
-     * @param existingSolutionOrGuess voltages (not used)
-     * @param time
-     * @param assembleVector If set, then RHS corresponding to bath nodes are affected as described
-     * @param assembleMatrix If set, then matrix rows corresponding to bath nodes are affected as described
+     * This method is called by AssembleOnSurfaceElement() and tells the
+     * assembler what to add to the element stiffness matrix arising
+     * from surface element contributions.
+     *
+     * @param rSurfaceElement the element which is being considered.
+     * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
+     * @param rX The point in space
      */
-    void FinaliseLinearSystem(Vec existingSolutionOrGuess, double time, bool assembleVector, bool assembleMatrix);
+    virtual c_vector<double, 2*ELEMENT_DIM> ComputeVectorSurfaceTerm(
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+        c_vector<double,ELEMENT_DIM> &rPhi,
+        ChastePoint<SPACE_DIM> &rX);
+
+public:
 
     /**
-     * Constructor calls base constructor and creates and stores rhs-matrix.
+     * Constructor stores the mesh and pde and sets up boundary conditions.
      *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
-     * @param pBcc pointer to the boundary conditions
+     * @param dt timestep 
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    BidomainWithBathAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                              BidomainPde<SPACE_DIM>* pPde,
-                              BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
-                              unsigned numQuadPoints = 2);
+    BidomainAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                      BidomainPde<SPACE_DIM>* pPde,
+                      double dt,
+                      unsigned numQuadPoints = 2);
+
+    /**
+     * Destructor.
+     */
+    ~BidomainAssembler()
+    {
+    }
 };
 
-#endif /*BIDOMAINWITHBATHASSEMBLER_HPP_*/
+#endif /*BIDOMAINASSEMBLER_HPP_*/

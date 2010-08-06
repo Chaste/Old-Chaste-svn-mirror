@@ -41,7 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 // simple assembler which just returns a c_vector of ones for each quad point
 //  => final 'b' vector for each element will be equal to elem_vol*(1,..,1) 
 template<unsigned DIM>
-class BasicVectorAssembler : public AbstractFeObjectAssembler<DIM,DIM,1,true,false> 
+class BasicVectorAssembler : public AbstractFeObjectAssembler<DIM,DIM,1,true,false,NORMAL> 
 {
 private:
     c_vector<double,1*(DIM+1)> ComputeVectorTerm(
@@ -75,7 +75,7 @@ private:
 
 public:
     BasicVectorAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
-        : AbstractFeObjectAssembler<DIM,DIM,1,true,false>(pMesh)
+        : AbstractFeObjectAssembler<DIM,DIM,1,true,false,NORMAL>(pMesh)
     {        
     }
 };
@@ -84,7 +84,7 @@ public:
 // simple assembler which just returns a c_matrix of ones for each quad point
 //  => final 'A' matrix for each element will be equal to elem_vol*(1,..,1) 
 template<unsigned DIM>
-class BasicMatrixAssembler : public AbstractFeObjectAssembler<DIM,DIM,1,false,true> 
+class BasicMatrixAssembler : public AbstractFeObjectAssembler<DIM,DIM,1,false,true,NORMAL> 
 {
 private:
     c_matrix<double,1*(DIM+1),1*(DIM+1)> ComputeMatrixTerm(
@@ -107,7 +107,7 @@ private:
     }
 public:
     BasicMatrixAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
-        : AbstractFeObjectAssembler<DIM,DIM,1,false,true>(pMesh)
+        : AbstractFeObjectAssembler<DIM,DIM,1,false,true,NORMAL>(pMesh)
     {        
     }
 };
@@ -116,7 +116,7 @@ public:
 
 // Assembler which does both of the above 
 template<unsigned DIM>
-class BasicVectorAndMatrixAssembler : public AbstractFeObjectAssembler<DIM,DIM,1,true,true> 
+class BasicVectorAndMatrixAssembler : public AbstractFeObjectAssembler<DIM,DIM,1,true,true,NORMAL> 
 {
 private:
     c_matrix<double,1*(DIM+1),1*(DIM+1)> ComputeMatrixTerm(
@@ -155,16 +155,14 @@ private:
     }
 public:
     BasicVectorAndMatrixAssembler(AbstractTetrahedralMesh<DIM,DIM>* pMesh)
-        : AbstractFeObjectAssembler<DIM,DIM,1,true,true>(pMesh)
+        : AbstractFeObjectAssembler<DIM,DIM,1,true,true,NORMAL>(pMesh)
     {        
     }
 };
 
 
-
-
 // Assembler for checking the current solution is interpolated and passed up into here 
-class TestingAssembler : public AbstractFeObjectAssembler<1,1,1,true,false> 
+class TestingAssembler : public AbstractFeObjectAssembler<1,1,1,true,false,NORMAL> 
 {
 private:
     c_vector<double,1*(1+1)> ComputeVectorTerm(
@@ -181,7 +179,7 @@ private:
     }
 public:
     TestingAssembler(AbstractTetrahedralMesh<1,1>* pMesh)
-        : AbstractFeObjectAssembler<1,1,1,true,false>(pMesh)
+        : AbstractFeObjectAssembler<1,1,1,true,false,NORMAL>(pMesh)
     {        
     }
 };
@@ -252,6 +250,9 @@ public:
         DoTestBasicVectorAssemblers<3>();
     } 
 
+
+
+
     // Test matrix assembly
     // only test the 1d one as here as more difficult to write down correct matrix on paper
     // Tested better with 2d mass matrix below 
@@ -262,7 +263,7 @@ public:
         mesh.ConstructRegularSlabMesh(h, h); // must be one element for this test to work
 
         Mat mat;
-        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), mesh.GetNumNodes()); 
+        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 2); 
         
         BasicMatrixAssembler<1> basic_matrix_assembler_1d(&mesh);
 
@@ -294,7 +295,7 @@ public:
         mesh.ConstructRegularSlabMesh(h, h); // must be one element for this test to work
 
         Mat mat;
-        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), mesh.GetNumNodes()); 
+        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 2); 
 
         Vec vec = PetscTools::CreateVec(mesh.GetNumNodes()); 
         
@@ -444,7 +445,31 @@ public:
             TS_ASSERT_DELTA(vec_repl[i], h*mesh.GetNode(i)->GetNumContainingElements()+offset, 1e-4);
         }
 
+        ////////////////////////////////////////
+        // now test assembling on surface only
+        ////////////////////////////////////////
+        Vec vec2 = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),offset); 
+
+        basic_vector_assembler.SetVectorToAssemble(vec2,true); // don't zero before assembling
+        basic_vector_assembler.SetApplyNeummanBoundaryConditionsToVector(&bcc);
+        basic_vector_assembler.OnlyAssembleOnSurfaceElements();
+        basic_vector_assembler.Assemble();
+   
+        VecAssemblyBegin(vec2);
+        VecAssemblyEnd(vec2);
+
+        ReplicatableVector vec2_repl(vec2);
+
+        TS_ASSERT_DELTA(vec2_repl[0], 1.0, 1e-4); // offset was zeroed away
+        TS_ASSERT_DELTA(vec2_repl[mesh.GetNumNodes()-1], 1.0, 1e-4);
+
+        for(unsigned i=1; i<mesh.GetNumNodes()-1; i++)
+        {
+            TS_ASSERT_DELTA(vec2_repl[i], 0.0, 1e-4);
+        }
+
         VecDestroy(vec);
+        VecDestroy(vec2);
     }
 
     // Test surface element intregral additions in 2d
@@ -493,7 +518,7 @@ public:
         mesh.ConstructRegularSlabMesh(h, 0.5); 
 
         Mat mat;
-        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), mesh.GetNumNodes()); 
+        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 3); 
         
         MassMatrixAssembler<1,1> assembler(&mesh);
 
@@ -575,7 +600,7 @@ public:
         mesh.ConstructFromMeshReader(reader);
 
         Mat mat;
-        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), mesh.GetNumNodes()); 
+        PetscTools::SetupMat(mat, mesh.GetNumNodes(), mesh.GetNumNodes(), 4); 
         
         double scale_factor = 2.464525345;
         MassMatrixAssembler<2,2> assembler(&mesh, scale_factor);

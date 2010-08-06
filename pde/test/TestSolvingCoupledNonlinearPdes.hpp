@@ -28,45 +28,40 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTSOLVINGCOUPLEDNONLINEARPDES_HPP_
 #define TESTSOLVINGCOUPLEDNONLINEARPDES_HPP_
 
-
 #include <cxxtest/TestSuite.h>
 #include "TetrahedralMesh.hpp"
 #include <petsc.h>
 #include <vector>
 #include <cmath>
 #include "PetscSetupAndFinalize.hpp"
-#include "SimpleNonlinearEllipticAssembler.hpp"
+#include "SimpleNonlinearEllipticSolver.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
 #include "TrianglesMeshReader.hpp"
-#include "AbstractNonlinearAssembler.hpp"
-#include "AbstractNonlinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"
 #include "NonlinearEquationPde.hpp"
 #include "SimpleNewtonNonlinearSolver.hpp"
 
 
-
-
 //////////////////////////////////////////////////////////////////////////////
-// an assembler to solve the 'coupled' 2-unknown problem
+// a solver to solve the 'coupled' 2-unknown problem
 //    div.(u grad u) + 1  = 0
 //    div.(v grav v) + lambda  = 0
 //
-//   \lambda is taken in in the constructor
+//   lambda is taken in in the constructor
 //////////////////////////////////////////////////////////////////////////////
 template <int DIM>
-class MySimpleNonlinearCoupledAssembler : public AbstractNonlinearAssembler<DIM,DIM,2,MySimpleNonlinearCoupledAssembler<DIM> >
+class MySimpleNonlinearCoupledAssembler : public AbstractNonlinearAssemblerSolverHybrid<DIM,DIM,2>//,MySimpleNonlinearCoupledAssembler<DIM> >
 {
 public:
-    static const unsigned E_DIM = DIM;
-    static const unsigned S_DIM = DIM;
-    static const unsigned P_DIM = 2u;
+//    static const unsigned E_DIM = DIM;
+//    static const unsigned S_DIM = DIM;
+//    static const unsigned P_DIM = 2u;
 
 private:
-    typedef MySimpleNonlinearCoupledAssembler<DIM> SelfType;
-    typedef AbstractNonlinearAssembler<DIM,DIM,2,SelfType> BaseClassType;
-    friend class AbstractStaticAssembler<DIM,DIM,2,true,SelfType>;
+//    typedef MySimpleNonlinearCoupledAssembler<DIM> SelfType;
+//    typedef AbstractNonlinearAssembler<DIM,DIM,2,SelfType> BaseClassType;
+//    friend class AbstractStaticAssembler<DIM,DIM,2,true,SelfType>;
 
     double mLambda;
     virtual c_matrix<double,2*(DIM+1),2*(DIM+1) > ComputeMatrixTerm(c_vector<double, DIM+1>& rPhi,
@@ -142,33 +137,30 @@ public:
     MySimpleNonlinearCoupledAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
                                       BoundaryConditionsContainer<DIM,DIM,2>* pBoundaryConditions,
                                       double lambda)
-            :  BaseClassType()
+        : AbstractNonlinearAssemblerSolverHybrid<DIM,DIM,2>(pMesh,pBoundaryConditions)
     {
-        this->mpMesh = pMesh;
-        this->mpBoundaryConditions = pBoundaryConditions;
-
         mLambda = lambda;
     }
 };
 
 
 /////////////////////////////////////////////////////////////////////////////////
-// an assembler to solve the coupled 2-unknown problem
+// a solver to solve the coupled 2-unknown problem
 //    div.(v gradu) = f(x,y)
 //    div.(u gradv) = g(x,y)
 //
 // where f and g (and boundary conditions) are chosen such that the solution is
 //    u = x^2,  v = y
 //////////////////////////////////////////////////////////////////////////////////
-class AnotherCoupledNonlinearAssembler : public AbstractNonlinearAssembler<2,2,2,AnotherCoupledNonlinearAssembler>
+class AnotherCoupledNonlinearAssembler :  public AbstractNonlinearAssemblerSolverHybrid<2,2,2> //AnotherCoupledNonlinearAssembler>
 {
 public:
-    static const unsigned E_DIM = 2u;
-    static const unsigned S_DIM = 2u;
-    static const unsigned P_DIM = 2u;
-
-    typedef AbstractNonlinearAssembler<2,2,2,AnotherCoupledNonlinearAssembler> BaseClassType;
-    friend class AbstractStaticAssembler<2,2,2,true,AnotherCoupledNonlinearAssembler>;
+//    static const unsigned E_DIM = 2u;
+//    static const unsigned S_DIM = 2u;
+//    static const unsigned P_DIM = 2u;
+//
+//    typedef AbstractNonlinearAssembler<2,2,2,AnotherCoupledNonlinearAssembler> BaseClassType;
+//    friend class AbstractStaticAssembler<2,2,2,true,AnotherCoupledNonlinearAssembler>;
 
 private:
     double f(double x,double y)
@@ -232,22 +224,13 @@ private:
     }
 
 
-    // not used
-    virtual c_vector<double, 2*2> ComputeVectorSurfaceTerm(const BoundaryElement<2-1,2>& rSurfaceElement, c_vector<double,2>& rPhi, ChastePoint<2>& rX)
-    {
-        NEVER_REACHED;
-        return zero_vector<double>(2*2);
-    }
-
 
 
 public :
     AnotherCoupledNonlinearAssembler(TetrahedralMesh<2,2>* pMesh,
                                      BoundaryConditionsContainer<2,2,2>* pBoundaryConditions)
-            :  BaseClassType()
+        : AbstractNonlinearAssemblerSolverHybrid<2,2,2>(pMesh,pBoundaryConditions)
     {
-        this->mpMesh = pMesh;
-        this->mpBoundaryConditions = pBoundaryConditions;
     }
 };
 
@@ -284,7 +267,7 @@ private :
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ////////////////////////////////////////////////////////////////
-        // Solve coupled system using assembler defined above
+        // Solve coupled system using solver defined above
         ////////////////////////////////////////////////////////////////
 
         // boundary conditions for 2-unknown problem
@@ -293,9 +276,9 @@ private :
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
 
         // for comparing residuals
-        MySimpleNonlinearCoupledAssembler<DIM> assembler_lam_1(&mesh,&bcc,1);
+        MySimpleNonlinearCoupledAssembler<DIM> solver_lam_1(&mesh,&bcc,1);
         // for comparing solutions
-        MySimpleNonlinearCoupledAssembler<DIM> assembler(&mesh,&bcc,4);
+        MySimpleNonlinearCoupledAssembler<DIM> solver(&mesh,&bcc,4);
 
 
         ////////////////////////////////////////////
@@ -303,17 +286,12 @@ private :
         ////////////////////////////////////////////
 
         // initialize 'solution' vector
-        Vec guess = assembler.CreateConstantInitialGuess(1);
-        Vec residual;
-        VecDuplicate(guess, &residual);
-
-        assembler_lam_1.AssembleResidual(guess, residual);
-        ReplicatableVector residual_repl(residual);
+        Vec guess = PetscTools::CreateAndSetVec(2*mesh.GetNumNodes(), 1.0);
 
         /////////////////////////////////////////////
         // solve as well
         /////////////////////////////////////////////
-        Vec result = assembler.Solve(guess, true);
+        Vec result = solver.Solve(guess, true);
         ReplicatableVector result_repl(result);
 
 
@@ -329,22 +307,17 @@ private :
         bcc_1unknown.DefineZeroDirichletOnMeshBoundary(&mesh);
 
         // Assembler
-        SimpleNonlinearEllipticAssembler<DIM,DIM> assembler_1unknown(&mesh,&pde,&bcc_1unknown);
+        SimpleNonlinearEllipticSolver<DIM,DIM> solver_1unknown(&mesh,&pde,&bcc_1unknown);
 
         ////////////////////////////////////////////
         // store residual
         ////////////////////////////////////////////
-        Vec guess_1unknown = assembler_1unknown.CreateConstantInitialGuess(1.0);
-        Vec residual_1unknown;
-        VecDuplicate(guess_1unknown, &residual_1unknown);
-
-        assembler_1unknown.AssembleResidual(guess_1unknown, residual_1unknown);
-        ReplicatableVector residual_1unknown_repl(residual_1unknown);
+        Vec guess_1unknown = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), 1.0);
 
         /////////////////////////////////////////////
         // solve as well
         /////////////////////////////////////////////
-        Vec result_1unknown = assembler_1unknown.Solve(guess_1unknown, true);
+        Vec result_1unknown = solver_1unknown.Solve(guess_1unknown, true);
         ReplicatableVector result_1unknown_repl(result_1unknown);
 
 
@@ -357,11 +330,6 @@ private :
         //////////////////////////////////////////////////////////////////////////
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            // note the residuals were from a different problem when lambda = 1, so
-            // should agree
-            TS_ASSERT_DELTA(residual_repl[2*i],   residual_1unknown_repl[i], 1e-10);
-            TS_ASSERT_DELTA(residual_repl[2*i+1], residual_1unknown_repl[i], 1e-10);
-
             TS_ASSERT_DELTA(result_repl[2*i],   result_1unknown_repl[i], 1e-4);
             TS_ASSERT_DELTA(result_repl[2*i+1], 2*result_1unknown_repl[i], 1e-4);
         }
@@ -409,7 +377,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ////////////////////////////////////////////////////////////////
-        // Solve coupled system using assembler defined above
+        // Solve coupled system using solver defined above
         ////////////////////////////////////////////////////////////////
 
         // boundary conditions for 2-unknown problem
@@ -432,10 +400,10 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition,0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition1,1);
 
-        // use assembler to solve (with lambda = 1)
-        MySimpleNonlinearCoupledAssembler<2> assembler(&mesh,&bcc,1.0);
+        // use solver to solve (with lambda = 1)
+        MySimpleNonlinearCoupledAssembler<2> solver(&mesh,&bcc,1.0);
 
-        Vec result = assembler.Solve(assembler.CreateConstantInitialGuess(1.0),true);
+        Vec result = solver.Solve(PetscTools::CreateAndSetVec(2*mesh.GetNumNodes(),1.0),true);
         ReplicatableVector result_repl(result);
 
 
@@ -461,9 +429,9 @@ public:
         bcc_1unknown.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
 
         // Assembler
-        SimpleNonlinearEllipticAssembler<2,2> assembler_1unknown(&mesh,&pde,&bcc_1unknown);
+        SimpleNonlinearEllipticSolver<2,2> solver_1unknown(&mesh,&pde,&bcc_1unknown);
 
-        Vec result_1unknown = assembler_1unknown.Solve(assembler_1unknown.CreateConstantInitialGuess(1.0), true);
+        Vec result_1unknown = solver_1unknown.Solve(PetscTools::CreateAndSetVec(mesh.GetNumNodes(),1.0), true);
         ReplicatableVector result_1unknown_repl(result_1unknown);
 
         // check the u solutions (result_repl[2*i]) is equal to the
@@ -520,22 +488,22 @@ public:
         }
 
 
-        // purpose-made assembler for this problem:
-        AnotherCoupledNonlinearAssembler assembler(&mesh,&bcc);
+        // purpose-made solver for this problem:
+        AnotherCoupledNonlinearAssembler solver(&mesh,&bcc);
 
         // use the newton solver (for coverage)
         SimpleNewtonNonlinearSolver newton_solver;
         newton_solver.SetTolerance(1e-10);
         newton_solver.SetWriteStats();
-        assembler.SetNonlinearSolver(&newton_solver);
+        solver.SetNonlinearSolver(&newton_solver);
 
         //// uncomment this to check whether ComputeMatrixTerm has been coded up correctly
         //// (by seeing whether the resulting analytic jacobian matches the numerical one).
-        //assert( assembler.VerifyJacobian() );
+        //assert( solver.VerifyJacobian() );
 
         // IMPORTANT NOTE: both the petsc nonlinear solver and the Newton solver will FAIL
         // if an initial guess of zeroes is given.
-        Vec result = assembler.Solve( assembler.CreateConstantInitialGuess(1.0), false);
+        Vec result = solver.Solve( PetscTools::CreateAndSetVec(2*mesh.GetNumNodes(),1.0), false);
 
         int size;
         VecGetSize(result,&size);

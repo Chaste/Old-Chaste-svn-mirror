@@ -70,8 +70,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ConstBoundaryCondition.hpp"
 #include "OutputFileHandler.hpp"
 #include "PetscSetupAndFinalize.hpp"
-/* This is the assembler for nonlinear elliptic PDEs */
-#include "SimpleNonlinearEllipticAssembler.hpp"
+/* This is the solver for nonlinear elliptic PDEs */
+#include "SimpleNonlinearEllipticSolver.hpp"
 /* In this test we also show how to define Neumman boundary conditions which
  * depend on spatial location, for which the following class is needed */
 #include "FunctionalBoundaryCondition.hpp"
@@ -204,34 +204,33 @@ public:
          *
          * EMPTYLINE
          *
-         * This is the assembler for solving nonlinear problems, which, as usual,
+         * This is the solver for solving nonlinear problems, which, as usual,
          * takes in the mesh, the PDE, and the boundary conditions */
-        SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
+        SimpleNonlinearEllipticSolver<2,2> solver(&mesh, &pde, &bcc);
 
-        /* The assembler also needs to be given an initial guess, which will be
-         * a Petsc vector. We can make use of a helper method to create it. (We
-         * could also have used the {{{PetscTools}}} class as in the previous
-         * tutorial) */
-        Vec initial_guess = assembler.CreateConstantInitialGuess(0.25);
+        /* The solver also needs to be given an initial guess, which will be
+         * a Petsc vector. We can make use of a helper method to create it. 
+         */
+        Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), 0.25);
 
         /* '''Optional:''' To use Chaste's Newton solver to solve nonlinear vector equations that are
          * assembled, rather than the default Petsc nonlinear solvers, we can
          * do the following: */
         SimpleNewtonNonlinearSolver newton_solver;
-        assembler.SetNonlinearSolver(&newton_solver);
+        solver.SetNonlinearSolver(&newton_solver);
         /* '''Optional:''' We can also manually set tolerances, and whether to print statistics, with
          * this nonlinear vector equation solver */
         newton_solver.SetTolerance(1e-10);
         newton_solver.SetWriteStats();
 
         /* Now call {{{Solve}}}, passing in the initial guess */
-        Vec answer = assembler.Solve(initial_guess);
+        Vec answer = solver.Solve(initial_guess);
 
-        /* Note that we could have got the assembler to not use an analytical Jacobian
+        /* Note that we could have got the solver to not use an analytical Jacobian
          * and use a numerically-calculated Jacobian instead, by passing in false as a second
          * parameter
          */
-        //Vec answer = assembler.Solve(initial_guess, false);
+        //Vec answer = solver.Solve(initial_guess, false);
 
 
         /* Once solved, we can check the obtained solution against the analytical

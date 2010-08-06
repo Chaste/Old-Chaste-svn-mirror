@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTASSEMBLER_HPP_
 #define _ABSTRACTASSEMBLER_HPP_
 
+
 #include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "BoundaryConditionsContainer.hpp"

@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCell.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractCardiacPde.hpp"
-#include "AbstractDynamicAssemblerMixin.hpp"
+#include "AbstractDynamicLinearPdeSolver.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "DistributedVectorFactory.hpp"
 #include "Hdf5DataReader.hpp"
@@ -334,7 +334,7 @@ protected:
     /** It is convenient to also have a separate variable for default (zero-Neumann) boundary conditions */
     BccType mpDefaultBoundaryConditionsContainer;
     /** The PDE solver */
-    AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
+    AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* mpAssembler;
     /** The cell factory creates the cells for each node */
     AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* mpCellFactory;
     /** The mesh. Can either by passed in, or the mesh filename can be set */
@@ -365,7 +365,7 @@ protected:
      *
      * This class will take responsibility for freeing the object when it is finished with.
      */
-    virtual AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
+    virtual AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* CreateAssembler() =0;
 
 protected:
 	/**

@@ -37,7 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BidomainProblem.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include "BidomainWithBathAssembler.hpp"
 #include "TetrahedralMesh.hpp"
 #include "DistributedTetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -46,11 +45,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartRegionCodes.hpp"
 #include "Timer.hpp"
 #include "ZeroStimulusCellFactory.hpp"
-
 #include "PetscSetupAndFinalize.hpp"
 #include "SimpleBathProblemSetup.hpp"
-
-typedef BidomainWithBathAssembler<1,1> ASSEMBLER_1D;
+#include "BidomainSolver.hpp"
 
 
 class TestBidomainWithBathAssembler : public CxxTest::TestSuite
@@ -79,13 +76,13 @@ public:
         BoundaryConditionsContainer<1,1,2> bcc;
 
         // Create the bidomain with bath assembler.
-        BidomainWithBathAssembler<1,1> assembler(p_mesh, p_pde, &bcc);
+        BidomainSolver<1,1> assembler(true, p_mesh, p_pde, &bcc);
 
         // the middle 4 elements are 'heart' elements (ie region=0),
         // so the middle 5 nodes should be heart nodes
         unsigned expected_node_regions[11]={ HeartRegionCode::BATH, HeartRegionCode::BATH, HeartRegionCode::BATH,
-                                      HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE,
-                                      HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
+                                             HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE, HeartRegionCode::TISSUE,
+                                             HeartRegionCode::BATH,HeartRegionCode::BATH,HeartRegionCode::BATH};
         for (unsigned i=0; i<11; i++)
         {
             if (p_mesh->GetDistributedVectorFactory()->IsGlobalIndexLocal(i))

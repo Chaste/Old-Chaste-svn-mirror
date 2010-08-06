@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 #include "ReplicatableVector.hpp"
-#include "MonodomainDg0Assembler.hpp"
-#include "MonodomainMatrixBasedAssembler.hpp"
+#include "MonodomainSolver.hpp"
+#include "SimpleMonodomainSolver.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateCardiacPde()
@@ -41,7 +41,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* MonodomainProblem<ELEMENT_DIM, SPACE_
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateAssembler()
+AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateAssembler()
 {
     assert(mpMonodomainPde);
     /*
@@ -70,8 +70,8 @@ AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM
      
     if(!this->mUseMatrixBasedRhsAssembly)
     {
-        MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainDg0Assembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+        SimpleMonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_assembler
+          = new SimpleMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
                                                               mpMonodomainPde,
                                                               this->mpBoundaryConditionsContainer.get(),
                                                               2);
@@ -79,11 +79,11 @@ AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEM
     }
     else
     {
-        MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>* p_assembler
-          = new MonodomainMatrixBasedAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                                      mpMonodomainPde,
-                                                                      this->mpBoundaryConditionsContainer.get(),
-                                                                      2);
+        MonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_assembler
+          = new MonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
+                                                        mpMonodomainPde,
+                                                        this->mpBoundaryConditionsContainer.get(),
+                                                        2);
         return p_assembler;
     }
 }

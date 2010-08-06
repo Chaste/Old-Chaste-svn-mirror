@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacProblem.hpp"
 #include "AbstractCardiacPde.hpp"
-#include "AbstractDynamicAssemblerMixin.hpp"
+#include "AbstractDynamicLinearPdeSolver.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "MonodomainPde.hpp"
 
@@ -70,7 +70,7 @@ public:
     AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM>* CreateCardiacPde();
 
     /** Create an suitable assembler for monodomain problems */
-    AbstractDynamicAssemblerMixin<ELEMENT_DIM, SPACE_DIM, 1>* CreateAssembler();
+    AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* CreateAssembler();
 
 public:
     /**

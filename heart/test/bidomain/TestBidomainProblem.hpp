@@ -44,14 +44,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PlaneStimulusCellFactory.hpp"
 #include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
-#include "BidomainDg0Assembler.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ArchiveOpener.hpp"
 #include "CmguiMeshWriter.hpp"
 #include "FileFinder.hpp"
 #include "OutputFileHandler.hpp"
 #include "MemfemMeshReader.hpp"
-
+#include "BidomainSolver.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 #include "NumericFileComparison.hpp"
 
@@ -301,19 +300,16 @@ public:
         }
 
         // Coverage of the exception in the assembler itself
-        BoundaryConditionsContainer<1, 1, 2>* p_container = new BoundaryConditionsContainer<1, 1, 2>;
+        BoundaryConditionsContainer<1,1,2> container;
 
-        BidomainDg0Assembler<1,1>* p_bidomain_assembler
-                = new BidomainDg0Assembler<1,1>(&bidomain_problem.rGetMesh(),
-                            bidomain_problem.GetBidomainPde(),
-                            p_container,
-                            2);
+        BidomainSolver<1,1> bidomain_solver(false,
+                                            &bidomain_problem.rGetMesh(),
+                                            bidomain_problem.GetBidomainPde(),
+                                            &container);
 
-        TS_ASSERT_THROWS_THIS(p_bidomain_assembler->SetRowForAverageOfPhiZeroed(0),
+        TS_ASSERT_THROWS_THIS(bidomain_solver.SetRowForAverageOfPhiZeroed(0),
                 "Row for applying the constraint \'Average of phi_e = zero\' should be odd in C++ like indexing");
 
-        delete p_container;
-        delete p_bidomain_assembler;
         HeartEventHandler::Enable();
     }
 

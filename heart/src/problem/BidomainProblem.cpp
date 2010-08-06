@@ -28,10 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "BidomainProblem.hpp"
-#include "BidomainDg0Assembler.hpp"
-#include "BidomainMatrixBasedAssembler.hpp"
-#include "BidomainWithBathAssembler.hpp"
-#include "BidomainWithBathMatrixBasedAssembler.hpp"
+#include "SimpleBidomainSolver.hpp"
+#include "BidomainSolver.hpp"
 #include "HeartConfig.hpp"
 #include "Exception.hpp"
 #include "DistributedVector.hpp"
@@ -117,7 +115,7 @@ AbstractCardiacPde<DIM> * BidomainProblem<DIM>::CreateCardiacPde()
 }
 
 template<unsigned DIM>
-AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssembler()
+AbstractDynamicLinearPdeSolver<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssembler()
 {
     /*
      * NOTE: The this->mpBoundaryConditionsContainer.get() lines below convert a
@@ -128,44 +126,21 @@ AbstractDynamicAssemblerMixin<DIM, DIM, 2>* BidomainProblem<DIM>::CreateAssemble
      * As long as they are kept as member variables here for as long as they are
      * required in the assemblers it should all work OK.
      */
-    if (mHasBath)
+    if (!this->mUseMatrixBasedRhsAssembly)
     {
-        if (!this->mUseMatrixBasedRhsAssembly)
-        {
-            mpAssembler
-                = new BidomainWithBathAssembler<DIM,DIM>(this->mpMesh,
-                                                         mpBidomainPde,
-                                                         this->mpBoundaryConditionsContainer.get(),
-                                                         2);
-        }
-        else
-        {
-            mpAssembler
-                = new BidomainWithBathMatrixBasedAssembler<DIM,DIM>(this->mpMesh,
-                                                            mpBidomainPde,
-                                                            this->mpBoundaryConditionsContainer.get(),
-                                                            2);
-        }
-
+        mpAssembler = new SimpleBidomainSolver<DIM,DIM>(mHasBath, 
+                                                        this->mpMesh,
+                                                        mpBidomainPde,
+                                                        this->mpBoundaryConditionsContainer.get(),
+                                                        2);
     }
     else
     {
-        if (!this->mUseMatrixBasedRhsAssembly)
-        {
-            mpAssembler
-                = new BidomainDg0Assembler<DIM,DIM>(this->mpMesh,
-                                                    mpBidomainPde,
-                                                    this->mpBoundaryConditionsContainer.get(),
-                                                    2);
-        }
-        else
-        {
-            mpAssembler
-                = new BidomainMatrixBasedAssembler<DIM,DIM>(this->mpMesh,
-                                                            mpBidomainPde,
-                                                            this->mpBoundaryConditionsContainer.get(),
-                                                            2);
-        }
+        mpAssembler = new BidomainSolver<DIM,DIM>(mHasBath, 
+                                                  this->mpMesh,
+                                                  mpBidomainPde,
+                                                  this->mpBoundaryConditionsContainer.get(),
+                                                  2);
     }
 
     try
@@ -323,7 +298,7 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
 
         // Note, no point calling this->SetBoundaryConditionsContainer() as the
         // assembler has already been created..
-        mpAssembler->SetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer().get());
+        mpAssembler->ResetBoundaryConditionsContainer(mpElectrodes->GetBoundaryConditionsContainer().get());
 
         // ..but we set mpBcc anyway, so the local mpBcc is
         // the same as the one being used in the assembler...
@@ -381,7 +356,7 @@ void BidomainProblem<DIM>::OnEndOfTimestep(double time)
 
         // Note, no point calling this->SetBoundaryConditionsContainer() as the
         // assembler has already been created..
-        mpAssembler->SetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer.get());
+        mpAssembler->ResetBoundaryConditionsContainer(this->mpDefaultBoundaryConditionsContainer.get());
         // ..but we set mpBcc to be mpDefaultBcc anyway, so the local mpBcc is
         // the same as the one being used in the assembler...
         this->mpBoundaryConditionsContainer = this->mpDefaultBoundaryConditionsContainer;

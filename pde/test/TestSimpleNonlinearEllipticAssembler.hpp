@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 //#include <iostream>
 
-#include "SimpleNonlinearEllipticAssembler.hpp"
+#include "SimpleNonlinearEllipticSolver.hpp"
 #include "SimplePetscNonlinearSolver.hpp"
 
 #include "BoundaryConditionsContainer.hpp"
@@ -56,15 +56,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "PetscTools.hpp"
 
+
+
+
 /**
- * For use in TestSimpleNonlinearEllipticAssembler::Test2dOnUnitSquare.
+ * For use in TestSimpleNonlinearEllipticSolver::Test2dOnUnitSquare.
  */
 double bc_x1_func(const ChastePoint<2>& p)
 {
     return 2*(2+p[1]*p[1]);
 }
 /**
- * For use in TestSimpleNonlinearEllipticAssembler::Test2dOnUnitSquare.
+ * For use in TestSimpleNonlinearEllipticSolver::Test2dOnUnitSquare.
  */
 double bc_y1_func(const ChastePoint<2>& p)
 {
@@ -72,14 +75,14 @@ double bc_y1_func(const ChastePoint<2>& p)
 }
 
 /**
- * For use in TestSimpleNonlinearEllipticAssembler::TestNasty2dEquationOnUnitSquare.
+ * For use in TestSimpleNonlinearEllipticSolver::TestNasty2dEquationOnUnitSquare.
  */
 double bc_x1_func2(const ChastePoint<2>& p)
 {
     return sin(2)*(sin(1)*sin(1)+1+p[1]*p[1]);
 }
 /**
- * For use in TestSimpleNonlinearEllipticAssembler::TestNasty2dEquationOnUnitSquare.
+ * For use in TestSimpleNonlinearEllipticSolver::TestNasty2dEquationOnUnitSquare.
  */
 double bc_y1_func2(const ChastePoint<2>& p)
 {
@@ -87,7 +90,7 @@ double bc_y1_func2(const ChastePoint<2>& p)
 }
 
 /**
- * For use in TestSimpleNonlinearEllipticAssembler::TestWithHeatEquation2DAndNeumannBCs
+ * For use in TestSimpleNonlinearEllipticSolver::TestWithHeatEquation2DAndNeumannBCs
  */
 double one_bc(const ChastePoint<2>& p)
 {
@@ -95,62 +98,11 @@ double one_bc(const ChastePoint<2>& p)
 }
 
 
-class TestSimpleNonlinearEllipticAssembler : public CxxTest::TestSuite
+class TestSimpleNonlinearEllipticSolver : public CxxTest::TestSuite
 {
 public:
-    void TestAssembleResidual()
-    {
-        // Create mesh from mesh reader
-        TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/practical1_1d_mesh");
-        TetrahedralMesh<1,1> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        // Boundary conditions
-        BoundaryConditionsContainer<1,1,1> bcc;
-        //Adding Dirichlet BC at node 0
-        double DirichletBCValue = 5.0;
-        ConstBoundaryCondition<1>* pBoundaryCondition = new ConstBoundaryCondition<1>(DirichletBCValue);
-        bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), pBoundaryCondition);
-
-        // adding von Neumann BC at the last node
-        double VonNeumannBCValue = 9.0;
-        ConstBoundaryCondition<1>* pBoundaryCondition1 = new ConstBoundaryCondition<1>(VonNeumannBCValue);
-        TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorEnd();
-        iter--; // to be consistent with c++ :))), GetBoundaryElementIteratorEnd points to one element passed it
-        bcc.AddNeumannBoundaryCondition(*iter,pBoundaryCondition1);
-
-        // initialize 'solution' vector
-        double initial_guess_value = 1.0;
-        double h = 0.01;
-        Vec solution = PetscTools::CreateAndSetVec(mesh.GetNumNodes(), initial_guess_value);
-
-        NonlinearEquationPde<1> pde;
-        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-
-        Vec residual;
-        VecDuplicate(solution, &residual);
-
-        assembler.PrepareForSolve();
-        assembler.AssembleResidual(solution, residual);
-
-        ReplicatableVector residual_repl(residual);
-        TS_ASSERT(fabs(residual_repl[0] + DirichletBCValue - initial_guess_value) < 0.001);
-        TS_ASSERT(fabs(residual_repl[1] + h) < 0.001);
-        TS_ASSERT(fabs(residual_repl[mesh.GetNumNodes()-1] + VonNeumannBCValue + h/2) < 0.001);
-
-        VecDestroy(residual);
-        VecDestroy(solution);
-    }
-
     void TestNumericalAgainstAnalyticJacobian()
     {
-        const PetscInt n = 11;  // Mesh size
-        Mat numerical_jacobian;
-        PetscTools::SetupMat(numerical_jacobian, n, n, n);
-
-        Mat analytic_jacobian;
-        PetscTools::SetupMat(analytic_jacobian,  n, n, n);
-
         // Create mesh from mesh reader
         TrianglesMeshReader<1,1> mesh_reader("mesh/test/data/1D_0_to_1_10_elements");
         TetrahedralMesh<1,1> mesh;
@@ -165,68 +117,10 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
 
+        // solver
+        SimpleNonlinearEllipticSolver<1,1> solver(&mesh, &pde, &bcc);
 
-        // assembler
-        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
-        assembler.PrepareForSolve();
-
-        // cover VerifyJacobian
-        TS_ASSERT( assembler.VerifyJacobian(1e-3) );
-
-        // Set up initial solution guess for residuals
-        std::vector<double> init_guess(mesh.GetNumNodes());
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            init_guess[i] = -0.01*i*i;
-        }
-        Vec initial_guess = PetscTools::CreateVec(init_guess);
-
-
-        int errcode = assembler.AssembleJacobianNumerically(initial_guess, &numerical_jacobian);
-        TS_ASSERT_EQUALS(errcode, 0);
-
-        assembler.mUseAnalyticalJacobian = true; // can access the member variable as this class is a friend
-        errcode = assembler.AssembleJacobian(initial_guess, &analytic_jacobian);
-
-        TS_ASSERT_EQUALS(errcode, 0);
-        MatAssemblyBegin(numerical_jacobian, MAT_FINAL_ASSEMBLY);
-        MatAssemblyEnd(numerical_jacobian, MAT_FINAL_ASSEMBLY);
-        MatAssemblyBegin(analytic_jacobian, MAT_FINAL_ASSEMBLY);
-        MatAssemblyEnd(analytic_jacobian, MAT_FINAL_ASSEMBLY);
-
-        //TS_TRACE("Numerical:");
-        //MatView(numerical_jacobian, 0);
-        //TS_TRACE("Analytical:");
-        //MatView(analytic_jacobian, 0);
-
-        PetscScalar numerical_array[n*n], analytic_array[n*n];
-        PetscInt row_ids[n], col_ids[n];
-        int lo, hi;
-        MatGetOwnershipRange(numerical_jacobian, &lo, &hi);
-        for (int global_index = lo; global_index < hi; global_index++)
-        {
-            int local_index = global_index - lo;
-            row_ids[local_index] = global_index;
-        }
-        for (int i=0; i<n; i++)
-        {
-            col_ids[i] = i;
-        }
-
-        // Check matrices are the same, to within numerical error tolerance
-        MatGetValues(numerical_jacobian, hi-lo, row_ids, n, col_ids, numerical_array);
-        MatGetValues(analytic_jacobian, hi-lo, row_ids, n, col_ids, analytic_array);
-        for (int local_index=0; local_index<hi-lo; local_index++)
-        {
-            for (int j=0; j<n; j++)
-            {
-                TS_ASSERT_DELTA(numerical_array[local_index*n+j],
-                                analytic_array[local_index*n+j], 0.001);
-            }
-        }
-        VecDestroy(initial_guess);
-        MatDestroy(numerical_jacobian);
-        MatDestroy(analytic_jacobian);
+        TS_ASSERT( solver.VerifyJacobian(1e-3) );
     }
 
     void TestWithHeatEquation1D()
@@ -245,12 +139,13 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(0), p_boundary_condition);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
 
-        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+        SimpleNonlinearEllipticSolver<1,1> solver(&mesh, &pde, &bcc);
+
 
         // Set up initial guess
         Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),1.0);
 
-        Vec answer = assembler.Solve(initial_guess, true);
+        Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
         // Check result
@@ -286,17 +181,14 @@ public:
         iter--;
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
 
-        // Nonlinear assembler to use
-        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+        // Nonlinear solver to use
+        SimpleNonlinearEllipticSolver<1,1> solver(&mesh, &pde, &bcc, 3);
 
         // Set up initial Guess
-        Vec initial_guess = assembler.CreateConstantInitialGuess(0.25);
-
-        // Set no. of gauss points to use
-        assembler.SetNumberOfQuadraturePointsPerDimension(3);
+        Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),0.25);
 
         // Solve the PDE
-        Vec answer = assembler.Solve(initial_guess, true);
+        Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
         // Check result
@@ -328,7 +220,7 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<1>(exp(1.0));
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
 
-        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+        SimpleNonlinearEllipticSolver<1,1> solver(&mesh, &pde, &bcc);
 
         // Set up initial Guess
         std::vector<double> init_guess(mesh.GetNumNodes());
@@ -338,7 +230,7 @@ public:
         }
         Vec initial_guess = PetscTools::CreateVec(init_guess);
 
-        Vec answer = assembler.Solve(initial_guess, true);
+        Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
         // Check result
@@ -370,7 +262,7 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<1>(0.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(10), p_boundary_condition);
 
-        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc,3);
+        SimpleNonlinearEllipticSolver<1,1> solver(&mesh, &pde, &bcc,3);
 
         // Set up initial Guess
         Vec initial_guess = PetscTools::CreateVec(mesh.GetNumNodes());
@@ -381,7 +273,7 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
 
-        Vec answer = assembler.Solve(initial_guess, true);
+        Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
         // Check result
@@ -416,7 +308,7 @@ public:
         TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
 
-        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+        SimpleNonlinearEllipticSolver<1,1> solver(&mesh, &pde, &bcc);
 
         // Set up initial Guess
         std::vector<double> init_guess(mesh.GetNumNodes());
@@ -427,7 +319,7 @@ public:
         }
         Vec initial_guess = PetscTools::CreateVec(init_guess);
 
-        Vec answer = assembler.Solve(initial_guess, true);
+        Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
         // Check result
@@ -464,7 +356,7 @@ public:
         TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
 
-        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+        SimpleNonlinearEllipticSolver<1,1> solver(&mesh, &pde, &bcc);
 
         // Set up initial Guess
         Vec initial_guess = PetscTools::CreateVec(mesh.GetNumNodes());
@@ -477,7 +369,7 @@ public:
         VecAssemblyBegin(initial_guess);
         VecAssemblyEnd(initial_guess);
 
-        Vec answer = assembler.Solve(initial_guess, true);
+        Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
         // Check result
@@ -514,19 +406,19 @@ public:
         TetrahedralMesh<1,1>::BoundaryElementIterator iter = mesh.GetBoundaryElementIteratorBegin();
         bcc.AddNeumannBoundaryCondition(*iter, p_boundary_condition);
 
-        SimpleNonlinearEllipticAssembler<1,1> assembler(&mesh, &pde, &bcc);
+        SimpleNonlinearEllipticSolver<1,1> solver(&mesh, &pde, &bcc);
 
         // cover the bad size exception
         Vec badly_sized_init_guess = PetscTools::CreateAndSetVec(1,1.0); // size=1
-        TS_ASSERT_THROWS_THIS( assembler.Solve(badly_sized_init_guess, true),
+        TS_ASSERT_THROWS_THIS( solver.Solve(badly_sized_init_guess, true),
                 "Size of initial guess vector, 1, does not match size of problem, 11" );
 
         // Set up initial Guess
-        Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);
+        Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),1.0);
 
         // This problem seems unusally sensitive to the initial guess. Various other
         // choices failed to converge.
-        Vec answer = assembler.Solve(initial_guess, true);
+        Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
         for (unsigned i=0; i<answer_repl.GetSize(); i++)
@@ -566,12 +458,12 @@ public:
         p_boundary_condition = new ConstBoundaryCondition<2>(2.0);
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
 
-        SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
+        SimpleNonlinearEllipticSolver<2,2> solver(&mesh, &pde, &bcc);
 
         // Set up initial Guess
-        Vec initial_guess = assembler.CreateConstantInitialGuess(1.0);
+        Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),1.0);
 
-        Vec answer = assembler.Solve(initial_guess, true);
+        Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
         // Check result
@@ -634,13 +526,13 @@ public:
             iter++;
         }
 
-        SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
+        SimpleNonlinearEllipticSolver<2,2> solver(&mesh, &pde, &bcc);
 
         // Set up initial Guess
-        Vec initial_guess = assembler.CreateConstantInitialGuess(0.25);
+        Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),0.25);
 
         // solve
-        Vec answer = assembler.Solve(initial_guess, true);
+        Vec answer = solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl(answer);
 
         // Check result
@@ -716,14 +608,14 @@ public:
             elt_iter++;
         }
 
-        SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
+        SimpleNonlinearEllipticSolver<2,2> solver(&mesh, &pde, &bcc);
 
         // Set up initial Guess
-        Vec initial_guess = assembler.CreateConstantInitialGuess(4.0);
+        Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),4.0);
 
 
         // Numerical Jacobian
-        Vec answer = assembler.Solve(initial_guess, false);
+        Vec answer = solver.Solve(initial_guess, false);
         ReplicatableVector answer_repl(answer);
 
         // Check result
@@ -738,7 +630,7 @@ public:
         VecDestroy(answer);
 
         // Analytical Jacobian
-        answer=assembler.Solve(initial_guess, true);
+        answer=solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl2(answer);
 
         // Check result
@@ -815,13 +707,13 @@ public:
             elt_iter++;
         }
 
-        SimpleNonlinearEllipticAssembler<2,2> assembler(&mesh, &pde, &bcc);
+        SimpleNonlinearEllipticSolver<2,2> solver(&mesh, &pde, &bcc);
 
         // Set up initial Guess
-        Vec initial_guess = assembler.CreateConstantInitialGuess(4.0);
+        Vec initial_guess = PetscTools::CreateAndSetVec(mesh.GetNumNodes(),4.0);
 
         // Numerical Jacobian
-        Vec answer = assembler.Solve(initial_guess, false);
+        Vec answer = solver.Solve(initial_guess, false);
         ReplicatableVector answer_repl(answer);
 
         // Check result
@@ -836,7 +728,7 @@ public:
         VecDestroy(answer);
 
         // Analytical Jacobian
-        answer=assembler.Solve(initial_guess, true);
+        answer=solver.Solve(initial_guess, true);
         ReplicatableVector answer_repl2(answer);
 
         // Check result

@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "TetrahedralMesh.hpp"
-#include "SimpleLinearEllipticAssembler.hpp"
+#include "SimpleLinearEllipticSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 
@@ -43,12 +43,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned DIM>
 class TissueSimulationWithPdesAssembler
-    : public SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithPdesAssembler<DIM> >
+    : public SimpleLinearEllipticSolver<DIM, DIM>
 {
-    /** Save typing. */
-    typedef SimpleLinearEllipticAssembler<DIM, DIM, TissueSimulationWithPdesAssembler<DIM> > BaseClassType;
-    friend class AbstractStaticAssembler<DIM, DIM, 1u, true, BaseClassType>;
-
 private:
 
     /**
@@ -66,7 +62,7 @@ private:
 protected:
 
     /**
-     *  The SimpleLinearEllipticAssembler version of this method is
+     *  The SimpleLinearEllipticSolver version of this method is
      *  overloaded using the interpolated source term.
      *
      * @param rPhi
@@ -85,7 +81,7 @@ protected:
         Element<DIM, DIM>* pElement);
 
     /**
-     * The SimpleLinearEllipticAssembler version of this method is
+     * The SimpleLinearEllipticSolver version of this method is
      * overloaded using the interpolated source term.
      *
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
@@ -127,7 +123,7 @@ protected:
 public:
 
     /**
-     * Constructor stores the mesh and PDE and boundary conditions.
+     * Constructor
      *
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE

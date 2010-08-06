@@ -29,9 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
 
 /*
- * TestSimpleDg0ParabolicAssembler.hpp
+ * TestSimpleLinearParabolicSolver.hpp
  *
- * Test suite for the Dg0ParabolicAssembler class.
+ * Test suite for the SimpleLinearParabolicSolver class.
  *
  * Tests the class for the solution of parabolic pdes in 1D, 2D and 3D with and
  * without source terms with neumann and dirichlet booundary conditions.
@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
-#include "SimpleDg0ParabolicAssembler.hpp"
+#include "SimpleLinearParabolicSolver.hpp"
 #include "ParallelColumnDataWriter.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "FemlabMeshReader.hpp"
@@ -57,12 +57,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 
 
-class TestSimpleDg0ParabolicAssemblerLong : public CxxTest::TestSuite
+class TestSimpleLinearParabolicSolverLong : public CxxTest::TestSuite
 {
 public:
     // test 2D problem - takes a long time to run.
     // solution is incorrect to specified tolerance.
-    void xTestSimpleDg0ParabolicAssembler2DNeumannWithSmallTimeStepAndFineMesh()
+    void xTestSimpleLinearParabolicSolver2DNeumannWithSmallTimeStepAndFineMesh()
     {
         // Create mesh from mesh reader
         FemlabMeshReader<2,2> mesh_reader("mesh/test/data/",
@@ -123,8 +123,8 @@ public:
             surf_iter++;
         }
 
-        // Assembler
-        SimpleDg0ParabolicAssembler<2,2, true> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearParabolicSolver<2,2> solver(&mesh,&pde,&bcc);
 
         // initial condition, u(0,x,y) = sin(0.5*M_PI*x)*sin(M_PI*y)+x
         std::vector<double> init_cond(mesh.GetNumNodes());
@@ -138,10 +138,10 @@ public:
 
 
         double t_end = 0.1;
-        assembler.SetTimes(0, t_end, 0.001);
-        assembler.SetInitialCondition(initial_condition);
+        solver.SetTimes(0, t_end, 0.001);
+        solver.SetInitialCondition(initial_condition);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
         // check result
@@ -165,7 +165,7 @@ public:
      * condition u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z)
      *
      */
-    void TestSimpleDg0ParabolicAssembler3DZeroDirich()
+    void TestSimpleLinearParabolicSolver3DZeroDirich()
     {
         // read mesh on [0,1]x[0,1]x[0,1]
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -179,8 +179,8 @@ public:
         BoundaryConditionsContainer<3,3,1> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh);
 
-        // Assembler
-        SimpleDg0ParabolicAssembler<3,3, true> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearParabolicSolver<3,3> solver(&mesh,&pde,&bcc);
 
         // initial condition;
         // choose initial condition sin(x*pi)*sin(y*pi)*sin(z*pi) as this is an
@@ -197,10 +197,10 @@ public:
 
 
         double t_end = 0.1;
-        assembler.SetTimes(0, t_end, 0.001);
-        assembler.SetInitialCondition(initial_condition);
+        solver.SetTimes(0, t_end, 0.001);
+        solver.SetInitialCondition(initial_condition);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
         // check result
@@ -227,7 +227,7 @@ public:
      * u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z) - (1/6)(x^2+y^2+z^2)
      *
      */
-    void TestSimpleDg0ParabolicAssembler3DZeroDirichWithSourceTerm()
+    void TestSimpleLinearParabolicSolver3DZeroDirichWithSourceTerm()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -252,8 +252,8 @@ public:
             iter++;
         }
 
-        // Assembler
-        SimpleDg0ParabolicAssembler<3,3, true> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearParabolicSolver<3,3> solver(&mesh,&pde,&bcc);
 
         // initial condition, u(0,x) = sin(x*pi)*sin(y*pi)*sin(z*pi)-1/6*(x^2+y^2+z^2);
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
@@ -274,9 +274,9 @@ public:
         VecRestoreArray(initial_condition, &p_initial_condition);
 
         double t_end = 0.1;
-        assembler.SetTimes(0, 0.1, 0.01);
-        assembler.SetInitialCondition(initial_condition);
-        Vec result = assembler.Solve();
+        solver.SetTimes(0, 0.1, 0.01);
+        solver.SetInitialCondition(initial_condition);
+        Vec result = solver.Solve();
 
         // Check result
         double* p_result;
@@ -308,7 +308,7 @@ public:
      * u(0,x,y,z)=sin( PI x)sin( PI y)sin( PI z) + x
      *
      */
-    void TestSimpleDg0ParabolicAssembler3DNeumannOnCoarseMesh()
+    void TestSimpleLinearParabolicSolver3DNeumannOnCoarseMesh()
     {
         // Create mesh from mesh reader
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
@@ -359,8 +359,8 @@ public:
             surf_iter++;
         }
 
-        // Assembler
-        SimpleDg0ParabolicAssembler<3,3, true> assembler(&mesh,&pde,&bcc);
+        // Solver
+        SimpleLinearParabolicSolver<3,3> solver(&mesh,&pde,&bcc);
 
         // initial condition, u(0,x,y) = sin(0.5*PI*x)*sin(PI*y)+x
         Vec initial_condition = PetscTools::CreateVec(mesh.GetNumNodes());
@@ -381,9 +381,9 @@ public:
         }
         VecRestoreArray(initial_condition, &p_initial_condition);
 
-        assembler.SetTimes(0, 0.1, 0.01);
-        assembler.SetInitialCondition(initial_condition);
-        Vec result = assembler.Solve();
+        solver.SetTimes(0, 0.1, 0.01);
+        solver.SetInitialCondition(initial_condition);
+        Vec result = solver.Solve();
 
         // Check result
         double* p_result;

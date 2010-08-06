@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TissueSimulationWithPdesAssembler.hpp"
 #include "TetrahedralMesh.hpp"
-#include "SimpleLinearEllipticAssembler.hpp"
+#include "SimpleLinearEllipticSolver.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 
@@ -37,7 +37,7 @@ TissueSimulationWithPdesAssembler<DIM>::TissueSimulationWithPdesAssembler(Tetrah
                               AbstractLinearEllipticPde<DIM,DIM>* pPde,
                               BoundaryConditionsContainer<DIM,DIM,1>* pBoundaryConditions,
                               unsigned numQuadPoints) :
-        BaseClassType(pMesh, pPde, pBoundaryConditions, numQuadPoints)
+        SimpleLinearEllipticSolver<DIM, DIM>(pMesh, pPde, pBoundaryConditions, numQuadPoints)
 {
 }
 
@@ -99,29 +99,11 @@ template<unsigned DIM>
 void TissueSimulationWithPdesAssembler<DIM>::InitialiseForSolve(Vec initialSolution)
 {
     // linear system created here
-    BaseClassType::InitialiseForSolve(initialSolution);
+    SimpleLinearEllipticSolver<DIM,DIM>::InitialiseForSolve(initialSolution);
 
     this->mpLinearSystem->SetMatrixIsSymmetric(true);
 }
 
-
-
-/**
- * Helper structure that defines typedefs specifying where in the
- * hierarchy of assembler classes various methods are defined, so
- * that we can avoid virtual method overhead by setting which method
- * is called at compile time.
- */
-template<unsigned DIM>
-struct AssemblerTraits<TissueSimulationWithPdesAssembler<DIM> >
-{
-    /** The class in which ComputeVectorTerm is defined. */
-    typedef TissueSimulationWithPdesAssembler<DIM> CVT_CLASS;
-    /** The class in which ComputeMatrixTerm is defined. */
-    typedef TissueSimulationWithPdesAssembler<DIM> CMT_CLASS;
-    /**  The class in which IncrementInterpolatedQuantities and ResetInterpolatedQuantities are defined. */
-    typedef TissueSimulationWithPdesAssembler<DIM> INTERPOLATE_CLASS;
-};
 
 //////////////////////////////////////////////////////////////////////
 // Explicit instantiation

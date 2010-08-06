@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MassMatrixAssembler
-   : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/> 
+   : public AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, 1, false /*no vectors*/, true/*assembles matrices*/, NORMAL> 
 {
 private:
     /** The scale factor */
@@ -79,7 +79,7 @@ public:
      *  @param scaleFactor the factor with which the multiply the mass matrix. Defaults to 1.0
      */
     MassMatrixAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh, double scaleFactor=1.0)
-        : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true>(pMesh),
+        : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,false,true,NORMAL>(pMesh),
           mScaleFactor(scaleFactor)
     {
     }

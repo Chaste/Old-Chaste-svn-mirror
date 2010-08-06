@@ -36,10 +36,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "PetscSetupAndFinalize.hpp"
-#include "SimpleLinearEllipticAssembler.hpp"
+#include "SimpleLinearEllipticSolver.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "ConstBoundaryCondition.hpp"
-#include "AbstractLinearAssembler.hpp"
+#include "AbstractAssemblerSolverHybrid.hpp"
+#include "AbstractStaticLinearPdeSolver.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 #include "ReplicatableVector.hpp"
 
@@ -71,24 +72,16 @@ public:
 
 
 //////////////////////////////////////////////////////////////////////////////
-// an assembler to solve the 'coupled' 2-unknown problem
+// an solver to solve the 'coupled' 2-unknown problem
 //    u_xx + u_yy +         x  = 0
 //    v_xx + v_yy + \lambda x  = 0
 //
 //   \lambda is taken in in the constructor
 //////////////////////////////////////////////////////////////////////////////
-template<class CONCRETE = boost::mpl::void_>
-class MySimpleCoupledAssembler : public AbstractLinearAssembler<2,2,2, true, MySimpleCoupledAssembler<CONCRETE> >
+class MySimpleCoupledSolver
+   : public AbstractAssemblerSolverHybrid<2,2,2,NORMAL>, 
+     public AbstractStaticLinearPdeSolver<2,2,2>
 {
-public:
-    static const unsigned E_DIM = 2u;
-    static const unsigned S_DIM = 2u;
-    static const unsigned P_DIM = 2u;
-
-    typedef MySimpleCoupledAssembler<CONCRETE> SelfType;
-    typedef AbstractLinearAssembler<2,2,2, true, SelfType> BaseClassType;
-    friend class AbstractStaticAssembler<2, 2, 2, true, SelfType>;
-
 private:
     double mLambda;
 
@@ -158,45 +151,39 @@ private:
 
     void InitialiseForSolve(Vec initialSolution)
     {
-        BaseClassType::InitialiseForSolve(initialSolution);
+        AbstractLinearPdeSolver<2,2,2>::InitialiseForSolve(initialSolution);
         assert(this->mpLinearSystem);
         this->mpLinearSystem->SetMatrixIsSymmetric(true);
         this->mpLinearSystem->SetKspType("cg");
     }
 
-public:
-    MySimpleCoupledAssembler(TetrahedralMesh<2,2>* pMesh,
-                             BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,
-                             double lambda) :
-            AbstractAssembler<2,2,2>(),
-            BaseClassType()
+    /**
+     * Delegate to AbstractAssemblerSolverHybrid::SetupGivenLinearSystem.
+     *  @param currentSolution The current solution which can be used in setting up
+     *   the linear system if needed (NULL if there isn't a current solution)
+     *  @param computeMatrix Whether to compute the LHS matrix of the linear system
+     *   (mainly for dynamic solves).
+     */
+    void SetupLinearSystem(Vec currentSolution, bool computeMatrix)
     {
-        this->mpMesh = pMesh;
+        SetupGivenLinearSystem(currentSolution, computeMatrix, this->mpLinearSystem);
+    }
+    
+public:
+    MySimpleCoupledSolver(TetrahedralMesh<2,2>* pMesh,
+                             BoundaryConditionsContainer<2,2,2>* pBoundaryConditions,
+                             double lambda)
+        : AbstractAssemblerSolverHybrid<2,2,2,NORMAL>(pMesh,pBoundaryConditions),
+          AbstractStaticLinearPdeSolver<2,2,2>(pMesh)
+    {
         this->mpBoundaryConditions = pBoundaryConditions;
         mLambda = lambda;
     }
 };
 
-template<class CONCRETE>
-struct AssemblerTraits<MySimpleCoupledAssembler<CONCRETE> >
-{
-    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
-                                     MySimpleCoupledAssembler<CONCRETE>,
-                                     typename AssemblerTraits<CONCRETE>::CVT_CLASS>::type
-            CVT_CLASS;
-    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
-                                     MySimpleCoupledAssembler<CONCRETE>,
-                                     typename AssemblerTraits<CONCRETE>::CMT_CLASS>::type
-            CMT_CLASS;
-    typedef typename boost::mpl::if_<boost::mpl::is_void_<CONCRETE>,
-                                     AbstractStaticAssembler<2u,2u,2u,true,MySimpleCoupledAssembler<CONCRETE> >,
-                                     typename AssemblerTraits<CONCRETE>::CMT_CLASS>::type
-            INTERPOLATE_CLASS;
-};
-
 
 //////////////////////////////////////////////////////////////////////////////
-// an assembler to solve the coupled 2-unknown problem
+// an solver to solve the coupled 2-unknown problem
 //    u_xx + u_yy + v = f(x,y)
 //    v_xx + v_yy + u = g(x,y)
 //
@@ -204,18 +191,11 @@ struct AssemblerTraits<MySimpleCoupledAssembler<CONCRETE> >
 //   the solution is
 //       u = sin(pi*x)sin(pi*x),   v = sin(2*pi*x)sin(2*pi*x)
 //
-// ComputeMatrixTerm() and ComputeSurfaceRhsTerm() are identical to MySimpleCoupledAssembler
-//  (above), so this class inherits from MySimpleCoupledAssembler
+// ComputeMatrixTerm() and ComputeSurfaceRhsTerm() are identical to MySimpleCoupledSolver
+//  (above), so this class inherits from MySimpleCoupledSolver
 //////////////////////////////////////////////////////////////////////////////
-class AnotherCoupledAssembler : public MySimpleCoupledAssembler<AnotherCoupledAssembler>
+class AnotherCoupledSolver : public MySimpleCoupledSolver
 {
-public:
-    static const unsigned E_DIM = 2u;
-    static const unsigned S_DIM = 2u;
-    static const unsigned P_DIM = 2u;
-
-    friend class AbstractStaticAssembler<2, 2, 2, true, MySimpleCoupledAssembler<AnotherCoupledAssembler> >;
-
 private:
     double f(double x,double y)
     {
@@ -246,19 +226,10 @@ private:
 
 
 public :
-    AnotherCoupledAssembler(TetrahedralMesh<2,2>* pMesh,
+    AnotherCoupledSolver(TetrahedralMesh<2,2>* pMesh,
                             BoundaryConditionsContainer<2,2,2>* pBoundaryConditions) :
-            AbstractAssembler<2,2,2>(),
-            MySimpleCoupledAssembler<AnotherCoupledAssembler>(pMesh, pBoundaryConditions,0.0)
+            MySimpleCoupledSolver(pMesh, pBoundaryConditions, 0.0)
     {}
-};
-
-template<>
-struct AssemblerTraits<AnotherCoupledAssembler>
-{
-    typedef AnotherCoupledAssembler CVT_CLASS;
-    typedef MySimpleCoupledAssembler<AnotherCoupledAssembler> CMT_CLASS;
-    typedef AbstractStaticAssembler<2u,2u,2u,true,AnotherCoupledAssembler> INTERPOLATE_CLASS;
 };
 
 
@@ -284,7 +255,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ////////////////////////////////////////////////////////////////
-        // Solve coupled system using assembler defined above
+        // Solve coupled system using solver defined above
         ////////////////////////////////////////////////////////////////
 
         // boundary conditions for 2-unknown problem
@@ -292,9 +263,9 @@ public:
         bcc_2unknowns.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc_2unknowns.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
 
-        // lambda in MySimpleCoupledAssembler = 2
-        MySimpleCoupledAssembler<> assembler_2unknowns(&mesh,&bcc_2unknowns,2.0);
-        Vec result_2unknowns = assembler_2unknowns.Solve();
+        // lambda in MySimpleCoupledSolver = 2
+        MySimpleCoupledSolver solver_2unknowns(&mesh,&bcc_2unknowns,2.0);
+        Vec result_2unknowns = solver_2unknowns.Solve();
         ReplicatableVector result_2unknowns_repl(result_2unknowns);
 
 
@@ -310,9 +281,9 @@ public:
         bcc_1unknown.DefineZeroDirichletOnMeshBoundary(&mesh);
 
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler_1unknown(&mesh,&pde,&bcc_1unknown);
+        SimpleLinearEllipticSolver<2,2> solver_1unknown(&mesh,&pde,&bcc_1unknown);
 
-        Vec result_1unknown = assembler_1unknown.Solve();
+        Vec result_1unknown = solver_1unknown.Solve();
         ReplicatableVector result_1unknown_repl(result_1unknown);
 
         // check the u solutions (result_2unknowns_repl[2*i]) is equal to the
@@ -346,7 +317,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         ////////////////////////////////////////////////////////////////
-        // Solve coupled system using assembler defined above
+        // Solve coupled system using solver defined above
         ////////////////////////////////////////////////////////////////
 
         // boundary conditions for 2-unknown problem
@@ -368,11 +339,11 @@ public:
         bcc_2unknowns.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition,0);
         bcc_2unknowns.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition1,1);
 
-        // use assembler to solve (with lambda in MySimpleCoupledAssembler = 1)
+        // use solver to solve (with lambda in MySimpleCoupledSolver = 1)
 
-        MySimpleCoupledAssembler<> assembler_2unknowns(&mesh,&bcc_2unknowns,1.0);
+        MySimpleCoupledSolver solver_2unknowns(&mesh,&bcc_2unknowns,1.0);
 
-        Vec result_2unknowns = assembler_2unknowns.Solve();
+        Vec result_2unknowns = solver_2unknowns.Solve();
         ReplicatableVector result_2unknowns_repl(result_2unknowns);
 
 
@@ -398,9 +369,9 @@ public:
         bcc_1unknown.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition);
 
         // Assembler
-        SimpleLinearEllipticAssembler<2,2> assembler_1unknown(&mesh,&pde,&bcc_1unknown);
+        SimpleLinearEllipticSolver<2,2> solver_1unknown(&mesh,&pde,&bcc_1unknown);
 
-        Vec result_1unknown = assembler_1unknown.Solve();
+        Vec result_1unknown = solver_1unknown.Solve();
         ReplicatableVector result_1unknown_repl(result_1unknown);
 
         // check the u solutions (result_2unknowns_repl[2*i]) is equal to the
@@ -440,10 +411,10 @@ public:
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,0); // zero dirichlet for u
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
 
-        // purpose-made assembler for this problem:
-        AnotherCoupledAssembler assembler(&mesh,&bcc);
+        // purpose-made solver for this problem:
+        AnotherCoupledSolver solver(&mesh,&bcc);
 
-        Vec result = assembler.Solve();
+        Vec result = solver.Solve();
         ReplicatableVector result_repl(result);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)

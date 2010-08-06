@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChastePoint.hpp"
 #include "Element.hpp"
 #include "BoundaryConditionsContainer.hpp"
-#include "AbstractDynamicAssemblerMixin.hpp"
+#include "AbstractDynamicLinearPdeSolver.hpp"
 #include "TimeStepper.hpp"
 #include "QuadraturePointsGroup.hpp"
 #include "TrianglesMeshWriter.hpp"
@@ -413,7 +413,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
 
     // get an electrics assembler from the problem. Note that we don't call
     // Solve() on the CardiacProblem class, we do the looping here.
-    AbstractDynamicAssemblerMixin<DIM,DIM,1>* p_electrics_assembler
+    AbstractDynamicLinearPdeSolver<DIM,DIM,1>* p_electrics_assembler
        = mpMonodomainProblem->CreateAssembler();
 
     // set up initial voltage etc
