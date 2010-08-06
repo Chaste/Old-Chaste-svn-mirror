@@ -286,13 +286,13 @@ public:
                                    false);
 
         ColumnDataReader data_reader1("TestIonicModels", control_file);
-        std::vector<double> voltages1 = data_reader1.GetValues("V");
+        std::vector<double> voltages1 = GetVoltages(data_reader1);
         ColumnDataReader data_reader2("TestIonicModels", mid_file);
-        std::vector<double> voltages2 = data_reader2.GetValues("V");
+        std::vector<double> voltages2 = GetVoltages(data_reader2);
         ColumnDataReader data_reader3("TestIonicModels", endo_file);
-        std::vector<double> voltages3 = data_reader3.GetValues("V");
+        std::vector<double> voltages3 = GetVoltages(data_reader3);
         ColumnDataReader data_reader4("TestIonicModels", LQT_file);
-        std::vector<double> voltages4 = data_reader4.GetValues("V");
+        std::vector<double> voltages4 = GetVoltages(data_reader4);
 
         TS_ASSERT_EQUALS(voltages1.size(), voltages2.size());
         TS_ASSERT_EQUALS(voltages2.size(), voltages3.size());
@@ -433,13 +433,13 @@ public:
 
 
         ColumnDataReader data_reader1("TestIonicModels", control_file);
-        std::vector<double> voltages1 = data_reader1.GetValues("V");
+        std::vector<double> voltages1 = GetVoltages(data_reader1);
         ColumnDataReader data_reader2("TestIonicModels", first_set_file);
-        std::vector<double> voltages2 = data_reader2.GetValues("V");
+        std::vector<double> voltages2 = GetVoltages(data_reader2);
         ColumnDataReader data_reader3("TestIonicModels", second_set_file);
-        std::vector<double> voltages3 = data_reader3.GetValues("V");
+        std::vector<double> voltages3 = GetVoltages(data_reader3);
         ColumnDataReader data_reader4("TestIonicModels", AZD_file);
-        std::vector<double> voltages4 = data_reader4.GetValues("V");
+        std::vector<double> voltages4 = GetVoltages(data_reader4);
 
         TS_ASSERT_EQUALS(voltages1.size(), voltages2.size());
         TS_ASSERT_EQUALS(voltages2.size(), voltages3.size());
