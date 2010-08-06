@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "HodgkinHuxley1952.hpp"
-#include "HodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp"
 #include "SimpleStimulus.hpp"
 
 class TestHodgkinHuxleySquidAxon1952OriginalOdeSystem: public CxxTest::TestSuite
