@@ -28,6 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTDYNAMICASSEMBLERMIXIN_HPP_
 #define _ABSTRACTDYNAMICASSEMBLERMIXIN_HPP_
 
+/***  THIS CLASS WILL BE DELETED NEXT WEEK ***/
+#define COVERAGE_IGNORE
+
+
 #include <vector>
 #include <petscvec.h>
 
@@ -318,5 +322,8 @@ void AbstractDynamicAssemblerMixin<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Construct
     EXCEPTION("mUseMatrixBasedRhsAssembly=true but ConstructVectorForMatrixBasedRhsAssembly() has not been overloaded");
     #undef COVERAGE_IGNORE
 }
+
+#undef COVERAGE_IGNORE
+
 
 #endif //_ABSTRACTDYNAMICASSEMBLERMIXIN_HPP_

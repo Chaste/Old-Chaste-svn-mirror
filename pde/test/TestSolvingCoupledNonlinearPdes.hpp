@@ -51,18 +51,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //   lambda is taken in in the constructor
 //////////////////////////////////////////////////////////////////////////////
 template <int DIM>
-class MySimpleNonlinearCoupledAssembler : public AbstractNonlinearAssemblerSolverHybrid<DIM,DIM,2>//,MySimpleNonlinearCoupledAssembler<DIM> >
+class MySimpleNonlinearCoupledSolver : public AbstractNonlinearAssemblerSolverHybrid<DIM,DIM,2>
 {
-public:
-//    static const unsigned E_DIM = DIM;
-//    static const unsigned S_DIM = DIM;
-//    static const unsigned P_DIM = 2u;
-
 private:
-//    typedef MySimpleNonlinearCoupledAssembler<DIM> SelfType;
-//    typedef AbstractNonlinearAssembler<DIM,DIM,2,SelfType> BaseClassType;
-//    friend class AbstractStaticAssembler<DIM,DIM,2,true,SelfType>;
-
     double mLambda;
     virtual c_matrix<double,2*(DIM+1),2*(DIM+1) > ComputeMatrixTerm(c_vector<double, DIM+1>& rPhi,
             c_matrix<double, DIM, DIM+1>& rGradPhi,
@@ -134,7 +125,7 @@ private:
 
 
 public:
-    MySimpleNonlinearCoupledAssembler(TetrahedralMesh<DIM,DIM>* pMesh,
+    MySimpleNonlinearCoupledSolver(TetrahedralMesh<DIM,DIM>* pMesh,
                                       BoundaryConditionsContainer<DIM,DIM,2>* pBoundaryConditions,
                                       double lambda)
         : AbstractNonlinearAssemblerSolverHybrid<DIM,DIM,2>(pMesh,pBoundaryConditions)
@@ -154,13 +145,6 @@ public:
 //////////////////////////////////////////////////////////////////////////////////
 class AnotherCoupledNonlinearAssembler :  public AbstractNonlinearAssemblerSolverHybrid<2,2,2> //AnotherCoupledNonlinearAssembler>
 {
-public:
-//    static const unsigned E_DIM = 2u;
-//    static const unsigned S_DIM = 2u;
-//    static const unsigned P_DIM = 2u;
-//
-//    typedef AbstractNonlinearAssembler<2,2,2,AnotherCoupledNonlinearAssembler> BaseClassType;
-//    friend class AbstractStaticAssembler<2,2,2,true,AnotherCoupledNonlinearAssembler>;
 
 private:
     double f(double x,double y)
@@ -276,9 +260,9 @@ private :
         bcc.DefineZeroDirichletOnMeshBoundary(&mesh,1); // zero dirichlet for v
 
         // for comparing residuals
-        MySimpleNonlinearCoupledAssembler<DIM> solver_lam_1(&mesh,&bcc,1);
+        MySimpleNonlinearCoupledSolver<DIM> solver_lam_1(&mesh,&bcc,1);
         // for comparing solutions
-        MySimpleNonlinearCoupledAssembler<DIM> solver(&mesh,&bcc,4);
+        MySimpleNonlinearCoupledSolver<DIM> solver(&mesh,&bcc,4);
 
 
         ////////////////////////////////////////////
@@ -401,7 +385,7 @@ public:
         bcc.AddDirichletBoundaryCondition(mesh.GetNode(1), p_boundary_condition1,1);
 
         // use solver to solve (with lambda = 1)
-        MySimpleNonlinearCoupledAssembler<2> solver(&mesh,&bcc,1.0);
+        MySimpleNonlinearCoupledSolver<2> solver(&mesh,&bcc,1.0);
 
         Vec result = solver.Solve(PetscTools::CreateAndSetVec(2*mesh.GetNumNodes(),1.0),true);
         ReplicatableVector result_repl(result);

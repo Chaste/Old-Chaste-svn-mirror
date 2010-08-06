@@ -28,10 +28,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTNONLINEARASSEMBLER_HPP_
 #define _ABSTRACTNONLINEARASSEMBLER_HPP_
 
+/***  THIS CLASS WILL BE DELETED NEXT WEEK ***/
+#define COVERAGE_IGNORE
+
+
+
 /**
  * Abstract superclass for classes that assemble and solve the nonlinear system
  * for a nonlinear elliptic PDE.
  */
+
+
 
 #include <vector>
 
@@ -634,6 +641,7 @@ PetscErrorCode AbstractNonlinearAssembler_AssembleJacobian(SNES snes, Vec curren
     return ierr;
 }
 
+#undef COVERAGE_IGNORE
 
 
 #endif //_ABSTRACTNONLINEARASSEMBLER_HPP_

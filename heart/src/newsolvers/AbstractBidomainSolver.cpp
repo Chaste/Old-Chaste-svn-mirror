@@ -324,36 +324,36 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::FinaliseForBath(bool computeMat
                 int num_equation = 2*i; // assumes Vm and Phie are interleaved
 
                 // Matrix need to be assembled in order to use GetMatrixElement()
-                MatAssemblyBegin((*this->GetLinearSystem())->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
-                MatAssemblyEnd((*this->GetLinearSystem())->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
+                MatAssemblyBegin(this->mpLinearSystem->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
+                MatAssemblyEnd(this->mpLinearSystem->rGetLhsMatrix(), MAT_FINAL_ASSEMBLY);
 
                 PetscInt local_lo, local_hi;
-                (*this->GetLinearSystem())->GetOwnershipRange(local_lo, local_hi);
+                this->mpLinearSystem->GetOwnershipRange(local_lo, local_hi);
 
                 // If this processor owns i-th row, check it.
                 if ((local_lo <= (int)num_equation) && ((int)num_equation < local_hi))
                 {
-                    for (unsigned column=0; column < (*this->GetLinearSystem())->GetSize(); column++)
+                    for (unsigned column=0; column < this->mpLinearSystem->GetSize(); column++)
                     {
-                        assert((*this->GetLinearSystem())->GetMatrixElement(num_equation, column)==0.0);
+                        assert(this->mpLinearSystem->GetMatrixElement(num_equation, column)==0.0);
                     }
                 }
 
                 // Check the local entries of the i-th column
                 for (int row=local_lo; row<local_hi; row++)
                 {
-                    assert((*this->GetLinearSystem())->GetMatrixElement(row, num_equation)==0);
+                    assert(this->mpLinearSystem->GetMatrixElement(row, num_equation)==0);
                 }
 #endif
                 // put 1.0 on the diagonal
-                Mat& r_matrix = (*(this->GetLinearSystem()))->rGetLhsMatrix();
+                Mat& r_matrix = this->mpLinearSystem->rGetLhsMatrix();
                 MatSetValue(r_matrix,index[0],index[0],1.0,INSERT_VALUES);
             }
 
             if(computeVector)
             {
                 // zero rhs vector entry
-                VecSetValue((*(this->GetLinearSystem()))->rGetRhsVector(), index[0], 0.0, INSERT_VALUES);
+                VecSetValue(this->mpLinearSystem->rGetRhsVector(), index[0], 0.0, INSERT_VALUES);
             }
         }
     }

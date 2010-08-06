@@ -4,9 +4,9 @@ TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
 TestNonlinearHeatEquationPde.hpp
-TestSimpleDg0ParabolicAssembler.hpp
-TestSimpleLinearEllipticAssembler.hpp
-TestSimpleNonlinearEllipticAssembler.hpp
+TestSimpleLinearParabolicSolver.hpp
+TestSimpleLinearEllipticSolver.hpp
+TestSimpleNonlinearEllipticSolver.hpp
 TestSolvingCoupledPdes.hpp
 TestTimeDependentDiffusionEquationPde.hpp
 TestVaryingDiffusionAndSourceTermPde.hpp

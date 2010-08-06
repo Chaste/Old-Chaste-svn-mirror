@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
-#define _TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
+#ifndef _TESTSIMPLELINEARPARABOLICSOLVER_HPP_
+#define _TESTSIMPLELINEARPARABOLICSOLVER_HPP_
 
 /**
  * TestSimpleLinearParabolicSolver.hpp
@@ -750,4 +750,4 @@ public:
     }
 };
 
-#endif //_TESTSIMPLEDG0PARABOLICASSEMBLER_HPP_
+#endif //_TESTSIMPLELINEARPARABOLICSOLVER_HPP_

@@ -46,12 +46,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EllipticPdeWithLinearSource.hpp"
 #include "SimpleLinearEllipticSolver.hpp"
 
-// There is assembler hiearchy for assembler which use quadratic bases (ie the elasticity
-// solvers). Therefore, to test the quadratic bases/structure we first wrote this
-// QuadraticLaplacianAssembler, and then used it when writing the elasticity assemblers.
+// Assemblers which use quadratic bases (ie the elasticity solvers) are outside the 
+// other assembler hierarchy. Therefore, to test the quadratic bases/structure we first wrote this
+// QuadraticLaplacianAssemblerSolver, and then used it when writing the elasticity assemblers.
 
 template<unsigned DIM>
-class QuadraticLaplacianAssembler
+class QuadraticLaplacianAssemblerSolver
 {
 private:
     double mCoeffOfU;
@@ -232,8 +232,8 @@ private:
 
 
 public:
-    QuadraticLaplacianAssembler(QuadraticMesh<DIM>* pMesh,
-                                BoundaryConditionsContainer<DIM,DIM,1>* pBcc)
+    QuadraticLaplacianAssemblerSolver(QuadraticMesh<DIM>* pMesh,
+                                      BoundaryConditionsContainer<DIM,DIM,1>* pBcc)
         : mpQuadMesh(pMesh),
           mpBoundaryConditions(pBcc)
     {
@@ -249,7 +249,7 @@ public:
         mConstant = 1.0;
     }
 
-    virtual ~QuadraticLaplacianAssembler()
+    virtual ~QuadraticLaplacianAssemblerSolver()
     {
         delete mpLinearSystem;
         delete mpQuadRule;
@@ -285,10 +285,10 @@ public:
         BoundaryConditionsContainer<1,1,1> bcc;
         bcc.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
 
-        QuadraticLaplacianAssembler<1> assembler(&quad_mesh, &bcc);
-        assembler.SetPdeConstants(0.0, 1.0);
+        QuadraticLaplacianAssemblerSolver<1> solver(&quad_mesh, &bcc);
+        solver.SetPdeConstants(0.0, 1.0);
 
-        Vec solution = assembler.Solve();
+        Vec solution = solver.Solve();
         ReplicatableVector sol_repl(solution);
 
         for (unsigned i=0; i<quad_mesh.GetNumNodes(); i++)
@@ -314,10 +314,10 @@ public:
         BoundaryConditionsContainer<2,2,1> bcc_quads;
         bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
 
-        QuadraticLaplacianAssembler<2> assembler_quads(&quad_mesh, &bcc_quads);
-        assembler_quads.SetPdeConstants(1.0, 1.0);
+        QuadraticLaplacianAssemblerSolver<2> solver_quads(&quad_mesh, &bcc_quads);
+        solver_quads.SetPdeConstants(1.0, 1.0);
 
-        Vec solution_quads = assembler_quads.Solve();
+        Vec solution_quads = solver_quads.Solve();
         ReplicatableVector sol_quads_repl(solution_quads);
 
         // Solve using linears
@@ -371,10 +371,10 @@ public:
         BoundaryConditionsContainer<3,3,1> bcc_quads;
         bcc_quads.DefineZeroDirichletOnMeshBoundary(&quad_mesh);
 
-        QuadraticLaplacianAssembler<3> assembler_quads(&quad_mesh, &bcc_quads);
-        assembler_quads.SetPdeConstants(1.0, 1.0);
+        QuadraticLaplacianAssemblerSolver<3> solver_quads(&quad_mesh, &bcc_quads);
+        solver_quads.SetPdeConstants(1.0, 1.0);
 
-        Vec solution_quads = assembler_quads.Solve();
+        Vec solution_quads = solver_quads.Solve();
         ReplicatableVector sol_quads_repl(solution_quads);
 
         // Solve using linears

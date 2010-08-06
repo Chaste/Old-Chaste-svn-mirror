@@ -1,4 +1,4 @@
-Test1D3DLinearEllipticAssembler.hpp
+Test1D3DLinearEllipticSolver.hpp
 TestAbstractFeObjectAssembler.hpp
 TestAbstractFunctionalCalculator.hpp
 TestBoundaryConditionsContainer.hpp
@@ -14,9 +14,9 @@ TestNonlinearHeatEquationPde.hpp
 TestPdeSimulationTime.hpp
 TestQuadraticBasisFunction.hpp
 TestQuadraturePointsGroup.hpp
-TestSimpleDg0ParabolicAssembler.hpp
-TestSimpleLinearEllipticAssembler.hpp
-TestSimpleNonlinearEllipticAssembler.hpp
+TestSimpleLinearParabolicSolver.hpp
+TestSimpleLinearEllipticSolver.hpp
+TestSimpleNonlinearEllipticSolver.hpp
 TestSolvingCoupledPdes.hpp
 TestSolveLaplacianWithQuadratics.hpp
 TestTimeDependentDiffusionEquationPde.hpp

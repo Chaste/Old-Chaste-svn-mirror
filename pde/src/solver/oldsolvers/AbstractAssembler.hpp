@@ -29,6 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define _ABSTRACTASSEMBLER_HPP_
 
 
+/***  THIS CLASS WILL BE DELETED NEXT WEEK ***/
+#define COVERAGE_IGNORE
+
+
 #include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
 #include "BoundaryConditionsContainer.hpp"
@@ -420,6 +424,8 @@ void AbstractAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetBoundaryConditio
 {
     mpBoundaryConditions = pBoundaryConditions;
 }
+
+#undef COVERAGE_IGNORE
 
 
 #endif //_ABSTRACTASSEMBLER_HPP_

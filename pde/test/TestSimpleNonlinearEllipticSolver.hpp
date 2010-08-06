@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_
-#define _TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_
+#ifndef _TESTSIMPLENONLINEARELLIPTICSOLVER_HPP_
+#define _TESTSIMPLENONLINEARELLIPTICSOLVER_HPP_
 
 
 
@@ -745,4 +745,4 @@ public:
     }
 };
 
-#endif //_TESTSIMPLENONLINEARELLIPTICASSEMBLER_HPP_
+#endif //_TESTSIMPLENONLINEARELLIPTICSOLVER_HPP_

@@ -28,6 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTSTATICASSEMBLER_HPP_
 #define _ABSTRACTSTATICASSEMBLER_HPP_
 
+
+/***  THIS CLASS WILL BE DELETED NEXT WEEK ***/
+#define COVERAGE_IGNORE
+#undef COVERAGE_IGNORE
+
 #include "AbstractAssembler.hpp"
 #include "LinearBasisFunction.hpp"
 #include "GaussianQuadratureRule.hpp"
@@ -699,5 +704,8 @@ AbstractStaticAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONCRETE
     delete mpSurfaceQuadRule;
     delete mpLinearSystem;
 }
+
+#undef COVERAGE_IGNORE
+
 
 #endif //_ABSTRACTSTATICASSEMBLER_HPP_

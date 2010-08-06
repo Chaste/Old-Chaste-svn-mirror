@@ -618,10 +618,6 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
         }
     }
 
-    // add the integrals associated with Neumann boundary conditions to the linear system
-    typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::BoundaryElementIterator
-        surf_iter = mpMesh->GetBoundaryElementIteratorBegin();
-
     ////////////////////////////////////////////////////////
     // Apply any Neumann boundary conditions
     //
@@ -705,9 +701,10 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AssembleOnElement(Element<ELEMENT_DIM,SPACE_DIM>& rElement,
-                                c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1) >& rAElem,
-                                c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)>& rBElem)
+void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AssembleOnElement(
+    Element<ELEMENT_DIM,SPACE_DIM>& rElement,
+    c_matrix<double, PROBLEM_DIM*(ELEMENT_DIM+1), PROBLEM_DIM*(ELEMENT_DIM+1) >& rAElem,
+    c_vector<double, PROBLEM_DIM*(ELEMENT_DIM+1)>& rBElem)
 {
     /**
      * \todo #1320 This assumes that the Jacobian is constant on an element.
@@ -764,7 +761,6 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
 
         // allow the concrete version of the assembler to interpolate any
         // desired quantities
-//        static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLASS *>(this)->
         ResetInterpolatedQuantities();
 
         /////////////////////////////////////////////////////////////
@@ -808,7 +804,6 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
 
             // allow the concrete version of the assembler to interpolate any
             // desired quantities
-//            static_cast<typename AssemblerTraits<CONCRETE>::INTERPOLATE_CLASS *>(this)->
             IncrementInterpolatedQuantities(phi(i), p_node);
         }
 
@@ -819,13 +814,11 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
         ////////////////////////////////////////////////////////////
         if (mAssembleMatrix)
         {
-//            noalias(rAElem) += static_cast<typename AssemblerTraits<CONCRETE>::CMT_CLASS *>(this)->ComputeMatrixTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
             noalias(rAElem) += ComputeMatrixTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
         }
 
         if (mAssembleVector)
         {
-//            noalias(rBElem) += static_cast<typename AssemblerTraits<CONCRETE>::CVT_CLASS *>(this)->ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
             noalias(rBElem) += ComputeVectorTerm(phi, grad_phi, x, u, grad_u, &rElement) * wJ;
         }
     }
@@ -833,8 +826,9 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
 
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, bool CAN_ASSEMBLE_VECTOR, bool CAN_ASSEMBLE_MATRIX, InterpolationLevel INTERPOLATION_LEVEL>
-void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AssembleOnSurfaceElement(const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
-                                      c_vector<double, PROBLEM_DIM*ELEMENT_DIM>& rBSurfElem)
+void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE_VECTOR, CAN_ASSEMBLE_MATRIX, INTERPOLATION_LEVEL>::AssembleOnSurfaceElement(
+            const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+            c_vector<double, PROBLEM_DIM*ELEMENT_DIM>& rBSurfElem)
 {
     c_vector<double, SPACE_DIM> weighted_direction;
     double jacobian_determinant;
@@ -869,8 +863,6 @@ void AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, CAN_ASSEMBLE
             // allow the concrete version of the assembler to interpolate any
             // desired quantities
             IncrementInterpolatedQuantities(phi(i), rSurfaceElement.GetNode(i));
-
-            ///\todo: add interpolation of u as well
         }
 
         double wJ = jacobian_determinant * mpSurfaceQuadRule->GetWeight(quad_index);

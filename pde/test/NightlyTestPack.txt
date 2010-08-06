@@ -1,5 +1,5 @@
 TestNonlinearElasticityAssemblerLong.hpp
-TestSimpleDg0ParabolicAssemblerLong.hpp
+TestSimpleLinearParabolicSolverLong.hpp
 TestSolvingCoupledNonlinearPdes.hpp
 TestSolvingLinearPdesTutorial.hpp
 TestSolvingNonlinearPdesTutorial.hpp

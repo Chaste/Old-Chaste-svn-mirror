@@ -309,20 +309,20 @@ void BidomainProblem<DIM>::AtBeginningOfTimestep(double time)
 
         // At t==0 or after checkpointing we won't have a system assembled at this stage: BCs will be applied once the matrix
         // is assembled. Dirichlet BCs will be present at the time of assembly and no null space will be created either.
-        if ( *mpAssembler->GetLinearSystem() != NULL )
+        if ( mpAssembler->GetLinearSystem() != NULL )
         {
             // System matrix is assembled once at the beginning of the simulation. After that, nobody will take care
             // of applying new BC to the system matrix. Must be triggered explicitly.
             if (mpElectrodes->HasGroundedElectrode())
             {
-                this->mpBoundaryConditionsContainer->ApplyDirichletToLinearProblem( ** mpAssembler->GetLinearSystem(),
+                this->mpBoundaryConditionsContainer->ApplyDirichletToLinearProblem( *(mpAssembler->GetLinearSystem()),
                                                                                    true, false);
             }
 
             // If a grounded electrode is switched on, the linear system is not singular anymore. Remove the null space.
             if (mpElectrodes->HasGroundedElectrode())
             {
-                (*(mpAssembler->GetLinearSystem()))->RemoveNullSpace();
+                mpAssembler->GetLinearSystem()->RemoveNullSpace();
             }
         }
     }

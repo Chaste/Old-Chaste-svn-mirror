@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef _TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
-#define _TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
+#ifndef _TESTSIMPLELINEARELLIPTICSOLVER_HPP_
+#define _TESTSIMPLELINEARELLIPTICSOLVER_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "TetrahedralMesh.hpp"
@@ -166,4 +166,4 @@ public:
     }
 };
 
-#endif //_TESTSIMPLELINEARELLIPTICASSEMBLER_HPP_
+#endif //_TESTSIMPLELINEARELLIPTICSOLVER_HPP_

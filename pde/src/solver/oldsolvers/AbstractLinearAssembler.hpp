@@ -28,6 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ABSTRACTLINEARASSEMBLER_HPP_
 #define _ABSTRACTLINEARASSEMBLER_HPP_
 
+/***  THIS CLASS WILL BE DELETED NEXT WEEK ***/
+#define COVERAGE_IGNORE
+
+
 
 #include <vector>
 #include <iostream>
@@ -227,5 +231,8 @@ Vec AbstractLinearAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, NON_HEART, CONC
     this->InitialiseForSolve(currentSolutionOrGuess);
     return this->StaticSolve(currentSolutionOrGuess, currentTime);
 }
+
+#undef COVERAGE_IGNORE
+
 
 #endif //_ABSTRACTLINEARASSEMBLER_HPP_

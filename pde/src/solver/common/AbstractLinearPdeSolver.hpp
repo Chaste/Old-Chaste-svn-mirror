@@ -55,7 +55,8 @@ protected :
 
 public :
     /**
-     *  Constructor does nothing
+     *  Constructor
+     *  @param pMesh the mesh
      */
     AbstractLinearPdeSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
         : mpLinearSystem(NULL),
@@ -118,11 +119,11 @@ public :
     virtual void SetupLinearSystem(Vec currentSolution, bool computeMatrix)=0;
     
     /** 
-     *  Get a pointer to a pointer to the linear system
+     *  Get a pointer to the linear system
      */
-    LinearSystem** GetLinearSystem()
+    LinearSystem* GetLinearSystem()
     {
-        return &(mpLinearSystem);
+        return mpLinearSystem;
     }
 };
 
