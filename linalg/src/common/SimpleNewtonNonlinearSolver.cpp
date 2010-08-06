@@ -37,7 +37,6 @@ SimpleNewtonNonlinearSolver::SimpleNewtonNonlinearSolver(double linearSolverRela
         mTolerance(1e-5),
         mWriteStats(false)
 {
-    mTestDampingValues.push_back(14);
     mTestDampingValues.push_back(-0.1);
     mTestDampingValues.push_back(0.05);
     for (unsigned i=1; i<=12; i++)
