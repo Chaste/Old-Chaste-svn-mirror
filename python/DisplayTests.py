@@ -221,8 +221,6 @@ def _recent(req, type='', start=0, buildType=''):
       bgcol_index = 1 - bgcol_index
     if build_type.startswith('acceptance'):
       build = build_types_module.GetBuildType('default' + build_type[10:])
-    elif build_type == 'failing':
-      build = build_types_module.GetBuildType('_onlytests_Failing')
     else:
       build = build_types_module.GetBuildType(build_type)
     test_set_dir = _testResultsDir(type, revision, machine, build_type)
@@ -416,6 +414,10 @@ def buildType(req, buildType, revision=None):
   if buildType.startswith('acceptance'):
     page_body += """
   <p>This build was actually used just to run the acceptance tests.</p>
+"""
+  elif buildType.startswith('_broke'):
+    page_body += """
+  <p>This build didn't actually succeed; check the build log for details.</p>
 """
   prefs = build.GetPreferedVersions()
   if prefs:

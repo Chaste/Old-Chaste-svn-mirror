@@ -1246,6 +1246,9 @@ def GetBuildType(buildType):
         elif extra.startswith('hostconfig'):
             obj.SetHostConfig(extra[11:])
             obj.build_dir += '_' + extra
+        elif extra.startswith('broke'):
+            # For build system use
+            pass
         else:
             try:
                 np = int(extra)
