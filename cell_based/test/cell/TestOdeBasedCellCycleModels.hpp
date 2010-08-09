@@ -51,6 +51,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellCycleModelOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
+#include "CvodeAdaptor.hpp"
 
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
@@ -286,9 +287,17 @@ public:
          * is the same type as the solver used by the cell cycle model if no solver is provided
          * (unless CVODE is used), so our results should be identical.
          */
+#ifdef CHASTE_CVODE
+        boost::shared_ptr<CellCycleModelOdeSolver<WntCellCycleModel, CvodeAdaptor> >
+            p_solver(CellCycleModelOdeSolver<WntCellCycleModel, CvodeAdaptor>::Instance());
+        p_solver->Initialise();
+        p_solver->CheckForStoppingEvents();
+        p_solver->SetMaxSteps(10000);
+#else
         boost::shared_ptr<CellCycleModelOdeSolver<WntCellCycleModel, RungeKutta4IvpOdeSolver> > 
             p_solver(CellCycleModelOdeSolver<WntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
         p_solver->Initialise();
+#endif //CHASTE_CVODE
 
         WntCellCycleModel* p_other_cell_model = new WntCellCycleModel(p_solver);
         p_other_cell_model->SetDimension(2);
