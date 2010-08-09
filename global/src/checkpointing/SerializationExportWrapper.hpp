@@ -136,6 +136,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
 
 // Handle broken BOOST_CLASS_EXPORT in Boost 1.36 & 1.37
 #if BOOST_VERSION >= 103600 && BOOST_VERSION < 103800
@@ -236,7 +239,7 @@ template<class T> struct pack<void (T)> {
  * @param P1  the template parameter
  */
 #define CHASTE_STRINGIZE_1(CLASS, P1) \
-    CLASS##BOOST_PP_STRINGIZE(P1)
+    BOOST_PP_CAT(CLASS, BOOST_PP_STRINGIZE(P1))
 
 /**
  * Defines the export key for a class templated over 2 parameters.
@@ -245,7 +248,7 @@ template<class T> struct pack<void (T)> {
  * @param P2  the second template parameter
  */
 #define CHASTE_STRINGIZE_2(CLASS, P1, P2) \
-    CLASS##BOOST_PP_STRINGIZE(P1)##BOOST_PP_STRINGIZE(P2)
+    BOOST_PP_CAT(CLASS, BOOST_PP_CAT(BOOST_PP_STRINGIZE(P1), BOOST_PP_STRINGIZE(P2)))
 
 /**
  * Defines the export key for a class templated over 3 parameters.
@@ -255,7 +258,7 @@ template<class T> struct pack<void (T)> {
  * @param P3  the third template parameter
  */
 #define CHASTE_STRINGIZE_3(CLASS, P1, P2, P3) \
-    CLASS##BOOST_PP_STRINGIZE(P1)##BOOST_PP_STRINGIZE(P2)##BOOST_PP_STRINGIZE(P3)
+    BOOST_PP_CAT(CLASS, BOOST_PP_CAT(BOOST_PP_STRINGIZE(P1), BOOST_PP_CAT(BOOST_PP_STRINGIZE(P2), BOOST_PP_STRINGIZE(P3))))
 
 /**
  * Defines the export type for a class templated over 1 parameter.
