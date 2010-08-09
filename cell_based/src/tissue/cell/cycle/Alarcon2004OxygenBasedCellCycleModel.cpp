@@ -34,10 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel()
     : AbstractOdeBasedCellCycleModelWithStoppingEvent()
 {
-    boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
-        p_solver(CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
-    p_solver->Initialise();
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
+    mpOdeSolver->Initialise();
 }
 
 

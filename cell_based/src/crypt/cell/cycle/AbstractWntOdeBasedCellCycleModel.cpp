@@ -34,18 +34,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel()
 {
 #ifdef CHASTE_CVODE
-    boost::shared_ptr<CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor> >
-        p_solver(CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor>::Instance());
-    p_solver->Initialise();
+    mpOdeSolver = CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor>::Instance();
+    mpOdeSolver->Initialise();
     // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so
-    p_solver->CheckForStoppingEvents();
-    p_solver->SetMaxSteps(10000);
-    mpOdeSolver = p_solver;
+    mpOdeSolver->CheckForStoppingEvents();
+    mpOdeSolver->SetMaxSteps(10000);
 #else
-    boost::shared_ptr<CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
-        p_solver(CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
-    p_solver->Initialise();
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
+    mpOdeSolver->Initialise();
 #endif //CHASTE_CVODE
 }
 
@@ -55,13 +51,9 @@ AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const Abstr
     mDimension = rOtherModel.mDimension;
 
 #ifdef CHASTE_CVODE
-    boost::shared_ptr<CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor> >
-        p_solver(CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor>::Instance());
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor>::Instance();
 #else
-    boost::shared_ptr<CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
-        p_solver(CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
 #endif //CHASTE_CVODE
 }
 

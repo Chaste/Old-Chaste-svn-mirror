@@ -93,6 +93,11 @@ public:
                                      double timeStep);
 
     /**
+     * Initialise the ODE solver.
+     */
+    virtual void Initialise()=0;
+
+    /**
      * Determine whether the solver quit due to the ODE's stopping event
      * triggering
      */

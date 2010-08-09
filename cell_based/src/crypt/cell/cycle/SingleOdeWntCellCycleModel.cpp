@@ -36,16 +36,12 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel()
       mLastTime(DBL_MAX) // Ensure this is set properly before we try to use it.
 {
 #ifdef CHASTE_CVODE
-    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor> >
-        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance());
-    p_solver->Initialise();
-    p_solver->SetMaxSteps(10000);
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance();
+    mpOdeSolver->Initialise();
+    mpOdeSolver->SetMaxSteps(10000);
 #else
-    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver> >
-        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
-    p_solver->Initialise();
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
+    mpOdeSolver->Initialise();
 #endif //CHASTE_CVODE
 }
 
