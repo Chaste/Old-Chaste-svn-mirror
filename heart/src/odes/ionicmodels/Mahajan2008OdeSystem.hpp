@@ -41,13 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class Mahajan2008OdeSystem : public AbstractCardiacCell
 {
-private:
-    /** Scale factor for Gks*/
-    double mScaleFactorGks;
-    /** Scale factor for Gto*/
-    double mScaleFactorIto;
-    /** Scale factor for Gkr*/
-    double mScaleFactorGkr;
 public:
     /**
      * Constructor

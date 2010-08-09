@@ -279,6 +279,7 @@ public:
         TS_ASSERT(CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
                                                 foldername, "SimulationResults", true, 1e-8));
     }
+
     void TestCardiacSimulationKirsten() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_kirsten.xml");

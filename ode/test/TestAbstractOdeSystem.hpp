@@ -108,6 +108,8 @@ public:
         double a = 1.0;
         ode.SetParameter(0, a);
         TS_ASSERT_EQUALS(ode.GetParameter(0), a);
+        ode.SetParameter("a", a);
+        TS_ASSERT_EQUALS(ode.GetParameter(0), a);
 
         TS_ASSERT_EQUALS(ode.rGetParameterNames()[0], "a");
         TS_ASSERT_EQUALS(ode.rGetParameterUnits()[0], "dimensionless");

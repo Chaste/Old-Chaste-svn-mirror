@@ -165,6 +165,14 @@ public:
     /**
      * Set the value of a given parameter.
      *
+     * @param rName the name of the parameter
+     * @param value the value
+     */
+    void SetParameter(const std::string& rName, double value);
+
+    /**
+     * Set the value of a given parameter.
+     *
      * @param index the index of the parameter
      * @param value the value
      */

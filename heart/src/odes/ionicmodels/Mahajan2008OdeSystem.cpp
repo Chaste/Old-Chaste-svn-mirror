@@ -24,29 +24,18 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolve
     {
         // Time units: ms
         //
-        mpSystemInfo = OdeSystemInformation<Mahajan2008OdeSystem>::Instance();
-        mScaleFactorGks = 1.0;
-        mScaleFactorIto = 1.0;
-        mScaleFactorGkr = 1.0;
+        this->mpSystemInfo = OdeSystemInformation<Mahajan2008OdeSystem>::Instance();
         Init();
+
+        this->mParameters[0] = 1.0; // (c,IKr__ScaleFactorGkr) [dimensionless]
+        this->mParameters[1] = 1.0; // (c,IKs__ScaleFactorGks) [dimensionless]
+        this->mParameters[2] = 1.0; // (c,Ito__ScaleFactorIto) [dimensionless]
     }
 
     Mahajan2008OdeSystem::~Mahajan2008OdeSystem(void)
     {
     }
 
-      void Mahajan2008OdeSystem::SetScaleFactorGks(double sfgks)
-    {
-        mScaleFactorGks=sfgks;
-    }
-    void Mahajan2008OdeSystem::SetScaleFactorIto(double sfito)
-    {
-        mScaleFactorIto=sfito;
-    }
-    void Mahajan2008OdeSystem::SetScaleFactorGkr(double sfgkr)
-    {
-        mScaleFactorGkr=sfgkr;
-    }
  //   void Mahajan2008OdeSystem::VerifyGatingVariables()
  //   {}
 
@@ -115,12 +104,12 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolve
         double var_IK1__xik1 = var_IK1__gkix * sqrt(var_IK1__K_o / 5.4) * var_IK1__xkin * (var_IK1__V - var_IK1__ek);
         double var_cell__xik1 = var_IK1__xik1;
         double var_Ito__ek = var_reversal_potentials__ek;
-        const double var_Ito__gtos = 0.04;
+        const double var_Ito__gtos = 0.11;
         double var_Ito__V = var_cell__V;
         double var_Ito__rt2 = (var_Ito__V + 33.5) / 10.0;
         double var_Ito__rs_inf = 1.0 / (1.0 + exp(var_Ito__rt2));
-        double var_Ito__xitos = mScaleFactorIto*var_Ito__gtos * var_Ito__xtos * (var_Ito__ytos + (0.5 * var_Ito__rs_inf)) * (var_Ito__V - var_Ito__ek);
-        const double var_Ito__gtof = 0.11;
+        double var_Ito__xitos = this->mParameters[2]*var_Ito__gtos * var_Ito__xtos * (var_Ito__ytos + (0.5 * var_Ito__rs_inf)) * (var_Ito__V - var_Ito__ek);
+        const double var_Ito__gtof = 0.04;
         double var_Ito__xitof = var_Ito__gtof * var_Ito__xtof * var_Ito__ytof * (var_Ito__V - var_Ito__ek);
         double var_Ito__xito = var_Ito__xitos + var_Ito__xitof;
         double var_cell__xito = var_Ito__xito;
@@ -182,7 +171,7 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolve
         double var_IKr__V = var_cell__V;
         double var_IKr__rg = 1.0 / (1.0 + exp((var_IKr__V + 33.0) / 22.4));
         double var_IKr__ek = var_reversal_potentials__ek;
-        double var_IKr__xikr = mScaleFactorGkr*var_IKr__gkr * sqrt(var_IKr__K_o / 5.4) * var_IKr__xr * var_IKr__rg * (var_IKr__V - var_IKr__ek);
+        double var_IKr__xikr = this->mParameters[0]*var_IKr__gkr * sqrt(var_IKr__K_o / 5.4) * var_IKr__xr * var_IKr__rg * (var_IKr__V - var_IKr__ek);
         double var_cell__xikr = var_IKr__xikr;
         double var_IKs__Ca_i = var_Ca__Ca_i;
         double var_IKs__gksx = 1.0 + (0.8 / (1.0 + pow(0.5 / var_IKs__Ca_i, 3.0)));
@@ -193,7 +182,7 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolve
         double var_reversal_potentials__Na_i = var_Na__Na_i;
         double var_reversal_potentials__eks = (1.0 / var_reversal_potentials__FonRT) * log((var_reversal_potentials__K_o + (var_reversal_potentials__prNaK * var_reversal_potentials__Na_o)) / (var_reversal_potentials__K_i + (var_reversal_potentials__prNaK * var_reversal_potentials__Na_i)));
         double var_IKs__eks = var_reversal_potentials__eks;
-        double var_IKs__xiks = mScaleFactorGks*var_IKs__gks * var_IKs__gksx * var_IKs__xs1 * var_IKs__xs2 * (var_IKs__V - var_IKs__eks);
+        double var_IKs__xiks = this->mParameters[1]*var_IKs__gks * var_IKs__gksx * var_IKs__xs1 * var_IKs__xs2 * (var_IKs__V - var_IKs__eks);
         double var_cell__xiks = var_IKs__xiks;
         double var_INa__V = var_cell__V;
         const double var_INa__gna = 12.0;
@@ -301,12 +290,12 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolve
         double var_IK1__xik1 = var_IK1__gkix * sqrt(var_IK1__K_o / 5.4) * var_IK1__xkin * (var_IK1__V - var_IK1__ek);
         double var_cell__xik1 = var_IK1__xik1;
         double var_Ito__ek = var_reversal_potentials__ek;
-        const double var_Ito__gtos = 0.04;
+        const double var_Ito__gtos = 0.11;
         double var_Ito__V = var_cell__V;
         double var_Ito__rt2 = (var_Ito__V + 33.5) / 10.0;
         double var_Ito__rs_inf = 1.0 / (1.0 + exp(var_Ito__rt2));
-        double var_Ito__xitos = mScaleFactorIto*var_Ito__gtos * var_Ito__xtos * (var_Ito__ytos + (0.5 * var_Ito__rs_inf)) * (var_Ito__V - var_Ito__ek);
-        const double var_Ito__gtof = 0.11;
+        double var_Ito__xitos = this->mParameters[2]*var_Ito__gtos * var_Ito__xtos * (var_Ito__ytos + (0.5 * var_Ito__rs_inf)) * (var_Ito__V - var_Ito__ek);
+        const double var_Ito__gtof = 0.04;
         double var_Ito__xitof = var_Ito__gtof * var_Ito__xtof * var_Ito__ytof * (var_Ito__V - var_Ito__ek);
         double var_Ito__xito = var_Ito__xitos + var_Ito__xitof;
         double var_cell__xito = var_Ito__xito;
@@ -368,7 +357,7 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolve
         double var_IKr__V = var_cell__V;
         double var_IKr__rg = 1.0 / (1.0 + exp((var_IKr__V + 33.0) / 22.4));
         double var_IKr__ek = var_reversal_potentials__ek;
-        double var_IKr__xikr = mScaleFactorGkr*var_IKr__gkr * sqrt(var_IKr__K_o / 5.4) * var_IKr__xr * var_IKr__rg * (var_IKr__V - var_IKr__ek);
+        double var_IKr__xikr = this->mParameters[0]*var_IKr__gkr * sqrt(var_IKr__K_o / 5.4) * var_IKr__xr * var_IKr__rg * (var_IKr__V - var_IKr__ek);
         double var_cell__xikr = var_IKr__xikr;
         double var_IKs__Ca_i = var_Ca__Ca_i;
         double var_IKs__gksx = 1.0 + (0.8 / (1.0 + pow(0.5 / var_IKs__Ca_i, 3.0)));
@@ -379,7 +368,7 @@ Mahajan2008OdeSystem::Mahajan2008OdeSystem(boost::shared_ptr<AbstractIvpOdeSolve
         double var_reversal_potentials__Na_i = var_Na__Na_i;
         double var_reversal_potentials__eks = (1.0 / var_reversal_potentials__FonRT) * log((var_reversal_potentials__K_o + (var_reversal_potentials__prNaK * var_reversal_potentials__Na_o)) / (var_reversal_potentials__K_i + (var_reversal_potentials__prNaK * var_reversal_potentials__Na_i)));
         double var_IKs__eks = var_reversal_potentials__eks;
-        double var_IKs__xiks = mScaleFactorGks*var_IKs__gks * var_IKs__gksx * var_IKs__xs1 * var_IKs__xs2 * (var_IKs__V - var_IKs__eks);
+        double var_IKs__xiks = this->mParameters[1]*var_IKs__gks * var_IKs__gksx * var_IKs__xs1 * var_IKs__xs2 * (var_IKs__V - var_IKs__eks);
         double var_cell__xiks = var_IKs__xiks;
         double var_cell__i_Stim = GetStimulus((1.0/1)*var_Environment__time);
         double var_INa__V = var_cell__V;
@@ -597,7 +586,7 @@ void OdeSystemInformation<Mahajan2008OdeSystem>::Initialise(void)
 {
     // Time units: ms
     //
-    this->mVariableNames.push_back("V");
+    this->mVariableNames.push_back("membrane_voltage");
     this->mVariableUnits.push_back("mV");
     this->mInitialConditions.push_back(-87.169816169406);
 
@@ -700,6 +689,15 @@ void OdeSystemInformation<Mahajan2008OdeSystem>::Initialise(void)
     this->mVariableNames.push_back("trops");
     this->mVariableUnits.push_back("uM");
     this->mInitialConditions.push_back(19.864701949854);
+
+    this->mParameterNames.push_back("ScaleFactorGkr");
+    this->mParameterUnits.push_back("dimensionless");
+
+    this->mParameterNames.push_back("ScaleFactorGks");
+    this->mParameterUnits.push_back("dimensionless");
+
+    this->mParameterNames.push_back("ScaleFactorIto");
+    this->mParameterUnits.push_back("dimensionless");
 
     this->mInitialised = true;
 }

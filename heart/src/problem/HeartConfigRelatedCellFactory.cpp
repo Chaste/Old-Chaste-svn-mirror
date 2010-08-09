@@ -247,12 +247,9 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
     {
         try
         {
-            unsigned param_index = p_cell->GetParameterIndex("ScaleFactorGks");
-            p_cell->SetParameter(param_index, mScaleFactorGks[ht_index]);
-            param_index = p_cell->GetParameterIndex("ScaleFactorGkr");
-            p_cell->SetParameter(param_index, mScaleFactorGkr[ht_index]);
-            param_index = p_cell->GetParameterIndex("ScaleFactorIto");
-            p_cell->SetParameter(param_index, mScaleFactorIto[ht_index]);
+            p_cell->SetParameter("ScaleFactorGks", mScaleFactorGks[ht_index]);
+            p_cell->SetParameter("ScaleFactorGkr", mScaleFactorGkr[ht_index]);
+            p_cell->SetParameter("ScaleFactorIto", mScaleFactorIto[ht_index]);
         }
         catch (const Exception& e)
         {

@@ -132,6 +132,7 @@ public:
                                                                           start_stimulus));
 
         boost::shared_ptr<EulerIvpOdeSolver> p_forward_solver(new EulerIvpOdeSolver); //define the solver
+
         Mahajan2008OdeSystem forward_model(p_forward_solver, p_stimulus);
         boost::shared_ptr<BackwardEulerIvpOdeSolver> p_backward_solver(new BackwardEulerIvpOdeSolver(
                                     forward_model.GetNumberOfStateVariables()));
@@ -140,17 +141,17 @@ public:
         Mahajan2008OdeSystem endocardial_model(p_backward_solver, p_stimulus);
         Mahajan2008OdeSystem midmyocardial_model(p_backward_solver, p_stimulus);
 
-        epicardial_model.SetScaleFactorGks(1.0);
-        epicardial_model.SetScaleFactorIto(1.0);
-        epicardial_model.SetScaleFactorGkr(1.0);
+        epicardial_model.SetParameter("ScaleFactorGks",1.0);
+        epicardial_model.SetParameter("ScaleFactorIto",1.0);
+        epicardial_model.SetParameter("ScaleFactorGkr",1.0);
 
-        midmyocardial_model.SetScaleFactorGks(0.09);
-        midmyocardial_model.SetScaleFactorIto(1.0);
-        midmyocardial_model.SetScaleFactorGkr(1.0);
+        midmyocardial_model.SetParameter("ScaleFactorGks",0.09);
+        midmyocardial_model.SetParameter("ScaleFactorIto",1.0);
+        midmyocardial_model.SetParameter("ScaleFactorGkr",1.0);
 
-        endocardial_model.SetScaleFactorGks(0.86);
-        endocardial_model.SetScaleFactorIto(0.2);
-        endocardial_model.SetScaleFactorGkr(1.0);
+        endocardial_model.SetParameter("ScaleFactorGks",0.86);
+        endocardial_model.SetParameter("ScaleFactorIto",0.2);
+        endocardial_model.SetParameter("ScaleFactorGkr",1.0);
 
         std::vector<double> state_variables_epi = epicardial_model.GetInitialConditions();
         std::vector<double> state_variables_endo = endocardial_model.GetInitialConditions();
@@ -195,9 +196,9 @@ public:
         ColumnDataReader data_reader_endo("TestIonicModels", mahajan_endo_file);
 
         std::vector<double> times = data_reader_epi.GetValues("Time");
-        std::vector<double> v_endo = data_reader_endo.GetValues("V");
-        std::vector<double> v_epi = data_reader_epi.GetValues("V");
-        std::vector<double> v_mid = data_reader_mid.GetValues("V");
+        std::vector<double> v_endo = data_reader_endo.GetValues("membrane_voltage");
+        std::vector<double> v_epi = data_reader_epi.GetValues("membrane_voltage");
+        std::vector<double> v_mid = data_reader_mid.GetValues("membrane_voltage");
 
         CellProperties  cell_properties_endo(v_endo, times);
         CellProperties  cell_properties_epi(v_epi, times);
@@ -207,11 +208,11 @@ public:
         double endo_APD = cell_properties_endo.GetLastActionPotentialDuration(90);
         double mid_APD = cell_properties_mid.GetLastActionPotentialDuration(90);
 
-        //check that percentage increase from epi to mid and endo (roughly) matches results
+        // Check that percentage increase from epi to mid and endo (roughly*) matches results
         // from McIntosh et al. Card Res, 45:397-409. 200 (Figure 1 and 2)
-        TS_ASSERT_DELTA((mid_APD-epi_APD)*100/epi_APD, 36.2, 2);
-        TS_ASSERT_DELTA((endo_APD-epi_APD)*100/epi_APD, 8, 2);
-
+        // *this is cardiac modelling after all...
+        TS_ASSERT_DELTA((mid_APD-epi_APD)*100/epi_APD, 48.6, 2); // new values because gtos and gtof were the wrong way round (in Mahajan paper - they copied and pasted from Shannon wrong!)
+        TS_ASSERT_DELTA((endo_APD-epi_APD)*100/epi_APD, 15.7, 2); // ""
     }
 
     /**

@@ -155,6 +155,12 @@ void AbstractParameterisedSystem<VECTOR>::SetParameter(unsigned index, double va
 }
 
 template<typename VECTOR>
+void AbstractParameterisedSystem<VECTOR>::SetParameter(const std::string& rName, double value)
+{
+    SetVectorComponent(mParameters, GetParameterIndex(rName), value);
+}
+
+template<typename VECTOR>
 const std::vector<std::string>& AbstractParameterisedSystem<VECTOR>::rGetParameterNames() const
 {
     assert(mpSystemInfo);

@@ -734,12 +734,9 @@ public:
         CellTenTusscher2006EpiFromCellML TT_model(p_solver, p_stimulus);
 
         //Default values for the scale factors, other values tested in the nightly build
-        unsigned param_index = TT_model.GetParameterIndex("ScaleFactorIto");
-        TT_model.SetParameter(param_index, 1.0);
-        param_index = TT_model.GetParameterIndex("ScaleFactorGkr");
-        TT_model.SetParameter(param_index, 1.0);
-        param_index = TT_model.GetParameterIndex("ScaleFactorGks");
-        TT_model.SetParameter(param_index, 1.0);
+        TT_model.SetParameter("ScaleFactorIto", 1.0);
+        TT_model.SetParameter("ScaleFactorGkr", 1.0);
+        TT_model.SetParameter("ScaleFactorGks", 1.0);
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&TT_model,
@@ -843,9 +840,9 @@ public:
         Mahajan2008OdeSystem rabbit_ode_system(p_solver, p_stimulus);
 
         //default values for scale factors. They are tested separately in the nightly build.
-        rabbit_ode_system.SetScaleFactorGks(1.0);
-        rabbit_ode_system.SetScaleFactorIto(1.0);
-        rabbit_ode_system.SetScaleFactorGkr(1.0);
+        rabbit_ode_system.SetParameter("ScaleFactorGks",1.0);
+        rabbit_ode_system.SetParameter("ScaleFactorIto",1.0);
+        rabbit_ode_system.SetParameter("ScaleFactorGkr",1.0);
 
         //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA(rabbit_ode_system.GetIIonic(), 0.0027, 1e-3);
@@ -856,7 +853,7 @@ public:
                                    "Mahajan2008",
                                    1000);
         // Check against validated data
-        // (the code for the mahajan model was generated from a CellML code known to be valid)
+        // (the code for the Mahajan model was generated from a CellML code known to be valid)
         CheckCellModelResults("Mahajan2008");
     }
 
@@ -886,7 +883,7 @@ public:
         ck_end = clock();
         double backward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
 
-        TS_ASSERT_DELTA( mahajan_backward_euler.GetIIonic(), 0.0140, 1e-3);
+        TS_ASSERT_DELTA( mahajan_backward_euler.GetIIonic(), 0.1244, 1e-3);
 
         // Solve using forward euler
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.05, 0.05);

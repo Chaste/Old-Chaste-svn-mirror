@@ -57,7 +57,6 @@ public:
         boost::shared_ptr<AbstractIvpOdeSolver> p_solver; // We don't actually need a solver
 
         CellHodgkinHuxley1952FromCellML hh52_ode_system(p_solver, p_stimulus);
-        //HodgkinHuxleySquidAxon1952OriginalOdeSystem hh52_ode_system(p_solver, p_stimulus);
 
         double v_singularity[2];
         v_singularity[0]=-65;
