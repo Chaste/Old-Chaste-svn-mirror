@@ -35,21 +35,18 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel()
     mpOdeSystem = new TysonNovak2001OdeSystem;
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 
+    ///\todo #1427 - extra this setup into a new method
 #ifdef CHASTE_CVODE
-    boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor> >
-        p_solver(CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor>::Instance());
-    p_solver->Initialise();
+    mpOdeSolver = CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor>::Instance();
+    mpOdeSolver->Initialise();
     // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so
-    p_solver->CheckForStoppingEvents();
-    p_solver->SetMaxSteps(10000);
-    p_solver->SetTolerances(1e-6, 1e-8);
-    mpOdeSolver = p_solver;
+    mpOdeSolver->CheckForStoppingEvents();
+    mpOdeSolver->SetMaxSteps(10000);
+    mpOdeSolver->SetTolerances(1e-6, 1e-8);
 #else
-    boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> >
-        p_solver(CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance());
-    p_solver->SetSizeOfOdeSystem(6);
-    p_solver->Initialise();
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance();
+    mpOdeSolver->SetSizeOfOdeSystem(6);
+    mpOdeSolver->Initialise();
 #endif //CHASTE_CVODE
 }
 
@@ -61,13 +58,16 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleMode
         mpOdeSystem = new TysonNovak2001OdeSystem(*static_cast<TysonNovak2001OdeSystem*>(rOtherModel.mpOdeSystem));
     }
 #ifdef CHASTE_CVODE
-    boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor> >
-        p_solver(CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor>::Instance());
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor>::Instance();
+    mpOdeSolver->Initialise();
+    // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so
+    mpOdeSolver->CheckForStoppingEvents();
+    mpOdeSolver->SetMaxSteps(10000);
+    mpOdeSolver->SetTolerances(1e-6, 1e-8);
 #else
-    boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> >
-        p_solver(CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance());
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance();
+    mpOdeSolver->SetSizeOfOdeSystem(6);
+    mpOdeSolver->Initialise();
 #endif //CHASTE_CVODE
 }
 
