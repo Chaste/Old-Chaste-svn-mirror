@@ -33,8 +33,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Exception.hpp"
 
-AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime)
+AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime,
+                                                               boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : mpOdeSystem(NULL),
+      mpOdeSolver(pOdeSolver),
       mLastTime(lastTime),
       mDivideTime(lastTime),
       mFinishedRunningOdes(false),
@@ -46,6 +48,7 @@ AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime)
 AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(const AbstractOdeBasedCellCycleModel& rOtherModel)
     : AbstractCellCycleModel(rOtherModel),
       mpOdeSystem(NULL), // Must be done by subclasses
+      mpOdeSolver(rOtherModel.mpOdeSolver),
       mLastTime(rOtherModel.mLastTime),
       mDivideTime(rOtherModel.mDivideTime),
       mFinishedRunningOdes(rOtherModel.mFinishedRunningOdes),

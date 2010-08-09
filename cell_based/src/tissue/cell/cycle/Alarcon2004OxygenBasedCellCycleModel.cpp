@@ -31,11 +31,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 
 
-Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel()
-    : AbstractOdeBasedCellCycleModelWithStoppingEvent()
+Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
+    : AbstractOdeBasedCellCycleModelWithStoppingEvent(SimulationTime::Instance()->GetTime(), pOdeSolver)
 {
-    mpOdeSolver = CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
-    mpOdeSolver->Initialise();
+    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
+    {
+        mpOdeSolver = CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
+        mpOdeSolver->Initialise();
+    }
 }
 
 
@@ -46,9 +49,12 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const
     {
         mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(*static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
     }
-    boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
-        p_solver(CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
-    mpOdeSolver = p_solver;
+    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
+    {
+        boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
+            p_solver(CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+        mpOdeSolver = p_solver;
+    }
 }
 
 

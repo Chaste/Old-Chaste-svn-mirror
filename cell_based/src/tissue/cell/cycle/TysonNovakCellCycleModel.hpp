@@ -69,8 +69,10 @@ public:
 
     /**
      * Default constructor.
+     * 
+     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      */
-    TysonNovakCellCycleModel();
+    TysonNovakCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
      * Copy constructor.

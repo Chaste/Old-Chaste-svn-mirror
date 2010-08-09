@@ -108,6 +108,14 @@ private:
     Mirams2010WntOdeSystem* mpOdeSystem;
 
     /**
+     * The ODE solver.
+     * 
+     * Subclasses need to set this in their constructor to point to an instance
+     * of a suitable class. See for example the CellCycleModelOdeSolver class.
+     */
+    boost::shared_ptr<AbstractCellCycleModelOdeSolver> mpOdeSolver;
+
+    /**
      * The cell differentiates when the beta-catenin level drops
      * below this value. It is hard coded in
      * Initialise() because there are so many constructors.
@@ -115,6 +123,9 @@ private:
      * Set and Get methods are also provided.
      */
     double mBetaCateninDivisionThreshold;
+
+    /** The last time at which the ODEs were solved up to */
+    double mLastTime;
 
     /**
      * Called by ::Initialise() and ::UpdateCellProliferativeType() only.
@@ -131,27 +142,20 @@ private:
      */
     void UpdateBetaCateninLevel();
 
-    /**
-     * The ODE solver.
-     * 
-     * Subclasses need to set this in their constructor to point to an instance
-     * of a suitable class. See for example the CellCycleModelOdeSolver class.
-     */
-    boost::shared_ptr<AbstractCellCycleModelOdeSolver> mpOdeSolver;
-
-    /** The last time at which the ODEs were solved up to */
-    double mLastTime;
-
 public:
 
     /**
      * Default constructor.
+     * 
+     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      */
-    SingleOdeWntCellCycleModel();
+    SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
      * A 'private' constructor for archiving.
      *
+     * \todo pass in ODE solver? (#1427)
+     * 
      * @param rProteinConcs a std::vector of doubles of the protein concentrations (see VanLeeuwen2009WntSwatCellCycleOdeSystem)
      * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension

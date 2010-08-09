@@ -89,6 +89,30 @@ private:
 public:
 
     /**
+     * The standard constructor called in tests.
+     * 
+     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
+     */
+    StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
+
+    /**
+     * A private constructor for archiving.
+     *
+     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
+     * @param pMutationState the mutation state of the cell (used by ODEs)
+     * @param rDimension the spatial dimension
+     */
+    StochasticWntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
+                                boost::shared_ptr<AbstractCellMutationState> pMutationState,
+                                const unsigned& rDimension);
+
+    /**
+     * Overridden builder method to create new copies of
+     * this cell cycle model.
+     */
+    AbstractCellCycleModel* CreateCellCycleModel();
+
+    /**
      * Set the duration of the G2 phase for the daughter cell.
      */
     void InitialiseDaughterCell();
@@ -112,29 +136,6 @@ public:
      * Get the duration of the G2 phase.
      */
     double GetG2Duration();
-
-    /**
-     * The standard constructor called in tests.
-     */
-    StochasticWntCellCycleModel();
-
-    /**
-     * A private constructor for archiving.
-     *
-     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
-     * @param pMutationState the mutation state of the cell (used by ODEs)
-     * @param rDimension the spatial dimension
-     */
-    StochasticWntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
-                                boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                                const unsigned& rDimension);
-
-    /**
-     * Overridden builder method to create new copies of
-     * this cell cycle model.
-     */
-    AbstractCellCycleModel* CreateCellCycleModel();
-
 };
 
 

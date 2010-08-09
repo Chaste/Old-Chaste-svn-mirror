@@ -28,8 +28,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
 
 
-AbstractOdeBasedCellCycleModelWithStoppingEvent::AbstractOdeBasedCellCycleModelWithStoppingEvent(double lastTime)
-        : AbstractOdeBasedCellCycleModel(lastTime)
+AbstractOdeBasedCellCycleModelWithStoppingEvent::AbstractOdeBasedCellCycleModelWithStoppingEvent(double lastTime,
+                                                      boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
+    : AbstractOdeBasedCellCycleModel(lastTime, pOdeSolver)
 //          mFinishedRunningOdes(false),
 //          mG2PhaseStartTime(DBL_MAX)
 {

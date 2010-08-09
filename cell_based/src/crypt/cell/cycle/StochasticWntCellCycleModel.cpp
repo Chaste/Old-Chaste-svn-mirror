@@ -28,7 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticWntCellCycleModel.hpp"
 
 
-StochasticWntCellCycleModel::StochasticWntCellCycleModel()
+StochasticWntCellCycleModel::StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
+    : WntCellCycleModel(pOdeSolver)
 {
 }
 

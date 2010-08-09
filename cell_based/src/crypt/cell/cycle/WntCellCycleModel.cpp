@@ -27,9 +27,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "WntCellCycleModel.hpp"
 
-WntCellCycleModel::WntCellCycleModel()
-    : AbstractWntOdeBasedCellCycleModel()
-{}
+WntCellCycleModel::WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
+    : AbstractWntOdeBasedCellCycleModel(pOdeSolver)
+{
+}
 
 
 WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& rOtherModel)

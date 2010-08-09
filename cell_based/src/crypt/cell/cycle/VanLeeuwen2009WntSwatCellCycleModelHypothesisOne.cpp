@@ -28,8 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 
-VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::VanLeeuwen2009WntSwatCellCycleModelHypothesisOne()
-    : AbstractVanLeeuwen2009WntSwatCellCycleModel()
+VanLeeuwen2009WntSwatCellCycleModelHypothesisOne::VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
+    : AbstractVanLeeuwen2009WntSwatCellCycleModel(pOdeSolver)
 {
 }
 

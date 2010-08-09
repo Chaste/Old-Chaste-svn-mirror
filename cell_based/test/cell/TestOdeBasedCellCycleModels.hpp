@@ -41,15 +41,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 #include "StochasticWntCellCycleModel.hpp"
-#include "OutputFileHandler.hpp"
-#include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
-#include "AbstractCellBasedTestSuite.hpp"
 
 #include "AbstractCellMutationState.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "ApcOneHitCellMutationState.hpp"
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
+
+#include "CellCycleModelOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
+
+#include "OutputFileHandler.hpp"
+#include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
+#include "AbstractCellBasedTestSuite.hpp"
 
 /**
  * This class contains tests for methods on classes
@@ -78,6 +83,23 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
         TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_cell_model));
 
+        /*
+         * For coverage, we create another cell cycle model that is identical except that we
+         * manually pass in an ODE solver. In this case, our ODE solver (RungeKutta4IvpOdeSolver)
+         * is the same type as the solver used by the cell cycle model if no solver is provided
+         * (unless CVODE is used), so our results should be identical.
+         */
+        boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> > 
+            p_solver(CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance());
+        p_solver->SetSizeOfOdeSystem(6);
+        p_solver->Initialise();
+
+        TysonNovakCellCycleModel* p_other_cell_model = new TysonNovakCellCycleModel(p_solver);
+        p_other_cell_model->SetBirthTime(p_simulation_time->GetTime());
+        p_other_cell_model->SetCellProliferativeType(STEM);
+
+        TissueCellPtr p_other_cell(new TissueCell(p_healthy_state, p_other_cell_model));
+
         // Test the cell is ready to divide at the right time
         for (unsigned i=0; i<num_timesteps/2; i++)
         {
@@ -85,14 +107,17 @@ public:
             double time = p_simulation_time->GetTime();
 
             bool result = p_cell_model->ReadyToDivide();
+            bool other_result = p_other_cell_model->ReadyToDivide();
 
             if (time > standard_divide_time)
             {
                 TS_ASSERT_EQUALS(result, true);
+                TS_ASSERT_EQUALS(other_result, true);
             }
             else
             {
                 TS_ASSERT_EQUALS(result, false);
+                TS_ASSERT_EQUALS(other_result, false);
             }
         }
 
@@ -105,6 +130,15 @@ public:
         TS_ASSERT_DELTA(proteins[3], 1.40562614481544, 2e-2);
         TS_ASSERT_DELTA(proteins[4], 0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(proteins[5], 0.95328206604519, 2e-2);
+
+        std::vector<double> other_proteins = p_other_cell_model->GetProteinConcentrations();
+        TS_ASSERT_EQUALS(other_proteins.size(), 6u);
+        TS_ASSERT_DELTA(other_proteins[0], 0.10000000000000, 1e-2);
+        TS_ASSERT_DELTA(other_proteins[1], 0.98913684535843, 1e-2);
+        TS_ASSERT_DELTA(other_proteins[2], 1.54216806705641, 1e-1);
+        TS_ASSERT_DELTA(other_proteins[3], 1.40562614481544, 2e-2);
+        TS_ASSERT_DELTA(other_proteins[4], 0.67083371879876, 1e-2);
+        TS_ASSERT_DELTA(other_proteins[5], 0.95328206604519, 2e-2);
 
         // For coverage, we also test TysonNovakCellCycleModel methods for a mutant cell
         p_cell_model->ResetForDivision();
@@ -140,12 +174,12 @@ public:
         // Test ODE solution
         proteins = p_cell_model->GetProteinConcentrations();
         TS_ASSERT_EQUALS(proteins.size(), 6u);
-        TS_ASSERT_DELTA(proteins[0],0.10000000000000, 1e-2);
-        TS_ASSERT_DELTA(proteins[1],0.98913684535843, 1e-2);
-        TS_ASSERT_DELTA(proteins[2],1.54216806705641, 1e-1);
-        TS_ASSERT_DELTA(proteins[3],1.40562614481544, 1e-1);
-        TS_ASSERT_DELTA(proteins[4],0.67083371879876, 1e-2);
-        TS_ASSERT_DELTA(proteins[5],0.9662, 1e-2);
+        TS_ASSERT_DELTA(proteins[0], 0.10000000000000, 1e-2);
+        TS_ASSERT_DELTA(proteins[1], 0.98913684535843, 1e-2);
+        TS_ASSERT_DELTA(proteins[2], 1.54216806705641, 1e-1);
+        TS_ASSERT_DELTA(proteins[3], 1.40562614481544, 1e-1);
+        TS_ASSERT_DELTA(proteins[4], 0.67083371879876, 1e-2);
+        TS_ASSERT_DELTA(proteins[5], 0.9662, 1e-2);
     }
 
     /**
@@ -239,24 +273,43 @@ public:
         TissueCellPtr p_stem_cell(new TissueCell(p_healthy_state, p_cell_model));
         p_stem_cell->InitialiseCellCycleModel();
 
-        // When using a WntCellCycleModel, there is no such thing as
-        // a 'stem cell'. Cell type is changed to transit or
-        // differentiated, depending on the Wnt concentration, when
-        // InitialiseCellCycleModel() is called.
+        /*
+         * When using a WntCellCycleModel, there is no such thing as a 'stem' cell. The cell
+         * proliferative type is updated to transit or differentiated, depending on the Wnt
+         * concentration, when InitialiseCellCycleModel() is called.
+         */
         TS_ASSERT_EQUALS(p_stem_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
-        // Progress through the cell cycle
+        /*
+         * For coverage, we create another cell cycle model that is identical except that we
+         * manually pass in an ODE solver. In this case, our ODE solver (RungeKutta4IvpOdeSolver)
+         * is the same type as the solver used by the cell cycle model if no solver is provided
+         * (unless CVODE is used), so our results should be identical.
+         */
+        boost::shared_ptr<CellCycleModelOdeSolver<WntCellCycleModel, RungeKutta4IvpOdeSolver> > 
+            p_solver(CellCycleModelOdeSolver<WntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+        p_solver->Initialise();
+
+        WntCellCycleModel* p_other_cell_model = new WntCellCycleModel(p_solver);
+        p_other_cell_model->SetDimension(2);
+        p_other_cell_model->SetCellProliferativeType(STEM);
+
+        TissueCellPtr p_other_stem_cell(new TissueCell(p_healthy_state, p_other_cell_model));
+        p_other_stem_cell->InitialiseCellCycleModel();
+
+        // Progress both cells through the cell cycle
         for (unsigned i=0; i<num_timesteps; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
             double time = p_simulation_time->GetTime();
-            bool result = p_cell_model->ReadyToDivide();
 
-            // The Wnt concentration reduces from 1 to 0 over
-            // the interval 1<t<2 (at beginning of G1 phase)
+            bool result = p_cell_model->ReadyToDivide();
+            bool other_result = p_other_cell_model->ReadyToDivide();
+
+            // The Wnt concentration reduces from 1 to 0 over the interval 1<t<2 (at beginning of G1 phase)
             if (time <= 2.0)
             {
-                wnt_level = 2.0-time;
+                wnt_level = 2.0 - time;
             }
             else
             {
@@ -266,12 +319,14 @@ public:
 
             // Test that the cell cycle model does not stop for division
             TS_ASSERT_EQUALS(result, false);
+            TS_ASSERT_EQUALS(other_result, false);
         }
 
         // Test ODE solution
         double tol = 1e-5;
 
         std::vector<double> test_results = p_cell_model->GetProteinConcentrations();
+        std::vector<double> other_test_results = p_other_cell_model->GetProteinConcentrations();
 #ifdef CHASTE_CVODE
         TS_ASSERT_DELTA(test_results[0], 0.7329922345, tol);
 #else
@@ -286,9 +341,25 @@ public:
         TS_ASSERT_DELTA(test_results[7], 0.5*7.415537855270896e-03, tol);
         TS_ASSERT_DELTA(test_results[8], 0.0, tol);
 
+#ifdef CHASTE_CVODE
+        TS_ASSERT_DELTA(other_test_results[0], 0.7329922345, tol);
+#else
+        TS_ASSERT_DELTA(other_test_results[0], 7.330036281693106e-01, tol);
+#endif //CHASTE_CVODE
+        TS_ASSERT_DELTA(other_test_results[1], 1.715690244022676e-01, tol);
+        TS_ASSERT_DELTA(other_test_results[2], 6.127460817296076e-02, tol);
+        TS_ASSERT_DELTA(other_test_results[3], 1.549402358669023e-07, tol);
+        TS_ASSERT_DELTA(other_test_results[4], 4.579067802591843e-08, tol);
+        TS_ASSERT_DELTA(other_test_results[5], 9.999999999999998e-01, tol);
+        TS_ASSERT_DELTA(other_test_results[6], 0.5*7.415537855270896e-03, tol);
+        TS_ASSERT_DELTA(other_test_results[7], 0.5*7.415537855270896e-03, tol);
+        TS_ASSERT_DELTA(other_test_results[8], 0.0, tol);
+
         // Test that, since the cell now experiences a low Wnt concentration,
         // it has indeed changed cell type to differentiated
         TS_ASSERT_EQUALS(p_stem_cell->GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
+
+        TS_ASSERT_EQUALS(p_other_stem_cell->GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
 
         double diff = 1.0;
         test_results[6] = test_results[6] + diff;
@@ -941,9 +1012,24 @@ public:
         TissueCellPtr p_cell(new TissueCell(p_state, p_cell_model));
         p_cell->InitialiseCellCycleModel();
 
+        // For coverage, we create another cell cycle model that is identical except for the ODE solver
+        boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> > 
+            p_solver(CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
+        p_solver->Initialise();
+
+        Alarcon2004OxygenBasedCellCycleModel* p_other_cell_model = new Alarcon2004OxygenBasedCellCycleModel(p_solver);
+        p_other_cell_model->SetDimension(2);
+        p_other_cell_model->SetCellProliferativeType(STEM);
+
+        TissueCellPtr p_other_cell(new TissueCell(p_state, p_other_cell_model));
+        p_other_cell->InitialiseCellCycleModel();
+
         // Check oxygen concentration is correct in cell cycle model
         TS_ASSERT_DELTA(p_cell_model->GetProteinConcentrations()[5], 1.0, 1e-5);
         TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
+
+        TS_ASSERT_DELTA(p_other_cell_model->GetProteinConcentrations()[5], 1.0, 1e-5);
+        TS_ASSERT_EQUALS(p_other_cell_model->ReadyToDivide(), false);
 
         // Divide a cell
         Alarcon2004OxygenBasedCellCycleModel* p_cell_model2 = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());

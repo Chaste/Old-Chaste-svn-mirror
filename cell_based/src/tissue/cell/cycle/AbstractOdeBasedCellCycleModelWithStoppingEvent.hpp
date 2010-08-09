@@ -81,8 +81,10 @@ public:
      * cells which did not divide at the current time.
      *
      * @param lastTime  The birth time of the cell / last time model was evaluated (defaults to the current SimulationTime)
+     * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      */
-    AbstractOdeBasedCellCycleModelWithStoppingEvent(double lastTime = SimulationTime::Instance()->GetTime());
+    AbstractOdeBasedCellCycleModelWithStoppingEvent(double lastTime = SimulationTime::Instance()->GetTime(),
+                                                    boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
      * Copy constructor.

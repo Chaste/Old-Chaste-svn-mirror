@@ -29,8 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractVanLeeuwen2009WntSwatCellCycleModel.hpp"
 
 
-AbstractVanLeeuwen2009WntSwatCellCycleModel::AbstractVanLeeuwen2009WntSwatCellCycleModel()
-   : AbstractWntOdeBasedCellCycleModel()
+AbstractVanLeeuwen2009WntSwatCellCycleModel::AbstractVanLeeuwen2009WntSwatCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
+   : AbstractWntOdeBasedCellCycleModel(pOdeSolver)
 {
 }
 

@@ -31,18 +31,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "CvodeAdaptor.hpp"
 
-SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel()
+SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : mpOdeSystem(NULL),
+      mpOdeSolver(pOdeSolver),
       mLastTime(DBL_MAX) // Ensure this is set properly before we try to use it.
 {
+    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
+    {
 #ifdef CHASTE_CVODE
-    mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance();
-    mpOdeSolver->Initialise();
-    mpOdeSolver->SetMaxSteps(10000);
+        mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance();
+        mpOdeSolver->Initialise();
+        mpOdeSolver->SetMaxSteps(10000);
 #else
-    mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
-    mpOdeSolver->Initialise();
+        mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
+        mpOdeSolver->Initialise();
 #endif //CHASTE_CVODE
+    }
 }
 
 SingleOdeWntCellCycleModel::~SingleOdeWntCellCycleModel()
@@ -60,7 +64,8 @@ AbstractCellCycleModel* SingleOdeWntCellCycleModel::CreateCellCycleModel()
 
 SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(const SingleOdeWntCellCycleModel& rOtherModel)
     : SimpleWntCellCycleModel(rOtherModel),
-      mpOdeSystem(NULL) // This line is even more unbelievably important than you'd expect.
+      mpOdeSystem(NULL), // This line is even more unbelievably important than you'd expect
+      mpOdeSolver(rOtherModel.mpOdeSolver)
 {
     mBetaCateninDivisionThreshold = rOtherModel.mBetaCateninDivisionThreshold;
     mLastTime = rOtherModel.mLastTime;
@@ -68,16 +73,14 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(const SingleOdeWntCellCyc
     {
         mpOdeSystem = new Mirams2010WntOdeSystem(*static_cast<Mirams2010WntOdeSystem*>(rOtherModel.mpOdeSystem));
     }
+    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
+    {
 #ifdef CHASTE_CVODE
-    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor> >
-        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance());
-    mpOdeSolver = p_solver;
+        mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance();
 #else
-    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver> >
-        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
-    p_solver->Initialise();
-    mpOdeSolver = p_solver;
+        mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
 #endif //CHASTE_CVODE
+    }
 }
 
 void SingleOdeWntCellCycleModel::UpdateCellCyclePhase()
@@ -99,15 +102,12 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(std::vector<double>& rPar
     SetUseCellProliferativeTypeDependentG1Duration(useTypeDependentG1);
 
 #ifdef CHASTE_CVODE
-    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor> >
-        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance());
-    p_solver->SetMaxSteps(10000);
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance();
+    mpOdeSolver->Initialise();
+    mpOdeSolver->SetMaxSteps(10000);
 #else
-    boost::shared_ptr<CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver> >
-        p_solver(CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
-    p_solver->Initialise();
-    mpOdeSolver = p_solver;
+    mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
+    mpOdeSolver->Initialise();
 #endif //CHASTE_CVODE
 
     // Set the other initial conditions to be the same as the parent cell
