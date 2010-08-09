@@ -51,7 +51,9 @@ class AbstractAssemblerSolverHybrid
 public :
     /** Constructor
      *  @param pMesh pointer to the mesh
-     *  @param pBoundaryConditions pointer to the boundary conditions
+     *  @param pBoundaryConditions pointer to the boundary conditions. Can be NULL, to allow concrete assembler-solver
+     *         to, say, create standard boundary conditions its constructor, and then set it. If so, the concrete solver
+     *         must make sure it calls this->SetApplyNeummanBoundaryConditionsToVector(p_bcc);
      *  @param numQuadPoints number of quadrature points in each dimension to use per element (defaults to 2)
      */
     AbstractAssemblerSolverHybrid(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
@@ -59,8 +61,10 @@ public :
                                   unsigned numQuadPoints = 2)
         :  AbstractFeObjectAssembler<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, true, true, INTERPOLATION_LEVEL>(pMesh,numQuadPoints)
     {
-        assert(pBoundaryConditions!=NULL);
-        this->SetApplyNeummanBoundaryConditionsToVector(pBoundaryConditions);
+        if(pBoundaryConditions)
+        {
+            this->SetApplyNeummanBoundaryConditionsToVector(pBoundaryConditions);
+        }
     }
     
     /**
@@ -90,6 +94,12 @@ public :
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM, InterpolationLevel INTERPOLATION_LEVEL>
 void AbstractAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM, INTERPOLATION_LEVEL>::SetupGivenLinearSystem(Vec currentSolution, bool computeMatrix, LinearSystem* pLinearSystem)
 {
+    // the concrete class should have either passed in boundary conditions
+    // into this class' constructor, or passed in NULL and later called
+    // this->SetApplyNeummanBoundaryConditionsToVector(p_bcc) with some boundary
+    // conditions
+    assert(this->mpBoundaryConditions!=NULL);
+
     assert(pLinearSystem->rGetLhsMatrix() != NULL);
     assert(pLinearSystem->rGetRhsVector() != NULL);
 
