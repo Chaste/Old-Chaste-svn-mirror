@@ -9,7 +9,7 @@
   <lookup_tables>
     <lookup_table>
       <var type='config-name'>transmembrane_potential</var>
-      <min>-100.0001</min>
+      <min>-150.0001</min>
       <max>199.9999</max>
     </lookup_table>
   </lookup_tables>
