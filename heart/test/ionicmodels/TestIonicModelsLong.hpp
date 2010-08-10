@@ -46,8 +46,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "FoxModel2002.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
-#include "Maleckar2009OdeSystem.hpp"
-#include "Mahajan2008OdeSystem.hpp"
+#include "Maleckar2008.hpp"
+#include "Mahajan2008.hpp"
 #include "TenTusscher2006Epi.hpp"
 #include "CellProperties.hpp"
 #include "HeartConfig.hpp"
@@ -133,13 +133,13 @@ public:
 
         boost::shared_ptr<EulerIvpOdeSolver> p_forward_solver(new EulerIvpOdeSolver); //define the solver
 
-        Mahajan2008OdeSystem forward_model(p_forward_solver, p_stimulus);
+        CellMahajan2008FromCellML forward_model(p_forward_solver, p_stimulus);
         boost::shared_ptr<BackwardEulerIvpOdeSolver> p_backward_solver(new BackwardEulerIvpOdeSolver(
                                     forward_model.GetNumberOfStateVariables()));
 
-        Mahajan2008OdeSystem epicardial_model(p_backward_solver, p_stimulus);
-        Mahajan2008OdeSystem endocardial_model(p_backward_solver, p_stimulus);
-        Mahajan2008OdeSystem midmyocardial_model(p_backward_solver, p_stimulus);
+        CellMahajan2008FromCellML epicardial_model(p_backward_solver, p_stimulus);
+        CellMahajan2008FromCellML endocardial_model(p_backward_solver, p_stimulus);
+        CellMahajan2008FromCellML midmyocardial_model(p_backward_solver, p_stimulus);
 
         epicardial_model.SetParameter("ScaleFactorGks",1.0);
         epicardial_model.SetParameter("ScaleFactorIto",1.0);
@@ -327,14 +327,14 @@ public:
     void TestScaleFactorsMaleckar(void) throw (Exception)
     {
         double end_time =500;
-        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(-280,
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(-5.6,
                                                                           6,
                                                                           1000,
                                                                           4.0));
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
-        Maleckar2009OdeSystem atrial_ode_system(p_solver, p_stimulus);
+        CellMaleckar2008FromCellML atrial_ode_system(p_solver, p_stimulus);
 
         const std::string control_file = "control";
         const std::string first_set_file = "first_scale_factor_set";
@@ -351,17 +351,17 @@ public:
         std::vector<double> state_variables= atrial_ode_system.GetInitialConditions();
 
         //default values
-        atrial_ode_system.SetScaleFactorGks(1.0);
-        atrial_ode_system.SetScaleFactorIto(1.0);
-        atrial_ode_system.SetScaleFactorGkr(1.0);
-        atrial_ode_system.SetScaleFactorGna(1.0);
-        atrial_ode_system.SetScaleFactorAch(1e-24);
-        atrial_ode_system.SetScaleFactorGNaK(1.0);
-        atrial_ode_system.SetScaleFactorGNaCa(1.0);
-        atrial_ode_system.SetScaleFactorGKur(1.0);
-        atrial_ode_system.SetScaleFactorGK1(1.0);
-        atrial_ode_system.SetScaleFactorGCaL(1.0);
-        atrial_ode_system.SetScaleFactorAZD(0.0);
+        atrial_ode_system.SetParameter("ScaleFactorGks",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorIto",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGkr",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGna",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorAch",1e-24);
+        atrial_ode_system.SetParameter("ScaleFactorGNaK",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGNaCa",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGKur",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGK1",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGCaL",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorAZD",0.0);
 
         control_solution = p_solver->Solve(&atrial_ode_system, state_variables, 0, end_time, time_step, sampling_time);
         control_solution.WriteToFile("TestIonicModels",
@@ -371,17 +371,17 @@ public:
                               false);/*true cleans the directory*/
 
         //now apply the first scale factor set, decreases outward currents
-        atrial_ode_system.SetScaleFactorGks(0.8);
-        atrial_ode_system.SetScaleFactorIto(1.0);
-        atrial_ode_system.SetScaleFactorGkr(0.9);
-        atrial_ode_system.SetScaleFactorGna(1.0);
-        atrial_ode_system.SetScaleFactorAch(1e-24);
-        atrial_ode_system.SetScaleFactorGNaK(1.0);
-        atrial_ode_system.SetScaleFactorGNaCa(1.0);
-        atrial_ode_system.SetScaleFactorGKur(0.7);
-        atrial_ode_system.SetScaleFactorGK1(0.6);
-        atrial_ode_system.SetScaleFactorGCaL(1.0);
-        atrial_ode_system.SetScaleFactorAZD(0.0);
+        atrial_ode_system.SetParameter("ScaleFactorGks",0.8);
+        atrial_ode_system.SetParameter("ScaleFactorIto",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGkr",0.9);
+        atrial_ode_system.SetParameter("ScaleFactorGna",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorAch",1e-24);
+        atrial_ode_system.SetParameter("ScaleFactorGNaK",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGNaCa",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGKur",0.7);
+        atrial_ode_system.SetParameter("ScaleFactorGK1",0.6);
+        atrial_ode_system.SetParameter("ScaleFactorGCaL",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorAZD",0.0);
 
         state_variables= atrial_ode_system.GetInitialConditions();
         first_scale_factor_set_solution = p_solver->Solve(&atrial_ode_system, state_variables, 0, end_time, time_step, sampling_time);
@@ -392,17 +392,17 @@ public:
                               false);/*true cleans the directory*/
 
         //now apply the secondscale factor set, this one increases inward currents
-        atrial_ode_system.SetScaleFactorGks(1.0);
-        atrial_ode_system.SetScaleFactorIto(1.0);
-        atrial_ode_system.SetScaleFactorGkr(1.0);
-        atrial_ode_system.SetScaleFactorGna(1.5);
-        atrial_ode_system.SetScaleFactorAch(1e-24);
-        atrial_ode_system.SetScaleFactorGNaK(1.0);
-        atrial_ode_system.SetScaleFactorGNaCa(2.0);
-        atrial_ode_system.SetScaleFactorGKur(1.0);
-        atrial_ode_system.SetScaleFactorGK1(1.0);
-        atrial_ode_system.SetScaleFactorGCaL(1.6);
-        atrial_ode_system.SetScaleFactorAZD(0.0);
+        atrial_ode_system.SetParameter("ScaleFactorGks",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorIto",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGkr",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGna",1.5);
+        atrial_ode_system.SetParameter("ScaleFactorAch",1e-24);
+        atrial_ode_system.SetParameter("ScaleFactorGNaK",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGNaCa",2.0);
+        atrial_ode_system.SetParameter("ScaleFactorGKur",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGK1",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGCaL",1.6);
+        atrial_ode_system.SetParameter("ScaleFactorAZD",0.0);
 
         state_variables= atrial_ode_system.GetInitialConditions();
         second_scale_factor_set_solution = p_solver->Solve(&atrial_ode_system, state_variables, 0, end_time, time_step, sampling_time);
@@ -413,17 +413,17 @@ public:
                               false);/*true cleans the directory*/
 
         //check the AZD scale factor (vs control)
-        atrial_ode_system.SetScaleFactorGks(1.0);
-        atrial_ode_system.SetScaleFactorIto(1.0);
-        atrial_ode_system.SetScaleFactorGkr(1.0);
-        atrial_ode_system.SetScaleFactorGna(1.0);
-        atrial_ode_system.SetScaleFactorAch(1e-24);
-        atrial_ode_system.SetScaleFactorGNaK(1.0);
-        atrial_ode_system.SetScaleFactorGNaCa(1.0);
-        atrial_ode_system.SetScaleFactorGKur(1.0);
-        atrial_ode_system.SetScaleFactorGK1(1.0);
-        atrial_ode_system.SetScaleFactorGCaL(1.0);
-        atrial_ode_system.SetScaleFactorAZD(5.0);
+        atrial_ode_system.SetParameter("ScaleFactorGks",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorIto",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGkr",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGna",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorAch",1e-24);
+        atrial_ode_system.SetParameter("ScaleFactorGNaK",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGNaCa",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGKur",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGK1",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGCaL",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorAZD",5.0);
 
         AZD_scale_factor_set_solution = p_solver->Solve(&atrial_ode_system, state_variables, 0, end_time, time_step, sampling_time);
         AZD_scale_factor_set_solution.WriteToFile("TestIonicModels",

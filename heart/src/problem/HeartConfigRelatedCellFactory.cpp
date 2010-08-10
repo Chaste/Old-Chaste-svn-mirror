@@ -170,7 +170,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
             case(cp::ionic_models_available_type::MahajanShiferaw):
             {
-                p_cell = new Mahajan2008OdeSystem(this->mpSolver, intracellularStimulus);
+                p_cell = new CellMahajan2008FromCellML(this->mpSolver, intracellularStimulus);
                 break;
             }
 
@@ -182,21 +182,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
             case(cp::ionic_models_available_type::Maleckar):
             {
-                 Maleckar2009OdeSystem*  p_maleckar_instance = new Maleckar2009OdeSystem(this->mpSolver, intracellularStimulus);
-
-                for (unsigned ht_index = 0;
-                     ht_index < mCellHeterogeneityAreas.size();
-                     ++ht_index)
-                {
-                    if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
-                    {
-                        p_maleckar_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
-                        p_maleckar_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
-                        p_maleckar_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
-                    }
-                }
-
-                p_cell = p_maleckar_instance;
+                p_cell = new CellMaleckar2008FromCellML(this->mpSolver, intracellularStimulus);
                 break;
             }
 

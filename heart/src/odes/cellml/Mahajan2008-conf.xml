@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<pycml_config>
+
+<command_line_args>
+  <!-- The '-m' flag adds modifiers to the metadata annotated variables, 
+       we need these in this class because Gary uses it in his project! -->
+  <arg>-m</arg>
+</command_line_args>
+
+<for_model id="mahajan_shiferaw_model_2008">
+  <lookup_tables>
+    <lookup_table>
+      <var type='config-name'>transmembrane_potential</var>
+      <min>-100.0001</min>
+      <max>199.9999</max>
+    </lookup_table>
+  </lookup_tables>
+</for_model>
+
+</pycml_config>

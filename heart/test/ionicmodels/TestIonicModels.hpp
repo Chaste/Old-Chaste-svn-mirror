@@ -70,12 +70,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
 #include "NobleVargheseKohlNoble1998aOpt.hpp"
 #include "NobleVargheseKohlNoble1998aBackwardEuler.hpp"
-#include "Mahajan2008OdeSystem.hpp"
+#include "Mahajan2008.hpp"
 #include "BackwardEulerMahajanModel2008.hpp"
 #include "TenTusscher2006Epi.hpp"
 #include "TenTusscher2006EpiBackwardEuler.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
-#include "Maleckar2009OdeSystem.hpp"
+#include "Maleckar2008.hpp"
 #include "ArchiveLocationInfo.hpp"
 
 #include "PetscTools.hpp" //No PETSc here -- this is just to double-check
@@ -837,7 +837,7 @@ public:
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
-        Mahajan2008OdeSystem rabbit_ode_system(p_solver, p_stimulus);
+        CellMahajan2008FromCellML rabbit_ode_system(p_solver, p_stimulus);
 
         //default values for scale factors. They are tested separately in the nightly build.
         rabbit_ode_system.SetParameter("ScaleFactorGks",1.0);
@@ -888,7 +888,7 @@ public:
         // Solve using forward euler
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.005, 0.05, 0.05);
 
-        Mahajan2008OdeSystem mahajan_ode_system(p_solver, p_stimulus);
+        CellMahajan2008FromCellML mahajan_ode_system(p_solver, p_stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&mahajan_ode_system,
                                    end_time,
@@ -905,27 +905,27 @@ public:
 
     void TestMaleckar(void) throw (Exception)
     {
-        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(-280,
+        boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(-5.6, // Changed because now it is in the right units.
                                                                           6,
                                                                           1000,
                                                                           4.0));
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.001);
-        Maleckar2009OdeSystem atrial_ode_system(p_solver, p_stimulus);
+        CellMaleckar2008FromCellML atrial_ode_system(p_solver, p_stimulus);
 
         //default values, other values tested in the nightly build
-        atrial_ode_system.SetScaleFactorGks(1.0);
-        atrial_ode_system.SetScaleFactorIto(1.0);
-        atrial_ode_system.SetScaleFactorGkr(1.0);
-        atrial_ode_system.SetScaleFactorGna(1.0);
-        atrial_ode_system.SetScaleFactorAch(1e-24);
-        atrial_ode_system.SetScaleFactorGNaK(1.0);
-        atrial_ode_system.SetScaleFactorGNaCa(1.0);
-        atrial_ode_system.SetScaleFactorGKur(1.0);
-        atrial_ode_system.SetScaleFactorGK1(1.0);
-        atrial_ode_system.SetScaleFactorGCaL(1.0);
-        atrial_ode_system.SetScaleFactorAZD(0.0);
+        atrial_ode_system.SetParameter("ScaleFactorGks",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorIto",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGkr",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGna",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorAch",1e-24);
+        atrial_ode_system.SetParameter("ScaleFactorGNaK",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGNaCa",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGKur",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGK1",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorGCaL",1.0);
+        atrial_ode_system.SetParameter("ScaleFactorAZD",0.0);
 
         // Solve and write to file for a short time
         RunOdeSolverWithIonicModel(&atrial_ode_system,
@@ -1078,7 +1078,7 @@ public:
         // Save
         {
             // Set stimulus
-            boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(-280,
+            boost::shared_ptr<RegularStimulus> p_stimulus(new RegularStimulus(-5.6, // Now in consistent Chaste units.
                                                                           6,
                                                                           1000,
                                                                           4.0));
@@ -1088,7 +1088,7 @@ public:
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
             // Check Standard
-            AbstractCardiacCell* const p_maleckar_cell = new Maleckar2009OdeSystem(p_solver, p_stimulus);
+            AbstractCardiacCell* const p_maleckar_cell = new CellMaleckar2008FromCellML(p_solver, p_stimulus);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);

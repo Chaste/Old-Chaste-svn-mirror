@@ -56,10 +56,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FaberRudy2000Version3.hpp"
 #include "FaberRudy2000Version3Optimised.hpp"
 #include "DiFrancescoNoble1985OdeSystem.hpp"
-#include "Mahajan2008OdeSystem.hpp"
+#include "Mahajan2008.hpp"
 #include "TenTusscher2006Epi.hpp"
 #include "HodgkinHuxley1952.hpp"
-#include "Maleckar2009OdeSystem.hpp"
+#include "Maleckar2008.hpp"
 
 
 /**
