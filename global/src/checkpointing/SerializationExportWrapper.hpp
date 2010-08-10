@@ -238,8 +238,8 @@ template<class T> struct pack<void (T)> {
  * @param CLASS  the class
  * @param P1  the template parameter
  */
-#define CHASTE_STRINGIZE_1(CLASS, P1) \
-    BOOST_PP_CAT(CLASS, BOOST_PP_STRINGIZE(P1))
+#define CHASTE_EXPORT_KEY_1(CLASS, P1) \
+    BOOST_PP_CAT(CLASS, P1)
 
 /**
  * Defines the export key for a class templated over 2 parameters.
@@ -247,8 +247,8 @@ template<class T> struct pack<void (T)> {
  * @param P1  the first template parameter
  * @param P2  the second template parameter
  */
-#define CHASTE_STRINGIZE_2(CLASS, P1, P2) \
-    BOOST_PP_CAT(CLASS, BOOST_PP_CAT(BOOST_PP_STRINGIZE(P1), BOOST_PP_STRINGIZE(P2)))
+#define CHASTE_EXPORT_KEY_2(CLASS, P1, P2) \
+    BOOST_PP_CAT(BOOST_PP_CAT(CLASS, P1), P2)
 
 /**
  * Defines the export key for a class templated over 3 parameters.
@@ -257,8 +257,8 @@ template<class T> struct pack<void (T)> {
  * @param P2  the second template parameter
  * @param P3  the third template parameter
  */
-#define CHASTE_STRINGIZE_3(CLASS, P1, P2, P3) \
-    BOOST_PP_CAT(CLASS, BOOST_PP_CAT(BOOST_PP_STRINGIZE(P1), BOOST_PP_CAT(BOOST_PP_STRINGIZE(P2), BOOST_PP_STRINGIZE(P3))))
+#define CHASTE_EXPORT_KEY_3(CLASS, P1, P2, P3) \
+    BOOST_PP_CAT(BOOST_PP_CAT(BOOST_PP_CAT(CLASS, P1), P2), P3)
 
 /**
  * Defines the export type for a class templated over 1 parameter.
@@ -314,7 +314,7 @@ template<class T> struct pack<void (T)> {
  * @param P  third template parameter
  */
 #define EXPORT_TEMPLATE_CLASS3_INTERNAL(CLASS, E, S, P) \
-    CHASTE_CLASS_EXPORT_TEMPLATED( CHASTE_PACK_3(CLASS, E, S, P), CHASTE_STRINGIZE_3(CLASS, E, S, P) )
+    CHASTE_CLASS_EXPORT_TEMPLATED( CHASTE_PACK_3(CLASS, E, S, P), CHASTE_EXPORT_KEY_3(CLASS, E, S, P) )
 
 /**
  * Export a templated class with 2 parameters.
@@ -324,7 +324,7 @@ template<class T> struct pack<void (T)> {
  * @param S  second template parameter
  */
 #define EXPORT_TEMPLATE_CLASS2_INTERNAL(CLASS, E, S) \
-    CHASTE_CLASS_EXPORT_TEMPLATED( CHASTE_PACK_2(CLASS, E, S), CHASTE_STRINGIZE_2(CLASS, E, S) )
+    CHASTE_CLASS_EXPORT_TEMPLATED( CHASTE_PACK_2(CLASS, E, S), CHASTE_EXPORT_KEY_2(CLASS, E, S) )
 
 /**
  * Export a templated class with 1 parameter.
@@ -333,7 +333,7 @@ template<class T> struct pack<void (T)> {
  * @param D  template parameter
  */
 #define EXPORT_TEMPLATE_CLASS1_INTERNAL(CLASS, D) \
-    CHASTE_CLASS_EXPORT_TEMPLATED( CHASTE_PACK_1(CLASS, D), CHASTE_STRINGIZE_1(CLASS, D) )
+    CHASTE_CLASS_EXPORT_TEMPLATED( CHASTE_PACK_1(CLASS, D), CHASTE_EXPORT_KEY_1(CLASS, D) )
 
 /**
  * Export a class templated over both element and space dimension, for all valid
