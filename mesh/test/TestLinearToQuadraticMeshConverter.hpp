@@ -67,36 +67,6 @@ public:
         TS_ASSERT_EQUALS(quad_mesh.GetNumNodes(), 285u);
         TS_ASSERT_EQUALS(quad_mesh.GetNumElements(), 136u);
     }
-
-
-//// Todo: make this an app    
-//    void TestMyConvertion() throw(Exception)
-//    {
-//        if (    ! CommandLineArguments::Instance()->OptionExists("-in_dir")
-//             || ! CommandLineArguments::Instance()->OptionExists("-out_dir")
-//             || ! CommandLineArguments::Instance()->OptionExists("-stem") )
-//        {
-//            std::cout << "Usage:\n./" << *(CommandLineArguments::Instance()->p_argv)[0] 
-//                      << " -in_dir <input_dir> -out_dir <output_dir> -stem <mesh_stem>\n"
-//                      << "Note: Output dir should be relative to CHASTE_TESTOUTPUT\n";
-//            return;
-//        }                      
-//             
-//        
-//        char* val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-in_dir");
-//        std::string in_dir = val;
-//
-//        val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-out_dir");
-//        std::string out_dir = val;
-//
-//        val = CommandLineArguments::Instance()->GetValueCorrespondingToOption("-stem");
-//        std::string stem = val;
-//        
-//        LinearToQuadraticMeshConverter<3> converter(in_dir, stem, out_dir);
-//        
-//        ///LinearToQuadraticMeshConverter<3> converter("/home/chaste/Desktop/", "OxfordRabbitS2", "OxRabbitMesh");
-//        ///LinearToQuadraticMeshConverter<3> converter("projects/pras/test/data/RatDecimation", "RatHeartDecimation_-6.56488e-10_volchange_8125_nodes", "Rat8125Quad");
-//    }
 };
 
 
