@@ -218,18 +218,20 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
          ht_index < mCellHeterogeneityAreas.size();
          ++ht_index)
     {
-        try
+        if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
         {
-            p_cell->SetParameter("ScaleFactorGks", mScaleFactorGks[ht_index]);
-            p_cell->SetParameter("ScaleFactorGkr", mScaleFactorGkr[ht_index]);
-            p_cell->SetParameter("ScaleFactorIto", mScaleFactorIto[ht_index]);
-        }
-        catch (const Exception& e)
-        {
-            // Just ignore missing parameter errors in this case
+            try
+            {
+                p_cell->SetParameter("ScaleFactorGks", mScaleFactorGks[ht_index]);
+                p_cell->SetParameter("ScaleFactorGkr", mScaleFactorGkr[ht_index]);
+                p_cell->SetParameter("ScaleFactorIto", mScaleFactorIto[ht_index]);
+            }
+            catch (const Exception& e)
+            {
+                // Just ignore missing parameter errors in this case
+            }
         }
     }
-
     try
     {
         // SetParameter elements go next so they override the old ScaleFactor* elements.
@@ -287,118 +289,118 @@ void HeartConfigRelatedCellFactory<SPACE_DIM>::FillInCellularTransmuralAreas()
 template<>
 void HeartConfigRelatedCellFactory<3u>::FillInCellularTransmuralAreas()
 {
-        std::string mesh_file_name = HeartConfig::Instance()->GetMeshName();
-        //files containing list of nodes on each surface
-        std::string epi_surface = mesh_file_name + ".epi";
-        std::string lv_surface = mesh_file_name + ".lv";
-        std::string rv_surface = mesh_file_name + ".rv";
+    std::string mesh_file_name = HeartConfig::Instance()->GetMeshName();
+    //files containing list of nodes on each surface
+    std::string epi_surface = mesh_file_name + ".epi";
+    std::string lv_surface = mesh_file_name + ".lv";
+    std::string rv_surface = mesh_file_name + ".rv";
 
 
-        //create the HeartGeometryInformation object
-        //HeartGeometryInformation<3u> info(mesh, epi_surface, lv_surface, rv_surface, true);
-        HeartGeometryInformation<3u> info(*(this->GetMesh()), epi_surface, lv_surface, rv_surface, true);
+    //create the HeartGeometryInformation object
+    //HeartGeometryInformation<3u> info(mesh, epi_surface, lv_surface, rv_surface, true);
+    HeartGeometryInformation<3u> info(*(this->GetMesh()), epi_surface, lv_surface, rv_surface, true);
 
-        //We need the fractions of epi and endo layer supplied by the user
-        double epi_fraction = HeartConfig::Instance()->GetEpiLayerFraction();
-        double endo_fraction = HeartConfig::Instance()->GetEndoLayerFraction();
+    //We need the fractions of epi and endo layer supplied by the user
+    double epi_fraction = HeartConfig::Instance()->GetEpiLayerFraction();
+    double endo_fraction = HeartConfig::Instance()->GetEndoLayerFraction();
 
-        //given the fraction of each layer, compute the distance map and fill in the vector
-        info.DetermineLayerForEachNode(epi_fraction,endo_fraction);
-        //get the big heterogeneity vector
-        std::vector<unsigned> heterogeneity_node_list;
-        for (unsigned index=0; index<this->GetMesh()->GetNumNodes(); index++)
+    //given the fraction of each layer, compute the distance map and fill in the vector
+    info.DetermineLayerForEachNode(epi_fraction,endo_fraction);
+    //get the big heterogeneity vector
+    std::vector<unsigned> heterogeneity_node_list;
+    for (unsigned index=0; index<this->GetMesh()->GetNumNodes(); index++)
+    {
+        heterogeneity_node_list.push_back(info.rGetLayerForEachNode()[index]);
+    }
+
+    std::vector<Node<3u>*> epi_nodes;
+    std::vector<Node<3u>*> mid_nodes;
+    std::vector<Node<3u>*> endo_nodes;
+
+    //create the list of (pointer to object) nodes in each layer from the heterogeneities vector that was just filled in
+    for (unsigned node_index = 0; node_index < this->GetMesh()->GetNumNodes(); node_index++)
+    {
+        if (this->GetMesh()->GetDistributedVectorFactory()->IsGlobalIndexLocal(node_index) )
         {
-            heterogeneity_node_list.push_back(info.rGetLayerForEachNode()[index]);
-        }
-
-        std::vector<Node<3u>*> epi_nodes;
-        std::vector<Node<3u>*> mid_nodes;
-        std::vector<Node<3u>*> endo_nodes;
-
-        //create the list of (pointer to object) nodes in each layer from the heterogeneities vector that was just filled in
-        for (unsigned node_index = 0; node_index < this->GetMesh()->GetNumNodes(); node_index++)
-        {
-            if (this->GetMesh()->GetDistributedVectorFactory()->IsGlobalIndexLocal(node_index) )
+            switch (heterogeneity_node_list[node_index])
             {
-                switch (heterogeneity_node_list[node_index])
+                //epi
+                case 2u:
                 {
-                    //epi
-                    case 2u:
-                    {
-                        epi_nodes.push_back(this->GetMesh()->GetNode(node_index));
-                        break;
-                    }
-                    //mid
-                    case 1u:
-                    {
-                        mid_nodes.push_back(this->GetMesh()->GetNode(node_index));
-                        break;
-                    }
-                    //endo
-                    case 0u:
-                    {
-                        endo_nodes.push_back(this->GetMesh()->GetNode(node_index));
-                        break;
-                    }
-                    default:
-                    NEVER_REACHED;
-                }
-            }
-        }
-        //assert((endo_nodes.size()+epi_nodes.size()+mid_nodes.size())==this->GetMesh()->GetNumNodes());
-
-        // now the 3 list of pointer to nodes need to be pushed into the mCellHeterogeneityAreas vector,
-        // IN THE ORDER PRESCRIBED BY THE USER IN THE XML FILE!
-        // This is because the corresponding scale factors are already read in that order.
-
-        //these three unsigned tell us in which order the user supplied each layer in the XML file
-        unsigned user_supplied_epi_index = HeartConfig::Instance()->GetEpiLayerIndex();
-        unsigned user_supplied_mid_index = HeartConfig::Instance()->GetMidLayerIndex();
-        unsigned user_supplied_endo_index = HeartConfig::Instance()->GetEndoLayerIndex();
-
-        //these three should have been set to 0, 1 and 2 by HeartConfig::GetCellHeterogeneities
-        assert(user_supplied_epi_index<3);
-        assert(user_supplied_mid_index<3);
-        assert(user_supplied_endo_index<3);
-
-        //pute them in a vector
-        std::vector<unsigned> user_supplied_indices;
-        user_supplied_indices.push_back(user_supplied_epi_index);
-        user_supplied_indices.push_back(user_supplied_mid_index);
-        user_supplied_indices.push_back(user_supplied_endo_index);
-
-        //figure out who goes first
-
-        //loop three times
-        for (unsigned layer_index=0; layer_index<3; layer_index++)
-        {
-            unsigned counter = 0;
-            //find the corresponding index
-            for (unsigned supplied_index = 0; supplied_index<user_supplied_indices.size(); supplied_index++)
-            {
-                if (user_supplied_indices[supplied_index] == layer_index)
-                {
+                    epi_nodes.push_back(this->GetMesh()->GetNode(node_index));
                     break;
                 }
-                counter++;
+                //mid
+                case 1u:
+                {
+                    mid_nodes.push_back(this->GetMesh()->GetNode(node_index));
+                    break;
+                }
+                //endo
+                case 0u:
+                {
+                    endo_nodes.push_back(this->GetMesh()->GetNode(node_index));
+                    break;
+                }
+                default:
+                NEVER_REACHED;
             }
-
-            //create the node lists based on the calculations above
-            if (counter==0)
-            {
-                mCellHeterogeneityAreas.push_back(new ChasteNodesList<3u>(epi_nodes));
-            }
-            if (counter==1)
-            {
-                mCellHeterogeneityAreas.push_back(new ChasteNodesList<3u>(mid_nodes));
-            }
-            if (counter==2)
-            {
-                mCellHeterogeneityAreas.push_back(new ChasteNodesList<3u>(endo_nodes));
-            }
-            assert(counter<3);
         }
-        assert(mCellHeterogeneityAreas.size()==3);
+    }
+    //assert((endo_nodes.size()+epi_nodes.size()+mid_nodes.size())==this->GetMesh()->GetNumNodes());
+
+    // now the 3 list of pointer to nodes need to be pushed into the mCellHeterogeneityAreas vector,
+    // IN THE ORDER PRESCRIBED BY THE USER IN THE XML FILE!
+    // This is because the corresponding scale factors are already read in that order.
+
+    //these three unsigned tell us in which order the user supplied each layer in the XML file
+    unsigned user_supplied_epi_index = HeartConfig::Instance()->GetEpiLayerIndex();
+    unsigned user_supplied_mid_index = HeartConfig::Instance()->GetMidLayerIndex();
+    unsigned user_supplied_endo_index = HeartConfig::Instance()->GetEndoLayerIndex();
+
+    //these three should have been set to 0, 1 and 2 by HeartConfig::GetCellHeterogeneities
+    assert(user_supplied_epi_index<3);
+    assert(user_supplied_mid_index<3);
+    assert(user_supplied_endo_index<3);
+
+    //pute them in a vector
+    std::vector<unsigned> user_supplied_indices;
+    user_supplied_indices.push_back(user_supplied_epi_index);
+    user_supplied_indices.push_back(user_supplied_mid_index);
+    user_supplied_indices.push_back(user_supplied_endo_index);
+
+    //figure out who goes first
+
+    //loop three times
+    for (unsigned layer_index=0; layer_index<3; layer_index++)
+    {
+        unsigned counter = 0;
+        //find the corresponding index
+        for (unsigned supplied_index = 0; supplied_index<user_supplied_indices.size(); supplied_index++)
+        {
+            if (user_supplied_indices[supplied_index] == layer_index)
+            {
+                break;
+            }
+            counter++;
+        }
+
+        //create the node lists based on the calculations above
+        if (counter==0)
+        {
+            mCellHeterogeneityAreas.push_back(new ChasteNodesList<3u>(epi_nodes));
+        }
+        if (counter==1)
+        {
+            mCellHeterogeneityAreas.push_back(new ChasteNodesList<3u>(mid_nodes));
+        }
+        if (counter==2)
+        {
+            mCellHeterogeneityAreas.push_back(new ChasteNodesList<3u>(endo_nodes));
+        }
+        assert(counter<3);
+    }
+    assert(mCellHeterogeneityAreas.size()==3);
 }
 
 // Explicit instantiation
