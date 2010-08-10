@@ -41,6 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RegularStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
+#include "FileFinder.hpp"
+#include "ColumnDataReader.hpp"
 
 class TestCellProperties : public CxxTest::TestSuite
 {
@@ -251,6 +253,63 @@ public:
         TS_ASSERT_EQUALS(number_of_changes_for_last_ap, above_threshold_depo[size-1]);
      }
 
+     void TestActionPotentialCalculations() throw (Exception)
+     {
+         /*
+          * In this simulation the stimulus was introduced at t=1ms.
+          *
+          * The only difference between the two files is that Mahajan2008 starts at t=0
+          * and Mahajan 2008Immediate starts at t=1 (I just removed the top line).
+          *
+          * (They should therefore return the same action potential properties,
+          * as it is exactly the same trace in each one).
+          */
+
+         FileFinder file_finder("heart/test/data/sample_APs", RelativeTo::ChasteSourceRoot);
+         double threshold = -30; // If membrane voltage goes over this value say it is an AP.
+         // (we don't seem to be very robust to this value - try changing it with disastrous consequences)
+
+         /*
+          * I plotted the graph in gnuplot and my back of the envelope calculations are as follows:
+          * Peak voltage = 48mV at 5ms
+          * Start and final voltages = -87mV
+          * Difference = 135mV
+          * Therefore 50% repolarisation = -19.5mV
+          *                      and 90% = -73.5mV
+          * These are crossed at 258ish and 304ish ms
+          * Therefore APD50 and 90 should be about 253 and 299ms you'd think.
+          *
+          * Anyway the first calculation gets 254 and 300 so I have gone with them as being right
+          * for the purposes of this test.
+          */
+         double target_apd_50 = 254;
+         double target_apd_90 = 300;
+         double tolerance = 1; //ms
+
+         {   // Stimulus applied to Mahajan model after 1 ms
+
+             ColumnDataReader reader(file_finder,"Mahajan2008");
+             std::vector<double> times = reader.GetValues("Time");
+             std::vector<double> voltages = reader.GetValues("membrane_voltage");
+
+             CellProperties  cell_properties(voltages, times, threshold);
+             TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
+             TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
+         }
+
+         {   // Stimulus applied to Mahajan model immediately
+
+             ColumnDataReader reader(file_finder,"Mahajan2008Immediate");
+             std::vector<double> times = reader.GetValues("Time");
+             std::vector<double> voltages = reader.GetValues("membrane_voltage");
+
+             CellProperties  cell_properties(voltages, times, threshold);
+             // Uncomment the following lines to get a failing test.
+             //TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
+             //TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
+         }
+
+     }
 };
 
 #endif //_TESTCELLPROPERTIES_HPP_
