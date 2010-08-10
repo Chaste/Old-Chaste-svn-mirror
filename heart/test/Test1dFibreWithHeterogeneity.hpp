@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainProblem.hpp"
 #include "SimpleStimulus.hpp"
 
-#include "FaberRudy2000Version3.hpp"
+#include "FaberRudy2000.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "NumericFileComparison.hpp"
 
@@ -64,34 +64,34 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        FaberRudy2000Version3 *cell;
+        CellFaberRudy2000FromCellML *cell;
 
         if (this->GetMesh()->GetNode(node)->GetPoint()[0] == 0.0)
         {
-            cell = new FaberRudy2000Version3(this->mpSolver,
+            cell = new CellFaberRudy2000FromCellML(this->mpSolver,
                                              mpStimulus);
 
         }
         else
         {
-            cell = new FaberRudy2000Version3(this->mpSolver,
+            cell = new CellFaberRudy2000FromCellML(this->mpSolver,
                                              this->mpZeroStimulus);
         }
 
         if (this->GetMesh()->GetNode(node)->GetPoint()[0] < 0.3333)
         {
-            cell->SetScaleFactorGks(0.462);
-            cell->SetScaleFactorIto(0.0);
+            cell->SetParameter("ScaleFactorGks",0.462);
+            cell->SetParameter("ScaleFactorIto",0.0);
         }
         else if (this->GetMesh()->GetNode(node)->GetPoint()[0] < 0.6666)
         {
-            cell->SetScaleFactorGks(1.154);
-            cell->SetScaleFactorIto(0.85);
+            cell->SetParameter("ScaleFactorGks",1.154);
+            cell->SetParameter("ScaleFactorIto",0.85);
         }
         else //this->mpMesh->GetNode(node)->GetPoint()[0] < 1
         {
-            cell->SetScaleFactorGks(1.154);
-            cell->SetScaleFactorIto(1.0);
+            cell->SetParameter("ScaleFactorGks",1.154);
+            cell->SetParameter("ScaleFactorIto",1.0);
         }
 
         return cell;

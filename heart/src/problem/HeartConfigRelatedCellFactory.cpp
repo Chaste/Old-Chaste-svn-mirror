@@ -194,26 +194,13 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
             case(cp::ionic_models_available_type::FaberRudy2000):
             {
-                FaberRudy2000Version3*  p_faber_rudy_instance = new FaberRudy2000Version3(this->mpSolver, intracellularStimulus);
-                for (unsigned ht_index = 0;
-                     ht_index < mCellHeterogeneityAreas.size();
-                     ++ht_index)
-                {
-                    if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
-                    {
-                        p_faber_rudy_instance->SetScaleFactorGks(mScaleFactorGks[ht_index]);
-                        p_faber_rudy_instance->SetScaleFactorIto(mScaleFactorIto[ht_index]);
-                        p_faber_rudy_instance->SetScaleFactorGkr(mScaleFactorGkr[ht_index]);
-                    }
-                }
-
-                p_cell = p_faber_rudy_instance;
+                p_cell = new CellFaberRudy2000FromCellML(this->mpSolver, intracellularStimulus);
                 break;
             }
 
             case(cp::ionic_models_available_type::FaberRudy2000Optimised):
             {
-                p_cell = new FaberRudy2000Version3Optimised(this->mpSolver, intracellularStimulus);
+                p_cell = new CellFaberRudy2000FromCellMLOpt(this->mpSolver, intracellularStimulus);
                 break;
             }
 
@@ -242,6 +229,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
             // Just ignore missing parameter errors in this case
         }
     }
+
     try
     {
         // SetParameter elements go next so they override the old ScaleFactor* elements.

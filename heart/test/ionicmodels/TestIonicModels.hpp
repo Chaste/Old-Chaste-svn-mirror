@@ -63,8 +63,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FoxModel2002.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
 
-#include "FaberRudy2000Version3.hpp"
-#include "FaberRudy2000Version3Optimised.hpp"
+#include "FaberRudy2000.hpp"
+#include "FaberRudy2000Opt.hpp"
 
 #include "NobleVargheseKohlNoble1998a.hpp"
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
@@ -506,8 +506,9 @@ public:
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.007, 0.007, 0.007);
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        FaberRudy2000Version3Optimised fr2000_ode_system_opt(p_solver, p_stimulus);
-        FaberRudy2000Version3 fr2000_ode_system(p_solver, p_stimulus);
+
+        CellFaberRudy2000FromCellMLOpt fr2000_ode_system_opt(p_solver, p_stimulus);
+        CellFaberRudy2000FromCellML fr2000_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         ck_start = clock();
@@ -562,10 +563,10 @@ public:
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.007, 0.007, 0.007);
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        FaberRudy2000Version3 fr2000_ode_system_endo(p_solver, p_stimulus);
-        fr2000_ode_system_endo.SetScaleFactorGks(0.462);
-        fr2000_ode_system_endo.SetScaleFactorIto(0.0);
-        fr2000_ode_system_endo.SetScaleFactorGkr(1.0);
+        CellFaberRudy2000FromCellML fr2000_ode_system_endo(p_solver, p_stimulus);
+        fr2000_ode_system_endo.SetParameter("ScaleFactorGks",0.462);
+        fr2000_ode_system_endo.SetParameter("ScaleFactorIto",0.0);
+        fr2000_ode_system_endo.SetParameter("ScaleFactorGkr",1.0);
         // Solve and write to file
         RunOdeSolverWithIonicModel(&fr2000_ode_system_endo,
                                    end_time,
@@ -574,10 +575,10 @@ public:
 
         CheckCellModelResults("FR2000Endo");
 
-        FaberRudy2000Version3 fr2000_ode_system_mid(p_solver, p_stimulus);
-        fr2000_ode_system_mid.SetScaleFactorGks(1.154);
-        fr2000_ode_system_mid.SetScaleFactorIto(0.85);
-        fr2000_ode_system_mid.SetScaleFactorGkr(1.0);
+        CellFaberRudy2000FromCellML fr2000_ode_system_mid(p_solver, p_stimulus);
+        fr2000_ode_system_mid.SetParameter("ScaleFactorGks",1.154);
+        fr2000_ode_system_mid.SetParameter("ScaleFactorIto",0.85);
+        fr2000_ode_system_mid.SetParameter("ScaleFactorGkr",1.0);
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&fr2000_ode_system_mid,
@@ -587,10 +588,10 @@ public:
 
         CheckCellModelResults("FR2000Mid");
 
-        FaberRudy2000Version3 fr2000_ode_system_epi(p_solver, p_stimulus);
-        fr2000_ode_system_epi.SetScaleFactorGks(1.154);
-        fr2000_ode_system_epi.SetScaleFactorIto(1.0);
-        fr2000_ode_system_epi.SetScaleFactorGkr(1.0);
+        CellFaberRudy2000FromCellML fr2000_ode_system_epi(p_solver, p_stimulus);
+        fr2000_ode_system_epi.SetParameter("ScaleFactorGks",1.154);
+        fr2000_ode_system_epi.SetParameter("ScaleFactorIto",1.0);
+        fr2000_ode_system_epi.SetParameter("ScaleFactorGkr",1.0);
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&fr2000_ode_system_epi,

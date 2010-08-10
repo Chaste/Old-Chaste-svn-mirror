@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "FaberRudy2000Version3.hpp"
+#include "FaberRudy2000.hpp"
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
 #include "Hdf5DataReader.hpp"
@@ -722,7 +722,7 @@ public:
         HeartConfig::Instance()->SetOutputVariables( output_variables );
 
         // Set up problem
-        PlaneStimulusCellFactory<FaberRudy2000Version3, 1> cell_factory;
+        PlaneStimulusCellFactory<CellFaberRudy2000FromCellML, 1> cell_factory;
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
         // Solve

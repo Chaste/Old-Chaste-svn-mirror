@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ZeroStimulusCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
 #include "BackwardEulerFoxModel2002Modified.hpp"
-#include "FaberRudy2000Version3.hpp"
+#include "FaberRudy2000.hpp"
 
 #include "BidomainProblem.hpp"
 #include "MonodomainProblem.hpp"
@@ -878,7 +878,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
         HeartConfig::Instance()->SetOutputFilenamePrefix("simulation");
         HeartConfig::Instance()->SetUseAbsoluteTolerance(ABS_TOL);
 
-        PlaneStimulusCellFactory<FaberRudy2000Version3, 3> cell_factory(-25500.0, 2.0);
+        PlaneStimulusCellFactory<CellFaberRudy2000FromCellML, 3> cell_factory(-25500.0, 2.0);
         MonodomainProblem<3> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();

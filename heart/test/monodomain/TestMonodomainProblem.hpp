@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "FaberRudy2000Version3.hpp"
+#include "FaberRudy2000.hpp"
 #include "Hdf5DataReader.hpp"
 #include "ReplicatableVector.hpp"
 #include "CheckMonoLr91Vars.hpp"
@@ -920,7 +920,7 @@ public:
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/MultipleVariablesMonodomain.xml");
 
         // Set up problem
-        PlaneStimulusCellFactory<FaberRudy2000Version3, 1> cell_factory;
+        PlaneStimulusCellFactory<CellFaberRudy2000FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         // Solve
