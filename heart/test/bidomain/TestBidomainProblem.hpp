@@ -664,8 +664,9 @@ public:
         comparison_result = CmguiMeshWriter<3,3>::CompareCmguiFiles(elem_file1,elem_file2);
         TS_ASSERT(comparison_result);
 
-        //...and one data file as example
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/axi3d_61.exnode heart/test/data/CmguiData/bidomain/bidomain3dValidData.exnode").c_str()), 0);
+        //...and a couple of data files as examples
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/axi3d_61.exnode heart/test/data/CmguiData/bidomain/bidomain3dValidData61.exnode").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/axi3d_100.exnode heart/test/data/CmguiData/bidomain/bidomain3dValidData100.exnode").c_str()), 0);
 
         //info file
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/axi3d_times.info heart/test/data/CmguiData/bidomain/axi3d_times.info").c_str()), 0);
@@ -685,8 +686,10 @@ public:
         results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/vtk_output/";
 
 
-// Why is this failing at the moment - see ticket #1526
-//TS_ASSERT_EQUALS(system(("cmp -n 23065 " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
+        //Note that "grep -b AAAAAAAAAAAAAAAAAAA heart/test/data/VtkData/bidomain/axi3d.vtu" (or similar) 
+        //indicates that the real data starts at byte 21435
+        //VTK base64 encoded data is quite fragile, so it's not wise to do byte-for-byte comparison
+        TS_ASSERT_EQUALS(system(("cmp -n 22525 " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
 
 
         //info file
