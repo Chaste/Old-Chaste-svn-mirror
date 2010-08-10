@@ -31,16 +31,18 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 #include <boost/numeric/ublas/vector_proxy.hpp>
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void BidomainAssembler<ELEM_DIM,SPACE_DIM>::ResetInterpolatedQuantities( void )
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::ResetInterpolatedQuantities()
 {
     mIionic = 0;
     mIIntracellularStimulus = 0;
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void BidomainAssembler<ELEM_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(
+        double phiI,
+        const Node<SPACE_DIM>* pNode)
 {
     unsigned node_global_index = pNode->GetIndex();
 
@@ -48,15 +50,15 @@ void BidomainAssembler<ELEM_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(doub
     mIIntracellularStimulus += phiI * mpBidomainPde->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_matrix<double,2*(ELEM_DIM+1),2*(ELEM_DIM+1)>
-    BidomainAssembler<ELEM_DIM,SPACE_DIM>::ComputeMatrixTerm(
-            c_vector<double, ELEM_DIM+1> &rPhi,
-            c_matrix<double, SPACE_DIM, ELEM_DIM+1> &rGradPhi,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
+    BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(
+            c_vector<double, ELEMENT_DIM+1> &rPhi,
+            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
             ChastePoint<SPACE_DIM> &rX,
             c_vector<double,2> &rU,
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-            Element<ELEM_DIM,SPACE_DIM>* pElement)
+            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     // get bidomain parameters
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
@@ -66,84 +68,84 @@ c_matrix<double,2*(ELEM_DIM+1),2*(ELEM_DIM+1)>
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_e = mpBidomainPde->rGetExtracellularConductivityTensor(pElement->GetIndex());
 
 
-    c_matrix<double, SPACE_DIM, ELEM_DIM+1> temp = prod(sigma_i, rGradPhi);
-    c_matrix<double, ELEM_DIM+1, ELEM_DIM+1> grad_phi_sigma_i_grad_phi =
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, rGradPhi);
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_i_grad_phi =
         prod(trans(rGradPhi), temp);
 
-    c_matrix<double, ELEM_DIM+1, ELEM_DIM+1> basis_outer_prod =
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> basis_outer_prod =
         outer_prod(rPhi, rPhi);
 
-    c_matrix<double, SPACE_DIM, ELEM_DIM+1> temp2 = prod(sigma_e, rGradPhi);
-    c_matrix<double, ELEM_DIM+1, ELEM_DIM+1> grad_phi_sigma_e_grad_phi =
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> temp2 = prod(sigma_e, rGradPhi);
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_e_grad_phi =
         prod(trans(rGradPhi), temp2);
 
 
-    c_matrix<double,2*(ELEM_DIM+1),2*(ELEM_DIM+1)> ret;
+    c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)> ret;
 
     // even rows, even columns
-    matrix_slice<c_matrix<double, 2*ELEM_DIM+2, 2*ELEM_DIM+2> >
-    slice00(ret, slice (0, 2, ELEM_DIM+1), slice (0, 2, ELEM_DIM+1));
+    matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+    slice00(ret, slice (0, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
     slice00 = (Am*Cm/this->mDt)*basis_outer_prod + grad_phi_sigma_i_grad_phi;
 
     // odd rows, even columns
-    matrix_slice<c_matrix<double, 2*ELEM_DIM+2, 2*ELEM_DIM+2> >
-    slice10(ret, slice (1, 2, ELEM_DIM+1), slice (0, 2, ELEM_DIM+1));
+    matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+    slice10(ret, slice (1, 2, ELEMENT_DIM+1), slice (0, 2, ELEMENT_DIM+1));
     slice10 = grad_phi_sigma_i_grad_phi;
 
     // even rows, odd columns
-    matrix_slice<c_matrix<double, 2*ELEM_DIM+2, 2*ELEM_DIM+2> >
-    slice01(ret, slice (0, 2, ELEM_DIM+1), slice (1, 2, ELEM_DIM+1));
+    matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+    slice01(ret, slice (0, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
     slice01 = grad_phi_sigma_i_grad_phi;
 
     // odd rows, odd columns
-    matrix_slice<c_matrix<double, 2*ELEM_DIM+2, 2*ELEM_DIM+2> >
-    slice11(ret, slice (1, 2, ELEM_DIM+1), slice (1, 2, ELEM_DIM+1));
+    matrix_slice<c_matrix<double, 2*ELEMENT_DIM+2, 2*ELEMENT_DIM+2> >
+    slice11(ret, slice (1, 2, ELEMENT_DIM+1), slice (1, 2, ELEMENT_DIM+1));
     slice11 = grad_phi_sigma_i_grad_phi + grad_phi_sigma_e_grad_phi;
 
     return ret;
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_vector<double,2*(ELEM_DIM+1)>
-    BidomainAssembler<ELEM_DIM,SPACE_DIM>::ComputeVectorTerm(
-            c_vector<double, ELEM_DIM+1> &rPhi,
-            c_matrix<double, SPACE_DIM, ELEM_DIM+1> &rGradPhi,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double,2*(ELEMENT_DIM+1)>
+    BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
+            c_vector<double, ELEMENT_DIM+1> &rPhi,
+            c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
             ChastePoint<SPACE_DIM> &rX,
             c_vector<double,2> &u,
             c_matrix<double, 2, SPACE_DIM> &rGradU /* not used */,
-            Element<ELEM_DIM,SPACE_DIM>* pElement)
+            Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     // get bidomain parameters
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
     double Cm = mpConfig->GetCapacitance();
 
-    c_vector<double,2*(ELEM_DIM+1)> ret;
+    c_vector<double,2*(ELEMENT_DIM+1)> ret;
 
-    vector_slice<c_vector<double, 2*(ELEM_DIM+1)> > slice_V  (ret, slice (0, 2, ELEM_DIM+1));
-    vector_slice<c_vector<double, 2*(ELEM_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEM_DIM+1));
+    vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_V  (ret, slice (0, 2, ELEMENT_DIM+1));
+    vector_slice<c_vector<double, 2*(ELEMENT_DIM+1)> > slice_Phi(ret, slice (1, 2, ELEMENT_DIM+1));
 
     // u(0) = voltage
     noalias(slice_V)   = (Am*Cm*u(0)/this->mDt - Am*mIionic - mIIntracellularStimulus) * rPhi;
-    noalias(slice_Phi) = zero_vector<double>(ELEM_DIM+1);
+    noalias(slice_Phi) = zero_vector<double>(ELEMENT_DIM+1);
 
     return ret;
 }
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_vector<double, 2*ELEM_DIM> BidomainAssembler<ELEM_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
-    const BoundaryElement<ELEM_DIM-1,SPACE_DIM> &rSurfaceElement,
-    c_vector<double,ELEM_DIM> &rPhi,
-    ChastePoint<SPACE_DIM> &rX)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, 2*ELEMENT_DIM> BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM> &rSurfaceElement,
+        c_vector<double,ELEMENT_DIM> &rPhi,
+        ChastePoint<SPACE_DIM> &rX)
 {
     // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
     double sigma_i_times_grad_phi_i_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 0);
     double sigma_e_times_grad_phi_e_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX, 1);
 
-    c_vector<double, 2*ELEM_DIM> ret;
-    for (unsigned i=0; i<ELEM_DIM; i++)
+    c_vector<double, 2*ELEMENT_DIM> ret;
+    for (unsigned i=0; i<ELEMENT_DIM; i++)
     {
         ret(2*i)   = rPhi(i)*sigma_i_times_grad_phi_i_dot_n;
         ret(2*i+1) = rPhi(i)*(sigma_i_times_grad_phi_i_dot_n + sigma_e_times_grad_phi_e_dot_n);
@@ -154,13 +156,13 @@ c_vector<double, 2*ELEM_DIM> BidomainAssembler<ELEM_DIM,SPACE_DIM>::ComputeVecto
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-BidomainAssembler<ELEM_DIM,SPACE_DIM>::BidomainAssembler(
-            AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainAssembler(
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             BidomainPde<SPACE_DIM>* pPde,
             double dt,
             unsigned numQuadPoints)
-    : AbstractFeObjectAssembler<ELEM_DIM,SPACE_DIM,2,true,true,CARDIAC>(pMesh,numQuadPoints),
+    : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,true,true,CARDIAC>(pMesh,numQuadPoints),
       mpBidomainPde(pPde),
       mDt(dt)
 {

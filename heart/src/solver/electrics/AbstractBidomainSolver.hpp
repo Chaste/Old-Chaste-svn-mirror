@@ -145,10 +145,11 @@ public:
     /**
      * Constructor
      *
-     * @param bathSimulation Whether the simulation has a perfusing bath
-     * @param pMesh pointer to the mesh
-     * @param pPde pointer to the PDE
-     * @param pBoundaryConditions pointer to the boundary conditions container
+     * @param bathSimulation  whether the simulation has a perfusing bath
+     * @param pMesh  pointer to the mesh
+     * @param pPde  pointer to the PDE
+     * @param pBoundaryConditions  pointer to the boundary conditions container
+     * @param numQuadPoints  number of Gaussian quadrature points in each dimension
      */
     AbstractBidomainSolver(bool bathSimulation,
                            AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
@@ -168,15 +169,16 @@ public:
      *
      *  @param fixedExtracellularPotentialNodes the nodes to be fixed.
      *
-     *  NOTE: currently, the value of phi_e at the fixed nodes cannot be set to be
+     *  @note currently, the value of phi_e at the fixed nodes cannot be set to be
      *  anything other than zero.
      */
     void SetFixedExtracellularPotentialNodes(std::vector<unsigned> fixedExtracellularPotentialNodes);
 
-    /** Used when removing a single row to resolve singularity and
+    /**
+     * Used when removing a single row to resolve singularity and
      * replacing it with a constraint on the average phi_e being zero.
      * It is set from the problem class.
-     * @param  rowMeanPhiEZero  indicates the row of the matrix to be replaced.  Ought to be an odd number...
+     * @param rowMeanPhiEZero  indicates the row of the matrix to be replaced.  Ought to be an odd number...
      */
      void SetRowForAverageOfPhiZeroed(unsigned rowMeanPhiEZero);
 

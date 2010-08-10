@@ -136,7 +136,7 @@ public:
      * @param pMesh pointer to the mesh
      * @param pPde pointer to the PDE
      * @param dt timestep 
-     * @param numQuadPoints number of quadrature points (defaults to 2)
+     * @param numQuadPoints number of quadrature points in each dimension
      */
     BidomainAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                       BidomainPde<SPACE_DIM>* pPde,
