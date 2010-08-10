@@ -525,40 +525,6 @@ public:
         TS_ASSERT_EQUALS(mesh_pair.mStatisticsCounters[0], 9u);
         TS_ASSERT_EQUALS(mesh_pair.mStatisticsCounters[1], 0u);
     }
-
-
-//
-//    // Uncomment this test and stick in your own two meshes to see if they will be suitable for
-//    // an electromechanics simulation. There shouldn't be two many quadrature points reported to
-//    // be outside the fine mesh, and for those that are, the weights (corresponding to the nearest
-//    // elements) shouldn't be too far away from the interval [0,1]
-//    void verylongTestExperiment() throw(Exception)
-//    {
-//        TetrahedralMesh<3,3> electrics_mesh;
-//        QuadraticMesh<3> mechanics_mesh;
-//
-//        {
-//            TrianglesMeshReader<3,3> reader1("/home/chaste/Desktop/heartmeshes/pras_rat_mesh/heart_d1_16_i_triangles");
-//            electrics_mesh.ConstructFromMeshReader(reader1);
-//
-//            TrianglesMeshReader<3,3> reader2("projects/pras/test/data/Rat/rat_d1_quadratic",2,2);
-//            mechanics_mesh.ConstructFromMeshReader(reader2);
-//        }
-//
-//        FineCoarseMeshPair<3> mesh_pair(electrics_mesh,mechanics_mesh);
-//
-//        std::cout << "Min & max x = " << mesh_pair.mMinValuesFine(0) << " " << mesh_pair.mMaxValuesFine(0) << "\n";
-//
-//        mesh_pair.SetUpBoxesOnFineMesh();
-//
-//        std::cout << "Num boxes = " << mesh_pair.mpFineMeshBoxCollection->GetNumBoxes() << "\n";
-//
-//        GaussianQuadratureRule<3> quad_rule(3);
-//        mesh_pair.ComputeFineElementsAndWeightsForCoarseQuadPoints(quad_rule, false);
-//
-//        mesh_pair.PrintStatistics();
-//    }
-
 };
 
 #endif /*TESTFINECOARSEMESHPAIR_HPP_*/
