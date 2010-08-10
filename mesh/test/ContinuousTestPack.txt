@@ -5,6 +5,7 @@ TestDistanceMapCalculator.hpp
 TestDistributedTetrahedralMesh.hpp
 TestElement.hpp
 TestFemlabMeshReader.hpp
+TestLinearToQuadraticMeshConverter.hpp
 TestMemfemMeshReader.hpp
 TestMeshWriters.hpp
 TestMutableMesh.hpp
