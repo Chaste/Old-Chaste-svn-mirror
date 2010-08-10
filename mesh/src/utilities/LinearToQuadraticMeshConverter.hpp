@@ -88,7 +88,7 @@ public:
         if(DIM==3)
         {
             std::stringstream ss;
-            ss << "python projects/pras/test/RemoveAttributeColumn.py " << column 
+            ss << "python python/RemoveAttributeColumn.py " << column 
                << " < " << full_in_mesh_stem << ".1" << faceformat << " > " 
             << "temp.face";
             std::cout << "\n[running command]: " << ss.str() << "\n" << std::flush;
