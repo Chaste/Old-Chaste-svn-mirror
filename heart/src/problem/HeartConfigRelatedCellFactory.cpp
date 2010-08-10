@@ -164,7 +164,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
             case(cp::ionic_models_available_type::DifrancescoNoble):
             {
-                p_cell = new DiFrancescoNoble1985OdeSystem(this->mpSolver, intracellularStimulus);
+                p_cell = new CellDiFrancescoNoble1985FromCellML(this->mpSolver, intracellularStimulus);
                 break;
             }
 

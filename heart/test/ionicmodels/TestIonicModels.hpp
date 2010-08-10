@@ -74,7 +74,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BackwardEulerMahajanModel2008.hpp"
 #include "TenTusscher2006Epi.hpp"
 #include "TenTusscher2006EpiBackwardEuler.hpp"
-#include "DiFrancescoNoble1985OdeSystem.hpp"
+#include "DiFrancescoNoble1985.hpp"
 #include "Maleckar2008.hpp"
 #include "ArchiveLocationInfo.hpp"
 
@@ -812,15 +812,16 @@ public:
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver); //define the solver
         HeartConfig::Instance()->SetOdeTimeStep(0.01);
-        DiFrancescoNoble1985OdeSystem purkinje_ode_system(p_solver, p_stimulus);
+        CellDiFrancescoNoble1985FromCellML purkinje_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         RunOdeSolverWithIonicModel(&purkinje_ode_system,
                                    1800,/*end time, in milliseconds for this model*/
                                    "DiFrancescoNoble",
                                    1000);
-        //Check against validated data
-        //(the valid data have been checked against CellML code of the model known to be valid).
+
+        // Check against validated data
+        // (the valid data have been checked against CellML code of the model known to be valid).
         CheckCellModelResults("DiFrancescoNoble");
 
          //Test the GetIIonic method against one hardcoded value.

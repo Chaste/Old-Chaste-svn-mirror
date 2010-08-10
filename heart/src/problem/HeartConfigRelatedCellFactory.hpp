@@ -55,7 +55,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudy1991BackwardEuler.hpp"
 #include "FaberRudy2000.hpp"
 #include "FaberRudy2000Opt.hpp"
-#include "DiFrancescoNoble1985OdeSystem.hpp"
+#include "DiFrancescoNoble1985.hpp"
 #include "Mahajan2008.hpp"
 #include "TenTusscher2006Epi.hpp"
 #include "HodgkinHuxley1952.hpp"
