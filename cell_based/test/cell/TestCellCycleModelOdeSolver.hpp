@@ -30,8 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+
 #include "CellCycleModelOdeSolver.hpp"
+
 #include "TysonNovakCellCycleModel.hpp"
+#include "WntCellCycleModel.hpp"
 
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
@@ -115,14 +121,14 @@ public:
 
     void TestMethods() throw(Exception)
     {
+        typedef CellCycleModelOdeSolver<TysonNovakCellCycleModel,RungeKutta4IvpOdeSolver> RkSolver;
+
         // Check we can create an instance
-        boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel,RungeKutta4IvpOdeSolver> > p_solver
-            = CellCycleModelOdeSolver<TysonNovakCellCycleModel,RungeKutta4IvpOdeSolver>::Instance();
+        boost::shared_ptr<RkSolver> p_solver = RkSolver::Instance();
         TS_ASSERT(p_solver.get() != NULL);
 
         // Check singleton-ness
-        boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel,RungeKutta4IvpOdeSolver> > p_solver2
-            = CellCycleModelOdeSolver<TysonNovakCellCycleModel,RungeKutta4IvpOdeSolver>::Instance();
+        boost::shared_ptr<RkSolver> p_solver2 = RkSolver::Instance();
         TS_ASSERT_EQUALS(p_solver, p_solver2);
 
         p_solver->Initialise();
@@ -152,14 +158,14 @@ public:
 
     void TestWithBackwardEulerIvpOdeSolver() throw(Exception)
     {
+        typedef CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> EulerSolver;
+
         // Check we can create an instance
-        boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> > p_solver
-            = CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance();
+        boost::shared_ptr<EulerSolver> p_solver = EulerSolver::Instance();
         TS_ASSERT(p_solver.get() != NULL);
 
         // Check singleton-ness
-        boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> > p_solver2
-            = CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance();
+        boost::shared_ptr<EulerSolver> p_solver2 = EulerSolver::Instance();
         TS_ASSERT_EQUALS(p_solver, p_solver2);
 
         TS_ASSERT_THROWS_THIS(p_solver->Initialise(), "SetSizeOfOdeSystem() must be called before calling Initialise()");
@@ -182,6 +188,8 @@ public:
         p_solver->SetSizeOfOdeSystem(2);
         p_solver->Initialise();
 
+        TS_ASSERT_EQUALS(p_solver->GetSizeOfOdeSystem(), 2u);
+
         // Check the solver can be called for another ODE system, this time with a stopping event
         OdeSecondOrderWithEvents ode_with_events;
 
@@ -198,12 +206,14 @@ public:
     void TestWithCvodeAdaptor() throw(Exception)
     {
 #ifdef CHASTE_CVODE
+        typedef CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor> CvodeSolver;
+
         // Check we can create an instance
-        boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel,CvodeAdaptor> > p_solver = CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor>::Instance();
+        boost::shared_ptr<CvodeSolver> p_solver = CvodeSolver::Instance();
         TS_ASSERT(p_solver.get() != NULL);
 
         // Check singleton-ness
-        boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel,CvodeAdaptor> > p_solver2 = CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor>::Instance();
+        boost::shared_ptr<CvodeSolver> p_solver2 = CvodeSolver::Instance();
         TS_ASSERT_EQUALS(p_solver, p_solver2);
 
         p_solver->Initialise();
@@ -214,6 +224,44 @@ public:
 #endif // CHASTE_CVODE
     }
 
+    void TestArchiving() throw(Exception)
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "ode_solver.arch";
+
+        typedef CellCycleModelOdeSolver<WntCellCycleModel, BackwardEulerIvpOdeSolver> EulerSolver;
+
+        // Create an output archive
+        {
+            boost::shared_ptr<EulerSolver> p_solver = EulerSolver::Instance();
+            p_solver->SetSizeOfOdeSystem(4);
+            p_solver->Initialise();
+
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            output_arch << p_solver;
+
+            TS_ASSERT_EQUALS(p_solver->GetSizeOfOdeSystem(), 4u);
+            p_solver->Reset();
+            TS_ASSERT_EQUALS(p_solver->GetSizeOfOdeSystem(), UNSIGNED_UNSET);
+        }
+
+        {
+            boost::shared_ptr<EulerSolver> p_solver = EulerSolver::Instance();
+
+            TS_ASSERT_EQUALS(p_solver->GetSizeOfOdeSystem(), UNSIGNED_UNSET);
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_solver;
+
+            TS_ASSERT_EQUALS(p_solver->GetSizeOfOdeSystem(), 4u);
+        }
+    }
 };
 
 

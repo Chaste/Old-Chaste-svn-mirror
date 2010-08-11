@@ -139,9 +139,9 @@ inline void load_construct_data(
 {
     // Retrieve data from archive required to construct new instance
     AbstractTissue<1>* p_tissue;
-    ar >> p_tissue;
+    ar & p_tissue;
     std::vector<AbstractForce<1>*> force_collection;
-    ar >> force_collection;
+    ar & force_collection;
 
     // Invoke inplace constructor to initialise instance
     ::new(t)CryptSimulation1d(*p_tissue, force_collection, true, false);

@@ -39,6 +39,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleOdeSystem.hpp"
 #include "AbstractCellMutationState.hpp"
 
+#include "CellCycleModelOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
+#include "EulerIvpOdeSolver.hpp"
+#include "HeunIvpOdeSolver.hpp"
+#include "RungeKutta2IvpOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
 
 /**
  * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
@@ -120,11 +126,13 @@ public:
     /**
      * A private constructor for archiving.
      *
+     * @param pOdeSolver a pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
      * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
      */
-    WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
+    WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
+                      const std::vector<double>& rParentProteinConcentrations,
                       boost::shared_ptr<AbstractCellMutationState> pMutationState,
                       const unsigned& rDimension);
 
@@ -169,6 +177,8 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const WntCellCycleModel * t, const unsigned int file_version)
 {
+    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
+    ar & p_ode_solver;
 }
 
 /**
@@ -179,11 +189,14 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, WntCellCycleModel * t, const unsigned int file_version)
 {
+    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
+    ar & p_ode_solver;
+
     /**
      * Invoke inplace constructor to initialise an instance of WntCellCycleModel.
      * It doesn't actually matter what values we pass to our standard constructor,
-     * provided they are valid parameter values, since the state loaded later
-     * from the archive will overwrite their effect in this case.
+     * provided they are valid parameter values, since the state loaded later from
+     * the archive will overwrite their effect in this case.
      */
 
     std::vector<double> state_vars;
@@ -194,9 +207,17 @@ inline void load_construct_data(
 
     boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
     unsigned dimension = 1;
-    ::new(t)WntCellCycleModel(state_vars, p_mutation_state, dimension);
+    ::new(t)WntCellCycleModel(p_ode_solver, state_vars, p_mutation_state, dimension);
 }
 }
 } // namespace
 
+#ifdef CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, WntCellCycleModel, CvodeAdaptor)
+#endif //CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, WntCellCycleModel, BackwardEulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, WntCellCycleModel, EulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, WntCellCycleModel, HeunIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, WntCellCycleModel, RungeKutta2IvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, WntCellCycleModel, RungeKutta4IvpOdeSolver)
 #endif /*WNTCELLCYCLEMODEL_HPP_*/

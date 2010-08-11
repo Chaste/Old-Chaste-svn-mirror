@@ -40,6 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModel.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
+#include "WntCellCycleModel.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 
 #include "AbstractCellMutationState.hpp"
@@ -1372,7 +1373,7 @@ public:
     {
         // In this case the first cycle time will be 5.971+9.0676 = 15.0386
         // note that the S-G2-M time is assigned when the cell finishes G1
-        //(i.e. at time 5.971 here so the model has to be archived BEFORE that.
+        // (i.e. at time 5.971 here so the model has to be archived BEFORE that.
 
         // Set up
         OutputFileHandler handler("archive", false);

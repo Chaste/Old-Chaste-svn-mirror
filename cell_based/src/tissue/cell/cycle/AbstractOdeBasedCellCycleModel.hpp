@@ -180,6 +180,11 @@ public:
      * call AbstractOdeBasedCellCycleModel::ResetForDivision() from inside their version.
      */
     virtual void ResetForDivision();
+
+     /**
+      * @return mpOdeSolver (used in archiving).
+      */
+    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> GetOdeSolver() const;
 };
 
 CLASS_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)

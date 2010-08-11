@@ -31,6 +31,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractVanLeeuwen2009WntSwatCellCycleModel.hpp"
 
+#include "CellCycleModelOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
+#include "EulerIvpOdeSolver.hpp"
+#include "HeunIvpOdeSolver.hpp"
+#include "RungeKutta2IvpOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
+
 /**
  * Concrete Van Leeuwen 2009 cell cycle model, using hypothesis two (see paper).
  */
@@ -73,5 +80,46 @@ public:
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo instance.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo * t, const unsigned int file_version)
+{
+    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
+    ar & p_ode_solver;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo instance.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo * t, const unsigned int file_version)
+{
+    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
+    ar & p_ode_solver;
+
+    ::new(t)VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo(p_ode_solver);
+}
+}
+} // namespace
+
+#ifdef CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo, CvodeAdaptor)
+#endif //CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo, BackwardEulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo, EulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo, HeunIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo, RungeKutta2IvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo, RungeKutta4IvpOdeSolver)
 
 #endif /* VANLEEUWEN2009WNTSWATCELLCYCLEMODELHYPOTHESISTWO_HPP_ */

@@ -27,41 +27,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AbstractWntOdeBasedCellCycleModel.hpp"
 #include "PetscTools.hpp"
-#include "CellCycleModelOdeSolver.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "CvodeAdaptor.hpp"
 
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : AbstractOdeBasedCellCycleModelWithStoppingEvent(SimulationTime::Instance()->GetTime(), pOdeSolver)
 {
-    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
-    {
-#ifdef CHASTE_CVODE
-        mpOdeSolver = CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor>::Instance();
-        mpOdeSolver->Initialise();
-        // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so
-        mpOdeSolver->CheckForStoppingEvents();
-        mpOdeSolver->SetMaxSteps(10000);
-#else
-        mpOdeSolver = CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
-        mpOdeSolver->Initialise();
-#endif //CHASTE_CVODE
-    }
 }
 
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& rOtherModel)
     : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
 {
     mDimension = rOtherModel.mDimension;
-
-    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
-    {
-#ifdef CHASTE_CVODE
-        mpOdeSolver = CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, CvodeAdaptor>::Instance();
-#else
-        mpOdeSolver = CellCycleModelOdeSolver<AbstractWntOdeBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
-#endif //CHASTE_CVODE
-    }
 }
 
 AbstractWntOdeBasedCellCycleModel::~AbstractWntOdeBasedCellCycleModel()

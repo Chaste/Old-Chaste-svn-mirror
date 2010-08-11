@@ -295,7 +295,7 @@ inline void save_construct_data(
 {
     // Save data required to construct instance
     const double width = t->GetWidth(0);
-    ar << width;
+    ar & width;
 }
 
 /**
@@ -307,7 +307,7 @@ inline void load_construct_data(
 {
     // Retrieve data from archive required to construct new instance
     double width;
-    ar >> width;
+    ar & width;
 
     // Invoke inplace constructor to initialise instance
     ::new(t)Cylindrical2dMesh(width);

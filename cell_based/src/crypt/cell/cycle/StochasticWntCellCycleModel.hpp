@@ -102,7 +102,8 @@ public:
      * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
      */
-    StochasticWntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
+    StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
+                                const std::vector<double>& rParentProteinConcentrations,
                                 boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                 const unsigned& rDimension);
 
@@ -149,12 +150,14 @@ namespace serialization
 {
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a WntCellCycleModel instance.
+ * instantiate a StochasticWntCellCycleModel instance.
  */
 template<class Archive>
 inline void save_construct_data(
     Archive & ar, const StochasticWntCellCycleModel * t, const unsigned int file_version)
 {
+    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
+    ar & p_ode_solver;
 }
 
 /**
@@ -165,11 +168,14 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, StochasticWntCellCycleModel * t, const unsigned int file_version)
 {
+    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
+    ar & p_ode_solver;
+
     /**
      * Invoke inplace constructor to initialise an instance of StochasticWntCellCycleModel.
-     * It doesn't actually matter what values we pass to our standard constructor,
-     * provided they are valid parameter values, since the state loaded later
-     * from the archive will overwrite their effect in this case.
+     * It doesn't actually matter what values we pass to our standard constructor, provided
+     * they are valid parameter values, since the state loaded later from the archive will
+     * overwrite their effect in this case.
      */
 
     std::vector<double> state_vars;
@@ -180,9 +186,18 @@ inline void load_construct_data(
 
     boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
     unsigned dimension = 1;
-    ::new(t)StochasticWntCellCycleModel(state_vars, p_mutation_state, dimension);
+    ::new(t)StochasticWntCellCycleModel(p_ode_solver, state_vars, p_mutation_state, dimension);
 }
 }
 } // namespace
+
+#ifdef CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, CvodeAdaptor)
+#endif //CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, BackwardEulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, EulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, HeunIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, RungeKutta2IvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, RungeKutta4IvpOdeSolver)
 
 #endif /*STOCHASTICWNTCELLCYCLEMODEL_HPP_*/

@@ -369,13 +369,13 @@ inline void save_construct_data(
 {
     // Save data required to construct instance
     const boost::shared_ptr<AbstractCellMutationState> p_mutation_state = t->GetMutationState();
-    ar << p_mutation_state;
+    ar & p_mutation_state;
 
     const AbstractCellCycleModel* const p_cell_cycle_model = t->GetCellCycleModel();
-    ar << p_cell_cycle_model;
+    ar & p_cell_cycle_model;
 
     const CellPropertyCollection& r_cell_property_collection = t->rGetCellPropertyCollection();
-    ar << r_cell_property_collection;
+    ar & r_cell_property_collection;
 }
 
 /**
@@ -387,15 +387,15 @@ inline void load_construct_data(
 {
     // Retrieve data from archive required to construct new instance
     boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-    ar >> p_mutation_state;
+    ar & p_mutation_state;
 
     AbstractCellCycleModel* p_cell_cycle_model;
-    ar >> p_cell_cycle_model;
+    ar & p_cell_cycle_model;
 
     bool archiving = true;
 
     CellPropertyCollection cell_property_collection;
-    ar >> cell_property_collection;
+    ar & cell_property_collection;
 
     // Invoke inplace constructor to initialize instance
     ::new(t)TissueCell(p_mutation_state, p_cell_cycle_model, archiving, cell_property_collection);

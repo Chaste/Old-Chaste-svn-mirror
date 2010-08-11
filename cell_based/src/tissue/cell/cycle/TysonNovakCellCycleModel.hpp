@@ -36,6 +36,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovak2001OdeSystem.hpp"
 #include "Exception.hpp"
 
+#include "CellCycleModelOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
+#include "EulerIvpOdeSolver.hpp"
+#include "HeunIvpOdeSolver.hpp"
+#include "RungeKutta2IvpOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
+
 /**
  *  Tyson-Novak 2001 cell cycle model, taken from the version at  doi:10.1006/jtbi.2001.2293
  *
@@ -144,5 +151,46 @@ public:
 // Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(TysonNovakCellCycleModel)
 
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a TysonNovakCellCycleModel instance.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const TysonNovakCellCycleModel * t, const unsigned int file_version)
+{
+    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
+    ar & p_ode_solver;
+}
+
+/**
+ * Allow us to not need a default constructor, by specifying how Boost should
+ * instantiate a TysonNovakCellCycleModel instance.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, TysonNovakCellCycleModel * t, const unsigned int file_version)
+{
+    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
+    ar & p_ode_solver;
+
+    ::new(t)TysonNovakCellCycleModel(p_ode_solver);
+}
+}
+} // namespace ...
+
+
+#ifdef CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, CvodeAdaptor)
+#endif //CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, EulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, HeunIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, RungeKutta2IvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, RungeKutta4IvpOdeSolver)
 
 #endif /*TYSONNOVAKCELLCYCLEMODEL_HPP_*/

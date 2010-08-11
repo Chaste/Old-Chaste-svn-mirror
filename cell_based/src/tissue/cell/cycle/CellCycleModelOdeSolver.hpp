@@ -29,6 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CELLCYCLEMODELODESOLVER_HPP_
 #define CELLCYCLEMODELODESOLVER_HPP_
 
+#include "ChasteSerialization.hpp"
+
 #include "AbstractCellCycleModelOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 
@@ -42,8 +44,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * This class contains all the machinery to make it a singleton, hence providing
  * exactly one instance per value of the template parameter.
- * 
- * \todo implement archiving (see #1427)
  */
 template <class CELL_CYCLE_MODEL, class ODE_SOLVER>
 class CellCycleModelOdeSolver : public AbstractCellCycleModelOdeSolver
@@ -55,7 +55,32 @@ private:
     /** Default constructor. Not user accessible; to obtain an instance of this class use the Instance method. */
     CellCycleModelOdeSolver();
 
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the cell cycle model, never used directly - boost uses this.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellCycleModelOdeSolver>(*this);
+        archive & mpInstance;
+    }
+
 public:
+
+    /** Copy constructor. */
+    CellCycleModelOdeSolver(const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>&);
+
+    /**
+     * Overloaded assignment operator.
+     * 
+     * @param rOtherCellCycleModelOdeSolver another CellCycleModelOdeSolver
+     */
+    CellCycleModelOdeSolver& operator= (const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>& rOtherCellCycleModelOdeSolver);
 
     /** Return a pointer to the singleton instance, creating it if necessary. */
     static boost::shared_ptr<CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER> > Instance();
@@ -76,7 +101,18 @@ CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::CellCycleModelOdeSolver()
     : AbstractCellCycleModelOdeSolver()
 {
     // Make sure there's only one instance; enforces correct serialization
-    assert(mpInstance == NULL);
+    if (mpInstance != NULL)
+    {
+        mpInstance.reset();
+    }
+}
+
+template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
+CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>& CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::operator= (const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>& rOtherCellCycleModelOdeSolver)
+{
+    mpInstance.reset(rOtherCellCycleModelOdeSolver.mpInstance);
+    mpOdeSolver = rOtherCellCycleModelOdeSolver.mpOdeSolver;
+    mSizeOfOdeSystem = rOtherCellCycleModelOdeSolver.mSizeOfOdeSystem;
 }
 
 template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
@@ -118,7 +154,28 @@ private:
     /** Default constructor. Not user accessible; to obtain an instance of this class use the Instance method. */
     CellCycleModelOdeSolver();
 
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the cell cycle model, never used directly - boost uses this.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractCellCycleModelOdeSolver>(*this);
+        archive & mpInstance;
+    }
+
 public:
+
+    /** Copy constructor. */
+    CellCycleModelOdeSolver(const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver>&);
+
+    /** Overloaded assignment operator. */
+    CellCycleModelOdeSolver& operator= (const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver>&);
 
     /** Return a pointer to the singleton instance, creating it if necessary. */
     static boost::shared_ptr<CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver> > Instance();
@@ -141,7 +198,10 @@ CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver>::CellCycleM
     : AbstractCellCycleModelOdeSolver()
 {
     // Make sure there's only one instance - enforces correct serialization
-    assert(mpInstance == NULL);
+    if (mpInstance != NULL)
+    {
+        mpInstance.reset();
+    }
 }
 
 template<class CELL_CYCLE_MODEL>

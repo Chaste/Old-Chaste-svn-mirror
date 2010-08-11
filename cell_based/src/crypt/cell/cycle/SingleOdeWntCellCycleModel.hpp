@@ -37,7 +37,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleWntCellCycleModel.hpp"
 #include "Mirams2010WntOdeSystem.hpp"
-#include "AbstractCellCycleModelOdeSolver.hpp"
+
+#include "CellCycleModelOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
+#include "EulerIvpOdeSolver.hpp"
+#include "HeunIvpOdeSolver.hpp"
+#include "RungeKutta2IvpOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
 
 /**
  * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
@@ -153,15 +159,15 @@ public:
 
     /**
      * A 'private' constructor for archiving.
-     *
-     * \todo pass in ODE solver? (#1427)
      * 
+     * @param pOdeSolver a pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      * @param rProteinConcs a std::vector of doubles of the protein concentrations (see VanLeeuwen2009WntSwatCellCycleOdeSystem)
      * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
      * @param useTypeDependentG1 whether to make the duration of G1 phase dependent on the cell's proliferative type (defaults to false)
      */
-    SingleOdeWntCellCycleModel(std::vector<double>& rProteinConcs,
+    SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
+                               std::vector<double>& rProteinConcs,
                                boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                unsigned& rDimension,
                                bool useTypeDependentG1 = false);
@@ -217,6 +223,11 @@ public:
      * Get #mBetaCateninDivisionThreshold.
      */
     double GetBetaCateninDivisionThreshold();
+
+     /**
+      * @return mpOdeSolver (used in archiving).
+      */
+    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> GetOdeSolver() const;
 };
 
 // Declare identifier for the serializer
@@ -229,27 +240,32 @@ namespace serialization
 {
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a WntCellCycleModel instance.
+ * instantiate a SingleOdeWntCellCycleModel instance.
  */
 template<class Archive>
 inline void save_construct_data(
     Archive & ar, const SingleOdeWntCellCycleModel * t, const unsigned int file_version)
 {
+    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
+    ar & p_ode_solver;
 }
 
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a WntCellCycleModel instance.
+ * instantiate a SingleOdeWntCellCycleModel instance.
  */
 template<class Archive>
 inline void load_construct_data(
     Archive & ar, SingleOdeWntCellCycleModel * t, const unsigned int file_version)
 {
+    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
+    ar & p_ode_solver;
+
     /**
-     * Invoke inplace constructor to initialise an instance of WntCellCycleModel.
+     * Invoke inplace constructor to initialise an instance of SingleOdeWntCellCycleModel.
      * It doesn't actually matter what values we pass to our standard constructor,
-     * provided they are valid parameter values, since the state loaded later
-     * from the archive will overwrite their effect in this case.
+     * provided they are valid parameter values, since the state loaded later from the
+     * archive will overwrite their effect in this case.
      */
 
     std::vector<double> state_vars;
@@ -260,9 +276,18 @@ inline void load_construct_data(
 
     boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
     unsigned dimension = 1;
-    ::new(t)SingleOdeWntCellCycleModel(state_vars, p_mutation_state, dimension);
+    ::new(t)SingleOdeWntCellCycleModel(p_ode_solver, state_vars, p_mutation_state, dimension);
 }
 }
 } // namespace
+
+#ifdef CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, CvodeAdaptor)
+#endif //CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, BackwardEulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, EulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, HeunIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, RungeKutta2IvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver)
 
 #endif /*SINGLEODEWNTCELLCYCLEMODEL_HPP_*/

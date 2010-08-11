@@ -25,10 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "TysonNovakCellCycleModel.hpp"
-#include "CellCycleModelOdeSolver.hpp"
-#include "BackwardEulerIvpOdeSolver.hpp"
-#include "CvodeAdaptor.hpp"
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : AbstractOdeBasedCellCycleModelWithStoppingEvent(SimulationTime::Instance()->GetTime(), pOdeSolver)
@@ -60,21 +58,6 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleMode
     if (rOtherModel.mpOdeSystem != NULL)
     {
         mpOdeSystem = new TysonNovak2001OdeSystem(*static_cast<TysonNovak2001OdeSystem*>(rOtherModel.mpOdeSystem));
-    }
-    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
-    {
-#ifdef CHASTE_CVODE
-        mpOdeSolver = CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor>::Instance();
-        mpOdeSolver->Initialise();
-        // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so
-        mpOdeSolver->CheckForStoppingEvents();
-        mpOdeSolver->SetMaxSteps(10000);
-        mpOdeSolver->SetTolerances(1e-6, 1e-8);
-#else
-        mpOdeSolver = CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance();
-        mpOdeSolver->SetSizeOfOdeSystem(6);
-        mpOdeSolver->Initialise();
-#endif //CHASTE_CVODE
     }
 }
 

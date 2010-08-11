@@ -40,6 +40,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "Exception.hpp"
 
+#include "CellCycleModelOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
+#include "EulerIvpOdeSolver.hpp"
+#include "HeunIvpOdeSolver.hpp"
+#include "RungeKutta2IvpOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
+
 /**
  * Oxygen-dependent ODE-based cell cycle model. Published by Alarcon et al.
  * (doi:10.1016/j.jtbi.2004.04.016).
@@ -108,13 +115,13 @@ public:
     /**
      * A private constructor for archiving.
      * 
-     * \todo pass in ODE solver? (#1427) 
-     *
+      *@param pOdeSolver a pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
      * @param rDimension the spatial dimension
      * @param isLabelled whether the cell associated with this cell cycle model is labelled (this affects the ODE system)
      */
-    Alarcon2004OxygenBasedCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
+    Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
+                                         const std::vector<double>& rParentProteinConcentrations,
                                          const unsigned& rDimension,
                                          bool isLabelled);
 
@@ -167,6 +174,8 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const Alarcon2004OxygenBasedCellCycleModel * t, const unsigned int file_version)
 {
+    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
+    ar & p_ode_solver;
 }
 
 /**
@@ -177,11 +186,14 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, Alarcon2004OxygenBasedCellCycleModel * t, const unsigned int file_version)
 {
+    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
+    ar & p_ode_solver;
+
     /**
      * Invoke inplace constructor to initialise an instance of Alarcon2004OxygenBasedCellCycleModel.
-     * It doesn't actually matter what values we pass to our standard constructor,
-     * provided they are valid parameter values, since the state loaded later
-     * from the archive will overwrite their effect in this case.
+     * It doesn't actually matter what values we pass to our standard constructor, provided they are
+     * valid parameter values, since the state loaded later from the archive will overwrite their
+     * effect in this case.
      */
 
     std::vector<double> state_vars;
@@ -192,9 +204,19 @@ inline void load_construct_data(
     unsigned dimension = 1;
     bool is_labelled = false;
 
-    ::new(t)Alarcon2004OxygenBasedCellCycleModel(state_vars, dimension, is_labelled);
+    ::new(t)Alarcon2004OxygenBasedCellCycleModel(p_ode_solver, state_vars, dimension, is_labelled);
 }
 }
 } // namespace ...
+
+
+#ifdef CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, CvodeAdaptor)
+#endif //CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, BackwardEulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, EulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, HeunIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, RungeKutta2IvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver)
 
 #endif /*ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_*/

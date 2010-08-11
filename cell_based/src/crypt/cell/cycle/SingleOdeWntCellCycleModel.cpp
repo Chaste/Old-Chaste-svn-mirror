@@ -27,9 +27,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "UblasIncludes.hpp"
 #include "SingleOdeWntCellCycleModel.hpp"
-#include "CellCycleModelOdeSolver.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "CvodeAdaptor.hpp"
 
 SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : mpOdeSystem(NULL),
@@ -47,6 +44,7 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(boost::shared_ptr<Abstrac
         mpOdeSolver->Initialise();
 #endif //CHASTE_CVODE
     }
+    assert(mpOdeSolver->IsSetUp());
 }
 
 SingleOdeWntCellCycleModel::~SingleOdeWntCellCycleModel()
@@ -92,27 +90,22 @@ void SingleOdeWntCellCycleModel::UpdateCellCyclePhase()
 }
 
 
-SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(std::vector<double>& rParentProteinConcentrations,
-                                     boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                                     unsigned& rDimension,
-                                     bool useTypeDependentG1)
+SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
+                                                       std::vector<double>& rParentProteinConcentrations,
+                                                       boost::shared_ptr<AbstractCellMutationState> pMutationState,
+                                                       unsigned& rDimension,
+                                                       bool useTypeDependentG1)
     : mLastTime(DBL_MAX)
 {
     SetDimension(rDimension),
     SetUseCellProliferativeTypeDependentG1Duration(useTypeDependentG1);
 
-#ifdef CHASTE_CVODE
-    mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance();
-    mpOdeSolver->Initialise();
-    mpOdeSolver->SetMaxSteps(10000);
-#else
-    mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
-    mpOdeSolver->Initialise();
-#endif //CHASTE_CVODE
-
     // Set the other initial conditions to be the same as the parent cell
     mpOdeSystem = new Mirams2010WntOdeSystem(rParentProteinConcentrations[2], pMutationState);
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
+
+    mpOdeSolver = pOdeSolver;
+    assert(mpOdeSolver->IsSetUp());
 }
 
 
@@ -190,6 +183,11 @@ void SingleOdeWntCellCycleModel::SetBetaCateninDivisionThreshold(double betaCate
 double SingleOdeWntCellCycleModel::GetBetaCateninDivisionThreshold()
 {
     return mBetaCateninDivisionThreshold;
+}
+
+const boost::shared_ptr<AbstractCellCycleModelOdeSolver> SingleOdeWntCellCycleModel::GetOdeSolver() const
+{
+    return mpOdeSolver;
 }
 
 // Declare identifier for the serializer

@@ -31,6 +31,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : AbstractVanLeeuwen2009WntSwatCellCycleModel(pOdeSolver)
 {
+    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
+    {
+#ifdef CHASTE_CVODE
+        mpOdeSolver = CellCycleModelOdeSolver<VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo, CvodeAdaptor>::Instance();
+        mpOdeSolver->Initialise();
+        // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so
+        mpOdeSolver->CheckForStoppingEvents();
+        mpOdeSolver->SetMaxSteps(10000);
+#else
+        mpOdeSolver = CellCycleModelOdeSolver<VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo, RungeKutta4IvpOdeSolver>::Instance();
+        mpOdeSolver->Initialise();
+#endif //CHASTE_CVODE
+    }
 }
 
 void VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::InitialiseOdeSystem(double wntConcentration, boost::shared_ptr<AbstractCellMutationState> pMutationState)

@@ -29,7 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCELLCYCLEMODELODESOLVER_HPP_
 #define ABSTRACTCELLCYCLEMODELODESOLVER_HPP_
 
+#include "ChasteSerialization.hpp"
+#include "ClassIsAbstract.hpp"
+#include <boost/serialization/base_object.hpp>
+
 #include <boost/shared_ptr.hpp>
+
 #include "AbstractIvpOdeSolver.hpp"
 
 /**
@@ -43,11 +48,31 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * the most convenient method is likely to be to use the CellCycleModelOdeSolver
  * class, which is a templated singleton subclass of this AbstractCellCycleModelOdeSolver
  * class.  See its documentation for details of how to use it.
- * 
- * \todo implement archiving (see #1427)
  */
 class AbstractCellCycleModelOdeSolver
 {
+private:
+
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Archive the member variables.
+     *
+     * Serialization of singleton objects must be done with care.
+     * Before the object is serialized via a pointer, it *MUST* be
+     * serialized directly, or an assertion will trip when a second
+     * instance of the class is created on de-serialization.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & mpOdeSolver;
+        archive & mSizeOfOdeSystem;
+    }
+
 protected:
 
     /** The ODE solver. */
@@ -116,6 +141,11 @@ public:
      * @param sizeOfOdeSystem the new value of mSizeOfOdeSystem
      */
     void SetSizeOfOdeSystem(unsigned sizeOfOdeSystem);
+
+    /**
+     * @return mSizeOfOdeSystem
+     */
+    unsigned GetSizeOfOdeSystem();
 
     /**
      * If using CVODE, make the solver check for stopping events using CVODE's rootfinding functionality

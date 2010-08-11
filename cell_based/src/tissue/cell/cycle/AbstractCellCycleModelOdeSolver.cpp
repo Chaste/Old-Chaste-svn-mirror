@@ -69,6 +69,11 @@ void AbstractCellCycleModelOdeSolver::SetSizeOfOdeSystem(unsigned sizeOfOdeSyste
     mSizeOfOdeSystem = sizeOfOdeSystem;
 }
 
+unsigned AbstractCellCycleModelOdeSolver::GetSizeOfOdeSystem()
+{
+    return mSizeOfOdeSystem;    
+}
+
 void AbstractCellCycleModelOdeSolver::CheckForStoppingEvents()
 {
 #ifdef CHASTE_CVODE

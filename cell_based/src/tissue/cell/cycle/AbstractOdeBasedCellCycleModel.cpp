@@ -172,3 +172,8 @@ double AbstractOdeBasedCellCycleModel::GetOdeStopTime()
     assert(mpOdeSolver->StoppingEventOccurred());
     return mpOdeSolver->GetStoppingTime();
 }
+
+const boost::shared_ptr<AbstractCellCycleModelOdeSolver> AbstractOdeBasedCellCycleModel::GetOdeSolver() const
+{
+    return mpOdeSolver;
+}

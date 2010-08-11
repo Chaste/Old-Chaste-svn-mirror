@@ -30,6 +30,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 WntCellCycleModel::WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : AbstractWntOdeBasedCellCycleModel(pOdeSolver)
 {
+    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
+    {
+#ifdef CHASTE_CVODE
+        mpOdeSolver = CellCycleModelOdeSolver<WntCellCycleModel, CvodeAdaptor>::Instance();
+        mpOdeSolver->Initialise();
+        // Chaste solvers always check for stopping events, CVODE needs to be instructed to do so
+        mpOdeSolver->CheckForStoppingEvents();
+        mpOdeSolver->SetMaxSteps(10000);
+#else
+        mpOdeSolver = CellCycleModelOdeSolver<WntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
+        mpOdeSolver->Initialise();
+#endif //CHASTE_CVODE
+    }
 }
 
 
@@ -43,10 +56,11 @@ WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& rOtherModel)
 }
 
 
-WntCellCycleModel::WntCellCycleModel(const std::vector<double>& rParentProteinConcentrations,
+WntCellCycleModel::WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
+                                     const std::vector<double>& rParentProteinConcentrations,
                                      boost::shared_ptr<AbstractCellMutationState> pMutationState,
                                      const unsigned& rDimension)
-    : AbstractWntOdeBasedCellCycleModel()
+    : AbstractWntOdeBasedCellCycleModel(pOdeSolver)
 {
     mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], pMutationState); // Wnt pathway is reset in a couple of lines
 
