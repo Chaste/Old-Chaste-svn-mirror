@@ -37,13 +37,9 @@ AbstractCardiacCell::AbstractCardiacCell(boost::shared_ptr<AbstractIvpOdeSolver>
                                          unsigned numberOfStateVariables,
                                          unsigned voltageIndex,
                                          boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
-    : AbstractOdeSystem(numberOfStateVariables),
-      mVoltageIndex(voltageIndex),
-      mpOdeSolver(pOdeSolver),
-      mDt(HeartConfig::Instance()->GetOdeTimeStep()),
-      mpIntracellularStimulus(pIntracellularStimulus),
-      mSetVoltageDerivativeToZero(false),
-      mIsUsedInTissue(false)
+    : AbstractCardiacCellInterface(pOdeSolver, voltageIndex, pIntracellularStimulus),
+      AbstractOdeSystem(numberOfStateVariables),
+      mDt(HeartConfig::Instance()->GetOdeTimeStep())
 {
     // The second clause is to allow for FakeBathCell.
     assert(voltageIndex < mNumberOfStateVariables || mNumberOfStateVariables == 0);
@@ -92,57 +88,6 @@ double AbstractCardiacCell::GetVoltage()
 {
     return rGetStateVariables()[mVoltageIndex];
 }
-
-unsigned AbstractCardiacCell::GetVoltageIndex()
-{
-    return mVoltageIndex;
-}
-
-void AbstractCardiacCell::SetStimulusFunction(boost::shared_ptr<AbstractStimulusFunction> pStimulus)
-{
-    SetIntracellularStimulusFunction(pStimulus);
-}
-
-double AbstractCardiacCell::GetStimulus(double time)
-{
-    return GetIntracellularStimulus(time);
-}
-
-void AbstractCardiacCell::SetIntracellularStimulusFunction(boost::shared_ptr<AbstractStimulusFunction> pStimulus)
-{
-    mpIntracellularStimulus = pStimulus;
-}
-
-double AbstractCardiacCell::GetIntracellularStimulus(double time)
-{
-    return mpIntracellularStimulus->GetStimulus(time);
-}
-
-double AbstractCardiacCell::GetIntracellularAreaStimulus(double time)
-{
-    double stim;
-    if (mIsUsedInTissue)
-    {
-        // Convert from uA/cm^3 to uA/cm^2 by dividing by Am
-        stim = GetIntracellularStimulus(time) / HeartConfig::Instance()->GetSurfaceAreaToVolumeRatio();
-    }
-    else
-    {
-        stim = GetIntracellularStimulus(time);
-    }
-    return stim;
-}
-
-void AbstractCardiacCell::SetUsedInTissueSimulation(bool tissue)
-{
-    mIsUsedInTissue = tissue;
-}
-
-void AbstractCardiacCell::UseCellMLDefaultStimulus()
-{
-    EXCEPTION("This class has no default stimulus from CellML metadata.");
-}
-
 
 double AbstractCardiacCell::GetIntracellularCalciumConcentration()
 {
