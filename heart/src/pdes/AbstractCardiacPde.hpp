@@ -37,8 +37,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/string.hpp>
-
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/serialization/version.hpp>
 
 #include "AbstractCardiacCell.hpp"
 #include "AbstractCardiacCellFactory.hpp"
@@ -95,7 +95,16 @@ private:
         // archive & mIntracellularStimulusCacheReplicated; // will be regenerated
         // archive & mStride; // archiving constructor sets this.
         archive & mDoCacheReplication;
-        archive & mDoOneCacheReplication;
+
+
+        // we no longer have a bool mDoOneCacheReplication, but to maintain backwards compatibility
+        // we archive something if version==0
+        if(version==0)
+        {
+            bool do_one_cache_replication = true;
+            archive & do_one_cache_replication;
+        }
+
         (*ProcessSpecificArchive<Archive>::Get()) & mpDistributedVectorFactory;
 
         // Paranoia: check we agree with the mesh on who owns what
@@ -153,13 +162,6 @@ protected:
      * Defaults to true.
      */
     bool mDoCacheReplication;
-
-    /**
-     * This is to mark the conventional assembly on the first time step.
-     *
-     * \todo #1063 maybe we don't want the conventional assembly even in the first time step.
-     */
-    bool mDoOneCacheReplication;
 
     /**
      * Local pointer to the distributed vector factory associated with the mesh object used.
@@ -451,6 +453,49 @@ public:
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacPde)
+
+// Code to change the version number (so we don't have to
+// archive mDoOneCacheReplication)
+//
+// The following is how to do 
+// BOOST_CLASS_VERSION(AbstractCardiacPde, 1)
+// with a templated class.
+//
+///\todo Make a macro for this
+namespace boost { 
+namespace serialization {
+template <>
+struct version<AbstractCardiacPde<1, 1> >
+{
+    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
+};
+template <>
+struct version<AbstractCardiacPde<1, 2> >
+{
+    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
+};
+template <>
+struct version<AbstractCardiacPde<1, 3> >
+{
+    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
+};
+template <>
+struct version<AbstractCardiacPde<2, 2> >
+{
+    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
+};
+template <>
+struct version<AbstractCardiacPde<2, 3> >
+{
+    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
+};
+template <>
+struct version<AbstractCardiacPde<3, 3> >
+{
+    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
+};
+} // namespace serialization
+} // namespace boost
 
 #endif /*ABSTRACTCARDIACPDE_HPP_*/
 
