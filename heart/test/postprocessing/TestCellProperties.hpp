@@ -63,34 +63,101 @@ public:
             times.push_back(i);
             flat_v.push_back(-85.0);
         }
-        CellProperties cell_properties(flat_v, times);
 
-        //Should throw exceptions because the cached vector of onset times (mOnsets) is empty
-        TS_ASSERT_THROWS_THIS(cell_properties.GetLastActionPotentialDuration(90), "AP did not occur, never exceeded threshold voltage.");
-        TS_ASSERT_THROWS_THIS(cell_properties.GetAllActionPotentialDurations(90)[0], "AP did not occur, never exceeded threshold voltage.");
+        {
+            CellProperties cell_properties(flat_v, times);
 
-        //Should throw exceptions because upstroke was never crossed
-        TS_ASSERT_THROWS_THIS(cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), "AP did not occur, never descended past threshold voltage.");
-        TS_ASSERT_THROWS_THIS(cell_properties.GetLastMaxUpstrokeVelocity(), "AP did not occur, never descended past threshold voltage.");
-        TS_ASSERT_THROWS_THIS(cell_properties.GetMaxUpstrokeVelocities(), "AP did not occur, never descended past threshold voltage.");
-        TS_ASSERT_THROWS_THIS(cell_properties.GetTimesAtMaxUpstrokeVelocity(), "AP did not occur, never descended past threshold voltage.");
+            //Should throw exceptions because the cached vector of onset times (mOnsets) is empty
+            TS_ASSERT_THROWS_THIS(cell_properties.GetLastActionPotentialDuration(90), "AP did not occur, never exceeded threshold voltage.");
+            TS_ASSERT_THROWS_THIS(cell_properties.GetAllActionPotentialDurations(90)[0], "AP did not occur, never exceeded threshold voltage.");
+
+            //Should throw exceptions because upstroke was never crossed
+            TS_ASSERT_THROWS_THIS(cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), "AP did not occur, never descended past threshold voltage.");
+            TS_ASSERT_THROWS_THIS(cell_properties.GetLastMaxUpstrokeVelocity(), "AP did not occur, never descended past threshold voltage.");
+            TS_ASSERT_THROWS_THIS(cell_properties.GetLastPeakPotential(), "AP did not occur, never descended past threshold voltage.");
+            TS_ASSERT_THROWS_THIS(cell_properties.GetMaxUpstrokeVelocities(), "AP did not occur, never descended past threshold voltage.");
+            TS_ASSERT_THROWS_THIS(cell_properties.GetTimesAtMaxUpstrokeVelocity(), "AP did not occur, never descended past threshold voltage.");
+        }
 
         //Now make it cross the threshold so the onset vector isn't empty any longer
         times.push_back(100);
         flat_v.push_back(20.0);
 
-        CellProperties new_cell_properties(flat_v, times);
+        {
+            CellProperties cell_properties(flat_v, times);
 
-        //Now this should throw an exception because the vectors of APs is empty...
-        TS_ASSERT_THROWS_THIS(new_cell_properties.GetLastActionPotentialDuration(90), "No full action potential was recorded");
+            //Now this should throw an exception because the vectors of APs is empty...
+            TS_ASSERT_THROWS_THIS(cell_properties.GetLastActionPotentialDuration(90), "No full action potential was recorded");
 
-        //...but we can calculate peak properties for the last AP (though incomplete)
-        TS_ASSERT_EQUALS(new_cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), 100);
-        TS_ASSERT_EQUALS(new_cell_properties.GetLastMaxUpstrokeVelocity(),105);
+            //...but we can calculate peak properties for the last AP (though incomplete)
+            // Gary: Added some extra methods because I think this is a bit misleading and should throw!
+            TS_ASSERT_DELTA(cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), 100, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastMaxUpstrokeVelocity(), 105, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastPeakPotential(), 20, 1e-6);
+            TS_ASSERT_THROWS_THIS(cell_properties.GetLastCompleteMaxUpstrokeVelocity(), "No MaxUpstrokeVelocity matching a full action potential was recorded.");
+            TS_ASSERT_THROWS_THIS(cell_properties.GetTimeAtLastCompleteMaxUpstrokeVelocity(), "No TimeAtMaxUpstrokeVelocity matching a full action potential was recorded.");
+            TS_ASSERT_THROWS_THIS(cell_properties.GetLastCompletePeakPotential(), "No peak potential matching a full action potential was recorded.");
+        }
 
-        times.push_back(101);
+        // Stay up for a while...
+        times.push_back(120);
+        flat_v.push_back(20.0);
+        // Then repolarise
+        times.push_back(121);
+        flat_v.push_back(-85.0);
+
+        {
+            CellProperties cell_properties(flat_v, times);
+
+            // Now both the "complete" and "last" entries should be the same
+            TS_ASSERT_DELTA(cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), 100, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastMaxUpstrokeVelocity(), 105, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastPeakPotential(), 20, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetTimeAtLastCompleteMaxUpstrokeVelocity(), 100, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastCompleteMaxUpstrokeVelocity(), 105, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastCompletePeakPotential(), 20, 1e-6);
+        }
+
+        // Stay down for a while
+        times.push_back(140);
+        flat_v.push_back(-85.0);
+        // Then go up to a different voltage and stay up
+        times.push_back(141);
+        flat_v.push_back(0.0);
+        times.push_back(145);
+        flat_v.push_back(0.0);
+
+        {
+            CellProperties cell_properties(flat_v, times);
+
+            // Now both the "complete" and "last" entries should now be different
+            TS_ASSERT_DELTA(cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), 141, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastMaxUpstrokeVelocity(), 85, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastPeakPotential(), 0, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetTimeAtLastCompleteMaxUpstrokeVelocity(), 100, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastCompleteMaxUpstrokeVelocity(), 105, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastCompletePeakPotential(), 20, 1e-6);
+        }
+
+        // Go down again...
+        times.push_back(146);
+        flat_v.push_back(-85.0);
+
+        {
+            CellProperties cell_properties(flat_v, times);
+
+            // The "complete" and "last" entries should now be the same again.
+            TS_ASSERT_DELTA(cell_properties.GetTimeAtLastMaxUpstrokeVelocity(), 141, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastMaxUpstrokeVelocity(), 85, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastPeakPotential(), 0, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetTimeAtLastCompleteMaxUpstrokeVelocity(), 141, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastCompleteMaxUpstrokeVelocity(), 85, 1e-6);
+            TS_ASSERT_DELTA(cell_properties.GetLastCompletePeakPotential(), 0, 1e-6);
+        }
+
+        times.push_back(999);
         TS_ASSERT_THROWS_THIS(CellProperties bad_cell_properties(flat_v, times),
-                "Time and Voltage series should be the same length. Time.size() = 102, Voltage.size() = 101");
+                "Time and Voltage series should be the same length. Time.size() = 108, Voltage.size() = 107");
     }
 
     void TestCellPhysiologicalPropertiesForRegularLr91(void)

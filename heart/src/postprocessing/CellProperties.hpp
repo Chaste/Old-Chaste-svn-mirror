@@ -54,6 +54,12 @@ private:
     std::vector<double>& mrTime;
 
     /**
+     * Whether we have any unfinished action potentials
+     * i.e. the trace ends ABOVE_THRESHOLD.
+     */
+    bool mUnfinishedActionPotentials;
+
+    /**
      * Threshold for determining what counts as an action potential.
      * This is a value part way between the min & max potential, to avoid
      * problems due to 'notches' in an action potential.
@@ -83,9 +89,10 @@ private:
     /**
      * Actually calculate APD.
      *
-     * APD is taken to be the time from when the threshold is crossed to the time
-     * voltage reaches back to a value of
-     * RestingPotential+'percentage'*(amplitude-resting).
+     * target voltage = resting +'percentage'*(amplitude-resting).
+     *
+     * APD is taken to be the time from when the target voltage is crossed upwards to the time
+     * voltage crosses the target voltage downwards.
      *
      * @param percentage  The percentage of the amplitude to calculate for.
      *
@@ -119,6 +126,7 @@ public:
     CellProperties(std::vector<double> &rVoltage, std::vector<double> &rTime,  double threshold=-30.0)
         : mrVoltage(rVoltage),
           mrTime(rTime),
+          mUnfinishedActionPotentials(false),
           mThreshold(threshold)
     {
         CalculateProperties();
@@ -141,20 +149,36 @@ public:
     double GetLastMaxUpstrokeVelocity();
 
     /**
-     * Returns the time at which the maximum upstroke velocity occured for all APs.
+     * Returns the maximum upstroke velocity for the last complete AP.
+     * If the threshold is never crossed, it throws an exception.
+     *
+     * @return the upstroke velocity of the last complete AP
+     */
+    double GetLastCompleteMaxUpstrokeVelocity();
+
+    /**
+     * Returns the time at which the maximum upstroke velocity occurred for all APs.
      *
      * @return a vector containing the times of maximum upstroke velocity for all APs
      */
     std::vector<double> GetTimesAtMaxUpstrokeVelocity();
 
     /**
-     * Returns the time at which the maximum upstroke velocity for the last complete AP occurred.
+     * Returns the time at which the maximum upstroke velocity for the last AP occurred.
      * If only one incomplete AP is generated, it returns the time of the maximal upstroke so far.
      * If the threshold is never crossed, it throws an exception.
      *
      * @return the time of the upstroke velocity of the last AP
      */
     double GetTimeAtLastMaxUpstrokeVelocity();
+
+    /**
+     * Returns the time at which the maximum upstroke velocity for the last complete AP occurred.
+     * If the threshold is never crossed, it throws an exception.
+     *
+     * @return the time of the upstroke velocity of the last full AP
+     */
+    double GetTimeAtLastCompleteMaxUpstrokeVelocity();
 
     /**
      * Returns the cycle lengths for all APs.
@@ -171,11 +195,18 @@ public:
     std::vector<double> GetPeakPotentials();
 
     /**
-     * Returns the last AP's peak potential.
+     * Returns the last peak potential.
      *
      * @return last peak potential V_max
      */
     double GetLastPeakPotential();
+
+    /**
+     * Returns the last complete AP's peak potential.
+     *
+     * @return last peak potential V_max
+     */
+    double GetLastCompletePeakPotential();
 
     /**
      * Returns the resting potentials before each AP.
@@ -215,18 +246,13 @@ public:
      */
     std::vector<double> GetActionPotentialAmplitudes();
 
-
     /**
-     *
      * @return a vector containing the number of above-threshold depolarisations for each Ap.
-     *
      */
     std::vector<unsigned> GetNumberOfAboveThresholdDepolarisationsForAllAps();
 
     /**
-     *
      * @return the number of above-threshold depolarisations for the last Ap.
-     *
      */
     unsigned GetNumberOfAboveThresholdDepolarisationsForLastAp();
 };

@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include <sstream>
+#include <cassert>
 
 #include "CellProperties.hpp"
 #include "Exception.hpp"
@@ -52,7 +53,7 @@ void CellProperties::CalculateProperties()
 
     double prev_v = mrVoltage[0];
     double prev_t = mrTime[0];
-    double max_upstroke_velocity = 0;
+    double max_upstroke_velocity = -DBL_MAX;
     double current_time_of_upstroke_velocity = 0;
     double current_resting_value=DBL_MAX;
     double current_peak=-DBL_MAX;
@@ -73,7 +74,7 @@ void CellProperties::CalculateProperties()
         double t = mrTime[i];
         double voltage_derivative = (v - prev_v) / (t - prev_t);
 
-        //Look for the upstroke velocity and when it happens (could be below or above threshold).
+        // Look for the max upstroke velocity and when it happens (could be below or above threshold).
         if (voltage_derivative >= max_upstroke_velocity)
         {
             max_upstroke_velocity = voltage_derivative;
@@ -155,7 +156,7 @@ void CellProperties::CalculateProperties()
                     //register maximum upstroke velocity for this AP
                     mMaxUpstrokeVelocities.push_back(max_upstroke_velocity);
                     //re-initialise max_upstroke_velocity
-                    max_upstroke_velocity = 0.0;
+                    max_upstroke_velocity = -DBL_MAX;
 
                     //register time when maximum upstroke velocity occurred for this AP
                     mTimesAtMaxUpstrokeVelocity.push_back(current_time_of_upstroke_velocity);
@@ -179,6 +180,7 @@ void CellProperties::CalculateProperties()
     }
     
 
+
     // One last check. If the simulation ends halfway through an AP
     // i.e. if the vectors of onsets has more elements than the vectors
     // of peak and upstroke properties (that are updated at the end of the AP),
@@ -187,14 +189,9 @@ void CellProperties::CalculateProperties()
     if (mOnsets.size()>mMaxUpstrokeVelocities.size())
     {
         mMaxUpstrokeVelocities.push_back(max_upstroke_velocity);
-    }
-    if (mOnsets.size()>mPeakValues.size())
-    {
         mPeakValues.push_back(current_peak);
-    }
-    if (mOnsets.size()>mTimesAtMaxUpstrokeVelocity.size())
-    {
         mTimesAtMaxUpstrokeVelocity.push_back(current_time_of_upstroke_velocity);
+        mUnfinishedActionPotentials = true;
     }
 }
 
@@ -341,16 +338,73 @@ double CellProperties::GetLastPeakPotential()
     return mPeakValues.back();
 }
 
+double CellProperties::GetLastCompletePeakPotential()
+{
+    CheckReturnedToThreshold();
+    double peak_value;
+    if (mUnfinishedActionPotentials && mPeakValues.size()>1u)
+    {
+        peak_value = mPeakValues[mPeakValues.size()-2u];
+    }
+    else if  (mUnfinishedActionPotentials && mPeakValues.size()==1u)
+    {
+        EXCEPTION("No peak potential matching a full action potential was recorded.");
+    }
+    else
+    {
+        peak_value = mPeakValues.back();
+    }
+    return peak_value;
+}
+
 double CellProperties::GetLastMaxUpstrokeVelocity()
 {
     CheckReturnedToThreshold();
     return mMaxUpstrokeVelocities.back();
 }
 
+double CellProperties::GetLastCompleteMaxUpstrokeVelocity()
+{
+    CheckReturnedToThreshold();
+    double max_upstroke;
+    if (mUnfinishedActionPotentials && mMaxUpstrokeVelocities.size()>1u)
+    {
+        max_upstroke = mMaxUpstrokeVelocities[mMaxUpstrokeVelocities.size()-2u];
+    }
+    else if  (mUnfinishedActionPotentials && mMaxUpstrokeVelocities.size()==1u)
+    {
+        EXCEPTION("No MaxUpstrokeVelocity matching a full action potential was recorded.");
+    }
+    else
+    {
+        max_upstroke = mMaxUpstrokeVelocities.back();
+    }
+    return max_upstroke;
+}
+
 double CellProperties::GetTimeAtLastMaxUpstrokeVelocity()
 {
     CheckReturnedToThreshold();
     return mTimesAtMaxUpstrokeVelocity.back();
+}
+
+double CellProperties::GetTimeAtLastCompleteMaxUpstrokeVelocity()
+{
+    CheckReturnedToThreshold();
+    double max_upstroke_time;
+    if (mUnfinishedActionPotentials && mTimesAtMaxUpstrokeVelocity.size()>1u)
+    {
+        max_upstroke_time = mTimesAtMaxUpstrokeVelocity[mTimesAtMaxUpstrokeVelocity.size()-2u];
+    }
+    else if  (mUnfinishedActionPotentials && mTimesAtMaxUpstrokeVelocity.size()==1u)
+    {
+        EXCEPTION("No TimeAtMaxUpstrokeVelocity matching a full action potential was recorded.");
+    }
+    else
+    {
+        max_upstroke_time = mTimesAtMaxUpstrokeVelocity.back();
+    }
+    return max_upstroke_time;
 }
 
 double CellProperties::GetLastActionPotentialDuration(const double percentage)
