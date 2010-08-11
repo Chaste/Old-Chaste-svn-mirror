@@ -40,6 +40,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "Exception.hpp"
 
+#include "CellCycleModelOdeSolver.hpp"
+#include "BackwardEulerIvpOdeSolver.hpp"
+#include "EulerIvpOdeSolver.hpp"
+#include "HeunIvpOdeSolver.hpp"
+#include "RungeKutta2IvpOdeSolver.hpp"
+#include "RungeKutta4IvpOdeSolver.hpp"
+#include "CvodeAdaptor.hpp"
+
 /**
  * Oxygen-dependent ODE-based cell cycle model. Published by Alarcon et al.
  * (doi:10.1016/j.jtbi.2004.04.016).
@@ -202,7 +210,14 @@ inline void load_construct_data(
 }
 } // namespace ...
 
-#include "CellCycleModelOdeSolverExportWrapper.hpp"
-EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(Alarcon2004OxygenBasedCellCycleModel)
+
+#ifdef CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, CvodeAdaptor)
+#endif //CHASTE_CVODE
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, BackwardEulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, EulerIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, HeunIvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, RungeKutta2IvpOdeSolver)
+EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver)
 
 #endif /*ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_*/
