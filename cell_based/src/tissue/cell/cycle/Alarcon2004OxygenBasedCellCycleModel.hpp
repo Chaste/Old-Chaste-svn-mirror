@@ -41,14 +41,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 #include "CellCycleModelOdeSolver.hpp"
-#ifdef CHASTE_CVODE
-#include "CvodeAdaptor.hpp"
-#endif //CHASTE_CVODE
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "HeunIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
+#include "CvodeAdaptor.hpp"
 
 /**
  * Oxygen-dependent ODE-based cell cycle model. Published by Alarcon et al.

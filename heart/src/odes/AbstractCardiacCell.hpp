@@ -323,6 +323,22 @@ public:
 
 
 
+    /**
+     * For boost archiving use only
+     * (that's why the 'consts' are required)
+     *
+     * @return The Intracellular stimulus pointer
+     */
+    const boost::shared_ptr<AbstractStimulusFunction> GetStimulusFunction() const;
+
+    /**
+     * For boost archiving use only
+     * (that's why the 'consts' are required)
+     *
+     * @return pointer to the ODE solver being used
+     */
+    const boost::shared_ptr<AbstractIvpOdeSolver> GetSolver() const;
+
     ////////////////////////////////////////////////////////////////////////
     //  METHODS NEEDED BY FAST CARDIAC CELLS
     ////////////////////////////////////////////////////////////////////////
@@ -385,22 +401,6 @@ public:
      * \note  This \e must be implemented by fast/slow cardiac cell subclasses.
      */
     virtual unsigned GetNumSlowValues();
-
-    /**
-     * For boost archiving use only
-     * (that's why the 'consts' are required)
-     *
-     * @return The Intracellular stimulus pointer
-     */
-    const boost::shared_ptr<AbstractStimulusFunction> GetStimulusFunction() const;
-
-    /**
-     * For boost archiving use only
-     * (that's why the 'consts' are required)
-     *
-     * @return pointer to the ODE solver being used
-     */
-    const boost::shared_ptr<AbstractIvpOdeSolver> GetSolver() const;
 
 };
 

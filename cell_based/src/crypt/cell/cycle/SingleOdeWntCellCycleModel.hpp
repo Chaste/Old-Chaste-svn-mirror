@@ -39,14 +39,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Mirams2010WntOdeSystem.hpp"
 
 #include "CellCycleModelOdeSolver.hpp"
-#ifdef CHASTE_CVODE
-#include "CvodeAdaptor.hpp"
-#endif //CHASTE_CVODE
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "HeunIvpOdeSolver.hpp"
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
+#include "CvodeAdaptor.hpp"
 
 /**
  * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
