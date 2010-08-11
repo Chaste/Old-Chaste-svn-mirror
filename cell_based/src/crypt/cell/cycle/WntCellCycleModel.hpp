@@ -40,6 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellMutationState.hpp"
 
 #include "CellCycleModelOdeSolver.hpp"
+#ifdef CHASTE_CVODE
+#include "CvodeAdaptor.hpp"
+#endif //CHASTE_CVODE
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "HeunIvpOdeSolver.hpp"
