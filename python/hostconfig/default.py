@@ -45,14 +45,16 @@ if not os.path.exists(chaste_libs_path) or not os.path.isdir(chaste_libs_path):
         "not found; please edit python/hostconfig/default.py"
     sys.exit(1)
 
-petsc_2_2_path = ''
 petsc_2_3_path = chaste_libs_path+'petsc-2.3.3-p15/'
 petsc_build_name = 'linux-gnu'
 petsc_build_name_profile = 'linux-gnu'
 petsc_build_name_optimized = 'linux-gnu-opt'
 dealii_path = ''
 parmetis_path = chaste_libs_path+'/ParMetis-3.1/'
-intel_path = '/opt/intel/cc/9.1.039/lib'
+# If you have the Intel compiler installed, set this to the folder where it lives
+intel_path = '/opt/intel/cc/9.1.039/'
+# You may need to edit this to ensure that the intel compiler finds the right gcc libraries, e.g.
+#icpc = 'icpc -gcc-version=410 -I /usr/include/c++/4.1.3/x86_64-linux-gnu/ -I/usr/include/c++/4.1.3/    -I/usr/include/c++/4.1.3/backward'
 icpc = 'icpc'
 
 other_includepaths = [chaste_libs_path+'hdf5/include',
