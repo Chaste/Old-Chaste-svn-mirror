@@ -47,6 +47,9 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const
     {
         mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(*static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
     }
+
+    // The other cell cycle model must have an ODE solver set up
+    assert(mpOdeSolver != boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 }
 
 

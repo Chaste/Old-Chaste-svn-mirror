@@ -53,6 +53,9 @@ WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& rOtherModel)
     {
         mpOdeSystem = new WntCellCycleOdeSystem(*static_cast<WntCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
     }
+
+    // The other cell cycle model must have an ODE solver set up
+    assert(mpOdeSolver != boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 }
 
 

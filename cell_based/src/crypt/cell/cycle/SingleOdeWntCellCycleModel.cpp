@@ -71,14 +71,9 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(const SingleOdeWntCellCyc
     {
         mpOdeSystem = new Mirams2010WntOdeSystem(*static_cast<Mirams2010WntOdeSystem*>(rOtherModel.mpOdeSystem));
     }
-    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
-    {
-#ifdef CHASTE_CVODE
-        mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, CvodeAdaptor>::Instance();
-#else
-        mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
-#endif //CHASTE_CVODE
-    }
+
+    // The other cell cycle model must have an ODE solver set up
+    assert(mpOdeSolver != boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 }
 
 void SingleOdeWntCellCycleModel::UpdateCellCyclePhase()

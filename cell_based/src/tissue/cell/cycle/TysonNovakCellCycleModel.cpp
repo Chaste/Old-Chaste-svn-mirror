@@ -59,6 +59,9 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleMode
     {
         mpOdeSystem = new TysonNovak2001OdeSystem(*static_cast<TysonNovak2001OdeSystem*>(rOtherModel.mpOdeSystem));
     }
+
+    // The other cell cycle model must have an ODE solver set up
+    assert(mpOdeSolver != boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 }
 
 void TysonNovakCellCycleModel::ResetForDivision()
