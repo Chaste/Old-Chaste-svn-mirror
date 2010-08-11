@@ -572,7 +572,10 @@ unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumNodeCo
          
         //This process owns no nodes and thus owns none of the mesh
         assert(this->mNodes.size() == 0u);
-        return(0u);
+        return(1u);
+        //Note that if a process owns no nodes, then it will still need to enter the collective
+        //call to MatMPIAIJSetPreallocation.  In PetscTools::SetupMat, the rowPreallocation parameter 
+        //uses the special value zero to indicate no preallocation. 
 #undef COVERAGE_IGNORE
     }
     //connected_node_index now has the index of a maximally connected node
