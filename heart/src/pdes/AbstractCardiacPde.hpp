@@ -454,43 +454,16 @@ public:
 
 TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacPde)
 
-// Code to change the version number (so we don't have to
-// archive mDoOneCacheReplication)
-//
-// The following is how to do 
-// BOOST_CLASS_VERSION(AbstractCardiacPde, 1)
-// with a templated class.
-//
-///\todo Make a macro for this
 namespace boost { 
 namespace serialization {
-template <>
-struct version<AbstractCardiacPde<1, 1> >
-{
-    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
-};
-template <>
-struct version<AbstractCardiacPde<1, 2> >
-{
-    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
-};
-template <>
-struct version<AbstractCardiacPde<1, 3> >
-{
-    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
-};
-template <>
-struct version<AbstractCardiacPde<2, 2> >
-{
-    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
-};
-template <>
-struct version<AbstractCardiacPde<2, 3> >
-{
-    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
-};
-template <>
-struct version<AbstractCardiacPde<3, 3> >
+/**
+ * Specify a version number for archive backwards compatibility.
+ * 
+ * This is how to do BOOST_CLASS_VERSION(AbstractCardiacPde, 1)
+ * with a templated class.
+ */
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+struct version<AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM> >
 {
     BOOST_STATIC_CONSTANT(unsigned int, value = 1);
 };
