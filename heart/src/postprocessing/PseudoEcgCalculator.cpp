@@ -30,7 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartConfig.hpp"
 #include "PetscTools.hpp"
 #include "Version.hpp"
+#include "Debug.hpp"
 #include <iostream>
+#include <iomanip>
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(ChastePoint<SPACE_DIM>& rX,
@@ -38,7 +40,12 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::GetIntegrand(C
                                 c_matrix<double,PROBLEM_DIM,SPACE_DIM>& rGradU)
 {
     c_vector<double,SPACE_DIM> r_vector = rX.rGetLocation()- mProbeElectrode.rGetLocation();
-    c_vector<double,SPACE_DIM> grad_one_over_r = - (r_vector)*SmallPow( (1/norm_2(r_vector)) , 3);
+    double norm_r = norm_2(r_vector);
+    if (norm_r <= DBL_EPSILON)
+    {
+        EXCEPTION("Probe is on a mesh Gauss point.");
+    }
+    c_vector<double,SPACE_DIM> grad_one_over_r = - (r_vector)*SmallPow( (1/norm_r) , 3);
     matrix_row<c_matrix<double, PROBLEM_DIM, SPACE_DIM> > grad_u_row(rGradU, 0);
     double integrand = inner_prod(grad_u_row, grad_one_over_r);
 
@@ -57,6 +64,7 @@ PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM> ::PseudoEcgCalculator (
                                         mVariableName(variableName)
 
 {
+    
     mpDataReader = new Hdf5DataReader(directory, hdf5File, makeAbsolute);
     mNumberOfNodes = mpDataReader->GetNumberOfRows();
     mNumTimeSteps = mpDataReader->GetVariableOverTime(mVariableName, 0u).size();

@@ -111,7 +111,7 @@ public:
         ///////////////////////////////////////////////////
         // Now we compute the pseudo ECG. We set an electrode at x=15.
         ///////////////////////////////////////////////////
-        ChastePoint<1> probe_electrode(15.0);
+        ChastePoint<1> probe_electrode(15);
 
         PseudoEcgCalculator<1,1,1> calculator (mesh, probe_electrode, "hdf5", "gradient_V");
         double pseudo_ecg;
@@ -134,6 +134,10 @@ public:
         command = "diff -a -I \"Created by Chaste\" " + OutputFileHandler::GetChasteTestOutputDirectory() + output_dir + "/PseudoEcg.dat "
                   + "heart/test/data/ValidPseudoEcg1D.dat";
         TS_ASSERT_EQUALS(system(command.c_str()), 0);
+        
+        ChastePoint<1> bad_probe_electrode(0.0021132486540519);
+        PseudoEcgCalculator<1,1,1> bad_calculator (mesh, bad_probe_electrode, "hdf5", "gradient_V");
+        TS_ASSERT_THROWS_THIS(bad_calculator.ComputePseudoEcgAtOneTimeStep(0), "Probe is on a mesh Gauss point.");
 
     }
 

@@ -177,16 +177,25 @@ double AbstractFunctionalCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Calcul
 
     double local_result = 0;
 
-    for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = rMesh.GetElementIteratorBegin();
-         iter != rMesh.GetElementIteratorEnd();
-         ++iter)
+    try
     {
-        if (rMesh.CalculateDesignatedOwnershipOfElement((*iter).GetIndex()) == true)
+        for (typename AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ElementIterator iter = rMesh.GetElementIteratorBegin();
+             iter != rMesh.GetElementIteratorEnd();
+             ++iter)
         {
-            local_result += CalculateOnElement(*iter);
+            if (rMesh.CalculateDesignatedOwnershipOfElement((*iter).GetIndex()) == true)
+            {
+                local_result += CalculateOnElement(*iter);
+            }
         }
     }
-
+    catch (Exception &exception_in_integral)
+    {
+        PetscTools::ReplicateException(true);
+        throw exception_in_integral;
+    }
+    PetscTools::ReplicateException(false);
+    
     double final_result;
     MPI_Allreduce(&local_result, &final_result, 1, MPI_DOUBLE, MPI_SUM, PETSC_COMM_WORLD);
     return final_result;
