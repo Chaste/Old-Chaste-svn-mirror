@@ -149,7 +149,7 @@ public:
         CV: 0.057692
         *
         */
-        TS_ASSERT_DELTA(properties_fs.CalculateActionPotentialDuration(90, middle_index), 229.7, 0.25);
+        TS_ASSERT_DELTA(properties_fs.CalculateActionPotentialDuration(90, middle_index), 230.3917, 0.25);
         TS_ASSERT_DELTA(properties_fs.CalculateConductionVelocity(middle_index, rhs_index, 0.15), 0.057692, 0.001);
         TS_ASSERT_DELTA(properties_fs.CalculateMaximumUpstrokeVelocity(middle_index), 180.28, 0.01);
 
@@ -177,7 +177,7 @@ public:
         CV: 0.055556
         *
         */
-        TS_ASSERT_DELTA(properties_bw.CalculateActionPotentialDuration(90, middle_index), 229.2, 0.25);
+        TS_ASSERT_DELTA(properties_bw.CalculateActionPotentialDuration(90, middle_index), 229.9328, 0.25);
         TS_ASSERT_DELTA(properties_bw.CalculateConductionVelocity(middle_index, rhs_index, 0.15), 0.055556, 0.001);
         TS_ASSERT_DELTA(properties_bw.CalculateMaximumUpstrokeVelocity(middle_index), 173.02, 0.01);
 
@@ -194,7 +194,7 @@ public:
         PropagationPropertiesCalculator ppc_fs(&mono_fs_reader);
 
         TS_ASSERT_DELTA(ppc_fs.CalculateMaximumUpstrokeVelocity(14895U), 174.9, 4.0);
-        TS_ASSERT_DELTA(ppc_fs.CalculateActionPotentialDuration(90, 14895U), 230.25, 1.0);
+        TS_ASSERT_DELTA(ppc_fs.CalculateActionPotentialDuration(90, 14895U), 231.739, 1.0);
 
         //Testing the mtehod that returns all APs
         TS_ASSERT_EQUALS(ppc_fs.CalculateActionPotentialDuration(90, 14895U), ppc_fs.CalculateAllActionPotentialDurations(90, 14895U, -30.0)[0]);

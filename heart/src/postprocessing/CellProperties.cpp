@@ -54,7 +54,7 @@ void CellProperties::CalculateProperties()
     double prev_t = mrTime[0];
     double max_upstroke_velocity = 0;
     double current_time_of_upstroke_velocity = 0;
-    double current_resting_value=-DBL_MAX;
+    double current_resting_value=DBL_MAX;
     double current_peak=-DBL_MAX;
     double current_minimum_velocity=DBL_MAX;
     double prev_voltage_derivative=0;
@@ -62,6 +62,7 @@ void CellProperties::CalculateProperties()
     unsigned counter_of_plateau_depolarisations = 0;
     //boolean to keep track whether we are switching phase from BELOWTHRESHOLD to ABOVETHRESHOLD
     bool switching_phase = false;
+    bool found_a_flat_bit=false;
     APPhases ap_phase = BELOWTHRESHOLD;
 
     unsigned time_steps = mrTime.size()-1; //The number of time steps is the number of intervals
@@ -83,19 +84,26 @@ void CellProperties::CalculateProperties()
         {
             case BELOWTHRESHOLD:
                 //while below threshold, find the resting value by checking where the velocity is minimal
-                //i.e. when it is flattest
-                if (fabs(voltage_derivative)<=current_minimum_velocity)
+                //i.e. when it is flattest. If we can't find a flat bit, instead go for the minimum voltage
+                //seen before the threshold.
+                if (fabs(voltage_derivative)<=current_minimum_velocity && fabs(voltage_derivative)<=1.0)
                 {
                     current_minimum_velocity=fabs(voltage_derivative);
                     current_resting_value = prev_v;
+                    found_a_flat_bit=true;
                 }
-
+                else if(prev_v < current_resting_value && !found_a_flat_bit)
+                {
+                    current_resting_value = prev_v;
+                }
+                
                 // If we cross the threshold, this counts as an AP
                 if ( v>mThreshold && prev_v <= mThreshold )
                 {
                     //register the resting value and re-initialise the minimum velocity
                     mRestingValues.push_back(current_resting_value);
                     current_minimum_velocity = DBL_MAX;
+                    current_resting_value = DBL_MAX;
 
                     //Register the onset time. Linear interpolation.
                     mOnsets.push_back(prev_t + (t-prev_t)/(v-prev_v)*(mThreshold-prev_v));
@@ -107,6 +115,7 @@ void CellProperties::CalculateProperties()
                     }
 
                     switching_phase = true;
+                    found_a_flat_bit = false;
                     ap_phase = ABOVETHRESHOLD;
                     // no break here - deliberate fall through to next case
                 }
@@ -121,7 +130,7 @@ void CellProperties::CalculateProperties()
                 {
                    current_peak = v;
                 }
-
+                
                 // we check whether we have above threshold depolarisations
                 // and only if if we haven't just switched from below threshold at this time step.
                 // The latter is to avoid recording things depending on resting behaviour (in case of sudden upstroke from rest)
@@ -164,11 +173,11 @@ void CellProperties::CalculateProperties()
                 }
                 break;
         }
-
         prev_v = v;
         prev_t = t;
         prev_voltage_derivative = voltage_derivative;
     }
+    
 
     // One last check. If the simulation ends halfway through an AP
     // i.e. if the vectors of onsets has more elements than the vectors
@@ -199,6 +208,8 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
     bool apd_is_calculated=true;//this will ensure we hit the target only once per AP.
     std::vector<double> apds;
     double target = DBL_MAX;
+    bool apd_starting_time_found=false;
+    double apd_start_time=DBL_MAX;
 
     for (unsigned i=1; i<mrTime.size(); i++)
     {
@@ -216,14 +227,24 @@ std::vector<double> CellProperties::CalculateActionPotentialDurations(const doub
             {
                 apd_is_calculated = false;
             }
+            
+            // Start the timing where we first cross the target voltage
+            if ( prev_v<v && prev_v<=target && v>=target && apd_starting_time_found==false)
+            {
+                // Linear interpolation of target crossing time.
+                apd_start_time=t+( (target-prev_v)/(v-prev_v) )*(t-mrTime[i-1]);
+                apd_starting_time_found = true;
+            }
+            
             //if we hit the target while repolarising
             //and we are told this apd is not calculated yet.
             if ( prev_v>v && prev_v>=target && v<=target && apd_is_calculated==false)
             {
                 // Linear interpolation of target crossing time.
-                apds.push_back (t - mOnsets[APcounter] - ( (v-target)/(v-prev_v) )*(t-mrTime[i-1]) );
+                apds.push_back (t - apd_start_time + ( (target-prev_v)/(v-prev_v) )*(t-mrTime[i-1]) );
                 APcounter++;
                 apd_is_calculated = true;
+                apd_starting_time_found = false;
             }
         }
         prev_v = v;

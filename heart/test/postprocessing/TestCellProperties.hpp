@@ -134,9 +134,9 @@ public:
         TS_ASSERT_DELTA(cell_props.GetRestingPotentials()[size-1], -84.4395, 0.0001);
         TS_ASSERT_DELTA(cell_props.GetActionPotentialAmplitudes()[size-1], 127.606, 0.001);
         TS_ASSERT_DELTA(cell_props.GetLastPeakPotential(), 43.1665, 0.0001);
-        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(20), 6.66416, timestep);
-        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(50), 271.184, timestep);
-        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(90), 361.544, timestep); // Should use penultimate AP
+        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(20), 6.5202, timestep);
+        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(50), 271.1389, timestep);
+        TS_ASSERT_DELTA(cell_props.GetLastActionPotentialDuration(90), 362.0155, timestep); // Should use penultimate AP
         TS_ASSERT_DELTA(cell_props.GetTimesAtMaxUpstrokeVelocity()[size-1], 3100.7300, 0.001);
     }
 
@@ -266,25 +266,26 @@ public:
           */
 
          FileFinder file_finder("heart/test/data/sample_APs", RelativeTo::ChasteSourceRoot);
-         double threshold = -30; // If membrane voltage goes over this value say it is an AP.
-         // (we don't seem to be very robust to this value - try changing it with disastrous consequences)
+         double threshold = -70; 
+         // We now ignore the threshold when calculating the APD - it is now only used for 
+         // detecting the upstroke and calculating cycle lengths. We now interpolate back to
+         // find the time at which the target voltage is exceeded. So the calculation is now
+         // robust to this.
 
          /*
           * I plotted the graph in gnuplot and my back of the envelope calculations are as follows:
-          * Peak voltage = 48mV at 5ms
+          * Peak voltage = 48mV 
           * Start and final voltages = -87mV
           * Difference = 135mV
           * Therefore 50% repolarisation = -19.5mV
           *                      and 90% = -73.5mV
-          * These are crossed at 258ish and 304ish ms
-          * Therefore APD50 and 90 should be about 253 and 299ms you'd think.
+          * These are crossed at 4.4, 259.2ish and 2.96, 305.1ish ms
+          * Therefore APD50 and 90 should be about 254.8 and 302.2ms you'd think.
           *
-          * Anyway the first calculation gets 254 and 300 so I have gone with them as being right
-          * for the purposes of this test.
           */
-         double target_apd_50 = 254;
-         double target_apd_90 = 300;
-         double tolerance = 1; //ms
+         double target_apd_50 = 254.8;
+         double target_apd_90 = 302.16;
+         double tolerance = 0.1; //ms
 
          {   // Stimulus applied to Mahajan model after 1 ms
 
@@ -304,9 +305,8 @@ public:
              std::vector<double> voltages = reader.GetValues("membrane_voltage");
 
              CellProperties  cell_properties(voltages, times, threshold);
-             // Uncomment the following lines to get a failing test.
-             //TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
-             //TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
+             TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(50), target_apd_50, tolerance);
+             TS_ASSERT_DELTA(cell_properties.GetLastActionPotentialDuration(90), target_apd_90, tolerance);
          }
 
      }
