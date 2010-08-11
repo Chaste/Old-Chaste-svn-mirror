@@ -191,13 +191,7 @@ inline void load_construct_data(
 }
 } // namespace
 
-#ifdef CHASTE_CVODE
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, CvodeAdaptor)
-#endif //CHASTE_CVODE
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, BackwardEulerIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, EulerIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, HeunIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, RungeKutta2IvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, StochasticWntCellCycleModel, RungeKutta4IvpOdeSolver)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(StochasticWntCellCycleModel)
 
 #endif /*STOCHASTICWNTCELLCYCLEMODEL_HPP_*/

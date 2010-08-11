@@ -119,7 +119,6 @@ public:
      */
     AbstractVanLeeuwen2009WntSwatCellCycleModel(const AbstractVanLeeuwen2009WntSwatCellCycleModel& rOtherModel);
 
-
     /**
      * See AbstractCellCycleModel::Initialise()
      *

@@ -37,14 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleWntCellCycleModel.hpp"
 #include "Mirams2010WntOdeSystem.hpp"
-
-#include "CellCycleModelOdeSolver.hpp"
-#include "BackwardEulerIvpOdeSolver.hpp"
-#include "EulerIvpOdeSolver.hpp"
-#include "HeunIvpOdeSolver.hpp"
-#include "RungeKutta2IvpOdeSolver.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "CvodeAdaptor.hpp"
+#include "AbstractCellCycleModelOdeSolver.hpp"
 
 /**
  * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
@@ -282,13 +275,7 @@ inline void load_construct_data(
 }
 } // namespace
 
-#ifdef CHASTE_CVODE
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, CvodeAdaptor)
-#endif //CHASTE_CVODE
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, BackwardEulerIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, EulerIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, HeunIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, RungeKutta2IvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(SingleOdeWntCellCycleModel)
 
 #endif /*SINGLEODEWNTCELLCYCLEMODEL_HPP_*/

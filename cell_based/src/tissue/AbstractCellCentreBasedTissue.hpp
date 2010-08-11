@@ -67,8 +67,7 @@ protected:
     double mMeinekeDivisionSeparation;
 
     /**
-     * Constructor for use by archiving - doesn't take in cells, since these are dealt
-     * with by the serialize method.
+     * Constructor for use by archiving only.
      */
     AbstractCellCentreBasedTissue();
 

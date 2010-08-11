@@ -243,8 +243,6 @@ public:
         WntConcentration<3>::Destroy();
     }
 
-    // This test currently fails as archiving is not yet correctly implemented for SingleOdeWntCellCycleModel
-    // (see #1239)
     void TestArchiving()
     {
         TissueConfig* p_params = TissueConfig::Instance();

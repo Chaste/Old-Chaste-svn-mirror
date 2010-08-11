@@ -136,7 +136,7 @@ public:
         // Check the solver can be called for a simple ODE system
         SimpleOde ode;
         double last_time = 0.0;
-        double current_time = 5;
+        double current_time = 2;
         double dt = 1e-5;
 
         ode.SetStateVariables(ode.GetInitialConditions());
@@ -175,8 +175,8 @@ public:
         // Check the solver can be called for a simple ODE system
         SimpleOde ode;
         double last_time = 0.0;
-        double current_time = 5;
-        double dt = 1e-5;
+        double current_time = 2;
+        double dt = 1e-4;
 
         ode.SetStateVariables(ode.GetInitialConditions());
         p_solver->SolveAndUpdateStateVariable(&ode, last_time, current_time, dt);
@@ -199,8 +199,7 @@ public:
         // Check the solver stopped at the correct time
         TS_ASSERT_EQUALS(p_solver->StoppingEventOccurred(), true);
 
-        ///\todo The following line currently fails - work out why (see #1427)
-//        TS_ASSERT_DELTA(p_solver->GetStoppingTime(), M_PI_2, 1e-4);
+        TS_ASSERT_DELTA(p_solver->GetStoppingTime(), M_PI_2, 1e-2);
     }
 
     void TestWithCvodeAdaptor() throw(Exception)
