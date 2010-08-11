@@ -76,13 +76,14 @@ public:
      *
      * @param tStart  beginning of the time interval to simulate
      * @param tEnd  end of the time interval to simulate
-     * @param tSamp  sampling interval for returned results (defaults to #mDt)
+     * @param tSamp  sampling interval for returned results (defaults to dt)
      */
     virtual OdeSolution Compute(double tStart, double tEnd, double tSamp=0.0)=0;
 
     /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
-     * with timestep #mDt, but does not update the voltage.
+     * but does not update the voltage.  The timestep used will depend on the
+     * subclass implementation.
      *
      * @param tStart  beginning of the time interval to simulate
      * @param tEnd  end of the time interval to simulate
@@ -194,6 +195,27 @@ public:
     {
         // See also #794.
     }
+    
+    /**
+     * @return The Intracellular stimulus function pointer
+     */
+    boost::shared_ptr<AbstractStimulusFunction> GetStimulusFunction();
+    
+    /**
+     * For boost archiving use only
+     * (that's why the 'consts' are required)
+     *
+     * @return The Intracellular stimulus function pointer
+     */
+    const boost::shared_ptr<AbstractStimulusFunction> GetStimulusFunction() const;
+
+    /**
+     * For boost archiving use only
+     * (that's why the 'consts' are required)
+     *
+     * @return pointer to the ODE solver being used
+     */
+    const boost::shared_ptr<AbstractIvpOdeSolver> GetSolver() const;
     
 protected:
     /** The index of the voltage within our state variable vector. */

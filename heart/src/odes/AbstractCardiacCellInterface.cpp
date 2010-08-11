@@ -107,3 +107,19 @@ void AbstractCardiacCellInterface::UseCellMLDefaultStimulus()
     EXCEPTION("This class has no default stimulus from CellML metadata.");
 }
 
+boost::shared_ptr<AbstractStimulusFunction> AbstractCardiacCellInterface::GetStimulusFunction()
+{
+    return mpIntracellularStimulus;
+}
+
+// Methods needed by boost serialization.
+
+const boost::shared_ptr<AbstractStimulusFunction> AbstractCardiacCellInterface::GetStimulusFunction() const
+{
+    return mpIntracellularStimulus;
+}
+
+const boost::shared_ptr<AbstractIvpOdeSolver> AbstractCardiacCellInterface::GetSolver() const
+{
+    return mpOdeSolver;
+}

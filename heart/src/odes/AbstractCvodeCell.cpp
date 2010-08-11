@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CvodeAdaptor.hpp" // For CvodeErrorHandler
 #include "TimeStepper.hpp"
 #include "Exception.hpp"
+#include "HeartConfig.hpp"
 
 // CVODE headers
 #include <cvode/cvode.h>
@@ -69,16 +70,14 @@ int AbstractCvodeCellRhsAdaptor(realtype t, N_Vector y, N_Vector ydot, void *pDa
 }
 
 
-AbstractCvodeCell::AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> /* unused */,
+AbstractCvodeCell::AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver /* unused */,
                                      unsigned numberOfStateVariables,
                                      unsigned voltageIndex,
                                      boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
-    : AbstractParameterisedSystem<N_Vector>(numberOfStateVariables),
-      mVoltageIndex(voltageIndex),
-      mpIntracellularStimulus(pIntracellularStimulus),
+    : AbstractCardiacCellInterface(pSolver, voltageIndex, pIntracellularStimulus),
+      AbstractParameterisedSystem<N_Vector>(numberOfStateVariables),
       mpCvodeMem(NULL),
-      mMaxSteps(0),
-      mSetVoltageDerivativeToZero(false)
+      mMaxSteps(0)
 {
     SetTolerances();
 }
@@ -115,11 +114,6 @@ void AbstractCvodeCell::Init()
 }
 
 
-unsigned AbstractCvodeCell::GetVoltageIndex()
-{
-    return mVoltageIndex;
-}
-
 double AbstractCvodeCell::GetVoltage()
 {
     assert(mStateVariables);
@@ -132,25 +126,6 @@ void AbstractCvodeCell::SetVoltage(double voltage)
     NV_Ith_S(mStateVariables, mVoltageIndex) = voltage;
 }
 
-void AbstractCvodeCell::SetStimulusFunction(boost::shared_ptr<AbstractStimulusFunction> pStimulus)
-{
-    mpIntracellularStimulus = pStimulus;
-}
-
-boost::shared_ptr<AbstractStimulusFunction> AbstractCvodeCell::GetStimulusFunction()
-{
-    return mpIntracellularStimulus;
-}
-
-double AbstractCvodeCell::GetStimulus(double time)
-{
-    return mpIntracellularStimulus->GetStimulus(time);
-}
-
-double AbstractCvodeCell::GetIntracellularAreaStimulus(double time)
-{
-    return GetStimulus(time);
-}
 
 N_Vector AbstractCvodeCell::GetInitialConditions()
 {
@@ -202,6 +177,22 @@ void AbstractCvodeCell::SetStateVariablesUsingACopyOfThisVector(N_Vector stateVa
 void AbstractCvodeCell::SetVoltageDerivativeToZero(bool clamp)
 {
     mSetVoltageDerivativeToZero = clamp;
+}
+
+
+OdeSolution AbstractCvodeCell::Compute(double tStart, double tEnd, double tSamp)
+{
+    if (tSamp == 0.0)
+    {
+        tSamp = HeartConfig::Instance()->GetPrintingTimeStep();
+    }
+    return Solve(tStart, tEnd, tSamp, tSamp);
+}
+
+
+void AbstractCvodeCell::ComputeExceptVoltage(double tStart, double tEnd)
+{
+    EXCEPTION("This method is not yet implemented for CVODE cells.");
 }
 
 
@@ -409,10 +400,5 @@ N_Vector AbstractCvodeCell::CopyVector(N_Vector originalVec)
     return v;
 }
 
-
-void AbstractCvodeCell::UseCellMLDefaultStimulus()
-{
-    EXCEPTION("This class has no default stimulus from CellML metadata.");
-}
 
 #endif // CHASTE_CVODE

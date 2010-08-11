@@ -74,6 +74,11 @@ public :
             EXCEPTION(DumpState("I'm feeling nasty!"));
         }
     }
+    
+    double GetIIonic()
+    {
+        return 0.0;
+    }
 };
 
 template<>
@@ -118,6 +123,8 @@ public:
 
         // Cover swapping to a proper stimulus
         lr91_cvode_system.SetStimulusFunction(p_stimulus);
+        // More "coverage"
+        TS_ASSERT_EQUALS(lr91_cvode_system.GetSolver(), p_solver);
 
         boost::shared_ptr<AbstractStimulusFunction> p_abs_stim = lr91_cvode_system.GetStimulusFunction();
         double period_back = boost::static_pointer_cast<RegularStimulus>(p_abs_stim)->GetPeriod();
@@ -158,6 +165,15 @@ public:
         }
 
         lr91_cvode_system.SetVoltageDerivativeToZero(false);
+        
+        // Check Compute methods from AbstractCardiacCellInterface
+        lr91_cvode_system.SetStateVariables(lr91_cvode_system.GetInitialConditions());
+        HeartConfig::Instance()->SetPrintingTimeStep(sampling_time);
+        OdeSolution solution_cvode_2 = lr91_cvode_system.Compute(start_time, end_time);
+        solution_cvode_2.WriteToFile("TestCvodeCells","lr91_cvode_2","ms",1,clean_dir);
+        CompareCellModelResults("lr91_cvode_2", "lr91_cvode", 1e-8, voltage_only, "TestCvodeCells");
+        TS_ASSERT_THROWS_THIS(lr91_cvode_system.ComputeExceptVoltage(start_time, end_time),
+                              "This method is not yet implemented for CVODE cells.");
 
         // Reset CVODE cell to initial conditions, and solve without sampling
         lr91_cvode_system.SetStateVariables(lr91_cvode_system.GetInitialConditions());
