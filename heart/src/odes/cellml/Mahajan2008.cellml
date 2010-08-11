@@ -230,16 +230,19 @@ gto,slow = 0.11;   % mS/uF"
             <eq/>
             <ci>Itotal</ci>
             <apply>
-               <plus/>
-               <ci>xina</ci>
-               <ci>xik1</ci>
-               <ci>xikr</ci>
-               <ci>xiks</ci>
-               <ci>xito</ci>
-               <ci>xiNaCa</ci>
-               <ci>xica</ci>
-               <ci>xiNaK</ci>
-               <ci>i_Stim</ci>
+               <minus/>
+               <apply>
+                  <plus/>
+                  <ci>xina</ci>
+                  <ci>xik1</ci>
+                  <ci>xikr</ci>
+                  <ci>xiks</ci>
+                  <ci>xito</ci>
+                  <ci>xiNaCa</ci>
+                  <ci>xica</ci>
+                  <ci>xiNaK</ci>
+                  <ci>i_Stim</ci>
+               </apply>
             </apply>
          </apply>
          <apply>
@@ -251,10 +254,7 @@ gto,slow = 0.11;   % mS/uF"
                </bvar>
                <ci>V</ci>
             </apply>
-            <apply>
-                <minus/>
-                <ci>Itotal</ci>
-            </apply>
+            <ci>Itotal</ci>
          </apply>
       </math>
    </component>

@@ -2095,6 +2095,11 @@ class cellml_variable(Colourable, element_base):
             assert type(value) == types.FloatType
             self._cml_value[ode] = value
         return
+    def unset_values(self):
+        """Unset all values for this variable set with set_value."""
+        if self.get_type() == VarTypes.Mapped:
+            self.get_source_variable().unset_values()
+        self._cml_value.clear()
     def get_value(self, ode=None):
         """Return the value of this variable.
 

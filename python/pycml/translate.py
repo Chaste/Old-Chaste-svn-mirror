@@ -2138,11 +2138,15 @@ class CellMLToChasteTranslator(CellMLTranslator):
             # Assign the total current to a temporary so we can check for NaN and
             # do units conversion if needed.
             self.writeln(self.TYPE_DOUBLE, 'i_ionic', self.EQ_ASSIGN, nl=False)
+            if self.doc._cml_config.i_ionic_negated:
+                self.writeln('-(', nl=False, indent=False)
             plus = False
             for varelt in self.model.solver_info.ionic_current.var:
                 if plus: self.write('+')
                 else: plus = True
                 self.output_variable(varelt)
+            if self.doc._cml_config.i_ionic_negated:
+                self.writeln(')', nl=False, indent=False)
             self.writeln(self.STMT_END, indent=False)
             self.writeln('assert(!std::isnan(i_ionic));')
             self.output_equations(conv_nodes)
@@ -3656,6 +3660,8 @@ class ConfigurationStore(object):
         self.i_stim_var = None
         self.i_ionic_definitions = [u'membrane,i_.*']
         self.i_ionic_vars = []
+        # Whether GetIIonic will need to negate the sum of i_ionic_vars
+        self.i_ionic_negated = False
         return
 
     def read_configuration_file(self, config_file):
@@ -3894,9 +3900,18 @@ class ConfigurationStore(object):
                     u = v.component.get_units_by_name(v.units)
                     if u.dimensionally_equivalent(stim_units):
                         ionic_vars.append(v)
+                # Fake this variable being 1 so we can check the sign of GetIIonic
+                expr.variable.set_value(1.0)
             elif isinstance(expr, mathml_apply):
                 for o in expr.operands():
                     search_expr(o)
+        def clear_values(expr):
+            """Recursively clear saved values for variables in this expression."""
+            if isinstance(expr, mathml_ci):
+                expr.variable.unset_values()
+            else:
+                for elt in getattr(expr, 'xml_children', []):
+                    clear_values(elt)
         ionic_vars = []
         # Iterate over all expressions in the model, to find the one for dV/d(something)
         for expr in (e for e in self.doc.model.get_assignments() if isinstance(e, mathml_apply) and e.is_ode()):
@@ -3905,6 +3920,9 @@ class ConfigurationStore(object):
             if dep_var.get_source_variable(recurse=True) is self.V_variable:
                 # Recursively search for ci elements
                 search_expr(expr.eq.rhs)
+                # Check the sign of the RHS
+                self.i_ionic_negated = expr.eq.rhs.evaluate() > 0.0
+                clear_values(expr.eq.rhs)
                 # Found dV/d(something); don't check any more expressions
                 break
         DEBUG('config', "Found ionic currents from dV/dt: ", ionic_vars)
