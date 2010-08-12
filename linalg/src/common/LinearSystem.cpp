@@ -51,7 +51,9 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mUseAbsoluteTolerance(false),
     mDirichletBoundaryConditionsVector(NULL),
     mpBlockDiagonalPC(NULL),
-    mpLDUFactorisationPC(NULL)
+    mpLDUFactorisationPC(NULL),
+    mpTwoLevelsBlockDiagonalPC(NULL),
+    mpBathNodes(NULL)
 {
     assert(lhsVectorSize>0);
     if (rowPreallocation == UINT_MAX)
@@ -95,7 +97,9 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
     mUseAbsoluteTolerance(false),
     mDirichletBoundaryConditionsVector(NULL),
     mpBlockDiagonalPC(NULL),
-    mpLDUFactorisationPC(NULL)
+    mpLDUFactorisationPC(NULL),
+    mpTwoLevelsBlockDiagonalPC(NULL),
+    mpBathNodes(NULL)
 {
     assert(lhsVectorSize>0);
     // Conveniently, PETSc Mats and Vecs are actually pointers
@@ -120,7 +124,9 @@ LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
     mUseAbsoluteTolerance(false),
     mDirichletBoundaryConditionsVector(NULL),
     mpBlockDiagonalPC(NULL),
-    mpLDUFactorisationPC(NULL)
+    mpLDUFactorisationPC(NULL),
+    mpTwoLevelsBlockDiagonalPC(NULL),
+    mpBathNodes(NULL)
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -150,7 +156,9 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mUseAbsoluteTolerance(false),
     mDirichletBoundaryConditionsVector(NULL),
     mpBlockDiagonalPC(NULL),
-    mpLDUFactorisationPC(NULL)
+    mpLDUFactorisationPC(NULL),
+    mpTwoLevelsBlockDiagonalPC(NULL),
+    mpBathNodes(NULL)
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -187,15 +195,9 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
 
 LinearSystem::~LinearSystem()
 {
-    if (mpBlockDiagonalPC)
-    {
-        delete mpBlockDiagonalPC;
-    }
-
-    if (mpLDUFactorisationPC)
-    {
-        delete mpLDUFactorisationPC;
-    }
+    delete mpBlockDiagonalPC;
+    delete mpLDUFactorisationPC;
+    delete mpTwoLevelsBlockDiagonalPC;
 
     if (mDestroyMatAndVec)
     {
@@ -702,29 +704,50 @@ void LinearSystem::SetKspType(const char *kspType)
     }
 }
 
-void LinearSystem::SetPcType(const char* pcType)
+void LinearSystem::SetPcType(const char* pcType, std::vector<PetscInt>* pBathNodes)
 {
     mPcType=pcType;
+    mpBathNodes = pBathNodes;
+    
     if (mKspIsSetup)
     {
         if (mPcType == "blockdiagonal")
         {
-            if (mpBlockDiagonalPC)
-            {
-                // If the preconditioner has been set to "blockdiagonal" before, we need to free the pointer.
-                delete mpBlockDiagonalPC;
-            }
+            // If the previous preconditioner was purpose-built we need to free the appropriate pointer.
+            /// \todo: #1082 use a single pointer to abstract class
+            delete mpBlockDiagonalPC;
+            mpBlockDiagonalPC = NULL;
+            delete mpTwoLevelsBlockDiagonalPC;
+            mpTwoLevelsBlockDiagonalPC = NULL;
+
             mpBlockDiagonalPC = new PCBlockDiagonal(mKspSolver);
         }
         else if (mPcType == "ldufactorisation")
         {
-            if (mpLDUFactorisationPC)
-            {
-                // If this preconditioner has been set before, we need to free the pointer.
-                delete mpLDUFactorisationPC;
-            }
+            // If the previous preconditioner was purpose-built we need to free the appropriate pointer.
+            /// \todo: #1082 use a single pointer to abstract class
+            delete mpLDUFactorisationPC;
+            mpLDUFactorisationPC = NULL;
+            delete mpTwoLevelsBlockDiagonalPC;
+            mpTwoLevelsBlockDiagonalPC = NULL;
+
             mpLDUFactorisationPC = new PCLDUFactorisation(mKspSolver);
         }
+        else if (mPcType == "twolevelsblockdiagonal")
+        {
+            // If the previous preconditioner was purpose-built we need to free the appropriate pointer.
+            /// \todo: #1082 use a single pointer to abstract class
+            delete mpBlockDiagonalPC;
+            mpBlockDiagonalPC = NULL;
+            delete mpLDUFactorisationPC;
+            mpLDUFactorisationPC = NULL;
+
+            if (!pBathNodes)
+            {
+                TERMINATE("You must provide a list of bath nodes when using TwoLevelsBlockDiagonalPC");
+            }
+            mpTwoLevelsBlockDiagonalPC = new PCTwoLevelsBlockDiagonal(mKspSolver, *mpBathNodes);
+        }        
         else
         {
             PC prec;
@@ -807,7 +830,19 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 Timer::Print("Purpose-build preconditioner creation");
 #endif
             }
-            else
+            else if (mPcType == "twolevelsblockdiagonal")
+            {
+                if (!mpBathNodes)
+                {
+                    TERMINATE("You must provide a list of bath nodes when using TwoLevelsBlockDiagonalPC");
+                }                
+                mpTwoLevelsBlockDiagonalPC = new PCTwoLevelsBlockDiagonal(mKspSolver, *mpBathNodes);
+#ifdef TRACE_KSP
+                Timer::Print("Purpose-build preconditioner creation");
+#endif
+
+            }
+            else 
             {
                 PCSetType(prec, mPcType.c_str());
             }

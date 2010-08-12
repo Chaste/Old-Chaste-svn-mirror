@@ -37,6 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "PCBlockDiagonal.hpp"
 #include "PCLDUFactorisation.hpp"
+#include "PCTwoLevelsBlockDiagonal.hpp"
 #include "ArchiveLocationInfo.hpp"
 
 #include <petscvec.h>
@@ -56,6 +57,7 @@ class LinearSystem
 {
     friend class TestLinearSystem;
     friend class TestPCBlockDiagonal;
+    friend class TestPCTwoLevelsBlockDiagonal;
     friend class TestPCLDUFactorisation;
 
 private:
@@ -91,10 +93,16 @@ private:
 
     Vec mDirichletBoundaryConditionsVector; /**< Storage for efficient application of Dirichlet BCs, see AbstractBoundaryConditionsContainer */
 
+    /// \todo: #1082 Create an abstract class for the preconditioners and use a single pointer
     /** Stores a pointer to a purpose-build preconditioner*/
     PCBlockDiagonal* mpBlockDiagonalPC;
     /** Stores a pointer to a purpose-build preconditioner*/
     PCLDUFactorisation* mpLDUFactorisationPC;
+    /** Stores a pointer to a purpose-build preconditioner*/
+    PCTwoLevelsBlockDiagonal* mpTwoLevelsBlockDiagonalPC;
+    
+    /** Pointer to vector containing a list of bath nodes*/
+    std::vector<PetscInt>* mpBathNodes;
 
 
 #ifdef TRACE_KSP
@@ -278,9 +286,11 @@ public:
     /**
      * Set the preconditioner type  (see PETSc PCSetType() for valid arguments).
      *
-     * @param pcType  the preconditioner type
+     * @param pcType the preconditioner type
+     * @param bathNodes the list of nodes defining the bath
      */
-    void SetPcType(const char* pcType);
+    /// \todo: #1082 find out a way of making pBathNodes a reference with default value
+    void SetPcType(const char* pcType, std::vector<PetscInt>* pBathNodes=NULL);
 
     /**
      * Display the left-hand side matrix.

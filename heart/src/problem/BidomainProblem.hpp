@@ -59,6 +59,10 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
 {
     /** Needed for serialization. */
     friend class boost::serialization::access;
+    
+    // #1082
+    friend class TestPCTwoLevelsBlockDiagonal;    
+    
     /**
      * Save the member variables to an archive.
      *

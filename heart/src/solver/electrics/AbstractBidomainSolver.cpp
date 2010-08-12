@@ -59,6 +59,8 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialS
     this->mpLinearSystem->SetKspType(HeartConfig::Instance()->GetKSPSolver());
     this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
 
+    /// \todo: #1082 if preconditioner is two levels block diagonal pass a list of bath nodes in
+
     if (mRowForAverageOfPhiZeroed==INT_MAX)
     {
         // not applying average(phi)=0 constraint, so matrix is symmetric
