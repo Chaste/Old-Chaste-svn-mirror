@@ -98,6 +98,7 @@ public:
     /**
      * A private constructor for archiving.
      *
+     * @param pOdeSolver a pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
      * @param pMutationState the mutation state of the cell (used by ODEs)
      * @param rDimension the spatial dimension
