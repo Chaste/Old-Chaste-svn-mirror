@@ -733,7 +733,8 @@
       <xs:documentation>Type of KSP preconditioner to use. It can specified as jacobi (jaccobi), 
         block jacobi (bjacobi), algebraic multigrid (hypre), multi-level preconditioning (ml), 
         sparse approximate inverse preconditioner (spai), block diagonal (blockdiagonal), 
-        ldu factorization (ldufactorization) or no preconditioner (none).
+        ldu factorization (ldufactorization), two levels block diagonal (twolevelsblockdiagonal)
+        or no preconditioner (none).
         Note that some of these may only work if you have compiled PETSc with support for them
         (e.g. hypre).
         </xs:documentation>
@@ -746,6 +747,7 @@
       <xs:enumeration value="spai"/>
       <xs:enumeration value="blockdiagonal"/>
       <xs:enumeration value="ldufactorisation"/>
+      <xs:enumeration value="twolevelsblockdiagonal"/>
       <xs:enumeration value="none"/>
     </xs:restriction>
   </xs:simpleType>

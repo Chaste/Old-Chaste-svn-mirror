@@ -29,6 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AbstractBidomainSolver.hpp"
+#include "TetrahedralMesh.hpp"
 
 template<unsigned ELEM_DIM, unsigned SPACE_DIM>
 void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
@@ -57,9 +58,36 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialS
     }
 
     this->mpLinearSystem->SetKspType(HeartConfig::Instance()->GetKSPSolver());
-    this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
 
-    /// \todo: #1082 if preconditioner is two levels block diagonal pass a list of bath nodes in
+    /// \todo: block preconditioners only make sense in Bidomain... Add some warning/error message
+    if(std::string("twolevelsblockdiagonal") == std::string(HeartConfig::Instance()->GetKSPPreconditioner()))
+    {
+        /// \todo: #1082 only works if you know about the whole mesh.
+        TetrahedralMesh<ELEM_DIM,SPACE_DIM>* p_mesh = dynamic_cast<TetrahedralMesh<ELEM_DIM,SPACE_DIM>*>(this->mpMesh);
+        if (p_mesh && PetscTools::IsSequential())
+        {
+            /// \todo: #1082 if preconditioner is two levels block diagonal pass a list of bath nodes in
+            std::vector<PetscInt> bath_nodes;
+        
+            for(unsigned node_index=0; node_index<this->mpMesh->GetNumNodes(); node_index++)
+            {
+                if (this->mpMesh->GetNode(node_index)->GetRegion() == HeartRegionCode::BATH)
+                {
+                    bath_nodes.push_back(node_index);
+                }
+            }
+            
+            this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner(), &bath_nodes);            
+        }
+        else
+        {
+            TERMINATE("Two levels block diagonal only works with TetrahedralMesh and p=1");
+        }
+    }
+    else
+    { 
+        this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner());
+    }
 
     if (mRowForAverageOfPhiZeroed==INT_MAX)
     {

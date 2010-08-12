@@ -90,7 +90,6 @@ public:
         ls.SetAbsoluteTolerance(1e-9);
         ls.SetKspType("cg");
         ls.SetPcType("twolevelsblockdiagonal", &bath);
-        ls.SetPcType("blockdiagonal");
 
         ls.AssembleFinalLinearSystem();
 
