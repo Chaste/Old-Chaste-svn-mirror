@@ -82,6 +82,7 @@ void BasicBidomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
 
     if(this->mBathSimulation)
     {
+        this->mpLinearSystem->AssembleFinalLhsMatrix();
         this->FinaliseForBath(computeMatrix,true);
     }
 
