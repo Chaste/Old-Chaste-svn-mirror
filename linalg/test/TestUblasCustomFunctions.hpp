@@ -345,6 +345,7 @@ public:
         TS_ASSERT_DELTA( a_times_eigenvector[1], smallest_eigenvalue*eigenvector[1], delta);
         TS_ASSERT_DELTA( a_times_eigenvector[2], smallest_eigenvalue*eigenvector[2], delta);
     }
+    
     void TestSmallPow() throw(Exception)
     {
         for (unsigned i=0; i<10; i++)
@@ -354,6 +355,21 @@ public:
             TS_ASSERT_DELTA( SmallPow(75.0, i), pow(75.0, double(i)), 1e-16);
         }
     }
+
+    void TestDivides() throw(Exception)
+    {        
+        TS_ASSERT_EQUALS( Divides(0.7, 0.1),  false);
+        TS_ASSERT_EQUALS( Divides(0.07, 0.1),  false);
+        TS_ASSERT_EQUALS( Divides(0.1, 0.1),  true);
+        TS_ASSERT_EQUALS( Divides(1e10, 1e10),  true);
+        TS_ASSERT_EQUALS( Divides(5.7e10, 5.7e20),  true);
+        TS_ASSERT_EQUALS( Divides(0.01, 0.1),  true);
+        TS_ASSERT_EQUALS( Divides(0.01, 1.0),  true);
+        TS_ASSERT_EQUALS( Divides(0.01, 10.0),  true);
+        TS_ASSERT_EQUALS( Divides(0.01, 100.01),  true);
+    }
+
+
 };
 
 #endif /*TESTUBLASCUSTOMFUNCTIONS_HPP_*/

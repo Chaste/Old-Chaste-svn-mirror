@@ -37,8 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <mpi.h> // For MPI_Send, MPI_Recv
 
-#include "Debug.hpp"
-
 /**
  * Convenience collection of iterators, primarily to get compilation to happen.
  */

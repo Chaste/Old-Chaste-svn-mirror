@@ -973,7 +973,7 @@ public:
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3), "Printing time-step should be a multiple of PDE time step");
 
         //Shouldn't throw because 10 is a multiple of 0.1
-        //TS_ASSERT_THROWS_NOTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.1, 10.0));
+        TS_ASSERT_THROWS_NOTHING(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1, 0.1, 10.0));
 
         // Throws because ode time step is bigger than pde time step
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.1,0.2, 0.3), "Printing time-step should be a multiple of PDE time step");

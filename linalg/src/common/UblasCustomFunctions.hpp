@@ -519,6 +519,14 @@ c_vector<double,3> CalculateEigenvectorForSmallestNonzeroEigenvalue(c_matrix<dou
  */
 double SmallPow(double x, unsigned exponent);
 
+/**
+ * Uses fmod to determine if smallerNumber divides the largerNumber.
+ * We expect smallerNumber/largerNumber <= 1 and therefore
+ * fmod(largerNumber,smallerNumber) should be close zero or close to  smallerNumber
+ * @param smallerNumber the smaller
+ * @param largerNumber the larger
+ */
+bool Divides(double smallerNumber, double largerNumber);
 
 #endif /*UBLASCUSTOMFUNCTIONS_HPP_*/
 
