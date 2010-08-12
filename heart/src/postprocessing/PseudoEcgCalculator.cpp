@@ -90,8 +90,16 @@ double PseudoEcgCalculator<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputePseudoEc
     Vec solution_at_one_time_step = PetscTools::CreateVec(mNumberOfNodes);
     mpDataReader->GetVariableOverNodes(solution_at_one_time_step, mVariableName , timeStep);
 
-    double pseudo_ecg_at_one_timestep = Calculate(mrMesh, solution_at_one_time_step);
-
+    double pseudo_ecg_at_one_timestep;
+    try
+    {
+        pseudo_ecg_at_one_timestep = Calculate(mrMesh, solution_at_one_time_step);
+    }
+    catch (Exception &e)
+    {
+        VecDestroy(solution_at_one_time_step);
+        throw e;
+    }
     VecDestroy(solution_at_one_time_step);
     return pseudo_ecg_at_one_timestep;
 }
