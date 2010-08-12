@@ -465,7 +465,8 @@ namespace serialization {
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 struct version<AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM> >
 {
-    BOOST_STATIC_CONSTANT(unsigned int, value = 1);
+    /** Version number */
+    BOOST_STATIC_CONSTANT(unsigned, value = 1);
 };
 } // namespace serialization
 } // namespace boost

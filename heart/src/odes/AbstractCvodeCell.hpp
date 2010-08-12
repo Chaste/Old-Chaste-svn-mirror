@@ -115,11 +115,12 @@ public:
      * 
      * @note subclasses @b must call Init() in their constructor after setting #mpSystemInfo.
      *
+     * @param pSolver  not used for these cells (they're always solved with CVODE); may be empty
      * @param numberOfStateVariables  the size of the ODE system modelling this cell
      * @param voltageIndex  the index of the transmembrane potential within the vector of state variables
      * @param pIntracellularStimulus  the intracellular stimulus current
      */
-    AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> /* unused; should be empty */,
+    AbstractCvodeCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                       unsigned numberOfStateVariables,
                       unsigned voltageIndex,
                       boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
