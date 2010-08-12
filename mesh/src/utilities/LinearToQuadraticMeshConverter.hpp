@@ -33,6 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "CommandLineArguments.hpp"
+#include "Warnings.hpp"
 
 // Note: currently completely verbose..
 
@@ -77,6 +78,23 @@ public:
         // on the full initial mesh (.node and .ele)
         std::string full_in_mesh_stem = inMeshDirectory + "/" + inMeshStem;
         
+        /* Note that the release notes and docs/INSTALLATION
+         * state that triangle is not required:
+         *
+   202  
+   203  =============== TRIANGLE =====================
+   204  
+   205  Note: From Release 1.1 installation of triangle is not required.
+   206  
+   207  =============== VTK =====================
+   
+          This code is a "bug waiting for release".  We should have removed
+          the triangle binary from our machines at the same time as making the above statement. 
+        */
+        if (DIM == 2)
+        {
+            WARNING("This code is a bug waiting to be released");
+        }
         std::string binary = (DIM==2) ? "triangle -o2e " : "tetgen -o2nn "; 
         std::string faceformat = (DIM==2) ? ".edge" : ".face";
         unsigned column = (DIM==2) ? 4 : 5;
