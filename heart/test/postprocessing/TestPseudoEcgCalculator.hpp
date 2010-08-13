@@ -111,7 +111,7 @@ public:
         ///////////////////////////////////////////////////
         // Now we compute the pseudo ECG. We set an electrode at x=15.
         ///////////////////////////////////////////////////
-        ChastePoint<1> probe_electrode(15);
+        ChastePoint<1> probe_electrode(15.0);
 
         PseudoEcgCalculator<1,1,1> calculator (mesh, probe_electrode, "hdf5", "gradient_V");
         double pseudo_ecg;
