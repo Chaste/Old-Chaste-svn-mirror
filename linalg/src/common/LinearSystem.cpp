@@ -53,7 +53,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, unsigned rowPreallocation)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL),
     mpTwoLevelsBlockDiagonalPC(NULL),
-    mpBathNodes(NULL)
+    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() )
 {
     assert(lhsVectorSize>0);
     if (rowPreallocation == UINT_MAX)
@@ -99,7 +99,7 @@ LinearSystem::LinearSystem(PetscInt lhsVectorSize, Mat lhsMatrix, Vec rhsVector)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL),
     mpTwoLevelsBlockDiagonalPC(NULL),
-    mpBathNodes(NULL)
+    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() )
 {
     assert(lhsVectorSize>0);
     // Conveniently, PETSc Mats and Vecs are actually pointers
@@ -126,7 +126,7 @@ LinearSystem::LinearSystem(Vec templateVector, unsigned rowPreallocation)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL),
     mpTwoLevelsBlockDiagonalPC(NULL),
-    mpBathNodes(NULL)
+    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() )
 {
     VecDuplicate(templateVector, &mRhsVector);
     VecGetSize(mRhsVector, &mSize);
@@ -158,7 +158,7 @@ LinearSystem::LinearSystem(Vec residualVector, Mat jacobianMatrix)
     mpBlockDiagonalPC(NULL),
     mpLDUFactorisationPC(NULL),
     mpTwoLevelsBlockDiagonalPC(NULL),
-    mpBathNodes(NULL)
+    mpBathNodes( boost::shared_ptr<std::vector<PetscInt> >() )
 {
     assert(residualVector || jacobianMatrix);
     mRhsVector = residualVector;
@@ -704,7 +704,7 @@ void LinearSystem::SetKspType(const char *kspType)
     }
 }
 
-void LinearSystem::SetPcType(const char* pcType, std::vector<PetscInt>* pBathNodes)
+void LinearSystem::SetPcType(const char* pcType, boost::shared_ptr<std::vector<PetscInt> > pBathNodes)
 {
     mPcType=pcType;
     mpBathNodes = pBathNodes;
@@ -742,7 +742,7 @@ void LinearSystem::SetPcType(const char* pcType, std::vector<PetscInt>* pBathNod
             delete mpLDUFactorisationPC;
             mpLDUFactorisationPC = NULL;
 
-            if (!pBathNodes)
+            if (!mpBathNodes)
             {
                 TERMINATE("You must provide a list of bath nodes when using TwoLevelsBlockDiagonalPC");
             }

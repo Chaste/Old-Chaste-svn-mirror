@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PCLDUFactorisation.hpp"
 #include "PCTwoLevelsBlockDiagonal.hpp"
 #include "ArchiveLocationInfo.hpp"
+#include <boost/serialization/shared_ptr.hpp>
 
 #include <petscvec.h>
 #include <petscmat.h>
@@ -102,7 +103,7 @@ private:
     PCTwoLevelsBlockDiagonal* mpTwoLevelsBlockDiagonalPC;
     
     /** Pointer to vector containing a list of bath nodes*/
-    std::vector<PetscInt>* mpBathNodes;
+    boost::shared_ptr<std::vector<PetscInt> > mpBathNodes;
 
 
 #ifdef TRACE_KSP
@@ -289,8 +290,8 @@ public:
      * @param pcType the preconditioner type
      * @param pBathNodes the list of nodes defining the bath
      */
-    /// \todo: #1082 find out a way of making pBathNodes a reference with default value
-    void SetPcType(const char* pcType, std::vector<PetscInt>* pBathNodes=NULL);
+    /// \todo: #1082 is this the way of defining a null pointer as the default value of pBathNodes?
+    void SetPcType(const char* pcType, boost::shared_ptr<std::vector<PetscInt> > pBathNodes=boost::shared_ptr<std::vector<PetscInt> >() );
 
     /**
      * Display the left-hand side matrix.

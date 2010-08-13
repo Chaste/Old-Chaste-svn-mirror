@@ -56,8 +56,8 @@ public:
                                                232, 250, 251, 252, 253, 271, 272, 273, 274, 292, 293, 294, 295, 313, 
                                                314, 315, 316, 334, 335, 336, 337, 355, 356, 357, 358, 376, 377, 378, 
                                                379, 397, 398, 399, 400, 418, 419, 420, 421, 439, 440};
-        std::vector<PetscInt> bath (bath_nodes, bath_nodes + sizeof(bath_nodes) / sizeof(unsigned) );
-        assert(bath.size() == num_bath_nodes);
+        boost::shared_ptr<std::vector<PetscInt> > p_bath(new std::vector<PetscInt>(bath_nodes, &bath_nodes[num_bath_nodes]));
+        assert(p_bath->size() == num_bath_nodes);
         
         Mat system_matrix;
         PetscTools::ReadPetscObject(system_matrix, "linalg/test/data/matrices/PP_system_with_bath.mat", parallel_layout);
@@ -83,7 +83,7 @@ public:
 
         ls.SetAbsoluteTolerance(1e-9);
         ls.SetKspType("cg");
-        ls.SetPcType("twolevelsblockdiagonal", &bath);
+        ls.SetPcType("twolevelsblockdiagonal", p_bath);
 
         ls.AssembleFinalLinearSystem();
 
@@ -94,7 +94,7 @@ public:
         DistributedVector::Stripe phi_e(distributed_solution, 1);
 
         // Create a std::set of bath node indices for convenience 
-        std::set<PetscInt> bath_nodes_set(bath.begin(), bath.end());
+        std::set<PetscInt> bath_nodes_set(p_bath->begin(), p_bath->end());
 
         double phi_e_at_tissue = DBL_MAX;
 
@@ -136,7 +136,7 @@ public:
         }
 
         // Coverage (setting PC type after first solve)
-        ls.SetPcType("twolevelsblockdiagonal", &bath);
+        ls.SetPcType("twolevelsblockdiagonal", p_bath);
 
         MatDestroy(system_matrix);
         VecDestroy(rhs);
@@ -170,8 +170,8 @@ public:
                                                232, 250, 251, 252, 253, 271, 272, 273, 274, 292, 293, 294, 295, 313, 
                                                314, 315, 316, 334, 335, 336, 337, 355, 356, 357, 358, 376, 377, 378, 
                                                379, 397, 398, 399, 400, 418, 419, 420, 421, 439, 440};
-        std::vector<PetscInt> bath (bath_nodes, bath_nodes + sizeof(bath_nodes) / sizeof(unsigned) );
-        assert(bath.size() == num_bath_nodes);
+        boost::shared_ptr<std::vector<PetscInt> > p_bath(new std::vector<PetscInt>(bath_nodes, &bath_nodes[num_bath_nodes]));
+        assert(p_bath->size() == num_bath_nodes);
         
         unsigned point_jacobi_its;
         unsigned block_diag_its;
@@ -215,14 +215,14 @@ public:
 
             ls.SetAbsoluteTolerance(1e-9);
             ls.SetKspType("cg");
-            ls.SetPcType("twolevelsblockdiagonal", &bath);
+            ls.SetPcType("twolevelsblockdiagonal", p_bath);
 
             Vec solution = ls.Solve();
 
             block_diag_its = ls.GetNumIterations();
 
             // Coverage (setting PC type after using blockdiagonal solve)
-            ls.SetPcType("twolevelsblockdiagonal", &bath);
+            ls.SetPcType("twolevelsblockdiagonal", p_bath);
 
             MatDestroy(system_matrix);
             VecDestroy(system_rhs);

@@ -66,18 +66,17 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialS
         TetrahedralMesh<ELEM_DIM,SPACE_DIM>* p_mesh = dynamic_cast<TetrahedralMesh<ELEM_DIM,SPACE_DIM>*>(this->mpMesh);
         if (p_mesh && PetscTools::IsSequential())
         {
-            /// \todo: #1082 this is going out of scope and linear system keeps a pointer to it!!!
-            std::vector<PetscInt> bath_nodes;
+            boost::shared_ptr<std::vector<PetscInt> > p_bath_nodes(new std::vector<PetscInt>());
         
             for(unsigned node_index=0; node_index<this->mpMesh->GetNumNodes(); node_index++)
             {
                 if (this->mpMesh->GetNode(node_index)->GetRegion() == HeartRegionCode::BATH)
                 {
-                    bath_nodes.push_back(node_index);
+                    p_bath_nodes->push_back(node_index);
                 }
             }
             
-            this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner(), &bath_nodes);            
+            this->mpLinearSystem->SetPcType(HeartConfig::Instance()->GetKSPPreconditioner(), p_bath_nodes);
         }
         else
         {
