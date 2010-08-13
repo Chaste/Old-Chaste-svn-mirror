@@ -3,4 +3,5 @@ TestLinearSystem.hpp
 TestNonlinearSolvers.hpp
 TestPCBlockDiagonal.hpp
 TestPCLDUFactorisation.hpp
+TestPCTwoLevelsBlockDiagonal.hpp
 TestUblasCustomFunctions.hpp
