@@ -111,7 +111,7 @@ public:
      *  Constructor
      *
      *  @param rKspObject KSP object where we want to install the block diagonal preconditioner.
-     *  @param bathNodes the list of nodes defining the bath
+     *  @param rBathNodes a list of nodes defining the bath
      */
     PCTwoLevelsBlockDiagonal(KSP& rKspObject, std::vector<PetscInt>& rBathNodes);
 
@@ -122,6 +122,7 @@ private:
      *  Creates all the state data required by the preconditioner
      *
      *  @param rKspObject KSP object where we want to install the block diagonal preconditioner.
+     *  @param rBathNodes a list of nodes defining the bath
      */
     void PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, std::vector<PetscInt>& rBathNodes);
 

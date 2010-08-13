@@ -165,8 +165,7 @@ void PCTwoLevelsBlockDiagonal::PCTwoLevelsBlockDiagonalCreate(KSP& rKspObject, s
         
         IS A11_local_rows;
         IS& A11_columns=A11_all_rows;
-        ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &A11_local_rows);
-        ISCreateStride(PETSC_COMM_WORLD, global_size, 0, 2, &A11_columns);
+        ISCreateStride(PETSC_COMM_WORLD, high-low, 2*low, 2, &A11_local_rows); /// \todo: #1082 OK in parallel. Use as an example for the other two blocks
     
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1)
         MatGetSubMatrix(system_matrix, A11_local_rows, A11_columns,

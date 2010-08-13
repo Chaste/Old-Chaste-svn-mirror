@@ -287,7 +287,7 @@ public:
      * Set the preconditioner type  (see PETSc PCSetType() for valid arguments).
      *
      * @param pcType the preconditioner type
-     * @param bathNodes the list of nodes defining the bath
+     * @param pBathNodes the list of nodes defining the bath
      */
     /// \todo: #1082 find out a way of making pBathNodes a reference with default value
     void SetPcType(const char* pcType, std::vector<PetscInt>* pBathNodes=NULL);
