@@ -188,3 +188,5 @@ const boost::shared_ptr<AbstractCellCycleModelOdeSolver> SingleOdeWntCellCycleMo
 // Declare identifier for the serializer
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(SingleOdeWntCellCycleModel)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(SingleOdeWntCellCycleModel)

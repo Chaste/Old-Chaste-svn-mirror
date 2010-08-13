@@ -28,25 +28,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_
 #define ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_
 
+#include <vector>
+#include <boost/shared_ptr.hpp>
+
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/split_member.hpp>
 
-#include <cfloat>
-
 #include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
-#include "CellwiseData.hpp"
-#include "CellLabel.hpp"
-#include "Exception.hpp"
-
-#include "CellCycleModelOdeSolver.hpp"
-#include "BackwardEulerIvpOdeSolver.hpp"
-#include "EulerIvpOdeSolver.hpp"
-#include "HeunIvpOdeSolver.hpp"
-#include "RungeKutta2IvpOdeSolver.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "CvodeAdaptor.hpp"
 
 /**
  * Oxygen-dependent ODE-based cell cycle model. Published by Alarcon et al.
@@ -55,8 +45,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class Alarcon2004OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModelWithStoppingEvent
 {
 private:
-
-    /** Whether the cell associated with this cell cycle model is labelled (this affects the ODE system). */
+    /**
+     * Whether the cell associated with this cell cycle model is labelled (this affects the ODE system).
+     * \todo Is this unused?
+     */
     bool mIsLabelled;
 
     ///\todo Archiving could be tidied up for this class
@@ -73,6 +65,7 @@ private:
     {
         assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
+        ///\todo Shouldn't this archive mIsLabelled?
         bool is_labelled = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->IsLabelled();
         archive & is_labelled;
     }
@@ -89,6 +82,7 @@ private:
         // here.  This is a horrible hack, but avoids having to regenerate test archives...
         assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
+        ///\todo Shouldn't this archive mIsLabelled?
         bool is_labelled;
         archive & is_labelled;
         static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetIsLabelled(is_labelled);
@@ -211,13 +205,7 @@ inline void load_construct_data(
 } // namespace ...
 
 
-#ifdef CHASTE_CVODE
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, CvodeAdaptor)
-#endif //CHASTE_CVODE
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, BackwardEulerIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, EulerIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, HeunIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, RungeKutta2IvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(Alarcon2004OxygenBasedCellCycleModel)
 
 #endif /*ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_*/

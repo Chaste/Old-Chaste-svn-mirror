@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 StochasticWntCellCycleModel::StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : WntCellCycleModel(pOdeSolver)
 {
-    if (pOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
+    if (!pOdeSolver)
     {
 #ifdef CHASTE_CVODE
         mpOdeSolver = CellCycleModelOdeSolver<StochasticWntCellCycleModel, CvodeAdaptor>::Instance();
@@ -109,3 +109,5 @@ AbstractCellCycleModel* StochasticWntCellCycleModel::CreateCellCycleModel()
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(StochasticWntCellCycleModel)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(StochasticWntCellCycleModel)

@@ -54,6 +54,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta4IvpOdeSolver.hpp"
 #include "CvodeAdaptor.hpp"
 
+#include "CellwiseData.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "AbstractCellBasedTestSuite.hpp"

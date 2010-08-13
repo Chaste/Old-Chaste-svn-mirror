@@ -364,7 +364,6 @@ void PetscTools::Terminate(const std::string& rMessage, const std::string& rFile
     else
     {
         exit(EXIT_FAILURE);
-        
     } 
 }
 #undef COVERAGE_IGNORE //Termination NEVER EVER happens under normal testing conditions.

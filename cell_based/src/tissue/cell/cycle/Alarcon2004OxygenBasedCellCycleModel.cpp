@@ -28,11 +28,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Alarcon2004OxygenBasedCellCycleModel.hpp"
 
+#include "CellwiseData.hpp"
+#include "CellLabel.hpp"
+#include "PetscTools.hpp" // For NEVER_REACHED
 
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : AbstractOdeBasedCellCycleModelWithStoppingEvent(SimulationTime::Instance()->GetTime(), pOdeSolver)
 {
-    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
+    if (!mpOdeSolver)
     {
         mpOdeSolver = CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
         mpOdeSolver->Initialise();
@@ -43,13 +46,13 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(boost
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel& rOtherModel)
     : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
 {
-    if (rOtherModel.mpOdeSystem != NULL)
+    if (rOtherModel.mpOdeSystem)
     {
         mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(*static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
     }
 
     // The other cell cycle model must have an ODE solver set up
-    assert(mpOdeSolver != boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
+    assert(mpOdeSolver);
 }
 
 
@@ -161,3 +164,5 @@ bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(Alarcon2004OxygenBasedCellCycleModel)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(Alarcon2004OxygenBasedCellCycleModel)

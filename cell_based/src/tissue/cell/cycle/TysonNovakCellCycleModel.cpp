@@ -34,8 +34,8 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(boost::shared_ptr<AbstractCel
     mpOdeSystem = new TysonNovak2001OdeSystem;
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 
-    ///\todo #1427 - extra this setup into a new method
-    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
+    ///\todo #1427 - extract this setup into a new method? Not needed here since only occurs once
+    if (!mpOdeSolver)
     {
 #ifdef CHASTE_CVODE
         mpOdeSolver = CellCycleModelOdeSolver<TysonNovakCellCycleModel, CvodeAdaptor>::Instance();
@@ -61,7 +61,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleMode
     }
 
     // The other cell cycle model must have an ODE solver set up
-    assert(mpOdeSolver != boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
+    assert(mpOdeSolver);
 }
 
 void TysonNovakCellCycleModel::ResetForDivision()
@@ -160,3 +160,5 @@ bool TysonNovakCellCycleModel::CanCellTerminallyDifferentiate()
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(TysonNovakCellCycleModel)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(TysonNovakCellCycleModel)

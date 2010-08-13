@@ -59,3 +59,5 @@ AbstractCellCycleModel* VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::Create
 // Declare identifier for the serializer
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo)

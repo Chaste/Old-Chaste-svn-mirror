@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 WntCellCycleModel::WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : AbstractWntOdeBasedCellCycleModel(pOdeSolver)
 {
-    if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
+    if (!mpOdeSolver)
     {
 #ifdef CHASTE_CVODE
         mpOdeSolver = CellCycleModelOdeSolver<WntCellCycleModel, CvodeAdaptor>::Instance();
@@ -137,3 +137,5 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(WntCellCycleModel)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(WntCellCycleModel)

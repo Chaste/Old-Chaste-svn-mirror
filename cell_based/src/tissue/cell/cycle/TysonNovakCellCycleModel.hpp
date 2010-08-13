@@ -29,22 +29,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TYSONNOVAKCELLCYCLEMODEL_HPP_
 
 #include "ChasteSerialization.hpp"
-
-#include <iostream>
+#include <boost/serialization/base_object.hpp>
 
 #include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
 #include "TysonNovak2001OdeSystem.hpp"
-#include "Exception.hpp"
 
-#include "CellCycleModelOdeSolver.hpp"
-#ifdef CHASTE_CVODE
-#include "CvodeAdaptor.hpp"
-#endif //CHASTE_CVODE
-#include "BackwardEulerIvpOdeSolver.hpp"
-#include "EulerIvpOdeSolver.hpp"
-#include "HeunIvpOdeSolver.hpp"
-#include "RungeKutta2IvpOdeSolver.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
 
 /**
  *  Tyson-Novak 2001 cell cycle model, taken from the version at  doi:10.1006/jtbi.2001.2293
@@ -150,9 +139,12 @@ public:
 };
 
 
-#include "SerializationExportWrapper.hpp"
 // Declare identifier for the serializer
+#include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(TysonNovakCellCycleModel)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(TysonNovakCellCycleModel)
+
 
 namespace boost
 {
@@ -186,14 +178,5 @@ inline void load_construct_data(
 }
 } // namespace ...
 
-
-#ifdef CHASTE_CVODE
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, CvodeAdaptor)
-#endif //CHASTE_CVODE
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, EulerIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, HeunIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, RungeKutta2IvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, TysonNovakCellCycleModel, RungeKutta4IvpOdeSolver)
 
 #endif /*TYSONNOVAKCELLCYCLEMODEL_HPP_*/

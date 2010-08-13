@@ -101,7 +101,10 @@ CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::CellCycleModelOdeSolver()
     : AbstractCellCycleModelOdeSolver()
 {
     // Make sure there's only one instance; enforces correct serialization
-    if (mpInstance != NULL)
+    ///\todo #1427 I don't think this is doing what you think it is - on executing this,
+    /// any objects pointing to the old instance will still point to it, and because they're
+    /// using shared_ptr, will keep it alive.
+    if (mpInstance)
     {
         mpInstance.reset();
     }
@@ -110,7 +113,7 @@ CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::CellCycleModelOdeSolver()
 template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
 CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>& CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::operator= (const CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>& rOtherCellCycleModelOdeSolver)
 {
-    mpInstance.reset(rOtherCellCycleModelOdeSolver.mpInstance);
+    mpInstance = rOtherCellCycleModelOdeSolver.mpInstance;
     mpOdeSolver = rOtherCellCycleModelOdeSolver.mpOdeSolver;
     mSizeOfOdeSystem = rOtherCellCycleModelOdeSolver.mSizeOfOdeSystem;
 }
@@ -128,7 +131,7 @@ boost::shared_ptr<CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER> > CellCy
 template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
 bool CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::IsSetUp()
 {
-    return (mpInstance!=NULL) && (mpOdeSolver!=NULL);
+    return mpInstance && mpOdeSolver;
 }
 
 template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
@@ -198,7 +201,7 @@ CellCycleModelOdeSolver<CELL_CYCLE_MODEL, BackwardEulerIvpOdeSolver>::CellCycleM
     : AbstractCellCycleModelOdeSolver()
 {
     // Make sure there's only one instance - enforces correct serialization
-    if (mpInstance != NULL)
+    if (mpInstance)
     {
         mpInstance.reset();
     }

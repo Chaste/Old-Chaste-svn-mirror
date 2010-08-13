@@ -31,16 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractVanLeeuwen2009WntSwatCellCycleModel.hpp"
 
-#include "CellCycleModelOdeSolver.hpp"
-#ifdef CHASTE_CVODE
-#include "CvodeAdaptor.hpp"
-#endif //CHASTE_CVODE
-#include "BackwardEulerIvpOdeSolver.hpp"
-#include "EulerIvpOdeSolver.hpp"
-#include "HeunIvpOdeSolver.hpp"
-#include "RungeKutta2IvpOdeSolver.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-
 /**
  * Concrete Van Leeuwen 2009 cell cycle model, using hypothesis one (see paper).
  */
@@ -83,6 +73,8 @@ public:
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(VanLeeuwen2009WntSwatCellCycleModelHypothesisOne)
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(VanLeeuwen2009WntSwatCellCycleModelHypothesisOne)
 
 namespace boost
 {
@@ -115,14 +107,5 @@ inline void load_construct_data(
 }
 }
 } // namespace
-
-#ifdef CHASTE_CVODE
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisOne, CvodeAdaptor)
-#endif //CHASTE_CVODE
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisOne, BackwardEulerIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisOne, EulerIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisOne, HeunIvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisOne, RungeKutta2IvpOdeSolver)
-EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, VanLeeuwen2009WntSwatCellCycleModelHypothesisOne, RungeKutta4IvpOdeSolver)
 
 #endif /* VANLEEUWEN2009WNTSWATCELLCYCLEMODELHYPOTHESISONE_HPP_ */

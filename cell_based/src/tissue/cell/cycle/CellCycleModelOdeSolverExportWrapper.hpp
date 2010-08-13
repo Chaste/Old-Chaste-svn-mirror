@@ -30,6 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define CELLCYCLEMODELODESOLVEREXPORTWRAPPER_HPP_
 
 #include "CellCycleModelOdeSolver.hpp"
+
+// Possible ODE solvers.
+// We might be able to just do "class CvodeAdaptor;" etc rather than #include here,
+// but it probably wouldn't make much difference to build speed.
 #include "CvodeAdaptor.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
@@ -37,11 +41,34 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "RungeKutta2IvpOdeSolver.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
 
-#define EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(CLASS) \
-    EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, CLASS, BackwardEulerIvpOdeSolver) \
-    EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, CLASS, EulerIvpOdeSolver) \
-    EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, CLASS, HeunIvpOdeSolver) \
-    EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, CLASS, RungeKutta2IvpOdeSolver) \
-    EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, CLASS, RungeKutta4IvpOdeSolver)
-
 #endif /*CELLCYCLEMODELODESOLVEREXPORTWRAPPERHPP_*/
+
+// The following comes after the include guard, because it will expand to something
+// different in .hpp and .cpp contexts
+
+#ifdef EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER
+// Avoid re-definition error in .cpp
+#undef EXPORT_CCM_INTERNAL
+#undef EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER
+#endif // EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER
+
+#define EXPORT_CCM_INTERNAL(CCM_CLASS, ODE_SOLVER) \
+    EXPORT_TEMPLATE_CLASS2(CellCycleModelOdeSolver, CCM_CLASS, ODE_SOLVER)
+
+#ifdef CHASTE_CVODE
+#ifdef EXPORT_CCM_CVODE
+// Avoid re-definition error in .cpp
+#undef EXPORT_CCM_CVODE
+#endif // EXPORT_CCM_CVODE
+#define EXPORT_CCM_CVODE(CCM_CLASS) EXPORT_CCM_INTERNAL(CCM_CLASS, CvodeAdaptor)
+#else
+#define EXPORT_CCM_CVODE(CCM_CLASS)
+#endif // CHASTE_CVODE
+
+#define EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(CCM_CLASS)         \
+    EXPORT_CCM_CVODE(CCM_CLASS)                               \
+    EXPORT_CCM_INTERNAL(CCM_CLASS, BackwardEulerIvpOdeSolver) \
+    EXPORT_CCM_INTERNAL(CCM_CLASS, EulerIvpOdeSolver)         \
+    EXPORT_CCM_INTERNAL(CCM_CLASS, HeunIvpOdeSolver)          \
+    EXPORT_CCM_INTERNAL(CCM_CLASS, RungeKutta2IvpOdeSolver)   \
+    EXPORT_CCM_INTERNAL(CCM_CLASS, RungeKutta4IvpOdeSolver)
