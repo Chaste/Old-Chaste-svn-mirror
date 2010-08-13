@@ -37,12 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DistributedVectorFactory.hpp"
 #include <cstring>
 
-// For TestGeneratePPMeshWithBath
-#include "BidomainParaParaProblem.hpp"
-#include "LuoRudy1991BackwardEuler.hpp"
-#include "SimpleBathProblemSetup.hpp"
-
-
 class TestPCTwoLevelsBlockDiagonal : public CxxTest::TestSuite
 {
 public:
@@ -242,20 +236,26 @@ public:
         VecDestroy(parallel_layout);
     }
 
-//    /*
-//     *  Use this test to generate a matrix and vector coming from a PP simulation with bath and to
-//     * work out the indices of the nodes in the bath.
-//     * 
-//     *  In order to get it to work you need to comment out the following lines:
-//     *
-//     *    delete mpSolver;
-//     *    mpSolver = NULL;
-//     *
-//     * in AbstractCardiacProblem.cpp (469 and 470 at the time of writing this) so that you don't
-//     * destroy the cardiac solver and the end of Solve() and you can get the matrix and vector 
-//     * object afterwards. Otherwise you will get a segfault when trying to get the linear system
-//     * out of the solver object. 
-//     */    
+    /*
+     *  Use this test to generate a matrix and vector coming from a PP simulation with bath and to
+     * work out the indices of the nodes in the bath.
+     * 
+     *  In order to get it to work you need to comment out the following lines:
+     *
+     *    delete mpSolver;
+     *    mpSolver = NULL;
+     *
+     * in AbstractCardiacProblem.cpp (469 and 470 at the time of writing this) so that you don't
+     * destroy the cardiac solver and the end of Solve(). Otherwise you will get a segfault when
+     * trying to get the linear system out of the solver object.
+     *
+     *  Add the following includes as well:
+     * 
+     *    #include "BidomainParaParaProblem.hpp"
+     *    #include "LuoRudy1991BackwardEuler.hpp"
+     *    #include "SimpleBathProblemSetup.hpp"
+     * 
+     */    
 //    void TestWriteOutPPWithBathLinearSystem()
 //    {
 //        char output_folder[] = "LAParaParaBath2d";
