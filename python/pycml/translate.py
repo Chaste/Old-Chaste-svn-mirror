@@ -4085,13 +4085,13 @@ class ConfigurationStore(object):
         if assume_valid:
             return
         names_used = [var.oxmeta_name for var in self.metadata_vars]
+        DEBUG('metadata', 'Names found: ', names_used)
         # Check all metadata is allowed
-        if frozenset(names_used) <= cellml_metadata.METADATA_NAMES:
-            DEBUG('metadata', 'Metadata values are valid')
-        else:
-            DEBUG('metadata', 'Metadata values are NOT valid')
-            DEBUG('metadata', 'Names found: ', names_used)
-            raise ConfigurationError('Metadata values are NOT valid, try running with --assume-valid')
+        unknown_names = frozenset(names_used) - cellml_metadata.METADATA_NAMES
+        if unknown_names:
+            msg = ['Unrecognised oxmeta variable names found (run with --assume-valid to ignore):']
+            msg.extend(sorted(unknown_names))
+            raise ConfigurationError('\n  '.join(msg))
         # Check for duplicates
         d = {}
         for name in names_used:
