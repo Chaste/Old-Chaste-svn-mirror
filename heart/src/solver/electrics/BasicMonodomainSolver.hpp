@@ -39,9 +39,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  vector of the linear system to be solved. Much slower than MatrixBasedMonodomainSolver, 
  *  which computes the RHS with a matrix-vector product.
  */ 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BasicMonodomainSolver
-   : public AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM> 
+   : public AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM> 
 {
 protected:
     /** 
@@ -66,9 +66,9 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    BasicMonodomainSolver(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                          MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
-                          BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
+    BasicMonodomainSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                          MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
+                          BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                           unsigned numQuadPoints = 2);
     
     /** 

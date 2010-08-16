@@ -37,13 +37,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Assembler for assembling the LHS matrix and RHS vector of the linear
  *  systems solved in monodomain problems
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MonodomainAssembler
-   : public AbstractFeObjectAssembler<ELEM_DIM,SPACE_DIM,1,true,true,CARDIAC>
+   : public AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>
 {
 protected:
     /** The PDE to be solved. */
-    MonodomainPde<ELEM_DIM,SPACE_DIM>* mpMonodomainPde;
+    MonodomainPde<ELEMENT_DIM,SPACE_DIM>* mpMonodomainPde;
 
     /** Local cache of the configuration singleton instance*/
     HeartConfig* mpConfig;
@@ -69,13 +69,13 @@ protected:
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
-    c_matrix<double,1*(ELEM_DIM+1),1*(ELEM_DIM+1)> ComputeMatrixTerm(
-                c_vector<double, ELEM_DIM+1> &rPhi,
-                c_matrix<double, SPACE_DIM, ELEM_DIM+1> &rGradPhi,
+    c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
+                c_vector<double, ELEMENT_DIM+1> &rPhi,
+                c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
                 ChastePoint<SPACE_DIM> &rX,
                 c_vector<double,1> &rU,
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
-                Element<ELEM_DIM,SPACE_DIM>* pElement);
+                Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
      *  ComputeVectorTerm()
@@ -90,13 +90,13 @@ protected:
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
-    c_vector<double,1*(ELEM_DIM+1)> ComputeVectorTerm(
-                c_vector<double, ELEM_DIM+1> &rPhi,
-                c_matrix<double, SPACE_DIM, ELEM_DIM+1> &rGradPhi /* not used */,
+    c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
+                c_vector<double, ELEMENT_DIM+1> &rPhi,
+                c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi /* not used */,
                 ChastePoint<SPACE_DIM> &rX /* not used */,
                 c_vector<double,1> &rU,
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
-                Element<ELEM_DIM,SPACE_DIM>* pElement /* not used */);
+                Element<ELEMENT_DIM,SPACE_DIM>* pElement /* not used */);
 
     /**
      * ComputeVectorSurfaceTerm()
@@ -109,9 +109,9 @@ protected:
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rX The point in space
      */
-    c_vector<double, ELEM_DIM> ComputeVectorSurfaceTerm(
-                const BoundaryElement<ELEM_DIM-1,SPACE_DIM>& rSurfaceElement,
-                c_vector<double, ELEM_DIM>& rPhi,
+    c_vector<double, ELEMENT_DIM> ComputeVectorSurfaceTerm(
+                const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+                c_vector<double, ELEMENT_DIM>& rPhi,
                 ChastePoint<SPACE_DIM>& rX);
 
     
@@ -142,8 +142,8 @@ public:
      * @param dt timestep
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    MonodomainAssembler(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                        MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
+    MonodomainAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                        MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
                         double dt,
                         unsigned numQuadPoints = 2);
 };

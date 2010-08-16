@@ -66,7 +66,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Note: this is a global function, hence the need for a long name to avoid
  * potential conflicting names
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeResidual(SNES snes,
                                                                       Vec currentGuess,
                                                                       Vec residualVector,
@@ -90,7 +90,7 @@ PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeResidual(SNES snes,
  * Note: this is a global function, hence the need a long name to avoid
  * potential conflicting names
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian(SNES snes,
                                                                       Vec currentGuess,
                                                                       Mat* pGlobalJacobian,
@@ -121,15 +121,15 @@ PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian(SNES snes,
  * 
  *  Abstract solver for solving nonlinear elliptic PDEs. 
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractNonlinearAssemblerSolverHybrid : public AbstractFeObjectAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM,true,true,NONLINEAR>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+class AbstractNonlinearAssemblerSolverHybrid : public AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,true,NONLINEAR>
 {
 protected:
     /** Mesh class */
-    AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* mpMesh;
+    AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
 
     /** Boundary conditions container */
-    BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,PROBLEM_DIM>* mpBoundaryConditions;
+    BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>* mpBoundaryConditions;
 
     /** The nonlinear solver. */
     AbstractNonlinearSolver* mpSolver;
@@ -197,8 +197,8 @@ public :
      * @param pBoundaryConditions The boundary conditions to apply
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    AbstractNonlinearAssemblerSolverHybrid(AbstractTetrahedralMesh<ELEM_DIM, SPACE_DIM>* pMesh,
-                                           BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* pBoundaryConditions,
+    AbstractNonlinearAssemblerSolverHybrid(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+                                           BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBoundaryConditions,
                                            unsigned numQuadPoints = 2);
 
     /**
@@ -243,22 +243,22 @@ public :
 };
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractNonlinearAssemblerSolverHybrid(
-            AbstractTetrahedralMesh<ELEM_DIM, SPACE_DIM>* pMesh,
-            BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* pBoundaryConditions,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::AbstractNonlinearAssemblerSolverHybrid(
+            AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
+            BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* pBoundaryConditions,
             unsigned numQuadPoints)
-    :  AbstractFeObjectAssembler<ELEM_DIM,SPACE_DIM,PROBLEM_DIM,true,true,NONLINEAR>(pMesh,numQuadPoints),
+    :  AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM,true,true,NONLINEAR>(pMesh,numQuadPoints),
        mpMesh(pMesh),
        mpBoundaryConditions(pBoundaryConditions)
 {
-    // if this is run with SPACE_DIM != ELEM_DIM the class has to be checked -
-    // lots of places where should be using SPACE_DIM not ELEM_DIM??
-    assert(SPACE_DIM==ELEM_DIM);
+    // if this is run with SPACE_DIM != ELEMENT_DIM the class has to be checked -
+    // lots of places where should be using SPACE_DIM not ELEMENT_DIM??
+    assert(SPACE_DIM==ELEMENT_DIM);
     assert(pMesh!=NULL);
     assert(pBoundaryConditions!=NULL);
 
-   // mpAssembler = new SimpleNonlinearEllipticPdeAssembler<ELEM_DIM,SPACE_DIM>(mpMesh,pPde,numQuadPoints);
+   // mpAssembler = new SimpleNonlinearEllipticPdeAssembler<ELEMENT_DIM,SPACE_DIM>(mpMesh,pPde,numQuadPoints);
     mpSolver = new SimplePetscNonlinearSolver;
     mWeAllocatedSolverMemory = true;
 
@@ -268,8 +268,8 @@ AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::Abstra
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::~AbstractNonlinearAssemblerSolverHybrid()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::~AbstractNonlinearAssemblerSolverHybrid()
 {
     if (mWeAllocatedSolverMemory)
     {
@@ -277,8 +277,8 @@ AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::~Abstr
     }
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::ApplyDirichletConditions(Vec currentGuess, Vec residual, Mat* pJacobian)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ApplyDirichletConditions(Vec currentGuess, Vec residual, Mat* pJacobian)
 {
     if (residual)
     {
@@ -293,8 +293,8 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::A
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeResidual(const Vec currentGuess, Vec residualVector)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeResidual(const Vec currentGuess, Vec residualVector)
 {
     this->SetVectorToAssemble(residualVector,true);
     this->SetCurrentSolution(currentGuess);
@@ -307,8 +307,8 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::C
     ApplyDirichletConditions(currentGuess, residualVector, NULL);
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeJacobian(const Vec currentGuess, Mat* pJacobian)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeJacobian(const Vec currentGuess, Mat* pJacobian)
 {
     if (mUseAnalyticalJacobian)
     {
@@ -331,8 +331,8 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::C
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeJacobianNumerically(const Vec currentGuess, Mat* pJacobian)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::ComputeJacobianNumerically(const Vec currentGuess, Mat* pJacobian)
 {
     unsigned num_unknowns = PROBLEM_DIM * this->mpMesh->GetNumNodes();
 
@@ -407,9 +407,9 @@ void AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::C
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-Vec AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Vec initialGuess,
-                                                                                    bool useAnalyticalJacobian)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+Vec AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::Solve(Vec initialGuess,
+                                                                                       bool useAnalyticalJacobian)
 {
     assert(initialGuess!=NULL);
     mUseAnalyticalJacobian = useAnalyticalJacobian;
@@ -427,8 +427,8 @@ Vec AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::So
 
     // run the solver, telling it which global functions to call in order to assemble
     // the residual or jacobian
-    return mpSolver->Solve(&AbstractNonlinearAssemblerSolverHybrid_ComputeResidual<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>,
-                           &AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>,
+    return mpSolver->Solve(&AbstractNonlinearAssemblerSolverHybrid_ComputeResidual<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
+                           &AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>,
                            initialGuess,
                            PROBLEM_DIM * this->mpMesh->CalculateMaximumNodeConnectivityPerProcess(), 
                            this);
@@ -437,8 +437,8 @@ Vec AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::So
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-void AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>::SetNonlinearSolver(AbstractNonlinearSolver* pNonlinearSolver)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+void AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>::SetNonlinearSolver(AbstractNonlinearSolver* pNonlinearSolver)
 {
     if (mWeAllocatedSolverMemory)
     {
@@ -500,13 +500,13 @@ bool AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 ////////////////////////////////////////////////////////////////////////////////////
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeResidual(SNES snes, Vec currentGuess,
                                                                       Vec residualVector, void* pContext)
 {
     // Extract the solver from the void*
-    AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* p_solver =
-        (AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
+    AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* p_solver =
+        (AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
 
     p_solver->ComputeResidual(currentGuess, residualVector);
 
@@ -516,14 +516,14 @@ PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeResidual(SNES snes,
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 PetscErrorCode AbstractNonlinearAssemblerSolverHybrid_ComputeJacobian(SNES snes, Vec currentGuess,
                                                                       Mat* pGlobalJacobian, Mat* pPreconditioner,
                                                                       MatStructure* pMatStructure, void* pContext)
 {
     // Extract the solver from the void*
-    AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>* p_solver =
-        (AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
+    AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>* p_solver =
+        (AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>*) pContext;
 
     p_solver->ComputeJacobian(currentGuess, pGlobalJacobian);
 

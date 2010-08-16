@@ -29,16 +29,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleNonlinearEllipticSolver.hpp"
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_matrix<double,1*(ELEM_DIM+1),1*(ELEM_DIM+1)> SimpleNonlinearEllipticSolver<ELEM_DIM,SPACE_DIM>::ComputeMatrixTerm(
-        c_vector<double, ELEM_DIM+1>& rPhi,
-        c_matrix<double, SPACE_DIM, ELEM_DIM+1>& rGradPhi,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> SimpleNonlinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
         ChastePoint<SPACE_DIM>& rX,
         c_vector<double,1>& rU,
         c_matrix<double,1,SPACE_DIM>& rGradU,
-        Element<ELEM_DIM,SPACE_DIM>* pElement)
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    c_matrix<double, ELEM_DIM+1, ELEM_DIM+1> ret;
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> ret;
 
     c_matrix<double, SPACE_DIM, SPACE_DIM> f_of_u = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX, rU(0));
     c_matrix<double, SPACE_DIM, SPACE_DIM> f_of_u_prime = mpNonlinearEllipticPde->ComputeDiffusionTermPrime(rX, rU(0));
@@ -50,28 +50,28 @@ c_matrix<double,1*(ELEM_DIM+1),1*(ELEM_DIM+1)> SimpleNonlinearEllipticSolver<ELE
     // u (ie in this problem the unknown is a scalar). r_gradu_0 is rGradU as a vector
     matrix_row< c_matrix<double, 1, SPACE_DIM> > r_gradu_0(rGradU, 0);
     c_vector<double, SPACE_DIM> temp1 = prod(f_of_u_prime, r_gradu_0);
-    c_vector<double, ELEM_DIM+1> temp1a = prod(temp1, rGradPhi);
+    c_vector<double, ELEMENT_DIM+1> temp1a = prod(temp1, rGradPhi);
 
-    c_matrix<double, ELEM_DIM+1, ELEM_DIM+1> integrand_values1 = outer_prod(temp1a, rPhi);
-    c_matrix<double, SPACE_DIM, ELEM_DIM+1> temp2 = prod(f_of_u, rGradPhi);
-    c_matrix<double, ELEM_DIM+1, ELEM_DIM+1> integrand_values2 = prod(trans(rGradPhi), temp2);
-    c_vector<double, ELEM_DIM+1> integrand_values3 = forcing_term_prime * rPhi;
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values1 = outer_prod(temp1a, rPhi);
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> temp2 = prod(f_of_u, rGradPhi);
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> integrand_values2 = prod(trans(rGradPhi), temp2);
+    c_vector<double, ELEMENT_DIM+1> integrand_values3 = forcing_term_prime * rPhi;
 
-    ret = integrand_values1 + integrand_values2 - outer_prod( scalar_vector<double>(ELEM_DIM+1), integrand_values3);
+    ret = integrand_values1 + integrand_values2 - outer_prod( scalar_vector<double>(ELEMENT_DIM+1), integrand_values3);
 
     return ret;
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_vector<double,1*(ELEM_DIM+1)> SimpleNonlinearEllipticSolver<ELEM_DIM,SPACE_DIM>::ComputeVectorTerm(
-    c_vector<double, ELEM_DIM+1>& rPhi,
-    c_matrix<double, SPACE_DIM, ELEM_DIM+1>& rGradPhi,
-    ChastePoint<SPACE_DIM>& rX,
-    c_vector<double,1>& rU,
-    c_matrix<double,1,SPACE_DIM>& rGradU,
-    Element<ELEM_DIM,SPACE_DIM>* pElement)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double,1*(ELEMENT_DIM+1)> SimpleNonlinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
+        ChastePoint<SPACE_DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double,1,SPACE_DIM>& rGradU,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
-    c_vector<double, 1*(ELEM_DIM+1)> ret;
+    c_vector<double, 1*(ELEMENT_DIM+1)> ret;
 
     // For solving an AbstractNonlinearEllipticEquation
     // d/dx [f(U,x) du/dx ] = -g
@@ -79,37 +79,37 @@ c_vector<double,1*(ELEM_DIM+1)> SimpleNonlinearEllipticSolver<ELEM_DIM,SPACE_DIM
     double forcing_term = mpNonlinearEllipticPde->ComputeLinearSourceTerm(rX);
     forcing_term += mpNonlinearEllipticPde->ComputeNonlinearSourceTerm(rX, rU(0));
     
-    c_matrix<double, ELEM_DIM, ELEM_DIM> FOfU = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX, rU(0));
+    c_matrix<double, ELEMENT_DIM, ELEMENT_DIM> FOfU = mpNonlinearEllipticPde->ComputeDiffusionTerm(rX, rU(0));
 
     // note rGradU is a 1 by SPACE_DIM matrix, the 1 representing the dimension of
     // u (ie in this problem the unknown is a scalar). rGradU0 is rGradU as a vector.
     matrix_row< c_matrix<double, 1, SPACE_DIM> > rGradU0(rGradU, 0);
-    c_vector<double, ELEM_DIM+1> integrand_values1 =
-        prod(c_vector<double, ELEM_DIM>(prod(rGradU0, FOfU)), rGradPhi);
+    c_vector<double, ELEMENT_DIM+1> integrand_values1 =
+        prod(c_vector<double, ELEMENT_DIM>(prod(rGradU0, FOfU)), rGradPhi);
 
     ret = integrand_values1 - (forcing_term * rPhi);
     return ret;
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_vector<double, 1*ELEM_DIM> SimpleNonlinearEllipticSolver<ELEM_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
-    const BoundaryElement<ELEM_DIM-1,SPACE_DIM>& rSurfaceElement,
-    c_vector<double, ELEM_DIM>& rPhi,
-    ChastePoint<SPACE_DIM>& rX)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, 1*ELEMENT_DIM> SimpleNonlinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+        c_vector<double, ELEMENT_DIM>& rPhi,
+        ChastePoint<SPACE_DIM>& rX)
 {
     double Dgradu_dot_n = this->mpBoundaryConditions->GetNeumannBCValue(&rSurfaceElement, rX);
     return  (-Dgradu_dot_n)* rPhi;
 }
 
    
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-SimpleNonlinearEllipticSolver<ELEM_DIM,SPACE_DIM>::SimpleNonlinearEllipticSolver(
-                              AbstractTetrahedralMesh<ELEM_DIM, SPACE_DIM>* pMesh,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+SimpleNonlinearEllipticSolver<ELEMENT_DIM,SPACE_DIM>::SimpleNonlinearEllipticSolver(
+                              AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
                               AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
-                              BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, 1>* pBoundaryConditions,
+                              BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                               unsigned numQuadPoints)
-    :  AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM,SPACE_DIM,1>(pMesh,pBoundaryConditions,numQuadPoints),
+    :  AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM,SPACE_DIM,1>(pMesh,pBoundaryConditions,numQuadPoints),
        mpNonlinearEllipticPde(pPde)
 {
     assert(pPde!=NULL);

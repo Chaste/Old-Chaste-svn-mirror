@@ -51,9 +51,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  vector of the linear system to be solved. Much slower than MatrixBasedBidomainSolver, 
  *  which computes the RHS with a matrix-vector product.
  */ 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class BasicBidomainSolver :
-      public AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>
+      public AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>
 {
 protected:
     /** 
@@ -85,9 +85,9 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     BasicBidomainSolver(bool bathSimulation,
-                        AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+                        AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                         BidomainPde<SPACE_DIM>* pPde,
-                        BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, 2>* pBcc,
+                        BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
                         unsigned numQuadPoints = 2);
 
     /**

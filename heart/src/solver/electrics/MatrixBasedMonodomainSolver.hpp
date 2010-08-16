@@ -41,9 +41,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  solved using matrix-vector products, rather than assembly.
  *  Massively more efficient than BasicMonodomainSolver
  */ 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class MatrixBasedMonodomainSolver
-   : public AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM> 
+   : public AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM> 
 {
 private:
     /** The mass matrix, used to computing the RHS vector */
@@ -55,7 +55,7 @@ private:
     Vec mVecForConstructingRhs;
 
 //    // #1462
-//    MonodomainCorrectionTermAssembler<ELEM_DIM,SPACE_DIM>* mpMonodomainCorrectionTermAssembler;
+//    MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCorrectionTermAssembler;
 
     /** 
      *  Implementation of SetupLinearSystem() which uses the assembler to compute the
@@ -86,9 +86,9 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    MatrixBasedMonodomainSolver(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                                MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
-                                BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
+    MatrixBasedMonodomainSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
+                                BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                 unsigned numQuadPoints = 2);
                      
     /**

@@ -51,8 +51,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  system to be solved using matrix-vector products, rather than assembly.
  *  Massively more efficient than BasicBidomainSolver
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-class MatrixBasedBidomainSolver : public AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class MatrixBasedBidomainSolver : public AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>
 {
 private:
     /** Mass matrix, used to computing the RHS vector (actually: mass-matrix in
@@ -96,9 +96,9 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     MatrixBasedBidomainSolver(bool bathSimulation,
-                              AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+                              AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                               BidomainPde<SPACE_DIM>* pPde,
-                              BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* pBoundaryConditions,
+                              BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
                               unsigned numQuadPoints = 2);
 
     ~MatrixBasedBidomainSolver();

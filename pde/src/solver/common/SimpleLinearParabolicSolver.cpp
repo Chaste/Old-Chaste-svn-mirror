@@ -28,38 +28,38 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleLinearParabolicSolver.hpp"
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_matrix<double, 1*(ELEM_DIM+1), 1*(ELEM_DIM+1)> SimpleLinearParabolicSolver<ELEM_DIM,SPACE_DIM>::ComputeMatrixTerm(
-        c_vector<double, ELEM_DIM+1>& rPhi,
-        c_matrix<double, SPACE_DIM, ELEM_DIM+1>& rGradPhi,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_matrix<double, 1*(ELEMENT_DIM+1), 1*(ELEMENT_DIM+1)> SimpleLinearParabolicSolver<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
         ChastePoint<SPACE_DIM>& rX,
         c_vector<double,1>& rU,
         c_matrix<double,1,SPACE_DIM>& rGradU,
-        Element<ELEM_DIM,SPACE_DIM>* pElement)
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     c_matrix<double, SPACE_DIM, SPACE_DIM> pde_diffusion_term = mpParabolicPde->ComputeDiffusionTerm(rX, pElement);
 
-    return    prod( trans(rGradPhi), c_matrix<double, SPACE_DIM, ELEM_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
+    return    prod( trans(rGradPhi), c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>(prod(pde_diffusion_term, rGradPhi)) )
             + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * outer_prod(rPhi, rPhi);
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_vector<double,1*(ELEM_DIM+1)> SimpleLinearParabolicSolver<ELEM_DIM,SPACE_DIM>::ComputeVectorTerm(
-    c_vector<double, ELEM_DIM+1>& rPhi,
-    c_matrix<double, SPACE_DIM, ELEM_DIM+1>& rGradPhi,
-    ChastePoint<SPACE_DIM>& rX,
-    c_vector<double,1>& rU,
-    c_matrix<double,1,SPACE_DIM>& rGradU,
-    Element<ELEM_DIM,SPACE_DIM>* pElement)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double,1*(ELEMENT_DIM+1)> SimpleLinearParabolicSolver<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
+        ChastePoint<SPACE_DIM>& rX,
+        c_vector<double,1>& rU,
+        c_matrix<double,1,SPACE_DIM>& rGradU,
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     return (mpParabolicPde->ComputeNonlinearSourceTerm(rX, rU(0)) + mpParabolicPde->ComputeLinearSourceTerm(rX)
             + this->mDtInverse * mpParabolicPde->ComputeDuDtCoefficientFunction(rX) * rU(0)) * rPhi;
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_vector<double, ELEM_DIM>SimpleLinearParabolicSolver<ELEM_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEM_DIM-1,SPACE_DIM>& rSurfaceElement,
-        c_vector<double, ELEM_DIM>& rPhi,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, ELEMENT_DIM>SimpleLinearParabolicSolver<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+        c_vector<double, ELEMENT_DIM>& rPhi,
         ChastePoint<SPACE_DIM>& rX)
 {
     // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
@@ -68,14 +68,14 @@ c_vector<double, ELEM_DIM>SimpleLinearParabolicSolver<ELEM_DIM,SPACE_DIM>::Compu
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-SimpleLinearParabolicSolver<ELEM_DIM,SPACE_DIM>::SimpleLinearParabolicSolver(
-                            AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                            AbstractLinearParabolicPde<ELEM_DIM,SPACE_DIM>* pPde,
-                            BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+SimpleLinearParabolicSolver<ELEMENT_DIM,SPACE_DIM>::SimpleLinearParabolicSolver(
+                            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                            AbstractLinearParabolicPde<ELEMENT_DIM,SPACE_DIM>* pPde,
+                            BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                             unsigned numQuadPoints)
-    : AbstractAssemblerSolverHybrid<ELEM_DIM,SPACE_DIM,1,NORMAL>(pMesh,pBoundaryConditions,numQuadPoints),
-      AbstractDynamicLinearPdeSolver<ELEM_DIM,SPACE_DIM,1>(pMesh)
+    : AbstractAssemblerSolverHybrid<ELEMENT_DIM,SPACE_DIM,1,NORMAL>(pMesh,pBoundaryConditions,numQuadPoints),
+      AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>(pMesh)
 {
     mpParabolicPde = pPde;
     this->mMatrixIsConstant = true;

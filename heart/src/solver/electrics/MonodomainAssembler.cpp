@@ -31,14 +31,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MonodomainAssembler.hpp"
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_matrix<double,1*(ELEM_DIM+1),1*(ELEM_DIM+1)> MonodomainAssembler<ELEM_DIM,SPACE_DIM>::ComputeMatrixTerm(
-                c_vector<double, ELEM_DIM+1> &rPhi,
-                c_matrix<double, SPACE_DIM, ELEM_DIM+1> &rGradPhi,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeMatrixTerm(
+                c_vector<double, ELEMENT_DIM+1> &rPhi,
+                c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi,
                 ChastePoint<SPACE_DIM> &rX,
                 c_vector<double,1> &rU,
                 c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
-                Element<ELEM_DIM,SPACE_DIM>* pElement)
+                Element<ELEMENT_DIM,SPACE_DIM>* pElement)
 {
     // get bidomain parameters
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
@@ -46,11 +46,11 @@ c_matrix<double,1*(ELEM_DIM+1),1*(ELEM_DIM+1)> MonodomainAssembler<ELEM_DIM,SPAC
 
     const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = mpMonodomainPde->rGetIntracellularConductivityTensor(pElement->GetIndex());
 
-    c_matrix<double, SPACE_DIM, ELEM_DIM+1> temp = prod(sigma_i, rGradPhi);
-    c_matrix<double, ELEM_DIM+1, ELEM_DIM+1> grad_phi_sigma_i_grad_phi =
+    c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, rGradPhi);
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_i_grad_phi =
         prod(trans(rGradPhi), temp);
 
-    c_matrix<double, ELEM_DIM+1, ELEM_DIM+1> basis_outer_prod =
+    c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> basis_outer_prod =
         outer_prod(rPhi, rPhi);
 
     return (Am*Cm/this->mDt)*basis_outer_prod + grad_phi_sigma_i_grad_phi;
@@ -58,14 +58,14 @@ c_matrix<double,1*(ELEM_DIM+1),1*(ELEM_DIM+1)> MonodomainAssembler<ELEM_DIM,SPAC
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_vector<double,1*(ELEM_DIM+1)> MonodomainAssembler<ELEM_DIM,SPACE_DIM>::ComputeVectorTerm(
-        c_vector<double, ELEM_DIM+1> &rPhi,
-        c_matrix<double, SPACE_DIM, ELEM_DIM+1> &rGradPhi /* not used */,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double,1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorTerm(
+        c_vector<double, ELEMENT_DIM+1> &rPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> &rGradPhi /* not used */,
         ChastePoint<SPACE_DIM> &rX /* not used */,
         c_vector<double,1> &rU,
         c_matrix<double, 1, SPACE_DIM> &rGradU /* not used */,
-        Element<ELEM_DIM,SPACE_DIM>* pElement /* not used */)
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement /* not used */)
 {
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
     double Cm = mpConfig->GetCapacitance();
@@ -75,10 +75,10 @@ c_vector<double,1*(ELEM_DIM+1)> MonodomainAssembler<ELEM_DIM,SPACE_DIM>::Compute
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-c_vector<double, ELEM_DIM> MonodomainAssembler<ELEM_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
-       const BoundaryElement<ELEM_DIM-1,SPACE_DIM>& rSurfaceElement,
-       c_vector<double, ELEM_DIM>& rPhi,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+c_vector<double, ELEMENT_DIM> MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::ComputeVectorSurfaceTerm(
+       const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+       c_vector<double, ELEMENT_DIM>& rPhi,
        ChastePoint<SPACE_DIM>& rX)
 {
     // D_times_gradu_dot_n = [D grad(u)].n, D=diffusion matrix
@@ -87,21 +87,21 @@ c_vector<double, ELEM_DIM> MonodomainAssembler<ELEM_DIM,SPACE_DIM>::ComputeVecto
 }
     
  
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void MonodomainAssembler<ELEM_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
 {
     unsigned node_global_index = pNode->GetIndex();
     mIionic                 += phiI * mpMonodomainPde->rGetIionicCacheReplicated()[ node_global_index ];
     mIIntracellularStimulus += phiI * mpMonodomainPde->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
 }   
     
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MonodomainAssembler<ELEM_DIM,SPACE_DIM>::MonodomainAssembler(
-                        AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                        MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainAssembler(
+                        AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                        MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
                         double dt,
                         unsigned numQuadPoints)
-    : AbstractFeObjectAssembler<ELEM_DIM,SPACE_DIM,1,true,true,CARDIAC>(pMesh,numQuadPoints),
+    : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>(pMesh,numQuadPoints),
       mpMonodomainPde(pPde),
       mDt(dt)
 {

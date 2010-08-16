@@ -35,8 +35,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /** 
  *  Solver of nonlinear elliptic PDEs
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-class SimpleNonlinearEllipticSolver : public AbstractNonlinearAssemblerSolverHybrid<ELEM_DIM,SPACE_DIM,1>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class SimpleNonlinearEllipticSolver : public AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM,SPACE_DIM,1>
 {
 private:
     /** The PDE to be solved. */
@@ -56,13 +56,13 @@ private:
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
-    virtual c_matrix<double,1*(ELEM_DIM+1),1*(ELEM_DIM+1)> ComputeMatrixTerm(
-        c_vector<double, ELEM_DIM+1>& rPhi,
-        c_matrix<double, SPACE_DIM, ELEM_DIM+1>& rGradPhi,
+    virtual c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> ComputeMatrixTerm(
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
         ChastePoint<SPACE_DIM>& rX,
         c_vector<double,1>& rU,
         c_matrix<double,1,SPACE_DIM>& rGradU,
-        Element<ELEM_DIM,SPACE_DIM>* pElement);
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
      * This method returns the vector to be added to element stiffness vector
@@ -78,13 +78,13 @@ private:
      * @param rGradU The gradient of the unknown as a matrix, rGradU(i,j) = d(u_i)/d(X_j)
      * @param pElement Pointer to the element
      */
-    virtual c_vector<double,1*(ELEM_DIM+1)> ComputeVectorTerm(
-        c_vector<double, ELEM_DIM+1>& rPhi,
-        c_matrix<double, SPACE_DIM, ELEM_DIM+1>& rGradPhi,
+    virtual c_vector<double,1*(ELEMENT_DIM+1)> ComputeVectorTerm(
+        c_vector<double, ELEMENT_DIM+1>& rPhi,
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM+1>& rGradPhi,
         ChastePoint<SPACE_DIM>& rX,
         c_vector<double,1>& rU,
         c_matrix<double,1,SPACE_DIM>& rGradU,
-        Element<ELEM_DIM,SPACE_DIM>* pElement);
+        Element<ELEMENT_DIM,SPACE_DIM>* pElement);
 
     /**
      * This method returns the vector to be added to element stiffness vector
@@ -97,9 +97,9 @@ private:
      * @param rPhi The basis functions, rPhi(i) = phi_i, i=1..numBases
      * @param rX The point in space
      */
-    virtual c_vector<double, 1*ELEM_DIM> ComputeVectorSurfaceTerm(
-        const BoundaryElement<ELEM_DIM-1,SPACE_DIM>& rSurfaceElement,
-        c_vector<double, ELEM_DIM>& rPhi,
+    virtual c_vector<double, 1*ELEMENT_DIM> ComputeVectorSurfaceTerm(
+        const BoundaryElement<ELEMENT_DIM-1,SPACE_DIM>& rSurfaceElement,
+        c_vector<double, ELEMENT_DIM>& rPhi,
         ChastePoint<SPACE_DIM>& rX);
 
 public:
@@ -111,9 +111,9 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points in each dimension to use per element (defaults to 2)
      */
-    SimpleNonlinearEllipticSolver(AbstractTetrahedralMesh<ELEM_DIM, SPACE_DIM>* pMesh,
+    SimpleNonlinearEllipticSolver(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>* pMesh,
                                   AbstractNonlinearEllipticPde<SPACE_DIM>* pPde,
-                                  BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, 1>* pBoundaryConditions,
+                                  BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 1>* pBoundaryConditions,
                                   unsigned numQuadPoints=2);
 };
 

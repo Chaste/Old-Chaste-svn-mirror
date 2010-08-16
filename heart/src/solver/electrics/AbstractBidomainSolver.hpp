@@ -39,8 +39,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Inherits from AbstractDynamicLinearPdeSolver so child classes must
  *  implement SetupLinearSystem()
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-class AbstractBidomainSolver : public AbstractDynamicLinearPdeSolver<ELEM_DIM,SPACE_DIM,2>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+class AbstractBidomainSolver : public AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,2>
 {
 protected:    
     /** Whether the simulation involves a perfusing bath */
@@ -50,13 +50,13 @@ protected:
     BidomainPde<SPACE_DIM>* mpBidomainPde;
 
     /** Boundary conditions */    
-    BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* mpBoundaryConditions;
+    BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* mpBoundaryConditions;
 
     /**
      *  The bidomain assembler, used to set up the LHS matrix,
      *  (but not used to set uo the RHS)
      */
-    BidomainAssembler<ELEM_DIM,SPACE_DIM>* mpBidomainAssembler;
+    BidomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpBidomainAssembler;
     
     /**
      *  Number of quadrature points per dimension (only saved so it can be
@@ -152,9 +152,9 @@ public:
      * @param numQuadPoints  number of Gaussian quadrature points in each dimension
      */
     AbstractBidomainSolver(bool bathSimulation,
-                           AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+                           AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                            BidomainPde<SPACE_DIM>* pPde,
-                           BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* pBoundaryConditions,
+                           BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
                            unsigned numQuadPoints = 2);
                        
     /**
@@ -185,7 +185,7 @@ public:
     /**
      *  Get the boundary conditions being used
      */
-    BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* GetBoundaryConditions()
+    BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* GetBoundaryConditions()
     {
         return mpBoundaryConditions;
     }
@@ -195,7 +195,7 @@ public:
      *  the old bcc pointer.
      *  @param pBcc The new boundary conditions container.
      */ 
-    void ResetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* pBcc)
+    void ResetBoundaryConditionsContainer(BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBcc)
     {
         assert(pBcc);
         mpBoundaryConditions = pBcc;

@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void BasicMonodomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
 {
     assert(this->mpLinearSystem->rGetLhsMatrix() != NULL);
     assert(this->mpLinearSystem->rGetRhsVector() != NULL);
@@ -40,7 +40,7 @@ void BasicMonodomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSol
     // create assembler
     if(!this->mpMonodomainAssembler)
     {
-        this->mpMonodomainAssembler = new MonodomainAssembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainPde,this->mDt,this->mNumQuadPoints);
+        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainPde,this->mDt,this->mNumQuadPoints);
     }        
 
     // use assembler to assemble LHS matrix and RHS vector
@@ -66,13 +66,13 @@ void BasicMonodomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSol
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-BasicMonodomainSolver<ELEM_DIM,SPACE_DIM>::BasicMonodomainSolver(
-                 AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                 MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
-                 BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::BasicMonodomainSolver(
+                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                 MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
+                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                  unsigned numQuadPoints)
-    : AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)
+    : AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)
 {
     // Tell pde there is a need to replicate ionic caches
     pPde->SetCacheReplication(true);

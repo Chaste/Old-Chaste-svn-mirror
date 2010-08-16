@@ -62,8 +62,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
         
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(Vec currentSolution)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(Vec currentSolution)
 {
     // solve cell models
     double time = PdeSimulationTime::GetTime();
@@ -71,8 +71,8 @@ void AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(V
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
 {
     if (this->mpLinearSystem != NULL)
     {
@@ -80,7 +80,7 @@ void AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initia
     }
    
     // call base class version...
-    AbstractLinearPdeSolver<ELEM_DIM,SPACE_DIM,1>::InitialiseForSolve(initialSolution);
+    AbstractLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>::InitialiseForSolve(initialSolution);
 
     //..then do a bit extra
     if(HeartConfig::Instance()->GetUseAbsoluteTolerance())
@@ -99,13 +99,13 @@ void AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initia
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>::AbstractMonodomainSolver(
-                 AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                 MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
-                 BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::AbstractMonodomainSolver(
+                 AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                 MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
+                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                  unsigned numQuadPoints)
-    : AbstractDynamicLinearPdeSolver<ELEM_DIM,SPACE_DIM,1>(pMesh),
+    : AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>(pMesh),
       mpBoundaryConditions(pBoundaryConditions),
       mpMonodomainPde(pPde),
       mNumQuadPoints(numQuadPoints)
@@ -118,8 +118,8 @@ AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>::AbstractMonodomainSolver(
 }
     
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>::~AbstractMonodomainSolver()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~AbstractMonodomainSolver()
 {
     if(mpMonodomainAssembler)
     {

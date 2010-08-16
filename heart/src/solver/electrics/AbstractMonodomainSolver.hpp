@@ -39,23 +39,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Inherits from AbstractDynamicLinearPdeSolver so child classes must
  *  implement SetupLinearSystem()
  */
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class AbstractMonodomainSolver 
-   : public AbstractDynamicLinearPdeSolver<ELEM_DIM,SPACE_DIM,1>
+   : public AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>
 {
 protected:
     /** Boundary conditions */    
-    BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* mpBoundaryConditions;
+    BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* mpBoundaryConditions;
    
     /** Monodomain PDE class (collection of cells */
-    MonodomainPde<ELEM_DIM,SPACE_DIM>* mpMonodomainPde;
+    MonodomainPde<ELEMENT_DIM,SPACE_DIM>* mpMonodomainPde;
     
     /**
      *  The monodomain assembler, used to set up the LHS vector,
      *  and RHS vector in this solver (not used for RHS in
      *  MatrixBasedMonodomainSolver
      */
-    MonodomainAssembler<ELEM_DIM,SPACE_DIM>* mpMonodomainAssembler;
+    MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainAssembler;
     
     /**
      *  Number of quadrature points per dimension (only saved so it can be
@@ -88,9 +88,9 @@ public:
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
-    AbstractMonodomainSolver(AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-                             MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
-                             BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
+    AbstractMonodomainSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                             MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
+                             BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                              unsigned numQuadPoints = 2);
     
     /** 

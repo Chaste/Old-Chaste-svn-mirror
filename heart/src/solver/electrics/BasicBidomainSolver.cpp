@@ -30,21 +30,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-BasicBidomainSolver<ELEM_DIM,SPACE_DIM>::BasicBidomainSolver(
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+BasicBidomainSolver<ELEMENT_DIM,SPACE_DIM>::BasicBidomainSolver(
             bool bathSimulation,
-            AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             BidomainPde<SPACE_DIM>* pPde,
-            BoundaryConditionsContainer<ELEM_DIM, SPACE_DIM, 2>* pBcc,
+            BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
             unsigned numQuadPoints)
-    : AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>(bathSimulation,pMesh,pPde,pBcc,numQuadPoints)
+    : AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>(bathSimulation,pMesh,pPde,pBcc,numQuadPoints)
 {
     pPde->SetCacheReplication(true);
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void BasicBidomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BasicBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
 {
     assert(this->mpLinearSystem->rGetLhsMatrix() != NULL);
     assert(this->mpLinearSystem->rGetRhsVector() != NULL);
@@ -91,18 +91,18 @@ void BasicBidomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolut
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void BasicBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseAssembler()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void BasicBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseAssembler()
 {
     if(!this->mpBidomainAssembler)
     {
         if(this->mBathSimulation)
         {
-            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,this->mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,this->mNumQuadPoints);
         }
         else
         {
-            this->mpBidomainAssembler = new BidomainAssembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,this->mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,this->mNumQuadPoints);
         }
     }        
 }

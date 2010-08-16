@@ -31,8 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractBidomainSolver.hpp"
 #include "TetrahedralMesh.hpp"
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
 {
     if (this->mpLinearSystem != NULL)
     {
@@ -40,7 +40,7 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialS
     }
 
     // linear system created here
-    AbstractDynamicLinearPdeSolver<ELEM_DIM,SPACE_DIM,2>::InitialiseForSolve(initialSolution);
+    AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,2>::InitialiseForSolve(initialSolution);
 
     if (HeartConfig::Instance()->GetUseAbsoluteTolerance())
     {
@@ -63,7 +63,7 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialS
     if(std::string("twolevelsblockdiagonal") == std::string(HeartConfig::Instance()->GetKSPPreconditioner()))
     {
         /// \todo: #1082 only works if you know about the whole mesh.
-        TetrahedralMesh<ELEM_DIM,SPACE_DIM>* p_mesh = dynamic_cast<TetrahedralMesh<ELEM_DIM,SPACE_DIM>*>(this->mpMesh);
+        TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh = dynamic_cast<TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>*>(this->mpMesh);
         if (p_mesh && PetscTools::IsSequential())
         {
             boost::shared_ptr<std::vector<PetscInt> > p_bath_nodes(new std::vector<PetscInt>());
@@ -102,15 +102,15 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialS
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(Vec existingSolution)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(Vec existingSolution)
 {
     double time = PdeSimulationTime::GetTime();
     mpBidomainPde->SolveCellSystems(existingSolution, time, time+this->mDt);
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-Vec AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::GenerateNullBasis() const
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Vec AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::GenerateNullBasis() const
 {
     double sqrt_num_nodes = sqrt((double) this->mpMesh->GetNumNodes());
 
@@ -134,8 +134,8 @@ Vec AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::GenerateNullBasis() const
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::FinaliseLinearSystem(Vec existingSolution)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(Vec existingSolution)
 {
     if (!(GetBoundaryConditions()->HasDirichletBoundaryConditions()))
     {
@@ -192,8 +192,8 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::FinaliseLinearSystem(Vec existi
     CheckCompatibilityCondition();
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::CheckCompatibilityCondition()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
 {
     if (GetBoundaryConditions()->HasDirichletBoundaryConditions() || mRowForAverageOfPhiZeroed!=INT_MAX )
     {
@@ -222,14 +222,14 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::CheckCompatibilityCondition()
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::AbstractBidomainSolver(
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::AbstractBidomainSolver(
             bool bathSimulation,
-            AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
             BidomainPde<SPACE_DIM>* pPde,
-            BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,2>* pBoundaryConditions,
+            BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
             unsigned numQuadPoints)
-    : AbstractDynamicLinearPdeSolver<ELEM_DIM,SPACE_DIM,2>(pMesh),
+    : AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,2>(pMesh),
       mBathSimulation(bathSimulation),
       mpBidomainPde(pPde),
       mpBoundaryConditions(pBoundaryConditions),
@@ -249,8 +249,8 @@ AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::AbstractBidomainSolver(
     mpBidomainAssembler = NULL; // can't initialise until know what dt is
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::~AbstractBidomainSolver()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::~AbstractBidomainSolver()
 {
     if(mpBidomainAssembler)
     {
@@ -258,8 +258,8 @@ AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::~AbstractBidomainSolver()
     }
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::SetFixedExtracellularPotentialNodes(
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetFixedExtracellularPotentialNodes(
             std::vector<unsigned> fixedExtracellularPotentialNodes)
 {
     for (unsigned i=0; i<fixedExtracellularPotentialNodes.size(); i++)
@@ -291,8 +291,8 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::SetFixedExtracellularPotentialN
     }
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::SetRowForAverageOfPhiZeroed(unsigned row)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::SetRowForAverageOfPhiZeroed(unsigned row)
 {
     // Row should be odd in C++-like indexing
     if (row%2 == 0)
@@ -304,8 +304,8 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::SetRowForAverageOfPhiZeroed(uns
 }
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::FinaliseForBath(bool computeMatrix, bool computeVector)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseForBath(bool computeMatrix, bool computeVector)
 {
     assert(mBathSimulation);
     
@@ -320,7 +320,7 @@ void AbstractBidomainSolver<ELEM_DIM,SPACE_DIM>::FinaliseForBath(bool computeMat
         is_node_bath[i] = 0;
     }
 
-    for (typename AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
+    for (typename AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::NodeIterator iter=this->mpMesh->GetNodeIteratorBegin();
          iter != this->mpMesh->GetNodeIteratorEnd();
          ++iter)
     {

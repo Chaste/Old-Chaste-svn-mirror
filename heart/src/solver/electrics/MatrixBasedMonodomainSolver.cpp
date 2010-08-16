@@ -30,15 +30,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MassMatrixAssembler.hpp"
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec currentSolution, bool computeMatrix)
 {
     assert(this->mpLinearSystem->rGetLhsMatrix() != NULL);
     assert(this->mpLinearSystem->rGetRhsVector() != NULL);
 
     if(!this->mpMonodomainAssembler)
     {
-        this->mpMonodomainAssembler = new MonodomainAssembler<ELEM_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainPde,this->mDt,this->mNumQuadPoints);
+        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainPde,this->mDt,this->mNumQuadPoints);
     }        
 
     /////////////////////////////////////////
@@ -49,7 +49,7 @@ void MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec curr
         this->mpMonodomainAssembler->SetMatrixToAssemble(this->mpLinearSystem->rGetLhsMatrix());
         this->mpMonodomainAssembler->AssembleMatrix();
 
-        MassMatrixAssembler<ELEM_DIM,SPACE_DIM> mass_matrix_assembler(this->mpMesh);
+        MassMatrixAssembler<ELEMENT_DIM,SPACE_DIM> mass_matrix_assembler(this->mpMesh);
         mass_matrix_assembler.SetMatrixToAssemble(mMassMatrix);
         mass_matrix_assembler.Assemble();
 
@@ -122,14 +122,14 @@ void MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::SetupLinearSystem(Vec curr
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-void MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec initialSolution)
 {
     if (this->mpLinearSystem != NULL)
     {
         return;
     }
-    AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(initialSolution);
+    AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(initialSolution);
 
     // initialise matrix-based RHS vector and matrix, and use the linear
     // system rhs as a template
@@ -146,13 +146,13 @@ void MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::InitialiseForSolve(Vec ini
 
 
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
-            AbstractTetrahedralMesh<ELEM_DIM,SPACE_DIM>* pMesh,
-            MonodomainPde<ELEM_DIM,SPACE_DIM>* pPde,
-            BoundaryConditionsContainer<ELEM_DIM,SPACE_DIM,1>* pBoundaryConditions,
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
+            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+            MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
+            BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
             unsigned numQuadPoints)
-    : AbstractMonodomainSolver<ELEM_DIM,SPACE_DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)
+    : AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)
 {
     // Tell pde there's no need to replicate ionic caches
     pPde->SetCacheReplication(false);
@@ -162,8 +162,8 @@ MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
 //    mpMonodomainCorrectionTermAssembler = NULL;
 }
 
-template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::~MatrixBasedMonodomainSolver()
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedMonodomainSolver()
 {
     if(mVecForConstructingRhs)
     {
@@ -180,11 +180,11 @@ MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::~MatrixBasedMonodomainSolver()
 
 
 //// #1462
-//template<unsigned ELEM_DIM, unsigned SPACE_DIM>
-//void MatrixBasedMonodomainSolver<ELEM_DIM,SPACE_DIM>::IncludeCorrection(AbstractCardiacCell* pCell)
+//template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+//void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::IncludeCorrection(AbstractCardiacCell* pCell)
 //{
 //    mpMonodomainCorrectionTermAssembler 
-//        = new MonodomainCorrectionTermAssembler<ELEM_DIM,SPACE_DIM>(pCell, this->mpMesh,this->mpMonodomainPde,this->mNumQuadPoints);
+//        = new MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(pCell, this->mpMesh,this->mpMonodomainPde,this->mNumQuadPoints);
 //}
 
 ///////////////////////////////////////////////////////
