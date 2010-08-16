@@ -55,11 +55,12 @@ void Hdf5ToMeshalyzerConverter<ELEMENT_DIM,SPACE_DIM>::Write(std::string type)
     DistributedVectorFactory factory(num_nodes);
 
     Vec data = factory.CreateVec();
+    ReplicatableVector repl_data(num_nodes);
     for (unsigned time_step=0; time_step<num_timesteps; time_step++)
     {
         this->mpReader->GetVariableOverNodes(data, type, time_step);
-        ReplicatableVector repl_data(data);
-
+        repl_data.ReplicatePetscVector(data);
+        
         assert(repl_data.GetSize()==num_nodes);
 
         if(PetscTools::AmMaster())
