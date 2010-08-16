@@ -753,7 +753,7 @@ public:
         // Unusual set-up here (corresponds to the Meineke crypt model parameters)
         p_params->SetDampingConstantNormal(1.0);
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
-        meineke_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
+        p_params->SetMeinekeSpringStiffness(30.0);
         simulator.UseJiggledBottomCells();
 
         // Run simulation

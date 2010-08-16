@@ -56,11 +56,6 @@ private:
     /** Records whether a node is a ghost node or not */
     std::vector<bool> mIsGhostNode;
 
-    /**
-     * Spring stiffness for springs between ghost nodes.
-     */
-    double mGhostSpringStiffness;
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -79,7 +74,6 @@ private:
     {
         // This needs to be first so that MeshBasedTissue::Validate() doesn't go mental.
         archive & mIsGhostNode;
-        archive & mGhostSpringStiffness;
         archive & boost::serialization::base_object<MeshBasedTissue<DIM> >(*this);
     }
 
@@ -110,22 +104,18 @@ public:
      * @param rCells cells corresponding to the nodes of the mesh
      * @param locationIndices an optional vector of location indices that correspond to real cells
      * @param deleteMesh set to true if you want the tissue to free the mesh memory on destruction
-     * @param ghostSpringStiffness spring stiffness used to move the ghost nodes defaults to 15.0.
      */
     MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
                                   std::vector<TissueCellPtr>& rCells,
                                   const std::vector<unsigned> locationIndices=std::vector<unsigned>(),
-                                  bool deleteMesh=false,
-                                  double ghostSpringStiffness=15.0);
+                                  bool deleteMesh=false);
 
     /**
      * Constructor for use by the de-serializer.
      *
      * @param rMesh a mutable tetrahedral mesh.
-     * @param ghostSpringStiffness spring stiffness used to move the ghost nodes defaults to 15.0.
      */
-    MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
-								  double ghostSpringStiffness=15.0);
+    MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh);
 
     /**
      * Overridden UpdateNodeLocation() method.
@@ -184,7 +174,7 @@ public:
      *
      * @return The force exerted on Node A by Node B.
      */
-    c_vector<double, DIM> CalculateForceBetweenGhostNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
+    c_vector<double, DIM> CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex);
 
     /**
      * Overridden AddCell() method.

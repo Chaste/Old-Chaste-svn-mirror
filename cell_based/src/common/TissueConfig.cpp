@@ -82,6 +82,7 @@ void TissueConfig::Reset()
      * The following Parameters are specific to cell-centre based models, which are based on the
      * model described in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
      */
+    mMeinekeSpringStiffness = 15.0;        // denoted by mu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mMeinekeMechanicsCutOffLength = DBL_MAX; // This needs to be set by a caller
 }
 
@@ -136,6 +137,10 @@ double TissueConfig::GetCryptProjectionParameterA()
 double TissueConfig::GetCryptProjectionParameterB()
 {
     return mCryptProjectionParameterB;
+}
+double TissueConfig::GetMeinekeSpringStiffness()
+{
+    return mMeinekeSpringStiffness;
 }
 double TissueConfig::GetMeinekeMechanicsCutOffLength()
 {
@@ -200,6 +205,11 @@ void TissueConfig::SetCryptProjectionParameterB(double cryptProjectionParameterB
 {
     assert(cryptProjectionParameterB >= 0.0);
     mCryptProjectionParameterB = cryptProjectionParameterB;
+}
+void TissueConfig::SetMeinekeSpringStiffness(double springStiffness)
+{
+    assert(springStiffness > 0.0);
+    mMeinekeSpringStiffness = springStiffness;
 }
 void TissueConfig::SetMeinekeMechanicsCutOffLength(double mechanicsCutOffLength)
 {

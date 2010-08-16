@@ -74,21 +74,11 @@ private :
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractTwoBodyInteractionForce<DIM> >(*this);
-        archive & mMeinekeSpringStiffness;
         archive & mMeinekeDivisionRestingSpringLength;
     }
 
 protected:
     
-    /**
-    * Spring stiffness.
-    *
-    * Represented by the parameter mu in the model by Meineke et al (2001) in
-    * their off-lattice model of the intestinal crypt
-    * (doi:10.1046/j.0960-7722.2001.00216.x).
-    */
-    double mMeinekeSpringStiffness;
-
     /**
      * Initial resting spring length after cell division.
      * Has units of cell size at equilibrium rest length
@@ -97,7 +87,6 @@ protected:
      * because of pressure from neighbouring springs.
      */
     double mMeinekeDivisionRestingSpringLength;
-
 
 public :
 
@@ -145,21 +134,12 @@ public :
     c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,
                                                      unsigned nodeBGlobalIndex,
                                                      AbstractTissue<DIM>& rTissue);
-    /**
-     * @return mMeinekeSpringStiffness
-     */
-    double GetMeinekeSpringStiffness();
+
     /**
      * @return mMeinekeDivisionRestingSpringLength
      */
     double GetMeinekeDivisionRestingSpringLength();
 
-    /**
-     * Set mMeinekeSpringStiffness.
-     *
-     * @param springStiffness the new value of mMeinekeSpringStiffness
-     */
-    void SetMeinekeSpringStiffness(double springStiffness);
     /**
      * Set mMeinekeDivisionRestingSpringLength.
      * 

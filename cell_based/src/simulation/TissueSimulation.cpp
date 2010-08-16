@@ -686,7 +686,7 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     *ParameterFile << "TransitCellG1Duration \t" << p_inst->GetTransitCellG1Duration() << "\n";
     *ParameterFile << "CryptLength \t" << p_inst->GetCryptLength() << "\n";
     *ParameterFile << "CryptWidth \t" << p_inst->GetCryptWidth() << "\n";
-    //*ParameterFile << "SpringStiffness \t" << p_inst->GetMeinekeSpringStiffness() << "\n";
+    *ParameterFile << "SpringStiffness \t" << p_inst->GetMeinekeSpringStiffness() << "\n";
     *ParameterFile << "MechanicsCutOffLength \t" << p_inst->GetMeinekeMechanicsCutOffLength() << "\n";
     *ParameterFile << "DampingConstantNormal \t" << p_inst->GetDampingConstantNormal() << "\n";
     *ParameterFile << "DampingConstantMutant \t" << p_inst->GetDampingConstantMutant() << "\n";

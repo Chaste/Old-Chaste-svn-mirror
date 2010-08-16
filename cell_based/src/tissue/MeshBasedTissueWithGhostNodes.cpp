@@ -33,10 +33,8 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
      MutableMesh<DIM, DIM>& rMesh,
      std::vector<TissueCellPtr>& rCells,
      const std::vector<unsigned> locationIndices,
-     bool deleteMesh,
-     double ghostSpringStiffness)
-             : MeshBasedTissue<DIM>(rMesh, rCells, locationIndices, deleteMesh, false), // do not call the base class Validate()
-               mGhostSpringStiffness(ghostSpringStiffness)
+     bool deleteMesh)
+             : MeshBasedTissue<DIM>(rMesh, rCells, locationIndices, deleteMesh, false) // do not call the base class Validate()
 {
     if (!locationIndices.empty())
     {
@@ -69,10 +67,8 @@ MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(
 }
 
 template<unsigned DIM>
-MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh,
-																  double ghostSpringStiffness)
-             : MeshBasedTissue<DIM>(rMesh),
-               mGhostSpringStiffness(ghostSpringStiffness)
+MeshBasedTissueWithGhostNodes<DIM>::MeshBasedTissueWithGhostNodes(MutableMesh<DIM, DIM>& rMesh)
+             : MeshBasedTissue<DIM>(rMesh)
 {
 }
 
@@ -135,7 +131,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateGhostPositions(double dt)
         unsigned nodeA_global_index = edge_iterator.GetNodeA()->GetIndex();
         unsigned nodeB_global_index = edge_iterator.GetNodeB()->GetIndex();
 
-        c_vector<double, DIM> force = CalculateForceBetweenGhostNodes(nodeA_global_index, nodeB_global_index);
+        c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index);
 
         double damping_constant = TissueConfig::Instance()->GetDampingConstantNormal();
 
@@ -168,7 +164,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::UpdateGhostPositions(double dt)
 }
 
 template<unsigned DIM>
-c_vector<double, DIM> MeshBasedTissueWithGhostNodes<DIM>::CalculateForceBetweenGhostNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
+c_vector<double, DIM> MeshBasedTissueWithGhostNodes<DIM>::CalculateForceBetweenNodes(const unsigned& rNodeAGlobalIndex, const unsigned& rNodeBGlobalIndex)
 {
     assert(rNodeAGlobalIndex != rNodeBGlobalIndex);
     c_vector<double, DIM> unit_difference;
@@ -184,7 +180,7 @@ c_vector<double, DIM> MeshBasedTissueWithGhostNodes<DIM>::CalculateForceBetweenG
 
     double rest_length = 1.0;
 
-    return mGhostSpringStiffness * unit_difference * (distance_between_nodes - rest_length);
+    return TissueConfig::Instance()->GetMeinekeSpringStiffness() * unit_difference * (distance_between_nodes - rest_length);
 }
 
 template<unsigned DIM>

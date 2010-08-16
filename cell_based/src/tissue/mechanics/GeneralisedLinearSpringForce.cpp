@@ -32,13 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 GeneralisedLinearSpringForce<DIM>::GeneralisedLinearSpringForce()
    : AbstractTwoBodyInteractionForce<DIM>(),
-     mMeinekeSpringStiffness(15.0),        // denoted by mu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
      mMeinekeDivisionRestingSpringLength(0.5)
 {
-	if (DIM == 1)
-	{
-		mMeinekeSpringStiffness = 30.0;
-	}
 }
 
 template<unsigned DIM>
@@ -179,7 +174,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     // Although in this class the 'spring constant' is a constant parameter, in
     // subclasses it can depend on properties of each of the cells
     double multiplication_factor = VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
-    double spring_stiffness = mMeinekeSpringStiffness;
+    double spring_stiffness = p_config->GetMeinekeSpringStiffness();
     double overlap = distance_between_nodes - rest_length;
 
     if (rTissue.HasMesh())
@@ -211,23 +206,10 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     }
 }
 
-
-template<unsigned DIM>
-double GeneralisedLinearSpringForce<DIM>::GetMeinekeSpringStiffness()
-{
-    return mMeinekeSpringStiffness;
-}
 template<unsigned DIM>
 double GeneralisedLinearSpringForce<DIM>::GetMeinekeDivisionRestingSpringLength()
 {
     return mMeinekeDivisionRestingSpringLength;
-}
-
-template<unsigned DIM>
-void GeneralisedLinearSpringForce<DIM>::SetMeinekeSpringStiffness(double springStiffness)
-{
-    assert(springStiffness > 0.0);
-    mMeinekeSpringStiffness = springStiffness;
 }
 
 template<unsigned DIM>

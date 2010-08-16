@@ -211,7 +211,7 @@ public:
         // Do not give mutant cells any different movement properties to normal ones
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
 
-        linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
+        p_params->SetMeinekeSpringStiffness(30.0); //normally 15.0;
         // 0.3/30 = 0.01 (i.e. Meineke's values)
 
         simulator.UseJiggledBottomCells();
@@ -371,6 +371,7 @@ public:
         p_params->SetDampingConstantNormal(1.0);    // normally 1
         // Do not give mutant cells any different movement properties to normal ones
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
+        p_params->SetMeinekeSpringStiffness(30.0); //normally 15.0;
 
         double time_of_each_run;
         AbstractCellKiller<2>* p_cell_killer;
@@ -419,7 +420,6 @@ public:
 
             // Set up force law
             GeneralisedLinearSpringForce<2> linear_force;
-            linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
             std::vector<AbstractForce<2>*> force_collection;
             force_collection.push_back(&linear_force);
 
