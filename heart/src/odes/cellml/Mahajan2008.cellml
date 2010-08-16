@@ -265,7 +265,7 @@ gto,slow = 0.11;   % mS/uF"
       <variable name="xm" units="dimensionless" initial_value="0.001075453357"/>
       <variable name="xh" units="dimensionless" initial_value="0.990691306716"/>
       <variable name="xj" units="dimensionless" initial_value="0.993888937283"/>
-      <variable name="gna" units="uS_per_nF" initial_value="12" cmeta:id="sodium_channel_current_conductance">          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">             <rdf:Description rdf:about="#sodium_channel_current_conductance">                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#sodium_channel_current_conductance"/>             </rdf:Description>          </rdf:RDF>       </variable>
+      <variable name="gna" units="uS_per_nF" initial_value="12" cmeta:id="membrane_fast_sodium_current_conductance">          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">             <rdf:Description rdf:about="#membrane_fast_sodium_current_conductance">                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current_conductance"/>             </rdf:Description>          </rdf:RDF>       </variable>
       <variable name="am" units="per_ms"/>
       <variable name="bm" units="per_ms"/>
       <variable name="ah" units="per_ms"/>
@@ -747,7 +747,7 @@ gto,slow = 0.11;   % mS/uF"
       <variable name="xi1ba" units="dimensionless" initial_value="0.000033616596"/>
       <variable name="xi2ca" units="dimensionless" initial_value="0.004173008466"/>
       <variable name="xi2ba" units="dimensionless" initial_value="0.015242594688"/>
-      <variable name="gca" units="mmole_per_coulomb_cm" initial_value="182" cmeta:id="L_type_Ca_current_conductance">          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">             <rdf:Description rdf:about="#L_type_Ca_current_conductance">                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#L_type_Ca_current_conductance"/>             </rdf:Description>          </rdf:RDF>       </variable>
+      <variable name="gca" units="mmole_per_coulomb_cm" initial_value="182" cmeta:id="membrane_L_type_calcium_current_conductance">          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">             <rdf:Description rdf:about="#membrane_L_type_calcium_current_conductance">                <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_L_type_calcium_current_conductance"/>             </rdf:Description>          </rdf:RDF>       </variable>
       <variable name="pca" units="cm_per_s" initial_value="0.00054"/>
       <variable name="za" units="dimensionless"/>
       <variable name="poinf" units="dimensionless"/>
@@ -1753,10 +1753,10 @@ gto,slow = 0.11;   % mS/uF"
       <variable name="time" units="ms" public_interface="in"/>
       <variable name="K_o" units="mM" public_interface="in"/>
       <variable name="xr" units="dimensionless" initial_value="0.007074239331"/>
-      <variable name="gkr" units="uS_per_nF" initial_value="0.0125" cmeta:id="inward_rectifier_potassium_current_conductance">  
+      <variable name="gkr" units="uS_per_nF" initial_value="0.0125" cmeta:id="membrane_rapid_delayed_rectifier_potassium_current_conductance">  
           <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-              <rdf:Description rdf:about="#inward_rectifier_potassium_current_conductance">
-                  <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#inward_rectifier_potassium_current_conductance"/>
+              <rdf:Description rdf:about="#membrane_rapid_delayed_rectifier_potassium_current_conductance">
+                  <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_rapid_delayed_rectifier_potassium_current_conductance"/>
               </rdf:Description>
           </rdf:RDF>
       </variable>

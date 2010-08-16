@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cfloat>
 #include <cmath>
+#include <cxxtest/TestSuite.h>
 
 #include "AbstractStimulusFunction.hpp"
 #include "SimpleStimulus.hpp"

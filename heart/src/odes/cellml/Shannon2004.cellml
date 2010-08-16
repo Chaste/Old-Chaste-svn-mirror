@@ -581,10 +581,10 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="i_Na" units="microA_per_microF" public_interface="out"/>
       <variable name="i_Na_jct" units="microA_per_microF" public_interface="out"/>
       <variable name="i_Na_SL" units="microA_per_microF" public_interface="out"/>
-      <variable name="G_INa" units="milliS_per_microF" initial_value="16" cmeta:id="sodium_channel_current_conductance">
+      <variable name="G_INa" units="milliS_per_microF" initial_value="16" cmeta:id="membrane_fast_sodium_current_conductance">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-            <rdf:Description rdf:about="#sodium_channel_current_conductance">
-               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#sodium_channel_current_conductance"/>
+            <rdf:Description rdf:about="#membrane_fast_sodium_current_conductance">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_fast_sodium_current_conductance"/>
             </rdf:Description>
          </rdf:RDF>
       </variable>
@@ -1456,10 +1456,10 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
    <component name="IKr">
       <variable name="i_Kr" units="microA_per_microF" public_interface="out"/>
       <variable name="G_IKr" units="milliS_per_microF"/>
-      <variable name="G_IKr_const" units="milliS_per_microF" initial_value="0.03" cmeta:id="inward_rectifier_potassium_current_conductance">
+      <variable name="G_IKr_const" units="milliS_per_microF" initial_value="0.03" cmeta:id="membrane_rapid_delayed_rectifier_potassium_current_conductance">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-            <rdf:Description rdf:about="#inward_rectifier_potassium_current_conductance">
-               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#inward_rectifier_potassium_current_conductance"/>
+            <rdf:Description rdf:about="#membrane_rapid_delayed_rectifier_potassium_current_conductance">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_rapid_delayed_rectifier_potassium_current_conductance"/>
             </rdf:Description>
          </rdf:RDF>
       </variable>
@@ -2810,10 +2810,10 @@ Modified to add G_Cal_mult multiplier (defaults to 1).
       <variable name="i_CaL_Na_SL" units="microA_per_microF" public_interface="out"/>
       <variable name="i_CaL_Na_jct" units="microA_per_microF" public_interface="out"/>
       <variable name="i_CaL_K" units="microA_per_microF"/>
-      <variable name="G_CaL_mult" units="dimensionless" initial_value="1.0" cmeta:id="L_type_Ca_current_conductance">
+      <variable name="G_CaL_mult" units="dimensionless" initial_value="1.0" cmeta:id="membrane_L_type_calcium_current_conductance">
          <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:bqbiol="http://biomodels.net/biology-qualifiers/">
-            <rdf:Description rdf:about="#L_type_Ca_current_conductance">
-               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#L_type_Ca_current_conductance"/>
+            <rdf:Description rdf:about="#membrane_L_type_calcium_current_conductance">
+               <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#membrane_L_type_calcium_current_conductance"/>
             </rdf:Description>
          </rdf:RDF>
       </variable>

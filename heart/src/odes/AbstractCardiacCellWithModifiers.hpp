@@ -49,22 +49,22 @@ public:
     DummyModifier default_modifier;
 
     /** Allows intervention by protocols on the cell model's IKr conductance parameter */
-    AbstractSensitivityModifier *inward_rectifier_potassium_current_conductance_modifier;
+    AbstractSensitivityModifier *membrane_rapid_delayed_rectifier_potassium_current_conductance_modifier;
 
     /** Allows intervention by protocols on the cell model's INa conductance parameter */
-    AbstractSensitivityModifier *sodium_channel_current_conductance_modifier;
+    AbstractSensitivityModifier *membrane_fast_sodium_current_conductance_modifier;
 
     /** Allows intervention by protocols on the cell model's membrane voltage */
     AbstractSensitivityModifier *membrane_voltage_modifier;
 
     /** Allows intervention by protocols on the cell model's ICaL conductance parameter */
-    AbstractSensitivityModifier *L_type_Ca_current_conductance_modifier;
+    AbstractSensitivityModifier *membrane_L_type_calcium_current_conductance_modifier;
 
     /** Allows intervention by protocols on the cytosolic Calcium concentration*/
     AbstractSensitivityModifier *cytosolic_calcium_concentration_modifier;
 
     /** Allows intervention by protocols on the cell model's Ito conductance parameter */
-    AbstractSensitivityModifier *transient_outward_current_conductance_modifier;
+    AbstractSensitivityModifier *membrane_transient_outward_current_conductance_modifier;
 
     /**
      * Create a new cardiac cell.
@@ -84,12 +84,12 @@ public:
                                      boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : CARDIAC_CELL(pOdeSolver, numberOfStateVariables, voltageIndex, pIntracellularStimulus)
     {
-        inward_rectifier_potassium_current_conductance_modifier = &default_modifier;
-        sodium_channel_current_conductance_modifier = &default_modifier;
+        membrane_rapid_delayed_rectifier_potassium_current_conductance_modifier = &default_modifier;
+        membrane_fast_sodium_current_conductance_modifier = &default_modifier;
         membrane_voltage_modifier = &default_modifier;
-        L_type_Ca_current_conductance_modifier = &default_modifier;
+        membrane_L_type_calcium_current_conductance_modifier = &default_modifier;
         cytosolic_calcium_concentration_modifier = &default_modifier;
-        transient_outward_current_conductance_modifier = &default_modifier;
+        membrane_transient_outward_current_conductance_modifier = &default_modifier;
     }
 };
 
