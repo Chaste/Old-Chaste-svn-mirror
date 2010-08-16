@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 ////#1462
 //#include "MonodomainCorrectionTermAssembler.hpp"
+//#include "MonodomainStimulusCorrectionAssembler.hpp"
 
 /**
  *  A better Monodomain solver (better than BasicMonodomainSolver), which 
@@ -56,6 +57,7 @@ private:
 
 //    // #1462
 //    MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCorrectionTermAssembler;
+//    MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* MonodomainStimulusCorrectionAssembler;
 
     /** 
      *  Implementation of SetupLinearSystem() which uses the assembler to compute the

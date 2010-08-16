@@ -104,7 +104,6 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
     //this->mpMonodomainAssembler->SetCurrentSolution(currentSolution);
     this->mpMonodomainAssembler->AssembleVector();
   
-  
 ////#1462
 //    /////////////////////////////////////////
 //    // apply correction term
@@ -114,7 +113,14 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
 //        mpMonodomainCorrectionTermAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
 //        // don't need to set current solution
 //        mpMonodomainCorrectionTermAssembler->AssembleVector();
+//    }    
+//    if(mpMonodomainStimulusCorrectionAssembler)
+//    {
+//        mpMonodomainStimulusCorrectionAssembler->SetVectorToAssemble(this->mpLinearSystem->rGetRhsVector(), false/*don't zero vector!*/);
+//        mpMonodomainStimulusCorrectionAssembler->AssembleVector();
 //    }
+
+
   
     // finalise 
     this->mpLinearSystem->AssembleRhsVector();
@@ -160,6 +166,7 @@ MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
     
 //// #1462    
 //    mpMonodomainCorrectionTermAssembler = NULL;
+//    mpMonodomainStimulusCorrectionAssembler = NULL;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -176,6 +183,10 @@ MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedMonodomainSolver
 //    {
 //        delete mpMonodomainCorrectionTermAssembler;
 //    }
+//    if(mpMonodomainStimulusCorrectionAssembler)
+//    {
+//        delete mpMonodomainStimulusCorrectionAssembler;
+//    }
 }
 
 
@@ -183,8 +194,11 @@ MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedMonodomainSolver
 //template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 //void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::IncludeCorrection(AbstractCardiacCell* pCell)
 //{
-//    mpMonodomainCorrectionTermAssembler 
+//    mpMonodomainCorrectionTermAssembler
 //        = new MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(pCell, this->mpMesh,this->mpMonodomainPde,this->mNumQuadPoints);
+//
+//    mpMonodomainStimulusCorrectionAssembler 
+//        = new MonodomainStimulusCorrectionAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainPde,this->mNumQuadPoints);
 //}
 
 ///////////////////////////////////////////////////////

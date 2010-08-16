@@ -70,6 +70,10 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELE
                                                                    mpMonodomainPde,
                                                                    this->mpBoundaryConditionsContainer.get(),
                                                                    2);
+//// #1462
+//        AbstractCardiacCell* p_cell_for_interpolation = this->mpCellFactory->CreateCardiacCellForTissueNode(0);
+//        p_solver->IncludeCorrection(p_cell_for_interpolation);                                                                   
+   
         return p_solver;
     }
 }
