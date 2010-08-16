@@ -666,6 +666,35 @@ def ScheduleTestBuild(env, env_with_libs, testfile, prefix, use_chaste_libs):
         env.Default(runner_dummy)
     return runner_exe, runner_dummy
 
+
+def DoDynamicallyLoadableModules(otherVars):
+    """Logic to find and schedule for building any dynamically-loadable modules.
+    
+    These are generated from source files found in a 'dynamic' folder in a component
+    or project.
+    """
+    # Find any source files that should get made into dynamically loadable modules.
+    curdir = os.getcwd()
+    os.chdir('../..')
+    dyn_source, dyn_cpppath = FindSourceFiles(otherVars['env'], 'dynamic', includeRoot=True)
+    os.chdir(curdir)
+    # Build any dynamically loadable modules
+    dyn_libs = []
+    if dyn_cpppath:
+        dyn_env = otherVars['dynenv'].Clone()
+        dyn_env.Prepend(CPPPATH=dyn_cpppath)
+    else:
+        dyn_env = otherVars['dynenv']
+    for s in dyn_source:
+        # Note: if building direct from CellML, there will be more than 1 target
+        dyn_objs = dyn_env.SharedObject(source=s)
+        for o in dyn_objs:
+            so_lib = dyn_env.OriginalSharedLibrary(source=o)
+            so_dir = os.path.abspath(os.path.join(curdir, '..', '..', os.path.dirname(s)))
+            dyn_libs.append(dyn_env.Install(so_dir, so_lib))
+    return dyn_libs
+
+
 def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
     """Main logic for a project's SConscript file.
     
@@ -689,9 +718,9 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
     curdir = os.getcwd()
     # Look for .cpp files within the project's src folder
     os.chdir('../..') # This is so .o files are built in <project>/build/<something>/
-    files, extra_cpppath = FindSourceFiles(env, 'src', includeRoot=True)
+    files, extra_cpppath = FindSourceFiles(env, 'src', ignoreDirs=['broken'], includeRoot=True)
     # Look for source files that tests depend on under <project>/test/.
-    testsource, test_cpppath = FindSourceFiles(env, 'test', ['data'])
+    testsource, test_cpppath = FindSourceFiles(env, 'test', ignoreDirs=['data'])
     extra_cpppath.extend(test_cpppath)
     del test_cpppath
     # Move back to the build dir
@@ -717,6 +746,9 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
         # so updates in one env are reflected in all.
         newenv['CHASTE_OBJECTS'] = env['CHASTE_OBJECTS']
         env = newenv
+    
+    # Build any dynamically loadable modules
+    dyn_libs = DoDynamicallyLoadableModules(otherVars)
 
     # Libraries to link against (TODO: only add project libs if sources exist)
     all_libs = ['test'+projectName, projectName] + chasteLibsUsed + otherVars['other_libs']
@@ -764,6 +796,9 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
                 env.Depends(log_file, lib_deps)
             else:
                 env.Depends(log_file, runner_dummy)
+            if dyn_libs:
+                # All tests should depend on dynamically loadable modules, just in case
+                env.Depends(log_file, dyn_libs)
             test_log_files.append(log_file)
             env.RunTest(log_file, runner_exe)
             if otherVars['force_test_runs']:
@@ -796,7 +831,9 @@ def DoComponentSConscript(component, otherVars):
     # Commonly used variables
     env = otherVars['env']
     use_chaste_libs = otherVars['use_chaste_libs']
-    # Note that this is executed from within the <component>/build/<something>/ folder
+    # Note that because we are using SCons' variant dir functionality, and the build
+    # dir is created before the SConscript files are executed, that the working dir
+    # will be set to <component>/build/<something>.
     curdir = os.getcwd()
     # Look for source files within the <component>/src folder
     os.chdir('../..') # This is so .o files are built in <component>/build/<something>/
@@ -807,8 +844,6 @@ def DoComponentSConscript(component, otherVars):
     testsource, test_cpppath = FindSourceFiles(env, 'test',
                                                ignoreDirs=['data'],
                                                includeRoot=True)
-    # Find any source files that should get made into dynamically loadable modules.
-    dyn_source, dyn_cpppath = FindSourceFiles(env, 'dynamic', includeRoot=True)
     # Install headers?
     if otherVars['install_prefix']:
         headers, _ = FindSourceFiles(env, 'src', sourceExts=['.hpp'])
@@ -826,6 +861,8 @@ def DoComponentSConscript(component, otherVars):
                                otherVars['single_test_suite_dir'],
                                otherVars['all_tests'],
                                component=component)
+    if otherVars['debug']:
+        print "  Will run tests:", map(str, testfiles)
     
     # Add test folders to CPPPATH only for this component
     if test_cpppath:
@@ -837,19 +874,7 @@ def DoComponentSConscript(component, otherVars):
         env = newenv
     
     # Build any dynamically loadable modules
-    dyn_libs = []
-    if dyn_cpppath:
-        dyn_env = otherVars['dynenv'].Clone()
-        dyn_env.Prepend(CPPPATH=dyn_cpppath)
-    else:
-        dyn_env = otherVars['dynenv']
-    for s in dyn_source:
-        # Note: if building direct from CellML, there will be more than 1 target
-        dyn_objs = dyn_env.SharedObject(source=s)
-        for o in dyn_objs:
-            so_lib = dyn_env.OriginalSharedLibrary(source=o)
-            so_dir = os.path.abspath(os.path.join(curdir, '..', '..', os.path.dirname(s)))
-            dyn_libs.append(dyn_env.Install(so_dir, so_lib))
+    dyn_libs = DoDynamicallyLoadableModules(otherVars)
     
     # Build and install the library for this component
     if use_chaste_libs:
