@@ -30,6 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _EXCEPTION_HPP_
 #define _EXCEPTION_HPP_
 
+/**
+ * @file
+ * Contains the Exception class, along with some macros that are widely
+ * used throughout the code.
+ */
+
 #include <string>
 
 #include <cfloat>

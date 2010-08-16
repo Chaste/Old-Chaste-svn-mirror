@@ -29,6 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CHASTEBUILDROOT_HPP_
 #define CHASTEBUILDROOT_HPP_
 
+/**
+ * @file
+ * A collection of functions providing information about the
+ * filesystem layout of this Chaste source tree.
+ */
+
 #include <string>
 
 /**

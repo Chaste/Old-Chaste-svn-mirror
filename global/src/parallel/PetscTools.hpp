@@ -29,6 +29,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef PETSCTOOLS_HPP_
 #define PETSCTOOLS_HPP_
 
+/**
+ * @file
+ * Contains the PetscTools class, and the TERMINATE and NEVER_REACHED
+ * macros.  The macros are defined here (rather than Exception.hpp)
+ * because they rely on MPI functionality to operate correctly when
+ * running in parallel.
+ */
+
 #include <string>
 #include <vector>
 #include <cstdlib> // For EXIT_FAILURE

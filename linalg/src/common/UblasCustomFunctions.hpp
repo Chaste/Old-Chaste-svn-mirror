@@ -30,6 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef UBLASCUSTOMFUNCTIONS_HPP_
 #define UBLASCUSTOMFUNCTIONS_HPP_
 
+/**
+ * @file
+ * A collection of useful functions extending the functionality of the
+ * Boost Ublas library.
+ */
+
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
@@ -58,7 +64,7 @@ using namespace boost::numeric::ublas;
  * N.B. Do not call with non-square matrix
  *
  *
- * @param m The matrix of which to find the determinant. Must be square.
+ * @param rM The matrix of which to find the determinant. Must be square.
  */
 template<class T>
 T Determinant(const boost::numeric::ublas::c_matrix<T, 1, 1>& rM)

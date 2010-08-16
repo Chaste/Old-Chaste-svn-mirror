@@ -36,10 +36,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 /**
- *  A bunch of useful macros for debugging. Note, use of these should be removed from source
- *  code when committing.
+ * @file
+ * A bunch of useful macros for debugging. Note, use of these should be removed from source
+ * code when committing.
  */
 
+/** Print a 'header' for a debug output line */
 std::string FormDebugHead();
 
 /** Print the given message */
