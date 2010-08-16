@@ -39,6 +39,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "DynamicModelLoaderRegistry.hpp"
 #include "GetCurrentWorkingDirectory.hpp"
 
+CellMLToSharedLibraryConverter::CellMLToSharedLibraryConverter(std::string component)
+    : mComponentName(component)
+{
+}
+
 DynamicCellModelLoader* CellMLToSharedLibraryConverter::Convert(const FileFinder& rFilePath,
                                                                 bool isCollective)
 {
@@ -104,8 +109,8 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             // Create a temporary folder within heart/dynamic
             std::stringstream folder_name;
             folder_name << "dynamic/tmp_" << getpid() << "_" << time(NULL);
-            tmp_folder = std::string(ChasteBuildRootDir()) + "heart/" + folder_name.str();
-            build_folder = std::string(ChasteBuildRootDir()) + "heart/build/" + ChasteBuildDirName() + "/" + folder_name.str();
+            tmp_folder = std::string(ChasteBuildRootDir()) + mComponentName + "/" + folder_name.str();
+            build_folder = std::string(ChasteBuildRootDir()) + mComponentName + "/build/" + ChasteBuildDirName() + "/" + folder_name.str();
             int ret = mkdir(tmp_folder.c_str(), 0700);
             if (ret != 0)
             { // Some optimised builds see ret as unused if this line is just assert(ret==0);

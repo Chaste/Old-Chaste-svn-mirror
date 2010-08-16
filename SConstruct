@@ -61,6 +61,7 @@ import hostconfig
 # If building a loadable module at run-time
 dyn_libs_only = int(ARGUMENTS.get('dyn_libs_only', 0))
 if dyn_libs_only:
+    print sys.argv
     # Set some other options
     ARGUMENTS['test_summary'] = 0
     ARGUMENTS['do_inf_tests'] = 0
@@ -176,6 +177,7 @@ if not dyn_libs_only:
         SConsignFile('.sconsign')
 else:
     # Use a .sconsign file in the folder we're building
+    # TODO: this means XSD gets re-run...
     assert(len(COMMAND_LINE_TARGETS) == 1)
     SConsignFile(os.path.join(COMMAND_LINE_TARGETS[0], '.sconsign'))
 

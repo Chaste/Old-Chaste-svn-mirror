@@ -42,6 +42,15 @@ class CellMLToSharedLibraryConverter
 {
 public:
     /**
+     * Create a converter.
+     *
+     * @param component  the name of the Chaste component (or project) in which
+     *    to build the loadable module (if required).  Allows projects to have
+     *    specialised base classes for dynamically loaded cell models.
+     */
+    CellMLToSharedLibraryConverter(std::string component="heart");
+
+    /**
      * Get a loadable module from the given file, and return a loader for it.
      * The file can be a .so, in which case there isn't much to do, just create
      * the loader.  The interesting case comes when it is a .cellml file.  If
@@ -70,6 +79,9 @@ private:
     void ConvertCellmlToSo(const std::string& rCellmlFullPath,
                            const std::string& rCellmlFolder,
                            const std::string& rModelLeafName);
+
+    /** Which component to build the loadable module in. */
+    std::string mComponentName;
 };
 
 #endif /*CELLMLTOSHAREDLIBRARYCONVERTER_HPP_*/

@@ -442,8 +442,12 @@ def CreatePyCmlBuilder(build, buildenv):
     """
     def IsDynamicSource(source):
         parts = source[0].srcnode().path.split(os.path.sep)
-        return (parts[1] == 'dynamic' or
-                (parts[1] == 'build' and parts[3] == 'dynamic'))
+        if parts[0] == 'projects':
+            dyn_i = 2
+        else:
+            dyn_i = 1
+        return (parts[dyn_i] == 'dynamic' or
+                (parts[dyn_i] == 'build' and parts[dyn_i+2] == 'dynamic'))
     def HasMapleOutput(source):
         out_file = os.path.splitext(source[0].srcnode().abspath)[0] + '.out'
         return os.path.exists(out_file), out_file
@@ -678,6 +682,7 @@ def DoDynamicallyLoadableModules(otherVars):
     os.chdir('../..')
     dyn_source, dyn_cpppath = FindSourceFiles(otherVars['env'], 'dynamic', includeRoot=True)
     os.chdir(curdir)
+    dyn_cpppath.extend(otherVars.get('extra_dyn_cpppath', []))
     # Build any dynamically loadable modules
     dyn_libs = []
     if dyn_cpppath:
@@ -719,6 +724,7 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
     # Look for .cpp files within the project's src folder
     os.chdir('../..') # This is so .o files are built in <project>/build/<something>/
     files, extra_cpppath = FindSourceFiles(env, 'src', ignoreDirs=['broken'], includeRoot=True)
+    otherVars['extra_dyn_cpppath'] = extra_cpppath[:]
     # Look for source files that tests depend on under <project>/test/.
     testsource, test_cpppath = FindSourceFiles(env, 'test', ignoreDirs=['data'])
     extra_cpppath.extend(test_cpppath)
