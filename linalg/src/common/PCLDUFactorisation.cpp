@@ -182,7 +182,14 @@ void PCLDUFactorisation::PCLDUFactorisationCreate(KSP& rKspObject)
         ISDestroy(B_local_rows);
         ISDestroy(B_columns);
     }
-
+    
+    /*
+     * Experimental (#1082): in PP removing the mass matrix from the A22 block seems to work better.
+     *                       This is equivalent to do A22 = A22 + B in this implementation. 
+     */
+    MatAXPY(mPCContext.A22_matrix_subblock, 1.0, mPCContext.B_matrix_subblock, DIFFERENT_NONZERO_PATTERN);
+    
+    
     PCSetType(mPetscPCObject, PCSHELL);
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     // Register PC context and call-back function

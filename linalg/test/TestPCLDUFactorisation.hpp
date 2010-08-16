@@ -38,6 +38,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 
 
+/*
+ *  Warning: these tests do not inform PETSc about the nullspace of the matrix. Therefore, convergence might be
+ * different compared to a real cardiac simulation. Do not take conclusions about preconditioner performance
+ * based on these tests only. 
+ */
 class TestPCLDUFactorisation : public CxxTest::TestSuite
 {
 public:
