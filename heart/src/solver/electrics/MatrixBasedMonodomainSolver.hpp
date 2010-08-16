@@ -57,7 +57,7 @@ private:
 
 //    // #1462
 //    MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCorrectionTermAssembler;
-//    MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>* MonodomainStimulusCorrectionAssembler;
+//    MonodomainStimulusCorrectionAssembler<ELEMENT_DIM,SPACE_DIM>* mpMonodomainStimulusCorrectionAssembler;
 
     /** 
      *  Implementation of SetupLinearSystem() which uses the assembler to compute the
