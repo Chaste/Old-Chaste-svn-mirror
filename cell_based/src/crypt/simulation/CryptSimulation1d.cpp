@@ -39,8 +39,7 @@ CryptSimulation1d::CryptSimulation1d(AbstractTissue<1>& rTissue,
                           deleteTissueAndForceCollection,
                           initialiseCells)
 {
-    TissueConfig::Instance()->SetMeinekeSpringStiffness(30.0);
-    mpStaticCastTissue = static_cast<MeshBasedTissue<1>*>(&mrTissue);
+	mpStaticCastTissue = static_cast<MeshBasedTissue<1>*>(&mrTissue);
 }
 
 

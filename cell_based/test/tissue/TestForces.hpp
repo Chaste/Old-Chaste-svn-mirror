@@ -93,11 +93,16 @@ public:
 
         // Test set/get method
         TS_ASSERT_DELTA(linear_force.GetMeinekeDivisionRestingSpringLength(), 0.5, 1e-6);
+        TS_ASSERT_DELTA(linear_force.GetMeinekeSpringStiffness(), 15.0, 1e-6);
 
         linear_force.SetMeinekeDivisionRestingSpringLength(0.8);
+        linear_force.SetMeinekeSpringStiffness(20.0);
+
         TS_ASSERT_DELTA(linear_force.GetMeinekeDivisionRestingSpringLength(), 0.8, 1e-6);
+        TS_ASSERT_DELTA(linear_force.GetMeinekeSpringStiffness(), 20.0, 1e-6);
 
         linear_force.SetMeinekeDivisionRestingSpringLength(0.5);
+        linear_force.SetMeinekeSpringStiffness(15.0)
 
         /*
          ************************************************************************
@@ -147,13 +152,13 @@ public:
         }
         linear_force.AddForceContribution(new_node_forces, tissue);
 
-        TS_ASSERT_DELTA(new_node_forces[60][0], 0.5*p_params->GetMeinekeSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[60][0], 0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(new_node_forces[60][1], 0.0, 1e-4);
 
-        TS_ASSERT_DELTA(new_node_forces[59][0], (-3+4.0/sqrt(7))*p_params->GetMeinekeSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[59][0], (-3+4.0/sqrt(7))*linear_force.GetMeinekeSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(new_node_forces[59][1], 0.0, 1e-4);
 
-        TS_ASSERT_DELTA(new_node_forces[58][0], 0.5*p_params->GetMeinekeSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(new_node_forces[58][0], 0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(new_node_forces[58][1], 0.0, 1e-4);
 
         /*
@@ -178,7 +183,7 @@ public:
                                                                    p_element->GetNodeGlobalIndex(0),
                                                                    tissue);
 
-        TS_ASSERT_DELTA(force_on_spring[0], 0.5*p_params->GetMeinekeSpringStiffness(), 1e-4);
+        TS_ASSERT_DELTA(force_on_spring[0], 0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
 
         /*
@@ -552,12 +557,12 @@ public:
             if (node_index == 0)
             {
                 // The first node only experiences a force from its neighbour to the right
-                TS_ASSERT_DELTA(node_forces[node_index](0), p_params->GetMeinekeSpringStiffness()*(scale_factor-1), 1e-6);
+                TS_ASSERT_DELTA(node_forces[node_index](0), linear_force.GetMeinekeSpringStiffness()*(scale_factor-1), 1e-6);
             }
             else if (node_index == tissue.GetNumNodes()-1)
             {
                 // The last node only experiences a force from its neighbour to the left
-                TS_ASSERT_DELTA(node_forces[node_index](0), -p_params->GetMeinekeSpringStiffness()*(scale_factor-1), 1e-6);
+                TS_ASSERT_DELTA(node_forces[node_index](0), -linear_force.GetMeinekeSpringStiffness()*(scale_factor-1), 1e-6);
             }
             else
             {
@@ -579,10 +584,10 @@ public:
         mesh2.SetNode(2, shifted_point);
 
         c_vector<double,1> force_between_1_and_2 = linear_force2.CalculateForceBetweenNodes(1, 2, tissue2);
-        TS_ASSERT_DELTA(force_between_1_and_2[0], p_params->GetMeinekeSpringStiffness()*0.5, 1e-6);
+        TS_ASSERT_DELTA(force_between_1_and_2[0], linear_force.GetMeinekeSpringStiffness()*0.5, 1e-6);
 
         c_vector<double,1> force_between_2_and_3 = linear_force2.CalculateForceBetweenNodes(2, 3, tissue2);
-        TS_ASSERT_DELTA(force_between_2_and_3[0], -p_params->GetMeinekeSpringStiffness()*0.5, 1e-6);
+        TS_ASSERT_DELTA(force_between_2_and_3[0], -linear_force.GetMeinekeSpringStiffness()*0.5, 1e-6);
 
         // Initialise a vector of node forces
         std::vector<c_vector<double,1> > node_forces2;
@@ -595,7 +600,7 @@ public:
 
         linear_force2.AddForceContribution(node_forces2, tissue2);
 
-        TS_ASSERT_DELTA(node_forces2[2](0), -p_params->GetMeinekeSpringStiffness(), 1e-6);
+        TS_ASSERT_DELTA(node_forces2[2](0), -linear_force.GetMeinekeSpringStiffness(), 1e-6);
     }
 
     void TestGeneralisedLinearSpringForceCalculationIn3d() throw (Exception)
@@ -675,7 +680,7 @@ public:
         {
             for (unsigned k=0; k<3; k++)
             {
-                TS_ASSERT_DELTA(fabs(node_forces[j](k)), p_params->GetMeinekeSpringStiffness()*(scale_factor-1)*sqrt(2),1e-6);
+                TS_ASSERT_DELTA(fabs(node_forces[j](k)), linear_force.GetMeinekeSpringStiffness()*(scale_factor-1)*sqrt(2),1e-6);
             }
         }
 
@@ -701,7 +706,7 @@ public:
 
         for (unsigned i=0; i<3; i++)
         {
-            TS_ASSERT_DELTA(fabs(force2[i]),p_params->GetMeinekeSpringStiffness()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
+            TS_ASSERT_DELTA(fabs(force2[i]),linear_force.GetMeinekeSpringStiffness()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
 
         // Initialise a vector of node forces
@@ -717,7 +722,7 @@ public:
 
         for (unsigned i=0; i<3; i++)
         {
-            TS_ASSERT_DELTA(node_forces2[0](i),p_params->GetMeinekeSpringStiffness()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
+            TS_ASSERT_DELTA(node_forces2[0](i),linear_force.GetMeinekeSpringStiffness()*(1 - sqrt(3)/(2*sqrt(2)))/sqrt(3.0),1e-6);
         }
     }
 

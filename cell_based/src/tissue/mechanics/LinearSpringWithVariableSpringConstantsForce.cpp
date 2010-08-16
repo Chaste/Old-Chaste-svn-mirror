@@ -86,8 +86,6 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
     AbstractTissue<DIM>& rTissue,
     bool isCloserThanRestLength)
 {
-    // Helper pointer
-    TissueConfig* p_config = TissueConfig::Instance();
 
     double multiplication_factor = GeneralisedLinearSpringForce<DIM>::VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex,
                                                                                                             nodeBGlobalIndex,
@@ -168,8 +166,8 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
         if (cell_A_is_apoptotic || cell_B_is_apoptotic)
         {
-            double spring_a_stiffness = 2.0 * p_config->GetMeinekeSpringStiffness();
-            double spring_b_stiffness = 2.0 * p_config->GetMeinekeSpringStiffness();
+            double spring_a_stiffness = 2.0 * this->GetMeinekeSpringStiffness();
+            double spring_b_stiffness = 2.0 * this->GetMeinekeSpringStiffness();
 
             if (cell_A_is_apoptotic)
             {
@@ -194,7 +192,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
                 }
             }
 
-            multiplication_factor /= (1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*p_config->GetMeinekeSpringStiffness();
+            multiplication_factor /= (1.0/spring_a_stiffness + 1.0/spring_b_stiffness)*this->GetMeinekeSpringStiffness();
         }
     }
 

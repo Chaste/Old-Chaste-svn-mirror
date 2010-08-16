@@ -80,3 +80,12 @@ else:
 tools = {'xsd': '/usr/bin/xsdcxx',
          'mpirun': '/usr/bin/mpirun.openmpi',
          'mpicxx': '/usr/bin/mpic++.openmpi'}
+
+
+# Extra stuff for VTK
+use_vtk = True
+if use_vtk:
+    other_libraries.extend(['vtkGraphics', 'vtkFiltering', 'vtkIO', 'vtkCommon', 'z'])
+#    other_libraries.extend(['vtkGraphics', 'vtkFiltering', 'vtkIO', 'vtkCommon', 'vtkexpat',  'z'])
+    other_includepaths.extend(['/usr/include/vtk-5.2'])
+    other_libpaths.extend(['/usr/lib/vtk-5.2'])
