@@ -149,8 +149,8 @@ public:
         ///Note that long plateau phase will force convergence to happen earlier
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
 
-        TS_ASSERT_DELTA(329.0, tester.Apd90FirstQn, 1.5);
-        TS_ASSERT_DELTA(329.0, tester.Apd90ThirdQn, 1.5);
+        TS_ASSERT_DELTA(329.5, tester.Apd90FirstQn, 1.5); //330.8
+        TS_ASSERT_DELTA(329.5, tester.Apd90ThirdQn, 1.5); //329.3
         TS_ASSERT_DELTA(0.0588, tester.ConductionVelocity, 1e-3);
     }
 
@@ -169,8 +169,8 @@ public:
         ///Note that long plateau phase will force convergence to happen earlier
         TS_ASSERT_EQUALS(tester.MeshNum, 4u);
 
-        TS_ASSERT_DELTA(329.0, tester.Apd90FirstQn, 1.5);
-        TS_ASSERT_DELTA(329.0, tester.Apd90ThirdQn, 1.5);
+        TS_ASSERT_DELTA(329.5, tester.Apd90FirstQn, 1.5); //329.5
+        TS_ASSERT_DELTA(329.5, tester.Apd90ThirdQn, 1.5); //328.7
         TS_ASSERT_DELTA(0.0588, tester.ConductionVelocity, 1e-3);
     }
 

@@ -318,10 +318,10 @@ public:
         double endo_APD = cell_properties_endo.GetLastActionPotentialDuration(90);
         double LQT_APD = cell_properties_LQT.GetLastActionPotentialDuration(90);
 
-        TS_ASSERT_DELTA(control_APD, 299.82, 0.1);
-        TS_ASSERT_DELTA(mid_APD, 391.52, 0.1);
-        TS_ASSERT_DELTA(endo_APD, 328.52, 0.1);
-        TS_ASSERT_DELTA(LQT_APD , 347.125, 0.1);
+        TS_ASSERT_DELTA(control_APD, 300.4789, 0.1);
+        TS_ASSERT_DELTA(mid_APD, 392.1871, 0.1);
+        TS_ASSERT_DELTA(endo_APD, 329.2048, 0.1);
+        TS_ASSERT_DELTA(LQT_APD , 347.8374, 0.1);
      }
 
     void TestScaleFactorsMaleckar(void) throw (Exception)
@@ -471,10 +471,10 @@ public:
         TS_ASSERT_LESS_THAN(AZD_APD, control_APD);
 
         //leave some hardcoded value for testing
-        TS_ASSERT_DELTA(control_APD, 200.36, 0.1);
-        TS_ASSERT_DELTA(first_APD, 384.77, 0.1);
-        TS_ASSERT_DELTA(second_APD, 308.3515, 0.1);
-        TS_ASSERT_DELTA(AZD_APD , 183.67, 0.1);
+        TS_ASSERT_DELTA(control_APD, 206.1278, 0.1);
+        TS_ASSERT_DELTA(first_APD, 389.5872, 0.1);
+        TS_ASSERT_DELTA(second_APD, 312.8089, 0.1);
+        TS_ASSERT_DELTA(AZD_APD , 187.8073, 0.1);
     }
 };
 
