@@ -183,7 +183,14 @@ public:
      * builder method to create new copies of the cell cycle model. */
     AbstractCellCycleModel* CreateCellCycleModel()
     {
-        return new MyCellCycleModel(*this);
+        // Create a new cell cycle model
+        MyCellCycleModel* p_model = new MyCellCycleModel();
+        
+        // Set the values of the new cell cycle model's member variables
+        p_model->SetGeneration(mGeneration);
+        p_model->SetMaxTransitGenerations(mMaxTransitGenerations);
+
+        return p_model;
     }
 };
 
