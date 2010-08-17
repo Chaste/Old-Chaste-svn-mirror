@@ -83,7 +83,7 @@ public:
         CryptCellsGenerator<StochasticWntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices, false, 30.0); // Last parameter adjusts Ghost spring stiffness in line with the linear_force later on
 
         // Set tissue to output cell types
         crypt.SetOutputCellMutationStates(true);
@@ -112,7 +112,7 @@ public:
         // Do not give mutant cells any different movement properties to normal ones
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
 
-        p_params->SetMeinekeSpringStiffness(30.0); //normally 15.0;
+        linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
         // 0.3/30 = 0.01 (i.e. Meineke's values)
 
         simulator.UseJiggledBottomCells();
