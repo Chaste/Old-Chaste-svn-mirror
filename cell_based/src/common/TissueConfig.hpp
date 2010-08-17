@@ -102,10 +102,6 @@ public:
      */
     double GetCryptProjectionParameterB();
     /**
-     * @return mMeinekeSpringStiffness
-     */
-    double GetMeinekeSpringStiffness();
-    /**
      * @return mMeinekeMechanicsCutOffLength
      */
     double GetMeinekeMechanicsCutOffLength();
@@ -162,10 +158,6 @@ public:
      * Set mCryptProjectionParameterB.
      */
     void SetCryptProjectionParameterB(double);
-    /**
-    * Set mMeinekeSpringStiffness.
-    */
-    void SetMeinekeSpringStiffness(double);
     /**
      * Set mMeinekeMechanicsCutOffLength.
      */
@@ -264,15 +256,6 @@ private:
     double mCryptProjectionParameterB;
 
     /**
-    * Spring stiffness.
-    *
-    * Represented by the parameter mu in the model by Meineke et al (2001) in
-    * their off-lattice model of the intestinal crypt
-    * (doi:10.1046/j.0960-7722.2001.00216.x).
-    */
-    double mMeinekeSpringStiffness;
-
-    /**
      * Mechanics cut off length.
      * Used in NodeBasedTissue.
      */
@@ -302,7 +285,6 @@ private:
         archive & mDampingConstantMutant;
         archive & mCryptProjectionParameterA;
         archive & mCryptProjectionParameterB;
-        archive & mMeinekeSpringStiffness;
         archive & mMeinekeMechanicsCutOffLength;
     }
 };

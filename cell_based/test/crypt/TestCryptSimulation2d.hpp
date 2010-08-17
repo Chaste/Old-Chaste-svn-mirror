@@ -1772,7 +1772,6 @@ public:
 
         // Do not give mutant cells any different movement properties to normal ones
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
-        p_params->SetMeinekeSpringStiffness(30.0); //normally 15.0;
 
         // Create mesh
         unsigned cells_across = 13;
@@ -1799,7 +1798,7 @@ public:
         }
 
         // Set up crypt
-        MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, location_indices);
+        MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, location_indices, false, 30.0); // Last parameter adjusts Ghost spring stiffness in line with the linear_force later on
 
         // Set simulation to output cell types and cell ancestors
         p_crypt->SetOutputCellMutationStates(true);
@@ -1807,6 +1806,7 @@ public:
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
+        linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
