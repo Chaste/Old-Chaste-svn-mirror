@@ -449,8 +449,17 @@ if test_summary and not compile_only:
         summary_action = 'python python/DisplayCoverage.py ' + output_dir+' '+build_type
     elif isinstance(build, BuildTypes.DoxygenCoverage):
         # Run Doxygen and parse the output
-        cmd = '( cat Doxyfile ; echo "PROJECT_NUMBER=Build::r%s" ) ' % build._revision \
-            + '| doxygen - 2>doxygen-error.log 1>doxygen-output.log'
+        # Include projects?
+        project_inputs = []
+        for targ in COMMAND_LINE_TARGETS:
+            if str(targ).startswith('projects'):
+                project_inputs.append(os.path.join(str(targ), 'src'))
+        if project_inputs:
+            project_inputs = '"; echo "INPUT += ' + ' '.join(project_inputs)
+        else:
+            project_inputs = ''
+        cmd = ('( cat Doxyfile ; echo "PROJECT_NUMBER=Build::r%s%s" ) ' % (build._revision, project_inputs)
+               + '| doxygen - 2>doxygen-error.log 1>doxygen-output.log')
         summary_action = cmd + '; python python/ParseDoxygen.py doxygen-output.log doxygen-error.log ' + output_dir
     else:
         summary_action = 'python python/DisplayTests.py '+output_dir+' '+build_type
