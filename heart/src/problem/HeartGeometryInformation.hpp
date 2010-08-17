@@ -95,7 +95,7 @@ private:
      * as defined to be the closest surface to the node out of left ventricle and right ventricle.
      *
      * @param nodeIndex is the index of the node in the mesh
-     * @returns the distance
+     * @return the distance
      */
     double GetDistanceToEndo(unsigned nodeIndex);
 
@@ -103,7 +103,7 @@ private:
      * Helper method to calculate the distance between the node and the Epicardial surface
      *
      * @param nodeIndex is the index of the node in the mesh
-     * @returns the distance
+     * @return the distance
      */
     double GetDistanceToEpi(unsigned nodeIndex);
 
@@ -178,13 +178,13 @@ public:
 
     /**
      * @param nodeIndex index is the index of the node in the mesh
-     * @returns the region type based on the relative distances to epi and endocardial surfaces
+     * @return the region type based on the relative distances to epi and endocardial surfaces
      */
     HeartRegionType GetHeartRegion (unsigned nodeIndex) const;
 
     /**
      *
-     * @returns the distance map to the epicardium
+     * @return the distance map to the epicardium
      */
     std::vector<double>& rGetDistanceMapEpicardium()
     {
@@ -193,7 +193,7 @@ public:
 
     /**
      *
-     * @returns the distance map to the endocardium
+     * @return the distance map to the endocardium
      */
     std::vector<double>& rGetDistanceMapEndocardium()
     {
@@ -203,7 +203,7 @@ public:
 
     /**
      *
-     * @returns the distance map to the right ventricle
+     * @return the distance map to the right ventricle
      */
     std::vector<double>& rGetDistanceMapRightVentricle()
     {
@@ -213,7 +213,7 @@ public:
 
     /**
      *
-     * @returns the distance map to the left ventricle
+     * @return the distance map to the left ventricle
      */
     std::vector<double>& rGetDistanceMapLeftVentricle()
     {
@@ -261,7 +261,7 @@ public:
     /**
      * Calculates the relative position within the wall thickness (normalised to [0,1])
      * @param nodeIndex index is the index of the node in the mesh
-     * @returns the relative position
+     * @return the relative position
      */
     double CalculateRelativeWallPosition(unsigned nodeIndex);
 

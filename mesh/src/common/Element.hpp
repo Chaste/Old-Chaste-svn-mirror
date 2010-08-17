@@ -96,7 +96,7 @@ public:
      * After reconstructing a cylindrical 2d mesh, the jacobian data of the periodic elements is not valid anymore.
      * We want to use the jacobians computed before swapping the nodes.
 
-     * @returns a vector containing x_centre, y_centre,...,radius^2
+     * @return a vector containing x_centre, y_centre,...,radius^2
      *
      * @param rJacobian  the Jacobian matrix
      * @param rInverseJacobian  the inverse Jacobian matrix

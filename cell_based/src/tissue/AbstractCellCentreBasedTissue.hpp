@@ -108,7 +108,7 @@ public:
      * @param rCellDivisionVector  the position in space at which to put it
      * @param pParentCell pointer to a parent cell (if required)
      *
-     * @returns address of cell as it appears in the cell list
+     * @return address of cell as it appears in the cell list
      */
     TissueCellPtr AddCell(TissueCellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, TissueCellPtr pParentCell=TissueCellPtr());
 

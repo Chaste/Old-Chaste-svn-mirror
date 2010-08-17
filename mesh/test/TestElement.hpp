@@ -45,7 +45,7 @@ class TestElement : public CxxTest::TestSuite
      * not on the boundary.
      *
      * @param index The global index of the created node.
-     * @returns A pointer to a new 3d node.
+     * @return A pointer to a new 3d node.
      */
     Node<3>* CreateZeroPointNode(int index)
     {

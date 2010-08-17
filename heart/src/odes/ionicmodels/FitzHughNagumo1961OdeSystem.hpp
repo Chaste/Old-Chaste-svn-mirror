@@ -69,7 +69,7 @@ public:
     /**
      * Calculates the ionic current
      *
-     * @returns the total ionic current
+     * @return the total ionic current
      */
     double GetIIonic();
 };
