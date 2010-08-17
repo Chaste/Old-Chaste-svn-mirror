@@ -717,6 +717,8 @@ void LinearSystem::SetPcType(const char* pcType, boost::shared_ptr<std::vector<P
             /// \todo: #1082 use a single pointer to abstract class
             delete mpBlockDiagonalPC;
             mpBlockDiagonalPC = NULL;
+            delete mpLDUFactorisationPC;
+            mpLDUFactorisationPC = NULL;
             delete mpTwoLevelsBlockDiagonalPC;
             mpTwoLevelsBlockDiagonalPC = NULL;
 
@@ -726,6 +728,8 @@ void LinearSystem::SetPcType(const char* pcType, boost::shared_ptr<std::vector<P
         {
             // If the previous preconditioner was purpose-built we need to free the appropriate pointer.
             /// \todo: #1082 use a single pointer to abstract class
+            delete mpBlockDiagonalPC;
+            mpBlockDiagonalPC = NULL;
             delete mpLDUFactorisationPC;
             mpLDUFactorisationPC = NULL;
             delete mpTwoLevelsBlockDiagonalPC;
@@ -741,6 +745,8 @@ void LinearSystem::SetPcType(const char* pcType, boost::shared_ptr<std::vector<P
             mpBlockDiagonalPC = NULL;
             delete mpLDUFactorisationPC;
             mpLDUFactorisationPC = NULL;
+            delete mpTwoLevelsBlockDiagonalPC;
+            mpTwoLevelsBlockDiagonalPC = NULL;
 
             if (!mpBathNodes)
             {
