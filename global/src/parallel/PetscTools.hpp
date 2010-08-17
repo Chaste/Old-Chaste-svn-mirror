@@ -47,7 +47,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscmat.h>
 #endif //SPECIAL_SERIAL
 
+/** For use in tests that do not work when run in parallel. */
 #define EXIT_IF_PARALLEL if(!PetscTools::IsSequential()){TS_TRACE("This test does not pass in parallel yet.");return;}
+/** For use in tests that should ONLY be run in parallel. */
 #define EXIT_IF_SEQUENTIAL if(PetscTools::IsSequential()){TS_TRACE("This test is not meant to be executed in sequential.");return;}
 
 
@@ -247,12 +249,21 @@ public:
 
 };
 
+/**
+ * Terminate execution safely, even when running in parallel.  Use for level 4 errors:
+ * execution cannot continue from this point and hence should be terminated (even when running with NDEBUG).
+ *
+ * @param message  explanatory message
+ */
 #define TERMINATE(message) PetscTools::Terminate(message, __FILE__, __LINE__)
 
-/*
- *  The exit statement at the end of NEVER_REACHED is not really needed but prevents g++ from complaining about 
+/**
+ * Use for control paths that will never be executed, just to make sure they aren't.
+ *
+ * The exit statement at the end of NEVER_REACHED is not really needed but prevents g++ from complaining about
  * uninitialised variables when you have code that looks like:
  * 
+ * \code
  *   RelativeTo::Value relative_to;
  *   switch (rPath.relative_to())
  *   {
@@ -272,8 +283,9 @@ public:
  *           NEVER_REACHED;
  *           break;
  *   }
+ * \endcode
  * 
- *  relative_to is considered potentially uninitialised in the default branch unless the compiler finds a exit, 
+ * relative_to is considered potentially uninitialised in the default branch unless the compiler finds a exit,
  * assert or throw statement. 
  */
 #define NEVER_REACHED  PetscTools::Terminate("Should have been impossible to reach this line of code", __FILE__, __LINE__); exit(EXIT_FAILURE)

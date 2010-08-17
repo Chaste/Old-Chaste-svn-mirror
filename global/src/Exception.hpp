@@ -42,8 +42,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <climits> //For UINT_MAX etc., necessary in gcc-4.3
 #include <cstdlib> //For system() etc., necessary in gcc-4.3
 
+/** Use when initialising an unsigned variable that doesn't have a sensible default value. */
 const unsigned UNSIGNED_UNSET=UINT_MAX;
+/** Use when initialising an int variable that doesn't have a sensible default value. */
 const int INT_UNSET=INT_MAX;
+/** Use when initialising a double variable that doesn't have a sensible default value. */
 const double DOUBLE_UNSET=DBL_MAX;
 
 /**
@@ -105,33 +108,57 @@ public:
     std::string CheckShortMessageContains(std::string expected) const;
 };
 
+/**
+ * Convenience macro for throwing an exception, in order to add file and line info.
+ *
+ * @param message  the exception message
+ */
 #define EXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
 
-// This is to cope with NDEBUG causing variables to not be used, since they are only
-// used in assert()s
+/**
+ * This is to cope with NDEBUG causing variables to not be used, when they are only
+ * used in assert()s.
+ * @param var  the "unused" variable
+ */
 #ifdef NDEBUG
 #define UNUSED_OPT(var) var=var
 #else
 #define UNUSED_OPT(var)
 #endif
 
-// These macros are handy for calling functions like system which return non-zero on error
+/**
+ * Handy for calling functions like system which return non-zero on error.
+ * Throws if an error occurs.
+ * @param cmd  command to call
+ * @param arg  its argument (will be converted to std::string)
+ */
 #define EXPECT0(cmd, arg) { \
-    std::string _arg = (arg); \
+    std::string _arg(arg); \
     int ret = cmd(_arg.c_str()); \
     if (ret != 0) { \
         EXCEPTION("Error executing command: " #cmd "(" + _arg + ")"); \
     } }
 
+/**
+ * Handy for calling functions like system which return non-zero on error.
+ * MPI_Abort if an error occurs.
+ * @param cmd  command to call
+ * @param arg  its argument (will be converted to std::string)
+ */
 #define MPIABORTIFNON0(cmd, arg) { \
-    std::string _arg = (arg); \
+    std::string _arg(arg); \
     int ret = cmd(_arg.c_str()); \
     if (ret != 0) { \
         std::cout << "Error executing command: " #cmd "(" + _arg + ")"; \
         MPI_Abort(PETSC_COMM_WORLD, -1); \
     } }
 
-
+/**
+ * Handy for calling functions like system which return non-zero on error.
+ * This time we expect failure; throws if the command succeeds.
+ * @param cmd  command to call
+ * @param arg  its argument (will be converted to std::string)
+ */
 #define EXPECTNON0(cmd, arg) { \
     std::string _arg = (arg); \
     int ret = cmd(_arg.c_str()); \
@@ -139,8 +166,12 @@ public:
         EXCEPTION("Command: " #cmd "(" + _arg + ") succeeded and it shouldn't have"); \
     } }
 
-
-// Or if you don't care about errors for some reason...
+/**
+ * Handy for calling functions like system which return non-zero on error.
+ * This version ignores the return code, in case you don't care about errors for some reason...
+ * @param cmd  command to call
+ * @param arg  its argument (will be converted to std::string)
+ */
 #define IGNORE_RET(cmd, arg) { \
     std::string _arg = (arg); \
     int ret = cmd(_arg.c_str()); \
