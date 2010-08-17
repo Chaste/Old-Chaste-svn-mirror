@@ -82,16 +82,16 @@ protected:
      */
     boost::shared_ptr<AbstractCellCycleModelOdeSolver> mpOdeSolver;
 
-    /** The last time the cell cycle ODEs were evaluated.*/
+    /** The last time the cell cycle ODEs were evaluated. */
     double mLastTime;
 
-    /** The time at which the cell should divide - Set this to DBL_MAX in constructor.*/
+    /** The time at which the cell should divide - Set this to DBL_MAX in constructor. */
     double mDivideTime;
 
-    /** Whether the cell cycle model is currently in a delay (not solving ODEs).*/
+    /** Whether the cell cycle model is currently in a delay (not solving ODEs). */
     bool mFinishedRunningOdes;
 
-    /** The start time for the G2 phase */
+    /** The start time for the G2 phase. */
     double mG2PhaseStartTime;
 
 public:
@@ -106,18 +106,6 @@ public:
      */
     AbstractOdeBasedCellCycleModel(double lastTime = SimulationTime::Instance()->GetTime(),
                                    boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
-
-    /**
-     * Copy constructor.
-     *
-     * This is needed because we store and manage a pointer to an ODE system.
-     * Note that this class doesn't actually copy the ODE system, because each
-     * subclass will use a different type.  Hence subclasses *must* copy their
-     * own ODE system in their copy constructor.
-     *
-     * @param rOtherModel the cell cycle model being copied.
-     */
-    AbstractOdeBasedCellCycleModel(const AbstractOdeBasedCellCycleModel& rOtherModel);
 
     /**
      * This destructor deletes the mpOdeSystem.
@@ -181,10 +169,52 @@ public:
      */
     virtual void ResetForDivision();
 
-     /**
-      * @return mpOdeSolver (used in archiving).
-      */
+    /**
+     * @return mpOdeSolver (used in archiving).
+     */
     const boost::shared_ptr<AbstractCellCycleModelOdeSolver> GetOdeSolver() const;
+
+    /**
+     * Set mFinishedRunningOdes. Used in CreateCellCycleModel().
+     * 
+     * @param finishedRunningOdes the new value of mFinishedRunningOdes
+     */
+    void SetFinishedRunningOdes(bool finishedRunningOdes);
+
+    /**
+     * Set mDivideTime.
+     * 
+     * @param divideTime the new value of mDivideTime
+     */
+    void SetDivideTime(double divideTime);
+
+    /**
+     * Set mLastTime.
+     * 
+     * @param lastTime the new value of mLastTime
+     */
+    void SetLastTime(double lastTime);
+
+    /**
+     * Set mG2PhaseStartTime. Used in CreateCellCycleModel().
+     * 
+     * @param g2PhaseStartTime the new value of mG2PhaseStartTime
+     */
+    void SetG2PhaseStartTime(double g2PhaseStartTime);
+
+    /**
+     * Set the values of the state variables in the cell cycle model's ODE system.
+     *
+     * @param rStateVariables vector containing values for the state variables
+     */
+    void SetStateVariables(const std::vector<double>& rStateVariables);
+
+    /**
+     * Set mpOdeSystem. Used in CreateCellCycleModel().
+     * 
+     * @param pOdeSystem the ODE system
+     */
+    void SetOdeSystem(AbstractOdeSystem* pOdeSystem);
 };
 
 CLASS_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)

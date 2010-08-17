@@ -58,7 +58,7 @@ typedef boost::shared_ptr<TissueCell> TissueCellPtr;
  *
  * This class should not store any spatial information - tissue cells are linked to space by the AbstractTissue subclasses.
  */
-class TissueCell : boost::noncopyable, public boost::enable_shared_from_this<TissueCell> 
+class TissueCell : boost::noncopyable, public boost::enable_shared_from_this<TissueCell>
 {
 private:
 

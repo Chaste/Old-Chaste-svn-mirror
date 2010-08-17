@@ -45,17 +45,6 @@ AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime,
     AbstractCellCycleModel::SetBirthTime(lastTime);
 }
 
-AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(const AbstractOdeBasedCellCycleModel& rOtherModel)
-    : AbstractCellCycleModel(rOtherModel),
-      mpOdeSystem(NULL), // Must be done by subclasses
-      mpOdeSolver(rOtherModel.mpOdeSolver),
-      mLastTime(rOtherModel.mLastTime),
-      mDivideTime(rOtherModel.mDivideTime),
-      mFinishedRunningOdes(rOtherModel.mFinishedRunningOdes),
-      mG2PhaseStartTime(rOtherModel.mG2PhaseStartTime)
-{
-}
-
 AbstractOdeBasedCellCycleModel::~AbstractOdeBasedCellCycleModel()
 {
     if (mpOdeSystem != NULL)
@@ -176,4 +165,35 @@ double AbstractOdeBasedCellCycleModel::GetOdeStopTime()
 const boost::shared_ptr<AbstractCellCycleModelOdeSolver> AbstractOdeBasedCellCycleModel::GetOdeSolver() const
 {
     return mpOdeSolver;
+}
+
+void AbstractOdeBasedCellCycleModel::SetFinishedRunningOdes(bool finishedRunningOdes)
+{
+    mFinishedRunningOdes = finishedRunningOdes;
+}
+
+void AbstractOdeBasedCellCycleModel::SetDivideTime(double divideTime)
+{
+    mDivideTime = divideTime;
+}
+
+void AbstractOdeBasedCellCycleModel::SetLastTime(double lastTime)
+{
+    mLastTime = lastTime;
+}
+
+void AbstractOdeBasedCellCycleModel::SetG2PhaseStartTime(double g2PhaseStartTime)
+{
+    mG2PhaseStartTime = g2PhaseStartTime;
+}
+
+void AbstractOdeBasedCellCycleModel::SetStateVariables(const std::vector<double>& rStateVariables)
+{
+    assert(mpOdeSystem);
+    mpOdeSystem->SetStateVariables(rStateVariables);
+}
+
+void AbstractOdeBasedCellCycleModel::SetOdeSystem(AbstractOdeSystem* pOdeSystem)
+{
+    mpOdeSystem = pOdeSystem;
 }

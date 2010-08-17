@@ -27,19 +27,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 
-
 FixedDurationGenerationBasedCellCycleModel::FixedDurationGenerationBasedCellCycleModel()
 {
 }
 
-
-
 AbstractCellCycleModel* FixedDurationGenerationBasedCellCycleModel::CreateCellCycleModel()
 {
-    return new FixedDurationGenerationBasedCellCycleModel(*this);
+    // Create a new cell cycle model
+    FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+
+    // Set the values of the new cell cycle model's member variables
+    p_model->SetGeneration(mGeneration);
+    p_model->SetMaxTransitGenerations(mMaxTransitGenerations);
+
+    return p_model;
 }
-
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

@@ -36,16 +36,6 @@ AbstractOdeBasedCellCycleModelWithStoppingEvent::AbstractOdeBasedCellCycleModelW
 {
 }
 
-
-AbstractOdeBasedCellCycleModelWithStoppingEvent::AbstractOdeBasedCellCycleModelWithStoppingEvent(const AbstractOdeBasedCellCycleModelWithStoppingEvent& rOtherModel)
-    : AbstractOdeBasedCellCycleModel(rOtherModel)
-//      mDivideTime(rOtherModel.mDivideTime),
-//      mFinishedRunningOdes(rOtherModel.mFinishedRunningOdes),
-//      mG2PhaseStartTime(rOtherModel.mG2PhaseStartTime)
-{
-}
-
-
 AbstractOdeBasedCellCycleModelWithStoppingEvent::~AbstractOdeBasedCellCycleModelWithStoppingEvent()
 {
 }

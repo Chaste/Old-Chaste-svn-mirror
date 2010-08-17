@@ -45,13 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class Alarcon2004OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModelWithStoppingEvent
 {
 private:
-    /**
-     * Whether the cell associated with this cell cycle model is labelled (this affects the ODE system).
-     * \todo Is this unused?
-     */
-    bool mIsLabelled;
 
-    ///\todo Archiving could be tidied up for this class
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -65,7 +59,6 @@ private:
     {
         assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
-        ///\todo Shouldn't this archive mIsLabelled?
         bool is_labelled = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->IsLabelled();
         archive & is_labelled;
     }
@@ -82,7 +75,6 @@ private:
         // here.  This is a horrible hack, but avoids having to regenerate test archives...
         assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
-        ///\todo Shouldn't this archive mIsLabelled?
         bool is_labelled;
         archive & is_labelled;
         static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetIsLabelled(is_labelled);
@@ -97,15 +89,6 @@ public:
      * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      */
     Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
-
-    /**
-     * Copy constructor.
-     *
-     * Also copies our ODE system.
-     *
-     * @param rOtherModel the instance being copied.
-     */
-    Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel& rOtherModel);
 
     /**
      * A private constructor for archiving.

@@ -42,20 +42,6 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(boost
     }
 }
 
-
-Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(const Alarcon2004OxygenBasedCellCycleModel& rOtherModel)
-    : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
-{
-    if (rOtherModel.mpOdeSystem)
-    {
-        mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(*static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
-    }
-
-    // The other cell cycle model must have an ODE solver set up
-    assert(mpOdeSolver);
-}
-
-
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
                                                                            const std::vector<double>& rParentProteinConcentrations,
                                                                            const unsigned& rDimension,
@@ -68,7 +54,6 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(boost
     // Set the model to be the same as the parent cell
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
-
 
 void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
 {
@@ -86,7 +71,47 @@ void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
 
 AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateCellCycleModel()
 {
-    return new Alarcon2004OxygenBasedCellCycleModel(*this);
+    // Create a new cell cycle model
+    Alarcon2004OxygenBasedCellCycleModel* p_model = new Alarcon2004OxygenBasedCellCycleModel(mpOdeSolver);
+
+    // Create the new cell cycle model's ODE system
+    bool is_labelled = mpCell->HasCellProperty<CellLabel>();
+    switch (mDimension)
+    {
+        case 1:
+        {
+            const unsigned DIM = 1;
+            p_model->SetOdeSystem(new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), is_labelled));
+            break;
+        }
+        case 2:
+        {
+            const unsigned DIM = 2;
+            p_model->SetOdeSystem(new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), is_labelled));
+            break;
+        }
+        case 3:
+        {
+            const unsigned DIM = 3;
+            p_model->SetOdeSystem(new Alarcon2004OxygenBasedCellCycleOdeSystem(CellwiseData<DIM>::Instance()->GetValue(mpCell,0), is_labelled));
+            break;
+        }
+        default:
+            NEVER_REACHED;
+    }
+
+    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
+    assert(mpOdeSystem);
+    p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
+
+    // Set the values of the new cell cycle model's member variables
+    p_model->SetLastTime(mLastTime);
+    p_model->SetDivideTime(mDivideTime);
+    p_model->SetFinishedRunningOdes(mFinishedRunningOdes);
+    p_model->SetG2PhaseStartTime(mG2PhaseStartTime);
+    p_model->SetDimension(mDimension);
+
+    return p_model;
 }
 
 void Alarcon2004OxygenBasedCellCycleModel::Initialise()

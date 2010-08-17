@@ -46,7 +46,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
 
-
 class TestTissueCell: public AbstractCellBasedTestSuite
 {
 public:

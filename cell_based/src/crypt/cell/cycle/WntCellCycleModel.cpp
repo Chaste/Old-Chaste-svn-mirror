@@ -45,20 +45,6 @@ WntCellCycleModel::WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOde
     }
 }
 
-
-WntCellCycleModel::WntCellCycleModel(const WntCellCycleModel& rOtherModel)
-    : AbstractWntOdeBasedCellCycleModel(rOtherModel)
-{
-    if (rOtherModel.mpOdeSystem != NULL)
-    {
-        mpOdeSystem = new WntCellCycleOdeSystem(*static_cast<WntCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
-    }
-
-    // The other cell cycle model must have an ODE solver set up
-    assert(mpOdeSolver != boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
-}
-
-
 WntCellCycleModel::WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
                                      const std::vector<double>& rParentProteinConcentrations,
                                      boost::shared_ptr<AbstractCellMutationState> pMutationState,
@@ -71,12 +57,29 @@ WntCellCycleModel::WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOde
     mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
 }
 
-
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
-    return new WntCellCycleModel(*this);
-}
+    // Create a new cell cycle model
+    WntCellCycleModel* p_model = new WntCellCycleModel(mpOdeSolver);
 
+    // Create the new cell cycle model's ODE system
+    double wnt_level = GetWntLevel();
+    p_model->SetOdeSystem(new WntCellCycleOdeSystem(wnt_level, mpCell->GetMutationState()));
+
+    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
+    assert(mpOdeSystem);
+    p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
+
+    // Set the values of the new cell cycle model's member variables
+    p_model->SetBirthTime(mBirthTime);
+    p_model->SetLastTime(mLastTime);
+    p_model->SetDivideTime(mDivideTime);
+    p_model->SetFinishedRunningOdes(mFinishedRunningOdes);
+    p_model->SetG2PhaseStartTime(mG2PhaseStartTime);
+    p_model->SetDimension(mDimension);
+
+    return p_model;
+}
 
 void WntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
 {
@@ -95,7 +98,6 @@ void WntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel(
     mCellProliferativeType = cell_type;
 }
 
-
 void WntCellCycleModel::Initialise()
 {
     assert(mpOdeSystem == NULL);
@@ -107,7 +109,6 @@ void WntCellCycleModel::Initialise()
 
     ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 }
-
 
 bool WntCellCycleModel::SolveOdeToTime(double currentTime)
 {
@@ -132,7 +133,6 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
     UpdateCellProliferativeType();
     return mpOdeSolver->StoppingEventOccurred();
 }
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

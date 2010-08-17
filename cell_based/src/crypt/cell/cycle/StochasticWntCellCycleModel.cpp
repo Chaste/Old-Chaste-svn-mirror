@@ -102,7 +102,26 @@ double StochasticWntCellCycleModel::GetG2Duration()
 
 AbstractCellCycleModel* StochasticWntCellCycleModel::CreateCellCycleModel()
 {
-    return new StochasticWntCellCycleModel(*this);
+    // Create a new cell cycle model
+    StochasticWntCellCycleModel* p_model = new StochasticWntCellCycleModel(mpOdeSolver);
+
+    // Create the new cell cycle model's ODE system
+    double wnt_level = GetWntLevel();
+    p_model->SetOdeSystem(new WntCellCycleOdeSystem(wnt_level, mpCell->GetMutationState()));
+
+    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
+    assert(mpOdeSystem);
+    p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
+
+    // Set the values of the new cell cycle model's member variables
+    p_model->SetBirthTime(mBirthTime);
+    p_model->SetLastTime(mLastTime);
+    p_model->SetDivideTime(mDivideTime);
+    p_model->SetFinishedRunningOdes(mFinishedRunningOdes);
+    p_model->SetG2PhaseStartTime(mG2PhaseStartTime);
+    p_model->SetDimension(mDimension);
+
+    return p_model;
 }
 
 

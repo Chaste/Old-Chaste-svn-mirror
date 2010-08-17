@@ -78,6 +78,7 @@ class AbstractOdeSystem : public AbstractParameterisedSystem<std::vector<double>
     friend class TestAbstractOdeSystem;
 
 private:
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -104,8 +105,20 @@ private:
     }
 
 protected:
+
     /** Whether to use an analytic Jacobian. */
     bool mUseAnalyticJacobian;
+
+    /**
+     * Used to include extra debugging information in exception messages.
+     * For example,
+     *      EXCEPTION(DumpState("Gating variable out of range"));
+     *
+     * @param rMessage  the exception message
+     * @param Y  the values of the state variables (optional input argument)
+     */
+    std::string DumpState(const std::string& rMessage,
+                          std::vector<double> Y = std::vector<double>());
 
 public:
 
@@ -131,7 +144,6 @@ public:
     virtual void EvaluateYDerivatives(double time, const std::vector<double>& rY,
                                       std::vector<double>& rDY)=0;
 
-
     /**
      * Set the default initial conditions for the ODE system. This method DOES NOT change the
      * state variables of the ODE object on which it is called.
@@ -154,7 +166,6 @@ public:
      */
     std::vector<double> GetInitialConditions() const;
 
-
     /**
      * Set the values of the state variables in the ODE system.
      *
@@ -167,14 +178,13 @@ public:
      */
     std::vector<double>& rGetStateVariables();
 
-
     /**
-     *  CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
-     *  only until a particular event (for example, only until the y value becomes
-     *  negative.
+     * CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
+     * only until a particular event (for example, only until the y value becomes
+     * negative.
      *
-     *  After each timestep the solver will call this method on the ODE to see if
-     *  it should stop there. By default, false is returned here.
+     * After each timestep the solver will call this method on the ODE to see if
+     * it should stop there. By default, false is returned here.
      *
      * @param time  the current time
      * @param rY  the current values of the state variables
@@ -199,19 +209,6 @@ public:
      * @return mUseAnalyticJacobian
      */
     bool GetUseAnalyticJacobian();
-
-protected:
-
-    /**
-     * Used to include extra debugging information in exception messages.
-     * For example,
-     *      EXCEPTION(DumpState("Gating variable out of range"));
-     *
-     * @param rMessage  the exception message
-     * @param Y  the values of the state variables (optional input argument)
-     */
-    std::string DumpState(const std::string& rMessage,
-                          std::vector<double> Y = std::vector<double>());
 };
 
 CLASS_IS_ABSTRACT(AbstractOdeSystem)

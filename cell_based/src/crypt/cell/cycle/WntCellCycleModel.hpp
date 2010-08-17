@@ -108,15 +108,6 @@ public:
     WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * Copy constructor.
-     *
-     * Also copies our ODE system.
-     *
-     * @param rOtherModel the instance being copied.
-     */
-    WntCellCycleModel(const WntCellCycleModel& rOtherModel);
-
-    /**
      * A private constructor for archiving.
      *
      * @param pOdeSolver a pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)

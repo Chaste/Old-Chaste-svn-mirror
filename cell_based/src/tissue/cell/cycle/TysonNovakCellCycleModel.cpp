@@ -34,7 +34,6 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(boost::shared_ptr<AbstractCel
     mpOdeSystem = new TysonNovak2001OdeSystem;
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 
-    ///\todo #1427 - extract this setup into a new method? Not needed here since only occurs once
     if (!mpOdeSolver)
     {
 #ifdef CHASTE_CVODE
@@ -50,18 +49,6 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(boost::shared_ptr<AbstractCel
         mpOdeSolver->Initialise();
 #endif //CHASTE_CVODE
     }
-}
-
-TysonNovakCellCycleModel::TysonNovakCellCycleModel(const TysonNovakCellCycleModel& rOtherModel)
-    : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
-{
-    if (rOtherModel.mpOdeSystem != NULL)
-    {
-        mpOdeSystem = new TysonNovak2001OdeSystem(*static_cast<TysonNovak2001OdeSystem*>(rOtherModel.mpOdeSystem));
-    }
-
-    // The other cell cycle model must have an ODE solver set up
-    assert(mpOdeSolver);
 }
 
 void TysonNovakCellCycleModel::ResetForDivision()
@@ -99,7 +86,22 @@ void TysonNovakCellCycleModel::InitialiseDaughterCell()
 
 AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
 {
-    return new TysonNovakCellCycleModel(*this);
+    // Create a new cell cycle model
+    TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel(mpOdeSolver);
+
+    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
+    assert(mpOdeSystem);
+    p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
+
+    // Set the values of the new cell cycle model's member variables
+    p_model->SetBirthTime(mBirthTime);
+    p_model->SetLastTime(mLastTime);
+    p_model->SetDivideTime(mDivideTime);
+    p_model->SetFinishedRunningOdes(mFinishedRunningOdes);
+    p_model->SetG2PhaseStartTime(mG2PhaseStartTime);
+    p_model->SetCellProliferativeType(mCellProliferativeType);
+
+    return p_model;
 }
 
 bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)

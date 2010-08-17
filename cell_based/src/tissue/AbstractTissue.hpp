@@ -202,8 +202,7 @@ public:
     /**
      * Base class with virtual methods needs a virtual destructor.
      */
-    virtual ~AbstractTissue()
-    {}
+    virtual ~AbstractTissue();
 
     /**
      * Initialise each cell's cell cycle model.

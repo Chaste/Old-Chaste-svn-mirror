@@ -205,6 +205,13 @@ public:
      * @param criticalHypoxicDuration the new value of mCriticalHypoxicDuration
      */
     void SetCriticalHypoxicDuration(double criticalHypoxicDuration);
+
+    /**
+     * Set method for mCurrentHypoxiaOnsetTime.
+     * 
+     * @param currentHypoxiaOnsetTime the new value of mCurrentHypoxiaOnsetTime
+     */
+    void SetCurrentHypoxiaOnsetTime(double currentHypoxiaOnsetTime);
 };
 
 // Declare identifier for the serializer

@@ -111,15 +111,6 @@ public:
     AbstractVanLeeuwen2009WntSwatCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * Copy constructor.
-     *
-     * Creates an appropriate copy of our ODE system too.
-     *
-     * @param rOtherModel the instance being copied.
-     */
-    AbstractVanLeeuwen2009WntSwatCellCycleModel(const AbstractVanLeeuwen2009WntSwatCellCycleModel& rOtherModel);
-
-    /**
      * See AbstractCellCycleModel::Initialise()
      *
      * In this case we set up a new ODE system for a daughter cell.

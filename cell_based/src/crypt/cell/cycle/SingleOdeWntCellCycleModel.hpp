@@ -105,7 +105,7 @@ private:
     /**
      * Pointer to the ODE system developed by Mirams et al (2010).
      */
-    Mirams2010WntOdeSystem* mpOdeSystem;
+    AbstractOdeSystem* mpOdeSystem;
 
     /**
      * The ODE solver.
@@ -172,16 +172,6 @@ public:
     ~SingleOdeWntCellCycleModel();
 
     /**
-     * Copy constructor.
-     *
-     * This is important to make a copy of the ODE system instead of
-     * giving the copied cell cycle model a pointer to the same ODE.
-     *
-     * @param rOtherModel  the one to copy
-     */
-    SingleOdeWntCellCycleModel(const SingleOdeWntCellCycleModel& rOtherModel);
-
-    /**
      * Initialise the cell cycle model at the start of a simulation.
      *
      * This overridden method sets up a new WntCellCycleOdeSystem,
@@ -222,6 +212,27 @@ public:
       * @return mpOdeSolver (used in archiving).
       */
     const boost::shared_ptr<AbstractCellCycleModelOdeSolver> GetOdeSolver() const;
+
+    /**
+     * Set mLastTime.
+     * 
+     * @param lastTime the new value of mLastTime
+     */
+    void SetLastTime(double lastTime);
+
+    /**
+     * Set the values of the state variables in the cell cycle model's ODE system.
+     *
+     * @param rStateVariables vector containing values for the state variables
+     */
+    void SetStateVariables(const std::vector<double>& rStateVariables);
+
+    /**
+     * Set mpOdeSystem. Used in CreateCellCycleModel().
+     * 
+     * @param pOdeSystem the ODE system
+     */
+    void SetOdeSystem(AbstractOdeSystem* pOdeSystem);
 };
 
 // Declare identifier for the serializer

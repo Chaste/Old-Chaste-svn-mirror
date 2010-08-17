@@ -39,7 +39,14 @@ SimpleWntCellCycleModel::SimpleWntCellCycleModel()
 
 AbstractCellCycleModel* SimpleWntCellCycleModel::CreateCellCycleModel()
 {
-    return new SimpleWntCellCycleModel(*this);
+    // Create a new cell cycle model
+    SimpleWntCellCycleModel* p_model = new SimpleWntCellCycleModel();
+
+    // Set the values of the new cell cycle model's member variables
+    p_model->SetDimension(mDimension);
+    p_model->SetCellProliferativeType(mCellProliferativeType);
+
+    return p_model;
 }
 
 

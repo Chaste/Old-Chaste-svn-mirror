@@ -75,14 +75,12 @@ public:
     /**
      * Default constructor - creates an AbstractSimpleCellCycleModel.
      */
-    AbstractSimpleCellCycleModel()
-    {}
+    AbstractSimpleCellCycleModel();
 
     /**
      * Default destructor.
      */
-    virtual ~AbstractSimpleCellCycleModel()
-    {}
+    virtual ~AbstractSimpleCellCycleModel();
 
     /** See AbstractCellCycleModel::ResetForDivision() */
     virtual void ResetForDivision();

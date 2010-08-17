@@ -25,13 +25,17 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 
+#include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
 
 AbstractSimpleGenerationBasedCellCycleModel::AbstractSimpleGenerationBasedCellCycleModel()
     : AbstractSimpleCellCycleModel(),
       mGeneration(0),
       mMaxTransitGenerations(3) // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
+{
+}
+
+AbstractSimpleGenerationBasedCellCycleModel::~AbstractSimpleGenerationBasedCellCycleModel()
 {
 }
 
@@ -48,7 +52,6 @@ void AbstractSimpleGenerationBasedCellCycleModel::ResetForDivision()
     }
     AbstractSimpleCellCycleModel::ResetForDivision();
 }
-
 
 void AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell()
 {
@@ -73,12 +76,10 @@ void AbstractSimpleGenerationBasedCellCycleModel::InitialiseDaughterCell()
     AbstractSimpleCellCycleModel::InitialiseDaughterCell();
 }
 
-
 void AbstractSimpleGenerationBasedCellCycleModel::SetGeneration(unsigned generation)
 {
     mGeneration = generation;
 }
-
 
 unsigned AbstractSimpleGenerationBasedCellCycleModel::GetGeneration() const
 {

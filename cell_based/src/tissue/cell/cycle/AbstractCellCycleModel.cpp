@@ -39,9 +39,14 @@ AbstractCellCycleModel::AbstractCellCycleModel()
 
 AbstractCellCycleModel::~AbstractCellCycleModel()
 {
-    // Don't delete the cell - the cell deletes the cell cycle model
-    // when it is destroyed (not the following way round):
-    // delete mpCell;
+}
+
+void AbstractCellCycleModel::Initialise()
+{
+}
+
+void AbstractCellCycleModel::InitialiseDaughterCell()
+{
 }
 
 void AbstractCellCycleModel::SetCell(TissueCellPtr pCell)

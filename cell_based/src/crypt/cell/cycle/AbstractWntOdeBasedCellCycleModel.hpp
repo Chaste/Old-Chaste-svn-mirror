@@ -82,18 +82,6 @@ public:
     AbstractWntOdeBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * Copy constructor.
-     *
-     * This is needed because we store and manage a pointer to an ODE system.
-     * Note that this class doesn't actually copy the ODE system, because each
-     * subclass will use a different type.  Hence subclasses *must* copy their
-     * own ODE system in their copy constructor.
-     *
-     * @param rOtherModel the cell cycle model being copied.
-     */
-    AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& rOtherModel);
-
-    /**
      * Destructor.
      */
     ~AbstractWntOdeBasedCellCycleModel();

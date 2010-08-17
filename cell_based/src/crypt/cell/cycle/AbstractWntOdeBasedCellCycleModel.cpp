@@ -33,12 +33,6 @@ AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(boost::shar
 {
 }
 
-AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(const AbstractWntOdeBasedCellCycleModel& rOtherModel)
-    : AbstractOdeBasedCellCycleModelWithStoppingEvent(rOtherModel)
-{
-    mDimension = rOtherModel.mDimension;
-}
-
 AbstractWntOdeBasedCellCycleModel::~AbstractWntOdeBasedCellCycleModel()
 {
 }

@@ -25,6 +25,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #include "UblasIncludes.hpp"
 #include "SingleOdeWntCellCycleModel.hpp"
 
@@ -57,23 +58,25 @@ SingleOdeWntCellCycleModel::~SingleOdeWntCellCycleModel()
 
 AbstractCellCycleModel* SingleOdeWntCellCycleModel::CreateCellCycleModel()
 {
-    return new SingleOdeWntCellCycleModel(*this);
-}
+    // Create a new cell cycle model
+    SingleOdeWntCellCycleModel* p_model = new SingleOdeWntCellCycleModel(this->mpOdeSolver);
 
-SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(const SingleOdeWntCellCycleModel& rOtherModel)
-    : SimpleWntCellCycleModel(rOtherModel),
-      mpOdeSystem(NULL), // This line is even more unbelievably important than you'd expect
-      mpOdeSolver(rOtherModel.mpOdeSolver)
-{
-    mBetaCateninDivisionThreshold = rOtherModel.mBetaCateninDivisionThreshold;
-    mLastTime = rOtherModel.mLastTime;
-    if (rOtherModel.mpOdeSystem != NULL)
-    {
-        mpOdeSystem = new Mirams2010WntOdeSystem(*static_cast<Mirams2010WntOdeSystem*>(rOtherModel.mpOdeSystem));
-    }
+    // Create the new cell cycle model's ODE system
+    double wnt_level = this->GetWntLevel();
+    p_model->SetOdeSystem(new Mirams2010WntOdeSystem(wnt_level, mpCell->GetMutationState()));
 
-    // The other cell cycle model must have an ODE solver set up
-    assert(mpOdeSolver != boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
+    // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
+    assert(mpOdeSystem);
+    p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
+
+    // Set the values of the new cell cycle model's member variables
+    p_model->SetCellProliferativeType(mCellProliferativeType);
+    p_model->SetBirthTime(mBirthTime);
+    p_model->SetLastTime(mLastTime);
+    p_model->SetBetaCateninDivisionThreshold(mBetaCateninDivisionThreshold);
+    p_model->SetDimension(mDimension);
+
+    return p_model;
 }
 
 void SingleOdeWntCellCycleModel::UpdateCellCyclePhase()
@@ -83,7 +86,6 @@ void SingleOdeWntCellCycleModel::UpdateCellCyclePhase()
     ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
     AbstractSimpleCellCycleModel::UpdateCellCyclePhase(); /// Don't call the SimpleWntCellCycleModel - it will overwrite this.
 }
-
 
 SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
                                                        std::vector<double>& rParentProteinConcentrations,
@@ -102,7 +104,6 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(boost::shared_ptr<Abstrac
     mpOdeSolver = pOdeSolver;
     assert(mpOdeSolver->IsSetUp());
 }
-
 
 void SingleOdeWntCellCycleModel::Initialise()
 {
@@ -183,6 +184,22 @@ double SingleOdeWntCellCycleModel::GetBetaCateninDivisionThreshold()
 const boost::shared_ptr<AbstractCellCycleModelOdeSolver> SingleOdeWntCellCycleModel::GetOdeSolver() const
 {
     return mpOdeSolver;
+}
+
+void SingleOdeWntCellCycleModel::SetLastTime(double lastTime)
+{
+    mLastTime = lastTime;
+}
+
+void SingleOdeWntCellCycleModel::SetStateVariables(const std::vector<double>& rStateVariables)
+{
+    assert(mpOdeSystem);
+    mpOdeSystem->SetStateVariables(rStateVariables);
+}
+
+void SingleOdeWntCellCycleModel::SetOdeSystem(AbstractOdeSystem* pOdeSystem)
+{
+    mpOdeSystem = pOdeSystem;
 }
 
 // Declare identifier for the serializer

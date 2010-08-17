@@ -150,7 +150,17 @@ void StochasticOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 
 AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleModel()
 {
-    return new StochasticOxygenBasedCellCycleModel(*this);
+    // Create a new cell cycle model
+    StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel();
+
+    // Set the values of the new cell cycle model's member variables
+    p_model->SetDimension(mDimension);
+    p_model->SetCellProliferativeType(mCellProliferativeType);
+    p_model->SetHypoxicConcentration(mHypoxicConcentration);
+    p_model->SetQuiescentConcentration(mQuiescentConcentration);
+    p_model->SetCriticalHypoxicDuration(mCriticalHypoxicDuration);
+
+    return p_model;
 }
 
 void StochasticOxygenBasedCellCycleModel::UpdateHypoxicDuration()
@@ -242,6 +252,12 @@ void StochasticOxygenBasedCellCycleModel::SetCriticalHypoxicDuration(double crit
 {
     assert(criticalHypoxicDuration >= 0.0);
     mCriticalHypoxicDuration = criticalHypoxicDuration;
+}
+
+void StochasticOxygenBasedCellCycleModel::SetCurrentHypoxiaOnsetTime(double currentHypoxiaOnsetTime)
+{
+    assert(currentHypoxiaOnsetTime >= 0.0);
+    mCurrentHypoxiaOnsetTime = currentHypoxiaOnsetTime;
 }
 
 // Serialization for Boost >= 1.36

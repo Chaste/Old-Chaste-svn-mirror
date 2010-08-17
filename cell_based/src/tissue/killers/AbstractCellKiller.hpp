@@ -52,7 +52,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~AbstractCellKiller() {};
+    virtual ~AbstractCellKiller();
 
     /**
      *  Pure method which should call StartApoptosis() on any cell
@@ -94,6 +94,11 @@ private:
 template <unsigned SPACE_DIM>
 AbstractCellKiller<SPACE_DIM>::AbstractCellKiller(AbstractTissue<SPACE_DIM>* pTissue)
         : mpTissue(pTissue)
+{
+}
+
+template <unsigned SPACE_DIM>
+AbstractCellKiller<SPACE_DIM>::~AbstractCellKiller()
 {
 }
 

@@ -70,6 +70,7 @@ protected:
 
     /** How many generations a transit cell lives for before becoming fully differentiated. */
     unsigned mMaxTransitGenerations;
+
 public:
 
     /**
@@ -80,8 +81,7 @@ public:
     /**
      * Default destructor.
      */
-    virtual ~AbstractSimpleGenerationBasedCellCycleModel()
-    {}
+    virtual ~AbstractSimpleGenerationBasedCellCycleModel();
 
     /** Overridden ResetForDivision() method. */
     void ResetForDivision();

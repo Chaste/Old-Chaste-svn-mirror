@@ -88,6 +88,11 @@ AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCellPtr>& rCells,
 }
 
 template<unsigned DIM>
+AbstractTissue<DIM>::~AbstractTissue()
+{
+}
+
+template<unsigned DIM>
 void AbstractTissue<DIM>::InitialiseCells()
 {
     for (typename AbstractTissue<DIM>::Iterator cell_iter=this->Begin(); cell_iter!=this->End(); ++cell_iter)

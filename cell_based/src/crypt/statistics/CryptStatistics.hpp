@@ -35,8 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class CryptStatistics : public AbstractCryptStatistics
 {
-
-protected:
+private:
 
     /**
      * Method computing the perpendicular distance from the cell to the line from (xBottom, 0) to
@@ -69,29 +68,22 @@ protected:
      */
     bool CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& rCellPosition, double widthOfSection=1.0);
 
-
-public :
+public:
 
     /**
-     *  Constructor
+     * Constructor
      *
-     *  @param rCrypt The crypt
+     * @param rCrypt The crypt
      */
-    CryptStatistics(MeshBasedTissue<2>& rCrypt)
-        : AbstractCryptStatistics(rCrypt) {};
+    CryptStatistics(MeshBasedTissue<2>& rCrypt);
 
     /**
-     * Free any memory allocated by the constructor
-     */
-     virtual ~CryptStatistics() {};
-
-    /**
-     *  Get all cells within a cell width of the section defined as the line between points (xBottom,0)
-     *  and (xTop,yTop)
+     * Get all cells within a cell width of the section defined as the line between points (xBottom,0)
+     * and (xTop,yTop)
      *
-     *  Periodicity can be taken into account (if xTop and xBottom are more than half a crypt
-     *  width apart then a more realistic section will be across the periodic boundary), using the
-     *  final parameter. This obviously requires the mesh to be cylindrical.
+     * Periodicity can be taken into account (if xTop and xBottom are more than half a crypt
+     * width apart then a more realistic section will be across the periodic boundary), using the
+     * final parameter. This obviously requires the mesh to be cylindrical.
      *
      * @param xBottom the x coordinate of the bottom of the line (defaults to a random number U[0,crypt_width])
      * @param xTop the x coordinate of the top of the line (defaults to a random number U[0,crypt_width])
@@ -109,8 +101,6 @@ public :
                                                 double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
                                                 double yTop = TissueConfig::Instance()->GetCryptLength() + 2.0,
                                                 bool periodic = false);
-
-
 
     /**
      * Get all cells with a cell width of the line defined by the points (xBottom,0)
@@ -133,7 +123,6 @@ public :
     std::vector<TissueCellPtr> GetCryptSectionPeriodic(double xBottom = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
                                                        double xTop = DBL_MAX, //RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth(),
                                                        double yTop = TissueConfig::Instance()->GetCryptLength() + 2.0);
-
 };
 
 

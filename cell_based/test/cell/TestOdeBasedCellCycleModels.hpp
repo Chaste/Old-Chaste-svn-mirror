@@ -162,7 +162,7 @@ public:
             bool result = p_cell_model->ReadyToDivide();
             bool result2 = p_cell_model2->ReadyToDivide();
 
-            if (time> 2.0* standard_divide_time)
+            if (time > 2.0* standard_divide_time)
             {
                 TS_ASSERT_EQUALS(result, true);
                 TS_ASSERT_EQUALS(result2, true);

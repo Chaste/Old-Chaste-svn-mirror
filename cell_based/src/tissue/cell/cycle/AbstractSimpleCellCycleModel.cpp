@@ -28,18 +28,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractSimpleCellCycleModel.hpp"
 #include "PetscTools.hpp"
 
+AbstractSimpleCellCycleModel::AbstractSimpleCellCycleModel()
+{
+}
+
+AbstractSimpleCellCycleModel::~AbstractSimpleCellCycleModel()
+{
+}
+
 void AbstractSimpleCellCycleModel::Initialise()
 {
     SetG1Duration();
 }
-
 
 void AbstractSimpleCellCycleModel::InitialiseDaughterCell()
 {
     AbstractCellCycleModel::InitialiseDaughterCell();
     SetG1Duration();
 }
-
 
 void AbstractSimpleCellCycleModel::SetG1Duration()
 {
@@ -61,14 +67,12 @@ void AbstractSimpleCellCycleModel::SetG1Duration()
     }
 }
 
-
 void AbstractSimpleCellCycleModel::ResetForDivision()
 {
     AbstractCellCycleModel::ResetForDivision();
     mBirthTime = SimulationTime::Instance()->GetTime();
     SetG1Duration();
 }
-
 
 void AbstractSimpleCellCycleModel::UpdateCellCyclePhase()
 {

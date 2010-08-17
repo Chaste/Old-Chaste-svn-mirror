@@ -28,92 +28,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptStatistics.hpp"
 #include "RandomNumberGenerator.hpp"
 
-/** This global function is to allow the list of cells in to be compared in
- *  terms of their y-value and std::list.sort() to be called
+/**
+ * This global function is to allow the list of cells in to be compared in
+ * terms of their y-value and std::list.sort() to be called
  */
 bool CellsHeightComparison(const std::pair<TissueCellPtr, double> lhs, const std::pair<TissueCellPtr, double> rhs)
 {
     return lhs.second < rhs.second;
 }
 
-/*
- * PRIVATE FUNCTIONS -----------------------------------------------------------------
- */
-
-bool CryptStatistics::CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& rCellPosition, double widthOfSection)
+CryptStatistics::CryptStatistics(MeshBasedTissue<2>& rCrypt)
+    : AbstractCryptStatistics(rCrypt)
 {
-    c_vector<double,2> intercept;
-
-    if (xBottom==xTop)
-    {
-        intercept[0] = xTop;
-        intercept[1] = rCellPosition[1];
-    }
-    else
-    {
-        double m = (yTop)/(xTop-xBottom); // gradient of line
-
-        intercept[0] = (m*m*xBottom + rCellPosition[0] + m*rCellPosition[1])/(1+m*m);
-        intercept[1] = m*(intercept[0] - xBottom);
-    }
-
-    c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, rCellPosition);
-    double dist = norm_2(vec_from_A_to_B);
-
-    return (dist <= widthOfSection);
 }
 
-bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& rCellPosition, double widthOfSection)
-{
-    bool is_in_section = false;
-
-    c_vector<double,2> intercept;
-    double crypt_width = TissueConfig::Instance()->GetCryptWidth();
-
-    double m; // gradient of line
-    double offset;
-
-    if (xBottom < xTop)
-    {
-        offset = -crypt_width;
-    }
-    else
-    {
-        offset = crypt_width;
-    }
-
-    m = (yTop)/(xTop-xBottom+offset); // gradient of line
-
-    // 1st Line
-    intercept[0] = (m*m*xBottom + rCellPosition[0] + m*rCellPosition[1])/(1+m*m);
-    intercept[1] = m*(intercept[0] - xBottom);
-
-    c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, rCellPosition);
-    double dist = norm_2(vec_from_A_to_B);
-
-    if (dist < widthOfSection)
-    {
-        is_in_section = true;
-    }
-
-    // 2nd Line
-    intercept[0] = (m*m*(xBottom-offset) + rCellPosition[0] + m*rCellPosition[1])/(1+m*m);
-    intercept[1] = m*(intercept[0] - (xBottom-offset));
-
-    vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, rCellPosition);
-    dist = norm_2(vec_from_A_to_B);
-
-    if (dist < widthOfSection)
-    {
-        is_in_section = true;
-    }
-
-    return is_in_section;
-}
-
-/*
- * PUBLIC FUNCTIONS -----------------------------------------------------------------
- */
 std::vector<TissueCellPtr> CryptStatistics::GetCryptSection(double xBottom, double xTop, double yTop, bool periodic)
 {
     // Fill in the default values - in a sequential manner
@@ -181,4 +109,73 @@ std::vector<TissueCellPtr> CryptStatistics::GetCryptSectionPeriodic(double xBott
 {
    return GetCryptSection(xBottom, xTop, yTop, true);
 }
+bool CryptStatistics::CellIsInSection(double xBottom, double xTop, double yTop, const c_vector<double,2>& rCellPosition, double widthOfSection)
+{
+    c_vector<double,2> intercept;
 
+    if (xBottom == xTop)
+    {
+        intercept[0] = xTop;
+        intercept[1] = rCellPosition[1];
+    }
+    else
+    {
+        double m = (yTop)/(xTop-xBottom); // gradient of line
+
+        intercept[0] = (m*m*xBottom + rCellPosition[0] + m*rCellPosition[1])/(1+m*m);
+        intercept[1] = m*(intercept[0] - xBottom);
+    }
+
+    c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, rCellPosition);
+    double dist = norm_2(vec_from_A_to_B);
+
+    return (dist <= widthOfSection);
+}
+
+bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, double yTop, const c_vector<double,2>& rCellPosition, double widthOfSection)
+{
+    bool is_in_section = false;
+
+    c_vector<double,2> intercept;
+    double crypt_width = TissueConfig::Instance()->GetCryptWidth();
+
+    double m; // gradient of line
+    double offset;
+
+    if (xBottom < xTop)
+    {
+        offset = -crypt_width;
+    }
+    else
+    {
+        offset = crypt_width;
+    }
+
+    m = (yTop)/(xTop-xBottom+offset); // gradient of line
+
+    // 1st line
+    intercept[0] = (m*m*xBottom + rCellPosition[0] + m*rCellPosition[1])/(1+m*m);
+    intercept[1] = m*(intercept[0] - xBottom);
+
+    c_vector<double,2> vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, rCellPosition);
+    double dist = norm_2(vec_from_A_to_B);
+
+    if (dist < widthOfSection)
+    {
+        is_in_section = true;
+    }
+
+    // 2nd line
+    intercept[0] = (m*m*(xBottom-offset) + rCellPosition[0] + m*rCellPosition[1])/(1+m*m);
+    intercept[1] = m*(intercept[0] - (xBottom-offset));
+
+    vec_from_A_to_B = mrCrypt.rGetMesh().GetVectorFromAtoB(intercept, rCellPosition);
+    dist = norm_2(vec_from_A_to_B);
+
+    if (dist < widthOfSection)
+    {
+        is_in_section = true;
+    }
+
+    return is_in_section;
+}

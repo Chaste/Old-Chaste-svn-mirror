@@ -74,15 +74,6 @@ public:
     TysonNovakCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * Copy constructor.
-     *
-     * Also creates a copy of our ODE system.
-     *
-     * @param rOtherModel the instance being copied.
-     */
-    TysonNovakCellCycleModel(const TysonNovakCellCycleModel& rOtherModel);
-
-    /**
      * Reset cell cycle model by calling AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision()
      * and setting initial conditions for protein concentrations.
      */

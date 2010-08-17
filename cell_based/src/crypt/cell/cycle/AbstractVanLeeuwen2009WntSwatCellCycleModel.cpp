@@ -28,22 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 #include "AbstractVanLeeuwen2009WntSwatCellCycleModel.hpp"
 
-
 AbstractVanLeeuwen2009WntSwatCellCycleModel::AbstractVanLeeuwen2009WntSwatCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
    : AbstractWntOdeBasedCellCycleModel(pOdeSolver)
 {
 }
-
-
-AbstractVanLeeuwen2009WntSwatCellCycleModel::AbstractVanLeeuwen2009WntSwatCellCycleModel(const AbstractVanLeeuwen2009WntSwatCellCycleModel& rOtherModel)
-    : AbstractWntOdeBasedCellCycleModel(rOtherModel)
-{
-    if (rOtherModel.mpOdeSystem != NULL)
-    {
-        mpOdeSystem = new VanLeeuwen2009WntSwatCellCycleOdeSystem(*static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(rOtherModel.mpOdeSystem));
-    }
-}
-
 
 void AbstractVanLeeuwen2009WntSwatCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
 {
@@ -65,7 +53,6 @@ void AbstractVanLeeuwen2009WntSwatCellCycleModel::ChangeCellProliferativeTypeDue
     mCellProliferativeType = cell_type;
 }
 
-
 void AbstractVanLeeuwen2009WntSwatCellCycleModel::Initialise()
 {
     assert(mpOdeSystem == NULL);
@@ -79,7 +66,6 @@ void AbstractVanLeeuwen2009WntSwatCellCycleModel::Initialise()
 
     ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 }
-
 
 bool AbstractVanLeeuwen2009WntSwatCellCycleModel::SolveOdeToTime(double currentTime)
 {
@@ -103,12 +89,10 @@ bool AbstractVanLeeuwen2009WntSwatCellCycleModel::SolveOdeToTime(double currentT
     return mpOdeSolver->StoppingEventOccurred();
 }
 
-
 double AbstractVanLeeuwen2009WntSwatCellCycleModel::GetMembraneBoundBetaCateninLevel()
 {
     return mpOdeSystem->rGetStateVariables()[13] + mpOdeSystem->rGetStateVariables()[14];
 }
-
 
 double AbstractVanLeeuwen2009WntSwatCellCycleModel::GetCytoplasmicBetaCateninLevel()
 {
@@ -116,7 +100,6 @@ double AbstractVanLeeuwen2009WntSwatCellCycleModel::GetCytoplasmicBetaCateninLev
           + mpOdeSystem->rGetStateVariables()[9] + mpOdeSystem->rGetStateVariables()[10]
           + mpOdeSystem->rGetStateVariables()[11];
 }
-
 
 double AbstractVanLeeuwen2009WntSwatCellCycleModel::GetNuclearBetaCateninLevel()
 {
