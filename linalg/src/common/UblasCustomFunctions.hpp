@@ -263,7 +263,7 @@ T SubDeterminant(const boost::numeric::ublas::c_matrix<T, 3, 2>& rM, const unsig
     using namespace boost::numeric::ublas;
 
     assert(missrow < 3);
-    assert(misscol < 2);
+    //assert(misscol < 2); //Don't assert this since it is used
 
     unsigned lorow = (missrow==0) ? 1 : 0;
     unsigned hirow = (missrow==2) ? 1 : 2;
