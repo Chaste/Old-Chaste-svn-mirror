@@ -61,7 +61,7 @@ import hostconfig
 # If building a loadable module at run-time
 dyn_libs_only = int(ARGUMENTS.get('dyn_libs_only', 0))
 if dyn_libs_only:
-    print sys.argv
+    #print sys.argv
     # Set some other options
     ARGUMENTS['test_summary'] = 0
     ARGUMENTS['do_inf_tests'] = 0
