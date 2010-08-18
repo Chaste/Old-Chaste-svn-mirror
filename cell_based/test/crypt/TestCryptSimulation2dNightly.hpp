@@ -731,6 +731,11 @@ public:
 
         // Set up force law
         GeneralisedLinearSpringForce<2> meineke_force;
+
+        // Unusual set-up here (corresponds to the Meineke crypt model parameters)
+        meineke_force.SetMeinekeSpringStiffness(30.0);
+
+        // Pass force law into collection
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&meineke_force);
 
@@ -753,7 +758,6 @@ public:
         // Unusual set-up here (corresponds to the Meineke crypt model parameters)
         p_params->SetDampingConstantNormal(1.0);
         p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
-        p_params->SetMeinekeSpringStiffness(30.0);
         simulator.UseJiggledBottomCells();
 
         // Run simulation
