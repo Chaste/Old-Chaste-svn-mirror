@@ -424,6 +424,14 @@ Clean('.', glob.glob('lib/*'))
 Clean('.', glob.glob('linklib/*'))
 
 
+def RequestedProjects():
+    """Return a list of projects explicitly mentioned on the command line."""
+    projects = []
+    for targ in COMMAND_LINE_TARGETS:
+        if str(targ).startswith('projects'):
+            projects.append(str(targ))
+    return projects
+
 # Test summary generation
 if test_summary and not compile_only:
     # Copy the build env, since we change TargetSigs
@@ -447,16 +455,14 @@ if test_summary and not compile_only:
                     if filename[-5:] == '.gcda' or filename[-4:] == '.log':
                         os.remove(os.path.join(dirpath, filename))
         # For a Coverage build, run gcov & summarise instead
-        summary_action = 'python python/DisplayCoverage.py ' + output_dir+' '+build_type
+        summary_action = ('python python/DisplayCoverage.py ' + output_dir + ' ' + build_type
+                          + ' ' + ' '.join(RequestedProjects()))
     elif isinstance(build, BuildTypes.DoxygenCoverage):
         # Run Doxygen and parse the output
         # Include projects?
-        project_inputs = []
-        for targ in COMMAND_LINE_TARGETS:
-            if str(targ).startswith('projects'):
-                project_inputs.append(os.path.join(str(targ), 'src'))
+        project_inputs = RequestedProjects()
         if project_inputs:
-            project_inputs = '"; echo "INPUT += ' + ' '.join(project_inputs)
+            project_inputs = '"; echo "INPUT += ' + ' '.join(map(lambda p: os.path.join(p, 'src'), project_inputs))
         else:
             project_inputs = ''
         cmd = ('( cat Doxyfile ; echo "PROJECT_NUMBER=Build::r%s%s" ) ' % (build._revision, project_inputs)

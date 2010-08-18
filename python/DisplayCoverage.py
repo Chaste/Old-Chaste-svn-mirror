@@ -49,13 +49,15 @@ gcov_flags = ' -lp '
 # Get output dir and build type object
 if len(sys.argv) < 2:
     print "Syntax error."
-    print "Usage:",sys.argv[0],"<test output dir> [<build type>]"
+    print "Usage:", sys.argv[0], "<test output dir> [<build type> [<project> ...]]"
     sys.exit(1)
 output_dir = sys.argv[1]
 if len(sys.argv) > 2:
     build_type = sys.argv[2]
+    projects = sys.argv[3:]
 else:
     build_type = 'Coverage'
+    projects = []
 build = BuildTypes.GetBuildType(build_type)
 
 # Remove any old output files/test results from output_dir
@@ -65,6 +67,7 @@ for filename in os.listdir(output_dir):
 # Find .gcda files to determine which source files to run gcov on
 # First, find appropriate build directories
 build_dirs = glob.glob('*/build/' + build.build_dir)
+build_dirs.extend(map(lambda p: os.path.join(p, 'build'), projects))
 # Now find .gcda files within there
 gcda_files = []
 for build_dir in build_dirs:
@@ -103,6 +106,7 @@ for gcda_file in gcda_files:
 # Now find all our source files
 src_dirs = glob.glob('*/src')
 src_dirs.remove('apps/src')
+src_dirs.extend(map(lambda p: os.path.join(p, 'src'), projects))
 src_files = []
 for src_dir in src_dirs:
     for dirpath, dirnames, filenames in os.walk(src_dir):
