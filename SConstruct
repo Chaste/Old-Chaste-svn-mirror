@@ -250,7 +250,6 @@ env.Replace(CXXFILESUFFIX = '.cpp')
 env['INSTALL_PREFIX'] = install_prefix
 
 if int(ARGUMENTS.get('br', ARGUMENTS.get('brief', 0))):
-	#Doesn't work for me..
     env.Replace(CXXCOMSTR = '$CXX -o $TARGET -c <flags etc. omitted> $SOURCES')
     env.Replace(SHCXXCOMSTR = '$SHCXX -o $TARGET -c <flags etc. omitted> $SOURCES')
 
