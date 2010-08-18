@@ -159,6 +159,7 @@ AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleMode
     p_model->SetHypoxicConcentration(mHypoxicConcentration);
     p_model->SetQuiescentConcentration(mQuiescentConcentration);
     p_model->SetCriticalHypoxicDuration(mCriticalHypoxicDuration);
+    p_model->SetCurrentHypoxiaOnsetTime(mCurrentHypoxiaOnsetTime);
 
     return p_model;
 }

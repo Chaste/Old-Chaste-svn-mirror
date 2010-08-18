@@ -39,6 +39,7 @@ AbstractCellCycleModel* FixedDurationGenerationBasedCellCycleModel::CreateCellCy
     // Set the values of the new cell cycle model's member variables
     p_model->SetGeneration(mGeneration);
     p_model->SetMaxTransitGenerations(mMaxTransitGenerations);
+    p_model->SetCellProliferativeType(mCellProliferativeType);
 
     return p_model;
 }

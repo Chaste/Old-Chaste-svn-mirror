@@ -624,7 +624,7 @@ public:
     {
         // Set up simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        double end_time = 1; // hours
+        double end_time = 30; // hours
         unsigned num_timesteps = 100*(unsigned)end_time;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps); // 15.971 hours to go into S phase
 
@@ -642,10 +642,11 @@ public:
 
         p_stem_cell->InitialiseCellCycleModel();
 
-        // When using a WntCellCycleModel, there is no such thing as
-        // a 'stem cell'. Cell type is changed to transit or
-        // differentiated, depending on the Wnt concentration, when
-        // InitialiseCellCycleModel() is called.
+        /*
+         * In this cell cycle model, there is no such thing as a 'stem cell'. Instead, the
+         * cell proliferative type is changed to transit or differentiated, depending on the
+         * Wnt concentration, when InitialiseCellCycleModel() is called.
+         */
         TS_ASSERT_EQUALS(p_stem_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(1.0);
@@ -670,6 +671,18 @@ public:
             p_stem_cell->ReadyToDivide();
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model, expected_g1_duration);
         }
+
+        // The cell cycle model acts as if it was divided at time = 16.1877. This
+        // is fine as the cell cycle model dictates the division time, not when
+        // the cell is actually divided.
+        TissueCellPtr p_daughter_cell = p_stem_cell->Divide();
+        AbstractCellCycleModel* p_cell_model2 = p_daughter_cell->GetCellCycleModel();
+
+        TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), M_PHASE);
+        TS_ASSERT_EQUALS(p_cell_model2->GetCurrentCellCyclePhase(), M_PHASE);
+
+        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(), false);
 
         // Tidy up
         WntConcentration<1>::Destroy();
@@ -1012,50 +1025,82 @@ public:
         // Set up oxygen_concentration
         std::vector<double> oxygen_concentration;
         oxygen_concentration.push_back(1.0);
+
+        // For coverage, we create 1D, 2D and 3D instances
+        CellwiseData<1>::Instance()->SetConstantDataForTesting(oxygen_concentration);
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
+        CellwiseData<3>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        // Create cell cycle model and associated cell
-        Alarcon2004OxygenBasedCellCycleModel* p_cell_model = new Alarcon2004OxygenBasedCellCycleModel();
-        p_cell_model->SetDimension(2);
-        p_cell_model->SetCellProliferativeType(STEM);
+        // Create cell cycle models
+        Alarcon2004OxygenBasedCellCycleModel* p_model_1d = new Alarcon2004OxygenBasedCellCycleModel();
+        p_model_1d->SetDimension(1);
+        p_model_1d->SetCellProliferativeType(STEM);
 
+        Alarcon2004OxygenBasedCellCycleModel* p_model_2d = new Alarcon2004OxygenBasedCellCycleModel();
+        p_model_2d->SetDimension(2);
+        p_model_2d->SetCellProliferativeType(STEM);
+
+        Alarcon2004OxygenBasedCellCycleModel* p_model_3d = new Alarcon2004OxygenBasedCellCycleModel();
+        p_model_3d->SetDimension(3);
+        p_model_3d->SetCellProliferativeType(STEM);
+
+        // Create cells
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        TissueCellPtr p_cell(new TissueCell(p_state, p_cell_model));
-        p_cell->InitialiseCellCycleModel();
 
-        // For coverage, we create another cell cycle model that is identical except for the ODE solver
+        TissueCellPtr p_cell_1d(new TissueCell(p_state, p_model_1d));
+        p_cell_1d->InitialiseCellCycleModel();
+
+        TissueCellPtr p_cell_2d(new TissueCell(p_state, p_model_2d));
+        p_cell_2d->InitialiseCellCycleModel();
+
+        TissueCellPtr p_cell_3d(new TissueCell(p_state, p_model_3d));
+        p_cell_3d->InitialiseCellCycleModel();
+
+        // For coverage, we create another cell cycle model that is identical to p_model_2d except for the ODE solver
         boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> > 
             p_solver(CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
         p_solver->Initialise();
 
-        Alarcon2004OxygenBasedCellCycleModel* p_other_cell_model = new Alarcon2004OxygenBasedCellCycleModel(p_solver);
-        p_other_cell_model->SetDimension(2);
-        p_other_cell_model->SetCellProliferativeType(STEM);
+        Alarcon2004OxygenBasedCellCycleModel* p_other_model_2d = new Alarcon2004OxygenBasedCellCycleModel(p_solver);
+        p_other_model_2d->SetDimension(2);
+        p_other_model_2d->SetCellProliferativeType(STEM);
 
-        TissueCellPtr p_other_cell(new TissueCell(p_state, p_other_cell_model));
-        p_other_cell->InitialiseCellCycleModel();
+        TissueCellPtr p_other_cell_2d(new TissueCell(p_state, p_other_model_2d));
+        p_other_cell_2d->InitialiseCellCycleModel();
 
         // Check oxygen concentration is correct in cell cycle model
-        TS_ASSERT_DELTA(p_cell_model->GetProteinConcentrations()[5], 1.0, 1e-5);
-        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false);
+        TS_ASSERT_DELTA(p_model_2d->GetProteinConcentrations()[5], 1.0, 1e-5);
+        TS_ASSERT_EQUALS(p_model_2d->ReadyToDivide(), false);
 
-        TS_ASSERT_DELTA(p_other_cell_model->GetProteinConcentrations()[5], 1.0, 1e-5);
-        TS_ASSERT_EQUALS(p_other_cell_model->ReadyToDivide(), false);
+        TS_ASSERT_DELTA(p_other_model_2d->GetProteinConcentrations()[5], 1.0, 1e-5);
+        TS_ASSERT_EQUALS(p_other_model_2d->ReadyToDivide(), false);
 
-        // Divide a cell
-        Alarcon2004OxygenBasedCellCycleModel* p_cell_model2 = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell_model->CreateCellCycleModel());
-        p_cell_model2->SetCellProliferativeType(STEM);
-        TissueCellPtr p_cell2(new TissueCell(p_state, p_cell_model2));
+        // Divide the cells
+        Alarcon2004OxygenBasedCellCycleModel* p_model_1d_2 = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_model_1d->CreateCellCycleModel());
+        p_model_1d_2->SetCellProliferativeType(STEM);
+        TissueCellPtr p_cell_1d_2(new TissueCell(p_state, p_model_1d_2));
+
+        Alarcon2004OxygenBasedCellCycleModel* p_model_2d_2 = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_model_2d->CreateCellCycleModel());
+        p_model_2d_2->SetCellProliferativeType(STEM);
+        TissueCellPtr p_cell_2d_2(new TissueCell(p_state, p_model_2d_2));
+
+        Alarcon2004OxygenBasedCellCycleModel* p_model_3d_2 = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_model_3d->CreateCellCycleModel());
+        p_model_3d_2->SetCellProliferativeType(STEM);
+        TissueCellPtr p_cell_3d_2(new TissueCell(p_state, p_model_3d_2));
 
         p_simulation_time->IncrementTimeOneStep();
-        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), false)
-        TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(p_model_1d->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(p_model_2d->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(p_other_model_2d->ReadyToDivide(), false);
+        TS_ASSERT_EQUALS(p_model_3d->ReadyToDivide(), false);
 
         p_simulation_time->IncrementTimeOneStep();
-        TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true)
-        TS_ASSERT_EQUALS(p_cell_model2->ReadyToDivide(), true);
+        TS_ASSERT_EQUALS(p_model_1d->ReadyToDivide(), true)
+        TS_ASSERT_EQUALS(p_model_2d->ReadyToDivide(), true)
+        TS_ASSERT_EQUALS(p_other_model_2d->ReadyToDivide(), true);
+        TS_ASSERT_EQUALS(p_model_3d->ReadyToDivide(), true);
 
-        TS_ASSERT_THROWS_NOTHING(p_cell_model->ResetForDivision());
+        TS_ASSERT_THROWS_NOTHING(p_model_2d->ResetForDivision());
 
         // Tidy up
         CellwiseData<2>::Destroy();

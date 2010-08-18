@@ -110,6 +110,7 @@ AbstractCellCycleModel* Alarcon2004OxygenBasedCellCycleModel::CreateCellCycleMod
     p_model->SetFinishedRunningOdes(mFinishedRunningOdes);
     p_model->SetG2PhaseStartTime(mG2PhaseStartTime);
     p_model->SetDimension(mDimension);
+    p_model->SetCellProliferativeType(mCellProliferativeType);
 
     return p_model;
 }
