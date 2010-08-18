@@ -250,6 +250,7 @@ public:
             // the first random number generated
             CheckReadyToDivideAndPhaseIsUpdated(p_cycle_model, 1.0676);
         }
+
         // Stem cell should have been changed into a transit cell by wnt cell cycle model
         TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
@@ -336,9 +337,7 @@ public:
         p_another_cell->InitialiseCellCycleModel();
         // ...end of coverage
 
-        /*
-         * Test the case of a radial Wnt concentration
-         */
+        // Test the case of a radial Wnt concentration
 
         p_params->Reset();
         RandomNumberGenerator::Instance()->Reseed(0);
@@ -396,7 +395,6 @@ public:
         TS_ASSERT_DELTA(WntConcentration<2>::Instance()->GetWntLevel(p_cell4), wnt_level, 1e-12);
         TS_ASSERT_EQUALS(p_cell4->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
         TS_ASSERT_EQUALS(p_cell5->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
-
 
         // Coverage of 1D
 

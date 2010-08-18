@@ -144,6 +144,13 @@ public:
     double GetG2Duration();
 
     /**
+     * Set mG2Duration.
+     * 
+     * @param g2Duration the new value of mG2Duration
+     */
+    void SetG2Duration(double g2Duration);
+
+    /**
      * Overridden UpdateCellCyclePhase() method.
      */
     void UpdateCellCyclePhase();

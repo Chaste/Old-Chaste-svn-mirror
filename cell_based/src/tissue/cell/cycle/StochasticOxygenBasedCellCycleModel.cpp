@@ -29,7 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApoptoticCellProperty.hpp"
 #include "CellPropertyRegistry.hpp"
 
-
 StochasticOxygenBasedCellCycleModel::StochasticOxygenBasedCellCycleModel()
     : mTimeSpentInG1Phase(0.0),
       mCurrentHypoxicDuration(0.0),
@@ -57,13 +56,11 @@ void StochasticOxygenBasedCellCycleModel::SetG2Duration()
     }
 }
 
-
 void StochasticOxygenBasedCellCycleModel::InitialiseDaughterCell()
 {
     AbstractSimpleCellCycleModel::InitialiseDaughterCell();
     SetG2Duration();
 }
-
 
 void StochasticOxygenBasedCellCycleModel::Initialise()
 {
@@ -71,31 +68,31 @@ void StochasticOxygenBasedCellCycleModel::Initialise()
     SetG2Duration();
 }
 
-
 void StochasticOxygenBasedCellCycleModel::ResetForDivision()
 {
     AbstractSimpleCellCycleModel::ResetForDivision();
     SetG2Duration();
 }
 
-
 double StochasticOxygenBasedCellCycleModel::GetG2Duration()
 {
     return mG2Duration;
 }
 
+void StochasticOxygenBasedCellCycleModel::SetG2Duration(double g2Duration)
+{
+    mG2Duration = g2Duration;
+}
 
 double StochasticOxygenBasedCellCycleModel::GetCurrentHypoxicDuration()
 {
     return mCurrentHypoxicDuration;
 }
 
-
 double StochasticOxygenBasedCellCycleModel::GetCurrentHypoxiaOnsetTime()
 {
     return mCurrentHypoxiaOnsetTime;
 }
-
 
 void StochasticOxygenBasedCellCycleModel::UpdateCellCyclePhase()
 {
@@ -160,6 +157,7 @@ AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleMode
     p_model->SetQuiescentConcentration(mQuiescentConcentration);
     p_model->SetCriticalHypoxicDuration(mCriticalHypoxicDuration);
     p_model->SetCurrentHypoxiaOnsetTime(mCurrentHypoxiaOnsetTime);
+    p_model->SetG2Duration(mG2Duration);
 
     return p_model;
 }
@@ -220,7 +218,6 @@ double StochasticOxygenBasedCellCycleModel::GetHypoxicConcentration()
     return mHypoxicConcentration;
 }
 
-
 void StochasticOxygenBasedCellCycleModel::SetHypoxicConcentration(double hypoxicConcentration)
 {
     assert(hypoxicConcentration<=1.0);
@@ -228,12 +225,10 @@ void StochasticOxygenBasedCellCycleModel::SetHypoxicConcentration(double hypoxic
     mHypoxicConcentration = hypoxicConcentration;
 }
 
-
 double StochasticOxygenBasedCellCycleModel::GetQuiescentConcentration()
 {
     return mQuiescentConcentration;
 }
-
 
 void StochasticOxygenBasedCellCycleModel::SetQuiescentConcentration(double quiescentConcentration)
 {
@@ -242,12 +237,10 @@ void StochasticOxygenBasedCellCycleModel::SetQuiescentConcentration(double quies
     mQuiescentConcentration = quiescentConcentration;
 }
 
-
 double StochasticOxygenBasedCellCycleModel::GetCriticalHypoxicDuration()
 {
     return mCriticalHypoxicDuration;
 }
-
 
 void StochasticOxygenBasedCellCycleModel::SetCriticalHypoxicDuration(double criticalHypoxicDuration)
 {
