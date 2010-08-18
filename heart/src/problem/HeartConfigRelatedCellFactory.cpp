@@ -31,6 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteNodesList.hpp"
 #include "HeartFileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
+#include "AbstractCardiacCellInterface.hpp"
 
 
 template<unsigned SPACE_DIM>
@@ -137,7 +138,13 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 #endif // CHASTE_CAN_CHECKPOINT_DLLS
         // Load model from shared library
         DynamicCellModelLoader* p_loader = LoadDynamicModel(ionic_model, false);
-        p_cell = p_loader->CreateCell(this->mpSolver, intracellularStimulus);
+        AbstractCardiacCellInterface* p_loaded_cell = p_loader->CreateCell(this->mpSolver, intracellularStimulus);
+        p_cell = dynamic_cast<AbstractCardiacCell*>(p_loaded_cell);
+        if (!p_cell)
+        {
+            delete p_loaded_cell;
+            EXCEPTION("CVODE cannot be used as a cell model solver in tissue simulations: do not use the --cvode flag.");
+        }
     }
     else
     {

@@ -65,10 +65,10 @@ DynamicCellModelLoader::~DynamicCellModelLoader()
     }
 }
 
-AbstractCardiacCell* DynamicCellModelLoader::CreateCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+AbstractCardiacCellInterface* DynamicCellModelLoader::CreateCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                                         boost::shared_ptr<AbstractStimulusFunction> pStimulus)
 {
-    AbstractCardiacCell* p_cell = (*mpCreationFunction)(pSolver, pStimulus);
+    AbstractCardiacCellInterface* p_cell = (*mpCreationFunction)(pSolver, pStimulus);
 
     AbstractDynamicallyLoadableEntity* p_entity = dynamic_cast<AbstractDynamicallyLoadableEntity*>(p_cell);
 

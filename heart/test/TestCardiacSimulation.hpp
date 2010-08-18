@@ -43,6 +43,29 @@ class TestCardiacSimulation : public CxxTest::TestSuite
     {
         HeartEventHandler::Reset();
     }
+    
+    void CreateOptionsFile(const OutputFileHandler& rHandler,
+                           const std::string& rModelName,
+                           const std::vector<std::string>& rArgs,
+                           const std::string& rExtraXml="")
+    {
+        if (PetscTools::AmMaster())
+        {
+            out_stream p_optfile = rHandler.OpenOutputFile(rModelName + "-conf.xml");
+            (*p_optfile) << "<?xml version='1.0'?>" << std::endl
+                         << "<pycml_config>" << std::endl
+                         << "<command_line_args>" << std::endl;
+            for (unsigned i=0; i<rArgs.size(); i++)
+            {
+                (*p_optfile) << "<arg>" << rArgs[i] << "</arg>" << std::endl;
+            }
+            (*p_optfile) << "</command_line_args>" << std::endl
+                         << rExtraXml
+                         << "</pycml_config>" << std::endl;
+            p_optfile->close();
+        }
+        PetscTools::Barrier("CreateOptionsFile");
+    }
 public:
 
     void TestMono1dSmall() throw(Exception)
@@ -278,6 +301,20 @@ public:
         // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT(CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
                                                 foldername, "SimulationResults", true, 1e-8));
+
+        // Coverage - using CVODE should throw
+        DynamicModelLoaderRegistry::Instance()->Clear(); // Otherwise we just re-use the version loaded above...
+        std::vector<std::string> args;
+        args.push_back("--cvode");
+        CreateOptionsFile(handler, "luo_rudy_1991_dyn", args);
+        if (PetscTools::AmMaster())
+        {
+            /// \todo #1542 should remove the need for this:
+            EXPECT0(system, "rm " + handler.GetOutputDirectoryFullPath() + "libluo_rudy_1991_dyn.so");
+        }
+        PetscTools::Barrier("TestCardiacSimulationPatchwork-rm");
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation2("heart/test/data/xml/base_monodomain_patchwork.xml"),
+                              "CVODE cannot be used as a cell model solver in tissue simulations: do not use the --cvode flag.");
     }
 
     void TestCardiacSimulationKirsten() throw(Exception)

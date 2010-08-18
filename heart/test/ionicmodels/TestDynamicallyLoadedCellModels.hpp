@@ -52,6 +52,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartFileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
 #include "AbstractDynamicallyLoadableEntity.hpp"
+#include "AbstractCardiacCellInterface.hpp"
+#include "AbstractCvodeCell.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
@@ -65,7 +67,7 @@ private:
                      double tolerance=1e-3,
                      double tableTestV=-100000)
     {
-        AbstractCardiacCell* p_cell = CreateLr91CellFromLoader(rLoader, vIndex);
+        AbstractCardiacCellInterface* p_cell = CreateLr91CellFromLoader(rLoader, vIndex);
         SimulateLr91AndCompare(p_cell, tolerance);
 
         if (testTables)
@@ -79,15 +81,17 @@ private:
         delete p_cell;
     }
 
-    void SimulateLr91AndCompare(AbstractCardiacCell* pCell,
+    void SimulateLr91AndCompare(AbstractCardiacCellInterface* pCell,
                                 double tolerance=1e-3)
     {
         double end_time = 1000.0; //One second in milliseconds
         // Solve and write to file
         clock_t ck_start = clock();
-        RunOdeSolverWithIonicModel(pCell,
-                                   end_time,
-                                   "DynamicallyLoadableLr91");
+
+        // Don't use RunOdeSolverWithIonicModel() as this is hardcoded to AbstractCardiacCells
+        OdeSolution solution1 = pCell->Compute(0.0, end_time);
+        solution1.WriteToFile("TestIonicModels", "DynamicallyLoadableLr91", "ms", 100, false, 4);
+
         clock_t ck_end = clock();
         double forward = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
         std::cout << "\n\tSolve time: " << forward << std::endl;
@@ -96,13 +100,14 @@ private:
         CheckCellModelResults("DynamicallyLoadableLr91", "Lr91DelayedStim", tolerance);
 
         // Test GetIIonic against hardcoded result from TestIonicModels.hpp
-        RunOdeSolverWithIonicModel(pCell,
-                                   60.0,
-                                   "DynamicallyLoadableLr91GetIIonic");
-        TS_ASSERT_DELTA(pCell->GetIIonic(), 1.9411, 1e-3);
+        // Don't use RunOdeSolverWithIonicModel() as this is hardcoded to AbstractCardiacCells
+        OdeSolution solution2 = pCell->Compute(0.0, 60.0);
+        solution2.WriteToFile("TestIonicModels", "DynamicallyLoadableLr91GetIIonic", "ms", 100, false, 4);
+
+        TS_ASSERT_DELTA(pCell->GetIIonic(), 1.9411, tolerance);
     }
     
-    AbstractCardiacCell* CreateLr91CellFromLoader(DynamicCellModelLoader& rLoader,
+    AbstractCardiacCellInterface* CreateLr91CellFromLoader(DynamicCellModelLoader& rLoader,
                                                   unsigned vIndex=4u)
     {
         // Set stimulus
@@ -114,7 +119,7 @@ private:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
         // Load the cell model dynamically
-        AbstractCardiacCell* p_cell = rLoader.CreateCell(p_solver, p_stimulus);
+        AbstractCardiacCellInterface* p_cell = rLoader.CreateCell(p_solver, p_stimulus);
 
         // Simple sanity checks
         TS_ASSERT_EQUALS(p_cell->GetVoltageIndex(), vIndex);
@@ -133,6 +138,7 @@ private:
                            const std::vector<std::string>& rArgs,
                            const std::string& rExtraXml="")
     {
+        if (PetscTools::AmMaster())
         {
             out_stream p_optfile = rHandler.OpenOutputFile(rModelName + "-conf.xml");
             (*p_optfile) << "<?xml version='1.0'?>" << std::endl
@@ -217,7 +223,7 @@ public:
         // Copy CellML file into output dir
         std::string dirname = "TestCellmlConverterWithOptions";
         std::string model = "LuoRudy1991";
-        OutputFileHandler handler(dirname);
+        OutputFileHandler handler(dirname + "/plain");
         FileFinder cellml_file("heart/src/odes/cellml/" + model + ".cellml", RelativeTo::ChasteSourceRoot);
         CopyFile(handler, cellml_file);
         // Create options file
@@ -227,34 +233,51 @@ public:
 
         // Do the conversion
         CellMLToSharedLibraryConverter converter;
-        FileFinder copied_file(dirname + "/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+        FileFinder copied_file(dirname + "/plain/" + model + ".cellml", RelativeTo::ChasteTestOutput);
         DynamicCellModelLoader* p_loader = converter.Convert(copied_file);
         RunLr91Test(*p_loader, 0u, true);
 
-        // Backward Euler
-        args[0] = "--backward-euler";
-        OutputFileHandler handler2(dirname + "BE");
-        CopyFile(handler2, cellml_file);
-        FileFinder maple_output_file("heart/src/odes/cellml/LuoRudy1991.out", RelativeTo::ChasteSourceRoot);
-        CopyFile(handler2, maple_output_file);
-        CreateOptionsFile(handler2, model, args);
-        FileFinder copied_file2(dirname + "BE/" + model + ".cellml", RelativeTo::ChasteTestOutput);
-        p_loader = converter.Convert(copied_file2);
-        RunLr91Test(*p_loader, 0u, true, 0.3);
-
-        // With a for_model section
-        args[0] = "--opt";
-        // args.push_back("--cvode"); ///\todo #1505
-        OutputFileHandler handler3(dirname + "CO");
-        CopyFile(handler3, cellml_file);
-        std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
-                + "<var type='config-name'>transmembrane_potential</var>"
-                + "<max>69.9999</max>"
-                + "</lookup_table></lookup_tables></for_model>\n";
-        CreateOptionsFile(handler3, model, args, for_model);
-        FileFinder copied_file3(dirname + "CO/" + model + ".cellml", RelativeTo::ChasteTestOutput);
-        p_loader = converter.Convert(copied_file3);
-        RunLr91Test(*p_loader, 0u, true, 1e-3, 70);
+        {
+            // Backward Euler
+            args[0] = "--backward-euler";
+            OutputFileHandler handler2(dirname + "/BE");
+            CopyFile(handler2, cellml_file);
+            FileFinder maple_output_file("heart/src/odes/cellml/LuoRudy1991.out", RelativeTo::ChasteSourceRoot);
+            CopyFile(handler2, maple_output_file);
+            CreateOptionsFile(handler2, model, args);
+            FileFinder copied_file2(dirname + "/BE/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+            p_loader = converter.Convert(copied_file2);
+            RunLr91Test(*p_loader, 0u, true, 0.3);
+        }
+        {
+            // With a for_model section
+            args[0] = "--opt";
+            OutputFileHandler handler3(dirname + "/O");
+            CopyFile(handler3, cellml_file);
+            std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
+                    + "<var type='config-name'>transmembrane_potential</var>"
+                    + "<max>69.9999</max>"
+                    + "</lookup_table></lookup_tables></for_model>\n";
+            CreateOptionsFile(handler3, model, args, for_model);
+            FileFinder copied_file3(dirname + "/O/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+            p_loader = converter.Convert(copied_file3);
+            RunLr91Test(*p_loader, 0u, true, 1e-3, 70);
+        }
+        {
+            // With a for_model section and Cvode
+            args[0] = "--opt";
+            args.push_back("--cvode");
+            OutputFileHandler handler3(dirname + "/CO");
+            CopyFile(handler3, cellml_file);
+            std::string for_model = std::string("<for_model id='luo_rudy_1991'><lookup_tables><lookup_table>")
+                    + "<var type='config-name'>transmembrane_potential</var>"
+                    + "<max>69.9999</max>"
+                    + "</lookup_table></lookup_tables></for_model>\n";
+            CreateOptionsFile(handler3, model, args, for_model);
+            FileFinder copied_file3(dirname + "/CO/" + model + ".cellml", RelativeTo::ChasteTestOutput);
+            p_loader = converter.Convert(copied_file3);
+            RunLr91Test(*p_loader, 0u, true, 1, 70); // Large tolerance due to different ODE solver
+        }
     }
 
     void TestCellmlConverter() throw(Exception)
@@ -351,20 +374,20 @@ public:
         DynamicCellModelLoader* p_loader = converter.Convert(cellml_file);
         
         // Load a cell model from the .so
-        AbstractCardiacCell* p_cell = CreateLr91CellFromLoader(*p_loader, 0u);
+        AbstractCardiacCellInterface* p_cell = CreateLr91CellFromLoader(*p_loader, 0u);
         
         // Archive it
         handler.SetArchiveDirectory();
         std::string archive_filename1 = ArchiveLocationInfo::GetProcessUniqueFilePath("first-save.arch");
         {
-            AbstractCardiacCell* const p_const_cell = p_cell;
+            AbstractCardiacCellInterface* const p_const_cell = p_cell;
             std::ofstream ofs(archive_filename1.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             output_arch << p_const_cell;
         }
         
         // Load from archive
-        AbstractCardiacCell* p_loaded_cell1;
+        AbstractCardiacCellInterface* p_loaded_cell1;
         {
             std::ifstream ifs(archive_filename1.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
@@ -374,14 +397,14 @@ public:
         // Archive the un-archived model
         std::string archive_filename2 = ArchiveLocationInfo::GetProcessUniqueFilePath("second-save.arch");
         {
-            AbstractCardiacCell* const p_const_cell = p_loaded_cell1;
+            AbstractCardiacCellInterface* const p_const_cell = p_loaded_cell1;
             std::ofstream ofs(archive_filename2.c_str());
             boost::archive::text_oarchive output_arch(ofs);
             output_arch << p_const_cell;
         }
             
         // Load from the new archive
-        AbstractCardiacCell* p_loaded_cell2;
+        AbstractCardiacCellInterface* p_loaded_cell2;
         {
             std::ifstream ifs(archive_filename2.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);

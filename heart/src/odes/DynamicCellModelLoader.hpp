@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-#include "AbstractCardiacCell.hpp"
+#include "AbstractCardiacCellInterface.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractStimulusFunction.hpp"
 
@@ -72,7 +72,7 @@ public:
      * @param pSolver  ODE solver used to simulate the cell
      * @param pStimulus  intracellular stimulus
      */
-    AbstractCardiacCell* CreateCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+    AbstractCardiacCellInterface* CreateCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                     boost::shared_ptr<AbstractStimulusFunction> pStimulus);
 
     /**
@@ -89,7 +89,7 @@ private:
      * @param pSolver  ODE solver used to simulate the cell
      * @param pStimulus  intracellular stimulus
      */
-    typedef AbstractCardiacCell* CellCreationFunctionType(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+    typedef AbstractCardiacCellInterface* CellCreationFunctionType(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                                           boost::shared_ptr<AbstractStimulusFunction> pStimulus);
 
     /** Our cell creation function */

@@ -377,7 +377,7 @@ extern "C" {
      * @param pSolver  ODE solver used to simulate the cell
      * @param pIntracellularStimulus  intracellular stimulus
      */
-    AbstractCardiacCell* MakeCardiacCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
+    AbstractCardiacCellInterface* MakeCardiacCell(boost::shared_ptr<AbstractIvpOdeSolver> pSolver,
                                          boost::shared_ptr<AbstractStimulusFunction> pStimulus){
          return new DynamicallyLoadableLr91(pSolver, pStimulus);
     }

@@ -2529,7 +2529,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             # Write the C function to create instances of this cell model
             self.writeln('extern "C"')
             self.open_block()
-            self.writeln('AbstractCardiacCell* MakeCardiacCell(')
+            self.writeln('AbstractCardiacCellInterface* MakeCardiacCell(')
             self.writeln('boost::shared_ptr<AbstractIvpOdeSolver> pSolver,', indent_offset=2)
             self.writeln('boost::shared_ptr<AbstractStimulusFunction> pStimulus)', indent_offset=2)
             self.open_block()
