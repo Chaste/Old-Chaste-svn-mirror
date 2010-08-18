@@ -392,6 +392,14 @@ public:
                                    60.0,
                                    "Lr91GetIIonic");
         TS_ASSERT_DELTA( lr91_ode_system.GetIIonic(), 1.9411, 1e-3);
+        
+        // For coverage
+        lr91_ode_system.ResetToInitialConditions();
+        std::vector<double> inits = lr91_ode_system.GetInitialConditions();
+        for (unsigned i=0; i<inits.size(); i++)
+        {
+            TS_ASSERT_EQUALS(lr91_ode_system.rGetStateVariables()[i], inits[i]);
+        }
     }
 
     void TestSolverForLR91WithRegularStimulus(void) throw (Exception)

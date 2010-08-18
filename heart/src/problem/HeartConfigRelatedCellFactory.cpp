@@ -32,6 +32,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HeartFileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
 #include "AbstractCardiacCellInterface.hpp"
+// This is needed to prevent the chaste_libs=0 build failing on tests that use a dynamically loaded CVODE model
+#include "AbstractCvodeCell.hpp"
 
 
 template<unsigned SPACE_DIM>

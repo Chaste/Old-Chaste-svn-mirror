@@ -77,6 +77,12 @@ unsigned AbstractParameterisedSystem<VECTOR>::GetNumberOfStateVariables() const
 }
 
 template<typename VECTOR>
+VECTOR& AbstractParameterisedSystem<VECTOR>::rGetStateVariables()
+{
+    return mStateVariables;
+}
+
+template<typename VECTOR>
 double AbstractParameterisedSystem<VECTOR>::GetStateVariable(unsigned index) const
 {
     if (index >= mNumberOfStateVariables)

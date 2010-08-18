@@ -167,7 +167,7 @@ public:
         lr91_cvode_system.SetVoltageDerivativeToZero(false);
         
         // Check Compute methods from AbstractCardiacCellInterface
-        lr91_cvode_system.SetStateVariables(lr91_cvode_system.GetInitialConditions());
+        lr91_cvode_system.ResetToInitialConditions();
         HeartConfig::Instance()->SetPrintingTimeStep(sampling_time);
         OdeSolution solution_cvode_2 = lr91_cvode_system.Compute(start_time, end_time);
         solution_cvode_2.WriteToFile("TestCvodeCells","lr91_cvode_2","ms",1,clean_dir);
@@ -176,7 +176,7 @@ public:
                               "This method is not yet implemented for CVODE cells.");
 
         // Reset CVODE cell to initial conditions, and solve without sampling
-        lr91_cvode_system.SetStateVariables(lr91_cvode_system.GetInitialConditions());
+        lr91_cvode_system.ResetToInitialConditions();
         lr91_cvode_system.SetMaxSteps(10000);
         TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 10000u);
         lr91_cvode_system.Solve(start_time, end_time, max_timestep);
@@ -228,7 +228,7 @@ public:
         CellLuoRudy1991FromCellMLCvode lr91_boom(p_solver, p_boom_stimulus);
         TS_ASSERT_THROWS_CONTAINS(OdeSolution solution_boom = lr91_boom.Solve(start_time, end_time, max_timestep, sampling_time),
                                   " failed repeatedly or with |h| = hmin.");
-        lr91_boom.SetStateVariables(lr91_boom.GetInitialConditions());
+        lr91_boom.ResetToInitialConditions();
         lr91_boom.SetMaxSteps(10000);
         TS_ASSERT_THROWS_CONTAINS(lr91_boom.Solve(start_time, end_time, max_timestep),
                                   " failed repeatedly or with |h| = hmin.");
@@ -236,7 +236,7 @@ public:
         ExceptionalCell bad_cell(p_solver, p_boom_stimulus);
         TS_ASSERT_THROWS_THIS(OdeSolution solution_bad = bad_cell.Solve(start_time, end_time, max_timestep, sampling_time),
                               "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
-        bad_cell.SetStateVariables(bad_cell.GetInitialConditions());
+        bad_cell.ResetToInitialConditions();
         TS_ASSERT_THROWS_THIS(bad_cell.Solve(start_time, end_time, max_timestep),
                               "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
 

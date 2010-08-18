@@ -55,6 +55,10 @@ void AbstractCardiacCell::Init()
     mParameters.resize(rGetParameterNames().size());
 }
 
+void AbstractCardiacCell::ResetToInitialConditions()
+{
+    SetStateVariables(GetInitialConditions());
+}    
 
 OdeSolution AbstractCardiacCell::Compute(double tStart, double tEnd, double tSamp)
 {

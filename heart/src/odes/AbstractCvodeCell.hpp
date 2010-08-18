@@ -143,6 +143,11 @@ public:
     void SetVoltage(double voltage);
 
     /**
+     * Reset the model's state variables to the default initial conditions.
+     */
+    void ResetToInitialConditions();
+    
+    /**
      * Get the initial conditions for the cell.
      *
      * Creates and returns a fresh N_Vector, which must be destroyed
@@ -176,14 +181,6 @@ public:
      * Caller takes responsibility for freeing the vector.
      */
     N_Vector GetStateVariables();
-
-    /**
-     * Get the state variable vector.
-     * Doesn't really return a reference (N_Vector is a pointer type)
-     * but named like this to match AbstractCardiacCell.
-     * This cell will retain responsibility for freeing the vector.
-     */
-    N_Vector rGetStateVariables();
 
     /**
      * RHS evaluation function, to be provided by subclasses.

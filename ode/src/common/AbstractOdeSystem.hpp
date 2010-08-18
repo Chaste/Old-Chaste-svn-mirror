@@ -174,11 +174,6 @@ public:
     void SetStateVariables(const std::vector<double>& rStateVariables);
 
     /**
-     * Get the values of the state variables in the ODE system.
-     */
-    std::vector<double>& rGetStateVariables();
-
-    /**
      * CalculateStoppingEvent() - can be overloaded if the ODE is to be solved
      * only until a particular event (for example, only until the y value becomes
      * negative.

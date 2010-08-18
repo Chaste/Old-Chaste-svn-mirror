@@ -127,6 +127,11 @@ public:
     void Init();
 
     /**
+     * Reset the model's state variables to the default initial conditions.
+     */
+    void ResetToInitialConditions();
+    
+    /**
      * Simulates this cell's behaviour between the time interval [tStart, tEnd],
      * with timestep #mDt, and return state variable values.
      *

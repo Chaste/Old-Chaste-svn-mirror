@@ -78,8 +78,7 @@ void RunOdeSolverWithIonicModel(AbstractCardiacCell* pOdeSystem,
     if (doComputeExceptVoltage)
     {
         // Store the current system state
-        std::vector<double> state_variables_ref = pOdeSystem->rGetStateVariables();
-        std::vector<double> state_variables_copy = state_variables_ref;
+        std::vector<double> state_variables_copy = pOdeSystem->rGetStateVariables();
 
         // Test ComputeExceptVoltage
         double v_init = pOdeSystem->GetVoltage();

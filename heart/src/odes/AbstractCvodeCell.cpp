@@ -127,6 +127,11 @@ void AbstractCvodeCell::SetVoltage(double voltage)
 }
 
 
+void AbstractCvodeCell::ResetToInitialConditions()
+{
+    SetStateVariables(GetInitialConditions());
+}
+
 N_Vector AbstractCvodeCell::GetInitialConditions()
 {
     assert(mpSystemInfo);
@@ -145,12 +150,6 @@ N_Vector AbstractCvodeCell::GetStateVariables()
     assert(mStateVariables);
     return CopyVector(mStateVariables);
 }
-
-N_Vector AbstractCvodeCell::rGetStateVariables()
-{
-    return mStateVariables;
-}
-
 
 void AbstractCvodeCell::SetStateVariables(N_Vector stateVars)
 {

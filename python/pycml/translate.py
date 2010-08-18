@@ -1494,8 +1494,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.class_inheritance += ', public AbstractDynamicallyLoadableEntity'
         if self.use_protocol:
             self.writeln_hpp('#include "AbstractSystemWithOutputs.hpp"')
-            aswo_base_class = base_class or 'AbstractCardiacCell'
-            self.class_inheritance += ', public AbstractSystemWithOutputs<' + aswo_base_class + ',' + self.TYPE_VECTOR + '>'
+            self.class_inheritance += ', public AbstractSystemWithOutputs<' + self.TYPE_VECTOR + '>'
         self.writeln('#include "Exception.hpp"')
         self.writeln('#include "OdeSystemInformation.hpp"')
         self.writeln('#include "RegularStimulus.hpp"')

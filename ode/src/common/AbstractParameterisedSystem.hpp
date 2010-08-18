@@ -101,6 +101,11 @@ public:
     unsigned GetNumberOfStateVariables() const;
 
     /**
+     * Get the values of the state variables in the ODE system.
+     */
+    VECTOR& rGetStateVariables();
+
+    /**
      * Get the value of a given state variable.
      *
      * @param index the index of the state variable

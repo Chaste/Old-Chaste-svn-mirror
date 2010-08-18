@@ -101,11 +101,6 @@ void AbstractOdeSystem::SetStateVariables(const std::vector<double>& rStateVaria
     mStateVariables = rStateVariables;
 }
 
-std::vector<double>& AbstractOdeSystem::rGetStateVariables()
-{
-    return mStateVariables;
-}
-
 
 double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
 {
