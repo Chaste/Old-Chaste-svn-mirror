@@ -50,7 +50,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mAllocatedMemoryForMesh(false),
       mWriteInfo(false),
       mPrintOutput(true),
-      mpCardiacPde(NULL),
+      mpCardiacCellCollection(NULL),
       mpSolver(NULL),
       mpCellFactory(pCellFactory),
       mpMesh(NULL),
@@ -70,13 +70,13 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
     // the serialization methods
     : mMeshFilename(""),
       mUseMatrixBasedRhsAssembly(true),
-      mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacPde
+      mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacCellCollection
       mWriteInfo(false),
       mPrintOutput(true),
       mVoltageColumnId(UINT_MAX),
       mTimeColumnId(UINT_MAX),
       mNodeColumnId(UINT_MAX),
-      mpCardiacPde(NULL),
+      mpCardiacCellCollection(NULL),
       mpSolver(NULL),
       mpCellFactory(NULL),
       mpMesh(NULL),
@@ -90,7 +90,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
 {
-    delete mpCardiacPde;
+    delete mpCardiacCellCollection;
     if (mSolution)
     {
         VecDestroy(mSolution);
@@ -172,8 +172,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         mpCellFactory->FillInCellularTransmuralAreas();
     }
 
-    delete mpCardiacPde; // In case we're called twice
-    mpCardiacPde = CreateCardiacPde();
+    delete mpCardiacCellCollection; // In case we're called twice
+    mpCardiacCellCollection = CreateCardiacCellCollection();
 
     HeartEventHandler::EndEvent(HeartEventHandler::INITIALISE);
 
@@ -200,9 +200,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetBoundaryCondi
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
 {
-    if ( mpCardiacPde == NULL ) // if pde is NULL, Initialise() probably hasn't been called
+    if ( mpCardiacCellCollection == NULL ) // if cell collection is NULL, Initialise() probably hasn't been called
     {
-        EXCEPTION("Pde is null, Initialise() probably hasn't been called");
+        EXCEPTION("Cell collection is null, Initialise() probably hasn't been called");
     }
     if ( HeartConfig::Instance()->GetSimulationDuration() <= mCurrentTime)
     {
@@ -225,7 +225,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
     // HeartConfig checks pde_dt divides printing dt
     if( fabs( end_time - pde_time*round(end_time/pde_time)) > 1e-10 )
     {
-        EXCEPTION("Pde timestep does not seem to divide end time - check parameters");
+        EXCEPTION("PDE timestep does not seem to divide end time - check parameters");
     }
 }
 
@@ -247,7 +247,7 @@ Vec AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CreateInitialCond
          index != ic.End();
          ++index)
     {
-        stripe[0][index] = mpCardiacPde->GetCardiacCell(index.Global)->GetVoltage();
+        stripe[0][index] = mpCardiacCellCollection->GetCardiacCell(index.Global)->GetVoltage();
         if (PROBLEM_DIM==2)
         {
             stripe[1][index] = 0;
@@ -308,9 +308,9 @@ AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> & AbstractCardiacProblem<ELEMENT_
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::GetPde()
+AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::GetCellCollection()
 {
-    return mpCardiacPde;
+    return mpCardiacCellCollection;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -595,7 +595,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::WriteExtraVariab
              ++index)
         {
             // Store value for node "index"
-            distributed_var_data[index] = this->mpCardiacPde->GetCardiacCell(index.Global)->GetStateVariable(mExtraVariablesId[var_index]);
+            distributed_var_data[index] = this->mpCardiacCellCollection->GetCardiacCell(index.Global)->GetStateVariable(mExtraVariablesId[var_index]);
         }
         distributed_var_data.Restore();
 

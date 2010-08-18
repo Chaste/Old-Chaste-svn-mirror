@@ -106,7 +106,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::PrepareForSetupLinearSystem(Vec existingSolution)
 {
     double time = PdeSimulationTime::GetTime();
-    mpBidomainPde->SolveCellSystems(existingSolution, time, time+this->mDt);
+    mpBidomainCellCollection->SolveCellSystems(existingSolution, time, time+this->mDt);
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -226,12 +226,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::AbstractBidomainSolver(
             bool bathSimulation,
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            BidomainPde<SPACE_DIM>* pPde,
+            BidomainCellCollection<SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
             unsigned numQuadPoints)
     : AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,2>(pMesh),
       mBathSimulation(bathSimulation),
-      mpBidomainPde(pPde),
+      mpBidomainCellCollection(pPde),
       mpBoundaryConditions(pBoundaryConditions),
       mNumQuadPoints(numQuadPoints)
 {

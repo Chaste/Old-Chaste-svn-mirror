@@ -53,7 +53,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //      A
 //     / \     A = AbstractPde, B = AbstractCardiac,
 //    B   C    C = AbtractLinearElliptic (and AbstractLinearParabolicPde)
-//     \ /     D = MonodomainPde
+//     \ /     D = MonodomainCellCollection
 //      D
 //
 // B and C must use virtual inheritence of A in order for D to only contain 1 instance

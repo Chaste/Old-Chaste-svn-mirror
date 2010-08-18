@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "AbstractCardiacPde.hpp"
+#include "AbstractCardiacCellCollection.hpp"
 
 #include "DistributedVector.hpp"
 #include "AxisymmetricConductivityTensors.hpp"
@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
+AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellCollection(
             AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory,
             const unsigned stride)
     : mpMesh(pCellFactory->GetMesh()),
@@ -91,7 +91,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(
 
 // Constructor used for archiving
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,
+AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellCollection(std::vector<AbstractCardiacCell*> & rCellsDistributed,
                                                               AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                                                               const unsigned stride)
     : mpMesh(pMesh),
@@ -108,7 +108,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacPde(std::vector<Abstra
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::DeleteCells(bool deleteFakeCells)
+void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::DeleteCells(bool deleteFakeCells)
 {
     std::set<FakeBathCell*> fake_cells;
     for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
@@ -140,7 +140,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::DeleteCells(bool deleteFakeCells
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
+AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacCellCollection()
 {
     DeleteCells(mMeshUnarchived);
 
@@ -154,7 +154,7 @@ AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacPde()
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::MergeCells(const std::vector<AbstractCardiacCell*>& rOtherCells)
+void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::MergeCells(const std::vector<AbstractCardiacCell*>& rOtherCells)
 {
     assert(rOtherCells.size() == mCellsDistributed.size());
     for (unsigned i=0; i<rOtherCells.size(); i++)
@@ -168,7 +168,7 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::MergeCells(const std::vector<Abs
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityTensor()
+void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityTensor()
 {
     HeartEventHandler::BeginEvent(HeartEventHandler::READ_MESH);
     mpConfig = HeartConfig::Instance();
@@ -269,26 +269,26 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivityT
 
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::SetCacheReplication(bool doCacheReplication)
+void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::SetCacheReplication(bool doCacheReplication)
 {
     mDoCacheReplication = doCacheReplication;
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-bool AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::GetDoCacheReplication()
+bool AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::GetDoCacheReplication()
 {
     return mDoCacheReplication;
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-const c_matrix<double, SPACE_DIM, SPACE_DIM>& AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::rGetIntracellularConductivityTensor(unsigned elementIndex)
+const c_matrix<double, SPACE_DIM, SPACE_DIM>& AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::rGetIntracellularConductivityTensor(unsigned elementIndex)
 {
     assert( mpIntracellularConductivityTensors);
     return (*mpIntracellularConductivityTensors)[elementIndex];
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-AbstractCardiacCell* AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::GetCardiacCell( unsigned globalIndex )
+AbstractCardiacCell* AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::GetCardiacCell( unsigned globalIndex )
 {
     assert(mpDistributedVectorFactory->GetLow() <= globalIndex &&
            globalIndex < mpDistributedVectorFactory->GetHigh());
@@ -297,7 +297,7 @@ AbstractCardiacCell* AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::GetCardiacCell( 
 
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSolution, double time, double nextTime)
+void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSolution, double time, double nextTime)
 {
     HeartEventHandler::BeginEvent(HeartEventHandler::SOLVE_ODES);
 
@@ -337,39 +337,39 @@ void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existingSol
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-ReplicatableVector& AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::rGetIionicCacheReplicated()
+ReplicatableVector& AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::rGetIionicCacheReplicated()
 {
     return mIionicCacheReplicated;
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-ReplicatableVector& AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::rGetIntracellularStimulusCacheReplicated()
+ReplicatableVector& AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::rGetIntracellularStimulusCacheReplicated()
 {
     return mIntracellularStimulusCacheReplicated;
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime)
+void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::UpdateCaches(unsigned globalIndex, unsigned localIndex, double nextTime)
 {
     mIionicCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIIonic();
     mIntracellularStimulusCacheReplicated[globalIndex] = mCellsDistributed[localIndex]->GetIntracellularStimulus(nextTime);
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::ReplicateCaches()
+void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::ReplicateCaches()
 {
     mIionicCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
     mIntracellularStimulusCacheReplicated.Replicate(mpDistributedVectorFactory->GetLow(), mpDistributedVectorFactory->GetHigh());
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-const std::vector<AbstractCardiacCell*>& AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::rGetCellsDistributed() const
+const std::vector<AbstractCardiacCell*>& AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::rGetCellsDistributed() const
 {
     return mCellsDistributed;
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::pGetMesh() const
+const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::pGetMesh() const
 {
     return mpMesh;
 }
@@ -379,8 +379,8 @@ const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacPde<ELEMENT
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class AbstractCardiacPde<1,1>;
-template class AbstractCardiacPde<1,2>;
-template class AbstractCardiacPde<1,3>;
-template class AbstractCardiacPde<2,2>;
-template class AbstractCardiacPde<3,3>;
+template class AbstractCardiacCellCollection<1,1>;
+template class AbstractCardiacCellCollection<1,2>;
+template class AbstractCardiacCellCollection<1,3>;
+template class AbstractCardiacCellCollection<2,2>;
+template class AbstractCardiacCellCollection<3,3>;

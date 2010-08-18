@@ -151,7 +151,7 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
     //// Removed the following which also took this nodes calcium concentration and printing, because (it isn't that
     //// important and) it won't work in parallel and has the hardcoded index issue described below.
     //     // Metadata is currently being added to CellML models and then this will be avoided by asking for Calcium.
-    //    double Ca = mpMonodomainProblem->GetMonodomainPde()->GetCardiacCell(mWatchedElectricsNodeIndex)->GetIntracellularCalciumConcentration();
+    //    double Ca = mpMonodomainProblem->GetMonodomainCellCollection()->GetCardiacCell(mWatchedElectricsNodeIndex)->GetIntracellularCalciumConcentration();
 
     *mpWatchedLocationFile << time << " ";
     for(unsigned i=0; i<DIM; i++)
@@ -486,7 +486,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             {
                 unsigned containing_elem = mpMeshPair->rGetCoarseElementsForFineNodes()[global_index];
                 double stretch = mStretchesForEachMechanicsElement[containing_elem];
-                mpMonodomainProblem->GetPde()->GetCardiacCell(global_index)->SetStretch(stretch);
+                mpMonodomainProblem->GetCellCollection()->GetCardiacCell(global_index)->SetStretch(stretch);
             }
             
             // finish #1244 (blocked on #1348)
@@ -558,7 +558,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         VecGetOwnershipRange(voltage, &lo, &hi);
         for(int index=lo; index<hi; index++)
         {
-            calcium_repl[index] = mpMonodomainProblem->GetPde()->GetCardiacCell(index)->GetIntracellularCalciumConcentration();
+            calcium_repl[index] = mpMonodomainProblem->GetCellCollection()->GetCardiacCell(index)->GetIntracellularCalciumConcentration();
         }
         PetscTools::Barrier();
         calcium_repl.Replicate(lo,hi);

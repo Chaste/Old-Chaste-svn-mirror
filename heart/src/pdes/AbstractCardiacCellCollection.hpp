@@ -52,11 +52,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 //// OLD NOTE: read this if AbstractPde is brought back
 // IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual'
-// ie "class AbstractCardiacPde : public virtual AbstractPde"
+// ie "class AbstractCardiacCellCollection : public virtual AbstractPde"
 // because AbstractPde will be the top class in a 'dreaded diamond':
 //      A
 //     / \     A = AbstractPde, B = AbstractCardiac, C = AbstractLinearParabolic (etc)
-//    B   C    D = MonodomainPde
+//    B   C    D = MonodomainCellCollection
 //     \ /
 //      D
 //
@@ -73,7 +73,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * distributed vector factory.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
-class AbstractCardiacPde : boost::noncopyable
+class AbstractCardiacCellCollection : boost::noncopyable
 {
 private:
 
@@ -192,7 +192,7 @@ public:
      * @param pCellFactory  factory to use to create cells.
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
-    AbstractCardiacPde(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory,
+    AbstractCardiacCellCollection(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory,
                        const unsigned stride=1);
 
     /**
@@ -202,12 +202,12 @@ public:
      * @param pMesh  a pointer to the AbstractTetrahedral mesh.
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
-    AbstractCardiacPde(std::vector<AbstractCardiacCell*>& rCellsDistributed,
+    AbstractCardiacCellCollection(std::vector<AbstractCardiacCell*>& rCellsDistributed,
                        AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
                        const unsigned stride);
 
     /** Virtual destructor */
-    virtual ~AbstractCardiacPde();
+    virtual ~AbstractCardiacCellCollection();
 
     /**
      * Add more cells to this cardiac PDE.
@@ -452,18 +452,18 @@ public:
     }
 };
 
-TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacPde)
+TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacCellCollection)
 
 namespace boost { 
 namespace serialization {
 /**
  * Specify a version number for archive backwards compatibility.
  * 
- * This is how to do BOOST_CLASS_VERSION(AbstractCardiacPde, 1)
+ * This is how to do BOOST_CLASS_VERSION(AbstractCardiacCellCollection, 1)
  * with a templated class.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-struct version<AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM> >
+struct version<AbstractCardiacCellCollection<ELEMENT_DIM, SPACE_DIM> >
 {
     /** Version number */
     BOOST_STATIC_CONSTANT(unsigned, value = 1);

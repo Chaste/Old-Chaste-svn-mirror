@@ -48,7 +48,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMesh.hpp"
 #include "AbstractCardiacCell.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "AbstractCardiacPde.hpp"
+#include "AbstractCardiacCellCollection.hpp"
 #include "AbstractDynamicLinearPdeSolver.hpp"
 #include "BoundaryConditionsContainer.hpp"
 #include "DistributedVectorFactory.hpp"
@@ -75,8 +75,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "DistributedTetrahedralMesh.hpp"
 #include "TetrahedralMesh.hpp" //May be needed for unarchiving a mesh
-#include "MonodomainPde.hpp"
-#include "BidomainPde.hpp"
+#include "MonodomainCellCollection.hpp"
+#include "BidomainCellCollection.hpp"
 
 
 /**
@@ -109,7 +109,7 @@ private:
     {
         archive & mMeshFilename;
         archive & mpMesh;
-        //archive & mAllocatedMemoryForMesh; // Mesh is deleted by AbstractCardiacPde
+        //archive & mAllocatedMemoryForMesh; // Mesh is deleted by AbstractCardiacCellCollection
         archive & mUseMatrixBasedRhsAssembly;
         archive & mWriteInfo;
         archive & mPrintOutput;
@@ -119,7 +119,7 @@ private:
         //archive & mTimeColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mNodeColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mpWriter; // Created by InitialiseWriter, called from Solve
-        archive & mpCardiacPde;
+        archive & mpCardiacCellCollection;
         //archive & mpSolver; // Only exists during calls to the Solve method
         bool has_solution = (mSolution != NULL);
         archive & has_solution;
@@ -186,7 +186,7 @@ private:
         //archive & mTimeColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mNodeColumnId; // Created by InitialiseWriter, called from Solve
         //archive & mpWriter; // Created by InitialiseWriter, called from Solve
-        archive & mpCardiacPde;
+        archive & mpCardiacCellCollection;
         //archive & mpSolver; // Only exists during calls to the Solve method
         bool has_solution;
         archive & has_solution;
@@ -327,7 +327,7 @@ protected:
     unsigned mNodeColumnId;
 
     /** The monodomain or bidomain pde */
-    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* mpCardiacPde;
+    AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>* mpCardiacCellCollection;
 
     /** Boundary conditions container used in the simulation */
     BccType mpBoundaryConditionsContainer;
@@ -358,7 +358,7 @@ protected:
      *
      * This class will take responsibility for freeing the object when it is finished with.
      */
-    virtual AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* CreateCardiacPde() =0;
+    virtual AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>* CreateCardiacCellCollection() =0;
 
     /**
      * Subclasses must override this method to create a suitable solver object.
@@ -428,7 +428,7 @@ public:
     virtual void PreSolveChecks();
 
     /**
-     * Perhaps this should be a method of AbstractCardiacPde??
+     * Perhaps this should be a method of AbstractCardiacCellCollection??
      * This is virtual so BidomainProblem can overwrite V to zero for bath nodes, if
      * there are any.
      */
@@ -487,7 +487,7 @@ public:
     /**
      * @return the cardiac PDE used
      */
-    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>* GetPde();
+    AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>* GetCellCollection();
 
     /**
      *  First performs some checks by calling  the PreSolveChecks method.
@@ -614,9 +614,9 @@ public:
      * which things are archived.
      *
      *  -# (via #mpMesh) DistributedVectorFactory*
-     *  -# (via #mpCardiacPde LoadCardiacCells) DistributedVectorFactory*
-     *  -# (via #mpCardiacPde LoadCardiacCells) number_of_cells and sequence of AbstractCardiacCell*
-     *  -# (via #mpCardiacPde) DistributedVectorFactory*
+     *  -# (via #mpCardiacCellCollection LoadCardiacCells) DistributedVectorFactory*
+     *  -# (via #mpCardiacCellCollection LoadCardiacCells) number_of_cells and sequence of AbstractCardiacCell*
+     *  -# (via #mpCardiacCellCollection) DistributedVectorFactory*
      *  -# #mpBoundaryConditionsContainer
      *  -# #mpDefaultBoundaryConditionsContainer
      *  -# (if we're a BidomainProblem) stuff in BidomainProblem::LoadExtraArchiveForBidomain
@@ -647,8 +647,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::LoadExtraArchive
     // The cardiac cells
     std::vector<AbstractCardiacCell*> cells;
     // Load only the cells we actually own
-    AbstractCardiacPde<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(archive, version, cells, this->mpMesh);
-    mpCardiacPde->MergeCells(cells);
+    AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(archive, version, cells, this->mpMesh);
+    mpCardiacCellCollection->MergeCells(cells);
 
     {
         DistributedVectorFactory* p_pde_factory;

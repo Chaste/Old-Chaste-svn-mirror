@@ -328,12 +328,12 @@ private:
         TS_ASSERT(p_factory->GetOriginalFactory());
         TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetProblemSize(), totalNumCells);
         unsigned local_num_cells = p_factory->GetLocalOwnership();
-        TS_ASSERT_EQUALS(p_problem->GetPde()->rGetCellsDistributed().size(), local_num_cells);
+        TS_ASSERT_EQUALS(p_problem->GetCellCollection()->rGetCellsDistributed().size(), local_num_cells);
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumAllNodes(), totalNumCells);
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), totalNumCells);
-        TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
+        TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetCellCollection()->pGetMesh());
         // Check the mesh is/isn't the parallel variety
-        const DistributedTetrahedralMesh<DIM,DIM>* p_dist_mesh = dynamic_cast<const DistributedTetrahedralMesh<DIM,DIM>*>(p_problem->GetPde()->pGetMesh());
+        const DistributedTetrahedralMesh<DIM,DIM>* p_dist_mesh = dynamic_cast<const DistributedTetrahedralMesh<DIM,DIM>*>(p_problem->GetCellCollection()->pGetMesh());
         if (isDistributedMesh)
         {
             TS_ASSERT(p_dist_mesh != NULL);
@@ -349,7 +349,7 @@ private:
             std::vector<double> inits;
             for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
             {
-                AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+                AbstractCardiacCell* p_cell = p_problem->GetCellCollection()->GetCardiacCell(i);
                 FakeBathCell* p_fake_cell = dynamic_cast<FakeBathCell*>(p_cell);
                 if (p_fake_cell == NULL)
                 {
@@ -573,7 +573,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequential/?* ./heart/test/da
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
         for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
         {
-            AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+            AbstractCardiacCell* p_cell = p_problem->GetCellCollection()->GetCardiacCell(i);
             double x = p_problem->rGetMesh().GetNode(i)->GetPoint()[0];
 
             if (x*x < 1e-10)
@@ -682,7 +682,7 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
         for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
         {
-            AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+            AbstractCardiacCell* p_cell = p_problem->GetCellCollection()->GetCardiacCell(i);
             AbstractStimulusFunction* p_stim = p_cell->GetStimulusFunction().get();
             ZeroStimulus* p_zero_stim = dynamic_cast<ZeroStimulus*>(p_stim);
             TS_ASSERT(p_zero_stim != NULL);
@@ -778,12 +778,12 @@ private:
         TS_ASSERT(p_factory->GetOriginalFactory());
         TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetProblemSize(), totalNumCells);
         TS_ASSERT_EQUALS(p_factory->GetOriginalFactory()->GetNumProcs(), 1u);
-        TS_ASSERT_EQUALS(p_problem->GetPde()->rGetCellsDistributed().size(), p_factory->GetLocalOwnership());
+        TS_ASSERT_EQUALS(p_problem->GetCellCollection()->rGetCellsDistributed().size(), p_factory->GetLocalOwnership());
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumAllNodes(), totalNumCells);
         TS_ASSERT_EQUALS(p_problem->rGetMesh().GetNumNodes(), totalNumCells);
-        TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetPde()->pGetMesh());
+        TS_ASSERT_EQUALS(&(p_problem->rGetMesh()), p_problem->GetCellCollection()->pGetMesh());
         // Check the mesh is/isn't the parallel variety
-        const DistributedTetrahedralMesh<DIM,DIM>* p_dist_mesh = dynamic_cast<const DistributedTetrahedralMesh<DIM,DIM>*>(p_problem->GetPde()->pGetMesh());
+        const DistributedTetrahedralMesh<DIM,DIM>* p_dist_mesh = dynamic_cast<const DistributedTetrahedralMesh<DIM,DIM>*>(p_problem->GetCellCollection()->pGetMesh());
         if (isDistributedMesh)
         {
             TS_ASSERT(p_dist_mesh != NULL);
@@ -801,7 +801,7 @@ private:
                 std::vector<double> inits;
                 for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
                 {
-                    AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+                    AbstractCardiacCell* p_cell = p_problem->GetCellCollection()->GetCardiacCell(i);
                     FakeBathCell* p_fake_cell = dynamic_cast<FakeBathCell*>(p_cell);
                     if (p_fake_cell == NULL)
                     {
@@ -904,7 +904,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequential/?* ./heart/test/
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
         for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
         {
-            AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+            AbstractCardiacCell* p_cell = p_problem->GetCellCollection()->GetCardiacCell(i);
             double x = p_problem->rGetMesh().GetNode(i)->GetPoint()[0];
 
             if (x*x < 1e-10)
@@ -992,7 +992,7 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
         DistributedVectorFactory* p_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
         for (unsigned i=p_factory->GetLow(); i<p_factory->GetHigh(); i++)
         {
-            AbstractCardiacCell* p_cell = p_problem->GetPde()->GetCardiacCell(i);
+            AbstractCardiacCell* p_cell = p_problem->GetCellCollection()->GetCardiacCell(i);
             AbstractStimulusFunction* p_stim = p_cell->GetStimulusFunction().get();
             ZeroStimulus* p_zero_stim = dynamic_cast<ZeroStimulus*>(p_stim);
             TS_ASSERT(p_zero_stim != NULL);

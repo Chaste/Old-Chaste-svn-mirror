@@ -146,7 +146,7 @@ public:
             TS_ASSERT_LESS_THAN_EQUALS( voltage[index], Ena +  30);
             TS_ASSERT_LESS_THAN_EQUALS(-voltage[index] + (Ek-30), 0);
 
-            std::vector<double>& r_ode_vars = bidomain_problem.GetBidomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
+            std::vector<double>& r_ode_vars = bidomain_problem.GetBidomainCellCollection()->GetCardiacCell(index.Global)->rGetStateVariables();
             for (int j=0; j<8; j++)
             {
                 // if not voltage or calcium ion conc, test whether between 0 and 1
@@ -242,7 +242,7 @@ public:
                 TS_ASSERT_LESS_THAN_EQUALS( voltage[index], Ena +  30);
                 TS_ASSERT_LESS_THAN_EQUALS(-voltage[index] + (Ek-30), 0);
 
-                std::vector<double>& r_ode_vars = bidomain_problem.GetBidomainPde()->GetCardiacCell(index.Global)->rGetStateVariables();
+                std::vector<double>& r_ode_vars = bidomain_problem.GetBidomainCellCollection()->GetCardiacCell(index.Global)->rGetStateVariables();
                 for (int j=0; j<8; j++)
                 {
                     // if not voltage or calcium ion conc, test whether between 0 and 1
@@ -304,7 +304,7 @@ public:
 
         MatrixBasedBidomainSolver<1,1> bidomain_solver(false,
                                                        &bidomain_problem.rGetMesh(),
-                                                       bidomain_problem.GetBidomainPde(),
+                                                       bidomain_problem.GetBidomainCellCollection(),
                                                        &container);
 
         TS_ASSERT_THROWS_THIS(bidomain_solver.SetRowForAverageOfPhiZeroed(0),
@@ -549,7 +549,7 @@ public:
         BidomainProblem<1> bidomain_problem( &cell_factory );
 
         // Throws because we've not called initialise
-        TS_ASSERT_THROWS_THIS(bidomain_problem.Solve(), "Pde is null, Initialise() probably hasn\'t been called");
+        TS_ASSERT_THROWS_THIS(bidomain_problem.Solve(), "Cell collection is null, Initialise() probably hasn\'t been called");
 
         // Throws because mesh filename is unset
         TS_ASSERT_THROWS_THIS(bidomain_problem.Initialise(),
@@ -575,7 +575,7 @@ public:
         // Throws (in AbstractCardiacProblem) as dt does not divide end time
         HeartConfig::Instance()->SetPrintingTimeStep(0.15);
         HeartConfig::Instance()->SetPdeTimeStep(0.15);
-        TS_ASSERT_THROWS_THIS( bidomain_problem.Solve(),"Pde timestep does not seem to divide end time - check parameters" );
+        TS_ASSERT_THROWS_THIS( bidomain_problem.Solve(),"PDE timestep does not seem to divide end time - check parameters" );
         HeartConfig::Instance()->SetPdeTimeStep(0.01);
         HeartConfig::Instance()->SetPrintingTimeStep(0.01);
 
@@ -965,7 +965,7 @@ public:
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
             bidomain_problem.Solve();
 
-            num_cells = bidomain_problem.GetPde()->rGetCellsDistributed().size();
+            num_cells = bidomain_problem.GetCellCollection()->rGetCellsDistributed().size();
 
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
@@ -983,7 +983,7 @@ public:
             (*p_arch) >> p_bidomain_problem;
 
             // Check values
-            TS_ASSERT_EQUALS(p_bidomain_problem->GetPde()->rGetCellsDistributed().size(),
+            TS_ASSERT_EQUALS(p_bidomain_problem->GetCellCollection()->rGetCellsDistributed().size(),
                              num_cells);
 
             HeartConfig::Instance()->SetSimulationDuration(2.0); //ms

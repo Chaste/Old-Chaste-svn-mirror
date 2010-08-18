@@ -89,7 +89,7 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     BidomainWithBathAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-		                      BidomainPde<SPACE_DIM>* pPde,
+		                      BidomainCellCollection<SPACE_DIM>* pPde,
                               double dt,
                               unsigned numQuadPoints = 2)
       : BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh,pPde,dt,numQuadPoints)

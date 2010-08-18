@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define BIDOMAINASSEMBLER_HPP_
 
 #include "AbstractFeObjectAssembler.hpp"
-#include "BidomainPde.hpp"
+#include "BidomainCellCollection.hpp"
 #include "HeartConfig.hpp"
 
 /**
@@ -44,7 +44,7 @@ class BidomainAssembler : public AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM
 {
 protected:
     /** The PDE to be solved. */
-    BidomainPde<SPACE_DIM>* mpBidomainPde;
+    BidomainCellCollection<SPACE_DIM>* mpBidomainCellCollection;
     /** Local cache of the configuration singleton instance*/
     HeartConfig* mpConfig;
     /** Ionic current to be interpolated from cache*/
@@ -139,7 +139,7 @@ public:
      * @param numQuadPoints number of quadrature points in each dimension
      */
     BidomainAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                      BidomainPde<SPACE_DIM>* pPde,
+                      BidomainCellCollection<SPACE_DIM>* pPde,
                       double dt,
                       unsigned numQuadPoints = 2);
 

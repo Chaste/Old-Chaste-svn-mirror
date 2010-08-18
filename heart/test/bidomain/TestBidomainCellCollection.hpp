@@ -41,8 +41,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "MonodomainPde.hpp"
-#include "BidomainPde.hpp"
+#include "MonodomainCellCollection.hpp"
+#include "BidomainCellCollection.hpp"
 #include "OdeSolution.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "PlaneStimulusCellFactory.hpp"
@@ -89,11 +89,11 @@ public:
 
 
 
-class TestBidomainPde : public CxxTest::TestSuite
+class TestBidomainCellCollection : public CxxTest::TestSuite
 {
 public:
 
-    void TestBidomainPdeSolveCellSystems( void )
+    void TestBidomainCellCollectionSolveCellSystems( void )
     {
         TetrahedralMesh<1,1> mesh;
         mesh.ConstructLinearMesh(1);
@@ -102,8 +102,8 @@ public:
         MyCardiacCellFactory cell_factory;
         cell_factory.SetMesh(&mesh);
 
-        MonodomainPde<1> monodomain_pde( &cell_factory );
-        BidomainPde<1>     bidomain_pde( &cell_factory );
+        MonodomainCellCollection<1> monodomain_cell_collection( &cell_factory );
+        BidomainCellCollection<1>     bidomain_cell_collection( &cell_factory );
 
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
@@ -127,8 +127,8 @@ public:
         monodomain_voltage.Restore();
         bidomain_ic.Restore();
 
-        monodomain_pde.SolveCellSystems(monodomain_vec, 0, big_time_step);
-        bidomain_pde.SolveCellSystems(bidomain_vec, 0, big_time_step);
+        monodomain_cell_collection.SolveCellSystems(monodomain_vec, 0, big_time_step);
+        bidomain_cell_collection.SolveCellSystems(bidomain_vec, 0, big_time_step);
 
 
         // Check that both the monodomain and bidomain PDE have the same ionic cache
@@ -136,18 +136,18 @@ public:
              node_index < mesh.GetDistributedVectorFactory()->GetHigh();
              node_index++)
         {
-            TS_ASSERT_EQUALS(monodomain_pde.rGetIionicCacheReplicated()[node_index], bidomain_pde.rGetIionicCacheReplicated()[node_index]);
+            TS_ASSERT_EQUALS(monodomain_cell_collection.rGetIionicCacheReplicated()[node_index], bidomain_cell_collection.rGetIionicCacheReplicated()[node_index]);
         }
 
         // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1
-        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularStimulusCacheReplicated()[0], -80);
-        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularStimulusCacheReplicated()[1], 0);
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetIntracellularStimulusCacheReplicated()[0], -80);
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetIntracellularStimulusCacheReplicated()[1], 0);
 
         VecDestroy(monodomain_vec);
         VecDestroy(bidomain_vec);
     }
     
-    void TestBidomainPdeWithHeterogeneousConductivities() throw (Exception)
+    void TestBidomainCellCollectionWithHeterogeneousConductivities() throw (Exception)
     {
         HeartConfig::Instance()->Reset();
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
@@ -192,21 +192,21 @@ public:
         cell_factory_for_het.SetMesh(&mesh);
         
         //CreateIntracellularConductivityTensor called in the constructor
-        BidomainPde<3> bidomain_pde( &cell_factory_for_het );
+        BidomainCellCollection<3> bidomain_cell_collection( &cell_factory_for_het );
         
-        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularConductivityTensor(0u)(0,0),1.0);//within first cuboid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularConductivityTensor(4u)(0,0),11.0);//within second cuboid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularConductivityTensor(4u)(1,1),22.0);//within second cuboid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularConductivityTensor(8u)(0,0),15.0);//elsewhere, e.g. element 8
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetIntracellularConductivityTensor(0u)(0,0),1.0);//within first cuboid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetIntracellularConductivityTensor(4u)(0,0),11.0);//within second cuboid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetIntracellularConductivityTensor(4u)(1,1),22.0);//within second cuboid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetIntracellularConductivityTensor(8u)(0,0),15.0);//elsewhere, e.g. element 8
         
-        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularConductivityTensor(0u)(0,0),51.0);//within first cuboid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularConductivityTensor(4u)(0,0),151.0);//within second cuboid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularConductivityTensor(4u)(1,1),152.0);//within second cuboid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularConductivityTensor(8u)(0,0),65.0);//elsewhere, e.g. element 8
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetExtracellularConductivityTensor(0u)(0,0),51.0);//within first cuboid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetExtracellularConductivityTensor(4u)(0,0),151.0);//within second cuboid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetExtracellularConductivityTensor(4u)(1,1),152.0);//within second cuboid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetExtracellularConductivityTensor(8u)(0,0),65.0);//elsewhere, e.g. element 8
          
     }
     
-    void TestBidomainPdeWithHeterogeneousConductivitiesEllipsoid() throw (Exception)
+    void TestBidomainCellCollectionWithHeterogeneousConductivitiesEllipsoid() throw (Exception)
     {
         HeartConfig::Instance()->Reset();
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
@@ -251,17 +251,17 @@ public:
         cell_factory_for_het.SetMesh(&mesh);
         
         //CreateIntracellularConductivityTensor called in the constructor
-        BidomainPde<3> bidomain_pde( &cell_factory_for_het );
+        BidomainCellCollection<3> bidomain_cell_collection( &cell_factory_for_het );
         
-        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularConductivityTensor(0u)(0,0),1.0);//within first ellipsoid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularConductivityTensor(4u)(0,0),11.0);//within second ellipsoid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularConductivityTensor(4u)(1,1),22.0);//within second ellipsoid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetIntracellularConductivityTensor(8u)(0,0),15.0);//elsewhere, e.g. element 8
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetIntracellularConductivityTensor(0u)(0,0),1.0);//within first ellipsoid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetIntracellularConductivityTensor(4u)(0,0),11.0);//within second ellipsoid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetIntracellularConductivityTensor(4u)(1,1),22.0);//within second ellipsoid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetIntracellularConductivityTensor(8u)(0,0),15.0);//elsewhere, e.g. element 8
         
-        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularConductivityTensor(0u)(0,0),51.0);//within first ellipsoid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularConductivityTensor(4u)(0,0),151.0);//within second ellipsoid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularConductivityTensor(4u)(1,1),152.0);//within second ellipsoid
-        TS_ASSERT_EQUALS(bidomain_pde.rGetExtracellularConductivityTensor(8u)(0,0),65.0);//elsewhere, e.g. element 8
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetExtracellularConductivityTensor(0u)(0,0),51.0);//within first ellipsoid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetExtracellularConductivityTensor(4u)(0,0),151.0);//within second ellipsoid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetExtracellularConductivityTensor(4u)(1,1),152.0);//within second ellipsoid
+        TS_ASSERT_EQUALS(bidomain_cell_collection.rGetExtracellularConductivityTensor(8u)(0,0),65.0);//elsewhere, e.g. element 8
          
     }
 
@@ -270,7 +270,7 @@ public:
         HeartConfig::Instance()->Reset();
         // Archive settings
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
-        std::string archive_file = "bidomain_pde.arch";
+        std::string archive_file = "bidomain_cell_collection.arch";
 
         bool cache_replication_saved = false;
         double saved_printing_timestep = 2.0;
@@ -286,22 +286,22 @@ public:
             MyCardiacCellFactory cell_factory;
             cell_factory.SetMesh(&mesh);
 
-            BidomainPde<1> bidomain_pde( &cell_factory );
-            bidomain_pde.SetCacheReplication(cache_replication_saved); // Not the default to check it is archived...
+            BidomainCellCollection<1> bidomain_cell_collection( &cell_factory );
+            bidomain_cell_collection.SetCacheReplication(cache_replication_saved); // Not the default to check it is archived...
 
             // Some checks to make sure HeartConfig is being saved and loaded by this too.
             HeartConfig::Instance()->SetPrintingTimeStep(saved_printing_timestep);
             TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
 
-            intra_tensor_before_archiving = bidomain_pde.rGetIntracellularConductivityTensor(1);
-            extra_tensor_before_archiving = bidomain_pde.rGetExtracellularConductivityTensor(1);
+            intra_tensor_before_archiving = bidomain_cell_collection.rGetIntracellularConductivityTensor(1);
+            extra_tensor_before_archiving = bidomain_cell_collection.rGetExtracellularConductivityTensor(1);
 
             // Save
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
-            AbstractCardiacPde<1>* const p_archive_bidomain_pde = &bidomain_pde;
-            (*p_arch) << p_archive_bidomain_pde;
+            AbstractCardiacCellCollection<1>* const p_archive_bidomain_cell_collection = &bidomain_cell_collection;
+            (*p_arch) << p_archive_bidomain_cell_collection;
 
             HeartConfig::Reset();
             TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), default_printing_timestep, 1e-9);
@@ -312,19 +312,19 @@ public:
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-            AbstractCardiacPde<1>* p_bidomain_pde;
-            (*p_arch) >> p_bidomain_pde;
+            AbstractCardiacCellCollection<1>* p_bidomain_cell_collection;
+            (*p_arch) >> p_bidomain_cell_collection;
 
-            const c_matrix<double, 1, 1>& intra_tensor_after_archiving = p_bidomain_pde->rGetIntracellularConductivityTensor(1);
+            const c_matrix<double, 1, 1>& intra_tensor_after_archiving = p_bidomain_cell_collection->rGetIntracellularConductivityTensor(1);
             TS_ASSERT_DELTA(intra_tensor_before_archiving(0,0), intra_tensor_after_archiving(0,0), 1e-9);
-            const c_matrix<double, 1, 1>& extra_tensor_after_archiving = dynamic_cast<BidomainPde<1>*>(p_bidomain_pde)->rGetExtracellularConductivityTensor(1); //Naughty Gary using dynamic cast, but only for testing...
+            const c_matrix<double, 1, 1>& extra_tensor_after_archiving = dynamic_cast<BidomainCellCollection<1>*>(p_bidomain_cell_collection)->rGetExtracellularConductivityTensor(1); //Naughty Gary using dynamic cast, but only for testing...
             TS_ASSERT_DELTA(extra_tensor_before_archiving(0,0), extra_tensor_after_archiving(0,0), 1e-9);
 
-            TS_ASSERT_EQUALS(cache_replication_saved, p_bidomain_pde->GetDoCacheReplication());
+            TS_ASSERT_EQUALS(cache_replication_saved, p_bidomain_cell_collection->GetDoCacheReplication());
             TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
             TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep); // Test we are testing something in case default changes
 
-            delete p_bidomain_pde;
+            delete p_bidomain_cell_collection;
         }
     }
 };

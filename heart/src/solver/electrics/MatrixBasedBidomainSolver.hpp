@@ -97,7 +97,7 @@ public:
      */
     MatrixBasedBidomainSolver(bool bathSimulation,
                               AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                              BidomainPde<SPACE_DIM>* pPde,
+                              BidomainCellCollection<SPACE_DIM>* pPde,
                               BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
                               unsigned numQuadPoints = 2);
 

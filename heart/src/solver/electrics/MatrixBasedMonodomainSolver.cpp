@@ -38,7 +38,7 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
 
     if(!this->mpMonodomainAssembler)
     {
-        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainPde,this->mDt,this->mNumQuadPoints);
+        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainCellCollection,this->mDt,this->mNumQuadPoints);
     }        
 
     /////////////////////////////////////////
@@ -77,8 +77,8 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec c
          ++index)
     {
         double V = distributed_current_solution[index];
-        double F = - Am*this->mpMonodomainPde->rGetIionicCacheReplicated()[index.Global]
-                   - this->mpMonodomainPde->rGetIntracellularStimulusCacheReplicated()[index.Global];
+        double F = - Am*this->mpMonodomainCellCollection->rGetIionicCacheReplicated()[index.Global]
+                   - this->mpMonodomainCellCollection->rGetIntracellularStimulusCacheReplicated()[index.Global];
 
         dist_vec_matrix_based[index] = Am*Cm*V*this->mDtInverse + F;
     }
@@ -155,7 +155,7 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            MonodomainPde<ELEMENT_DIM,SPACE_DIM>* pPde,
+            MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
             unsigned numQuadPoints)
     : AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)
@@ -195,10 +195,10 @@ MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::~MatrixBasedMonodomainSolver
 //void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::IncludeCorrection(AbstractCardiacCell* pCell)
 //{
 //    mpMonodomainCorrectionTermAssembler
-//        = new MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(pCell, this->mpMesh,this->mpMonodomainPde,this->mNumQuadPoints);
+//        = new MonodomainCorrectionTermAssembler<ELEMENT_DIM,SPACE_DIM>(pCell, this->mpMesh,this->mpMonodomainCellCollection,this->mNumQuadPoints);
 //
 //    mpMonodomainStimulusCorrectionAssembler 
-//        = new MonodomainStimulusCorrectionAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainPde,this->mNumQuadPoints);
+//        = new MonodomainStimulusCorrectionAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainCellCollection,this->mNumQuadPoints);
 //}
 
 ///////////////////////////////////////////////////////

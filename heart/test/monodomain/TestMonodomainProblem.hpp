@@ -220,7 +220,7 @@ public:
         TS_ASSERT_DELTA(mVoltageReplicated1d2ms[10], -19.2234919, atol);
 
         // cover get pde
-        monodomain_problem.GetPde();
+        monodomain_problem.GetCellCollection();
 
         // check a progress report exists
         TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblem1d/").c_str()), 0);
@@ -313,7 +313,7 @@ public:
             TS_ASSERT_DELTA(voltage_replicated[index], mVoltageReplicated1d2ms[index],  1e-12);
         }
         // cover get pde
-        monodomain_problem.GetPde();
+        monodomain_problem.GetCellCollection();
 
         // check a progress report exists
         TS_ASSERT_EQUALS(system(("ls " + OutputFileHandler::GetChasteTestOutputDirectory() + "MonoProblem1din3d/").c_str()), 0);
@@ -960,7 +960,7 @@ public:
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         // Throws because we've not called initialise
-        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),"Pde is null, Initialise() probably hasn\'t been called");
+        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),"Cell collection is null, Initialise() probably hasn\'t been called");
 
         // Throws because mesh filename is unset
         TS_ASSERT_THROWS_THIS(monodomain_problem.Initialise(),
@@ -968,7 +968,7 @@ public:
                 "No Mesh provided (neither default nor user defined)");
 
         // Throws because initialise hasn't been called
-        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),"Pde is null, Initialise() probably hasn\'t been called");
+        TS_ASSERT_THROWS_THIS(monodomain_problem.Solve(),"Cell collection is null, Initialise() probably hasn\'t been called");
 
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1mm_10_elements");
         HeartConfig::Instance()->SetOutputDirectory("");
@@ -1041,7 +1041,7 @@ public:
             HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
             monodomain_problem.Solve();
 
-            num_cells = monodomain_problem.GetPde()->rGetCellsDistributed().size();
+            num_cells = monodomain_problem.GetCellCollection()->rGetCellsDistributed().size();
 
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
@@ -1059,7 +1059,7 @@ public:
             (*p_arch) >> p_monodomain_problem;
 
             // Check values
-            TS_ASSERT_EQUALS(p_monodomain_problem->GetPde()->rGetCellsDistributed().size(),
+            TS_ASSERT_EQUALS(p_monodomain_problem->GetCellCollection()->rGetCellsDistributed().size(),
                              num_cells);
 
             HeartConfig::Instance()->SetSimulationDuration(2.0); //ms

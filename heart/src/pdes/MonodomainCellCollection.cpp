@@ -26,19 +26,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "MonodomainPde.hpp"
+#include "MonodomainCellCollection.hpp"
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-MonodomainPde<ELEMENT_DIM,SPACE_DIM>::MonodomainPde(
+MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>::MonodomainCellCollection(
             AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
-    :  AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM>(pCellFactory)
+    :  AbstractCardiacCellCollection<ELEMENT_DIM, SPACE_DIM>(pCellFactory)
 {
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-MonodomainPde<ELEMENT_DIM,SPACE_DIM>::MonodomainPde(std::vector<AbstractCardiacCell*> &rCellsDistributed,
+MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>::MonodomainCellCollection(std::vector<AbstractCardiacCell*> &rCellsDistributed,
                                                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
-        :  AbstractCardiacPde<ELEMENT_DIM, SPACE_DIM>(rCellsDistributed, pMesh, 1u) // 1 for monodomain
+        :  AbstractCardiacCellCollection<ELEMENT_DIM, SPACE_DIM>(rCellsDistributed, pMesh, 1u) // 1 for monodomain
 {
 }
 
@@ -48,17 +48,17 @@ MonodomainPde<ELEMENT_DIM,SPACE_DIM>::MonodomainPde(std::vector<AbstractCardiacC
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class MonodomainPde<1,1>;
-template class MonodomainPde<1,2>;
-template class MonodomainPde<1,3>;
-template class MonodomainPde<2,2>;
-template class MonodomainPde<3,3>;
+template class MonodomainCellCollection<1,1>;
+template class MonodomainCellCollection<1,2>;
+template class MonodomainCellCollection<1,3>;
+template class MonodomainCellCollection<2,2>;
+template class MonodomainCellCollection<3,3>;
 
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 1)
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 2)
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 1, 3)
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 2, 2)
-EXPORT_TEMPLATE_CLASS2(MonodomainPde, 3, 3)
+EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 1, 1)
+EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 1, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 1, 3)
+EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 2, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 3, 3)

@@ -36,11 +36,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <boost/numeric/ublas/matrix.hpp>
 
-#include "AbstractCardiacPde.hpp"
+#include "AbstractCardiacCellCollection.hpp"
 #include "AbstractConductivityTensors.hpp"
 
 /**
- * BidomainPde class.
+ * BidomainCellCollection class.
  *
  * The bidmain equation is of the form:
  *
@@ -64,10 +64,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  */
 template <unsigned SPACE_DIM>
-class BidomainPde : public virtual AbstractCardiacPde<SPACE_DIM>
+class BidomainCellCollection : public virtual AbstractCardiacCellCollection<SPACE_DIM>
 {
 private:
-    friend class TestBidomainPde; // for testing.
+    friend class TestBidomainCellCollection; // for testing.
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -80,7 +80,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCardiacPde<SPACE_DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractCardiacCellCollection<SPACE_DIM> >(*this);
         // Conductivity tensors are dealt with by HeartConfig, and the caches get regenerated.
     }
 
@@ -103,19 +103,19 @@ public:
      * Constructor sets up extracellular conductivity tensors.
      * @param pCellFactory factory to pass on to the base class constructor
      */
-    BidomainPde(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
+    BidomainCellCollection(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
 
     /**
      *  Archiving constructor
      * @param rCellsDistributed  local cell models (recovered from archive)
      * @param pMesh  a pointer to the AbstractTetrahedral mesh (recovered from archive).
      */
-    BidomainPde(std::vector<AbstractCardiacCell*> & rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh);
+    BidomainCellCollection(std::vector<AbstractCardiacCell*> & rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Destructor
      */
-    ~BidomainPde();
+    ~BidomainCellCollection();
 
     /**
      * Get the extracellular conductivity tensor for the given element
@@ -126,7 +126,7 @@ public:
 
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainPde)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainCellCollection)
 
 namespace boost
 {
@@ -135,7 +135,7 @@ namespace serialization
 
 template<class Archive, unsigned SPACE_DIM>
 inline void save_construct_data(
-    Archive & ar, const BidomainPde<SPACE_DIM> * t, const unsigned int file_version)
+    Archive & ar, const BidomainCellCollection<SPACE_DIM> * t, const unsigned int file_version)
 {
     const AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
     ar & p_mesh;
@@ -157,24 +157,24 @@ inline void save_construct_data(
  */
 template<class Archive, unsigned SPACE_DIM>
 inline void load_construct_data(
-    Archive & ar, BidomainPde<SPACE_DIM> * t, const unsigned int file_version)
+    Archive & ar, BidomainCellCollection<SPACE_DIM> * t, const unsigned int file_version)
 {
     std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh;
 
     ar & p_mesh;
     // Load only the cells we actually own
-    AbstractCardiacPde<SPACE_DIM,SPACE_DIM>::LoadCardiacCells(
+    AbstractCardiacCellCollection<SPACE_DIM,SPACE_DIM>::LoadCardiacCells(
             *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed, p_mesh);
 
-    // CreateIntracellularConductivityTensor() is called by AbstractCardiacPde constructor and uses HeartConfig.
+    // CreateIntracellularConductivityTensor() is called by AbstractCardiacCellCollection constructor and uses HeartConfig.
     // (as does CreateExtracellularConductivityTensor). So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).
     HeartConfig* p_config = HeartConfig::Instance();
     ar & *p_config;
     ar & p_config;
 
-    ::new(t)BidomainPde<SPACE_DIM>(cells_distributed, p_mesh);
+    ::new(t)BidomainCellCollection<SPACE_DIM>(cells_distributed, p_mesh);
 }
 }
 } // namespace ...

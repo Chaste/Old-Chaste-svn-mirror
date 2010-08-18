@@ -34,7 +34,7 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BasicBidomainSolver<ELEMENT_DIM,SPACE_DIM>::BasicBidomainSolver(
             bool bathSimulation,
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            BidomainPde<SPACE_DIM>* pPde,
+            BidomainCellCollection<SPACE_DIM>* pPde,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
             unsigned numQuadPoints)
     : AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>(bathSimulation,pMesh,pPde,pBcc,numQuadPoints)
@@ -98,11 +98,11 @@ void BasicBidomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseAssembler()
     {
         if(this->mBathSimulation)
         {
-            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,this->mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainWithBathAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainCellCollection,this->mDt,this->mNumQuadPoints);
         }
         else
         {
-            this->mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainPde,this->mDt,this->mNumQuadPoints);
+            this->mpBidomainAssembler = new BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpBidomainCellCollection,this->mDt,this->mNumQuadPoints);
         }
     }        
 }

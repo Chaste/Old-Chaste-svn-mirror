@@ -107,11 +107,11 @@ Vec BidomainProblem<DIM>::CreateInitialCondition()
 }
 
 template<unsigned DIM>
-AbstractCardiacPde<DIM> * BidomainProblem<DIM>::CreateCardiacPde()
+AbstractCardiacCellCollection<DIM> * BidomainProblem<DIM>::CreateCardiacCellCollection()
 {
     AnalyseMeshForBath();
-    mpBidomainPde = new BidomainPde<DIM>(this->mpCellFactory);
-    return mpBidomainPde;
+    mpBidomainCellCollection = new BidomainCellCollection<DIM>(this->mpCellFactory);
+    return mpBidomainCellCollection;
 }
 
 template<unsigned DIM>
@@ -130,7 +130,7 @@ AbstractDynamicLinearPdeSolver<DIM, DIM, 2>* BidomainProblem<DIM>::CreateSolver(
     {
         mpSolver = new BasicBidomainSolver<DIM,DIM>(mHasBath, 
                                                     this->mpMesh,
-                                                    mpBidomainPde,
+                                                    mpBidomainCellCollection,
                                                     this->mpBoundaryConditionsContainer.get(),
                                                     2);
     }
@@ -138,7 +138,7 @@ AbstractDynamicLinearPdeSolver<DIM, DIM, 2>* BidomainProblem<DIM>::CreateSolver(
     {
         mpSolver = new MatrixBasedBidomainSolver<DIM,DIM>(mHasBath, 
                                                           this->mpMesh,
-                                                          mpBidomainPde,
+                                                          mpBidomainCellCollection,
                                                           this->mpBoundaryConditionsContainer.get(),
                                                           2);
     }
@@ -161,7 +161,7 @@ template<unsigned DIM>
 BidomainProblem<DIM>::BidomainProblem(
             AbstractCardiacCellFactory<DIM>* pCellFactory, bool hasBath)
     : AbstractCardiacProblem<DIM,DIM, 2>(pCellFactory),
-      mpBidomainPde(NULL),
+      mpBidomainCellCollection(NULL),
       mRowForAverageOfPhiZeroed(INT_MAX),
       mHasBath(hasBath)
 {
@@ -171,7 +171,7 @@ BidomainProblem<DIM>::BidomainProblem(
 template<unsigned DIM>
 BidomainProblem<DIM>::BidomainProblem()
     : AbstractCardiacProblem<DIM, DIM, 2>(),
-      mpBidomainPde(NULL),
+      mpBidomainCellCollection(NULL),
       mRowForAverageOfPhiZeroed(INT_MAX)
 {
     mFixedExtracellularPotentialNodes.resize(0);
@@ -198,10 +198,10 @@ void BidomainProblem<DIM>::SetNodeForAverageOfPhiZeroed(unsigned node)
 }
 
 template<unsigned DIM>
-BidomainPde<DIM>* BidomainProblem<DIM>::GetBidomainPde()
+BidomainCellCollection<DIM>* BidomainProblem<DIM>::GetBidomainCellCollection()
 {
-    assert(mpBidomainPde!=NULL);
-    return mpBidomainPde;
+    assert(mpBidomainCellCollection!=NULL);
+    return mpBidomainCellCollection;
 }
 
 template<unsigned DIM>

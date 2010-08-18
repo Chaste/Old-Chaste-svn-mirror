@@ -619,7 +619,7 @@ public:
             for (unsigned i=r_mesh.GetDistributedVectorFactory()->GetLow(); i<r_mesh.GetDistributedVectorFactory()->GetHigh(); i++)
             {
                 TS_ASSERT_EQUALS(r_mesh.GetNode(i)->GetRegion(), p_mesh->GetNode(i)->GetRegion());
-                FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_abstract_problem->GetPde()->GetCardiacCell(i));
+                FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_abstract_problem->GetCellCollection()->GetCardiacCell(i));
                 if (r_mesh.GetNode(i)->GetRegion() == HeartRegionCode::BATH)
                 {
                     TS_ASSERT(p_fake != NULL);
