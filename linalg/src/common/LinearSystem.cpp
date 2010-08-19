@@ -222,13 +222,16 @@ LinearSystem::~LinearSystem()
     }
 
 #ifdef TRACE_KSP
-    if (mNumSolves > 0)
+    if (PetscTools::AmMaster())
     {
-        double ave_num_iterations = mTotalNumIterations/(double)mNumSolves;
-
-        std::cout << std::endl << "KSP iterations report:" << std::endl;
-        std::cout << "mNumSolves" << "\t" << "mTotalNumIterations" << "\t" << "mMaxNumIterations" << "\t" << "mAveNumIterations" << std::endl;
-        std::cout << mNumSolves << "\t" << mTotalNumIterations << "\t" << mMaxNumIterations << "\t" << ave_num_iterations << std::endl;
+        if (mNumSolves > 0)
+        {
+            double ave_num_iterations = mTotalNumIterations/(double)mNumSolves;
+    
+            std::cout << std::endl << "KSP iterations report:" << std::endl;
+            std::cout << "mNumSolves" << "\t" << "mTotalNumIterations" << "\t" << "mMaxNumIterations" << "\t" << "mAveNumIterations" << std::endl;
+            std::cout << mNumSolves << "\t" << mTotalNumIterations << "\t" << mMaxNumIterations << "\t" << ave_num_iterations << std::endl;
+        }
     }
 #endif
 
@@ -825,15 +828,20 @@ Vec LinearSystem::Solve(Vec lhsGuess)
             {
                 mpBlockDiagonalPC = new PCBlockDiagonal(mKspSolver);
 #ifdef TRACE_KSP
-                Timer::Print("Purpose-build preconditioner creation");
+                if (PetscTools::AmMaster())
+                {
+                    Timer::Print("Purpose-build preconditioner creation");
+                }
 #endif
-
             }
             else if (mPcType == "ldufactorisation")
             {
                 mpLDUFactorisationPC = new PCLDUFactorisation(mKspSolver);
 #ifdef TRACE_KSP
-                Timer::Print("Purpose-build preconditioner creation");
+                if (PetscTools::AmMaster())
+                {
+                    Timer::Print("Purpose-build preconditioner creation");
+                }
 #endif
             }
             else if (mPcType == "twolevelsblockdiagonal")
@@ -844,7 +852,10 @@ Vec LinearSystem::Solve(Vec lhsGuess)
                 }                
                 mpTwoLevelsBlockDiagonalPC = new PCTwoLevelsBlockDiagonal(mKspSolver, *mpBathNodes);
 #ifdef TRACE_KSP
-                Timer::Print("Purpose-build preconditioner creation");
+                if (PetscTools::AmMaster())
+                {
+                    Timer::Print("Purpose-build preconditioner creation");
+                }
 #endif
 
             }
@@ -874,7 +885,10 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #endif
         KSPSetUp(mKspSolver);
 #ifdef TRACE_KSP
-        Timer::Print("KSPSetUP (contains preconditioner creation for PETSc preconditioners)");
+        if (PetscTools::AmMaster())
+        {
+            Timer::Print("KSPSetUP (contains preconditioner creation for PETSc preconditioners)");
+        }
 #endif
 
         mKspIsSetup = true;
@@ -961,8 +975,11 @@ Vec LinearSystem::Solve(Vec lhsGuess)
 #ifdef TRACE_KSP
         PetscInt num_it;
         KSPGetIterationNumber(mKspSolver, &num_it);
-        std::cout << "++ Solve: " << mNumSolves << " NumIterations: " << num_it << " "; // don't add std::endl so we get Timer::Print output in the same line (better for grep-ing)
-        Timer::Print("Solve");
+        if (PetscTools::AmMaster())
+        {
+            std::cout << "++ Solve: " << mNumSolves << " NumIterations: " << num_it << " "; // don't add std::endl so we get Timer::Print output in the same line (better for grep-ing)
+            Timer::Print("Solve");
+        }
 
         mNumSolves++;
         mTotalNumIterations += num_it;
