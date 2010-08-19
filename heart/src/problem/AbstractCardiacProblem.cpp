@@ -59,7 +59,10 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mpWriter(NULL)
 {
     assert(mNodesToOutput.empty());
-
+    if (!mpCellFactory)
+    {
+        EXCEPTION("AbstractCardiacProblem: Please supply a cell factory pointer to your cardiac problem constructor.");
+    }
     HeartEventHandler::BeginEvent(HeartEventHandler::EVERYTHING);
 }
 

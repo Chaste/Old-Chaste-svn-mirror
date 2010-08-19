@@ -956,6 +956,9 @@ public:
     {
         HeartConfig::Instance()->SetSimulationDuration(1.0); //ms
 
+        TS_ASSERT_THROWS_THIS(MonodomainProblem<1> monodomain_problem( NULL ),
+                "AbstractCardiacProblem: Please supply a cell factory pointer to your cardiac problem constructor.");
+
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
