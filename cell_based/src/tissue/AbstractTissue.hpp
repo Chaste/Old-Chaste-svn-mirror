@@ -490,6 +490,31 @@ public:
     virtual void CloseOutputFiles();
 
     /**
+     * Outputs Tissue used in the simulation to file and then calls OutputTissueParameters to output all relevant parameters.
+     *
+     * @param pParamsOutStream the file stream to output the parameters to.
+     *
+     */
+    void OutputTissueInfo(out_stream& rParamsFile);
+
+    /**
+     * Outputs Tissue Parameters to file
+     *
+     * @param pParamsOutStream the file stream to output the parameters to.
+     *
+     *  \\todo make this virtual =0
+     */
+    virtual void OutputTissueParameters(out_stream& rParamsFile);
+
+    /**
+     * Return the unique identifier. This method uses Boost's serialization's
+     * extended_type_info and returns the identifier of the derived class
+     * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
+     * derived class, and is usually just the name of the class).
+     */
+    std::string GetIdentifier() const;
+
+    /**
      * @return mOutputCellIdData
      */
     bool GetOutputCellIdData();

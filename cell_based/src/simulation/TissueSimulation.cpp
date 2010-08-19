@@ -672,26 +672,54 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
      *  * Parameters from `TissueConfig`
      */
 
-    *ParameterFile << ChasteBuildInfo::GetProvenanceString()<< "\n";
+    // Output Chaste provenance information
+    *ParameterFile << "<ChasteInfo>\n\t"<< ChasteBuildInfo::GetProvenanceString()<< " </ChasteInfo>\n";
 
-    *ParameterFile << typeid(mrTissue).name() << "\n"; ///\todo replace with extended type info id (see #1453)
+    // Output TissueSimulation details
     *ParameterFile << "\n";
-    *ParameterFile <<  "Parameters from TissueConfig \n";
-	TissueConfig* p_inst = TissueConfig::Instance();
-	*ParameterFile << "SG2MDuration \t" << p_inst->GetSG2MDuration() << "\n";
-    *ParameterFile << "SDuration \t" << p_inst->GetSDuration() << "\n";
-    *ParameterFile << "G2Duration \t" << p_inst->GetG2Duration() << "\n";
-    *ParameterFile << "MDuration \t" << p_inst->GetMDuration() << "\n";
-    *ParameterFile << "StemCellG1Duration \t" << p_inst->GetStemCellG1Duration() << "\n";
-    *ParameterFile << "TransitCellG1Duration \t" << p_inst->GetTransitCellG1Duration() << "\n";
-    *ParameterFile << "CryptLength \t" << p_inst->GetCryptLength() << "\n";
-    *ParameterFile << "CryptWidth \t" << p_inst->GetCryptWidth() << "\n";
-    //*ParameterFile << "SpringStiffness \t" << p_inst->GetMeinekeSpringStiffness() << "\n";
-    *ParameterFile << "MechanicsCutOffLength \t" << p_inst->GetMeinekeMechanicsCutOffLength() << "\n";
-    *ParameterFile << "DampingConstantNormal \t" << p_inst->GetDampingConstantNormal() << "\n";
-    *ParameterFile << "DampingConstantMutant \t" << p_inst->GetDampingConstantMutant() << "\n";
-    *ParameterFile << "CryptProjectionParameterA \t" << p_inst->GetCryptProjectionParameterA() << "\n";
-    *ParameterFile << "CryptProjectionParameterB \t" << p_inst->GetCryptProjectionParameterB() << "\n";
+    *ParameterFile <<  "<TissueSimulation>\n";
+
+    *ParameterFile << "\t <mDt> "<< mDt << " </mDt>\n";
+    *ParameterFile << "\t <mEndTime> "<< mEndTime << " </mEndTime>\n";
+    *ParameterFile << "\t <mSamplingTimestepMultiple> "<< mSamplingTimestepMultiple << " </mSamplingTimestepMultiple>\n";
+
+    *ParameterFile <<  "</TissueSimulation>\n";
+
+    // Output TissueConfig details
+    *ParameterFile << "\n";
+    *ParameterFile <<  "<TissueConfig>\n";
+    TissueConfig* p_inst = TissueConfig::Instance();
+
+    *ParameterFile << "\t <SG2MDuration> "<< p_inst->GetSG2MDuration() << " </SG2MDuration>\n";
+    *ParameterFile << "\t <SDuration> "<< p_inst->GetSDuration() << " </SDuration>\n";
+    *ParameterFile << "\t <G2Duration> "<< p_inst->GetG2Duration() << " </G2Duration>\n";
+    *ParameterFile << "\t <MDuration> "<< p_inst->GetMDuration() << " </MDuration>\n";
+    *ParameterFile << "\t <StemCellG1Duration> "<< p_inst->GetStemCellG1Duration() << " </StemCellG1Duration>\n";
+    *ParameterFile << "\t <TransitCellG1Duration> "<< p_inst->GetTransitCellG1Duration() << " </TransitCellG1Duration>\n";
+    *ParameterFile << "\t <CryptLength> "<< p_inst->GetCryptLength() << " </CryptLength>\n";
+    *ParameterFile << "\t <CryptWidth> "<< p_inst->GetCryptWidth() << " </CryptWidth>\n";
+    *ParameterFile << "\t <MechanicsCutOffLength> "<< p_inst->GetMeinekeMechanicsCutOffLength() << " </MechanicsCutOffLength>\n";
+    *ParameterFile << "\t <DampingConstantNormal> "<< p_inst->GetDampingConstantNormal() << " </DampingConstantNormal>\n";
+    *ParameterFile << "\t <DampingConstantMutant> "<< p_inst->GetDampingConstantMutant() << " </DampingConstantMutant>\n";
+    //*ParameterFile << "\t <CryptProjectionParameterA> "<< p_inst->GetCryptProjectionParameterA() << " </CryptProjectionParameterA>\n";
+    //*ParameterFile << "\t <CryptProjectionParameterB> "<< p_inst->GetCryptProjectionParameterB() << " </CryptProjectionParameterB>\n";
+
+    *ParameterFile <<  "</TissueConfig>\n";
+
+    *ParameterFile << "\n";
+
+    // Output tissue details
+    mrTissue.OutputTissueInfo(ParameterFile);
+
+    // Loop over forces
+    for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
+                 iter != mForceCollection.end();
+                 ++iter)
+    {
+    	// Output force details
+    	//(*iter)->OutputTissueInfo(ParameterFile);
+    }
+
 
     ParameterFile->close();
 }

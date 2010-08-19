@@ -400,6 +400,16 @@ void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
 #endif //CHASTE_VTK
 }
 
+template<unsigned DIM>
+void MeshBasedTissueWithGhostNodes<DIM>::OutputTissueParameters(out_stream& rParamsFile)
+{
+	*rParamsFile <<  "\t <mGhostSpringStiffness> " <<  mGhostSpringStiffness << " </mGhostSpringStiffness> \n" ;
+
+	// Call direct parent class method
+	MeshBasedTissue<DIM>::OutputTissueParameters(rParamsFile);
+
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////

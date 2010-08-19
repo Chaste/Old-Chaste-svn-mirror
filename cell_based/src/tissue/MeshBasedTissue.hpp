@@ -531,6 +531,14 @@ public:
      * @param outputTissueVolumes the new value of mOutputTissueVolumes
      */
     void SetOutputTissueVolumes(bool outputTissueVolumes);
+
+    /**
+     * Outputs Tissue Parameters to file
+     *
+     * @param pParamsOutStream the file stream to output the parameters to.
+     *
+     */
+    void OutputTissueParameters(out_stream& rParamsFile);
 };
 #undef COVERAGE_IGNORE //Avoid prototypes being treated as code by gcov
 

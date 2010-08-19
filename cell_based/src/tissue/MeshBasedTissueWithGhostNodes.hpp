@@ -202,6 +202,14 @@ public:
      * Overridden WriteVtkResultsToFile method.
      */
     void WriteVtkResultsToFile();
+
+    /**
+     * Outputs Tissue Parameters to file
+     *
+     * @param pParamsOutStream the file stream to output the parameters to.
+     *
+     */
+    void OutputTissueParameters(out_stream& rParamsFile);
 };
 
 

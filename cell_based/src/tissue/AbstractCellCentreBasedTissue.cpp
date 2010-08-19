@@ -238,6 +238,17 @@ void AbstractCellCentreBasedTissue<DIM>::SetMeinekeDivisionSeparation(double div
     assert(divisionSeparation >= 0.0);
     mMeinekeDivisionSeparation = divisionSeparation;
 }
+
+template<unsigned DIM>
+void AbstractCellCentreBasedTissue<DIM>::OutputTissueParameters(out_stream& rParamsFile)
+{
+	*rParamsFile <<  "\t <mMeinekeDivisionSeparation> " <<  mMeinekeDivisionSeparation << " </mMeinekeDivisionSeparation> \n" ;
+
+	// Call direct parent class
+	AbstractTissue<DIM>::OutputTissueParameters(rParamsFile);
+
+}
+
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////

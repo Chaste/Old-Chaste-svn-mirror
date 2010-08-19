@@ -190,6 +190,15 @@ public:
      * @param divisionSeparation the new value of mMeinekeDivisionSeparation
      */
     void SetMeinekeDivisionSeparation(double divisionSeparation);
+
+    /**
+     * Outputs Tissue Parameters to file
+     *
+     * @param pParamsOutStream the file stream to output the parameters to.
+     *
+     */
+    virtual void OutputTissueParameters(out_stream& rParamsFile);
+
 };
 
 #endif /*ABSTRACTCELLCENTREBASEDTISSUE_HPP_*/

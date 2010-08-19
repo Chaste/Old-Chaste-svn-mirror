@@ -30,6 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractOdeBasedCellCycleModel.hpp"
 #include "PetscTools.hpp"
 
+#include <boost/serialization/extended_type_info.hpp>
+#include <boost/serialization/extended_type_info_typeid.hpp>
+#include <boost/serialization/extended_type_info_no_rtti.hpp>
+#include <boost/serialization/type_info_implementation.hpp>
+
 template<unsigned DIM>
 AbstractTissue<DIM>::AbstractTissue(std::vector<TissueCellPtr>& rCells,
                                     const std::vector<unsigned> locationIndices)
@@ -611,6 +616,40 @@ void AbstractTissue<DIM>::WriteCellIdDataToFile()
     }
     *mpCellIdFile << "\n";
 }
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::OutputTissueInfo(out_stream& rParamsFile)
+{
+	std::string tissue_type = GetIdentifier();
+
+	*rParamsFile <<  "<" << tissue_type << ">" "\n";
+	OutputTissueParameters(rParamsFile);
+	*rParamsFile <<  "</" << tissue_type << ">" "\n";
+}
+
+template<unsigned DIM>
+void AbstractTissue<DIM>::OutputTissueParameters(out_stream& rParamsFile)
+{
+    *rParamsFile <<  "\t <mOutputCellIdData> " <<  mOutputCellIdData << " </mOutputCellIdData> \n" ;
+    *rParamsFile <<  "\t <mOutputCellMutationStates> " <<  mOutputCellMutationStates << " </mOutputCellMutationStates> \n" ;
+    *rParamsFile <<  "\t <mOutputCellAncestors> " <<  mOutputCellAncestors << " </mOutputCellAncestors> \n" ;
+    *rParamsFile <<  "\t <mOutputCellProliferativeTypes> " <<  mOutputCellProliferativeTypes << " </mOutputCellProliferativeTypes> \n" ;
+    *rParamsFile <<  "\t <mOutputCellVariables> " <<  mOutputCellVariables << " </mOutputCellVariables> \n" ;
+    *rParamsFile <<  "\t <mOutputCellCyclePhases> " <<  mOutputCellCyclePhases << " </mOutputCellCyclePhases> \n" ;
+    *rParamsFile <<  "\t <mOutputCellAges> " <<  mOutputCellAges << " </mOutputCellAges> \n" ;
+    *rParamsFile <<  "\t <mOutputCellVolumes> " <<  mOutputCellVolumes << " </mOutputCellVolumes> \n" ;
+}
+
+template<unsigned DIM>
+std::string AbstractTissue<DIM>::GetIdentifier() const
+{
+	#if BOOST_VERSION >= 103700
+		return boost::serialization::type_info_implementation<AbstractTissue>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
+	#else
+		return boost::serialization::type_info_implementation<AbstractTissue>::type::get_derived_extended_type_info(*this)->get_key();
+	#endif
+}
+
 
 template<unsigned DIM>
 bool AbstractTissue<DIM>::GetOutputCellIdData()
