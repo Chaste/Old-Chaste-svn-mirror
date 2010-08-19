@@ -2337,7 +2337,11 @@ class UnitsSet(set):
     
     def equals(self, other):
         """Test whether the units in the set are equal to those in another set."""
-        return self.extract(check_equality=True).equals(other.extract(check_equality=True))
+        try:
+            equal = self.extract(check_equality=True).equals(other.extract(check_equality=True))
+        except ValueError:
+            equal = False
+        return equal
 
     def extract(self, check_equality=False):
         """Extract a representative element from this set.
@@ -2351,12 +2355,12 @@ class UnitsSet(set):
         representative = iter(self).next()
         if check_equality:
             for u in self:
-                if not u._rel_error_ok(u.get_multiplicative_factor(),
-                                          representative.get_multiplicative_factor(),
-                                          1e-6):
+                if not u._rel_error_ok(u.expand().get_multiplicative_factor(),
+                                       representative.expand().get_multiplicative_factor(),
+                                       1e-6):
                     raise ValueError("UnitsSet equality check failed")
-                if u.is_simple() and not u._rel_error_ok(u.get_offset(),
-                                                         representative.get_offset(),
+                if u.is_simple() and not u._rel_error_ok(u.expand().get_offset(),
+                                                         representative.expand().get_offset(),
                                                          1e-6):
                     raise ValueError("UnitsSet equality check failed")
         return representative
