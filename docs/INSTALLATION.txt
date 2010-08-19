@@ -186,14 +186,13 @@ rm -f xsd-3.2.0-i686-linux-gnu.tar.bz2
 Note that older versions of XSD (including 2.3.1 and 3.1.1a3) should
 still work, but are not tested on a regular basis.
 
-
 =============== TETGEN =====================
 
 cd $CHASTE_LIBS
 #Note that the latest Tetgen (http://tetgen.berlios.de/files/tetgen1.4.3.tar.gz) is known 
 #to cause problems with a few of our regular tests.
-wget https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/attachment/wiki/InstallTetgenAndTetview/tetgen1.4.2.zip
-tar -zxvf tetgen1.4.2.tar.gz
+wget https://chaste.comlab.ox.ac.uk/cgi-bin/trac.cgi/raw-attachment/wiki/InstallTetgenAndTetview/tetgen1.4.2.zip --no-check-certificate --http-user=anonymous --http-password=me@nowhere.com
+unzip tetgen1.4.2.zip
 cd tetgen1.4.2
 make
 mv tetgen $CHASTE_LIBS/bin/
@@ -209,7 +208,7 @@ Note: From Release 1.1 installation of triangle is not required.
 VTK installation is optional.  If you wish to produce VTK output for a visualizer such as Paraview or Mayavi2 then you will need to install the VTK development libraries.  If you have a root/priviledged access then it is easy to install 
 the libvtk5-dev with
 sudo aptitude install libvtk5-dev #(Ubuntu/Debian)
-yum install vtk-devel             #(Fedora/RedHat)
+sudo yum install vtk-devel             #(Fedora/RedHat)
 
 If you are installing in userspace there are 3 steps:
 1. Installation of CMake (for compiling VTK from source)
@@ -245,15 +244,21 @@ use_vtk = True
 =============== Paraview (VTK visualizer) =====================
 
 32-bit:
+cd $CHASTE_LIBS
 wget http://www.paraview.org/files/v3.6/paraview-3.6.2-Linux32-x86.tar.gz
 tar xfvz paraview-3.6.2-Linux32-x86.tar.gz
+
+# You need to add these lines to your .bashrc (or similar) The syntax may change depending on your command-line interpreter.
 # Note that the following may break your python as there is a libpython2.5.so.1.0 in ${CHASTE_LIBS}/paraview-3.6.2-Linux-i686/lib/paraview-3.6/ (fixme!)
 export PATH=${PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-i686/bin/
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-i686/lib/paraview-3.6/
 
 64-bit:
+cd $CHASTE_LIBS
 wget http://www.paraview.org/files/v3.6/paraview-3.6.2-Linux64-x86.tar.gz
 tar xvfz paraview-3.6.2-Linux64-x86.tar.gz
+
+# You need to add these lines to your .bashrc (or similar) The syntax may change depending on your command-line interpreter.
 # Note that the following may break your python as there is a libpython2.5.so.1.0 in ${CHASTE_LIBS}/paraview-3.6.2-Linux-i686/lib/paraview-3.6/ (fixme!)
 export PATH=${PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-x86_64/bin/
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CHASTE_LIBS}/paraview-3.6.2-Linux-x86_64/lib/paraview-3.6/
@@ -273,9 +278,11 @@ PyCml.
 PyCml is a python tool, and also requires Amara, RNV, and the Redland RDF
 library.  All of these in turn require the expat library to parse XML.
 This is available in most Linux distributions, e.g.
-  sudo aptitude install expat libexpat1-dev
+  sudo aptitude install expat libexpat1-dev #(Ubuntu/Debian)
+  sudo yum install expat expat-devel #(Fedora/RedHat)
 You will also need the Python header files:
-  sudo aptitude install python-dev
+  sudo aptitude install python-dev #(Ubuntu/Debian)
+  sudo yum install python-devel #(Fedora/RedHat)
 
 To install Python libraries without root access, you need to create a
 file .pydistutils.cfg in your home directory, with the following content:
