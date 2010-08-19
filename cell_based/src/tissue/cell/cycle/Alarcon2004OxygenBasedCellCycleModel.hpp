@@ -28,12 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_
 #define ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_
 
-#include <vector>
-#include <boost/shared_ptr.hpp>
-
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/split_member.hpp>
+
+#include <vector>
 
 #include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
@@ -55,31 +53,10 @@ private:
      * @param version the archive version
      */
     template<class Archive>
-    void save(Archive & archive, const unsigned int version) const
+    void serialize(Archive & archive, const unsigned int version)
     {
-        assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
-        bool is_labelled = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->IsLabelled();
-        archive & is_labelled;
     }
-    /**
-     * Load the cell cycle model and ODE system from archive.
-     *
-     * @param archive the archive
-     * @param version the archive version
-     */
-    template<class Archive>
-    void load(Archive & archive, const unsigned int version)
-    {
-        // The ODE system is set up by the archiving constructor, so we can set the mutation state
-        // here.  This is a horrible hack, but avoids having to regenerate test archives...
-        assert(mpOdeSystem);
-        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
-        bool is_labelled;
-        archive & is_labelled;
-        static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetIsLabelled(is_labelled);
-    }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 public:
 
@@ -91,17 +68,12 @@ public:
     Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * A private constructor for archiving.
+     * Constructor used in archiving.
      * 
-      *@param pOdeSolver a pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
-     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
-     * @param rDimension the spatial dimension
-     * @param isLabelled whether the cell associated with this cell cycle model is labelled (this affects the ODE system)
+     * @param unused an unused argument
      */
-    Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
-                                         const std::vector<double>& rParentProteinConcentrations,
-                                         const unsigned& rDimension,
-                                         bool isLabelled);
+    Alarcon2004OxygenBasedCellCycleModel(double unused)
+    {}
 
     /**
      * Resets the oxygen-based model to the start of the cell cycle
@@ -138,7 +110,8 @@ public:
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(Alarcon2004OxygenBasedCellCycleModel)
-
+#include "CellCycleModelOdeSolverExportWrapper.hpp"
+EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(Alarcon2004OxygenBasedCellCycleModel)
 
 namespace boost
 {
@@ -146,49 +119,26 @@ namespace serialization
 {
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a Alarcon2004OxygenBasedCellCycleModel instance.
+ * instantiate an Alarcon2004OxygenBasedCellCycleModel instance.
  */
 template<class Archive>
 inline void save_construct_data(
     Archive & ar, const Alarcon2004OxygenBasedCellCycleModel * t, const unsigned int file_version)
 {
-    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
-    ar & p_ode_solver;
 }
 
 /**
  * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a Alarcon2004OxygenBasedCellCycleModel instance.
+ * instantiate an Alarcon2004OxygenBasedCellCycleModel instance.
  */
 template<class Archive>
 inline void load_construct_data(
     Archive & ar, Alarcon2004OxygenBasedCellCycleModel * t, const unsigned int file_version)
 {
-    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
-    ar & p_ode_solver;
-
-    /**
-     * Invoke inplace constructor to initialise an instance of Alarcon2004OxygenBasedCellCycleModel.
-     * It doesn't actually matter what values we pass to our standard constructor, provided they are
-     * valid parameter values, since the state loaded later from the archive will overwrite their
-     * effect in this case.
-     */
-
-    std::vector<double> state_vars;
-    for (unsigned i=0; i<6; i++)
-    {
-        state_vars.push_back(0.0);
-    }
-    unsigned dimension = 1;
-    bool is_labelled = false;
-
-    ::new(t)Alarcon2004OxygenBasedCellCycleModel(p_ode_solver, state_vars, dimension, is_labelled);
+    double unused = 0.0;
+    ::new(t)Alarcon2004OxygenBasedCellCycleModel(unused);
 }
 }
 } // namespace ...
-
-
-#include "CellCycleModelOdeSolverExportWrapper.hpp"
-EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(Alarcon2004OxygenBasedCellCycleModel)
 
 #endif /*ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_*/

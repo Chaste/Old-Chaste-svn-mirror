@@ -49,11 +49,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApcTwoHitCellMutationState.hpp"
 #include "BetaCateninOneHitCellMutationState.hpp"
 
-#include "CellCycleModelOdeSolver.hpp"
-#include "BackwardEulerIvpOdeSolver.hpp"
-#include "RungeKutta4IvpOdeSolver.hpp"
-#include "CvodeAdaptor.hpp"
-
 #include "CellwiseData.hpp"
 #include "OutputFileHandler.hpp"
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
@@ -1572,6 +1567,9 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->ReadyToDivide(), true);
 
+            Alarcon2004OxygenBasedCellCycleOdeSystem* p_ode_system = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_cell_model->GetOdeSystem()); 
+            TS_ASSERT_EQUALS(p_ode_system->IsLabelled(), false);
+
             // Create an output archive
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -1604,7 +1602,7 @@ public:
             input_arch >> p_cell;
 
             // Check that archiving worked correctly
-            Alarcon2004OxygenBasedCellCycleModel* p_model = static_cast<Alarcon2004OxygenBasedCellCycleModel*> (p_cell->GetCellCycleModel());
+            Alarcon2004OxygenBasedCellCycleModel* p_model = static_cast<Alarcon2004OxygenBasedCellCycleModel*>(p_cell->GetCellCycleModel());
 
             TS_ASSERT_EQUALS(p_cell, p_model->GetCell());
             TS_ASSERT_EQUALS(p_model->GetDimension(), 3u);
@@ -1614,8 +1612,9 @@ public:
             TS_ASSERT_DELTA(p_model->GetAge(), 20.0, 1e-12);
             TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 10.0, 1e-12);
 
-            // Tidy up
-            CellwiseData<3>::Destroy();
+            Alarcon2004OxygenBasedCellCycleOdeSystem* p_ode_system = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_model->GetOdeSystem()); 
+            TS_ASSERT(p_ode_system != NULL);
+            TS_ASSERT_EQUALS(p_ode_system->IsLabelled(), false);
         }
     }
 };

@@ -87,24 +87,6 @@ void SingleOdeWntCellCycleModel::UpdateCellCyclePhase()
     AbstractSimpleCellCycleModel::UpdateCellCyclePhase(); /// Don't call the SimpleWntCellCycleModel - it will overwrite this.
 }
 
-SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
-                                                       std::vector<double>& rParentProteinConcentrations,
-                                                       boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                                                       unsigned& rDimension,
-                                                       bool useTypeDependentG1)
-    : mLastTime(DBL_MAX)
-{
-    SetDimension(rDimension),
-    SetUseCellProliferativeTypeDependentG1Duration(useTypeDependentG1);
-
-    // Set the other initial conditions to be the same as the parent cell
-    mpOdeSystem = new Mirams2010WntOdeSystem(rParentProteinConcentrations[2], pMutationState);
-    mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
-
-    mpOdeSolver = pOdeSolver;
-    assert(mpOdeSolver->IsSetUp());
-}
-
 void SingleOdeWntCellCycleModel::Initialise()
 {
     assert(mpOdeSystem == NULL);

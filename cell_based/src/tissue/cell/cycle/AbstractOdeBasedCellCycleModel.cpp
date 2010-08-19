@@ -197,3 +197,8 @@ void AbstractOdeBasedCellCycleModel::SetOdeSystem(AbstractOdeSystem* pOdeSystem)
 {
     mpOdeSystem = pOdeSystem;
 }
+
+AbstractOdeSystem* AbstractOdeBasedCellCycleModel::GetOdeSystem() const
+{
+    return mpOdeSystem;
+}

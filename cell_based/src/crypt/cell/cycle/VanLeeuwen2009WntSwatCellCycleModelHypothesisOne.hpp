@@ -55,6 +55,14 @@ public:
     VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
+     * Constructor used in archiving.
+     * 
+     * @param unused an unused argument
+     */
+    VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(double unused)
+    {}
+
+    /**
      * Overloaded method which allocates the ODE system using HYPOTHESIS ONE.
      *
      * @param wntConcentration Wnt concentration
@@ -88,8 +96,6 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const VanLeeuwen2009WntSwatCellCycleModelHypothesisOne * t, const unsigned int file_version)
 {
-    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
-    ar & p_ode_solver;
 }
 
 /**
@@ -100,10 +106,8 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, VanLeeuwen2009WntSwatCellCycleModelHypothesisOne * t, const unsigned int file_version)
 {
-    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
-    ar & p_ode_solver;
-
-    ::new(t)VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(p_ode_solver);
+    double unused = 0.0;
+    ::new(t)VanLeeuwen2009WntSwatCellCycleModelHypothesisOne(unused);
 }
 }
 } // namespace

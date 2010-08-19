@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "StochasticWntCellCycleModel.hpp"
 
+#include "StochasticWntCellCycleModel.hpp"
 
 StochasticWntCellCycleModel::StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : WntCellCycleModel(pOdeSolver)
@@ -46,16 +46,6 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel(boost::shared_ptr<Abstr
     }
 }
 
-
-StochasticWntCellCycleModel::StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
-                                                         const std::vector<double>& rParentProteinConcentrations,
-                                                         boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                                                         const unsigned& rDimension)
-    : WntCellCycleModel(pOdeSolver, rParentProteinConcentrations, pMutationState, rDimension)
-{
-}
-
-
 void StochasticWntCellCycleModel::SetG2Duration()
 {
     TissueConfig* p_config = TissueConfig::Instance();
@@ -73,12 +63,10 @@ void StochasticWntCellCycleModel::SetG2Duration()
     }
 }
 
-
 void StochasticWntCellCycleModel::InitialiseDaughterCell()
 {
     SetG2Duration();
 }
-
 
 void StochasticWntCellCycleModel::Initialise()
 {
@@ -86,19 +74,16 @@ void StochasticWntCellCycleModel::Initialise()
     SetG2Duration();
 }
 
-
 void StochasticWntCellCycleModel::ResetForDivision()
 {
     AbstractWntOdeBasedCellCycleModel::ResetForDivision();
     SetG2Duration();
 }
 
-
 double StochasticWntCellCycleModel::GetG2Duration()
 {
     return mG2Duration;
 }
-
 
 AbstractCellCycleModel* StochasticWntCellCycleModel::CreateCellCycleModel()
 {
@@ -124,7 +109,6 @@ AbstractCellCycleModel* StochasticWntCellCycleModel::CreateCellCycleModel()
 
     return p_model;
 }
-
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"

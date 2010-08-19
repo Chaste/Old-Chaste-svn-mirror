@@ -74,6 +74,14 @@ public:
     TysonNovakCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
+     * Constructor used in archiving.
+     * 
+     * @param unused an unused argument
+     */
+    TysonNovakCellCycleModel(double unused)
+    {}
+
+    /**
      * Reset cell cycle model by calling AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision()
      * and setting initial conditions for protein concentrations.
      */
@@ -129,13 +137,11 @@ public:
     virtual bool CanCellTerminallyDifferentiate();
 };
 
-
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(TysonNovakCellCycleModel)
 #include "CellCycleModelOdeSolverExportWrapper.hpp"
 EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(TysonNovakCellCycleModel)
-
 
 namespace boost
 {
@@ -149,8 +155,6 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const TysonNovakCellCycleModel * t, const unsigned int file_version)
 {
-    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
-    ar & p_ode_solver;
 }
 
 /**
@@ -161,13 +165,10 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, TysonNovakCellCycleModel * t, const unsigned int file_version)
 {
-    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
-    ar & p_ode_solver;
-
-    ::new(t)TysonNovakCellCycleModel(p_ode_solver);
+    double unused = 0.0;
+    ::new(t)TysonNovakCellCycleModel(unused);
 }
 }
 } // namespace ...
-
 
 #endif /*TYSONNOVAKCELLCYCLEMODEL_HPP_*/

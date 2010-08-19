@@ -61,8 +61,8 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        assert(mpOdeSystem != NULL);
-        archive & mpOdeSystem->rGetStateVariables();
+        archive & mpOdeSystem;
+        archive & mpOdeSolver;
         archive & mLastTime;
         archive & mDivideTime;
         archive & mFinishedRunningOdes;
@@ -93,6 +93,12 @@ protected:
 
     /** The start time for the G2 phase. */
     double mG2PhaseStartTime;
+
+    /**
+     * Private constructor for use in archiving.
+     */
+    AbstractOdeBasedCellCycleModel()
+    {}
 
 public:
 
@@ -208,6 +214,11 @@ public:
      * @param rStateVariables vector containing values for the state variables
      */
     void SetStateVariables(const std::vector<double>& rStateVariables);
+
+    /**
+     * Get mpOdeSystem.
+     */
+    AbstractOdeSystem* GetOdeSystem() const;
 
     /**
      * Set mpOdeSystem. Used in CreateCellCycleModel().

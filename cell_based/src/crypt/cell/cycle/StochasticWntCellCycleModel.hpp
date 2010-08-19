@@ -96,17 +96,12 @@ public:
     StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * A private constructor for archiving.
-     *
-     * @param pOdeSolver a pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
-     * @param rParentProteinConcentrations a std::vector of doubles of the protein concentrations (see WntCellCycleOdeSystem)
-     * @param pMutationState the mutation state of the cell (used by ODEs)
-     * @param rDimension the spatial dimension
+     * Constructor used in archiving.
+     * 
+     * @param unused an unused argument
      */
-    StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
-                                const std::vector<double>& rParentProteinConcentrations,
-                                boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                                const unsigned& rDimension);
+    StochasticWntCellCycleModel(double unused)
+    {}
 
     /**
      * Overridden builder method to create new copies of
@@ -140,7 +135,6 @@ public:
     double GetG2Duration();
 };
 
-
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(StochasticWntCellCycleModel)
@@ -159,8 +153,6 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const StochasticWntCellCycleModel * t, const unsigned int file_version)
 {
-    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
-    ar & p_ode_solver;
 }
 
 /**
@@ -171,25 +163,8 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, StochasticWntCellCycleModel * t, const unsigned int file_version)
 {
-    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
-    ar & p_ode_solver;
-
-    /**
-     * Invoke inplace constructor to initialise an instance of StochasticWntCellCycleModel.
-     * It doesn't actually matter what values we pass to our standard constructor, provided
-     * they are valid parameter values, since the state loaded later from the archive will
-     * overwrite their effect in this case.
-     */
-
-    std::vector<double> state_vars;
-    for (unsigned i=0; i<9; i++)
-    {
-        state_vars.push_back(0.0);
-    }
-
-    boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-    unsigned dimension = 1;
-    ::new(t)StochasticWntCellCycleModel(p_ode_solver, state_vars, p_mutation_state, dimension);
+    double unused = 0.0;
+    ::new(t)StochasticWntCellCycleModel(unused);
 }
 }
 } // namespace

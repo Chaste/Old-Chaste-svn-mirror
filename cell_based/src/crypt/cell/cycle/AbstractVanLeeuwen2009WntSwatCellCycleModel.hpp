@@ -31,8 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 
 #include <cfloat>
 
@@ -56,41 +54,16 @@ private:
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Archive the cell cycle model and ODE system.
+     * Archive the cell cycle model, never used directly - boost uses this.
      *
      * @param archive the archive
-     * @param version the archive version
+     * @param version the current version of this class
      */
     template<class Archive>
-    void save(Archive & archive, const unsigned int version) const
+    void serialize(Archive & archive, const unsigned int version)
     {
-        assert(mpOdeSystem);
         archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
-        boost::shared_ptr<AbstractCellMutationState> p_mutation_state = static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(mpOdeSystem)->GetMutationState();
-        archive & p_mutation_state;
     }
-
-    /**
-     * Load the cell cycle model and ODE system from archive.
-     *
-     * @param archive the archive
-     * @param version the archive version
-     */
-    template<class Archive>
-    void load(Archive & archive, const unsigned int version)
-    {
-        /*
-         * The ODE system is set up by the archiving constructor, so we can set the mutation state
-         * here. This is a horrible hack, but avoids having to regenerate test archives.
-         */
-        boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-        InitialiseOdeSystem(0.0, p_mutation_state);
-        assert(mpOdeSystem);
-        archive & boost::serialization::base_object<AbstractWntOdeBasedCellCycleModel>(*this);
-        archive & p_mutation_state;
-        static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(p_mutation_state);
-    }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     /**
      * Called by ::Initialise() and ::UpdateCellProliferativeType() only.

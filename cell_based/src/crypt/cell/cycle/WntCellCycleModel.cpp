@@ -45,18 +45,6 @@ WntCellCycleModel::WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOde
     }
 }
 
-WntCellCycleModel::WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
-                                     const std::vector<double>& rParentProteinConcentrations,
-                                     boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                                     const unsigned& rDimension)
-    : AbstractWntOdeBasedCellCycleModel(pOdeSolver)
-{
-    mpOdeSystem = new WntCellCycleOdeSystem(rParentProteinConcentrations[8], pMutationState); // Wnt pathway is reset in a couple of lines
-
-    // Set the initial conditions to be the same as the parent cell
-    mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
-}
-
 AbstractCellCycleModel* WntCellCycleModel::CreateCellCycleModel()
 {
     // Create a new cell cycle model

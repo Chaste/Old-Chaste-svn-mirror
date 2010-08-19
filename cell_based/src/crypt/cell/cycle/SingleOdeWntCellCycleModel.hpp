@@ -30,8 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 
 #include <cfloat>
 
@@ -51,56 +49,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class SingleOdeWntCellCycleModel : public SimpleWntCellCycleModel
 {
 private:
+
+    /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
-     * Save the cell cycle model and ODE system to archive.
+     * Archive the cell cycle model and member variables.
      *
      * @param archive the archive
-     * @param version the archive version
+     * @param version the current version of this class
      */
     template<class Archive>
-    void save(Archive & archive, const unsigned int version) const
+    void serialize(Archive & archive, const unsigned int version)
     {
-        assert(mpOdeSystem);
         archive & boost::serialization::base_object<SimpleWntCellCycleModel>(*this);
-        /**
-         * Reference can be read or written into once mpOdeSystem has been set up
-         * mpOdeSystem isn't set up by the first constructor, but is by the second
-         * which is now utilised by the load_construct at the bottom of this file.
-         *
-         * Note mpOdeSystem itself is not archived just the current values of the
-         * state variables...
-         */
-        boost::shared_ptr<AbstractCellMutationState> p_mutation_state = static_cast<Mirams2010WntOdeSystem*>(mpOdeSystem)->GetMutationState();
-        archive & p_mutation_state;
+        archive & mpOdeSystem;
+        archive & mpOdeSolver;
         archive & mBetaCateninDivisionThreshold;
         archive & mLastTime;
-        archive & mpOdeSystem->rGetStateVariables();
     }
-    /**
-     * Load the cell cycle model and ODE system from archive.
-     *
-     * @param archive the archive
-     * @param version the archive version
-     */
-    template<class Archive>
-    void load(Archive & archive, const unsigned int version)
-    {
-        /*
-         * The ODE system is set up by the archiving constructor, so we can set the mutation state
-         * here. This is a horrible hack, but avoids having to regenerate test archives.
-         */
-        assert(mpOdeSystem);
-        archive & boost::serialization::base_object<SimpleWntCellCycleModel>(*this);
-        boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-        archive & p_mutation_state;
-        static_cast<Mirams2010WntOdeSystem*>(mpOdeSystem)->SetMutationState(p_mutation_state);
-
-        archive & mBetaCateninDivisionThreshold;
-        archive & mLastTime;
-        archive & mpOdeSystem->rGetStateVariables();
-    }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     /**
      * Pointer to the ODE system developed by Mirams et al (2010).
@@ -152,19 +118,12 @@ public:
     SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * A 'private' constructor for archiving.
+     * Constructor used in archiving.
      * 
-     * @param pOdeSolver a pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
-     * @param rProteinConcs a std::vector of doubles of the protein concentrations (see VanLeeuwen2009WntSwatCellCycleOdeSystem)
-     * @param pMutationState the mutation state of the cell (used by ODEs)
-     * @param rDimension the spatial dimension
-     * @param useTypeDependentG1 whether to make the duration of G1 phase dependent on the cell's proliferative type (defaults to false)
+     * @param unused an unused argument
      */
-    SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
-                               std::vector<double>& rProteinConcs,
-                               boost::shared_ptr<AbstractCellMutationState> pMutationState,
-                               unsigned& rDimension,
-                               bool useTypeDependentG1 = false);
+    SingleOdeWntCellCycleModel(double unused)
+    {}
 
     /**
      * Destructor.
@@ -183,7 +142,7 @@ public:
     /**
      * This specialisation updates the beta-catenin level
      */
-     void UpdateCellCyclePhase();
+    void UpdateCellCyclePhase();
 
     /**
      * Overridden builder method to create new copies of
@@ -253,8 +212,6 @@ template<class Archive>
 inline void save_construct_data(
     Archive & ar, const SingleOdeWntCellCycleModel * t, const unsigned int file_version)
 {
-    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver = t->GetOdeSolver();
-    ar & p_ode_solver;
 }
 
 /**
@@ -265,25 +222,8 @@ template<class Archive>
 inline void load_construct_data(
     Archive & ar, SingleOdeWntCellCycleModel * t, const unsigned int file_version)
 {
-    boost::shared_ptr<AbstractCellCycleModelOdeSolver> p_ode_solver;
-    ar & p_ode_solver;
-
-    /**
-     * Invoke inplace constructor to initialise an instance of SingleOdeWntCellCycleModel.
-     * It doesn't actually matter what values we pass to our standard constructor,
-     * provided they are valid parameter values, since the state loaded later from the
-     * archive will overwrite their effect in this case.
-     */
-
-    std::vector<double> state_vars;
-    for (unsigned i=0; i<3; i++)
-    {
-        state_vars.push_back(0.0);
-    }
-
-    boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
-    unsigned dimension = 1;
-    ::new(t)SingleOdeWntCellCycleModel(p_ode_solver, state_vars, p_mutation_state, dimension);
+    double unused = 0.0;
+    ::new(t)SingleOdeWntCellCycleModel(unused);
 }
 }
 } // namespace

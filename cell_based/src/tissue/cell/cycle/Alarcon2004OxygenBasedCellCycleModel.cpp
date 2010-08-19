@@ -42,19 +42,6 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(boost
     }
 }
 
-Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver,
-                                                                           const std::vector<double>& rParentProteinConcentrations,
-                                                                           const unsigned& rDimension,
-                                                                           bool isLabelled)
-    : AbstractOdeBasedCellCycleModelWithStoppingEvent(SimulationTime::Instance()->GetTime(), pOdeSolver)
-{
-    mDimension = rDimension;
-    mpOdeSystem = new Alarcon2004OxygenBasedCellCycleOdeSystem(rParentProteinConcentrations[5], isLabelled);
-
-    // Set the model to be the same as the parent cell
-    mpOdeSystem->rGetStateVariables() = rParentProteinConcentrations;
-}
-
 void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
 {
     AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
