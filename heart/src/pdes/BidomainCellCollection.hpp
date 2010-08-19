@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef BIDOMAINPDE_HPP_
-#define BIDOMAINPDE_HPP_
+#ifndef BIDOMAINCELLCOLLECTION_HPP_
+#define BIDOMAINCELLCOLLECTION_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
@@ -180,4 +180,4 @@ inline void load_construct_data(
 } // namespace ...
 
 
-#endif /*BIDOMAINPDE_HPP_*/
+#endif /*BIDOMAINCELLCOLLECTION_HPP_*/

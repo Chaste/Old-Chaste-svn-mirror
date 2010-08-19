@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef ABSTRACTCARDIACPDE_HPP_
-#define ABSTRACTCARDIACPDE_HPP_
+#ifndef ABSTRACTCARDIACCELLCOLLECTION_HPP_
+#define ABSTRACTCARDIACCELLCOLLECTION_HPP_
 
 #include <set>
 #include <vector>
@@ -471,5 +471,5 @@ struct version<AbstractCardiacCellCollection<ELEMENT_DIM, SPACE_DIM> >
 } // namespace serialization
 } // namespace boost
 
-#endif /*ABSTRACTCARDIACPDE_HPP_*/
+#endif /*ABSTRACTCARDIACCELLCOLLECTION_HPP_*/
 

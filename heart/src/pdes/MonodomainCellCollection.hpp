@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef MONODOMAINPDE_HPP_
-#define MONODOMAINPDE_HPP_
+#ifndef MONODOMAINCELLCOLLECTION_HPP_
+#define MONODOMAINCELLCOLLECTION_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
@@ -153,4 +153,4 @@ inline void load_construct_data(
 } // namespace ...
 
 
-#endif /*MONODOMAINPDE_HPP_*/
+#endif /*MONODOMAINCELLCOLLECTION_HPP_*/
