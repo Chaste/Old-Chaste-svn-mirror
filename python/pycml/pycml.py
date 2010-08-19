@@ -2334,13 +2334,32 @@ class UnitsSet(set):
         for units, src_list in self._sources.iteritems():
             new_set._sources[units] = copy.copy(src_list)
         return new_set
+    
+    def equals(self, other):
+        """Test whether the units in the set are equal to those in another set."""
+        return self.extract(check_equality=True).equals(other.extract(check_equality=True))
 
-    def extract(self):
+    def extract(self, check_equality=False):
         """Extract a representative element from this set.
 
         This is intended to be used to get the cellml_units object from a
-        singleton set."""
-        return iter(self).next()
+        singleton set.
+        
+        If check_equality is True, check that all members of this set have
+        the same multiplicative factor.
+        """
+        representative = iter(self).next()
+        if check_equality:
+            for u in self:
+                if not u._rel_error_ok(u.get_multiplicative_factor(),
+                                          representative.get_multiplicative_factor(),
+                                          1e-6):
+                    raise ValueError("UnitsSet equality check failed")
+                if u.is_simple() and not u._rel_error_ok(u.get_offset(),
+                                                         representative.get_offset(),
+                                                         1e-6):
+                    raise ValueError("UnitsSet equality check failed")
+        return representative
 
     def set_expression(self, expr):
         """Store a reference to the expression that has these units."""
@@ -2561,7 +2580,7 @@ class cellml_units(Colourable, element_base):
     def model(self):
         return self.rootNode.model
 
-    def extract(self):
+    def extract(self, check_equality=False):
         """Return these units.
 
         Used for interface compatibility with UnitsSet."""
@@ -4495,8 +4514,9 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
             # units on the first operand are dimensionless, then so is
             # the result.
             # TODO: Check how we could allow equiv. to d'less, instead of equal.
-            if arg_units is dimensionless:
-                our_units = dimensionless
+            # Need to consider any multiplicative factor...
+            if arg_units.equals(dimensionless):
+                our_units = UnitsSet([dimensionless])
             else:
                 opers = self.operands()
                 opers.next()
