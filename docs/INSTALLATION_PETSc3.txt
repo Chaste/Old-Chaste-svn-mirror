@@ -74,7 +74,7 @@ make all test
 # (optional) Build an optimised version of PETSc
 export PETSC_ARCH=linux-gnu-opt
 # ** note 'ifneeded' not 'yes' below **
-./config/configure.py --with-gnu-compilers==true --download-f-blas-lapack=1 --with-x=false --with-clanguage=cxx --download-hypre=yes --download-openmpi=yes --CXXFLAGS="-fPIC -O3" --CFLAGS="-fPIC -O3" --with-debugging=0 --download-hdf5=ifneeded
+./config/configure.py --with-gnu-compilers==true --download-f-blas-lapack=1 --with-x=false --with-clanguage=cxx --download-hypre=yes --download-openmpi=yes --CXXFLAGS="-fPIC -O3" --CFLAGS="-fPIC -O3" --with-debugging=0 --download-hdf5=ifneeded -download-parmetis=ifneeded
 make all test
 
 
@@ -319,7 +319,7 @@ Edit the ~/.bashrc file in the home directory and append the following:
 export CHASTE_LIBS=<THE FOLDER YOU CALLED $CHASTE_LIBS ABOVE>
 export PATH=$CHASTE_LIBS/bin:$PATH
 export LD_LIBRARY_PATH=$CHASTE_LIBS/petsc-3.0.0-p8/linux-gnu/lib:$CHASTE_LIBS/rdf/lib
-export PYTHONPATH=$CHASTE_LIBS/python
+export PYTHONPATH=$CHASTE_LIBS/python:$CHASTE_LIBS/lib/python
 
 Note that the above settings assume that PATH already has a value but that
 LD_LIBRARY_PATH has not.  If LD_LIBRARY_PATH is set elsewhere in ~/.bashrc
@@ -330,7 +330,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CHASTE_LIBS/petsc-3.0.0-p8/linux-gnu/li
 
 Similarly if PYTHONPATH is already set in your .bashrc, use
 
-export PYTHONPATH=$PYTHONPATH:$CHASTE_LIBS/python
+export PYTHONPATH=$PYTHONPATH:$CHASTE_LIBS/python:$CHASTE_LIBS/lib/python
 
 Note that test output will be put in the folder given by the environment variable CHASTE_TEST_OUTPUT. 
 If this has not been assigned to anything, it will be (temporarily) set to be the directory 
