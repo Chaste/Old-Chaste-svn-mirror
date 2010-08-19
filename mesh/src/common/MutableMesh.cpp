@@ -40,6 +40,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #undef REAL
 #undef VOID
 
+/// \todo #1545  Temporary - force building tetgen objects
+#include "tetgen.h"
+/// \todo #1545  Temporary - force building tetgen objects
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh()

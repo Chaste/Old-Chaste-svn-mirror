@@ -260,7 +260,7 @@ include_flag = ' ' + build.IncludeFlag() + ' '
 env.Append(CCFLAGS = include_flag + include_flag.join(other_includepaths)
            + ' ' + extra_flags)
 env.Append(LINKFLAGS = link_flags)
-env.Append(CPPDEFINES = hostconfig.CppDefines() + ['TRILIBRARY', 'ANSI_DECLARATORS'])
+env.Append(CPPDEFINES = hostconfig.CppDefines() + ['TRILIBRARY', 'TETLIBRARY', 'ANSI_DECLARATORS'])
 
 # Search path for Chaste #includes
 cpppath = [Dir('.'), Dir('cxxtest')]

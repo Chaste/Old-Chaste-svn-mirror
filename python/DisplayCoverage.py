@@ -134,7 +134,7 @@ def coverage_ignore(src_file):
         # 'Source' code that is only used for tests, and hence coverage doesn't
         # matter.
         ignore = True
-    elif src_file['file'] == 'triangle.cpp':
+    elif src_file['file'] == 'triangle.cpp' or src_file['file'] == 'tetgen.cpp' or src_file['file'] == 'predicates.cpp':
         # We don't try to cover other people's code
         ignore = True
     elif src_file['file'] in ['HeartRegionCodes.cpp', 'Version.hpp']:
