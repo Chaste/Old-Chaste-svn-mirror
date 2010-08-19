@@ -29,6 +29,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTMIRAMS2010WNTODESYSTEM_HPP_
 
 #include <cxxtest/TestSuite.h>
+
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include <fstream>
 #include <ctime>
 
@@ -150,6 +154,61 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][0], 67.5011, 1e-4);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][1], 824.0259, 1e-4);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][2], wnt_level, 1e-4);
+#endif //CHASTE_CVODE
+    }
+
+    void TestArchiving()
+    {
+#ifdef CHASTE_CVODE
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mirams_ode.arch";
+
+        {
+            double wnt_level = 0.5;
+            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+            Mirams2010WntOdeSystem ode_system(wnt_level, p_state);
+
+            TS_ASSERT_DELTA(ode_system.GetWntLevel(), 0.50, 1e-6);
+            TS_ASSERT_EQUALS(ode_system.GetMutationState()->IsType<WildTypeCellMutationState>(), true);
+
+            std::vector<double> initial_conditions = ode_system.GetInitialConditions();
+            TS_ASSERT_EQUALS(initial_conditions.size(), 3u);
+            TS_ASSERT_DELTA(initial_conditions[0], 64.1863, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[1], 64.1863, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[2], 0.5, 1e-6);
+
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Archive ODE system
+            AbstractOdeSystem* const p_const_ode_system = &ode_system;
+            output_arch << p_const_ode_system;
+        }
+
+        {
+            AbstractOdeSystem* p_ode_system;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_ode_system;
+
+            // Check that archiving worked correctly
+            TS_ASSERT_DELTA(static_cast<Mirams2010WntOdeSystem*>(p_ode_system)->GetWntLevel(), 0.50, 1e-6);
+            TS_ASSERT_EQUALS(static_cast<Mirams2010WntOdeSystem*>(p_ode_system)->GetMutationState()->IsType<WildTypeCellMutationState>(), true);
+
+            std::vector<double> initial_conditions = p_ode_system->GetInitialConditions();
+            TS_ASSERT_EQUALS(initial_conditions.size(), 3u);
+            TS_ASSERT_DELTA(initial_conditions[0], 64.1863, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[1], 64.1863, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[2], 0.5, 1e-6);
+
+            // Tidy up
+            delete p_ode_system;
+        }
 #endif //CHASTE_CVODE
     }
 };

@@ -28,6 +28,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TYSONNOVAK2001ODESYSTEM_HPP_
 #define TYSONNOVAK2001ODESYSTEM_HPP_
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+
 #include <cmath>
 #include <iostream>
 
@@ -122,12 +125,27 @@ private:
     /** Dimensionless parameter m_star. */
     double mMstar;
 
+    friend class boost::serialization::access;
+    /**
+     * Serialize the object and its member variables.
+     * 
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
+    }
+
 public:
 
     /**
      * Constructor.
+     * 
+     * @param stateVariables optional initial conditions for state variables (only used in archiving)
      */
-    TysonNovak2001OdeSystem();
+    TysonNovak2001OdeSystem(std::vector<double> stateVariables=std::vector<double>());
 
     /**
      *  Destructor.
@@ -183,5 +201,42 @@ public:
      */
     virtual void AnalyticJacobian(const std::vector<double>& rSolutionGuess, double** jacobian, double time, double timeStep);
 };
+
+// Declare identifier for the serializer
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(TysonNovak2001OdeSystem)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a TysonNovak2001OdeSystem.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const TysonNovak2001OdeSystem * t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const std::vector<double> state_variables = t->rGetConstStateVariables();
+    ar & state_variables;
+}
+
+/**
+ * De-serialize constructor parameters and initialise a TysonNovak2001OdeSystem.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, TysonNovak2001OdeSystem * t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    std::vector<double> state_variables;
+    ar & state_variables;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)TysonNovak2001OdeSystem(state_variables);
+}
+}
+} // namespace ...
 
 #endif /*TYSONNOVAK2001ODESYSTEM_HPP_*/

@@ -30,10 +30,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include <stdio.h>
 #include <ctime>
 #include <vector>
 #include <iostream>
+
+#include "OutputFileHandler.hpp"
 
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
@@ -185,6 +190,65 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5], 1.000000000000000, 1e-3);
     }
 
+    void TestArchiving()
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "alarcon_ode.arch";
+
+        {
+            double oxygen_concentration = 0.7;
+            bool is_labelled = true;
+    
+            Alarcon2004OxygenBasedCellCycleOdeSystem ode_system(oxygen_concentration, is_labelled);
+
+            TS_ASSERT_DELTA(ode_system.GetOxygenConcentration(), 0.70, 1e-6);
+            TS_ASSERT_EQUALS(ode_system.IsLabelled(), true);
+
+            std::vector<double> initial_conditions = ode_system.GetInitialConditions();
+            TS_ASSERT_EQUALS(initial_conditions.size(), 6u);
+            TS_ASSERT_DELTA(initial_conditions[0], 0.90, 1e-6);
+            TS_ASSERT_DELTA(initial_conditions[1], 0.01, 1e-6);
+            TS_ASSERT_DELTA(initial_conditions[2], 0.00, 1e-6);
+            TS_ASSERT_DELTA(initial_conditions[3], 5.00, 1e-6);
+            TS_ASSERT_DELTA(initial_conditions[4], 1.00, 1e-6);
+            TS_ASSERT_DELTA(initial_conditions[5], 0.70, 1e-6);
+
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Archive ODE system
+            AbstractOdeSystem* const p_const_ode_system = &ode_system;
+            output_arch << p_const_ode_system;
+        }
+
+        {
+            AbstractOdeSystem* p_ode_system;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_ode_system;
+
+            // Check that archiving worked correctly
+            TS_ASSERT_DELTA(static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_ode_system)->GetOxygenConcentration(), 0.70, 1e-6);
+            TS_ASSERT_EQUALS(static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_ode_system)->IsLabelled(), true);
+
+            std::vector<double> initial_conditions = p_ode_system->GetInitialConditions();
+            TS_ASSERT_EQUALS(initial_conditions.size(), 6u);
+            TS_ASSERT_DELTA(initial_conditions[0], 0.90, 1e-6);
+            TS_ASSERT_DELTA(initial_conditions[1], 0.01, 1e-6);
+            TS_ASSERT_DELTA(initial_conditions[2], 0.00, 1e-6);
+            TS_ASSERT_DELTA(initial_conditions[3], 5.00, 1e-6);
+            TS_ASSERT_DELTA(initial_conditions[4], 1.00, 1e-6);
+            TS_ASSERT_DELTA(initial_conditions[5], 0.70, 1e-6);
+
+            // Tidy up
+            delete p_ode_system;
+        }
+    }
 };
 
 #endif /*TESTALARCON2004OXYGENBASEDCELLCYCLEODESYSTEM_HPP_*/

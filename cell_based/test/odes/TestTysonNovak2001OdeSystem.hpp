@@ -30,6 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include <ctime>
 #include <vector>
 #include <iostream>
@@ -42,7 +45,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscTools.hpp"
 #include "PetscSetupAndFinalize.hpp"
-
 
 class TestTysonNovak2001OdeSystem : public CxxTest::TestSuite
 {
@@ -66,12 +68,12 @@ public:
 
         // Test derivatives are correct
         // Divided by 60 to change to hours
-        TS_ASSERT_DELTA(derivs[0],-4.400000000000000e-02*60.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[1],-6.047872340425530e+00*60.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[2],3.361442884485838e-02*60.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[3],4.016602000735009e-02*60.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[4],8.400000000000001e-03*60.0, 1e-5);
-        TS_ASSERT_DELTA(derivs[5],7.777500000000001e-03*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[0], -4.400000000000000e-02*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[1], -6.047872340425530e+00*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[2], 3.361442884485838e-02*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[3], 4.016602000735009e-02*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[4], 8.400000000000001e-03*60.0, 1e-5);
+        TS_ASSERT_DELTA(derivs[5], 7.777500000000001e-03*60.0, 1e-5);
     }
 
     void TestTysonNovakSolver() throw(Exception)
@@ -158,7 +160,59 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][3],1.40562614481544, 1e-1);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][4],0.67083371879876, 1e-2);
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][5],0.95328206604519, 2e-2);
+    }
 
+    void TestArchiving()
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "tn_ode.arch";
+
+        {
+            TysonNovak2001OdeSystem ode_system;
+
+            ode_system.SetDefaultInitialCondition(2, 3.25);
+
+            std::vector<double> initial_conditions = ode_system.GetInitialConditions();
+            TS_ASSERT_EQUALS(initial_conditions.size(), 6u);
+            TS_ASSERT_DELTA(initial_conditions[0], 0.0999, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[1], 0.9890, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[2], 3.2500, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[3], 1.4211, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[4], 0.6728, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[5], 0.4854, 1e-4);
+
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Archive ODE system
+            AbstractOdeSystem* const p_const_ode_system = &ode_system;
+            output_arch << p_const_ode_system;
+        }
+
+        {
+            AbstractOdeSystem* p_ode_system;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_ode_system;
+
+            // Check that archiving worked correctly
+            std::vector<double> initial_conditions = p_ode_system->GetInitialConditions();
+            TS_ASSERT_EQUALS(initial_conditions.size(), 6u);
+            TS_ASSERT_DELTA(initial_conditions[0], 0.0999, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[1], 0.9890, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[2], 3.2500, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[3], 1.4211, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[4], 0.6728, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[5], 0.4854, 1e-4);
+
+            // Tidy up
+            delete p_ode_system;
+        }
     }
 };
 

@@ -29,15 +29,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VanLeeuwen2009WntSwatCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-VanLeeuwen2009WntSwatCellCycleOdeSystem::VanLeeuwen2009WntSwatCellCycleOdeSystem(
-        unsigned hypothesis,
-        double wntLevel,
-        boost::shared_ptr<AbstractCellMutationState> pMutationState)
+VanLeeuwen2009WntSwatCellCycleOdeSystem::VanLeeuwen2009WntSwatCellCycleOdeSystem(unsigned hypothesis,
+                                                                                 double wntLevel,
+                                                                                 boost::shared_ptr<AbstractCellMutationState> pMutationState,
+                                                                                 std::vector<double> stateVariables)
     : AbstractOdeSystem(22),
       mpMutationState(pMutationState),
-      mHypothesis(hypothesis)
+      mHypothesis(hypothesis),
+      mWntLevel(wntLevel)
 {
-    if (hypothesis!=1u && hypothesis!=2u)
+    if (hypothesis!=1 && hypothesis!=2)
     {
         EXCEPTION("You must set up this cell cycle ODE system with hypothesis one or two.");
     }
@@ -136,6 +137,11 @@ VanLeeuwen2009WntSwatCellCycleOdeSystem::VanLeeuwen2009WntSwatCellCycleOdeSystem
     SetDefaultInitialCondition(20, temp); // Wnt target protein
 
     SetDefaultInitialCondition(21, wntLevel); // Wnt stimulus
+
+    if (stateVariables != std::vector<double>())
+    {
+        SetStateVariables(stateVariables);
+    }
 }
 
 void VanLeeuwen2009WntSwatCellCycleOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
@@ -354,7 +360,7 @@ void VanLeeuwen2009WntSwatCellCycleOdeSystem::EvaluateYDerivatives(double time, 
     rDY[21] = 0.0;  // don't interfere with Wnt stimulus
 }
 
-boost::shared_ptr<AbstractCellMutationState> VanLeeuwen2009WntSwatCellCycleOdeSystem::GetMutationState()
+const boost::shared_ptr<AbstractCellMutationState> VanLeeuwen2009WntSwatCellCycleOdeSystem::GetMutationState() const
 {
     return mpMutationState;
 }
@@ -369,9 +375,8 @@ bool VanLeeuwen2009WntSwatCellCycleOdeSystem::CalculateStoppingEvent(double time
 
 double VanLeeuwen2009WntSwatCellCycleOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
 {
-    return rY[1]-1.0;
+    return rY[1] - 1.0;
 }
-
 
 template<>
 void CellwiseOdeSystemInformation<VanLeeuwen2009WntSwatCellCycleOdeSystem>::Initialise()
@@ -466,3 +471,17 @@ void CellwiseOdeSystemInformation<VanLeeuwen2009WntSwatCellCycleOdeSystem>::Init
 
     this->mInitialised = true;
 }
+
+double VanLeeuwen2009WntSwatCellCycleOdeSystem::GetWntLevel() const
+{
+    return mWntLevel;
+}
+
+unsigned VanLeeuwen2009WntSwatCellCycleOdeSystem::GetHypothesis() const
+{
+    return mHypothesis;
+}
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(VanLeeuwen2009WntSwatCellCycleOdeSystem)

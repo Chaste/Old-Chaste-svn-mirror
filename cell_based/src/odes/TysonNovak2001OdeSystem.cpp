@@ -29,12 +29,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OdeSystemInformation.hpp"
 #include "UblasCustomFunctions.hpp"
 
-TysonNovak2001OdeSystem::TysonNovak2001OdeSystem()
-        : AbstractOdeSystemWithAnalyticJacobian(6)
+TysonNovak2001OdeSystem::TysonNovak2001OdeSystem(std::vector<double> stateVariables)
+    : AbstractOdeSystemWithAnalyticJacobian(6)
 {
     mpSystemInfo = OdeSystemInformation<TysonNovak2001OdeSystem>::Instance();
     
     Init();
+
+    if (stateVariables != std::vector<double>())
+    {
+        SetStateVariables(stateVariables);
+    }
 }
 
 TysonNovak2001OdeSystem::~TysonNovak2001OdeSystem()
@@ -279,3 +284,7 @@ void OdeSystemInformation<TysonNovak2001OdeSystem>::Initialise()
 
     this->mInitialised = true;
 }
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(TysonNovak2001OdeSystem)

@@ -28,6 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef VANLEEUWEN2009WNTSWATCELLCYCLEODESYSTEM_HPP_
 #define VANLEEUWEN2009WNTSWATCELLCYCLEODESYSTEM_HPP_
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+
 #include <cmath>
 #include <iostream>
 
@@ -182,9 +186,7 @@ private:
     /** Dimensionless parameter xi_C. */
     double mXiC;
 
-    /**
-     * The mutation state of the cell
-     */
+    /** The mutation state of the cell. */
     boost::shared_ptr<AbstractCellMutationState> mpMutationState;
 
     /**
@@ -194,6 +196,22 @@ private:
      */
     unsigned mHypothesis;
 
+    /** The Wnt level (this affects the ODE system). */
+    double mWntLevel;
+
+    friend class boost::serialization::access;
+    /**
+     * Serialize the object and its member variables.
+     * 
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
+    }
+
 public:
 
     /**
@@ -202,10 +220,12 @@ public:
      * @param hypothesis takes the value 1 or 2 and affects the ODE system.
      * @param wntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
      * @param pMutationState cell mutation; some affect the ODE system
+     * @param optional initial conditions for state variables (only used in archiving)
      */
     VanLeeuwen2009WntSwatCellCycleOdeSystem(unsigned hypothesis,
-                                  double wntLevel = 0.0,
-                                  boost::shared_ptr<AbstractCellMutationState> pMutationState=boost::shared_ptr<AbstractCellMutationState>());
+                                            double wntLevel = 0.0,
+                                            boost::shared_ptr<AbstractCellMutationState> pMutationState=boost::shared_ptr<AbstractCellMutationState>(),
+                                            std::vector<double> stateVariables=std::vector<double>());
 
     /**
      * Destructor.
@@ -232,7 +252,7 @@ public:
      *
      * @return #mpMutationState the mutation state of the cell.
      */
-    boost::shared_ptr<AbstractCellMutationState> GetMutationState();
+    const boost::shared_ptr<AbstractCellMutationState> GetMutationState() const;
 
     /**
      * Compute the RHS of the system of ODEs.
@@ -267,6 +287,70 @@ public:
      */
     double CalculateRootFunction(double time, const std::vector<double>& rY);
 
+    /**
+     * Get method for mWntLevel.
+     */
+    double GetWntLevel() const;
+
+    /**
+     * Get method for mHypothesis.
+     */
+    unsigned GetHypothesis() const;
 };
+
+// Declare identifier for the serializer
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(VanLeeuwen2009WntSwatCellCycleOdeSystem)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a VanLeeuwen2009WntSwatCellCycleOdeSystem.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const VanLeeuwen2009WntSwatCellCycleOdeSystem * t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const unsigned hypothesis = t->GetHypothesis();
+    ar & hypothesis;
+
+    const double wnt_level = t->GetWntLevel();
+    ar & wnt_level;
+
+    const boost::shared_ptr<AbstractCellMutationState> p_mutation_state = t->GetMutationState();
+    ar & p_mutation_state;
+
+    const std::vector<double> state_variables = t->rGetConstStateVariables();
+    ar & state_variables;
+}
+
+/**
+ * De-serialize constructor parameters and initialise a VanLeeuwen2009WntSwatCellCycleOdeSystem.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, VanLeeuwen2009WntSwatCellCycleOdeSystem * t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    unsigned hypothesis;
+    ar & hypothesis;
+
+    double wnt_level;
+    ar & wnt_level;
+
+    boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
+    ar & p_mutation_state;
+
+    std::vector<double> state_variables;
+    ar & state_variables;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)VanLeeuwen2009WntSwatCellCycleOdeSystem(hypothesis, wnt_level, p_mutation_state, state_variables);
+}
+}
+} // namespace ...
 
 #endif /*VANLEEUWEN2009WNTSWATCELLCYCLEODESYSTEM_HPP_*/

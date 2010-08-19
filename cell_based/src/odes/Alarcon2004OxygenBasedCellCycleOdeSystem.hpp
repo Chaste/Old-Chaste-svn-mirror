@@ -28,14 +28,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _ALARCON2004OXYGENBASEDCELLCYCLEODESYSTEM_HPP_
 #define _ALARCON2004OXYGENBASEDCELLCYCLEODESYSTEM_HPP_
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+
 #include <cmath>
 
 #include "AbstractOdeSystem.hpp"
-#include "AbstractCellMutationState.hpp"
-
-// Needed here to avoid serialization errors (on Boost<1.37)
-#include "WildTypeCellMutationState.hpp"
-#include "CellLabel.hpp"
 
 /**
  * Represents the Alarcon et al. (2004) system of ODEs (see ticket #461).
@@ -93,8 +91,24 @@ private:
     /** Dimensionless parameter y_THR. */
     double myThreshold;
 
+    /** The oxygen concentration (this affects the ODE system). */
+    double mOxygenConcentration;
+
     /** Whether the cell associated with this cell cycle ODE system is labelled (this affects the ODE system). */
     bool mIsLabelled;
+
+    friend class boost::serialization::access;
+    /**
+     * Serialize the object and its member variables.
+     * 
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
+    }
 
 public:
 
@@ -103,8 +117,11 @@ public:
      *
      * @param oxygenConcentration is a non-dimensional oxygen concentration value between 0 and 1
      * @param isLabelled whether the cell associated with this cell cycle ODE system is labelled (this affects the ODE system)
+     * @param stateVariables optional initial conditions for state variables (only used in archiving)
      */
-    Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, bool isLabelled);
+    Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration,
+                                             bool isLabelled,
+                                             std::vector<double> stateVariables=std::vector<double>());
 
     /**
      * Destructor.
@@ -148,7 +165,61 @@ public:
     /**
      * Get method for mIsLabelled.
      */
-    bool IsLabelled();
+    bool IsLabelled() const;
+
+    /**
+     * Get method for mOxygenConcentration.
+     */
+    double GetOxygenConcentration() const;
 };
+
+// Declare identifier for the serializer
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(Alarcon2004OxygenBasedCellCycleOdeSystem)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct an Alarcon2004OxygenBasedCellCycleOdeSystem.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const Alarcon2004OxygenBasedCellCycleOdeSystem * t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const double oxygen_concentration = t->GetOxygenConcentration();
+    ar & oxygen_concentration;
+
+    const bool is_labelled = t->IsLabelled();
+    ar & is_labelled;
+
+    const std::vector<double> state_variables = t->rGetConstStateVariables();
+    ar & state_variables;
+}
+
+/**
+ * De-serialize constructor parameters and initialise an Alarcon2004OxygenBasedCellCycleOdeSystem.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, Alarcon2004OxygenBasedCellCycleOdeSystem * t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    double oxygen_concentration;
+    ar & oxygen_concentration;
+
+    bool is_labelled;
+    ar & is_labelled;
+
+    std::vector<double> state_variables;
+    ar & state_variables;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)Alarcon2004OxygenBasedCellCycleOdeSystem(oxygen_concentration, is_labelled, state_variables);
+}
+}
+} // namespace ...
 
 #endif /*_ALARCON2004OXYGENBASEDCELLCYCLEODESYSTEM_HPP_*/

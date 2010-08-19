@@ -30,6 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 // Must be included before other cell_based headers
 #include "TissueSimulationArchiver.hpp"
 
@@ -664,6 +667,98 @@ public:
         WntConcentration<2>::Destroy();
     }
 
+    void TestArchiving()
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "vanleeuwen_ode.arch";
+
+        {
+            double wnt_level = 1.0;
+            boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
+            VanLeeuwen2009WntSwatCellCycleOdeSystem ode_system(1, wnt_level, p_bcat1);
+
+            TS_ASSERT_DELTA(ode_system.GetWntLevel(), 1.0, 1e-6);
+            TS_ASSERT_EQUALS(ode_system.GetMutationState()->IsType<BetaCateninOneHitCellMutationState>(), true);
+            TS_ASSERT_EQUALS(ode_system.GetHypothesis(), 1u);
+
+            std::vector<double> initial_conditions = ode_system.GetInitialConditions();
+            TS_ASSERT_EQUALS(initial_conditions.size(), 22u);
+            TS_ASSERT_DELTA(initial_conditions[0],    0.73570000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[1],    0.17130000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[2],    0.06900000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[3],    0.00333333, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[4],    0.00010000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[5],    0.14285714, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[6],    0.02857142, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[7],    0.21206436, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[8],   14.39678172, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[9],    0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[10],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[11],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[12],  10.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[13], 102.83415521, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[14],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[15],  25.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[16],  14.39678172, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[17],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[18],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[19],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[20],   2.23563683, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[21],   1.00000000, 1e-7);
+
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Archive ODE system
+            AbstractOdeSystem* const p_const_ode_system = &ode_system;
+            output_arch << p_const_ode_system;
+        }
+
+        {
+            AbstractOdeSystem* p_ode_system;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_ode_system;
+
+            // Check that archiving worked correctly
+            TS_ASSERT_DELTA(static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(p_ode_system)->GetWntLevel(), 1.0, 1e-6);
+            TS_ASSERT_EQUALS(static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(p_ode_system)->GetMutationState()->IsType<BetaCateninOneHitCellMutationState>(), true);
+            TS_ASSERT_EQUALS(static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(p_ode_system)->GetHypothesis(), true);
+
+            std::vector<double> initial_conditions = p_ode_system->GetInitialConditions();
+            TS_ASSERT_EQUALS(initial_conditions.size(), 22u);
+            TS_ASSERT_DELTA(initial_conditions[0],    0.73570000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[1],    0.17130000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[2],    0.06900000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[3],    0.00333333, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[4],    0.00010000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[5],    0.14285714, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[6],    0.02857142, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[7],    0.21206436, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[8],   14.39678172, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[9],    0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[10],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[11],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[12],  10.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[13], 102.83415521, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[14],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[15],  25.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[16],  14.39678172, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[17],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[18],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[19],   0.00000000, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[20],   2.23563683, 1e-7);
+            TS_ASSERT_DELTA(initial_conditions[21],   1.00000000, 1e-7);
+
+            // Tidy up
+            delete p_ode_system;
+        }
+    }
 };
 
 #endif /*TESTVANLEEUWEN2009WNTSWATCELLCYCLEODESYSTEM_HPP_*/

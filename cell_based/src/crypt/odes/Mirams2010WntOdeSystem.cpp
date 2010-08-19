@@ -28,9 +28,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Mirams2010WntOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel, boost::shared_ptr<AbstractCellMutationState> pMutationState)
+Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel,
+                                               boost::shared_ptr<AbstractCellMutationState> pMutationState,
+                                               std::vector<double> stateVariables)
     : AbstractOdeSystem(3),
-      mpMutationState(pMutationState)
+      mpMutationState(pMutationState),
+      mWntLevel(wntLevel)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<Mirams2010WntOdeSystem>);
 
@@ -64,6 +67,11 @@ Mirams2010WntOdeSystem::Mirams2010WntOdeSystem(double wntLevel, boost::shared_pt
     SetDefaultInitialCondition(0, b1);
     SetDefaultInitialCondition(1, b2);
     SetDefaultInitialCondition(2, wntLevel);
+
+    if (stateVariables != std::vector<double>())
+    {
+        SetStateVariables(stateVariables);
+    }
 }
 
 void Mirams2010WntOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
@@ -132,11 +140,10 @@ void Mirams2010WntOdeSystem::EvaluateYDerivatives(double time, const std::vector
     rDY[2] = 0.0; // do not change the Wnt level
 }
 
-boost::shared_ptr<AbstractCellMutationState> Mirams2010WntOdeSystem::GetMutationState()
+const boost::shared_ptr<AbstractCellMutationState> Mirams2010WntOdeSystem::GetMutationState() const
 {
     return mpMutationState;
 }
-
 
 template<>
 void CellwiseOdeSystemInformation<Mirams2010WntOdeSystem>::Initialise()
@@ -155,3 +162,12 @@ void CellwiseOdeSystemInformation<Mirams2010WntOdeSystem>::Initialise()
 
     this->mInitialised = true;
 }
+
+double Mirams2010WntOdeSystem::GetWntLevel() const
+{
+    return mWntLevel;
+}
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(Mirams2010WntOdeSystem)

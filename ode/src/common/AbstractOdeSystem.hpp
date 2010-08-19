@@ -204,6 +204,13 @@ public:
      * @return mUseAnalyticJacobian
      */
     bool GetUseAnalyticJacobian();
+
+    /**
+     * \todo move to AbstractParameterisedSystem? (1540)
+     * 
+     * @return const reference to the state variables in the ODE system (used in archiving).
+     */
+    const std::vector<double>& rGetConstStateVariables() const;
 };
 
 CLASS_IS_ABSTRACT(AbstractOdeSystem)

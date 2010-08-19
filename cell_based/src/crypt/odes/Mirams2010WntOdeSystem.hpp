@@ -28,6 +28,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MIRAMS2010WNTODESYSTEM_HPP_
 #define MIRAMS2010WNTODESYSTEM_HPP_
 
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+
 #include <cmath>
 #include <iostream>
 
@@ -73,10 +77,24 @@ private:
     /** Dimensional parameter f. */
     double mF;
 
-    /**
-     * The mutation state of the cell
-     */
+    /** The mutation state of the cell (this affects the ODE system). */
     boost::shared_ptr<AbstractCellMutationState> mpMutationState;
+
+    /** The Wnt level (this affects the ODE system). */
+    double mWntLevel;
+
+    friend class boost::serialization::access;
+    /**
+     * Serialize the object and its member variables.
+     * 
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
+    }
 
 public:
 
@@ -84,9 +102,12 @@ public:
      * Constructor.
      *
      * @param wntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
-     * @param pMutationState affects the ODE system
+     * @param pMutationState optional mutation state (affects the ODE system)
+     * @param stateVariables optional initial conditions for state variables (only used in archiving)
      */
-    Mirams2010WntOdeSystem(double wntLevel=0.0, boost::shared_ptr<AbstractCellMutationState> pMutationState=boost::shared_ptr<AbstractCellMutationState>());
+    Mirams2010WntOdeSystem(double wntLevel=0.0,
+                           boost::shared_ptr<AbstractCellMutationState> pMutationState=boost::shared_ptr<AbstractCellMutationState>(),
+                           std::vector<double> stateVariables=std::vector<double>());
 
     /**
      * Destructor.
@@ -113,7 +134,7 @@ public:
      *
      * @return #mpMutationState
      */
-    boost::shared_ptr<AbstractCellMutationState> GetMutationState();
+    const boost::shared_ptr<AbstractCellMutationState> GetMutationState() const;
 
     /**
      * Compute the RHS of the WntCellCycle system of ODEs.
@@ -127,6 +148,59 @@ public:
      */
     void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
 
+    /**
+     * Get method for mWntLevel.
+     */
+    double GetWntLevel() const;
 };
+
+// Declare identifier for the serializer
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(Mirams2010WntOdeSystem)
+
+namespace boost
+{
+namespace serialization
+{
+/**
+ * Serialize information required to construct a Mirams2010WntOdeSystem.
+ */
+template<class Archive>
+inline void save_construct_data(
+    Archive & ar, const Mirams2010WntOdeSystem * t, const BOOST_PFTO unsigned int file_version)
+{
+    // Save data required to construct instance
+    const double wnt_level = t->GetWntLevel();
+    ar & wnt_level;
+
+    const boost::shared_ptr<AbstractCellMutationState> p_mutation_state = t->GetMutationState();
+    ar & p_mutation_state;
+
+    const std::vector<double> state_variables = t->rGetConstStateVariables();
+    ar & state_variables;
+}
+
+/**
+ * De-serialize constructor parameters and initialise a Mirams2010WntOdeSystem.
+ */
+template<class Archive>
+inline void load_construct_data(
+    Archive & ar, Mirams2010WntOdeSystem * t, const unsigned int file_version)
+{
+    // Retrieve data from archive required to construct new instance
+    double wnt_level;
+    ar & wnt_level;
+
+    boost::shared_ptr<AbstractCellMutationState> p_mutation_state;
+    ar & p_mutation_state;
+
+    std::vector<double> state_variables;
+    ar & state_variables;
+
+    // Invoke inplace constructor to initialise instance
+    ::new(t)Mirams2010WntOdeSystem(wnt_level, p_mutation_state, state_variables);
+}
+}
+} // namespace ...
 
 #endif /*MIRAMS2010WNTODESYSTEM_HPP_*/

@@ -65,7 +65,6 @@ std::string AbstractOdeSystem::DumpState(const std::string& rMessage,
     return res.str();
 }
 
-
 void AbstractOdeSystem::SetDefaultInitialConditions(const std::vector<double>& rInitialConditions)
 {
     if (rInitialConditions.size() != mNumberOfStateVariables)
@@ -101,7 +100,6 @@ void AbstractOdeSystem::SetStateVariables(const std::vector<double>& rStateVaria
     mStateVariables = rStateVariables;
 }
 
-
 double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<double>& rY)
 {
     bool stop = CalculateStoppingEvent(time, rY);
@@ -111,4 +109,9 @@ double AbstractOdeSystem::CalculateRootFunction(double time, const std::vector<d
 bool AbstractOdeSystem::GetUseAnalyticJacobian()
 {
     return mUseAnalyticJacobian;
+}
+
+const std::vector<double>& AbstractOdeSystem::rGetConstStateVariables() const
+{
+    return mStateVariables;
 }

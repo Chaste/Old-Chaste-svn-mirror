@@ -30,9 +30,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+
 #include <ctime>
 #include <vector>
 #include <iostream>
+
+#include "OutputFileHandler.hpp"
 
 #include "WntCellCycleOdeSystem.hpp"
 #include "RungeKutta4IvpOdeSolver.hpp"
@@ -368,6 +373,70 @@ public:
         TS_ASSERT_DELTA(solutions.rGetSolutions()[end][8], 0.00, 1e-3);
     }
 
+    void TestArchiving()
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename = handler.GetOutputDirectoryFullPath() + "wnt_ode.arch";
+
+        {
+            double wnt_level = 0.567;
+            boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+            WntCellCycleOdeSystem ode_system(wnt_level, p_state);
+
+            TS_ASSERT_DELTA(ode_system.GetWntLevel(), 0.567, 1e-6);
+            TS_ASSERT_EQUALS(ode_system.GetMutationState()->IsType<WildTypeCellMutationState>(), true);
+
+            std::vector<double> initial_conditions = ode_system.GetInitialConditions();
+            TS_ASSERT_EQUALS(initial_conditions.size(), 9u);
+            TS_ASSERT_DELTA(initial_conditions[0], 0.7357, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[1], 0.1713, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[2], 0.0690, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[3], 0.0033, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[4], 0.0000, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[5], 0.0087, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[6], 0.2304, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[7], 0.2304, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[8], 0.5670, 1e-4);
+
+            // Create an output archive
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+
+            // Archive ODE system
+            AbstractOdeSystem* const p_const_ode_system = &ode_system;
+            output_arch << p_const_ode_system;
+        }
+
+        {
+            AbstractOdeSystem* p_ode_system;
+
+            // Create an input archive
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+
+            // Restore from the archive
+            input_arch >> p_ode_system;
+
+            // Check that archiving worked correctly
+            TS_ASSERT_DELTA(static_cast<WntCellCycleOdeSystem*>(p_ode_system)->GetWntLevel(), 0.567, 1e-6);
+            TS_ASSERT_EQUALS(static_cast<WntCellCycleOdeSystem*>(p_ode_system)->GetMutationState()->IsType<WildTypeCellMutationState>(), true);
+
+            std::vector<double> initial_conditions = p_ode_system->GetInitialConditions();
+            TS_ASSERT_EQUALS(initial_conditions.size(), 9u);
+            TS_ASSERT_DELTA(initial_conditions[0], 0.7357, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[1], 0.1713, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[2], 0.0690, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[3], 0.0033, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[4], 0.0000, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[5], 0.0087, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[6], 0.2304, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[7], 0.2304, 1e-4);
+            TS_ASSERT_DELTA(initial_conditions[8], 0.5670, 1e-4);
+
+            // Tidy up
+            delete p_ode_system;
+        }
+    }
 };
 
 #endif /*TESTWNTCELLCYCLEODESYSTEM_HPP_*/

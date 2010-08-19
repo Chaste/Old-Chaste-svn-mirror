@@ -28,8 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 #include "CellwiseOdeSystemInformation.hpp"
 
-Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration, bool isLabelled)
+Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSystem(double oxygenConcentration,
+                                                                                   bool isLabelled,
+                                                                                   std::vector<double> stateVariables)
     : AbstractOdeSystem(6),
+      mOxygenConcentration(oxygenConcentration),
       mIsLabelled(isLabelled)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<Alarcon2004OxygenBasedCellCycleOdeSystem>);
@@ -65,6 +68,11 @@ Alarcon2004OxygenBasedCellCycleOdeSystem::Alarcon2004OxygenBasedCellCycleOdeSyst
     // Cell-specific initial conditions
     SetDefaultInitialCondition(3, 0.5*mMstar);
     SetDefaultInitialCondition(5, oxygenConcentration);
+
+    if (stateVariables != std::vector<double>())
+    {
+        SetStateVariables(stateVariables);
+    }
 }
 
 Alarcon2004OxygenBasedCellCycleOdeSystem::~Alarcon2004OxygenBasedCellCycleOdeSystem()
@@ -116,7 +124,6 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::EvaluateYDerivatives(double time,
 
     dx = ((1 + mb3*u)*(1-x))/(mJ3 + 1 - x) - (mb4*mass*x*y)/(mJ4 + x);
     dy = ma4 -(ma1 + ma2*x + ma3*z)*y;
-
 
     // Parameter values are taken from the Alarcon et al. (2004) paper
     if (mIsLabelled) // labelled "cancer" cells
@@ -180,7 +187,16 @@ void Alarcon2004OxygenBasedCellCycleOdeSystem::SetIsLabelled(bool isLabelled)
     mIsLabelled = isLabelled;
 }
 
-bool Alarcon2004OxygenBasedCellCycleOdeSystem::IsLabelled()
+bool Alarcon2004OxygenBasedCellCycleOdeSystem::IsLabelled() const
 {
     return mIsLabelled;
 }
+
+double Alarcon2004OxygenBasedCellCycleOdeSystem::GetOxygenConcentration() const
+{
+    return mOxygenConcentration;
+}
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(Alarcon2004OxygenBasedCellCycleOdeSystem)

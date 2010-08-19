@@ -29,11 +29,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellwiseOdeSystemInformation.hpp"
 
 
-WntCellCycleOdeSystem::WntCellCycleOdeSystem(
-        double wntLevel,
-        boost::shared_ptr<AbstractCellMutationState> pMutationState)
+WntCellCycleOdeSystem::WntCellCycleOdeSystem(double wntLevel,
+                                             boost::shared_ptr<AbstractCellMutationState> pMutationState,
+                                             std::vector<double> stateVariables)
     : AbstractOdeSystem(9),
-      mpMutationState(pMutationState)
+      mpMutationState(pMutationState),
+      mWntLevel(wntLevel)
 {
     mpSystemInfo.reset(new CellwiseOdeSystemInformation<WntCellCycleOdeSystem>);
 
@@ -93,6 +94,11 @@ WntCellCycleOdeSystem::WntCellCycleOdeSystem(
     SetDefaultInitialCondition(6, beta_cat_level_1);
     SetDefaultInitialCondition(7, beta_cat_level_2);
     SetDefaultInitialCondition(8, wntLevel);
+
+    if (stateVariables != std::vector<double>())
+    {
+        SetStateVariables(stateVariables);
+    }
 }
 
 void WntCellCycleOdeSystem::SetMutationState(boost::shared_ptr<AbstractCellMutationState> pMutationState)
@@ -264,7 +270,7 @@ void WntCellCycleOdeSystem::EvaluateYDerivatives(double time, const std::vector<
     rDY[8] = 0.0; // do not change the Wnt level
 }
 
-boost::shared_ptr<AbstractCellMutationState> WntCellCycleOdeSystem::GetMutationState()
+const boost::shared_ptr<AbstractCellMutationState> WntCellCycleOdeSystem::GetMutationState() const
 {
     return mpMutationState;
 }
@@ -287,7 +293,6 @@ double WntCellCycleOdeSystem::CalculateRootFunction(double time, const std::vect
 {
     return rY[1] - 1.0;
 }
-
 
 template<>
 void CellwiseOdeSystemInformation<WntCellCycleOdeSystem>::Initialise()
@@ -330,3 +335,12 @@ void CellwiseOdeSystemInformation<WntCellCycleOdeSystem>::Initialise()
 
     this->mInitialised = true;
 }
+
+double WntCellCycleOdeSystem::GetWntLevel() const
+{
+    return mWntLevel;
+}
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+CHASTE_CLASS_EXPORT(WntCellCycleOdeSystem)
