@@ -135,7 +135,44 @@ xsd2_notice="// Copyright (C) 2005-2007 Code Synthesis Tools CC"
 xsd3_notice="// Copyright (C) 2005-2008 Code Synthesis Tools CC"
 triangle_notice="""/*  Copyright 1993, 1995, 1997, 1998, 2002, 2005                             */
 /*  Jonathan Richard Shewchuk                                                */"""
-
+tetgen_notice="""///////////////////////////////////////////////////////////////////////////////
+//                                                                           //
+// TetGen                                                                    //
+//                                                                           //
+// A Quality Tetrahedral Mesh Generator and 3D Delaunay Triangulator         //
+//                                                                           //
+// Version 1.4                                                               //
+// April 16, 2007                                                            //
+//                                                                           //
+// Copyright (C) 2002--2007                                                  //
+// Hang Si                                                                   //
+// Research Group Numerical Mathematics and Scientific Computing             //
+// Weierstrass Institute for Applied Analysis and Stochastics                //
+// Mohrenstr. 39, 10117 Berlin, Germany                                      //
+// si@wias-berlin.de                                                         //
+//                                                                           //
+// TetGen is freely available through the website: http://tetgen.berlios.de. //
+//   It may be copied, modified, and redistributed for non-commercial use.   //
+//   Please consult the file LICENSE for the detailed copyright notices.     //
+//                                                                           //
+///////////////////////////////////////////////////////////////////////////////
+"""
+tetgen_predicates_notice="""/*****************************************************************************/
+/*                                                                           */
+/*  Routines for Arbitrary Precision Floating-point Arithmetic               */
+/*  and Fast Robust Geometric Predicates                                     */
+/*  (predicates.c)                                                           */
+/*                                                                           */
+/*  May 18, 1996                                                             */
+/*                                                                           */
+/*  Placed in the public domain by                                           */
+/*  Jonathan Richard Shewchuk                                                */
+/*  School of Computer Science                                               */
+/*  Carnegie Mellon University                                               */
+/*  5000 Forbes Avenue                                                       */
+/*  Pittsburgh, Pennsylvania  15213-3891                                     */
+/*  jrs@cs.cmu.edu                                                           */
+"""
 def CheckForCopyrightNotice(findStr, fileIn):
     """Test if the (possibly multi-line) string findStr is contained anywhere in fileIn."""
     fileIn.seek(0)
@@ -185,7 +222,9 @@ def InspectFile(fileName):
     if (CheckForCopyrightNotice(pycml_notice, file_in) or
         CheckForCopyrightNotice(xsd2_notice, file_in) or
         CheckForCopyrightNotice(xsd3_notice, file_in) or
-        CheckForCopyrightNotice(triangle_notice, file_in)):
+        CheckForCopyrightNotice(triangle_notice, file_in) or
+        CheckForCopyrightNotice(tetgen_predicates_notice, file_in) or 
+        CheckForCopyrightNotice(tetgen_notice, file_in)):
         #print 'Found 3rd party notice in '+file_name
         if valid_notice:
             print "Multiple notices on", file_name
