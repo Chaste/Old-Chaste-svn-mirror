@@ -679,9 +679,9 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     *ParameterFile << "\n";
     *ParameterFile <<  "<TissueSimulation>\n";
 
-    *ParameterFile << "\t <mDt> "<< mDt << " </mDt>\n";
-    *ParameterFile << "\t <mEndTime> "<< mEndTime << " </mEndTime>\n";
-    *ParameterFile << "\t <mSamplingTimestepMultiple> "<< mSamplingTimestepMultiple << " </mSamplingTimestepMultiple>\n";
+    *ParameterFile << "\t<mDt> "<< mDt << " </mDt>\n";
+    *ParameterFile << "\t<mEndTime> "<< mEndTime << " </mEndTime>\n";
+    *ParameterFile << "\t<mSamplingTimestepMultiple> "<< mSamplingTimestepMultiple << " </mSamplingTimestepMultiple>\n";
 
     *ParameterFile <<  "</TissueSimulation>\n";
 
@@ -690,19 +690,19 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     *ParameterFile <<  "<TissueConfig>\n";
     TissueConfig* p_inst = TissueConfig::Instance();
 
-    *ParameterFile << "\t <SG2MDuration> "<< p_inst->GetSG2MDuration() << " </SG2MDuration>\n";
-    *ParameterFile << "\t <SDuration> "<< p_inst->GetSDuration() << " </SDuration>\n";
-    *ParameterFile << "\t <G2Duration> "<< p_inst->GetG2Duration() << " </G2Duration>\n";
-    *ParameterFile << "\t <MDuration> "<< p_inst->GetMDuration() << " </MDuration>\n";
-    *ParameterFile << "\t <StemCellG1Duration> "<< p_inst->GetStemCellG1Duration() << " </StemCellG1Duration>\n";
-    *ParameterFile << "\t <TransitCellG1Duration> "<< p_inst->GetTransitCellG1Duration() << " </TransitCellG1Duration>\n";
-    *ParameterFile << "\t <CryptLength> "<< p_inst->GetCryptLength() << " </CryptLength>\n";
-    *ParameterFile << "\t <CryptWidth> "<< p_inst->GetCryptWidth() << " </CryptWidth>\n";
-    *ParameterFile << "\t <MechanicsCutOffLength> "<< p_inst->GetMeinekeMechanicsCutOffLength() << " </MechanicsCutOffLength>\n";
-    *ParameterFile << "\t <DampingConstantNormal> "<< p_inst->GetDampingConstantNormal() << " </DampingConstantNormal>\n";
-    *ParameterFile << "\t <DampingConstantMutant> "<< p_inst->GetDampingConstantMutant() << " </DampingConstantMutant>\n";
-    //*ParameterFile << "\t <CryptProjectionParameterA> "<< p_inst->GetCryptProjectionParameterA() << " </CryptProjectionParameterA>\n";
-    //*ParameterFile << "\t <CryptProjectionParameterB> "<< p_inst->GetCryptProjectionParameterB() << " </CryptProjectionParameterB>\n";
+    *ParameterFile << "\t<SG2MDuration> "<< p_inst->GetSG2MDuration() << " </SG2MDuration>\n";
+    *ParameterFile << "\t<SDuration> "<< p_inst->GetSDuration() << " </SDuration>\n";
+    *ParameterFile << "\t<G2Duration> "<< p_inst->GetG2Duration() << " </G2Duration>\n";
+    *ParameterFile << "\t<MDuration> "<< p_inst->GetMDuration() << " </MDuration>\n";
+    *ParameterFile << "\t<StemCellG1Duration> "<< p_inst->GetStemCellG1Duration() << " </StemCellG1Duration>\n";
+    *ParameterFile << "\t<TransitCellG1Duration> "<< p_inst->GetTransitCellG1Duration() << " </TransitCellG1Duration>\n";
+    *ParameterFile << "\t<CryptLength> "<< p_inst->GetCryptLength() << " </CryptLength>\n";
+    *ParameterFile << "\t<CryptWidth> "<< p_inst->GetCryptWidth() << " </CryptWidth>\n";
+    *ParameterFile << "\t<MechanicsCutOffLength> "<< p_inst->GetMeinekeMechanicsCutOffLength() << " </MechanicsCutOffLength>\n";
+    *ParameterFile << "\t<DampingConstantNormal> "<< p_inst->GetDampingConstantNormal() << " </DampingConstantNormal>\n";
+    *ParameterFile << "\t<DampingConstantMutant> "<< p_inst->GetDampingConstantMutant() << " </DampingConstantMutant>\n";
+    //*ParameterFile << "\t<CryptProjectionParameterA> "<< p_inst->GetCryptProjectionParameterA() << " </CryptProjectionParameterA>\n";
+    //*ParameterFile << "\t<CryptProjectionParameterB> "<< p_inst->GetCryptProjectionParameterB() << " </CryptProjectionParameterB>\n";
 
     *ParameterFile <<  "</TissueConfig>\n";
 
@@ -716,8 +716,10 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
                  iter != mForceCollection.end();
                  ++iter)
     {
+    	*ParameterFile << "\n";
+
     	// Output force details
-    	//(*iter)->OutputTissueInfo(ParameterFile);
+    	(*iter)->OutputForceInfo(ParameterFile);
     }
 
 
