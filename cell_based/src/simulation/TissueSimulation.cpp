@@ -709,7 +709,8 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     *ParameterFile << "\n";
 
     // Output tissue details
-    mrTissue.OutputTissueInfo(ParameterFile);
+    ///\todo fix this (#1453)
+//    mrTissue.OutputTissueInfo(ParameterFile);
 
     // Loop over forces
     for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
