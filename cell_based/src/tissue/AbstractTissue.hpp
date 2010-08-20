@@ -498,11 +498,13 @@ public:
 
     /**
      * Outputs Tissue Parameters to file
-     * \todo make this virtual =0 (#1453)
+	 *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
      *
      * @param rParamsFile the file stream to which the parameters are output
      */
-    virtual void OutputTissueParameters(out_stream& rParamsFile);
+    virtual void OutputTissueParameters(out_stream& rParamsFile)=0;
 
     /**
      * Return the unique identifier. This method uses Boost's serialization's

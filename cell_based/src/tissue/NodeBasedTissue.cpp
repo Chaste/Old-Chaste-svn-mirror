@@ -362,6 +362,16 @@ std::set< std::pair<Node<DIM>*, Node<DIM>* > >& NodeBasedTissue<DIM>::rGetNodePa
     return mNodePairs;
 }
 
+template<unsigned DIM>
+void NodeBasedTissue<DIM>::OutputTissueParameters(out_stream& rParamsFile)
+{
+	// Currently no specific parameters to output all come from parent classes
+
+	// Call direct parent class method
+	AbstractCellCentreBasedTissue<DIM>::OutputTissueParameters(rParamsFile);
+
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation

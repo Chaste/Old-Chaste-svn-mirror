@@ -681,6 +681,16 @@ public:
 
         // Tidy up
         CellwiseData<2>::Destroy();
+
+        //Test that the tissue parameters are output correctly
+		out_stream ParameterFile = output_file_handler.OpenOutputFile("results.parameters");
+		// Write tissue parameters to file
+		tissue.OutputTissueParameters(ParameterFile);
+		ParameterFile->close();
+
+		// Compare output with saved files of what they should look like
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters     	cell_based/test/data/TestTissueWritersIn2d/results.parameters").c_str()), 0);
+
     }
 
     void TestTissueWritersIn3d()

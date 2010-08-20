@@ -620,7 +620,10 @@ void AbstractTissue<DIM>::WriteCellIdDataToFile()
 template<unsigned DIM>
 void AbstractTissue<DIM>::OutputTissueInfo(out_stream& rParamsFile)
 {
-	std::string tissue_type = GetIdentifier();
+	///\todo fix this (#1453)
+	//std::string tissue_type = GetIdentifier();
+	std::string tissue_type = "Should be tissue type here see #1453";
+
 
 	*rParamsFile <<  "<" << tissue_type << ">" "\n";
 	OutputTissueParameters(rParamsFile);

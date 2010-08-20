@@ -621,6 +621,16 @@ public:
 
         // For coverage
         TS_ASSERT_THROWS_NOTHING(node_based_tissue.WriteResultsToFiles());
+
+        //Test that the tissue parameters are output correctly
+		out_stream ParameterFile = output_file_handler.OpenOutputFile("results.parameters");
+		// Write tissue parameters to file
+		node_based_tissue.OutputTissueParameters(ParameterFile);
+		ParameterFile->close();
+
+		// Compare output with saved files of what they should look like
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters     	cell_based/test/data/TestNodeBasedTissueWriters/results.parameters").c_str()), 0);
+
     }
 
     void TestWritingCellCyclePhases()
