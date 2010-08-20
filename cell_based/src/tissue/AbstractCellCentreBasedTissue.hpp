@@ -194,11 +194,9 @@ public:
     /**
      * Outputs Tissue Parameters to file
      *
-     * @param pParamsOutStream the file stream to output the parameters to.
-     *
+     * @param rParamsFile the file stream to which the parameters are output
      */
     virtual void OutputTissueParameters(out_stream& rParamsFile);
-
 };
 
 #endif /*ABSTRACTCELLCENTREBASEDTISSUE_HPP_*/

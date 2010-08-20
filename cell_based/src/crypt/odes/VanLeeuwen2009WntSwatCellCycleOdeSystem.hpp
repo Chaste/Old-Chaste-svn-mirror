@@ -220,7 +220,7 @@ public:
      * @param hypothesis takes the value 1 or 2 and affects the ODE system.
      * @param wntLevel is a non-dimensional Wnt value between 0 and 1. This sets up the Wnt pathway in its steady state.
      * @param pMutationState cell mutation; some affect the ODE system
-     * @param optional initial conditions for state variables (only used in archiving)
+     * @param stateVariables optional initial conditions for state variables (only used in archiving)
      */
     VanLeeuwen2009WntSwatCellCycleOdeSystem(unsigned hypothesis,
                                             double wntLevel = 0.0,

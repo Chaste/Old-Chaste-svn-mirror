@@ -492,17 +492,15 @@ public:
     /**
      * Outputs Tissue used in the simulation to file and then calls OutputTissueParameters to output all relevant parameters.
      *
-     * @param pParamsOutStream the file stream to output the parameters to.
-     *
+     * @param rParamsFile the file stream to which the parameters are output
      */
     void OutputTissueInfo(out_stream& rParamsFile);
 
     /**
      * Outputs Tissue Parameters to file
+     * \todo make this virtual =0 (#1453)
      *
-     * @param pParamsOutStream the file stream to output the parameters to.
-     *
-     *  \\todo make this virtual =0
+     * @param rParamsFile the file stream to which the parameters are output
      */
     virtual void OutputTissueParameters(out_stream& rParamsFile);
 
