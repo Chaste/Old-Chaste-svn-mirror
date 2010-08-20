@@ -598,6 +598,8 @@ public:
         // Create tissue
         MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, location_indices);
 
+        TS_ASSERT_EQUALS(tissue.GetIdentifier(), "MeshBasedTissueWithGhostNodes<3>");
+
         // Test set methods
         tissue.SetOutputVoronoiData(true);
         tissue.SetOutputTissueVolumes(true);

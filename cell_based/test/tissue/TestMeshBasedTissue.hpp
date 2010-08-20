@@ -608,6 +608,8 @@ public:
         // Create tissue
         MeshBasedTissue<2> tissue(mesh, cells);
 
+        TS_ASSERT_EQUALS(tissue.GetIdentifier(), "MeshBasedTissue<2>");
+
         // Test set/get methods
         TS_ASSERT_EQUALS(tissue.GetOutputVoronoiData(), false);
         TS_ASSERT_EQUALS(tissue.GetOutputCellIdData(), false);
@@ -707,6 +709,8 @@ public:
 
         // Create tissue
         MeshBasedTissue<3> tissue(mesh, cells);
+
+        TS_ASSERT_EQUALS(tissue.GetIdentifier(), "MeshBasedTissue<3>");
 
         // Test set methods
         tissue.SetOutputVoronoiData(true);

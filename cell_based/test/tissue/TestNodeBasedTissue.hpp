@@ -666,6 +666,8 @@ public:
         // Create a tissue
         NodeBasedTissue<2> node_based_tissue(mesh, cells);
 
+        TS_ASSERT_EQUALS(node_based_tissue.GetIdentifier(), "NodeBasedTissue<2>");
+
         // Cells have been given birth times of 0, -1, -2, -3, -4.
         // loop over them to run to time 0.0;
         for (AbstractTissue<2>::Iterator cell_iter = node_based_tissue.Begin();

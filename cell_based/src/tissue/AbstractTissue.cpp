@@ -643,10 +643,49 @@ void AbstractTissue<DIM>::OutputTissueParameters(out_stream& rParamsFile)
 template<unsigned DIM>
 std::string AbstractTissue<DIM>::GetIdentifier() const
 {
+    /**
+     * As AbstractTissue is a templated class, the variable below will be initialised
+     * to a string of the form "pack<void (NameOfDerivedType< DIM >)>::type". We must
+     * therefore strip away parts of the string, leaving "NameOfDerivedType<DIM>".
+     * 
+     * \todo verify this gives the desired identifier when BOOST_VERSION >= 103700 (#1453)
+     */
 	#if BOOST_VERSION >= 103700
-		return boost::serialization::type_info_implementation<AbstractTissue>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
+		std::string identifier = boost::serialization::type_info_implementation<AbstractTissue>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
+
+        // First remove spaces, so identifier now takes the form "pack<void(NameOfDerivedType<DIM>)>::type"
+        std::string::iterator end_pos = std::remove(identifier.begin(), identifier.end(), ' ');
+        identifier.erase(end_pos, identifier.end());
+
+        // Then remove "pack<void(", so identifier now takes the form "NameOfDerivedType<DIM>)>::type"
+        std::string s1 = "pack<void(";
+        std::string::size_type i = identifier.find(s1);
+        identifier.erase(i, s1.length());
+
+        // Finally remove ")>::type", so that identifier now takes the form "NameOfDerivedType<DIM>"
+        std::string s2 = ")>::type";
+        i = identifier.find(s2);
+        identifier.erase(i, s2.length());
+
+		return identifier;
 	#else
-		return boost::serialization::type_info_implementation<AbstractTissue>::type::get_derived_extended_type_info(*this)->get_key();
+		std::string identifier = boost::serialization::type_info_implementation<AbstractTissue>::type::get_derived_extended_type_info(*this)->get_key();
+
+		// First remove spaces, so identifier now takes the form "pack<void(NameOfDerivedType<DIM>)>::type"
+		std::string::iterator end_pos = std::remove(identifier.begin(), identifier.end(), ' ');
+        identifier.erase(end_pos, identifier.end());
+
+        // Then remove "pack<void(", so identifier now takes the form "NameOfDerivedType<DIM>)>::type"
+        std::string s1 = "pack<void(";
+        std::string::size_type i = identifier.find(s1);
+        identifier.erase(i, s1.length());
+
+        // Finally remove ")>::type", so that identifier now takes the form "NameOfDerivedType<DIM>"
+        std::string s2 = ")>::type";
+        i = identifier.find(s2);
+        identifier.erase(i, s2.length());
+
+        return identifier;
 	#endif
 }
 
