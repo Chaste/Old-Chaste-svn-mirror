@@ -455,3 +455,15 @@ a directory defined by the environmental variable CHASTE_TEST_OUTPUT, as describ
 variable is not set, results will be found relative to the 'testoutput' folder in the main 
 Chaste directory (unlike when scons is used to run tests). Add CHASTE_TEST_OUTPUT to the .bashrc 
 file as described above, to change this location.
+
+If you want to run Caste in parallel manner you have to add mpirun to your PATH. 
+You can for example  type:
+
+ln -s $CHASTE_LIBS/petsc-3.0.0-p8/linux-gnu-opt/bin/mpirun ~/bin/
+
+Now you can run Chaste in parallel on "N" processors, by typing 
+
+mpirun -np "N" apps/src/Chaste ChasteParameters.xml
+
+Please note that the number of processors "N" should be less or equal to the number of the prcessors
+ existing on your machine.
