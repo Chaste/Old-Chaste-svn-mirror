@@ -732,10 +732,10 @@ public:
 			std::string output_directory = "TestForces";
 			OutputFileHandler output_file_handler(output_directory, false);
 
-			out_stream ParameterFile = output_file_handler.OpenOutputFile("variable_results.parameters");
+			out_stream parameter_file = output_file_handler.OpenOutputFile("variable_results.parameters");
 			// Write tissue parameters to file
-			variable_force.OutputForceParameters(ParameterFile);
-			ParameterFile->close();
+			variable_force.OutputForceParameters(parameter_file);
+			parameter_file->close();
 
 			// Compare output with saved files of what they should look like
 			std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
@@ -749,10 +749,10 @@ public:
 			std::string output_directory = "TestForces";
 			OutputFileHandler output_file_handler(output_directory, false);
 
-			out_stream ParameterFile = output_file_handler.OpenOutputFile("linear_results.parameters");
+			out_stream parameter_file = output_file_handler.OpenOutputFile("linear_results.parameters");
 			// Write tissue parameters to file
-			linear_force.OutputForceParameters(ParameterFile);
-			ParameterFile->close();
+			linear_force.OutputForceParameters(parameter_file);
+			parameter_file->close();
 
 			// Compare output with saved files of what they should look like
 			std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
