@@ -673,7 +673,16 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
      */
 
     // Output Chaste provenance information
-    *parameter_file << "<ChasteInfo>\n\t"<< ChasteBuildInfo::GetProvenanceString()<< " </ChasteInfo>\n";
+    *parameter_file << "<ChasteInfo>\n" ;
+
+    *parameter_file << "\t<VersionString> "<< ChasteBuildInfo::GetVersionString() << " </VersionString>\n";
+    *parameter_file << "\t<IsWorkingCopyModified> "<< ChasteBuildInfo::IsWorkingCopyModified() << " </IsWorkingCopyModified>\n";
+    *parameter_file << "\t<BuildInformation> "<< ChasteBuildInfo::GetBuildInformation() << " </BuildInformation>\n";
+    *parameter_file << "\t<BuildTime> "<< ChasteBuildInfo::GetBuildTime() << " </BuildTime>\n";
+    *parameter_file << "\t<CurrentTime> "<< ChasteBuildInfo::GetCurrentTime() << " </CurrentTime>\n";
+    *parameter_file << "\t<BuilderUnameInfo> "<< ChasteBuildInfo::GetBuilderUnameInfo() << " </BuilderUnameInfo>\n";
+
+    *parameter_file << "</ChasteInfo>\n";
 
     // Output TissueSimulation details
     *parameter_file << "\n";
