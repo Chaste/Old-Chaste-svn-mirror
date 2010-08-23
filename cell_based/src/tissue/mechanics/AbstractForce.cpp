@@ -65,12 +65,9 @@ std::string AbstractForce<DIM>::GetIdentifier() const
      * to a string of the form "pack<void (NameOfDerivedType< DIM >)>::type". We must
      * therefore strip away parts of the string, leaving "NameOfDerivedType<DIM>".
      */
-    std::string s1 = "pack<void(";
-    std::string s2 = ")>::type";
 
     #if BOOST_VERSION >= 103700
         std::string identifier = boost::serialization::type_info_implementation<AbstractForce>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
-        return identifier;
     #else
         std::string identifier = boost::serialization::type_info_implementation<AbstractForce>::type::get_derived_extended_type_info(*this)->get_key();
     #endif
@@ -80,6 +77,7 @@ std::string AbstractForce<DIM>::GetIdentifier() const
     identifier.erase(end_pos, identifier.end());
 
     // Then remove "pack<void(", so identifier now takes the form "NameOfDerivedType<DIM>)>::type"
+    std::string s1 = "pack<void(";
     std::string::size_type i = identifier.find(s1);
     if (i != identifier.npos)
     {
@@ -87,6 +85,7 @@ std::string AbstractForce<DIM>::GetIdentifier() const
     }
 
     // Finally remove ")>::type", so that identifier now takes the form "NameOfDerivedType<DIM>"
+    std::string s2 = ")>::type";
     i = identifier.find(s2);
     if (i != identifier.npos)
     {
