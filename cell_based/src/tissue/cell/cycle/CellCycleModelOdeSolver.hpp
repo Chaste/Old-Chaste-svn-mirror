@@ -100,14 +100,14 @@ template<class CELL_CYCLE_MODEL, class ODE_SOLVER>
 CellCycleModelOdeSolver<CELL_CYCLE_MODEL, ODE_SOLVER>::CellCycleModelOdeSolver()
     : AbstractCellCycleModelOdeSolver()
 {
-    // Make sure there's only one instance; enforces correct serialization
-    ///\todo #1427 I don't think this is doing what you think it is - on executing this,
-    /// any objects pointing to the old instance will still point to it, and because they're
-    /// using shared_ptr, will keep it alive.
-    if (mpInstance)
-    {
-        mpInstance.reset();
-    }
+    /**
+     * The semantics of shared_ptr are different from normal pointers; we don't
+     * care if a second instance is constructed when loading an archive, since
+     * archiving the shared_ptr will ensure that the 'singleton' is correctly
+     * serialized. Thus, here we do not require an assertion that mpInstance is
+     * NULL, as we do in the constructors of the SimulationTime and TissueConfig
+     * singleton classes.
+     */
 }
 
 template<class CELL_CYCLE_MODEL, class ODE_SOLVER>

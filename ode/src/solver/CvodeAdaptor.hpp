@@ -96,6 +96,9 @@ private:
         archive & boost::serialization::base_object<AbstractIvpOdeSolver>(*this);
         archive & mRelTol;
         archive & mAbsTol;
+        archive & mLastInternalStepSize;
+        archive & mMaxSteps;
+        archive & mCheckForRoots;
         // All other member variables given values on each call.
     }
 
