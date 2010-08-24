@@ -395,7 +395,8 @@ bool tetgenio::load_node(char* filename)
   char inputline[INPUTLINESIZE];
   char *stringptr;
   int markers;
-
+  
+  markers = 0;
   // Assembling the actual file names we want to open.
   strcpy(innodefilename, filename);
   strcat(innodefilename, ".node");
@@ -2018,6 +2019,8 @@ bool tetgenio::load_tetmesh(char* filename)
   int markers, corner;
   int index, attribindex;
   int i, j;
+
+  markers = 0;
 
   // Assembling the actual file names we want to open.
   strcpy(innodefilename, filename);
@@ -7490,6 +7493,9 @@ void tetgenmesh::tetalldihedral(point pa, point pb, point pc, point pd,
   REAL N[4][3], cosd, len;
   int f1, f2, i, j;
 
+  f1=0;
+  f2=0;
+  
   // Get four normals of faces of the tet.
   tetallnormal(pa, pb, pc, pd, N, NULL);
   // Normalize the normals.
@@ -11811,6 +11817,8 @@ bool tetgenmesh::removeedgebyflip22(REAL *key, int n, triface *abtetlist,
   REAL cosmaxd, d1, d2, d3;
   bool doflip;
 
+  cosmaxd = 0.0;
+  pf = apex(abtetlist[2]);
   doflip = true;
   adjustedgering(abtetlist[0], CW);
   pa = org(abtetlist[0]);
@@ -11874,6 +11882,8 @@ bool tetgenmesh::removefacebyflip23(REAL *key, triface *abctetlist,
   bool doflip;
   int i;
 
+  cosmaxd = 0.0;
+  
   adjustedgering(abctetlist[0], CCW);
   pa = org(abctetlist[0]);
   pb = dest(abctetlist[0]);
@@ -12179,6 +12189,7 @@ bool tetgenmesh::removeedgebytranNM(REAL *key, int n, triface *abtetlist,
   bool doflip, copflag, success;
   int i, j, k;
 
+  cosmaxd = 0.0;
   // Maximum 10 tets.
   assert(n <= 10);
   // Two points a and b are fixed.
@@ -15825,6 +15836,9 @@ void tetgenmesh::bowatinsertsite(point bp,face* splitseg,int n,list** sublists,
   REAL attrib, volume;
   int idx, i, j, k;
 
+  apsegshs = NULL;
+  pbsegshs = NULL;
+
   if (b->verbose > 1) {
     printf("    Insert point %d (%.12g, %.12g, %.12g)", pointmark(bp), bp[0],
            bp[1], bp[2]);
@@ -16504,6 +16518,8 @@ void tetgenmesh::incrflipdelaunay(triface* oldtet, point* insertarray,
 #ifdef SELF_CHECK
   clock_t loc_start, loc_end;
 #endif
+  
+  det = 0.0;
   if (b->verbose > 0) {
     printf("  Creating initial tetrahedralization.\n");
   }
@@ -26157,7 +26173,7 @@ bool tetgenmesh::smoothpoint(point smthpt, point e1, point e2, list *starlist,
   bool segflag, randflag; //, subflag; 
   int numdirs;
   int iter, i, j;
-
+  
   // Is p a segment vertex?
   segflag = (e1 != (point) NULL);
   // Decide the number of moving directions.
@@ -26167,6 +26183,7 @@ bool tetgenmesh::smoothpoint(point smthpt, point e1, point e2, list *starlist,
     numdirs = 10; // Maximum 10 directions.
   }
 
+  aspTmax = 0.0; 
   // Calculate the initial object value (the largest aspect ratio).
   for (i = 0; i < starlist->len(); i++) {
     starttet = * (triface *)(* starlist)[i];
@@ -27928,6 +27945,8 @@ void tetgenmesh::decidefeaturepointsizes()
   int featurecount;
   int idx, i, j;
 
+  maxlen = 0.0;
+  
   if (b->verbose > 0) {
     printf("  Deciding feature-point sizes.\n");
   }
@@ -29122,7 +29141,10 @@ void tetgenmesh::splitencseg(point newpt, face* splitseg, list* tetlist,
   triface starttet;
   face startsh, spinsh, checksh;
   int i;
-
+  
+  mytetlist = NULL;
+  myflipque = NULL;
+  
   if (optflag) {
     mytetlist = new list(sizeof(triface), NULL, 1024);
     myflipque = new queue(sizeof(badface));
@@ -29362,6 +29384,14 @@ void tetgenmesh::repairencsegs(bool chkencsub, bool chkbadtet)
   enum locateresult symloc;
   int nmax, n, i, j;
 
+  ceillists = NULL;
+  flipque = NULL;
+  subceillists = NULL;
+  sublist = NULL;
+  sublists = NULL;
+  tetlist = NULL;
+  tetlists = NULL;
+  
   n = 0;
   nmax = 128;
   if (!b->fliprepair) {
@@ -29544,6 +29574,7 @@ void tetgenmesh::repairencsubs(bool chkbadtet)
   long oldptnum;
   int quenumber, n, i;
 
+  quenumber = 0;
   n = 0;
   sublist = (list *) NULL;
   subceillist = (list *) NULL;
@@ -30124,7 +30155,8 @@ bool tetgenmesh::checktet4opt(triface* testtet, bool enqflag)
   REAL cosd;
   bool enq;
   int i, j;
-
+  
+  cosd = 0.0;
   enq = false;
   pa = (point) testtet->tet[4];
   pb = (point) testtet->tet[5];
@@ -30646,6 +30678,8 @@ void tetgenmesh::optimizemesh(bool optflag)
   REAL maxdihed, objdihed, curdihed;
   long oldnum;
   int iter, i;
+
+  objdihed = 0.0;
 
   if (!b->quiet) {
     if (optflag) {
@@ -31302,6 +31336,8 @@ void tetgenmesh::outmetrics(tetgenio* out)
   int mtrindex;
   int i;  
 
+  lave = 0.0;
+  
   if (out == (tetgenio *) NULL) {
     strcpy(outmtrfilename, b->outfilename);
     strcat(outmtrfilename, ".mtr");
@@ -31590,6 +31626,9 @@ void tetgenmesh::outfaces(tetgenio* out)
   int firstindex, shift;
   int facenumber;
 
+  neigh1 = 0;
+  neigh2 = 0;
+  
   if (out == (tetgenio *) NULL) {
     strcpy(facefilename, b->outfilename);
     strcat(facefilename, ".face");
@@ -32367,6 +32406,11 @@ void tetgenmesh::outvoronoi(tetgenio* out)
   int end1, end2;
   int hitbdry, i, j, k;
 
+  vedge = NULL;
+  vertarray = NULL;
+  vfacet = NULL;
+  k = 0;
+  
   // Output Voronoi vertices to .v.node file.
   if (out == (tetgenio *) NULL) {
     strcpy(outfilename, b->outfilename);
