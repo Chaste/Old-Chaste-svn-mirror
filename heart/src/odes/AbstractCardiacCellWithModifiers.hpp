@@ -30,41 +30,36 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTCARDIACCELLWITHMODIFIERS_HPP_
 
 #include <boost/shared_ptr.hpp>
-
-#include "SensitivityModifiers.hpp"
+#include <map>
+#include "Modifiers.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractStimulusFunction.hpp"
 
 /**
  * A base class for cardiac cells that have been altered to include calls to subclasses
- * of AbstractSensitivityModifier when computing their derivatives.  It specifies a
- * selection of 'standard' parameters that can be modified in this way, with a hacky
- * interface to specifying which modifier to use for each.
+ * of AbstractSensitivityModifier when computing their derivatives.
+ *
+ * \todo #1464 - is there a way to keep the pointers in the concrete classes and have
+ * this class update where they are pointing to - to avoid constant calls to the
+ * GetModifier() class?
  */
 template<class CARDIAC_CELL>
 class AbstractCardiacCellWithModifiers : public CARDIAC_CELL
 {
+protected:
+    std::map<std::string, boost::shared_ptr<AbstractModifier> > mModifiersMap;
+
+    /**
+     * Add a new modifier - should only be called by the subclass constructors.
+     *
+     * @param modifierName  The name which will act as a 'key' for this modifier.
+     */
+    void AddModifier(std::string modifierName)
+    {
+        mModifiersMap[modifierName] = boost::shared_ptr<AbstractModifier>(new DummyModifier());
+    }
+
 public:
-    /** This dummy modifier is given to each modifier as default and has no effect on the cell model */
-    DummyModifier default_modifier;
-
-    /** Allows intervention by protocols on the cell model's IKr conductance parameter */
-    AbstractSensitivityModifier *membrane_rapid_delayed_rectifier_potassium_current_conductance_modifier;
-
-    /** Allows intervention by protocols on the cell model's INa conductance parameter */
-    AbstractSensitivityModifier *membrane_fast_sodium_current_conductance_modifier;
-
-    /** Allows intervention by protocols on the cell model's membrane voltage */
-    AbstractSensitivityModifier *membrane_voltage_modifier;
-
-    /** Allows intervention by protocols on the cell model's ICaL conductance parameter */
-    AbstractSensitivityModifier *membrane_L_type_calcium_current_conductance_modifier;
-
-    /** Allows intervention by protocols on the cytosolic Calcium concentration*/
-    AbstractSensitivityModifier *cytosolic_calcium_concentration_modifier;
-
-    /** Allows intervention by protocols on the cell model's Ito conductance parameter */
-    AbstractSensitivityModifier *membrane_transient_outward_current_conductance_modifier;
 
     /**
      * Create a new cardiac cell.
@@ -84,13 +79,40 @@ public:
                                      boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
         : CARDIAC_CELL(pOdeSolver, numberOfStateVariables, voltageIndex, pIntracellularStimulus)
     {
-        membrane_rapid_delayed_rectifier_potassium_current_conductance_modifier = &default_modifier;
-        membrane_fast_sodium_current_conductance_modifier = &default_modifier;
-        membrane_voltage_modifier = &default_modifier;
-        membrane_L_type_calcium_current_conductance_modifier = &default_modifier;
-        cytosolic_calcium_concentration_modifier = &default_modifier;
-        membrane_transient_outward_current_conductance_modifier = &default_modifier;
+        mModifiersMap.clear();
     }
+
+    /**
+     * Get access to a modifier
+     *
+     * @param modifierName  The oxmeta name of the modifier to fetch.
+     * @return a pointer to the specified modifier
+     */
+    boost::shared_ptr<AbstractModifier> GetModifier(std::string modifierName)
+    {
+        if (mModifiersMap.find(modifierName) == mModifiersMap.end())
+        {
+            EXCEPTION("There is no modifier called " + modifierName + " in this model.");
+        }
+        return mModifiersMap[modifierName];
+    }
+
+    /**
+     * Set a new modifier
+     *
+     * @param modifierName  The oxmeta name of the modifier to replace.
+     * @param pNewModifier  The new modifier object to use.
+     */
+    void SetModifier(std::string modifierName, boost::shared_ptr<AbstractModifier> pNewModifier)
+    {
+        if (mModifiersMap.find(modifierName) == mModifiersMap.end())
+        {
+            EXCEPTION("There is no modifier called " + modifierName + " in this model.");
+        }
+        mModifiersMap[modifierName] = pNewModifier;
+    }
+
+
 };
 
 #endif // ABSTRACTCARDIACCELLWITHMODIFIERS_HPP_

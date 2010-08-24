@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef SENSITIVITYMODIFIERS_HPP_
-#define SENSITIVITYMODIFIERS_HPP_
+#ifndef MODIFIERS_HPP_
+#define MODIFIERS_HPP_
 
 #include <vector>
 #include <iostream>
@@ -44,20 +44,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * of these classes.  PyCml has some experimental support for this, generating subclasses
  * of AbstractCardiacCellWithModifiers.
  */
-class AbstractSensitivityModifier
+class AbstractModifier
 {
   public:
     /**
      * Default constructor.
      */
-    AbstractSensitivityModifier(void)
+    AbstractModifier(void)
     {
     }
 
     /**
      * Default destructor.
      */
-    virtual ~AbstractSensitivityModifier()
+    virtual ~AbstractModifier()
     {
     };
 
@@ -68,13 +68,13 @@ class AbstractSensitivityModifier
      * @param param  the current value of the quantity which is being modified
      * @param time  the current simulation time
      */
-    virtual double calc(double param, double time) = 0;
+    virtual double Calc(double param, double time) = 0;
 };
 
 /**
  * This class allows modification of parameters by a scale factor.
  */
-class FactorModifier : public AbstractSensitivityModifier
+class FactorModifier : public AbstractModifier
 {
 private:
     /** Factor to multiply parameter of interest by. */
@@ -96,7 +96,7 @@ public:
      * @param param  the current value of the quantity which is being modified
      * @param time  the current simulation time
      */
-    virtual double calc(double param, double time)
+    virtual double Calc(double param, double time)
     {
         return (param * mFactor);
     }
@@ -107,7 +107,7 @@ public:
  * modifier to change a parameter through time. In this case it implements
  * a sin(time)*default_parameter factor modifier.
  */
-class TimeModifier : public AbstractSensitivityModifier
+class TimeModifier : public AbstractModifier
 {
 public:
     /**
@@ -123,7 +123,7 @@ public:
      * @param param  the current value of the quantity which is being modified
      * @param time  the current simulation time
      */
-    virtual double calc(double param, double time)
+    virtual double Calc(double param, double time)
     {
         return param * sin(time);
     }
@@ -132,7 +132,7 @@ public:
 /**
  * This class just returns a fixed value, regardless of the parameter's default or the time.
  */
-class FixedModifier : public AbstractSensitivityModifier
+class FixedModifier : public AbstractModifier
 {
 private:
     /** Fixed value to clamp parameter at */
@@ -155,7 +155,7 @@ public:
      * @param time  the current simulation time
      * @return  the fixed value (ignores inputs)
      */
-    virtual double calc(double param, double time)
+    virtual double Calc(double param, double time)
     {
         return mValue;
     }
@@ -164,7 +164,7 @@ public:
 /**
  * This class returns the parameter's default value and does not modify it.
  */
-class DummyModifier : public AbstractSensitivityModifier
+class DummyModifier : public AbstractModifier
 {
 private:
 
@@ -182,11 +182,11 @@ public:
      * @param param  the current value of the quantity which is being modified
      * @param time  the current simulation time
      */
-    virtual double calc(double param, double time)
+    virtual double Calc(double param, double time)
     {
         return param;
     }
 };
 
 
-#endif  //SENSITIVITYMODIFIERS_HPP_
+#endif  //MODIFIERS_HPP_

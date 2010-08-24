@@ -8,7 +8,7 @@ ionicmodels/TestDynamicallyLoadedCellModels.hpp
 ionicmodels/TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 ionicmodels/TestIonicModels.hpp
 ionicmodels/TestPyCml.hpp
-ionicmodels/TestSensitivityModifiers.hpp
+ionicmodels/TestModifiers.hpp
 ionicmodels/TestIonicModelsWithSacs.hpp
 mechanics/TestCardiacElectroMechanicsProblem.hpp
 mechanics/TestContractionModels.hpp

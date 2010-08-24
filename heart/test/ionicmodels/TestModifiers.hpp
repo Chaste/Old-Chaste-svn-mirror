@@ -26,23 +26,50 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef _TESTSENSITIVITYMODIFIERS_HPP_
-#define _TESTSENSITIVITYMODIFIERS_HPP_
+#ifndef _TESTMODIFIERS_HPP_
+#define _TESTMODIFIERS_HPP_
 
 #include <cxxtest/TestSuite.h>
 
+#include <boost/shared_ptr.hpp>
 #include "Exception.hpp"
-#include "SensitivityModifiers.hpp"
+#include "EulerIvpOdeSolver.hpp"
+#include "ZeroStimulus.hpp"
+#include "Modifiers.hpp"
+#include "Shannon2004.hpp"
 
-class TestSensitivityModifiers : public CxxTest::TestSuite
+class TestModifiers : public CxxTest::TestSuite
 {
 public:
+    void TestAssigningModifiersToACellModel() throw(Exception)
+    {
+        boost::shared_ptr<ZeroStimulus> p_stimulus(new ZeroStimulus());
+        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
+        CellShannon2004FromCellML* p_shannon = new CellShannon2004FromCellML(p_solver, p_stimulus);
+
+        TS_ASSERT_THROWS_THIS(p_shannon->GetModifier("Alan"), "There is no modifier called Alan in this model.");
+
+        // Default modifier shouldn't do anything to the value inputted to calc()
+        TS_ASSERT_DELTA(p_shannon->GetModifier("membrane_rapid_delayed_rectifier_potassium_current_conductance")->Calc(123,0),123,1e-9);
+
+        // Make a new modifier
+        boost::shared_ptr<AbstractModifier> p_new_modifier = boost::shared_ptr<AbstractModifier>(new FixedModifier(-90.0));
+
+        TS_ASSERT_THROWS_THIS(p_shannon->SetModifier("Alan",p_new_modifier), "There is no modifier called Alan in this model.");
+
+        // Assign it to the Shannon model
+        p_shannon->SetModifier("membrane_rapid_delayed_rectifier_potassium_current_conductance",p_new_modifier);
+
+        // We should now get a new answer to this.
+        TS_ASSERT_DELTA(p_shannon->GetModifier("membrane_rapid_delayed_rectifier_potassium_current_conductance")->Calc(0,0),-90,1e-9);
+    }
+
     void TestDummyModifiers(void) throw(Exception)
     {
         DummyModifier dummymod;
 
         double parameter = 2;
-        double returned = dummymod.calc(parameter, 0.0);
+        double returned = dummymod.Calc(parameter, 0.0);
 
         TS_ASSERT_DELTA(parameter, returned, 1e-9);
     }
@@ -53,7 +80,7 @@ public:
         FactorModifier mod(factor);
 
         double parameter = 2;
-        double returned = mod.calc(parameter, 0.0);
+        double returned = mod.Calc(parameter, 0.0);
 
         TS_ASSERT_DELTA(parameter*factor, returned, 1e-9);
     }
@@ -64,7 +91,7 @@ public:
         FixedModifier mod(fixed);
 
         double parameter = 2;
-        double returned = mod.calc(parameter, 1.0);
+        double returned = mod.Calc(parameter, 1.0);
 
         TS_ASSERT_DELTA(fixed, returned, 1e-9);
     }
@@ -78,7 +105,7 @@ public:
         for (unsigned i=0; i<7; i++)
         {
             double time = (double)i;
-            double returned = mod.calc(parameter, time);
+            double returned = mod.Calc(parameter, time);
             TS_ASSERT_DELTA(parameter*sin(time), returned, 1e-9);
         }
     }
@@ -86,4 +113,4 @@ public:
 };
 
 
-#endif //_TESTSENSITIVITYMODIFIERS_HPP_
+#endif //_TESTMODIFIERS_HPP_
