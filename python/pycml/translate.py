@@ -1486,7 +1486,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln_hpp('#include "' + self.base_class_name + '.hpp"')
         if self.use_modifiers:
             self.writeln_hpp('#include "AbstractCardiacCellWithModifiers.hpp"')
-            self.writeln_hpp('#include "Modifiers.hpp"')
             # Modify the base class name
             self.base_class_name = 'AbstractCardiacCellWithModifiers<' + self.base_class_name + ' >'
         self.class_inheritance = ' : public ' + self.base_class_name
