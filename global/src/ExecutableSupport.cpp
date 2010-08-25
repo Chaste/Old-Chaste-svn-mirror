@@ -49,6 +49,12 @@ void ExecutableSupport::InitializePetsc(int* pArgc, char*** pArgv)
 
 void ExecutableSupport::ShowCopyright()
 {
+    //Compilation information
+    std::stringstream provenance_msg;        
+    provenance_msg << "This version of Chaste was compiled on:\n";
+    provenance_msg << ChasteBuildInfo::GetBuildTime() << " by " << ChasteBuildInfo::GetBuilderUnameInfo() << " (uname)\n";
+    provenance_msg << "from revision number " << ChasteBuildInfo::GetRevisionNumber() << " with build type " << ChasteBuildInfo::GetBuildInformation() << ".\n\n";
+
     //Only show one copy of copyright/header
     if (PetscTools::AmMaster())
     {
@@ -67,11 +73,15 @@ Lesser GNU General Public License for more details. \n\n\
 You should have received a copy of the Lesser GNU General Public License \n\
 along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
 
-        //Compilation information
-        std::cout << "This version of Chaste was compiled on:\n";
-        std::cout << ChasteBuildInfo::GetBuildTime() << " by " << ChasteBuildInfo::GetBuilderUnameInfo() << " (uname)\n";
-        std::cout << "from revision number " << ChasteBuildInfo::GetRevisionNumber() << " with build type " << ChasteBuildInfo::GetBuildInformation() << ".\n\n";
+        //Write provenance information to stdout
+        std::cout << provenance_msg.str() << std::flush;
     }
+    
+    //Write provenance information to a file
+    OutputFileHandler out_file_handler("",false);
+    out_stream out_file = out_file_handler.OpenOutputFile("provenance_info_", PetscTools::GetMyRank(), ".txt");       
+    *out_file << provenance_msg.str();
+    out_file->close();        
 }
 
 void ExecutableSupport::ShowParallelLaunching()
@@ -98,10 +108,8 @@ void ExecutableSupport::WriteMachineInfoFile(std::string fileBaseName)
     file_name << fileBaseName << "." <<  PetscTools::GetMyRank();
     out_stream out_file = out_file_handler.OpenOutputFile(file_name.str());
     *out_file << "Process " << PetscTools::GetMyRank() << " of " 
-        << PetscTools::GetNumProcs() << "." << std::endl << std::flush;
-    
-    
-        
+        << PetscTools::GetNumProcs() << "." << std::endl << std::flush;       
+
     struct utsname uts_info;
     uname(&uts_info);
     
@@ -151,8 +159,15 @@ void ExecutableSupport::PrintError(const std::string& rMessage, bool masterOnly)
 {
     if (!masterOnly || PetscTools::AmMaster())
     {
-        std::cerr << rMessage << std::endl;
+        // Write the error message to stderr
+        std::cerr << rMessage << std::endl;        
     }
+
+    // Write the error message to file
+    OutputFileHandler out_file_handler("",false);
+    out_stream out_file = out_file_handler.OpenOutputFile("chaste_errors_", PetscTools::GetMyRank(), ".txt", std::ios::out | std::ios::app);
+    *out_file << rMessage << std::endl;
+    out_file->close();    
 }
 
 void ExecutableSupport::FinalizePetsc()

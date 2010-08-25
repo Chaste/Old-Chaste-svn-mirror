@@ -44,8 +44,8 @@ public:
         CommandLineArguments* p_args = CommandLineArguments::Instance();
         ExecutableSupport::StandardStartup(p_args->p_argc, p_args->p_argv);
         std::string msg("This is not an error, it's just for coverage.");
-        ExecutableSupport::PrintError(msg);
         ExecutableSupport::PrintError(msg, true);
+        ExecutableSupport::PrintError(msg);
         ExecutableSupport::WriteMachineInfoFile("write_test");
         ExecutableSupport::FinalizePetsc();
         
