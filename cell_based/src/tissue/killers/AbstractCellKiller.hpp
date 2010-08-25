@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 
-
 /**
  * An abstract cell killer class.
  */
@@ -68,6 +67,31 @@ public:
      */
     const AbstractTissue<SPACE_DIM>* GetTissue() const;
 
+    /**
+     * Outputs force used in the simulation to file and then calls OutputForceParameters to output all relevant parameters.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
+     */
+    void OutputCellKillerInfo(out_stream& rParamsFile);
+
+    /**
+     * Outputs force Parameters to file
+	 *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
+     */
+    //virtual void OutputCellKillerParameters(out_stream& rParamsFile)=0;
+
+    /**
+     * Return the unique identifier. This method uses Boost's serialization's
+     * extended_type_info and returns the identifier of the derived class
+     * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
+     * derived class, and is usually just the name of the class).
+     */
+    std::string GetIdentifier() const;
+
 protected:
 
     /** The tissue. */
@@ -88,7 +112,6 @@ private:
     {
         // Archiving of mpTissue is implemented in load_construct_data of subclasses
     }
-
 };
 
 template <unsigned SPACE_DIM>
@@ -106,6 +129,66 @@ template <unsigned SPACE_DIM>
 const AbstractTissue<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetTissue() const
 {
     return mpTissue;
+}
+
+template<unsigned DIM>
+void AbstractCellKiller<DIM>::OutputCellKillerInfo(out_stream& rParamsFile)
+{
+	///\todo This should be independent of boost version (#1453)
+	std::string cell_killer_type = "Should be cell killer type here see #1453";
+	#if BOOST_VERSION >= 103700
+		cell_killer_type = GetIdentifier();
+	#endif
+
+
+
+    *rParamsFile <<  "\t<" << cell_killer_type << ">" "\n";
+    //OutputForceParameters(rParamsFile);
+    *rParamsFile <<  "\t</" << cell_killer_type << ">" "\n";
+}
+
+//template<unsigned DIM>
+//void AbstractCellKiller<DIM>::OutputCellKillerParameters(out_stream& rParamsFile)
+//{
+//    // No parameters to ouput
+//}
+
+template<unsigned DIM>
+std::string AbstractCellKiller<DIM>::GetIdentifier() const
+{
+    /**
+     * As this class is templated, the variable below will be initialised
+     * to a string of the form "pack<void (NameOfDerivedType< DIM >)>::type". We must
+     * therefore strip away parts of the string, leaving "NameOfDerivedType<DIM>".
+     */
+
+    #if BOOST_VERSION >= 103700
+        std::string identifier = boost::serialization::type_info_implementation<AbstractCellKiller>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
+    #else
+        std::string identifier = boost::serialization::type_info_implementation<AbstractCellKiller>::type::get_derived_extended_type_info(*this)->get_key();
+    #endif
+
+    // First remove spaces, so identifier now takes the form "pack<void(NameOfDerivedType<DIM>)>::type"
+    std::string::iterator end_pos = std::remove(identifier.begin(), identifier.end(), ' ');
+    identifier.erase(end_pos, identifier.end());
+
+    // Then remove "pack<void(", so identifier now takes the form "NameOfDerivedType<DIM>)>::type"
+    std::string s1 = "pack<void(";
+    std::string::size_type i = identifier.find(s1);
+    if (i != identifier.npos)
+    {
+        identifier.erase(i, s1.length());
+    }
+
+    // Finally remove ")>::type", so that identifier now takes the form "NameOfDerivedType<DIM>"
+    std::string s2 = ")>::type";
+    i = identifier.find(s2);
+    if (i != identifier.npos)
+    {
+        identifier.erase(i, s2.length());
+    }
+
+    return identifier;
 }
 
 TEMPLATED_CLASS_IS_ABSTRACT_1_UNSIGNED(AbstractCellKiller)

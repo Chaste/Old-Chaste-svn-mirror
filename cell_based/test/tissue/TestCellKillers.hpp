@@ -85,6 +85,8 @@ public:
         // Create cell killer
         RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
 
+        TS_ASSERT_EQUALS(random_cell_killer.GetIdentifier(), "RandomCellKiller<2>");
+
         // Check that a single cell reaches apoptosis
         unsigned max_tries = 0;
         while (!(*r_cells.begin())->HasApoptosisBegun() && max_tries<99)
@@ -176,6 +178,8 @@ public:
         // Create cell killer and kill cells
         SloughingCellKiller<2> sloughing_cell_killer(&tissue, true);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
+
+        TS_ASSERT_EQUALS(sloughing_cell_killer.GetIdentifier(), "SloughingCellKiller<2>");
 
         // Check that cells were labelled for death correctly
         for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
@@ -418,6 +422,8 @@ public:
 
         OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue);
 
+        TS_ASSERT_EQUALS(oxygen_based_cell_killer.GetIdentifier(), "OxygenBasedCellKiller<2>");
+
         TS_ASSERT_THROWS_NOTHING(oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin()));
 
         // Check that a single cell reaches apoptosis
@@ -556,7 +562,6 @@ public:
         // Set up
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "oxygen_based_killer.arch";
-
         {
             // Create an output archive
             OxygenBasedCellKiller<2> cell_killer(NULL);

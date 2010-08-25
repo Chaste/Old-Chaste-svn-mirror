@@ -620,9 +620,11 @@ void AbstractTissue<DIM>::WriteCellIdDataToFile()
 template<unsigned DIM>
 void AbstractTissue<DIM>::OutputTissueInfo(out_stream& rParamsFile)
 {
-	///\todo fix this (#1453)
-	//std::string tissue_type = GetIdentifier();
+	///\todo This should be independent of boost version (#1453)
 	std::string tissue_type = "Should be tissue type here see #1453";
+	#if BOOST_VERSION >= 103700
+		tissue_type = GetIdentifier();
+	#endif
 
 
 	*rParamsFile <<  "<" << tissue_type << ">" "\n";

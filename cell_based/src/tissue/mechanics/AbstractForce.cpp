@@ -41,9 +41,11 @@ AbstractForce<DIM>::~AbstractForce()
 template<unsigned DIM>
 void AbstractForce<DIM>::OutputForceInfo(out_stream& rParamsFile)
 {
-    ///\todo fix this (#1453)
-    //std::string force_type = GetIdentifier();
-    std::string force_type = "Should be force type here see #1453";
+	///\todo This should be independent of boost version (#1453)
+	std::string force_type = "Should be force type here see #1453";
+	#if BOOST_VERSION >= 103700
+		force_type = GetIdentifier();
+	#endif
 
 
     *rParamsFile <<  "\t<" << force_type << ">" "\n";

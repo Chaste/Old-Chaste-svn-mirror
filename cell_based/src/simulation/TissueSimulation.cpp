@@ -669,12 +669,13 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     *parameter_file << "</ChasteInfo>\n";
 
     // Output TissueSimulation details
-	///\todo fix this (#1453)
-	//std::string simulation_type = GetIdentifier();
+    ///\todo This should be independent of boost version (#1453)
 	std::string simulation_type = "Should be simulation type here see #1453";
+//	#if BOOST_VERSION >= 103700
+//		simulation_type = GetIdentifier();
+//	#endif
 
-	*parameter_file << "\n";
-    *parameter_file <<  "<" << simulation_type << ">" "\n";
+    *parameter_file <<  "\n<" << simulation_type << ">" "\n";
 	OutputSimulationParameters(parameter_file);
     *parameter_file <<  "</" << simulation_type << ">" "\n";
 
@@ -694,11 +695,22 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     	// Output force details
     	(*iter)->OutputForceInfo(parameter_file);
     }
-    *parameter_file << "</Forces>\n" ;
+    *parameter_file << "</Forces>\n";
+
+    // Loop over forces
+	*parameter_file << "\n<CellKillers>\n" ;
+	for (typename std::vector<AbstractCellKiller<DIM>*>::iterator iter = mCellKillers.begin();
+				iter != mCellKillers.end();
+				++iter)
+	{
+		// Output cell killer details
+		//(*iter)->OutputCellKillerInfo(parameter_file);
+		//*parameter_file << "\t" << (*iter)->GetIdentifier() << "\n";
+	}
+	*parameter_file << "</CellKillers>\n";
 
     // Output Extra Parameters from TissueConfig
-    *parameter_file << "\n";
-    *parameter_file <<  "<TissueConfig>\n";
+    *parameter_file <<  "\n<TissueConfig>\n";
 
     TissueConfig* p_inst = TissueConfig::Instance();
     *parameter_file << "\t<SG2MDuration> "<< p_inst->GetSG2MDuration() << " </SG2MDuration>\n";
