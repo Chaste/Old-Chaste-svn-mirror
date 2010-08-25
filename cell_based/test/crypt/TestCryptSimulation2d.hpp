@@ -1761,6 +1761,49 @@ public:
         WntConcentration<2>::Destroy();
     }
 
+    void TestCryptSimulation2DParameterOutput() throw (Exception)
+	{
+		// Create mesh
+		unsigned cells_across = 6;
+		unsigned cells_up = 12;
+		double crypt_width = 5.0;
+		unsigned thickness_of_ghost_layer = 0;
+
+		HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
+		Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
+
+		// Get location indices corresponding to real cells
+		std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
+
+		// Create cells
+		std::vector<TissueCellPtr> cells;
+		CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
+		cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
+
+		// Create tissue
+		MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+		crypt.SetOutputCellMutationStates(true);
+
+		// Create force law
+		GeneralisedLinearSpringForce<2> linear_force;
+		std::vector<AbstractForce<2>*> force_collection;
+		force_collection.push_back(&linear_force);
+
+		// Create crypt simulation from tissue and force law
+		CryptSimulation2d simulator(crypt, force_collection);
+
+		std::string output_directory = "TestCryptSimulation2dOutputParameters";
+		OutputFileHandler output_file_handler(output_directory, false);
+		out_stream parameter_file = output_file_handler.OpenOutputFile("crypt_sim_2d_results.parameters");
+		simulator.OutputSimulationParameters(parameter_file);
+		parameter_file->close();
+
+		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "crypt_sim_2d_results.parameters			cell_based/test/data/TestCryptSimulationOutputParameters/crypt_sim_2d_results.parameters").c_str()), 0);
+
+		//\TODO check output of simulator.OutputSimulationSetup();
+	}
+
 
     void TestAncestorCryptSimulations() throw (Exception)
     {
@@ -1850,6 +1893,7 @@ public:
         delete p_crypt;
         delete p_params;
     }
+
 
 };
 

@@ -656,22 +656,6 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
 
     out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
-    /*
-     * Things to store:
-     *  * Name of the test ran
-     *  * Provenence data
-     *    * Revision number
-     *    * Machine info
-     *    * Date
-     *  * Tissue Type (`VertexBased`, `MeshBased`, `NodeBased` etc.)
-     *    * Mesh parameters
-     *  * Force/Update laws used
-     *  * Timestep data
-     *    * Output Steps
-     *    * End time
-     *  * Parameters from `TissueConfig`
-     */
-
     // Output Chaste provenance information
     *parameter_file << "<ChasteInfo>\n" ;
 
@@ -685,51 +669,54 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     *parameter_file << "</ChasteInfo>\n";
 
     // Output TissueSimulation details
-    *parameter_file << "\n";
-    *parameter_file <<  "<TissueSimulation>\n";
+	///\todo fix this (#1453)
+	//std::string simulation_type = GetIdentifier();
+	std::string simulation_type = "Should be simulation type here see #1453";
 
-    *parameter_file << "\t<mDt> "<< mDt << " </mDt>\n";
-    *parameter_file << "\t<mEndTime> "<< mEndTime << " </mEndTime>\n";
-    *parameter_file << "\t<mSamplingTimestepMultiple> "<< mSamplingTimestepMultiple << " </mSamplingTimestepMultiple>\n";
-
-    *parameter_file <<  "</TissueSimulation>\n";
-
-    // Output TissueConfig details
-    *parameter_file << "\n";
-    *parameter_file <<  "<TissueConfig>\n";
-    TissueConfig* p_inst = TissueConfig::Instance();
-
-    *parameter_file << "\t<SG2MDuration> "<< p_inst->GetSG2MDuration() << " </SG2MDuration>\n";
-    *parameter_file << "\t<SDuration> "<< p_inst->GetSDuration() << " </SDuration>\n";
-    *parameter_file << "\t<G2Duration> "<< p_inst->GetG2Duration() << " </G2Duration>\n";
-    *parameter_file << "\t<MDuration> "<< p_inst->GetMDuration() << " </MDuration>\n";
-    *parameter_file << "\t<StemCellG1Duration> "<< p_inst->GetStemCellG1Duration() << " </StemCellG1Duration>\n";
-    *parameter_file << "\t<TransitCellG1Duration> "<< p_inst->GetTransitCellG1Duration() << " </TransitCellG1Duration>\n";
-    *parameter_file << "\t<CryptLength> "<< p_inst->GetCryptLength() << " </CryptLength>\n";
-    *parameter_file << "\t<CryptWidth> "<< p_inst->GetCryptWidth() << " </CryptWidth>\n";
-    *parameter_file << "\t<MechanicsCutOffLength> "<< p_inst->GetMeinekeMechanicsCutOffLength() << " </MechanicsCutOffLength>\n";
-    *parameter_file << "\t<DampingConstantNormal> "<< p_inst->GetDampingConstantNormal() << " </DampingConstantNormal>\n";
-    *parameter_file << "\t<DampingConstantMutant> "<< p_inst->GetDampingConstantMutant() << " </DampingConstantMutant>\n";
-    //*parameter_file << "\t<CryptProjectionParameterA> "<< p_inst->GetCryptProjectionParameterA() << " </CryptProjectionParameterA>\n";
-    //*parameter_file << "\t<CryptProjectionParameterB> "<< p_inst->GetCryptProjectionParameterB() << " </CryptProjectionParameterB>\n";
-
-    *parameter_file <<  "</TissueConfig>\n";
+	*parameter_file << "\n";
+    *parameter_file <<  "<" << simulation_type << ">" "\n";
+	OutputSimulationParameters(parameter_file);
+    *parameter_file <<  "</" << simulation_type << ">" "\n";
 
     *parameter_file << "\n";
 
     // Output tissue details
     mrTissue.OutputTissueInfo(parameter_file);
+    // Loop over killers
+    // Loop over ccm's
 
     // Loop over forces
+    *parameter_file << "\n<Forces>\n" ;
     for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
                  iter != mForceCollection.end();
                  ++iter)
     {
-    	*parameter_file << "\n";
-
     	// Output force details
     	(*iter)->OutputForceInfo(parameter_file);
     }
+    *parameter_file << "</Forces>\n" ;
+
+    // Output Extra Parameters from TissueConfig
+    *parameter_file << "\n";
+    *parameter_file <<  "<TissueConfig>\n";
+
+    TissueConfig* p_inst = TissueConfig::Instance();
+    *parameter_file << "\t<SG2MDuration> "<< p_inst->GetSG2MDuration() << " </SG2MDuration>\n";
+    *parameter_file << "\t<SDuration> "<< p_inst->GetSDuration() << " </SDuration>\n";
+	*parameter_file << "\t<G2Duration> "<< p_inst->GetG2Duration() << " </G2Duration>\n";
+	*parameter_file << "\t<MDuration> "<< p_inst->GetMDuration() << " </MDuration>\n";
+	*parameter_file << "\t<StemCellG1Duration> "<< p_inst->GetStemCellG1Duration() << " </StemCellG1Duration>\n";
+	*parameter_file << "\t<TransitCellG1Duration> "<< p_inst->GetTransitCellG1Duration() << " </TransitCellG1Duration>\n";
+	*parameter_file << "\t<CryptLength> "<< p_inst->GetCryptLength() << " </CryptLength>\n";
+	*parameter_file << "\t<CryptWidth> "<< p_inst->GetCryptWidth() << " </CryptWidth>\n";
+	*parameter_file << "\t<MechanicsCutOffLength> "<< p_inst->GetMeinekeMechanicsCutOffLength() << " </MechanicsCutOffLength>\n";
+	*parameter_file << "\t<DampingConstantNormal> "<< p_inst->GetDampingConstantNormal() << " </DampingConstantNormal>\n";
+	*parameter_file << "\t<DampingConstantMutant> "<< p_inst->GetDampingConstantMutant() << " </DampingConstantMutant>\n";
+	//*parameter_file << "\t<CryptProjectionParameterA> "<< p_inst->GetCryptProjectionParameterA() << " </CryptProjectionParameterA>\n";
+	//*parameter_file << "\t<CryptProjectionParameterB> "<< p_inst->GetCryptProjectionParameterB() << " </CryptProjectionParameterB>\n";
+
+    *parameter_file <<  "</TissueConfig>\n";
+
 
     parameter_file->close();
 }
@@ -746,7 +733,15 @@ void TissueSimulation<DIM>::SetOutputNodeVelocities(bool outputNodeVelocities)
     mOutputNodeVelocities = outputNodeVelocities;
 }
 
-/////////////////////////////////////////////////////////////////////////////
+template<unsigned DIM>
+void TissueSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
+{
+	  *rParamsFile << "\t<mDt> "<< mDt << " </mDt>\n";
+	  *rParamsFile << "\t<mEndTime> "<< mEndTime << " </mEndTime>\n";
+	  *rParamsFile << "\t<mSamplingTimestepMultiple> "<< mSamplingTimestepMultiple << " </mSamplingTimestepMultiple>\n";
+}
+
+////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 

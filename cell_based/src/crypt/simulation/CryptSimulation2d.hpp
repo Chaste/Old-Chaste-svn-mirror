@@ -160,6 +160,16 @@ public :
      * can be used to trace clonal populations.
      */
     void SetBottomCellAncestors();
+
+    /**
+     * Outputs Simulation Parameters to file
+	 *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
+     */
+    void OutputSimulationParameters(out_stream& rParamsFile);
 };
 
 

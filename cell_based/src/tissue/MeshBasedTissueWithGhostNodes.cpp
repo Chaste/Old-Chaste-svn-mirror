@@ -403,7 +403,7 @@ void MeshBasedTissueWithGhostNodes<DIM>::WriteVtkResultsToFile()
 template<unsigned DIM>
 void MeshBasedTissueWithGhostNodes<DIM>::OutputTissueParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t <mGhostSpringStiffness> " <<  mGhostSpringStiffness << " </mGhostSpringStiffness> \n" ;
+	*rParamsFile <<  "\t<mGhostSpringStiffness> " <<  mGhostSpringStiffness << " </mGhostSpringStiffness> \n" ;
 
 	// Call direct parent class method
 	MeshBasedTissue<DIM>::OutputTissueParameters(rParamsFile);

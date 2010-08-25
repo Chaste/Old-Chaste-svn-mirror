@@ -1019,10 +1019,10 @@ void MeshBasedTissue<DIM>::SetOutputTissueVolumes(bool outputTissueVolumes)
 template<unsigned DIM>
 void MeshBasedTissue<DIM>::OutputTissueParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t <mUseAreaBasedDampingConstant> " <<  mUseAreaBasedDampingConstant << " </mUseAreaBasedDampingConstant> \n" ;
-    *rParamsFile <<  "\t <mAreaBasedDampingConstantParameter> " <<  mAreaBasedDampingConstantParameter << " </mAreaBasedDampingConstantParameter> \n" ;
-	*rParamsFile <<  "\t <mOutputVoronoiData> " <<  mOutputVoronoiData << " </mOutputVoronoiData> \n" ;
-	*rParamsFile <<  "\t <mOutputTissueVolumes> " <<  mOutputTissueVolumes << " </mOutputTissueVolumes> \n" ;
+	*rParamsFile <<  "\t<mUseAreaBasedDampingConstant> " <<  mUseAreaBasedDampingConstant << " </mUseAreaBasedDampingConstant> \n" ;
+    *rParamsFile <<  "\t<mAreaBasedDampingConstantParameter> " <<  mAreaBasedDampingConstantParameter << " </mAreaBasedDampingConstantParameter> \n" ;
+	*rParamsFile <<  "\t<mOutputVoronoiData> " <<  mOutputVoronoiData << " </mOutputVoronoiData> \n" ;
+	*rParamsFile <<  "\t<mOutputTissueVolumes> " <<  mOutputTissueVolumes << " </mOutputTissueVolumes> \n" ;
 
 	// Call direct parent class
 	AbstractCellCentreBasedTissue<DIM>::OutputTissueParameters(rParamsFile);

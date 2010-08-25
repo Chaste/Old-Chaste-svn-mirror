@@ -633,14 +633,14 @@ void AbstractTissue<DIM>::OutputTissueInfo(out_stream& rParamsFile)
 template<unsigned DIM>
 void AbstractTissue<DIM>::OutputTissueParameters(out_stream& rParamsFile)
 {
-    *rParamsFile <<  "\t <mOutputCellIdData> " <<  mOutputCellIdData << " </mOutputCellIdData> \n" ;
-    *rParamsFile <<  "\t <mOutputCellMutationStates> " <<  mOutputCellMutationStates << " </mOutputCellMutationStates> \n" ;
-    *rParamsFile <<  "\t <mOutputCellAncestors> " <<  mOutputCellAncestors << " </mOutputCellAncestors> \n" ;
-    *rParamsFile <<  "\t <mOutputCellProliferativeTypes> " <<  mOutputCellProliferativeTypes << " </mOutputCellProliferativeTypes> \n" ;
-    *rParamsFile <<  "\t <mOutputCellVariables> " <<  mOutputCellVariables << " </mOutputCellVariables> \n" ;
-    *rParamsFile <<  "\t <mOutputCellCyclePhases> " <<  mOutputCellCyclePhases << " </mOutputCellCyclePhases> \n" ;
-    *rParamsFile <<  "\t <mOutputCellAges> " <<  mOutputCellAges << " </mOutputCellAges> \n" ;
-    *rParamsFile <<  "\t <mOutputCellVolumes> " <<  mOutputCellVolumes << " </mOutputCellVolumes> \n" ;
+    *rParamsFile <<  "\t<mOutputCellIdData> " <<  mOutputCellIdData << " </mOutputCellIdData> \n" ;
+    *rParamsFile <<  "\t<mOutputCellMutationStates> " <<  mOutputCellMutationStates << " </mOutputCellMutationStates> \n" ;
+    *rParamsFile <<  "\t<mOutputCellAncestors> " <<  mOutputCellAncestors << " </mOutputCellAncestors> \n" ;
+    *rParamsFile <<  "\t<mOutputCellProliferativeTypes> " <<  mOutputCellProliferativeTypes << " </mOutputCellProliferativeTypes> \n" ;
+    *rParamsFile <<  "\t<mOutputCellVariables> " <<  mOutputCellVariables << " </mOutputCellVariables> \n" ;
+    *rParamsFile <<  "\t<mOutputCellCyclePhases> " <<  mOutputCellCyclePhases << " </mOutputCellCyclePhases> \n" ;
+    *rParamsFile <<  "\t<mOutputCellAges> " <<  mOutputCellAges << " </mOutputCellAges> \n" ;
+    *rParamsFile <<  "\t<mOutputCellVolumes> " <<  mOutputCellVolumes << " </mOutputCellVolumes> \n" ;
 }
 
 template<unsigned DIM>

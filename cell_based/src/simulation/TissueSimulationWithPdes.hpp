@@ -244,6 +244,17 @@ public:
      *                               initial width of the tissue (defaults to 10.0)
      */
     void UseCoarsePdeMesh(double coarseGrainScaleFactor=10.0);
+
+    /**
+     * Outputs Simulation Parameters to file
+	 *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
+     */
+    void OutputSimulationParameters(out_stream& rParamsFile);
+
 };
 
 

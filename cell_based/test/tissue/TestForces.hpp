@@ -724,40 +724,31 @@ public:
 
     void TestForceOutputParameters()
     {
-    	{
-    		LinearSpringWithVariableSpringConstantsForce<2> variable_force;
+		std::string output_directory = "TestForcesOutputParameters";
+		OutputFileHandler output_file_handler(output_directory, false);
 
-			TS_ASSERT_EQUALS(variable_force.GetIdentifier(), "LinearSpringWithVariableSpringConstantsForce<2>");
+		// Test with LinearSpringWithVariableSpringConstantsForce<2> variable_force;
+    	LinearSpringWithVariableSpringConstantsForce<2> variable_force;
+		TS_ASSERT_EQUALS(variable_force.GetIdentifier(), "LinearSpringWithVariableSpringConstantsForce<2>");
 
-			std::string output_directory = "TestForces";
-			OutputFileHandler output_file_handler(output_directory, false);
+		out_stream variable_force_parameter_file = output_file_handler.OpenOutputFile("variable_results.parameters");
+		variable_force.OutputForceParameters(variable_force_parameter_file);
+		variable_force_parameter_file->close();
 
-			out_stream parameter_file = output_file_handler.OpenOutputFile("variable_results.parameters");
-			// Write tissue parameters to file
-			variable_force.OutputForceParameters(parameter_file);
-			parameter_file->close();
+		std::string variable_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+		TS_ASSERT_EQUALS(system(("diff " + variable_force_results_dir + "variable_results.parameters     	cell_based/test/data/TestForces/variable_results.parameters").c_str()), 0);
 
-			// Compare output with saved files of what they should look like
-			std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-			TS_ASSERT_EQUALS(system(("diff " + results_dir + "variable_results.parameters     	cell_based/test/data/TestForces/variable_results.parameters").c_str()), 0);
-    	}
-    	{
-			GeneralisedLinearSpringForce<2> linear_force;
+		// Test with GeneralisedLinearSpringForce
+		GeneralisedLinearSpringForce<2> linear_force;
 
-			TS_ASSERT_EQUALS(linear_force.GetIdentifier(), "GeneralisedLinearSpringForce<2>");
+		TS_ASSERT_EQUALS(linear_force.GetIdentifier(), "GeneralisedLinearSpringForce<2>");
 
-			std::string output_directory = "TestForces";
-			OutputFileHandler output_file_handler(output_directory, false);
+		out_stream linear_force_parameter_file = output_file_handler.OpenOutputFile("linear_results.parameters");
+		linear_force.OutputForceParameters(linear_force_parameter_file);
+		linear_force_parameter_file->close();
 
-			out_stream parameter_file = output_file_handler.OpenOutputFile("linear_results.parameters");
-			// Write tissue parameters to file
-			linear_force.OutputForceParameters(parameter_file);
-			parameter_file->close();
-
-			// Compare output with saved files of what they should look like
-			std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-			TS_ASSERT_EQUALS(system(("diff " + results_dir + "linear_results.parameters     	cell_based/test/data/TestForces/linear_results.parameters").c_str()), 0);
-    	}
+		std::string linear_force_results_dir = output_file_handler.GetOutputDirectoryFullPath();
+		TS_ASSERT_EQUALS(system(("diff " + linear_force_results_dir + "linear_results.parameters			cell_based/test/data/TestForces/linear_results.parameters").c_str()), 0);
     }
 
 

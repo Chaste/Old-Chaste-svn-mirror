@@ -417,15 +417,15 @@ public:
         TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 30u);
 
         // Work out where the previous test wrote its files
-        OutputFileHandler handler("Crypt1dWithCellsAndGrowth", false);
+        OutputFileHandler output_file_handler("Crypt1dWithCellsAndGrowth", false);
 
-        std::string node_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
+        std::string node_results_file = output_file_handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.viznodes";
         TS_ASSERT_EQUALS(system(("diff " + node_results_file + " cell_based/test/data/Crypt1dWithCellsAndGrowth/results.viznodes").c_str()), 0);
 
-        std::string cell_type_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
+        std::string cell_type_results_file = output_file_handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizcelltypes";
         TS_ASSERT_EQUALS(system(("diff " + cell_type_results_file + " cell_based/test/data/Crypt1dWithCellsAndGrowth/results.vizcelltypes").c_str()), 0);
 
-        std::string elem_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
+        std::string elem_results_file = output_file_handler.GetOutputDirectoryFullPath() + "results_from_time_0/results.vizelements";
         TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cell_based/test/data/Crypt1dWithCellsAndGrowth/results.vizelements").c_str()), 0);
     }
 
@@ -885,6 +885,94 @@ public:
         // Tidy up
         delete p_simulator1;
         delete p_simulator2;
+    }
+
+    /**
+     * In this test, we include cell birth and cell death.
+     */
+    void TestCryptSimulation1DParameterOutput() throw (Exception)
+    {
+        // Get pointers to singleton objects
+        RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
+        TissueConfig* p_params = TissueConfig::Instance();
+
+        // Create a mesh with nodes equally spaced a unit distance apart
+        MutableMesh<1,1> mesh;
+        mesh.ConstructLinearMesh(22);
+
+        // Set up cells by iterating through the nodes
+        std::vector<TissueCellPtr> cells;
+        boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
+
+        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
+        {
+            CellProliferativeType cell_type;
+            unsigned generation;
+            double birth_time;
+            if (i == 0)
+            {
+                cell_type = STEM;
+                generation = 0;
+                birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
+                                                  + p_params->GetSG2MDuration()); // hours - doesn't matter for stem cell
+            }
+            else if (i < 15)
+            {
+                cell_type = TRANSIT;
+                generation = 1 + (i - 1) / 5;
+                birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
+                                                    + p_params->GetSG2MDuration()); // hours
+            }
+            else
+            {
+                cell_type = DIFFERENTIATED;
+                generation = 4;
+                birth_time = 0; // hours
+            }
+
+            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+            p_model->SetCellProliferativeType(cell_type);
+            p_model->SetGeneration(generation);
+
+            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            p_cell->InitialiseCellCycleModel();
+            p_cell->SetBirthTime(birth_time);
+
+            cells.push_back(p_cell);
+        }
+
+        // Create tissue
+        MeshBasedTissue<1> crypt(mesh, cells);
+
+        // Create force law
+        GeneralisedLinearSpringForce<1> linear_force;
+        std::vector<AbstractForce<1>*> force_collection;
+        force_collection.push_back(&linear_force);
+
+        // Set up crypt simulation
+        CryptSimulation1d simulator(crypt, force_collection);
+        simulator.SetOutputDirectory("Crypt1dWithCellsAndGrowth");
+        simulator.SetEndTime(10.0);
+
+        // Add sloughing cell killer to simulation
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
+        simulator.AddCellKiller(&sloughing_cell_killer);
+
+        // Test Output methods
+
+        // \TODO uncomment see #1453
+        //TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CryptSimulation1d");
+
+		std::string output_directory = "TestCryptSimulation1dOutputParameters";
+		OutputFileHandler output_file_handler(output_directory, false);
+		out_stream parameter_file = output_file_handler.OpenOutputFile("crypt_sim_1d_results.parameters");
+		simulator.OutputSimulationParameters(parameter_file);
+		parameter_file->close();
+
+		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "crypt_sim_1d_results.parameters			cell_based/test/data/TestCryptSimulationOutputParameters/crypt_sim_1d_results.parameters").c_str()), 0);
+
+		//\TODO check output of simulator.OutputSimulationSetup();
     }
 
 };

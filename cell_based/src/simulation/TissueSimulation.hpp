@@ -408,6 +408,16 @@ public:
      * @param outputNodeVelocities the new value of mOutputNodeVelocities
      */
     void SetOutputNodeVelocities(bool outputNodeVelocities);
+
+    /**
+     * Outputs Simulation Parameters to file
+	 *
+     * As this method is pure virtual, it must be overridden
+     * in subclasses.
+     *
+     * @param rParamsFile the file stream to which the parameters are output
+     */
+    virtual void OutputSimulationParameters(out_stream& rParamsFile);
 };
 
 

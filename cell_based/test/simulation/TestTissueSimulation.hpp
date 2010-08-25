@@ -458,5 +458,46 @@ public:
         TS_ASSERT_EQUALS(tissue.GetNumRealCells(), 2u);
     }
 
+
+    void TestTissueSimulationParameterOutputMethods() throw (Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Set up cells
+        std::vector<TissueCellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
+
+        // Create a tissue
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+        // Create a force law Collection
+        std::vector<AbstractForce<2>* > force_collection;
+
+        // Set up tissue simulation
+        TissueSimulation<2> simulator(tissue, force_collection);
+
+        // \TODO uncomment see #1453
+        //TS_ASSERT_EQUALS(simulator.GetIdentifier(), "TissueSimulation<2>");
+
+		std::string output_directory = "TestTissueSimulationOutputParameters";
+		OutputFileHandler output_file_handler(output_directory, false);
+		out_stream parameter_file = output_file_handler.OpenOutputFile("tissue_sim_results.parameters");
+		simulator.OutputSimulationParameters(parameter_file);
+		parameter_file->close();
+
+		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissue_sim_results.parameters			cell_based/test/data/TestTissueSimulationOutputParameters/tissue_sim_results.parameters").c_str()), 0);
+
+		//\TODO check output of simulator.OutputSimulationSetup();
+    }
+
+
+
+
 };
 #endif /*TESTTISSUESIMULATION_HPP_*/

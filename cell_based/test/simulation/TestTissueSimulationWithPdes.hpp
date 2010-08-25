@@ -1268,7 +1268,7 @@ public:
         }
 
         // Set up PDE
-        SimpleUniformSourcePde<3> pde(-0.1);
+        SimpleUniformSourcePde<3> pde(-0.03);
         double boundary_value = 1.0;
         bool is_neumann_bc = false;
         PdeAndBoundaryConditions<3> pde_and_bc(&pde, boundary_value, is_neumann_bc);
@@ -1300,6 +1300,53 @@ public:
         CellwiseData<3>::Destroy();
 
         delete p_killer;
+    }
+
+    void TestTissueSimulationWithPdesParameterOutputMethods() throw (Exception)
+    {
+        // Create a simple mesh
+        int num_cells_depth = 5;
+        int num_cells_width = 5;
+        HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+        // Set up cells
+        std::vector<TissueCellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
+
+        // Create a tissue
+        MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+        // Set up PDE
+        CellwiseSourcePde<2> pde(tissue, -0.03);
+        double boundary_value = 1.0;
+        bool is_neumann_bc = false;
+        PdeAndBoundaryConditions<2> pde_and_bc(&pde, boundary_value, is_neumann_bc);
+        std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
+        pde_and_bc_collection.push_back(&pde_and_bc);
+
+        // Create a force law Collection
+		GeneralisedLinearSpringForce<2> linear_force;
+		std::vector<AbstractForce<2>*> force_collection;
+		force_collection.push_back(&linear_force);
+
+        // Set up tissue simulation
+		TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
+
+        // \TODO uncomment see #1453
+        //TS_ASSERT_EQUALS(simulator.GetIdentifier(), "TissueSimulationWithPDE<2>");
+
+		std::string output_directory = "TestTissueSimulationOutputParameters";
+		OutputFileHandler output_file_handler(output_directory, false);
+		out_stream parameter_file = output_file_handler.OpenOutputFile("tissue_sim_with_pde_results.parameters");
+		simulator.OutputSimulationParameters(parameter_file);
+		parameter_file->close();
+
+		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissue_sim_with_pde_results.parameters			cell_based/test/data/TestTissueSimulationOutputParameters/tissue_sim_with_pde_results.parameters").c_str()), 0);
+
+		//\TODO check output of simulator.OutputSimulationSetup();
     }
 
 };
