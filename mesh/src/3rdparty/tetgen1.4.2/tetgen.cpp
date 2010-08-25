@@ -34053,6 +34053,9 @@ void tetgenmesh::qualitystatistics()
   int tendegree;
   int i, j;
 
+  smallfaangle = 0.0;
+  bigfaangle = 0.0;
+
   printf("Mesh quality statistics:\n\n");
 
   // Avoid compile warnings.
