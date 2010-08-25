@@ -53,6 +53,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MatrixBasedBidomainSolver.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 #include "NumericFileComparison.hpp"
+#include "Electrodes.hpp"
+#include "SimpleBathProblemSetup.hpp"
 
 class DelayedTotalStimCellFactory : public AbstractCardiacCellFactory<1>
 {
@@ -1013,6 +1015,32 @@ public:
             delete p_bidomain_problem;
         }
     }
+    
+    void TestElectrodesWithoutBathThrows()
+    {
+        // need to create a cell factory but don't want any intra stim, so magnitude
+        // of stim is zero.
+        c_vector<double,2> centre;
+        centre(0) = 0.05; // cm
+        centre(1) = 0.05; // cm
+        BathCellFactory<2> cell_factory( 0.0, centre);
+
+        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+
+        //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
+        double boundary_flux = -11.0e3;
+        double start_time = 0.5;
+        double duration = 1.9; // of the stimulus, in ms
+
+        boost::shared_ptr<Electrodes<2> > p_electrodes(
+            new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, start_time, duration));
+
+        BidomainProblem<2> no_bath_problem( &cell_factory, false );
+        TS_ASSERT_THROWS_THIS(no_bath_problem.SetElectrodes(p_electrodes),
+                "Cannot set electrodes when problem has been defined to not have a bath");
+    }
+    
 
 };
 

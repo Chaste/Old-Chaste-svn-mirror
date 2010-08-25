@@ -45,6 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "MonodomainProblem.hpp"
 #include "BidomainProblem.hpp"
+#include "BidomainWithBathProblem.hpp"
 #include "PetscTools.hpp"
 #include "TimeStepper.hpp"
 #include "Exception.hpp"
@@ -330,6 +331,34 @@ void CardiacSimulation::Run()
             }
             break;
         }
+
+//        case cp::domain_type::BiWithBath :
+//        {
+//            switch (HeartConfig::Instance()->GetSpaceDimension())
+//            {
+//                case 3:
+//                {
+//                    CreateAndRun<BidomainWithBathProblem<3>,3>();
+//                    break;
+//                }
+//                case 2:
+//                {
+//                    CreateAndRun<BidomainWithBathProblem<2>,2>();
+//                    break;
+//                }
+//                case 1:
+//                {
+//                    CreateAndRun<BidomainWithBathProblem<1>,1>();
+//                    break;
+//                }
+//                default :
+//                {
+//                    EXCEPTION("Bidomain space dimension not supported: should be 1, 2 or 3");
+//                }
+//            }
+//            break;
+//        }
+
         default :
         {
             // If the domain is not set correctly then the XML parser will have picked it up before now!

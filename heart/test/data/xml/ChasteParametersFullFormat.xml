@@ -12,7 +12,7 @@
 		-->
 		<SpaceDimension>3</SpaceDimension> <!-- 1, 2 or 3 -->
 	    <SimulationDuration unit="ms">10.0</SimulationDuration>
-	    <Domain>Mono</Domain> <!-- Mono or Bi -->
+	    <Domain>Mono</Domain> <!-- Mono, Bi or BiWithBath  -->
 	    
 		<!-- 
 			Mesh definition 

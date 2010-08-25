@@ -34,8 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 #include <vector>
 
+#include "BidomainWithBathProblem.hpp"
+
 #include "LuoRudyIModel1991OdeSystem.hpp"
-#include "BidomainProblem.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "TetrahedralMesh.hpp"
 #include "DistributedTetrahedralMesh.hpp"
@@ -47,8 +48,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ZeroStimulusCellFactory.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "SimpleBathProblemSetup.hpp"
+#include "HeartConfig.hpp"
 
-class TestBidomainWithBath : public CxxTest::TestSuite
+class TestBidomainWithBathProblem : public CxxTest::TestSuite
 {
 public:
     void tearDown()
@@ -65,7 +67,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
-        BidomainProblem<1> bidomain_problem( &bidomain_cell_factory, true );
+        BidomainWithBathProblem<1> bidomain_problem( &bidomain_cell_factory );
         bidomain_problem.Initialise();
 
         AbstractTetrahedralMesh<1,1>* p_mesh = &(bidomain_problem.rGetMesh());
@@ -95,7 +97,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
 
         PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
-        BidomainProblem<1> bidomain_problem( &bidomain_cell_factory, true );
+        BidomainWithBathProblem<1> bidomain_problem( &bidomain_cell_factory );
         // Fails because no bath
         TS_ASSERT_THROWS_THIS(bidomain_problem.Initialise(), "No bath element found");
 
@@ -114,7 +116,7 @@ public:
         centre(0) = 0.5;
         BathCellFactory<1> cell_factory(-1e6, centre); // stimulates x=0.5 node
 
-        BidomainProblem<1> bidomain_problem( &cell_factory, true );
+        BidomainWithBathProblem<1> bidomain_problem( &cell_factory );
 
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1_100_elements");
         TetrahedralMesh<1,1> mesh;
@@ -204,7 +206,7 @@ public:
             }
         }
 
-        BidomainProblem<1> bidomain_problem( &cell_factory, true );
+        BidomainWithBathProblem<1> bidomain_problem( &cell_factory );
 
         bidomain_problem.SetBoundaryConditionsContainer(p_bcc);
         bidomain_problem.SetMesh(&mesh);
@@ -241,7 +243,7 @@ public:
         centre(1) = 0.05;
         BathCellFactory<2> cell_factory(-5e6, centre); // stimulates x=0.05 node
 
-        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+        BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
 
         DistributedTetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<DistributedTetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.04);
@@ -308,7 +310,7 @@ public:
         centre(1) = 0.05; // cm
         BathCellFactory<2> cell_factory( 0.0, centre);
 
-        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+        BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
         
         // Coverage
         TS_ASSERT(bidomain_problem.GetHasBath());
@@ -323,15 +325,6 @@ public:
 
         boost::shared_ptr<Electrodes<2> > p_electrodes(
             new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, start_time, duration));
-
-        // Cover an exception
-        {
-            // Avoid event handler exception
-            HeartEventHandler::EndEvent(HeartEventHandler::EVERYTHING);
-            BidomainProblem<2> no_bath_problem( &cell_factory, false );
-            TS_ASSERT_THROWS_THIS(no_bath_problem.SetElectrodes(p_electrodes),
-                    "Cannot set electrodes when problem has been defined to not have a bath");
-        }
 
         bidomain_problem.SetElectrodes(p_electrodes);
 
@@ -382,7 +375,7 @@ public:
         centre(1) = 0.05; // cm
         BathCellFactory<2> cell_factory( 0.0, centre);
 
-        BidomainProblem<2> bidomain_problem( &cell_factory, true );
+        BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
 
         TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
@@ -490,7 +483,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("BidomainBathMatrixBased");
         HeartConfig::Instance()->SetOutputFilenamePrefix("matrix_based");
 
-        BidomainProblem<2> matrix_based_bido( &cell_factory, true );
+        BidomainWithBathProblem<2> matrix_based_bido( &cell_factory );
 
         {
             Timer::Reset();
@@ -512,7 +505,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("BidomainBathNonMatrixBased");
         HeartConfig::Instance()->SetOutputFilenamePrefix("non_matrix_based");
 
-        BidomainProblem<2> non_matrix_based_bido( &cell_factory, true);
+        BidomainWithBathProblem<2> non_matrix_based_bido( &cell_factory);
 
         {
             Timer::Reset();
@@ -571,7 +564,7 @@ public:
             // need to create a cell factory but don't want any intra stim.
             ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
 
-            BidomainProblem<2> bidomain_problem( &cell_factory, true );
+            BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
 
             //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
             double boundary_flux = -11.0e3;
@@ -585,11 +578,11 @@ public:
             bidomain_problem.Initialise();
 
             // Save using helper class
-            CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, archive_dir, false);
+            CardiacSimulationArchiver<BidomainWithBathProblem<2> >::Save(bidomain_problem, archive_dir, false);
         }
 
         { // load
-            AbstractCardiacProblem<2,2,2>* p_abstract_problem = CardiacSimulationArchiver<BidomainProblem<2> >::Load(archive_dir);
+            AbstractCardiacProblem<2,2,2>* p_abstract_problem = CardiacSimulationArchiver<BidomainWithBathProblem<2> >::Load(archive_dir);
 
             // get the new mesh
             AbstractTetrahedralMesh<2,2>& r_mesh = p_abstract_problem->rGetMesh();
@@ -656,7 +649,7 @@ public:
             }
 
             // We can get away with the following line only because this is a friend class and test.
-            boost::shared_ptr<Electrodes<2> > p_electrodes = static_cast<BidomainProblem<2>* >(p_abstract_problem)->mpElectrodes;
+            boost::shared_ptr<Electrodes<2> > p_electrodes = static_cast<BidomainWithBathProblem<2>* >(p_abstract_problem)->mpElectrodes;
 
             TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
             TS_ASSERT_EQUALS(ap_triggered, true);
@@ -678,15 +671,15 @@ public:
             HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
 
             ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
-            BidomainProblem<1> bidomain_problem( &bidomain_cell_factory, true );
+            BidomainWithBathProblem<1> bidomain_problem( &bidomain_cell_factory );
             bidomain_problem.Initialise();
 
             // Save using helper class
-            CardiacSimulationArchiver<BidomainProblem<1> >::Save(bidomain_problem, archive_dir, false);
+            CardiacSimulationArchiver<BidomainWithBathProblem<1> >::Save(bidomain_problem, archive_dir, false);
         }
 
         { // load...
-            AbstractCardiacProblem<1,1,2>* p_abstract_problem = CardiacSimulationArchiver<BidomainProblem<1> >::Load(archive_dir);
+            AbstractCardiacProblem<1,1,2>* p_abstract_problem = CardiacSimulationArchiver<BidomainWithBathProblem<1> >::Load(archive_dir);
 
             AbstractTetrahedralMesh<1,1>* p_mesh = &(p_abstract_problem->rGetMesh());
 
@@ -753,7 +746,7 @@ public:
         //////////////////////////////////////////////////////
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.01, 0.01);  //ms
         
-        BidomainProblem<2> bidomain_problem1( &cell_factory, true );
+        BidomainWithBathProblem<2> bidomain_problem1( &cell_factory );
         TetrahedralMesh<2,2>* p_mesh1 = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
     
@@ -776,7 +769,7 @@ public:
         //////////////////////////////////////////////////////
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.001, 0.01, 1.0);  //ms
                                 
-        BidomainProblem<2> bidomain_problem2( &cell_factory, true );
+        BidomainWithBathProblem<2> bidomain_problem2( &cell_factory );
 
         TetrahedralMesh<2,2>* p_mesh2 = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);

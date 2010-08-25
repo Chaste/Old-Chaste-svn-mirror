@@ -1,7 +1,7 @@
 bidomain/TestBidomainDistributedMesh.hpp
 bidomain/TestBidomainCellCollection.hpp
 bidomain/TestBidomainProblem.hpp
-bidomain/TestBidomainWithBath.hpp
+bidomain/TestBidomainWithBathProblem.hpp
 convergence/TestConvergenceTester.hpp
 ionicmodels/TestCvodeCells.hpp
 ionicmodels/TestDynamicallyLoadedCellModels.hpp

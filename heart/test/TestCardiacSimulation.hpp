@@ -138,9 +138,49 @@ public:
         CardiacSimulation simulation2("heart/test/data/xml/bidomain3d_resume.xml");
     }
 
+//    void TestBiWithBath1dSmall() throw(Exception)
+//    {
+//        { CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath1d_small.xml"); }
+//        { CardiacSimulation simulation2("heart/test/data/xml/bidomain_with_bath1d_resume.xml"); }
+//        {
+//            PetscTools::Barrier("TestBi1dSmall-a");
+//            std::string normal_output_dir = OutputFileHandler::GetChasteTestOutputDirectory();
+//            setenv("CHASTE_TEST_OUTPUT", (normal_output_dir + "SaveBi1D_checkpoints/0.1ms").c_str(), 1/*Overwrite*/);
+//            
+//            try
+//            {
+//                // The default resume file specifies a simulation duration of zero.
+//                // In reality the user should edit the file to specify something sensible...
+//                TS_ASSERT_THROWS_THIS(CardiacSimulation simulation(OutputFileHandler::GetChasteTestOutputDirectory() + "ResumeParameters.xml"),
+//                                      "The simulation duration must be positive");
+//            }
+//            catch (Exception& e)
+//            {
+//                setenv("CHASTE_TEST_OUTPUT", normal_output_dir.c_str(), 1/*Overwrite*/);
+//                throw e;
+//            }
+//            
+//            PetscTools::Barrier("TestBi1dSmall-b");
+//            setenv("CHASTE_TEST_OUTPUT", normal_output_dir.c_str(), 1/*Overwrite*/);
+//            HeartEventHandler::Reset();
+//        }
+//    }
+//    
+//    void TestBiWithBath2dSmall() throw(Exception)
+//    {
+//        CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath2d_small.xml");
+//        CardiacSimulation simulation2("heart/test/data/xml/bidomain_with_bath2d_resume.xml");
+//    }
+//    
+//    void TestBiWithBath3dSmall() throw(Exception)
+//    {
+//        CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath3d_small.xml");
+//        CardiacSimulation simulation2("heart/test/data/xml/bidomain_with_bath3d_resume.xml");
+//    }
+
     void TestCardiacSimulationBasicBidomainShort() throw(Exception)
     {
-        // run a bidomain simulation
+        // run a bidomain_with_bath simulation
         CardiacSimulation simulation("heart/test/data/xml/base_bidomain_short.xml");
 
         // compare the files, using the CompareFilesViaHdf5DataReader() method
@@ -341,6 +381,8 @@ public:
                               "Monodomain space dimension not supported: should be 1, 2 or 3");
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/bidomain8d_small.xml"),
                               "Bidomain space dimension not supported: should be 1, 2 or 3");
+//        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath8d_small.xml"),
+//                              "Bidomain space dimension not supported: should be 1, 2 or 3");
 
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/base_monodomain_frankenstein.xml"),
                               "XML parsing error in configuration file: heart/test/data/xml/base_monodomain_frankenstein.xml");
