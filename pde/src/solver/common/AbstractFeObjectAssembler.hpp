@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractTetrahedralMesh.hpp"
 #include "PetscTools.hpp"
 
-//todo:  #1507
+///\todo:  #1507
 
 /** 
  *  Enumeration for defining how much interpolation (onto quadrature points) is 

@@ -714,14 +714,14 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
     }
     else if (SPACE_DIM==2)  // In 2D, remesh using triangle via library calls
     {
-        struct triangulateio triangle_input;
-        triangle_input.pointlist = (double *) malloc(GetNumNodes() * 2 * sizeof(double));
-        triangle_input.numberofpoints = GetNumNodes();
-        triangle_input.numberofpointattributes = 0;
-        triangle_input.pointmarkerlist = NULL;
-        triangle_input.numberofsegments = 0;
-        triangle_input.numberofholes = 0;
-        triangle_input.numberofregions = 0;
+        struct triangulateio mesher_input;
+        mesher_input.pointlist = (double *) malloc(GetNumNodes() * SPACE_DIM * sizeof(double));
+        mesher_input.numberofpoints = GetNumNodes();
+        mesher_input.numberofpointattributes = 0;
+        mesher_input.pointmarkerlist = NULL;
+        mesher_input.numberofsegments = 0;
+        mesher_input.numberofholes = 0;
+        mesher_input.numberofregions = 0;
 
         unsigned new_index = 0;
         for (unsigned i=0; i<this->GetNumAllNodes(); i++)
@@ -733,75 +733,75 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             else
             {
                 map.SetNewIndex(i, new_index);
-                triangle_input.pointlist[2*new_index] = this->mNodes[i]->rGetLocation()[0];
-                triangle_input.pointlist[2*new_index + 1] = this->mNodes[i]->rGetLocation()[1];
+                mesher_input.pointlist[SPACE_DIM*new_index] = this->mNodes[i]->rGetLocation()[0];
+                mesher_input.pointlist[SPACE_DIM*new_index + 1] = this->mNodes[i]->rGetLocation()[1];
                 new_index++;
             }
         }
 
         // Make structure for output
-        struct triangulateio triangle_output;
-        triangle_output.pointlist = NULL;
-        triangle_output.pointattributelist = (double *) NULL;
-        triangle_output.pointmarkerlist = (int *) NULL;
-        triangle_output.trianglelist = (int *) NULL;
-        triangle_output.triangleattributelist = (double *) NULL;
-        triangle_output.edgelist = (int *) NULL;
-        triangle_output.edgemarkerlist = (int *) NULL;
+        struct triangulateio mesher_output;
+        mesher_output.pointlist = NULL;
+        mesher_output.pointattributelist = (double *) NULL;
+        mesher_output.pointmarkerlist = (int *) NULL;
+        mesher_output.trianglelist = (int *) NULL;
+        mesher_output.triangleattributelist = (double *) NULL;
+        mesher_output.edgelist = (int *) NULL;
+        mesher_output.edgemarkerlist = (int *) NULL;
 
         // Library call
-        triangulate((char*)"Qze", &triangle_input, &triangle_output, NULL);
+        triangulate((char*)"Qze", &mesher_input, &mesher_output, NULL);
 
-        assert(triangle_output.numberofcorners == 3);
-
+        assert(mesher_output.numberofcorners == 3);
+        assert(mesher_output.pointmarkerlist != NULL);
+        
         // Remove current data
         Clear();
 
         // Construct the nodes
-        for (unsigned node_index=0; node_index<(unsigned)triangle_output.numberofpoints; node_index++)
+        for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
         {
-            if (triangle_output.pointmarkerlist[node_index] == 1)
+            if (mesher_output.pointmarkerlist[node_index] == 1)
             {
                 // Boundary node
                 Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, true,
-                  triangle_output.pointlist[node_index * 2],
-                  triangle_output.pointlist[node_index * 2+1]);
+                  mesher_output.pointlist[node_index * SPACE_DIM],
+                  mesher_output.pointlist[node_index * SPACE_DIM+1]);
                 this->mNodes.push_back(p_node);
                 this->mBoundaryNodes.push_back(p_node);
             }
             else
             {
                 this->mNodes.push_back(new Node<SPACE_DIM>(node_index, false,
-                  triangle_output.pointlist[node_index * 2],
-                  triangle_output.pointlist[node_index * 2+1]));
+                  mesher_output.pointlist[node_index * SPACE_DIM],
+                  mesher_output.pointlist[node_index * SPACE_DIM+1]));
             }
         }
 
         // Construct the elements
-        this->mElements.reserve(triangle_output.numberoftriangles);
-        for (unsigned element_index=0; element_index<(unsigned)triangle_output.numberoftriangles; element_index++)
+        this->mElements.reserve(mesher_output.numberoftriangles);
+        for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftriangles; element_index++)
         {
             std::vector<Node<SPACE_DIM>*> nodes;
-            for (unsigned j=0; j<3; j++)
+            for (unsigned j=0; j<ELEMENT_DIM+1; j++)
             {
-                unsigned global_node_index = triangle_output.trianglelist[element_index*3 + j];
+                unsigned global_node_index = mesher_output.trianglelist[element_index*(ELEMENT_DIM+1) + j];
                 assert(global_node_index < this->mNodes.size());
                 nodes.push_back(this->mNodes[global_node_index]);
             }
             this->mElements.push_back(new Element<ELEMENT_DIM, SPACE_DIM>(element_index, nodes));
         }
 
-        // Construct the edges
-        // too big mBoundaryElements.reserve(triangle_output.numberoftriangles);
+        // Construct the BoundaryElements
         unsigned next_boundary_element_index = 0;
-        for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)triangle_output.numberofedges; boundary_element_index++)
+        for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)mesher_output.numberofedges; boundary_element_index++)
         {
-            if (triangle_output.edgemarkerlist[boundary_element_index] == 1)
+            if (mesher_output.edgemarkerlist[boundary_element_index] == 1)
             {
                 std::vector<Node<SPACE_DIM>*> nodes;
-                for (unsigned j=0; j<2; j++)
+                for (unsigned j=0; j<ELEMENT_DIM; j++)
                 {
-                    unsigned global_node_index = triangle_output.edgelist[boundary_element_index*2 + j];
+                    unsigned global_node_index = mesher_output.edgelist[boundary_element_index*ELEMENT_DIM + j];
                     assert(global_node_index < this->mNodes.size());
                     nodes.push_back(this->mNodes[global_node_index]);
                 }
@@ -809,20 +809,101 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             }
         }
 
-        free(triangle_input.pointlist);
-
-        free(triangle_output.pointlist);
-        free(triangle_output.pointattributelist);
-        free(triangle_output.pointmarkerlist);
-        free(triangle_output.trianglelist);
-        free(triangle_output.triangleattributelist);
-        free(triangle_output.edgelist);
-        free(triangle_output.edgemarkerlist);
-
         this->RefreshJacobianCachedData();
+
+        //Tidy up triangle
+        free(mesher_input.pointlist);
+
+        free(mesher_output.pointlist);
+        free(mesher_output.pointattributelist);
+        free(mesher_output.pointmarkerlist);
+        free(mesher_output.trianglelist);
+        free(mesher_output.triangleattributelist);
+        free(mesher_output.edgelist);
+        free(mesher_output.edgemarkerlist);
+
     }
     else // in 3D, remesh using tetgen
     {
+///\todo #1545
+//        struct tetgen::tetgenio mesher_input;//, out;
+//        mesher_input.pointlist =  new REAL[GetNumNodes() * SPACE_DIM];
+//        mesher_input.numberofpoints = GetNumNodes();
+//        
+//        unsigned new_index = 0;
+//        for (unsigned i=0; i<this->GetNumAllNodes(); i++)
+//        {
+//            if (this->mNodes[i]->IsDeleted())
+//            {
+//                map.SetDeleted(i);
+//            }
+//            else
+//            {
+//                map.SetNewIndex(i, new_index);
+//                mesher_input.pointlist[SPACE_DIM*new_index] = this->mNodes[i]->rGetLocation()[0];
+//                mesher_input.pointlist[SPACE_DIM*new_index + 1] = this->mNodes[i]->rGetLocation()[1];
+//                mesher_input.pointlist[SPACE_DIM*new_index + 2] = this->mNodes[i]->rGetLocation()[2];
+//                new_index++;
+//            }
+//        }
+//        // Make structure for output
+//        struct tetgen::tetgenio mesher_output;
+//       
+//        // Library call
+//        //tetgen::tetrahedralize((char*)"Qz", &mesher_input, &mesher_output);
+//        tetgen::tetrahedralize((char*)"z", &mesher_input, &mesher_output);
+//
+//        assert(mesher_output.numberofcorners == 4);
+//        // Tetgen won't mark the boundary for us. assert(mesher_output.pointmarkerlist != NULL);
+//        
+//        // Remove current data
+//        Clear();
+//
+//        // Construct the nodes
+//        for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
+//        {
+//            this->mNodes.push_back(new Node<SPACE_DIM>(node_index, false,
+//              mesher_output.pointlist[node_index * SPACE_DIM],
+//              mesher_output.pointlist[node_index * SPACE_DIM+1],
+//              mesher_output.pointlist[node_index * SPACE_DIM+2]));
+//        }
+//
+//        // Construct the elements
+//        this->mElements.reserve(mesher_output.numberoftetrahedra);
+//        for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftetrahedra; element_index++)
+//        {
+//            std::vector<Node<SPACE_DIM>*> nodes;
+//            for (unsigned j=0; j<ELEMENT_DIM+1; j++)
+//            {
+//                unsigned global_node_index = mesher_output.tetrahedronlist[element_index*(ELEMENT_DIM+1) + j];
+//                assert(global_node_index < this->mNodes.size());
+//                nodes.push_back(this->mNodes[global_node_index]);
+//            }
+//            this->mElements.push_back(new Element<ELEMENT_DIM, SPACE_DIM>(element_index, nodes));
+//        }
+//
+//        // Construct the BoundaryElements (and mark boundary nodes)
+//        unsigned next_boundary_element_index = 0;
+//        for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)mesher_output.numberoftrifaces; boundary_element_index++)
+//        {
+//            std::vector<Node<SPACE_DIM>*> nodes;
+//            for (unsigned j=0; j<ELEMENT_DIM; j++)
+//            {
+//                unsigned global_node_index = mesher_output.trifacelist[boundary_element_index*ELEMENT_DIM + j];
+//                assert(global_node_index < this->mNodes.size());
+//                nodes.push_back(this->mNodes[global_node_index]);
+//                if (!nodes[j]->IsBoundaryNode())
+//                {
+//                    nodes[j]->SetAsBoundaryNode();
+//                    this->mBoundaryNodes.push_back(nodes[j]);
+//                }
+//            }
+//            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index++, nodes));
+//        }
+//        this->RefreshJacobianCachedData();
+
+///\todo #1545
+
         std::stringstream pid;
         pid << getpid();
 
@@ -916,6 +997,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
             system(remove_command.c_str());
             //std::cout << remove_command << "\n";
         }
+///\todo #1545
     }
 }
 

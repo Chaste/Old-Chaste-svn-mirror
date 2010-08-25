@@ -98,6 +98,7 @@ public:
         TS_ASSERT_EQUALS(map.Size(), mesh.GetNumNodes());
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), old_mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), old_mesh.GetNumBoundaryNodes());
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), old_mesh.GetNumBoundaryElements());
 
         TS_ASSERT_EQUALS(mesh.GetNumElements()+1, old_mesh.GetNumElements());
@@ -578,8 +579,6 @@ public:
     void TestRawTetgenLibraryCall()
     {
         tetgen::tetgenio in, out;
-        //int i;
-        
         
         in.numberofpointattributes = 0;
         in.numberofpoints = 8;
@@ -618,12 +617,12 @@ public:
         tetgen::tetrahedralize((char*)"Q", &in, &out);
         
         TS_ASSERT_EQUALS(out.numberofpoints,         8); //As in original
-        TS_ASSERT_EQUALS(out.numberofpointattributes,    0);
+        TS_ASSERT_EQUALS(out.numberofpointattributes,0);
         TS_ASSERT_EQUALS(out.numberofcorners,        4); //Vertices per tet
         TS_ASSERT_EQUALS(out.numberofedges,          0);
-        TS_ASSERT_EQUALS(out.numberoftetrahedra,          6); //Elements
+        TS_ASSERT_EQUALS(out.numberoftetrahedra,     6); //Elements
         TS_ASSERT_EQUALS(out.numberofedges,          0);
-        TS_ASSERT_EQUALS(out.numberoftrifaces,          12); //2 triangles on each die face
+        TS_ASSERT_EQUALS(out.numberoftrifaces,      12); //2 triangles on each die face
         
     }
 
@@ -696,6 +695,41 @@ public:
         TS_ASSERT_DELTA(mesh.GetVolume(), area, 1e-6);
     }
 
+    void TestRemeshWithLibraryMethod3D() throw (Exception)
+    {
+        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
+        MutableMesh<3,3> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        double volume = mesh.GetVolume();
+        const int node_index = 17;
+        const int target_index = 9;
+
+        unsigned num_nodes_before = mesh.GetNumNodes();
+        unsigned num_elements_before = mesh.GetNumElements();
+        unsigned num_boundary_elements_before = mesh.GetNumBoundaryElements();
+
+        mesh.MoveMergeNode(node_index, target_index);
+
+        TS_ASSERT_DELTA(volume, mesh.GetVolume(), 1e-6);
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements()+4);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), mesh.GetNumNodes()+1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements()+2);
+
+        NodeMap map(1);
+        mesh.ReMesh(map);
+
+        TS_ASSERT_EQUALS(map.Size(), mesh.GetNumNodes()+1); //one node removed during remesh
+
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), mesh.GetNumElements());
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), mesh.GetNumNodes());
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), mesh.GetNumBoundaryElements());
+
+        TS_ASSERT_EQUALS(mesh.GetNumAllElements(), num_elements_before-4);
+        TS_ASSERT_EQUALS(mesh.GetNumAllNodes(), num_nodes_before-1);
+        TS_ASSERT_EQUALS(mesh.GetNumAllBoundaryElements(), num_boundary_elements_before-2);
+        TS_ASSERT_DELTA(mesh.GetVolume(), volume, 1e-6);
+    }
 };
 
 #endif /*TESTMUTABLEMESHREMESH_HPP_*/
