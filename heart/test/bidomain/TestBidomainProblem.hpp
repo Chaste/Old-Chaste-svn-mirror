@@ -88,7 +88,7 @@ public:
 
     // first test doesn't use matrix based assembly..
     //
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -187,8 +187,8 @@ public:
         }
     }
 
-    
-    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+
+    // NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
     // surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
     // the equations have been divided through by the surface-area-to-volume ratio.
     // (Historical reasons...)
@@ -321,12 +321,12 @@ public:
      * space being grounded). Therefore, if we set sigma_e very large (relative to
      * sigma_i) in a bidomain simulation it should agree with a monodomain
      * simulation with the same parameters.
-     * 
-     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+     *
+     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
      * surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
      * the equations have been divided through by the surface-area-to-volume ratio.
      * (Historical reasons...)
-     * 
+     *
      */
     void TestCompareBidomainProblemWithMonodomain() throw(Exception)
     {
@@ -654,13 +654,13 @@ public:
         EXIT_IF_PARALLEL
 
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/cmgui_output/";
-        
+
          //the mesh files...
         std::string node_file1 = results_dir + "/axi3d.exnode";
         std::string node_file2 = "heart/test/data/CmguiData/bidomain/bidomain3dValid.exnode";
-        std::string elem_file1 = results_dir + "/axi3d.exelem"; 
+        std::string elem_file1 = results_dir + "/axi3d.exelem";
         std::string elem_file2 = "heart/test/data/CmguiData/bidomain/bidomain3dValid.exelem";
-        
+
         bool comparison_result = CmguiMeshWriter<3,3>::CompareCmguiFiles(node_file1,node_file2);
         TS_ASSERT(comparison_result);
         comparison_result = CmguiMeshWriter<3,3>::CompareCmguiFiles(elem_file1,elem_file2);
@@ -688,7 +688,7 @@ public:
         results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "AxisymmetricBidomain/vtk_output/";
 
 
-        //Note that "grep -b AAAAAAAAAAAAAAAAAAA heart/test/data/VtkData/bidomain/axi3d.vtu" (or similar) 
+        //Note that "grep -b AAAAAAAAAAAAAAAAAAA heart/test/data/VtkData/bidomain/axi3d.vtu" (or similar)
         //indicates that the real data starts at byte 21435
         //VTK base64 encoded data is quite fragile, so it's not wise to do byte-for-byte comparison
         TS_ASSERT_EQUALS(system(("cmp -n 22525 " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
@@ -767,8 +767,8 @@ public:
 
     /*
      * Simple bidomain simulation to test against in the archiving tests below
-     * 
-     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+     *
+     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
      * surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
      * the equations have been divided through by the surface-area-to-volume ratio.
      * (Historical reasons...)
@@ -813,32 +813,32 @@ public:
 
     /*
      * Simple bidomain simulation to test against in the archiving tests below
-     * 
-     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+     *
+     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
      * surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
      * the equations have been divided through by the surface-area-to-volume ratio.
      * (Historical reasons...)
      */
     void TestPermutedBidomain1D() throw(Exception)
     {
-        
+
         TetrahedralMesh<1,1> mesh;
         TrianglesMeshReader<1,1> reader("mesh/test/data/1D_0_to_1mm_10_elements");
         mesh.ConstructFromMeshReader(reader);
- 
+
         std::vector<unsigned> rotation_perm;
-                
+
         unsigned number_nodes=11;
         for (unsigned index=0; index<(unsigned)number_nodes; index++)
         {
             rotation_perm.push_back( (index + 3) % number_nodes); // 3, 4, ... 0, 1, 2
         }
-        
+
         //Rotate the permutation
         mesh.PermuteNodes(rotation_perm);
-        
+
         HeartConfig::Instance()->SetOutputUsingOriginalNodeOrdering(true);
-        
+
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(0.0005));
         HeartConfig::Instance()->SetSurfaceAreaToVolumeRatio(1.0);
@@ -854,10 +854,10 @@ public:
         bidomain_problem.SetMesh(&mesh);
         bidomain_problem.Initialise();
         bidomain_problem.Solve();
-        
+
         //Can't read in the final mesh since it's a 1d example...
         OutputFileHandler handler("BidomainUnpermuted1d/output", false);
-        
+
         //Mesh
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + handler.GetOutputDirectoryFullPath()
                                 + "/BidomainLR91_1d_mesh.pts   heart/test/data/BidomainUnpermuted1d/BidomainLR91_1d_mesh.pts").c_str() ), 0);
@@ -871,8 +871,8 @@ public:
     /*
      * This test is almost identical to TestSimpleBidomain1D
      * and relies on that test generating a h5 file to check against.
-     * 
-     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,  
+     *
+     * NOTE: This test uses NON-PHYSIOLOGICAL parameters values (conductivities,
      * surface-area-to-volume ratio, capacitance, stimulus amplitude). Essentially,
      * the equations have been divided through by the surface-area-to-volume ratio.
      * (Historical reasons...)
@@ -924,7 +924,7 @@ public:
         // check output file contains results for the whole simulation and agree with normal test
         TS_ASSERT(CompareFilesViaHdf5DataReader("BidomainSimple1dInTwoHalves", "BidomainLR91_1d", true,
                                                 "BidomainSimple1d", "BidomainLR91_1d", true));
-                                                
+
         // Test that we can keep solving even if the results have been deleted (i.e. by creating a new
         // .h5 file when we realize that there isn't one to extend)
         OutputFileHandler file_handler("BidomainSimple1dInTwoHalves", true);
@@ -1015,7 +1015,7 @@ public:
             delete p_bidomain_problem;
         }
     }
-    
+
     void TestElectrodesWithoutBathThrows()
     {
         // need to create a cell factory but don't want any intra stim, so magnitude
@@ -1039,8 +1039,10 @@ public:
         BidomainProblem<2> no_bath_problem( &cell_factory, false );
         TS_ASSERT_THROWS_THIS(no_bath_problem.SetElectrodes(p_electrodes),
                 "Cannot set electrodes when problem has been defined to not have a bath");
+
+        delete p_mesh;
     }
-    
+
 
 };
 
