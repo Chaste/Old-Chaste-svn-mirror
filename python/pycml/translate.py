@@ -1619,6 +1619,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # We're actually only interested in constants or state variables
         self.metadata_vars = set([v for v in vars if v.get_type() == VarTypes.Constant
                                   or v in self.state_vars])
+        
+        # #1464 Create a set of metadata variables that will have modifiers
+        # We want to avoid writing out metadata for stimulus current as it is used once and then discarded.
+        # \todo - use protocol information to put only the required modifiers into this list.
+        stimulus_names = set('membrane_stimulus_current_'+ v for v in ['duration', 'amplitude', 'period', 'offset'])
+        self.modifier_vars = set([v for v in self.metadata_vars if v.oxmeta_name not in stimulus_names])
 
         # Generate member variable declarations
         self.set_access('private')
@@ -1628,8 +1634,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
         for var in kept_vars:
             self.writeln_hpp(self.TYPE_DOUBLE, self.code_name(var), self.STMT_END)
             
+        # Write out the modifier member variables. 
         if self.use_modifiers:
-            for var in self.metadata_vars:
+            for var in self.modifier_vars:
                 self.writeln_hpp('boost::shared_ptr<AbstractModifier> mp_' + var.oxmeta_name + '_modifier', self.STMT_END)    
         # Generate Set & Get methods
         self.set_access('public')
@@ -1828,9 +1835,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
                      self.class_name, '>::Instance();')
         self.writeln('Init();\n')
         #1464 - cleverer modifiers...
-        if self.use_modifiers and self.metadata_vars:
+        if self.use_modifiers and self.modifier_vars:
             self.output_comment('These will get initialised to DummyModifiers in the base class method.')
-            for var in self.metadata_vars:
+            for var in self.modifier_vars:
                 self.writeln('this->AddModifier("' + var.oxmeta_name + '",')
                 self.writeln('                  mp_' + var.oxmeta_name + '_modifier)', self.STMT_END)        
         #666 - initialise parameters
@@ -1934,7 +1941,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if ( not exclude_nonlinear or 
                  self.code_name(var) not in self.nonlinear_system_vars) \
                  and (not nodeset or var in nodeset):
-                if self.use_modifiers and var.oxmeta_name:
+                if self.use_modifiers and var in self.modifier_vars:
                     value = self.modifier_call(var, self.vector_index('rY', i))
                 else:
                     value = self.vector_index('rY', i)
@@ -2077,7 +2084,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if clear_type:
             self.TYPE_DOUBLE = self.TYPE_CONST_DOUBLE = ''
         if (assigned_var and assigned_var.get_type() == VarTypes.Constant and
-            self.use_modifiers and assigned_var.oxmeta_name):
+            self.use_modifiers and assigned_var in self.modifier_vars):
             # "Constant" oxmeta-annotated parameters may be modified at run-time
             self.writeln(self.TYPE_CONST_DOUBLE, self.code_name(assigned_var), self.EQ_ASSIGN,
                          self.modifier_call(assigned_var, expr.initial_value), self.STMT_END, nl=False)
