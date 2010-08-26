@@ -1486,6 +1486,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             self.writeln_hpp('#include "' + self.base_class_name + '.hpp"')
         if self.use_modifiers:
             self.writeln_hpp('#include "AbstractCardiacCellWithModifiers.hpp"')
+            self.writeln_hpp('#include "AbstractModifier.hpp"')
             # Modify the base class name
             self.base_class_name = 'AbstractCardiacCellWithModifiers<' + self.base_class_name + ' >'
         self.class_inheritance = ' : public ' + self.base_class_name
@@ -1626,6 +1627,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                 subsidiary=True)
         for var in kept_vars:
             self.writeln_hpp(self.TYPE_DOUBLE, self.code_name(var), self.STMT_END)
+            
+        if self.use_modifiers:
+            for var in self.metadata_vars:
+                self.writeln_hpp('boost::shared_ptr<AbstractModifier> mp_' + var.oxmeta_name + '_modifier', self.STMT_END)    
         # Generate Set & Get methods
         self.set_access('public')
         for var in kept_vars:
@@ -1822,11 +1827,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.writeln('this->mpSystemInfo = OdeSystemInformation<',
                      self.class_name, '>::Instance();')
         self.writeln('Init();\n')
-        #1464 - cleverer - but slower?! - modifiers...
+        #1464 - cleverer modifiers...
         if self.use_modifiers and self.metadata_vars:
             self.output_comment('These will get initialised to DummyModifiers in the base class method.')
             for var in self.metadata_vars:
-                self.writeln('this->AddModifier("' + var.oxmeta_name + '")', self.STMT_END)        
+                self.writeln('this->AddModifier("' + var.oxmeta_name + '",')
+                self.writeln('                  mp_' + var.oxmeta_name + '_modifier)', self.STMT_END)        
         #666 - initialise parameters
         for var in self.cell_parameters:
             if var.get_type() == VarTypes.Constant:
@@ -1947,7 +1953,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         The modifier function takes 2 parameters: the current value of the variable,
         and the current time.  It returns a modified value for the variable.
         """
-        return ('this->GetModifier("' + var.oxmeta_name + '")->Calc(' +
+        return ('mp_' + var.oxmeta_name + '_modifier->Calc(' +
                 current_value + ', ' + self.code_name(self.free_vars[0]) + ')')
     
     def vector_index(self, vector, i):

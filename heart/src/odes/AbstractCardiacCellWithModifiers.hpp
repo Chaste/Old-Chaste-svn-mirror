@@ -46,17 +46,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<class CARDIAC_CELL>
 class AbstractCardiacCellWithModifiers : public CARDIAC_CELL
 {
-protected:
-    std::map<std::string, boost::shared_ptr<AbstractModifier> > mModifiersMap;
+private:
+    std::map<std::string, boost::shared_ptr<AbstractModifier>* > mModifiersMap;
 
+protected:
     /**
      * Add a new modifier - should only be called by the subclass constructors.
      *
      * @param modifierName  The name which will act as a 'key' for this modifier.
      */
-    void AddModifier(std::string modifierName)
+    void AddModifier(std::string modifierName, boost::shared_ptr<AbstractModifier>& pModifier)
     {
-        mModifiersMap[modifierName] = boost::shared_ptr<AbstractModifier>(new DummyModifier());
+        mModifiersMap[modifierName] = &pModifier;
+        pModifier = boost::shared_ptr<AbstractModifier>(new DummyModifier()); // This modifier always returns what is passed in.
     }
 
 public:
@@ -94,8 +96,9 @@ public:
         {
             EXCEPTION("There is no modifier called " + modifierName + " in this model.");
         }
-        return mModifiersMap[modifierName];
+        return *(mModifiersMap[modifierName]);
     }
+
 
     /**
      * Set a new modifier
@@ -103,14 +106,16 @@ public:
      * @param modifierName  The oxmeta name of the modifier to replace.
      * @param pNewModifier  The new modifier object to use.
      */
-    void SetModifier(std::string modifierName, boost::shared_ptr<AbstractModifier> pNewModifier)
+    void SetModifier(std::string modifierName, boost::shared_ptr<AbstractModifier>& pNewModifier)
     {
         if (mModifiersMap.find(modifierName) == mModifiersMap.end())
         {
             EXCEPTION("There is no modifier called " + modifierName + " in this model.");
         }
-        mModifiersMap[modifierName] = pNewModifier;
+        *(mModifiersMap[modifierName]) = pNewModifier;
     }
+
+
 
 
 };
