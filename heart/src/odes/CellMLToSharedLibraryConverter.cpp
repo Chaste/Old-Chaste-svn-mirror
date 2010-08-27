@@ -130,6 +130,7 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
             EXPECT0(chdir, ChasteBuildRootDir());
             // Run scons to generate C++ code and compile it to a .so
             EXPECT0(system, "scons dyn_libs_only=1 build=" + ChasteBuildType() + " " + tmp_folder);
+            assert(FileFinder(tmp_folder + "/lib" + rModelLeafName + "so", RelativeTo::Absolute).Exists());
             // CD back
             EXPECT0(chdir, old_cwd);
             // Copy the .so to the same folder as the original .cellml file
@@ -144,7 +145,7 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
         PetscTools::ReplicateException(true);
         // Delete the temporary folders
         EXPECT0(system, "rm -rf " + build_folder); // -f because folder might not exist
-        EXPECT0(system, "rm -r " + tmp_folder);
+        //EXPECT0(system, "rm -r " + tmp_folder);
         EXPECT0(chdir, old_cwd);
         EXCEPTION("Conversion of CellML to Chaste shared object failed. Error was: " + e.GetMessage());
     }
