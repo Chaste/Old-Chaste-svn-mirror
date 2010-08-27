@@ -47,13 +47,15 @@ template<class CARDIAC_CELL>
 class AbstractCardiacCellWithModifiers : public CARDIAC_CELL
 {
 private:
+    /** A map between a string description and the location of the relevant modifier in concrete classes. */
     std::map<std::string, boost::shared_ptr<AbstractModifier>* > mModifiersMap;
 
 protected:
     /**
      * Add a new modifier - should only be called by the subclass constructors.
-     *
+     * Each modifier pointer defaults to a #DummyModifier.
      * @param modifierName  The name which will act as a 'key' for this modifier.
+     * @param pModifier  The address of the pointer to the modifier in the concrete class.
      */
     void AddModifier(std::string modifierName, boost::shared_ptr<AbstractModifier>& pModifier)
     {
@@ -67,8 +69,7 @@ public:
      * Create a new cardiac cell.
      *
      * This calls the main CARDIAC_CELL constructor, but also supplies modifiers for
-     * working with metadata-enabled CellML files. Each modifier pointer defaults to
-     * #default_modifier.
+     * working with metadata-enabled CellML files.
      *
      * @param pOdeSolver  the ODE solver to use when simulating this cell
      * @param numberOfStateVariables  the size of the ODE system modelling this cell
