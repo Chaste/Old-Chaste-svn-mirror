@@ -25,23 +25,22 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
+
 #ifndef SIMPLEOXYGENBASEDCELLCYCLEMODEL_HPP_
 #define SIMPLEOXYGENBASEDCELLCYCLEMODEL_HPP_
 
 #include "AbstractSimpleCellCycleModel.hpp"
 #include "CellwiseData.hpp"
 
-
 /**
- *  Simple oxygen-based cell cycle model
+ * Simple oxygen-based cell cycle model.
  *
- *  A simple oxygen-dependent cell cycle model that inherits from
- *  AbstractSimpleCellCycleModel. The duration of G1 phase depends
- *  on the local oxygen concentration. A prolonged period of acute
- *  hypoxia leads to the cell being labelled as apoptotic. This model
- *  allows for quiescence imposed by transient periods of hypoxia,
- *  followed by reoxygenation.
- *
+ * A simple oxygen-dependent cell cycle model that inherits from
+ * AbstractSimpleCellCycleModel. The duration of G1 phase depends
+ * on the local oxygen concentration. A prolonged period of acute
+ * hypoxia leads to the cell being labelled as apoptotic. This model
+ * allows for quiescence imposed by transient periods of hypoxia,
+ * followed by reoxygenation.
  */
 class SimpleOxygenBasedCellCycleModel : public AbstractSimpleCellCycleModel
 {
@@ -59,6 +58,8 @@ private:
         archive & mQuiescentConcentration;
         archive & mCriticalHypoxicDuration;
     }
+
+protected:
 
     /**
      * The time spent in G1 phase so far.

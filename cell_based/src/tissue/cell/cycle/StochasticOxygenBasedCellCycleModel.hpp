@@ -28,25 +28,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef STOCHASTICOXYGENBASEDCELLCYCLEMODEL_HPP_
 #define STOCHASTICOXYGENBASEDCELLCYCLEMODEL_HPP_
 
-#include "AbstractSimpleCellCycleModel.hpp"
-#include "CellwiseData.hpp"
+#include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "RandomNumberGenerator.hpp"
 
 /**
- * Stochastic oxygen-based cell cycle model
+ * Stochastic oxygen-based cell cycle model.
  *
  * A simple oxygen-dependent cell cycle model that inherits from
- * AbstractSimpleCellCycleModel. The duration of G1 phase depends
- * on the local oxygen concentration. A prolonged period of acute
- * hypoxia leads to the cell being labelled as apoptotic. This model
- * allows for quiescence imposed by transient periods of hypoxia,
- * followed by reoxygenation.
- * 
- * \todo make a subclass of SimpleOxygenBasedCellCycleModel to avoid
- * code duplication (#1508)
- *
+ * SimpleOxygenBasedCellCycleModel and in addition spends a random
+ * duration in G2 phase.
  */
-class StochasticOxygenBasedCellCycleModel : public AbstractSimpleCellCycleModel
+class StochasticOxygenBasedCellCycleModel : public SimpleOxygenBasedCellCycleModel
 {
 private:
 
@@ -54,60 +46,19 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractSimpleCellCycleModel>(*this);
+        archive & boost::serialization::base_object<SimpleOxygenBasedCellCycleModel>(*this);
 
         RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
         archive & *p_gen;
         archive & p_gen;
 
         archive & mG2Duration;
-        archive & mTimeSpentInG1Phase;
-        archive & mCurrentHypoxicDuration;
-        archive & mCurrentHypoxiaOnsetTime;
-        archive & mHypoxicConcentration;
-        archive & mQuiescentConcentration;
-        archive & mCriticalHypoxicDuration;
     }
 
     /**
      * The duration of the G2 phase, set stochastically.
      */
     double mG2Duration;
-
-    /**
-     * The time spent in G1 phase so far.
-     */
-    double mTimeSpentInG1Phase;
-
-    /**
-     * How long the current period of hypoxia has lasted.
-     */
-    double mCurrentHypoxicDuration;
-
-    /**
-     * The time when the current period of hypoxia began.
-     */
-    double mCurrentHypoxiaOnsetTime;
-
-    /**
-     * Non-dimensionalized oxygen concentration below which cells are
-     * considered to be hypoxic. A prolonged period of hypoxia causes
-     * the cell to become apoptotic.
-     */
-    double mHypoxicConcentration;
-
-    /**
-     * Non-dimensionalized oxygen concentration below which cells are
-     * considered to be quiescent and slow their progress through the
-     * G1 phase of the cell cycle.
-     */
-    double mQuiescentConcentration;
-
-    /**
-     * Non-dimensionalized critical hypoxic duration.
-     * Has units of hours.
-     */
-    double mCriticalHypoxicDuration;
 
     /**
      * Stochastically set the G2 duration.  Called on cell creation at
@@ -151,74 +102,10 @@ public:
     void SetG2Duration(double g2Duration);
 
     /**
-     * Overridden UpdateCellCyclePhase() method.
-     */
-    void UpdateCellCyclePhase();
-
-    /**
-     * Method for updating mCurrentHypoxicDuration,
-     * called at the start of ReadyToDivide().
-     */
-    void UpdateHypoxicDuration();
-
-    /**
-     * Get method for mCurrentHypoxicDuration.
-     */
-    double GetCurrentHypoxicDuration();
-
-    /**
-     * Get method for mCurrentHypoxiaOnsetTime.
-     */
-    double GetCurrentHypoxiaOnsetTime();
-
-    /**
      * Overridden builder method to create new copies of
      * this cell cycle model.
      */
     AbstractCellCycleModel* CreateCellCycleModel();
-
-    /**
-     * @return mHypoxicConcentration
-     */
-    double GetHypoxicConcentration();
-
-    /**
-     * Set method for mHypoxicConcentration.
-     * 
-     * @param hypoxicConcentration the new value of mHypoxicConcentration
-     */
-    void SetHypoxicConcentration(double hypoxicConcentration);
-
-    /**
-     * @return mQuiescentConcentration
-     */
-    double GetQuiescentConcentration();
-
-    /**
-     * Set method for mQuiescentConcentration.
-     * 
-     * @param quiescentConcentration the new value of mQuiescentConcentration
-     */
-    void SetQuiescentConcentration(double quiescentConcentration);
-
-    /**
-     * @return mCriticalHypoxicDuration
-     */
-    double GetCriticalHypoxicDuration();
-
-    /**
-     * Set method for mCriticalHypoxicDuration.
-     * 
-     * @param criticalHypoxicDuration the new value of mCriticalHypoxicDuration
-     */
-    void SetCriticalHypoxicDuration(double criticalHypoxicDuration);
-
-    /**
-     * Set method for mCurrentHypoxiaOnsetTime.
-     * 
-     * @param currentHypoxiaOnsetTime the new value of mCurrentHypoxiaOnsetTime
-     */
-    void SetCurrentHypoxiaOnsetTime(double currentHypoxiaOnsetTime);
 };
 
 // Declare identifier for the serializer
