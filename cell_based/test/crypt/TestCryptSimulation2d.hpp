@@ -38,6 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
+#include "SingleCellCellKiller.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
@@ -61,35 +62,35 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * For testing purposes.
  */
-class SingleCellCellKiller : public AbstractCellKiller<2>
-{
-private :
-    unsigned mNumber;
-
-public :
-    SingleCellCellKiller(AbstractTissue<2>* pTissue, unsigned number)
-        : AbstractCellKiller<2>(pTissue),
-          mNumber(number)
-    {
-    }
-
-    virtual void TestAndLabelCellsForApoptosisOrDeath()
-    {
-        if (mpTissue->GetNumRealCells()==0)
-        {
-            return;
-        }
-
-        AbstractTissue<2>::Iterator cell_iter = mpTissue->Begin();
-
-        for (unsigned i=0; ( (i<mNumber) && (cell_iter!=mpTissue->End()) ); i++)
-        {
-            ++cell_iter;
-        }
-
-        cell_iter->Kill();
-    }
-};
+//class SingleCellCellKiller : public AbstractCellKiller<2>
+//{
+//private :
+//    unsigned mNumber;
+//
+//public :
+//    SingleCellCellKiller(AbstractTissue<2>* pTissue, unsigned number)
+//        : AbstractCellKiller<2>(pTissue),
+//          mNumber(number)
+//    {
+//    }
+//
+//    virtual void TestAndLabelCellsForApoptosisOrDeath()
+//    {
+//        if (mpTissue->GetNumRealCells()==0)
+//        {
+//            return;
+//        }
+//
+//        AbstractTissue<2>::Iterator cell_iter = mpTissue->Begin();
+//
+//        for (unsigned i=0; ( (i<mNumber) && (cell_iter!=mpTissue->End()) ); i++)
+//        {
+//            ++cell_iter;
+//        }
+//
+//        cell_iter->Kill();
+//    }
+//};
 
 
 class TestCryptSimulation2d : public AbstractCellBasedTestSuite
@@ -268,8 +269,8 @@ public:
        // Create cell killer and pass in to crypt simulation.
        // These killers are defined in this test. They kill
        // the first and second available cell, respectively.
-       SingleCellCellKiller cell_killer1(&crypt, 0);
-       SingleCellCellKiller cell_killer2(&crypt, 1);
+       SingleCellCellKiller<2> cell_killer1(&crypt, 0);
+       SingleCellCellKiller<2> cell_killer2(&crypt, 1);
 
        simulator.AddCellKiller(&cell_killer1);
        simulator.AddCellKiller(&cell_killer2);

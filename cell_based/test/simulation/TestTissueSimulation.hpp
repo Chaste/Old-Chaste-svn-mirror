@@ -39,6 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CryptCellsGenerator.hpp"
 #include "SimpleWntCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
+#include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "RandomCellKiller.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "MeshBasedTissueWithGhostNodes.hpp"
@@ -312,6 +313,58 @@ public:
         TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
         TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 17u);
     }
+
+    /**
+	 * Test a tissue simulation with multiple forces.
+	 */
+	void TestTissueSimulationWithMultipleForces() throw (Exception)
+	{
+		// Create a simple mesh
+		int num_cells_depth = 5;
+		int num_cells_width = 5;
+		HoneycombMeshGenerator generator(num_cells_width, num_cells_depth, 0, false);
+		MutableMesh<2,2>* p_mesh = generator.GetMesh();
+
+		// Set up cells, one for each node. Give each cell a random birth time.
+		std::vector<TissueCellPtr> cells;
+		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
+		for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+		{
+			FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+			p_model->SetCellProliferativeType(STEM);
+
+			double birth_time = -RandomNumberGenerator::Instance()->ranf()*
+								(TissueConfig::Instance()->GetStemCellG1Duration()
+									+ TissueConfig::Instance()->GetSG2MDuration() );
+			TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+			p_cell->SetBirthTime(birth_time);
+			cells.push_back(p_cell);
+		}
+
+		// Create a tissue
+		MeshBasedTissue<2> tissue(*p_mesh, cells);
+
+		// Create a force law system
+		std::vector<AbstractForce<2>* > force_collection;
+		GeneralisedLinearSpringForce<2> linear_force;
+		force_collection.push_back(&linear_force);
+		LinearSpringWithVariableSpringConstantsForce<2> variable_force;
+		force_collection.push_back(&variable_force);
+
+		// Set up tissue simulation
+		TissueSimulation<2> simulator(tissue, force_collection);
+		simulator.SetOutputDirectory("TestTissueSimulationWithMultipleForces");
+		simulator.SetEndTime(0.5);
+
+		simulator.Solve();
+
+		// Check that the number of nodes is equal to the number of cells
+		TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumNodes(), simulator.rGetTissue().GetNumRealCells());
+
+		// For coverage of these 'Get' functions
+		TS_ASSERT_EQUALS(simulator.GetNumBirths(), 0u);
+		TS_ASSERT_EQUALS(simulator.GetNumDeaths(), 0u);
+	}
 
 
     void TestTissueSimulationWithStoppingEvent() throw (Exception)

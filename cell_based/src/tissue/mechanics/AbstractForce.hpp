@@ -65,7 +65,7 @@ class AbstractForce
         archive & p_config;
     }
 
-public :
+public:
 
     /**
      * Default constructor.

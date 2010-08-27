@@ -683,8 +683,6 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
 
     // Output tissue details
     mrTissue.OutputTissueInfo(parameter_file);
-    // Loop over killers
-    // Loop over ccm's
 
     // Loop over forces
     *parameter_file << "\n<Forces>\n" ;
@@ -697,17 +695,20 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     }
     *parameter_file << "</Forces>\n";
 
-    // Loop over forces
+    // Loop over Cell Killers
 	*parameter_file << "\n<CellKillers>\n" ;
+
 	for (typename std::vector<AbstractCellKiller<DIM>*>::iterator iter = mCellKillers.begin();
 				iter != mCellKillers.end();
 				++iter)
 	{
 		// Output cell killer details
-		//(*iter)->OutputCellKillerInfo(parameter_file);
-		//*parameter_file << "\t" << (*iter)->GetIdentifier() << "\n";
+		(*iter)->OutputCellKillerInfo(parameter_file);
 	}
 	*parameter_file << "</CellKillers>\n";
+
+	// Loop over ccm's
+
 
     // Output Extra Parameters from TissueConfig
     *parameter_file <<  "\n<TissueConfig>\n";
