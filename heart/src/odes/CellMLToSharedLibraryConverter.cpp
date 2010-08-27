@@ -145,7 +145,7 @@ void CellMLToSharedLibraryConverter::ConvertCellmlToSo(const std::string& rCellm
         PetscTools::ReplicateException(true);
         // Delete the temporary folders
         EXPECT0(system, "rm -rf " + build_folder); // -f because folder might not exist
-        //EXPECT0(system, "rm -r " + tmp_folder);
+        EXPECT0(system, "rm -r " + tmp_folder);
         EXPECT0(chdir, old_cwd);
         EXCEPTION("Conversion of CellML to Chaste shared object failed. Error was: " + e.GetMessage());
     }
