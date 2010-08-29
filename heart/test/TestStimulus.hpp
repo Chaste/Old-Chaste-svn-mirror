@@ -155,6 +155,14 @@ public:
         regular_stimulus.SetStartTime(when + delay);
         TS_ASSERT_EQUALS(regular_stimulus.GetStimulus(5100.5 + delay),
                          magnitude_of_stimulus);
+
+        // Cover the stop time set method
+        regular_stimulus.SetStopTime(5100.6);
+        TS_ASSERT_DELTA(regular_stimulus.GetStimulus(5100.5),
+                         magnitude_of_stimulus,1e-9);
+        // No longer a stimulus at this time.
+        TS_ASSERT_DELTA(regular_stimulus.GetStimulus(5100.5 + delay),
+                         0.0,1e-9);
     }
 
     void TestRegularStimulusStopping()

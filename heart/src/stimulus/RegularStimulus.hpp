@@ -125,6 +125,13 @@ public:
      * @param startTime the time the stimulus should begin.
      */
     void SetStartTime(double startTime);
+
+    /**
+     * Set the stop time for this stimulus. It will never be applied after this time.
+     *
+     * @param stopTime
+     */
+    void SetStopTime(double stopTime);
 };
 
 #include "SerializationExportWrapper.hpp"

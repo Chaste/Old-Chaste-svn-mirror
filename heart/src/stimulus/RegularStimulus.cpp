@@ -103,6 +103,11 @@ void RegularStimulus::SetStartTime(double startTime)
     mStartTime = startTime;
 }
 
+void RegularStimulus::SetStopTime(double stopTime)
+{
+    mStopTime = stopTime;
+}
+
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
 CHASTE_CLASS_EXPORT(RegularStimulus)
