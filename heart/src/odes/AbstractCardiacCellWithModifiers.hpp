@@ -37,11 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A base class for cardiac cells that have been altered to include calls to subclasses
- * of AbstractSensitivityModifier when computing their derivatives.
- *
- * \todo #1464 - is there a way to keep the pointers in the concrete classes and have
- * this class update where they are pointing to - to avoid constant calls to the
- * GetModifier() class?
+ * of AbstractModifier when computing their derivatives.
  */
 template<class CARDIAC_CELL>
 class AbstractCardiacCellWithModifiers : public CARDIAC_CELL
@@ -53,9 +49,9 @@ private:
 protected:
     /**
      * Add a new modifier - should only be called by the subclass constructors.
-     * Each modifier pointer defaults to a #DummyModifier.
+     * Each modifier pointer is set to a #DummyModifier by this method.
      * @param modifierName  The name which will act as a 'key' for this modifier.
-     * @param pModifier  The address of the pointer to the modifier in the concrete class.
+     * @param pModifier  The pointer to the modifier in the concrete class.
      */
     void AddModifier(std::string modifierName, boost::shared_ptr<AbstractModifier>& pModifier)
     {
@@ -64,7 +60,6 @@ protected:
     }
 
 public:
-
     /**
      * Create a new cardiac cell.
      *
@@ -100,7 +95,6 @@ public:
         return *(mModifiersMap[modifierName]);
     }
 
-
     /**
      * Set a new modifier
      *
@@ -115,10 +109,6 @@ public:
         }
         *(mModifiersMap[modifierName]) = pNewModifier;
     }
-
-
-
-
 };
 
 #endif // ABSTRACTCARDIACCELLWITHMODIFIERS_HPP_
