@@ -31,9 +31,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/shared_ptr.hpp>
 #include <map>
-#include "Modifiers.hpp"
+#include "AbstractModifier.hpp"
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractStimulusFunction.hpp"
+#include "AbstractCvodeCell.hpp"
+#include "AbstractCardiacCell.hpp"
 
 /**
  * A base class for cardiac cells that have been altered to include calls to subclasses
@@ -53,11 +55,7 @@ protected:
      * @param modifierName  The name which will act as a 'key' for this modifier.
      * @param pModifier  The pointer to the modifier in the concrete class.
      */
-    void AddModifier(std::string modifierName, boost::shared_ptr<AbstractModifier>& pModifier)
-    {
-        mModifiersMap[modifierName] = &pModifier;
-        pModifier = boost::shared_ptr<AbstractModifier>(new DummyModifier()); // This modifier always returns what is passed in.
-    }
+    void AddModifier(std::string modifierName, boost::shared_ptr<AbstractModifier>& pModifier);
 
 public:
     /**
@@ -74,11 +72,7 @@ public:
     AbstractCardiacCellWithModifiers(boost::shared_ptr<AbstractIvpOdeSolver> pOdeSolver,
                                      unsigned numberOfStateVariables,
                                      unsigned voltageIndex,
-                                     boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus)
-        : CARDIAC_CELL(pOdeSolver, numberOfStateVariables, voltageIndex, pIntracellularStimulus)
-    {
-        mModifiersMap.clear();
-    }
+                                     boost::shared_ptr<AbstractStimulusFunction> pIntracellularStimulus);
 
     /**
      * Get access to a modifier
@@ -86,14 +80,7 @@ public:
      * @param modifierName  The oxmeta name of the modifier to fetch.
      * @return a pointer to the specified modifier
      */
-    boost::shared_ptr<AbstractModifier> GetModifier(std::string modifierName)
-    {
-        if (mModifiersMap.find(modifierName) == mModifiersMap.end())
-        {
-            EXCEPTION("There is no modifier called " + modifierName + " in this model.");
-        }
-        return *(mModifiersMap[modifierName]);
-    }
+    boost::shared_ptr<AbstractModifier> GetModifier(std::string modifierName);
 
     /**
      * Set a new modifier
@@ -101,14 +88,8 @@ public:
      * @param modifierName  The oxmeta name of the modifier to replace.
      * @param pNewModifier  The new modifier object to use.
      */
-    void SetModifier(std::string modifierName, boost::shared_ptr<AbstractModifier>& pNewModifier)
-    {
-        if (mModifiersMap.find(modifierName) == mModifiersMap.end())
-        {
-            EXCEPTION("There is no modifier called " + modifierName + " in this model.");
-        }
-        *(mModifiersMap[modifierName]) = pNewModifier;
-    }
+    void SetModifier(std::string modifierName, boost::shared_ptr<AbstractModifier>& pNewModifier);
+
 };
 
 #endif // ABSTRACTCARDIACCELLWITHMODIFIERS_HPP_
