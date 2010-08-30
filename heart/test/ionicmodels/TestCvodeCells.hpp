@@ -239,8 +239,9 @@ public:
         bad_cell.ResetToInitialConditions();
         TS_ASSERT_THROWS_THIS(bad_cell.Solve(start_time, end_time, max_timestep),
                               "CVODE Error -8 in module CVODE function CVode: At t = 0, the right-hand side routine failed in an unrecoverable manner.");
-
-        TS_ASSERT_THROWS_THIS(lr91_cvode_system.UseCellMLDefaultStimulus(),"This class has no default stimulus from CellML metadata.");
+	
+	// This should work now that metadata has been added to the LuoRudy1991 cellML.
+        lr91_cvode_system.UseCellMLDefaultStimulus();
 #else
         std::cout << "Cvode is not enabled.\n";
 #endif // CHASTE_CVODE

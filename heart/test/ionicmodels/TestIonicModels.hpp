@@ -834,6 +834,9 @@ public:
 
          //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA(purkinje_ode_system.GetIIonic(), -0.0141, 1e-3);
+
+	// This model has no stimulus metadata so this method should not exist:
+	TS_ASSERT_THROWS_THIS(purkinje_ode_system.UseCellMLDefaultStimulus(),"This class has no default stimulus from CellML metadata.");
      }
 
     void TestMahajan2008(void) throw (Exception)
@@ -948,6 +951,7 @@ public:
 
         //Test the GetIIonic method against one hardcoded value.
         TS_ASSERT_DELTA(atrial_ode_system.GetIIonic(), 1.4426, 1e-3);
+
     }
 //    Uncomment the includes for the models too
 //
