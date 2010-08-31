@@ -37,12 +37,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define REAL double
 #define VOID void
 #include "triangle.h"
+#include "tetgen.h"
 #undef REAL
 #undef VOID
 
-/// \todo #1545  Temporary - force building tetgen objects
-#include "tetgen.h"
-/// \todo #1545  Temporary - force building tetgen objects
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MutableMesh<ELEMENT_DIM, SPACE_DIM>::MutableMesh()
@@ -825,179 +823,94 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
     }
     else // in 3D, remesh using tetgen
     {
-///\todo #1545
-//        struct tetgen::tetgenio mesher_input;//, out;
-//        mesher_input.pointlist =  new REAL[GetNumNodes() * SPACE_DIM];
-//        mesher_input.numberofpoints = GetNumNodes();
-//        
-//        unsigned new_index = 0;
-//        for (unsigned i=0; i<this->GetNumAllNodes(); i++)
-//        {
-//            if (this->mNodes[i]->IsDeleted())
-//            {
-//                map.SetDeleted(i);
-//            }
-//            else
-//            {
-//                map.SetNewIndex(i, new_index);
-//                mesher_input.pointlist[SPACE_DIM*new_index] = this->mNodes[i]->rGetLocation()[0];
-//                mesher_input.pointlist[SPACE_DIM*new_index + 1] = this->mNodes[i]->rGetLocation()[1];
-//                mesher_input.pointlist[SPACE_DIM*new_index + 2] = this->mNodes[i]->rGetLocation()[2];
-//                new_index++;
-//            }
-//        }
-//        // Make structure for output
-//        struct tetgen::tetgenio mesher_output;
-//       
-//        // Library call
-//        //tetgen::tetrahedralize((char*)"Qz", &mesher_input, &mesher_output);
-//        tetgen::tetrahedralize((char*)"z", &mesher_input, &mesher_output);
-//
-//        assert(mesher_output.numberofcorners == 4);
-//        // Tetgen won't mark the boundary for us. assert(mesher_output.pointmarkerlist != NULL);
-//        
-//        // Remove current data
-//        Clear();
-//
-//        // Construct the nodes
-//        for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
-//        {
-//            this->mNodes.push_back(new Node<SPACE_DIM>(node_index, false,
-//              mesher_output.pointlist[node_index * SPACE_DIM],
-//              mesher_output.pointlist[node_index * SPACE_DIM+1],
-//              mesher_output.pointlist[node_index * SPACE_DIM+2]));
-//        }
-//
-//        // Construct the elements
-//        this->mElements.reserve(mesher_output.numberoftetrahedra);
-//        for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftetrahedra; element_index++)
-//        {
-//            std::vector<Node<SPACE_DIM>*> nodes;
-//            for (unsigned j=0; j<ELEMENT_DIM+1; j++)
-//            {
-//                unsigned global_node_index = mesher_output.tetrahedronlist[element_index*(ELEMENT_DIM+1) + j];
-//                assert(global_node_index < this->mNodes.size());
-//                nodes.push_back(this->mNodes[global_node_index]);
-//            }
-//            this->mElements.push_back(new Element<ELEMENT_DIM, SPACE_DIM>(element_index, nodes));
-//        }
-//
-//        // Construct the BoundaryElements (and mark boundary nodes)
-//        unsigned next_boundary_element_index = 0;
-//        for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)mesher_output.numberoftrifaces; boundary_element_index++)
-//        {
-//            std::vector<Node<SPACE_DIM>*> nodes;
-//            for (unsigned j=0; j<ELEMENT_DIM; j++)
-//            {
-//                unsigned global_node_index = mesher_output.trifacelist[boundary_element_index*ELEMENT_DIM + j];
-//                assert(global_node_index < this->mNodes.size());
-//                nodes.push_back(this->mNodes[global_node_index]);
-//                if (!nodes[j]->IsBoundaryNode())
-//                {
-//                    nodes[j]->SetAsBoundaryNode();
-//                    this->mBoundaryNodes.push_back(nodes[j]);
-//                }
-//            }
-//            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index++, nodes));
-//        }
-//        this->RefreshJacobianCachedData();
 
-///\todo #1545
-
-        std::stringstream pid;
-        pid << getpid();
-
-        OutputFileHandler handler("");
-        std::string full_name = handler.GetOutputDirectoryFullPath() + "temp_" + pid.str() + ".";
-
-        // Only the master process should do IO and call the mesher
-        if (PetscTools::AmMaster())
+        struct tetgen::tetgenio mesher_input;//, out;
+        mesher_input.pointlist =  new double[GetNumNodes() * SPACE_DIM];
+        mesher_input.numberofpoints = GetNumNodes();
+        
+        unsigned new_index = 0;
+        for (unsigned i=0; i<this->GetNumAllNodes(); i++)
         {
-            std::string node_file_name = "temp_" + pid.str() + ".node";
+            if (this->mNodes[i]->IsDeleted())
             {
-                out_stream node_file = handler.OpenOutputFile(node_file_name);
-
-                (*node_file) << GetNumNodes() << "\t" << SPACE_DIM << "\t0\t0\n";
-
-                unsigned new_index = 0;
-
-                for (unsigned i=0; i<this->GetNumAllNodes(); i++)
-                {
-                    if (this->mNodes[i]->IsDeleted())
-                    {
-                        map.SetDeleted(i);
-                    }
-                    else
-                    {
-                        map.SetNewIndex(i, new_index);
-                        new_index++;
-                        const c_vector<double, SPACE_DIM> node_loc = this->mNodes[i]->rGetLocation();
-                        (*node_file) << i << "\t" << node_loc[0] << "\t" << node_loc[1] << "\t" << node_loc[2] << "\n";
-                    }
-                }
-                node_file->close();
+                map.SetDeleted(i);
             }
-
-            std::string binary_name;
-
-            binary_name="tetgen"; //Assume it's in the path
-            std::string command = binary_name + " -Q " + full_name + "node";
-
-            // Tetgen's quiet mode isn't as quiet as Triangle's
-            command += " > /dev/null";
-
-            int return_value = system(command.c_str());
-            if (return_value != 0)
+            else
             {
-#define COVERAGE_IGNORE
-                EXCEPTION("The tetgen mesher did not succeed in remeshing.  This functionality relies on tetgen.  Do you have tetgen from http://tetgen.berlios.de/ in your path?");
-#undef COVERAGE_IGNORE
+                map.SetNewIndex(i, new_index);
+                mesher_input.pointlist[SPACE_DIM*new_index] = this->mNodes[i]->rGetLocation()[0];
+                mesher_input.pointlist[SPACE_DIM*new_index + 1] = this->mNodes[i]->rGetLocation()[1];
+                mesher_input.pointlist[SPACE_DIM*new_index + 2] = this->mNodes[i]->rGetLocation()[2];
+                new_index++;
             }
         }
-        // Wait for the new mesh to be available and communicate its name
-#ifndef SPECIAL_SERIAL
-        if (!PetscTools::IsSequential())
-        {
-            char full_name_comm[200]; ///\todo communicate the length first
-            strcpy(full_name_comm, full_name.c_str());
-            MPI_Bcast(full_name_comm, 200, MPI_CHAR, 0, MPI_COMM_WORLD);
-            full_name = full_name_comm;
-        }
-#endif //SPECIAL_SERIAL
 
-        // Clear all current data
+        struct tetgen::tetgenio mesher_output;
+        tetgen::tetrahedralize((char*)"Qz", &mesher_input, &mesher_output);
+        
+        assert(mesher_output.numberofcorners == 4);
+        
+        // Remove current data
         Clear();
-
-        // Read the new mesh back from file
-        TrianglesMeshReader<ELEMENT_DIM, SPACE_DIM> mesh_reader(full_name+"1");
-        ConstructFromMeshReader(mesh_reader);
-
-        // Make sure the file is not deleted before all the processors have read it
-        PetscTools::Barrier("MutableMesh::ReMesh");
-
-        if (PetscTools::AmMaster())
+        // Construct the nodes
+        for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
         {
-            // delete the temporary files (one by one rather than using * to make it impossible
-            // to ever accidentally end up with "rm -f *").
-
-            ///\todo use EXPECT0 here
-            std::string remove_command = "rm -f " + full_name + "node";
-            system(remove_command.c_str());
-            //std::cout << remove_command << "\n";
-
-            remove_command = "rm -f " + full_name + "1.node";
-            system(remove_command.c_str());
-            //std::cout << remove_command << "\n";
-
-            remove_command = "rm -f " + full_name + "1.ele";
-            system(remove_command.c_str());
-            //std::cout << remove_command << "\n";
-
-            remove_command = "rm -f " + full_name + "1.face";
-            system(remove_command.c_str());
-            //std::cout << remove_command << "\n";
+            this->mNodes.push_back(new Node<SPACE_DIM>(node_index, false,
+              mesher_output.pointlist[node_index * SPACE_DIM],
+              mesher_output.pointlist[node_index * SPACE_DIM+1],
+              mesher_output.pointlist[node_index * SPACE_DIM+2]));
         }
-///\todo #1545
+
+        // Construct the elements
+        this->mElements.reserve(mesher_output.numberoftetrahedra);
+
+        unsigned real_element_index=0;
+        for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftetrahedra; element_index++)
+        {
+            std::vector<Node<SPACE_DIM>*> nodes;
+            for (unsigned j=0; j<ELEMENT_DIM+1; j++)
+            {
+                unsigned global_node_index = mesher_output.tetrahedronlist[element_index*(ELEMENT_DIM+1) + j];
+                assert(global_node_index < this->mNodes.size());
+                nodes.push_back(this->mNodes[global_node_index]);
+                
+            }
+            //For some reason, tetgen in library mode makes its initial Delauney with
+            //very thin slivers.  Hence we expect to ignore some of the elements!
+            Element<ELEMENT_DIM, SPACE_DIM>* p_element;
+            try
+            {
+                p_element = new Element<ELEMENT_DIM, SPACE_DIM>(real_element_index, nodes);
+                this->mElements.push_back(p_element);
+                real_element_index++;
+            }
+            catch (Exception &e)
+            {
+                //Tetgen is feeding us lies
+            }
+        }
+
+        // Construct the BoundaryElements (and mark boundary nodes)
+        unsigned next_boundary_element_index = 0;
+        for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)mesher_output.numberoftrifaces; boundary_element_index++)
+        {
+            std::vector<Node<SPACE_DIM>*> nodes;
+            for (unsigned j=0; j<ELEMENT_DIM; j++)
+            {
+                unsigned global_node_index = mesher_output.trifacelist[boundary_element_index*ELEMENT_DIM + j];
+                assert(global_node_index < this->mNodes.size());
+                nodes.push_back(this->mNodes[global_node_index]);
+                if (!nodes[j]->IsBoundaryNode())
+                {
+                    nodes[j]->SetAsBoundaryNode();
+                    this->mBoundaryNodes.push_back(nodes[j]);
+                }
+            }
+            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index++, nodes));
+        }
+        this->RefreshJacobianCachedData();
+        
+
     }
 }
 
