@@ -154,7 +154,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
         {
             case(cp::ionic_models_available_type::LuoRudyI):
             {
-                p_cell = new LuoRudyIModel1991OdeSystem(this->mpSolver, intracellularStimulus);
+                p_cell = new CellLuoRudy1991FromCellML(this->mpSolver, intracellularStimulus);
                 break;
             }
 
@@ -166,7 +166,7 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
 
             case(cp::ionic_models_available_type::Fox2002BackwardEuler):
             {
-                p_cell = new BackwardEulerFoxModel2002Modified(this->mpSolver, intracellularStimulus);
+                p_cell = new CellFoxModel2002FromCellMLBackwardEuler(this->mpSolver, intracellularStimulus);
                 break;
             }
 

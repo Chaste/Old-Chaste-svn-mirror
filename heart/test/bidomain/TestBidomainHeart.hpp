@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "BidomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "SimpleStimulus.hpp"
@@ -61,11 +61,11 @@ public:
         // Stimulate the apex
         if (GetMesh()->GetNode(node)->rGetLocation()[0] > 0.94)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver,mpStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver,mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver,mpZeroStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver,mpZeroStimulus);
         }
     }
 };

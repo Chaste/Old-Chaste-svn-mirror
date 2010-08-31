@@ -31,11 +31,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "CardiacSimulation.hpp"
-#include "PetscSetupAndFinalize.hpp"
+#include <string>
+#include <vector>
 
+#include "CardiacSimulation.hpp"
+
+#include "OutputFileHandler.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
 #include "FileFinder.hpp"
+#include "PetscTools.hpp"
+#include "HeartEventHandler.hpp"
+#include "PetscSetupAndFinalize.hpp"
 
 class TestCardiacSimulation : public CxxTest::TestSuite
 {
@@ -70,9 +76,10 @@ public:
 
     void TestMono1dSmall() throw(Exception)
     {
+        // Fox2002BackwardEuler cell model
         CardiacSimulation simulation("heart/test/data/xml/monodomain1d_small.xml");
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "mono_1d_small", false,
-                                                 "SaveMono1D", "SimulationResults", true));
+                                                 "SaveMono1D", "SimulationResults", true, 1e-6));
         CardiacSimulation simulation2("heart/test/data/xml/monodomain1d_resume.xml");
     }
 
@@ -180,45 +187,49 @@ public:
 
     void TestCardiacSimulationBasicBidomainShort() throw(Exception)
     {
+        // Fox2002BackwardEuler cell model
         // run a bidomain_with_bath simulation
         CardiacSimulation simulation("heart/test/data/xml/base_bidomain_short.xml");
 
         // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "base_bidomain_short_results", false,
-                   "BaseBidomainShort", "SimulationResults", true));
+                                                 "BaseBidomainShort", "SimulationResults", true, 1e-6));
     }
 
     void TestCardiacSimulationBasicMonodomainShort() throw(Exception)
     {
+        // Fox2002BackwardEuler cell model
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_short.xml");
         std::string foldername = "BaseMonodomainShort";
 
        // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "base_monodomain_short_results", false,
-                   foldername, "SimulationResults", true));
+                                                 foldername, "SimulationResults", true, 1e-6));
     }
 
     void TestCardiacSimulationPostprocessMonodomain() throw(Exception)
     {
+        // Fox2002BackwardEuler cell model
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/postprocess_monodomain_short.xml");
         std::string foldername = "PostprocessMonodomainShort";
 
         // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "postprocess_monodomain_short_results", false,
-                   foldername, "SimulationResults", true));
+                                                 foldername, "SimulationResults", true, 1e-6));
     }
 
     void TestCardiacSimulationArchiveBidomain() throw(Exception)
     {
+        // Fox2002BackwardEuler cell model
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/save_bidomain_short.xml");
         std::string foldername = "SaveBidomainShort";
 
         // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT(CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "save_bidomain_short_results", false,
-                                                foldername, "SimulationResults", true));
+                                                foldername, "SimulationResults", true, 1e-6));
 
         std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0";
         int return_value = system(command.c_str());
@@ -235,18 +246,19 @@ public:
 
         // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_bidomain_short_results", false,
-                   foldername, "SimulationResults", true));
+                                                 foldername, "SimulationResults", true, 1e-6));
     }
 
     void TestCardiacSimulationArchiveMonodomain() throw(Exception)
     {
+        // Fox2002BackwardEuler cell model
         // run a bidomain simulation
         CardiacSimulation simulation("heart/test/data/xml/save_monodomain_short.xml");
         std::string foldername = "SaveMonodomainShort";
 
         // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "save_monodomain_short_results", false,
-                   foldername, "SimulationResults", true));
+                                                 foldername, "SimulationResults", true, 1e-6));
 
         std::string command = "test -e " +  OutputFileHandler::GetChasteTestOutputDirectory() + foldername + "_checkpoints/0.2ms/" + foldername + "_0.2ms/archive.arch.0";
         int return_value = system(command.c_str());
@@ -263,7 +275,7 @@ public:
 
         // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_short_results", false,
-                   foldername, "SimulationResults", true));
+                                                 foldername, "SimulationResults", true, 1e-6));
     }
 
     void TestCardiacSimulationArchiveDynamic() throw(Exception)
@@ -321,7 +333,7 @@ public:
         CardiacSimulation simulation("heart/test/data/xml/resume_migration.xml");
         // Compare results
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_bidomain_short_results", false,
-                                                 "SaveBidomainShort", "SimulationResults", true));
+                                                 "SaveBidomainShort", "SimulationResults", true, 1e-6));
     }
 
     void TestCardiacSimulationPatchwork() throw(Exception)

@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "PetscSetupAndFinalize.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "SimpleStimulus.hpp"
 
 class PointStimulusHeartCellFactory : public AbstractCardiacCellFactory<3>
@@ -53,7 +53,7 @@ public:
 
     AbstractCardiacCell* CreateCardiacCellForTissueNode(unsigned node)
     {
-        return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
+        return new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
     }
 
     void FinaliseCellCreation(std::vector<AbstractCardiacCell* >* pCellsDistributed, unsigned lo, unsigned hi)

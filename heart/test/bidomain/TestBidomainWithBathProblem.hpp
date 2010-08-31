@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "BidomainWithBathProblem.hpp"
 
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "PlaneStimulusCellFactory.hpp"
 #include "TetrahedralMesh.hpp"
 #include "DistributedTetrahedralMesh.hpp"
@@ -66,7 +66,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("bidomain_bath");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> bidomain_cell_factory;
         BidomainWithBathProblem<1> bidomain_problem( &bidomain_cell_factory );
         bidomain_problem.Initialise();
 
@@ -96,7 +96,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("bidomain_bath");
         HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> bidomain_cell_factory;
         BidomainWithBathProblem<1> bidomain_problem( &bidomain_cell_factory );
         // Fails because no bath
         TS_ASSERT_THROWS_THIS(bidomain_problem.Initialise(), "No bath element found");
@@ -562,7 +562,7 @@ public:
             HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
 
             // need to create a cell factory but don't want any intra stim.
-            ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+            ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
 
             BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
 
@@ -670,7 +670,7 @@ public:
             HeartConfig::Instance()->SetOutputDirectory(archive_dir + "Output");
             HeartConfig::Instance()->SetOutputFilenamePrefix("BidomainLR91_1d");
 
-            ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
+            ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 1> bidomain_cell_factory;
             BidomainWithBathProblem<1> bidomain_problem( &bidomain_cell_factory );
             bidomain_problem.Initialise();
 

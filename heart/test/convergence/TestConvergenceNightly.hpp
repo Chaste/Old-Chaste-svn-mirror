@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include "LuoRudy1991BackwardEuler.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "PdeConvergenceTester.hpp"
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"
@@ -100,8 +100,8 @@ public:
         }
 
         {
-            std::cout << "OdeConvergenceTester<LuoRudyIModel1991OdeSystem, BidomainProblem<1>, 1, 2>\n";
-            OdeConvergenceTester<LuoRudyIModel1991OdeSystem, BidomainProblem<1>, 1, 2> tester;
+            std::cout << "OdeConvergenceTester<CellLuoRudy1991FromCellML, BidomainProblem<1>, 1, 2>\n";
+            OdeConvergenceTester<CellLuoRudy1991FromCellML, BidomainProblem<1>, 1, 2> tester;
             RunConvergenceTester(&tester, stimulusType);
             TS_ASSERT_DELTA(tester.OdeTimeStep, 0.0025, 1e-10);
         }

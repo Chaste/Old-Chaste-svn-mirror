@@ -45,7 +45,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 #include "BackwardEulerIvpOdeSolver.hpp"
 #include "FoxModel2002.hpp"
-#include "BackwardEulerFoxModel2002Modified.hpp"
+#include "FoxModel2002BackwardEuler.hpp"
 #include "Maleckar2008.hpp"
 #include "Mahajan2008.hpp"
 #include "TenTusscher2006Epi.hpp"
@@ -89,7 +89,7 @@ public:
 
         // Solve using Backward Euler
         HeartConfig::Instance()->SetOdeTimeStep(0.01);
-        BackwardEulerFoxModel2002Modified backward_system(p_solver, p_stimulus);
+        CellFoxModel2002FromCellMLBackwardEuler backward_system(p_solver, p_stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&backward_system,
                                    end_time,

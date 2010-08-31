@@ -52,7 +52,7 @@ void CheckMonoLr91Vars(MonodomainProblem<ELEMENT_DIM, SPACE_DIM>& problem)
         for (int j=0; j<8; j++)
         {
             // if not voltage or calcium ion conc, test whether between 0 and 1
-            if ((j!=4) && (j!=3))
+            if ((j!=0) && (j!=7))
             {
                 TS_ASSERT_LESS_THAN_EQUALS(  odeVars[j], 1.0);
                 TS_ASSERT_LESS_THAN_EQUALS( -odeVars[j], 0.0);

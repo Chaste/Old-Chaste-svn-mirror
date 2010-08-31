@@ -1,0 +1,1475 @@
+    |\^/|     Maple 12 (SUN SPARC SOLARIS)
+._|\|   |/|_. Copyright (c) Maplesoft, a division of Waterloo Maple Inc. 2008
+ \  MAPLE  /  All rights reserved. Maple is a trademark of
+ <____ ____>  Waterloo Maple Inc.
+      |       Type ? for help.
+1
+var_Environment__R := 8.314472
+var_Environment__T := 308
+var_Environment__F := 96.4853415
+var_Environment__K_o := 5.4
+var_Environment__Ca_o := 1.8
+var_Environment__Na_o := 136
+var_Environment__FonRT := .3767696805e-1
+var_cell__time := var_Environment__time
+var_reversal_potentials__K_i := 140
+var_reversal_potentials__FonRT := .3767696805e-1
+var_reversal_potentials__K_o := 5.4
+var_reversal_potentials__ek := -86.39876396
+var_IK1__ek := -86.39876396
+var_IK1__V := var_cell__V
+var_IK1__aki := 1.02/(1+exp(.2385*var_cell__V+6.48332770))
+var_IK1__bki := (.49124*exp(.8032e-1*var_cell__V+7.379381041)+exp(.6175e-1*
+var_cell__V-31.36351882))/(1+exp(-.5143*var_cell__V-46.87935220))
+var_IK1__xkin := 1.02/(1+exp(.2385*var_cell__V+6.48332770))/(1.02/(1+exp(.2385*
+var_cell__V+6.48332770))+(.49124*exp(.8032e-1*var_cell__V+7.379381041)+exp(.\
+6175e-1*var_cell__V-31.36351882))/(1+exp(-.5143*var_cell__V-46.87935220)))
+var_IK1__K_o := 5.4
+var_IK1__gkix := .3
+var_IK1__xik1 := .3060000000/(1+exp(.2385*var_cell__V+6.48332770))/(1.02/(1+exp
+(.2385*var_cell__V+6.48332770))+(.49124*exp(.8032e-1*var_cell__V+7.379381041)+
+exp(.6175e-1*var_cell__V-31.36351882))/(1+exp(-.5143*var_cell__V-46.87935220)))
+*(var_cell__V+86.39876396)
+var_cell__xik1 := .3060000000/(1+exp(.2385*var_cell__V+6.48332770))/(1.02/(1+
+exp(.2385*var_cell__V+6.48332770))+(.49124*exp(.8032e-1*var_cell__V+7.379381041
+)+exp(.6175e-1*var_cell__V-31.36351882))/(1+exp(-.5143*var_cell__V-46.87935220)
+))*(var_cell__V+86.39876396)
+var_Ito__ek := -86.39876396
+var_Ito__ScaleFactorIto := 1
+var_Ito__gtos := .11
+var_Ito__V := var_cell__V
+var_Ito__rt2 := 1/10*var_cell__V+3.350000000
+var_Ito__rs_inf := 1/(1+exp(1/10*var_cell__V+3.350000000))
+var_Ito__xitos := .11*var_Ito__xtos*(var_Ito__ytos+.5/(1+exp(1/10*var_cell__V+3\
+.350000000)))*(var_cell__V+86.39876396)
+var_Ito__gtof := .4e-1
+var_Ito__xitof := .4e-1*var_Ito__xtof*var_Ito__ytof*(var_cell__V+86.39876396)
+var_Ito__xito := .11*var_Ito__xtos*(var_Ito__ytos+.5/(1+exp(1/10*var_cell__V+3.\
+350000000)))*(var_cell__V+86.39876396)+.4e-1*var_Ito__xtof*var_Ito__ytof*(
+var_cell__V+86.39876396)
+var_cell__xito := .11*var_Ito__xtos*(var_Ito__ytos+.5/(1+exp(1/10*var_cell__V+3\
+.350000000)))*(var_cell__V+86.39876396)+.4e-1*var_Ito__xtof*var_Ito__ytof*(
+var_cell__V+86.39876396)
+var_INaK__xkmko := 1.5
+var_INaK__V := var_cell__V
+var_INaK__FonRT := .3767696805e-1
+var_INaK__Na_o := 136
+var_INaK__sigma := .9349108481
+var_INaK__fNaK := 1/(1+.1245*exp(-.3767696805e-2*var_cell__V)+.3412424596e-1*
+exp(-.3767696805e-1*var_cell__V))
+var_INaK__Na_i := var_Na__Na_i
+var_INaK__K_o := 5.4
+var_INaK__xkmnai := 12
+var_INaK__gNaK := 1.5
+var_INaK__xiNaK := 1.173913043/(1+.1245*exp(-.3767696805e-2*var_cell__V)+.\
+3412424596e-1*exp(-.3767696805e-1*var_cell__V))*var_Na__Na_i/(var_Na__Na_i+12)
+var_cell__xiNaK := 1.173913043/(1+.1245*exp(-.3767696805e-2*var_cell__V)+.\
+3412424596e-1*exp(-.3767696805e-1*var_cell__V))*var_Na__Na_i/(var_Na__Na_i+12)
+var_cell__wca := 8
+var_INaCa__gNaCa := .84
+var_INaCa__V := var_cell__V
+var_INaCa__FonRT := .3767696805e-1
+var_INaCa__zw4 := 1+.2*exp(-.2449002923e-1*var_cell__V)
+var_INaCa__xkdna := .3
+var_INaCa__Ca_submem := var_Ca__Ca_submem
+var_INaCa__aloss := 1/(1+.27e-1/var_Ca__Ca_submem^3)
+var_INaCa__Na_o := 136
+var_INaCa__Na_i := var_Na__Na_i
+var_INaCa__Ca_o := 1.8
+var_Ca__csm := 1/1000*var_Ca__Ca_submem
+var_INaCa__csm := 1/1000*var_Ca__Ca_submem
+var_INaCa__yz4 := 1.8*var_Na__Na_i^3+314432/125*var_Ca__Ca_submem
+var_INaCa__xmcao := 1.3
+var_INaCa__xmnao := 87.5
+var_INaCa__yz1 := 1.3*var_Na__Na_i^3+669.9218750*var_Ca__Ca_submem
+var_INaCa__xmcai := .36e-2
+var_INaCa__xmnai := 12.3
+var_INaCa__yz3 := 9055.6416+4.866356167*var_Na__Na_i^3
+var_INaCa__yz2 := 3349.5606+930.4335001*var_Ca__Ca_submem
+var_INaCa__zw8 := 7.966356167*var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+
+12405.2022
+var_INaCa__zw3 := 1.8*var_Na__Na_i^3*exp(.1318693882e-1*var_cell__V)-314432/125
+*var_Ca__Ca_submem*exp(-.2449002923e-1*var_cell__V)
+var_INaCa__jNaCa := .84/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*exp(
+.1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp(-.2449002923e-1*
+var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i
+^3+4115.811375*var_Ca__Ca_submem+12405.2022)
+var_INaCa__wca := 8
+var_INaCa__xiNaCa := 6.72/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*
+exp(.1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp(-.2449002923e-\
+1*var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.966356167*
+var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+12405.2022)
+var_cell__xiNaCa := 6.72/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*exp
+(.1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp(-.2449002923e-1*
+var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i
+^3+4115.811375*var_Ca__Ca_submem+12405.2022)
+1.8 := 1.8
+var_cell__V := var_cell__V
+ .54e-3 := .54e-3
+.3767696805e-1 := .3767696805e-1
+96.4853415 := 96.4853415
+var_ICaL__za := .7535393610e-1*var_cell__V
+(0.001*var_Ca__Ca_submem) := 1/1000*var_Ca__Ca_submem
+var_ICaL__rxa := `if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))
+var_ICaL__gca := 182
+var_ICaL__po := 1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2
+var_ICaL__jca := 182*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*`if`(.7535393610e-1*abs(var_cell__V)
+< .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))
+var_ICaL__wca := 8
+var_ICaL__xica := 2912*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*`if`(.7535393610e-1*abs(var_cell__V)
+< .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))
+var_cell__xica := 2912*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*`if`(.7535393610e-1*abs(var_cell__V)
+< .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))
+var_IKr__gkr := .125e-1
+var_IKr__K_o := 5.4
+var_IKr__ScaleFactorGkr := 1
+var_IKr__ek := -86.39876396
+var_IKr__V := var_cell__V
+var_IKr__rg := 1/(1+exp(.4464285714e-1*var_cell__V+1.473214286))
+var_IKr__xikr := .1250000000e-1*var_IKr__xr/(1+exp(.4464285714e-1*var_cell__V+1\
+.473214286))*(var_cell__V+86.39876396)
+var_cell__xikr := .1250000000e-1*var_IKr__xr/(1+exp(.4464285714e-1*var_cell__V+
+1.473214286))*(var_cell__V+86.39876396)
+var_IKs__ScaleFactorGks := 1
+var_IKs__Ca_i := var_Ca__Ca_i
+var_IKs__gksx := 1+.8/(1+.125/var_Ca__Ca_i^3)
+var_IKs__gks := .1386
+var_IKs__V := var_cell__V
+var_reversal_potentials__prNaK := .1833e-1
+var_reversal_potentials__Na_o := 136
+var_reversal_potentials__Na_i := var_Na__Na_i
+var_reversal_potentials__eks := 26.54141381*ln(7.89288/(140+.1833e-1*
+var_Na__Na_i))
+var_IKs__eks := 26.54141381*ln(7.89288/(140+.1833e-1*var_Na__Na_i))
+var_IKs__xiks := .1386*(1+.8/(1+.125/var_Ca__Ca_i^3))*var_IKs__xs1*var_IKs__xs2
+*(var_cell__V-26.54141381*ln(7.89288/(140+.1833e-1*var_Na__Na_i)))
+var_cell__xiks := .1386*(1+.8/(1+.125/var_Ca__Ca_i^3))*var_IKs__xs1*
+var_IKs__xs2*(var_cell__V-26.54141381*ln(7.89288/(140+.1833e-1*var_Na__Na_i)))
+var_cell__stim_offset := 0
+var_cell__stim_period := 400
+var_cell__past := 400*floor(1/400*var_Environment__time)
+var_cell__stim_amplitude := -15
+var_cell__stim_duration := 3
+var_cell__i_Stim := `if`(0 <= var_Environment__time-400*floor(1/400*
+var_Environment__time) and var_Environment__time-400*floor(1/400*
+var_Environment__time) <= 3,var_cell__stim_amplitude,0)
+var_INa__V := var_cell__V
+var_INa__gna := 12
+var_reversal_potentials__ena := 26.54141381*ln(136/var_Na__Na_i)
+var_INa__ena := 26.54141381*ln(136/var_Na__Na_i)
+var_INa__xina := 12*var_INa__xh*var_INa__xj*var_INa__xm^3*(var_cell__V-26.54141\
+381*ln(136/var_Na__Na_i))
+var_cell__xina := 12*var_INa__xh*var_INa__xj*var_INa__xm^3*(var_cell__V-26.5414\
+1381*ln(136/var_Na__Na_i))
+var_cell__Itotal := -12*var_INa__xh*var_INa__xj*var_INa__xm^3*(var_cell__V-26.5\
+4141381*ln(136/var_Na__Na_i))-.3060000000/(1+exp(.2385*var_cell__V+6.48332770))
+/(1.02/(1+exp(.2385*var_cell__V+6.48332770))+(.49124*exp(.8032e-1*var_cell__V+7\
+.379381041)+exp(.6175e-1*var_cell__V-31.36351882))/(1+exp(-.5143*var_cell__V-46\
+.87935220)))*(var_cell__V+86.39876396)-.1250000000e-1*var_IKr__xr/(1+exp(.\
+4464285714e-1*var_cell__V+1.473214286))*(var_cell__V+86.39876396)-.1386*(1+.8/(
+1+.125/var_Ca__Ca_i^3))*var_IKs__xs1*var_IKs__xs2*(var_cell__V-26.54141381*ln(7\
+.89288/(140+.1833e-1*var_Na__Na_i)))-.11*var_Ito__xtos*(var_Ito__ytos+.5/(1+exp
+(1/10*var_cell__V+3.350000000)))*(var_cell__V+86.39876396)-.4e-1*var_Ito__xtof*
+var_Ito__ytof*(var_cell__V+86.39876396)-6.72/(1+.27e-1/var_Ca__Ca_submem^3)*(1.\
+8*var_Na__Na_i^3*exp(.1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*
+exp(-.2449002923e-1*var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.96\
+6356167*var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+12405.2022)-2912*(1-
+var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-
+var_ICaL__c2)*`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))-1.173913043/(1+.1245*
+exp(-.3767696805e-2*var_cell__V)+.3412424596e-1*exp(-.3767696805e-1*var_cell__V
+))*var_Na__Na_i/(var_Na__Na_i+12)-`if`(0 <= var_Environment__time-400*floor(1/
+400*var_Environment__time) and var_Environment__time-400*floor(1/400*
+var_Environment__time) <= 3,var_cell__stim_amplitude,0)
+var_INa__time := var_Environment__time
+var_INa__am := `if`(.1e-2 < abs(var_cell__V+47.13),.32*(var_INa__V+47.13)/(1-
+exp(-.1*var_INa__V-4.713)),3.2)
+var_INa__bm := .8e-1*exp(-1/11*var_cell__V)
+var_INa__ah := `if`(var_cell__V < -40,.135*exp(-11.76470588-.1470588235*
+var_INa__V),0)
+var_INa__bh := `if`(var_cell__V < -40,3.56*exp(.79e-1*var_INa__V)+310000*exp(.3\
+5*var_INa__V),1/(.13+.13*exp(-.9009009009e-1*var_INa__V-.9603603604)))
+var_INa__aj := `if`(var_cell__V < -40,(-127140*exp(.2444*var_INa__V)-.3474e-4*
+exp(-.4391e-1*var_INa__V))*(var_INa__V+37.78)/(1+exp(.311*var_INa__V+24.64053))
+,0)
+var_INa__bj := `if`(var_cell__V < -40,.1212*exp(-.1052e-1*var_INa__V)/(1+exp(-.\
+1378*var_INa__V-5.531292)),.3*exp(-.2535e-6*var_INa__V)/(1+exp(-.1*var_INa__V-3\
+.2)))
+var_ICaL__time := var_Environment__time
+var_ICaL__Ca_dyad := var_Ca__Ca_dyad
+var_ICaL__vth := 0
+var_ICaL__s6 := 8
+var_ICaL__poinf := 1/(1+exp(-1/8*var_cell__V))
+var_ICaL__cat := 3
+var_ICaL__fca := 1/(1+27/var_Ca__Ca_dyad^3)
+var_ICaL__vx := -40
+var_ICaL__sx := 3
+var_ICaL__vy := -40
+var_ICaL__sy := 4
+var_ICaL__vyr := -40
+var_ICaL__syr := 11.32
+var_ICaL__cpt := 6.09365
+var_ICaL__taupo := 1
+var_ICaL__alpha := 1/(1+exp(-1/8*var_cell__V))
+var_ICaL__beta := 1-1/(1+exp(-1/8*var_cell__V))
+var_ICaL__k1 := .24168e-1/(1+27/var_Ca__Ca_dyad^3)
+var_ICaL__k2 := .103615e-3
+var_ICaL__k1t := .413e-2
+var_ICaL__k2t := .224e-2
+var_ICaL__poi := 1/(1+exp(-1/3*var_cell__V-40/3))
+var_ICaL__tau3 := 3
+var_ICaL__k3 := 1/3-1/3/(1+exp(-1/3*var_cell__V-40/3))
+var_ICaL__k3t := 1/3-1/3/(1+exp(-1/3*var_cell__V-40/3))
+var_ICaL__Ps := 1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904))
+var_ICaL__tca := 78.0329
+var_ICaL__tau_ca := 78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+.1
+var_ICaL__recov := 10+4954*exp(.6410256410e-1*var_cell__V)
+var_ICaL__Pr := 1-1/(1+exp(-1/4*var_cell__V-10))
+var_ICaL__tauca := (9.9+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.\
+7252537376e-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1
++.7252537376e-3*var_Ca__Ca_dyad^4)+.1
+var_ICaL__k6 := 1/(1+27/var_Ca__Ca_dyad^3)/(1+exp(-.8833922261e-1*var_cell__V-3\
+.533568904))/((9.9+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e\
+-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.\
+7252537376e-3*var_Ca__Ca_dyad^4)+.1)
+var_ICaL__k5 := (1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))/((9.9+
+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^
+4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.7252537376e-3*
+var_Ca__Ca_dyad^4)+.1)
+var_ICaL__tauba := (-440+4954*exp(.6410256410e-1*var_cell__V))*(1-1/(1+exp(-1/4
+*var_cell__V-10)))+450
+var_ICaL__k6t := 1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904))/((-440+4954
+*exp(.6410256410e-1*var_cell__V))*(1-1/(1+exp(-1/4*var_cell__V-10)))+450)
+var_ICaL__k5t := (1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))/((-440+
+4954*exp(.6410256410e-1*var_cell__V))*(1-1/(1+exp(-1/4*var_cell__V-10)))+450)
+var_ICaL__k4 := 233.2480818*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))/(1+exp(-1/
+8*var_cell__V))/(1-1/(1+exp(-1/8*var_cell__V)))*(1-1/(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904)))*(1+exp(-.8833922261e-1*var_cell__V-3.533568904))
+var_ICaL__k4t := 1.843750000*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))/(1+exp(-1
+/8*var_cell__V))/(1-1/(1+exp(-1/8*var_cell__V)))*(1-1/(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904)))*(1+exp(-.8833922261e-1*var_cell__V-3.533568904))
+var_ICaL__r1 := .3
+var_ICaL__r2 := 3
+var_ICaL__s1 := .182688e-1/(1+27/var_Ca__Ca_dyad^3)
+var_ICaL__s1t := .195e-2
+var_ICaL__s2 := .7832347368e-5
+var_ICaL__s2t := .1057627119e-3
+var_IKr__time := var_Environment__time
+var_IKr__xkrv1 := `if`(.1e-2 < abs(var_cell__V+7),.138e-2*(var_IKr__V+7)/(1-exp
+(-.123*var_IKr__V-.861)),.1121951220e-1)
+var_IKr__xkrv2 := `if`(.1e-2 < abs(var_cell__V+10),.61e-3*(var_IKr__V+10)/(exp(
+.145*var_IKr__V+1.450)-1),.4206896552e-2)
+var_IKr__taukr := 1/(`if`(.1e-2 < abs(var_cell__V+7),.138e-2*(var_IKr__V+7)/(1-
+exp(-.123*var_IKr__V-.861)),.1121951220e-1)+`if`(.1e-2 < abs(var_cell__V+10),.\
+61e-3*(var_IKr__V+10)/(exp(.145*var_IKr__V+1.450)-1),.4206896552e-2))
+var_IKr__xkrinf := 1/(1+exp(-.1333333333*var_cell__V-6.666666665))
+var_IKs__time := var_Environment__time
+var_IKs__xs1ss := 1/(1+exp(-.5988023952e-1*var_cell__V+.8982035928e-1))
+var_IKs__xs2ss := 1/(1+exp(-.5988023952e-1*var_cell__V+.8982035928e-1))
+var_IKs__tauxs1 := `if`(abs(var_cell__V+30) < .1455604076e-1,417.9462527,1/(.\
+719e-4*(var_IKs__V+30)/(1-exp(-.148*var_IKs__V-4.440))+.131e-3*(var_IKs__V+30)/
+(exp(.687e-1*var_IKs__V+2.0610)-1)))
+var_IKs__tauxs2 := 4*`if`(abs(var_cell__V+30) < .1455604076e-1,417.9462527,1/(.\
+719e-4*(var_IKs__V+30)/(1-exp(-.148*var_IKs__V-4.440))+.131e-3*(var_IKs__V+30)/
+(exp(.687e-1*var_IKs__V+2.0610)-1)))
+var_Ito__time := var_Environment__time
+var_Ito__rt1 := -1/15*var_cell__V-1/5
+var_Ito__rt3 := 1/10*var_cell__V+6
+var_Ito__rt4 := -1/900*var_cell__V^2
+var_Ito__rt5 := 1/10*var_cell__V+3.350000000
+var_Ito__xtos_inf := 1/(1+exp(-1/15*var_cell__V-1/5))
+var_Ito__ytos_inf := 1/(1+exp(1/10*var_cell__V+3.350000000))
+var_Ito__xtof_inf := 1/(1+exp(-1/15*var_cell__V-1/5))
+var_Ito__ytof_inf := 1/(1+exp(1/10*var_cell__V+3.350000000))
+var_Ito__txs := 9/(1+exp(1/15*var_cell__V+1/5))+.5
+var_Ito__tys := 3000/(1+exp(1/10*var_cell__V+6))+30
+var_Ito__txf := 3.5*exp(-1/900*var_cell__V^2)+1.5
+var_Ito__tyf := 20/(1+exp(1/10*var_cell__V+3.350000000))+20
+var_Irel__V := var_cell__V
+var_Irel__time := var_Environment__time
+var_Irel__Ca_NSR := var_Ca__Ca_NSR
+var_Ileak_Iup_Ixfer__Ca_NSR := var_Ca__Ca_NSR
+var_Ileak_Iup_Ixfer__gleak := .2069e-4
+var_Ileak_Iup_Ixfer__kj := 50
+var_Ileak_Iup_Ixfer__Ca_i := var_Ca__Ca_i
+var_Ileak_Iup_Ixfer__jleak := .2069e-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500)
+*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i)
+var_Ca__jleak := .2069e-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500)*(16.667*
+var_Ca__Ca_NSR-var_Ca__Ca_i)
+var_Ileak_Iup_Ixfer__cup := .5
+var_Ileak_Iup_Ixfer__vup := .4
+var_Ileak_Iup_Ixfer__jup := .4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)
+var_Ca__jup := .4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)
+var_Ca__xir := var_Irel__xir
+var_Ca__dCa_JSR := -var_Irel__xir+.4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)-.2069e\
+-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500)*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i
+)
+var_Irel__dCa_JSR := -var_Irel__xir+.4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)-.\
+2069e-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500)*(16.667*var_Ca__Ca_NSR-
+var_Ca__Ca_i)
+var_Irel__po := 1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2
+var_Irel__rxa := `if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))
+90 := 90
+var_Irel__gryr := 2.58079
+var_Irel__gbarsr := 26841.8
+var_Irel__gdyad := 9000
+var_Irel__ax := .3576
+var_Irel__ay := .5e-1
+11.3 := 11.3
+-977.0 := -977.0
+var_Irel__Qr0 := `if`(50 < var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,
+var_Irel__Ca_JSR-50,`if`(90 <= var_Irel__Ca_JSR,11.3*
+var_Irel__Ca_JSR+-977.0,0))
+var_Irel__Qr := 1/90*var_Ca__Ca_NSR*`if`(50 < var_Irel__Ca_JSR and 
+var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(90 <= 
+var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,0))
+var_Irel__sparkV := exp(-.5e-1*var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50
+))
+var_Irel__spark_rate := 2.58079*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-
+var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*abs(`if`(.7535393610\
+e-1*abs(var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1)))*exp(-.5e-1*var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50)
+)
+var_Irel__taua := 100
+var_Irel__taur := 30
+var_Irel__xirp := 298.2422222*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-
+var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*var_Ca__Ca_NSR*`if`(
+50 < var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*
+var_cell__V-10.7280)/(1+exp(-.3576*var_cell__V-10.7280))
+var_Irel__xicap := 9000*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*abs(`if`(.7535393610e-1*abs(
+var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1)))
+var_Irel__xiryr := 298.2422222*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-
+var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*var_Ca__Ca_NSR*`if`(
+50 < var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*
+var_cell__V-10.7280)/(1+exp(-.3576*var_cell__V-10.7280))+9000*(1-
+var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-
+var_ICaL__c2)*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))
+var_Na__time := var_Environment__time
+var_Na__wca := 8
+var_Na__xina := 12*var_INa__xh*var_INa__xj*var_INa__xm^3*(var_cell__V-26.541413\
+81*ln(136/var_Na__Na_i))
+var_Na__xiNaK := 1.173913043/(1+.1245*exp(-.3767696805e-2*var_cell__V)+.\
+3412424596e-1*exp(-.3767696805e-1*var_cell__V))*var_Na__Na_i/(var_Na__Na_i+12)
+var_Na__xiNaCa := 6.72/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*exp(.\
+1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp(-.2449002923e-1*
+var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i
+^3+4115.811375*var_Ca__Ca_submem+12405.2022)
+var_Ca__time := var_Environment__time
+var_Ca__xiryr := 298.2422222*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba
+-var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*var_Ca__Ca_NSR*`if`(50 < 
+var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*
+var_cell__V-10.7280)/(1+exp(-.3576*var_cell__V-10.7280))+9000*(1-
+var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-
+var_ICaL__c2)*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))
+var_Ca__bcal := 24
+var_Ca__xkcal := 7
+var_Ca__srmax := 47
+var_Ca__srkd := .6
+var_Ca__bmem := 15
+var_Ca__kmem := .3
+var_Ca__bsar := 42
+var_Ca__ksar := 13
+var_Ca__bpxs := 168/(7+var_Ca__Ca_submem)^2
+var_Ca__spxs := 28.2/(.6+var_Ca__Ca_submem)^2
+var_Ca__mempxs := 4.5/(.3+var_Ca__Ca_submem)^2
+var_Ca__sarpxs := 546/(13+var_Ca__Ca_submem)^2
+var_Ca__dcsib := 1/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2
++4.5/(.3+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)
+var_Ca__bpxi := 168/(7+var_Ca__Ca_i)^2
+var_Ca__spxi := 28.2/(.6+var_Ca__Ca_i)^2
+var_Ca__mempxi := 4.5/(.3+var_Ca__Ca_i)^2
+var_Ca__sarpxi := 546/(13+var_Ca__Ca_i)^2
+var_Ca__dciib := 1/(1+168/(7+var_Ca__Ca_i)^2+28.2/(.6+var_Ca__Ca_i)^2+4.5/(.3+
+var_Ca__Ca_i)^2+546/(13+var_Ca__Ca_i)^2)
+var_Ca__xkon := .327e-1
+var_Ca__xkoff := .196e-1
+var_Ca__btrop := 70
+var_Ca__xbi := .327e-1*var_Ca__Ca_i*(70-var_Ca__tropi)-.196e-1*var_Ca__tropi
+var_Ca__xbs := .327e-1*var_Ca__Ca_submem*(70-var_Ca__trops)-.196e-1*
+var_Ca__trops
+var_Ca__taud := 4
+var_Ca__taups := .5
+var_Ca__jd := 1/4*var_Ca__Ca_submem-1/4*var_Ca__Ca_i
+var_Ca__jNaCa := .84/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*exp(.\
+1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp(-.2449002923e-1*
+var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i
+^3+4115.811375*var_Ca__Ca_submem+12405.2022)
+var_Ca__jca := 182*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*`if`(.7535393610e-1*abs(var_cell__V)
+< .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))
+d_dt_cell__V := -12*var_INa__xh*var_INa__xj*var_INa__xm^3*(var_cell__V-26.54141\
+381*ln(136/var_Na__Na_i))-.3060000000/(1+exp(.2385*var_cell__V+6.48332770))/(1.\
+02/(1+exp(.2385*var_cell__V+6.48332770))+(.49124*exp(.8032e-1*var_cell__V+7.379\
+381041)+exp(.6175e-1*var_cell__V-31.36351882))/(1+exp(-.5143*var_cell__V-46.879\
+35220)))*(var_cell__V+86.39876396)-.1250000000e-1*var_IKr__xr/(1+exp(.\
+4464285714e-1*var_cell__V+1.473214286))*(var_cell__V+86.39876396)-.1386*(1+.8/(
+1+.125/var_Ca__Ca_i^3))*var_IKs__xs1*var_IKs__xs2*(var_cell__V-26.54141381*ln(7\
+.89288/(140+.1833e-1*var_Na__Na_i)))-.11*var_Ito__xtos*(var_Ito__ytos+.5/(1+exp
+(1/10*var_cell__V+3.350000000)))*(var_cell__V+86.39876396)-.4e-1*var_Ito__xtof*
+var_Ito__ytof*(var_cell__V+86.39876396)-6.72/(1+.27e-1/var_Ca__Ca_submem^3)*(1.\
+8*var_Na__Na_i^3*exp(.1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*
+exp(-.2449002923e-1*var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.96\
+6356167*var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+12405.2022)-2912*(1-
+var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-
+var_ICaL__c2)*`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))-1.173913043/(1+.1245*
+exp(-.3767696805e-2*var_cell__V)+.3412424596e-1*exp(-.3767696805e-1*var_cell__V
+))*var_Na__Na_i/(var_Na__Na_i+12)-`if`(0 <= var_Environment__time-400*floor(1/
+400*var_Environment__time) and var_Environment__time-400*floor(1/400*
+var_Environment__time) <= 3,var_cell__stim_amplitude,0)
+d_dt_INa__xh := `if`(var_cell__V < -40,.135*exp(-11.76470588-.1470588235*
+var_INa__V),0)*(1-var_INa__xh)-`if`(var_cell__V < -40,3.56*exp(.79e-1*
+var_INa__V)+310000*exp(.35*var_INa__V),1/(.13+.13*exp(-.9009009009e-1*
+var_INa__V-.9603603604)))*var_INa__xh
+d_dt_INa__xj := `if`(var_cell__V < -40,(-127140*exp(.2444*var_INa__V)-.3474e-4*
+exp(-.4391e-1*var_INa__V))*(var_INa__V+37.78)/(1+exp(.311*var_INa__V+24.64053))
+,0)*(1-var_INa__xj)-`if`(var_cell__V < -40,.1212*exp(-.1052e-1*var_INa__V)/(1+
+exp(-.1378*var_INa__V-5.531292)),.3*exp(-.2535e-6*var_INa__V)/(1+exp(-.1*
+var_INa__V-3.2)))*var_INa__xj
+d_dt_INa__xm := `if`(.1e-2 < abs(var_cell__V+47.13),.32*(var_INa__V+47.13)/(1-
+exp(-.1*var_INa__V-4.713)),3.2)*(1-var_INa__xm)-.8e-1*exp(-1/11*var_cell__V)*
+var_INa__xm
+d_dt_ICaL__c1 := 1/(1+exp(-1/8*var_cell__V))*var_ICaL__c2-2.999896385*
+var_ICaL__xi1ca-2.99776*var_ICaL__xi1ba+3-3*var_ICaL__xi2ca-3*var_ICaL__xi2ba-3
+*var_ICaL__c1-3*var_ICaL__c2-(1.30413-1/(1+exp(-1/8*var_cell__V))+.24168e-1/(1+
+27/var_Ca__Ca_dyad^3))*var_ICaL__c1
+d_dt_ICaL__c2 := (1-1/(1+exp(-1/8*var_cell__V)))*var_ICaL__c1+(1-1/(1+exp(-.\
+8833922261e-1*var_cell__V-3.533568904)))/((9.9+4954*exp(.6410256410e-1*
+var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*
+var_cell__V-10)))+78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+.1)*
+var_ICaL__xi2ca+(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))/((-440+
+4954*exp(.6410256410e-1*var_cell__V))*(1-1/(1+exp(-1/4*var_cell__V-10)))+450)*
+var_ICaL__xi2ba-(1/(1+27/var_Ca__Ca_dyad^3)/(1+exp(-.8833922261e-1*var_cell__V-\
+3.533568904))/((9.9+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376\
+e-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.\
+7252537376e-3*var_Ca__Ca_dyad^4)+.1)+1/(1+exp(-.8833922261e-1*var_cell__V-3.533\
+568904))/((-440+4954*exp(.6410256410e-1*var_cell__V))*(1-1/(1+exp(-1/4*
+var_cell__V-10)))+450)+1/(1+exp(-1/8*var_cell__V)))*var_ICaL__c2
+d_dt_ICaL__xi1ca := .24168e-1/(1+27/var_Ca__Ca_dyad^3)*var_ICaL__c1+233.2480818
+*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))/(1+exp(-1/8*var_cell__V))/(1-1/(1+exp
+(-1/8*var_cell__V)))*(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))*(1+
+exp(-.8833922261e-1*var_cell__V-3.533568904))*var_ICaL__xi2ca+.182688e-1/(1+27/
+var_Ca__Ca_dyad^3)*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)-(.3334447806-1/3/(1+exp(-1/3*
+var_cell__V-40/3)))*var_ICaL__xi1ca
+d_dt_ICaL__xi1ba := .218e-2*var_ICaL__c1+1.843750000*(1/3-1/3/(1+exp(-1/3*
+var_cell__V-40/3)))/(1+exp(-1/8*var_cell__V))/(1-1/(1+exp(-1/8*var_cell__V)))*(
+1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))*(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904))*var_ICaL__xi2ba+.195e-2-.195e-2*var_ICaL__xi1ca-.195e\
+-2*var_ICaL__xi2ca-.195e-2*var_ICaL__xi1ba-.195e-2*var_ICaL__xi2ba-.195e-2*
+var_ICaL__c2-(.3356790960-1/3/(1+exp(-1/3*var_cell__V-40/3)))*var_ICaL__xi1ba
+d_dt_ICaL__xi2ca := (1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))*var_ICaL__xi1ca+1/
+(1+27/var_Ca__Ca_dyad^3)/(1+exp(-.8833922261e-1*var_cell__V-3.533568904))/((9.9
++4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad
+^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.7252537376e-3*
+var_Ca__Ca_dyad^4)+.1)*var_ICaL__c2-((1-1/(1+exp(-.8833922261e-1*var_cell__V-3.\
+533568904)))/((9.9+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e\
+-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.\
+7252537376e-3*var_Ca__Ca_dyad^4)+.1)+233.2480818*(1/3-1/3/(1+exp(-1/3*
+var_cell__V-40/3)))/(1+exp(-1/8*var_cell__V))/(1-1/(1+exp(-1/8*var_cell__V)))*(
+1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))*(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904)))*var_ICaL__xi2ca
+d_dt_ICaL__xi2ba := (1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))*var_ICaL__xi1ba+1/
+(1+exp(-.8833922261e-1*var_cell__V-3.533568904))/((-440+4954*exp(.6410256410e-1
+*var_cell__V))*(1-1/(1+exp(-1/4*var_cell__V-10)))+450)*var_ICaL__c2-((1-1/(1+
+exp(-.8833922261e-1*var_cell__V-3.533568904)))/((-440+4954*exp(.6410256410e-1*
+var_cell__V))*(1-1/(1+exp(-1/4*var_cell__V-10)))+450)+1.843750000*(1/3-1/3/(1+
+exp(-1/3*var_cell__V-40/3)))/(1+exp(-1/8*var_cell__V))/(1-1/(1+exp(-1/8*
+var_cell__V)))*(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))*(1+exp(-.\
+8833922261e-1*var_cell__V-3.533568904)))*var_ICaL__xi2ba
+d_dt_IKr__xr := (1/(1+exp(-.1333333333*var_cell__V-6.666666665))-var_IKr__xr)*(
+`if`(.1e-2 < abs(var_cell__V+7),.138e-2*(var_IKr__V+7)/(1-exp(-.123*var_IKr__V-\
+.861)),.1121951220e-1)+`if`(.1e-2 < abs(var_cell__V+10),.61e-3*(var_IKr__V+10)/
+(exp(.145*var_IKr__V+1.450)-1),.4206896552e-2))
+d_dt_IKs__xs1 := (1/(1+exp(-.5988023952e-1*var_cell__V+.8982035928e-1))-
+var_IKs__xs1)/`if`(abs(var_cell__V+30) < .1455604076e-1,417.9462527,1/(.719e-4*
+(var_IKs__V+30)/(1-exp(-.148*var_IKs__V-4.440))+.131e-3*(var_IKs__V+30)/(exp(.\
+687e-1*var_IKs__V+2.0610)-1)))
+d_dt_IKs__xs2 := 1/4*(1/(1+exp(-.5988023952e-1*var_cell__V+.8982035928e-1))-
+var_IKs__xs2)/`if`(abs(var_cell__V+30) < .1455604076e-1,417.9462527,1/(.719e-4*
+(var_IKs__V+30)/(1-exp(-.148*var_IKs__V-4.440))+.131e-3*(var_IKs__V+30)/(exp(.\
+687e-1*var_IKs__V+2.0610)-1)))
+d_dt_Ito__xtos := (1/(1+exp(-1/15*var_cell__V-1/5))-var_Ito__xtos)/(9/(1+exp(1/
+15*var_cell__V+1/5))+.5)
+d_dt_Ito__ytos := (1/(1+exp(1/10*var_cell__V+3.350000000))-var_Ito__ytos)/(3000
+/(1+exp(1/10*var_cell__V+6))+30)
+d_dt_Ito__xtof := (1/(1+exp(-1/15*var_cell__V-1/5))-var_Ito__xtof)/(3.5*exp(-1/
+900*var_cell__V^2)+1.5)
+d_dt_Ito__ytof := (1/(1+exp(1/10*var_cell__V+3.350000000))-var_Ito__ytof)/(20/(
+1+exp(1/10*var_cell__V+3.350000000))+20)
+d_dt_Irel__Ca_JSR := 1/100*var_Ca__Ca_NSR-1/100*var_Irel__Ca_JSR
+d_dt_Irel__xir := .2867544444e-1*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-
+var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*abs(`if`(.7535393610\
+e-1*abs(var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1)))*exp(-.5e-1*var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50)
+)*var_Ca__Ca_NSR*`if`(50 < var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,
+var_Irel__Ca_JSR-50,`if`(90 <= var_Irel__Ca_JSR,11.3*
+var_Irel__Ca_JSR+-977.0,0))-1/30*var_Irel__xir*(1-30*(-var_Irel__xir+.4*
+var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)-.2069e-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2
++2500)*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i))/var_Ca__Ca_NSR)
+d_dt_Na__Na_i := -3/2000*var_INa__xh*var_INa__xj*var_INa__xm^3*(var_cell__V-26.\
+54141381*ln(136/var_Na__Na_i))-.4402173911e-3/(1+.1245*exp(-.3767696805e-2*
+var_cell__V)+.3412424596e-1*exp(-.3767696805e-1*var_cell__V))*var_Na__Na_i/(
+var_Na__Na_i+12)-.2520000000e-2/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*
+var_Na__Na_i^3*exp(.1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp
+(-.2449002923e-1*var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.96635\
+6167*var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+12405.2022)
+d_dt_Ca__Ca_dyad := 298.2422222*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-
+var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*var_Ca__Ca_NSR*`if`(
+50 < var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*
+var_cell__V-10.7280)/(1+exp(-.3576*var_cell__V-10.7280))+9000*(1-
+var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-
+var_ICaL__c2)*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))-2.000000000*
+var_Ca__Ca_dyad+2.000000000*var_Ca__Ca_submem
+d_dt_Ca__Ca_submem := 1/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+
+var_Ca__Ca_submem)^2+4.5/(.3+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)
+*(50*var_Irel__xir-25/2*var_Ca__Ca_submem+25/2*var_Ca__Ca_i-9100*(1-
+var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-
+var_ICaL__c2)*`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))+42.00/(1+.27e-1/
+var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*exp(.1318693882e-1*var_cell__V)-314432
+/125*var_Ca__Ca_submem*exp(-.2449002923e-1*var_cell__V))/(1+.2*exp(-.2449002923\
+e-1*var_cell__V))/(7.966356167*var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+
+12405.2022)-.327e-1*var_Ca__Ca_submem*(70-var_Ca__trops)+.196e-1*var_Ca__trops)
+d_dt_Ca__Ca_i := 1/(1+168/(7+var_Ca__Ca_i)^2+28.2/(.6+var_Ca__Ca_i)^2+4.5/(.3+
+var_Ca__Ca_i)^2+546/(13+var_Ca__Ca_i)^2)*(1/4*var_Ca__Ca_submem-1/4*
+var_Ca__Ca_i-.4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)+.2069e-4*var_Ca__Ca_NSR^2/(
+var_Ca__Ca_NSR^2+2500)*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i)-.327e-1*
+var_Ca__Ca_i*(70-var_Ca__tropi)+.196e-1*var_Ca__tropi)
+d_dt_Ca__Ca_NSR := -var_Irel__xir+.4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)-.2069e\
+-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500)*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i
+)
+d_dt_Ca__tropi := .327e-1*var_Ca__Ca_i*(70-var_Ca__tropi)-.196e-1*var_Ca__tropi
+d_dt_Ca__trops := .327e-1*var_Ca__Ca_submem*(70-var_Ca__trops)-.196e-1*
+var_Ca__trops
+g_var_Ca__Ca_NSR := var_Ca__Ca_NSR-var_Ca__Ca_NSR_old-delta_t*(-var_Irel__xir+.\
+4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)-.2069e-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR
+^2+2500)*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i))
+g_var_Ca__Ca_dyad := var_Ca__Ca_dyad-var_Ca__Ca_dyad_old-delta_t*(298.2422222*(
+1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-
+var_ICaL__c2)*var_Ca__Ca_NSR*`if`(50 < var_Irel__Ca_JSR and var_Irel__Ca_JSR <
+90,var_Irel__Ca_JSR-50,`if`(90 <= var_Irel__Ca_JSR,11.3*
+var_Irel__Ca_JSR+-977.0,0))*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1\
+e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*
+exp(-.3576*var_cell__V-10.7280)/(1+exp(-.3576*var_cell__V-10.7280))+9000*(1-
+var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-
+var_ICaL__c2)*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))-2.000000000*
+var_Ca__Ca_dyad+2.000000000*var_Ca__Ca_submem)
+g_var_Ca__Ca_i := var_Ca__Ca_i-var_Ca__Ca_i_old-delta_t/(1+168/(7+var_Ca__Ca_i)
+^2+28.2/(.6+var_Ca__Ca_i)^2+4.5/(.3+var_Ca__Ca_i)^2+546/(13+var_Ca__Ca_i)^2)*(1
+/4*var_Ca__Ca_submem-1/4*var_Ca__Ca_i-.4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)+.\
+2069e-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500)*(16.667*var_Ca__Ca_NSR-
+var_Ca__Ca_i)-.327e-1*var_Ca__Ca_i*(70-var_Ca__tropi)+.196e-1*var_Ca__tropi)
+g_var_Ca__Ca_submem := var_Ca__Ca_submem-var_Ca__Ca_submem_old-delta_t/(1+168/(
+7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/(.3+var_Ca__Ca_submem)
+^2+546/(13+var_Ca__Ca_submem)^2)*(50*var_Irel__xir-25/2*var_Ca__Ca_submem+25/2*
+var_Ca__Ca_i-9100*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*`if`(.7535393610e-1*abs(var_cell__V)
+< .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))+42.\
+00/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*exp(.1318693882e-1*
+var_cell__V)-314432/125*var_Ca__Ca_submem*exp(-.2449002923e-1*var_cell__V))/(1+
+.2*exp(-.2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i^3+4115.811375*
+var_Ca__Ca_submem+12405.2022)-.327e-1*var_Ca__Ca_submem*(70-var_Ca__trops)+.196\
+e-1*var_Ca__trops)
+g_var_Ca__tropi := var_Ca__tropi-var_Ca__tropi_old-delta_t*(.327e-1*
+var_Ca__Ca_i*(70-var_Ca__tropi)-.196e-1*var_Ca__tropi)
+g_var_Ca__trops := var_Ca__trops-var_Ca__trops_old-delta_t*(.327e-1*
+var_Ca__Ca_submem*(70-var_Ca__trops)-.196e-1*var_Ca__trops)
+g_var_ICaL__c1 := var_ICaL__c1-var_ICaL__c1_old-delta_t*(1/(1+exp(-1/8*
+var_cell__V))*var_ICaL__c2-2.999896385*var_ICaL__xi1ca-2.99776*var_ICaL__xi1ba+
+3-3*var_ICaL__xi2ca-3*var_ICaL__xi2ba-3*var_ICaL__c1-3*var_ICaL__c2-(1.30413-1/
+(1+exp(-1/8*var_cell__V))+.24168e-1/(1+27/var_Ca__Ca_dyad^3))*var_ICaL__c1)
+g_var_ICaL__c2 := var_ICaL__c2-var_ICaL__c2_old-delta_t*((1-1/(1+exp(-1/8*
+var_cell__V)))*var_ICaL__c1+(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904
+)))/((9.9+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e-3*
+var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.7252537376e-\
+3*var_Ca__Ca_dyad^4)+.1)*var_ICaL__xi2ca+(1-1/(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904)))/((-440+4954*exp(.6410256410e-1*var_cell__V))*(1-1/(1
++exp(-1/4*var_cell__V-10)))+450)*var_ICaL__xi2ba-(1/(1+27/var_Ca__Ca_dyad^3)/(1
++exp(-.8833922261e-1*var_cell__V-3.533568904))/((9.9+4954*exp(.6410256410e-1*
+var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*
+var_cell__V-10)))+78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+.1)+1/(1+exp(-.\
+8833922261e-1*var_cell__V-3.533568904))/((-440+4954*exp(.6410256410e-1*
+var_cell__V))*(1-1/(1+exp(-1/4*var_cell__V-10)))+450)+1/(1+exp(-1/8*var_cell__V
+)))*var_ICaL__c2)
+g_var_ICaL__xi1ba := var_ICaL__xi1ba-var_ICaL__xi1ba_old-delta_t*(.218e-2*
+var_ICaL__c1+1.843750000*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))/(1+exp(-1/8*
+var_cell__V))/(1-1/(1+exp(-1/8*var_cell__V)))*(1-1/(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904)))*(1+exp(-.8833922261e-1*var_cell__V-3.533568904))*
+var_ICaL__xi2ba+.195e-2-.195e-2*var_ICaL__xi1ca-.195e-2*var_ICaL__xi2ca-.195e-2
+*var_ICaL__xi1ba-.195e-2*var_ICaL__xi2ba-.195e-2*var_ICaL__c2-(.3356790960-1/3/
+(1+exp(-1/3*var_cell__V-40/3)))*var_ICaL__xi1ba)
+g_var_ICaL__xi1ca := var_ICaL__xi1ca-var_ICaL__xi1ca_old-delta_t*(.24168e-1/(1+
+27/var_Ca__Ca_dyad^3)*var_ICaL__c1+233.2480818*(1/3-1/3/(1+exp(-1/3*var_cell__V
+-40/3)))/(1+exp(-1/8*var_cell__V))/(1-1/(1+exp(-1/8*var_cell__V)))*(1-1/(1+exp(
+-.8833922261e-1*var_cell__V-3.533568904)))*(1+exp(-.8833922261e-1*var_cell__V-3\
+.533568904))*var_ICaL__xi2ca+.182688e-1/(1+27/var_Ca__Ca_dyad^3)*(1-
+var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-
+var_ICaL__c2)-(.3334447806-1/3/(1+exp(-1/3*var_cell__V-40/3)))*var_ICaL__xi1ca)
+g_var_ICaL__xi2ba := var_ICaL__xi2ba-var_ICaL__xi2ba_old-delta_t*((1/3-1/3/(1+
+exp(-1/3*var_cell__V-40/3)))*var_ICaL__xi1ba+1/(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904))/((-440+4954*exp(.6410256410e-1*var_cell__V))*(1-1/(1+
+exp(-1/4*var_cell__V-10)))+450)*var_ICaL__c2-((1-1/(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904)))/((-440+4954*exp(.6410256410e-1*var_cell__V))*(1-1/(1
++exp(-1/4*var_cell__V-10)))+450)+1.843750000*(1/3-1/3/(1+exp(-1/3*var_cell__V-\
+40/3)))/(1+exp(-1/8*var_cell__V))/(1-1/(1+exp(-1/8*var_cell__V)))*(1-1/(1+exp(-
+.8833922261e-1*var_cell__V-3.533568904)))*(1+exp(-.8833922261e-1*var_cell__V-3.\
+533568904)))*var_ICaL__xi2ba)
+g_var_ICaL__xi2ca := var_ICaL__xi2ca-var_ICaL__xi2ca_old-delta_t*((1/3-1/3/(1+
+exp(-1/3*var_cell__V-40/3)))*var_ICaL__xi1ca+1/(1+27/var_Ca__Ca_dyad^3)/(1+exp(
+-.8833922261e-1*var_cell__V-3.533568904))/((9.9+4954*exp(.6410256410e-1*
+var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*
+var_cell__V-10)))+78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+.1)*var_ICaL__c2
+-((1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))/((9.9+4954*exp(.\
+6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4))*(1-1/(
+1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+.1)+
+233.2480818*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))/(1+exp(-1/8*var_cell__V))/
+(1-1/(1+exp(-1/8*var_cell__V)))*(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.53356\
+8904)))*(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))*var_ICaL__xi2ca)
+g_var_Irel__Ca_JSR := var_Irel__Ca_JSR-var_Irel__Ca_JSR_old-delta_t*(1/100*
+var_Ca__Ca_NSR-1/100*var_Irel__Ca_JSR)
+g_var_Irel__xir := var_Irel__xir-var_Irel__xir_old-delta_t*(.2867544444e-1*(1-
+var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-
+var_ICaL__c2)*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*
+96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4*
+ .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.5e-1*
+var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50))*var_Ca__Ca_NSR*`if`(50 < 
+var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))-1/30*var_Irel__xir*(1-30*(-var_Irel__xir+.4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+
+.25)-.2069e-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500)*(16.667*var_Ca__Ca_NSR-
+var_Ca__Ca_i))/var_Ca__Ca_NSR))
+g_var_Na__Na_i := var_Na__Na_i-var_Na__Na_i_old-delta_t*(-3/2000*var_INa__xh*
+var_INa__xj*var_INa__xm^3*(var_cell__V-26.54141381*ln(136/var_Na__Na_i))-.\
+4402173911e-3/(1+.1245*exp(-.3767696805e-2*var_cell__V)+.3412424596e-1*exp(-.\
+3767696805e-1*var_cell__V))*var_Na__Na_i/(var_Na__Na_i+12)-.2520000000e-2/(1+.\
+27e-1/var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*exp(.1318693882e-1*var_cell__V)-\
+314432/125*var_Ca__Ca_submem*exp(-.2449002923e-1*var_cell__V))/(1+.2*exp(-.\
+2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i^3+4115.811375*
+var_Ca__Ca_submem+12405.2022))
+"--var_Ca__Ca_NSR/var_Ca__Ca_NSR--"
+1-delta_t*(-.4138e-4*var_Ca__Ca_NSR/(var_Ca__Ca_NSR^2+2500)*(16.667*
+var_Ca__Ca_NSR-var_Ca__Ca_i)+.4138e-4*var_Ca__Ca_NSR^3/(var_Ca__Ca_NSR^2+2500)^
+2*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i)-.34484023e-3*var_Ca__Ca_NSR^2/(
+var_Ca__Ca_NSR^2+2500))
+"--var_Ca__Ca_NSR/var_Ca__Ca_dyad--"
+0
+"--var_Ca__Ca_NSR/var_Ca__Ca_i--"
+-delta_t*(.8*var_Ca__Ca_i/(var_Ca__Ca_i^2+.25)-.8*var_Ca__Ca_i^3/(var_Ca__Ca_i^
+2+.25)^2+.2069e-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500))
+"--var_Ca__Ca_NSR/var_Ca__Ca_submem--"
+0
+"--var_Ca__Ca_NSR/var_Ca__tropi--"
+0
+"--var_Ca__Ca_NSR/var_Ca__trops--"
+0
+"--var_Ca__Ca_NSR/var_ICaL__c1--"
+0
+"--var_Ca__Ca_NSR/var_ICaL__c2--"
+0
+"--var_Ca__Ca_NSR/var_ICaL__xi1ba--"
+0
+"--var_Ca__Ca_NSR/var_ICaL__xi1ca--"
+0
+"--var_Ca__Ca_NSR/var_ICaL__xi2ba--"
+0
+"--var_Ca__Ca_NSR/var_ICaL__xi2ca--"
+0
+"--var_Ca__Ca_NSR/var_Irel__Ca_JSR--"
+0
+"--var_Ca__Ca_NSR/var_Irel__xir--"
+delta_t
+"--var_Ca__Ca_NSR/var_Na__Na_i--"
+0
+"--var_Ca__Ca_dyad/var_Ca__Ca_NSR--"
+-298.2422222*delta_t*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*`if`(50 < var_Irel__Ca_JSR and 
+var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(90 <= 
+var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,0))*abs(`if`(.\
+7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*96.4853415*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4* .54e-3*
+var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*var_cell__V-10.7280)/(1+exp(
+-.3576*var_cell__V-10.7280))
+"--var_Ca__Ca_dyad/var_Ca__Ca_dyad--"
+1+2.000000000*delta_t
+"--var_Ca__Ca_dyad/var_Ca__Ca_i--"
+0
+"--var_Ca__Ca_dyad/var_Ca__Ca_submem--"
+-2.000000000*delta_t
+"--var_Ca__Ca_dyad/var_Ca__tropi--"
+0
+"--var_Ca__Ca_dyad/var_Ca__trops--"
+0
+"--var_Ca__Ca_dyad/var_ICaL__c1--"
+-delta_t*(-298.2422222*var_Ca__Ca_NSR*`if`(50 < var_Irel__Ca_JSR and 
+var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(90 <= 
+var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,0))*abs(`if`(.\
+7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*96.4853415*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4* .54e-3*
+var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*var_cell__V-10.7280)/(1+exp(
+-.3576*var_cell__V-10.7280))-9000*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1\
+e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))))
+"--var_Ca__Ca_dyad/var_ICaL__c2--"
+-delta_t*(-298.2422222*var_Ca__Ca_NSR*`if`(50 < var_Irel__Ca_JSR and 
+var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(90 <= 
+var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,0))*abs(`if`(.\
+7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*96.4853415*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4* .54e-3*
+var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*var_cell__V-10.7280)/(1+exp(
+-.3576*var_cell__V-10.7280))-9000*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1\
+e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))))
+"--var_Ca__Ca_dyad/var_ICaL__xi1ba--"
+-delta_t*(-298.2422222*var_Ca__Ca_NSR*`if`(50 < var_Irel__Ca_JSR and 
+var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(90 <= 
+var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,0))*abs(`if`(.\
+7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*96.4853415*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4* .54e-3*
+var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*var_cell__V-10.7280)/(1+exp(
+-.3576*var_cell__V-10.7280))-9000*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1\
+e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))))
+"--var_Ca__Ca_dyad/var_ICaL__xi1ca--"
+-delta_t*(-298.2422222*var_Ca__Ca_NSR*`if`(50 < var_Irel__Ca_JSR and 
+var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(90 <= 
+var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,0))*abs(`if`(.\
+7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*96.4853415*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4* .54e-3*
+var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*var_cell__V-10.7280)/(1+exp(
+-.3576*var_cell__V-10.7280))-9000*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1\
+e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))))
+"--var_Ca__Ca_dyad/var_ICaL__xi2ba--"
+-delta_t*(-298.2422222*var_Ca__Ca_NSR*`if`(50 < var_Irel__Ca_JSR and 
+var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(90 <= 
+var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,0))*abs(`if`(.\
+7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*96.4853415*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4* .54e-3*
+var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*var_cell__V-10.7280)/(1+exp(
+-.3576*var_cell__V-10.7280))-9000*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1\
+e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))))
+"--var_Ca__Ca_dyad/var_ICaL__xi2ca--"
+-delta_t*(-298.2422222*var_Ca__Ca_NSR*`if`(50 < var_Irel__Ca_JSR and 
+var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(90 <= 
+var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,0))*abs(`if`(.\
+7535393610e-1*abs(var_cell__V) < .1e-2,2* .54e-3*96.4853415*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8),4* .54e-3*
+var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*var_cell__V-10.7280)/(1+exp(
+-.3576*var_cell__V-10.7280))-9000*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1\
+e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*
+1.8),4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*(
+(0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1))))
+"--var_Ca__Ca_dyad/var_Irel__Ca_JSR--"
+-298.2422222*delta_t*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*var_Ca__Ca_NSR*
+`if`(50 < var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,1,`if`(90 <= var_Irel__Ca_JSR,
+11.3,0))*
+abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2*
+ .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)
+,4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.3576*
+var_cell__V-10.7280)/(1+exp(-.3576*var_cell__V-10.7280))
+"--var_Ca__Ca_dyad/var_Irel__xir--"
+0
+"--var_Ca__Ca_dyad/var_Na__Na_i--"
+0
+"--var_Ca__Ca_i/var_Ca__Ca_NSR--"
+-delta_t/(1+168/(7+var_Ca__Ca_i)^2+28.2/(.6+var_Ca__Ca_i)^2+4.5/(.3+
+var_Ca__Ca_i)^2+546/(13+var_Ca__Ca_i)^2)*(.4138e-4*var_Ca__Ca_NSR/(
+var_Ca__Ca_NSR^2+2500)*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i)-.4138e-4*
+var_Ca__Ca_NSR^3/(var_Ca__Ca_NSR^2+2500)^2*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i)
++.34484023e-3*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500))
+"--var_Ca__Ca_i/var_Ca__Ca_dyad--"
+0
+"--var_Ca__Ca_i/var_Ca__Ca_i--"
+1+delta_t/(1+168/(7+var_Ca__Ca_i)^2+28.2/(.6+var_Ca__Ca_i)^2+4.5/(.3+
+var_Ca__Ca_i)^2+546/(13+var_Ca__Ca_i)^2)^2*(1/4*var_Ca__Ca_submem-1/4*
+var_Ca__Ca_i-.4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)+.2069e-4*var_Ca__Ca_NSR^2/(
+var_Ca__Ca_NSR^2+2500)*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i)-.327e-1*
+var_Ca__Ca_i*(70-var_Ca__tropi)+.196e-1*var_Ca__tropi)*(-336/(7+var_Ca__Ca_i)^3
+-56.4/(.6+var_Ca__Ca_i)^3-9.0/(.3+var_Ca__Ca_i)^3-1092/(13+var_Ca__Ca_i)^3)-
+delta_t/(1+168/(7+var_Ca__Ca_i)^2+28.2/(.6+var_Ca__Ca_i)^2+4.5/(.3+var_Ca__Ca_i
+)^2+546/(13+var_Ca__Ca_i)^2)*(-2.539000000-.8*var_Ca__Ca_i/(var_Ca__Ca_i^2+.25)
++.8*var_Ca__Ca_i^3/(var_Ca__Ca_i^2+.25)^2-.2069e-4*var_Ca__Ca_NSR^2/(
+var_Ca__Ca_NSR^2+2500)+.327e-1*var_Ca__tropi)
+"--var_Ca__Ca_i/var_Ca__Ca_submem--"
+-1/4*delta_t/(1+168/(7+var_Ca__Ca_i)^2+28.2/(.6+var_Ca__Ca_i)^2+4.5/(.3+
+var_Ca__Ca_i)^2+546/(13+var_Ca__Ca_i)^2)
+"--var_Ca__Ca_i/var_Ca__tropi--"
+-delta_t/(1+168/(7+var_Ca__Ca_i)^2+28.2/(.6+var_Ca__Ca_i)^2+4.5/(.3+
+var_Ca__Ca_i)^2+546/(13+var_Ca__Ca_i)^2)*(.327e-1*var_Ca__Ca_i+.196e-1)
+"--var_Ca__Ca_i/var_Ca__trops--"
+0
+"--var_Ca__Ca_i/var_ICaL__c1--"
+0
+"--var_Ca__Ca_i/var_ICaL__c2--"
+0
+"--var_Ca__Ca_i/var_ICaL__xi1ba--"
+0
+"--var_Ca__Ca_i/var_ICaL__xi1ca--"
+0
+"--var_Ca__Ca_i/var_ICaL__xi2ba--"
+0
+"--var_Ca__Ca_i/var_ICaL__xi2ca--"
+0
+"--var_Ca__Ca_i/var_Irel__Ca_JSR--"
+0
+"--var_Ca__Ca_i/var_Irel__xir--"
+0
+"--var_Ca__Ca_i/var_Na__Na_i--"
+0
+"--var_Ca__Ca_submem/var_Ca__Ca_NSR--"
+0
+"--var_Ca__Ca_submem/var_Ca__Ca_dyad--"
+0
+"--var_Ca__Ca_submem/var_Ca__Ca_i--"
+-25/2*delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/
+(.3+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)
+"--var_Ca__Ca_submem/var_Ca__Ca_submem--"
+1+delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/(.3+
+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)^2*(50*var_Irel__xir-25/2*
+var_Ca__Ca_submem+25/2*var_Ca__Ca_i-9100*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-
+var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*`if`(.7535393610e-1*
+abs(var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1))+42.00/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*exp(
+.1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp(-.2449002923e-1*
+var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i
+^3+4115.811375*var_Ca__Ca_submem+12405.2022)-.327e-1*var_Ca__Ca_submem*(70-
+var_Ca__trops)+.196e-1*var_Ca__trops)*(-336/(7+var_Ca__Ca_submem)^3-56.4/(.6+
+var_Ca__Ca_submem)^3-9.0/(.3+var_Ca__Ca_submem)^3-1092/(13+var_Ca__Ca_submem)^3
+)-delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/(.3+
+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)*(-14.78900000+3.40200/(1+.27\
+e-1/var_Ca__Ca_submem^3)^2*(1.8*var_Na__Na_i^3*exp(.1318693882e-1*var_cell__V)-\
+314432/125*var_Ca__Ca_submem*exp(-.2449002923e-1*var_cell__V))/(1+.2*exp(-.\
+2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i^3+4115.811375*
+var_Ca__Ca_submem+12405.2022)/var_Ca__Ca_submem^4-105649.1520/(1+.27e-1/
+var_Ca__Ca_submem^3)*exp(-.2449002923e-1*var_cell__V)/(1+.2*exp(-.2449002923e-1
+*var_cell__V))/(7.966356167*var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+12405.\
+2022)-172864.0778/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*exp(.\
+1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp(-.2449002923e-1*
+var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i
+^3+4115.811375*var_Ca__Ca_submem+12405.2022)^2+.327e-1*var_Ca__trops)
+"--var_Ca__Ca_submem/var_Ca__tropi--"
+0
+"--var_Ca__Ca_submem/var_Ca__trops--"
+-delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/(.3+
+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)*(.327e-1*var_Ca__Ca_submem+.\
+196e-1)
+"--var_Ca__Ca_submem/var_ICaL__c1--"
+-9100*delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/
+(.3+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)*`if`(.7535393610e-1*abs(
+var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1))
+"--var_Ca__Ca_submem/var_ICaL__c2--"
+-9100*delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/
+(.3+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)*`if`(.7535393610e-1*abs(
+var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1))
+"--var_Ca__Ca_submem/var_ICaL__xi1ba--"
+-9100*delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/
+(.3+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)*`if`(.7535393610e-1*abs(
+var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1))
+"--var_Ca__Ca_submem/var_ICaL__xi1ca--"
+-9100*delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/
+(.3+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)*`if`(.7535393610e-1*abs(
+var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1))
+"--var_Ca__Ca_submem/var_ICaL__xi2ba--"
+-9100*delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/
+(.3+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)*`if`(.7535393610e-1*abs(
+var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1))
+"--var_Ca__Ca_submem/var_ICaL__xi2ca--"
+-9100*delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/
+(.3+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)*`if`(.7535393610e-1*abs(
+var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1))
+"--var_Ca__Ca_submem/var_Irel__Ca_JSR--"
+0
+"--var_Ca__Ca_submem/var_Irel__xir--"
+-50*delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/(.\
+3+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)
+"--var_Ca__Ca_submem/var_Na__Na_i--"
+-delta_t/(1+168/(7+var_Ca__Ca_submem)^2+28.2/(.6+var_Ca__Ca_submem)^2+4.5/(.3+
+var_Ca__Ca_submem)^2+546/(13+var_Ca__Ca_submem)^2)*(226.800/(1+.27e-1/
+var_Ca__Ca_submem^3)*var_Na__Na_i^2*exp(.1318693882e-1*var_cell__V)/(1+.2*exp(-
+.2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i^3+4115.811375*
+var_Ca__Ca_submem+12405.2022)-1003.760877/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*
+var_Na__Na_i^3*exp(.1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp
+(-.2449002923e-1*var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.96635\
+6167*var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+12405.2022)^2*var_Na__Na_i^2)
+"--var_Ca__tropi/var_Ca__Ca_NSR--"
+0
+"--var_Ca__tropi/var_Ca__Ca_dyad--"
+0
+"--var_Ca__tropi/var_Ca__Ca_i--"
+-delta_t*(2.2890-.327e-1*var_Ca__tropi)
+"--var_Ca__tropi/var_Ca__Ca_submem--"
+0
+"--var_Ca__tropi/var_Ca__tropi--"
+1-delta_t*(-.327e-1*var_Ca__Ca_i-.196e-1)
+"--var_Ca__tropi/var_Ca__trops--"
+0
+"--var_Ca__tropi/var_ICaL__c1--"
+0
+"--var_Ca__tropi/var_ICaL__c2--"
+0
+"--var_Ca__tropi/var_ICaL__xi1ba--"
+0
+"--var_Ca__tropi/var_ICaL__xi1ca--"
+0
+"--var_Ca__tropi/var_ICaL__xi2ba--"
+0
+"--var_Ca__tropi/var_ICaL__xi2ca--"
+0
+"--var_Ca__tropi/var_Irel__Ca_JSR--"
+0
+"--var_Ca__tropi/var_Irel__xir--"
+0
+"--var_Ca__tropi/var_Na__Na_i--"
+0
+"--var_Ca__trops/var_Ca__Ca_NSR--"
+0
+"--var_Ca__trops/var_Ca__Ca_dyad--"
+0
+"--var_Ca__trops/var_Ca__Ca_i--"
+0
+"--var_Ca__trops/var_Ca__Ca_submem--"
+-delta_t*(2.2890-.327e-1*var_Ca__trops)
+"--var_Ca__trops/var_Ca__tropi--"
+0
+"--var_Ca__trops/var_Ca__trops--"
+1-delta_t*(-.327e-1*var_Ca__Ca_submem-.196e-1)
+"--var_Ca__trops/var_ICaL__c1--"
+0
+"--var_Ca__trops/var_ICaL__c2--"
+0
+"--var_Ca__trops/var_ICaL__xi1ba--"
+0
+"--var_Ca__trops/var_ICaL__xi1ca--"
+0
+"--var_Ca__trops/var_ICaL__xi2ba--"
+0
+"--var_Ca__trops/var_ICaL__xi2ca--"
+0
+"--var_Ca__trops/var_Irel__Ca_JSR--"
+0
+"--var_Ca__trops/var_Irel__xir--"
+0
+"--var_Ca__trops/var_Na__Na_i--"
+0
+"--var_ICaL__c1/var_Ca__Ca_NSR--"
+0
+"--var_ICaL__c1/var_Ca__Ca_dyad--"
+1.957608*delta_t/(1+27/var_Ca__Ca_dyad^3)^2/var_Ca__Ca_dyad^4*var_ICaL__c1
+"--var_ICaL__c1/var_Ca__Ca_i--"
+0
+"--var_ICaL__c1/var_Ca__Ca_submem--"
+0
+"--var_ICaL__c1/var_Ca__tropi--"
+0
+"--var_ICaL__c1/var_Ca__trops--"
+0
+"--var_ICaL__c1/var_ICaL__c1--"
+1-delta_t*(-4.30413+1/(1+exp(-1/8*var_cell__V))-.24168e-1/(1+27/var_Ca__Ca_dyad
+^3))
+"--var_ICaL__c1/var_ICaL__c2--"
+-delta_t*(1/(1+exp(-1/8*var_cell__V))-3)
+"--var_ICaL__c1/var_ICaL__xi1ba--"
+2.99776*delta_t
+"--var_ICaL__c1/var_ICaL__xi1ca--"
+2.999896385*delta_t
+"--var_ICaL__c1/var_ICaL__xi2ba--"
+3*delta_t
+"--var_ICaL__c1/var_ICaL__xi2ca--"
+3*delta_t
+"--var_ICaL__c1/var_Irel__Ca_JSR--"
+0
+"--var_ICaL__c1/var_Irel__xir--"
+0
+"--var_ICaL__c1/var_Na__Na_i--"
+0
+"--var_ICaL__c2/var_Ca__Ca_NSR--"
+0
+"--var_ICaL__c2/var_Ca__Ca_dyad--"
+-delta_t*(-(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))/((9.9+4954*
+exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4))*(
+1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+
+.1)^2*var_ICaL__xi2ca*(.2263746095/(1+.7252537376e-3*var_Ca__Ca_dyad^4)^2*
+var_Ca__Ca_dyad^3*(1-1/(1+exp(-1/4*var_cell__V-10)))-.2263746095/(1+.7252537376\
+e-3*var_Ca__Ca_dyad^4)^2*var_Ca__Ca_dyad^3)-(81/(1+27/var_Ca__Ca_dyad^3)^2/(1+
+exp(-.8833922261e-1*var_cell__V-3.533568904))/((9.9+4954*exp(.6410256410e-1*
+var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*
+var_cell__V-10)))+78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+.1)/
+var_Ca__Ca_dyad^4-1/(1+27/var_Ca__Ca_dyad^3)/(1+exp(-.8833922261e-1*var_cell__V
+-3.533568904))/((9.9+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.\
+7252537376e-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1
++.7252537376e-3*var_Ca__Ca_dyad^4)+.1)^2*(.2263746095/(1+.7252537376e-3*
+var_Ca__Ca_dyad^4)^2*var_Ca__Ca_dyad^3*(1-1/(1+exp(-1/4*var_cell__V-10)))-.2263\
+746095/(1+.7252537376e-3*var_Ca__Ca_dyad^4)^2*var_Ca__Ca_dyad^3))*var_ICaL__c2)
+"--var_ICaL__c2/var_Ca__Ca_i--"
+0
+"--var_ICaL__c2/var_Ca__Ca_submem--"
+0
+"--var_ICaL__c2/var_Ca__tropi--"
+0
+"--var_ICaL__c2/var_Ca__trops--"
+0
+"--var_ICaL__c2/var_ICaL__c1--"
+-delta_t*(1-1/(1+exp(-1/8*var_cell__V)))
+"--var_ICaL__c2/var_ICaL__c2--"
+1-delta_t*(-1/(1+27/var_Ca__Ca_dyad^3)/(1+exp(-.8833922261e-1*var_cell__V-3.533\
+568904))/((9.9+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e-3*
+var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.7252537376e-\
+3*var_Ca__Ca_dyad^4)+.1)-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904))/((-\
+440+4954*exp(.6410256410e-1*var_cell__V))*(1-1/(1+exp(-1/4*var_cell__V-10)))+
+450)-1/(1+exp(-1/8*var_cell__V)))
+"--var_ICaL__c2/var_ICaL__xi1ba--"
+0
+"--var_ICaL__c2/var_ICaL__xi1ca--"
+0
+"--var_ICaL__c2/var_ICaL__xi2ba--"
+-delta_t*(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))/((-440+4954*exp
+(.6410256410e-1*var_cell__V))*(1-1/(1+exp(-1/4*var_cell__V-10)))+450)
+"--var_ICaL__c2/var_ICaL__xi2ca--"
+-delta_t*(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))/((9.9+4954*exp(
+.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4))*(1-1/
+(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+.1)
+"--var_ICaL__c2/var_Irel__Ca_JSR--"
+0
+"--var_ICaL__c2/var_Irel__xir--"
+0
+"--var_ICaL__c2/var_Na__Na_i--"
+0
+"--var_ICaL__xi1ba/var_Ca__Ca_NSR--"
+0
+"--var_ICaL__xi1ba/var_Ca__Ca_dyad--"
+0
+"--var_ICaL__xi1ba/var_Ca__Ca_i--"
+0
+"--var_ICaL__xi1ba/var_Ca__Ca_submem--"
+0
+"--var_ICaL__xi1ba/var_Ca__tropi--"
+0
+"--var_ICaL__xi1ba/var_Ca__trops--"
+0
+"--var_ICaL__xi1ba/var_ICaL__c1--"
+-.218e-2*delta_t
+"--var_ICaL__xi1ba/var_ICaL__c2--"
+.195e-2*delta_t
+"--var_ICaL__xi1ba/var_ICaL__xi1ba--"
+1-delta_t*(-.3376290960+1/3/(1+exp(-1/3*var_cell__V-40/3)))
+"--var_ICaL__xi1ba/var_ICaL__xi1ca--"
+.195e-2*delta_t
+"--var_ICaL__xi1ba/var_ICaL__xi2ba--"
+-delta_t*(1.843750000*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))/(1+exp(-1/8*
+var_cell__V))/(1-1/(1+exp(-1/8*var_cell__V)))*(1-1/(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904)))*(1+exp(-.8833922261e-1*var_cell__V-3.533568904))-.\
+195e-2)
+"--var_ICaL__xi1ba/var_ICaL__xi2ca--"
+.195e-2*delta_t
+"--var_ICaL__xi1ba/var_Irel__Ca_JSR--"
+0
+"--var_ICaL__xi1ba/var_Irel__xir--"
+0
+"--var_ICaL__xi1ba/var_Na__Na_i--"
+0
+"--var_ICaL__xi1ca/var_Ca__Ca_NSR--"
+0
+"--var_ICaL__xi1ca/var_Ca__Ca_dyad--"
+-delta_t*(1.957608/(1+27/var_Ca__Ca_dyad^3)^2/var_Ca__Ca_dyad^4*var_ICaL__c1+1.\
+4797728/(1+27/var_Ca__Ca_dyad^3)^2*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-
+var_ICaL__xi1ba-var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)/var_Ca__Ca_dyad^4)
+"--var_ICaL__xi1ca/var_Ca__Ca_i--"
+0
+"--var_ICaL__xi1ca/var_Ca__Ca_submem--"
+0
+"--var_ICaL__xi1ca/var_Ca__tropi--"
+0
+"--var_ICaL__xi1ca/var_Ca__trops--"
+0
+"--var_ICaL__xi1ca/var_ICaL__c1--"
+-.58992e-2*delta_t/(1+27/var_Ca__Ca_dyad^3)
+"--var_ICaL__xi1ca/var_ICaL__c2--"
+.182688e-1*delta_t/(1+27/var_Ca__Ca_dyad^3)
+"--var_ICaL__xi1ca/var_ICaL__xi1ba--"
+.182688e-1*delta_t/(1+27/var_Ca__Ca_dyad^3)
+"--var_ICaL__xi1ca/var_ICaL__xi1ca--"
+1-delta_t*(-.182688e-1/(1+27/var_Ca__Ca_dyad^3)-.3334447806+1/3/(1+exp(-1/3*
+var_cell__V-40/3)))
+"--var_ICaL__xi1ca/var_ICaL__xi2ba--"
+.182688e-1*delta_t/(1+27/var_Ca__Ca_dyad^3)
+"--var_ICaL__xi1ca/var_ICaL__xi2ca--"
+-delta_t*(233.2480818*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))/(1+exp(-1/8*
+var_cell__V))/(1-1/(1+exp(-1/8*var_cell__V)))*(1-1/(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904)))*(1+exp(-.8833922261e-1*var_cell__V-3.533568904))-.\
+182688e-1/(1+27/var_Ca__Ca_dyad^3))
+"--var_ICaL__xi1ca/var_Irel__Ca_JSR--"
+0
+"--var_ICaL__xi1ca/var_Irel__xir--"
+0
+"--var_ICaL__xi1ca/var_Na__Na_i--"
+0
+"--var_ICaL__xi2ba/var_Ca__Ca_NSR--"
+0
+"--var_ICaL__xi2ba/var_Ca__Ca_dyad--"
+0
+"--var_ICaL__xi2ba/var_Ca__Ca_i--"
+0
+"--var_ICaL__xi2ba/var_Ca__Ca_submem--"
+0
+"--var_ICaL__xi2ba/var_Ca__tropi--"
+0
+"--var_ICaL__xi2ba/var_Ca__trops--"
+0
+"--var_ICaL__xi2ba/var_ICaL__c1--"
+0
+"--var_ICaL__xi2ba/var_ICaL__c2--"
+-delta_t/(1+exp(-.8833922261e-1*var_cell__V-3.533568904))/((-440+4954*exp(.\
+6410256410e-1*var_cell__V))*(1-1/(1+exp(-1/4*var_cell__V-10)))+450)
+"--var_ICaL__xi2ba/var_ICaL__xi1ba--"
+-delta_t*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))
+"--var_ICaL__xi2ba/var_ICaL__xi1ca--"
+0
+"--var_ICaL__xi2ba/var_ICaL__xi2ba--"
+1-delta_t*(-(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))/((-440+4954*
+exp(.6410256410e-1*var_cell__V))*(1-1/(1+exp(-1/4*var_cell__V-10)))+450)-1.8437\
+50000*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))/(1+exp(-1/8*var_cell__V))/(1-1/(
+1+exp(-1/8*var_cell__V)))*(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904))
+)*(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))
+"--var_ICaL__xi2ba/var_ICaL__xi2ca--"
+0
+"--var_ICaL__xi2ba/var_Irel__Ca_JSR--"
+0
+"--var_ICaL__xi2ba/var_Irel__xir--"
+0
+"--var_ICaL__xi2ba/var_Na__Na_i--"
+0
+"--var_ICaL__xi2ca/var_Ca__Ca_NSR--"
+0
+"--var_ICaL__xi2ca/var_Ca__Ca_dyad--"
+-delta_t*(81/(1+27/var_Ca__Ca_dyad^3)^2/(1+exp(-.8833922261e-1*var_cell__V-3.53\
+3568904))/((9.9+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e-3*
+var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.7252537376e-\
+3*var_Ca__Ca_dyad^4)+.1)*var_ICaL__c2/var_Ca__Ca_dyad^4-1/(1+27/var_Ca__Ca_dyad
+^3)/(1+exp(-.8833922261e-1*var_cell__V-3.533568904))/((9.9+4954*exp(.6410256410\
+e-1*var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4
+*var_cell__V-10)))+78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+.1)^2*
+var_ICaL__c2*(.2263746095/(1+.7252537376e-3*var_Ca__Ca_dyad^4)^2*
+var_Ca__Ca_dyad^3*(1-1/(1+exp(-1/4*var_cell__V-10)))-.2263746095/(1+.7252537376\
+e-3*var_Ca__Ca_dyad^4)^2*var_Ca__Ca_dyad^3)+(1-1/(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904)))/((9.9+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(
+1+.7252537376e-3*var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329
+/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+.1)^2*var_ICaL__xi2ca*(.2263746095/(1+.\
+7252537376e-3*var_Ca__Ca_dyad^4)^2*var_Ca__Ca_dyad^3*(1-1/(1+exp(-1/4*
+var_cell__V-10)))-.2263746095/(1+.7252537376e-3*var_Ca__Ca_dyad^4)^2*
+var_Ca__Ca_dyad^3))
+"--var_ICaL__xi2ca/var_Ca__Ca_i--"
+0
+"--var_ICaL__xi2ca/var_Ca__Ca_submem--"
+0
+"--var_ICaL__xi2ca/var_Ca__tropi--"
+0
+"--var_ICaL__xi2ca/var_Ca__trops--"
+0
+"--var_ICaL__xi2ca/var_ICaL__c1--"
+0
+"--var_ICaL__xi2ca/var_ICaL__c2--"
+-delta_t/(1+27/var_Ca__Ca_dyad^3)/(1+exp(-.8833922261e-1*var_cell__V-3.53356890\
+4))/((9.9+4954*exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e-3*
+var_Ca__Ca_dyad^4))*(1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.7252537376e-\
+3*var_Ca__Ca_dyad^4)+.1)
+"--var_ICaL__xi2ca/var_ICaL__xi1ba--"
+0
+"--var_ICaL__xi2ca/var_ICaL__xi1ca--"
+-delta_t*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))
+"--var_ICaL__xi2ca/var_ICaL__xi2ba--"
+0
+"--var_ICaL__xi2ca/var_ICaL__xi2ca--"
+1-delta_t*(-(1-1/(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))/((9.9+4954*
+exp(.6410256410e-1*var_cell__V)-78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4))*(
+1-1/(1+exp(-1/4*var_cell__V-10)))+78.0329/(1+.7252537376e-3*var_Ca__Ca_dyad^4)+
+.1)-233.2480818*(1/3-1/3/(1+exp(-1/3*var_cell__V-40/3)))/(1+exp(-1/8*
+var_cell__V))/(1-1/(1+exp(-1/8*var_cell__V)))*(1-1/(1+exp(-.8833922261e-1*
+var_cell__V-3.533568904)))*(1+exp(-.8833922261e-1*var_cell__V-3.533568904)))
+"--var_ICaL__xi2ca/var_Irel__Ca_JSR--"
+0
+"--var_ICaL__xi2ca/var_Irel__xir--"
+0
+"--var_ICaL__xi2ca/var_Na__Na_i--"
+0
+"--var_Irel__Ca_JSR/var_Ca__Ca_NSR--"
+-1/100*delta_t
+"--var_Irel__Ca_JSR/var_Ca__Ca_dyad--"
+0
+"--var_Irel__Ca_JSR/var_Ca__Ca_i--"
+0
+"--var_Irel__Ca_JSR/var_Ca__Ca_submem--"
+0
+"--var_Irel__Ca_JSR/var_Ca__tropi--"
+0
+"--var_Irel__Ca_JSR/var_Ca__trops--"
+0
+"--var_Irel__Ca_JSR/var_ICaL__c1--"
+0
+"--var_Irel__Ca_JSR/var_ICaL__c2--"
+0
+"--var_Irel__Ca_JSR/var_ICaL__xi1ba--"
+0
+"--var_Irel__Ca_JSR/var_ICaL__xi1ca--"
+0
+"--var_Irel__Ca_JSR/var_ICaL__xi2ba--"
+0
+"--var_Irel__Ca_JSR/var_ICaL__xi2ca--"
+0
+"--var_Irel__Ca_JSR/var_Irel__Ca_JSR--"
+1+1/100*delta_t
+"--var_Irel__Ca_JSR/var_Irel__xir--"
+0
+"--var_Irel__Ca_JSR/var_Na__Na_i--"
+0
+"--var_Irel__xir/var_Ca__Ca_NSR--"
+-delta_t*(.2867544444e-1*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*abs(`if`(.7535393610e-1*abs(
+var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1)))*exp(-.5e-1*var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50)
+)*`if`(50 < var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`
+(90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0
+,0))-1/30*var_Irel__xir*(-30*(-.4138e-4*var_Ca__Ca_NSR/(var_Ca__Ca_NSR^2+2500)*
+(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i)+.4138e-4*var_Ca__Ca_NSR^3/(var_Ca__Ca_NSR^
+2+2500)^2*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i)-.34484023e-3*var_Ca__Ca_NSR^2/(
+var_Ca__Ca_NSR^2+2500))/var_Ca__Ca_NSR+30*(-var_Irel__xir+.4*var_Ca__Ca_i^2/(
+var_Ca__Ca_i^2+.25)-.2069e-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500)*(16.667*
+var_Ca__Ca_NSR-var_Ca__Ca_i))/var_Ca__Ca_NSR^2))
+"--var_Irel__xir/var_Ca__Ca_dyad--"
+0
+"--var_Irel__xir/var_Ca__Ca_i--"
+-delta_t*var_Irel__xir*(.8*var_Ca__Ca_i/(var_Ca__Ca_i^2+.25)-.8*var_Ca__Ca_i^3/
+(var_Ca__Ca_i^2+.25)^2+.2069e-4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500))/
+var_Ca__Ca_NSR
+"--var_Irel__xir/var_Ca__Ca_submem--"
+0
+"--var_Irel__xir/var_Ca__tropi--"
+0
+"--var_Irel__xir/var_Ca__trops--"
+0
+"--var_Irel__xir/var_ICaL__c1--"
+.2867544444e-1*delta_t*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2*
+ .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)
+,4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.5e-1*
+var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50))*var_Ca__Ca_NSR*`if`(50 < 
+var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))
+"--var_Irel__xir/var_ICaL__c2--"
+.2867544444e-1*delta_t*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2*
+ .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)
+,4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.5e-1*
+var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50))*var_Ca__Ca_NSR*`if`(50 < 
+var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))
+"--var_Irel__xir/var_ICaL__xi1ba--"
+.2867544444e-1*delta_t*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2*
+ .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)
+,4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.5e-1*
+var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50))*var_Ca__Ca_NSR*`if`(50 < 
+var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))
+"--var_Irel__xir/var_ICaL__xi1ca--"
+.2867544444e-1*delta_t*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2*
+ .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)
+,4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.5e-1*
+var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50))*var_Ca__Ca_NSR*`if`(50 < 
+var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))
+"--var_Irel__xir/var_ICaL__xi2ba--"
+.2867544444e-1*delta_t*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2*
+ .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)
+,4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.5e-1*
+var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50))*var_Ca__Ca_NSR*`if`(50 < 
+var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))
+"--var_Irel__xir/var_ICaL__xi2ca--"
+.2867544444e-1*delta_t*abs(`if`(.7535393610e-1*abs(var_cell__V) < .1e-2,2*
+ .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)
+,4* .54e-3*var_cell__V*96.4853415*.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8)/(exp(var_ICaL__za)-1)))*exp(-.5e-1*
+var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50))*var_Ca__Ca_NSR*`if`(50 < 
+var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,var_Irel__Ca_JSR-50,`if`(
+90 <= var_Irel__Ca_JSR,11.3*var_Irel__Ca_JSR+-977.0,
+0))
+"--var_Irel__xir/var_Irel__Ca_JSR--"
+-.2867544444e-1*delta_t*(1-var_ICaL__xi1ca-var_ICaL__xi2ca-var_ICaL__xi1ba-
+var_ICaL__xi2ba-var_ICaL__c1-var_ICaL__c2)*abs(`if`(.7535393610e-1*abs(
+var_cell__V) < .1e-2,2* .54e-3*96.4853415*((0.001*var_Ca__Ca_submem)*exp(
+var_ICaL__za)-.341*1.8),4* .54e-3*var_cell__V*96.4853415*
+.3767696805e-1*((0.001*var_Ca__Ca_submem)*exp(var_ICaL__za)-.341*1.8)/(exp(
+var_ICaL__za)-1)))*exp(-.5e-1*var_cell__V-1.50)/(1+exp(-.5e-1*var_cell__V-1.50)
+)*var_Ca__Ca_NSR*`if`(50 < var_Irel__Ca_JSR and var_Irel__Ca_JSR < 90,1,
+`if`(90 <= var_Irel__Ca_JSR,11.3,0))
+"--var_Irel__xir/var_Irel__xir--"
+1-delta_t*(-1/30+(-var_Irel__xir+.4*var_Ca__Ca_i^2/(var_Ca__Ca_i^2+.25)-.2069e-\
+4*var_Ca__Ca_NSR^2/(var_Ca__Ca_NSR^2+2500)*(16.667*var_Ca__Ca_NSR-var_Ca__Ca_i)
+)/var_Ca__Ca_NSR-var_Irel__xir/var_Ca__Ca_NSR)
+"--var_Irel__xir/var_Na__Na_i--"
+0
+"--var_Na__Na_i/var_Ca__Ca_NSR--"
+0
+"--var_Na__Na_i/var_Ca__Ca_dyad--"
+0
+"--var_Na__Na_i/var_Ca__Ca_i--"
+0
+"--var_Na__Na_i/var_Ca__Ca_submem--"
+-delta_t*(-.2041200000e-3/(1+.27e-1/var_Ca__Ca_submem^3)^2*(1.8*var_Na__Na_i^3*
+exp(.1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp(-.2449002923e-\
+1*var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.966356167*
+var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+12405.2022)/var_Ca__Ca_submem^4+6.\
+338949120/(1+.27e-1/var_Ca__Ca_submem^3)*exp(-.2449002923e-1*var_cell__V)/(1+.2
+*exp(-.2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i^3+4115.811375*
+var_Ca__Ca_submem+12405.2022)+10.37184466/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*
+var_Na__Na_i^3*exp(.1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp
+(-.2449002923e-1*var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.96635\
+6167*var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+12405.2022)^2)
+"--var_Na__Na_i/var_Ca__tropi--"
+0
+"--var_Na__Na_i/var_Ca__trops--"
+0
+"--var_Na__Na_i/var_ICaL__c1--"
+0
+"--var_Na__Na_i/var_ICaL__c2--"
+0
+"--var_Na__Na_i/var_ICaL__xi1ba--"
+0
+"--var_Na__Na_i/var_ICaL__xi1ca--"
+0
+"--var_Na__Na_i/var_ICaL__xi2ba--"
+0
+"--var_Na__Na_i/var_ICaL__xi2ca--"
+0
+"--var_Na__Na_i/var_Irel__Ca_JSR--"
+0
+"--var_Na__Na_i/var_Irel__xir--"
+0
+"--var_Na__Na_i/var_Na__Na_i--"
+1-delta_t*(-.3981212072e-1*var_INa__xh*var_INa__xj*var_INa__xm^3/var_Na__Na_i-.\
+4402173911e-3/(1+.1245*exp(-.3767696805e-2*var_cell__V)+.3412424596e-1*exp(-.\
+3767696805e-1*var_cell__V))/(var_Na__Na_i+12)+.4402173911e-3/(1+.1245*exp(-.\
+3767696805e-2*var_cell__V)+.3412424596e-1*exp(-.3767696805e-1*var_cell__V))*
+var_Na__Na_i/(var_Na__Na_i+12)^2-.1360800000e-1/(1+.27e-1/var_Ca__Ca_submem^3)*
+var_Na__Na_i^2*exp(.1318693882e-1*var_cell__V)/(1+.2*exp(-.2449002923e-1*
+var_cell__V))/(7.966356167*var_Na__Na_i^3+4115.811375*var_Ca__Ca_submem+12405.2\
+022)+.6022565262e-1/(1+.27e-1/var_Ca__Ca_submem^3)*(1.8*var_Na__Na_i^3*exp(.\
+1318693882e-1*var_cell__V)-314432/125*var_Ca__Ca_submem*exp(-.2449002923e-1*
+var_cell__V))/(1+.2*exp(-.2449002923e-1*var_cell__V))/(7.966356167*var_Na__Na_i
+^3+4115.811375*var_Ca__Ca_submem+12405.2022)^2*var_Na__Na_i^2)
+memory used=2.2MB, alloc=1.0MB, time=0.44

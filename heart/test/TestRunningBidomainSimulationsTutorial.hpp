@@ -57,8 +57,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "BidomainProblem.hpp"
 /* The {{{PlaneStimulusCellFactory}}} is a useful class to include (see later). */
 #include "PlaneStimulusCellFactory.hpp"
-/* {{{LuoRudyIModel1991OdeSystem}}} is the cell model which will be used in this simulation.*/
-#include "LuoRudyIModel1991OdeSystem.hpp"
+/* {{{CellLuoRudy1991FromCellML}}} is the cell model which will be used in this simulation.*/
+#include "LuoRudy1991.hpp"
 /* All tests which run cardiac simulations (which use Petsc) should include
  * {{{PetscSetupAndFinalize.hpp}}}.  This class ensures that {{{PetscInitialise()}}}
  * is called with the appropriate arguments before any tests in the suite are run. */
@@ -128,12 +128,12 @@ public:
              * which corresponds to having zero on the right-hand side of the second of the 
              * bidomain equations. 
              */
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
         }
         else
         {
             /* The other cells have zero stimuli. */
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
         }
     }
 
@@ -299,7 +299,7 @@ public:
          * stimulated, but we don't want any intracellular stimulus in this
          * test, so we pass in 0.0 as the stimulus magnitude.
          */
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem,2> cell_factory(0.0);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML,2> cell_factory(0.0);
 
         /*
          * Now, we load up a rectangular mesh (in triangle/tetgen format), done as follows,

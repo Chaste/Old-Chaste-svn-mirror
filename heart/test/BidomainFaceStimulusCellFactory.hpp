@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define BIDOMAINFACESTIMULUSCELLFACTORY_HPP_
 
 #include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "SimpleStimulus.hpp"
 #include "RegularStimulus.hpp"
 
@@ -54,11 +54,11 @@ public:
     {
         if (GetMesh()->GetNode(node)->GetPoint()[0] == 0.0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpRegStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpRegStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
         }
     }
 };

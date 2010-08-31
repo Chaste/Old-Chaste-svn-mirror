@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <math.h>
 
 #include "LuoRudy1991BackwardEuler.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "PerformanceTester.hpp"
 
 class TestPerformance : public CxxTest::TestSuite

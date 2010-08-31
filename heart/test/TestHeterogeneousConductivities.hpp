@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshReader.hpp"
 #include "DistributedTetrahedralMesh.hpp"
 #include "MeshalyzerMeshWriter.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "PetscSetupAndFinalize.hpp"
 
 using std::ofstream;
@@ -65,7 +65,7 @@ public:
         mesh.ConstructRegularSlabMesh(space_step, width, height, depth);
 
         /*Create a cell factory of the type we defined above. */
-        GeneralPlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(num_elem_x, width);
+        GeneralPlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(num_elem_x, width);
 
         /* monodomain problem class using (a pointer to) the cell factory */
         BidomainProblem<3> problem( &cell_factory );

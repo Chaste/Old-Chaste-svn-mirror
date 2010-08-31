@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
 #include "CardiacElectroMechProbRegularGeom.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "NonlinearElasticityTools.hpp"
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
 #include "NumericFileComparison.hpp"
@@ -49,7 +49,7 @@ public:
     {
         HeartEventHandler::Disable();
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechProbRegularGeom<2> problem(NHS,
                                                      1.0, /* width (cm) */
@@ -88,7 +88,7 @@ public:
 
     void TestImplicitNhs2dOneMechanicsElement() throw(Exception)
     {
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechProbRegularGeom<2> problem(NHS,
                                                      0.05, /* width (cm) */
@@ -132,7 +132,7 @@ public:
     {
         HeartEventHandler::Disable();
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechProbRegularGeom<2> problem(KERCHOFFS2003,
                                                      0.05, /* width (cm) */

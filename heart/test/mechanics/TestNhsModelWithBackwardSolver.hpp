@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "NhsModelWithBackwardSolver.hpp"
 #include "EulerIvpOdeSolver.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "ZeroStimulus.hpp"
 #include "SimpleDataWriter.hpp"
 #include "Timer.hpp"
@@ -48,8 +48,8 @@ private:
     {
         boost::shared_ptr<EulerIvpOdeSolver> p_euler_solver(new EulerIvpOdeSolver);
         boost::shared_ptr<ZeroStimulus> p_zero_stimulus(new ZeroStimulus);
-        LuoRudyIModel1991OdeSystem lr91(p_euler_solver, p_zero_stimulus);
-        return lr91.rGetStateVariables()[lr91.GetStateVariableIndex("CaI")];
+        CellLuoRudy1991FromCellML lr91(p_euler_solver, p_zero_stimulus);
+        return lr91.rGetStateVariables()[lr91.GetStateVariableIndex("cytosolic_calcium_concentration")];
     }
 
 public:

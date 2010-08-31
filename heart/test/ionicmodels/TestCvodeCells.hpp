@@ -29,8 +29,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef TESTCVODECELLS_HPP_
 #define TESTCVODECELLS_HPP_
 
+#include "AbstractCvodeCell.hpp"
 #include "LuoRudy1991Cvode.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "Shannon2004.hpp"
 #include "Shannon2004Cvode.hpp"
 
@@ -135,7 +136,7 @@ public:
         TS_ASSERT_EQUALS(lr91_cvode_system.GetMaxSteps(), 0u); // 0 means 'UNSET' and Cvode uses the default.
 
         // 'Traditional' Chaste cell model for comparison of results:
-        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellML lr91_ode_system(p_solver, p_stimulus);
 
         // Solve and write to file
         double max_timestep = 1.0;

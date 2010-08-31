@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellProperties.hpp"
 #include "RegularStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "FileFinder.hpp"
 #include "ColumnDataReader.hpp"
 
@@ -183,14 +183,14 @@ public:
         double start_time = 0.0;   // ms
         double end_time = 3450;  // ms
 
-        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellML lr91_ode_system(p_solver, p_stimulus);
 
         OdeSolution solution = lr91_ode_system.Compute(start_time, end_time);
 
         solution.WriteToFile("", __FUNCTION__, "ms");
 
         // Now calculate the properties
-        std::vector<double> voltage=solution.GetVariableAtIndex(4);
+        std::vector<double> voltage=solution.GetVariableAtIndex(lr91_ode_system.GetStateVariableIndex("membrane_voltage"));
         CellProperties cell_props(voltage, solution.rGetTimes()); // Use default threshold
         double timestep = solution.rGetTimes()[1] - solution.rGetTimes()[0];
         unsigned size = cell_props.GetMaxUpstrokeVelocities().size();

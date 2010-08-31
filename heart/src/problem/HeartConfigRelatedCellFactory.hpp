@@ -50,8 +50,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * included here for serialization to work - the archiving code needs to see
  * the CHASTE_CLASS_EXPORT incantations.
  */
-#include "BackwardEulerFoxModel2002Modified.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "FoxModel2002BackwardEuler.hpp"
+#include "LuoRudy1991.hpp"
 #include "LuoRudy1991BackwardEuler.hpp"
 #include "FaberRudy2000.hpp"
 #include "FaberRudy2000Opt.hpp"

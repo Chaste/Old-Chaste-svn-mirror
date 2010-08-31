@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "TetrahedralMesh.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "HeartGeometryInformation.hpp"
 #include "HeartConfig.hpp"
 
@@ -43,8 +43,8 @@ public:
     {
         TetrahedralMesh<3,3> mesh;
         mesh.ConstructCuboid(2,2,2);
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory1;
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory2(-100); //  stimulus voltage
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory1;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory2(-100); //  stimulus voltage
 
         //Try getting before setting. It should throw (covers the exception)
         TS_ASSERT_THROWS_THIS(cell_factory1.GetMesh(),"The mesh object has not been set in the cell factory");
@@ -113,7 +113,7 @@ public:
 
         HeartGeometryInformation<2> info(mesh, handler.GetOutputDirectoryFullPath()+left_file, handler.GetOutputDirectoryFullPath()+right_file, true);
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory_1;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory_1;
 
         HeartGeometryInformation<2>* p_info_from_cell_factory = NULL;
         //get it from the cell factory before setting it, it should throw...(covers the exception)

@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "MonodomainCellCollection.hpp"
 #include "OdeSolution.hpp"
 #include "AbstractCardiacCellFactory.hpp"
@@ -68,11 +68,11 @@ public:
     {
         if (node==0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
         }
     }
 
@@ -119,7 +119,7 @@ public:
         // Check results by solving ODE systems directly
         // Check node 0
         double value_cell_collection = monodomain_cell_collection.rGetIionicCacheReplicated()[0];
-        LuoRudyIModel1991OdeSystem ode_system_stimulated(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellML ode_system_stimulated(p_solver, p_stimulus);
         ode_system_stimulated.ComputeExceptVoltage(start_time, start_time + big_time_step);
         double value_ode = ode_system_stimulated.GetIIonic();
         TS_ASSERT_DELTA(value_cell_collection, value_ode, 0.000001);
@@ -129,7 +129,7 @@ public:
         TS_ASSERT_DELTA(value_cell_collection, value_ode, 0.000001);
 
         // Check node 1
-        LuoRudyIModel1991OdeSystem ode_system_not_stim(p_solver, p_zero_stim);
+        CellLuoRudy1991FromCellML ode_system_not_stim(p_solver, p_zero_stim);
         value_cell_collection = monodomain_cell_collection.rGetIionicCacheReplicated()[1];
         ode_system_not_stim.ComputeExceptVoltage(start_time, start_time + big_time_step);
         value_ode = ode_system_not_stim.GetIIonic();
@@ -143,11 +143,11 @@ public:
         {
             if (index.Global==0)
             {
-                dist_voltage[index] = ode_system_stimulated.rGetStateVariables()[4];
+                dist_voltage[index] = ode_system_stimulated.rGetStateVariables()[0];
             }
             if (index.Global==1)
             {
-                dist_voltage[index] = ode_system_not_stim.rGetStateVariables()[4];
+                dist_voltage[index] = ode_system_not_stim.rGetStateVariables()[0];
             }
         }
         dist_voltage.Restore();

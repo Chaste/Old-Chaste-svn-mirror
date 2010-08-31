@@ -49,7 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "LuoRudy1991.hpp"
 #include "LuoRudy1991Opt.hpp"
 #include "LuoRudy1991BackwardEuler.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 
 #include "TenTusscher2006Epi.hpp"
 #include "TenTusscher2006EpiOpt.hpp"
@@ -132,8 +132,8 @@ public:
 
         double end_time = 1000.0; //One second in milliseconds
 
-        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
-        TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 4u); // For coverage
+        CellLuoRudy1991FromCellML lr91_ode_system(p_solver, p_stimulus);
+        TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 0u); // For coverage
 
         // Solve and write to file
         ck_start = clock();

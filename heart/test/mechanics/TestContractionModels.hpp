@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NonPhysiologicalContractionModel.hpp"
 #include "NhsContractionModel.hpp"
 #include "Kerchoffs2003ContractionModel.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "ZeroStimulus.hpp"
 #include "HeartConfig.hpp"
@@ -131,8 +131,8 @@ public :
 
         // the following is just to get a realistic Ca_I value
         boost::shared_ptr<ZeroStimulus> p_zero_stimulus(new ZeroStimulus);
-        LuoRudyIModel1991OdeSystem lr91(p_euler_solver, p_zero_stimulus);
-        unsigned Ca_i_index = lr91.GetStateVariableIndex("CaI");
+        CellLuoRudy1991FromCellML lr91(p_euler_solver, p_zero_stimulus);
+        unsigned Ca_i_index = lr91.GetStateVariableIndex("cytosolic_calcium_concentration");
         double Ca_I = lr91.rGetStateVariables()[Ca_i_index];
 
         // lambda1=1, dlamdt = 0, so there should be no active tension
@@ -182,11 +182,11 @@ public :
         double end_time = 1000.0;
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        LuoRudyIModel1991OdeSystem electrophys_model(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellML electrophys_model(p_solver, p_stimulus);
         NhsContractionModel cellmech_model;
 
         // find out if electrophys model has CaTrop
-        unsigned Ca_i_index = electrophys_model.GetStateVariableIndex("CaI");
+        unsigned Ca_i_index = electrophys_model.GetStateVariableIndex("cytosolic_calcium_concentration");
         bool has_Ca_trop = false;
         unsigned Ca_trop_index=0;
 
@@ -290,11 +290,11 @@ public :
         double min_lam = 0.85;
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        LuoRudyIModel1991OdeSystem electrophys_model(p_solver, p_zero_stimulus);
+        CellLuoRudy1991FromCellML electrophys_model(p_solver, p_zero_stimulus);
         NhsContractionModel cellmech_model;
 
         // find out if electrophys model has CaTrop
-        unsigned Ca_i_index = electrophys_model.GetStateVariableIndex("CaI");
+        unsigned Ca_i_index = electrophys_model.GetStateVariableIndex("cytosolic_calcium_concentration");
         bool has_Ca_trop = false;
         unsigned Ca_trop_index=0;
 
@@ -406,8 +406,8 @@ public :
         for(unsigned run=0; run<3; run++)
         {
             boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-            LuoRudyIModel1991OdeSystem electrophys_model(p_solver, p_stimulus);
-            unsigned Ca_i_index = electrophys_model.GetStateVariableIndex("CaI");
+            CellLuoRudy1991FromCellML electrophys_model(p_solver, p_stimulus);
+            unsigned Ca_i_index = electrophys_model.GetStateVariableIndex("cytosolic_calcium_concentration");
     
             NhsContractionModel cellmech_model;
 
@@ -659,7 +659,7 @@ public :
         boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(-25.5, 2.0, 0.0));
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        LuoRudyIModel1991OdeSystem electrophys_model(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellML electrophys_model(p_solver, p_stimulus);
 
         std::vector<double> times;
         std::vector<double> active_tensions;

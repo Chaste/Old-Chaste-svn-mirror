@@ -36,14 +36,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacCellFactory.hpp"
 #include "SimpleStimulus.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "HeartRegionCodes.hpp"
 
 /**
  * A simple cell factory for bath problems, applying a SimpleStimulus for
  * 0.5ms at a single point.
  */
-template<unsigned DIM, class CELLTYPE=LuoRudyIModel1991OdeSystem>
+template<unsigned DIM, class CELLTYPE=CellLuoRudy1991FromCellML>
 class BathCellFactory : public AbstractCardiacCellFactory<DIM>
 {
 private:

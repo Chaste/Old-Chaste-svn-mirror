@@ -2267,7 +2267,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # Output mathematics for computing du/dt for each nonlinear state var u
         nodes = map(lambda u: (self.varobj(u), self.free_vars[0]),
                     self.nonlinear_system_vars)
-        nodeset = self.calculate_extended_dependencies(nodes)
+        nodeset = self.calculate_extended_dependencies(nodes, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
         self.output_nonlinear_state_assignments(nodeset=nodeset)
         self.output_equations(nodeset)
@@ -2302,7 +2302,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         used_vars = set()
         for entry in self.model.solver_info.jacobian.entry:
             used_vars.update(self._vars_in(entry.math))
-        nodeset = self.calculate_extended_dependencies(used_vars)
+        nodeset = self.calculate_extended_dependencies(used_vars, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
         self.output_nonlinear_state_assignments(nodeset=nodeset)
         if self.conversion_factor:
@@ -2343,7 +2343,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                          self.conversion_factor, self.STMT_END)
         # Output mathematics to compute dV/dt
         nodes = [(self.state_vars[self.v_index], self.free_vars[0])]
-        nodeset = self.calculate_extended_dependencies(nodes)
+        nodeset = self.calculate_extended_dependencies(nodes, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(nodeset=nodeset)
         if self.use_lookup_tables:
             self.output_table_index_generation(indexes_as_member=True,
@@ -2392,7 +2392,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             used_vars.update(self._vars_in(g))
             used_vars.update(self._vars_in(h))
         # Output required equations for used variables
-        nodeset = self.calculate_extended_dependencies(used_vars)
+        nodeset = self.calculate_extended_dependencies(used_vars, prune_deps=[self.doc._cml_config.i_stim_var])
         self.output_state_assignments(nodeset=nodeset)
         if self.use_lookup_tables:
             self.output_table_index_generation(indexes_as_member=True,

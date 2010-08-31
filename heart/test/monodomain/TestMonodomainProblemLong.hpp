@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "ReplicatableVector.hpp"
 #include "CheckMonoLr91Vars.hpp"
 #include "SimpleStimulus.hpp"
@@ -64,11 +64,11 @@ public:
     {
         if (node == mNodeNum)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
         }
     }
 };

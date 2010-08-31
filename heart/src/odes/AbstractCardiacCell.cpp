@@ -99,6 +99,27 @@ double AbstractCardiacCell::GetIntracellularCalciumConcentration()
 }
 
 
+
+#include "LuoRudy1991.hpp"
+#include "LuoRudy1991BackwardEuler.hpp"
+void AbstractCardiacCell::CheckForArchiveFix()
+{
+    if (dynamic_cast<CellLuoRudy1991FromCellML*>(this) || dynamic_cast<CellLuoRudy1991FromCellMLBackwardEuler*>(this))
+    {
+        // The LR91 model saved in previous Chaste versions had a different ordering of state variables...
+        // Old is h, j, m, CaI, V, d, f, x
+        // New is V, m, h, j, d, f, X, [Ca]
+        assert(GetNumberOfStateVariables() == 8);
+        unsigned var_index_map[8] = {2, 3, 1, 7, 0, 4, 5, 6};
+        std::vector<double> old_state(this->mStateVariables);
+        for (unsigned i=0; i<8; i++)
+        {
+            this->mStateVariables[var_index_map[i]] = old_state[i];
+        }
+    }
+}
+
+
 /*
  *  METHODS NEEDED BY FAST CARDIAC CELLS
  */

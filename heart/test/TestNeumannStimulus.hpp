@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MonodomainProblem.hpp"
 #include "BidomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "ReplicatableVector.hpp"
 #include "SimpleStimulus.hpp"
 #include "StimulusBoundaryCondition.hpp"
@@ -63,7 +63,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoNeumannConst");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
 
-        ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();
@@ -115,7 +115,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoNeumannSquare");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
 
-        ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();
@@ -170,7 +170,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoNeumannConst");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
 
-        ZeroStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();

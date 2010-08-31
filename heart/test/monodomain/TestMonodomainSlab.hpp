@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CheckMonoLr91Vars.hpp"
 #include "ReplicatableVector.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 
 class TestMonodomainSlab : public CxxTest::TestSuite
 {
@@ -57,7 +57,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoDg03dWithFaceStimulus");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_3dWithFaceStimulus");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-600.0*1000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(-600.0*1000);
 
         MonodomainProblem<3> monodomain_problem(&cell_factory);
 

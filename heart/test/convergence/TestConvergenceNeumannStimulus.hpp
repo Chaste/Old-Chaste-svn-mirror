@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include "LuoRudy1991BackwardEuler.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "PdeConvergenceTester.hpp"
 #include "SpaceConvergenceTester.hpp"
 #include "KspConvergenceTester.hpp"

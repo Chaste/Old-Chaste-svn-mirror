@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 #include <vector>
 #include "PetscSetupAndFinalize.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 
 
 class Test1dBidomainProblemForEfficiency : public CxxTest::TestSuite
@@ -50,7 +50,7 @@ public:
         HeartConfig::Instance()->SetSimulationDuration(1.0);
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_1000_elements");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> bidomain_cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> bidomain_cell_factory;
         BidomainProblem<1> bidomain_problem( &bidomain_cell_factory );
 
         bidomain_problem.Initialise();

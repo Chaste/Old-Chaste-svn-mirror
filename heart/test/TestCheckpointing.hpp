@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "CardiacSimulation.hpp"
 #include "PlaneStimulusCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "BidomainProblem.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "CompareHdf5ResultsFiles.hpp"
@@ -56,7 +56,7 @@ public:
         ///////////////////////////////////////////////////////////////////
         // Multiples calls to Solve()
         ///////////////////////////////////////////////////////////////////
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-600.0*1000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(-600.0*1000);
         BidomainProblem<3> bidomain_problem_multiple( &cell_factory );
 
         bidomain_problem_multiple.Initialise();

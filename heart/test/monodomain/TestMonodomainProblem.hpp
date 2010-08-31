@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "MonodomainProblem.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "FaberRudy2000.hpp"
 #include "Hdf5DataReader.hpp"
 #include "ReplicatableVector.hpp"
@@ -79,11 +79,11 @@ public:
         if (fabs(location[0]-0.05)<1e-6 && fabs(location[1]-0.05)<1e-6)
         {
             mFoundMiddlePoint++;
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
         }
     }
 
@@ -140,7 +140,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dSimplest");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
         //HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_1_element");
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         monodomain_problem.SetMesh(&mesh);
         
@@ -181,7 +181,7 @@ public:
         output_variables.push_back("CaI");
         HeartConfig::Instance()->SetOutputVariables( output_variables );
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();
@@ -242,7 +242,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dRelTol");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();
@@ -285,7 +285,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1din3d");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1din3d");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1, 3> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1, 3> cell_factory;
         MonodomainProblem<1,3> monodomain_problem( &cell_factory );
         monodomain_problem.Initialise();
 
@@ -338,7 +338,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dAbsTol");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();
@@ -381,7 +381,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem2dWithEdgeStimulus");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2dWithEdgeStimulus");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
 
         // using the criss-cross mesh so wave propagates properly
         MonodomainProblem<2> monodomain_problem( &cell_factory );
@@ -600,7 +600,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonoProblem1dMatrixBasedRhs");
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_1d");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         // switch off matrix based assembly
@@ -647,7 +647,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("mono_testPrintTimes");
 
         // run testing PrintingTimeSteps
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1>* p_monodomain_problem = new MonodomainProblem<1>( &cell_factory );
 
         p_monodomain_problem->Initialise();
@@ -689,7 +689,7 @@ public:
         origin_nodes.push_back(0u);
         HeartConfig::Instance()->SetConductionVelocityMaps(origin_nodes);
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
 
         ///////////////////////////////////////////////////////////////////
         // monodomain
@@ -783,7 +783,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonodomainCreatesGeometry");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain1d");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory(-600 * 5000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory(-600 * 5000);
 
         MonodomainProblem<1> monodomain_problem( &cell_factory );
         monodomain_problem.Initialise();
@@ -808,7 +808,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonodomainCreatesGeometry");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain2d");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-600 * 5000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-600 * 5000);
 
         MonodomainProblem<2> monodomain_problem( &cell_factory );
         monodomain_problem.Initialise();
@@ -833,7 +833,7 @@ public:
         HeartConfig::Instance()->SetOutputDirectory("MonodomainCreatesGeometry");
         HeartConfig::Instance()->SetOutputFilenamePrefix("monodomain3d");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-600 * 5000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(-600 * 5000);
 
         MonodomainProblem<3> monodomain_problem( &cell_factory );
 
@@ -959,7 +959,7 @@ public:
         TS_ASSERT_THROWS_THIS(MonodomainProblem<1> monodomain_problem( NULL ),
                 "AbstractCardiacProblem: Please supply a cell factory pointer to your cardiac problem constructor.");
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         // Throws because we've not called initialise
@@ -1037,7 +1037,7 @@ public:
             output_variables.push_back("CaI");
             HeartConfig::Instance()->SetOutputVariables( output_variables );
 
-            PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+            PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
             MonodomainProblem<1> monodomain_problem( &cell_factory );
 
             monodomain_problem.Initialise();
@@ -1118,7 +1118,7 @@ public:
         output_variables.push_back("CaI");
         HeartConfig::Instance()->SetOutputVariables( output_variables );
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 1> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 1> cell_factory;
         MonodomainProblem<1> monodomain_problem( &cell_factory );
 
         monodomain_problem.Initialise();
@@ -1162,7 +1162,7 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("MonodomainLR91_2d");
         HeartConfig::Instance()->SetOutputUsingOriginalNodeOrdering(true);
 
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
 
         // using the criss-cross mesh so wave propagates properly
         MonodomainProblem<2> monodomain_problem( &cell_factory );

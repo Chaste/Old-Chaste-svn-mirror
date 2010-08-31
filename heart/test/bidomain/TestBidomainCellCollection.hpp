@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ArchiveOpener.hpp"
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "MonodomainCellCollection.hpp"
 #include "BidomainCellCollection.hpp"
 #include "OdeSolution.hpp"
@@ -72,11 +72,11 @@ public:
     {
         if (node==0)
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(mpSolver, mpZeroStimulus);
+            return new CellLuoRudy1991FromCellML(mpSolver, mpZeroStimulus);
         }
     }
 
@@ -84,9 +84,6 @@ public:
     {
     }
 };
-
-
-
 
 
 class TestBidomainCellCollection : public CxxTest::TestSuite
@@ -188,7 +185,7 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(isotropic_intra_conductivity, isotropic_intra_conductivity, isotropic_intra_conductivity));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(isotropic_extra_conductivity, isotropic_extra_conductivity, isotropic_extra_conductivity));
         
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem,3> cell_factory_for_het;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML,3> cell_factory_for_het;
         cell_factory_for_het.SetMesh(&mesh);
         
         //CreateIntracellularConductivityTensor called in the constructor
@@ -247,7 +244,7 @@ public:
         HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(isotropic_intra_conductivity, isotropic_intra_conductivity, isotropic_intra_conductivity));
         HeartConfig::Instance()->SetExtracellularConductivities(Create_c_vector(isotropic_extra_conductivity, isotropic_extra_conductivity, isotropic_extra_conductivity));
         
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem,3> cell_factory_for_het;
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML,3> cell_factory_for_het;
         cell_factory_for_het.SetMesh(&mesh);
         
         //CreateIntracellularConductivityTensor called in the constructor

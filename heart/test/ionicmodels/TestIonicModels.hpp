@@ -57,11 +57,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "HodgkinHuxley1952.hpp"
 #include "FitzHughNagumo1961OdeSystem.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "LuoRudy1991BackwardEuler.hpp"
 
 #include "FoxModel2002.hpp"
-#include "BackwardEulerFoxModel2002Modified.hpp"
+#include "FoxModel2002BackwardEuler.hpp"
 
 #include "FaberRudy2000.hpp"
 #include "FaberRudy2000Opt.hpp"
@@ -71,7 +71,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "NobleVargheseKohlNoble1998aOpt.hpp"
 #include "NobleVargheseKohlNoble1998aBackwardEuler.hpp"
 #include "Mahajan2008.hpp"
-#include "BackwardEulerMahajanModel2008.hpp"
+#include "Mahajan2008BackwardEuler.hpp"
 #include "TenTusscher2006Epi.hpp"
 #include "TenTusscher2006EpiBackwardEuler.hpp"
 #include "DiFrancescoNoble1985.hpp"
@@ -370,8 +370,8 @@ public:
 
         double end_time = 1000.0; //One second in milliseconds
 
-        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
-        TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 4u); // For coverage
+        CellLuoRudy1991FromCellML lr91_ode_system(p_solver, p_stimulus);
+        TS_ASSERT_EQUALS(lr91_ode_system.GetVoltageIndex(), 0u); // For coverage
 
         // Solve and write to file
         ck_start = clock();
@@ -417,7 +417,7 @@ public:
         double end_time = 1000.0; //One second in milliseconds
 
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellML lr91_ode_system(p_solver, p_stimulus);
 
         // some models have this implemented so they can be used in mechanics simulations
         TS_ASSERT_DELTA(lr91_ode_system.GetIntracellularCalciumConcentration(), 0.0002, 1e-5)
@@ -461,7 +461,7 @@ public:
         double backward1 = (double)(ck_end - ck_start)/CLOCKS_PER_SEC;
 
         // Solve using forward Euler
-        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellML lr91_ode_system(p_solver, p_stimulus);
         ck_start = clock();
         RunOdeSolverWithIonicModel(&lr91_ode_system,
                                    end_time,
@@ -492,7 +492,7 @@ public:
 
         // cover and check GetIIonic() match for normal and backward euler lr91
         // calc IIonic using initial conditions
-        LuoRudyIModel1991OdeSystem lr91(p_solver, p_stimulus);
+        CellLuoRudy1991FromCellML lr91(p_solver, p_stimulus);
         CellLuoRudy1991FromCellMLBackwardEuler backward_lr91(p_solver, p_stimulus);
         TS_ASSERT_DELTA(lr91.GetIIonic(), backward_lr91.GetIIonic(), 1e-6);
 
@@ -633,7 +633,7 @@ public:
         CellFoxModel2002FromCellML fox_ode_system(p_solver, p_stimulus);
 
         HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(0.01, 0.01, 0.01);
-        BackwardEulerFoxModel2002Modified backward_system(p_stimulus);
+        CellFoxModel2002FromCellMLBackwardEuler backward_system(p_solver, p_stimulus); // solver ignored
 
         // Mainly for coverage, and to test consistency of GetIIonic
         TS_ASSERT_DELTA(fox_ode_system.GetIIonic(),
@@ -666,20 +666,6 @@ public:
                   << "\n\tBackward: " << backward
                   << std::endl;
 
-    }
-
-    // For some bizarre reason having the exception specification here and/or in the private method
-    // causes the IntelProduction build to fail on this test (unless it is the only test defined, i.e.
-    // we x-out the other tests in this file).
-    void TestLr91WithVoltageDropVariousTimeStepRatios() //throw (Exception)
-    {
-        TS_ASSERT_THROWS_CONTAINS(TryTestLr91WithVoltageDrop(1),
-                "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\n");
-        TS_ASSERT_THROWS_CONTAINS(TryTestLr91WithVoltageDrop(2),
-                "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\n");
-        TS_ASSERT_THROWS_CONTAINS(TryTestLr91WithVoltageDrop(3),
-                "m gate for fast sodium current has gone out of range. Check model parameters, for example spatial stepsize\n");
-        TS_ASSERT_THROWS_NOTHING(TryTestLr91WithVoltageDrop(4));
     }
 
     void TestSolveForBackwardNoble98WithSimpleStimulus(void)
@@ -887,7 +873,7 @@ public:
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
 
         // Solve using backward euler
-        BackwardEulerMahajanModel2008 mahajan_backward_euler(p_solver, p_stimulus);
+        CellMahajan2008FromCellMLBackwardEuler mahajan_backward_euler(p_solver, p_stimulus);
 
         ck_start = clock();
         RunOdeSolverWithIonicModel(&mahajan_backward_euler,
@@ -1034,7 +1020,7 @@ public:
             HeartConfig::Instance()->SetOdePdeAndPrintingTimeSteps(time_step, time_step, time_step);
 
             // Check Standard
-            AbstractCardiacCell* const p_luo_rudy_cell = new LuoRudyIModel1991OdeSystem(p_solver, p_stimulus);
+            AbstractCardiacCell* const p_luo_rudy_cell = new CellLuoRudy1991FromCellML(p_solver, p_stimulus);
             AbstractCardiacCell* const p_n98_with_sac = new CML_noble_varghese_kohl_noble_1998_basic_with_sac(p_solver, p_stimulus);
 
             p_n98_with_sac->SetStretch(1.1);
@@ -1167,9 +1153,9 @@ public:
 
             boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
             AbstractCardiacCell* const p_backward_cell1 = new CellLuoRudy1991FromCellMLBackwardEuler(p_solver, p_stimulus);
-            AbstractCardiacCell* const p_backward_cell2 = new BackwardEulerFoxModel2002Modified(p_solver, p_stimulus);
+            AbstractCardiacCell* const p_backward_cell2 = new CellFoxModel2002FromCellMLBackwardEuler(p_solver, p_stimulus);
             AbstractCardiacCell* const p_backward_cell3 = new CellNobleVargheseKohlNoble1998aFromCellMLBackwardEuler(p_solver, p_noble_stimulus);
-            AbstractCardiacCell* const p_backward_cell4 = new BackwardEulerMahajanModel2008(p_solver, p_stimulus);
+            AbstractCardiacCell* const p_backward_cell4 = new CellMahajan2008FromCellMLBackwardEuler(p_solver, p_stimulus);
             AbstractCardiacCell* const p_backward_cell5 = new CellTenTusscher2006EpiFromCellMLBackwardEuler(p_solver, p_stimulus);
 
             std::ofstream ofs(archive_filename.c_str());
@@ -1349,7 +1335,7 @@ private:
 
         boost::shared_ptr<ZeroStimulus> p_zero_stimulus(new ZeroStimulus);
         boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-        LuoRudyIModel1991OdeSystem lr91_ode_system(p_solver, p_zero_stimulus);
+        CellLuoRudy1991FromCellML lr91_ode_system(p_solver, p_zero_stimulus);
         double time=0.0;
         double start_voltage=-83.853;
         double end_voltage=-100;

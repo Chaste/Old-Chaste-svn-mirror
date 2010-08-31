@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 #include <vector>
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "BidomainProblem.hpp"
 #include "TetrahedralMesh.hpp"
 #include "PetscSetupAndFinalize.hpp"
@@ -82,11 +82,11 @@ public:
 
         if (is_centre)
         {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver, mpStimulus);
+            return new CellLuoRudy1991FromCellML(this->mpSolver, mpStimulus);
         }
         else
         {
-            return new LuoRudyIModel1991OdeSystem(this->mpSolver, this->mpZeroStimulus);
+            return new CellLuoRudy1991FromCellML(this->mpSolver, this->mpZeroStimulus);
         }
     }
 };

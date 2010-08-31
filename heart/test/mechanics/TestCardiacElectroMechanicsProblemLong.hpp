@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <petscvec.h>
 #include "PetscSetupAndFinalize.hpp"
 #include "CardiacElectroMechProbRegularGeom.hpp"
-#include "LuoRudyIModel1991OdeSystem.hpp"
+#include "LuoRudy1991.hpp"
 #include "NonlinearElasticityTools.hpp"
 #include "NobleVargheseKohlNoble1998WithSac.hpp"
 
@@ -45,7 +45,7 @@ class TestCardiacElectroMechanicsProblemLong : public CxxTest::TestSuite
 public:
     void Test2dHardcodedResult() throw(Exception)
     {
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
         // run to 125 ms - about where the width is at its minimum (see figures
         // in "A numerical method for cardiac mechano–electric simulations" (Pras&JonW))
@@ -73,7 +73,7 @@ public:
 
     void Test2dVariableFibres() throw(Exception)
     {
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 2> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
         CardiacElectroMechProbRegularGeom<2> problem(NHS,
                                                      1.0,  /* width */
@@ -117,7 +117,7 @@ public:
 
     void Test3d() throw(Exception)
     {
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(-1000*1000);
 
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<3,3> electrics_mesh;
@@ -153,7 +153,7 @@ public:
     
     void TestTwistingCube() throw(Exception)
     {
-        PlaneStimulusCellFactory<LuoRudyIModel1991OdeSystem, 3> cell_factory(-1000*1000);
+        PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(-1000*1000);
 
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<3,3> electrics_mesh;
