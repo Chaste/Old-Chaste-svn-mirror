@@ -1626,6 +1626,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
         stimulus_names = set('membrane_stimulus_current_'+ v for v in ['duration', 'amplitude', 'period', 'offset'])
         self.modifier_vars = set([v for v in self.metadata_vars if v.oxmeta_name not in stimulus_names])
 
+        #1544: temporary check for possible Bad Things
+        if (((self.use_modifiers and self.modifier_vars) or self.cell_parameters) and
+            self.use_backward_euler):
+            msg = "Backward Euler cell models cannot safely use modifiable parameters at present (see #1544)."
+            print >>sys.stderr, msg # Really want raise ConfigurationError(msg) but this breaks things!
+
         # Generate member variable declarations
         self.set_access('private')
         if kept_vars or self.metadata_vars:
@@ -4357,7 +4363,7 @@ def run():
 
     if options.pe:
         # Do partial evaluation
-        optimize.parteval(doc)
+        optimize.PartialEvaluator().parteval(doc)
 
     if options.lut:
         # Do the lookup table analysis

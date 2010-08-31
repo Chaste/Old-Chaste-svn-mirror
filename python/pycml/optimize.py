@@ -45,20 +45,38 @@ __version__ = "$Revision$"[11:-2]
 #                         Partial Evaluation                         #
 ######################################################################
 
-def parteval(doc):
-        # Logging
+class PartialEvaluator(object):
+    """Perform partial evaluation of a CellML model."""
+    def debug(self, *args):
+        """Output debug info from the PE process."""
         logger = logging.getLogger('partial-evaluator')
-        def debug(*args):
-            logger.debug(' '.join(map(str, args)))
+        logger.debug(' '.join(map(str, args)))
+
+    def expr_lhs(self, expr):
+        """Display the LHS of this expression."""
+        lhs = expr.assigned_variable()
+        if isinstance(lhs, cellml_variable):
+            return lhs.fullname()
+        else:
+            return lhs[0].fullname() + u'/' + lhs[1].fullname()
+
+    def rename_vars(self, elt):
+        """Rename variables found in ci elements in this tree to use canonical names."""
+        if isinstance(elt, mathml_ci):
+            var = elt.variable.get_source_variable(recurse=True)
+            elt.xml_remove_child(unicode(elt))
+            elt.xml_append(var.fullname(cellml=True))
+            elt._cml_variable = var
+            self.debug("Using canonical name", unicode(elt))
+        else:
+            for e in self.doc.model.xml_element_children(elt):
+                self.rename_vars(e)
+
+    def parteval(self, doc):
+        """Do the partial evaluation."""
+        self.doc = doc
         # BTA
         doc.model.do_binding_time_analysis()
-        def expr_lhs(expr):
-            """Display the LHS of this expression."""
-            lhs = expr.assigned_variable()
-            if isinstance(lhs, cellml_variable):
-                return lhs.fullname()
-            else:
-                return lhs[0].fullname() + u'/' + lhs[1].fullname()
         # Reduce/evaluate expressions
         while True:
             doc.model._pe_repeat = u'no'
@@ -67,8 +85,8 @@ def parteval(doc):
             for expr in exprs:
                 if expr._get_binding_time() is BINDING_TIMES.static:
                     value = expr.evaluate()
-                    debug("Evaluated", expr_lhs(expr),
-                          "to", value)
+                    self.debug("Evaluated", self.expr_lhs(expr),
+                               "to", value)
                     if expr.is_ode():
                         # Replace the RHS with a <cn> element giving the value
                         rhs = expr.eq.rhs
@@ -87,20 +105,10 @@ def parteval(doc):
                     expr._reduce()
             if doc.model._pe_repeat == u'no':
                 break
-            debug("----- looping -----")
+            self.debug("----- looping -----")
         del doc.model._pe_repeat
         
         # Use canonical variable names on LHS of assignments
-        def rename_vars(elt):
-            if isinstance(elt, mathml_ci):
-                var = elt.variable.get_source_variable(recurse=True)
-                elt.xml_remove_child(unicode(elt))
-                elt.xml_append(var.fullname(cellml=True))
-                elt._cml_variable = var
-                debug("Using canonical name", unicode(elt))
-            else:
-                for e in doc.model.xml_element_children(elt):
-                    rename_vars(e)
         for expr in [e for e in doc.model.get_assignments()
                      if isinstance(e, mathml_apply)]:
             # If the assigned-to variable isn't used or kept, remove the assignment
@@ -109,7 +117,7 @@ def parteval(doc):
                 if not (var.get_usage_count() or var.pe_keep):
                     doc.model._remove_assignment(expr)
                     continue
-            rename_vars(expr.eq.lhs)
+            self.rename_vars(expr.eq.lhs)
 
         # Tidy up kept variables, in case they aren't referenced in an eq'n.
         for comp in getattr(doc.model, u'component', []):
@@ -136,11 +144,11 @@ def parteval(doc):
                 new_comp.xml_append(units)
             for var in list(getattr(comp, u'variable', [])):
                 # Only move used source variables
-                debug('Variable', var.fullname(), 'usage', var.get_usage_count(),
-                      'type', var.get_type(), 'kept', var.pe_keep)
+                self.debug('Variable', var.fullname(), 'usage', var.get_usage_count(),
+                           'type', var.get_type(), 'kept', var.pe_keep)
                 if (var.get_usage_count() and
                     var.get_type() != VarTypes.Mapped) or var.pe_keep:
-                    debug('Moving variable', var.fullname())
+                    self.debug('Moving variable', var.fullname())
                     # Remove from where it was
                     comp._del_variable(var, keep_annotations=True)
                     # Set name to canonical version
