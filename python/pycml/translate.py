@@ -1379,7 +1379,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if conv != 1:
                 conversion += times + str(conv)
             model_Cm = self.doc._cml_config.Cm_variable
-            if model_Cm is None:
+            if not model_Cm:
                 problem("Cannot convert ionic current from amps to uA/cm^2 "
                         "without knowing which variable in the cell model "
                         "represents the membrane capacitance.")
