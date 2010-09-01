@@ -311,6 +311,13 @@ def GetVersionCpp(templateFilePath, env):
             chaste_revision = int(chaste_revision[1+chaste_revision.rfind(':'):])
     time_format = "%a, %d %b %Y %H:%M:%S +0000"
     build_time = time.strftime(time_format, time.gmtime())
+    compiler_type = env['build'].CompilerType()
+    if compiler_type == "gcc":
+        compiler_version = subprocess.Popen( [ "gcc", "-dumpversion" ], stdout=subprocess.PIPE ).communicate()[0].strip()
+    elif compiler_type == "intel":
+        compiler_version = subprocess.Popen( [ "icpc", "-dumpversion" ], stdout=subprocess.PIPE ).communicate()[0].strip()
+    else:
+        compiler_version = "unknown"
     subst = {'example': '%(example)s',
              'chaste_root': chaste_root,
              'revision': chaste_revision,
@@ -321,7 +328,9 @@ def GetVersionCpp(templateFilePath, env):
              'uname': ' '.join(os.uname()),
              'build_type': env['build'].build_type,
              'build_dir': env['build'].build_dir,
-             'build_info': env['CHASTE_BUILD_INFO']}
+             'build_info': env['CHASTE_BUILD_INFO'],
+             'compiler_type': compiler_type,
+             'compiler_version': compiler_version}
     return open(templateFilePath).read() % subst
 
 def GetChasteBuildRootCpp(env):

@@ -99,6 +99,16 @@ const char* ChasteBuildInfo::GetBuildInformation()
     return "%(build_info)s";
 }
 
+const char* ChasteBuildInfo::GetCompilerType()
+{
+	return "%(compiler_type)s";
+}
+
+const char* ChasteBuildInfo::GetCompilerVersion()
+{
+	return "%(compiler_version)s";
+}
+
 std::string ChasteBuildInfo::GetProvenanceString()
 {
     std::stringstream prov;

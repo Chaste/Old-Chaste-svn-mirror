@@ -105,6 +105,16 @@ public:
      * were used, and if so what kind.
      */
     static const char* GetBuildInformation();
+    
+    /**
+     * Get the compiler type used to build (must be either 'intel' or 'gcc').
+     */
+     static const char* GetCompilerType();
+
+    /**
+     * Get the compiler version number.
+     */
+     static const char* GetCompilerVersion();
 
     /**
      * Get a single-line string representation of the provenance information to be attached

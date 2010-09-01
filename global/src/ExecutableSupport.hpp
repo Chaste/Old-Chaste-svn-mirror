@@ -30,6 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define EXECUTABLESUPPORT_HPP_
 
 #include <string>
+#include "OutputFileHandler.hpp"
+#include <sys/utsname.h>
 
 /**
  * Various helpful static methods for people writing their own executables
@@ -66,6 +68,14 @@ public:
      */
     static void WriteMachineInfoFile(std::string fileBaseName);
 
+    /**
+     * Write information about library and compiler versions to the provenance_info.txt
+     * output file.
+     * 
+     * @param outFile the provenance_info.txt file.
+     */
+    static void WriteLibraryInfo( out_stream &outFile );
+    
     /**
      * Call InitializePetsc, ShowCopyright, then ShowParallelLaunching.
      *

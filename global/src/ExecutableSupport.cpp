@@ -38,6 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include <sys/utsname.h>
 
+#include "ChasteSerialization.hpp"
+#include <hdf5.h>
+
 void ExecutableSupport::InitializePetsc(int* pArgc, char*** pArgv)
 {
     // Store the arguments in case other code needs them
@@ -81,6 +84,9 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
     OutputFileHandler out_file_handler("",false);
     out_stream out_file = out_file_handler.OpenOutputFile("provenance_info_", PetscTools::GetMyRank(), ".txt");       
     *out_file << provenance_msg.str();
+    
+    WriteLibraryInfo( out_file );
+
     out_file->close();        
 }
 
@@ -147,6 +153,40 @@ void ExecutableSupport::WriteMachineInfoFile(std::string fileBaseName)
     
     out_file->close();
 }
+
+void ExecutableSupport::WriteLibraryInfo( out_stream &outFile )
+{
+    *outFile << "Compiler: " << ChasteBuildInfo::GetCompilerType() << ", version " << ChasteBuildInfo::GetCompilerVersion() << std::endl;
+    
+    *outFile << std::endl;
+    *outFile << "Library versions: " << std::endl;
+    *outFile << "  PETSc: " << PETSC_VERSION_MAJOR << "." << PETSC_VERSION_MINOR << "." << PETSC_VERSION_SUBMINOR << std::endl;
+    *outFile << "  Boost: " << BOOST_VERSION  / 100000 << "." << BOOST_VERSION / 100 % 1000 << "." << BOOST_VERSION % 100 << std::endl;
+    *outFile << "  HDF5: " << H5_VERS_MAJOR <<  "." << H5_VERS_MINOR << "." << H5_VERS_RELEASE << std::endl;
+//    *outFile << "  XSD: " ;
+
+    *outFile << std::endl;
+    *outFile << "Includes support for: " << std::endl;
+    
+#ifdef CHASTE_VTK
+    *outFile << "  VTK: yes" << std::endl;
+#else
+    *outFile << "  VTK: no" << std::endl;
+#endif    
+    
+#ifdef CHASTE_CVODE
+    *outFile << "  CVODE: yes" << std::endl;
+#else
+    *outFile << "  CVODE: no" << std::endl;
+#endif    
+
+#ifdef CHASTE_ADAPTIVITY
+    *outFile << "  Adaptivity: yes" << std::endl;
+#else
+    *outFile << "  Adaptivity: no" << std::endl;
+#endif    
+
+}    
 
 void ExecutableSupport::StandardStartup(int* pArgc, char*** pArgv)
 {
