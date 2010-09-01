@@ -35021,3 +35021,12 @@ void tetrahedralize(char *switches, tetgenio *in, tetgenio *out,
 }
 
 } //Added namespace to avoid clash with triangle
+
+#ifndef TETLIBRARY
+// Shim for entry point to main inside the namespace.  This is just in case we want to compile up a binary from this
+// source code.
+int main(int argc, char *argv[])
+{
+    tetgen::main(argc, argv);
+}
+#endif // not TETLIBRARY

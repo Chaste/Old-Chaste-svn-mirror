@@ -45,7 +45,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestTissueSimulation3d : public AbstractCellBasedTestSuite
 {
 private:
-
+    double mLocationGhosts;
+    double mLocationWithoutGhosts;
+    
     MutableMesh<3,3>* Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
     {
         MutableMesh<3,3>* p_mesh = new MutableMesh<3,3>;
@@ -298,7 +300,7 @@ public:
         TissueSimulationArchiver<3, TissueSimulation<3> >::Save(&simulator);
 
         // To check consistency with for test below
-        TS_ASSERT_DELTA(p_mesh->GetNode(23)->rGetLocation()[2], 0.8183267, 1e-6);
+        mLocationGhosts = p_mesh->GetNode(23)->rGetLocation()[2];
 
         SimulationTime::Destroy();
         SimulationTime::Instance()->SetStartTime(0.0);
@@ -314,7 +316,7 @@ public:
         TissueSimulationArchiver<3, TissueSimulation<3> >::Save(&simulator2);
 
         // To check consistency with for test below
-        TS_ASSERT_DELTA(p_mesh->GetNode(23)->rGetLocation()[2], 0.7478305, 1e-6);
+        mLocationWithoutGhosts = p_mesh->GetNode(23)->rGetLocation()[2];
         delete p_mesh;
     }
 
@@ -327,7 +329,7 @@ public:
 
             TS_ASSERT_EQUALS(num_cells, 8u);
             TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.1, 1e-9);
-            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetNode(23)->rGetLocation()[2], 0.8183267, 1e-6);
+            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetNode(23)->rGetLocation()[2], mLocationGhosts, 1e-6);
 
             delete p_simulator;
         }
@@ -343,7 +345,7 @@ public:
             TS_ASSERT_EQUALS(num_cells, 65u);
             TS_ASSERT_DELTA(SimulationTime::Instance()->GetTime(), 0.1, 1e-9);
             TissueCellPtr p_cell = p_simulator->rGetTissue().GetCellUsingLocationIndex(23u);
-            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetNode(23)->rGetLocation()[2], 0.7478305, 1e-6);
+            TS_ASSERT_DELTA(p_simulator->rGetTissue().GetNode(23)->rGetLocation()[2], mLocationWithoutGhosts, 1e-6);
 
             delete p_simulator;
         }

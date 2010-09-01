@@ -53,6 +53,8 @@ public:
     /**
      * Test 3D remesh - very similar test to TestOperationOfTetgenMoveNodes,
      * but uses mesh.Remesh() instead of calling tetgen from here.
+     * \todo #1545 This test hangs in optimized code because we're compiling tetgen1.4.2/predicates.cpp
+     * with a -O flag.  The tetgen make files specifically point out the foolishness of compiling without -O0
      */
     void TestRemesh3dMoveNodes() throw (Exception)
     {

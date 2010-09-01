@@ -9,42 +9,48 @@
 			Problem definition 
 		-->
 		<SpaceDimension>1</SpaceDimension>
-	    <SimulationDuration unit="ms">1000.0</SimulationDuration>
-	    <Domain>Mono</Domain>
-	    <IonicModels>
-	    	<Default><Hardcoded>LuoRudyI</Hardcoded></Default>
-    	</IonicModels>
-	    
+		<SimulationDuration unit="ms">4.0</SimulationDuration>
+		<Domain>Mono</Domain>
+		<IonicModels>
+		  <Default>
+		    <Dynamic>
+		      <Path relative_to="cwd">dofe_static-grandi-pasqualini-bers_epi.cellml</Path>
+		    </Dynamic>
+		  </Default>
+    		</IonicModels>
+		
 		<!-- 
-			Mesh definition 
-		-->
+		     Mesh definition 
+		  -->
 		<Mesh unit="cm">
-			<Fibre x="4.0" inter_node_space="0.1"/>    
+		  <Fibre x="4.0" inter_node_space="0.1"/>    
 	  	</Mesh>
-	
-	    <!-- 
-	    	Stimuli (as many <Stimulus> definitions as needed) 
-	   	-->
+		
+		<!-- 
+	    	     Stimuli (as many <Stimulus> definitions as needed) 
+	   	  -->
 	   	<Stimuli>
-		  	<Stimulus> <!-- #1 -->
-				<Strength unit="uA/cm^3">-25500.0</Strength>
-				<Duration unit="ms">2.0</Duration>
-				<Delay unit="ms">0</Delay>
-				<Period unit="ms">100</Period>
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="0.0" y="-0.1" z="-1.0"/>
-						<UpperCoordinates x="0.2" y="0.1" z="1.0"/>
-					</Cuboid>
-				</Location>
-			</Stimulus>	
+		  <Stimulus> <!-- #1 -->
+		    <Strength unit="uA/cm^3">-25500.0</Strength>
+		    <Duration unit="ms">2.0</Duration>
+		    <Delay unit="ms">0</Delay>
+		    <Period unit="ms">100</Period>
+		    <Location unit="cm">
+		      <Cuboid>
+			<LowerCoordinates x="0.0" y="-0.1" z="-1.0"/>
+			<UpperCoordinates x="0.2" y="0.1" z="1.0"/>
+		      </Cuboid>
+		    </Location>
+		  </Stimulus>	
 		</Stimuli>
 		
 		<!-- 
-			Output 
-		-->
+		     Output 
+		  -->
 		<OutputDirectory>ChasteResults</OutputDirectory>
 		<OutputFilenamePrefix>SimulationResults</OutputFilenamePrefix>
+		
+		<CheckpointSimulation timestep="1.0" unit="ms" max_checkpoints_on_disk="2"/>
 	</Simulation>
 	
 	<Physiological>
