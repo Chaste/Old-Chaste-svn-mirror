@@ -218,6 +218,7 @@ public:
         // Remove the process-specific archive for this process
         std::string archive_path = ArchiveLocationInfo::GetProcessUniqueFilePath(archive_base_name);
         EXPECT0(system, "rm -f " + archive_path);
+        PetscTools::Barrier("TestArchiveOpenerExceptions-1");
         TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir_finder, archive_base_name),
                                   "Cannot load secondary archive file: ");
 
@@ -227,7 +228,7 @@ public:
             archive_path = handler.GetOutputDirectoryFullPath() + archive_base_name;
             EXPECT0(system, "rm -f " + archive_path);
         }
-        PetscTools::Barrier();
+        PetscTools::Barrier("TestArchiveOpenerExceptions-2");
         TS_ASSERT_THROWS_CONTAINS(InputArchiveOpener archive_opener_in(archive_dir_finder, archive_base_name),
                                   "Cannot load main archive file: ");
 
