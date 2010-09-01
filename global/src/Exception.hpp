@@ -115,6 +115,18 @@ public:
  */
 #define EXCEPTION(message) throw Exception(message, __FILE__, __LINE__)
 
+
+#include <boost/preprocessor/stringize.hpp>
+
+/**
+ * Convenience macro for changing an assert into an exception - has the same
+ * calling semantics, but throws.
+ * 
+ * @param test  the test that must always be true.
+ */
+#define EXCEPT_IF_NOT(test) \
+    if (!(test)) EXCEPTION("Assertion tripped: " BOOST_PP_STRINGIZE(test)) 
+
 /**
  * This is to cope with NDEBUG causing variables to not be used, when they are only
  * used in assert()s.

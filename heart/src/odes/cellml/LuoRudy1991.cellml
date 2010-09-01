@@ -350,7 +350,7 @@ The breakdown of the model into components and the definition of encapsulation a
       </math>
    </component>
    <component name="fast_sodium_current_m_gate">
-      <variable units="dimensionless" public_interface="out" name="m" initial_value="0.00187018"/>
+      <variable units="dimensionless" public_interface="out" name="m" initial_value="0.00187018" cmeta:id="fast_sodium_current_m_gate__m"/>
       <variable units="per_millisecond" name="alpha_m"/>
       <variable units="per_millisecond" name="beta_m"/>
       <variable units="millivolt" public_interface="in" name="V"/>
@@ -2042,6 +2042,12 @@ The breakdown of the model into components and the definition of encapsulation a
   </rdf:Description>
   <rdf:Description rdf:about="#FonRT">
     <derived-quantity xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">yes</derived-quantity>
+  </rdf:Description>
+  <rdf:Description rdf:about="#fast_sodium_current_m_gate__m">
+    <range-low xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">0</range-low>
+  </rdf:Description>
+  <rdf:Description rdf:about="#fast_sodium_current_m_gate__m">
+    <range-high xmlns="https://chaste.comlab.ox.ac.uk/cellml/ns/pycml#">1</range-high>
   </rdf:Description>
   <rdf:Description rdf:about="#Cai">
     <bqbiol:is rdf:resource="https://chaste.comlab.ox.ac.uk/cellml/ns/oxford-metadata#cytosolic_calcium_concentration"/>

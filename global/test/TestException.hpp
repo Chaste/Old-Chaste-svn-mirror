@@ -116,6 +116,9 @@ public:
             // Of course, in this case we don't know what the real message would have been...
             TS_ASSERT_EQUALS(e.CheckShortMessageContains("This is not our message"), "");
         }
+        
+        TS_ASSERT_THROWS_THIS(EXCEPT_IF_NOT(false), "Assertion tripped: false");
+        TS_ASSERT_THROWS_NOTHING(EXCEPT_IF_NOT(true));
     }
 };
 

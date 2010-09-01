@@ -1740,7 +1740,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         
         This method outputs the constructor and destructor of the cell
         class, and also lookup table declarations and lookup methods.
-        It also outputs a blank VerifyStateVariables method.
+        It also calls output_verify_state_variables.
         """
         self.include_serialization = not self.use_modifiers # TODO: Implement
         self.check_time_units()
@@ -1811,11 +1811,37 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 self.output_lut_row_lookup_memory()
                 self.output_lut_methods()
             self.send_main_output_to_subsidiary(False)
-        # Verify state variables method; empty at present
-        self.output_method_start('VerifyStateVariables', [], 'void')
-        self.writeln('{}\n')
+        self.output_verify_state_variables()
         return
     
+    def output_verify_state_variables(self):
+        """Output the VerifyStateVariables method.
+        
+        This will look for state variables annotated with pycml:range-low and/or pycml:range-high,
+        which specify allowable ranges for these variables.  The generated method will check that
+        they are within the range.  Both limits are included, i.e. they specify a closed interval.
+        """
+        # Verify state variables method; empty at present
+        self.output_method_start('VerifyStateVariables', [], 'void')
+        self.open_block()
+        low_prop = ('pycml:range-low', NSS['pycml'])
+        high_prop = ('pycml:range-high', NSS['pycml'])
+        low_range_vars = filter(
+            lambda v: v.get_type() == VarTypes.State,
+            cellml_metadata.find_variables(self.model, low_prop))
+        high_range_vars = filter(
+            lambda v: v.get_type() == VarTypes.State,
+            cellml_metadata.find_variables(self.model, high_prop))
+        nodeset = set(low_range_vars + high_range_vars)
+        self.output_state_assignments(nodeset=nodeset)
+        error_template = 'EXCEPTION(DumpState("State variable %s has gone out of range. Check model parameters, for example spatial stepsize"));'
+        for var in low_range_vars:
+            self.writeln('if (', self.code_name(var), ' < ', var.get_rdf_annotation(low_prop), ')')
+            self.writeln(error_template % self.code_name(var), indent_offset=1)
+        for var in high_range_vars:
+            self.writeln('if (', self.code_name(var), ' > ', var.get_rdf_annotation(high_prop), ')')
+            self.writeln(error_template % self.code_name(var), indent_offset=1)
+        self.close_block(True)
   
     def output_constructor(self, params, base_class_params):
         """Output a cell constructor.
@@ -1941,12 +1967,16 @@ class CellMLToChasteTranslator(CellMLTranslator):
         If nodeset is given, only state variables appearing in nodeset
         will be included.
         """
-        if assign_rY:
+        used_vars = set()
+        for var in self.state_vars:
+            if ((not exclude_nonlinear or 
+                 self.code_name(var) not in self.nonlinear_system_vars)
+                 and (nodeset is None or var in nodeset)):
+                used_vars.add(var)
+        if assign_rY and used_vars:
             self.writeln(self.TYPE_VECTOR_REF, 'rY = rGetStateVariables();')
         for i, var in enumerate(self.state_vars):
-            if ( not exclude_nonlinear or 
-                 self.code_name(var) not in self.nonlinear_system_vars) \
-                 and (not nodeset or var in nodeset):
+            if var in used_vars:
                 if self.use_modifiers and var in self.modifier_vars:
                     value = self.modifier_call(var, self.vector_index('rY', i))
                 else:
@@ -2171,7 +2201,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if self.doc._cml_config.i_ionic_negated:
                 self.writeln(')', nl=False, indent=False)
             self.writeln(self.STMT_END, indent=False)
-            self.writeln('assert(!std::isnan(i_ionic));')
+            self.writeln('EXCEPT_IF_NOT(!std::isnan(i_ionic));')
             self.output_equations(conv_nodes)
             self.writeln('return ', conversion, self.STMT_END)
         else:
