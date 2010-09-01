@@ -35,6 +35,7 @@ AbstractCardiacCell*  AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::CreateC
 {
     if (mpMesh->GetNode(nodeIndex)->GetRegion() == HeartRegionCode::BATH)
     {
+        mHasFakeBathCells = true;
         return mpFakeCell;
     }
     else
@@ -69,6 +70,7 @@ AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellFactory(
         boost::shared_ptr<AbstractIvpOdeSolver> pSolver)
     : mpMesh(NULL),
       mpHeartGeometryInformation(NULL),
+      mHasFakeBathCells(false),
       mpZeroStimulus(new ZeroStimulus),
       mpSolver(pSolver),
       mpFakeCell(new FakeBathCell(mpSolver, mpZeroStimulus))
@@ -78,7 +80,10 @@ AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellFactory(
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacCellFactory()
 {
-    delete mpFakeCell;
+    if ( ! mHasFakeBathCells )
+    {
+        delete mpFakeCell;
+    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

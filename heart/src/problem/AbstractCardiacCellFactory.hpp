@@ -66,6 +66,14 @@ private:
      * Can be accessed via get and set methods in this class.
      */
     HeartGeometryInformation<SPACE_DIM>* mpHeartGeometryInformation;
+    
+    /**
+     * A boolean to record whether or not any fake bath cells have been constructed. This is needed
+     * since if they *are* created then this class *must not* delete its pointer mpFakeCell (else
+     * we will get segfaults). However, if they are not created then the destructor should do this 
+     * to prevent memory leaks.
+     */
+    bool mHasFakeBathCells;
 
 protected:
     /** For use at un-stimulated cells. */
