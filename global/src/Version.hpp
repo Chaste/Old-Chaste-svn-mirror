@@ -117,6 +117,11 @@ public:
      static const char* GetCompilerVersion();
 
     /**
+     * Get the compiler flags.
+     */
+     static const char* GetCompilerFlags();
+
+    /**
      * Get a single-line string representation of the provenance information to be attached
      * to any files we generate.  This includes the version of the Chaste code used, how and
      * when it was built, and the current date and time.

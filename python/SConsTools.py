@@ -330,7 +330,8 @@ def GetVersionCpp(templateFilePath, env):
              'build_dir': env['build'].build_dir,
              'build_info': env['CHASTE_BUILD_INFO'],
              'compiler_type': compiler_type,
-             'compiler_version': compiler_version}
+             'compiler_version': compiler_version,
+             'cc_flags': env['build'].CcFlags()}
     return open(templateFilePath).read() % subst
 
 def GetChasteBuildRootCpp(env):

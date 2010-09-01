@@ -109,6 +109,11 @@ const char* ChasteBuildInfo::GetCompilerVersion()
 	return "%(compiler_version)s";
 }
 
+const char* ChasteBuildInfo::GetCompilerFlags()
+{
+	return "%(cc_flags)s";
+}
+
 std::string ChasteBuildInfo::GetProvenanceString()
 {
     std::stringstream prov;
