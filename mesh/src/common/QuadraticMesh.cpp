@@ -360,56 +360,6 @@ unsigned QuadraticMesh<DIM>::GetNumVertices()
 }
 
 
-template<unsigned DIM>
-void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string outputDir,
-                                              std::string fileStem)
-{
-    assert(DIM == 3);
-
-    if(PetscTools::AmMaster())
-    {
-        std::string args = "-Qo2";
-
-        std::string command =  "tetgen " + args + " " + outputDir
-                           + "/" + fileStem + ".node" + " > /dev/null";
-
-        int return_value = system(command.c_str());
-
-        if (return_value != 0)
-        {
-            #define COVERAGE_IGNORE
-            EXCEPTION("Remeshing (by calling tetgen) failed.  Do you have it in your path?\nThe quadratic mesh relies on functionality from tetgen (http://tetgen.berlios.de/).");
-            #undef COVERAGE_IGNORE
-        }
-
-        // move the output files to the chaste directory
-        command =   "mv " + outputDir + "/"
-                  + fileStem + ".1.* .";
-
-        // NOTE: we don't check whether the return value here is zero, because if CHASTE_TESTOUTPUT
-        // is "." (ie if it hasn't been exported), then the mv will fail (source and destination files
-        // are the same), but this isn't a problem.
-        return_value = system(command.c_str());
-    }
-    PetscTools::Barrier();
-
-    // load
-    TrianglesMeshReader<DIM,DIM> mesh_reader(fileStem + ".1", 2, 1, false); // false as tetgen/triangle has been used and therefore boundary elems will be linear;
-    ConstructFromMeshReader(mesh_reader);
-    ///\todo: Could use the '-nn' flag when calling tetgen and then face file would have containing element info and second false
-    // could be a true instead. Currently though there is the intermediate step of having to delete manually the attribute values
-    // column after using this flag.
-
-    if(PetscTools::AmMaster())
-    {
-        // delete the temporary files
-        std::string command = "rm -f " + outputDir + "/" + fileStem + ".node";
-        EXPECT0(system, command);
-        EXPECT0(system, "rm -f " + fileStem + ".1.node");
-        EXPECT0(system, "rm -f " + fileStem + ".1.ele");
-        EXPECT0(system, "rm -f " + fileStem + ".1.face");
-    }
-}
 
 
 template<unsigned DIM>
