@@ -60,11 +60,15 @@ import hostconfig
 
 # If building a loadable module at run-time
 dyn_libs_only = int(ARGUMENTS.get('dyn_libs_only', 0))
+Export('dyn_libs_only')
 if dyn_libs_only:
     #print sys.argv
     # Set some other options
     ARGUMENTS['test_summary'] = 0
     ARGUMENTS['do_inf_tests'] = 0
+    # Note what folder is being built
+    dyn_folder = COMMAND_LINE_TARGETS[0]
+    Export('dyn_folder')
 
 # Turn on some build-script debugging?
 debug = int(ARGUMENTS.get('debug', 0))

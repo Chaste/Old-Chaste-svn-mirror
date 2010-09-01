@@ -705,8 +705,11 @@ def DoDynamicallyLoadableModules(otherVars):
         dyn_objs = dyn_env.SharedObject(source=s)
         for o in dyn_objs:
             so_lib = dyn_env.OriginalSharedLibrary(source=o)
-            so_dir = os.path.abspath(os.path.join(curdir, '..', '..', os.path.dirname(s)))
+            so_dir = os.path.join(curdir, '..', '..', os.path.dirname(s))
             dyn_libs.append(dyn_env.Install(so_dir, so_lib))
+            if otherVars['dyn_libs_only']:
+                # Force dependency on installed version, even if project is a symlink
+                dyn_env.Depends(otherVars['dyn_folder'], dyn_libs[-1])
     return dyn_libs
 
 
