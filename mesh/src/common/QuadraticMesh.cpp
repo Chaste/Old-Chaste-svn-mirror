@@ -102,7 +102,7 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
     this->mMeshIsLinear=false;
     unsigned num_nodes=(numElemX+1)*(numElemY+1);
     struct triangulateio triangle_input;
-    triangle_input.pointlist = (double *) malloc( num_nodes * 2 * sizeof(double));
+    triangle_input.pointlist = (double *) malloc( num_nodes * DIM * sizeof(double));
     triangle_input.numberofpoints = num_nodes;
     triangle_input.numberofpointattributes = 0;
     triangle_input.pointmarkerlist = NULL;
@@ -118,8 +118,8 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
         {
             double x = i;
 
-            triangle_input.pointlist[2*new_index] = x;
-            triangle_input.pointlist[2*new_index + 1] = y;
+            triangle_input.pointlist[DIM*new_index] = x;
+            triangle_input.pointlist[DIM*new_index + 1] = y;
             new_index++;
         }
     }
@@ -137,7 +137,7 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
     // Library call
     triangulate((char*)"Qzeo2", &triangle_input, &triangle_output, NULL);
 
-    assert(triangle_output.numberofcorners == 6);//Nodes per triangle
+    assert(triangle_output.numberofcorners == (DIM+1)*(DIM+2)/2);//Nodes per triangle
 
     // Construct the nodes
     for (unsigned node_index=0; node_index<(unsigned)triangle_output.numberofpoints; node_index++)
@@ -146,16 +146,16 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
         {
             // Boundary node
             Node<DIM>* p_node = new Node<DIM>(node_index, true,
-              triangle_output.pointlist[node_index * 2],
-              triangle_output.pointlist[node_index * 2+1]);
+              triangle_output.pointlist[node_index * DIM],
+              triangle_output.pointlist[node_index * DIM+1]);
             this->mNodes.push_back(p_node);
             this->mBoundaryNodes.push_back(p_node);
         }
         else
         {
             this->mNodes.push_back(new Node<DIM>(node_index, false,
-              triangle_output.pointlist[node_index * 2],
-              triangle_output.pointlist[node_index * 2+1]));
+              triangle_output.pointlist[node_index * DIM],
+              triangle_output.pointlist[node_index * DIM+1]));
         }
     }
 
@@ -167,9 +167,9 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
     {
         std::vector<Node<DIM>*> nodes;
         //First 3 are the vertices
-        for (unsigned j=0; j<3; j++)
+        for (unsigned j=0; j<DIM+1; j++)
         {
-            unsigned global_node_index = triangle_output.trianglelist[element_index*6 + j];
+            unsigned global_node_index = triangle_output.trianglelist[element_index*triangle_output.numberofcorners + j];
             assert(global_node_index < this->mNodes.size());
             nodes.push_back(this->mNodes[global_node_index]);
             mIsInternalNode[global_node_index]=false;
@@ -177,9 +177,9 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
         //Construct with just the vertices
         this->mElements.push_back(new Element<DIM, DIM>(element_index, nodes));
         //Add the internals
-        for (unsigned j=3; j<6; j++)
+        for (unsigned j=DIM+1; j<(unsigned)triangle_output.numberofcorners; j++)
         {
-            unsigned global_node_index = triangle_output.trianglelist[element_index*6 + j];
+            unsigned global_node_index = triangle_output.trianglelist[element_index*triangle_output.numberofcorners + j];
             assert(global_node_index < this->mNodes.size());
             this->mElements[element_index]->AddNode( this->mNodes[global_node_index] );
             this->mNodes[global_node_index]->AddElement(element_index);
@@ -205,9 +205,9 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
         if (triangle_output.edgemarkerlist[boundary_element_index] == 1)
         {
             std::vector<Node<DIM>*> nodes;
-            for (unsigned j=0; j<2; j++)
+            for (unsigned j=0; j<DIM; j++)
             {
-                unsigned global_node_index=triangle_output.edgelist[boundary_element_index*2 + j];
+                unsigned global_node_index=triangle_output.edgelist[boundary_element_index*DIM + j];
                 assert(global_node_index < this->mNodes.size());
                 nodes.push_back(this->mNodes[global_node_index]);
             }
@@ -274,8 +274,7 @@ void QuadraticMesh<DIM>::ConstructCuboid(unsigned numElemX, unsigned numElemY, u
     // create the quadratic mesh files using triangle and load
     ////////////////////////////////////////////////////////////
 
-
-    RunMesherAndReadMesh("tetgen", handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
+    RunMesherAndReadMesh(handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
 }
 
 
@@ -287,8 +286,7 @@ unsigned QuadraticMesh<DIM>::GetNumVertices()
 
 
 template<unsigned DIM>
-void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
-                                              std::string outputDir,
+void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string outputDir,
                                               std::string fileStem)
 {
     assert(DIM == 3);
@@ -297,7 +295,7 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
     {
         std::string args = "-Qo2";
 
-        std::string command =  binary + " " + args + " " + outputDir
+        std::string command =  "tetgen " + args + " " + outputDir
                            + "/" + fileStem + ".node" + " > /dev/null";
 
         int return_value = system(command.c_str());
@@ -305,8 +303,7 @@ void QuadraticMesh<DIM>::RunMesherAndReadMesh(std::string binary,
         if (return_value != 0)
         {
             #define COVERAGE_IGNORE
-            EXCEPTION("Remeshing (by calling " + binary + ") failed.  Do you have it in your path?\n"+
-            "The quadratic mesh relies on functionality from tetgen (http://tetgen.berlios.de/).");
+            EXCEPTION("Remeshing (by calling tetgen) failed.  Do you have it in your path?\nThe quadratic mesh relies on functionality from tetgen (http://tetgen.berlios.de/).");
             #undef COVERAGE_IGNORE
         }
 

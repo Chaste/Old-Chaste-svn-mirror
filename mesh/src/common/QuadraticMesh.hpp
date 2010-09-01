@@ -147,11 +147,10 @@ private:
      * Helper method which runs triangle or tetgen and reads in the created mesh files.
      * This method is collective (must be called by all processes).
      *
-     * @param binary "triangle" or "tetgen" etc
      * @param outputDir Where to write the temporary files
      * @param fileStem File stem to use for the temporary files
      */
-    void RunMesherAndReadMesh(std::string binary, std::string outputDir, std::string fileStem);
+    void RunMesherAndReadMesh(std::string outputDir, std::string fileStem);
 
     /** Needed for serialization.*/
     friend class boost::serialization::access;
