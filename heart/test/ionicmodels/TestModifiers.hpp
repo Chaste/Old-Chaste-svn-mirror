@@ -62,6 +62,8 @@ public:
 
         // We should now get a new answer to this.
         TS_ASSERT_DELTA(p_shannon->GetModifier("membrane_rapid_delayed_rectifier_potassium_current_conductance")->Calc(0,0),-90,1e-9);
+        
+        delete p_shannon;
     }
 
     void TestDummyModifiers(void) throw(Exception)
