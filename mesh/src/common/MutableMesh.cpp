@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshReader.hpp"
 
-//Jonathan Shewchuk's triangle
+//Jonathan Shewchuk's triangle and Hang Si's tetgen
 #define REAL double
 #define VOID void
 #include "triangle.h"
@@ -767,6 +767,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
                   mesher_output.pointlist[node_index * SPACE_DIM+1]);
                 this->mNodes.push_back(p_node);
                 this->mBoundaryNodes.push_back(p_node);
+                ///\todo #1545 Make this code more like the 3D code (where we don't have the edge markers)
             }
             else
             {

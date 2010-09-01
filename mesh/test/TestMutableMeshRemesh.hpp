@@ -51,8 +51,7 @@ class TestMutableMeshRemesh : public CxxTest::TestSuite
 public:
 
     /**
-     * Test 3D remesh - very similar test to TestOperationOfTetgenMoveNodes,
-     * but uses mesh.Remesh() instead of calling tetgen from here.
+     * Test 3D remesh replaces TestOperationOfTetgenMoveNodes which called the tetgen binary directly.
      * \todo #1545 This test hangs in optimized code because we're compiling tetgen1.4.2/predicates.cpp
      * with a -O flag.  The tetgen make files specifically point out the foolishness of compiling without -O0
      */
@@ -124,76 +123,6 @@ public:
         TS_ASSERT_DELTA(old_volume, new_volume, 1e-7);
     }
 
-    void TestOperationOfTetgenMoveNodes() throw (Exception)
-    {
-        OutputFileHandler handler("");
-
-        TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_1626_elements");
-        TetrahedralMesh<3,3> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            ChastePoint<3> point = mesh.GetNode(i)->GetPoint();
-
-            for (int j=0; j<3; j++)
-            {
-                if (fabs(point[j]-0.0) >1e-6 && fabs(point[j]-1.0) >1e-6)
-                {
-                    point.SetCoordinate(j, point[j]+9e-2);
-                }
-            }
-
-            mesh.GetNode(i)->SetPoint(point);
-        }
-        mesh.RefreshMesh();
-
-        double volume = mesh.GetVolume();
-        TS_ASSERT_DELTA(1, volume, 1e-7);
-        TS_ASSERT_EQUALS(mesh.GetNumNodes(), 375u);
-        TS_ASSERT_EQUALS(mesh.GetNumElements(), 1626u);
-        TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 390u);
-
-        out_stream node_file = handler.OpenOutputFile("temp.node");
-        (*node_file) << mesh.GetNumNodes() << "\t3\t0\t0\n";
-        for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-        {
-            const c_vector<double, 3> node_loc = mesh.GetNode(i)->rGetLocation();
-            (*node_file) << i << "\t" << node_loc[0] << "\t" << node_loc[1] << "\t" << node_loc[2] << "\n";
-        }
-        node_file->close();
-        std::string full_name = handler.GetOutputDirectoryFullPath()+"temp.";
-        std::string command = "tetgen -Q " + full_name + "node" + " > /dev/null";
-        int return_value=system(command.c_str());
-        TS_ASSERT(return_value == 0);
-        if (return_value != 0)
-        {
-            TS_TRACE("Do you have tetgen from http://tetgen.berlios.de/ installed in your path?");
-        }
-        else
-        {
-            TrianglesMeshReader<3,3> mesh_reader2(full_name+"1");
-            TetrahedralMesh<3,3> mesh2;
-            mesh2.ConstructFromMeshReader(mesh_reader2);
-            TS_ASSERT_EQUALS(mesh.GetNumNodes(), mesh2.GetNumNodes());
-            TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), mesh2.GetNumBoundaryElements());
-
-            TS_ASSERT_EQUALS(mesh.GetNumElements(), mesh2.GetNumElements()+1);
-
-            // Test to see whether triangle/tetgen is renumbering the nodes
-
-            for (unsigned i=0; i<mesh.GetNumNodes(); i++)
-            {
-                const c_vector<double, 3> node_loc1 = mesh.GetNode(i)->rGetLocation();
-                const c_vector<double, 3> node_loc2 = mesh2.GetNode(i)->rGetLocation();
-
-                for (int j=0; j<3; j++)
-                {
-                    TS_ASSERT_DELTA(node_loc1[j], node_loc2[j], 1e-6);
-                }
-            }
-        }
-    }
 
     void TestRemeshWithMethod1D() throw (Exception)
     {

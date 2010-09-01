@@ -30,10 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OutputFileHandler.hpp"
 #include "TrianglesMeshReader.hpp"
 
-//Jonathan Shewchuk's triangle
+//Jonathan Shewchuk's triangle and Hang Si's tetgen
 #define REAL double
 #define VOID void
 #include "triangle.h"
+#include "tetgen.h"
 #undef REAL
 #undef VOID
 
@@ -101,14 +102,14 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
     
     this->mMeshIsLinear=false;
     unsigned num_nodes=(numElemX+1)*(numElemY+1);
-    struct triangulateio triangle_input;
-    triangle_input.pointlist = (double *) malloc( num_nodes * DIM * sizeof(double));
-    triangle_input.numberofpoints = num_nodes;
-    triangle_input.numberofpointattributes = 0;
-    triangle_input.pointmarkerlist = NULL;
-    triangle_input.numberofsegments = 0;
-    triangle_input.numberofholes = 0;
-    triangle_input.numberofregions = 0;
+    struct triangulateio mesher_input;
+    mesher_input.pointlist = (double *) malloc( num_nodes * DIM * sizeof(double));
+    mesher_input.numberofpoints = num_nodes;
+    mesher_input.numberofpointattributes = 0;
+    mesher_input.pointmarkerlist = NULL;
+    mesher_input.numberofsegments = 0;
+    mesher_input.numberofholes = 0;
+    mesher_input.numberofregions = 0;
 
     unsigned new_index = 0;
     for (unsigned j=0; j<=numElemY; j++)
@@ -118,58 +119,59 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
         {
             double x = i;
 
-            triangle_input.pointlist[DIM*new_index] = x;
-            triangle_input.pointlist[DIM*new_index + 1] = y;
+            mesher_input.pointlist[DIM*new_index] = x;
+            mesher_input.pointlist[DIM*new_index + 1] = y;
             new_index++;
         }
     }
 
     // Make structure for output
-    struct triangulateio triangle_output;
-    triangle_output.pointlist = NULL;
-    triangle_output.pointattributelist = (double *) NULL;
-    triangle_output.pointmarkerlist = (int *) NULL;
-    triangle_output.trianglelist = (int *) NULL;
-    triangle_output.triangleattributelist = (double *) NULL;
-    triangle_output.edgelist = (int *) NULL;
-    triangle_output.edgemarkerlist = (int *) NULL;
+    struct triangulateio mesher_output;
+    mesher_output.pointlist = NULL;
+    mesher_output.pointattributelist = (double *) NULL;
+    mesher_output.pointmarkerlist = (int *) NULL;
+    mesher_output.trianglelist = (int *) NULL;
+    mesher_output.triangleattributelist = (double *) NULL;
+    mesher_output.edgelist = (int *) NULL;
+    mesher_output.edgemarkerlist = (int *) NULL;
 
     // Library call
-    triangulate((char*)"Qzeo2", &triangle_input, &triangle_output, NULL);
+    triangulate((char*)"Qzeo2", &mesher_input, &mesher_output, NULL);
 
-    assert(triangle_output.numberofcorners == (DIM+1)*(DIM+2)/2);//Nodes per triangle
+    assert(mesher_output.numberofcorners == (DIM+1)*(DIM+2)/2);//Nodes per element (including internals, one per edge)
 
     // Construct the nodes
-    for (unsigned node_index=0; node_index<(unsigned)triangle_output.numberofpoints; node_index++)
+    for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
     {
-        if (triangle_output.pointmarkerlist[node_index] == 1)
+        if (mesher_output.pointmarkerlist[node_index] == 1)
         {
             // Boundary node
             Node<DIM>* p_node = new Node<DIM>(node_index, true,
-              triangle_output.pointlist[node_index * DIM],
-              triangle_output.pointlist[node_index * DIM+1]);
+              mesher_output.pointlist[node_index * DIM],
+              mesher_output.pointlist[node_index * DIM+1]);
             this->mNodes.push_back(p_node);
             this->mBoundaryNodes.push_back(p_node);
+            ///\todo #1545 Make this code more like the 3D code (where we don't have the edge markers)
         }
         else
         {
             this->mNodes.push_back(new Node<DIM>(node_index, false,
-              triangle_output.pointlist[node_index * DIM],
-              triangle_output.pointlist[node_index * DIM+1]));
+              mesher_output.pointlist[node_index * DIM],
+              mesher_output.pointlist[node_index * DIM+1]));
         }
     }
 
     mIsInternalNode.resize(this->GetNumNodes(), true);
 
     // Construct the elements
-    this->mElements.reserve(triangle_output.numberoftriangles);
-    for (unsigned element_index=0; element_index<(unsigned)triangle_output.numberoftriangles; element_index++)
+    this->mElements.reserve(mesher_output.numberoftriangles);
+    for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftriangles; element_index++)
     {
         std::vector<Node<DIM>*> nodes;
-        //First 3 are the vertices
+        //First (DIM+1) are the vertices
         for (unsigned j=0; j<DIM+1; j++)
         {
-            unsigned global_node_index = triangle_output.trianglelist[element_index*triangle_output.numberofcorners + j];
+            unsigned global_node_index = mesher_output.trianglelist[element_index*mesher_output.numberofcorners + j];
             assert(global_node_index < this->mNodes.size());
             nodes.push_back(this->mNodes[global_node_index]);
             mIsInternalNode[global_node_index]=false;
@@ -177,14 +179,15 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
         //Construct with just the vertices
         this->mElements.push_back(new Element<DIM, DIM>(element_index, nodes));
         //Add the internals
-        for (unsigned j=DIM+1; j<(unsigned)triangle_output.numberofcorners; j++)
+        for (unsigned j=DIM+1; j<(unsigned)mesher_output.numberofcorners; j++)
         {
-            unsigned global_node_index = triangle_output.trianglelist[element_index*triangle_output.numberofcorners + j];
+            unsigned global_node_index = mesher_output.trianglelist[element_index*mesher_output.numberofcorners + j];
             assert(global_node_index < this->mNodes.size());
             this->mElements[element_index]->AddNode( this->mNodes[global_node_index] );
             this->mNodes[global_node_index]->AddElement(element_index);
         }
     }
+    //Check that the nodes go "Vertex, Vertex, ...., Internal, Internal..."
     bool vertices_mode = true;
     mNumVertices = 0u;
     for (unsigned i=0; i<this->GetNumNodes(); i++)
@@ -200,14 +203,14 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
         }
     }
     unsigned next_boundary_element_index = 0;
-    for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)triangle_output.numberofedges; boundary_element_index++)
+    for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)mesher_output.numberofedges; boundary_element_index++)
     {
-        if (triangle_output.edgemarkerlist[boundary_element_index] == 1)
+        if (mesher_output.edgemarkerlist[boundary_element_index] == 1)
         {
             std::vector<Node<DIM>*> nodes;
             for (unsigned j=0; j<DIM; j++)
             {
-                unsigned global_node_index=triangle_output.edgelist[boundary_element_index*DIM + j];
+                unsigned global_node_index=mesher_output.edgelist[boundary_element_index*DIM + j];
                 assert(global_node_index < this->mNodes.size());
                 nodes.push_back(this->mNodes[global_node_index]);
             }
@@ -219,15 +222,15 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
 
     AddNodesToBoundaryElements(NULL);
 
-    free(triangle_input.pointlist);
+    free(mesher_input.pointlist);
 
-    free(triangle_output.pointlist);
-    free(triangle_output.pointattributelist);
-    free(triangle_output.pointmarkerlist);
-    free(triangle_output.trianglelist);
-    free(triangle_output.triangleattributelist);
-    free(triangle_output.edgelist);
-    free(triangle_output.edgemarkerlist);
+    free(mesher_output.pointlist);
+    free(mesher_output.pointattributelist);
+    free(mesher_output.pointmarkerlist);
+    free(mesher_output.trianglelist);
+    free(mesher_output.triangleattributelist);
+    free(mesher_output.edgelist);
+    free(mesher_output.edgemarkerlist);
 }
 
 
@@ -241,40 +244,112 @@ void QuadraticMesh<DIM>::ConstructCuboid(unsigned numElemX, unsigned numElemY, u
     assert(numElemX>0);
     assert(numElemY>0);
     assert(numElemZ>0);
-
     this->mMeshIsLinear=false;
-    std::string tempfile_name_stem = "temp_quadmesh3d";
-
-    ////////////////////////////////////////
-    // write the node file (vertices only)
-    ////////////////////////////////////////
-    OutputFileHandler handler("");
-    out_stream p_file = handler.OpenOutputFile(tempfile_name_stem+".node");
-
-    *p_file << (numElemX+1)*(numElemY+1)*(numElemZ+1) << " 3 0 0\n";
-    unsigned node_index = 0;
+    unsigned num_nodes=(numElemX+1)*(numElemY+1)*(numElemZ+1);
+    
+    struct tetgen::tetgenio mesher_input;
+    mesher_input.pointlist =  new double[num_nodes * DIM];
+    mesher_input.numberofpoints = num_nodes;
+    unsigned new_index = 0;
     for (unsigned k=0; k<=numElemZ; k++)
     {
+        double z = k;
         for (unsigned j=0; j<=numElemY; j++)
         {
+            double y = j;
             for (unsigned i=0; i<=numElemX; i++)
             {
                 double x = i;
-                double y = j;
-                double z = k;
-
-                //bool on_boundary = ( (i==0) || (i==numElemX) || (j==0) || (j==numElemY) || (k==0) || (k==numElemZ) );
-                *p_file << node_index++ << " " << x << " " << y << " " << z << "\n"; // << (on_boundary?1:0) << "\n";
+                mesher_input.pointlist[DIM*new_index] = x;
+                mesher_input.pointlist[DIM*new_index + 1] = y;
+                mesher_input.pointlist[DIM*new_index + 2] = z;
+                new_index++;
             }
         }
     }
-    p_file->close();
 
-    ////////////////////////////////////////////////////////////
-    // create the quadratic mesh files using triangle and load
-    ////////////////////////////////////////////////////////////
+    
+    // Library call
+    struct tetgen::tetgenio mesher_output;
+    tetgen::tetrahedralize((char*)"Qo2", &mesher_input, &mesher_output, NULL);
+    
+    assert(mesher_output.numberofcorners == (DIM+1)*(DIM+2)/2);//Nodes per element (including internals, one per edge)
 
-    RunMesherAndReadMesh(handler.GetOutputDirectoryFullPath(), tempfile_name_stem);
+    // Construct the nodes
+    for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
+    {
+        this->mNodes.push_back(new Node<DIM>(node_index, false,
+          mesher_output.pointlist[node_index * DIM],
+          mesher_output.pointlist[node_index * DIM+1],
+          mesher_output.pointlist[node_index * DIM+2]));
+    }
+    
+
+    mIsInternalNode.resize(this->GetNumNodes(), true);
+
+   // Construct the elements
+    this->mElements.reserve(mesher_output.numberoftetrahedra);
+    for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftetrahedra; element_index++)
+    {
+        std::vector<Node<DIM>*> nodes;
+        //First (DIM+1) are the vertices
+        for (unsigned j=0; j<DIM+1; j++)
+        {
+            unsigned global_node_index = mesher_output.tetrahedronlist[element_index*mesher_output.numberofcorners + j];
+            assert(global_node_index < this->mNodes.size());
+            nodes.push_back(this->mNodes[global_node_index]);
+            mIsInternalNode[global_node_index]=false;
+        }
+        //Construct with just the vertices
+        this->mElements.push_back(new Element<DIM, DIM>(element_index, nodes));
+        //Add the internals
+        for (unsigned j=DIM+1; j<(unsigned)mesher_output.numberofcorners; j++)
+        {
+            unsigned global_node_index = mesher_output.tetrahedronlist[element_index*mesher_output.numberofcorners + j];
+            assert(global_node_index < this->mNodes.size());
+            this->mElements[element_index]->AddNode( this->mNodes[global_node_index] );
+            this->mNodes[global_node_index]->AddElement(element_index);
+        }
+    }
+    
+    //Check that the nodes go "Vertex, Vertex, ...., Internal, Internal..."
+    bool vertices_mode = true;
+    mNumVertices = 0u;
+    for (unsigned i=0; i<this->GetNumNodes(); i++)
+    {
+        if (mIsInternalNode[i]==false)
+        {
+            mNumVertices++;
+            assert(vertices_mode);//If this trips, then the nodes were not in the expected order -- investigate the library call to triangle
+        }
+        if ( (vertices_mode == true)  && (mIsInternalNode[i]==true) )
+        {
+            vertices_mode = false;
+        }
+    }
+    
+    unsigned next_boundary_element_index = 0;
+    for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)mesher_output.numberoftrifaces; boundary_element_index++)
+    {
+        std::vector<Node<DIM>*> nodes;
+        for (unsigned j=0; j<DIM; j++)
+        {
+            unsigned global_node_index=mesher_output.trifacelist[boundary_element_index*DIM + j];
+            assert(global_node_index < this->mNodes.size());
+            nodes.push_back(this->mNodes[global_node_index]);
+            if (!nodes[j]->IsBoundaryNode())
+            {
+                nodes[j]->SetAsBoundaryNode();
+                this->mBoundaryNodes.push_back(nodes[j]);
+            }
+        }
+        this->mBoundaryElements.push_back(new BoundaryElement<DIM-1, DIM>(next_boundary_element_index++, nodes));
+    }
+    
+    this->RefreshJacobianCachedData();
+    
+    AddNodesToBoundaryElements(NULL);
+
 }
 
 
