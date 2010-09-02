@@ -127,16 +127,13 @@ void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::DeleteCells()
         }
     }
 
-//    if (deleteFakeCells)
-    {
-        // Likewise for fake cells
-        for (std::set<FakeBathCell*>::iterator it = fake_cells.begin();
-             it != fake_cells.end();
-             ++it)
-        {
-            delete (*it);
-        }
-    }
+//    // Likewise for fake cells
+//    for (std::set<FakeBathCell*>::iterator it = fake_cells.begin();
+//         it != fake_cells.end();
+//         ++it)
+//    {
+//        delete (*it);
+//    }
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
