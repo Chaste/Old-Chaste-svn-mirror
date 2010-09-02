@@ -67,7 +67,7 @@ if dyn_libs_only:
     ARGUMENTS['test_summary'] = 0
     ARGUMENTS['do_inf_tests'] = 0
     # Note what folder is being built
-    dyn_folder = COMMAND_LINE_TARGETS[0]
+    dyn_folder = os.path.join(Dir('#').abspath, COMMAND_LINE_TARGETS[0])
     Export('dyn_folder')
 
 # Turn on some build-script debugging?
