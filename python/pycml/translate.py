@@ -430,10 +430,13 @@ class CellMLTranslator(object):
             prefix = ['var_', 'd_dt_'][ode]
         if ode:
             var = var.get_source_variable(recurse=True)
-        if self.single_component:
+        if var.component.name == u'':
+            # Special case variables, that don't really exist in the model
+            name = var.name
+        elif self.single_component:
             name = prefix + var.name
         else:
-            name = prefix + var.xml_parent.name + '__' + var.name
+            name = prefix + var.component.name + '__' + var.name
         return name
 
     @property
@@ -2606,9 +2609,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         if hasattr(ci_elt, '_cml_variable') and ci_elt._cml_variable:
             self.write(self.code_name(ci_elt.variable, ode=ode))
         else:
-            # This ci element is in the solver_info section, thus
-            # doesn't have all the extra annotations.  It is a fully
-            # qualified name though.
+            # This ci element doesn't have all the extra annotations.  It is a fully
+            # qualified name though.  This is typically because PE has been done.
             prefix = ['var_', 'd_dt_'][ode]
             varname = unicode(ci_elt)
             if varname[0] == '(':
@@ -2622,10 +2624,12 @@ class CellMLToChasteTranslator(CellMLTranslator):
                 # Special case for the timestep in ComputeJacobian
                 prefix = ''
                 varname = 'dt'
-            else:
+            elif varname.startswith(prefix):
                 # Possibly var_cname__vname
-                if varname.startswith('var_'):
-                    varname = varname[4:]
+                varname = varname[len(prefix):]
+            else:
+                # Assume it's a suitable name
+                pass
             self.write(prefix + varname)
         return
 
@@ -3690,6 +3694,9 @@ class SolverInfo(object):
 
         If any of these elements exist in the model they will be left
         unaltered, unless force is set to True.
+        
+        This constructor just sets up the container element; call one
+        of the add_* methods to actually add the information to it.
         """
         self._model = model
         if force and hasattr(model, u'solver_info'):
@@ -3700,6 +3707,7 @@ class SolverInfo(object):
             solver_info = model.xml_create_element(u'solver_info', NSS[u'solver'])
             model.xml_append(solver_info)
         self._solver_info = solver_info
+        self._component = None
     
     def add_all_info(self):
         """Actually add the info."""
@@ -3719,8 +3727,24 @@ class SolverInfo(object):
             solver_info.xml_append(v_elt)
     
     def add_linearised_odes(self):
-        """Linearised ODEs - where du/dt = g + hu
-        (and g, h are not functions of u)"""
+        """Linearised ODEs - where du/dt = g + hu (and g, h are not functions of u).
+        
+        Structure looks like:
+        <linear_odes>
+            <math>
+                <apply><plus/>
+                    g
+                    <apply><times/>
+                        h
+                        <ci>u</ci>
+                    </apply>
+                </apply>
+                .
+                .
+                .
+            </math>
+        </linear_odes>
+        """
         solver_info = self._solver_info
         model = self._model
         if not hasattr(solver_info, u'linear_odes'):
@@ -3739,7 +3763,15 @@ class SolverInfo(object):
                     model, free_var.fullname(), var.fullname(), rhs))
     
     def add_jacobian_matrix(self):
-        """Jacobian matrix elements."""
+        """Jacobian matrix elements.
+        
+        Structure looks like:
+        <jacobian>
+            <entry var_i='varname' var_j='varname'>
+                MathML
+            </entry>
+        </jacobian>
+        """
         solver_info = self._solver_info
         model = self._model
         if not hasattr(solver_info, u'jacobian'):
@@ -3778,8 +3810,80 @@ class SolverInfo(object):
                 ionic_elt.xml_append(varelt)
             solver_info.xml_append(ionic_elt)
         return
+    
+    def add_variable_links(self):
+        """Link ci elements in the added XML to cellml_variable objects.
+        
+        This analyses the names in the ci elements to determine which variable in
+        the model they refer to.
+        """
+        solver_info = self._solver_info
+        # Jacobian
+        if hasattr(solver_info, u'jacobian'):
+            for entry in solver_info.jacobian.entry:
+                self._add_variable_links(entry)
+        # Linearised ODEs
+        if hasattr(solver_info, u'linear_odes'):
+            self._add_variable_links(solver_info.linear_odes.math)
+    
+    def _add_variable_links(self, elt):
+        """Recursively link ci elements in the given XML tree to cellml_variable objects."""
+        if isinstance(elt, mathml_ci):
+            var = self._get_variable(unicode(elt))
+            elt._cml_variable = var
+        elif hasattr(elt, 'xml_children'):
+            for child in elt.xml_children:
+                self._add_variable_links(child)
 
+    def _get_variable(self, varname):
+        """Return the variable in the model with name varname."""
+        if varname[0] == '(':
+            # (compname,varname)
+            cname, vname = varname[1:-1].split(u',')
+        elif '__' in varname:
+            # [var_]cname__vname
+            if varname.startswith('var_'):
+                varname = varname[4:]
+            cname, vname = varname.split(u'__')
+        elif varname == u'delta_t':
+            # Special case for the timestep in ComputeJacobian
+            return self._get_special_variable(u'dt')
+        else:
+            raise ValueError("Unrecognised variable name in SolverInfo: " + varname)
+        # Determine the variable object from cname,vname
+        try:
+            comp = self._model.get_component_by_name(cname)
+            var = comp.get_variable_by_name(vname)
+        except KeyError:
+            if len(list(self._model.component)) > 1:
+                raise ValueError("Cannot find component '%s' needed by ci element '%s'"
+                                 % (cname, varname))
+            elif self._model.component.ignore_component_name:
+                # Done PE already
+                try:
+                    var = self._model.component.get_variable_by_name(cname+'__'+vname)
+                except KeyError:
+                    raise ValueError("Cannot find variable '%s' in SolverInfo" % varname)
+            else:
+                raise ValueError("Cannot find variable '%s' in SolverInfo" % varname)
+        return var
 
+    def _get_special_variable(self, varname):
+        """Get or create a special variable object that doesn't really exist in the model."""
+        comp = self._get_special_component()
+        try:
+            var = comp.get_variable_by_name(varname)
+        except KeyError:
+            var = cellml_variable.create_new(self._model, varname, u'dimensionless')
+            comp._add_variable(var)
+        return var
+
+    def _get_special_component(self):
+        """Get or create a special component for containing special variables."""
+        if not self._component:
+            self._component = cellml_component.create_new(self._model, u'')
+            self._component.xml_parent = self._model
+        return self._component
 
 class ConfigurationStore(object):
     """
@@ -4479,6 +4583,8 @@ def run():
         if options.use_modifiers:
             class_name += '_sens'
 
+    solver_info = SolverInfo(doc.model)
+
     output_filename = getattr(options, 'outfilename', None)
     if not options.translate and not output_filename:
         output_filename = 'stdout'
@@ -4516,8 +4622,9 @@ def run():
         lin.analyse_for_jacobian(doc, V=config.V_variable)
         lin.rearrange_linear_odes(doc)
         # Add info as XML
-        SolverInfo(doc.model).add_all_info()
+        solver_info.add_all_info()
         # TODO: Analyse the XML, adding cellml_variable references, etc.
+        solver_info.add_variable_links()
 
     if options.translate:
         # Translate to code
@@ -4534,7 +4641,7 @@ def run():
             initargs['omit_constants'] = options.omit_constants
             initargs['compute_full_jacobian'] = options.compute_full_jacobian
         elif issubclass(klass, CellMLToChasteTranslator):
-            SolverInfo(doc.model).add_membrane_ionic_current()
+            solver_info.add_membrane_ionic_current()
             transargs['use_chaste_stimulus'] = options.use_chaste_stimulus
             transargs['separate_lut_class'] = options.separate_lut_class
             transargs['convert_interfaces'] = options.convert_interfaces
