@@ -467,3 +467,15 @@
    fun:H5Fopen
    fun:_ZN14Hdf5DataWriterC1ER24DistributedVectorFactoryRKSsS3_bb
 }
+
+{
+   Memory problem in Tetgen with quadratic meshs
+   Memcheck:Cond
+   fun:_ZN6tetgen10tetgenmesh13pointtraverseEv
+   fun:_ZN6tetgen10tetgenmesh8outnodesEPNS_8tetgenioE
+   fun:_ZN6tetgen14tetrahedralizeEPNS_14tetgenbehaviorEPNS_8tetgenioES3_S3_S3_
+   fun:_ZN6tetgen14tetrahedralizeEPcPNS_8tetgenioES2_S2_S2_
+   fun:_ZN13QuadraticMeshILj3EE15ConstructCuboidEjjj
+   fun:_ZN23AbstractTetrahedralMeshILj3ELj3EE24ConstructRegularSlabMeshEdddd
+}
+
