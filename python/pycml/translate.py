@@ -2342,8 +2342,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         self.output_state_assignments(exclude_nonlinear=True, nodeset=nodeset)
         self.output_nonlinear_state_assignments(nodeset=nodeset)
         if self.conversion_factor:
-            self.writeln('const double dt = ', self.conversion_factor,
-                         ' * mDt;\n');
+            self.writeln('const double dt = ', self.conversion_factor, ' * mDt;\n');
         else:
             self.writeln('const double dt = mDt;\n')
         self.output_equations(nodeset)
@@ -3680,6 +3679,107 @@ CellMLTranslator.register(CellMLToHaskellTranslator, 'Haskell')
 
 
 
+class SolverInfo(object):
+    """Add information for specialised translator classes into a model."""
+    def __init__(self, model, force=False):
+        """Add information for the solvers as XML.
+
+        The Jacobian and linearity analyses store their results in
+        Python data structures as attributes of this object.
+        Transcribe these into XML in a child <solver_info> element.
+
+        If any of these elements exist in the model they will be left
+        unaltered, unless force is set to True.
+        """
+        self._model = model
+        if force and hasattr(model, u'solver_info'):
+            model.xml_remove_child(model.solver_info)
+        if hasattr(model, u'solver_info'):
+            solver_info = model.solver_info
+        else:
+            solver_info = model.xml_create_element(u'solver_info', NSS[u'solver'])
+            model.xml_append(solver_info)
+        self._solver_info = solver_info
+    
+    def add_all_info(self):
+        """Actually add the info."""
+        self.add_transmembrane_potential_name()
+        self.add_membrane_ionic_current()
+        self.add_linearised_odes()
+        self.add_jacobian_matrix()
+    
+    def add_transmembrane_potential_name(self):
+        """The name of the transmembrane potential."""
+        solver_info = self._solver_info
+        model = self._model
+        if not hasattr(solver_info, u'transmembrane_potential'):
+            v_elt = model.xml_create_element(
+                u'transmembrane_potential', NSS[u'solver'],
+                content=model._cml_transmembrane_potential.fullname())
+            solver_info.xml_append(v_elt)
+    
+    def add_linearised_odes(self):
+        """Linearised ODEs - where du/dt = g + hu
+        (and g, h are not functions of u)"""
+        solver_info = self._solver_info
+        model = self._model
+        if not hasattr(solver_info, u'linear_odes'):
+            odes_elt = model.xml_create_element(u'linear_odes', NSS[u'solver'])
+            solver_info.xml_append(odes_elt)
+            odes_math = model.xml_create_element(u'math', NSS[u'm'])
+            odes_elt.xml_append(odes_math)
+            linear_vars = model._cml_linear_update_exprs.keys()
+            linear_vars.sort(key=lambda v: v.fullname())
+            free_var = model._cml_free_var
+            for var in linear_vars:
+                g, h = model._cml_linear_update_exprs[var]
+                hu = mathml_apply.create_new(model, u'times', [h, var.fullname()])
+                rhs = mathml_apply.create_new(model, u'plus', [g, hu])
+                odes_math.xml_append(mathml_diff.create_new(
+                    model, free_var.fullname(), var.fullname(), rhs))
+    
+    def add_jacobian_matrix(self):
+        """Jacobian matrix elements."""
+        solver_info = self._solver_info
+        model = self._model
+        if not hasattr(solver_info, u'jacobian'):
+            jac_elt = model.xml_create_element(u'jacobian', NSS[u'solver'])
+            solver_info.xml_append(jac_elt)
+            jac_vars = model._cml_jacobian.keys()
+            jac_vars.sort() # Will sort by variable name
+            rules = [bt.ws_strip_element_rule(u'*')]
+            for v_i, v_j in jac_vars:
+                # Add (i,j)-th entry
+                binder = make_xml_binder()
+                attrs = {u'var_i': unicode(v_i),
+                         u'var_j': unicode(v_j)}
+                entry = model.xml_create_element(u'entry', NSS[u'solver'], attributes=attrs)
+                jac_elt.xml_append(entry)
+                entry_doc = amara_parse(model._cml_jacobian[(v_i, v_j)].xml(),
+                                        rules=rules, binderobj=binder)
+                entry.xml_append(entry_doc.math)
+        return
+
+    def add_membrane_ionic_current(self):
+        """Add ionic current information as XML for solvers to use."""
+        solver_info = self._solver_info
+        model = self._model
+        # The total ionic current.  This relies on having a
+        # configuration store.
+        if hasattr(model.xml_parent, '_cml_config') and \
+               not hasattr(solver_info, u'ionic_current'):
+            conf = model.xml_parent._cml_config
+            ionic_elt = model.xml_create_element(u'ionic_current', NSS[u'solver'])
+            # Adds each ionic var to the xml doc from the config store
+            for var in conf.i_ionic_vars:
+                DEBUG("translate", var.name, var.xml_parent.name, var.fullname())
+                varelt = model.xml_create_element(u'var', NSS[u'solver'],
+                                                  content=var.fullname())
+                ionic_elt.xml_append(varelt)
+            solver_info.xml_append(ionic_elt)
+        return
+
+
 
 class ConfigurationStore(object):
     """
@@ -4416,7 +4516,7 @@ def run():
         lin.analyse_for_jacobian(doc, V=config.V_variable)
         lin.rearrange_linear_odes(doc)
         # Add info as XML
-        doc.model._add_solver_info()
+        SolverInfo(doc.model).add_all_info()
         # TODO: Analyse the XML, adding cellml_variable references, etc.
 
     if options.translate:
@@ -4434,7 +4534,7 @@ def run():
             initargs['omit_constants'] = options.omit_constants
             initargs['compute_full_jacobian'] = options.compute_full_jacobian
         elif issubclass(klass, CellMLToChasteTranslator):
-            doc.model._add_solver_info_ionic_current()
+            SolverInfo(doc.model).add_membrane_ionic_current()
             transargs['use_chaste_stimulus'] = options.use_chaste_stimulus
             transargs['separate_lut_class'] = options.separate_lut_class
             transargs['convert_interfaces'] = options.convert_interfaces

@@ -47,12 +47,12 @@ __version__ = "$Revision$"[11:-2]
 
 class PartialEvaluator(object):
     """Perform partial evaluation of a CellML model."""
-    def debug(self, *args):
+    def _debug(self, *args):
         """Output debug info from the PE process."""
         logger = logging.getLogger('partial-evaluator')
         logger.debug(' '.join(map(str, args)))
 
-    def expr_lhs(self, expr):
+    def _expr_lhs(self, expr):
         """Display the LHS of this expression."""
         lhs = expr.assigned_variable()
         if isinstance(lhs, cellml_variable):
@@ -60,17 +60,17 @@ class PartialEvaluator(object):
         else:
             return lhs[0].fullname() + u'/' + lhs[1].fullname()
 
-    def rename_vars(self, elt):
+    def _rename_vars(self, elt):
         """Rename variables found in ci elements in this tree to use canonical names."""
         if isinstance(elt, mathml_ci):
             var = elt.variable.get_source_variable(recurse=True)
             elt.xml_remove_child(unicode(elt))
             elt.xml_append(var.fullname(cellml=True))
             elt._cml_variable = var
-            self.debug("Using canonical name", unicode(elt))
+            self._debug("Using canonical name", unicode(elt))
         else:
             for e in self.doc.model.xml_element_children(elt):
-                self.rename_vars(e)
+                self._rename_vars(e)
 
     def parteval(self, doc):
         """Do the partial evaluation."""
@@ -85,7 +85,7 @@ class PartialEvaluator(object):
             for expr in exprs:
                 if expr._get_binding_time() is BINDING_TIMES.static:
                     value = expr.evaluate()
-                    self.debug("Evaluated", self.expr_lhs(expr),
+                    self._debug("Evaluated", self._expr_lhs(expr),
                                "to", value)
                     if expr.is_ode():
                         # Replace the RHS with a <cn> element giving the value
@@ -105,7 +105,7 @@ class PartialEvaluator(object):
                     expr._reduce()
             if doc.model._pe_repeat == u'no':
                 break
-            self.debug("----- looping -----")
+            self._debug("----- looping -----")
         del doc.model._pe_repeat
         
         # Use canonical variable names on LHS of assignments
@@ -117,7 +117,7 @@ class PartialEvaluator(object):
                 if not (var.get_usage_count() or var.pe_keep):
                     doc.model._remove_assignment(expr)
                     continue
-            self.rename_vars(expr.eq.lhs)
+            self._rename_vars(expr.eq.lhs)
 
         # Tidy up kept variables, in case they aren't referenced in an eq'n.
         for comp in getattr(doc.model, u'component', []):
@@ -144,11 +144,11 @@ class PartialEvaluator(object):
                 new_comp.xml_append(units)
             for var in list(getattr(comp, u'variable', [])):
                 # Only move used source variables
-                self.debug('Variable', var.fullname(), 'usage', var.get_usage_count(),
+                self._debug('Variable', var.fullname(), 'usage', var.get_usage_count(),
                            'type', var.get_type(), 'kept', var.pe_keep)
                 if (var.get_usage_count() and
                     var.get_type() != VarTypes.Mapped) or var.pe_keep:
-                    self.debug('Moving variable', var.fullname())
+                    self._debug('Moving variable', var.fullname())
                     # Remove from where it was
                     comp._del_variable(var, keep_annotations=True)
                     # Set name to canonical version
