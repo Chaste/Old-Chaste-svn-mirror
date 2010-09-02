@@ -99,5 +99,4 @@ public:
     unsigned GetColour() const;
 };
 
-
 #endif /* ABSTRACTCELLMUTATIONSTATE_HPP_ */

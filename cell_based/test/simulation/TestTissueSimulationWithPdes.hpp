@@ -1334,7 +1334,7 @@ public:
         // Set up tissue simulation
 		TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
 
-        // \TODO uncomment see #1453
+        ///\todo uncomment see #1453
         //TS_ASSERT_EQUALS(simulator.GetIdentifier(), "TissueSimulationWithPDE<2>");
 
 		std::string output_directory = "TestTissueSimulationOutputParameters";
@@ -1346,8 +1346,8 @@ public:
 		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 		TS_ASSERT_EQUALS(system(("diff " + results_dir + "tissue_sim_with_pde_results.parameters			cell_based/test/data/TestTissueSimulationOutputParameters/tissue_sim_with_pde_results.parameters").c_str()), 0);
 
-		//\TODO check output of simulator.OutputSimulationSetup();
+		///\todo check output of simulator.OutputSimulationSetup();
     }
-
 };
+
 #endif /*TESTTISSUESIMULATIONWITHPDES_HPP_*/

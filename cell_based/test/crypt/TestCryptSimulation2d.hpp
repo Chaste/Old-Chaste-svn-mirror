@@ -1802,7 +1802,7 @@ public:
 		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 		TS_ASSERT_EQUALS(system(("diff " + results_dir + "crypt_sim_2d_results.parameters			cell_based/test/data/TestCryptSimulationOutputParameters/crypt_sim_2d_results.parameters").c_str()), 0);
 
-		//\TODO check output of simulator.OutputSimulationSetup();
+		///\todo check output of simulator.OutputSimulationSetup();
 	}
 
 

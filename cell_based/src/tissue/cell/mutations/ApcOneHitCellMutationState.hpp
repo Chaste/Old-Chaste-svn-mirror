@@ -57,7 +57,6 @@ public:
      * Constructor.
      */
     ApcOneHitCellMutationState();
-
 };
 
 #include "SerializationExportWrapper.hpp"

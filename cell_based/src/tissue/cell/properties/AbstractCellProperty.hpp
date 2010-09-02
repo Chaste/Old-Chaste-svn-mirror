@@ -44,7 +44,7 @@ class AbstractCellProperty
 private:
 
     /**
-     * The number of cells with this mutation state.
+     * The number of cells with this cell property.
      */
     unsigned mCellCount;
 
@@ -98,7 +98,7 @@ public:
      * of that class.
      *
      * It should be called like:
-     *   bool mutation = p_property->IsSubType<AbstractCellMutationState>();
+     *   bool is_mutation = p_property->IsSubType<AbstractCellMutationState>();
      */
     template<class BASECLASS>
     bool IsSubType() const
@@ -141,6 +141,10 @@ public:
      * extended_type_info and returns the identifier of the derived class
      * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
      * derived class, and is usually just the name of the class).
+     * 
+     * Note that you must include the headers <boost/archive/text_oarchive.hpp>
+     * and <boost/archive/text_iarchive.hpp> in any test suite that calls this
+     * method, or any other method that calls this method.
      */
     std::string GetIdentifier() const;
 };
