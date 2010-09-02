@@ -180,9 +180,8 @@ protected:
 
     /**
      * Helper method for destructor.
-     * @param deleteFakeCells  whether to delete fake bath cells
      */
-    void DeleteCells(bool deleteFakeCells);
+    void DeleteCells();
 
 public:
     /**
@@ -454,11 +453,11 @@ public:
 
 TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacCellCollection)
 
-namespace boost { 
+namespace boost {
 namespace serialization {
 /**
  * Specify a version number for archive backwards compatibility.
- * 
+ *
  * This is how to do BOOST_CLASS_VERSION(AbstractCardiacCellCollection, 1)
  * with a templated class.
  */

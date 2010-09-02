@@ -64,7 +64,7 @@ AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellCollect
             mCellsDistributed[local_index] = pCellFactory->CreateCardiacCellForNode(global_index);
             mCellsDistributed[local_index]->SetUsedInTissueSimulation();
         }
-    
+
         pCellFactory->FinaliseCellCreation(&mCellsDistributed,
                                            mpDistributedVectorFactory->GetLow(),
                                            mpDistributedVectorFactory->GetHigh());
@@ -76,7 +76,7 @@ AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellCollect
         // Should really do this for other processes too, but this is all we need
         // to get memory testing to pass, and leaking when we're about to die isn't
         // that bad!
-        DeleteCells(false);
+        DeleteCells();
         throw e;
     }
     PetscTools::ReplicateException(false);
@@ -108,7 +108,7 @@ AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellCollect
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::DeleteCells(bool deleteFakeCells)
+void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::DeleteCells()
 {
     std::set<FakeBathCell*> fake_cells;
     for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
@@ -127,7 +127,7 @@ void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::DeleteCells(bool dele
         }
     }
 
-    if (deleteFakeCells)
+//    if (deleteFakeCells)
     {
         // Likewise for fake cells
         for (std::set<FakeBathCell*>::iterator it = fake_cells.begin();
@@ -142,7 +142,7 @@ void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::DeleteCells(bool dele
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
 AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacCellCollection()
 {
-    DeleteCells(mMeshUnarchived);
+    DeleteCells();
 
     delete mpIntracellularConductivityTensors;
 
@@ -249,13 +249,13 @@ void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularCo
                 }
             }
         }
-        
+
         // freeing memory allcated by HeartConfig::Instance()->GetConductivityHeterogeneities
         for (unsigned region_index=0; region_index< conductivities_heterogeneity_areas.size(); region_index++)
         {
             delete conductivities_heterogeneity_areas[region_index];
         }
-                
+
         mpIntracellularConductivityTensors->SetNonConstantConductivities(&hetero_intra_conductivities);
     }
     else
