@@ -138,7 +138,6 @@ public:
  * block of code allows you to archive (save or load) the cell mutation state
  * object in a tissue simulation. */
 #include "SerializationExportWrapper.hpp"
-// Declare identifier for the serializer
 CHASTE_CLASS_EXPORT(P53GainOfFunctionCellMutationState)
 
 /*
