@@ -35,7 +35,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractChasteRegion.hpp"
 #include "HeartEventHandler.hpp"
 #include "PetscTools.hpp"
-#include "FakeBathCell.hpp"
 
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
@@ -73,10 +72,18 @@ AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellCollect
     {
         // Errors thrown creating cells will often be process-specific
         PetscTools::ReplicateException(true);
+
+        // Delete cells
         // Should really do this for other processes too, but this is all we need
         // to get memory testing to pass, and leaking when we're about to die isn't
         // that bad!
-        DeleteCells();
+        for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
+             cell_iterator != mCellsDistributed.end();
+             ++cell_iterator)
+        {
+            delete (*cell_iterator);
+        }
+
         throw e;
     }
     PetscTools::ReplicateException(false);
@@ -108,38 +115,15 @@ AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellCollect
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-void AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::DeleteCells()
+AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacCellCollection()
 {
-    std::set<FakeBathCell*> fake_cells;
+    // Delete cells
     for (std::vector<AbstractCardiacCell*>::iterator cell_iterator = mCellsDistributed.begin();
          cell_iterator != mCellsDistributed.end();
          ++cell_iterator)
     {
-        // Only delete real cells, unless we were loaded from an archive
-        FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(*cell_iterator);
-        if (p_fake == NULL)
-        {
-            delete (*cell_iterator);
-        }
-        else
-        {
-            fake_cells.insert(p_fake);
-        }
+        delete (*cell_iterator);
     }
-
-//    // Likewise for fake cells
-//    for (std::set<FakeBathCell*>::iterator it = fake_cells.begin();
-//         it != fake_cells.end();
-//         ++it)
-//    {
-//        delete (*it);
-//    }
-}
-
-template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacCellCollection()
-{
-    DeleteCells();
 
     delete mpIntracellularConductivityTensors;
 

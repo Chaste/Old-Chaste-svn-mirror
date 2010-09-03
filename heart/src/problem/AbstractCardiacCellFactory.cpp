@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AbstractCardiacCellFactory.hpp"
 #include "HeartRegionCodes.hpp"
+#include "FakeBathCell.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCardiacCell*  AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::CreateCardiacCellForNode(
@@ -35,8 +36,7 @@ AbstractCardiacCell*  AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::CreateC
 {
     if (mpMesh->GetNode(nodeIndex)->GetRegion() == HeartRegionCode::BATH)
     {
-        mHasFakeBathCells = true;
-        return mpFakeCell;
+        return new FakeBathCell(this->mpSolver, this->mpZeroStimulus);
     }
     else
     {
@@ -70,20 +70,14 @@ AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::AbstractCardiacCellFactory(
         boost::shared_ptr<AbstractIvpOdeSolver> pSolver)
     : mpMesh(NULL),
       mpHeartGeometryInformation(NULL),
-      mHasFakeBathCells(false),
       mpZeroStimulus(new ZeroStimulus),
-      mpSolver(pSolver),
-      mpFakeCell(new FakeBathCell(mpSolver, mpZeroStimulus))
+      mpSolver(pSolver)
 {
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>::~AbstractCardiacCellFactory()
 {
-    if ( ! mHasFakeBathCells )
-    {
-        delete mpFakeCell;
-    }
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

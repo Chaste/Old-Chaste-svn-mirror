@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "EulerIvpOdeSolver.hpp"
 #include "HeartGeometryInformation.hpp"
 #include "ZeroStimulus.hpp"
-#include "FakeBathCell.hpp"
 
 /**
  * A factory to ease creating cardiac cell objects for use in a mono/bidomain simulation.
@@ -66,28 +65,12 @@ private:
      * Can be accessed via get and set methods in this class.
      */
     HeartGeometryInformation<SPACE_DIM>* mpHeartGeometryInformation;
-    
-    /**
-     * A boolean to record whether or not any fake bath cells have been constructed. This is needed
-     * since if they *are* created then this class *must not* delete its pointer mpFakeCell (else
-     * we will get segfaults). However, if they are not created then the destructor should do this 
-     * to prevent memory leaks.
-     */
-    bool mHasFakeBathCells;
 
 protected:
     /** For use at un-stimulated cells. */
     boost::shared_ptr<ZeroStimulus> mpZeroStimulus;
     /** The solver to give each of the cells */
     boost::shared_ptr<AbstractIvpOdeSolver> mpSolver;
-
-    /**
-     * A fake cell object to use at bath nodes.
-     *
-     * We could use a base class pointer here, but that leads to confusing Boost serialization errors
-     * (unregistered class) as the FakeBathCell export line doesn't get seen by the archives.
-     */
-    FakeBathCell* mpFakeCell;
 
 public:
     /**

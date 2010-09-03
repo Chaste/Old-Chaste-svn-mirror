@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/version.hpp>
 
 #include "AbstractCardiacCell.hpp"
+#include "FakeBathCell.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "AbstractConductivityTensors.hpp"
 
@@ -177,11 +178,6 @@ protected:
      * Whether the mesh was unarchived or got from elsewhere.
      */
     bool mMeshUnarchived;
-
-    /**
-     * Helper method for destructor.
-     */
-    void DeleteCells();
 
 public:
     /**
