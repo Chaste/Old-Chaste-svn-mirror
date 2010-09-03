@@ -15,9 +15,9 @@
 		<!-- 
 			Mesh definition 
 		-->    
-		<Mesh unit="cm">
-			<Sheet x="0.1" y="0.1" inter_node_space="0.05"/>
-	  	</Mesh>
+        <Mesh unit="cm">
+            <LoadMesh name="mesh/test/data/2D_0_to_1mm_400_elements_with_bath" conductivity_media="NoFibreOrientation"/>
+        </Mesh>
 		    
 	    <!-- 
 	    	Stimuli (as many <Stimulus> definitions as needed) 
@@ -26,7 +26,7 @@
 			<Stimulus> <!-- #1 -->
 				<Strength unit="uA/cm^3">-80000.0</Strength>
 				<Duration unit="ms">1.0</Duration>
-				<Delay unit="ms">2.0</Delay>WithBath
+				<Delay unit="ms">2.0</Delay>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="-0.25" y="-0.25" z="-0.25"/>

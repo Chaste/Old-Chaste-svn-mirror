@@ -72,7 +72,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * A class which encapsulates the executable functionality.
  *
  * Takes in a chaste parameters XML file and runs the relevant simulation.
- * 
+ *
  * The XML Schema, which describes what is allowed in the XML configuration file,
  * can be found at heart/src/io/ChasteParameters_2_0.xsd (for Chaste release 2.0).
  * It contains documentation describing what settings are available.  The
@@ -139,7 +139,7 @@ private:
                 {
                     EXPECT0(system, "cp -r " + partial_output_dir_handler.GetOutputDirectoryFullPath() + " " + checkpoint_dir_basename_handler.GetOutputDirectoryFullPath());
                 }
-                
+
                 // Create an XML file to help in resuming
                 CreateResumeXmlFile(checkpoint_dir_basename, archive_foldername.str());
 
@@ -159,13 +159,13 @@ private:
      * and calls CreateAndRun() to do the work.
      */
     void Run();
-    
+
     /**
      * Write a ResumeParameters.xml file to the checkpoint directory, to help users in resuming
      * a checkpointed simulation.  If the contents of rOutputDirectory are copied to CHASTE_TEST_OUTPUT,
      * and ResumeParameters.xml edited to specify a sensible simulation duration, then it can be used
      * as the input parameters file to resume from the given checkpoint.
-     * 
+     *
      * @param rOutputDirectory  the directory to put the XML file in
      * @param rArchiveDirectory  the relative path from this directory to the archive directory
      */
@@ -225,7 +225,7 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
               << "' vtk='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithVtk())
               << "' cmgui='" << BoolToString(HeartConfig::Instance()->GetVisualizeWithCmgui()) << "'/>" << std::endl;
     (*p_file) << "    </ResumeSimulation>" << std::endl;
-    (*p_file) << std::endl; 
+    (*p_file) << std::endl;
     (*p_file) << "    <!-- These elements must exist, but their contents are ignored -->" << std::endl;
     (*p_file) << "    <Physiological/>" << std::endl;
     (*p_file) << "    <Numerical/>" << std::endl;
@@ -332,32 +332,32 @@ void CardiacSimulation::Run()
             break;
         }
 
-//        case cp::domain_type::BiWithBath :
-//        {
-//            switch (HeartConfig::Instance()->GetSpaceDimension())
-//            {
-//                case 3:
-//                {
-//                    CreateAndRun<BidomainWithBathProblem<3>,3>();
-//                    break;
-//                }
-//                case 2:
-//                {
-//                    CreateAndRun<BidomainWithBathProblem<2>,2>();
-//                    break;
-//                }
-//                case 1:
-//                {
-//                    CreateAndRun<BidomainWithBathProblem<1>,1>();
-//                    break;
-//                }
-//                default :
-//                {
-//                    EXCEPTION("Bidomain space dimension not supported: should be 1, 2 or 3");
-//                }
-//            }
-//            break;
-//        }
+        case cp::domain_type::BiWithBath :
+        {
+            switch (HeartConfig::Instance()->GetSpaceDimension())
+            {
+                case 3:
+                {
+                    CreateAndRun<BidomainWithBathProblem<3>,3>();
+                    break;
+                }
+                case 2:
+                {
+                    CreateAndRun<BidomainWithBathProblem<2>,2>();
+                    break;
+                }
+                case 1:
+                {
+                    CreateAndRun<BidomainWithBathProblem<1>,1>();
+                    break;
+                }
+                default :
+                {
+                    EXCEPTION("Bidomain space dimension not supported: should be 1, 2 or 3");
+                }
+            }
+            break;
+        }
 
         default :
         {

@@ -16,7 +16,7 @@
 			Mesh definition 
 		-->    
 		<Mesh unit="cm">
-			<Slab x="0.1" y="0.1" z="0.1" inter_node_space="0.05"/>
+            <LoadMesh name="mesh/test/data/cube_2mm_1016_elements_with_bath" conductivity_media="NoFibreOrientation"/>
 	  	</Mesh>
 		    
 	    <!-- 
