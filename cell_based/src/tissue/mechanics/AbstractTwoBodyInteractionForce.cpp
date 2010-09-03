@@ -128,7 +128,7 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
 template<unsigned DIM>
 void AbstractTwoBodyInteractionForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t\t<mUseCutoffPoint> " <<  mUseCutoffPoint << " </mUseCutoffPoint> \n" ;
+	*rParamsFile <<  "\t\t\t<UseCutoffPoint>"<<  mUseCutoffPoint << "</UseCutoffPoint> \n" ;
 
 	// Call direct parent class
 	AbstractForce<DIM>::OutputForceParameters(rParamsFile);

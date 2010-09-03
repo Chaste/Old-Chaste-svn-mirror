@@ -242,8 +242,8 @@ void GeneralisedLinearSpringForce<DIM>::SetMeinekeDivisionRestingSpringLength(do
 template<unsigned DIM>
 void GeneralisedLinearSpringForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t\t<mMeinekeSpringStiffness> " <<  mMeinekeSpringStiffness << " </mMeinekeSpringStiffness> \n" ;
-	*rParamsFile <<  "\t\t<mMeinekeDivisionRestingSpringLength> " <<  mMeinekeDivisionRestingSpringLength << " </mMeinekeDivisionRestingSpringLength> \n" ;
+	*rParamsFile <<  "\t\t\t<MeinekeSpringStiffness>"<<  mMeinekeSpringStiffness << "</MeinekeSpringStiffness> \n" ;
+	*rParamsFile <<  "\t\t\t<MeinekeDivisionRestingSpringLength>"<<  mMeinekeDivisionRestingSpringLength << "</MeinekeDivisionRestingSpringLength> \n" ;
 
 	// Call direct parent class
 	AbstractTwoBodyInteractionForce<DIM>::OutputForceParameters(rParamsFile);

@@ -261,15 +261,15 @@ void LinearSpringWithVariableSpringConstantsForce<DIM>::SetApoptoticSpringCompre
 template<unsigned DIM>
 void LinearSpringWithVariableSpringConstantsForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t\t<mUseEdgeBasedSpringConstant> " <<  mUseEdgeBasedSpringConstant << " </mUseEdgeBasedSpringConstant> \n" ;
-	*rParamsFile <<  "\t\t<mUseMutantSprings> " <<  mUseMutantSprings << " </mUseMutantSprings> \n" ;
-	*rParamsFile <<  "\t\t<mMutantMutantMultiplier> " <<  mMutantMutantMultiplier << " </mMutantMutantMultiplier> \n" ;
-	*rParamsFile <<  "\t\t<mNormalMutantMultiplier> " <<  mNormalMutantMultiplier << " </mNormalMutantMultiplier> \n" ;
-	*rParamsFile <<  "\t\t<mUseBCatSprings> " <<  mUseBCatSprings << " </mUseBCatSprings> \n" ;
-	*rParamsFile <<  "\t\t<mUseApoptoticSprings> " <<  mUseApoptoticSprings << " </mUseApoptoticSprings> \n" ;
-	*rParamsFile <<  "\t\t<mBetaCatSpringScaler> " <<  mBetaCatSpringScaler << " </mBetaCatSpringScaler> \n" ;
-	*rParamsFile <<  "\t\t<mApoptoticSpringTensionStiffness> " <<  mApoptoticSpringTensionStiffness << " </mApoptoticSpringTensionStiffness> \n" ;
-	*rParamsFile <<  "\t\t<mApoptoticSpringCompressionStiffness> " <<  mApoptoticSpringCompressionStiffness << " </mApoptoticSpringCompressionStiffness> \n" ;
+	*rParamsFile <<  "\t\t\t<UseEdgeBasedSpringConstant>"<<  mUseEdgeBasedSpringConstant << "</UseEdgeBasedSpringConstant> \n" ;
+	*rParamsFile <<  "\t\t\t<UseMutantSprings>"<<  mUseMutantSprings << "</UseMutantSprings> \n" ;
+	*rParamsFile <<  "\t\t\t<MutantMutantMultiplier>"<<  mMutantMutantMultiplier << "</MutantMutantMultiplier> \n" ;
+	*rParamsFile <<  "\t\t\t<NormalMutantMultiplier>"<<  mNormalMutantMultiplier << "</NormalMutantMultiplier> \n" ;
+	*rParamsFile <<  "\t\t\t<UseBCatSprings>"<<  mUseBCatSprings << "</UseBCatSprings> \n" ;
+	*rParamsFile <<  "\t\t\t<UseApoptoticSprings>"<<  mUseApoptoticSprings << "</UseApoptoticSprings> \n" ;
+	*rParamsFile <<  "\t\t\t<BetaCatSpringScaler>"<<  mBetaCatSpringScaler << "</BetaCatSpringScaler> \n" ;
+	*rParamsFile <<  "\t\t\t<ApoptoticSpringTensionStiffness>"<<  mApoptoticSpringTensionStiffness << "</ApoptoticSpringTensionStiffness> \n" ;
+	*rParamsFile <<  "\t\t\t<ApoptoticSpringCompressionStiffness>"<<  mApoptoticSpringCompressionStiffness << "</ApoptoticSpringCompressionStiffness> \n" ;
 
 	// Call direct parent class
 	GeneralisedLinearSpringForce<DIM>::OutputForceParameters(rParamsFile);

@@ -1,13 +1,13 @@
-	<mUseAreaBasedDampingConstant> 0 </mUseAreaBasedDampingConstant> 
-	<mAreaBasedDampingConstantParameter> 0.1 </mAreaBasedDampingConstantParameter> 
-	<mOutputVoronoiData> 1 </mOutputVoronoiData> 
-	<mOutputTissueVolumes> 1 </mOutputTissueVolumes> 
-	<mMeinekeDivisionSeparation> 0.3 </mMeinekeDivisionSeparation> 
-	<mOutputCellIdData> 1 </mOutputCellIdData> 
-	<mOutputCellMutationStates> 1 </mOutputCellMutationStates> 
-	<mOutputCellAncestors> 1 </mOutputCellAncestors> 
-	<mOutputCellProliferativeTypes> 1 </mOutputCellProliferativeTypes> 
-	<mOutputCellVariables> 0 </mOutputCellVariables> 
-	<mOutputCellCyclePhases> 1 </mOutputCellCyclePhases> 
-	<mOutputCellAges> 1 </mOutputCellAges> 
-	<mOutputCellVolumes> 1 </mOutputCellVolumes> 
+		<UseAreaBasedDampingConstant>0</UseAreaBasedDampingConstant> 
+		<AreaBasedDampingConstantParameter>0.1</AreaBasedDampingConstantParameter> 
+		<OutputVoronoiData>1</OutputVoronoiData> 
+		<OutputTissueVolumes>1</OutputTissueVolumes> 
+		<MeinekeDivisionSeparation>0.3</MeinekeDivisionSeparation> 
+		<OutputCellIdData>1</OutputCellIdData> 
+		<OutputCellMutationStates>1</OutputCellMutationStates> 
+		<OutputCellAncestors>1</OutputCellAncestors> 
+		<OutputCellProliferativeTypes>1</OutputCellProliferativeTypes> 
+		<OutputCellVariables>0</OutputCellVariables> 
+		<OutputCellCyclePhases>1</OutputCellCyclePhases> 
+		<OutputCellAges>1</OutputCellAges> 
+		<OutputCellVolumes>1</OutputCellVolumes> 

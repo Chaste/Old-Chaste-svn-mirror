@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "CellsGenerator.hpp"
-#include "SingleCellCellKiller.hpp"
+#include "TargetedCellKiller.hpp"
 #include "RandomCellKiller.hpp"
 #include "OxygenBasedCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
@@ -52,7 +52,7 @@ class TestCellKillers : public AbstractCellBasedTestSuite
 {
 public:
 
-    void TestSingleCellCellKiller() throw(Exception)
+    void TestTargetedCellKiller() throw(Exception)
     {
         // Set up singleton classes
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -75,9 +75,9 @@ public:
         std::list<TissueCellPtr>& r_cells = tissue.rGetCells();
 
         // Create cell killer
-        SingleCellCellKiller<2> single_cell_killer(&tissue, 1u);
+        TargetedCellKiller<2> single_cell_killer(&tissue, 1u);
 
-        TS_ASSERT_EQUALS(single_cell_killer.GetIdentifier(), "SingleCellCellKiller<2>");
+        TS_ASSERT_EQUALS(single_cell_killer.GetIdentifier(), "TargetedCellKiller<2>");
 
         // Check that some of the vector of cells reach apotosis
         single_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
@@ -547,7 +547,7 @@ public:
         CellwiseData<2>::Destroy();
     }
 
-    void TestArchivingOfSingleCellCellKiller() throw (Exception)
+    void TestArchivingOfTargetedCellKiller() throw (Exception)
 	{
 	    // Set up singleton classes
 	    OutputFileHandler handler("archive", false);    // don't erase contents of folder
@@ -555,16 +555,16 @@ public:
 
 	    {
 	    	// Create an output archive
-	 	    SingleCellCellKiller<2> cell_killer(NULL, 1u);
+	 	    TargetedCellKiller<2> cell_killer(NULL, 1u);
 
 		    std::ofstream ofs(archive_filename.c_str());
 		    boost::archive::text_oarchive output_arch(ofs);
 
 		    // Serialize via pointer
-		    SingleCellCellKiller<2>* const p_cell_killer = &cell_killer;
+		    TargetedCellKiller<2>* const p_cell_killer = &cell_killer;
 		    output_arch << p_cell_killer;
 
-		    TS_ASSERT_EQUALS(p_cell_killer->GetNumber(), 1u);
+		    TS_ASSERT_EQUALS(p_cell_killer->GetTargetIndex(), 1u);
 	    }
 
 	    {
@@ -572,13 +572,13 @@ public:
 		    std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
 		    boost::archive::text_iarchive input_arch(ifs);
 
-		    SingleCellCellKiller<2>* p_cell_killer;
+		    TargetedCellKiller<2>* p_cell_killer;
 
 		    // Restore from the archive
 		    input_arch >> p_cell_killer;
 
-		    // Test we have restored the probability correctly
-		    TS_ASSERT_EQUALS(p_cell_killer->GetNumber(), 1u);
+		    // Test we have restored the Target Cell correctly
+		    TS_ASSERT_EQUALS(p_cell_killer->GetTargetIndex(), 1u);
 
 		    delete p_cell_killer;
 	   }

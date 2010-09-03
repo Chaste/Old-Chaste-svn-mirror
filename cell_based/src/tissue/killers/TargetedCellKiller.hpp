@@ -25,30 +25,35 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef SINGLECELLCELLKILLER_HPP_
-#define SINGLECELLCELLKILLER_HPP_
+#ifndef TARGETEDCELLKILLER_HPP_
+#define TARGETEDCELLKILLER_HPP_
 
 #include "AbstractCellKiller.hpp"
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-
-/**
- * Simple cell killer which just kills a single cell.
- * The constructor takes in a number n, and the killer
- * will kill the n-th cell reached using the iterator
- * (or the last cell, if n>num_cells).
+/*
+ * Simple cell killer which at the first timestep kills any cell
+ * whose corresponding location index is a given number.
  */
 template<unsigned DIM>
-class SingleCellCellKiller : public AbstractCellKiller<DIM>
+class TargetedCellKiller : public AbstractCellKiller<DIM>
 {
 private:
 
     /**
      * The index of the cell to kill
      */
-	unsigned mNumber;
+	unsigned mTargetIndex;
+
+
+	/**
+	 * Variable to reack when the cell has been killed.
+	 * Once the cell has been called mBloodLust will stop the killer killing more cells.
+	 */
+    bool mBloodLust;
+
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -67,7 +72,8 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellKiller<DIM> >(*this);
-        // archive & mNumber; // done in load_construct_data
+        // archive & mTargetIndex; // done in load_construct_data
+        // archive & mBloodlust; // done in load_construct_data
     }
 
 public:
@@ -76,14 +82,21 @@ public:
      * Default constructor.
      *
      * @param pTissue pointer to the tissue
-     * @param number The index of the cell to kill
+     * @param targetedIndex The index of the cell to kill
+     * @param bloodLust Wether to kill cells or not defaults to true (used by load methods)
      */
-    SingleCellCellKiller(AbstractTissue<DIM>* pTissue, unsigned number);
+    TargetedCellKiller(AbstractTissue<DIM>* pTissue, unsigned targetedIndex, bool bloodLust = true);
 
     /**
-	* @return mNumber.
+	* @return mTargetIndex.
 	*/
-   unsigned GetNumber() const;
+   unsigned GetTargetIndex() const;
+
+   /**
+	* @return mBloodLust.
+	*/
+  unsigned GetBloodLust() const;
+
 
     /**
      *  Loop over cells and start apoptosis randomly, based on the user-set
@@ -94,7 +107,7 @@ public:
 };
 
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(SingleCellCellKiller)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(TargetedCellKiller)
 
 namespace boost
 {
@@ -105,13 +118,15 @@ namespace serialization
  */
 template<class Archive, unsigned DIM>
 inline void save_construct_data(
-    Archive & ar, const SingleCellCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
+    Archive & ar, const TargetedCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
     const AbstractTissue<DIM>* const p_tissue = t->GetTissue();
     ar << p_tissue;
-    unsigned number = t->GetNumber();
-    ar << number;
+    unsigned targeted_index = t->GetTargetIndex();
+    ar << targeted_index;
+    bool blood_lust = t->GetBloodLust();
+    ar << blood_lust;
 }
 
 /**
@@ -119,18 +134,20 @@ inline void save_construct_data(
  */
 template<class Archive, unsigned DIM>
 inline void load_construct_data(
-    Archive & ar, SingleCellCellKiller<DIM> * t, const unsigned int file_version)
+    Archive & ar, TargetedCellKiller<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
     AbstractTissue<DIM>* p_tissue;
     ar >> p_tissue;
-    unsigned number;
-    ar >> number;
+    unsigned targeted_index;
+    ar >> targeted_index;
+    bool blood_lust;
+    ar >> blood_lust;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)SingleCellCellKiller<DIM>(p_tissue, number);
+    ::new(t)TargetedCellKiller<DIM>(p_tissue, targeted_index, blood_lust);
 }
 }
 } // namespace ...
 
-#endif /*SINGLECELLCELLKILLER_HPP_*/
+#endif /*TARGETEDCELLKILLER_HPP_*/

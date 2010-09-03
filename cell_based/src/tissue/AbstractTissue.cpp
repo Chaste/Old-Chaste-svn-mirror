@@ -627,22 +627,22 @@ void AbstractTissue<DIM>::OutputTissueInfo(out_stream& rParamsFile)
 	#endif
 
 
-	*rParamsFile <<  "<" << tissue_type << ">" "\n";
+	*rParamsFile <<  "\t<" << tissue_type << ">" "\n";
 	OutputTissueParameters(rParamsFile);
-	*rParamsFile <<  "</" << tissue_type << ">" "\n";
+	*rParamsFile <<  "\t</" << tissue_type << ">" "\n";
 }
 
 template<unsigned DIM>
 void AbstractTissue<DIM>::OutputTissueParameters(out_stream& rParamsFile)
 {
-    *rParamsFile <<  "\t<mOutputCellIdData> " <<  mOutputCellIdData << " </mOutputCellIdData> \n" ;
-    *rParamsFile <<  "\t<mOutputCellMutationStates> " <<  mOutputCellMutationStates << " </mOutputCellMutationStates> \n" ;
-    *rParamsFile <<  "\t<mOutputCellAncestors> " <<  mOutputCellAncestors << " </mOutputCellAncestors> \n" ;
-    *rParamsFile <<  "\t<mOutputCellProliferativeTypes> " <<  mOutputCellProliferativeTypes << " </mOutputCellProliferativeTypes> \n" ;
-    *rParamsFile <<  "\t<mOutputCellVariables> " <<  mOutputCellVariables << " </mOutputCellVariables> \n" ;
-    *rParamsFile <<  "\t<mOutputCellCyclePhases> " <<  mOutputCellCyclePhases << " </mOutputCellCyclePhases> \n" ;
-    *rParamsFile <<  "\t<mOutputCellAges> " <<  mOutputCellAges << " </mOutputCellAges> \n" ;
-    *rParamsFile <<  "\t<mOutputCellVolumes> " <<  mOutputCellVolumes << " </mOutputCellVolumes> \n" ;
+    *rParamsFile <<  "\t\t<OutputCellIdData>"<<  mOutputCellIdData << "</OutputCellIdData> \n" ;
+    *rParamsFile <<  "\t\t<OutputCellMutationStates>"<<  mOutputCellMutationStates << "</OutputCellMutationStates> \n" ;
+    *rParamsFile <<  "\t\t<OutputCellAncestors>"<<  mOutputCellAncestors << "</OutputCellAncestors> \n" ;
+    *rParamsFile <<  "\t\t<OutputCellProliferativeTypes>"<<  mOutputCellProliferativeTypes << "</OutputCellProliferativeTypes> \n" ;
+    *rParamsFile <<  "\t\t<OutputCellVariables>"<<  mOutputCellVariables << "</OutputCellVariables> \n" ;
+    *rParamsFile <<  "\t\t<OutputCellCyclePhases>"<<  mOutputCellCyclePhases << "</OutputCellCyclePhases> \n" ;
+    *rParamsFile <<  "\t\t<OutputCellAges>"<<  mOutputCellAges << "</OutputCellAges> \n" ;
+    *rParamsFile <<  "\t\t<OutputCellVolumes>"<<  mOutputCellVolumes << "</OutputCellVolumes> \n" ;
 }
 
 template<unsigned DIM>

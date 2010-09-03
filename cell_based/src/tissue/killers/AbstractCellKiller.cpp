@@ -55,9 +55,9 @@ void AbstractCellKiller<DIM>::OutputCellKillerInfo(out_stream& rParamsFile)
 	#endif
 
 
-    *rParamsFile <<  "\t<" << cell_killer_type << ">" "\n";
+    *rParamsFile <<  "\t\t<" << cell_killer_type << ">" "\n";
     //OutputForceParameters(rParamsFile);
-    *rParamsFile <<  "\t</" << cell_killer_type << ">" "\n";
+    *rParamsFile <<  "\t\t</" << cell_killer_type << ">" "\n";
 }
 
 //template<unsigned DIM>

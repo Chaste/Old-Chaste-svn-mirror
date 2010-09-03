@@ -656,17 +656,19 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
 
     out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
+    *parameter_file << "<Chaste>\n" ;
+
     // Output Chaste provenance information
-    *parameter_file << "<ChasteInfo>\n" ;
+    *parameter_file << "\t<ChasteInfo>\n" ;
 
-    *parameter_file << "\t<VersionString> "<< ChasteBuildInfo::GetVersionString() << " </VersionString>\n";
-    *parameter_file << "\t<IsWorkingCopyModified> "<< ChasteBuildInfo::IsWorkingCopyModified() << " </IsWorkingCopyModified>\n";
-    *parameter_file << "\t<BuildInformation> "<< ChasteBuildInfo::GetBuildInformation() << " </BuildInformation>\n";
-    *parameter_file << "\t<BuildTime> "<< ChasteBuildInfo::GetBuildTime() << " </BuildTime>\n";
-    *parameter_file << "\t<CurrentTime> "<< ChasteBuildInfo::GetCurrentTime() << " </CurrentTime>\n";
-    *parameter_file << "\t<BuilderUnameInfo> "<< ChasteBuildInfo::GetBuilderUnameInfo() << " </BuilderUnameInfo>\n";
+    *parameter_file << "\t\t<VersionString>"<< ChasteBuildInfo::GetVersionString() << "</VersionString>\n";
+    *parameter_file << "\t\t<IsWorkingCopyModified>"<< ChasteBuildInfo::IsWorkingCopyModified() << "</IsWorkingCopyModified>\n";
+    *parameter_file << "\t\t<BuildInformation>"<< ChasteBuildInfo::GetBuildInformation() << "</BuildInformation>\n";
+    *parameter_file << "\t\t<BuildTime>"<< ChasteBuildInfo::GetBuildTime() << "</BuildTime>\n";
+    *parameter_file << "\t\t<CurrentTime>"<< ChasteBuildInfo::GetCurrentTime() << "</CurrentTime>\n";
+    *parameter_file << "\t\t<BuilderUnameInfo>"<< ChasteBuildInfo::GetBuilderUnameInfo() << "</BuilderUnameInfo>\n";
 
-    *parameter_file << "</ChasteInfo>\n";
+    *parameter_file << "\t</ChasteInfo>\n";
 
     // Output TissueSimulation details
     ///\todo This should be independent of boost version (#1453)
@@ -675,9 +677,9 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
 //		simulation_type = GetIdentifier();
 //	#endif
 
-    *parameter_file <<  "\n<" << simulation_type << ">" "\n";
+    *parameter_file <<  "\n\t<" << simulation_type << ">" "\n";
 	OutputSimulationParameters(parameter_file);
-    *parameter_file <<  "</" << simulation_type << ">" "\n";
+    *parameter_file <<  "\t</" << simulation_type << ">" "\n";
 
     *parameter_file << "\n";
 
@@ -685,7 +687,7 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     mrTissue.OutputTissueInfo(parameter_file);
 
     // Loop over forces
-    *parameter_file << "\n<Forces>\n" ;
+    *parameter_file << "\n\t<Forces>\n" ;
     for (typename std::vector<AbstractForce<DIM>*>::iterator iter = mForceCollection.begin();
                  iter != mForceCollection.end();
                  ++iter)
@@ -693,10 +695,10 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
     	// Output force details
     	(*iter)->OutputForceInfo(parameter_file);
     }
-    *parameter_file << "</Forces>\n";
+    *parameter_file << "\t</Forces>\n";
 
     // Loop over Cell Killers
-	*parameter_file << "\n<CellKillers>\n" ;
+	*parameter_file << "\n\t<CellKillers>\n" ;
 
 	for (typename std::vector<AbstractCellKiller<DIM>*>::iterator iter = mCellKillers.begin();
 				iter != mCellKillers.end();
@@ -705,31 +707,32 @@ void TissueSimulation<DIM>::OutputSimulationSetup()
 		// Output cell killer details
 		(*iter)->OutputCellKillerInfo(parameter_file);
 	}
-	*parameter_file << "</CellKillers>\n";
+	*parameter_file << "\t</CellKillers>\n";
 
 	// Loop over ccm's
 
 
     // Output Extra Parameters from TissueConfig
-    *parameter_file <<  "\n<TissueConfig>\n";
+    *parameter_file <<  "\n\t<TissueConfig>\n";
 
     TissueConfig* p_inst = TissueConfig::Instance();
-    *parameter_file << "\t<SG2MDuration> "<< p_inst->GetSG2MDuration() << " </SG2MDuration>\n";
-    *parameter_file << "\t<SDuration> "<< p_inst->GetSDuration() << " </SDuration>\n";
-	*parameter_file << "\t<G2Duration> "<< p_inst->GetG2Duration() << " </G2Duration>\n";
-	*parameter_file << "\t<MDuration> "<< p_inst->GetMDuration() << " </MDuration>\n";
-	*parameter_file << "\t<StemCellG1Duration> "<< p_inst->GetStemCellG1Duration() << " </StemCellG1Duration>\n";
-	*parameter_file << "\t<TransitCellG1Duration> "<< p_inst->GetTransitCellG1Duration() << " </TransitCellG1Duration>\n";
-	*parameter_file << "\t<CryptLength> "<< p_inst->GetCryptLength() << " </CryptLength>\n";
-	*parameter_file << "\t<CryptWidth> "<< p_inst->GetCryptWidth() << " </CryptWidth>\n";
-	*parameter_file << "\t<MechanicsCutOffLength> "<< p_inst->GetMeinekeMechanicsCutOffLength() << " </MechanicsCutOffLength>\n";
-	*parameter_file << "\t<DampingConstantNormal> "<< p_inst->GetDampingConstantNormal() << " </DampingConstantNormal>\n";
-	*parameter_file << "\t<DampingConstantMutant> "<< p_inst->GetDampingConstantMutant() << " </DampingConstantMutant>\n";
-	//*parameter_file << "\t<CryptProjectionParameterA> "<< p_inst->GetCryptProjectionParameterA() << " </CryptProjectionParameterA>\n";
-	//*parameter_file << "\t<CryptProjectionParameterB> "<< p_inst->GetCryptProjectionParameterB() << " </CryptProjectionParameterB>\n";
+    *parameter_file << "\t\t<SG2MDuration>"<< p_inst->GetSG2MDuration() << "</SG2MDuration>\n";
+    *parameter_file << "\t\t<SDuration>"<< p_inst->GetSDuration() << "</SDuration>\n";
+	*parameter_file << "\t\t<G2Duration>"<< p_inst->GetG2Duration() << "</G2Duration>\n";
+	*parameter_file << "\t\t<Duration>"<< p_inst->GetMDuration() << "</Duration>\n";
+	*parameter_file << "\t\t<StemCellG1Duration>"<< p_inst->GetStemCellG1Duration() << "</StemCellG1Duration>\n";
+	*parameter_file << "\t\t<TransitCellG1Duration>"<< p_inst->GetTransitCellG1Duration() << "</TransitCellG1Duration>\n";
+	*parameter_file << "\t\t<CryptLength>"<< p_inst->GetCryptLength() << "</CryptLength>\n";
+	*parameter_file << "\t\t<CryptWidth>"<< p_inst->GetCryptWidth() << "</CryptWidth>\n";
+	*parameter_file << "\t\t<echanicsCutOffLength>"<< p_inst->GetMeinekeMechanicsCutOffLength() << "</echanicsCutOffLength>\n";
+	*parameter_file << "\t\t<DampingConstantNormal>"<< p_inst->GetDampingConstantNormal() << "</DampingConstantNormal>\n";
+	*parameter_file << "\t\t<DampingConstantMutant>"<< p_inst->GetDampingConstantMutant() << "</DampingConstantMutant>\n";
+	//*parameter_file << "\t\t<CryptProjectionParameterA>"<< p_inst->GetCryptProjectionParameterA() << "</CryptProjectionParameterA>\n";
+	//*parameter_file << "\t\t<CryptProjectionParameterB>"<< p_inst->GetCryptProjectionParameterB() << "</CryptProjectionParameterB>\n";
 
-    *parameter_file <<  "</TissueConfig>\n";
+    *parameter_file <<  "\t</TissueConfig>\n";
 
+    *parameter_file << "</Chaste>\n" ;
 
     parameter_file->close();
 }
@@ -749,9 +752,9 @@ void TissueSimulation<DIM>::SetOutputNodeVelocities(bool outputNodeVelocities)
 template<unsigned DIM>
 void TissueSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
 {
-	  *rParamsFile << "\t<mDt> "<< mDt << " </mDt>\n";
-	  *rParamsFile << "\t<mEndTime> "<< mEndTime << " </mEndTime>\n";
-	  *rParamsFile << "\t<mSamplingTimestepMultiple> "<< mSamplingTimestepMultiple << " </mSamplingTimestepMultiple>\n";
+	  *rParamsFile << "\t\t<Dt>"<< mDt << "</Dt>\n";
+	  *rParamsFile << "\t\t<EndTime>"<< mEndTime << "</EndTime>\n";
+	  *rParamsFile << "\t\t<SamplingTimestepMultiple>"<< mSamplingTimestepMultiple << "</SamplingTimestepMultiple>\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////

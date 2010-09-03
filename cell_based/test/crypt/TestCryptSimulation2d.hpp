@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
-#include "SingleCellCellKiller.hpp"
+#include "TargetedCellKiller.hpp"
 #include "RandomCellKiller.hpp"
 #include "SloughingCellKiller.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
@@ -62,13 +62,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * For testing purposes.
  */
-//class SingleCellCellKiller : public AbstractCellKiller<2>
+//class TargetedCellKiller : public AbstractCellKiller<2>
 //{
 //private :
 //    unsigned mNumber;
 //
 //public :
-//    SingleCellCellKiller(AbstractTissue<2>* pTissue, unsigned number)
+//    TargetedCellKiller(AbstractTissue<2>* pTissue, unsigned number)
 //        : AbstractCellKiller<2>(pTissue),
 //          mNumber(number)
 //    {
@@ -267,40 +267,51 @@ public:
        simulator.SetOutputDirectory("CryptWithMultipleCellKillers");
 
        // Create cell killer and pass in to crypt simulation.
-       // These killers are defined in this test. They kill
-       // the first and second available cell, respectively.
-       SingleCellCellKiller<2> cell_killer1(&crypt, 0);
-       SingleCellCellKiller<2> cell_killer2(&crypt, 1);
+       // They kill the first and second available cell,
+       // which are attached to nodes 64 and 65 respectively.
+       TargetedCellKiller<2> cell_killer1(&crypt, 64);
+       TargetedCellKiller<2> cell_killer2(&crypt, 65);
 
        simulator.AddCellKiller(&cell_killer1);
        simulator.AddCellKiller(&cell_killer2);
 
-       // Just enough time to kill off all the cells (and watch ghost mesh use force laws),
-       // as two cells are killed per timestep.
-       double dt = 0.01;
        unsigned num_cells = crypt.GetNumRealCells();
 
+       std::vector<bool> ghost_node_indices_before = crypt.rGetGhostNodes();
+	   unsigned num_ghosts_before = 0;
+	   for (unsigned i=0; i<ghost_node_indices_before.size(); i++)
+	   {
+		   if (ghost_node_indices_before[i])
+		   {
+		       num_ghosts_before++;
+	       }
+       }
+
+
+       // Just enough time to kill off the cells (and watch ghost mesh use force laws),
+       double dt = 0.01;
+
        simulator.SetDt(dt);
-       simulator.SetEndTime(0.5*dt*(num_cells+6));
+       simulator.SetEndTime(dt);
 
        // Run simulation
        simulator.Solve();
 
        std::vector<bool> ghost_node_indices_after = crypt.rGetGhostNodes();
-       unsigned num_ghosts = 0;
+       unsigned num_ghosts_after = 0;
        for (unsigned i=0; i<ghost_node_indices_after.size(); i++)
        {
            if (ghost_node_indices_after[i])
            {
-               num_ghosts++;
+               num_ghosts_after++;
            }
        }
 
-       // Check no new ghost nodes have been created
-       TS_ASSERT_EQUALS(num_ghosts, p_mesh->GetNumNodes());
+       // Check no nodes have been created
+       TS_ASSERT_EQUALS(num_ghosts_after, num_ghosts_after);
 
        // All cells should have been removed in this time
-       TS_ASSERT_EQUALS(crypt.GetNumRealCells(), 0u);
+       TS_ASSERT_EQUALS(crypt.GetNumRealCells(), num_cells-2u);
     }
 
     void TestUpdatePositions() throw (Exception)

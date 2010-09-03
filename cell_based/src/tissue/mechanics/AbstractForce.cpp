@@ -48,9 +48,9 @@ void AbstractForce<DIM>::OutputForceInfo(out_stream& rParamsFile)
 	#endif
 
 
-    *rParamsFile <<  "\t<" << force_type << ">" "\n";
+    *rParamsFile <<  "\t\t<" << force_type << ">" "\n";
     OutputForceParameters(rParamsFile);
-    *rParamsFile <<  "\t</" << force_type << ">" "\n";
+    *rParamsFile <<  "\t\t</" << force_type << ">" "\n";
 }
 
 template<unsigned DIM>

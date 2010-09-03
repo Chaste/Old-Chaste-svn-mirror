@@ -1,4 +1,4 @@
-	<mUseJiggledBottomCells> 0 </mUseJiggledBottomCells>
-	<mDt> 0.00833333 </mDt>
-	<mEndTime> 0 </mEndTime>
-	<mSamplingTimestepMultiple> 1 </mSamplingTimestepMultiple>
+		<UseJiggledBottomCells>0</UseJiggledBottomCells>
+		<Dt>0.00833333</Dt>
+		<EndTime>0</EndTime>
+		<SamplingTimestepMultiple>1</SamplingTimestepMultiple>

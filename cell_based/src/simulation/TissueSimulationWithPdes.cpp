@@ -695,8 +695,8 @@ void TissueSimulationWithPdes<DIM>::WriteAverageRadialPdeSolution(double time, u
 template<unsigned DIM>
 void TissueSimulationWithPdes<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
 {
-	*rParamsFile << "\t<mWriteAverageRadialPdeSolution> "<< mWriteAverageRadialPdeSolution << " </mWriteAverageRadialPdeSolution>\n";
-	*rParamsFile << "\t<mWriteDailyAverageRadialPdeSolution> "<< mWriteDailyAverageRadialPdeSolution << " </mWriteDailyAverageRadialPdeSolution>\n";
+	*rParamsFile << "\t\t<WriteAverageRadialPdeSolution>"<< mWriteAverageRadialPdeSolution << "</WriteAverageRadialPdeSolution>\n";
+	*rParamsFile << "\t\t<WriteDailyAverageRadialPdeSolution>"<< mWriteDailyAverageRadialPdeSolution << "</WriteDailyAverageRadialPdeSolution>\n";
 
 	// Call direct parent class
 	TissueSimulation<DIM>::OutputSimulationParameters(rParamsFile);

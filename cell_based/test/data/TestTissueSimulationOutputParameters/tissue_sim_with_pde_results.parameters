@@ -1,5 +1,5 @@
-	<mWriteAverageRadialPdeSolution> 0 </mWriteAverageRadialPdeSolution>
-	<mWriteDailyAverageRadialPdeSolution> 0 </mWriteDailyAverageRadialPdeSolution>
-	<mDt> 0.00833333 </mDt>
-	<mEndTime> 0 </mEndTime>
-	<mSamplingTimestepMultiple> 1 </mSamplingTimestepMultiple>
+		<WriteAverageRadialPdeSolution>0</WriteAverageRadialPdeSolution>
+		<WriteDailyAverageRadialPdeSolution>0</WriteDailyAverageRadialPdeSolution>
+		<Dt>0.00833333</Dt>
+		<EndTime>0</EndTime>
+		<SamplingTimestepMultiple>1</SamplingTimestepMultiple>

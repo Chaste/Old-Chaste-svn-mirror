@@ -25,37 +25,37 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "SingleCellCellKiller.hpp"
+#include "TargetedCellKiller.hpp"
 
 template<unsigned DIM>
-SingleCellCellKiller<DIM>::SingleCellCellKiller(AbstractTissue<DIM>* pTissue, unsigned number)
+TargetedCellKiller<DIM>::TargetedCellKiller(AbstractTissue<DIM>* pTissue, unsigned targetedIndex, bool bloodLust)
 : AbstractCellKiller<DIM>(pTissue),
-  mNumber(number)
+  mTargetIndex(targetedIndex),
+  mBloodLust(bloodLust)
 {
 }
 
 template<unsigned DIM>
-unsigned SingleCellCellKiller<DIM>::GetNumber() const
+unsigned TargetedCellKiller<DIM>::GetTargetIndex() const
 {
-    return mNumber;
+    return mTargetIndex;
 }
 
 template<unsigned DIM>
-void SingleCellCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
+unsigned TargetedCellKiller<DIM>::GetBloodLust() const
 {
-	if (this->mpTissue->GetNumRealCells()==0)
+    return mBloodLust;
+}
+
+template<unsigned DIM>
+void TargetedCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
+{
+	if ( !mBloodLust || this->mpTissue->GetNumRealCells()==0 || this->mpTissue->GetNumRealCells()<mTargetIndex+1)
 	{
 		return;
 	}
-
-	typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
-
-	for (unsigned i=0; ( (i<mNumber) && (cell_iter!=this->mpTissue->End()) ); i++)
-	{
-		++cell_iter;
-	}
-
-	cell_iter->Kill();
+	this->mpTissue->GetCellUsingLocationIndex(mTargetIndex)->Kill();
+	mBloodLust = false;
 }
 
 
@@ -63,11 +63,11 @@ void SingleCellCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////
 
-template class SingleCellCellKiller<1>;
-template class SingleCellCellKiller<2>;
-template class SingleCellCellKiller<3>;
+template class TargetedCellKiller<1>;
+template class TargetedCellKiller<2>;
+template class TargetedCellKiller<3>;
 
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(SingleCellCellKiller)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(TargetedCellKiller)
