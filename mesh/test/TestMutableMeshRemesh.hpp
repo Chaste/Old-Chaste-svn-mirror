@@ -52,10 +52,8 @@ public:
 
     /**
      * Test 3D remesh replaces TestOperationOfTetgenMoveNodes which called the tetgen binary directly.
-     * \todo #1545 This test hangs in optimized code because we're compiling tetgen1.4.2/predicates.cpp
-     * with a -O flag.  The tetgen make files specifically point out the foolishness of compiling without -O0
      */
-    void todoFailingTestRemesh3dMoveNodes() throw (Exception)
+    void TestRemesh3dMoveNodes() throw (Exception)
     {
         OutputFileHandler handler("");
 

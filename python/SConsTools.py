@@ -835,6 +835,29 @@ def DoProjectSConscript(projectName, chasteLibsUsed, otherVars):
     
     return test_log_files
 
+def CheckForSpecialFiles(env, component, files, otherVars):
+    special_files = [('mesh', 'src/3rdparty/tetgen1.4.2/predicates.cpp')]
+    special_objs = []
+    special_env = env.Clone()
+    special_env.Replace(CXXFLAGS='-O0')
+    for special_comp, special_file in special_files:
+        if special_comp == component and special_file in files:
+            # Remove from files
+            files.remove(special_file)
+            # Handle specially
+            if otherVars['use_chaste_libs']:
+                if otherVars['static_libs']:
+                    special_objs.extend(special_env.StaticObject(special_file))
+                else:
+                    special_objs.extend(special_env.SharedObject(special_file))
+            else:
+                objs = special_env.StaticObject(special_file)
+                key = os.path.join(component, str(special_file))
+                RegisterObjects(env, key, objs)
+                special_objs.extend(objs)
+    return special_objs
+                
+
 def DoComponentSConscript(component, otherVars):
     """Main logic for a Chaste component's SConscript file.
     
@@ -896,15 +919,17 @@ def DoComponentSConscript(component, otherVars):
     # Build any dynamically loadable modules
     dyn_libs = DoDynamicallyLoadableModules(otherVars)
     
+    special_objects = CheckForSpecialFiles(env, component, files, otherVars)
+    
     # Build and install the library for this component
     if use_chaste_libs:
         if otherVars['static_libs']:
-            lib = env.StaticLibrary(component, files)
+            lib = env.StaticLibrary(component, files + special_objects)
             lib = env.Install('#lib', lib)
             libpath = '#lib'
         else:
             if files:
-                lib = env.SharedLibrary(component, files)
+                lib = env.SharedLibrary(component, files + special_objects)
             else:
                 lib = None
             libpath = '#linklib'
