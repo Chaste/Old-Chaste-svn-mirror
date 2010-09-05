@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before any other cell_based headers
-#include "TissueSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "CryptSimulation2d.hpp"
 #include "CryptCellsGenerator.hpp"
@@ -68,22 +68,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //    unsigned mNumber;
 //
 //public :
-//    TargetedCellKiller(AbstractTissue<2>* pTissue, unsigned number)
-//        : AbstractCellKiller<2>(pTissue),
+//    TargetedCellKiller(AbstractCellPopulation<2>* pCellPopulation, unsigned number)
+//        : AbstractCellKiller<2>(pCellPopulation),
 //          mNumber(number)
 //    {
 //    }
 //
 //    virtual void TestAndLabelCellsForApoptosisOrDeath()
 //    {
-//        if (mpTissue->GetNumRealCells()==0)
+//        if (mpCellPopulation->GetNumRealCells()==0)
 //        {
 //            return;
 //        }
 //
-//        AbstractTissue<2>::Iterator cell_iter = mpTissue->Begin();
+//        AbstractCellPopulation<2>::Iterator cell_iter = mpCellPopulation->Begin();
 //
-//        for (unsigned i=0; ( (i<mNumber) && (cell_iter!=mpTissue->End()) ); i++)
+//        for (unsigned i=0; ( (i<mNumber) && (cell_iter!=mpCellPopulation->End()) ); i++)
 //        {
 //            ++cell_iter;
 //        }
@@ -177,28 +177,28 @@ public:
         // Create mesh
         double crypt_length = 10;
         double crypt_width = 10;
-        TissueConfig::Instance()->SetCryptLength(crypt_length);
-        TissueConfig::Instance()->SetCryptWidth(crypt_width);
+        CellBasedConfig::Instance()->SetCryptLength(crypt_length);
+        CellBasedConfig::Instance()->SetCryptWidth(crypt_width);
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
 
         cells_generator.Generate(cells, &mesh, std::vector<unsigned>(), false, 0.0, 3.0, 6.5, 8.0);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(mesh, cells);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
 
         // Destroy the simulation time class because of failed solve
@@ -214,7 +214,7 @@ public:
 
         simulator.SetOutputDirectory("Crypt2DSprings");
         simulator.SetEndTime(1.0);
-        simulator.SetUpdateTissueRule(false);
+        simulator.SetUpdateCellPopulationRule(false);
         simulator.SetNoBirth(true);
 
         // Destroy the simulation time class because of failed solve
@@ -250,19 +250,19 @@ public:
        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
        // Set up cells
-       std::vector<TissueCellPtr> cells;
+       std::vector<CellPtr> cells;
        CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
        cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-       // Create tissue
-       MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+       // Create cell population
+       MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
        // Create force law
        GeneralisedLinearSpringForce<2> linear_force;
        std::vector<AbstractForce<2>*> force_collection;
        force_collection.push_back(&linear_force);
 
-       // Create crypt simulation from tissue and force law
+       // Create crypt simulation from cell population and force law
        CryptSimulation2d simulator(crypt, force_collection);
        simulator.SetOutputDirectory("CryptWithMultipleCellKillers");
 
@@ -324,20 +324,20 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
-        CryptSimulation2d simulator(tissue, force_collection);
+        // Create crypt simulation from cell population and force law
+        CryptSimulation2d simulator(cell_population, force_collection);
 
         std::vector<c_vector<double, 2> > old_posns(p_mesh->GetNumNodes());
         std::vector<c_vector<double, 2> > forces(p_mesh->GetNumNodes());
@@ -373,12 +373,12 @@ public:
                             location_indices_set.begin(), location_indices_set.end(),
                             std::inserter(ghost_node_indices, ghost_node_indices.begin()));
 
-        for (AbstractTissue<2>::Iterator cell_iter=simulator.rGetTissue().Begin();
-             cell_iter!=simulator.rGetTissue().End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter=simulator.rGetCellPopulation().Begin();
+             cell_iter!=simulator.rGetCellPopulation().End();
              ++cell_iter)
         {
-            unsigned index = simulator.rGetTissue().GetLocationIndexUsingCell(*cell_iter);
-            c_vector<double, 2> cell_location = simulator.rGetTissue().GetLocationOfCellCentre(*cell_iter);
+            unsigned index = simulator.rGetCellPopulation().GetLocationIndexUsingCell(*cell_iter);
+            c_vector<double, 2> cell_location = simulator.rGetCellPopulation().GetLocationOfCellCentre(*cell_iter);
 
             if (old_posns[index][1]==0) // stem
             {
@@ -409,12 +409,12 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
         crypt.SetOutputCellMutationStates(true);
 
         // Create force law
@@ -422,13 +422,13 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetEndTime(0.1);
 
         // These are for coverage and use the defaults
         simulator.SetDt(1.0/120.0);
-        simulator.SetUpdateTissueRule(true);
+        simulator.SetUpdateCellPopulationRule(true);
         simulator.SetNoBirth(false);
         simulator.SetOutputDirectory("Crypt2DCylindrical");
 
@@ -478,7 +478,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
@@ -487,15 +487,15 @@ public:
             cells[i]->SetBirthTime(-11.5);
         }
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DCylindricalMultipleDivisions");
         simulator.SetEndTime(0.6);
@@ -524,7 +524,7 @@ public:
         simulator.Solve();
 
         // All fully differentiated cells have sloughed off
-        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -553,23 +553,23 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), false);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DPeriodicWnt");
         simulator.SetEndTime(0.3);
@@ -608,23 +608,23 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, false);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DMeshArchive");
         simulator.SetEndTime(0.1);
@@ -635,17 +635,17 @@ public:
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(0.1, 100);
 
         // And record current state of mesh
-        MutableMesh<2,2>& r_mesh = (static_cast<MeshBasedTissue<2>*>(&(simulator.rGetTissue())))->rGetMesh();
+        MutableMesh<2,2>& r_mesh = (static_cast<MeshBasedCellPopulation<2>*>(&(simulator.rGetCellPopulation())))->rGetMesh();
 
         // Save
-        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Load
         CryptSimulation2d* p_simulator;
-        p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive", 0);
+        p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive", 0);
 
         // Get the loaded mesh
-        MutableMesh<2,2>& r_mesh2 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator->rGetTissue())))->rGetMesh();
+        MutableMesh<2,2>& r_mesh2 = (static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator->rGetCellPopulation())))->rGetMesh();
 
         // Compare with mesh before save.
         CompareMeshes(&r_mesh, &r_mesh2);
@@ -670,17 +670,17 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, false);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
         crypt.SetAreaBasedDampingConstant(true);
 
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
         // Create force law
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
@@ -689,7 +689,7 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection, false, true);
         simulator.SetOutputDirectory("Crypt2DMeshArchive2");
         simulator.SetEndTime(0.1);
@@ -698,11 +698,11 @@ public:
         simulator.Solve();
 
         // Save
-        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Load
         CryptSimulation2d* p_simulator;
-        p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive2", 0.1);
+        p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DMeshArchive2", 0.1);
 
         // Reset end time and run simulation
         p_simulator->SetEndTime(0.15);
@@ -727,25 +727,25 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
         crypt.SetOutputCellCyclePhases(true); // for coverage
 
         // We have a Wnt Gradient - but not Wnt dependent cells
         // so that the test runs quickly, but we test archiving of it!
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DPeriodicStandardResult");
         simulator.SetEndTime(0.25);
@@ -798,23 +798,23 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DPeriodicSaveAndLoad");
 
@@ -829,7 +829,7 @@ public:
         simulator.Solve();
 
         // Save the results
-        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Tidy up
         WntConcentration<2>::Destroy();
@@ -846,19 +846,19 @@ public:
         WntConcentration<2>::Instance();   // Make sure there is no existing Wnt Gradient before load.
         WntConcentration<2>::Destroy();
 
-        p_simulator1 = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
+        p_simulator1 = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.1);
 
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
 
         // Get mesh
-        MutableMesh<2,2>& r_mesh1 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator1->rGetTissue())))->rGetMesh();
+        MutableMesh<2,2>& r_mesh1 = (static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator1->rGetCellPopulation())))->rGetMesh();
 
         // Save then reload, compare meshes either side
-        TissueSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator1);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator1);
 
-        CryptSimulation2d* p_simulator2 = TissueSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
-        MutableMesh<2,2>& r_mesh2 = (static_cast<MeshBasedTissue<2>*>(&(p_simulator2->rGetTissue())))->rGetMesh();
+        CryptSimulation2d* p_simulator2 = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("Crypt2DPeriodicSaveAndLoad", 0.2);
+        MutableMesh<2,2>& r_mesh2 = (static_cast<MeshBasedCellPopulation<2>*>(&(p_simulator2->rGetCellPopulation())))->rGetMesh();
 
         CompareMeshes(&r_mesh1, &r_mesh2);
 
@@ -883,8 +883,8 @@ public:
 
         // Test the Wnt concentration result
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetTissue().GetCellUsingLocationIndex(28)), 1.0, 1e-9);
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetTissue().GetCellUsingLocationIndex(120)), 0.9900, 1e-4);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetCellPopulation().GetCellUsingLocationIndex(28)), 1.0, 1e-9);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetCellPopulation().GetCellUsingLocationIndex(120)), 0.9900, 1e-4);
 
         // Tidy up
         delete p_simulator1;
@@ -918,21 +918,21 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Cover the write Voronoi data method
         crypt.SetOutputVoronoiData(true);
-        crypt.SetOutputTissueVolumes(true);
+        crypt.SetOutputCellPopulationVolumes(true);
         crypt.SetOutputCellVolumes(true);
         crypt.SetOutputCellAncestors(true);
         crypt.SetOutputCellAges(true);
 
-        AbstractTissue<2>::Iterator cell_iterator = crypt.Begin();
+        AbstractCellPopulation<2>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
@@ -951,14 +951,14 @@ public:
 
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
         // Create force law
         LinearSpringWithVariableSpringConstantsForce<2> force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DWntMatureCells");
         simulator.SetEndTime(0.01);
@@ -967,15 +967,15 @@ public:
         // (it is too small for it to figure out what's happening on its own)
 
         // Cover exceptions
-        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().GetCellMutationStateCount(),
+        TS_ASSERT_THROWS_THIS(simulator.rGetCellPopulation().GetCellMutationStateCount(),
                               "Call SetOutputCellMutationStates(true) before using this function");
-        simulator.rGetTissue().SetOutputCellMutationStates(true);
+        simulator.rGetCellPopulation().SetOutputCellMutationStates(true);
 
-        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().rGetCellProliferativeTypeCount(),
+        TS_ASSERT_THROWS_THIS(simulator.rGetCellPopulation().rGetCellProliferativeTypeCount(),
                               "Call SetOutputCellProliferativeTypes(true) before using this function");
-        simulator.rGetTissue().SetOutputCellProliferativeTypes(true);
+        simulator.rGetCellPopulation().SetOutputCellProliferativeTypes(true);
 
-        TS_ASSERT_THROWS_THIS(simulator.rGetTissue().rGetCellCyclePhaseCount(),
+        TS_ASSERT_THROWS_THIS(simulator.rGetCellPopulation().rGetCellCyclePhaseCount(),
                               "Call SetOutputCellCyclePhases(true) before using this function");
         crypt.SetOutputCellCyclePhases(true);
 
@@ -983,21 +983,21 @@ public:
         simulator.Solve();
 
         // Check that nothing has moved below y=0
-        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
             TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(*cell_iter)[1]);
         }
 
-        std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().GetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_state_count = simulator.rGetCellPopulation().GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 4u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[0], 2u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[2], 0u); // No APC two hit
         TS_ASSERT_EQUALS(cell_mutation_state_count[3], 1u);
 
-        std::vector<unsigned> cell_type_count = simulator.rGetTissue().rGetCellProliferativeTypeCount();
+        std::vector<unsigned> cell_type_count = simulator.rGetCellPopulation().rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count.size(), 3u);
         TS_ASSERT_EQUALS(cell_type_count[0], 0u);
         TS_ASSERT_EQUALS(cell_type_count[1], 4u);
@@ -1018,7 +1018,7 @@ public:
     void TestCellIdOutput() throw (Exception)
     {
         // Resetting the Maximum cell Id to zero (to account for previous tests)
-        TissueCell::ResetMaxCellId();
+        Cell::ResetMaxCellId();
 
         // Create mesh
         unsigned cells_across = 6;
@@ -1033,7 +1033,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
@@ -1042,8 +1042,8 @@ public:
             cells[i]->SetBirthTime(-11.5);
         }
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Cover writing logged cell
         crypt.SetOutputCellIdData(true);
@@ -1053,7 +1053,7 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DCylindricalCellIdLogged");
         simulator.SetEndTime(0.1);
@@ -1088,19 +1088,19 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt2DPeriodicTysonNovak");
         simulator.SetEndTime(0.05);
@@ -1117,11 +1117,11 @@ public:
         boost::shared_ptr<AbstractCellProperty> p_apc2(new ApcTwoHitCellMutationState);
         boost::shared_ptr<AbstractCellProperty> p_bcat1(new BetaCateninOneHitCellMutationState);
 
-        simulator.rGetTissue().GetCellUsingLocationIndex(57)->AddCellProperty(p_label);
-        simulator.rGetTissue().GetCellUsingLocationIndex(56)->SetMutationState(p_apc1);
-        simulator.rGetTissue().GetCellUsingLocationIndex(51)->SetMutationState(p_apc2);
-        simulator.rGetTissue().GetCellUsingLocationIndex(63)->SetMutationState(p_bcat1);
-        simulator.rGetTissue().SetOutputCellMutationStates(true);
+        simulator.rGetCellPopulation().GetCellUsingLocationIndex(57)->AddCellProperty(p_label);
+        simulator.rGetCellPopulation().GetCellUsingLocationIndex(56)->SetMutationState(p_apc1);
+        simulator.rGetCellPopulation().GetCellUsingLocationIndex(51)->SetMutationState(p_apc2);
+        simulator.rGetCellPopulation().GetCellUsingLocationIndex(63)->SetMutationState(p_bcat1);
+        simulator.rGetCellPopulation().SetOutputCellMutationStates(true);
 
         // Run simulation
         simulator.Solve();
@@ -1172,29 +1172,29 @@ public:
         double crypt_length = 9.3;
         double crypt_width = 10.0;
 
-        TissueConfig::Instance()->SetCryptLength(crypt_length);
-        TissueConfig::Instance()->SetCryptWidth(crypt_width);
+        CellBasedConfig::Instance()->SetCryptLength(crypt_length);
+        CellBasedConfig::Instance()->SetCryptWidth(crypt_width);
 
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/2D_0_to_100mm_200_elements");
         MutableMesh<2,2> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, &mesh, std::vector<unsigned>(), false, 0.0, 3.0, 6.5, 8.0);
 
         cells[60]->SetBirthTime(-50.0);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(mesh, cells);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
 
         // Create cell killer and pass in to crypt simulation
@@ -1212,7 +1212,7 @@ public:
     void TestCalculateCellDivisionVectorConfMesh() throw (Exception)
     {
         // Set up model parameters
-        TissueConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->Reset();
 
         // Make a parent node
         c_vector<double,2> location;
@@ -1224,15 +1224,15 @@ public:
         conf_mesh.AddNode(p_node);
 
         // Create cells
-        std::vector<TissueCellPtr> conf_cells;
+        std::vector<CellPtr> conf_cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> cells_generator;
         cells_generator.Generate(conf_cells, &conf_mesh, std::vector<unsigned>(), true);
 
-        // Create tissue
-        MeshBasedTissue<2> conf_crypt(conf_mesh, conf_cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> conf_crypt(conf_mesh, conf_cells);
         conf_crypt.SetMeinekeDivisionSeparation(0.1);
 
-        AbstractTissue<2>::Iterator conf_iter = conf_crypt.Begin();
+        AbstractCellPopulation<2>::Iterator conf_iter = conf_crypt.Begin();
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -1240,7 +1240,7 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(conf_crypt, force_collection);
 
         c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*conf_iter);
@@ -1261,21 +1261,21 @@ public:
         conf_mesh.AddNode(p_node);
 
         // Create cells
-        std::vector<TissueCellPtr> conf_cells;
+        std::vector<CellPtr> conf_cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> cells_generator;
         cells_generator.Generate(conf_cells, &conf_mesh, std::vector<unsigned>(), true);
 
-        // Create tissue
-        MeshBasedTissue<2> conf_crypt(conf_mesh, conf_cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> conf_crypt(conf_mesh, conf_cells);
 
-        AbstractTissue<2>::Iterator conf_iter = conf_crypt.Begin();
+        AbstractCellPopulation<2>::Iterator conf_iter = conf_crypt.Begin();
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(conf_crypt, force_collection);
 
         // Repeat two times for coverage
@@ -1308,21 +1308,21 @@ public:
         cyl_mesh.AddNode(p_node);
 
         // Create cells
-        std::vector<TissueCellPtr> cyl_cells;
+        std::vector<CellPtr> cyl_cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> cells_generator;
         cells_generator.Generate(cyl_cells, &cyl_mesh, std::vector<unsigned>(), true);
 
-        // Create tissue
-        MeshBasedTissue<2> cyl_crypt(cyl_mesh, cyl_cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> cyl_crypt(cyl_mesh, cyl_cells);
 
-        AbstractTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
+        AbstractCellPopulation<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(cyl_crypt, force_collection);
 
         c_vector<double, 2> daughter_location = simulator.CalculateCellDivisionVector(*cyl_iter);
@@ -1343,21 +1343,21 @@ public:
         cyl_mesh.AddNode(p_node);
 
         // Create cells
-        std::vector<TissueCellPtr> cyl_cells;
+        std::vector<CellPtr> cyl_cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> cells_generator;
         cells_generator.Generate(cyl_cells, &cyl_mesh, std::vector<unsigned>(), true);
 
-        // Create tissue
-        MeshBasedTissue<2> cyl_crypt(cyl_mesh, cyl_cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> cyl_crypt(cyl_mesh, cyl_cells);
 
-        AbstractTissue<2>::Iterator cyl_iter = cyl_crypt.Begin();
+        AbstractCellPopulation<2>::Iterator cyl_iter = cyl_crypt.Begin();
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(cyl_crypt, force_collection);
 
         c_vector<double,2> daughter_location = simulator.CalculateCellDivisionVector(*cyl_iter);
@@ -1390,26 +1390,26 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);// true = mature cells
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory(output_directory);
         simulator.SetEndTime(2.0); // long enough for a cell to be born were SetNoBirth not called
 
         // These are for coverage and use the defaults
         simulator.SetDt(1.0/120.0);
-        simulator.SetUpdateTissueRule(true);
+        simulator.SetUpdateCellPopulationRule(true);
         simulator.SetNoBirth(true);
 
         // Create cell killer and pass in to crypt simulation
@@ -1444,19 +1444,19 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DRandomDeathNonPeriodic");
@@ -1484,19 +1484,19 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("Crypt2DJiggledBottomCells");
@@ -1504,7 +1504,7 @@ public:
         simulator.UseJiggledBottomCells();
 
         // Move the first cell (which should be on y=0) down a bit
-        AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
+        AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
         TS_ASSERT_DELTA(crypt.GetLocationOfCellCentre(*cell_iter)[1], 0.0, 1e-6);
 
         // Move the cell (can't use the iterator for this as it is const)
@@ -1533,7 +1533,7 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, std::vector<unsigned>(), true);
         TS_ASSERT_EQUALS(cells.size(), 16u);
@@ -1544,11 +1544,11 @@ public:
         cells[2]->SetMutationState(CellPropertyRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
         cells[3]->SetMutationState(CellPropertyRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
         cells[4]->AddCellProperty(CellPropertyRegistry::Instance()->Get<CellLabel>());
-        cells[2]->SetBirthTime(1.5-(TissueConfig::Instance()->GetStemCellG1Duration()
-                                   + TissueConfig::Instance()->GetSG2MDuration()));
+        cells[2]->SetBirthTime(1.5-(CellBasedConfig::Instance()->GetStemCellG1Duration()
+                                   + CellBasedConfig::Instance()->GetSG2MDuration()));
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         crypt.SetOutputCellMutationStates(true);
         crypt.SetOutputCellProliferativeTypes(true);
@@ -1589,7 +1589,7 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
 
         simulator.SetOutputDirectory("TestMutationStateCellCount");
@@ -1600,14 +1600,14 @@ public:
         simulator.Solve();
 
         // Each cell count has now been computed since WriteCellResultsToFiles() has been called
-        std::vector<unsigned> cell_mutation_state_count3 = simulator.rGetTissue().GetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_state_count3 = simulator.rGetCellPopulation().GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_state_count3.size(), 4u);
         TS_ASSERT_EQUALS(cell_mutation_state_count3[0], 14u);
         TS_ASSERT_EQUALS(cell_mutation_state_count3[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count3[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count3[3], 1u);
 
-        p_registry = simulator.rGetTissue().GetCellPropertyRegistry();
+        p_registry = simulator.rGetCellPopulation().GetCellPropertyRegistry();
         TS_ASSERT_EQUALS(p_registry->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
         TS_ASSERT_EQUALS(p_registry->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_registry->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
@@ -1630,10 +1630,10 @@ public:
         TS_ASSERT_EQUALS(cell_cycle_phase_count3[4], 2u);
 
         // Save the simulation
-        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // Check the original simulation's counts haven't changed
-        p_registry = simulator.rGetTissue().GetCellPropertyRegistry();
+        p_registry = simulator.rGetCellPopulation().GetCellPropertyRegistry();
         TS_ASSERT_EQUALS(p_registry->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
         TS_ASSERT_EQUALS(p_registry->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_registry->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
@@ -1643,10 +1643,10 @@ public:
         TS_ASSERT_EQUALS(p_registry->Get<ApoptoticCellProperty>()->GetCellCount(), 0u);
 
         // Load the simulation
-        CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("TestMutationStateCellCount", 1.0);
+        CryptSimulation2d* p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("TestMutationStateCellCount", 1.0);
 
         // Check the original simulation's counts haven't changed
-        p_registry = simulator.rGetTissue().GetCellPropertyRegistry();
+        p_registry = simulator.rGetCellPopulation().GetCellPropertyRegistry();
         TS_ASSERT_EQUALS(p_registry->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
         TS_ASSERT_EQUALS(p_registry->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_registry->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
@@ -1656,14 +1656,14 @@ public:
 
         // In the loaded simulation, we want the various cell counts to be saved
         // (so that simulations which quit when a certain population is removed don't stop too soon)
-        std::vector<unsigned> cell_mutation_state_count4 = p_simulator->rGetTissue().GetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_state_count4 = p_simulator->rGetCellPopulation().GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_state_count4.size(), 4u);
         TS_ASSERT_EQUALS(cell_mutation_state_count4[0], 14u);
         TS_ASSERT_EQUALS(cell_mutation_state_count4[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count4[2], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count4[3], 1u);
 
-        p_registry = p_simulator->rGetTissue().GetCellPropertyRegistry();
+        p_registry = p_simulator->rGetCellPopulation().GetCellPropertyRegistry();
         TS_ASSERT_EQUALS(p_registry->Get<WildTypeCellMutationState>()->GetCellCount(), 14u);
         TS_ASSERT_EQUALS(p_registry->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_registry->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 1u);
@@ -1690,14 +1690,14 @@ public:
         p_simulator->Solve();
 
         // The cell mutation state count has now been computed since WriteCellResultsToFiles() has been called
-        std::vector<unsigned> cell_mutation_state_count5 = p_simulator->rGetTissue().GetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_state_count5 = p_simulator->rGetCellPopulation().GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_state_count5.size(), 4u);
         TS_ASSERT_EQUALS(cell_mutation_state_count5[0], 16u);
         TS_ASSERT_EQUALS(cell_mutation_state_count5[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count5[2], 2u);
         TS_ASSERT_EQUALS(cell_mutation_state_count5[3], 1u);
 
-        p_registry = p_simulator->rGetTissue().GetCellPropertyRegistry();
+        p_registry = p_simulator->rGetCellPopulation().GetCellPropertyRegistry();
         TS_ASSERT_EQUALS(p_registry->Get<WildTypeCellMutationState>()->GetCellCount(), 16u);
         TS_ASSERT_EQUALS(p_registry->Get<ApcOneHitCellMutationState>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_registry->Get<ApcTwoHitCellMutationState>()->GetCellCount(), 2u);
@@ -1705,13 +1705,13 @@ public:
         TS_ASSERT_EQUALS(crypt.GetCellPropertyRegistry()->Get<CellLabel>()->GetCellCount(), 1u);
         TS_ASSERT_EQUALS(p_registry->Get<ApoptoticCellProperty>()->GetCellCount(), 0u);
 
-        std::vector<unsigned> cell_type_count5 = p_simulator->rGetTissue().rGetCellProliferativeTypeCount();
+        std::vector<unsigned> cell_type_count5 = p_simulator->rGetCellPopulation().rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count5.size(), 3u);
         TS_ASSERT_EQUALS(cell_type_count5[0], 4u);
         TS_ASSERT_EQUALS(cell_type_count5[1], 16u);
         TS_ASSERT_EQUALS(cell_type_count5[2], 0u);
 
-        std::vector<unsigned> cell_cycle_phase_count5 = p_simulator->rGetTissue().rGetCellCyclePhaseCount();
+        std::vector<unsigned> cell_cycle_phase_count5 = p_simulator->rGetCellPopulation().rGetCellCyclePhaseCount();
         TS_ASSERT_EQUALS(cell_cycle_phase_count5.size(), 5u);
         TS_ASSERT_EQUALS(cell_cycle_phase_count5[0], 0u);
         TS_ASSERT_EQUALS(cell_cycle_phase_count5[1], 3u);
@@ -1734,23 +1734,23 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, false);
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         // Create an instance of a Wnt concentration
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("CryptBetaCatenin");
         simulator.SetEndTime(0.01);
@@ -1788,12 +1788,12 @@ public:
 		std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
 		// Create cells
-		std::vector<TissueCellPtr> cells;
+		std::vector<CellPtr> cells;
 		CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
 		cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
-		// Create tissue
-		MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+		// Create cell population
+		MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 		crypt.SetOutputCellMutationStates(true);
 
 		// Create force law
@@ -1801,7 +1801,7 @@ public:
 		std::vector<AbstractForce<2>*> force_collection;
 		force_collection.push_back(&linear_force);
 
-		// Create crypt simulation from tissue and force law
+		// Create crypt simulation from cell population and force law
 		CryptSimulation2d simulator(crypt, force_collection);
 
 		std::string output_directory = "TestCryptSimulation2dOutputParameters";
@@ -1822,7 +1822,7 @@ public:
         std::string output_directory = "AncestorCrypt";
 
         // Set up model parameters
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         p_params->SetDampingConstantNormal(1.0); // normally 1
 
         // Do not give mutant cells any different movement properties to normal ones
@@ -1841,19 +1841,19 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCellPtr> temp_cells;
+        std::vector<CellPtr> temp_cells;
         CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(temp_cells, p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
         // This awkward way of setting up the cells is a result of #430
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
             cells.push_back(temp_cells[location_indices[i]]);
         }
 
         // Set up crypt
-        MeshBasedTissueWithGhostNodes<2>* p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, location_indices, false, 30.0); // Last parameter adjusts Ghost spring stiffness in line with the linear_force later on
+        MeshBasedCellPopulationWithGhostNodes<2>* p_crypt = new MeshBasedCellPopulationWithGhostNodes<2>(*p_mesh, cells, location_indices, false, 30.0); // Last parameter adjusts Ghost spring stiffness in line with the linear_force later on
 
         // Set simulation to output cell types and cell ancestors
         p_crypt->SetOutputCellMutationStates(true);
@@ -1865,7 +1865,7 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(*p_crypt, force_collection, false, false);
         simulator.SetOutputDirectory(output_directory);
 
@@ -1874,7 +1874,7 @@ public:
         simulator.SetEndTime(time_of_each_run);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> killer(&(simulator.rGetTissue()), 0.01);
+        SloughingCellKiller<2> killer(&(simulator.rGetCellPopulation()), 0.01);
         simulator.AddCellKiller(&killer);
 
         simulator.UseJiggledBottomCells();

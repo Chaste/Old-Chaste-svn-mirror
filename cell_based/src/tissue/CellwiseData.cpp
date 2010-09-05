@@ -46,7 +46,7 @@ CellwiseData<DIM>* CellwiseData<DIM>::Instance()
 
 template<unsigned DIM>
 CellwiseData<DIM>::CellwiseData()
- :  mpTissue(NULL),
+ :  mpCellPopulation(NULL),
     mAllocatedMemory(false),
     mConstantDataForTesting(0),
     mUseConstantDataForTesting(false)
@@ -74,24 +74,24 @@ void CellwiseData<DIM>::Destroy()
 
 
 template<unsigned DIM>
-double CellwiseData<DIM>::GetValue(TissueCellPtr pCell, unsigned variableNumber)
+double CellwiseData<DIM>::GetValue(CellPtr pCell, unsigned variableNumber)
 {
     if (variableNumber >= mNumberOfVariables)
     {
     	EXCEPTION("Request for variable above mNumberOfVariables. Call SetNumCellsAndVars() to increase it.");
     }
 
-	// To test a cell and cell cycle models without a tissue
+	// To test a cell and cell cycle models without a cell population
     if (mUseConstantDataForTesting)
     {
         return mConstantDataForTesting[variableNumber];
     }
 
     assert(IsSetUp());
-    assert(mpTissue != NULL);
+    assert(mpCellPopulation != NULL);
     assert(mAllocatedMemory);
 
-    unsigned location_index = mpTissue->GetLocationIndexUsingCell(pCell);
+    unsigned location_index = mpCellPopulation->GetLocationIndexUsingCell(pCell);
     unsigned vector_index = location_index*mNumberOfVariables + variableNumber;
     return mData[vector_index];
 }
@@ -112,30 +112,30 @@ void CellwiseData<DIM>::SetValue(double value, unsigned locationIndex, unsigned 
 
 
 template<unsigned DIM>
-void CellwiseData<DIM>::SetTissue(AbstractTissue<DIM>* pTissue)
+void CellwiseData<DIM>::SetCellPopulation(AbstractCellPopulation<DIM>* pCellPopulation)
 {
     if (mAllocatedMemory == false)
     {
-        EXCEPTION("SetTissue must be called after SetNumCellsAndVars()");
+        EXCEPTION("SetCellPopulation must be called after SetNumCellsAndVars()");
     }
 
-    mpTissue = pTissue;
+    mpCellPopulation = pCellPopulation;
 }
 
 
 template<unsigned DIM>
-AbstractTissue<DIM>& CellwiseData<DIM>::rGetTissue()
+AbstractCellPopulation<DIM>& CellwiseData<DIM>::rGetCellPopulation()
 {
-    return *mpTissue;
+    return *mpCellPopulation;
 }
 
 
 template<unsigned DIM>
 void CellwiseData<DIM>::SetNumCellsAndVars(unsigned numCells, unsigned numberOfVariables)
 {
-    if (mpTissue!=NULL)
+    if (mpCellPopulation!=NULL)
     {
-        EXCEPTION("SetNumCellsAndVars() must be called before setting the Tissue (and after a Destroy)");
+        EXCEPTION("SetNumCellsAndVars() must be called before setting the CellPopulation (and after a Destroy)");
     }
 
     assert(numberOfVariables > 0);
@@ -152,7 +152,7 @@ void CellwiseData<DIM>::SetNumCellsAndVars(unsigned numCells, unsigned numberOfV
 template<unsigned DIM>
 bool CellwiseData<DIM>::IsSetUp()
 {
-    return ((mAllocatedMemory) && (mpInstance!=NULL) && (mpTissue!=NULL));
+    return ((mAllocatedMemory) && (mpInstance!=NULL) && (mpCellPopulation!=NULL));
 }
 
 
@@ -160,9 +160,9 @@ template<unsigned DIM>
 void CellwiseData<DIM>::ReallocateMemory()
 {
     assert(mAllocatedMemory==true);
-    assert(mpTissue!=NULL);
+    assert(mpCellPopulation!=NULL);
 
-    unsigned num_cells = mpTissue->GetNumRealCells();
+    unsigned num_cells = mpCellPopulation->GetNumRealCells();
     if (mData.size() != num_cells*mNumberOfVariables)
     {
         mData.clear();

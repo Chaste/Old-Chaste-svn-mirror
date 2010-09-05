@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "TissueSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "CryptStatistics.hpp"
 #include "CryptSimulation2d.hpp"
@@ -56,7 +56,7 @@ private:
     {
         // Initialise singleton classes
         SimulationTime::Instance()->SetStartTime(0.0);
-        TissueConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->Reset();
     }
     void tearDown()
     {
@@ -80,17 +80,17 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
         crypt.InitialiseCells(); // must be called explicitly as there is no simulation
 
         CryptStatistics crypt_statistics(crypt);
 
-        std::vector<TissueCellPtr> test_section = crypt_statistics.GetCryptSection(0.5,1.5,sqrt(3));
+        std::vector<CellPtr> test_section = crypt_statistics.GetCryptSection(0.5,1.5,sqrt(3));
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section.size(), 6u);
@@ -103,7 +103,7 @@ public:
         }
 
         // Test that we get a valid section when the x-values are the same
-        std::vector<TissueCellPtr> test_section_vertical = crypt_statistics.GetCryptSection(0.5,0.5,sqrt(3));
+        std::vector<CellPtr> test_section_vertical = crypt_statistics.GetCryptSection(0.5,0.5,sqrt(3));
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_vertical.size(), 5u);
@@ -115,7 +115,7 @@ public:
             TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_vertical[i]), expected_indices_vertical[i]);
         }
 
-        std::vector<TissueCellPtr> test_section_periodic = crypt_statistics.GetCryptSectionPeriodic(0.5,2.5,sqrt(3));
+        std::vector<CellPtr> test_section_periodic = crypt_statistics.GetCryptSectionPeriodic(0.5,2.5,sqrt(3));
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic.size(), 6u);
@@ -127,7 +127,7 @@ public:
             TS_ASSERT_EQUALS(crypt.GetLocationIndexUsingCell(test_section_periodic[i]), expected_indices_periodic[i]);
         }
 
-        std::vector<TissueCellPtr> test_section_periodic_2 = crypt_statistics.GetCryptSectionPeriodic(2.5,0.5,sqrt(3));
+        std::vector<CellPtr> test_section_periodic_2 = crypt_statistics.GetCryptSectionPeriodic(2.5,0.5,sqrt(3));
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic_2.size(), 6u);
@@ -140,7 +140,7 @@ public:
         }
 
         // Test an overwritten method
-        std::vector<TissueCellPtr> test_section_periodic_3 = crypt_statistics.GetCryptSectionPeriodic();
+        std::vector<CellPtr> test_section_periodic_3 = crypt_statistics.GetCryptSectionPeriodic();
 
         // Test the cells are correct
         TS_ASSERT_EQUALS(test_section_periodic_3.size(), 3u);
@@ -155,7 +155,7 @@ public:
 
     void TestMakeMeinekeGraphs() throw (Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         std::string output_directory = "MakeMeinekeGraphs";
 
@@ -172,21 +172,21 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCellPtr> temp_cells;
+        std::vector<CellPtr> temp_cells;
         CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(temp_cells, p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
         // This awkward way of setting up the cells is a result of #430
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         for (unsigned i=0; i<location_indices.size(); i++)
         {
             cells.push_back(temp_cells[location_indices[i]]);
         }
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices, false, 30.0); // Last parameter adjusts Ghost spring stiffness in line with the linear_force later on
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices, false, 30.0); // Last parameter adjusts Ghost spring stiffness in line with the linear_force later on
 
-        // Set tissue to output cell types
+        // Set cell population to output cell types
         crypt.SetOutputCellMutationStates(true);
 
         // Create force law
@@ -202,7 +202,7 @@ public:
 
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
-        SloughingCellKiller<2> cell_killer(&simulator.rGetTissue(),0.01);
+        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(),0.01);
         simulator.AddCellKiller(&cell_killer);
 
         // UNUSUAL SET UP HERE /////////////////////////////////////
@@ -219,7 +219,7 @@ public:
 
         // TEST CryptStatistics::GetCryptSectionPeriodic by labelling a column of cells...
         CryptStatistics crypt_statistics(crypt);
-        std::vector<TissueCellPtr> test_section = crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
+        std::vector<CellPtr> test_section = crypt_statistics.GetCryptSectionPeriodic(8.0,8.0);
 
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
         for (unsigned i=0; i<test_section.size(); i++)
@@ -228,7 +228,7 @@ public:
         }
 
         simulator.Solve();
-        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         // ... and checking visualization of labelled cells against previous run
         OutputFileHandler handler(output_directory, false);
@@ -241,7 +241,7 @@ public:
         // TEST crypt_statistics::LabelSPhaseCells
 
         // First remove labels
-        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -252,7 +252,7 @@ public:
 
         // Iterate over cells checking for correct labels
         unsigned counter = 0;
-        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -274,7 +274,7 @@ public:
 
         // Iterate over cells checking for correct labels
         counter = 0;
-        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -283,7 +283,7 @@ public:
             counter++;
         }
 
-        TS_ASSERT_EQUALS(counter, simulator.rGetTissue().GetNumRealCells());
+        TS_ASSERT_EQUALS(counter, simulator.rGetCellPopulation().GetNumRealCells());
 
         crypt_statistics.LabelSPhaseCells();
 
@@ -298,7 +298,7 @@ public:
 
         boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
 
-        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
@@ -318,7 +318,7 @@ public:
         simulator.SetEndTime(3*time_of_each_run);
         simulator.Solve();
 
-        std::vector<TissueCellPtr> crypt_section = crypt_statistics.GetCryptSection(8.0,8.0);
+        std::vector<CellPtr> crypt_section = crypt_statistics.GetCryptSection(8.0,8.0);
         std::vector<bool> labelled = crypt_statistics.AreCryptSectionCellsLabelled(crypt_section);
 
         // Test that the vector of booleans corresponds with a visualisation of the data -
@@ -364,7 +364,7 @@ public:
             labelled_cells_counter[i] = 0;
         }
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         p_params->SetDampingConstantNormal(1.0);    // normally 1
         // Do not give mutant cells any different movement properties to normal ones
@@ -376,8 +376,8 @@ public:
 
         CryptStatistics* p_crypt_statistics;
 
-        // Create tissue
-        MeshBasedTissueWithGhostNodes<2>* p_crypt;
+        // Create cell population
+        MeshBasedCellPopulationWithGhostNodes<2>* p_crypt;
 
         HoneycombMeshGenerator generator = HoneycombMeshGenerator(cells_across, cells_up, thickness_of_ghost_layer, true, crypt_width/cells_across);
         std::vector<unsigned> location_indices;
@@ -398,21 +398,21 @@ public:
             p_simulation_time->SetStartTime(0.0);
 
             // Set up cells
-            std::vector<TissueCellPtr> temp_cells;
+            std::vector<CellPtr> temp_cells;
             CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> cells_generator;
             cells_generator.Generate(temp_cells, p_mesh, std::vector<unsigned>(), true, 0.3, 2.0, 3.0, 4.0, true);
 
             // This awkward way of setting up the cells is a result of #430
-            std::vector<TissueCellPtr> cells;
+            std::vector<CellPtr> cells;
             for (unsigned i=0; i<location_indices.size(); i++)
             {
                 cells.push_back(temp_cells[location_indices[i]]);
             }
 
             // Set up crypt
-            p_crypt = new MeshBasedTissueWithGhostNodes<2>(*p_mesh, cells, location_indices);
+            p_crypt = new MeshBasedCellPopulationWithGhostNodes<2>(*p_mesh, cells, location_indices);
 
-            // Set tissue to output cell types
+            // Set cell population to output cell types
             p_crypt->SetOutputCellMutationStates(true);
 
             // Set up force law
@@ -430,7 +430,7 @@ public:
             simulator.SetEndTime(time_of_each_run);
 
             // Set up cell killer
-            p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetTissue(), 0.01);
+            p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), 0.01);
             simulator.AddCellKiller(p_cell_killer);
 
             simulator.UseJiggledBottomCells();
@@ -445,7 +445,7 @@ public:
             simulator.SetEndTime(2.0*time_of_each_run);
             simulator.Solve();
 
-            std::vector<TissueCellPtr> crypt_section = p_crypt_statistics->GetCryptSection(8.0, 8.0);
+            std::vector<CellPtr> crypt_section = p_crypt_statistics->GetCryptSection(8.0, 8.0);
             labelled = p_crypt_statistics->AreCryptSectionCellsLabelled(crypt_section);
 
             // Store information from this simulation in a global vector

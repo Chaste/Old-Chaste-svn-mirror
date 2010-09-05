@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include "TissueSimulation.hpp"
-#include "MeshBasedTissue.hpp"
+#include "CellBasedSimulation.hpp"
+#include "MeshBasedCellPopulation.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
@@ -60,7 +60,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(3.5);
 
         // Create some cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
@@ -69,16 +69,16 @@ public:
             p_model->SetMaxTransitGenerations(UINT_MAX);
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                (TissueConfig::Instance()->GetStemCellG1Duration()
-                                    + TissueConfig::Instance()->GetSG2MDuration() );
+                                (CellBasedConfig::Instance()->GetStemCellG1Duration()
+                                    + CellBasedConfig::Instance()->GetSG2MDuration() );
 
-            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            CellPtr p_cell(new Cell(p_state, p_model));
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
         }
 
-        // Create a tissue
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        // Create a cell population
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Create a force law
         GeneralisedLinearSpringForce<2> linear_force;
@@ -86,8 +86,8 @@ public:
         std::vector<AbstractForce<2>* > force_collection;
         force_collection.push_back(&linear_force);
 
-        // Set up tissue simulation
-        TissueSimulation<2> simulator(tissue, force_collection);
+        // Set up cell-based simulation
+        CellBasedSimulation<2> simulator(cell_population, force_collection);
         simulator.SetOutputDirectory("Test2DMonolayerRepresentativeSimulationForProfiling");
         simulator.SetEndTime(50.0);
 

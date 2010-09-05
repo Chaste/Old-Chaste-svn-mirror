@@ -59,12 +59,12 @@ public:
 
         // Set up cells, one for each node. Give each a birth time of -node_index,
         // so the age = node_index
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        // Create a tissue
-        MeshBasedTissue<2> tissue(mesh, cells);
+        // Create a cell population
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), false);
 
@@ -73,20 +73,20 @@ public:
         CellwiseData<2>* p_data = CellwiseData<2>::Instance();
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), false);
-        TS_ASSERT_THROWS_THIS(p_data->SetTissue(&tissue),"SetTissue must be called after SetNumCellsAndVars()");
+        TS_ASSERT_THROWS_THIS(p_data->SetCellPopulation(&cell_population),"SetCellPopulation must be called after SetNumCellsAndVars()");
 
-        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
+        p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), false);
 
-        p_data->SetTissue(&tissue);
+        p_data->SetCellPopulation(&cell_population);
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->GetNumVariables(), 1u);
 
         p_data->SetValue(1.23, mesh.GetNode(0)->GetIndex());
-        AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
+        AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
         TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 1.23, 1e-12);
 
         p_data->SetValue(2.23, mesh.GetNode(1)->GetIndex());
@@ -99,24 +99,24 @@ public:
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
 
-        TissueCellPtr p_new_cell(new TissueCell(p_state, p_model));
+        CellPtr p_new_cell(new Cell(p_state, p_model));
         p_new_cell->SetBirthTime(-1);
 
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 0.2;
         new_cell_location[1] = 0.3;
-        tissue.AddCell(p_new_cell, new_cell_location);
+        cell_population.AddCell(p_new_cell, new_cell_location);
 
         TS_ASSERT_THROWS_NOTHING(p_data->ReallocateMemory());
-        TS_ASSERT_EQUALS(p_data->mData.size(), tissue.rGetMesh().GetNumNodes());
+        TS_ASSERT_EQUALS(p_data->mData.size(), cell_population.rGetMesh().GetNumNodes());
 
         // Coverage
         std::vector<double> constant_value;
         constant_value.push_back(1.579);
         p_data->SetConstantDataForTesting(constant_value);
 
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
             TS_ASSERT_DELTA(p_data->GetValue(*cell_iter), 1.579, 1e-12);
@@ -135,16 +135,16 @@ public:
 
         p_data = CellwiseData<2>::Instance();
 
-        p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 2);
-        p_data->SetTissue(&tissue);
+        p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 2);
+        p_data->SetCellPopulation(&cell_population);
 
-        TS_ASSERT_THROWS_THIS(p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1),"SetNumCellsAndVars() must be called before setting the Tissue (and after a Destroy)");
+        TS_ASSERT_THROWS_THIS(p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1),"SetNumCellsAndVars() must be called before setting the CellPopulation (and after a Destroy)");
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->IsSetUp(), true);
 
         TS_ASSERT_EQUALS(CellwiseData<2>::Instance()->GetNumVariables(), 2u);
 
         p_data->SetValue(3.23, mesh.GetNode(0)->GetIndex(), 1);
-        AbstractTissue<2>::Iterator cell_iter2 = tissue.Begin();
+        AbstractCellPopulation<2>::Iterator cell_iter2 = cell_population.Begin();
 
         TS_ASSERT_DELTA(p_data->GetValue(*cell_iter2, 1), 3.23, 1e-12);
 
@@ -173,12 +173,12 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Set up cells, one for each node. Give each a birth time of -node_index, so the age = node_index
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        // Create a tissue
-        MeshBasedTissue<2> tissue(mesh, cells);
+        // Create a cell population
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
         // Work out where to put the archive
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
@@ -188,16 +188,16 @@ public:
         {
             // Set up the data store
             CellwiseData<2>* p_data = CellwiseData<2>::Instance();
-            p_data->SetNumCellsAndVars(tissue.GetNumRealCells(), 1);
-            p_data->SetTissue(&tissue);
+            p_data->SetNumCellsAndVars(cell_population.GetNumRealCells(), 1);
+            p_data->SetCellPopulation(&cell_population);
 
             // Put some data in
             unsigned i=0;
-            for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-                 cell_iter != tissue.End();
+            for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+                 cell_iter != cell_population.End();
                  ++cell_iter)
             {
-                p_data->SetValue((double) i, tissue.GetLocationIndexUsingCell(*cell_iter), 0);
+                p_data->SetValue((double) i, cell_population.GetLocationIndexUsingCell(*cell_iter), 0);
                 i++;
             }
 
@@ -228,19 +228,19 @@ public:
             TS_ASSERT_EQUALS(p_data->mUseConstantDataForTesting, false);
             TS_ASSERT_EQUALS(p_data->GetNumVariables(), 1u);
 
-            // We will have constructed a new tissue on load, so use the new tissue
-            AbstractTissue<2>& tissue = p_data->rGetTissue();
+            // We will have constructed a new cell population on load, so use the new cell population
+            AbstractCellPopulation<2>& cell_population = p_data->rGetCellPopulation();
 
-            for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-                 cell_iter != tissue.End();
+            for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+                 cell_iter != cell_population.End();
                  ++cell_iter)
             {
-                TS_ASSERT_DELTA(p_data->GetValue(*cell_iter, 0u), (double) tissue.GetLocationIndexUsingCell(*cell_iter), 1e-12);
+                TS_ASSERT_DELTA(p_data->GetValue(*cell_iter, 0u), (double) cell_population.GetLocationIndexUsingCell(*cell_iter), 1e-12);
             }
 
             // Tidy up
             CellwiseData<2>::Destroy();
-            delete (&tissue);
+            delete (&cell_population);
         }
     }
 

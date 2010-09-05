@@ -50,8 +50,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * include cell cycle models and force laws to determine how cells divide and
  * move. In tumour spheroid simulations, however, these are also coupled to a
  * system of partial differential equations that determine the concentration
- * of specified nutrients (e.g. oxygen) throughout the tissue. Also, unlike
- * in crypt simulation, the tissue grows substantially as the tissue simulation
+ * of specified nutrients (e.g. oxygen) throughout the cell population. Also, unlike
+ * in crypt simulation, the cell population grows substantially as the cell-based simulation
  * progresses.
  *
  * In summary, the main differences between this tutorial and the crypt simulation
@@ -77,9 +77,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "HoneycombMeshGenerator.hpp"
 /*
  * These are the classes that will be used in these tests (note that we use a
- * tissue simulation subclass called {{{TissueSimulationWithPdes}}}):
+ * cell-based simulation subclass called {{{CellBasedSimulationWithPdes}}}):
  */
-#include "TissueSimulationWithPdes.hpp"
+#include "CellBasedSimulationWithPdes.hpp"
 #include "SimpleOxygenBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "OxygenBasedCellKiller.hpp"
@@ -111,9 +111,9 @@ public:
          * reset the parameters.
          */
         SimulationTime::Instance()->SetStartTime(0.0);
-        TissueConfig::Instance()->Reset();
-        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
-        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
+        CellBasedConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
+        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         /*
          * Now we want to create a ''non-periodic'' 'honeycomb' mesh.
@@ -133,7 +133,7 @@ public:
          * a {{{CellsGenerator}}} class, but do it manually, in a loop. First,
          * define the cells vector.
          */
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
 
         /*
          * This line defines a mutation state to be used for all cells, of type
@@ -155,7 +155,7 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
-            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            CellPtr p_cell(new Cell(p_state, p_model));
 
             /*
              * We now define a random birth time, chosen from [-T,0], where
@@ -163,8 +163,8 @@ public:
              * of a 'stem' cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                 (  TissueConfig::Instance()->GetStemCellG1Duration()
-                                  + TissueConfig::Instance()->GetSG2MDuration() );
+                                 (  CellBasedConfig::Instance()->GetStemCellG1Duration()
+                                  + CellBasedConfig::Instance()->GetSG2MDuration() );
             /*
              * ...then we set the birth time and push the cell back into the vector
              * of cells.
@@ -174,11 +174,11 @@ public:
         }
 
         /*
-         * Now that we have defined the cells, we can define the Tissue. This time it
-         * is just a mesh-based tissue (i.e. not a {{{MeshBasedTissueWithGhostNodes()}}}.
+         * Now that we have defined the cells, we can define the CellPopulation. This time it
+         * is just a mesh-based cell population (i.e. not a {{{MeshBasedCellPopulationWithGhostNodes()}}}.
          * Again, the constructor takes in the mesh and the cells vector.
          */
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         /*
          * Recall that in the Wnt based crypt simulation, we defined a singleton class
@@ -187,10 +187,10 @@ public:
          * value of the current nutrient concentration, for each cell. We have to
          * tell the {{{CellwiseData}}} object how many cells and variables per cell there
          * are (in this case, 1 variable per cell, i.e. the oxygen concentration), and
-         * the tissue.
+         * the cell population.
          */
-        CellwiseData<2>::Instance()->SetNumCellsAndVars(tissue.GetNumRealCells(),1);
-        CellwiseData<2>::Instance()->SetTissue(&tissue);
+        CellwiseData<2>::Instance()->SetNumCellsAndVars(cell_population.GetNumRealCells(),1);
+        CellwiseData<2>::Instance()->SetCellPopulation(&cell_population);
         /*
          * Then we have to initialise the oxygen concentration for each node (to 1.0), by
          * calling {{{SetValue}}}. This takes in the concentration, and the location index
@@ -208,7 +208,7 @@ public:
          * the PDE: u_xx + u_yy = k(x) u, where k(x) = -0.03 (the coefficient below)
          * if x is in a live cell, and k(x)=0 if x is within a apoptotic cell
          */
-        CellwiseSourcePde<2> pde(tissue, -0.03);
+        CellwiseSourcePde<2> pde(cell_population, -0.03);
 
         /*
          * To pass the PDE to our simulator, it first needs to be encapsulated in a 
@@ -226,7 +226,7 @@ public:
         /*
          * After having created a {{{PdeAndBoundaryConditions}}} object, we then pass it
          * into a vector of pointers. This allows us to define any number of PDEs within
-         * the tissue simulation, in a similar way to how we create a vector of force laws
+         * the cell-based simulation, in a similar way to how we create a vector of force laws
          * (see below).
          */
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
@@ -234,7 +234,7 @@ public:
         
         /*
          * We must now create one or more force laws, which determine the mechanics of
-         * the tissue. For this test, we assume that a cell experiences a force from each
+         * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring. Since this
          * model was first proposed in the context of crypt modelling by Meineke ''et al''
          * (Cell Prolif. 34:253-266, 2001), we call this object a
@@ -254,14 +254,14 @@ public:
 
         /*
          * The simulator object for these problems is
-         * {{{TissueSimulationWithPdes}}}. We pass in the tissue, the
+         * {{{CellBasedSimulationWithPdes}}}. We pass in the cell_population, the
          * mechanics system, and the PDE.
          */
-        TissueSimulationWithPdes<2> simulator(tissue, force_collection, pde_and_bc_collection);
+        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
 
         /*
          * As with {{{CryptSimulation2d}}} (which inherits from the same base class
-         * as {{{TissueSimulationWithPdes}}}), we can set the output directory
+         * as {{{CellBasedSimulationWithPdes}}}), we can set the output directory
          * and end time.
          */
         simulator.SetOutputDirectory("SpheroidTutorial");

@@ -106,7 +106,7 @@ protected:
     /**
      * Stochastically set the G1 duration. The G1 duration is taken
      * from a normal distribution whose mean is the G1 duration given
-     * in TissueConfig for the cell type and whose standard deviation
+     * in CellBasedConfig for the cell type and whose standard deviation
      * is 1.
      *
      * Called on cell creation at the start of a simulation, and for both

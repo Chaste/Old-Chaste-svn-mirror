@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
 
-#include "MeshBasedTissue.hpp"
+#include "MeshBasedCellPopulation.hpp"
 
 
 /**
@@ -49,8 +49,8 @@ private:
     /** The single instance of the singleton object */
     static CellwiseData* mpInstance;
 
-    /** A pointer to a Tissue so a cell's node can be found */
-    AbstractTissue<DIM>* mpTissue;
+    /** A pointer to a CellPopulation so a cell's node can be found */
+    AbstractCellPopulation<DIM>* mpCellPopulation;
 
     /** Allocated memory for mData object */
     bool mAllocatedMemory;
@@ -78,7 +78,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mpTissue;
+        archive & mpCellPopulation;
         archive & mAllocatedMemory;
         archive & mNumberOfVariables;
         archive & mData;
@@ -119,7 +119,7 @@ public:
      *
      * @return the value of CellwiseData.
      */
-    double GetValue(TissueCellPtr pCell, unsigned variableNumber=0);
+    double GetValue(CellPtr pCell, unsigned variableNumber=0);
 
     /**
      * Set the value for a given location index and variable number.
@@ -131,22 +131,22 @@ public:
     void SetValue(double value, unsigned locationIndex, unsigned variableNumber=0);
 
     /**
-     * Set the Tissue. Must be called before GetValue().
+     * Set the CellPopulation. Must be called before GetValue().
      *
-     * @param pTissue pointer to the Tissue
+     * @param pCellPopulation pointer to the CellPopulation
      */
-    void SetTissue(AbstractTissue<DIM>* pTissue);
+    void SetCellPopulation(AbstractCellPopulation<DIM>* pCellPopulation);
 
     /**
-     * @return reference to the Tissue.
+     * @return reference to the CellPopulation.
      */
-    AbstractTissue<DIM>& rGetTissue();
+    AbstractCellPopulation<DIM>& rGetCellPopulation();
 
     /**
      * Set the number of cells and number of variables to be stored per cell. The constructor
      * assumes 1 variable so this method only really needs to be called if numVars > 1.
      *
-     * @param numCells number of cells in the tissue
+     * @param numCells number of cells in the cell population
      * @param numVars number of variables
      */
     void SetNumCellsAndVars(unsigned numCells, unsigned numVars);
@@ -165,7 +165,7 @@ public:
 
     /**
      * Reallocate size of mData. Needed because of growth/death. Reallocates
-     * according to the number of nodes in the mesh in the Tissue member variable
+     * according to the number of nodes in the mesh in the CellPopulation member variable
      */
     void ReallocateMemory();
 

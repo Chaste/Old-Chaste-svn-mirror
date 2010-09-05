@@ -35,14 +35,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <ctime>
 #include <iostream>
 
-#include "TissueSimulation.hpp"
-#include "MeshBasedTissue.hpp"
+#include "CellBasedSimulation.hpp"
+#include "MeshBasedCellPopulation.hpp"
 
 /**
  * A 1D crypt simulation object. The model is a simplified version of a 2D crypt model
  * developed by Meineke et al (doi:10.1046/j.0960-7722.2001.00216.x).
  */
-class CryptSimulation1d : public TissueSimulation<1>
+class CryptSimulation1d : public CellBasedSimulation<1>
 {
     // Allow tests to access private members to test private functions
     friend class TestCryptSimulation1d;
@@ -62,11 +62,11 @@ private:
     {
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
-        archive & boost::serialization::base_object<TissueSimulation<1> >(*this);
+        archive & boost::serialization::base_object<CellBasedSimulation<1> >(*this);
     }
 
-    /** Helper member that is a static cast of the tissue. */
-    MeshBasedTissue<1>* mpStaticCastTissue;
+    /** Helper member that is a static cast of the cell population. */
+    MeshBasedCellPopulation<1>* mpStaticCastCellPopulation;
 
     /**
      * Calculates the new locations of a dividing cell's cell centres.
@@ -78,25 +78,25 @@ private:
      *
      * @return daughter_coords the coordinates for the daughter cell.
      */
-    c_vector<double, 1> CalculateCellDivisionVector(TissueCellPtr pParentCell);
+    c_vector<double, 1> CalculateCellDivisionVector(CellPtr pParentCell);
 
 public:
 
     /**
      *  Constructor.
      *
-     *  @param rTissue A tissue facade class (contains a mesh and cells)
+     *  @param rCellPopulation A cell population object
      *  @param forceCollection The mechanics to use in the simulation
-     *  @param deleteTissueAndForceCollection Whether to delete the tissue and force collection on destruction to free up memory
+     *  @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    CryptSimulation1d(AbstractTissue<1>& rTissue,
+    CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
                       std::vector<AbstractForce<1>*> forceCollection,
-                      bool deleteTissueAndForceCollection=false,
+                      bool deleteCellPopulationAndForceCollection=false,
                       bool initialiseCells=true);
 
     /**
-     * Overridden ApplyTissueBoundaryConditions() method.
+     * Overridden ApplyCellPopulationBoundaryConditions() method.
      *
      * If an instance of WntConcentration is not set up, then stem cells at the
      * bottom of the crypt are pinned. Any cell that has moved below the bottom
@@ -104,7 +104,7 @@ public:
      *
      * @param rOldLocations the node locations at the previous time step
      */
-    void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,1> >& rOldLocations);
+    void ApplyCellPopulationBoundaryConditions(const std::vector<c_vector<double,1> >& rOldLocations);
 
     /**
      * Outputs Simulation Parameters to file
@@ -134,8 +134,8 @@ inline void save_construct_data(
     Archive & ar, const CryptSimulation1d * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractTissue<1>* p_tissue = &(t->rGetTissue());
-    ar & p_tissue;
+    const AbstractCellPopulation<1>* p_cell_population = &(t->rGetCellPopulation());
+    ar & p_cell_population;
     const std::vector<AbstractForce<1>*> force_collection = t->rGetForceCollection();
     ar & force_collection;
 }
@@ -148,13 +148,13 @@ inline void load_construct_data(
     Archive & ar, CryptSimulation1d * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<1>* p_tissue;
-    ar & p_tissue;
+    AbstractCellPopulation<1>* p_cell_population;
+    ar & p_cell_population;
     std::vector<AbstractForce<1>*> force_collection;
     ar & force_collection;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CryptSimulation1d(*p_tissue, force_collection, true, false);
+    ::new(t)CryptSimulation1d(*p_cell_population, force_collection, true, false);
 }
 }
 } // namespace

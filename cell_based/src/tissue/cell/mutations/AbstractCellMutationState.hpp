@@ -36,8 +36,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Base class for cell mutation states.
  *
- * Each TissueCell has a (shared pointer to a) mutation state instance, which will
- * be an instance of a subclass of this class.  When setting up a TissueSimulation,
+ * Each Cell has a (shared pointer to a) mutation state instance, which will
+ * be an instance of a subclass of this class.  When setting up a CellBasedSimulation,
  * the user must specify a list of AbstractCellMutationState instances, which represent
  * the possible mutations that can occur in the simulation (including WildTypeCellMutationState).
  * This provides a registry of available mutation states, and cells will point to

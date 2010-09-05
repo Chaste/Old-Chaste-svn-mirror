@@ -36,7 +36,7 @@ StochasticOxygenBasedCellCycleModel::StochasticOxygenBasedCellCycleModel()
 
 void StochasticOxygenBasedCellCycleModel::SetG2Duration()
 {
-    TissueConfig* p_params = TissueConfig::Instance();
+    CellBasedConfig* p_params = CellBasedConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
     double mean = p_params->GetG2Duration();

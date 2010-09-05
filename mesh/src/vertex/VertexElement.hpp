@@ -78,7 +78,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // This needs to be first so that MeshBasedTissue::Validate() doesn't go mental.
+        // This needs to be first so that MeshBasedCellPopulation::Validate() doesn't go mental.
         archive & mFaces;
         archive & mOrientations;
         archive & boost::serialization::base_object<AbstractElement<ELEMENT_DIM, SPACE_DIM> >(*this);

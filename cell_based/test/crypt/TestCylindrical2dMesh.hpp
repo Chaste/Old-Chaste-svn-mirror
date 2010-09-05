@@ -865,7 +865,7 @@ public:
 
     void TestVoronoiTessellationUsesOverriddenMetric() throw (Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         unsigned cells_across = 6;
         unsigned cells_up = 12;

@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTCREATINGANDUSINGANEWCELLKILLERTUTORIAL_HPP_
 
 /*
- * = An example showing how to create a new cell killer and use it in a tissue simulation =
+ * = An example showing how to create a new cell killer and use it in a cell-based simulation =
  *
  * EMPTYLINE
  *
@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * In this tutorial we show how to create a new cell killer class and how this
- * can be used in a tissue simulation.
+ * can be used in a cell-based simulation.
  *
  * EMPTYLINE
  *
@@ -63,7 +63,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /* The next two headers are used in archiving, and only need to be included
  * if you want to be able to archive (save or load) the new cell killer object
- * in a tissue simulation (in this case, these headers must be included before
+ * in a cell-based simulation (in this case, these headers must be included before
  * any other serialisation headers). */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -71,19 +71,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header defines a base class for cell killers, from which the new
  * cell killer class will inherit. */
 #include "AbstractCellKiller.hpp"
-/* The remaining header files define classes that will be used in the tissue
+/* The remaining header files define classes that will be used in the cell population
  * simulation test: {{{HoneycombMeshGenerator}}} defines a helper class for
  * generating a suitable mesh; {{{CellsGenerator}}}
  * defines a helper class for generating a vector of cells and
  * {{{FixedDurationGenerationBasedCellCycleModel}}} makes them have fixed cell
  * cycle models; {{{GeneralisedLinearSpringForce}}} defines a force law for
  * describing the mechanical interactions between neighbouring cells in the
- * tissue; and {{{TissueSimulation}}} defines the class that simulates the
- * evolution of a tissue. */
+ * cell population; and {{{CellBasedSimulation}}} defines the class that simulates the
+ * evolution of a cell population. */
 #include "HoneycombMeshGenerator.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "TissueSimulation.hpp"
+#include "CellBasedSimulation.hpp"
 #include "CellsGenerator.hpp"
 /*
  * EMPTYLINE
@@ -91,7 +91,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * == Defining the cell killer class ==
  *
  * As an example, let us consider a cell killer which labels any cells in a
- * two-dimensional tissue which lie outside the elliptical domain given in
+ * two-dimensional cell population which lie outside the elliptical domain given in
  * Cartesian coordinates by the equation (x/20)^2^ + (y/10)^2^ < 1. To
  * implement this we define a new cell killer class, {{{MyCellKiller}}},
  * which inherits from {{{AbstractCellKiller}}} and overrides the
@@ -102,7 +102,7 @@ class MyCellKiller : public AbstractCellKiller<2>
 private:
 
     /* You only need to include the next block of code if you want to be able
-     * to archive (save or load) the cell killer object in a tissue simulation.
+     * to archive (save or load) the cell killer object in a cell-based simulation.
      * The code consists of a serialize method, which in this case just archives
      * the cell killer using the serialization code defined in the base class
      * {{{AbstractCellKiller}}}. */
@@ -117,20 +117,20 @@ private:
  * constructor. */
 public:
 
-    MyCellKiller(AbstractTissue<2>* pTissue)
-        : AbstractCellKiller<2>(pTissue)
+    MyCellKiller(AbstractCellPopulation<2>* pCellPopulation)
+        : AbstractCellKiller<2>(pCellPopulation)
     {}
 
     /* The second public method overrides {{{TestAndLabelCellsForApoptosisOrDeath()}}}.
-     * This method iterates over all cells in the tissue, and calls {{{Kill()}}} on
+     * This method iterates over all cells in the cell_population, and calls {{{Kill()}}} on
      * any cell whose centre is located outside the ellipse (x/20)^2^ + (y/10)^2^ < 1. */
     void TestAndLabelCellsForApoptosisOrDeath()
     {
-        for (AbstractTissue<2>::Iterator cell_iter = this->mpTissue->Begin();
-            cell_iter != this->mpTissue->End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = this->mpCellPopulation->Begin();
+            cell_iter != this->mpCellPopulation->End();
             ++cell_iter)
         {
-            c_vector<double, 2> location = this->mpTissue->GetLocationOfCellCentre(*cell_iter);
+            c_vector<double, 2> location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
 
             if ( pow(location[0]/20, 2) + pow(location[1]/10, 2) > 1.0 )
             {
@@ -141,10 +141,10 @@ public:
 };
 
 /* You only need to include the next block of code if you want to be able to
- * archive (save or load) the cell killer object in a tissue simulation. We
+ * archive (save or load) the cell killer object in a cell-based simulation. We
  * start by including a serialization header, then define {{{save_construct_data}}}
  * and {{{load_construct_data}}} methods, which archive the cell killer
- * constructor input argument(s) (in this case, a {{{Tissue}}}). */
+ * constructor input argument(s) (in this case, a {{{CellPopulation}}}). */
 
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MyCellKiller)
@@ -158,8 +158,8 @@ namespace boost
             Archive & ar, const MyCellKiller * t, const BOOST_PFTO unsigned int file_version)
         {
             // Save data required to construct instance
-            const AbstractTissue<2>* const p_tissue = t->GetTissue();
-            ar << p_tissue;
+            const AbstractCellPopulation<2>* const p_cell_population = t->GetCellPopulation();
+            ar << p_cell_population;
         }
 
         template<class Archive>
@@ -167,11 +167,11 @@ namespace boost
             Archive & ar, MyCellKiller * t, const unsigned int file_version)
         {
             // Retrieve data from archive required to construct new instance
-            AbstractTissue<2>* p_tissue;
-            ar >> p_tissue;
+            AbstractCellPopulation<2>* p_cell_population;
+            ar >> p_cell_population;
 
             // Invoke inplace constructor to initialise instance
-            ::new(t)MyCellKiller(p_tissue);
+            ::new(t)MyCellKiller(p_cell_population);
         }
     }
 }
@@ -209,29 +209,29 @@ public:
         /* The first thing to do is to set up the start time and reset the model
          * parameters. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        TissueConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->Reset();
 
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(20, 20, 0, false);
         /* Get the mesh using the {{{GetMesh()}}} method. */
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCellPtr}}}s.
+        /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
          * To do this, we can use a static method on the {{{CellsGenerator}}} helper class.
          * The {{{<FixedDurationGenerationBasedCellCycleModel, 2>}}} defines the
          * cell-cycle model and that it is in 2d. We create an empty vector of cells
          * and pass this into the method along with the mesh. The {{{cells}}} vector is
          * populated once the method {{{GenerateBasic}}} is called. */
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
-        /* Now that we have defined the mesh and cells, we can define the tissue. The
+        /* Now that we have defined the mesh and cells, we can define the cell population. The
          * constructor takes in the mesh and the cells vector. */
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* We now use the tissue to construct a cell killer object. */
-        MyCellKiller my_cell_killer(&tissue);
+        /* We now use the cell population to construct a cell killer object. */
+        MyCellKiller my_cell_killer(&cell_population);
 
         /* To test that we have implemented the cell killer correctly, we call the
          * overridden method {{{TestAndLabelCellsForApoptosisOrDeath}}}... */
@@ -239,12 +239,12 @@ public:
 
         /* ... and check that any cell whose centre is located outside the ellipse
          * (x/20)^2^ + (y/10)^2^ < 1 has indeed been labelled as dead. */
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
-            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
+            double x = cell_population.GetLocationOfCellCentre(*cell_iter)[0];
+            double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
 
             if ( pow(x/20, 2) + pow(y/10, 2) > 1.0 )
             {
@@ -258,14 +258,14 @@ public:
 
         /* As an extra test, we now remove any dead cells and check that all
          * remaining cells are indeed located within the ellipse. */
-        tissue.RemoveDeadCells();
+        cell_population.RemoveDeadCells();
 
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
-            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
+            double x = cell_population.GetLocationOfCellCentre(*cell_iter)[0];
+            double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
 
             TS_ASSERT_LESS_THAN_EQUALS(pow(x/20, 2) + pow(y/10, 2) > 1.0, 1.0);
         }
@@ -310,44 +310,44 @@ public:
     /*
      * EMPTYLINE
      *
-     * == Using the cell killer in a tissue simulation ==
+     * == Using the cell killer in a cell-based simulation ==
      *
      * EMPTYLINE
      *
      * We now provide a test demonstrating how {{{MyCellKiller}}} can be used
-     * in a tissue simulation.
+     * in a cell-based simulation.
      */
-    void TestTissueSimulationWithMyCellKiller() throw(Exception)
+    void TestCellBasedSimulationWithMyCellKiller() throw(Exception)
     {
         /* The first thing to do, as before, is to set up the start time and
          * reset the parameters. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        TissueConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->Reset();
 
         /* We use the honeycomb mesh generator to create a honeycomb mesh. */
         HoneycombMeshGenerator generator(20, 20, 0, false);
         /* Get the mesh using the {{{GetMesh()}}} method. */
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
 
-        /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCellPtr}}}s.
+        /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
          * To do this, we can use a static method on the {{{CellsGenerator}}} helper class.
          * The {{{<FixedDurationGenerationBasedCellCycleModel, 2>}}} defines the
          * cell-cycle model and that it is in 2d. We create an empty vector of cells
          * and pass this into the method along with the mesh. The {{{cells}}} vector is
          * populated once the method {{{GenerateBasic}}} is called. */
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
 
-        /* Now that we have defined the mesh and cells, we can define the tissue. The
+        /* Now that we have defined the mesh and cells, we can define the cell population. The
          * constructor takes in the mesh and the cells vector. */
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
-        /* We now use the tissue to construct a cell killer object. */
-        MyCellKiller my_cell_killer(&tissue);
+        /* We now use the cell population to construct a cell killer object. */
+        MyCellKiller my_cell_killer(&cell_population);
 
         /* We must now create one or more force laws, which determine the mechanics of
-         * the tissue. For this test, we assume that a cell experiences a force from each
+         * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring, and so use
          * a {{{GeneralisedLinearSpringForce}}} object. We pass a pointer to this force
          * into a vector. Note that we have called the method {{{UseCutoffPoint}}} on the
@@ -356,22 +356,22 @@ public:
          * a force on each other if they are located more than 3 units (=3 cell widths)
          * away from each other. This modification is necessary when no ghost nodes are used,
          * for example to avoid artificially large forces between cells that lie close together
-         * on the tissue boundary.
+         * on the cell population boundary.
          */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.UseCutoffPoint(3);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        /* We pass in the tissue and the mechanics system into a {{{TissueSimulation}}}. */
-        TissueSimulation<2> simulator(tissue, force_collection);
+        /* We pass in the cell population and the mechanics system into a {{{CellBasedSimulation}}}. */
+        CellBasedSimulation<2> simulator(cell_population, force_collection);
 
         /* We set the output directory and end time. */
-        simulator.SetOutputDirectory("TestTissueSimulationWithMyCellKiller");
+        simulator.SetOutputDirectory("TestCellBasedSimulationWithMyCellKiller");
         simulator.SetEndTime(10.0);
 
-        /* We now pass the cell killer into the tissue simulation. */
-        MyCellKiller* p_killer = new MyCellKiller(&tissue);
+        /* We now pass the cell killer into the cell-based simulation. */
+        MyCellKiller* p_killer = new MyCellKiller(&cell_population);
         simulator.AddCellKiller(p_killer);
 
         /* Test that the Solve() method does not throw any exceptions. */

@@ -34,9 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 /**
- * A helper class for use in TissueSimulationWithPdes. The class
+ * A helper class for use in CellBasedSimulationWithPdes. The class
  * contains a pointer to a linear elliptic PDE, which is to be solved
- * on the domain defined by the tissue. The class also contains
+ * on the domain defined by the cell population. The class also contains
  * information describing the boundary conditions that are to be imposed
  * when solving the PDE. Currently we allow constant boundary conditions
  * only (i.e. the same boundary condition is imposed on the entire boundary),

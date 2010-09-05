@@ -75,8 +75,8 @@ HoneycombMeshGenerator::HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsi
         #undef COVERAGE_IGNORE
     }
 
-    TissueConfig::Instance()->SetCryptLength(mCryptDepth);
-    TissueConfig::Instance()->SetCryptWidth(mCryptWidth);
+    CellBasedConfig::Instance()->SetCryptLength(mCryptDepth);
+    CellBasedConfig::Instance()->SetCryptWidth(mCryptWidth);
 }
 
 

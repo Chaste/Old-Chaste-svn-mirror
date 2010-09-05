@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 
 // Must be included before any other cell_based headers
-#include "TissueSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 #include "SingleOdeWntCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "OutputFileHandler.hpp"
@@ -68,7 +68,7 @@ public:
         p_cycle_model->SetCellProliferativeType(STEM);
 
         // Construct a cell with this cell cycle model and cell mutation state
-        TissueCellPtr p_cell(new TissueCell(p_state, p_cycle_model));
+        CellPtr p_cell(new Cell(p_state, p_cycle_model));
         p_cell->InitialiseCellCycleModel();
 
         // Test the cell cycle model is behaving correctly
@@ -93,7 +93,7 @@ public:
 
         // Divide the cell
         TS_ASSERT_EQUALS(p_cell->ReadyToDivide(), true);
-        TissueCellPtr p_cell2 = p_cell->Divide();
+        CellPtr p_cell2 = p_cell->Divide();
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
         p_cell->AddCellProperty(p_label);
 
@@ -198,7 +198,7 @@ public:
         p_cell_model_1d->SetCellProliferativeType(STEM);
         TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
 
-        TissueCellPtr p_stem_cell_1d(new TissueCell(p_state, p_cell_model_1d));
+        CellPtr p_stem_cell_1d(new Cell(p_state, p_cell_model_1d));
         p_stem_cell_1d->InitialiseCellCycleModel();
 
         SimulationTime::Instance()->IncrementTimeOneStep();
@@ -207,7 +207,7 @@ public:
         SimulationTime::Instance()->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(p_stem_cell_1d->ReadyToDivide(), true);
 
-        TissueCellPtr p_daughter_1d = p_stem_cell_1d->Divide();
+        CellPtr p_daughter_1d = p_stem_cell_1d->Divide();
 
         // Coverage of 3D
 
@@ -226,7 +226,7 @@ public:
 
         TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
 
-        TissueCellPtr p_stem_cell_3d(new TissueCell(p_state, p_cell_model_3d));
+        CellPtr p_stem_cell_3d(new Cell(p_state, p_cell_model_3d));
         p_stem_cell_3d->InitialiseCellCycleModel();
 
         SimulationTime::Instance()->IncrementTimeOneStep();
@@ -235,7 +235,7 @@ public:
         SimulationTime::Instance()->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(p_stem_cell_3d->ReadyToDivide(), true);
 
-        TissueCellPtr p_daughter_3d = p_stem_cell_3d->Divide();
+        CellPtr p_daughter_3d = p_stem_cell_3d->Divide();
 
         // Tidy up
         WntConcentration<1>::Destroy();
@@ -245,7 +245,7 @@ public:
 
     void TestArchiving()
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "single_ode_wnt.arch";
@@ -276,7 +276,7 @@ public:
 
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-            TissueCellPtr p_stem_cell(new TissueCell(p_healthy_state, p_cell_model));
+            CellPtr p_stem_cell(new Cell(p_healthy_state, p_cell_model));
             p_stem_cell->InitialiseCellCycleModel();
 
             while (p_cell_model->GetAge() < g1_duration + p_params->GetSG2MDuration()
@@ -297,7 +297,7 @@ public:
             // Archive the cell
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
-            TissueCellPtr const p_const_cell = p_stem_cell;
+            CellPtr const p_const_cell = p_stem_cell;
             output_arch << p_const_cell;
 
             TS_ASSERT_EQUALS(p_stem_cell->ReadyToDivide(), false);
@@ -318,10 +318,10 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueConfig* p_inst1 = TissueConfig::Instance();
+            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
             p_inst1->SetSDuration(101.0);
 
-            TissueCellPtr p_cell;
+            CellPtr p_cell;
 
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             p_gen->Reseed(36);

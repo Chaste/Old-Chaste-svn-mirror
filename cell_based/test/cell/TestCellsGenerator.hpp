@@ -53,7 +53,7 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
@@ -72,7 +72,7 @@ public:
         location_indices.push_back(7);
         location_indices.push_back(9);
 
-        std::vector<TissueCellPtr> cells2;
+        std::vector<CellPtr> cells2;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator2;
         cells_generator2.GenerateBasic(cells2, 3, location_indices);
 
@@ -89,7 +89,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells again with basic
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         TS_ASSERT_THROWS_THIS(cells_generator.GenerateBasic(cells, 83511u, location_indices),
                               "The size of the locationIndices vector must match the required number of output cells");
@@ -113,7 +113,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
 
         double y0 = 0.2;
         double y1 = 1.0;
@@ -171,7 +171,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<StochasticDurationGenerationBasedCellCycleModel> generator;
         generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -213,7 +213,7 @@ public:
         }
 
         // Create cells again with basic
-        std::vector<TissueCellPtr> new_cells;
+        std::vector<CellPtr> new_cells;
         generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
@@ -234,7 +234,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<TysonNovakCellCycleModel> generator;
         generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -242,7 +242,7 @@ public:
         TS_ASSERT_EQUALS(cells.size(), p_mesh->GetNumNodes());
 
         // Create cells again with basic
-        std::vector<TissueCellPtr> new_cells;
+        std::vector<CellPtr> new_cells;
         generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
 
         // Test that cells were generated correctly
@@ -265,7 +265,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> generator;
         generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -278,7 +278,7 @@ public:
         }
 
         // Create cells again with basic
-        std::vector<TissueCellPtr> new_cells;
+        std::vector<CellPtr> new_cells;
         generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());
@@ -300,7 +300,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<SimpleWntCellCycleModel> generator;
         generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -323,7 +323,7 @@ public:
         std::vector<unsigned> location_indices = mesh_generator.GetCellLocationIndices();
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<StochasticWntCellCycleModel> generator;
         generator.Generate(cells, p_mesh, location_indices, false);
 
@@ -336,7 +336,7 @@ public:
         }
 
         // Create cells again with basic
-        std::vector<TissueCellPtr> new_cells;
+        std::vector<CellPtr> new_cells;
         generator.GenerateBasic(new_cells, p_mesh->GetNumNodes());
         // Test that cells were generated correctly
         TS_ASSERT_EQUALS(new_cells.size(), p_mesh->GetNumNodes());

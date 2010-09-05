@@ -74,7 +74,7 @@ public:
      * create a new registry. The caller takes responsibility for freeing the
      * returned registry when finished with it.
      *
-     * This method is intended for use by TissueSimulation, so that we can have
+     * This method is intended for use by CellBasedSimulation, so that we can have
      * multiple concurrent simulations, each with their own registry.
      */
     CellPropertyRegistry* TakeOwnership();

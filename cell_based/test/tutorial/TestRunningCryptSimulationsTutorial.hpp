@@ -65,16 +65,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntCellCycleModel.hpp"
 /* The next header file defines a helper class for generating a suitable mesh. */
 #include "HoneycombMeshGenerator.hpp"
-/* The next header file defines a {{{Tissue}}} class that uses a mesh, and allows
+/* The next header file defines a {{{CellPopulation}}} class that uses a mesh, and allows
  * for the inclusion ghost nodes. These are nodes in the mesh that do not correspond
  * to cells; instead they help ensure that a sensible Delaunay triangulation is generated
  * at each timestep (since the triangulation algorithm requires a convex hull). */
-#include "MeshBasedTissueWithGhostNodes.hpp"
+#include "MeshBasedCellPopulationWithGhostNodes.hpp"
 /* The next header file defines a force law, based on a linear spring, for describing
- * the mechanical interactions between neighbouring cells in the tissue.
+ * the mechanical interactions between neighbouring cells in the cell population.
  */
 #include "GeneralisedLinearSpringForce.hpp"
-/* The next header file defines the class that simulates the evolution of a {{{Tissue}}},
+/* The next header file defines the class that simulates the evolution of a {{{CellPopulation}}},
  * specialized to deal with the cylindrical crypt model.
  */
 #include "CryptSimulation2d.hpp"
@@ -105,16 +105,16 @@ public:
      */
     void TestCryptFixedCellCycle() throw(Exception)
     {
-        /* As in '''all''' tissue simulations, we must first set the start time.
+        /* As in '''all''' cell-based simulations, we must first set the start time.
          * In addition, it is advisable to reset the values of all model parameters.
-         * {{{SimulationTime}}} and {{{TissueConfig}}} are ''singleton'' classes; this
+         * {{{SimulationTime}}} and {{{CellBasedConfig}}} are ''singleton'' classes; this
          * means that one and only one of each of these objects is instantiated at
          * any time, and that that single object is accessible from anywhere in the
          * code. As a result, we do not need to keep passing round the current time or
          * model parameter values.
          */
         SimulationTime::Instance()->SetStartTime(0.0);
-        TissueConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->Reset();
 
         /* Next, we generate a mesh. The basic Chaste mesh is {{{TetrahedralMesh}}}.
          * To enforce periodicity at the left and right hand sides of the mesh, we
@@ -131,7 +131,7 @@ public:
         Cylindrical2dMesh* p_mesh = generator.GetCylindricalMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        /* Having created a mesh, we now create a {{{std::vector}}} of {{{TissueCellPtr}}}s.
+        /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
          * To do this, we the `CryptCellsGenerator` helper class, which is templated over the type
          * of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}})
          * and the dimension. We create an empty vector of cells and pass this into the
@@ -139,20 +139,20 @@ public:
          * should be assigned random birth times, to avoid synchronous division. The
          * {{{cells}}} vector is populated once the method {{{Generate}}} is
          * called. */
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
         /* Now we have a mesh, a set of cells to go with it, and ghost nodes indices,
-         * we can create a ''Tissue''. In general, this class associates a collection
+         * we can create a ''CellPopulation''. In general, this class associates a collection
          * of cells with a set of nodes or a mesh. For this test, because we have a
-         * mesh and ghost nodes, we use aparticular type of tissue called a
-         * {{{MeshBasedTissueWithGhostNodes}}}.
+         * mesh and ghost nodes, we use a particular type of cell population called a
+         * {{{MeshBasedCellPopulationWithGhostNodes}}}.
          */
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         /* We must now create one or more force laws, which determine the mechanics of
-         * the tissue. For this test, we assume that a cell experiences a force from each
+         * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring. We put a pointer
          * to this force into a vector.
          */
@@ -160,9 +160,9 @@ public:
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        /* Now we define the tissue simulation object, passing in the tissue and collection
+        /* Now we define the cell-based simulation object, passing in the cell population and collection
          * of force laws: */
-        CryptSimulation2d simulator(tissue, force_collection);
+        CryptSimulation2d simulator(cell_population, force_collection);
 
         /* Set the output directory on the simulator (relative to
          * "/tmp/<USER_NAME>/testoutput") and the end time (in hours).
@@ -181,7 +181,7 @@ public:
          * dictates conditions under which cells die. For this test, we use
          * a {{{SloughingCellKiller}}}, which kills cells above a certain height.
          */
-        SloughingCellKiller<2> killer(&tissue);
+        SloughingCellKiller<2> killer(&cell_population);
         simulator.AddCellKiller(&killer);
 
         /* To run the simulation, we call {{{Solve()}}}. */
@@ -214,10 +214,10 @@ public:
      */
     void TestCryptWntCellCycle() throw(Exception)
     {
-        /* First re-initialize time to zero, and reset the {{{TissueConfig}}} singleton, again. */
+        /* First re-initialize time to zero, and reset the {{{CellBasedConfig}}} singleton, again. */
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
-        TissueConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->Reset();
 
         /* Create a cylindrical mesh, and get the cell location indices, exactly as before. */
         HoneycombMeshGenerator generator(6, 9, 2, true);
@@ -225,12 +225,12 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Create the cells, using the same method as before. Here, though, we use a {{{WntCellCycleModel}}}.*/
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<WntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        /* Create the tissue, as before. */
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+        /* Create the cell_population, as before. */
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         /* The other change needed: Cells with a Wnt-based cell cycle need to know
          * the concentration of Wnt wherever they are. To do this, we set up a {{{WntConcentration}}}
@@ -238,9 +238,9 @@ public:
          * cells and cell cycle models can access it. We need to say what the profile of the
          * Wnt concentation should be - here, we say it is {{{LINEAR}}} (linear decreasing from 1 to 0
          * from the bottom of the crypt to the top). We also need to inform the {{{WntConcentration}}}
-         * of the tissue.*/
+         * of the cell population.*/
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetTissue(tissue);
+        WntConcentration<2>::Instance()->SetCellPopulation(cell_population);
 
         /* Create a force collection as above. */
         GeneralisedLinearSpringForce<2> linear_force;
@@ -248,12 +248,12 @@ public:
         force_collection.push_back(&linear_force);
 
         /* Create a simulator as before (except setting a different output directory). */
-        CryptSimulation2d simulator(tissue,force_collection);
+        CryptSimulation2d simulator(cell_population,force_collection);
         simulator.SetOutputDirectory("CryptTutorialWntCellCycle");
         simulator.SetEndTime(1);
 
         /* Create a killer, as before. */
-        SloughingCellKiller<2> killer(&tissue);
+        SloughingCellKiller<2> killer(&cell_population);
         simulator.AddCellKiller(&killer);
 
         /* Solve. */

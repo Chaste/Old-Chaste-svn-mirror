@@ -90,7 +90,7 @@ public:
      * @param initialiseCells  whether to initialise the cell cycle models as each
      *   cell is created
      */
-    void Generate(std::vector<TissueCellPtr>& rCells,
+    void Generate(std::vector<CellPtr>& rCells,
                   AbstractMesh<2,2>* pMesh,
                   const std::vector<unsigned> locationIndices,
                   bool randomBirthTimes,
@@ -104,7 +104,7 @@ public:
 
 template<class CELL_CYCLE_MODEL>
 void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
-                                      std::vector<TissueCellPtr>& rCells,
+                                      std::vector<CellPtr>& rCells,
                                       AbstractMesh<2,2>* pMesh,
                                       const std::vector<unsigned> locationIndices,
                                       bool randomBirthTimes,
@@ -226,7 +226,7 @@ void CryptCellsGenerator<CELL_CYCLE_MODEL>::Generate(
 
         boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
-        TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
+        CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
 
         if (initialiseCells)
         {

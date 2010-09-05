@@ -36,7 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /**
  * Apoptotic cell property.
  *
- * Each TissueCell owns a CellPropertyCollection, which may include a shared pointer 
+ * Each Cell owns a CellPropertyCollection, which may include a shared pointer 
  * to an object of this type.
  *
  * The ApoptoticCellProperty object keeps track of the number of cells that are apoptotic, as well

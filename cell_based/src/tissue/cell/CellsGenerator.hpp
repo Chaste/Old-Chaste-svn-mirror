@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include <vector>
-#include "TissueCell.hpp"
+#include "Cell.hpp"
 #include "WildTypeCellMutationState.hpp"
 
 /**
@@ -55,7 +55,7 @@ public:
      *             Defaults to an empty vector -- otherwise must be of length numCells
      *
      */
-    void GenerateBasic(std::vector<TissueCellPtr>& rCells,
+    void GenerateBasic(std::vector<CellPtr>& rCells,
                        unsigned numCells,
                        const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
@@ -63,15 +63,15 @@ public:
      * Fills a vector of cells with birth times to match a given vector of location indices.
      *
      * @param rCells  An empty vector of cells to fill up.
-     * @param locationIndices  The indices of the tissue to assign real cells to.
+     * @param locationIndices  The indices of the cell population to assign real cells to.
      */
-    void GenerateGivenLocationIndices(std::vector<TissueCellPtr>& rCells,
+    void GenerateGivenLocationIndices(std::vector<CellPtr>& rCells,
                                       const std::vector<unsigned> locationIndices);
 
 };
 
 template<class CELL_CYCLE_MODEL, unsigned DIM>
-void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCellPtr>& rCells,
+void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<CellPtr>& rCells,
                                                          unsigned numCells,
                                                          const std::vector<unsigned> locationIndices)
 {
@@ -95,7 +95,7 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCellP
         p_cell_cycle_model->SetCellProliferativeType(STEM);
 
         boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
-        TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
+        CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
 
         double birth_time;
         if (!locationIndices.empty())
@@ -112,7 +112,7 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateBasic(std::vector<TissueCellP
 }
 
 template<class CELL_CYCLE_MODEL, unsigned DIM>
-void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vector<TissueCellPtr>& rCells,
+void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vector<CellPtr>& rCells,
                                                                         const std::vector<unsigned> locationIndices)
 {
     assert(!locationIndices.empty());
@@ -131,7 +131,7 @@ void CellsGenerator<CELL_CYCLE_MODEL,DIM>::GenerateGivenLocationIndices(std::vec
 
         boost::shared_ptr<AbstractCellProperty> p_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
-        TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
+        CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
 
         double birth_time = 0.0 - locationIndices[i];
         p_cell->SetBirthTime(birth_time);

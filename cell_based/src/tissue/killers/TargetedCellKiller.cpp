@@ -28,8 +28,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TargetedCellKiller.hpp"
 
 template<unsigned DIM>
-TargetedCellKiller<DIM>::TargetedCellKiller(AbstractTissue<DIM>* pTissue, unsigned targetedIndex, bool bloodLust)
-: AbstractCellKiller<DIM>(pTissue),
+TargetedCellKiller<DIM>::TargetedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation, unsigned targetedIndex, bool bloodLust)
+: AbstractCellKiller<DIM>(pCellPopulation),
   mTargetIndex(targetedIndex),
   mBloodLust(bloodLust)
 {
@@ -50,11 +50,11 @@ unsigned TargetedCellKiller<DIM>::GetBloodLust() const
 template<unsigned DIM>
 void TargetedCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
-	if ( !mBloodLust || this->mpTissue->GetNumRealCells()==0 || this->mpTissue->GetNumRealCells()<mTargetIndex+1)
+	if ( !mBloodLust || this->mpCellPopulation->GetNumRealCells()==0 || this->mpCellPopulation->GetNumRealCells()<mTargetIndex+1)
 	{
 		return;
 	}
-	this->mpTissue->GetCellUsingLocationIndex(mTargetIndex)->Kill();
+	this->mpCellPopulation->GetCellUsingLocationIndex(mTargetIndex)->Kill();
 	mBloodLust = false;
 }
 

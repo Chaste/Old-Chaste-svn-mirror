@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTCREATINGANDUSINGANEWCELLCYCLEMODELTUTORIAL_HPP_
 
 /*
- * = An example showing how to create a new cell cycle model and use it in a tissue simulation =
+ * = An example showing how to create a new cell cycle model and use it in a cell-based simulation =
  *
  * EMPTYLINE
  *
@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * In this tutorial we show how to create a new cell cycle model class and how this
- * can be used in a tissue simulation.
+ * can be used in a cell-based simulation.
  *
  * EMPTYLINE
  *
@@ -63,7 +63,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /* The next two headers are used in archiving, and only need to be included
  * if you want to be able to archive (save or load) the new cell killer object
- * in a tissue simulation (in this case, these headers must be included before
+ * in a cell-based simulation (in this case, these headers must be included before
  * any other serialisation headers). */
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -83,19 +83,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * Our new cell cycle model will inherit from this abstract class. */
 #include "AbstractSimpleGenerationBasedCellCycleModel.hpp"
-/* The remaining header files define classes that will be used in the tissue
+/* The remaining header files define classes that will be used in the cell population
  * simulation test: {{{CheckReadyToDivideAndPhaseIsUpdated}}} defines a helper
  * class for testing a cell cycle model; {{{HoneycombMeshGenerator}}} defines
  * a helper class for generating a suitable mesh; {{{WildTypeCellMutationState}}}
  * defines a wild-type or 'healthy' cell mutation state; {{{GeneralisedLinearSpringForce}}}
  * defines a force law for describing the mechanical interactions between neighbouring
- * cells in the tissue; and {{{TissueSimulation}}} defines the class that
- * simulates the evolution of the tissue. */
+ * cells in the cell population; and {{{CellBasedSimulation}}} defines the class that
+ * simulates the evolution of the cell population. */
 #include "CheckReadyToDivideAndPhaseIsUpdated.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "TissueSimulation.hpp"
+#include "CellBasedSimulation.hpp"
 
 /*
  * EMPTYLINE
@@ -108,7 +108,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * The rate parameter is a constant, dependent on cell type, whose value is
  * chosen such that the mean of the distribution, 1/lambda, equals the mean
- * G1 duration as defined in the {{{TissueConfig}}} singleton class.
+ * G1 duration as defined in the {{{CellBasedConfig}}} singleton class.
  *
  * To implement this model we define a new cell cycle model, {{{MyCellCycleModel}}},
  * which inherits from {{{AbstractSimpleGenerationBasedCellCycleModel}}} and
@@ -119,7 +119,7 @@ class MyCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 private:
 
     /* You only need to include the next block of code if you want to be able
-     * to archive (save or load) the cell cycle model object in a tissue simulation.
+     * to archive (save or load) the cell cycle model object in a cell-based simulation.
      * The code consists of a serialize method, in which we first archive the cell
      * cycle model using the serialization code defined in the base class
      * {{{AbstractSimpleGenerationBasedCellCycleModel}}}. We then archive an instance
@@ -159,10 +159,10 @@ private:
         switch (mCellProliferativeType)
         {
             case STEM:
-                mG1Duration = -log(uniform_random_number)*TissueConfig::Instance()->GetStemCellG1Duration();
+                mG1Duration = -log(uniform_random_number)*CellBasedConfig::Instance()->GetStemCellG1Duration();
                 break;
             case TRANSIT:
-                mG1Duration = -log(uniform_random_number)*TissueConfig::Instance()->GetTransitCellG1Duration();
+                mG1Duration = -log(uniform_random_number)*CellBasedConfig::Instance()->GetTransitCellG1Duration();
                 break;
             case DIFFERENTIATED:
                 mG1Duration = DBL_MAX;
@@ -195,7 +195,7 @@ public:
 };
 
 /* You only need to include the next block of code if you want to be able to
- * archive (save or load) the cell cycle model object in a tissue simulation. */
+ * archive (save or load) the cell cycle model object in a cell-based simulation. */
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MyCellCycleModel)
 
@@ -228,12 +228,12 @@ public:
     {
         /* We must first set the start time. In addition, it is advisable to reset
          * the values of all model parameters. Recall that {{{SimulationTime}}} and
-         * {{{TissueConfig}}} are ''singleton'' classes; this means one and only
+         * {{{CellBasedConfig}}} are ''singleton'' classes; this means one and only
          * one of each of these objects is instantiated at any time, and that single
          * object is accessible from anywhere in the code. As a result, we do not need
          * to keep passing round the current time or model parameter values. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        TissueConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->Reset();
 
         /* Test that we can construct a {{{MyCellCycleModel}}} object: */
         TS_ASSERT_THROWS_NOTHING(MyCellCycleModel cell_model3);
@@ -241,20 +241,20 @@ public:
         /* Now construct and initialise a large number of {{{MyCellCycleModel}}}s and
          * associated cells: */
         unsigned num_cells = 1e5;
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<num_cells; i++)
         {
             MyCellCycleModel* p_cell_cycle_model = new MyCellCycleModel;
             p_cell_cycle_model->SetCellProliferativeType(STEM);
-            TissueCellPtr p_cell(new TissueCell(p_state, p_cell_cycle_model));
+            CellPtr p_cell(new Cell(p_state, p_cell_cycle_model));
             p_cell->InitialiseCellCycleModel();
             cells.push_back(p_cell);
         }
 
         /* Find the mean G1 duration and test that it is within some tolerance of
          * the expected value: */
-        double expected_mean_g1_duration = TissueConfig::Instance()->GetStemCellG1Duration();
+        double expected_mean_g1_duration = CellBasedConfig::Instance()->GetStemCellG1Duration();
         double sample_mean_g1_duration = 0.0;
 
         for (unsigned i=0; i<num_cells; i++)
@@ -267,14 +267,14 @@ public:
         /* Now construct another {{{MyCellCycleModel}}} and associated cell. */
         MyCellCycleModel* p_my_model = new MyCellCycleModel;
         p_my_model->SetCellProliferativeType(TRANSIT);
-        TissueCellPtr p_my_cell(new TissueCell(p_state, p_my_model));
+        CellPtr p_my_cell(new Cell(p_state, p_my_model));
         p_my_cell->InitialiseCellCycleModel();
 
         /* Use the helper method {{{CheckReadyToDivideAndPhaseIsUpdated()}}} to
          * test that this cell progresses correctly through the cell cycle. */
         unsigned num_steps = 100;
-        double mean_cell_cycle_time = TissueConfig::Instance()->GetStemCellG1Duration()
-                                        + TissueConfig::Instance()->GetSG2MDuration();
+        double mean_cell_cycle_time = CellBasedConfig::Instance()->GetStemCellG1Duration()
+                                        + CellBasedConfig::Instance()->GetSG2MDuration();
 
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(mean_cell_cycle_time, num_steps);
 
@@ -305,7 +305,7 @@ public:
             /* Create a cell with associated cell cycle model. */
             MyCellCycleModel* p_model = new MyCellCycleModel;
             p_model->SetCellProliferativeType(TRANSIT);
-            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            CellPtr p_cell(new Cell(p_state, p_model));
             p_cell->InitialiseCellCycleModel();
 
             /* Move forward two time steps. */
@@ -319,7 +319,7 @@ public:
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), S_PHASE);
 
             /* Now archive the cell cycle model through its cell. */
-            TissueCellPtr const p_const_cell = p_cell;
+            CellPtr const p_const_cell = p_cell;
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -336,7 +336,7 @@ public:
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
             /* Create a pointer to a cell. */
-            TissueCellPtr p_cell;
+            CellPtr p_cell;
 
             /* Create an input archive and restore the cell from the archive. */
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -363,19 +363,19 @@ public:
     /*
      * EMPTYLINE
      *
-     * == Using the cell cycle model in a tissue simulation ==
+     * == Using the cell cycle model in a cell-based simulation ==
      *
      * EMPTYLINE
      *
      * We conclude with a brief test demonstrating how {{{MyCellCycleModel}}} can be used
-     * in a tissue simulation.
+     * in a cell-based simulation.
      */
-    void TestTissueSimulationWithMyCellCycleModel() throw(Exception)
+    void TestCellBasedSimulationWithMyCellCycleModel() throw(Exception)
     {
         /* The first thing to do, as before, is to set up the start time and
          * reset the parameters. */
         SimulationTime::Instance()->SetStartTime(0.0);
-        TissueConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->Reset();
 
         /* We use the honeycomb mesh generator to create a honeycomb mesh covering a
          * circular domain of given radius.
@@ -385,7 +385,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(5);
 
         /* Next, we create some cells. First, define the cells vector. */
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         /* Then we loop over the nodes. */
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
@@ -393,26 +393,26 @@ public:
             /* For each node we create a cell with our cell cycle model. */
             MyCellCycleModel* p_model = new MyCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
-            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            CellPtr p_cell(new Cell(p_state, p_model));
 
             /* Now, we define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
              * of a stem cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                    (TissueConfig::Instance()->GetStemCellG1Duration()
-                                        + TissueConfig::Instance()->GetSG2MDuration());
+                                    (CellBasedConfig::Instance()->GetStemCellG1Duration()
+                                        + CellBasedConfig::Instance()->GetSG2MDuration());
             /* We then set the birth time and push the cell back into the vector of cells. */
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
         }
 
-        /* Now that we have defined the mesh and cells, we can define the tissue. The constructor
+        /* Now that we have defined the mesh and cells, we can define the cell population. The constructor
          * takes in the mesh and the cells vector. */
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         /* We must now create one or more force laws, which determine the mechanics of
-         * the tissue. For this test, we assume that a cell experiences a force from each
+         * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring, and so use
          * a {{{GeneralisedLinearSpringForce}}} object. We pass a pointer to this force
          * into a vector. Note that we have called the method {{{UseCutoffPoint}}} on the
@@ -421,7 +421,7 @@ public:
          * a force on each other if they are located more than 3 units (=3 cell widths)
          * away from each other. This modification is necessary when no ghost nodes are used,
          * for example to avoid artificially large forces between cells that lie close together
-         * on the tissue boundary.
+         * on the cell population boundary.
          */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.UseCutoffPoint(3);
@@ -429,12 +429,12 @@ public:
         force_collection.push_back(&linear_force);
 
         /*
-         * We pass in the tissue and the mechanics system into a {{{TissueSimulation}}}.
+         * We pass in the cell population and the mechanics system into a {{{CellBasedSimulation}}}.
          */
-        TissueSimulation<2> simulator(tissue, force_collection);
+        CellBasedSimulation<2> simulator(cell_population, force_collection);
 
         /* We set the output directory and end time. */
-        simulator.SetOutputDirectory("TestTissueSimulationWithMyCellCycleModel");
+        simulator.SetOutputDirectory("TestCellBasedSimulationWithMyCellCycleModel");
         simulator.SetEndTime(10.0);
 
         /* Test that the Solve() method does not throw any exceptions. */

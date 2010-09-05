@@ -30,27 +30,27 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WntConcentration.hpp"
 
 
-CryptSimulation1d::CryptSimulation1d(AbstractTissue<1>& rTissue,
+CryptSimulation1d::CryptSimulation1d(AbstractCellPopulation<1>& rCellPopulation,
                   std::vector<AbstractForce<1>*> forceCollection,
-                  bool deleteTissueAndForceCollection,
+                  bool deleteCellPopulationAndForceCollection,
                   bool initialiseCells)
-    : TissueSimulation<1>(rTissue,
+    : CellBasedSimulation<1>(rCellPopulation,
                           forceCollection,
-                          deleteTissueAndForceCollection,
+                          deleteCellPopulationAndForceCollection,
                           initialiseCells)
 {
-	mpStaticCastTissue = static_cast<MeshBasedTissue<1>*>(&mrTissue);
+	mpStaticCastCellPopulation = static_cast<MeshBasedCellPopulation<1>*>(&mrCellPopulation);
 }
 
 
-c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCellPtr pParentCell)
+c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(CellPtr pParentCell)
 {
     // Location of parent and daughter cells
-    c_vector<double, 1> parent_coords = mpStaticCastTissue->GetLocationOfCellCentre(pParentCell);
+    c_vector<double, 1> parent_coords = mpStaticCastCellPopulation->GetLocationOfCellCentre(pParentCell);
     c_vector<double, 1> daughter_coords;
 
     // Get separation parameter
-    double separation = mpStaticCastTissue->GetMeinekeDivisionSeparation();
+    double separation = mpStaticCastCellPopulation->GetMeinekeDivisionSeparation();
 
     // Make a random direction vector of the required length
     c_vector<double, 1> random_vector;
@@ -69,7 +69,7 @@ c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCellPtr
     if (   (proposed_new_parent_coords(0) >= 0.0)
         && (proposed_new_daughter_coords(0) >= 0.0))
     {
-        // We are not too close to the bottom of the tissue, so move parent
+        // We are not too close to the bottom of the cell population, so move parent
         parent_coords = proposed_new_parent_coords;
         daughter_coords = proposed_new_daughter_coords;
     }
@@ -85,20 +85,20 @@ c_vector<double, 1> CryptSimulation1d::CalculateCellDivisionVector(TissueCellPtr
         daughter_coords = proposed_new_daughter_coords;
     }
 
-    assert(daughter_coords(0) >= 0.0); // to make sure dividing cells stay in the tissue
-    assert(parent_coords(0) >= 0.0);   // to make sure dividing cells stay in the tissue
+    assert(daughter_coords(0) >= 0.0); // to make sure dividing cells stay in the cell population
+    assert(parent_coords(0) >= 0.0);   // to make sure dividing cells stay in the cell population
 
     // Set the parent to use this location
     ChastePoint<1> parent_coords_point(parent_coords);
 
-    unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(pParentCell);
-    mrTissue.SetNode(node_index, parent_coords_point);
+    unsigned node_index = mpStaticCastCellPopulation->GetLocationIndexUsingCell(pParentCell);
+    mrCellPopulation.SetNode(node_index, parent_coords_point);
 
     return daughter_coords;
 }
 
 
-void CryptSimulation1d::ApplyTissueBoundaryConditions(const std::vector< c_vector<double, 1> >& rOldLocations)
+void CryptSimulation1d::ApplyCellPopulationBoundaryConditions(const std::vector< c_vector<double, 1> >& rOldLocations)
 {
     bool is_wnt_included = WntConcentration<1>::Instance()->IsWntSetUp();
     if (!is_wnt_included)
@@ -107,16 +107,16 @@ void CryptSimulation1d::ApplyTissueBoundaryConditions(const std::vector< c_vecto
     }
 
     // Iterate over all nodes associated with real cells to update their positions
-    // according to any tissue boundary conditions
-    for (AbstractTissue<1>::Iterator cell_iter = mrTissue.Begin();
-         cell_iter != mrTissue.End();
+    // according to any cell population boundary conditions
+    for (AbstractCellPopulation<1>::Iterator cell_iter = mrCellPopulation.Begin();
+         cell_iter != mrCellPopulation.End();
          ++cell_iter)
     {
         // Get index of node associated with cell
-        unsigned node_index = mpStaticCastTissue->GetLocationIndexUsingCell(*cell_iter);
+        unsigned node_index = mpStaticCastCellPopulation->GetLocationIndexUsingCell(*cell_iter);
 
         // Get pointer to this node
-        Node<1>* p_node = mpStaticCastTissue->GetNodeCorrespondingToCell(*cell_iter);
+        Node<1>* p_node = mpStaticCastCellPopulation->GetNodeCorrespondingToCell(*cell_iter);
 
         if (!is_wnt_included)
         {
@@ -148,7 +148,7 @@ void CryptSimulation1d::OutputSimulationParameters(out_stream& rParamsFile)
 	// No parameters to output
 
 	// Call direct parent class
-	TissueSimulation<1>::OutputSimulationParameters(rParamsFile);
+	CellBasedSimulation<1>::OutputSimulationParameters(rParamsFile);
 }
 
 

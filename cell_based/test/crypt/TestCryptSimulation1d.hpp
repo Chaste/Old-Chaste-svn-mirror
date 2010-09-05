@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before any other cell_based headers
-#include "TissueSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "CryptSimulation1d.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
@@ -68,21 +68,21 @@ public:
         mesh.SetNode(10, shifted_point);
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(DIFFERENTIATED);
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             double birth_time = 0.0 - node_index;
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> crypt(mesh, cells);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
@@ -133,21 +133,21 @@ public:
         mesh.ConstructLinearMesh(24);
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(DIFFERENTIATED);
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             double birth_time = 0.0 - node_index;
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> crypt(mesh, cells);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
@@ -163,13 +163,13 @@ public:
         SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
         simulator.AddCellKiller(&sloughing_cell_killer);
 
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 25u);
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 25u);
 
         // Run simulation
         simulator.Solve();
 
         // Since the default crypt length is 22, two cells should have been sloughed
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 23u);
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 23u);
 
         // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt1dWithDeathButNoBirth", false);
@@ -192,14 +192,14 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
         mesh.ConstructLinearMesh(22);
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -232,15 +232,15 @@ public:
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
             p_cell->SetBirthTime(birth_time);
 
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> crypt(mesh, cells);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
@@ -256,7 +256,7 @@ public:
         simulator.Solve();
 
         // There should be 34 cells at the end of the simulation
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 34u);
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 34u);
 
         // Work out where the previous test wrote its files
         OutputFileHandler handler("Crypt1dWithCells", false);
@@ -283,7 +283,7 @@ public:
         mesh.ConstructLinearMesh(3);
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -301,14 +301,14 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->SetBirthTime(birth_time);
 
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> crypt(mesh, cells);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
@@ -324,18 +324,18 @@ public:
         simulator.Solve();
 
         // There should be 5 cells at the end of the simulation
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 5u);
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 5u);
 
         // The second cell should have just divided, so be a distance 0.15 away from its initial location
-        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(1)->rGetLocation()[0], 1.15, 1e-3);
+        TS_ASSERT_DELTA(simulator.rGetCellPopulation().GetNode(1)->rGetLocation()[0], 1.15, 1e-3);
 
         // The new cell should also be a distance 0.15 away from the second cell's initial location
-        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(4)->rGetLocation()[0], 0.85, 1e-3);
+        TS_ASSERT_DELTA(simulator.rGetCellPopulation().GetNode(4)->rGetLocation()[0], 0.85, 1e-3);
 
         // The other cells should still be at their initial locations
-        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(0)->rGetLocation()[0], 0.0, 1e-3);
-        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(2)->rGetLocation()[0], 2.0, 1e-3);
-        TS_ASSERT_DELTA(simulator.rGetTissue().GetNode(3)->rGetLocation()[0], 3.0, 1e-3);
+        TS_ASSERT_DELTA(simulator.rGetCellPopulation().GetNode(0)->rGetLocation()[0], 0.0, 1e-3);
+        TS_ASSERT_DELTA(simulator.rGetCellPopulation().GetNode(2)->rGetLocation()[0], 2.0, 1e-3);
+        TS_ASSERT_DELTA(simulator.rGetCellPopulation().GetNode(3)->rGetLocation()[0], 3.0, 1e-3);
     }
 
 
@@ -346,14 +346,14 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
         mesh.ConstructLinearMesh(22);
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -386,15 +386,15 @@ public:
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
             p_cell->SetBirthTime(birth_time);
 
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> crypt(mesh, cells);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
@@ -414,7 +414,7 @@ public:
         simulator.Solve();
 
         // There should be 34 cells at the end of the simulation
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 30u);
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 30u);
 
         // Work out where the previous test wrote its files
         OutputFileHandler output_file_handler("Crypt1dWithCellsAndGrowth", false);
@@ -434,7 +434,7 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -451,7 +451,7 @@ public:
 
         // Set up cells by iterating through the nodes
         unsigned num_cells_at_start = mesh.GetNumNodes();
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -479,15 +479,15 @@ public:
             TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel();
             p_model->SetCellProliferativeType(cell_type);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
             p_cell->SetBirthTime(birth_time);
 
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> crypt(mesh, cells);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
@@ -511,8 +511,8 @@ public:
          * Tyson-Novak cell-cycle period is so short that the cells because too
          * squashed together.
          */
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), num_cells_at_start + 23u);
-        TS_ASSERT_EQUALS(simulator.rGetTissue().GetNumRealCells(), 2*num_cells_at_start);
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), num_cells_at_start + 23u);
+        TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 2*num_cells_at_start);
 
         p_params->SetStemCellG1Duration(temp_stem - 10.0);
         p_params->SetTransitCellG1Duration(temp_transit - 10.0);
@@ -527,7 +527,7 @@ public:
     void Test1dChainCorrectCellNumbers()
     {
         // Get pointers to singleton object
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // The stem cell cycle time must still be 24 h, otherwise this test may not pass
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -547,7 +547,7 @@ public:
 
         // Set up cells by iterating through the nodes
         unsigned num_cells = mesh.GetNumNodes();
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<num_cells; i++)
@@ -572,15 +572,15 @@ public:
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
             p_cell->SetBirthTime(birth_time);
 
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> crypt(mesh, cells);
         crypt.SetOutputCellProliferativeTypes(true);
 
         // Create force law
@@ -600,7 +600,7 @@ public:
         // Run simulation
         simulator.Solve();
 
-        unsigned num_cells_at_end = simulator.rGetTissue().GetNumRealCells();
+        unsigned num_cells_at_end = simulator.rGetCellPopulation().GetNumRealCells();
 
         /*
          * At the end of the simulation, there should be 6 live cells and one sloughed cell.
@@ -609,17 +609,17 @@ public:
         TS_ASSERT_EQUALS(num_cells_at_end, 6u);
 
         // Check we have the correct number of each cell type
-        std::vector<unsigned> cell_type_count = simulator.rGetTissue().rGetCellProliferativeTypeCount();
+        std::vector<unsigned> cell_type_count = simulator.rGetCellPopulation().rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count.size(), 3u);
         TS_ASSERT_EQUALS(cell_type_count[0], 1u);
         TS_ASSERT_EQUALS(cell_type_count[1], 2u);
         TS_ASSERT_EQUALS(cell_type_count[2], 3u);
 
-        for (AbstractTissue<1>::Iterator cell_iter = simulator.rGetTissue().Begin();
-             cell_iter != simulator.rGetTissue().End();
+        for (AbstractCellPopulation<1>::Iterator cell_iter = simulator.rGetCellPopulation().Begin();
+             cell_iter != simulator.rGetCellPopulation().End();
              ++cell_iter)
         {
-            c_vector<double, 1> cell_location = simulator.rGetTissue().GetLocationOfCellCentre(*cell_iter);
+            c_vector<double, 1> cell_location = simulator.rGetCellPopulation().GetLocationOfCellCentre(*cell_iter);
             double x = cell_location[0];
 
             if (fabs(x) < 1e-2)
@@ -643,7 +643,7 @@ public:
     void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         // Get pointers to singleton object
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // The stem cell cycle time must still be 24 h, otherwise this test may not pass
         TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
@@ -659,7 +659,7 @@ public:
         // Set up cells by iterating through the nodes
         // (don't use any stem cells as we want to test the jiggling)
         unsigned num_cells = mesh.GetNumNodes();
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellProperty> p_healthy_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
 
         for (unsigned i=0; i<num_cells; i++)
@@ -667,18 +667,18 @@ public:
             WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
             p_cell_cycle_model1->SetDimension(1);
             p_cell_cycle_model1->SetCellProliferativeType(TRANSIT);
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_cell_cycle_model1));
+            CellPtr p_cell(new Cell(p_healthy_state, p_cell_cycle_model1));
             p_cell->SetBirthTime(0.0);
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> crypt(mesh, cells);
 
         crypt.SetOutputCellMutationStates(true);
         crypt.SetOutputCellProliferativeTypes(true);
 
-        AbstractTissue<1>::Iterator cell_iterator = crypt.Begin();
+        AbstractCellPopulation<1>::Iterator cell_iterator = crypt.Begin();
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
@@ -697,14 +697,14 @@ public:
 
         // Create an instance of a Wnt concentration
         WntConcentration<1>::Instance()->SetType(LINEAR);
-        WntConcentration<1>::Instance()->SetTissue(crypt);
+        WntConcentration<1>::Instance()->SetCellPopulation(crypt);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
         std::vector<AbstractForce<1>*> force_collection;
         force_collection.push_back(&linear_force);
 
-        // Create crypt simulation from tissue and force law
+        // Create crypt simulation from cell population and force law
         CryptSimulation1d simulator(crypt, force_collection);
         simulator.SetOutputDirectory("Crypt1DWntMatureCells");
         simulator.SetEndTime(0.01);
@@ -713,21 +713,21 @@ public:
         simulator.Solve();
 
         // Check that nothing has moved below y=0
-        for (AbstractTissue<1>::Iterator cell_iter = crypt.Begin();
+        for (AbstractCellPopulation<1>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {
             TS_ASSERT_LESS_THAN(-1e-15, crypt.GetLocationOfCellCentre(*cell_iter)[0]);
         }
 
-        std::vector<unsigned> cell_mutation_state_count = simulator.rGetTissue().GetCellMutationStateCount();
+        std::vector<unsigned> cell_mutation_state_count = simulator.rGetCellPopulation().GetCellMutationStateCount();
         TS_ASSERT_EQUALS(cell_mutation_state_count.size(), 4u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[0], 2u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[1], 1u);
         TS_ASSERT_EQUALS(cell_mutation_state_count[2], 0u); // No APC two hit
         TS_ASSERT_EQUALS(cell_mutation_state_count[3], 1u);
 
-        std::vector<unsigned> cell_type_count = simulator.rGetTissue().rGetCellProliferativeTypeCount();
+        std::vector<unsigned> cell_type_count = simulator.rGetCellPopulation().rGetCellProliferativeTypeCount();
         TS_ASSERT_EQUALS(cell_type_count.size(), 3u);
         TS_ASSERT_EQUALS(cell_type_count[0], 0u);
         TS_ASSERT_EQUALS(cell_type_count[1], 4u);
@@ -744,7 +744,7 @@ public:
     void TestSave() throw (Exception)
     {
         // Get pointers to singleton object
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
@@ -752,7 +752,7 @@ public:
         mesh.ConstructLinearMesh(22);
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -785,14 +785,14 @@ public:
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->SetBirthTime(birth_time);
 
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> crypt(mesh, cells);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
@@ -814,7 +814,7 @@ public:
         simulator.Solve();
 
         // Save the results
-        TissueSimulationArchiver<1, CryptSimulation1d>::Save(&simulator);
+        CellBasedSimulationArchiver<1, CryptSimulation1d>::Save(&simulator);
     }
 
 
@@ -827,17 +827,17 @@ public:
         // run it from 0.1 to 0.2
         CryptSimulation1d* p_simulator1;
 
-        p_simulator1 = TissueSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.1);
+        p_simulator1 = CellBasedSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.1);
 
         p_simulator1->SetEndTime(0.2);
         p_simulator1->Solve();
 
         // Save then reload and run from 0.2 to 0.25
-        MutableMesh<1,1>& r_mesh1 = (static_cast<MeshBasedTissue<1>*>(&(p_simulator1->rGetTissue())))->rGetMesh();
-        TissueSimulationArchiver<1, CryptSimulation1d>::Save(p_simulator1);
+        MutableMesh<1,1>& r_mesh1 = (static_cast<MeshBasedCellPopulation<1>*>(&(p_simulator1->rGetCellPopulation())))->rGetMesh();
+        CellBasedSimulationArchiver<1, CryptSimulation1d>::Save(p_simulator1);
 
-        CryptSimulation1d* p_simulator2 = TissueSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.2);
-        MutableMesh<1,1>& r_mesh2 = (static_cast<MeshBasedTissue<1>*>(&(p_simulator2->rGetTissue())))->rGetMesh();
+        CryptSimulation1d* p_simulator2 = CellBasedSimulationArchiver<1, CryptSimulation1d>::Load("Crypt1DSaveAndLoad", 0.2);
+        MutableMesh<1,1>& r_mesh2 = (static_cast<MeshBasedCellPopulation<1>*>(&(p_simulator2->rGetCellPopulation())))->rGetMesh();
 
         TS_ASSERT_EQUALS(r_mesh1.GetNumAllNodes(), r_mesh2.GetNumAllNodes());
         TS_ASSERT_EQUALS(r_mesh1.GetNumNodes(), r_mesh2.GetNumNodes());
@@ -894,14 +894,14 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
         mesh.ConstructLinearMesh(22);
 
         // Set up cells by iterating through the nodes
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -934,15 +934,15 @@ public:
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
             p_cell->SetBirthTime(birth_time);
 
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> crypt(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> crypt(mesh, cells);
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;

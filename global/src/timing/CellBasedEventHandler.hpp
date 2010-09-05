@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A cell_based event class that can be used to calculate the time taken to
- * execute various parts of a tissue simulation.
+ * execute various parts of a cell-based simulation.
  */
 class CellBasedEventHandler : public GenericEventHandler<9, CellBasedEventHandler>
 {
@@ -47,7 +47,7 @@ public:
         SETUP=0,
         DEATH,
         BIRTH,
-        UPDATETISSUE,
+        UPDATECELLPOPULATION,
         TESSELLATION,
         FORCE,
         POSITION,

@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-/*
+/**
  * Simple cell killer which at the first timestep kills any cell
  * whose corresponding location index is a given number.
  */
@@ -81,11 +81,11 @@ public:
     /**
      * Default constructor.
      *
-     * @param pTissue pointer to the tissue
+     * @param pCellPopulation pointer to the cell population
      * @param targetedIndex The index of the cell to kill
      * @param bloodLust Wether to kill cells or not defaults to true (used by load methods)
      */
-    TargetedCellKiller(AbstractTissue<DIM>* pTissue, unsigned targetedIndex, bool bloodLust = true);
+    TargetedCellKiller(AbstractCellPopulation<DIM>* pCellPopulation, unsigned targetedIndex, bool bloodLust = true);
 
     /**
 	* @return mTargetIndex.
@@ -121,8 +121,8 @@ inline void save_construct_data(
     Archive & ar, const TargetedCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractTissue<DIM>* const p_tissue = t->GetTissue();
-    ar << p_tissue;
+    const AbstractCellPopulation<DIM>* const p_cell_population = t->GetCellPopulation();
+    ar << p_cell_population;
     unsigned targeted_index = t->GetTargetIndex();
     ar << targeted_index;
     bool blood_lust = t->GetBloodLust();
@@ -137,15 +137,15 @@ inline void load_construct_data(
     Archive & ar, TargetedCellKiller<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<DIM>* p_tissue;
-    ar >> p_tissue;
+    AbstractCellPopulation<DIM>* p_cell_population;
+    ar >> p_cell_population;
     unsigned targeted_index;
     ar >> targeted_index;
     bool blood_lust;
     ar >> blood_lust;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)TargetedCellKiller<DIM>(p_tissue, targeted_index, blood_lust);
+    ::new(t)TargetedCellKiller<DIM>(p_cell_population, targeted_index, blood_lust);
 }
 }
 } // namespace ...

@@ -612,7 +612,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
         if (!element_file.isFile())
         {
             // If the results.vizelements does not exist, then assume the results
-            // were generated using a NodeBasedTissue
+            // were generated using a NodeBasedCellPopulation
             elementFilePresent = false;
         }
         if (!pde_solution_file.isFile())
@@ -711,7 +711,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     }
                     if (parameter.equals("PDE"))
                     {
-                        // Overrule the previous bit since for tissue simulations with PDEs, we don't want cylindrical periodicity
+                        // Overrule the previous bit since for cell-based simulations with PDEs, we don't want cylindrical periodicity
                         drawCylinder = false;
                         drawPdeSolution = true;
                         pde_solution.setState(true);

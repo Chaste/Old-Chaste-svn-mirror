@@ -152,24 +152,24 @@ public :
      *
      * @param nodeAGlobalIndex index of one neighbouring node
      * @param nodeBGlobalIndex index of the other neighbouring node
-     * @param rTissue the tissue
+     * @param rCellPopulation the cell population
      * @param isCloserThanRestLength whether the neighbouring nodes lie closer than the rest length of their connecting spring
      *
      * @return the multiplication factor.
      */
     double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex,
                                                       unsigned nodeBGlobalIndex,
-                                                      AbstractTissue<DIM>& rTissue,
+                                                      AbstractCellPopulation<DIM>& rCellPopulation,
                                                       bool isCloserThanRestLength);
 
     /**
      * Overridden AddForceContribution method.
      *
      * @param rForces reference to vector of forces on nodes
-     * @param rTissue reference to the tissue
+     * @param rCellPopulation reference to the cell population
      */
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                              AbstractTissue<DIM>& rTissue);
+                              AbstractCellPopulation<DIM>& rCellPopulation);
 
     /**
      * @return mBetaCatSpringScaler

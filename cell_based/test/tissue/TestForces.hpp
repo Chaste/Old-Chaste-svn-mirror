@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
-#include "MeshBasedTissueWithGhostNodes.hpp"
+#include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
 #include "WntConcentration.hpp"
@@ -64,7 +64,7 @@ public:
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         boost::shared_ptr<AbstractCellMutationState> p_apc2(new ApcTwoHitCellMutationState);
         for (unsigned i=0; i<location_indices.size(); i++)
@@ -74,19 +74,19 @@ public:
 
             if (i==60)
             {
-                TissueCellPtr p_cell(new TissueCell(p_apc2, p_model));
+                CellPtr p_cell(new Cell(p_apc2, p_model));
                 p_cell->SetBirthTime(-10);
                 cells.push_back(p_cell);
             }
             else
             {
-                TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+                CellPtr p_cell(new Cell(p_state, p_model));
                 p_cell->SetBirthTime(-10);
                 cells.push_back(p_cell);
             }
         }
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
         GeneralisedLinearSpringForce<2> linear_force;
 
         // Test set/get method
@@ -112,21 +112,21 @@ public:
 
         // Initialise a vector of node forces
         std::vector<c_vector<double, 2> > node_forces;
-        node_forces.reserve(tissue.GetNumNodes());
+        node_forces.reserve(cell_population.GetNumNodes());
 
-        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
         {
              node_forces.push_back(zero_vector<double>(2));
         }
 
-        linear_force.AddForceContribution(node_forces, tissue);
+        linear_force.AddForceContribution(node_forces, cell_population);
 
         // Test forces on non-ghost nodes
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
-            unsigned node_index = tissue.GetLocationIndexUsingCell(*cell_iter);
+            unsigned node_index = cell_population.GetLocationIndexUsingCell(*cell_iter);
 
             TS_ASSERT_DELTA(node_forces[node_index][0], 0.0, 1e-4);
             TS_ASSERT_DELTA(node_forces[node_index][1], 0.0, 1e-4);
@@ -142,13 +142,13 @@ public:
 
         // Initialise a vector of new node forces
         std::vector<c_vector<double, 2> > new_node_forces;
-        new_node_forces.reserve(tissue.GetNumNodes());
+        new_node_forces.reserve(cell_population.GetNumNodes());
 
-        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
         {
              new_node_forces.push_back(zero_vector<double>(2));
         }
-        linear_force.AddForceContribution(new_node_forces, tissue);
+        linear_force.AddForceContribution(new_node_forces, cell_population);
 
         TS_ASSERT_DELTA(new_node_forces[60][0], 0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(new_node_forces[60][1], 0.0, 1e-4);
@@ -178,8 +178,8 @@ public:
         Element<2,2>* p_element = p_mesh->GetElement(elem_index);
 
         force_on_spring = linear_force.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),
-                                                                   p_element->GetNodeGlobalIndex(0),
-                                                                   tissue);
+                                                                  p_element->GetNodeGlobalIndex(0),
+                                                                  cell_population);
 
         TS_ASSERT_DELTA(force_on_spring[0], 0.5*linear_force.GetMeinekeSpringStiffness(), 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
@@ -200,8 +200,8 @@ public:
         TS_ASSERT_DELTA(linear_force.GetCutoffPoint(), dist-0.1, 1e-4);
 
         force_on_spring = linear_force.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),
-                                                                   p_element->GetNodeGlobalIndex(0),
-                                                                   tissue);
+                                                                  p_element->GetNodeGlobalIndex(0),
+                                                                  cell_population);
         TS_ASSERT_DELTA(force_on_spring[0], 0.0, 1e-4);
         TS_ASSERT_DELTA(force_on_spring[1], 0.0, 1e-4);
     }
@@ -222,48 +222,48 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true); // true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
 
         // Check that the force between nodes is correctly calculated when the 'spring constant' is constant
         linear_force.SetEdgeBasedSpringConstant(false);
 
-        for (MeshBasedTissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
-            spring_iterator != tissue.SpringsEnd();
+        for (MeshBasedCellPopulation<2>::SpringIterator spring_iterator = cell_population.SpringsBegin();
+            spring_iterator != cell_population.SpringsEnd();
             ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
             c_vector<double, 2> force = linear_force.CalculateForceBetweenNodes(nodeA_global_index,
-                                                                                 nodeB_global_index,
-                                                                                 tissue);
+                                                                                nodeB_global_index,
+                                                                                cell_population);
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1], 6.25, 1e-3);
         }
 
         // Check that the force between nodes is correctly calculated when the 'spring constant'
         // is proportional to the length of the edge between adjacent cells
         linear_force.SetEdgeBasedSpringConstant(true);
-        tissue.CreateVoronoiTessellation();  // normally done in a simulation loop
+        cell_population.CreateVoronoiTessellation();  // normally done in a simulation loop
 
-        for (MeshBasedTissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
-             spring_iterator != tissue.SpringsEnd();
+        for (MeshBasedCellPopulation<2>::SpringIterator spring_iterator = cell_population.SpringsBegin();
+             spring_iterator != cell_population.SpringsEnd();
              ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
             c_vector<double, 2> force = linear_force.CalculateForceBetweenNodes(nodeA_global_index,
-                                                                                 nodeB_global_index,
-                                                                                 tissue);
+                                                                                nodeB_global_index,
+                                                                                cell_population);
 
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1], 4.34027778, 1e-3);
         }
 
         // Choose two interior neighbour nodes
-        c_vector<double, 2> force = linear_force.CalculateForceBetweenNodes(41, 42, tissue);
+        c_vector<double, 2> force = linear_force.CalculateForceBetweenNodes(41, 42, cell_population);
         TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1], 4.34027778, 1e-3);
 
         // Now move node 42 a bit and check that the force calculation changes correctly
@@ -274,8 +274,8 @@ public:
         p_mesh->SetNode(21, new_point, false);
 
         // Check that the new force between nodes is correctly calculated
-        tissue.CreateVoronoiTessellation();
-        c_vector<double, 2> new_force = linear_force.CalculateForceBetweenNodes(41, 42, tissue);
+        cell_population.CreateVoronoiTessellation();
+        c_vector<double, 2> new_force = linear_force.CalculateForceBetweenNodes(41, 42, cell_population);
 
         // Force calculation: shift is along x-axis so we should have
         // new_edge_length = (5/6 + shift[0])*tan(0.5*arctan(5*sqrt(3)/(5 + 12*shift[0]))),
@@ -299,25 +299,25 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<FixedDurationGenerationBasedCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);// true = mature cells
 
-        MeshBasedTissueWithGhostNodes<2> tissue(*p_mesh, cells, location_indices);
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
 
         // Check that the force between nodes is correctly calculated when the spring constant is constant (!)
         linear_force.SetEdgeBasedSpringConstant(false);
 
-        for (MeshBasedTissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
-             spring_iterator != tissue.SpringsEnd();
+        for (MeshBasedCellPopulation<2>::SpringIterator spring_iterator = cell_population.SpringsBegin();
+             spring_iterator != cell_population.SpringsEnd();
              ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
             c_vector<double, 2> force = linear_force.CalculateForceBetweenNodes(nodeA_global_index,
                                                                                 nodeB_global_index,
-                                                                                tissue);
+                                                                                cell_population);
 
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1], 6.25, 1e-3);
         }
@@ -325,24 +325,24 @@ public:
         // Check that the force between nodes is correctly calculated when the spring constant
         // is proportional to the length of the edge between adjacenet cells
         linear_force.SetEdgeBasedSpringConstant(true);
-        tissue.CreateVoronoiTessellation();
+        cell_population.CreateVoronoiTessellation();
 
-        for (MeshBasedTissue<2>::SpringIterator spring_iterator = tissue.SpringsBegin();
-             spring_iterator != tissue.SpringsEnd();
+        for (MeshBasedCellPopulation<2>::SpringIterator spring_iterator = cell_population.SpringsBegin();
+             spring_iterator != cell_population.SpringsEnd();
              ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
             c_vector<double, 2> force = linear_force.CalculateForceBetweenNodes(nodeA_global_index,
                                                                                 nodeB_global_index,
-                                                                                tissue);
+                                                                                cell_population);
             TS_ASSERT_DELTA(force[0]*force[0] + force[1]*force[1], 4.34027778, 1e-3);
         }
     }
 
     void TestGeneralisedLinearSpringForceWithSpringConstantsForMutantCells()
     {
-        // Create a small tissue
+        // Create a small cell population
         std::vector<Node<2>*> nodes;
         nodes.push_back(new Node<2>(0, false, 0, 0));
         nodes.push_back(new Node<2>(1, false, 0, 2));
@@ -351,11 +351,11 @@ public:
 
         MutableMesh<2,2> mesh(nodes);
 
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        MeshBasedTissue<2> tissue(mesh, cells);
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
 
@@ -365,29 +365,29 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
 
-        tissue.GetCellUsingLocationIndex(0)->SetMutationState(p_state);
-        tissue.GetCellUsingLocationIndex(1)->AddCellProperty(p_label);
-        tissue.GetCellUsingLocationIndex(2)->SetMutationState(p_apc2);
-        tissue.GetCellUsingLocationIndex(3)->SetMutationState(p_bcat1);
+        cell_population.GetCellUsingLocationIndex(0)->SetMutationState(p_state);
+        cell_population.GetCellUsingLocationIndex(1)->AddCellProperty(p_label);
+        cell_population.GetCellUsingLocationIndex(2)->SetMutationState(p_apc2);
+        cell_population.GetCellUsingLocationIndex(3)->SetMutationState(p_bcat1);
 
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(0, 1, tissue)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(1, 2, tissue)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(2, 3, tissue)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(3, 0, tissue)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(0, 1, cell_population)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(1, 2, cell_population)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(2, 3, cell_population)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(3, 0, cell_population)), 15.0, 1e-10);
 
         linear_force.SetMutantSprings(true);
 
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(0, 1, tissue)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(1, 2, tissue)), 22.5, 1e-10);
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(2, 3, tissue)), 30.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(3, 0, tissue)), 22.5, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(0, 1, cell_population)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(1, 2, cell_population)), 22.5, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(2, 3, cell_population)), 30.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(3, 0, cell_population)), 22.5, 1e-10);
 
         linear_force.SetMutantSprings(true, 4.0, 3.0);
 
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(0, 1, tissue)), 15.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(1, 2, tissue)), 45.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(2, 3, tissue)), 60.0, 1e-10);
-        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(3, 0, tissue)), 45.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(0, 1, cell_population)), 15.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(1, 2, cell_population)), 45.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(2, 3, cell_population)), 60.0, 1e-10);
+        TS_ASSERT_DELTA( norm_2(linear_force.CalculateForceBetweenNodes(3, 0, cell_population)), 45.0, 1e-10);
     }
 
     void TestGeneralisedLinearSpringForceWithSpringConstantsForIngeBCatCells()
@@ -399,16 +399,16 @@ public:
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, false);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
-        // As there is no tissue simulation, we must explicitly initialise the cells
+        // As there is no cell-based simulation, we must explicitly initialise the cells
         crypt.InitialiseCells();
 
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
@@ -429,49 +429,49 @@ public:
 
     void TestGeneralisedLinearSpringForceWithSpringConstantsForApoptoticCells()
     {
-        // Set up stretched tissue
+        // Set up stretched cell population
         HoneycombMeshGenerator generator(4, 4, 0, false, 2.0);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
         std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator;
         cells_generator.GenerateGivenLocationIndices(cells, location_indices);
 
-        MeshBasedTissueWithGhostNodes<2> stretched_tissue(*p_mesh, cells, location_indices);
+        MeshBasedCellPopulationWithGhostNodes<2> stretched_cell_population(*p_mesh, cells, location_indices);
 
-        // As there is no tissue simulation we must explicitly initialise the cells
-        stretched_tissue.InitialiseCells();
+        // As there is no cell-based simulation we must explicitly initialise the cells
+        stretched_cell_population.InitialiseCells();
 
         // Set one of the non-boundary cells to be necrotic
         boost::shared_ptr<AbstractCellProperty> p_apoptotic_state(new ApoptoticCellProperty);
-        stretched_tissue.GetCellUsingLocationIndex(6)->AddCellProperty(p_apoptotic_state);
+        stretched_cell_population.GetCellUsingLocationIndex(6)->AddCellProperty(p_apoptotic_state);
 
         LinearSpringWithVariableSpringConstantsForce<2> linear_force;
         linear_force.SetApoptoticSprings(true);
 
-        TS_ASSERT_EQUALS(stretched_tissue.GetCellUsingLocationIndex(6)->HasCellProperty<ApoptoticCellProperty>(), true);
-        TS_ASSERT_DELTA(norm_2(linear_force.CalculateForceBetweenNodes(6, 10, stretched_tissue)), 3.3333, 1e-4);
+        TS_ASSERT_EQUALS(stretched_cell_population.GetCellUsingLocationIndex(6)->HasCellProperty<ApoptoticCellProperty>(), true);
+        TS_ASSERT_DELTA(norm_2(linear_force.CalculateForceBetweenNodes(6, 10, stretched_cell_population)), 3.3333, 1e-4);
 
         // Set a neighbouring cell to be necrotic
-        stretched_tissue.GetCellUsingLocationIndex(10)->AddCellProperty(p_apoptotic_state);
+        stretched_cell_population.GetCellUsingLocationIndex(10)->AddCellProperty(p_apoptotic_state);
 
-        TS_ASSERT_EQUALS(stretched_tissue.GetCellUsingLocationIndex(10)->HasCellProperty<ApoptoticCellProperty>(), true);
-        TS_ASSERT_DELTA(norm_2(linear_force.CalculateForceBetweenNodes(6, 10, stretched_tissue)), 1.8750, 1e-4);
+        TS_ASSERT_EQUALS(stretched_cell_population.GetCellUsingLocationIndex(10)->HasCellProperty<ApoptoticCellProperty>(), true);
+        TS_ASSERT_DELTA(norm_2(linear_force.CalculateForceBetweenNodes(6, 10, stretched_cell_population)), 1.8750, 1e-4);
 
-        // Now do similar tests for a squashed tissue
+        // Now do similar tests for a squashed cell population
         HoneycombMeshGenerator generator2(4, 4, 0, false, 0.5);
         MutableMesh<2,2>* p_mesh2 = generator2.GetMesh();
         std::vector<unsigned> location_indices2 = generator2.GetCellLocationIndices();
 
-        std::vector<TissueCellPtr> cells2;
+        std::vector<CellPtr> cells2;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel,2> cells_generator2;
         cells_generator2.GenerateGivenLocationIndices(cells2, location_indices2);
 
-        MeshBasedTissueWithGhostNodes<2> squashed_tissue(*p_mesh2, cells2, location_indices2);
-        squashed_tissue.InitialiseCells();
+        MeshBasedCellPopulationWithGhostNodes<2> squashed_cell_population(*p_mesh2, cells2, location_indices2);
+        squashed_cell_population.InitialiseCells();
 
-        squashed_tissue.GetCellUsingLocationIndex(6)->AddCellProperty(p_apoptotic_state);
+        squashed_cell_population.GetCellUsingLocationIndex(6)->AddCellProperty(p_apoptotic_state);
 
         LinearSpringWithVariableSpringConstantsForce<2> linear_force2;
 
@@ -481,11 +481,11 @@ public:
 
         linear_force2.SetApoptoticSprings(true);
 
-        TS_ASSERT_DELTA(norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_tissue)), 4.0909, 1e-4);
+        TS_ASSERT_DELTA(norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_cell_population)), 4.0909, 1e-4);
 
-        squashed_tissue.GetCellUsingLocationIndex(10)->AddCellProperty(p_apoptotic_state);
+        squashed_cell_population.GetCellUsingLocationIndex(10)->AddCellProperty(p_apoptotic_state);
 
-        TS_ASSERT_DELTA( norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_tissue)), 2.8125, 1e-4);
+        TS_ASSERT_DELTA( norm_2(linear_force2.CalculateForceBetweenNodes(6, 10, squashed_cell_population)), 2.8125, 1e-4);
     }
 
     void TestGeneralisedLinearSpringForceCalculationIn1d() throw (Exception)
@@ -495,14 +495,14 @@ public:
         mesh.ConstructLinearMesh(5);
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned node_index=0; node_index<mesh.GetNumNodes(); node_index++)
         {
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(DIFFERENTIATED);
 
-            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            CellPtr p_cell(new Cell(p_state, p_model));
 
             double birth_time = 0.0 - node_index;
             p_cell->SetBirthTime(birth_time);
@@ -510,27 +510,27 @@ public:
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        std::vector<TissueCellPtr> cells_copy(cells);
-        MeshBasedTissue<1> tissue(mesh, cells);
+        // Create cell population
+        std::vector<CellPtr> cells_copy(cells);
+        MeshBasedCellPopulation<1> cell_population(mesh, cells);
 
         // Create force law object
         GeneralisedLinearSpringForce<1> linear_force;
 
         // Initialise a vector of node forces
         std::vector<c_vector<double, 1> > node_forces;
-        node_forces.reserve(tissue.GetNumNodes());
+        node_forces.reserve(cell_population.GetNumNodes());
 
-        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
         {
             node_forces.push_back(zero_vector<double>(1));
         }
 
         // Compute forces on nodes
-        linear_force.AddForceContribution(node_forces, tissue);
+        linear_force.AddForceContribution(node_forces, cell_population);
 
         // Test that all springs are in equilibrium
-        for (unsigned node_index=0; node_index<tissue.GetNumNodes(); node_index++)
+        for (unsigned node_index=0; node_index<cell_population.GetNumNodes(); node_index++)
         {
             TS_ASSERT_DELTA(node_forces[node_index](0), 0.0, 1e-6);
         }
@@ -547,16 +547,16 @@ public:
 
         // Recalculate node forces (we can re-use node_forces
         // as previously each node had zero net force on it)
-        linear_force.AddForceContribution(node_forces, tissue);
+        linear_force.AddForceContribution(node_forces, cell_population);
 
-        for (unsigned node_index=0; node_index<tissue.GetNumNodes(); node_index++)
+        for (unsigned node_index=0; node_index<cell_population.GetNumNodes(); node_index++)
         {
             if (node_index == 0)
             {
                 // The first node only experiences a force from its neighbour to the right
                 TS_ASSERT_DELTA(node_forces[node_index](0), linear_force.GetMeinekeSpringStiffness()*(scale_factor-1), 1e-6);
             }
-            else if (node_index == tissue.GetNumNodes()-1)
+            else if (node_index == cell_population.GetNumNodes()-1)
             {
                 // The last node only experiences a force from its neighbour to the left
                 TS_ASSERT_DELTA(node_forces[node_index](0), -linear_force.GetMeinekeSpringStiffness()*(scale_factor-1), 1e-6);
@@ -568,11 +568,11 @@ public:
             }
         }
 
-        // Create another tissue and force law
+        // Create another cell population and force law
         MutableMesh<1,1> mesh2;
         mesh2.ConstructLinearMesh(5);
 
-        MeshBasedTissue<1> tissue2(mesh2, cells_copy);
+        MeshBasedCellPopulation<1> cell_population2(mesh2, cells_copy);
         GeneralisedLinearSpringForce<1> linear_force2;
 
         // Move one node and check that forces are correctly calculated
@@ -580,22 +580,22 @@ public:
         shifted_point.rGetLocation()[0] = 2.5;
         mesh2.SetNode(2, shifted_point);
 
-        c_vector<double,1> force_between_1_and_2 = linear_force2.CalculateForceBetweenNodes(1, 2, tissue2);
+        c_vector<double,1> force_between_1_and_2 = linear_force2.CalculateForceBetweenNodes(1, 2, cell_population2);
         TS_ASSERT_DELTA(force_between_1_and_2[0], linear_force.GetMeinekeSpringStiffness()*0.5, 1e-6);
 
-        c_vector<double,1> force_between_2_and_3 = linear_force2.CalculateForceBetweenNodes(2, 3, tissue2);
+        c_vector<double,1> force_between_2_and_3 = linear_force2.CalculateForceBetweenNodes(2, 3, cell_population2);
         TS_ASSERT_DELTA(force_between_2_and_3[0], -linear_force.GetMeinekeSpringStiffness()*0.5, 1e-6);
 
         // Initialise a vector of node forces
         std::vector<c_vector<double,1> > node_forces2;
-        node_forces2.reserve(tissue2.GetNumNodes());
+        node_forces2.reserve(cell_population2.GetNumNodes());
 
-        for (unsigned i=0; i<tissue2.GetNumNodes(); i++)
+        for (unsigned i=0; i<cell_population2.GetNumNodes(); i++)
         {
              node_forces2.push_back(zero_vector<double>(1));
         }
 
-        linear_force2.AddForceContribution(node_forces2, tissue2);
+        linear_force2.AddForceContribution(node_forces2, cell_population2);
 
         TS_ASSERT_DELTA(node_forces2[2](0), -linear_force.GetMeinekeSpringStiffness(), 1e-6);
     }
@@ -608,7 +608,7 @@ public:
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
 
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -616,13 +616,13 @@ public:
 	        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
 	        p_model->SetCellProliferativeType(STEM);
 
-	        TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+	        CellPtr p_cell(new Cell(p_state, p_model));
             p_cell->SetBirthTime(-50.0);
             cells.push_back(p_cell);
         }
 
-        std::vector<TissueCellPtr> cells_copy(cells);
-        MeshBasedTissue<3> tissue(mesh, cells);
+        std::vector<CellPtr> cells_copy(cells);
+        MeshBasedCellPopulation<3> cell_population(mesh, cells);
         GeneralisedLinearSpringForce<3> linear_force;
 
         // Test forces on springs
@@ -630,7 +630,7 @@ public:
         Element<3,3>* p_element = mesh.GetElement(0);
         c_vector<double, 3> force = linear_force.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(nodeA),
                                                                             p_element->GetNodeGlobalIndex(nodeB),
-                                                                            tissue);
+                                                                            cell_population);
         for (unsigned i=0; i<3; i++)
         {
             TS_ASSERT_DELTA(force[i], 0.0, 1e-6);
@@ -638,14 +638,14 @@ public:
 
         // Initialise a vector of node forces
         std::vector<c_vector<double, 3> > node_forces;
-        node_forces.reserve(tissue.GetNumNodes());
+        node_forces.reserve(cell_population.GetNumNodes());
 
-        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
         {
              node_forces.push_back(zero_vector<double>(3));
         }
 
-        linear_force.AddForceContribution(node_forces, tissue);
+        linear_force.AddForceContribution(node_forces, cell_population);
 
         for (unsigned j=0; j<4; j++)
         {
@@ -670,7 +670,7 @@ public:
 
         // Recalculate node forces (we can just re-use node_forces,
         // as previously each node had zero net force on it)
-        linear_force.AddForceContribution(node_forces, tissue);
+        linear_force.AddForceContribution(node_forces, cell_population);
 
         for (unsigned j=0; j<4; j++)
         {
@@ -684,7 +684,7 @@ public:
         MutableMesh<3,3> mesh2;
         mesh2.ConstructFromMeshReader(mesh_reader);
 
-        MeshBasedTissue<3> tissue2(mesh2, cells_copy);
+        MeshBasedCellPopulation<3> cell_population2(mesh2, cells_copy);
         GeneralisedLinearSpringForce<3> linear_force2;
 
         c_vector<double,3> old_point = mesh2.GetNode(0)->rGetLocation();
@@ -698,7 +698,7 @@ public:
         Element<3,3>* p_element2 = mesh2.GetElement(0);
         c_vector<double,3> force2 = linear_force2.CalculateForceBetweenNodes(p_element2->GetNodeGlobalIndex(nodeA2),
                                                                              p_element2->GetNodeGlobalIndex(nodeB2),
-                                                                             tissue2);
+                                                                             cell_population2);
 
         for (unsigned i=0; i<3; i++)
         {
@@ -707,14 +707,14 @@ public:
 
         // Initialise a vector of node forces
         std::vector<c_vector<double,3> > node_forces2;
-        node_forces2.reserve(tissue.GetNumNodes());
+        node_forces2.reserve(cell_population.GetNumNodes());
 
-        for (unsigned i=0; i<tissue.GetNumNodes(); i++)
+        for (unsigned i=0; i<cell_population.GetNumNodes(); i++)
         {
              node_forces2.push_back(zero_vector<double>(3));
         }
 
-        linear_force2.AddForceContribution(node_forces2, tissue2);
+        linear_force2.AddForceContribution(node_forces2, cell_population2);
 
         for (unsigned i=0; i<3; i++)
         {
@@ -765,7 +765,7 @@ public:
 
             SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(1.0,1);
 
-            std::vector<TissueCellPtr> cells;
+            std::vector<CellPtr> cells;
             boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
             for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -773,12 +773,12 @@ public:
 		        FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
 		        p_model->SetCellProliferativeType(STEM);
 
-		        TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+		        CellPtr p_cell(new Cell(p_state, p_model));
                 p_cell->SetBirthTime(-50.0);
                 cells.push_back(p_cell);
             }
 
-            MeshBasedTissue<2> tissue(mesh, cells);
+            MeshBasedCellPopulation<2> cell_population(mesh, cells);
             LinearSpringWithVariableSpringConstantsForce<2> linear_force;
 
             std::ofstream ofs(archive_filename.c_str());
@@ -813,7 +813,7 @@ public:
 
             // Test the member data
             TS_ASSERT_EQUALS(p_linear_force->mUseCutoffPoint, true);
-            TS_ASSERT_EQUALS(TissueConfig::Instance()->GetMeinekeMechanicsCutOffLength(), 1.1);
+            TS_ASSERT_EQUALS(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), 1.1);
             TS_ASSERT_EQUALS(p_linear_force->mUseEdgeBasedSpringConstant, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseEdgeBasedSpringConstant, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseMutantSprings, true);

@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/archive/text_iarchive.hpp>
 
 // Must be included before other cell_based headers
-#include "TissueSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include <cstdio>
 
@@ -611,7 +611,7 @@ public:
      */
     void TestVanLeeuwen2009WntOdeSolutionDoesNotGoNegative() throw (Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         p_params->Reset();
 
         double time_of_each_run = 0.01; // for each run
@@ -629,7 +629,7 @@ public:
         p_simulation_time->SetStartTime(0.0);
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<VanLeeuwen2009WntSwatCellCycleModelHypothesisOne> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
@@ -638,14 +638,14 @@ public:
             cells[i]->SetBirthTime(-1.1); // just to make the test run a bit quicker
         }
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
 
-        // Set tissue to output cell types
+        // Set cell population to output cell types
         crypt.SetOutputCellMutationStates(true);
 
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetWntConcentrationParameter(1.0/3.0);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -657,7 +657,7 @@ public:
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
 
-        SloughingCellKiller<2> cell_killer(&simulator.rGetTissue(), 0.01);
+        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), 0.01);
         simulator.AddCellKiller(&cell_killer);
 
         TS_ASSERT_THROWS_NOTHING(simulator.Solve());

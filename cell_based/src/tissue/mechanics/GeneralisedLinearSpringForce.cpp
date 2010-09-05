@@ -44,7 +44,7 @@ GeneralisedLinearSpringForce<DIM>::GeneralisedLinearSpringForce()
 template<unsigned DIM>
 double GeneralisedLinearSpringForce<DIM>::VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex,
                                                                                      unsigned nodeBGlobalIndex,
-                                                                                     AbstractTissue<DIM>& rTissue,
+                                                                                     AbstractCellPopulation<DIM>& rCellPopulation,
                                                                                      bool isCloserThanRestLength)
 {
     return 1.0;
@@ -58,21 +58,21 @@ GeneralisedLinearSpringForce<DIM>::~GeneralisedLinearSpringForce()
 template<unsigned DIM>
 c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,
                                                                                     unsigned nodeBGlobalIndex,
-                                                                                    AbstractTissue<DIM>& rTissue)
+                                                                                    AbstractCellPopulation<DIM>& rCellPopulation)
 {
     // Helper pointer
-    TissueConfig* p_config = TissueConfig::Instance();
+    CellBasedConfig* p_config = CellBasedConfig::Instance();
 
     // We should only ever calculate the force between two distinct nodes
     assert(nodeAGlobalIndex != nodeBGlobalIndex);
 
     // Get the node locations
-    c_vector<double, DIM> node_a_location = rTissue.GetNode(nodeAGlobalIndex)->rGetLocation();
-    c_vector<double, DIM> node_b_location = rTissue.GetNode(nodeBGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_a_location = rCellPopulation.GetNode(nodeAGlobalIndex)->rGetLocation();
+    c_vector<double, DIM> node_b_location = rCellPopulation.GetNode(nodeBGlobalIndex)->rGetLocation();
 
     // Get the unit vector parallel to the line joining the two nodes
     c_vector<double, DIM> unit_difference;
-    if (rTissue.HasMesh())
+    if (rCellPopulation.HasMesh())
     {
         /*
          * We use the mesh method GetVectorFromAtoB() to compute the direction of the
@@ -80,7 +80,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
          * their positions, because this method can be overloaded (e.g. to enforce a
          * periodic boundary in Cylindrical2dMesh).
          */
-        unit_difference = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);
+        unit_difference = (static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation))->rGetMesh().GetVectorFromAtoB(node_a_location, node_b_location);
     }
     else
     {
@@ -100,7 +100,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
      */
     if (this->mUseCutoffPoint)
     {
-        if (distance_between_nodes >= p_config->GetMeinekeMechanicsCutOffLength())
+        if (distance_between_nodes >= p_config->GetMechanicsCutOffLength())
         {
             return zero_vector<double>(DIM); // c_vector<double,DIM>() is not guaranteed to be fresh memory
         }
@@ -110,8 +110,8 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     double rest_length = 1.0;
 
-    TissueCellPtr p_cell_A = rTissue.GetCellUsingLocationIndex(nodeAGlobalIndex);
-    TissueCellPtr p_cell_B = rTissue.GetCellUsingLocationIndex(nodeBGlobalIndex);
+    CellPtr p_cell_A = rCellPopulation.GetCellUsingLocationIndex(nodeAGlobalIndex);
+    CellPtr p_cell_B = rCellPopulation.GetCellUsingLocationIndex(nodeBGlobalIndex);
 
     double ageA = p_cell_A->GetAge();
     double ageB = p_cell_B->GetAge();
@@ -127,13 +127,13 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
      */
     if (ageA < m_duration && ageB < m_duration)
     {
-        if (rTissue.HasMesh())
+        if (rCellPopulation.HasMesh())
         {
-            MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
+            MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation);
 
-            std::set<TissueCellPtr> cell_pair = p_static_cast_tissue->CreateCellPair(p_cell_A, p_cell_B);
+            std::set<CellPtr> cell_pair = p_static_cast_cell_population->CreateCellPair(p_cell_A, p_cell_B);
 
-            if (p_static_cast_tissue->IsMarkedSpring(cell_pair))
+            if (p_static_cast_cell_population->IsMarkedSpring(cell_pair))
             {
                 // Spring rest length increases from a small value to the normal rest length over 1 hour
                 double lambda = mMeinekeDivisionRestingSpringLength;
@@ -142,7 +142,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
             if (ageA + SimulationTime::Instance()->GetTimeStep() >= m_duration)
             {
                 // This spring is about to go out of scope
-                p_static_cast_tissue->UnmarkSpring(cell_pair);
+                p_static_cast_cell_population->UnmarkSpring(cell_pair);
             }
         }
         else
@@ -178,11 +178,11 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
 
     // Although in this class the 'spring constant' is a constant parameter, in
     // subclasses it can depend on properties of each of the cells
-    double multiplication_factor = VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rTissue, is_closer_than_rest_length);
+    double multiplication_factor = VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex, nodeBGlobalIndex, rCellPopulation, is_closer_than_rest_length);
     double spring_stiffness = mMeinekeSpringStiffness;
     double overlap = distance_between_nodes - rest_length;
 
-    if (rTissue.HasMesh())
+    if (rCellPopulation.HasMesh())
     {
         return multiplication_factor * spring_stiffness * unit_difference * overlap;
     }

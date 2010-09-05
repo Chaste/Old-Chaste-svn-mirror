@@ -42,35 +42,35 @@ void AbstractTwoBodyInteractionForce<DIM>::UseCutoffPoint(double cutoffPoint)
 {
     assert(cutoffPoint > 0.0);
     mUseCutoffPoint = true;
-    TissueConfig::Instance()->SetMeinekeMechanicsCutOffLength(cutoffPoint);
+    CellBasedConfig::Instance()->SetMechanicsCutOffLength(cutoffPoint);
 }
 
 
 template<unsigned DIM>
 double AbstractTwoBodyInteractionForce<DIM>::GetCutoffPoint()
 {
-    return TissueConfig::Instance()->GetMeinekeMechanicsCutOffLength();
+    return CellBasedConfig::Instance()->GetMechanicsCutOffLength();
 }
 
 
 template<unsigned DIM>
 void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                                                AbstractTissue<DIM>& rTissue)
+                                                                AbstractCellPopulation<DIM>& rCellPopulation)
 {
-    if (rTissue.HasMesh())
+    if (rCellPopulation.HasMesh())
     {
-        MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
+        MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation);
 
         // Iterate over all springs and add force contributions
-        for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator = p_static_cast_tissue->SpringsBegin();
-            spring_iterator != p_static_cast_tissue->SpringsEnd();
+        for (typename MeshBasedCellPopulation<DIM>::SpringIterator spring_iterator = p_static_cast_cell_population->SpringsBegin();
+            spring_iterator != p_static_cast_cell_population->SpringsEnd();
             ++spring_iterator)
         {
             unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
             unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
 
             // Calculate the force between nodes
-            c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
+            c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rCellPopulation);
 
             // Add the force contribution to each node
             rForces[nodeB_global_index] -= force;
@@ -79,7 +79,7 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
     }
     else
     {
-        std::set< std::pair<Node<DIM>*, Node<DIM>* > >& r_node_pairs = (static_cast<NodeBasedTissue<DIM>*>(&rTissue))->rGetNodePairs();
+        std::set< std::pair<Node<DIM>*, Node<DIM>* > >& r_node_pairs = (static_cast<NodeBasedCellPopulation<DIM>*>(&rCellPopulation))->rGetNodePairs();
 
         assert(DIM==2); // 3d boxes not implemented yet - if fails nightly uncomment the double node loop below
                         // and use that for the 3d case
@@ -93,7 +93,7 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
             unsigned node_b_index = pair.second->GetIndex();
 
             // Calculate the force between nodes
-            c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rTissue);
+            c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rCellPopulation);
             for (unsigned j=0; j<DIM; j++)
             {
                 assert(!std::isnan(force[j]));
@@ -105,13 +105,13 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
         }
 
 //        // Iterate over nodes
-//        for (unsigned node_a_index=0; node_a_index<rTissue.GetNumNodes(); node_a_index++)
+//        for (unsigned node_a_index=0; node_a_index<rCellPopulation.GetNumNodes(); node_a_index++)
 //        {
 //            // Iterate over nodes
-//            for (unsigned node_b_index=node_a_index+1; node_b_index<rTissue.GetNumNodes(); node_b_index++)
+//            for (unsigned node_b_index=node_a_index+1; node_b_index<rCellPopulation.GetNumNodes(); node_b_index++)
 //            {
 //                // Calculate the force between nodes
-//                c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rTissue);
+//                c_vector<double, DIM> force = CalculateForceBetweenNodes(node_a_index, node_b_index, rCellPopulation);
 //                for (unsigned j=0; j<DIM; j++)
 //                {
 //                    assert(!std::isnan(force[j]));

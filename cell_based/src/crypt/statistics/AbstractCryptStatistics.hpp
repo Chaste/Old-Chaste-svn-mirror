@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCRYPTSTATISTICS_HPP_
 #define ABSTRACTCRYPTSTATISTICS_HPP_
 
-#include "MeshBasedTissue.hpp"
+#include "MeshBasedCellPopulation.hpp"
 
 // Needed here to avoid serialization errors
 #include "WildTypeCellMutationState.hpp"
@@ -42,7 +42,7 @@ class AbstractCryptStatistics
 protected:
 
     /** The crypt. */
-    MeshBasedTissue<2>& mrCrypt;
+    MeshBasedCellPopulation<2>& mrCrypt;
 
 public:
 
@@ -51,7 +51,7 @@ public:
      *
      * @param rCrypt The crypt
      */
-    AbstractCryptStatistics(MeshBasedTissue<2>& rCrypt);
+    AbstractCryptStatistics(MeshBasedCellPopulation<2>& rCrypt);
 
     /**
      * Destructor.
@@ -92,7 +92,7 @@ public:
      *
      * @return  a standard vector of booleans which states whether a labelled cell is present at a corresponding position.
      */
-    std::vector<bool> AreCryptSectionCellsLabelled(std::vector<TissueCellPtr>& rCryptSection);
+    std::vector<bool> AreCryptSectionCellsLabelled(std::vector<CellPtr>& rCryptSection);
 
 };
 

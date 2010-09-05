@@ -29,8 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 template<unsigned DIM>
-RandomCellKiller<DIM>::RandomCellKiller(AbstractTissue<DIM>* pTissue, double probabilityOfDeathInAnHour)
-        : AbstractCellKiller<DIM>(pTissue),
+RandomCellKiller<DIM>::RandomCellKiller(AbstractCellPopulation<DIM>* pCellPopulation, double probabilityOfDeathInAnHour)
+        : AbstractCellKiller<DIM>(pCellPopulation),
           mProbabilityOfDeathInAnHour(probabilityOfDeathInAnHour)
 {
     if ((mProbabilityOfDeathInAnHour<0) || (mProbabilityOfDeathInAnHour>1))
@@ -46,7 +46,7 @@ double RandomCellKiller<DIM>::GetDeathProbabilityInAnHour() const
 }
 
 template<unsigned DIM>
-void RandomCellKiller<DIM>::TestAndLabelSingleCellForApoptosis(TissueCellPtr pCell)
+void RandomCellKiller<DIM>::TestAndLabelSingleCellForApoptosis(CellPtr pCell)
 {
     // We assume a constant time step
     double death_prob_this_timestep = 1.0 - pow((1.0 - mProbabilityOfDeathInAnHour), SimulationTime::Instance()->GetTimeStep());
@@ -61,8 +61,8 @@ void RandomCellKiller<DIM>::TestAndLabelSingleCellForApoptosis(TissueCellPtr pCe
 template<unsigned DIM>
 void RandomCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
-    for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
-         cell_iter != this->mpTissue->End();
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
+         cell_iter != this->mpCellPopulation->End();
          ++cell_iter)
     {
         TestAndLabelSingleCellForApoptosis(*cell_iter);

@@ -37,15 +37,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellProliferativeTypes.hpp"
 #include "CellCyclePhases.hpp"
 #include "SimulationTime.hpp"
-#include "TissueConfig.hpp"
-#include "TissueCell.hpp"
+#include "CellBasedConfig.hpp"
+#include "Cell.hpp"
 
-class TissueCell; // Circular definition (cells need to know about cycle models and vice-versa)
-typedef boost::shared_ptr<TissueCell> TissueCellPtr;
+class Cell; // Circular definition (cells need to know about cycle models and vice-versa)
+typedef boost::shared_ptr<Cell> CellPtr;
 
 /**
  * The AbstractCellCycleModel contains basic information to all cell cycle models.
- * It handles assignment of birth time, cell cycle phase and a TissueCell.
+ * It handles assignment of birth time, cell cycle phase and a Cell.
  * 
  * Cell cycle models are noncopyable since cells are noncopyable.
  */
@@ -69,16 +69,16 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // Make sure the SimulationTime and TissueConfig singletons get saved too
+        // Make sure the SimulationTime and CellBasedConfig singletons get saved too
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
         archive & p_time;
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         archive & *p_params;
         archive & p_params;
 
         // DO NOT archive & mpCell; -- The CellCycleModel is only ever archived from the Cell
-        // which knows this and it is handled in the load_construct of TissueCell.
+        // which knows this and it is handled in the load_construct of Cell.
         archive & mBirthTime;
         archive & mCurrentCellCyclePhase;
         archive & mG1Duration;
@@ -91,7 +91,7 @@ private:
 protected:
 
     /** The cell that this model is associated with. */
-    TissueCellPtr mpCell;
+    CellPtr mpCell;
 
     /**
      * The time that the cell began to split from its parent
@@ -156,16 +156,16 @@ public:
      *
      * @param pCell pointer to the cell
      */
-    void SetCell(TissueCellPtr pCell);
+    void SetCell(CellPtr pCell);
 
     /**
      * Initialise the cell cycle model at the start of a simulation.
      *
      * This method will be called precisely once per cell set up in the initial
-     * tissue. It is not called on cell division; use ResetForDivision(),
+     * cell population. It is not called on cell division; use ResetForDivision(),
      * CreateCellCycleModel() and InitialiseDaughterCell() for that.
      *
-     * By the time this is called, a Tissue will have been set up, so the model
+     * By the time this is called, a CellPopulation will have been set up, so the model
      * can know where its cell is located in space. If relevant to the simulation,
      * the CellwiseData and WntConcentration singletons will also have been initialised.
      */
@@ -174,7 +174,7 @@ public:
     /**
      * Initialise the new daughter cell's cycle model after a cell division.
      *
-     * This is called by TissueCell::Divide once the new cell object
+     * This is called by Cell::Divide once the new cell object
      * has been fully created, to perform any initialisation of the
      * cell cycle which requires access to the cell.
      *
@@ -188,7 +188,7 @@ public:
     /**
      * @return The cell which plays host to this cell cycle model.
      */
-    TissueCellPtr GetCell();
+    CellPtr GetCell();
 
     /**
      * Set the cell's time of birth (usually not required as it should be inside
@@ -243,7 +243,7 @@ public:
     /**
      * Each cell cycle model must be able to be reset 'after' a cell division.
      *
-     * Actually, this method is called from TissueCell::Divide() to
+     * Actually, this method is called from Cell::Divide() to
      * reset the cell cycle just before the daughter cell is created.
      * CreateCellCycleModel() can then clone our state to generate a
      * cell cycle model instance for the daughter cell.
@@ -255,7 +255,7 @@ public:
      * Each concrete subclass must implement this method to create an
      * instance of that subclass.
      *
-     * This method is called by TissueCell::Divide() to create a cell
+     * This method is called by Cell::Divide() to create a cell
      * cycle model for the daughter cell.  Note that the parent cell
      * cycle model will have had ResetForDivision() called just before
      * CreateCellCycleModel() is called, so performing an exact copy of the

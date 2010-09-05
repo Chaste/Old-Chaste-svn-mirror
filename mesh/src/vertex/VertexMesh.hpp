@@ -50,7 +50,7 @@ class VertexMeshWriter;
 #include "TetrahedralMesh.hpp"
 
 /**
- * A vertex-based mesh class, for use in vertex-based tissue simulations.
+ * A vertex-based mesh class, for use in vertex-based simulations.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 class VertexMesh : public AbstractMesh<ELEMENT_DIM, SPACE_DIM>

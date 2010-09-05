@@ -55,9 +55,9 @@ public:
         CellBasedEventHandler::BeginEvent(CellBasedEventHandler::BIRTH);
         CellBasedEventHandler::MilliSleep(30);
         CellBasedEventHandler::EndEvent(CellBasedEventHandler::BIRTH);
-        CellBasedEventHandler::BeginEvent(CellBasedEventHandler::UPDATETISSUE);
+        CellBasedEventHandler::BeginEvent(CellBasedEventHandler::UPDATECELLPOPULATION);
         CellBasedEventHandler::MilliSleep(40);
-        CellBasedEventHandler::EndEvent(CellBasedEventHandler::UPDATETISSUE);
+        CellBasedEventHandler::EndEvent(CellBasedEventHandler::UPDATECELLPOPULATION);
 
         CellBasedEventHandler::BeginEvent(CellBasedEventHandler::TESSELLATION);
         CellBasedEventHandler::MilliSleep(50);

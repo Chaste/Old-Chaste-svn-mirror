@@ -32,33 +32,33 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * This global function is to allow the list of cells in to be compared in
  * terms of their y-value and std::list.sort() to be called
  */
-bool CellsHeightComparison(const std::pair<TissueCellPtr, double> lhs, const std::pair<TissueCellPtr, double> rhs)
+bool CellsHeightComparison(const std::pair<CellPtr, double> lhs, const std::pair<CellPtr, double> rhs)
 {
     return lhs.second < rhs.second;
 }
 
-CryptStatistics::CryptStatistics(MeshBasedTissue<2>& rCrypt)
+CryptStatistics::CryptStatistics(MeshBasedCellPopulation<2>& rCrypt)
     : AbstractCryptStatistics(rCrypt)
 {
 }
 
-std::vector<TissueCellPtr> CryptStatistics::GetCryptSection(double xBottom, double xTop, double yTop, bool periodic)
+std::vector<CellPtr> CryptStatistics::GetCryptSection(double xBottom, double xTop, double yTop, bool periodic)
 {
     // Fill in the default values - in a sequential manner
     if (xBottom == DBL_MAX)
     {
-        xBottom = RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth();
+        xBottom = RandomNumberGenerator::Instance()->ranf()*CellBasedConfig::Instance()->GetCryptWidth();
     }
 
     if (xTop == DBL_MAX)
     {
-        xTop = RandomNumberGenerator::Instance()->ranf()*TissueConfig::Instance()->GetCryptWidth();
+        xTop = RandomNumberGenerator::Instance()->ranf()*CellBasedConfig::Instance()->GetCryptWidth();
     }
 
     assert(yTop>0.0);
-    std::list<std::pair<TissueCellPtr, double> > cells_list; // the second entry is the y value (needed for sorting)
+    std::list<std::pair<CellPtr, double> > cells_list; // the second entry is the y value (needed for sorting)
 
-    if (fabs(xTop-xBottom)<0.5*TissueConfig::Instance()->GetCryptWidth())
+    if (fabs(xTop-xBottom)<0.5*CellBasedConfig::Instance()->GetCryptWidth())
     {
         // The periodic version isn't needed, ignore even if periodic was set to true
         periodic = false;
@@ -66,7 +66,7 @@ std::vector<TissueCellPtr> CryptStatistics::GetCryptSection(double xBottom, doub
 
     // Loop over cells and add to the store if they are within a cell's radius of the
     // specified line
-    for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
+    for (AbstractCellPopulation<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
@@ -75,7 +75,7 @@ std::vector<TissueCellPtr> CryptStatistics::GetCryptSection(double xBottom, doub
             if (CellIsInSectionPeriodic(xBottom, xTop, yTop, mrCrypt.GetLocationOfCellCentre(*cell_iter)))
             {
                 // Set up a pair, equal to (cell,y_val) and insert
-                std::pair<TissueCellPtr, double> pair(*cell_iter, mrCrypt.GetLocationOfCellCentre(*cell_iter)[1]);
+                std::pair<CellPtr, double> pair(*cell_iter, mrCrypt.GetLocationOfCellCentre(*cell_iter)[1]);
                 cells_list.push_back(pair);
             }
         }
@@ -84,7 +84,7 @@ std::vector<TissueCellPtr> CryptStatistics::GetCryptSection(double xBottom, doub
             if (CellIsInSection(xBottom, xTop, yTop, mrCrypt.GetLocationOfCellCentre(*cell_iter)))
             {
                 // Set up a pair, equal to (cell,y_val) and insert
-                std::pair<TissueCellPtr, double> pair(*cell_iter, mrCrypt.GetLocationOfCellCentre(*cell_iter)[1]);
+                std::pair<CellPtr, double> pair(*cell_iter, mrCrypt.GetLocationOfCellCentre(*cell_iter)[1]);
                 cells_list.push_back(pair);
             }
         }
@@ -94,8 +94,8 @@ std::vector<TissueCellPtr> CryptStatistics::GetCryptSection(double xBottom, doub
     cells_list.sort(CellsHeightComparison);
 
     // Copy to a vector
-    std::vector<TissueCellPtr> ordered_cells;
-    for (std::list<std::pair<TissueCellPtr, double> >::iterator iter = cells_list.begin();
+    std::vector<CellPtr> ordered_cells;
+    for (std::list<std::pair<CellPtr, double> >::iterator iter = cells_list.begin();
          iter!=cells_list.end();
          ++iter)
     {
@@ -105,7 +105,7 @@ std::vector<TissueCellPtr> CryptStatistics::GetCryptSection(double xBottom, doub
     return ordered_cells;
 }
 
-std::vector<TissueCellPtr> CryptStatistics::GetCryptSectionPeriodic(double xBottom, double xTop, double yTop)
+std::vector<CellPtr> CryptStatistics::GetCryptSectionPeriodic(double xBottom, double xTop, double yTop)
 {
    return GetCryptSection(xBottom, xTop, yTop, true);
 }
@@ -137,7 +137,7 @@ bool CryptStatistics::CellIsInSectionPeriodic(double xBottom, double xTop, doubl
     bool is_in_section = false;
 
     c_vector<double,2> intercept;
-    double crypt_width = TissueConfig::Instance()->GetCryptWidth();
+    double crypt_width = CellBasedConfig::Instance()->GetCryptWidth();
 
     double m; // gradient of line
     double offset;

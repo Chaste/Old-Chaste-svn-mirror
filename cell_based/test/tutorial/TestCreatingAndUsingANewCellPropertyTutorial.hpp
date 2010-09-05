@@ -38,7 +38,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define TESTCREATINGANDUSINGANEWCELLPROPERTYTUTORIAL_HPP_
 
 /*
- * = An example showing how to create a new cell property and use it in a tissue simulation =
+ * = An example showing how to create a new cell property and use it in a cell-based simulation =
  *
  * EMPTYLINE
  *
@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * EMPTYLINE
  *
  * In this tutorial we show how to create a new cell property class and how this
- * can be used in a tissue simulation.
+ * can be used in a cell-based simulation.
  *
  * EMPTYLINE
  *
@@ -62,7 +62,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 /* The next two headers are used in archiving, and only need to be included
- * if you intend to archive (save or load) a tissue simulation in this test
+ * if you intend to archive (save or load) a cell-based simulation in this test
  * suite. In this case, these headers must be included before any other
  * serialisation headers. */
 #include <boost/archive/text_oarchive.hpp>
@@ -71,20 +71,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 /* The next header defines a base class for cell properties. Our new
  * cell property will inherit from this abstract class. */
 #include "AbstractCellProperty.hpp"
-/* The remaining header files define classes that will be used in the tissue
+/* The remaining header files define classes that will be used in the cell population
  * simulation test: {{{HoneycombMeshGenerator}}} defines a helper class for
  * generating a suitable mesh; {{{WildTypeCellMutationState}}} defines a
  * wild-type or 'healthy' cell mutation state; {{{FixedDurationGenerationBasedCellCycleModel}}}
  * defines a simple cell-cycle model class, in which cells undergo a fixed number
  * of divisions before becoming senescent; {{{GeneralisedLinearSpringForce}}}
  * defines a force law for describing the mechanical interactions between neighbouring
- * cells in the tissue; and {{{TissueSimulation}}} defines the class that
- * simulates the evolution of the tissue. */
+ * cells in the cell population; and {{{CellBasedSimulation}}} defines the class that
+ * simulates the evolution of the cell population. */
 #include "HoneycombMeshGenerator.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
-#include "TissueSimulation.hpp"
+#include "CellBasedSimulation.hpp"
 
 /*
  * EMPTYLINE
@@ -108,7 +108,7 @@ private:
     unsigned mColour;
 
     /* The next block of code allows us to archive (save or load) the cell property object
-     * in a tissue simulation. The code consists of a serialize() method, in which we first
+     * in a cell-based simulation. The code consists of a serialize() method, in which we first
      * archive the cell property using the serialization code defined in the base class
      * {{{AbstractCellProperty}}}, then archive the member variable {{{mColour}}}. */
     friend class boost::serialization::access;
@@ -141,7 +141,7 @@ public:
 
 /* Together with the serialize() method defined within the class above, the next
  * block of code allows you to archive (save or load) the cell property object
- * in a tissue simulation. */
+ * in a cell-based simulation. */
 #include "SerializationExportWrapper.hpp"
 CHASTE_CLASS_EXPORT(MotileCellProperty)
 
@@ -236,14 +236,14 @@ public:
     /*
      * EMPTYLINE
      *
-     * == Using the cell property in a tissue simulation ==
+     * == Using the cell property in a cell-based simulation ==
      *
      * EMPTYLINE
      *
      * We conclude with a brief test demonstrating how {{{MotileCellProperty}}} can be used
-     * in a tissue simulation.
+     * in a cell-based simulation.
      */
-    void TestTissueSimulationWithP53GainOfFunctionCellMutationState() throw(Exception)
+    void TestCellBasedSimulationWithP53GainOfFunctionCellMutationState() throw(Exception)
     {
         /* We begin by setting up the start time, as follows. */
         SimulationTime::Instance()->SetStartTime(0.0);
@@ -258,7 +258,7 @@ public:
 
         /* Next, we create some cells, as follows. */
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
         {
             /* For each node we create a cell with our cell cycle model and the wild-type cell mutation state.
@@ -272,27 +272,27 @@ public:
                 collection.AddProperty(p_motile);
             }
 
-            TissueCellPtr p_cell(new TissueCell(p_state, p_model, false, collection));
+            CellPtr p_cell(new Cell(p_state, p_model, false, collection));
 
             /* Now, we define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
              * of a stem cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                    (TissueConfig::Instance()->GetStemCellG1Duration()
-                                        + TissueConfig::Instance()->GetSG2MDuration());
+                                    (CellBasedConfig::Instance()->GetStemCellG1Duration()
+                                        + CellBasedConfig::Instance()->GetSG2MDuration());
 
             /* Finally, we set the birth time and push the cell back into the vector of cells. */
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
         }
 
-        /* Now that we have defined the mesh and cells, we can define the tissue. The constructor
+        /* Now that we have defined the mesh and cells, we can define the cell population. The constructor
          * takes in the mesh and the cells vector. */
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         /* We must now create one or more force laws, which determine the mechanics of
-         * the tissue. For this test, we assume that a cell experiences a force from each
+         * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring, and so use
          * a {{{GeneralisedLinearSpringForce}}} object. Note that we have called the method {{{UseCutoffPoint}}} on the
          * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
@@ -300,7 +300,7 @@ public:
          * a force on each other if they are located more than 3 units (=3 cell widths)
          * away from each other. This modification is necessary when no ghost nodes are used,
          * for example to avoid artificially large forces between cells that lie close together
-         * on the tissue boundary.
+         * on the cell population boundary.
          */
         GeneralisedLinearSpringForce<2> linear_force;
         linear_force.UseCutoffPoint(3);
@@ -310,12 +310,12 @@ public:
         force_collection.push_back(&linear_force);
 
         /*
-         * We pass in the tissue and the mechanics system into a {{{TissueSimulation}}}.
+         * We pass in the cell population and the mechanics system into a {{{CellBasedSimulation}}}.
          */
-        TissueSimulation<2> simulator(tissue, force_collection);
+        CellBasedSimulation<2> simulator(cell_population, force_collection);
 
         /* We set the output directory and end time. */
-        simulator.SetOutputDirectory("TestTissueSimulationWithMotileCellProperty");
+        simulator.SetOutputDirectory("TestCellBasedSimulationWithMotileCellProperty");
         simulator.SetEndTime(10.0);
 
         /* Test that the Solve() method does not throw any exceptions. */

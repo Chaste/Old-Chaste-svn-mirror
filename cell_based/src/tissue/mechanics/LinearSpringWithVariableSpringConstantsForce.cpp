@@ -27,7 +27,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "LinearSpringWithVariableSpringConstantsForce.hpp"
-#include "MeshBasedTissue.hpp"
+#include "MeshBasedCellPopulation.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisOne.hpp"
 #include "VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo.hpp"
 #include "ApoptoticCellProperty.hpp"
@@ -83,24 +83,24 @@ template<unsigned DIM>
 double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstantMultiplicationFactor(
     unsigned nodeAGlobalIndex,
     unsigned nodeBGlobalIndex,
-    AbstractTissue<DIM>& rTissue,
+    AbstractCellPopulation<DIM>& rCellPopulation,
     bool isCloserThanRestLength)
 {
 
     double multiplication_factor = GeneralisedLinearSpringForce<DIM>::VariableSpringConstantMultiplicationFactor(nodeAGlobalIndex,
                                                                                                             nodeBGlobalIndex,
-                                                                                                            rTissue,
+                                                                                                            rCellPopulation,
                                                                                                             isCloserThanRestLength);
 
-    TissueCellPtr p_cell_A = rTissue.GetCellUsingLocationIndex(nodeAGlobalIndex);
-    TissueCellPtr p_cell_B = rTissue.GetCellUsingLocationIndex(nodeBGlobalIndex);
+    CellPtr p_cell_A = rCellPopulation.GetCellUsingLocationIndex(nodeAGlobalIndex);
+    CellPtr p_cell_B = rCellPopulation.GetCellUsingLocationIndex(nodeBGlobalIndex);
 
     if (mUseEdgeBasedSpringConstant)
     {
-        assert(rTissue.HasMesh());
+        assert(rCellPopulation.HasMesh());
         assert(!mUseBCatSprings);   // don't want to do both (both account for edge length)
 
-        multiplication_factor = (static_cast<MeshBasedTissue<DIM>*>(&rTissue))->GetVoronoiEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex)*sqrt(3);
+        multiplication_factor = (static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation))->GetVoronoiEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex)*sqrt(3);
     }
 
     if (mUseMutantSprings)
@@ -136,7 +136,7 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
     if (mUseBCatSprings)
     {
-        assert(rTissue.HasMesh());
+        assert(rCellPopulation.HasMesh());
         // If using beta-cat dependent springs, both cell-cycle models had better be VanLeeuwen2009WntSwatCellCycleModel
         AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model_A = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(p_cell_A->GetCellCycleModel());
         AbstractVanLeeuwen2009WntSwatCellCycleModel* p_model_B = dynamic_cast<AbstractVanLeeuwen2009WntSwatCellCycleModel*>(p_cell_B->GetCellCycleModel());
@@ -145,11 +145,11 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
         double beta_cat_cell_1 = p_model_A->GetMembraneBoundBetaCateninLevel();
         double beta_cat_cell_2 = p_model_B->GetMembraneBoundBetaCateninLevel();
 
-        MeshBasedTissue<DIM>* p_static_cast_tissue = (static_cast<MeshBasedTissue<DIM>*>(&rTissue));
+        MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = (static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation));
 
-        double perim_cell_1 = p_static_cast_tissue->GetSurfaceAreaOfVoronoiElement(nodeAGlobalIndex);
-        double perim_cell_2 = p_static_cast_tissue->GetSurfaceAreaOfVoronoiElement(nodeBGlobalIndex);
-        double edge_length_between_1_and_2 = p_static_cast_tissue->GetVoronoiEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex);
+        double perim_cell_1 = p_static_cast_cell_population->GetSurfaceAreaOfVoronoiElement(nodeAGlobalIndex);
+        double perim_cell_2 = p_static_cast_cell_population->GetSurfaceAreaOfVoronoiElement(nodeBGlobalIndex);
+        double edge_length_between_1_and_2 = p_static_cast_cell_population->GetVoronoiEdgeLength(nodeAGlobalIndex, nodeBGlobalIndex);
 
         double beta_cat_on_cell_1_edge = beta_cat_cell_1 *  edge_length_between_1_and_2 / perim_cell_1;
         double beta_cat_on_cell_2_edge = beta_cat_cell_2 *  edge_length_between_1_and_2 / perim_cell_2;
@@ -201,18 +201,18 @@ double LinearSpringWithVariableSpringConstantsForce<DIM>::VariableSpringConstant
 
 template<unsigned DIM>
 void LinearSpringWithVariableSpringConstantsForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                                                             AbstractTissue<DIM>& rTissue)
+                                                                             AbstractCellPopulation<DIM>& rCellPopulation)
 {
-    MeshBasedTissue<DIM>* p_static_cast_tissue = static_cast<MeshBasedTissue<DIM>*>(&rTissue);
+    MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation);
 
-    for (typename MeshBasedTissue<DIM>::SpringIterator spring_iterator = p_static_cast_tissue->SpringsBegin();
-        spring_iterator != p_static_cast_tissue->SpringsEnd();
+    for (typename MeshBasedCellPopulation<DIM>::SpringIterator spring_iterator = p_static_cast_cell_population->SpringsBegin();
+        spring_iterator != p_static_cast_cell_population->SpringsEnd();
         ++spring_iterator)
     {
         unsigned nodeA_global_index = spring_iterator.GetNodeA()->GetIndex();
         unsigned nodeB_global_index = spring_iterator.GetNodeB()->GetIndex();
 
-        c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rTissue);
+        c_vector<double, DIM> force = CalculateForceBetweenNodes(nodeA_global_index, nodeB_global_index, rCellPopulation);
 
         rForces[nodeB_global_index] -= force;
         rForces[nodeA_global_index] += force;

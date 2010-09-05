@@ -119,14 +119,14 @@ public :
      *
      * @param nodeAGlobalIndex index of one neighbouring node
      * @param nodeBGlobalIndex index of the other neighbouring node
-     * @param rTissue the tissue
+     * @param rCellPopulation the cell population
      * @param isCloserThanRestLength whether the neighbouring nodes lie closer than the rest length of their connecting spring
      *
      * @return the multiplication factor.
      */
     virtual double VariableSpringConstantMultiplicationFactor(unsigned nodeAGlobalIndex,
                                                               unsigned nodeBGlobalIndex,
-                                                              AbstractTissue<DIM>& rTissue,
+                                                              AbstractCellPopulation<DIM>& rCellPopulation,
                                                               bool isCloserThanRestLength);
 
     /**
@@ -138,13 +138,13 @@ public :
      *
      * @param nodeAGlobalIndex index of one neighbouring node
      * @param nodeBGlobalIndex index of the other neighbouring node
-     * @param rTissue the tissue
+     * @param rCellPopulation the cell population
      *
      * @return The force exerted on Node A by Node B.
      */
     c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex,
                                                      unsigned nodeBGlobalIndex,
-                                                     AbstractTissue<DIM>& rTissue);
+                                                     AbstractCellPopulation<DIM>& rCellPopulation);
     /**
      * @return mMeinekeSpringStiffness
      */

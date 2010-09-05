@@ -31,15 +31,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-#include "TissueSimulation.hpp"
+#include "CellBasedSimulation.hpp"
 #include "SimpleDataWriter.hpp"
-#include "MeshBasedTissueWithGhostNodes.hpp"
+#include "MeshBasedCellPopulationWithGhostNodes.hpp"
 
 /**
  * A 2D crypt simulation object. For more details, see the paper by
  * van Leeuwen et al (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
  */
-class CryptSimulation2d : public TissueSimulation<2>
+class CryptSimulation2d : public CellBasedSimulation<2>
 {
     // Allow tests to access private members, in order to test computation of
     // private functions eg. DoCellBirth
@@ -60,7 +60,7 @@ protected:
     {
         // If Archive is an output archive, then & resolves to <<
         // If Archive is an input archive, then & resolves to >>
-        archive & boost::serialization::base_object<TissueSimulation<2> >(*this);
+        archive & boost::serialization::base_object<CellBasedSimulation<2> >(*this);
         archive & mUseJiggledBottomCells;
     }
 
@@ -70,8 +70,8 @@ protected:
     /** The file that the values of beta catenin is written out to. */
     out_stream mVizBetaCateninResultsFile;
 
-    /** Helper member that is a static cast of the tissue. */
-    MeshBasedTissueWithGhostNodes<2>* mpStaticCastTissue;
+    /** Helper member that is a static cast of the cell population. */
+    MeshBasedCellPopulationWithGhostNodes<2>* mpStaticCastCellPopulation;
 
     /**
      * Calculates the new locations of a dividing cell's cell centres.
@@ -83,7 +83,7 @@ protected:
      *
      * @return daughter_coords the coordinates for the daughter cell.
      */
-    c_vector<double, 2> CalculateCellDivisionVector(TissueCellPtr pParentCell);
+    c_vector<double, 2> CalculateCellDivisionVector(CellPtr pParentCell);
 
     /**
      * Overridden WriteVisualizerSetupFile() method.
@@ -131,21 +131,21 @@ public :
     /**
      *  Constructor.
      *
-     *  @param rTissue A tissue facade class (contains a mesh and cells)
+     *  @param rCellPopulation A cell population object
      *  @param forceCollection The mechanics to use in the simulation
-     *  @param deleteTissueAndForceCollection Whether to delete the tissue and force collection on destruction to free up memory
+     *  @param deleteCellPopulationAndForceCollection Whether to delete the cell population and force collection on destruction to free up memory
      *  @param initialiseCells whether to initialise cells (set to false when loading from an archive)
      */
-    CryptSimulation2d(AbstractTissue<2>& rTissue,
+    CryptSimulation2d(AbstractCellPopulation<2>& rCellPopulation,
                       std::vector<AbstractForce<2>*> forceCollection,
-                      bool deleteTissueAndForceCollection=false,
+                      bool deleteCellPopulationAndForceCollection=false,
                       bool initialiseCells=true);
 
     /** Set method for mUseJiggledBottomCells. */
     void UseJiggledBottomCells();
 
     /**
-     * Overridden ApplyTissueBoundaryConditions() method.
+     * Overridden ApplyCellPopulationBoundaryConditions() method.
      *
      * If an instance of WntConcentration is not set up, then stem cells at the
      * bottom of the crypt are pinned. Any cell that has moved below the bottom
@@ -153,7 +153,7 @@ public :
      *
      * @param rOldLocations the node locations at the previous time step
      */
-    void ApplyTissueBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);
+    void ApplyCellPopulationBoundaryConditions(const std::vector<c_vector<double,2> >& rOldLocations);
 
     /**
      * Sets the Ancestor index of all the cells at the bottom in order,
@@ -189,8 +189,8 @@ inline void save_construct_data(
     Archive & ar, const CryptSimulation2d * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractTissue<2>* p_tissue = &(t->rGetTissue());
-    ar & p_tissue;
+    const AbstractCellPopulation<2>* p_cell_population = &(t->rGetCellPopulation());
+    ar & p_cell_population;
     const std::vector<AbstractForce<2>*> force_collection = t->rGetForceCollection();
     ar & force_collection;
 }
@@ -203,13 +203,13 @@ inline void load_construct_data(
     Archive & ar, CryptSimulation2d * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<2>* p_tissue;
-    ar & p_tissue;
+    AbstractCellPopulation<2>* p_cell_population;
+    ar & p_cell_population;
     std::vector<AbstractForce<2>*> force_collection;
     ar & force_collection;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CryptSimulation2d(*p_tissue, force_collection, true, false);
+    ::new(t)CryptSimulation2d(*p_cell_population, force_collection, true, false);
 }
 }
 } // namespace

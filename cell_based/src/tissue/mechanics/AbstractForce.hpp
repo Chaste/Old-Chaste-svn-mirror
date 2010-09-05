@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
 
-#include "AbstractTissue.hpp"
+#include "AbstractCellPopulation.hpp"
 
 #include <boost/serialization/extended_type_info.hpp>
 #include <boost/serialization/extended_type_info_typeid.hpp>
@@ -60,7 +60,7 @@ class AbstractForce
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        TissueConfig* p_config = TissueConfig::Instance();
+        CellBasedConfig* p_config = CellBasedConfig::Instance();
         archive & *p_config;
         archive & p_config;
     }
@@ -83,10 +83,10 @@ public:
      * This method must be overridden in concrete classes.
      *
      * @param rForces reference to vector of forces on nodes
-     * @param rTissue reference to the tissue
+     * @param rCellPopulation reference to the cell population
      */
     virtual void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                                      AbstractTissue<DIM>& rTissue)=0;
+                                      AbstractCellPopulation<DIM>& rCellPopulation)=0;
 
     /**
      * Outputs force used in the simulation to file and then calls OutputForceParameters to output all relevant parameters.

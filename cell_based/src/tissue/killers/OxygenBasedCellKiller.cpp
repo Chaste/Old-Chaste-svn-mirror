@@ -29,13 +29,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApoptoticCellProperty.hpp"
 
 template <unsigned SPACE_DIM>
-OxygenBasedCellKiller<SPACE_DIM>::OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue)
-    : AbstractCellKiller<SPACE_DIM>(pTissue)
+OxygenBasedCellKiller<SPACE_DIM>::OxygenBasedCellKiller(AbstractCellPopulation<SPACE_DIM>* pCellPopulation)
+    : AbstractCellKiller<SPACE_DIM>(pCellPopulation)
 {
 }
 
 template <unsigned SPACE_DIM>
-void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(TissueCellPtr pCell)
+void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(CellPtr pCell)
 {
     if (pCell->HasCellProperty<ApoptoticCellProperty>() && !(pCell->HasApoptosisBegun()))
     {
@@ -46,8 +46,8 @@ void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelSingleCellForApoptosis(Tissue
 template <unsigned SPACE_DIM>
 void OxygenBasedCellKiller<SPACE_DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
-    for (typename AbstractTissue<SPACE_DIM>::Iterator cell_iter = this->mpTissue->Begin();
-        cell_iter != this->mpTissue->End();
+    for (typename AbstractCellPopulation<SPACE_DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
+        cell_iter != this->mpCellPopulation->End();
         ++cell_iter)
     {
         TestAndLabelSingleCellForApoptosis(*cell_iter);

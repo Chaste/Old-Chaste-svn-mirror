@@ -34,7 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Cylindrical2dMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 #include "OutputFileHandler.hpp"
-#include "TissueConfig.hpp"
+#include "CellBasedConfig.hpp"
 
 #include "PetscTools.hpp"
 
@@ -103,8 +103,8 @@ public:
      * @param cylindrical  Whether the mesh should be cylindrically periodic (defaults to true),
      * @param scaleFactor  The scale factor for the width (circumference) of the cells.
      *
-     * Note: this class creates an instance of the TissueConfig singleton and sets the crypt
-     * width and length accordingly in TissueConfig to be used elsewhere.
+     * Note: this class creates an instance of the CellBasedConfig singleton and sets the crypt
+     * width and length accordingly in CellBasedConfig to be used elsewhere.
      */
     HoneycombMeshGenerator(unsigned numNodesAlongWidth, unsigned numNodesAlongLength, unsigned ghosts=3, bool cylindrical=true, double scaleFactor=1.0);
 
@@ -126,7 +126,7 @@ public:
     /**
      * Returns the indices of the nodes in the mesh which correspond to
      * real cells. This information needs to be passed in when constructing
-     * a MeshBasedTissueWithGhostNodes.
+     * a MeshBasedCellPopulationWithGhostNodes.
      *
      * @return indices of nodes
      */

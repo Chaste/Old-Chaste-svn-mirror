@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApoptoticCellProperty.hpp"
 
 template<unsigned DIM>
-AveragedSourcePde<DIM>::AveragedSourcePde(MeshBasedTissue<DIM>& rTissue, double coefficient)
-    : mrTissue(rTissue),
+AveragedSourcePde<DIM>::AveragedSourcePde(MeshBasedCellPopulation<DIM>& rCellPopulation, double coefficient)
+    : mrCellPopulation(rCellPopulation),
       mCoefficient(coefficient)
 {
 }
@@ -47,11 +47,11 @@ void AveragedSourcePde<DIM>::SetupSourceTerms(TetrahedralMesh<DIM,DIM>& rCoarseM
     }
 
     // Loop over cells, find which coarse element it is in, and add 1 to the mSourceTermOnCoarseElements[elem_index];
-    for (typename AbstractTissue<DIM>::Iterator cell_iter = mrTissue.Begin();
-        cell_iter != mrTissue.End();
+    for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = mrCellPopulation.Begin();
+        cell_iter != mrCellPopulation.End();
         ++cell_iter)
     {
-        const ChastePoint<DIM>& r_position_of_cell = mrTissue.GetLocationOfCellCentre(*cell_iter);
+        const ChastePoint<DIM>& r_position_of_cell = mrCellPopulation.GetLocationOfCellCentre(*cell_iter);
         unsigned elem_index = rCoarseMesh.GetContainingElementIndex(r_position_of_cell);
 
         bool cell_is_apoptotic = cell_iter->template HasCellProperty<ApoptoticCellProperty>();

@@ -159,7 +159,7 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), (double)num_cells_width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), sqrt(3)*num_cells_depth/2.0, 1e-7);
     }
@@ -237,7 +237,7 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), x_factor*(double)num_cells_width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), x_factor*sqrt(3)*num_cells_depth/2.0, 1e-7);
 
@@ -317,7 +317,7 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
     }
@@ -397,7 +397,7 @@ public:
 
         TS_ASSERT_EQUALS(all_included, true);
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         TS_ASSERT_DELTA(p_params->GetCryptWidth(), width, 1e-7);
         TS_ASSERT_DELTA(p_params->GetCryptLength(), length, 1e-7);
     }

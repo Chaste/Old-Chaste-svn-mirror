@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractLinearEllipticPde.hpp"
 
 /**
- *  A simple nutrient PDE which is not directly coupled to the tissue.
+ *  A simple nutrient PDE which is not directly coupled to the cell population.
  */
 template<unsigned DIM>
 class SimpleUniformSourcePde : public AbstractLinearEllipticPde<DIM,DIM>

@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <ctime>
 #include "PdeAndBoundaryConditions.hpp"
-#include "MeshBasedTissue.hpp"
+#include "MeshBasedCellPopulation.hpp"
 #include "AveragedSourcePde.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CellsGenerator.hpp"
@@ -182,15 +182,15 @@ public:
 
     void TestWithAveragedSourcePde() throw(Exception)
     {
-        // Set up tissue
+        // Set up cell population
         EXIT_IF_PARALLEL; //HoneycombMeshGenerator doesn't work in parallel
 
         HoneycombMeshGenerator generator(5, 5, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetMesh();
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, p_mesh->GetNumNodes());
-        MeshBasedTissue<2> tissue(*p_mesh, cells);
+        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
         // Create a coarse mesh - element 1 contains all the cells,
         // element 0 contains none
@@ -207,7 +207,7 @@ public:
         TS_ASSERT_DELTA(coarse_mesh.GetElement(1)->CalculateCentroid()[1], 100.0/3.0, 0.1);
 
         // Set up PDE
-        AveragedSourcePde<2> pde(tissue, -1.0);
+        AveragedSourcePde<2> pde(cell_population, -1.0);
         pde.SetupSourceTerms(coarse_mesh);
 
     	// Create a PdeAndBoundaryConditions object
@@ -232,7 +232,7 @@ public:
         c_matrix <double, 2, 2> jacobian;
         double det;
         coarse_mesh.GetElement(1)->CalculateJacobian(jacobian, det);
-        TS_ASSERT_DELTA(value_at_elem_1, -(tissue.GetNumRealCells()/coarse_mesh.GetElement(1)->GetVolume(det)), 1e-6);
+        TS_ASSERT_DELTA(value_at_elem_1, -(cell_population.GetNumRealCells()/coarse_mesh.GetElement(1)->GetVolume(det)), 1e-6);
     }
 };
 

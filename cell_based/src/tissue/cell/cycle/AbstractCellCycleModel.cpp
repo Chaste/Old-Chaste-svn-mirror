@@ -49,12 +49,12 @@ void AbstractCellCycleModel::InitialiseDaughterCell()
 {
 }
 
-void AbstractCellCycleModel::SetCell(TissueCellPtr pCell)
+void AbstractCellCycleModel::SetCell(CellPtr pCell)
 {
     mpCell = pCell;
 }
 
-TissueCellPtr AbstractCellCycleModel::GetCell()
+CellPtr AbstractCellCycleModel::GetCell()
 {
     assert(mpCell != NULL);
     return mpCell;
@@ -89,7 +89,7 @@ void AbstractCellCycleModel::ResetForDivision()
 
 double AbstractCellCycleModel::GetSDuration()
 {
-    return TissueConfig::Instance()->GetSDuration();
+    return CellBasedConfig::Instance()->GetSDuration();
 }
 
 double AbstractCellCycleModel::GetG1Duration()
@@ -99,12 +99,12 @@ double AbstractCellCycleModel::GetG1Duration()
 
 double AbstractCellCycleModel::GetG2Duration()
 {
-    return TissueConfig::Instance()->GetG2Duration();
+    return CellBasedConfig::Instance()->GetG2Duration();
 }
 
 double AbstractCellCycleModel::GetMDuration()
 {
-    return TissueConfig::Instance()->GetMDuration();
+    return CellBasedConfig::Instance()->GetMDuration();
 }
 
 bool AbstractCellCycleModel::ReadyToDivide()
@@ -139,14 +139,14 @@ unsigned AbstractCellCycleModel::GetDimension()
 
 double AbstractCellCycleModel::GetAverageTransitCellCycleTime()
 {
-    return TissueConfig::Instance()->GetTransitCellG1Duration()
-            + TissueConfig::Instance()->GetSG2MDuration();
+    return CellBasedConfig::Instance()->GetTransitCellG1Duration()
+            + CellBasedConfig::Instance()->GetSG2MDuration();
 }
 
 double AbstractCellCycleModel::GetAverageStemCellCycleTime()
 {
-    return TissueConfig::Instance()->GetStemCellG1Duration()
-            + TissueConfig::Instance()->GetSG2MDuration();
+    return CellBasedConfig::Instance()->GetStemCellG1Duration()
+            + CellBasedConfig::Instance()->GetSG2MDuration();
 }
 
 bool AbstractCellCycleModel::CanCellTerminallyDifferentiate()

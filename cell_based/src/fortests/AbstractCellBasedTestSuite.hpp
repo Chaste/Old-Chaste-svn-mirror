@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "SimulationTime.hpp"
 #include "RandomNumberGenerator.hpp"
-#include "TissueConfig.hpp"
+#include "CellBasedConfig.hpp"
 #include "CellPropertyRegistry.hpp"
 
 /**
@@ -53,7 +53,7 @@ protected:
 
         SimulationTime::Instance()->SetStartTime(0.0);
         RandomNumberGenerator::Instance()->Reseed(0);
-        TissueConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->Reset();
         CellPropertyRegistry::Instance()->Clear();
     }
 

@@ -55,7 +55,7 @@ public:
 
     void TestFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
         unsigned num_steps = 100;
@@ -69,7 +69,7 @@ public:
         p_stem_model->SetCellProliferativeType(STEM);
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-        TissueCellPtr p_stem_cell(new TissueCell(p_healthy_state, p_stem_model));
+        CellPtr p_stem_cell(new Cell(p_healthy_state, p_stem_model));
         p_stem_cell->InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M_PHASE);
@@ -86,7 +86,7 @@ public:
         FixedDurationGenerationBasedCellCycleModel* p_transit_model = new FixedDurationGenerationBasedCellCycleModel;
         p_transit_model->SetCellProliferativeType(TRANSIT);
 
-        TissueCellPtr p_transit_cell(new TissueCell(p_healthy_state, p_transit_model));
+        CellPtr p_transit_cell(new Cell(p_healthy_state, p_transit_model));
         p_transit_cell->InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(p_transit_cell->GetCellCycleModel()->GetCellProliferativeType(),TRANSIT);
@@ -95,7 +95,7 @@ public:
         FixedDurationGenerationBasedCellCycleModel* p_diff_model = new FixedDurationGenerationBasedCellCycleModel;
         p_diff_model->SetCellProliferativeType(DIFFERENTIATED);
 
-        TissueCellPtr p_diff_cell(new TissueCell(p_healthy_state, p_diff_model));
+        CellPtr p_diff_cell(new Cell(p_healthy_state, p_diff_model));
         p_diff_cell->InitialiseCellCycleModel();
 
         TS_ASSERT_EQUALS(p_diff_cell->GetCellCycleModel()->GetCellProliferativeType(),DIFFERENTIATED);
@@ -122,7 +122,7 @@ public:
         FixedDurationGenerationBasedCellCycleModel* p_hepa_one_model = new FixedDurationGenerationBasedCellCycleModel;
         p_hepa_one_model->SetCellProliferativeType(STEM);
 
-        TissueCellPtr p_hepa_one_cell(new TissueCell(p_healthy_state, p_hepa_one_model));
+        CellPtr p_hepa_one_cell(new Cell(p_healthy_state, p_hepa_one_model));
         p_hepa_one_cell->InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps; i++)
@@ -138,7 +138,7 @@ public:
 
     void TestStochasticDurationGenerationBasedCellCycleModel() throw(Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         p_params->SetStemCellG1Duration(8.0);
         p_params->SetTransitCellG1Duration(8.0);
 
@@ -160,13 +160,13 @@ public:
 
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-        TissueCellPtr p_stem_cell(new TissueCell(p_healthy_state, p_stem_model));
+        CellPtr p_stem_cell(new Cell(p_healthy_state, p_stem_model));
         p_stem_cell->InitialiseCellCycleModel();
 
-        TissueCellPtr p_transit_cell(new TissueCell(p_healthy_state, p_transit_model));
+        CellPtr p_transit_cell(new Cell(p_healthy_state, p_transit_model));
         p_transit_cell->InitialiseCellCycleModel();
 
-        TissueCellPtr p_diff_cell(new TissueCell(p_healthy_state, p_diff_model));
+        CellPtr p_diff_cell(new Cell(p_healthy_state, p_diff_model));
         p_diff_cell->InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_steps; i++)
@@ -183,7 +183,7 @@ public:
         StochasticDurationGenerationBasedCellCycleModel* p_hepa_one_model = new StochasticDurationGenerationBasedCellCycleModel;
         p_hepa_one_model->SetCellProliferativeType(STEM);
 
-        TissueCellPtr p_hepa_one_cell(new TissueCell(p_healthy_state, p_hepa_one_model));
+        CellPtr p_hepa_one_cell(new Cell(p_healthy_state, p_hepa_one_model));
         p_hepa_one_cell->InitialiseCellCycleModel();
 
         for (unsigned i=0; i< num_steps; i++)
@@ -196,7 +196,7 @@ public:
 
     void TestSimpleWntCellCycleModel() throw(Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Set up the simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -239,7 +239,7 @@ public:
 
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-        TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_cycle_model));
+        CellPtr p_cell(new Cell(p_healthy_state, p_cycle_model));
         p_cell->InitialiseCellCycleModel();
 
         for (unsigned i=0; i<num_timesteps/3; i++)
@@ -256,7 +256,7 @@ public:
 
         // Divide the cell
         TS_ASSERT_EQUALS(p_cell->ReadyToDivide(), true);
-        TissueCellPtr p_cell2 = p_cell->Divide();
+        CellPtr p_cell2 = p_cell->Divide();
         boost::shared_ptr<AbstractCellProperty> p_label(new CellLabel);
         p_cell->AddCellProperty(p_label);
 
@@ -326,14 +326,14 @@ public:
         p_cycle_model1->SetDimension(2);
         p_cycle_model1->SetCellProliferativeType(DIFFERENTIATED);
 
-        TissueCellPtr p_cell1(new TissueCell(p_healthy_state, p_cycle_model1));
+        CellPtr p_cell1(new Cell(p_healthy_state, p_cycle_model1));
         p_cell1->InitialiseCellCycleModel();
 
         SimpleWntCellCycleModel* p_another_cycle_model = new SimpleWntCellCycleModel;
         p_another_cycle_model->SetDimension(2);
         p_another_cycle_model->SetCellProliferativeType(STEM);
 
-        TissueCellPtr p_another_cell(new TissueCell(p_healthy_state, p_another_cycle_model));
+        CellPtr p_another_cell(new Cell(p_healthy_state, p_another_cycle_model));
         p_another_cell->InitialiseCellCycleModel();
         // ...end of coverage
 
@@ -353,7 +353,7 @@ public:
         p_cycle_model4->SetDimension(2);
         p_cycle_model4->SetCellProliferativeType(STEM);
 
-        TissueCellPtr p_cell4(new TissueCell(p_healthy_state,  p_cycle_model4));
+        CellPtr p_cell4(new Cell(p_healthy_state,  p_cycle_model4));
         p_cell4->InitialiseCellCycleModel();
 
         // Test the GetCurrentCellCyclePhase() and ReadyToDivide() methods
@@ -373,7 +373,7 @@ public:
         // Divide the cell
         TS_ASSERT_EQUALS(p_cell4->ReadyToDivide(), true);
         TS_ASSERT_EQUALS(p_cell4->GetCellCycleModel()->GetCellProliferativeType(), STEM);
-        TissueCellPtr p_cell5 = p_cell4->Divide();
+        CellPtr p_cell5 = p_cell4->Divide();
         TS_ASSERT_EQUALS(p_cell4->GetCellCycleModel()->GetCellProliferativeType(), STEM);
         TS_ASSERT_EQUALS(p_cell5->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
@@ -410,7 +410,7 @@ public:
 
         TS_ASSERT_EQUALS(p_cell_model_1d->GetDimension(), 1u);
 
-        TissueCellPtr p_stem_cell_1d(new TissueCell(p_healthy_state, p_cell_model_1d));
+        CellPtr p_stem_cell_1d(new Cell(p_healthy_state, p_cell_model_1d));
         p_stem_cell_1d->InitialiseCellCycleModel();
 
         SimulationTime::Instance()->IncrementTimeOneStep();
@@ -419,7 +419,7 @@ public:
         SimulationTime::Instance()->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(p_stem_cell_1d->ReadyToDivide(), true);
 
-        TissueCellPtr p_daughter_1d = p_stem_cell_1d->Divide();
+        CellPtr p_daughter_1d = p_stem_cell_1d->Divide();
 
         // Coverage of 3D
 
@@ -433,7 +433,7 @@ public:
         p_cell_model_3d->SetCellProliferativeType(STEM);
         TS_ASSERT_EQUALS(p_cell_model_3d->GetDimension(), 3u);
 
-        TissueCellPtr p_stem_cell_3d(new TissueCell(p_healthy_state, p_cell_model_3d));
+        CellPtr p_stem_cell_3d(new Cell(p_healthy_state, p_cell_model_3d));
         p_stem_cell_3d->InitialiseCellCycleModel();
 
         SimulationTime::Instance()->IncrementTimeOneStep();
@@ -442,7 +442,7 @@ public:
         SimulationTime::Instance()->IncrementTimeOneStep();
         TS_ASSERT_EQUALS(p_stem_cell_3d->ReadyToDivide(), true);
 
-        TissueCellPtr p_daughter_3d = p_stem_cell_3d->Divide();
+        CellPtr p_daughter_3d = p_stem_cell_3d->Divide();
 
         // Tidy up
         WntConcentration<1>::Destroy();
@@ -453,8 +453,8 @@ public:
 
     void TestSimpleOxygenBasedCellCycleModel() throw(Exception)
     {
-        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
-        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
+        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
+        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are updated correctly
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -465,7 +465,7 @@ public:
         p_model->SetCellProliferativeType(STEM);
 
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+        CellPtr p_cell(new Cell(p_state, p_model));
 
         p_cell->InitialiseCellCycleModel();
 
@@ -519,7 +519,7 @@ public:
         p_hepa_one_model->SetDimension(2);
         p_hepa_one_model->SetCellProliferativeType(STEM);
 
-        TissueCellPtr p_hepa_one_cell(new TissueCell(p_state, p_hepa_one_model));
+        CellPtr p_hepa_one_cell(new Cell(p_state, p_hepa_one_model));
         p_hepa_one_cell->InitialiseCellCycleModel();
 
         SimpleOxygenBasedCellCycleModel* p_diff_model = new SimpleOxygenBasedCellCycleModel;
@@ -531,7 +531,7 @@ public:
         p_diff_model->SetCriticalHypoxicDuration(0.5);
         TS_ASSERT_DELTA(p_diff_model->GetCriticalHypoxicDuration(), 0.5, 1e-6);
 
-        TissueCellPtr p_diff_cell(new TissueCell(p_state, p_diff_model));
+        CellPtr p_diff_cell(new Cell(p_state, p_diff_model));
         p_diff_cell->InitialiseCellCycleModel();
 
         // Check that the cell cycle phase and ready to divide
@@ -555,7 +555,7 @@ public:
 
         // Check that cell division correctly resets the cell cycle phase
         TS_ASSERT_EQUALS(p_hepa_one_cell->ReadyToDivide(), true);
-        TissueCellPtr p_hepa_one_cell2 = p_hepa_one_cell->Divide();
+        CellPtr p_hepa_one_cell2 = p_hepa_one_cell->Divide();
         SimpleOxygenBasedCellCycleModel* p_hepa_one_model2 = static_cast <SimpleOxygenBasedCellCycleModel*>(p_hepa_one_cell2->GetCellCycleModel());
 
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);
@@ -571,7 +571,7 @@ public:
         SimpleOxygenBasedCellCycleModel* p_cell_model = new SimpleOxygenBasedCellCycleModel;
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
-        TissueCellPtr p_apoptotic_cell(new TissueCell(p_state, p_cell_model));
+        CellPtr p_apoptotic_cell(new Cell(p_state, p_cell_model));
 
         // Set up constant oxygen_concentration
         CellwiseData<2>::Instance()->SetConstantDataForTesting(low_oxygen_concentration);
@@ -600,7 +600,7 @@ public:
         SimpleOxygenBasedCellCycleModel* p_cell_model1d = new SimpleOxygenBasedCellCycleModel;
         p_cell_model1d->SetDimension(1);
         p_cell_model1d->SetCellProliferativeType(STEM);
-        TissueCellPtr p_cell1d(new TissueCell(p_state, p_cell_model1d));
+        CellPtr p_cell1d(new Cell(p_state, p_cell_model1d));
 
         p_cell1d->InitialiseCellCycleModel();
 
@@ -615,7 +615,7 @@ public:
         SimpleOxygenBasedCellCycleModel* p_cell_model3d = new SimpleOxygenBasedCellCycleModel;
         p_cell_model3d->SetDimension(3);
         p_cell_model3d->SetCellProliferativeType(STEM);
-        TissueCellPtr p_cell3d(new TissueCell(p_state, p_cell_model3d));
+        CellPtr p_cell3d(new Cell(p_state, p_cell_model3d));
 
         p_cell3d->InitialiseCellCycleModel();
 
@@ -628,8 +628,8 @@ public:
 
     void TestStochasticOxygenBasedCellCycleModel() throw(Exception)
     {
-        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
-        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
+        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
+        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are updated correctly
         SimulationTime* p_simulation_time = SimulationTime::Instance();
@@ -653,7 +653,7 @@ public:
         TS_ASSERT_DELTA(p_model->GetCriticalHypoxicDuration(), 3.0, 1e-6);
 
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+        CellPtr p_cell(new Cell(p_state, p_model));
 
         p_cell->InitialiseCellCycleModel();
 
@@ -712,10 +712,10 @@ public:
         p_diff_model->SetCellProliferativeType(DIFFERENTIATED);
 
         // Create cell
-        TissueCellPtr p_hepa_one_cell(new TissueCell(p_state, p_hepa_one_model));
+        CellPtr p_hepa_one_cell(new Cell(p_state, p_hepa_one_model));
         p_hepa_one_cell->InitialiseCellCycleModel();
 
-        TissueCellPtr p_diff_cell(new TissueCell(p_state, p_diff_model));
+        CellPtr p_diff_cell(new Cell(p_state, p_diff_model));
         p_diff_cell->InitialiseCellCycleModel();
 
         // Check that the cell cycle phase and ready to divide
@@ -739,12 +739,12 @@ public:
 
         // Coverage
         TS_ASSERT_EQUALS(p_hepa_one_cell->ReadyToDivide(), true);
-        TissueCellPtr p_hepa_one_cell_divide = p_hepa_one_cell->Divide();
+        CellPtr p_hepa_one_cell_divide = p_hepa_one_cell->Divide();
 
         // Check that cell division correctly resets the cell cycle phase
         StochasticOxygenBasedCellCycleModel* p_hepa_one_model2 = static_cast <StochasticOxygenBasedCellCycleModel*> (p_hepa_one_model->CreateCellCycleModel());
         p_hepa_one_model2->SetCellProliferativeType(STEM);
-        TissueCellPtr p_hepa_one_cell2(new TissueCell(p_state, p_hepa_one_model2));
+        CellPtr p_hepa_one_cell2(new Cell(p_state, p_hepa_one_model2));
         TS_ASSERT_EQUALS(p_hepa_one_model2->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(p_hepa_one_model2->GetCurrentCellCyclePhase(), M_PHASE);
 
@@ -758,7 +758,7 @@ public:
         StochasticOxygenBasedCellCycleModel* p_cell_model = new StochasticOxygenBasedCellCycleModel;
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
-        TissueCellPtr p_apoptotic_cell(new TissueCell(p_state, p_cell_model));
+        CellPtr p_apoptotic_cell(new Cell(p_state, p_cell_model));
 
         p_apoptotic_cell->InitialiseCellCycleModel();
 
@@ -787,7 +787,7 @@ public:
         // Coverage
         p_cell_model2->SetMinimumGapDuration(1e20);
 
-        TissueCellPtr p_cell2(new TissueCell(p_state, p_cell_model2));
+        CellPtr p_cell2(new Cell(p_state, p_cell_model2));
         p_cell2->InitialiseCellCycleModel();
 
         TS_ASSERT_DELTA(p_cell_model2->GetG2Duration(), 1e20, 1e-4);
@@ -801,7 +801,7 @@ public:
         StochasticOxygenBasedCellCycleModel* p_cell_model1d = new StochasticOxygenBasedCellCycleModel;
         p_cell_model1d->SetDimension(1);
         p_cell_model1d->SetCellProliferativeType(STEM);
-        TissueCellPtr p_cell1d(new TissueCell(p_state, p_cell_model1d));
+        CellPtr p_cell1d(new Cell(p_state, p_cell_model1d));
 
         p_cell1d->InitialiseCellCycleModel();
 
@@ -816,7 +816,7 @@ public:
         StochasticOxygenBasedCellCycleModel* p_cell_model3d = new StochasticOxygenBasedCellCycleModel;
         p_cell_model3d->SetDimension(3);
         p_cell_model3d->SetCellProliferativeType(STEM);
-        TissueCellPtr p_cell3d(new TissueCell(p_state, p_cell_model3d));
+        CellPtr p_cell3d(new Cell(p_state, p_cell_model3d));
 
         p_cell3d->InitialiseCellCycleModel();
 
@@ -841,7 +841,7 @@ public:
             p_model->SetCellProliferativeType(TRANSIT);
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
 
             p_simulation_time->IncrementTimeOneStep();
@@ -856,7 +856,7 @@ public:
             p_model->ReadyToDivide();
 
             // Archive pointer to cell
-            TissueCellPtr const p_const_cell = p_cell;
+            CellPtr const p_const_cell = p_cell;
             output_arch << p_const_cell;
 
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
@@ -870,7 +870,7 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueCellPtr p_cell;
+            CellPtr p_cell;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -906,7 +906,7 @@ public:
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(TRANSIT);
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
             p_cell->SetBirthTime(-1.1);
             p_simulation_time->IncrementTimeOneStep();
@@ -917,9 +917,9 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            TS_ASSERT_DELTA(TissueConfig::Instance()->GetSDuration(), 5.0, 1e-12);
+            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetSDuration(), 5.0, 1e-12);
 
-            TissueCellPtr const p_const_cell = p_cell;
+            CellPtr const p_const_cell = p_cell;
             output_arch << p_const_cell;
 
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -1.1, 1e-12);
@@ -940,13 +940,13 @@ public:
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             p_gen->Reseed(128);
 
-            TissueCellPtr p_cell;
+            CellPtr p_cell;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            TissueConfig* p_inst1 = TissueConfig::Instance();
+            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
@@ -970,7 +970,7 @@ public:
 
     void TestArchiveSimpleWntCellCycleModel()
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "simple_wnt_cell_cycle.arch";
@@ -1006,7 +1006,7 @@ public:
 
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-            TissueCellPtr p_stem_cell(new TissueCell(p_healthy_state, p_cell_model));
+            CellPtr p_stem_cell(new Cell(p_healthy_state, p_cell_model));
             p_stem_cell->InitialiseCellCycleModel();
 
             while (p_cell_model->GetAge() < g1_duration + p_params->GetSG2MDuration()
@@ -1024,7 +1024,7 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            TissueCellPtr const p_const_cell = p_stem_cell;
+            CellPtr const p_const_cell = p_stem_cell;
             output_arch << p_const_cell;
 
             TS_ASSERT_EQUALS(p_stem_cell->ReadyToDivide(), false);
@@ -1043,11 +1043,11 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueConfig* p_inst1 = TissueConfig::Instance();
+            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
-            TissueCellPtr p_cell;
+            CellPtr p_cell;
 
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             p_gen->Reseed(36);
@@ -1117,7 +1117,7 @@ public:
 
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_cell_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_cell_model));
             p_cell->InitialiseCellCycleModel();
 
             // Run to division age minus one time step to match birth time
@@ -1136,7 +1136,7 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            TissueCellPtr const p_const_cell = p_cell;
+            CellPtr const p_const_cell = p_cell;
             output_arch << p_const_cell;
 
             TS_ASSERT_EQUALS(p_cell->ReadyToDivide(), false);
@@ -1157,11 +1157,11 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueConfig* p_inst1 = TissueConfig::Instance();
+            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
 
             p_inst1->SetSDuration(101.0);
 
-            TissueCellPtr p_cell;
+            CellPtr p_cell;
 
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             p_gen->Reseed(36);
@@ -1279,7 +1279,7 @@ public:
             p_cell_model->SetDimension(3);
             p_cell_model->SetCellProliferativeType(STEM);
             boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-            TissueCellPtr p_cell(new TissueCell(p_state, p_cell_model));
+            CellPtr p_cell(new Cell(p_state, p_cell_model));
 
             p_cell->InitialiseCellCycleModel();
             p_cell->GetCellCycleModel()->SetBirthTime(-1.0);
@@ -1291,7 +1291,7 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             // Archive cell
-            TissueCellPtr const p_const_cell = p_cell;
+            CellPtr const p_const_cell = p_cell;
             output_arch << p_const_cell;
 
             // Tidy up
@@ -1304,11 +1304,11 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            TissueConfig* inst1 = TissueConfig::Instance();
+            CellBasedConfig* inst1 = CellBasedConfig::Instance();
 
             inst1->SetSDuration(101.0);
 
-            TissueCellPtr p_cell;
+            CellPtr p_cell;
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);

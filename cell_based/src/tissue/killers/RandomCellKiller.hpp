@@ -87,10 +87,10 @@ public:
     /**
      * Default constructor.
      *
-     * @param pTissue pointer to the tissue
+     * @param pCellPopulation pointer to the cell population
      * @param probabilityOfDeathInAnHour probability that a cell is labelled for apoptosis in one hour's worth of trying
      */
-    RandomCellKiller(AbstractTissue<DIM>* pTissue, double probabilityOfDeathInAnHour);
+    RandomCellKiller(AbstractCellPopulation<DIM>* pCellPopulation, double probabilityOfDeathInAnHour);
 
     /**
      * @return mProbabilityOfDeathInAnHour.
@@ -102,7 +102,7 @@ public:
      *
      * @param pCell the cell to test for apoptosis
      */
-    void TestAndLabelSingleCellForApoptosis(TissueCellPtr pCell);
+    void TestAndLabelSingleCellForApoptosis(CellPtr pCell);
 
     /**
      *  Loop over cells and start apoptosis randomly, based on the user-set
@@ -127,8 +127,8 @@ inline void save_construct_data(
     Archive & ar, const RandomCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractTissue<DIM>* const p_tissue = t->GetTissue();
-    ar << p_tissue;
+    const AbstractCellPopulation<DIM>* const p_cell_population = t->GetCellPopulation();
+    ar << p_cell_population;
     double prob = t->GetDeathProbabilityInAnHour();
     ar << prob;
 }
@@ -141,13 +141,13 @@ inline void load_construct_data(
     Archive & ar, RandomCellKiller<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<DIM>* p_tissue;
-    ar >> p_tissue;
+    AbstractCellPopulation<DIM>* p_cell_population;
+    ar >> p_cell_population;
     double prob;
     ar >> prob;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)RandomCellKiller<DIM>(p_tissue, prob);
+    ::new(t)RandomCellKiller<DIM>(p_cell_population, prob);
 }
 }
 } // namespace ...

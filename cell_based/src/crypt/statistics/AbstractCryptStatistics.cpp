@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCryptStatistics.hpp"
 #include "CellPropertyRegistry.hpp"
 
-AbstractCryptStatistics::AbstractCryptStatistics(MeshBasedTissue<2>& rCrypt)
+AbstractCryptStatistics::AbstractCryptStatistics(MeshBasedCellPopulation<2>& rCrypt)
     : mrCrypt(rCrypt)
 {
 }
@@ -39,7 +39,7 @@ AbstractCryptStatistics::~AbstractCryptStatistics()
 
 void AbstractCryptStatistics::LabelSPhaseCells()
 {
-    for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
+    for (AbstractCellPopulation<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
@@ -59,7 +59,7 @@ void AbstractCryptStatistics::LabelSPhaseCells()
 
 void AbstractCryptStatistics::LabelAllCellsAsHealthy()
 {
-    for (AbstractTissue<2>::Iterator cell_iter = mrCrypt.Begin();
+    for (AbstractCellPopulation<2>::Iterator cell_iter = mrCrypt.Begin();
          cell_iter != mrCrypt.End();
          ++cell_iter)
     {
@@ -68,7 +68,7 @@ void AbstractCryptStatistics::LabelAllCellsAsHealthy()
     }
 }
 
-std::vector<bool> AbstractCryptStatistics::AreCryptSectionCellsLabelled(std::vector<TissueCellPtr>& rCryptSection)
+std::vector<bool> AbstractCryptStatistics::AreCryptSectionCellsLabelled(std::vector<CellPtr>& rCryptSection)
 {
     std::vector<bool> crypt_section_labelled(rCryptSection.size());
 

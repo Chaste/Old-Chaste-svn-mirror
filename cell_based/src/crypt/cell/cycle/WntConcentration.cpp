@@ -43,8 +43,8 @@ WntConcentration<DIM>* WntConcentration<DIM>::Instance()
 
 template<unsigned DIM>
 WntConcentration<DIM>::WntConcentration()
-    : mpTissueConfig(TissueConfig::Instance()),
-      mpTissue(NULL),
+    : mpCellBasedConfig(CellBasedConfig::Instance()),
+      mpCellPopulation(NULL),
       mTypeSet(false),
       mConstantWntValueForTesting(0),
       mUseConstantWntValueForTesting(false),
@@ -70,51 +70,51 @@ void WntConcentration<DIM>::Destroy()
 }
 
 template<unsigned DIM>
-double WntConcentration<DIM>::GetWntLevel(TissueCellPtr pCell)
+double WntConcentration<DIM>::GetWntLevel(CellPtr pCell)
 {
-    if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
+    if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a cell population
     {
         return mConstantWntValueForTesting;
     }
 
-    assert(mpTissue!=NULL);
+    assert(mpCellPopulation!=NULL);
     assert(mTypeSet);
 
     double height;
 
     if (mWntType==RADIAL)
     {
-        double a = TissueConfig::Instance()->GetCryptProjectionParameterA();
-        double b = TissueConfig::Instance()->GetCryptProjectionParameterB();
-        height = a*pow(norm_2(mpTissue->GetLocationOfCellCentre(pCell)), b);
+        double a = CellBasedConfig::Instance()->GetCryptProjectionParameterA();
+        double b = CellBasedConfig::Instance()->GetCryptProjectionParameterB();
+        height = a*pow(norm_2(mpCellPopulation->GetLocationOfCellCentre(pCell)), b);
     }
     else
     {
-        height = mpTissue->GetLocationOfCellCentre(pCell)[DIM-1];
+        height = mpCellPopulation->GetLocationOfCellCentre(pCell)[DIM-1];
     }
 
     return GetWntLevel(height);
 }
 
 template<unsigned DIM>
-c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(TissueCellPtr pCell)
+c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(CellPtr pCell)
 {
-    if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a tissue
+    if (mUseConstantWntValueForTesting)  // to test a cell and cell cycle models without a cell population
     {
         return zero_vector<double>(DIM);
     }
-    assert(mpTissue!=NULL);
+    assert(mpCellPopulation!=NULL);
     assert(mTypeSet);
 
-    c_vector<double, DIM> location_of_cell = mpTissue->GetLocationOfCellCentre(pCell);
+    c_vector<double, DIM> location_of_cell = mpCellPopulation->GetLocationOfCellCentre(pCell);
 
     return GetWntGradient(location_of_cell);
 }
 
 template<unsigned DIM>
-void WntConcentration<DIM>::SetTissue(AbstractTissue<DIM>& rTissue)
+void WntConcentration<DIM>::SetCellPopulation(AbstractCellPopulation<DIM>& rCellPopulation)
 {
-    mpTissue = &rTissue;
+    mpCellPopulation = &rCellPopulation;
 }
 
 template<unsigned DIM>
@@ -143,7 +143,7 @@ double WntConcentration<DIM>::GetWntLevel(double height)
     }
 
     double wnt_level = -1.0; // Test this is changed before leaving method.
-    double crypt_height = mpTissueConfig->GetCryptLength();
+    double crypt_height = mpCellBasedConfig->GetCryptLength();
 
     // The first type of Wnt concentration to try
     if (mWntType==LINEAR || mWntType==RADIAL)
@@ -182,7 +182,7 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
 
     if (mWntType!=NONE)
     {
-        double crypt_height = mpTissueConfig->GetCryptLength();
+        double crypt_height = mpCellBasedConfig->GetCryptLength();
 
         if (mWntType==LINEAR)
         {
@@ -193,8 +193,8 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
         }
         else if (mWntType==RADIAL) // RADIAL Wnt concentration
         {
-            double a = TissueConfig::Instance()->GetCryptProjectionParameterA();
-            double b = TissueConfig::Instance()->GetCryptProjectionParameterB();
+            double a = CellBasedConfig::Instance()->GetCryptProjectionParameterA();
+            double b = CellBasedConfig::Instance()->GetCryptProjectionParameterB();
             double r = norm_2(rLocation);
             double r_critical = pow(mWntConcentrationParameter*crypt_height/a, 1.0/b);
 
@@ -222,7 +222,7 @@ template<unsigned DIM>
 bool WntConcentration<DIM>::IsWntSetUp()
 {
     bool result = false;
-    if (mTypeSet && mpTissue!=NULL && mWntType!=NONE)
+    if (mTypeSet && mpCellPopulation!=NULL && mWntType!=NONE)
     {
         result = true;
     }

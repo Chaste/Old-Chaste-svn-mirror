@@ -29,8 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTTWOBODYINTERACTIONFORCE_HPP_
 
 #include "AbstractForce.hpp"
-#include "MeshBasedTissue.hpp"
-#include "NodeBasedTissue.hpp"
+#include "MeshBasedCellPopulation.hpp"
+#include "NodeBasedCellPopulation.hpp"
 /**
  * An abstract class for two-body force laws.
  */
@@ -91,21 +91,21 @@ public :
      *
      * @param nodeAGlobalIndex index of one neighbouring node
      * @param nodeBGlobalIndex index of the other neighbouring node
-     * @param rTissue the tissue
+     * @param rCellPopulation the cell population
      *
      * @return The force exerted on Node A by Node B.
      */
-    virtual c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractTissue<DIM>& rTissue)=0;
+    virtual c_vector<double, DIM> CalculateForceBetweenNodes(unsigned nodeAGlobalIndex, unsigned nodeBGlobalIndex, AbstractCellPopulation<DIM>& rCellPopulation)=0;
 
 
     /**
      * Overridden AddForceContribution() method.
      *
      * @param rForces reference to vector of forces on nodes
-     * @param rTissue reference to the tissue
+     * @param rCellPopulation reference to the cell population
      */
     void AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
-                              AbstractTissue<DIM>& rTissue);
+                              AbstractCellPopulation<DIM>& rCellPopulation);
 
     /**
      * Outputs force Parameters to file

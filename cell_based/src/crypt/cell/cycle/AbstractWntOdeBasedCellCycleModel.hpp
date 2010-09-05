@@ -91,7 +91,7 @@ public:
      * Cells are given a new birth time and cell cycle proteins are reset.
      * Note that the Wnt pathway proteins maintain their current values.
      *
-     * Should only be called by the TissueCell::Divide() method.
+     * Should only be called by the Cell::Divide() method.
      */
     void ResetForDivision();
 

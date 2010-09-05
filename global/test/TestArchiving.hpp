@@ -167,7 +167,7 @@ public:
     void TestArchivingLinkedChildAndParent() throw (Exception)
     {
         // This test is an abstraction of archiving a cyclically linked parent-child pair.
-        // The parent represents a TissueCell and the child represents an AbstractCellCycleModel
+        // The parent represents a Cell and the child represents an AbstractCellCycleModel
 
         OutputFileHandler handler("archive",false);
         std::string archive_filename;

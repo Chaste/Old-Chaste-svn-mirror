@@ -30,8 +30,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApoptoticCellProperty.hpp"
 
 template<unsigned DIM>
-CellwiseSourcePde<DIM>::CellwiseSourcePde(MeshBasedTissue<DIM>& rTissue, double coefficient)
-    : mrTissue(rTissue),
+CellwiseSourcePde<DIM>::CellwiseSourcePde(MeshBasedCellPopulation<DIM>& rCellPopulation, double coefficient)
+    : mrCellPopulation(rCellPopulation),
       mCoefficient(coefficient)
 {
 }
@@ -54,7 +54,7 @@ double CellwiseSourcePde<DIM>::ComputeLinearInUCoeffInSourceTermAtNode(const Nod
 {
     double coefficient = 0.0;
 
-    TissueCellPtr p_cell = mrTissue.GetCellUsingLocationIndex(rNode.GetIndex());
+    CellPtr p_cell = mrCellPopulation.GetCellUsingLocationIndex(rNode.GetIndex());
 
     bool cell_is_apoptotic = p_cell->HasCellProperty<ApoptoticCellProperty>();
 

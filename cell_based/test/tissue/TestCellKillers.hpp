@@ -64,18 +64,18 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        // Create tissue
-        MeshBasedTissue<2> tissue(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
-        // Get a reference to the cells held in tissue
-        std::list<TissueCellPtr>& r_cells = tissue.rGetCells();
+        // Get a reference to the cells held in cell population
+        std::list<CellPtr>& r_cells = cell_population.rGetCells();
 
         // Create cell killer
-        TargetedCellKiller<2> single_cell_killer(&tissue, 1u);
+        TargetedCellKiller<2> single_cell_killer(&cell_population, 1u);
 
         TS_ASSERT_EQUALS(single_cell_killer.GetIdentifier(), "TargetedCellKiller<2>");
 
@@ -84,7 +84,7 @@ public:
 
         std::set< double > old_locations;
 
-        std::list<TissueCellPtr>::iterator cell_it = r_cells.begin();
+        std::list<CellPtr>::iterator cell_it = r_cells.begin();
         TS_ASSERT(!(*cell_it)->IsDead());
         ++cell_it;
         TS_ASSERT((*cell_it)->IsDead());
@@ -98,29 +98,29 @@ public:
 
 
         // Store 'locations' of cells which are not dead
-        for (std::list<TissueCellPtr>::iterator cell_iter = r_cells.begin();
+        for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
              cell_iter != r_cells.end();
              ++cell_iter)
         {
             if (!(*cell_iter)->IsDead())
             {
-                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+                Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
                 c_vector<double, 2> location = p_node->rGetLocation();
                 old_locations.insert(location[0] + location[1]*1000);
             }
         }
 
         // Remove dead cells
-        tissue.RemoveDeadCells();
+        cell_population.RemoveDeadCells();
 
         // Check that dead cells are removed from the mesh
         std::set< double > new_locations;
-        for (std::list<TissueCellPtr>::iterator cell_iter = r_cells.begin();
+        for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
              cell_iter != r_cells.end();
              ++cell_iter)
         {
             TS_ASSERT_EQUALS((*cell_iter)->IsDead(), false);
-            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+            Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);
         }
@@ -140,27 +140,27 @@ public:
 		mesh.ConstructFromMeshReader(mesh_reader);
 
 		// Create cells
-		std::vector<TissueCellPtr> cells;
+		std::vector<CellPtr> cells;
 		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
 		cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
 		double death_time = p_simulation_time->GetTime() + cells[0]->GetApoptosisTime();
 
-		// Create tissue
-		MeshBasedTissue<2> tissue(mesh, cells);
+		// Create cell population
+		MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
-		// Get a reference to the cells held in tissue
-		std::list<TissueCellPtr>& r_cells = tissue.rGetCells();
+		// Get a reference to the cells held in cell population
+		std::list<CellPtr>& r_cells = cell_population.rGetCells();
 
 		// Check for bad probabilities being passed in
-		TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&tissue, -0.1),
+		TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&cell_population, -0.1),
 							 "Probability of death must be between zero and one");
 
-		TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&tissue,  1.1),
+		TS_ASSERT_THROWS_THIS(RandomCellKiller<2> random_cell_killer(&cell_population,  1.1),
 							 "Probability of death must be between zero and one");
 
 		// Create cell killer
-		RandomCellKiller<2> random_cell_killer(&tissue, 0.05);
+		RandomCellKiller<2> random_cell_killer(&cell_population, 0.05);
 
 		TS_ASSERT_EQUALS(random_cell_killer.GetIdentifier(), "RandomCellKiller<2>");
 
@@ -180,7 +180,7 @@ public:
 		std::set< double > old_locations;
 
 		bool apoptosis_cell_found = false;
-		std::list<TissueCellPtr>::iterator cell_it = r_cells.begin();
+		std::list<CellPtr>::iterator cell_it = r_cells.begin();
 		++cell_it;
 		while (cell_it != r_cells.end() && !apoptosis_cell_found)
 		{
@@ -199,29 +199,29 @@ public:
 		p_simulation_time->IncrementTimeOneStep();
 
 		// Store 'locations' of cells which are not dead
-		for (std::list<TissueCellPtr>::iterator cell_iter = r_cells.begin();
+		for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
 			cell_iter != r_cells.end();
 			++cell_iter)
 		{
 			if (!(*cell_iter)->IsDead())
 			{
-				Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+				Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
 				c_vector<double, 2> location = p_node->rGetLocation();
 				old_locations.insert(location[0] + location[1]*1000);
 			}
 		}
 
 		// Remove dead cells
-		tissue.RemoveDeadCells();
+		cell_population.RemoveDeadCells();
 
 		// Check that dead cells are removed from the mesh
 		std::set< double > new_locations;
-		for (std::list<TissueCellPtr>::iterator cell_iter = r_cells.begin();
+		for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
 			cell_iter != r_cells.end();
 			++cell_iter)
 		{
 			TS_ASSERT_EQUALS((*cell_iter)->IsDead(), false);
-			Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+			Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
 			c_vector<double, 2> location = p_node->rGetLocation();
 			new_locations.insert(location[0] + location[1]*1000);
 		}
@@ -232,7 +232,7 @@ public:
     void TestSloughingCellKillerTopAndSides() throw(Exception)
     {
         // Set up singleton classes
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -241,29 +241,29 @@ public:
         mesh.Translate(-0.25,-0.25);
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        // Create tissue
-        MeshBasedTissue<2> tissue(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
         p_params->SetCryptWidth(0.5);
         p_params->SetCryptLength(0.5);
 
         // Create cell killer and kill cells
-        SloughingCellKiller<2> sloughing_cell_killer(&tissue, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&cell_population, true);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         TS_ASSERT_EQUALS(sloughing_cell_killer.GetIdentifier(), "SloughingCellKiller<2>");
 
         // Check that cells were labelled for death correctly
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
-            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
+            double x = cell_population.GetLocationOfCellCentre(*cell_iter)[0];
+            double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
 
             if ( (x<0) || (x>0.5) || (y>0.5))
             {
@@ -275,14 +275,14 @@ public:
             }
         }
 
-        tissue.RemoveDeadCells();
+        cell_population.RemoveDeadCells();
 
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
-            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
+            double x = cell_population.GetLocationOfCellCentre(*cell_iter)[0];
+            double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
 
             TS_ASSERT_LESS_THAN_EQUALS(x, 0.5);
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
@@ -293,7 +293,7 @@ public:
     void TestSloughingCellKillerTopOnly() throw(Exception)
     {
         // Set up singleton classes
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
@@ -302,7 +302,7 @@ public:
         mesh.Translate(-0.25,-0.25);
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -310,28 +310,28 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->SetBirthTime(0.0);
 
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<2> tissue(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
         p_params->SetCryptWidth(0.5);
         p_params->SetCryptLength(0.5);
 
         // Create cell killer and kill cells
-        SloughingCellKiller<2> sloughing_cell_killer(&tissue);
+        SloughingCellKiller<2> sloughing_cell_killer(&cell_population);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
-            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
+            double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
             if (y>0.5)
             {
                 TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
@@ -342,13 +342,13 @@ public:
             }
         }
 
-        tissue.RemoveDeadCells();
+        cell_population.RemoveDeadCells();
 
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
-            double y = tissue.GetLocationOfCellCentre(*cell_iter)[1];
+            double y = cell_population.GetLocationOfCellCentre(*cell_iter)[1];
             TS_ASSERT_LESS_THAN_EQUALS(y, 0.5);
         }
     }
@@ -357,7 +357,7 @@ public:
     void TestSloughingCellKillerIn1d() throw(Exception)
     {
         // Set up singleton classes
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create 1D mesh
         unsigned num_cells = 14;
@@ -365,7 +365,7 @@ public:
         mesh.ConstructLinearMesh(num_cells-1);
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -373,29 +373,29 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->SetBirthTime(0.0);
 
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<1> tissue(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<1> cell_population(mesh, cells);
 
         // Set the crypt length so that 2 cells should be sloughed off
         double crypt_length = 12.5;
         p_params->SetCryptLength(crypt_length);
 
         // Create cell killer and kill cells
-        SloughingCellKiller<1> sloughing_cell_killer(&tissue);
+        SloughingCellKiller<1> sloughing_cell_killer(&cell_population);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
-        for (AbstractTissue<1>::Iterator cell_iter = tissue.Begin();
-            cell_iter != tissue.End();
+        for (AbstractCellPopulation<1>::Iterator cell_iter = cell_population.Begin();
+            cell_iter != cell_population.End();
             ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
+            double x = cell_population.GetLocationOfCellCentre(*cell_iter)[0];
             if (x > crypt_length)
             {
                 TS_ASSERT_EQUALS(cell_iter->IsDead(), true);
@@ -407,13 +407,13 @@ public:
         }
 
         // Check that dead cells were correctly removed
-        tissue.RemoveDeadCells();
+        cell_population.RemoveDeadCells();
 
-        for (AbstractTissue<1>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (AbstractCellPopulation<1>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
-            double x = tissue.GetLocationOfCellCentre(*cell_iter)[0];
+            double x = cell_population.GetLocationOfCellCentre(*cell_iter)[0];
             TS_ASSERT_LESS_THAN_EQUALS(x, crypt_length);
         }
     }
@@ -426,7 +426,7 @@ public:
         mesh.ConstructCuboid(4, 5, 6);
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
@@ -434,17 +434,17 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(STEM);
 
-            TissueCellPtr p_cell(new TissueCell(p_healthy_state, p_model));
+            CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->SetBirthTime(0.0);
 
             cells.push_back(p_cell);
         }
 
-        // Create tissue
-        MeshBasedTissue<3> tissue(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
         // Create cell killer
-        SloughingCellKiller<3> sloughing_cell_killer(&tissue);
+        SloughingCellKiller<3> sloughing_cell_killer(&cell_population);
 
         // Check that an exception is thrown, as this method is not yet implemented in 3D
         TS_ASSERT_THROWS_THIS(sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath(), "SloughingCellKiller is not yet implemented in 3D");
@@ -453,8 +453,8 @@ public:
 
     void TestOxygenBasedCellKiller() throw(Exception)
     {
-        TissueConfig::Instance()->SetStemCellG1Duration(8.0);
-        TissueConfig::Instance()->SetTransitCellG1Duration(8.0);
+        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
+        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         double end_time = 1.0;
@@ -467,12 +467,12 @@ public:
         mesh.ConstructFromMeshReader(mesh_reader);
 
         // Create cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        // Create tissue
-        MeshBasedTissue<2> tissue(mesh, cells);
+        // Create cell population
+        MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
         // Before we can do anything with the cell killer, we need to set up CellwiseData
         std::vector<double> oxygen_concentration;
@@ -481,22 +481,22 @@ public:
         oxygen_concentration.push_back(0.0);
         CellwiseData<2>::Instance()->SetConstantDataForTesting(oxygen_concentration);
 
-        OxygenBasedCellKiller<2> bad_cell_killer(&tissue);
+        OxygenBasedCellKiller<2> bad_cell_killer(&cell_population);
 
-        // Get a reference to the cells held in tissue
-        std::list<TissueCellPtr>& r_cells = tissue.rGetCells();
+        // Get a reference to the cells held in cell population
+        std::list<CellPtr>& r_cells = cell_population.rGetCells();
 
         // Reset cell types to STEM
-        for (AbstractTissue<2>::Iterator cell_iter = tissue.Begin();
-             cell_iter != tissue.End();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
              ++cell_iter)
         {
             cell_iter->GetCellCycleModel()->SetCellProliferativeType(STEM);
         }
 
-        TS_ASSERT_THROWS_NOTHING(OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue));
+        TS_ASSERT_THROWS_NOTHING(OxygenBasedCellKiller<2> oxygen_based_cell_killer(&cell_population));
 
-        OxygenBasedCellKiller<2> oxygen_based_cell_killer(&tissue);
+        OxygenBasedCellKiller<2> oxygen_based_cell_killer(&cell_population);
 
         TS_ASSERT_EQUALS(oxygen_based_cell_killer.GetIdentifier(), "OxygenBasedCellKiller<2>");
 
@@ -516,29 +516,29 @@ public:
 
         // Store 'locations' of cells which are not dead
         std::set< double > old_locations;
-        for (std::list<TissueCellPtr>::iterator cell_iter = r_cells.begin();
+        for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
              cell_iter != r_cells.end();
              ++cell_iter)
         {
             if (!(*cell_iter)->IsDead())
             {
-                Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+                Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
                 c_vector<double, 2> location = p_node->rGetLocation();
                 old_locations.insert(location[0] + location[1]*1000);
             }
         }
 
         // Remove the dead cell
-        tissue.RemoveDeadCells();
+        cell_population.RemoveDeadCells();
 
         // Check that dead cells are removed from the mesh
         std::set< double > new_locations;
-        for (std::list<TissueCellPtr>::iterator cell_iter = r_cells.begin();
+        for (std::list<CellPtr>::iterator cell_iter = r_cells.begin();
              cell_iter != r_cells.end();
              ++cell_iter)
         {
             TS_ASSERT_EQUALS((*cell_iter)->IsDead(), false);
-            Node<2>* p_node = tissue.GetNodeCorrespondingToCell(*cell_iter);
+            Node<2>* p_node = cell_population.GetNodeCorrespondingToCell(*cell_iter);
             c_vector<double, 2> location = p_node->rGetLocation();
             new_locations.insert(location[0] + location[1]*1000);
         }
@@ -628,7 +628,7 @@ public:
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "sloughing_killer.arch";
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         p_params->SetCryptLength(10.0);
         p_params->SetCryptWidth(5.0);

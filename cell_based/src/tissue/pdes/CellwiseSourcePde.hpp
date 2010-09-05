@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef CELLWISESOURCEPDE_HPP_
 #define CELLWISESOURCEPDE_HPP_
 
-#include "MeshBasedTissue.hpp"
+#include "MeshBasedCellPopulation.hpp"
 #include "AbstractLinearEllipticPde.hpp"
 
 /**
@@ -39,8 +39,8 @@ class CellwiseSourcePde : public AbstractLinearEllipticPde<DIM,DIM>
 {
 private:
 
-    /** The tissue member. */
-    MeshBasedTissue<DIM>& mrTissue;
+    /** The cell population member. */
+    MeshBasedCellPopulation<DIM>& mrCellPopulation;
 
     /** Coefficient of consumption of nutrient by cells. */
     double mCoefficient;
@@ -50,10 +50,10 @@ public:
     /**
      * Constructor.
      *
-     * @param rTissue reference to the tissue
+     * @param rCellPopulation reference to the cell population
      * @param coefficient the coefficient of consumption of nutrient by cells
      */
-    CellwiseSourcePde(MeshBasedTissue<DIM>& rTissue, double coefficient);
+    CellwiseSourcePde(MeshBasedCellPopulation<DIM>& rCellPopulation, double coefficient);
 
     /**
      * Overridden ComputeConstantInUSourceTerm() method.

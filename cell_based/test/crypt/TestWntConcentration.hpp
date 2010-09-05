@@ -35,7 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
 
-#include "MeshBasedTissue.hpp"
+#include "MeshBasedCellPopulation.hpp"
 #include "WntCellCycleModel.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "TrianglesMeshReader.hpp"
@@ -82,7 +82,7 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         double height = 100;
         double wnt_level = 0.0;
@@ -131,7 +131,7 @@ public:
         wnt_level = p_wnt->GetWntLevel(height);
 
         double crypt_length = 22.0;
-        TS_ASSERT_DELTA(TissueConfig::Instance()->GetCryptLength(),crypt_length, 1e-9);
+        TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetCryptLength(),crypt_length, 1e-9);
         // For heights above the top of the crypt (no Wnt)
         TS_ASSERT_DELTA(wnt_level, 0.0, 1e-9);
 
@@ -145,7 +145,7 @@ public:
         TS_ASSERT_DELTA(wnt_level, exp(-height/crypt_length), 1e-9);
 
         // For a change in lambda
-        TissueConfig::Instance()->SetCryptLength(30.0);
+        CellBasedConfig::Instance()->SetCryptLength(30.0);
         crypt_length = 30.0;
         p_wnt->SetWntConcentrationParameter(0.5);
         wnt_level = p_wnt->GetWntLevel(height);
@@ -153,7 +153,7 @@ public:
 
         // Test GetWntGradient() method
 
-        TissueConfig::Instance()->Reset();
+        CellBasedConfig::Instance()->Reset();
         c_vector<double,2> location;
         location[0] = 1.5;
         location[1] = 2.3;
@@ -170,7 +170,7 @@ public:
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(LINEAR);
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         p_wnt->SetWntConcentrationParameter(1.0/3.0);
 
         double height = 100;
@@ -211,9 +211,9 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
 
         p_wnt->SetType(RADIAL);
-        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // only fully set up when a tissue is assigned.
+        TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);   // only fully set up when a cell population is assigned
 
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Test GetWntLevel(double) method
         double height = 100;
@@ -240,7 +240,7 @@ public:
         wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, 0.6818, 1e-4);
 
-        // Test GetWntLevel(TissueCellPtr) method
+        // Test GetWntLevel(CellPtr) method
 
         // Create a simple mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_2_elements");
@@ -250,37 +250,37 @@ public:
         // Translate mesh so that its centre is at (0,0)
         mesh.Translate(-0.5,-0.5);
 
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
-            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = 0.0 - i;
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
         }
 
         // Create a crypt
-        MeshBasedTissue<2> crypt(mesh, cells);
+        MeshBasedCellPopulation<2> crypt(mesh, cells);
         p_params->SetCryptLength(1.0);
-        p_wnt->SetTissue(crypt);
+        p_wnt->SetCellPopulation(crypt);
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // fully set up now
 
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetType(NONE);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), false);    // not fully set up now it is a NONE type
 
         WntConcentration<2>::Destroy();
         WntConcentration<2>::Instance()->SetType(RADIAL);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
         p_wnt = WntConcentration<2>::Instance();
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), true);    // set up again
 
-        AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
+        AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
 
         double wnt_at_cell0 = p_wnt->GetWntLevel(*cell_iter);
 
@@ -291,7 +291,7 @@ public:
         {
             TS_ASSERT_DELTA(p_wnt->GetWntLevel(*cell_iter), wnt_at_cell0, 1e-12);
 
-            // Test GetWntGradient(TissueCellPtr) method
+            // Test GetWntGradient(CellPtr) method
             c_vector<double,2> cell_location = crypt.GetLocationOfCellCentre(*cell_iter);
             double r = norm_2(cell_location);
 
@@ -341,7 +341,7 @@ public:
             double height = 21.0;
             double wnt_level = p_wnt->GetWntLevel(height);
 
-            TS_ASSERT_DELTA(wnt_level, 1.0-height/TissueConfig::Instance()->GetCryptLength(), 1e-9);
+            TS_ASSERT_DELTA(wnt_level, 1.0-height/CellBasedConfig::Instance()->GetCryptLength(), 1e-9);
         }
 
         WntConcentration<2>::Destroy();
@@ -350,7 +350,7 @@ public:
 
     void TestSingletonnessOfWntConcentration()
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
         p_wnt->SetType(NONE);
@@ -403,14 +403,14 @@ public:
 
         std::vector<WntCellCycleModel*> models;
 
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             WntCellCycleModel* p_model = new WntCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
-            TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+            CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = 0.0 - i;
             p_cell->SetBirthTime(birth_time);
 
@@ -419,17 +419,17 @@ public:
         }
 
         // Create the crypt
-        MeshBasedTissue<2> crypt(mesh, cells);
+        MeshBasedCellPopulation<2> crypt(mesh, cells);
 
-        TissueConfig::Instance()->SetCryptLength(1.0);
+        CellBasedConfig::Instance()->SetCryptLength(1.0);
 
         WntConcentration<2>::Instance()->SetType(LINEAR);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
-        // As there is no tissue simulation we must explicitly initialise the cells
+        // As there is no cell-based simulation we must explicitly initialise the cells
         crypt.InitialiseCells();
 
-        for (AbstractTissue<2>::Iterator cell_iter = crypt.Begin();
+        for (AbstractCellPopulation<2>::Iterator cell_iter = crypt.Begin();
              cell_iter != crypt.End();
              ++cell_iter)
         {

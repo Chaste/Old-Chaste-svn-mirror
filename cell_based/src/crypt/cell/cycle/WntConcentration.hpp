@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
-#include "AbstractTissue.hpp"
+#include "AbstractCellPopulation.hpp"
 
 /**
  * Possible types of WntConcentration, currently:
@@ -61,8 +61,8 @@ private:
     /** Pointer to the singleton instance of WntConcentration */
     static WntConcentration* mpInstance;
 
-    /** Pointer to the TissueConfig singleton */
-    TissueConfig* mpTissueConfig;
+    /** Pointer to the CellBasedConfig singleton */
+    CellBasedConfig* mpCellBasedConfig;
 
     /**
      * The type of WntConcentration current options are
@@ -73,9 +73,9 @@ private:
     WntConcentrationType mWntType;
 
     /**
-     *  The tissue in which the WntConcentration occurs.
+     *  The cell population in which the WntConcentration occurs.
      */
-    AbstractTissue<DIM>* mpTissue;
+    AbstractCellPopulation<DIM>* mpCellPopulation;
 
     /**
      *  Whether this WntConcentration object has had its type set.
@@ -89,7 +89,7 @@ private:
 
     /**
      *  Whether to return the testing value
-     *  (when false WntConcentration works with Tissue).
+     *  (when false WntConcentration works with CellPopulation).
      */
     bool mUseConstantWntValueForTesting;
 
@@ -115,11 +115,11 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        mpTissueConfig = TissueConfig::Instance();
-        archive & *mpTissueConfig;
-        archive & mpTissueConfig;
+        mpCellBasedConfig = CellBasedConfig::Instance();
+        archive & *mpCellBasedConfig;
+        archive & mpCellBasedConfig;
         archive & mWntType;
-        archive & mpTissue;
+        archive & mpCellPopulation;
         archive & mTypeSet;
         archive & mConstantWntValueForTesting;
         archive & mUseConstantWntValueForTesting;
@@ -156,7 +156,7 @@ public:
 
     /**
      *  Get the Wnt level at a given height in the crypt. Note the
-     *  TissueConfig::CryptLength() is used for this.
+     *  CellBasedConfig::CryptLength() is used for this.
      *
      *  @param height the height of the cell at which we want the Wnt concentration
      *  @return the Wnt concentration at this height in the crypt (dimensionless)
@@ -165,17 +165,17 @@ public:
 
     /**
      *  Get the Wnt level at a given cell in the crypt. The crypt
-     *  must be set for this. Note the TissueConfig::CryptLength()
+     *  must be set for this. Note the CellBasedConfig::CryptLength()
      *  is used for this.
      *
      *  @param pCell the cell at which we want the Wnt concentration
      *  @return the Wnt concentration at this cell
      */
-    double GetWntLevel(TissueCellPtr pCell);
+    double GetWntLevel(CellPtr pCell);
 
     /**
      *  Get the Wnt gradient at a given location in the crypt. Note the
-     *  TissueConfig::CryptLength() is used for this.
+     *  CellBasedConfig::CryptLength() is used for this.
      *
      *  @param rLocation  the location at which we want the Wnt gradient
      */
@@ -183,19 +183,19 @@ public:
 
     /**
      *  Get the Wnt gradient at a given cell in the crypt. The crypt
-     *  must be set for this. Note the TissueConfig::CryptLength()
+     *  must be set for this. Note the CellBasedConfig::CryptLength()
      *  is used for this.
      *
      *  @param pCell the cell at which we want the Wnt gradient
      */
-    c_vector<double, DIM> GetWntGradient(TissueCellPtr pCell);
+    c_vector<double, DIM> GetWntGradient(CellPtr pCell);
 
     /**
      *  Set the crypt. Must be called before GetWntLevel().
      *
-     *  @param rTissue reference to the tissue
+     *  @param rCellPopulation reference to the cell population
      */
-    void SetTissue(AbstractTissue<DIM>& rTissue);
+    void SetCellPopulation(AbstractCellPopulation<DIM>& rCellPopulation);
 
     /**
      *  Get the type of Wnt concentration.
@@ -220,7 +220,7 @@ public:
     /**
      *  Whether a Wnt concentration has been set up.
      *
-     *  For archiving, and to let a TissueSimulation
+     *  For archiving, and to let a CellBasedSimulation
      *  find out whether whether a WntConcentration has
      *  been set up or not, i.e. whether stem cells should
      *  be motile.

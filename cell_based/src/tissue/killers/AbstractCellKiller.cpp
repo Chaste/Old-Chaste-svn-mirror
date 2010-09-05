@@ -29,8 +29,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellKiller.hpp"
 
 template <unsigned SPACE_DIM>
-AbstractCellKiller<SPACE_DIM>::AbstractCellKiller(AbstractTissue<SPACE_DIM>* pTissue)
-        : mpTissue(pTissue)
+AbstractCellKiller<SPACE_DIM>::AbstractCellKiller(AbstractCellPopulation<SPACE_DIM>* pCellPopulation)
+        : mpCellPopulation(pCellPopulation)
 {
 }
 
@@ -40,9 +40,9 @@ AbstractCellKiller<SPACE_DIM>::~AbstractCellKiller()
 }
 
 template <unsigned SPACE_DIM>
-const AbstractTissue<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetTissue() const
+const AbstractCellPopulation<SPACE_DIM>* AbstractCellKiller<SPACE_DIM>::GetCellPopulation() const
 {
-    return mpTissue;
+    return mpCellPopulation;
 }
 
 template<unsigned DIM>

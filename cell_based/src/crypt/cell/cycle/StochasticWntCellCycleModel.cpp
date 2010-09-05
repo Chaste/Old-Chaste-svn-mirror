@@ -48,7 +48,7 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel(boost::shared_ptr<Abstr
 
 void StochasticWntCellCycleModel::SetG2Duration()
 {
-    TissueConfig* p_config = TissueConfig::Instance();
+    CellBasedConfig* p_config = CellBasedConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
     double mean = p_config->GetG2Duration();

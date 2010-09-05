@@ -26,11 +26,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 #include "SloughingCellKiller.hpp"
-#include "AbstractCellCentreBasedTissue.hpp"
+#include "AbstractCentreBasedCellPopulation.hpp"
 #include "PetscTools.hpp"
 
 template <unsigned DIM>
-SloughingCellKiller<DIM>::SloughingCellKiller(AbstractTissue<DIM>* pCrypt, bool sloughSides)
+SloughingCellKiller<DIM>::SloughingCellKiller(AbstractCellPopulation<DIM>* pCrypt, bool sloughSides)
     : AbstractCellKiller<DIM>(pCrypt),
       mSloughSides(sloughSides)
 {
@@ -49,13 +49,13 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
     {
         case 1:
         {
-            double crypt_length = TissueConfig::Instance()->GetCryptLength();
+            double crypt_length = CellBasedConfig::Instance()->GetCryptLength();
 
-            for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
-                 cell_iter != this->mpTissue->End();
+            for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
+                 cell_iter != this->mpCellPopulation->End();
                  ++cell_iter)
             {
-                double x = this->mpTissue->GetLocationOfCellCentre(*cell_iter)[0];
+                double x = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter)[0];
 
                 if (x > crypt_length)
                 {
@@ -66,14 +66,14 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
         }
         case 2:
         {
-            double crypt_length = TissueConfig::Instance()->GetCryptLength();
-            double crypt_width = TissueConfig::Instance()->GetCryptWidth();
+            double crypt_length = CellBasedConfig::Instance()->GetCryptLength();
+            double crypt_width = CellBasedConfig::Instance()->GetCryptWidth();
 
-            for (typename AbstractTissue<DIM>::Iterator cell_iter = this->mpTissue->Begin();
-                 cell_iter != this->mpTissue->End();
+            for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
+                 cell_iter != this->mpCellPopulation->End();
                  ++cell_iter)
             {
-                c_vector<double, 2> location = this->mpTissue->GetLocationOfCellCentre(*cell_iter);
+                c_vector<double, 2> location = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter);
                 double x = location[0];
                 double y = location[1];
 

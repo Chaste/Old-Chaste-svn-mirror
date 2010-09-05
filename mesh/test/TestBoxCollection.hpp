@@ -323,7 +323,7 @@ public:
     //
     //  Cancer/cell_based tests
     //  The following are tests written from this BoxCollection used to be
-    //  cell_based/src/tissue/NodeBoxCollection and test the cancer related
+    //  cell_based/src/tissue/NodeBoxCollection and test the cell-based
     //  functionality
     //
     /////////////////////////////////////////////////////////////////////////////////

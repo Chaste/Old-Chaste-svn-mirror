@@ -57,9 +57,9 @@ public:
     /**
      * Constructor.
      *
-     * @param pTissue pointer to the tissue.
+     * @param pCellPopulation pointer to the cell population.
      */
-    OxygenBasedCellKiller(AbstractTissue<SPACE_DIM>* pTissue);
+    OxygenBasedCellKiller(AbstractCellPopulation<SPACE_DIM>* pCellPopulation);
 
     /**
      *  Starts apoptosis if the cell has has been hypoxic for longer than
@@ -69,7 +69,7 @@ public:
      *
      *  @param pCell  the cell to test for apoptosis.
      */
-    void TestAndLabelSingleCellForApoptosis(TissueCellPtr pCell);
+    void TestAndLabelSingleCellForApoptosis(CellPtr pCell);
 
     /**
      * Loop over cells and start apoptosis if the cell has been undergone
@@ -95,8 +95,8 @@ inline void save_construct_data(
     Archive & ar, const OxygenBasedCellKiller<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     // Save data required to construct instance
-    const AbstractTissue<DIM>* const p_tissue = t->GetTissue();
-    ar << p_tissue;
+    const AbstractCellPopulation<DIM>* const p_cell_population = t->GetCellPopulation();
+    ar << p_cell_population;
 }
 
 /**
@@ -107,11 +107,11 @@ inline void load_construct_data(
     Archive & ar, OxygenBasedCellKiller<DIM> * t, const unsigned int file_version)
 {
     // Retrieve data from archive required to construct new instance
-    AbstractTissue<DIM>* p_tissue;
-    ar >> p_tissue;
+    AbstractCellPopulation<DIM>* p_cell_population;
+    ar >> p_cell_population;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)OxygenBasedCellKiller<DIM>(p_tissue);
+    ::new(t)OxygenBasedCellKiller<DIM>(p_cell_population);
 }
 }
 } // namespace ...

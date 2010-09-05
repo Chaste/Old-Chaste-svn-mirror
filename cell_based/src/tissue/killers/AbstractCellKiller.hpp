@@ -28,7 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef ABSTRACTCELLKILLER_HPP_
 #define ABSTRACTCELLKILLER_HPP_
 
-#include "AbstractTissue.hpp"
+#include "AbstractCellPopulation.hpp"
 
 #include "ChasteSerialization.hpp"
 #include "ClassIsAbstract.hpp"
@@ -56,22 +56,22 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // Archiving of mpTissue is implemented in load_construct_data of subclasses
+        // Archiving of mpCellPopulation is implemented in load_construct_data of subclasses
     }
 
 protected:
 
-    /** The tissue. */
-    AbstractTissue<SPACE_DIM>* mpTissue;
+    /** The cell population. */
+    AbstractCellPopulation<SPACE_DIM>* mpCellPopulation;
 
 public:
 
     /**
      * Constructor.
      *
-     * @param pTissue pointer to the tissue.
+     * @param pCellPopulation pointer to the cell population.
      */
-    AbstractCellKiller(AbstractTissue<SPACE_DIM>* pTissue);
+    AbstractCellKiller(AbstractCellPopulation<SPACE_DIM>* pCellPopulation);
 
     /**
      * Destructor.
@@ -86,11 +86,11 @@ public:
     virtual void TestAndLabelCellsForApoptosisOrDeath()=0;
 
     /**
-     * Get a pointer to the tissue.
+     * Get a pointer to the cell population.
      *
-     * @return A const pointer to the mpTissue
+     * @return A const pointer to the mpCellPopulation
      */
-    const AbstractTissue<SPACE_DIM>* GetTissue() const;
+    const AbstractCellPopulation<SPACE_DIM>* GetCellPopulation() const;
 
     /**
      * Outputs force used in the simulation to file and then calls OutputForceParameters to output all relevant parameters.

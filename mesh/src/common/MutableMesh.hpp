@@ -64,7 +64,7 @@ class MutableMesh : public TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>
         // NOTE - Subclasses must archive their member variables BEFORE calling this method.
         NodeMap map(this->GetNumNodes());
         this->ReMesh(map);
-        assert(map.IsIdentityMap()); // Otherwise the tissue will get VERY confused.
+        assert(map.IsIdentityMap()); // Otherwise the mesh will get VERY confused.
     }
 
 protected:

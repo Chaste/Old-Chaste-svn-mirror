@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "TissueSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "CryptSimulation2d.hpp"
 #include "CryptCellsGenerator.hpp"
@@ -57,7 +57,7 @@ public:
      */
     void TestGenerateSteadyStateCryptArchives() throw (Exception)
     {
-        TissueConfig* p_params = TissueConfig::Instance();
+        CellBasedConfig* p_params = CellBasedConfig::Instance();
         std::string output_directory = "SteadyStateCrypt";
 
         double end_of_simulation = 150.0; // hours
@@ -79,18 +79,18 @@ public:
         p_simulation_time->SetStartTime(0.0);
 
         // Set up cells
-        std::vector<TissueCellPtr> cells;
+        std::vector<CellPtr> cells;
         CryptCellsGenerator<StochasticWntCellCycleModel> cells_generator;
         cells_generator.Generate(cells, p_mesh, location_indices, true);
 
-        MeshBasedTissueWithGhostNodes<2> crypt(*p_mesh, cells, location_indices, false, 30.0); // Last parameter adjusts Ghost spring stiffness in line with the linear_force later on
+        MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices, false, 30.0); // Last parameter adjusts Ghost spring stiffness in line with the linear_force later on
 
-        // Set tissue to output cell types
+        // Set cell population to output cell types
         crypt.SetOutputCellMutationStates(true);
 
         WntConcentration<2>::Instance()->SetType(LINEAR);
         WntConcentration<2>::Instance()->SetWntConcentrationParameter(1.0/3.0);
-        WntConcentration<2>::Instance()->SetTissue(crypt);
+        WntConcentration<2>::Instance()->SetCellPopulation(crypt);
 
         GeneralisedLinearSpringForce<2> linear_force;
         std::vector<AbstractForce<2>*> force_collection;
@@ -102,7 +102,7 @@ public:
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
 
-        SloughingCellKiller<2> cell_killer(&simulator.rGetTissue(),0.01);
+        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(),0.01);
         simulator.AddCellKiller(&cell_killer);
 
         // UNUSUAL SET UP HERE /////////////////////////////////////
@@ -120,14 +120,14 @@ public:
         // END OF UNUSUAL SET UP! //////////////////////////////////
 
         simulator.Solve();
-        TissueSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
+        CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(&simulator);
 
         for (double t=time_of_each_run; t<end_of_simulation+0.5; t += time_of_each_run)
         {
-            CryptSimulation2d* p_simulator = TissueSimulationArchiver<2, CryptSimulation2d>::Load("SteadyStateCrypt",t);
+            CryptSimulation2d* p_simulator = CellBasedSimulationArchiver<2, CryptSimulation2d>::Load("SteadyStateCrypt",t);
             p_simulator->SetEndTime(t+time_of_each_run);
             p_simulator->Solve();
-            TissueSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator);
+            CellBasedSimulationArchiver<2, CryptSimulation2d>::Save(p_simulator);
             delete p_simulator;
         }
 

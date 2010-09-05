@@ -31,21 +31,21 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <cxxtest/TestSuite.h>
 
 // Must be included before other cell_based headers
-#include "TissueSimulationArchiver.hpp"
+#include "CellBasedSimulationArchiver.hpp"
 
 #include "TrianglesMeshReader.hpp"
-#include "TissueSimulation.hpp"
+#include "CellBasedSimulation.hpp"
 #include "TrianglesMeshWriter.hpp"
 #include "GeneralisedLinearSpringForce.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
-#include "MeshBasedTissueWithGhostNodes.hpp"
+#include "MeshBasedCellPopulationWithGhostNodes.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
 
 
 /**
  * This class consists of a single test, in which a 3D model
- * of a slab of tissue is simulated. There is not yet any division
+ * of a cell population is simulated. There is not yet any division
  * in the model, and all cells have the same proliferative state
  * (differentiated) and mutation state (wildtype).
  *
@@ -57,7 +57,7 @@ class Test3dTissueRepresentativeSimulation : public AbstractCellBasedTestSuite
 public:
 
 	/*
-	 * Create and simulate a simple 3D tissue with a cuboid
+	 * Create and simulate a simple 3D cell population with a cuboid
 	 * mesh, with ghost nodes around the outside
 	 */
 	void Test3DHoneycombMeshWithGhostNodes() throw (Exception)
@@ -173,7 +173,7 @@ public:
 
 	    // Now only assign cells to real_node_indices
 
-	    std::vector<TissueCellPtr> cells;
+	    std::vector<CellPtr> cells;
 		boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
 
 	    for (std::vector<unsigned>::iterator real_node_iter=real_node_indices.begin();
@@ -182,17 +182,17 @@ public:
 	    {
 	    	FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
 	    	p_model->SetCellProliferativeType(DIFFERENTIATED);
-	    	TissueCellPtr p_cell(new TissueCell(p_state, p_model));
+	    	CellPtr p_cell(new Cell(p_state, p_model));
 	        cells.push_back(p_cell);
 	    }
 
 	    TS_ASSERT_EQUALS(real_node_indices.size(), cells.size());
 
-	    MeshBasedTissueWithGhostNodes<3> tissue(mesh, cells, real_node_indices);
-	    tissue.SetOutputVoronoiData(true);
-	    tissue.SetOutputCellAncestors(true);
+	    MeshBasedCellPopulationWithGhostNodes<3> cell_population(mesh, cells, real_node_indices);
+	    cell_population.SetOutputVoronoiData(true);
+	    cell_population.SetOutputCellAncestors(true);
 
-	    TS_ASSERT_EQUALS(ghost_node_indices.size(), tissue.GetGhostNodeIndices().size());
+	    TS_ASSERT_EQUALS(ghost_node_indices.size(), cell_population.GetGhostNodeIndices().size());
 
 	    // Create force law
 	    GeneralisedLinearSpringForce<3> linear_force;
@@ -200,7 +200,7 @@ public:
 	    std::vector<AbstractForce<3>*> force_collection;
 	    force_collection.push_back(&linear_force);
 
-	    TissueSimulation<3> simulator(tissue, force_collection);
+	    CellBasedSimulation<3> simulator(cell_population, force_collection);
 
 	    simulator.SetOutputDirectory("Test3DHoneycombBoxMeshWithGhostNodes");
 

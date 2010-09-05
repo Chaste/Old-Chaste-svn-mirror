@@ -81,7 +81,7 @@ public:
      * birth time and cell cycle proteins are reset. Note that the
      * oxygen concentration maintains its current value.
      *
-     * Should only be called by the TissueCell Divide() method.
+     * Should only be called by the Cell Divide() method.
      */
     virtual void ResetForDivision();
 

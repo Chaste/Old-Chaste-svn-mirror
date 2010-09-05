@@ -89,7 +89,7 @@ public:
 
 /**
  * A collection of 'boxes' partitioning the domain with information on which nodes are located in which box
- * Not archived - in cell_based constructed in NodeBasedTissue constructor.
+ * Not archived - in cell_based constructed in NodeBasedCellPopulation constructor.
  */
 template<unsigned DIM>
 class BoxCollection
@@ -115,7 +115,7 @@ public:
     /**
      * Constructor
      *
-     * @param boxWidth the width of each box (cut-off length in NodeBasedTissue cancer simulations)
+     * @param boxWidth the width of each box (cut-off length in NodeBasedCellPopulation simulations)
      * @param domainSize the size of the domain, in the form (xmin, xmax, ymin, ymax) (etc)
      */
     BoxCollection(double boxWidth, c_vector<double, 2*DIM> domainSize);

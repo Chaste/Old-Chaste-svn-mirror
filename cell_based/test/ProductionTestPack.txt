@@ -1,8 +1,8 @@
 cell/TestOdeBasedCellCycleModels.hpp
 cell/TestSimpleCellCycleModels.hpp
-cell/TestTissueCell.hpp
+cell/TestCell.hpp
 common/TestSimulationTime.hpp
-common/TestTissueConfig.hpp
+common/TestCellBasedConfig.hpp
 crypt/TestCryptSimulation1d.hpp
 crypt/TestCryptSimulation2d.hpp
 crypt/TestCylindrical2dMesh.hpp
@@ -12,10 +12,10 @@ crypt/TestWntConcentration.hpp
 mesh/TestHoneycombMeshGenerator.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
-simulation/TestTissueSimulation3d.hpp
-simulation/TestTissueSimulationWithPdes.hpp
+simulation/TestCellBasedSimulation3d.hpp
+simulation/TestCellBasedSimulationWithPdes.hpp
 tissue/TestCellKillers.hpp
 tissue/TestCellwiseData.hpp
-tissue/TestMeshBasedTissue.hpp
-tissue/TestNodeBasedTissue.hpp
+tissue/TestMeshBasedCellPopulation.hpp
+tissue/TestNodeBasedCellPopulation.hpp
 tissue/TestPdeAndBoundaryConditions.hpp
