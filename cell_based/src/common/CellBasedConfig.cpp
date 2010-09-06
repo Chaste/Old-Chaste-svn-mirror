@@ -58,7 +58,6 @@ CellBasedConfig::CellBasedConfig()
  * mDampingConstantMutant has units of kg s^-1
  * mCryptProjectionParameterA has no units
  * mCryptProjectionParameterB has no units
- * mMeinekeSpringStiffness has units of N/m = kg s^-2
  * mMechanicsCutOffLength has units of cell size at equilibrium rest length
  */
 void CellBasedConfig::Reset()

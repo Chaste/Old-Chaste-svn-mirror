@@ -54,45 +54,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellLabel.hpp"
 #include "CellPropertyRegistry.hpp"
 
-/**
- * Simple cell killer which just kills a single cell.
- * The constructor takes in a number n, and the killer
- * will kill the n-th cell reached using the iterator
- * (or the last cell, if n>num_cells).
- *
- * For testing purposes.
- */
-//class TargetedCellKiller : public AbstractCellKiller<2>
-//{
-//private :
-//    unsigned mNumber;
-//
-//public :
-//    TargetedCellKiller(AbstractCellPopulation<2>* pCellPopulation, unsigned number)
-//        : AbstractCellKiller<2>(pCellPopulation),
-//          mNumber(number)
-//    {
-//    }
-//
-//    virtual void TestAndLabelCellsForApoptosisOrDeath()
-//    {
-//        if (mpCellPopulation->GetNumRealCells()==0)
-//        {
-//            return;
-//        }
-//
-//        AbstractCellPopulation<2>::Iterator cell_iter = mpCellPopulation->Begin();
-//
-//        for (unsigned i=0; ( (i<mNumber) && (cell_iter!=mpCellPopulation->End()) ); i++)
-//        {
-//            ++cell_iter;
-//        }
-//
-//        cell_iter->Kill();
-//    }
-//};
-
-
 class TestCryptSimulation2d : public AbstractCellBasedTestSuite
 {
 private:

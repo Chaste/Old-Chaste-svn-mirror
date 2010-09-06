@@ -755,6 +755,8 @@ void CellBasedSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFil
 	  *rParamsFile << "\t\t<Dt>"<< mDt << "</Dt>\n";
 	  *rParamsFile << "\t\t<EndTime>"<< mEndTime << "</EndTime>\n";
 	  *rParamsFile << "\t\t<SamplingTimestepMultiple>"<< mSamplingTimestepMultiple << "</SamplingTimestepMultiple>\n";
+	  *rParamsFile << "\t\t<OutputNodeVelocities>"<< mOutputNodeVelocities << "</OutputNodeVelocities>\n";
+	  ;
 }
 
 ////////////////////////////////////////////////////////////////////////////
