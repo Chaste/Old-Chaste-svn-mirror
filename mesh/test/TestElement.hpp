@@ -38,6 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
+typedef BoundaryElement<2,3> BOUNDARY_ELEMENT_2_3;
+
 class TestElement : public CxxTest::TestSuite
 {
     /**
@@ -462,6 +464,14 @@ public:
         element.MarkAsDeleted();
         TS_ASSERT_THROWS_THIS(element.CalculateWeightedDirection(weighted_direction, det),"Attempting to Refresh a deleted element");
 
+        //Construction of face with zero area
+        std::vector<Node<3>*> nodes_the_same;
+        nodes_the_same.push_back(new Node<3>(0, false, 0.0, 0.0, 0.0));
+        nodes_the_same.push_back(new Node<3>(1, false, 0.0, 0.0, 0.0));
+        nodes_the_same.push_back(new Node<3>(2, false, 0.0, 0.0, 0.0));
+        TS_ASSERT_THROWS_THIS(new BOUNDARY_ELEMENT_2_3(INDEX_IS_NOT_USED, nodes_the_same), "Jacobian determinant is zero");
+        
+        
         Node<3>* p_fake_node = new Node<3>(0, false, 0.0, 0.0, 0.0);
         Node<3>* p_fake_node2 = new Node<3>(0, false, 0.0, 0.0, 0.0);
         TS_ASSERT_THROWS_THIS(element.ReplaceNode(p_fake_node, p_fake_node2),"You didn\'t have that node to start with.");
@@ -471,6 +481,7 @@ public:
         for (unsigned i=0; i<nodes.size(); i++)
         {
             delete nodes[i];
+            delete nodes_the_same[i];
         }
 
         element.SetRegion(3);

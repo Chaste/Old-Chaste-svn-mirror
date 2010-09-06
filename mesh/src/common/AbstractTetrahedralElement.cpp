@@ -61,13 +61,13 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
     // Sanity checking
     unsigned num_vectices = ELEMENT_DIM+1;
 
-    // This is so we know it's the first time of asking
-    // Create Jacobian
-    c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
+    double det;
 
     if (SPACE_DIM == ELEMENT_DIM)
     {
-        double det;
+        // This is so we know it's the first time of asking
+        // Create Jacobian
+        c_matrix<double, SPACE_DIM, ELEMENT_DIM> jacobian;
         try
         {
             CalculateJacobian(jacobian, det);
@@ -86,7 +86,14 @@ AbstractTetrahedralElement<ELEMENT_DIM, SPACE_DIM>::AbstractTetrahedralElement(u
             assert(det > 0.0);
         }
     }
-    // else - don't bother working out the chirality
+    else 
+    {
+        //This is not a full-dimensional element
+        c_vector<double, SPACE_DIM> weighted_direction;
+        double det;
+        CalculateWeightedDirection(weighted_direction, det);
+    }
+
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

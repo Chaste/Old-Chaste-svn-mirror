@@ -907,11 +907,21 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
                     this->mBoundaryNodes.push_back(nodes[j]);
                 }
             }
-            this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index++, nodes));
+            //For some reason, tetgen in library mode makes its initial Delauney with
+            //very thin slivers.  Hence we expect to ignore some of the elements!
+            BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_b_element;
+            try
+            {
+                p_b_element = new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index, nodes);
+                this->mBoundaryElements.push_back(p_b_element);
+                next_boundary_element_index++;
+            }
+            catch (Exception &e)
+            {
+                //Tetgen is feeding us lies  //Watch this space for coverage
+            }
         }
         this->RefreshJacobianCachedData();
-        
-
     }
 }
 
