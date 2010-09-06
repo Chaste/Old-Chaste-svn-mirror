@@ -472,7 +472,7 @@ bool AbstractNonlinearAssemblerSolverHybrid<ELEMENT_DIM, SPACE_DIM, PROBLEM_DIM>
 #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
     // MatAYPX(*a, X, Y) does  Y = X + a*Y. 
     MatAYPX(&minus_one, analytic_jacobian, numerical_jacobian);
-#elif (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 ) //PETSc 2.3.1
+#elif (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 3 && PETSC_VERSION_SUBMINOR == 1) //PETSc 2.3.1
     // MatAYPX( Y, a, X, structure) does Y = a*Y + X. 
     MatAYPX(numerical_jacobian, minus_one, analytic_jacobian); 
 #else
