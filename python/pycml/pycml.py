@@ -49,6 +49,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #  - We could do units conversions in a separate processing pass,
 #    adding in extra mathematics to the CellML.
 
+# Turn off DeprecationWarnings
+import warnings
+warnings.simplefilter('ignore', DeprecationWarning)
 
 # Pythonic XML bindings
 import amara
