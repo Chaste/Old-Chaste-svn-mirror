@@ -729,7 +729,7 @@ public:
 
 		// Test with LinearSpringWithVariableSpringConstantsForce<2> variable_force;
     	LinearSpringWithVariableSpringConstantsForce<2> variable_force;
-		TS_ASSERT_EQUALS(variable_force.GetIdentifier(), "LinearSpringWithVariableSpringConstantsForce<2>");
+		TS_ASSERT_EQUALS(variable_force.GetIdentifier(), "LinearSpringWithVariableSpringConstantsForce-2");
 
 		out_stream variable_force_parameter_file = output_file_handler.OpenOutputFile("variable_results.parameters");
 		variable_force.OutputForceParameters(variable_force_parameter_file);
@@ -741,7 +741,7 @@ public:
 		// Test with GeneralisedLinearSpringForce
 		GeneralisedLinearSpringForce<2> linear_force;
 
-		TS_ASSERT_EQUALS(linear_force.GetIdentifier(), "GeneralisedLinearSpringForce<2>");
+		TS_ASSERT_EQUALS(linear_force.GetIdentifier(), "GeneralisedLinearSpringForce-2");
 
 		out_stream linear_force_parameter_file = output_file_handler.OpenOutputFile("linear_results.parameters");
 		linear_force.OutputForceParameters(linear_force_parameter_file);

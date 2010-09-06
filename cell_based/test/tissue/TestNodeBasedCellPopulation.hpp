@@ -677,7 +677,7 @@ public:
         // Create a cell population
         NodeBasedCellPopulation<2> node_based_cell_population(mesh, cells);
 
-        TS_ASSERT_EQUALS(node_based_cell_population.GetIdentifier(), "NodeBasedCellPopulation<2>");
+        TS_ASSERT_EQUALS(node_based_cell_population.GetIdentifier(), "NodeBasedCellPopulation-2");
 
         // Cells have been given birth times of 0, -1, -2, -3, -4.
         // loop over them to run to time 0.0;

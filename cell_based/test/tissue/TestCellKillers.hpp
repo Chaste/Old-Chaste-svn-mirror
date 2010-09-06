@@ -77,7 +77,7 @@ public:
         // Create cell killer
         TargetedCellKiller<2> single_cell_killer(&cell_population, 1u);
 
-        TS_ASSERT_EQUALS(single_cell_killer.GetIdentifier(), "TargetedCellKiller<2>");
+        TS_ASSERT_EQUALS(single_cell_killer.GetIdentifier(), "TargetedCellKiller-2");
 
         // Check that some of the vector of cells reach apotosis
         single_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
@@ -162,7 +162,7 @@ public:
 		// Create cell killer
 		RandomCellKiller<2> random_cell_killer(&cell_population, 0.05);
 
-		TS_ASSERT_EQUALS(random_cell_killer.GetIdentifier(), "RandomCellKiller<2>");
+		TS_ASSERT_EQUALS(random_cell_killer.GetIdentifier(), "RandomCellKiller-2");
 
 		// Check that a single cell reaches apoptosis
 		unsigned max_tries = 0;
@@ -255,7 +255,7 @@ public:
         SloughingCellKiller<2> sloughing_cell_killer(&cell_population, true);
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
-        TS_ASSERT_EQUALS(sloughing_cell_killer.GetIdentifier(), "SloughingCellKiller<2>");
+        TS_ASSERT_EQUALS(sloughing_cell_killer.GetIdentifier(), "SloughingCellKiller-2");
 
         // Check that cells were labelled for death correctly
         for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
@@ -498,7 +498,7 @@ public:
 
         OxygenBasedCellKiller<2> oxygen_based_cell_killer(&cell_population);
 
-        TS_ASSERT_EQUALS(oxygen_based_cell_killer.GetIdentifier(), "OxygenBasedCellKiller<2>");
+        TS_ASSERT_EQUALS(oxygen_based_cell_killer.GetIdentifier(), "OxygenBasedCellKiller-2");
 
         TS_ASSERT_THROWS_NOTHING(oxygen_based_cell_killer.TestAndLabelSingleCellForApoptosis(*r_cells.begin()));
 

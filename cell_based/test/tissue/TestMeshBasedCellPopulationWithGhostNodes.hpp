@@ -598,7 +598,7 @@ public:
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<3> cell_population(mesh, cells, location_indices);
 
-        TS_ASSERT_EQUALS(cell_population.GetIdentifier(), "MeshBasedCellPopulationWithGhostNodes<3>");
+        TS_ASSERT_EQUALS(cell_population.GetIdentifier(), "MeshBasedCellPopulationWithGhostNodes-3");
 
         // Test set methods
         cell_population.SetOutputVoronoiData(true);

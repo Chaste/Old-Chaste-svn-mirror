@@ -672,12 +672,21 @@ std::string AbstractCellPopulation<DIM>::GetIdentifier() const
         identifier.erase(i, s1.length());
     }
 
-    // Finally remove ")>::type", so that identifier now takes the form "NameOfDerivedType<DIM>"
-    std::string s2 = ")>::type";
+	// Then rereplace "<" with "-", so identifier now takes the form "NameOfDerivedType-DIM>)>::type"
+    std::string s2 = "<";
+    std::string s3 = "-";
     i = identifier.find(s2);
     if (i != identifier.npos)
     {
-        identifier.erase(i, s2.length());
+        identifier.replace(i, s2.length(), s3);
+    }
+
+    // Finally remove ")>::type", so that identifier now takes the form "NameOfDerivedType<DIM>"
+    std::string s4 = ">)>::type";
+    i = identifier.find(s4);
+    if (i != identifier.npos)
+    {
+        identifier.erase(i, s4.length());
     }
 
 	return identifier;
