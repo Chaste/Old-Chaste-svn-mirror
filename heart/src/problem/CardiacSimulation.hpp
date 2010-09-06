@@ -274,99 +274,51 @@ void CardiacSimulation::ReadParametersFromFile(std::string parameterFileName)
 }
 
 
+#define DOMAIN_CASE(VALUE, CLASS, DIM)    \
+    case VALUE:                           \
+    {                                     \
+        CreateAndRun<CLASS<DIM>, DIM>();  \
+        break;                            \
+    }
+
+#define DOMAIN_SWITCH(DIM)                                                     \
+    switch (HeartConfig::Instance()->GetDomain())                              \
+    {                                                                          \
+        DOMAIN_CASE(cp::domain_type::Mono, MonodomainProblem, DIM)             \
+        DOMAIN_CASE(cp::domain_type::Bi, BidomainProblem, DIM)                 \
+        DOMAIN_CASE(cp::domain_type::BiWithBath, BidomainWithBathProblem, DIM) \
+        default:                                                               \
+            NEVER_REACHED;                                                     \
+    }                                                                          \
+    break
+// Note that if the domain is not set correctly then the XML parser will have picked it up before now!
+// Missing semi-colon after break so we can put it after the macro call.
+
 void CardiacSimulation::Run()
 {
-    switch (HeartConfig::Instance()->GetDomain())
+    switch (HeartConfig::Instance()->GetSpaceDimension())
     {
-        case cp::domain_type::Mono :
+        case 3:
         {
-            switch (HeartConfig::Instance()->GetSpaceDimension())
-            {
-                case 3:
-                {
-                    CreateAndRun<MonodomainProblem<3>,3>();
-                    break;
-                }
-
-                case 2:
-                {
-                    CreateAndRun<MonodomainProblem<2>,2>();
-                    break;
-                }
-
-                case 1:
-                {
-                    CreateAndRun<MonodomainProblem<1>,1>();
-                    break;
-                }
-                default :
-                    EXCEPTION("Monodomain space dimension not supported: should be 1, 2 or 3");
-            }
-            break;
+            DOMAIN_SWITCH(3);
         }
-
-        case cp::domain_type::Bi :
+        case 2:
         {
-            switch (HeartConfig::Instance()->GetSpaceDimension())
-            {
-                case 3:
-                {
-                    CreateAndRun<BidomainProblem<3>,3>();
-                    break;
-                }
-                case 2:
-                {
-                    CreateAndRun<BidomainProblem<2>,2>();
-                    break;
-                }
-                case 1:
-                {
-                    CreateAndRun<BidomainProblem<1>,1>();
-                    break;
-                }
-                default :
-                {
-                    EXCEPTION("Bidomain space dimension not supported: should be 1, 2 or 3");
-                }
-            }
-            break;
+            DOMAIN_SWITCH(2);
         }
-
-        case cp::domain_type::BiWithBath :
+        case 1:
         {
-            switch (HeartConfig::Instance()->GetSpaceDimension())
-            {
-                case 3:
-                {
-                    CreateAndRun<BidomainWithBathProblem<3>,3>();
-                    break;
-                }
-                case 2:
-                {
-                    CreateAndRun<BidomainWithBathProblem<2>,2>();
-                    break;
-                }
-                case 1:
-                {
-                    CreateAndRun<BidomainWithBathProblem<1>,1>();
-                    break;
-                }
-                default :
-                {
-                    EXCEPTION("Bidomain space dimension not supported: should be 1, 2 or 3");
-                }
-            }
-            break;
+            DOMAIN_SWITCH(1);
         }
-
-        default :
-        {
-            // If the domain is not set correctly then the XML parser will have picked it up before now!
-            NEVER_REACHED;
-        }
+        default:
+            // We could check for this too in the XML Schema...
+            EXCEPTION("Space dimension not supported: should be 1, 2 or 3");
     }
 }
 
+// These aren't needed externally
+#undef DOMAIN_SWITCH
+#undef DOMAIN_CASE
 
 
 #endif /*CARDIACSIMULATION_HPP_*/
