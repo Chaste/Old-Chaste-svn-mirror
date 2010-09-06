@@ -449,7 +449,7 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     // are kept.
 #if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
     MatSetOption(jacobian, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE);
-#elsif (PETSC_VERSION_MAJOR == 3) //PETSc 3.0
+#elif (PETSC_VERSION_MAJOR == 3) //PETSc 3.0
     MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS, PETSC_TRUE);
 #else
     MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS);
