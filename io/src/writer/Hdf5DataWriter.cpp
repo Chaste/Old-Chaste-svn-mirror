@@ -322,14 +322,6 @@ void Hdf5DataWriter::DefineFixedDimensionUsingMatrix(const std::vector<unsigned>
     PetscTools::SetupMat(mSingleIncompleteOutputMatrix,   mFileFixedDimensionSize,   mDataFixedDimensionSize, 2,  mNumberOwned,  mHi - mLo);
     PetscTools::SetupMat(mDoubleIncompleteOutputMatrix, 2*mFileFixedDimensionSize, 2*mDataFixedDimensionSize, 4,  2*mNumberOwned, 2*(mHi - mLo));
 
-//#if PETSC_VERSION_MAJOR == 3
-//    MatSetOption(mSingleIncompleteOutputMatrix, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
-//    MatSetOption(mDoubleIncompleteOutputMatrix, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
-//#else
-//    MatSetOption(mSingleIncompleteOutputMatrix, MAT_IGNORE_OFF_PROC_ENTRIES); 
-//    MatSetOption(mDoubleIncompleteOutputMatrix, MAT_IGNORE_OFF_PROC_ENTRIES); 
-//#endif
-
     //Only do local rows
     for (unsigned row_index = mOffset; row_index < mOffset + mNumberOwned; row_index++)
     {
@@ -1008,7 +1000,7 @@ bool Hdf5DataWriter::ApplyPermutation(const std::vector<unsigned>& rPermutation)
     assert(mDoublePermutation == NULL);
     PetscTools::SetupMat(mSinglePermutation,   mDataFixedDimensionSize,   mDataFixedDimensionSize, 2, mHi - mLo, mHi - mLo);
     PetscTools::SetupMat(mDoublePermutation, 2*mDataFixedDimensionSize, 2*mDataFixedDimensionSize, 4, 2*(mHi - mLo), 2*(mHi - mLo));
-#if PETSC_VERSION_MAJOR == 3
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
     MatSetOption(mSinglePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
     MatSetOption(mDoublePermutation, MAT_IGNORE_OFF_PROC_ENTRIES, PETSC_TRUE); 
 #else

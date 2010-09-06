@@ -773,7 +773,7 @@ void DistributedTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::PetscMatrixPartitioning
                 
     // Figure out who owns what - processor offsets
     PetscInt* num_nodes_per_process = new PetscInt[num_procs];        
-#if ( PETSC_VERSION_MAJOR == 3)
+#if (PETSC_VERSION_MAJOR == 3) //PETSc 3.x.x
     ISPartitioningCount(new_process_numbers, num_procs, num_nodes_per_process);
 #else
     ISPartitioningCount(new_process_numbers, num_nodes_per_process);

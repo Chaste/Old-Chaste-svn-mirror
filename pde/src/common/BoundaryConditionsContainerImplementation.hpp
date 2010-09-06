@@ -351,12 +351,12 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
         //Apply the RHS boundary conditions modification if required.
         if (rLinearSystem.rGetDirichletBoundaryConditionsVector())
         {
-    #if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
+#if (PETSC_VERSION_MAJOR == 2 && PETSC_VERSION_MINOR == 2) //PETSc 2.2
             double one = 1.0;
             VecAXPY(&one, rLinearSystem.rGetDirichletBoundaryConditionsVector(), rLinearSystem.rGetRhsVector());
-    #else
+#else
             VecAXPY(rLinearSystem.rGetRhsVector(), 1.0, rLinearSystem.rGetDirichletBoundaryConditionsVector());
-    #endif
+#endif
         }
     
         //Apply the actual boundary condition to the RHS, note this must be done after the modification to the
@@ -447,12 +447,10 @@ void BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::ApplyDirich
     // when the row is zeroed, and if there is a next timestep, the memory will have to reallocated
     // when assembly to done again. This can kill performance. The following makes sure the zeroed rows
     // are kept.
-#if PETSC_VERSION_MAJOR == 3
- #if PETSC_VERSION_MINOR == 1
+#if (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR == 1) //PETSc 3.1
     MatSetOption(jacobian, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE);
- #else
+#elsif (PETSC_VERSION_MAJOR == 3) //PETSc 3.0
     MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS, PETSC_TRUE);
- #endif
 #else
     MatSetOption(jacobian, MAT_KEEP_ZEROED_ROWS);
 #endif
