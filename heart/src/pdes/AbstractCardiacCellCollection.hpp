@@ -51,27 +51,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractDynamicallyLoadableEntity.hpp"
 #include "DynamicModelLoaderRegistry.hpp"
 
-//// OLD NOTE: read this if AbstractPde is brought back
-// IMPORTANT NOTE: the inheritance of AbstractPde has to be 'virtual'
-// ie "class AbstractCardiacCellCollection : public virtual AbstractPde"
-// because AbstractPde will be the top class in a 'dreaded diamond':
-//      A
-//     / \     A = AbstractPde, B = AbstractCardiac, C = AbstractLinearParabolic (etc)
-//    B   C    D = MonodomainCellCollection
-//     \ /
-//      D
-//
-// B and C must use virtual inheritence of A in order for D to only contain 1 instance
-// of the member variables in A
+
+
 
 /**
  * Class containing common functionality to monodomain and bidomain PDEs.
  *
- * Contains the cardiac cells (ODE systems for each node of the mesh),
+ * Contains the cardiac cells (ODE systems for each node of the mesh) and 
  * conductivity tensors (dependent on fibre directions).
  *
  * Also contains knowledge of parallelisation in the form of the
- * distributed vector factory.
+ * distributed vector factory. This class deals with created a distributed
+ * vector of cells, and getting the ionic current and stimuli from these
+ * cells and putting them in replicated arrays for the PDE solvers to call.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
 class AbstractCardiacCellCollection : boost::noncopyable
@@ -124,8 +116,9 @@ protected:
     /** It's handy to keep a pointer to the mesh object*/
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* mpMesh;
 
-    /** Intracellular conductivity tensors.  Not archived, since it's loaded from the HeartConfig singleton. */
-    AbstractConductivityTensors<SPACE_DIM> *mpIntracellularConductivityTensors;
+    /** Intracellular conductivity tensors. Not archived, since it's loaded from the 
+     *  HeartConfig singleton. */
+    AbstractConductivityTensors<SPACE_DIM>* mpIntracellularConductivityTensors;
 
     /** The vector of cells. Distributed. */
     std::vector< AbstractCardiacCell* > mCellsDistributed;
@@ -188,7 +181,7 @@ public:
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
     AbstractCardiacCellCollection(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory,
-                       const unsigned stride=1);
+                                  const unsigned stride=1);
 
     /**
      * This constructor is called by the archiver
@@ -198,8 +191,8 @@ public:
      * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
     AbstractCardiacCellCollection(std::vector<AbstractCardiacCell*>& rCellsDistributed,
-                       AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                       const unsigned stride);
+                                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
+                                  const unsigned stride);
 
     /** Virtual destructor */
     virtual ~AbstractCardiacCellCollection();

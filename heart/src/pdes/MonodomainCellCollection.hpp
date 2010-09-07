@@ -39,18 +39,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * MonodomainCellCollection class.
- *
- * The monodomain equation is of the form:
- * A (C dV/dt + Iionic) +Istim = Div( sigma_i Grad(V) )
- *
- * where A is the surface area to volume ratio         (1/cm),
- *       C is the capacitance                          (uF/cm^2),
- *       sigma_i is the intracellular conductivity     (mS/cm),
- *       I_ionic is the ionic current                  (uA/cm^2),
- *       I_stim is the intracellular stimulus current  (uA/cm^3).
- *
- * Note that default values of A, C and sigma_i are stored in the parent class
+ *  MonodomainCellCollection class.
+ * 
+ *  See documentation for AbstractCardiacCellCollection.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
 class MonodomainCellCollection : public virtual AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>
@@ -89,7 +80,7 @@ public:
      * @param pMesh the mesh (also recovered from archive)
      */
     MonodomainCellCollection(std::vector<AbstractCardiacCell*> & rCellsDistributed,
-                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
+                             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
 
 };

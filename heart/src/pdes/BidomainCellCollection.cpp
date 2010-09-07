@@ -39,7 +39,6 @@ BidomainCellCollection<SPACE_DIM>::BidomainCellCollection(
             AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
     : AbstractCardiacCellCollection<SPACE_DIM>(pCellFactory, 2 /*mStride*/)
 {
-    mExtracellularStimulusCacheReplicated.Resize( pCellFactory->GetNumberOfCells() );
     CreateExtracellularConductivityTensors();
 }
 
@@ -47,7 +46,6 @@ template <unsigned SPACE_DIM>
 BidomainCellCollection<SPACE_DIM>::BidomainCellCollection(std::vector<AbstractCardiacCell*> &rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
         :  AbstractCardiacCellCollection<SPACE_DIM>(rCellsDistributed, pMesh, 2u) // The 2 tells it this is a bidomain
 {
-    mExtracellularStimulusCacheReplicated.Resize(this->mpDistributedVectorFactory->GetProblemSize());
     CreateExtracellularConductivityTensors();
 }
 

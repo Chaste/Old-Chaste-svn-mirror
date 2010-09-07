@@ -39,14 +39,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCardiacCellCollection.hpp"
 #include "AbstractConductivityTensors.hpp"
 
+
+
+
 /**
+ * #
+ * 
+ * 
  * BidomainCellCollection class.
  *
  * The bidmain equation is of the form:
  *
  * A_m ( C_m d(V_m)/dt + I_ion ) = div ( sigma_i grad( V_m + phi_e ) ) + I_intra_stim
  *   and
- * div ( (sigma_i + sigma_e) grad phi_e    +   sigma_i (grad V_m) )  + I_extra_stim
+ * div ( (sigma_i + sigma_e) grad phi_e    +   sigma_i (grad V_m) )   = 0
  *
  * where V_m is the trans-membrane potential = phi_i - phi_e            (mV),
  *       phi_i is the intracellular potential                           (mV),
@@ -57,10 +63,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *       sigma_e is the intracellular conductivity tensor               (mS/cm),
  * and   I_ion is the ionic current                                     (uA/cm^2),
  *       I_intra_stim is the internal stimulus                          (uA/cm^3),
- *       I_extra_stim is the external stimulus                          (uA/cm^3).
  *
- * Note: I_extra_stim can only be zero now. An extracellular stimulus can be applied
- * as a boundary condition, in which case the units are uA/cm^2.
+ * An extracellular stimulus can only be applied as a boundary condition through the Electrodes class, 
+ * in which case the units are uA/cm^2.
  *
  */
 template <unsigned SPACE_DIM>
@@ -86,12 +91,6 @@ private:
 
     /** Extracellular conductivity tensors. */
     AbstractConductivityTensors<SPACE_DIM> *mpExtracellularConductivityTensors;
-
-    /**
-     *  Cache containing all the stimulus currents for each node,
-     *  replicated over all processes.
-     */
-    ReplicatableVector mExtracellularStimulusCacheReplicated;
 
     /**
      * Convenience method for extracellular conductivity tensors creation
