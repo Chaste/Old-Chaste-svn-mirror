@@ -114,7 +114,7 @@ public:
     Node(unsigned index, c_vector<double, SPACE_DIM> location, bool isBoundaryNode=false);
 
     /**
-     * Constructor which takes the coordinates if the node's location as separate input arguments.
+     * Constructor which takes the coordinates of the node's location as separate input arguments.
      *
      * @param index  the index of the node in the mesh
      * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
@@ -123,6 +123,16 @@ public:
      * @param v3 the z-coordinate of the node in the mesh (defaults to 0)
      */
     Node(unsigned index, bool isBoundaryNode=false, double v1=0, double v2=0, double v3=0);
+
+    /**
+     * Constructor which takes the coordinates of the node's location as array pointer.
+     *
+     * @param index  the index of the node in the mesh
+     * @param isBoundaryNode  whether the node is a boundary node (defaults to false)
+     * @param location address of the x-coordinate of the node in the mesh
+     * (other coordinates are assumed to be in contiguous memory)
+     */
+    Node(unsigned index,  double *location, bool isBoundaryNode=false);
 
     /**
      * Set the node's location.

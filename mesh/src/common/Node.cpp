@@ -82,7 +82,16 @@ Node<SPACE_DIM>::Node(unsigned index, bool isBoundaryNode, double v1, double v2,
     }
     CommonConstructor(index, isBoundaryNode);
 }
-
+template<unsigned SPACE_DIM>
+Node<SPACE_DIM>::Node(unsigned index, double *location, bool isBoundaryNode)
+{
+    for (unsigned i=0; i<SPACE_DIM; i++)
+    {
+        mLocation(i) = location[i];
+    }
+    CommonConstructor(index, isBoundaryNode);
+    
+}
 //////////////////////////////////////////////////////////////////////////
 // Methods dealing with node location
 //////////////////////////////////////////////////////////////////////////

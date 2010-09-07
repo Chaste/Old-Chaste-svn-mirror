@@ -246,6 +246,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(QuadraticMesh<2> bad_mesh(0.645, 1.0, 1.0), "does not divide");
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 9u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 8u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2u);
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 4u);
 
@@ -314,6 +315,7 @@ public:
         QuadraticMesh<2> mesh(3.14159/10,  3.14159, 3.14159/2);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21*11u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 60u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 100u);
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 11*6u);
 
@@ -345,6 +347,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 3*5*7u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*1*2*3u);
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 2*3*4u); 
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 90u);
 
         for (unsigned i=1; i<mesh.GetNumNodes(); i++)
         {
@@ -387,6 +390,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 1331u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 750u); // 5 cubes in each direction = 125 cubes => 125 x 6 tetrahedra per cube = 750
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 216u); // 6^3 = 216
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 602u);
 
         // Each element should have 10 nodes
         for (unsigned i=0; i<mesh.GetNumElements(); i++)
@@ -578,6 +582,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21u);
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 11u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 2u);
         
         for(unsigned i=0; i<mesh.GetNumVertices(); i++)
         {
@@ -608,6 +613,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 21*41u);
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 11*21u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2*10*20u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 120u);
     }
 
     void TestConstructRegularSlabMesh_Directly_3d() throw(Exception)
@@ -617,6 +623,7 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 3*5*7u);
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 2*3*4u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*1*2*3u);
+        TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 90u);
     }
 };
 

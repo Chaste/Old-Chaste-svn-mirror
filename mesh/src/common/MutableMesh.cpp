@@ -675,6 +675,19 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHER_IO
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+template <class MESHER_IO>
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher_output)
+{
+    assert(mesher_output.numberofcorners == ELEMENT_DIM+1);
+    Clear();
+    // Construct the nodes
+    for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
+    {
+        this->mNodes.push_back(new Node<SPACE_DIM>(node_index, &mesher_output.pointlist[node_index * SPACE_DIM], false));
+    }
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
@@ -786,34 +799,9 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 
         // Library call
         triangulate((char*)"Qze", &mesher_input, &mesher_output, NULL);
-        //ImportFromMesher(mesher_input);
-
-        assert(mesher_output.numberofcorners == 3);
-        assert(mesher_output.pointmarkerlist != NULL);
         
-        // Remove current data
-        Clear();
+        ImportFromMesher(mesher_output);
 
-        // Construct the nodes
-        for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
-        {
-            if (mesher_output.pointmarkerlist[node_index] == 1)
-            {
-                // Boundary node
-                Node<SPACE_DIM>* p_node = new Node<SPACE_DIM>(node_index, true,
-                  mesher_output.pointlist[node_index * SPACE_DIM],
-                  mesher_output.pointlist[node_index * SPACE_DIM+1]);
-                this->mNodes.push_back(p_node);
-                this->mBoundaryNodes.push_back(p_node);
-                ///\todo #1545 Make this code more like the 3D code (where we don't have the edge markers)
-            }
-            else
-            {
-                this->mNodes.push_back(new Node<SPACE_DIM>(node_index, false,
-                  mesher_output.pointlist[node_index * SPACE_DIM],
-                  mesher_output.pointlist[node_index * SPACE_DIM+1]));
-            }
-        }
 
         // Construct the elements
         this->mElements.reserve(mesher_output.numberoftriangles);
@@ -841,6 +829,11 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
                     unsigned global_node_index = mesher_output.edgelist[boundary_element_index*ELEMENT_DIM + j];
                     assert(global_node_index < this->mNodes.size());
                     nodes.push_back(this->mNodes[global_node_index]);
+                    if (!nodes[j]->IsBoundaryNode())
+                    {
+                        nodes[j]->SetAsBoundaryNode();
+                        this->mBoundaryNodes.push_back(nodes[j]);
+                    }
                 }
                 this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index++, nodes));
             }
@@ -859,23 +852,11 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         ExportToMesher(map, mesher_input);
 
         tetgen::tetrahedralize((char*)"Qz", &mesher_input, &mesher_output);
-
-        assert(mesher_output.numberofcorners == 4);
         
-        // Remove current data
-        Clear();
-        // Construct the nodes
-        for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
-        {
-            this->mNodes.push_back(new Node<SPACE_DIM>(node_index, false,
-              mesher_output.pointlist[node_index * SPACE_DIM],
-              mesher_output.pointlist[node_index * SPACE_DIM+1],
-              mesher_output.pointlist[node_index * SPACE_DIM+2]));
-        }
+        ImportFromMesher(mesher_output);
 
         // Construct the elements
         this->mElements.reserve(mesher_output.numberoftetrahedra);
-
         unsigned real_element_index=0;
         for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftetrahedra; element_index++)
         {

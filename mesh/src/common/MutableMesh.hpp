@@ -262,6 +262,19 @@ public:
     void ExportToMesher(NodeMap& map, MESHER_IO& mesher_input);
 
     /**
+     * Import the mesh from an external mesher
+     * This is determined at compile time when the MESHER_IO template is 
+     * instantiated to either 
+     *   - triangulateio (for triangle remesher in 2D)
+     *   - tetgenio (for tetgen remesher in 3D)
+     * Since conditional compilation is not allowed, care must be taken to only use
+     * common data members in this method (or add arguments \todo #1545 ...)
+     * @param mesher_output is a triangulateio or tetgenio class (decided at compile time)
+     */
+    template <class MESHER_IO>
+    void ImportFromMesher(MESHER_IO& mesher_output);
+
+    /**
      * Convenience method to tidy up a triangleio data structure before use
      * @param mesher_input is a triangulateio class
      */

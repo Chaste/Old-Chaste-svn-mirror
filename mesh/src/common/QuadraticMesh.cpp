@@ -143,22 +143,7 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
     // Construct the nodes
     for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
     {
-        if (mesher_output.pointmarkerlist[node_index] == 1)
-        {
-            // Boundary node
-            Node<DIM>* p_node = new Node<DIM>(node_index, true,
-              mesher_output.pointlist[node_index * DIM],
-              mesher_output.pointlist[node_index * DIM+1]);
-            this->mNodes.push_back(p_node);
-            this->mBoundaryNodes.push_back(p_node);
-            ///\todo #1545 Make this code more like the 3D code (where we don't have the edge markers)
-        }
-        else
-        {
-            this->mNodes.push_back(new Node<DIM>(node_index, false,
-              mesher_output.pointlist[node_index * DIM],
-              mesher_output.pointlist[node_index * DIM+1]));
-        }
+        this->mNodes.push_back(new Node<DIM>(node_index, &mesher_output.pointlist[node_index * DIM], false));
     }
 
     mIsInternalNode.resize(this->GetNumNodes(), true);
@@ -213,6 +198,12 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
                 unsigned global_node_index=mesher_output.edgelist[boundary_element_index*DIM + j];
                 assert(global_node_index < this->mNodes.size());
                 nodes.push_back(this->mNodes[global_node_index]);
+                if (!nodes[j]->IsBoundaryNode())
+                {
+                    nodes[j]->SetAsBoundaryNode();
+                    this->mBoundaryNodes.push_back(nodes[j]);
+                }
+                
             }
             this->mBoundaryElements.push_back(new BoundaryElement<DIM-1, DIM>(next_boundary_element_index++, nodes));
         }

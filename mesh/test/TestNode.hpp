@@ -74,6 +74,28 @@ public:
         // This shouldn't give an error, even though we specify too many
         // coordinates: the 3rd coord should be ignored.
         Node<2> node3(2, true, 1.0, 2.0, 3.0);
+        
+        double location[3];
+        location[0]=100.0;
+        location[1]=101.0;
+        location[2]=102.0;
+        Node<1> node4(2, location, true);
+        Node<2> node5(2, location, true);
+        Node<3> node6(2, location, true);
+        TS_ASSERT_EQUALS(node4.IsBoundaryNode(), true);
+        TS_ASSERT_EQUALS(node5.IsBoundaryNode(), true);
+        TS_ASSERT_EQUALS(node6.IsBoundaryNode(), true);
+        TS_ASSERT_EQUALS(node4.GetIndex(), 2u);
+        TS_ASSERT_EQUALS(node5.GetIndex(), 2u);
+        TS_ASSERT_EQUALS(node6.GetIndex(), 2u);
+        TS_ASSERT_DELTA(node4.GetPoint()[0], location[0], 1e-12);
+        TS_ASSERT_DELTA(node5.GetPoint()[0], location[0], 1e-12);
+        TS_ASSERT_DELTA(node6.GetPoint()[0], location[0], 1e-12);
+
+        TS_ASSERT_DELTA(node5.GetPoint()[1], location[1], 1e-12);
+        TS_ASSERT_DELTA(node6.GetPoint()[1], location[1], 1e-12);
+
+        TS_ASSERT_DELTA(node6.GetPoint()[2], location[2], 1e-12);
 
         // Test node deletion (from a mesh) methods
         TS_ASSERT_EQUALS(node1.IsDeleted(), false);
