@@ -31,6 +31,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/shared_ptr.hpp>
 
+#include "ChasteSerialization.hpp"
+#include "ClassIsAbstract.hpp"
+
 #include "AbstractIvpOdeSolver.hpp"
 #include "AbstractStimulusFunction.hpp"
 #include "OdeSolution.hpp"
@@ -241,7 +244,26 @@ protected:
 
     /** Whether this cell exists in a tissue, or is an isolated cell. */
     bool mIsUsedInTissue;
-    
+
+private:
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * This is needed to register the base-derived relationship between this class
+     * and AbstractCardiacCell; however, serialization of our members is done by
+     * AbstractCardiacCell in order to maintain archive backwards compatibility more
+     * easily, since we never archive AbstractCvodeCell s.
+     *
+     * @param archive
+     * @param version
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+    }
 };
+
+CLASS_IS_ABSTRACT(AbstractCardiacCellInterface)
+
 
 #endif /*ABSTRACTCARDIACCELLINTERFACE_HPP_*/

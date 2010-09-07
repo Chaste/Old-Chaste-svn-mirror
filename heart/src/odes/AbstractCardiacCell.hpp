@@ -79,6 +79,10 @@ private:
     {
         // This calls serialize on the base class.
         archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
+        if (version > 0)
+        {
+            archive & boost::serialization::base_object<AbstractCardiacCellInterface>(*this);
+        }
         archive & mDt;
         archive & this->mSetVoltageDerivativeToZero;
         if (version > 0)

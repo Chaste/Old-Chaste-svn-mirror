@@ -63,11 +63,6 @@ public:
     DynamicCellModelLoader* GetLoader(const FileFinder& rFileFinder);
     
     /**
-     * Close all loaded .so files.
-     */
-    void Clear();
-
-    /**
      * Destructor closes all loaded .so files.
      */
     ~DynamicModelLoaderRegistry();

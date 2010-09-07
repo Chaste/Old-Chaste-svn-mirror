@@ -55,7 +55,7 @@ DynamicCellModelLoader* DynamicModelLoaderRegistry::GetLoader(const FileFinder& 
     return GetLoader(rFileFinder.GetAbsolutePath());
 }
 
-void DynamicModelLoaderRegistry::Clear()
+DynamicModelLoaderRegistry::~DynamicModelLoaderRegistry()
 {
     for (std::map<std::string, DynamicCellModelLoader*>::iterator it=mLoaders.begin();
          it != mLoaders.end();
@@ -64,11 +64,6 @@ void DynamicModelLoaderRegistry::Clear()
         delete (it->second);
     }
     mLoaders.clear();
-}
-
-DynamicModelLoaderRegistry::~DynamicModelLoaderRegistry()
-{
-    Clear();
 }
 
 DynamicModelLoaderRegistry::DynamicModelLoaderRegistry()

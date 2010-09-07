@@ -353,22 +353,8 @@ public:
         // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT(CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
                                                 foldername, "SimulationResults", true, 1e-8));
-
-        // Coverage - using CVODE should throw
-        DynamicModelLoaderRegistry::Instance()->Clear(); // Otherwise we just re-use the version loaded above...
-        std::vector<std::string> args;
-        args.push_back("--cvode");
-        CreateOptionsFile(handler, "luo_rudy_1991_dyn", args);
-        if (PetscTools::AmMaster())
-        {
-            /// \todo #1542 should remove the need for this:
-            EXPECT0(system, "rm " + handler.GetOutputDirectoryFullPath() + "libluo_rudy_1991_dyn.so");
-        }
-        PetscTools::Barrier("TestCardiacSimulationPatchwork-rm");
-        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation2("heart/test/data/xml/base_monodomain_patchwork.xml"),
-                              "CVODE cannot be used as a cell model solver in tissue simulations: do not use the --cvode flag.");
     }
-
+    
     void TestCardiacSimulationKirsten() throw(Exception)
     {
         CardiacSimulation simulation("heart/test/data/xml/base_monodomain_kirsten.xml");
@@ -408,6 +394,20 @@ public:
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/dynamic_checkpoint.xml"),
                               "Checkpointing is not compatible with dynamically loaded cell models on Boost<1.37.");
 #endif
+        // Coverage - using CVODE should throw
+        OutputFileHandler handler_cvode("DynamicallyLoadedModelCvode");
+        if (PetscTools::AmMaster())
+        {
+            // Copy CellML file into output dir
+            FileFinder cellml_file("heart/dynamic/luo_rudy_1991_dyn.cellml", RelativeTo::ChasteSourceRoot);
+            EXPECT0(system, "cp " + cellml_file.GetAbsolutePath() + " " + handler_cvode.GetOutputDirectoryFullPath());
+        }
+        PetscTools::Barrier("TestExceptions");
+        std::vector<std::string> args;
+        args.push_back("--cvode");
+        CreateOptionsFile(handler_cvode, "luo_rudy_1991_dyn", args);
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/dynamic_cvode_model.xml"),
+                              "CVODE cannot be used as a cell model solver in tissue simulations: do not use the --cvode flag.");
     }
 };
 
