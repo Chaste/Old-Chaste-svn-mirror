@@ -609,6 +609,72 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::InitialiseTriangulateIo(triangulateio& mesher_io)
+{
+        mesher_io.numberofpoints = 0;
+        mesher_io.pointlist = NULL;
+        mesher_io.numberofpointattributes = 0;
+        mesher_io.pointattributelist = (double *) NULL;
+        mesher_io.pointmarkerlist = (int *) NULL;
+        mesher_io.numberofsegments = 0;
+        mesher_io.numberofholes = 0;
+        mesher_io.numberofregions = 0;
+        mesher_io.trianglelist = (int *) NULL;
+        mesher_io.triangleattributelist = (double *) NULL;
+        mesher_io.edgelist = (int *) NULL;
+        mesher_io.edgemarkerlist = (int *) NULL;
+}
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::FreeTriangulateIo(triangulateio& mesher_io)
+{
+    if (mesher_io.numberofpoints != 0)
+    {
+        mesher_io.numberofpoints=0;
+        free(mesher_io.pointlist);
+    }
+            
+    //These (and the above) should actually be safe since we explicity set to NULL above
+    free(mesher_io.pointattributelist);
+    free(mesher_io.pointmarkerlist);
+    free(mesher_io.trianglelist);
+    free(mesher_io.triangleattributelist);
+    free(mesher_io.edgelist);
+    free(mesher_io.edgemarkerlist);
+}    
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+template <class MESHER_IO>
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHER_IO& mesher_input)
+{
+    if (SPACE_DIM == 2)
+    {
+        mesher_input.pointlist = (double *) malloc(GetNumNodes() * SPACE_DIM * sizeof(double));
+    }
+    else
+    {
+        mesher_input.pointlist =  new double[GetNumNodes() * SPACE_DIM];
+    }
+
+    mesher_input.numberofpoints = GetNumNodes();
+    unsigned new_index = 0;
+    for (unsigned i=0; i<this->GetNumAllNodes(); i++)
+    {
+        if (this->mNodes[i]->IsDeleted())
+        {
+            map.SetDeleted(i);
+        }
+        else
+        {
+            map.SetNewIndex(i, new_index);
+            for (unsigned j=0; j<SPACE_DIM; j++)
+            {
+                mesher_input.pointlist[SPACE_DIM*new_index + j] = this->mNodes[i]->rGetLocation()[j];
+            }
+            new_index++;
+        }
+    }        
+}
+
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 {
     // Make sure that we are in the correct dimension - this code will be eliminated at compile time
@@ -712,43 +778,15 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
     }
     else if (SPACE_DIM==2)  // In 2D, remesh using triangle via library calls
     {
-        struct triangulateio mesher_input;
-        mesher_input.pointlist = (double *) malloc(GetNumNodes() * SPACE_DIM * sizeof(double));
-        mesher_input.numberofpoints = GetNumNodes();
-        mesher_input.numberofpointattributes = 0;
-        mesher_input.pointmarkerlist = NULL;
-        mesher_input.numberofsegments = 0;
-        mesher_input.numberofholes = 0;
-        mesher_input.numberofregions = 0;
+        struct triangulateio mesher_input, mesher_output;
+        InitialiseTriangulateIo(mesher_input);
+        InitialiseTriangulateIo(mesher_output);
 
-        unsigned new_index = 0;
-        for (unsigned i=0; i<this->GetNumAllNodes(); i++)
-        {
-            if (this->mNodes[i]->IsDeleted())
-            {
-                map.SetDeleted(i);
-            }
-            else
-            {
-                map.SetNewIndex(i, new_index);
-                mesher_input.pointlist[SPACE_DIM*new_index] = this->mNodes[i]->rGetLocation()[0];
-                mesher_input.pointlist[SPACE_DIM*new_index + 1] = this->mNodes[i]->rGetLocation()[1];
-                new_index++;
-            }
-        }
-
-        // Make structure for output
-        struct triangulateio mesher_output;
-        mesher_output.pointlist = NULL;
-        mesher_output.pointattributelist = (double *) NULL;
-        mesher_output.pointmarkerlist = (int *) NULL;
-        mesher_output.trianglelist = (int *) NULL;
-        mesher_output.triangleattributelist = (double *) NULL;
-        mesher_output.edgelist = (int *) NULL;
-        mesher_output.edgemarkerlist = (int *) NULL;
+        ExportToMesher(map, mesher_input);
 
         // Library call
         triangulate((char*)"Qze", &mesher_input, &mesher_output, NULL);
+        //ImportFromMesher(mesher_input);
 
         assert(mesher_output.numberofcorners == 3);
         assert(mesher_output.pointmarkerlist != NULL);
@@ -811,44 +849,17 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         this->RefreshJacobianCachedData();
 
         //Tidy up triangle
-        free(mesher_input.pointlist);
-
-        free(mesher_output.pointlist);
-        free(mesher_output.pointattributelist);
-        free(mesher_output.pointmarkerlist);
-        free(mesher_output.trianglelist);
-        free(mesher_output.triangleattributelist);
-        free(mesher_output.edgelist);
-        free(mesher_output.edgemarkerlist);
-
+        FreeTriangulateIo(mesher_input);
+        FreeTriangulateIo(mesher_output);
     }
     else // in 3D, remesh using tetgen
     {
 
-        struct tetgen::tetgenio mesher_input;//, out;
-        mesher_input.pointlist =  new double[GetNumNodes() * SPACE_DIM];
-        mesher_input.numberofpoints = GetNumNodes();
-        
-        unsigned new_index = 0;
-        for (unsigned i=0; i<this->GetNumAllNodes(); i++)
-        {
-            if (this->mNodes[i]->IsDeleted())
-            {
-                map.SetDeleted(i);
-            }
-            else
-            {
-                map.SetNewIndex(i, new_index);
-                mesher_input.pointlist[SPACE_DIM*new_index] = this->mNodes[i]->rGetLocation()[0];
-                mesher_input.pointlist[SPACE_DIM*new_index + 1] = this->mNodes[i]->rGetLocation()[1];
-                mesher_input.pointlist[SPACE_DIM*new_index + 2] = this->mNodes[i]->rGetLocation()[2];
-                new_index++;
-            }
-        }
+        struct tetgen::tetgenio mesher_input, mesher_output;
+        ExportToMesher(map, mesher_input);
 
-        struct tetgen::tetgenio mesher_output;
         tetgen::tetrahedralize((char*)"Qz", &mesher_input, &mesher_output);
-        
+
         assert(mesher_output.numberofcorners == 4);
         
         // Remove current data
