@@ -37,7 +37,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-///\todo: check node ordering [vertex, .., vertex, internal, .., internal]? and document is so
+///\todo: check node ordering [vertex, .., vertex, internal, .., internal]? and document is so.  See todo in CountAndCheckVertices()
 
 
 /**
@@ -48,16 +48,15 @@ class QuadraticMesh : public TetrahedralMesh<DIM, DIM>
 {
 private:
 
-    /**
-     * Vector of bools, one for one node, saying whether the node is internal
-     * (if not, it is a vertex).
-     */
-    std::vector<bool> mIsInternalNode;
-
     /** Number of vertices, ie non-internal (non-quadratic), nodes. */
     unsigned mNumVertices;
 
-
+    /*
+     * Count nodes which are vertices (not marked as internal)
+     * Check that internals appear after vertices in the list
+     */
+    void CountAndCheckVertices();
+    
     /**
      * Top level method for making 2D edges have 3 nodes not 2 and making 3D faces have 6 nodes not 3  (ie linear to quadratic).
      * @param pMeshReader Pointer to the reader. Only used if boundaryElemFileHasContainElementInfo==true (can be null if not).

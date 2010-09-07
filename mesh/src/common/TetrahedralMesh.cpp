@@ -1128,7 +1128,10 @@ template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 template <class MESHER_IO>
 void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesherOutput, unsigned numberOfElements, int *elementList, unsigned numberOfFaces, int *faceList, int *edgeMarkerList)
 {
-    assert(mesherOutput.numberofcorners == ELEMENT_DIM+1);
+    unsigned nodes_per_element = mesherOutput.numberofcorners;
+    
+    assert( nodes_per_element == ELEMENT_DIM+1 || nodes_per_element == (ELEMENT_DIM+1)*(ELEMENT_DIM+2)/2 );
+
     Clear();
     // Construct the nodes
     for (unsigned node_index=0; node_index<(unsigned)mesherOutput.numberofpoints; node_index++)
@@ -1145,7 +1148,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher
         std::vector<Node<SPACE_DIM>*> nodes;
         for (unsigned j=0; j<ELEMENT_DIM+1; j++)
         {
-            unsigned global_node_index = elementList[element_index*(ELEMENT_DIM+1) + j];
+            unsigned global_node_index = elementList[element_index*(nodes_per_element) + j];
             assert(global_node_index < this->mNodes.size());
             nodes.push_back(this->mNodes[global_node_index]);
             
@@ -1156,7 +1159,18 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher
         try
         {
             p_element = new Element<ELEMENT_DIM, SPACE_DIM>(real_element_index, nodes);
+            //Shouldn't throw after this point
             this->mElements.push_back(p_element);
+            
+            //Add the internals to quadratics
+            for (unsigned j=ELEMENT_DIM+1; j<nodes_per_element; j++)
+            {
+                unsigned global_node_index = elementList[element_index*nodes_per_element + j];
+                assert(global_node_index < this->mNodes.size());
+                this->mElements[real_element_index]->AddNode( this->mNodes[global_node_index] );
+                this->mNodes[global_node_index]->AddElement(real_element_index);
+                this->mNodes[global_node_index]->MarkAsInternal();
+            }
             real_element_index++;
         }
         catch (Exception &e)
@@ -1219,10 +1233,18 @@ template class TetrahedralMesh<2,2>;
 template class TetrahedralMesh<2,3>;
 template class TetrahedralMesh<3,3>;
 
+/**
+ * \cond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 template void TetrahedralMesh<2,2>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&);
 template void TetrahedralMesh<2,2>::ImportFromMesher<triangulateio>(triangulateio&, unsigned, int *, unsigned, int *, int *);
 template void TetrahedralMesh<3,3>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&);
 template void TetrahedralMesh<3,3>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned, int *, unsigned, int *, int *);
+/**
+ * \endcond
+ * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
+ */
 
 // Serialization for Boost >= 1.36
 #define CHASTE_SERIALIZATION_CPP

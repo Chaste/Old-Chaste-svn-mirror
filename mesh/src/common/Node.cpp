@@ -40,6 +40,7 @@ void Node<SPACE_DIM>::CommonConstructor(unsigned index, bool isBoundaryNode)
 {
     mIndex = index;
     mIsBoundaryNode = isBoundaryNode;
+    mIsInternal = false;
     mIsDeleted = false;
     mRegion = 0;
 }
@@ -223,6 +224,18 @@ template<unsigned SPACE_DIM>
 bool Node<SPACE_DIM>::IsDeleted() const
 {
     return mIsDeleted;
+}
+
+template<unsigned SPACE_DIM>
+void Node<SPACE_DIM>::MarkAsInternal()
+{
+    mIsInternal = true;
+}
+
+template<unsigned SPACE_DIM>
+bool Node<SPACE_DIM>::IsInternal() const
+{
+    return mIsInternal;
 }
 
 template<unsigned SPACE_DIM>

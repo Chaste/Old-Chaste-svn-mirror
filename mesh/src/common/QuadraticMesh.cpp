@@ -38,6 +38,34 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #undef REAL
 #undef VOID
 
+template<unsigned DIM>
+void QuadraticMesh<DIM>::CountAndCheckVertices()
+{
+    // count the number of vertices, and also check all vertices come before the
+    // rest of the nodes (as this is assumed in other parts of the code)
+    
+    ///\todo Oh no it isn't!  Where is the VVVV...IIIII pattern used?
+    mNumVertices = 0;
+    bool vertices_mode = true;
+    for (unsigned i=0; i<this->GetNumNodes(); i++)
+    {
+        bool is_internal = this->GetNode(i)->IsInternal();
+        if (is_internal==false)
+        {
+            mNumVertices++;
+        }
+        if ((vertices_mode == false)  && (is_internal==false ) )
+        {
+            //Covered in the 1D case by special mesh file data
+            EXCEPTION("The quadratic mesh doesn't appear to have all vertices before the rest of the nodes");
+        }
+        if ( (vertices_mode == true)  && (is_internal==true) )
+        {
+            //This is the switch from vertices to internal nodes
+            vertices_mode = false;
+        }
+    }
+}
 
 template<unsigned DIM>
 QuadraticMesh<DIM>::QuadraticMesh(double spaceStep, double width, double height, double depth)
@@ -124,84 +152,17 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
 
     // Make structure for output
     struct triangulateio mesher_output;
+
     this->InitialiseTriangulateIo(mesher_output);
-   
+
     // Library call
     triangulate((char*)"Qzeo2", &mesher_input, &mesher_output, NULL);
-
+  
     assert(mesher_output.numberofcorners == (DIM+1)*(DIM+2)/2);//Nodes per element (including internals, one per edge)
-
-    // Construct the nodes
-    for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
-    {
-        this->mNodes.push_back(new Node<DIM>(node_index, &mesher_output.pointlist[node_index * DIM], false));
-    }
-
-    mIsInternalNode.resize(this->GetNumNodes(), true);
-
-    // Construct the elements
-    this->mElements.reserve(mesher_output.numberoftriangles);
-    for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftriangles; element_index++)
-    {
-        std::vector<Node<DIM>*> nodes;
-        //First (DIM+1) are the vertices
-        for (unsigned j=0; j<DIM+1; j++)
-        {
-            unsigned global_node_index = mesher_output.trianglelist[element_index*mesher_output.numberofcorners + j];
-            assert(global_node_index < this->mNodes.size());
-            nodes.push_back(this->mNodes[global_node_index]);
-            mIsInternalNode[global_node_index]=false;
-        }
-        //Construct with just the vertices
-        this->mElements.push_back(new Element<DIM, DIM>(element_index, nodes));
-        //Add the internals
-        for (unsigned j=DIM+1; j<(unsigned)mesher_output.numberofcorners; j++)
-        {
-            unsigned global_node_index = mesher_output.trianglelist[element_index*mesher_output.numberofcorners + j];
-            assert(global_node_index < this->mNodes.size());
-            this->mElements[element_index]->AddNode( this->mNodes[global_node_index] );
-            this->mNodes[global_node_index]->AddElement(element_index);
-        }
-    }
-    //Check that the nodes go "Vertex, Vertex, ...., Internal, Internal..."
-    bool vertices_mode = true;
-    mNumVertices = 0u;
-    for (unsigned i=0; i<this->GetNumNodes(); i++)
-    {
-        if (mIsInternalNode[i]==false)
-        {
-            mNumVertices++;
-            assert(vertices_mode);//If this trips, then the nodes were not in the expected order -- investigate the library call to triangle
-        }
-        if ( (vertices_mode == true)  && (mIsInternalNode[i]==true) )
-        {
-            vertices_mode = false;
-        }
-    }
-    unsigned next_boundary_element_index = 0;
-    for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)mesher_output.numberofedges; boundary_element_index++)
-    {
-        if (mesher_output.edgemarkerlist[boundary_element_index] == 1)
-        {
-            std::vector<Node<DIM>*> nodes;
-            for (unsigned j=0; j<DIM; j++)
-            {
-                unsigned global_node_index=mesher_output.edgelist[boundary_element_index*DIM + j];
-                assert(global_node_index < this->mNodes.size());
-                nodes.push_back(this->mNodes[global_node_index]);
-                if (!nodes[j]->IsBoundaryNode())
-                {
-                    nodes[j]->SetAsBoundaryNode();
-                    this->mBoundaryNodes.push_back(nodes[j]);
-                }
-                
-            }
-            this->mBoundaryElements.push_back(new BoundaryElement<DIM-1, DIM>(next_boundary_element_index++, nodes));
-        }
-    }
-
-    this->RefreshJacobianCachedData();
-
+  
+    this->ImportFromMesher(mesher_output, mesher_output.numberoftriangles, mesher_output.trianglelist, mesher_output.numberofedges, mesher_output.edgelist, mesher_output.edgemarkerlist);
+    
+    CountAndCheckVertices();
     AddNodesToBoundaryElements(NULL);
 
     this->FreeTriangulateIo(mesher_input);
@@ -248,83 +209,14 @@ void QuadraticMesh<DIM>::ConstructCuboid(unsigned numElemX, unsigned numElemY, u
     struct tetgen::tetgenio mesher_output;
     tetgen::tetrahedralize((char*)"Qo2", &mesher_input, &mesher_output, NULL);
     
+    
+    
     assert(mesher_output.numberofcorners == (DIM+1)*(DIM+2)/2);//Nodes per element (including internals, one per edge)
 
-    // Construct the nodes
-    for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
-    {
-        this->mNodes.push_back(new Node<DIM>(node_index, false,
-          mesher_output.pointlist[node_index * DIM],
-          mesher_output.pointlist[node_index * DIM+1],
-          mesher_output.pointlist[node_index * DIM+2]));
-    }
+    this->ImportFromMesher(mesher_output, mesher_output.numberoftetrahedra, mesher_output.tetrahedronlist, mesher_output.numberoftrifaces, mesher_output.trifacelist, NULL);
     
-
-    mIsInternalNode.resize(this->GetNumNodes(), true);
-
-   // Construct the elements
-    this->mElements.reserve(mesher_output.numberoftetrahedra);
-    for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftetrahedra; element_index++)
-    {
-        std::vector<Node<DIM>*> nodes;
-        //First (DIM+1) are the vertices
-        for (unsigned j=0; j<DIM+1; j++)
-        {
-            unsigned global_node_index = mesher_output.tetrahedronlist[element_index*mesher_output.numberofcorners + j];
-            assert(global_node_index < this->mNodes.size());
-            nodes.push_back(this->mNodes[global_node_index]);
-            mIsInternalNode[global_node_index]=false;
-        }
-        //Construct with just the vertices
-        this->mElements.push_back(new Element<DIM, DIM>(element_index, nodes));
-        //Add the internals
-        for (unsigned j=DIM+1; j<(unsigned)mesher_output.numberofcorners; j++)
-        {
-            unsigned global_node_index = mesher_output.tetrahedronlist[element_index*mesher_output.numberofcorners + j];
-            assert(global_node_index < this->mNodes.size());
-            this->mElements[element_index]->AddNode( this->mNodes[global_node_index] );
-            this->mNodes[global_node_index]->AddElement(element_index);
-        }
-    }
-    
-    //Check that the nodes go "Vertex, Vertex, ...., Internal, Internal..."
-    bool vertices_mode = true;
-    mNumVertices = 0u;
-    for (unsigned i=0; i<this->GetNumNodes(); i++)
-    {
-        if (mIsInternalNode[i]==false)
-        {
-            mNumVertices++;
-            assert(vertices_mode);//If this trips, then the nodes were not in the expected order -- investigate the library call to triangle
-        }
-        if ( (vertices_mode == true)  && (mIsInternalNode[i]==true) )
-        {
-            vertices_mode = false;
-        }
-    }
-    
-    unsigned next_boundary_element_index = 0;
-    for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)mesher_output.numberoftrifaces; boundary_element_index++)
-    {
-        std::vector<Node<DIM>*> nodes;
-        for (unsigned j=0; j<DIM; j++)
-        {
-            unsigned global_node_index=mesher_output.trifacelist[boundary_element_index*DIM + j];
-            assert(global_node_index < this->mNodes.size());
-            nodes.push_back(this->mNodes[global_node_index]);
-            if (!nodes[j]->IsBoundaryNode())
-            {
-                nodes[j]->SetAsBoundaryNode();
-                this->mBoundaryNodes.push_back(nodes[j]);
-            }
-        }
-        this->mBoundaryElements.push_back(new BoundaryElement<DIM-1, DIM>(next_boundary_element_index++, nodes));
-    }
-    
-    this->RefreshJacobianCachedData();
-    
+    CountAndCheckVertices();
     AddNodesToBoundaryElements(NULL);
-
 }
 
 
@@ -352,37 +244,6 @@ void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& r
     TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(*p_mesh_reader);
     assert(this->GetNumBoundaryElements()>0);
 
-    // set up the information on whether a node is an internal node or not (if not,
-    // it'll be a vertex)
-    mIsInternalNode.resize(this->GetNumNodes(), true);
-    for (unsigned elem_index=0; elem_index<this->GetNumElements(); elem_index++)
-    {
-        for (unsigned i=0; i<DIM+1 /*num vertices*/; i++)
-        {
-            unsigned node_index = this->GetElement(elem_index)->GetNodeGlobalIndex(i);
-            mIsInternalNode[ node_index ] = false;
-        }
-    }
-    // count the number of vertices, and also check all vertices come before the
-    // rest of the nodes (as this is assumed in other parts of the code)
-    mNumVertices = 0;
-    bool vertices_mode = true;
-    for (unsigned i=0; i<this->GetNumNodes(); i++)
-    {
-        if (mIsInternalNode[i]==false)
-        {
-            mNumVertices++;
-        }
-        if ((vertices_mode == false)  && (mIsInternalNode[i]==false ) )
-        {
-            //Covered in the 1D case by special mesh file data
-            EXCEPTION("The quadratic mesh doesn't appear to have all vertices before the rest of the nodes");
-        }
-        if ( (vertices_mode == true)  && (mIsInternalNode[i]==true) )
-        {
-            vertices_mode = false;
-        }
-    }
 
     p_mesh_reader->Reset();
 
@@ -399,8 +260,12 @@ void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& r
         {
             this->GetElement(i)->AddNode( this->GetNode(nodes[j]) );
             this->GetNode(nodes[j])->AddElement(this->GetElement(i)->GetIndex());
+            this->GetNode(nodes[j])->MarkAsInternal();
         }
     }
+
+    CountAndCheckVertices();
+
     if (DIM > 1)
     {
         // if  OrderOfBoundaryElements is 2 it can read in the extra nodes for each boundary element, other have to compute them.

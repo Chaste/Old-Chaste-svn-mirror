@@ -105,6 +105,10 @@ public:
         TS_ASSERT_EQUALS(node1.GetRegion(), 0u);
         node1.SetRegion(4);
         TS_ASSERT_EQUALS(node1.GetRegion(), 4u);
+
+        TS_ASSERT_EQUALS(node1.IsInternal(), false);
+        node1.MarkAsInternal();
+        TS_ASSERT_EQUALS(node1.IsInternal(), true);
     }
 
     /**

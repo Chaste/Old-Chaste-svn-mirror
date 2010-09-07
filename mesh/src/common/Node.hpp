@@ -59,9 +59,12 @@ private:
     /** Whether this node is a boundary node. */
     bool mIsBoundaryNode;
 
+    /** Whether this node is an internal node. (For use with QuadraticMesh)*/
+    bool mIsInternal;
+
     /**
      * Whether this node has been deleted, and hence
-     * whether its location in the mesh can be re-used.
+     * whether its location in the mesh can be re-used. (For use in MutableMesh)
      */
     bool mIsDeleted;
 
@@ -248,6 +251,16 @@ public:
      * Get whether the node is marked as deleted.
      */
     bool IsDeleted() const;
+
+    /**
+     * Mark the node as being internal (not vertex) in a quadratic element.
+     */
+    void MarkAsInternal();
+
+    /**
+     * Get whether the node is internal (not vertex) in a quadratic element.
+     */
+    bool IsInternal() const;
 
     /**
      * Determine if a node lives within a flagged element.
