@@ -43,6 +43,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractMeshReader.hpp"
 #include "ChastePoint.hpp"
 
+
+class triangulateio; /**< Forward declaration for triangle helper methods (used in MutableMesh QuadraticMesh)*/
+
 //////////////////////////////////////////////////////////////////////////
 //   DECLARATION
 //////////////////////////////////////////////////////////////////////////
@@ -111,6 +114,53 @@ protected:
 
     /** Vector storing the determinant of the Jacobian matrix for each boundary element in the mesh. */
     std::vector<double> mBoundaryElementJacobianDeterminants;
+    
+        /**
+     * Export the mesh (currently only the nodes) to an external mesher
+     * This is determined at compile time when the MESHER_IO template is 
+     * instantiated to either 
+     *   - triangulateio (for triangle remesher in 2D)
+     *   - tetgenio (for tetgen remesher in 3D)
+     * Since conditional compilation is not allowed, care must be taken to only use
+     * common data members in this method
+     * @param map is a NodeMap which associates the indices of nodes in the old mesh
+     * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
+     * @param mesherInput is a triangulateio or tetgenio class (decided at compile time)
+     */
+    template <class MESHER_IO>
+    void ExportToMesher(NodeMap& map, MESHER_IO& mesherInput);
+
+    /**
+     * Import the mesh from an external mesher
+     * This is determined at compile time when the MESHER_IO template is 
+     * instantiated to either 
+     *   - triangulateio (for triangle remesher in 2D)
+     *   - tetgenio (for tetgen remesher in 3D)
+     * Since conditional compilation is not allowed, care must be taken to only use
+     * common data members in this method (or add arguments \todo #1545 ...)
+     * @param mesherOutput is a triangulateio or tetgenio class (decided at compile time)
+     * @param numberOfElements is a copy of either mesherOutput.numberoftriangles or mesherOutput.numberoftetrahedra
+     * @param elementList is a pointer to either mesherOutput.trianglelist or mesherOutput.tetrahedronlist
+     * @param numberOfFaces is a copy of either mesherOutput.edges or mesherOutput.numberoftrifaces
+     * @param faceList is a pointer to either mesherOutput.edgelist or mesherOutput.trifacelist
+     * @param edgeMarkerList is a pointer to either mesherOutput.edgemarkerlist or NULL
+     * 
+     */
+    template <class MESHER_IO>
+    void ImportFromMesher(MESHER_IO& mesherOutput, unsigned numberOfElements, int *elementList, unsigned numberOfFaces, int *faceList, int *edgeMarkerList);
+
+
+    /**
+     * Convenience method to tidy up a triangleio data structure before use
+     * @param mesherIo is a triangulateio class
+     */
+    void InitialiseTriangulateIo(triangulateio& mesherIo);
+    
+    /**
+     * Convenience method to tidy up a triangleio data structure after use
+     * @param mesherIo is a triangulateio class
+     */
+    void FreeTriangulateIo(triangulateio& mesherIo);
 
 public:
 
@@ -356,6 +406,9 @@ public:
          * @param elemIndex  An element index
          */
         EdgeIterator(TetrahedralMesh& rMesh, unsigned elemIndex);
+        
+        
+        
 
     private:
         /** Keep track of what edges have been visited

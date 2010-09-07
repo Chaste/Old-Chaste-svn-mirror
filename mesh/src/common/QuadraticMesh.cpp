@@ -103,13 +103,10 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
     this->mMeshIsLinear=false;
     unsigned num_nodes=(numElemX+1)*(numElemY+1);
     struct triangulateio mesher_input;
+
+    this->InitialiseTriangulateIo(mesher_input);
     mesher_input.pointlist = (double *) malloc( num_nodes * DIM * sizeof(double));
     mesher_input.numberofpoints = num_nodes;
-    mesher_input.numberofpointattributes = 0;
-    mesher_input.pointmarkerlist = NULL;
-    mesher_input.numberofsegments = 0;
-    mesher_input.numberofholes = 0;
-    mesher_input.numberofregions = 0;
 
     unsigned new_index = 0;
     for (unsigned j=0; j<=numElemY; j++)
@@ -127,14 +124,8 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
 
     // Make structure for output
     struct triangulateio mesher_output;
-    mesher_output.pointlist = NULL;
-    mesher_output.pointattributelist = (double *) NULL;
-    mesher_output.pointmarkerlist = (int *) NULL;
-    mesher_output.trianglelist = (int *) NULL;
-    mesher_output.triangleattributelist = (double *) NULL;
-    mesher_output.edgelist = (int *) NULL;
-    mesher_output.edgemarkerlist = (int *) NULL;
-
+    this->InitialiseTriangulateIo(mesher_output);
+   
     // Library call
     triangulate((char*)"Qzeo2", &mesher_input, &mesher_output, NULL);
 
@@ -213,15 +204,8 @@ void QuadraticMesh<DIM>::ConstructRectangularMesh(unsigned numElemX, unsigned nu
 
     AddNodesToBoundaryElements(NULL);
 
-    free(mesher_input.pointlist);
-
-    free(mesher_output.pointlist);
-    free(mesher_output.pointattributelist);
-    free(mesher_output.pointmarkerlist);
-    free(mesher_output.trianglelist);
-    free(mesher_output.triangleattributelist);
-    free(mesher_output.edgelist);
-    free(mesher_output.edgemarkerlist);
+    this->FreeTriangulateIo(mesher_input);
+    this->FreeTriangulateIo(mesher_output);
 }
 
 
