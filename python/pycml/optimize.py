@@ -59,6 +59,20 @@ class PartialEvaluator(object):
             return lhs.fullname()
         else:
             return lhs[0].fullname() + u'/' + lhs[1].fullname()
+        
+    def _describe_expr(self, expr):
+        """Describe this expression for debug info."""
+        if isinstance(expr, mathml_apply):
+            if expr.is_assignment() or expr.is_ode():
+                return self._expr_lhs(expr)
+            else:
+                return '[nested apply]'
+        elif isinstance(expr, mathml_ci):
+            return expr.variable.fullname()
+        elif isinstance(expr, mathml_cn):
+            return u'cn[' + unicode(expr) + u']'
+        else:
+            return '[unknown]'
 
     def _rename_vars(self, elt):
         """Rename variables found in ci elements in this tree to use canonical names."""
@@ -72,45 +86,85 @@ class PartialEvaluator(object):
             for e in self.doc.model.xml_element_children(elt):
                 self._rename_vars(e)
 
+    def parteval_si(self, solver_info):
+        """Do partial evaluation of the mathematics in a SolverInfo section."""
+        self.doc = solver_info._model.xml_parent
+        # BTA
+        solver_info.do_binding_time_analysis()
+        # Reduce/evaluate expressions
+        self._do_reduce_eval_loop(solver_info.get_modifiable_mathematics)
+    
+    def _do_reduce_eval_loop(self, expr_source):
+        """Do the reduce/evaluate loop.
+        
+        expr_source is a callable that returns an iterable over expressions.
+        """
+        while True:
+            self.doc.model._pe_repeat = u'no'
+            for expr in list(expr_source()):
+                self._reduce_evaluate_expression(expr)
+            if self.doc.model._pe_repeat == u'no':
+                break
+            self._debug("----- looping -----")
+        del self.doc.model._pe_repeat
+    
+    def _reduce_evaluate_expression(self, expr):
+        """Reduce or evaluate a single expression.
+        
+        expr must be an instance of mathml_apply, mathml_ci or mathml_cn.
+        """
+        if expr._get_binding_time() is BINDING_TIMES.static:
+            # Evaluate
+            value = expr.evaluate()
+            self._debug("Evaluated", self._describe_expr(expr), "to", value)
+            if isinstance(expr, mathml_apply):
+                if expr.is_ode():
+                    # Replace the RHS with a <cn> element giving the value
+                    rhs = expr.eq.rhs
+                    new_elt = expr._eval_self()
+                    expr.xml_insert_after(rhs, new_elt)
+                    expr.xml_remove_child(rhs)
+                elif expr.is_assignment():
+                    # The variable assigned to will have its initial_value set,
+                    # so we don't need the expression any more
+                    expr.xml_parent.xml_remove_child(expr)
+                    self.doc.model._remove_assignment(expr)
+                else:
+                    # Replace the expression with a <cn> element giving the value
+                    new_elt = expr._eval_self()
+                    expr.xml_parent.xml_insert_after(expr, new_elt)
+                    expr.xml_parent.xml_remove_child(expr)
+            elif isinstance(expr, mathml_ci):
+                # Replace the expression with a <cn> element giving the value
+                expr._reduce()
+            # Update variable usage counts
+            if expr.is_ode() or expr.is_assignment():
+                expr._update_usage_counts(expr.eq.rhs, remove=True)
+            elif isinstance(expr, mathml_apply):
+                expr._update_usage_counts(expr, remove=True)
+            elif isinstance(expr, mathml_ci):
+                expr.variable._decrement_usage_count()
+        else:
+            # Reduce
+            expr._reduce()
+    
+    def _get_assignment_exprs(self):
+        """Get an iterable over all assignments in the model that are mathml_apply instances."""
+        for e in self.doc.model.get_assignments():
+            if isinstance(e, mathml_apply):
+                assert e.is_ode() or e.is_assignment()
+                yield e
+
     def parteval(self, doc):
         """Do the partial evaluation."""
         self.doc = doc
         # BTA
         doc.model.do_binding_time_analysis()
         # Reduce/evaluate expressions
-        while True:
-            doc.model._pe_repeat = u'no'
-            exprs = [e for e in doc.model.get_assignments()
-                     if isinstance(e, mathml_apply)]
-            for expr in exprs:
-                if expr._get_binding_time() is BINDING_TIMES.static:
-                    value = expr.evaluate()
-                    self._debug("Evaluated", self._expr_lhs(expr),
-                               "to", value)
-                    if expr.is_ode():
-                        # Replace the RHS with a <cn> element giving the value
-                        rhs = expr.eq.rhs
-                        new_elt = expr._eval_self()
-                        expr.xml_insert_after(rhs, new_elt)
-                        expr.xml_remove_child(rhs)
-                    else:
-                        # The variable assigned to will have its initial_value set,
-                        # so we don't need the expression any more
-                        expr.xml_parent.xml_remove_child(expr)
-                        doc.model._remove_assignment(expr)
-                    # Update variable usage counts
-                    expr._update_usage_counts(list(expr.operands())[1],
-                                              remove=True)
-                else:
-                    expr._reduce()
-            if doc.model._pe_repeat == u'no':
-                break
-            self._debug("----- looping -----")
-        del doc.model._pe_repeat
+        self._do_reduce_eval_loop(self._get_assignment_exprs)
         
         # Use canonical variable names on LHS of assignments
-        for expr in [e for e in doc.model.get_assignments()
-                     if isinstance(e, mathml_apply)]:
+        for expr in list(self._get_assignment_exprs()):
             # If the assigned-to variable isn't used or kept, remove the assignment
             if isinstance(expr.eq.lhs, mathml_ci):
                 var = expr.eq.lhs.variable
@@ -120,10 +174,9 @@ class PartialEvaluator(object):
             self._rename_vars(expr.eq.lhs)
 
         # Tidy up kept variables, in case they aren't referenced in an eq'n.
-        for comp in getattr(doc.model, u'component', []):
-            for var in getattr(comp, u'variable', []):
-                if var.pe_keep:
-                    var._reduce()
+        for var in doc.model.get_all_variables():
+            if var.pe_keep:
+                var._reduce()
 
         # Collapse into a single component
         new_comp = cellml_component.create_new(doc, u'c')
@@ -186,8 +239,7 @@ class PartialEvaluator(object):
                     pass
 
         # Refresh expression dependency lists
-        for expr in [e for e in doc.model.get_assignments()
-                     if isinstance(e, mathml_apply)]:
+        for expr in self._get_assignment_exprs():
             expr._cml_depends_on = list(expr.vars_in(expr.eq.rhs))
             if expr.is_ode():
                 # Add dependency on the independent variable
@@ -768,7 +820,7 @@ class LinearityAnalyser(object):
                     new_expr = mathml_apply.create_new(
                         self.__expr, operator, ghs_i)
                 else:
-                    new_expr = self._clone(ghs_i[0])
+                    new_expr = self._clone(ghs_i[0]) # Clone may be unneeded
             else:
                 new_expr = None
         return new_expr
@@ -805,6 +857,9 @@ class LinearityAnalyser(object):
         Performs a post-order traversal of this expression's tree,
         and returns a pair (g, h)
         """
+#        import inspect
+#        depth = len(inspect.stack())
+#        print ' '*depth, "_rearrange_expr", prid(expr, True), var.name, expr
         gh = None
         if isinstance(expr, mathml_ci):
             # Variable
@@ -819,7 +874,7 @@ class LinearityAnalyser(object):
                     gh[0]._cml_variable = ci_var
                 else:
                     # ci_var is a linear function of var, so rearrange
-                    # it's definition
+                    # its definition
                     if not hasattr(ci_var, '_cml_linear_split'):
                         ci_defn = ci_var._get_dependencies()[0]
                         ci_var._cml_linear_split = self._rearrange_expr(
@@ -873,13 +928,17 @@ class LinearityAnalyser(object):
                 # (a, b) / (c, 0) = (a/c, b/c)
                 numer = self._rearrange_expr(operands.next(), var)
                 denom = self._rearrange_expr(operands.next(), var)
+                assert denom[1] is None
+                denom_g = denom[0]
                 g = h = None
                 if numer[0]:
                     g = mathml_apply.create_new(expr, operator,
-                                                [numer[0], denom[0]])
+                                                [numer[0], denom_g])
                 if numer[1]:
+                    if g:
+                        denom_g = self._clone(denom_g)
                     h = mathml_apply.create_new(expr, operator,
-                                                [numer[1], denom[0]])
+                                                [numer[1], denom_g])
                 gh = (g, h)
             elif operator == 'times':
                 # (a1,b1)*(a2,b2) = (a1*a2, b1*a2 or a1*b2 or None)
@@ -892,7 +951,11 @@ class LinearityAnalyser(object):
                 for i, ab in enumerate(operand_ghs):
                     if ab[1] is not None:
                         operand_ghs[i] = (ab[1], None)
-                        h = self._make_apply(operator, operand_ghs, 0)
+                        # Clone the a_i to avoid objects having 2 parents
+                        for j, ab in enumerate(operand_ghs):
+                            if j != i:
+                                operand_ghs[j] = (self._clone(operand_ghs[j][0]), None)
+                        h = self._make_apply(operator, operand_ghs, 0, filter_none=False)
                         break
                 else:
                     h = None
@@ -907,8 +970,9 @@ class LinearityAnalyser(object):
         else:
             # Since this expression is linear, there can't be any
             # occurrence of var in it; all possible such cases are covered
-            # above.  So just clone it.
+            # above.  So just clone it into g.
             gh = (self._clone(expr), None)
+#        print ' '*depth, "Re-arranged", prid(expr, True), "to", prid(gh[0], True), ",", prid(gh[1], True)
         return gh
     
     def rearrange_linear_odes(self, doc):
@@ -949,5 +1013,5 @@ class LinearityAnalyser(object):
             print "G:", expr[0].xml()
             print "H:", expr[1].xml()
             print "ODE:", var._get_ode_dependency(
-                doc.model._cml_free_var).xml()
+                var.model._cml_free_var).xml()
             print

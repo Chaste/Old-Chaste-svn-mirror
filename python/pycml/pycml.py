@@ -60,11 +60,13 @@ from amara import binderytools as bt
 from Ft.Xml import XMLNS_NAMESPACE, SplitQName
 from xml.dom import Node # For nodeType values
 
-import os, sys, types
 import codecs
-import re
-import math
 import copy
+import math
+import os
+import re
+import sys
+import types
 from cStringIO import StringIO
 
 from enum import Enum # Pythonic enums
@@ -297,6 +299,16 @@ def max_i(it):
             m, idx = val, i
     return idx, m
 
+def prid(obj, show_cls=False):
+    """Get the id of an object as a hex string, optionally with its class/type."""
+    if obj is None:
+        s = 'None'
+    else:
+        s = hex(id(obj))
+        if show_cls:
+            s += str(type(obj))
+    return s
+
 def add_dicts(r, *ds):
     """Add multiple dictionaries together.
 
@@ -311,6 +323,16 @@ def add_dicts(r, *ds):
             r[k] = r.get(k, 0) + v
     return
 
+def check_append_safety(elt):
+    """
+    Check whether elt is safe to make a child, i.e. that it isn't
+    already a child elsewhere.
+    """
+    assert getattr(elt, 'next_elem', None) is None
+    parent = getattr(elt, 'xml_parent', None)
+    if parent:
+        assert elt not in parent.xml_children
+
 class element_base(amara.bindery.element_base):
     """
     Base element class to allow me to set certain attributes on my instances
@@ -320,6 +342,7 @@ class element_base(amara.bindery.element_base):
         self.xml_attributes = {} # Amara should really do this!
         super(element_base, self).__init__()
         return
+    
     def __setattr__(self, key, value):
         """
         Bypass Amara's __setattr__ for attribute names that start with _cml_
@@ -329,6 +352,13 @@ class element_base(amara.bindery.element_base):
         else:
             amara.bindery.element_base.__setattr__(self, key, value)
         return
+    
+    @property
+    def rootNode(self):
+        if not self.parentNode and isinstance(self, mathml):
+            raise ValueError('MathML element with no parent!')
+        else:
+            return super(element_base, self).rootNode
 
     def getAttributeNS(self, ns, local, default=u""):
         """
@@ -342,9 +372,9 @@ class element_base(amara.bindery.element_base):
         except AttributeError:
             return {}
         keys = [ (ns_, SplitQName(qname)[1]) 
-                   for attr, (qname, ns_) in self.xml_attributes.items() ]
+                   for _, (qname, ns_) in attrs.items() ]
         values = [ unicode(getattr(self, attr))
-                   for attr, (qname, ns_) in self.xml_attributes.items() ]
+                   for attr, (qname, ns_) in attrs.items() ]
         attr_dict = dict(zip(keys, values))
         return attr_dict.get((ns, local), default)
     
@@ -1520,7 +1550,8 @@ class cellml_component(element_base):
     
     @property
     def ignore_component_name(self):
-        return self._cml_created_by_pe
+        """Whether to not include the component name in the full names of contained variables."""
+        return self._cml_created_by_pe or self.name == u''
     
     def parent(self, relationship=u'encapsulation', namespace=None,
                name=None, reln_key=None):
@@ -1976,7 +2007,7 @@ class cellml_variable(Colourable, element_base):
                 t = self.get_type()
                 DEBUG('partial-evaluator', "BT var", self.fullname(),
                       "type", str(t))
-                if t in [VarTypes.State, VarTypes.Free]:
+                if t in [VarTypes.State, VarTypes.Free, VarTypes.Unknown]:
                     self._set_binding_time(BINDING_TIMES.dynamic)
                 elif t == VarTypes.Constant:
                     self._set_binding_time(BINDING_TIMES.static)
@@ -3526,7 +3557,7 @@ class mathml_units_mixin_container(mathml_units_mixin):
                 self._set_element_in_units(elt, units, no_act)
         # And set our units to what they now are
         if not no_act:
-            app._cml_units = units
+            self._cml_units = units
         return
 
 class mathml(element_base):
@@ -3547,18 +3578,30 @@ class mathml(element_base):
         XML, not the additional info that we have attached to it -
         these should be copied as references to the originals.
         """
-        import copy
         new_elt = copy.copy(self)
+#        print "deepcopy", prid(self), "to", prid(new_elt)
         # Children may refer to us, so need to update memo before
         # copying children
+        assert id(self) not in memo
         memo[id(self)] = new_elt
         new_dict = {}
         for name, value in self.__dict__.iteritems():
+            name_copy = copy.deepcopy(name, memo)
             if not name.startswith('_cml'):
-                new_dict[name] = copy.deepcopy(value, memo)
+                new_dict[name_copy] = copy.deepcopy(value, memo)
+#                if id(value) in memo:
+#                    print "in memo", name, prid(value), "->", prid(new_dict[name_copy])
             else:
-                new_dict[name] = value
+                new_dict[name_copy] = value
+#            if name == 'xml_parent':
+#                print "parent of", prid(self), "was", prid(self.xml_parent), "now", prid(new_dict[name_copy])
         new_elt.__dict__.update(new_dict)
+#        if hasattr(self, 'xml_parent') and self.xml_parent:
+#            assert self.xml_parent is not new_elt.xml_parent
+#        for i, child in enumerate(new_elt.xml_children):
+#            if isinstance(child, mathml):
+#                print "child", i, "of", prid(self), '->', prid(new_elt), "is", prid(self.xml_children[i]), '->', prid(child), "parent", prid(self.xml_children[i].xml_parent), '->', prid(child.xml_parent)
+#                assert child.xml_parent is new_elt
         return new_elt
 
     @staticmethod
@@ -3567,10 +3610,10 @@ class mathml(element_base):
 
         Makes sure siblings and parent don't get copied too.
         """
+#        print "Cloning MathML", prid(expr, True)
         next_elem, par = expr.next_elem, getattr(expr, 'xml_parent', None)
         expr.next_elem = None  # Make sure we don't copy siblings...
         expr.xml_parent = None # ...and parent
-        import copy
         new_expr = copy.deepcopy(expr) # Do the clone
         expr.next_elem = next_elem # Restore siblings...
         expr.xml_parent = par      # ...and parent to original
@@ -3913,7 +3956,7 @@ class mathml_constructor(mathml):
         """Update usage counts of variables used in the given expression.
 
         By default, increment the usage count of any variable occuring
-        in a <ci> element within expr.  If remove is set to False,
+        in a <ci> element within expr.  If remove is set to True,
         then decrement the usage counts instead.
         """
         if isinstance(expr, mathml_ci):
@@ -3978,6 +4021,13 @@ class mathml_cn(mathml, mathml_units_mixin_tokens):
         """
         bt = self.getAttributeNS(NSS['pe'], u'binding_time', u'static')
         return getattr(BINDING_TIMES, bt)
+    
+    def _reduce(self):
+        """Reduce this expression by evaluating its static parts.
+        
+        Is actually a no-op; we must have been annotated explicitly as dynamic.
+        """
+        return
 
     def get_units(self, return_set=True):
         """Return the units this number is expressed in."""
@@ -4716,6 +4766,10 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
             self._cml_depends_on = list(dependencies)
         return dependencies
 
+    def is_top_level(self):
+        """Test whether this is a top-level assignment expression."""
+        return self._cml_assigns_to is not None
+
     def is_ode(self):
         """Return True iff this is the assignment of an ODE.
 
@@ -4723,7 +4777,7 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
         expression, and checks if it represents an ODE, i.e. if the
         LHS is a derivative.
         """
-        if self._cml_assigns_to is None:
+        if not self.is_top_level():
             return False
         return type(self._cml_assigns_to) == types.TupleType
 
@@ -4733,7 +4787,7 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
         Only makes sense if called on a top-level assignment expression.
         Checks that this is *not* an ODE, but assigns to a single variable.
         """
-        if self._cml_assigns_to is None:
+        if not self.is_top_level():
             return False
         return isinstance(self._cml_assigns_to, cellml_variable)
 
@@ -4749,7 +4803,7 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
         If it's an ODE, return a pair
         (dependent variable, independent variable).
         """
-        if self._cml_assigns_to is None:
+        if not self.is_top_level():
             raise TypeError("not a top-level apply element")
         else:
             return self._cml_assigns_to
@@ -4834,6 +4888,7 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
         app = elt.xml_create_element(u'apply', NSS[u'm'])
         app.xml_append(app.xml_create_element(operator, NSS[u'm']))
         for qual in qualifiers:
+            check_append_safety(qual)
             app.xml_append(qual)
         for op in operands:
             if isinstance(op, unicode):
@@ -4851,7 +4906,7 @@ class mathml_apply(Colourable, mathml_constructor, mathml_units_mixin):
                                             content=op[0])
             else:
                 # Should already be an element
-                pass
+                check_append_safety(op)
             app.xml_append(op)
         return app
 
@@ -5213,11 +5268,14 @@ class mathml_piecewise(mathml_constructor, mathml_units_mixin):
         piecewise = elt.xml_create_element(u'piecewise', NSS[u'm'])
         for piece in pieces:
             case, cond = piece
+            check_append_safety(case)
+            check_append_safety(cond)
             piece_elt = elt.xml_create_element(u'piece', NSS[u'm'])
             piece_elt.xml_append(case)
             piece_elt.xml_append(cond)
             piecewise.xml_append(piece_elt)
         if otherwise:
+            check_append_safety(otherwise)
             otherwise_elt = elt.xml_create_element(u'otherwise', NSS[u'm'])
             otherwise_elt.xml_append(otherwise)
             piecewise.xml_append(otherwise_elt)
@@ -5352,8 +5410,7 @@ class mathml_diff(mathml_operator):
         """Construct an ODE expression: d(state_var)/d(bvar) = rhs."""
         bvar_elt = elt.xml_create_element(u'bvar', NSS[u'm'])
         bvar_elt.xml_append(mathml_ci.create_new(elt, bvar))
-        diff = mathml_apply.create_new(elt, u'diff', [state_var],
-                                       [bvar_elt])
+        diff = mathml_apply.create_new(elt, u'diff', [state_var], [bvar_elt])
         ode = mathml_apply.create_new(elt, u'eq', [diff, rhs])
         return ode
 
@@ -5763,8 +5820,7 @@ class mathml_eq(mathml_operator, mathml_units_mixin_equalise_operands):
 
     def _is_top_level(self):
         """Return True iff the enclosing <apply> is a top-level expression."""
-        return self.xml_parent.xml_parent.localName in [
-            u'math', u'semantics']
+        return self.xml_parent.is_top_level()
 
     def _set_in_units(self, units, no_act=False):
         """Set the units of the application of this operator.

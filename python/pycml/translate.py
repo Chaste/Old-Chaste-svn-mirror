@@ -253,7 +253,7 @@ class CellMLTranslator(object):
         self.state_vars = doc.model.find_state_vars()
         if len(self.free_vars) > 1:
             self.error(["Model has more than one free variable; exiting.",
-                        "Free vars:" + str(free_vars)])
+                        "Free vars:" + str(self.free_vars)])
         # If only a single component, don't add it to variable names
         self.single_component = (len(getattr(self.model, u'component', []))
                                  == 1)
@@ -2418,7 +2418,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
         # are.  Also need to use output_equations for variables used in
         # solver_info.linear_odes.
         linear_vars, ghs = [], []
-        used_vars = set()
+        used_vars = set() # NB: Also contains g&h if they are mathml_applys so table index generation works
         for ode in self.model.solver_info.linear_odes.math.apply:
             varname = unicode(ode.apply.ci)
             g = ode.apply[1].operands().next()
@@ -2426,7 +2426,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
             h = hu.operands().next()
             linear_vars.append(self.varobj(varname))
             ghs.append((g, h))
-            used_vars.update([g, h])
+            if not isinstance(g, mathml_cn): used_vars.add(g)
+            if not isinstance(h, mathml_cn): used_vars.add(h)
             used_vars.update(self._vars_in(g))
             used_vars.update(self._vars_in(h))
         # Output required equations for used variables
@@ -3732,11 +3733,17 @@ class SolverInfo(object):
         Structure looks like:
         <linear_odes>
             <math>
-                <apply><plus/>
-                    g
-                    <apply><times/>
-                        h
+                <apply><eq/>
+                    <apply><diff/>
+                        <bvar><ci>t</ci></bvar>
                         <ci>u</ci>
+                    </apply>
+                    <apply><plus/>
+                        g
+                        <apply><times/>
+                            h
+                            <ci>u</ci>
+                        </apply>
                     </apply>
                 </apply>
                 .
@@ -3768,7 +3775,7 @@ class SolverInfo(object):
         Structure looks like:
         <jacobian>
             <entry var_i='varname' var_j='varname'>
-                MathML
+                <math> apply|cn|ci ...</math>
             </entry>
         </jacobian>
         """
@@ -3817,20 +3824,68 @@ class SolverInfo(object):
         This analyses the names in the ci elements to determine which variable in
         the model they refer to.
         """
+        self._process_mathematics(self._add_variable_links)
+    
+    def do_binding_time_analysis(self):
+        """Do a binding time analysis on the additional mathematics.
+        
+        This requires self.add_variable_links to have been called already.
+        """
+        self._process_mathematics(lambda elt: elt._get_binding_time())
+        
+    def _process_mathematics(self, func):
+        """Apply func to each top-level mathematical construct in the solver info blocks.
+        
+        func must be able to accept mathml_apply, mathml_ci and mathml_cn elements.
+        """
         solver_info = self._solver_info
         # Jacobian
         if hasattr(solver_info, u'jacobian'):
-            for entry in solver_info.jacobian.entry:
-                self._add_variable_links(entry)
+            for entry in solver_info.jacobian.entry.math:
+                for elt in entry.xml_children:
+                    if getattr(elt, 'nodeType', None) == Node.ELEMENT_NODE:
+                        func(elt)
         # Linearised ODEs
         if hasattr(solver_info, u'linear_odes'):
-            self._add_variable_links(solver_info.linear_odes.math)
+            for elt in solver_info.linear_odes.math.xml_children:
+                if getattr(elt, 'nodeType', None) == Node.ELEMENT_NODE:
+                    func(elt)
+    
+    def get_modifiable_mathematics(self):
+        """Get an iterable over mathematical constructs in the solver info blocks that can be changed.
+        
+        Returned elements will be mathml_apply, mathml_ci or mathml_cn instances.
+        """
+        solver_info = self._solver_info
+        # Jacobian - entry definitions can be changed
+        if hasattr(solver_info, u'jacobian'):
+            for entry in solver_info.jacobian.entry.math:
+                for elt in entry.xml_children:
+                    if getattr(elt, 'nodeType', None) == Node.ELEMENT_NODE:
+                        yield elt
+        # Linearised ODEs - only g & h can be changed
+        if hasattr(solver_info, u'linear_odes'):
+            for ode in solver_info.linear_odes.math.apply:
+                rhs = list(ode.operands())[1]
+                opers = rhs.operands()
+                g = opers.next()
+                h = opers.next().operands().next()
+                yield g
+                yield h
     
     def _add_variable_links(self, elt):
-        """Recursively link ci elements in the given XML tree to cellml_variable objects."""
+        """Recursively link ci elements in the given XML tree to cellml_variable objects.
+        
+        Also sets component links: for ci elements, to the component containing the linked
+        variable, and for cn elements, to the first component in the model.
+        """
         if isinstance(elt, mathml_ci):
             var = self._get_variable(unicode(elt))
             elt._cml_variable = var
+            elt._cml_component = var.component
+        elif isinstance(elt, mathml_cn):
+            # Fake a component, since it doesn't really have one
+            elt._cml_component = elt.model.component
         elif hasattr(elt, 'xml_children'):
             for child in elt.xml_children:
                 self._add_variable_links(child)
@@ -3847,7 +3902,7 @@ class SolverInfo(object):
             cname, vname = varname.split(u'__')
         elif varname == u'delta_t':
             # Special case for the timestep in ComputeJacobian
-            return self._get_special_variable(u'dt')
+            return self._get_special_variable(u'dt', VarTypes.Free)
         else:
             raise ValueError("Unrecognised variable name in SolverInfo: " + varname)
         # Determine the variable object from cname,vname
@@ -3868,7 +3923,7 @@ class SolverInfo(object):
                 raise ValueError("Cannot find variable '%s' in SolverInfo" % varname)
         return var
 
-    def _get_special_variable(self, varname):
+    def _get_special_variable(self, varname, ptype=VarTypes.Unknown):
         """Get or create a special variable object that doesn't really exist in the model."""
         comp = self._get_special_component()
         try:
@@ -3876,6 +3931,7 @@ class SolverInfo(object):
         except KeyError:
             var = cellml_variable.create_new(self._model, varname, u'dimensionless')
             comp._add_variable(var)
+            var._set_type(ptype)
         return var
 
     def _get_special_component(self):
@@ -3884,6 +3940,8 @@ class SolverInfo(object):
             self._component = cellml_component.create_new(self._model, u'')
             self._component.xml_parent = self._model
         return self._component
+
+
 
 class ConfigurationStore(object):
     """
@@ -4599,7 +4657,8 @@ def run():
 
     if options.pe:
         # Do partial evaluation
-        optimize.PartialEvaluator().parteval(doc)
+        pe = optimize.PartialEvaluator()
+        pe.parteval(doc)
 
     if options.lut:
         # Do the lookup table analysis
@@ -4623,8 +4682,10 @@ def run():
         lin.rearrange_linear_odes(doc)
         # Add info as XML
         solver_info.add_all_info()
-        # TODO: Analyse the XML, adding cellml_variable references, etc.
+        # Analyse the XML, adding cellml_variable references, etc.
         solver_info.add_variable_links()
+        if options.pe:
+            pe.parteval_si(solver_info)
 
     if options.translate:
         # Translate to code
@@ -4667,7 +4728,7 @@ if __name__ == '__main__':
     run()
 
     # For use in testing
-    def euler(nsteps=1000, dt=0.01):
+    def euler(doc, t, nsteps=1000, dt=0.01):
         global tvar, state_vars, exprs
         tvar = t.free_vars[0]
         state_vars = t.state_vars
@@ -4676,7 +4737,7 @@ if __name__ == '__main__':
         tvar.set_value(0.0)
         exprs = [e for e in doc.model.get_assignments()
                  if isinstance(e, mathml_apply)]
-        for i in range(nsteps):
+        for _ in range(nsteps):
             for expr in exprs:
                 expr.evaluate()
             tvar.set_value(tvar.get_value() + dt)
@@ -4685,20 +4746,20 @@ if __name__ == '__main__':
                               dt * var.get_value(ode=tvar))
         return
 
-    def writefile(outfn='test.cml'):
+    def writefile(doc, outfn='test.cml'):
         # Write out CellML file
         st = open_output_stream(outfn)
         doc.xml(indent=1, stream=st)
         st.close()
         return
 
-    def show_usage():
+    def show_usage(doc):
         for comp in doc.model.component:
             for var in comp.variable:
                 print var.fullname(), var._cml_usage_count
 
 
-    def fix_divide_by_zero():
+    def fix_divide_by_zero(doc):
         """
         Several models have equations of a form that may give rise to
         a divide by zero error on simulation, especially when lookup
