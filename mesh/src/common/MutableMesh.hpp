@@ -272,9 +272,13 @@ public:
      * @param mesherOutput is a triangulateio or tetgenio class (decided at compile time)
      * @param numberOfElements is a copy of either mesherOutput.numberoftriangles or mesherOutput.numberoftetrahedra
      * @param elementList is a pointer to either mesherOutput.trianglelist or mesherOutput.tetrahedronlist
+     * @param numberOfFaces is a copy of either mesherOutput.edges or mesherOutput.numberoftrifaces
+     * @param faceList is a pointer to either mesherOutput.edgelist or mesherOutput.trifacelist
+     * @param edgeMarkerList is a pointer to either mesherOutput.edgemarkerlist or NULL
+     * 
      */
     template <class MESHER_IO>
-    void ImportFromMesher(MESHER_IO& mesherOutput, unsigned numberOfElements, int *elementList);
+    void ImportFromMesher(MESHER_IO& mesherOutput, unsigned numberOfElements, int *elementList, unsigned numberOfFaces, int *faceList, int *edgeMarkerList);
 
 
     /**

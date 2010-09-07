@@ -676,7 +676,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHER_IO
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 template <class MESHER_IO>
-void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesherOutput, unsigned numberOfElements, int *elementList)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesherOutput, unsigned numberOfElements, int *elementList, unsigned numberOfFaces, int *faceList, int *edgeMarkerList)
 {
     assert(mesherOutput.numberofcorners == ELEMENT_DIM+1);
     Clear();
@@ -712,10 +712,48 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesherOutp
         catch (Exception &e)
         {
             //Tetgen is feeding us lies
+            assert(SPACE_DIM == 3);
         }
     }
 
-
+    // Construct the BoundaryElements (and mark boundary nodes)
+    unsigned next_boundary_element_index = 0;
+    for (unsigned boundary_element_index=0; boundary_element_index<numberOfFaces; boundary_element_index++)
+    {
+        //Tetgen produces only boundary faces (set edgeMarkerList to NULL)
+        //Triangle marks which edges are on the boundary
+        if (edgeMarkerList == NULL || edgeMarkerList[boundary_element_index] == 1)
+        {
+            std::vector<Node<SPACE_DIM>*> nodes;
+            for (unsigned j=0; j<ELEMENT_DIM; j++)
+            {
+                unsigned global_node_index = faceList[boundary_element_index*ELEMENT_DIM + j];
+                assert(global_node_index < this->mNodes.size());
+                nodes.push_back(this->mNodes[global_node_index]);
+                if (!nodes[j]->IsBoundaryNode())
+                {
+                    nodes[j]->SetAsBoundaryNode();
+                    this->mBoundaryNodes.push_back(nodes[j]);
+                }
+            }
+            //For some reason, tetgen in library mode makes its initial Delauney with
+            //very thin slivers.  Hence we expect to ignore some of the faces!
+            BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_b_element;
+            try
+            {
+                p_b_element = new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index, nodes);
+                this->mBoundaryElements.push_back(p_b_element);
+                next_boundary_element_index++;
+            }
+            catch (Exception &e)
+            {
+                //Tetgen is feeding us lies  //Watch this space for coverage
+                assert(SPACE_DIM == 3);
+            }
+        }
+    }
+    
+    this->RefreshJacobianCachedData();    
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -831,33 +869,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         // Library call
         triangulate((char*)"Qze", &mesher_input, &mesher_output, NULL);
         
-        ImportFromMesher(mesher_output, mesher_output.numberoftriangles, mesher_output.trianglelist);
-
-
-
-        // Construct the BoundaryElements
-        unsigned next_boundary_element_index = 0;
-        for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)mesher_output.numberofedges; boundary_element_index++)
-        {
-            if (mesher_output.edgemarkerlist[boundary_element_index] == 1)
-            {
-                std::vector<Node<SPACE_DIM>*> nodes;
-                for (unsigned j=0; j<ELEMENT_DIM; j++)
-                {
-                    unsigned global_node_index = mesher_output.edgelist[boundary_element_index*ELEMENT_DIM + j];
-                    assert(global_node_index < this->mNodes.size());
-                    nodes.push_back(this->mNodes[global_node_index]);
-                    if (!nodes[j]->IsBoundaryNode())
-                    {
-                        nodes[j]->SetAsBoundaryNode();
-                        this->mBoundaryNodes.push_back(nodes[j]);
-                    }
-                }
-                this->mBoundaryElements.push_back(new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index++, nodes));
-            }
-        }
-
-        this->RefreshJacobianCachedData();
+        ImportFromMesher(mesher_output, mesher_output.numberoftriangles, mesher_output.trianglelist, mesher_output.numberofedges, mesher_output.edgelist, mesher_output.edgemarkerlist);
 
         //Tidy up triangle
         FreeTriangulateIo(mesher_input);
@@ -867,44 +879,13 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
     {
 
         struct tetgen::tetgenio mesher_input, mesher_output;
+
         ExportToMesher(map, mesher_input);
 
+        // Library call
         tetgen::tetrahedralize((char*)"Qz", &mesher_input, &mesher_output);
         
-        ImportFromMesher(mesher_output, mesher_output.numberoftetrahedra, mesher_output.tetrahedronlist);
-
-
-        // Construct the BoundaryElements (and mark boundary nodes)
-        unsigned next_boundary_element_index = 0;
-        for (unsigned boundary_element_index=0; boundary_element_index<(unsigned)mesher_output.numberoftrifaces; boundary_element_index++)
-        {
-            std::vector<Node<SPACE_DIM>*> nodes;
-            for (unsigned j=0; j<ELEMENT_DIM; j++)
-            {
-                unsigned global_node_index = mesher_output.trifacelist[boundary_element_index*ELEMENT_DIM + j];
-                assert(global_node_index < this->mNodes.size());
-                nodes.push_back(this->mNodes[global_node_index]);
-                if (!nodes[j]->IsBoundaryNode())
-                {
-                    nodes[j]->SetAsBoundaryNode();
-                    this->mBoundaryNodes.push_back(nodes[j]);
-                }
-            }
-            //For some reason, tetgen in library mode makes its initial Delauney with
-            //very thin slivers.  Hence we expect to ignore some of the elements!
-            BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_b_element;
-            try
-            {
-                p_b_element = new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(next_boundary_element_index, nodes);
-                this->mBoundaryElements.push_back(p_b_element);
-                next_boundary_element_index++;
-            }
-            catch (Exception &e)
-            {
-                //Tetgen is feeding us lies  //Watch this space for coverage
-            }
-        }
-        this->RefreshJacobianCachedData();
+        ImportFromMesher(mesher_output, mesher_output.numberoftetrahedra, mesher_output.tetrahedronlist, mesher_output.numberoftrifaces, mesher_output.trifacelist, NULL);
     }
 }
 
