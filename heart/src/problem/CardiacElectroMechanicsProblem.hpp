@@ -39,7 +39,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "QuadraticMesh.hpp"
 #include "AbstractOdeBasedContractionModel.hpp"
-#include "AbstractCardiacMechanicsAssembler.hpp"
+#include "AbstractCardiacMechanicsSolver.hpp"
 #include "FineCoarseMeshPair.hpp"
 
 
@@ -83,8 +83,8 @@ protected :
     ContractionModel mContractionModel;
     /** The cardiac problem class */
     MonodomainProblem<DIM>* mpMonodomainProblem;
-    /** The mechanics assembler */
-    AbstractCardiacMechanicsAssembler<DIM>* mpCardiacMechAssembler;
+    /** The mechanics solver */
+    AbstractCardiacMechanicsSolver<DIM>* mpCardiacMechSolver;
 
     /** End time. The start time is assumed to be 0.0 */
     double mEndTime;
@@ -203,8 +203,7 @@ public :
     virtual ~CardiacElectroMechanicsProblem();
 
     /**
-     *  Initialise the class. Calls ConstructMeshes() and
-     *  ConstructMechanicsAssembler(). Initialises the MonodomainProblem
+     *  Initialise the class. Initialises the MonodomainProblem
      *  and sets up the electrics mesh to mechanics mesh data.
      */
     void Initialise();

@@ -238,18 +238,18 @@ public:
 
         problem.Initialise();
 
-        // hack into the mechanics assembler and set up the current solution so that it corresponds to
+        // hack into the mechanics solver and set up the current solution so that it corresponds to
         // the square of tissue being stretched
         //
         // Note after one timestep the tissue will have returned to the resting state as there are no
         // forces and no way at the moment of passing fixed-displacement boundary conditions down to the mech
-        // assembler. 
+        // solver. 
         for(unsigned i=0; i<problem.mpMechanicsMesh->GetNumNodes(); i++)
         {
             double X = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[0];
             double Y = problem.mpMechanicsMesh->GetNode(i)->rGetLocation()[1];
-            problem.mpCardiacMechAssembler->rGetCurrentSolution()[2*i]   = X*0.2;
-            problem.mpCardiacMechAssembler->rGetCurrentSolution()[2*i+1] = Y*(1.0/1.2 - 1);
+            problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i]   = X*0.2;
+            problem.mpCardiacMechSolver->rGetCurrentSolution()[2*i+1] = Y*(1.0/1.2 - 1);
         }
             
                 

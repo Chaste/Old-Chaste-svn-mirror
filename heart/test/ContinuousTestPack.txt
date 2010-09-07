@@ -12,8 +12,8 @@ ionicmodels/TestModifiers.hpp
 ionicmodels/TestIonicModelsWithSacs.hpp
 mechanics/TestCardiacElectroMechanicsProblem.hpp
 mechanics/TestContractionModels.hpp
-mechanics/TestImplicitCardiacMechanicsAssembler.hpp
-mechanics/TestExplicitCardiacMechanicsAssembler.hpp
+mechanics/TestImplicitCardiacMechanicsSolver.hpp
+mechanics/TestExplicitCardiacMechanicsSolver.hpp
 mechanics/TestNhsModelWithBackwardSolver.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp

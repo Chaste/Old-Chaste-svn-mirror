@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef NONLINEARELASTICITYASSEMBLER_HPP_
-#define NONLINEARELASTICITYASSEMBLER_HPP_
+#ifndef NONLINEARELASTICITYSOLVER_HPP_
+#define NONLINEARELASTICITYSOLVER_HPP_
 
 /*
  * NOTE ON COMPILATION ERRORS:
@@ -41,26 +41,26 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 ///\todo: factor out Dof handling?
 
-#include "AbstractNonlinearElasticityAssembler.hpp"
+#include "AbstractNonlinearElasticitySolver.hpp"
 //#include "LinearBasisFunction.hpp"
 //#include "QuadraticBasisFunction.hpp"
 #include "QuadraticMesh.hpp"
 #include "GaussianQuadratureRule.hpp"
 
 /**
- *  Finite elasticity assembler. Solves static incompressible nonlinear elasticity
+ *  Finite elasticity solver. Solves static incompressible nonlinear elasticity
  *  problems with arbitrary material laws and a body force.
  *
  *  Uses quadratic-linear bases (for displacement and pressure), and is therefore
- *  outside the assembler hierachy.
+ *  outside other assember or solver hierachy.
  *
  *  Currently only works with fixed nodes BCs (ie zerodisplacement) and zero-surface
  *  tractions on the rest of the boundary.
  */
 template<size_t DIM>
-class NonlinearElasticityAssembler : public AbstractNonlinearElasticityAssembler<DIM>
+class NonlinearElasticitySolver : public AbstractNonlinearElasticitySolver<DIM>
 {
-    friend class TestNonlinearElasticityAssembler;
+    friend class TestNonlinearElasticitySolver;
 
 protected:
 
@@ -167,7 +167,7 @@ protected:
     void AssembleSystem(bool assembleResidual, bool assembleJacobian);
 
     /**
-     * Initialise the assembler.
+     * Initialise the solver.
      *
      * @param pFixedNodeLocations
      */
@@ -222,13 +222,13 @@ public:
      * @param fixedNodes
      * @param pFixedNodeLocations (defaults to NULL)
      */
-    NonlinearElasticityAssembler(QuadraticMesh<DIM>* pQuadMesh,
-                                 AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                 c_vector<double,DIM> bodyForce,
-                                 double density,
-                                 std::string outputDirectory,
-                                 std::vector<unsigned>& fixedNodes,
-                                 std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
+    NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                              AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                              c_vector<double,DIM> bodyForce,
+                              double density,
+                              std::string outputDirectory,
+                              std::vector<unsigned>& fixedNodes,
+                              std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
 
     /**
      * Variant constructor taking a vector of material laws.
@@ -241,16 +241,16 @@ public:
      * @param fixedNodes
      * @param pFixedNodeLocations (defaults to NULL)
      */
-    NonlinearElasticityAssembler(QuadraticMesh<DIM>* pQuadMesh,
-                                 std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
-                                 c_vector<double,DIM> bodyForce,
-                                 double density,
-                                 std::string outputDirectory,
-                                 std::vector<unsigned>& fixedNodes,
-                                 std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
+    NonlinearElasticitySolver(QuadraticMesh<DIM>* pQuadMesh,
+                              std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
+                              c_vector<double,DIM> bodyForce,
+                              double density,
+                              std::string outputDirectory,
+                              std::vector<unsigned>& fixedNodes,
+                              std::vector<c_vector<double,DIM> >* pFixedNodeLocations = NULL);
 
     /** Destructor frees memory for quadrature rules. */
-    ~NonlinearElasticityAssembler();
+    ~NonlinearElasticitySolver();
 
     /**
      * Specify traction boundary conditions (if this is not called zero surface
@@ -285,4 +285,4 @@ public:
     std::vector<c_vector<double,DIM> >& rGetDeformedPosition();
 };
 
-#endif /*NONLINEARELASTICITYASSEMBLER_HPP_*/
+#endif /*NONLINEARELASTICITYSOLVER_HPP_*/

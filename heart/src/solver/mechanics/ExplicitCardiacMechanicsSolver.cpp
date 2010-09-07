@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "ExplicitCardiacMechanicsAssembler.hpp"
+#include "ExplicitCardiacMechanicsSolver.hpp"
 #include "Nash2004ContractionModel.hpp"
 #include "Kerchoffs2003ContractionModel.hpp"
 #include "NonPhysiologicalContractionModel.hpp"
@@ -35,15 +35,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 //#include "NhsModelWithBackSolver.hpp"
 
 template<unsigned DIM>
-ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(ContractionModel contractionModel,
-                                                                          QuadraticMesh<DIM>* pQuadMesh,
-                                                                          std::string outputDirectory,
-                                                                          std::vector<unsigned>& rFixedNodes,
-                                                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
-    : AbstractCardiacMechanicsAssembler<DIM>(pQuadMesh,
-                                             outputDirectory,
-                                             rFixedNodes,
-                                             pMaterialLaw)
+ExplicitCardiacMechanicsSolver<DIM>::ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
+                                                                    QuadraticMesh<DIM>* pQuadMesh,
+                                                                    std::string outputDirectory,
+                                                                    std::vector<unsigned>& rFixedNodes,
+                                                                    AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
+    : AbstractCardiacMechanicsSolver<DIM>(pQuadMesh,
+                                          outputDirectory,
+                                          rFixedNodes,
+                                          pMaterialLaw)
 {
 //    // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
 //    mStretchesLastTimestep.resize(this->mTotalQuadPoints, 1.0);
@@ -96,7 +96,7 @@ ExplicitCardiacMechanicsAssembler<DIM>::ExplicitCardiacMechanicsAssembler(Contra
 }
 
 template<unsigned DIM>
-ExplicitCardiacMechanicsAssembler<DIM>::~ExplicitCardiacMechanicsAssembler()
+ExplicitCardiacMechanicsSolver<DIM>::~ExplicitCardiacMechanicsSolver()
 {
     for(unsigned i=0; i<this->mContractionModelSystems.size(); i++)
     {
@@ -105,12 +105,12 @@ ExplicitCardiacMechanicsAssembler<DIM>::~ExplicitCardiacMechanicsAssembler()
 }
 
 template<unsigned DIM>
-void ExplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch,
-                                                                              unsigned currentQuadPointGlobalIndex,
-                                                                              bool assembleJacobian,
-                                                                              double& rActiveTension,
-                                                                              double& rDerivActiveTensionWrtLambda,
-                                                                              double& rDerivActiveTensionWrtDLambdaDt)
+void ExplicitCardiacMechanicsSolver<DIM>::GetActiveTensionAndTensionDerivs(double currentFibreStretch,
+                                                                           unsigned currentQuadPointGlobalIndex,
+                                                                           bool assembleJacobian,
+                                                                           double& rActiveTension,
+                                                                           double& rDerivActiveTensionWrtLambda,
+                                                                           double& rDerivActiveTensionWrtDLambdaDt)
 {
     // the active tensions have already been computed for each contraction model, so can
     // return it straightaway..
@@ -126,7 +126,7 @@ void ExplicitCardiacMechanicsAssembler<DIM>::GetActiveTensionAndTensionDerivs(do
 }
 
 template<unsigned DIM>
-void ExplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime, double odeTimestep)
+void ExplicitCardiacMechanicsSolver<DIM>::Solve(double time, double nextTime, double odeTimestep)
 {
     assert(time < nextTime);
     this->mCurrentTime = time;
@@ -148,7 +148,7 @@ void ExplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
     }
 
     // solve
-    NonlinearElasticityAssembler<DIM>::Solve();
+    NonlinearElasticitySolver<DIM>::Solve();
 
 //    // for showing stretch-rate-dependent models won't work with explicit (should be commented if committed)
 //    mStretchesLastTimestep = this->mStretches;
@@ -156,5 +156,5 @@ void ExplicitCardiacMechanicsAssembler<DIM>::Solve(double time, double nextTime,
 
 
 
-template class ExplicitCardiacMechanicsAssembler<2>;
-template class ExplicitCardiacMechanicsAssembler<3>;
+template class ExplicitCardiacMechanicsSolver<2>;
+template class ExplicitCardiacMechanicsSolver<3>;

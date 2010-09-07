@@ -44,8 +44,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MeshalyzerMeshWriter.hpp"
 #include "PetscTools.hpp"
 
-#include "ImplicitCardiacMechanicsAssembler.hpp"
-#include "ExplicitCardiacMechanicsAssembler.hpp"
+#include "ImplicitCardiacMechanicsSolver.hpp"
+#include "ExplicitCardiacMechanicsSolver.hpp"
 // if including Cinv in monobidomain equations
 //#include "NodewiseData.hpp"
 
@@ -142,7 +142,7 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
 {
     assert(mIsWatchedLocation);
 
-    std::vector<c_vector<double,DIM> >& deformed_position = mpCardiacMechAssembler->rGetDeformedPosition();
+    std::vector<c_vector<double,DIM> >& deformed_position = mpCardiacMechSolver->rGetDeformedPosition();
 
     ///\todo Improve efficiency of this method?
     ReplicatableVector voltage_replicated(voltage);
@@ -193,7 +193,7 @@ void CardiacElectroMechanicsProblem<DIM>::WriteWatchedLocationData(double time, 
 //    }
 //    mImpactTractions.clear();
 //    mImpactTractions.resize(mpImpactRegion->size(), traction);
-//    mpCardiacMechAssembler->SetSurfaceTractionBoundaryConditions(*mpImpactRegion, mImpactTractions);
+//    mpCardiacMechSolver->SetSurfaceTractionBoundaryConditions(*mpImpactRegion, mImpactTractions);
 //}
 
 template<unsigned DIM>
@@ -264,7 +264,7 @@ CardiacElectroMechanicsProblem<DIM>::CardiacElectroMechanicsProblem(
     mpMechanicsMesh = pMechanicsMesh;
     mFixedNodes = fixedMechanicsNodes;
 
-    mpCardiacMechAssembler = NULL;
+    mpCardiacMechSolver = NULL;
 
     // Create the Logfile (note we have to do this after the output dir has been
     // created, else the log file might get cleaned away
@@ -311,7 +311,7 @@ CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
 
     delete mpMonodomainProblem;
 
-    delete mpCardiacMechAssembler;
+    delete mpCardiacMechSolver;
 
     delete mpMeshPair;
 
@@ -321,11 +321,11 @@ CardiacElectroMechanicsProblem<DIM>::~CardiacElectroMechanicsProblem()
 template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::Initialise()
 {
-    LOG(2, "Initialising meshes and cardiac mechanics assembler..");
+    LOG(2, "Initialising..");
 
     assert(mpElectricsMesh!=NULL);
     assert(mpMechanicsMesh!=NULL);
-    assert(mpCardiacMechAssembler==NULL);
+    assert(mpCardiacMechSolver==NULL);
 
     if(mIsWatchedLocation)
     {
@@ -338,22 +338,22 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
     HeartConfig::Instance()->SetIntracellularConductivities(Create_c_vector(1.75,1.75,1.75));
     mpMonodomainProblem->Initialise();
 
-    // Construct mechanics assembler
+    // Construct mechanics solver
     // Here we pick the best solver for each particular contraction model. Commented out versions are
     // for experimentation.
     switch(mContractionModel)
     {
         case NASH2004:
             // stretch and stretch-rate independent, so should use explicit
-            mpCardiacMechAssembler = new ExplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+            mpCardiacMechSolver = new ExplicitCardiacMechanicsSolver<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         case KERCHOFFS2003:
             // stretch independent, so should use implicit (explicit may be unstable)
-            mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+            mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         case NHS:
             // stretch and stretch-rate independent, so should definitely use implicit
-            mpCardiacMechAssembler = new ImplicitCardiacMechanicsAssembler<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
+            mpCardiacMechSolver = new ImplicitCardiacMechanicsSolver<DIM>(mContractionModel,mpMechanicsMesh,mDeformationOutputDirectory,mFixedNodes);
             break;
         default:
             EXCEPTION("Invalid contraction model, options are: KERCHOFFS2003 or NHS");
@@ -361,14 +361,14 @@ void CardiacElectroMechanicsProblem<DIM>::Initialise()
 
     if(mFibreSheetDirectionsFile!="")
     {
-       mpCardiacMechAssembler->SetVariableFibreSheetDirections(mFibreSheetDirectionsFile, mFibreSheetDirectionsDefinedPerQuadraturePoint);
+       mpCardiacMechSolver->SetVariableFibreSheetDirections(mFibreSheetDirectionsFile, mFibreSheetDirectionsDefinedPerQuadraturePoint);
     }
 
     // set up mesh pair and determine the fine mesh elements and corresponding weights for each
     // quadrature point in the coarse mesh
     mpMeshPair = new FineCoarseMeshPair<DIM>(*mpElectricsMesh, *mpMechanicsMesh);
     mpMeshPair->SetUpBoxesOnFineMesh();
-    mpMeshPair->ComputeFineElementsAndWeightsForCoarseQuadPoints(*(mpCardiacMechAssembler->GetQuadratureRule()), false);
+    mpMeshPair->ComputeFineElementsAndWeightsForCoarseQuadPoints(*(mpCardiacMechSolver->GetQuadratureRule()), false);
     mpMeshPair->DeleteFineBoxCollection();
     
     if(!mNoMechanoElectricFeedback)
@@ -401,8 +401,8 @@ template<unsigned DIM>
 void CardiacElectroMechanicsProblem<DIM>::Solve()
 {
 
-    // initialise the meshes and mechanics assembler
-    if(mpCardiacMechAssembler==NULL)
+    // initialise the meshes and mechanics solver
+    if(mpCardiacMechSolver==NULL)
     {
         Initialise();
     }
@@ -420,7 +420,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     Vec voltage=NULL; //This will be set and used later
     Vec initial_voltage = mpMonodomainProblem->CreateInitialCondition();
 
-    unsigned num_quad_points = mpCardiacMechAssembler->GetTotalNumQuadPoints();
+    unsigned num_quad_points = mpCardiacMechSolver->GetTotalNumQuadPoints();
     std::vector<double> interpolated_calcium_concs(num_quad_points, 0.0);
     std::vector<double> interpolated_voltages(num_quad_points, 0.0);
 
@@ -434,8 +434,8 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     unsigned mech_writer_counter = 0;
     if (mWriteOutput)
     {
-        mpCardiacMechAssembler->SetWriteOutput();
-        mpCardiacMechAssembler->WriteOutput(mech_writer_counter);
+        mpCardiacMechSolver->SetWriteOutput();
+        mpCardiacMechSolver->WriteOutput(mech_writer_counter);
 
         p_cmgui_writer = new CmguiDeformedSolutionsWriter<DIM>(mOutputDirectory+"/deformation/cmgui", 
                                                                "solution", 
@@ -462,7 +462,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
     while (!stepper.IsTimeAtEnd())
     {
         LOG(2, "\nCurrent time = " << stepper.GetTime());
-        #ifdef MECH_VERBOSE // defined in AbstractNonlinearElasticityAssembler
+        #ifdef MECH_VERBOSE // defined in AbstractNonlinearElasticitySolver
         // also output time to screen as newton solve information will be output
         std::cout << "\n\n ** Current time = " << stepper.GetTime() << "\n";
         #endif
@@ -477,7 +477,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         {
             //  Determine the stretch in each mechanics element (later: determine stretch, and 
             //  deformation gradient)
-            mpCardiacMechAssembler->ComputeDeformationGradientAndStretchInEachElement(mDeformationGradientsForEachMechanicsElement, mStretchesForEachMechanicsElement);
+            mpCardiacMechSolver->ComputeDeformationGradientAndStretchInEachElement(mDeformationGradientsForEachMechanicsElement, mStretchesForEachMechanicsElement);
 
             //  Set the stretches on each of the cell models
             for(unsigned global_index = mpElectricsMesh->GetDistributedVectorFactory()->GetLow(); 
@@ -490,7 +490,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             }
             
             // finish #1244 (blocked on #1348)
-            // NOW SET THE DEFORMATION GRADIENTS ON THE MONO/BI-DOMAIN ASSEMBLER - do this once #1348 is done
+            // NOW SET THE DEFORMATION GRADIENTS ON THE MONO/BI-DOMAIN SOLVER - do this once #1348 is done
             // something like:
             //   loop over electrics elements
             //   {
@@ -588,7 +588,7 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         // AND UPDATE FROM NHS TO CELL_MODEL, BUT NOT SURE HOW TO DO THIS.. (esp for implicit)
 
         // set [Ca], V, t
-        mpCardiacMechAssembler->SetCalciumAndVoltage(interpolated_calcium_concs, interpolated_voltages);
+        mpCardiacMechSolver->SetCalciumAndVoltage(interpolated_calcium_concs, interpolated_voltages);
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::NON_MECH);
 
 
@@ -599,16 +599,16 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
         ////
         /////////////////////////////////////////////////////////////////////////
         LOG(2, "  Solving mechanics ");
-        mpCardiacMechAssembler->SetWriteOutput(false);
+        mpCardiacMechSolver->SetWriteOutput(false);
 
 //// #1245
 //        ApplyImpactTractions(stepper.GetTime());
 
         MechanicsEventHandler::BeginEvent(MechanicsEventHandler::ALL_MECH);
-        mpCardiacMechAssembler->Solve(stepper.GetTime(), stepper.GetNextTime(), mContractionModelOdeTimeStep);
+        mpCardiacMechSolver->Solve(stepper.GetTime(), stepper.GetNextTime(), mContractionModelOdeTimeStep);
         MechanicsEventHandler::EndEvent(MechanicsEventHandler::ALL_MECH);
 
-        LOG(2, "    Number of newton iterations = " << mpCardiacMechAssembler->GetNumNewtonIterations());
+        LOG(2, "    Number of newton iterations = " << mpCardiacMechSolver->GetNumNewtonIterations());
 
          // update the current time
         stepper.AdvanceOneTimeStep();
@@ -626,8 +626,8 @@ void CardiacElectroMechanicsProblem<DIM>::Solve()
             LOG(2, "  Writing output");
             // write deformed position
             mech_writer_counter++;
-            mpCardiacMechAssembler->SetWriteOutput();
-            mpCardiacMechAssembler->WriteOutput(mech_writer_counter);
+            mpCardiacMechSolver->SetWriteOutput();
+            mpCardiacMechSolver->WriteOutput(mech_writer_counter);
 
             p_cmgui_writer->WriteDeformationPositions(rGetDeformedPosition(), counter);
 
@@ -739,7 +739,7 @@ void CardiacElectroMechanicsProblem<DIM>::SetVariableFibreSheetDirectionsFile(st
 template<unsigned DIM>
 std::vector<c_vector<double,DIM> >& CardiacElectroMechanicsProblem<DIM>::rGetDeformedPosition()
 {
-    return mpCardiacMechAssembler->rGetDeformedPosition();
+    return mpCardiacMechSolver->rGetDeformedPosition();
 }
 
 

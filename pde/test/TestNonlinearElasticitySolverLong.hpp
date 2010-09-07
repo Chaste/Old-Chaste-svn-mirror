@@ -27,12 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTNONLINEARELASTICITYASSEMBLERLONG_HPP_
-#define TESTNONLINEARELASTICITYASSEMBLERLONG_HPP_
+#ifndef TESTNONLINEARELASTICITYSOLVERLONG_HPP_
+#define TESTNONLINEARELASTICITYSOLVERLONG_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
-#include "NonlinearElasticityAssembler.hpp"
+#include "NonlinearElasticitySolver.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "ExponentialMaterialLaw.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
@@ -139,7 +139,7 @@ double ThreeDimensionalModelProblem::c1 = 0.1;
  *  this deformation, and they are defined in the above class.
  *
  */
-class TestNonlinearElasticityAssemblerLong : public CxxTest::TestSuite
+class TestNonlinearElasticitySolverLong : public CxxTest::TestSuite
 {
 public:
     void TestSolve3d() throw(Exception)
@@ -188,19 +188,19 @@ public:
         }
         assert(boundary_elems.size()==10*num_elem_each_dir*num_elem_each_dir);
 
-        NonlinearElasticityAssembler<3> assembler(&mesh, &law,
-                                                  zero_vector<double>(3), /*body force-overwritten by functional definiton below*/
-                                                  1.0 /*density*/, "nonlin_elas_3d",
-                                                  fixed_nodes, &locations);
+        NonlinearElasticitySolver<3> solver(&mesh, &law,
+                                            zero_vector<double>(3), /*body force-overwritten by functional definiton below*/
+                                            1.0 /*density*/, "nonlin_elas_3d",
+                                            fixed_nodes, &locations);
 
         // set the body force and traction functions
-        assembler.SetFunctionalBodyForce(ThreeDimensionalModelProblem::GetBodyForce);
-        assembler.SetFunctionalTractionBoundaryCondition(boundary_elems, ThreeDimensionalModelProblem::GetTraction);
+        solver.SetFunctionalBodyForce(ThreeDimensionalModelProblem::GetBodyForce);
+        solver.SetFunctionalTractionBoundaryCondition(boundary_elems, ThreeDimensionalModelProblem::GetTraction);
 
-        assembler.Solve();
+        solver.Solve();
 
         // compare
-        std::vector<c_vector<double,3> >& r_solution = assembler.rGetDeformedPosition();
+        std::vector<c_vector<double,3> >& r_solution = solver.rGetDeformedPosition();
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
@@ -219,10 +219,10 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumVertices(); i++)
         {
-            TS_ASSERT_DELTA( assembler.rGetPressures()[i]/(2*ThreeDimensionalModelProblem::c1), 1.0, 2e-1);
+            TS_ASSERT_DELTA( solver.rGetPressures()[i]/(2*ThreeDimensionalModelProblem::c1), 1.0, 2e-1);
         }
     }
 };
 
 
-#endif /*TESTNONLINEARELASTICITYASSEMBLERLONG_HPP_*/
+#endif /*TESTNONLINEARELASTICITYSOLVERLONG_HPP_*/

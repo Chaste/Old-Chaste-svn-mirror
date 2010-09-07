@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 
 /**
- *  A class of helper methods for problems which use NonlinearElasticityAssembler.
+ *  A class of helper methods for problems which use NonlinearElasticitySolver.
  */
 template<unsigned DIM>
 class NonlinearElasticityTools

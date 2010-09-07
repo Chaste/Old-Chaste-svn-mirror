@@ -26,30 +26,30 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef ABSTRACTCARDIACMECHANICSASSEMBLER_HPP_
-#define ABSTRACTCARDIACMECHANICSASSEMBLER_HPP_
+#ifndef ABSTRACTCARDIACMECHANICSSOLVER_HPP_
+#define ABSTRACTCARDIACMECHANICSSOLVER_HPP_
 
-#include "NonlinearElasticityAssembler.hpp"
+#include "NonlinearElasticitySolver.hpp"
 #include "NashHunterPoleZeroLaw.hpp"
-#include "QuadraticBasisFunction.hpp" // not included in NonlinearElasticityAssembler.hpp, just the cpp
+#include "QuadraticBasisFunction.hpp" // not included in NonlinearElasticitySolver.hpp, just the cpp
 #include "LinearBasisFunction.hpp"
 #include "AbstractContractionModel.hpp"
 
 /**
- *  AbstractCardiacMechanicsAssembler
+ *  AbstractCardiacMechanicsSolver
  *
- *  Base class to implicit and explicit cardiac mechanics assemblers. Inherits from NonlinearElasticityAssembler
+ *  Base class to implicit and explicit cardiac mechanics solvers. Inherits from NonlinearElasticitySolver
  *  Main method is the overloaded AssembleOnElement which does the extra work needed for cardiac problems. The
  *  child classes hold the contraction models and need to implement a method for getting the active tension from
  *  the model.
  */
 template<unsigned DIM>
-class AbstractCardiacMechanicsAssembler : public NonlinearElasticityAssembler<DIM>
+class AbstractCardiacMechanicsSolver : public NonlinearElasticitySolver<DIM>
 {
 protected:
-    static const unsigned STENCIL_SIZE = NonlinearElasticityAssembler<DIM>::STENCIL_SIZE;
-    static const unsigned NUM_NODES_PER_ELEMENT = NonlinearElasticityAssembler<DIM>::NUM_NODES_PER_ELEMENT;
-    static const unsigned NUM_VERTICES_PER_ELEMENT = NonlinearElasticityAssembler<DIM>::NUM_VERTICES_PER_ELEMENT;
+    static const unsigned STENCIL_SIZE = NonlinearElasticitySolver<DIM>::STENCIL_SIZE;
+    static const unsigned NUM_NODES_PER_ELEMENT = NonlinearElasticitySolver<DIM>::NUM_NODES_PER_ELEMENT;
+    static const unsigned NUM_VERTICES_PER_ELEMENT = NonlinearElasticitySolver<DIM>::NUM_VERTICES_PER_ELEMENT;
 
     /**
      *  Vector of contraction model (pointers). One for each quadrature point.
@@ -144,7 +144,7 @@ protected:
 
 
     /**
-     *  Pure method called in AbstractCardiacMechanicsAssembler::ComputeStressAndStressDerivative(), which needs to provide
+     *  Pure method called in AbstractCardiacMechanicsSolver::ComputeStressAndStressDerivative(), which needs to provide
      *  the active tension (and other info if implicit (if the contraction model depends on stretch
      *  or stretch rate)) at a particular quadrature point. Takes in the current fibre stretch.
      *
@@ -152,8 +152,8 @@ protected:
      *  @param currentQuadPointGlobalIndex quadrature point the integrand is currently being evaluated at in AssembleOnElement
      *  @param assembleJacobian  A bool stating whether to assemble the Jacobian matrix.
      *  @param rActiveTension The returned active tension
-     *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch. Only should be set in implicit assemblers
-     *  @param rDerivActiveTensionWrtDLambdaDt The returned dT_dLamDot, derivative of active tension wrt stretch rate.  Only should be set in implicit assemblers
+     *  @param rDerivActiveTensionWrtLambda The returned dT_dLam, derivative of active tension wrt stretch. Only should be set in implicit solvers
+     *  @param rDerivActiveTensionWrtDLambdaDt The returned dT_dLamDot, derivative of active tension wrt stretch rate.  Only should be set in implicit solver
      */
     virtual void GetActiveTensionAndTensionDerivs(double currentFibreStretch,
                                                   unsigned currentQuadPointGlobalIndex,
@@ -171,19 +171,19 @@ public:
      * @param pMaterialLaw The material law for the tissue. If NULL the default
      *   (NashHunterPoleZero) law is used.
      */
-    AbstractCardiacMechanicsAssembler(QuadraticMesh<DIM>* pQuadMesh,
-                                      std::string outputDirectory,
-                                      std::vector<unsigned>& rFixedNodes,
-                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw);
+    AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>* pQuadMesh,
+                                   std::string outputDirectory,
+                                   std::vector<unsigned>& rFixedNodes,
+                                   AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw);
 
 
     /**
      *  Destructor just deletes memory if it was allocated
      */
-    ~AbstractCardiacMechanicsAssembler();
+    ~AbstractCardiacMechanicsSolver();
     
     
-    /** Get the total number of quad points in the mesh. Pure, implemented in concrete assembler */
+    /** Get the total number of quad points in the mesh. Pure, implemented in concrete solver */
     unsigned GetTotalNumQuadPoints()
     {
         return mTotalQuadPoints;
@@ -269,24 +269,24 @@ public:
      *  Must be allocated prior to being passed in.
      */
     void ComputeDeformationGradientAndStretchInEachElement(std::vector<c_matrix<double,DIM,DIM> >& rDeformationGradients,
-                                                             std::vector<double>& rStretches);
+                                                           std::vector<double>& rStretches);
 };
 
 
 template<unsigned DIM>
-AbstractCardiacMechanicsAssembler<DIM>::AbstractCardiacMechanicsAssembler(QuadraticMesh<DIM>* pQuadMesh,
-                                                                          std::string outputDirectory,
-                                                                          std::vector<unsigned>& rFixedNodes,
-                                                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
-   : NonlinearElasticityAssembler<DIM>(pQuadMesh,
-                                       pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw<DIM>,
-                                       zero_vector<double>(DIM),
-                                       DOUBLE_UNSET,
-                                       outputDirectory,
-                                       rFixedNodes),
-                                       mCurrentTime(DBL_MAX),
-                                       mNextTime(DBL_MAX),
-                                       mOdeTimestep(DBL_MAX)
+AbstractCardiacMechanicsSolver<DIM>::AbstractCardiacMechanicsSolver(QuadraticMesh<DIM>* pQuadMesh,
+                                                                    std::string outputDirectory,
+                                                                    std::vector<unsigned>& rFixedNodes,
+                                                                    AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw)
+   : NonlinearElasticitySolver<DIM>(pQuadMesh,
+                                    pMaterialLaw!=NULL ? pMaterialLaw : new NashHunterPoleZeroLaw<DIM>,
+                                    zero_vector<double>(DIM),
+                                    DOUBLE_UNSET,
+                                    outputDirectory,
+                                    rFixedNodes),
+                                    mCurrentTime(DBL_MAX),
+                                    mNextTime(DBL_MAX),
+                                    mOdeTimestep(DBL_MAX)
 {
     // compute total num quad points
     mTotalQuadPoints = pQuadMesh->GetNumElements()*this->mpQuadratureRule->GetNumQuadPoints();
@@ -310,7 +310,7 @@ AbstractCardiacMechanicsAssembler<DIM>::AbstractCardiacMechanicsAssembler(Quadra
 
 
 template<unsigned DIM>
-AbstractCardiacMechanicsAssembler<DIM>::~AbstractCardiacMechanicsAssembler()
+AbstractCardiacMechanicsSolver<DIM>::~AbstractCardiacMechanicsSolver()
 {
     if(mAllocatedMaterialLawMemory)
     {
@@ -327,8 +327,8 @@ AbstractCardiacMechanicsAssembler<DIM>::~AbstractCardiacMechanicsAssembler()
 
 
 template<unsigned DIM>
-void AbstractCardiacMechanicsAssembler<DIM>::SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations,
-                                                                  std::vector<double>& rVoltages)
+void AbstractCardiacMechanicsSolver<DIM>::SetCalciumAndVoltage(std::vector<double>& rCalciumConcentrations,
+                                                               std::vector<double>& rVoltages)
 
 {
     assert(rCalciumConcentrations.size() == this->mTotalQuadPoints);
@@ -346,15 +346,15 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetCalciumAndVoltage(std::vector<do
 }
 
 template<unsigned DIM>
-void AbstractCardiacMechanicsAssembler<DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                                                              c_matrix<double,DIM,DIM>& rC, 
-                                                                              c_matrix<double,DIM,DIM>& rInvC, 
-                                                                              double pressure, 
-                                                                              unsigned elementIndex,
-                                                                              unsigned currentQuadPointGlobalIndex,
-                                                                              c_matrix<double,DIM,DIM>& rT,
-                                                                              FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
-                                                                              bool assembleJacobian)
+void AbstractCardiacMechanicsSolver<DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                                           c_matrix<double,DIM,DIM>& rC, 
+                                                                           c_matrix<double,DIM,DIM>& rInvC, 
+                                                                           double pressure, 
+                                                                           unsigned elementIndex,
+                                                                           unsigned currentQuadPointGlobalIndex,
+                                                                           c_matrix<double,DIM,DIM>& rT,
+                                                                           FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                                                           bool assembleJacobian)
 {
     if(!mpVariableFibreSheetDirections) // constant fibre directions
     {
@@ -425,7 +425,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::ComputeStressAndStressDerivative(Ab
 
 
 template<unsigned DIM>
-void AbstractCardiacMechanicsAssembler<DIM>::ComputeDeformationGradientAndStretchInEachElement(
+void AbstractCardiacMechanicsSolver<DIM>::ComputeDeformationGradientAndStretchInEachElement(
     std::vector<c_matrix<double,DIM,DIM> >& rDeformationGradients,
     std::vector<double>& rStretches)
 {
@@ -495,7 +495,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::ComputeDeformationGradientAndStretc
 
 
 template<unsigned DIM>
-void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std::string orthoFile, bool definedPerQuadraturePoint)
+void AbstractCardiacMechanicsSolver<DIM>::SetVariableFibreSheetDirections(std::string orthoFile, bool definedPerQuadraturePoint)
 {
     mFibreSheetDirectionsDefinedByQuadraturePoint = definedPerQuadraturePoint;
     
@@ -568,7 +568,7 @@ void AbstractCardiacMechanicsAssembler<DIM>::SetVariableFibreSheetDirections(std
 
 
 template<unsigned DIM>
-void AbstractCardiacMechanicsAssembler<DIM>::CheckOrthogonality(c_matrix<double,DIM,DIM>& rMatrix)
+void AbstractCardiacMechanicsSolver<DIM>::CheckOrthogonality(c_matrix<double,DIM,DIM>& rMatrix)
 {
     c_matrix<double,DIM,DIM>  temp = prod(trans(rMatrix),rMatrix);
     double tol = 1e-4;
@@ -589,4 +589,4 @@ void AbstractCardiacMechanicsAssembler<DIM>::CheckOrthogonality(c_matrix<double,
     }
 }
 
-#endif /*ABSTRACTCARDIACMECHANICSASSEMBLER_HPP_*/
+#endif /*ABSTRACTCARDIACMECHANICSSOLVER_HPP_*/

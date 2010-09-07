@@ -27,12 +27,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_
-#define TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_
+#ifndef TESTIMPLICITCARDIACMECHANICSSOLVER_HPP_
+#define TESTIMPLICITCARDIACMECHANICSSOLVER_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
-#include "ImplicitCardiacMechanicsAssembler.hpp"
+#include "ImplicitCardiacMechanicsSolver.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "QuadraturePointsGroup.hpp"
@@ -46,7 +46,7 @@ double MatrixNorm(c_matrix<double,2,2> mat)
 }
 
 
-class TestImplicitCardiacMechanicsAssembler : public CxxTest::TestSuite
+class TestImplicitCardiacMechanicsSolver : public CxxTest::TestSuite
 {
 public:
     void TestCompareJacobians() throw(Exception)
@@ -57,51 +57,51 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"",fixed_nodes,&law);
+        ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"",fixed_nodes,&law);
 
-        std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 0.0);
-        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
+        std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints(), 0.0);
+        std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);
 
         for(unsigned i=0; i<calcium_conc.size(); i++)
         {
             calcium_conc[i] = 0.05;
         }
 
-        assembler.SetCalciumAndVoltage(calcium_conc, voltages);
+        solver.SetCalciumAndVoltage(calcium_conc, voltages);
 
         // NOTE: calling CompareJacobians below bypasses calling Solve(t0,t1,dt), hence the
         // time info will not be set. We therefore must explicitly set them here.
-        assembler.mCurrentTime = 0.0;
-        assembler.mNextTime = 0.01;
-        assembler.mOdeTimestep = 0.01;
+        solver.mCurrentTime = 0.0;
+        solver.mNextTime = 0.01;
+        solver.mOdeTimestep = 0.01;
 
 
         ///////////////////////////////////////////////////////////////////
         // compute numerical jacobian and compare with analytic jacobian
         // (about u=0, p=p0)
         ///////////////////////////////////////////////////////////////////
-        assembler.AssembleSystem(true, true);
-        ReplicatableVector rhs_vec(assembler.mpLinearSystem->rGetRhsVector());
+        solver.AssembleSystem(true, true);
+        ReplicatableVector rhs_vec(solver.mpLinearSystem->rGetRhsVector());
         unsigned num_dofs = rhs_vec.GetSize();
         double h = 1e-6;
         int lo, hi;
-        MatGetOwnershipRange(assembler.mpLinearSystem->rGetLhsMatrix(), &lo, &hi);
+        MatGetOwnershipRange(solver.mpLinearSystem->rGetLhsMatrix(), &lo, &hi);
 
         for(unsigned j=0; j<num_dofs; j++)
         {
-            assembler.mCurrentSolution.clear();
-            assembler.FormInitialGuess();
-            assembler.mCurrentSolution[j] += h;
+            solver.mCurrentSolution.clear();
+            solver.FormInitialGuess();
+            solver.mCurrentSolution[j] += h;
 
-            assembler.AssembleSystem(true, false);
+            solver.AssembleSystem(true, false);
 
-            ReplicatableVector perturbed_rhs( assembler.mpLinearSystem->rGetRhsVector() );
+            ReplicatableVector perturbed_rhs( solver.mpLinearSystem->rGetRhsVector() );
 
             for(unsigned i=0; i<num_dofs; i++)
             {
                 if((lo<=(int)i) && ((int)i<hi))
                 {
-                    double analytic_matrix_val = assembler.mpLinearSystem->GetMatrixElement(i,j);
+                    double analytic_matrix_val = solver.mpLinearSystem->GetMatrixElement(i,j);
                     double numerical_matrix_val = (perturbed_rhs[i] - rhs_vec[i])/h;
                     if((fabs(analytic_matrix_val)>1e-6) && (fabs(numerical_matrix_val)>1e-6))
                     {
@@ -119,12 +119,12 @@ public:
         PetscTools::Barrier("TestCompareJacobians");
 
         // coverage - test default material law works ok
-        ImplicitCardiacMechanicsAssembler<2> another_assembler(NHS, &mesh,"",fixed_nodes);
+        ImplicitCardiacMechanicsSolver<2> another_solver(NHS, &mesh,"",fixed_nodes);
         c_matrix<double,2,2> F = zero_matrix<double>(2,2);
         F(0,0)=F(1,1)=1.1;
         double pressure = 1;
         c_matrix<double,2,2> S;
-        another_assembler.mMaterialLaws[0]->Compute1stPiolaKirchoffStress(F,pressure,S);
+        another_solver.mMaterialLaws[0]->Compute1stPiolaKirchoffStress(F,pressure,S);
         TS_ASSERT_DELTA(S(0,0), 1.5805, 1e-3);
     }
 
@@ -139,18 +139,18 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/ZeroActiveTension",fixed_nodes,&law);
+        ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/ZeroActiveTension",fixed_nodes,&law);
 
-        TS_ASSERT_EQUALS(assembler.GetTotalNumQuadPoints(), mesh.GetNumElements()*9u);
+        TS_ASSERT_EQUALS(solver.GetTotalNumQuadPoints(), mesh.GetNumElements()*9u);
 
         // 0.0002 is the initial Ca conc in Lr91
-        std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 0.0002);
-        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
-        assembler.SetCalciumAndVoltage(calcium_conc, voltages);
+        std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints(), 0.0002);
+        std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);
+        solver.SetCalciumAndVoltage(calcium_conc, voltages);
 
-        assembler.Solve(0,0.1,0.01);
+        solver.Solve(0,0.1,0.01);
 
-        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 0u);
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 0u);
     }
 
 
@@ -168,10 +168,10 @@ public:
         fixed_nodes[0] = 0;
         fixed_nodes[1] = 5;
 
-        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/SpecifiedCaCompression",fixed_nodes,&law);
-        QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
+        ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/SpecifiedCaCompression",fixed_nodes,&law);
+        QuadraturePointsGroup<2> quad_points(mesh, *(solver.GetQuadratureRule()));
 
-        std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints());
+        std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints());
         for(unsigned i=0; i<calcium_conc.size(); i++)
         {
             double Y = quad_points.Get(i)(1);
@@ -180,20 +180,20 @@ public:
             calcium_conc[i] = 0.0002 + 0.001*Y;
         }
 
-        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
-        assembler.SetCalciumAndVoltage(calcium_conc, voltages);
+        std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);
+        solver.SetCalciumAndVoltage(calcium_conc, voltages);
 
         // solve for quite a long time to get some deformation
-        assembler.Solve(0,10,1);
+        solver.Solve(0,10,1);
 
-        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 7u); // hardcoded 7, this check is to make sure the jac is correctly computed
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 7u); // hardcoded 7, this check is to make sure the jac is correctly computed
 
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 24 is the top-right corner node,
-        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 0.9480, 1e-2); //different results in 3dp with different preconditioners
-        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 1.0516, 1e-2); //different results in 3dp with different preconditioners
+        TS_ASSERT_DELTA( solver.rGetDeformedPosition()[24](0), 0.9480, 1e-2); //different results in 3dp with different preconditioners
+        TS_ASSERT_DELTA( solver.rGetDeformedPosition()[24](1), 1.0516, 1e-2); //different results in 3dp with different preconditioners
 
-        std::vector<double>& lambda = assembler.rGetFibreStretches();
+        std::vector<double>& lambda = solver.rGetFibreStretches();
 
 //// removing this test, its a pain to maintain as it requires refitting the cubic 
 //        // the lambdas should be less than 1 (ie compression), and also
@@ -260,32 +260,32 @@ public:
             fixed_nodes[0] = 0;
             fixed_nodes[1] = 1; // was 5 in the above test, {0,1}=small part of X=0 surface, {0,5}=small part of Y=0 surface
 
-            ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirection",fixed_nodes,&law);
+            ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirection",fixed_nodes,&law);
 
             if(run==1)
             {
                 c_matrix<double,2,2> non_orthogonal_mat = zero_matrix<double>(2,2);
                 non_orthogonal_mat(0,0) = 1.0;
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetConstantFibreSheetDirections(non_orthogonal_mat), "not orthogonal");
+                TS_ASSERT_THROWS_CONTAINS(solver.SetConstantFibreSheetDirections(non_orthogonal_mat), "not orthogonal");
 
                 // ortho matrix = [0 1; 1 0], ie fibres in Y direction
                 c_matrix<double,2,2> ortho_matrix = zero_matrix<double>(2,2);
                 ortho_matrix(0,1) = 1.0;
                 ortho_matrix(1,0) = 1.0;
-                assembler.SetConstantFibreSheetDirections(ortho_matrix);
+                solver.SetConstantFibreSheetDirections(ortho_matrix);
             }
             else
             {
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("blah", false), "Fibre file must be a .ortho file");
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("blah.ortho", false), "Could not open file");
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("heart/test/data/bad_4by4mesh_fibres.ortho", false), "Error occurred when reading file");
-                TS_ASSERT_THROWS_CONTAINS(assembler.SetVariableFibreSheetDirections("heart/test/data/badheader_4by4mesh_fibres.ortho", false), "found 32342, expected 32");
-                assembler.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho", false);
+                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("blah", false), "Fibre file must be a .ortho file");
+                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("blah.ortho", false), "Could not open file");
+                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("heart/test/data/bad_4by4mesh_fibres.ortho", false), "Error occurred when reading file");
+                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("heart/test/data/badheader_4by4mesh_fibres.ortho", false), "found 32342, expected 32");
+                solver.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho", false);
             }
 
-            QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
+            QuadraturePointsGroup<2> quad_points(mesh, *(solver.GetQuadratureRule()));
 
-            std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints());
+            std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints());
             for(unsigned i=0; i<calcium_conc.size(); i++)
             {
                 double X = quad_points.Get(i)(0);
@@ -294,20 +294,20 @@ public:
                 calcium_conc[i] = 0.0002 + 0.001*X;
             }
 
-            std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
-            assembler.SetCalciumAndVoltage(calcium_conc, voltages);
+            std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);
+            solver.SetCalciumAndVoltage(calcium_conc, voltages);
 
             // solve for quite a long time to get some deformation
-            assembler.Solve(0,10,1);
+            solver.Solve(0,10,1);
 
-            TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 7u); // hardcoded 7, this check is to make sure the jac is correctly computed
+            TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 7u); // hardcoded 7, this check is to make sure the jac is correctly computed
 
             // have visually checked the answer and seen that it looks ok, so have
             // a hardcoded test here. Node that 24 is the top-right corner node,
-            TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 0.9429, 1e-2);
-            TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 1.0565, 1e-2);
+            TS_ASSERT_DELTA( solver.rGetDeformedPosition()[24](1), 0.9429, 1e-2);
+            TS_ASSERT_DELTA( solver.rGetDeformedPosition()[24](0), 1.0565, 1e-2);
 
-            std::vector<double>& lambda = assembler.rGetFibreStretches();
+            std::vector<double>& lambda = solver.rGetFibreStretches();
 
             for(unsigned i=0; i<lambda.size(); i++)
             {
@@ -322,7 +322,7 @@ public:
 
 
     // cover all other contraction model options which are allowed but not been used in a test
-    // so far (or in TestExplicitCardiacMechanicsAssembler)
+    // so far (or in TestExplicitCardiacMechanicsSolver)
     void TestCoverage() throw(Exception)
     {
         QuadraticMesh<2> mesh(1.0, 1.0, 1.0);
@@ -331,8 +331,8 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsAssembler<2> impl_solver1(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
-        ImplicitCardiacMechanicsAssembler<2> impl_solver2(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
+        ImplicitCardiacMechanicsSolver<2> impl_solver1(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
+        ImplicitCardiacMechanicsSolver<2> impl_solver2(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
 
         // call with TS_ASSERT_THROWS_CONTAINS with any disallowed contraction models here:
     }
@@ -346,7 +346,7 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ImplicitCardiacMechanicsAssembler<2> assembler(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
+        ImplicitCardiacMechanicsSolver<2> solver(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
         
         // compute the stretches, they should be 1
         std::vector<double> stretches(mesh.GetNumElements());
@@ -363,7 +363,7 @@ public:
         }
 
 
-        assembler.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
+        solver.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
         for(unsigned i=0; i<stretches.size(); i++)
         {
             TS_ASSERT_DELTA(stretches[i], 1.0, 1e-6);
@@ -376,11 +376,11 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             unsigned j=1;
-            assembler.mCurrentSolution[2*i+j] = -0.1*mesh.GetNode(i)->rGetLocation()[j];
+            solver.mCurrentSolution[2*i+j] = -0.1*mesh.GetNode(i)->rGetLocation()[j];
         }
 
         // stretches should still be 1, F should be equal to [1,0;0,0.9]
-        assembler.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
+        solver.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
         
         c_matrix<double,2,2> correct_F = identity_matrix<double>(2);
         correct_F(1,1) = 0.9; 
@@ -395,11 +395,11 @@ public:
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
             unsigned j=0;
-            assembler.mCurrentSolution[2*i+j] = -0.2*mesh.GetNode(i)->rGetLocation()[j];
+            solver.mCurrentSolution[2*i+j] = -0.2*mesh.GetNode(i)->rGetLocation()[j];
         }
 
         // stretches should now be 0.8, F should be equal to [0.8,0;0,0.9]
-        assembler.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
+        solver.ComputeDeformationGradientAndStretchInEachElement(deformation_gradients, stretches);
         correct_F(0,0) = 0.8; 
         for(unsigned i=0; i<stretches.size(); i++)
         {
@@ -422,14 +422,14 @@ public:
         fixed_nodes[0] = 0;
         fixed_nodes[1] = 1; 
 
-        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirectionDefinePerQuadPoint",fixed_nodes,&law);
+        ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirectionDefinePerQuadPoint",fixed_nodes,&law);
         
-        TS_ASSERT_THROWS_THIS( assembler.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho", true), "Fibre file must be a .orthoquad file");
-        TS_ASSERT_THROWS_CONTAINS( assembler.SetVariableFibreSheetDirections("heart/test/data/badheader_4by4mesh_fibres.orthoquad", true), "found 45430, expected 288");
-        assembler.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.orthoquad", true);
+        TS_ASSERT_THROWS_THIS( solver.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho", true), "Fibre file must be a .orthoquad file");
+        TS_ASSERT_THROWS_CONTAINS( solver.SetVariableFibreSheetDirections("heart/test/data/badheader_4by4mesh_fibres.orthoquad", true), "found 45430, expected 288");
+        solver.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.orthoquad", true);
 
-        QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
-        std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints());
+        QuadraturePointsGroup<2> quad_points(mesh, *(solver.GetQuadratureRule()));
+        std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints());
         for(unsigned i=0; i<calcium_conc.size(); i++)
         {
             double X = quad_points.Get(i)(0);
@@ -438,20 +438,20 @@ public:
             calcium_conc[i] = 0.0002 + 0.001*X;
         }
 
-        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
-        assembler.SetCalciumAndVoltage(calcium_conc, voltages);
+        std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);
+        solver.SetCalciumAndVoltage(calcium_conc, voltages);
 
         // solve for quite a long time to get some deformation
-        assembler.Solve(0,10,1);
+        solver.Solve(0,10,1);
 
-        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(), 7u); // hardcoded 7, this check is to make sure the jac is correctly computed
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(), 7u); // hardcoded 7, this check is to make sure the jac is correctly computed
 
         // have visually checked the answer and seen that it looks ok, so have
         // a hardcoded test here. Node that 24 is the top-right corner node,
-        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](1), 0.9429, 1e-2);
-        TS_ASSERT_DELTA( assembler.rGetDeformedPosition()[24](0), 1.0565, 1e-2);
+        TS_ASSERT_DELTA( solver.rGetDeformedPosition()[24](1), 0.9429, 1e-2);
+        TS_ASSERT_DELTA( solver.rGetDeformedPosition()[24](0), 1.0565, 1e-2);
 
-        std::vector<double>& lambda = assembler.rGetFibreStretches();
+        std::vector<double>& lambda = solver.rGetFibreStretches();
         TS_ASSERT_DELTA(lambda[34], 0.9693, 1e-3);
     }  
         
@@ -492,22 +492,22 @@ public:
 ////        std::vector<unsigned> fixed_nodes
 ////          = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 //
-//        ImplicitCardiacMechanicsAssembler<2> assembler(NHS, &mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
+//        ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/CompareWithExplicit",fixed_nodes,&law);
 //
-//        std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 1); // unrealistically large Ca (but note random material law used)
-//        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
-//        assembler.SetCalciumAndVoltage(calcium_conc, voltages);
-//        assembler.Solve(0,0.01,0.01);
+//        std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints(), 1); // unrealistically large Ca (but note random material law used)
+//        std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);
+//        solver.SetCalciumAndVoltage(calcium_conc, voltages);
+//        solver.Solve(0,0.01,0.01);
 //
 //
 //        // Visually compared results, they are identical to the dealii results
 //        // Hardcoded value for (1,1) node
-//        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[80](0),  0.98822 /*dealii*/, 5e-4);
-//        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[80](1),  1.01177 /*dealii*/, 3e-4);
+//        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[80](0),  0.98822 /*dealii*/, 5e-4);
+//        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[80](1),  1.01177 /*dealii*/, 3e-4);
 //        // Hardcoded value for (0,1) node
-//        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[72](0), -0.00465 /*dealii*/, 4e-4);
-//        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[72](1),  1.00666 /*dealii*/, 1e-4);
+//        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[72](0), -0.00465 /*dealii*/, 4e-4);
+//        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[72](1),  1.00666 /*dealii*/, 1e-4);
 //    }
 };
 
-#endif /*TESTIMPLICITCARDIACMECHANICSASSEMBLER_HPP_*/
+#endif /*TESTIMPLICITCARDIACMECHANICSSOLVER_HPP_*/

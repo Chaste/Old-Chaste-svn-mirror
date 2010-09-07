@@ -26,8 +26,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef ABSTRACTNONLINEARELASTICITYASSEMBLER_HPP_
-#define ABSTRACTNONLINEARELASTICITYASSEMBLER_HPP_
+#ifndef ABSTRACTNONLINEARELASTICITYSOLVER_HPP_
+#define ABSTRACTNONLINEARELASTICITYSOLVER_HPP_
 
 #include <vector>
 #include <cmath>
@@ -57,10 +57,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 /**
- * Abstract nonlinear elasticity assembler.
+ * Abstract nonlinear elasticity solver.
  */
 template<unsigned DIM>
-class AbstractNonlinearElasticityAssembler
+class AbstractNonlinearElasticitySolver
 {
 protected:
 
@@ -290,12 +290,12 @@ public:
      * @param outputDirectory
      * @param fixedNodes
      */
-    AbstractNonlinearElasticityAssembler(unsigned numDofs,
-                                         AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                         c_vector<double,DIM> bodyForce,
-                                         double density,
-                                         std::string outputDirectory,
-                                         std::vector<unsigned>& fixedNodes);
+    AbstractNonlinearElasticitySolver(unsigned numDofs,
+                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                      c_vector<double,DIM> bodyForce,
+                                      double density,
+                                      std::string outputDirectory,
+                                      std::vector<unsigned>& fixedNodes);
 
     /**
      * Variant constructor taking a vector of material laws.
@@ -307,17 +307,17 @@ public:
      * @param outputDirectory
      * @param fixedNodes
      */
-    AbstractNonlinearElasticityAssembler(unsigned numDofs,
-                                         std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
-                                         c_vector<double,DIM> bodyForce,
-                                         double density,
-                                         std::string outputDirectory,
-                                         std::vector<unsigned>& fixedNodes);
+    AbstractNonlinearElasticitySolver(unsigned numDofs,
+                                      std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
+                                      c_vector<double,DIM> bodyForce,
+                                      double density,
+                                      std::string outputDirectory,
+                                      std::vector<unsigned>& fixedNodes);
 
     /**
      * Destructor.
      */
-    virtual ~AbstractNonlinearElasticityAssembler();
+    virtual ~AbstractNonlinearElasticitySolver();
 
     /**
      * Solve the problem.
@@ -388,7 +388,7 @@ public:
 
 
 template<unsigned DIM>
-void AbstractNonlinearElasticityAssembler<DIM>::ApplyBoundaryConditions(bool applyToMatrix)
+void AbstractNonlinearElasticitySolver<DIM>::ApplyBoundaryConditions(bool applyToMatrix)
 {
     assert(mFixedNodeDisplacements.size()==mFixedNodes.size());
 
@@ -429,7 +429,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::ApplyBoundaryConditions(bool app
 }
 
 template<unsigned DIM>
-double AbstractNonlinearElasticityAssembler<DIM>::ComputeResidualAndGetNorm(bool allowException)
+double AbstractNonlinearElasticitySolver<DIM>::ComputeResidualAndGetNorm(bool allowException)
 {
     if(!allowException)
     {
@@ -456,7 +456,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::ComputeResidualAndGetNorm(bool
 }
 
 template<unsigned DIM>
-double AbstractNonlinearElasticityAssembler<DIM>::CalculateResidualNorm()
+double AbstractNonlinearElasticitySolver<DIM>::CalculateResidualNorm()
 {
     double norm;
     VecNorm(mpLinearSystem->rGetRhsVector(), NORM_2, &norm);
@@ -464,10 +464,10 @@ double AbstractNonlinearElasticityAssembler<DIM>::CalculateResidualNorm()
 }
 
 template<unsigned DIM>
-void AbstractNonlinearElasticityAssembler<DIM>::VectorSum(std::vector<double>& rX,
-                                                          ReplicatableVector& rY,
-                                                          double a,
-                                                          std::vector<double>& rZ)
+void AbstractNonlinearElasticitySolver<DIM>::VectorSum(std::vector<double>& rX,
+                                                       ReplicatableVector& rY,
+                                                       double a,
+                                                       std::vector<double>& rZ)
 {
     assert(rX.size()==rY.GetSize());
     assert(rY.GetSize()==rZ.size());
@@ -479,7 +479,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::VectorSum(std::vector<double>& r
 
 
 template<unsigned DIM>
-double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
+double AbstractNonlinearElasticitySolver<DIM>::TakeNewtonStep()
 {
     #ifdef MECH_VERBOSE
     Timer::Reset();
@@ -623,7 +623,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::TakeNewtonStep()
 }
 
 template<unsigned DIM>
-void AbstractNonlinearElasticityAssembler<DIM>::PrintLineSearchResult(double s, double residNorm)
+void AbstractNonlinearElasticitySolver<DIM>::PrintLineSearchResult(double s, double residNorm)
 {
     #ifdef MECH_VERBOSE
     std::cout << "\tTesting s = " << s << ", |f| = " << residNorm << "\n" << std::flush;
@@ -631,7 +631,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::PrintLineSearchResult(double s, 
 }
 
 template<unsigned DIM>
-double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(Vec solution)
+double AbstractNonlinearElasticitySolver<DIM>::UpdateSolutionUsingLineSearch(Vec solution)
 {
     double initial_norm_resid = CalculateResidualNorm();
     #ifdef MECH_VERBOSE
@@ -710,7 +710,7 @@ double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(
         #define COVERAGE_IGNORE
         // Have to use an assert/exit here as the following exception causes a seg fault (in cardiac mech problems?)
         // Don't know why
-        std::cout << "CHASTE ERROR: (AbstractNonlinearElasticityAssembler.hpp): Residual does not appear to decrease in newton direction, quitting.\n" << std::flush;
+        std::cout << "CHASTE ERROR: (AbstractNonlinearElasticitySolver.hpp): Residual does not appear to decrease in newton direction, quitting.\n" << std::flush;
         exit(0);
         //EXCEPTION("Residual does not appear to decrease in newton direction, quitting");
         #undef COVERAGE_IGNORE
@@ -777,18 +777,18 @@ double AbstractNonlinearElasticityAssembler<DIM>::UpdateSolutionUsingLineSearch(
 
 
 template<unsigned DIM>
-void AbstractNonlinearElasticityAssembler<DIM>::PostNewtonStep(unsigned counter, double normResidual)
+void AbstractNonlinearElasticitySolver<DIM>::PostNewtonStep(unsigned counter, double normResidual)
 {
 }
 
 
 template<unsigned DIM>
-AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(unsigned numDofs,
-                                         AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                         c_vector<double,DIM> bodyForce,
-                                         double density,
-                                         std::string outputDirectory,
-                                         std::vector<unsigned>& fixedNodes)
+AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(unsigned numDofs,
+                                                                          AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                                          c_vector<double,DIM> bodyForce,
+                                                                          double density,
+                                                                          std::string outputDirectory,
+                                                                          std::vector<unsigned>& fixedNodes)
     : mKspAbsoluteTol(-1),
       mNumDofs(numDofs),
       mBodyForce(bodyForce),
@@ -810,12 +810,12 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
 
 
 template<unsigned DIM>
-AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(unsigned numDofs,
-                                         std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
-                                         c_vector<double,DIM> bodyForce,
-                                         double density,
-                                         std::string outputDirectory,
-                                         std::vector<unsigned>& fixedNodes)
+AbstractNonlinearElasticitySolver<DIM>::AbstractNonlinearElasticitySolver(unsigned numDofs,
+                                                                          std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
+                                                                          c_vector<double,DIM> bodyForce,
+                                                                          double density,
+                                                                          std::string outputDirectory,
+                                                                          std::vector<unsigned>& fixedNodes)
     : mKspAbsoluteTol(-1),
       mNumDofs(numDofs),
       mBodyForce(bodyForce),
@@ -841,7 +841,7 @@ AbstractNonlinearElasticityAssembler<DIM>::AbstractNonlinearElasticityAssembler(
 
 
 template<unsigned DIM>
-AbstractNonlinearElasticityAssembler<DIM>::~AbstractNonlinearElasticityAssembler()
+AbstractNonlinearElasticitySolver<DIM>::~AbstractNonlinearElasticitySolver()
 {
     delete mpLinearSystem;
     delete mpPreconditionMatrixLinearSystem;
@@ -849,10 +849,10 @@ AbstractNonlinearElasticityAssembler<DIM>::~AbstractNonlinearElasticityAssembler
 
 
 template<unsigned DIM>
-void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
-                                                      unsigned offset,
-                                                      unsigned maxNumNewtonIterations,
-                                                      bool quitIfNoConvergence)
+void AbstractNonlinearElasticitySolver<DIM>::Solve(double tol,
+                                                   unsigned offset,
+                                                   unsigned maxNumNewtonIterations,
+                                                   bool quitIfNoConvergence)
 {
     if (mWriteOutput)
     {
@@ -930,7 +930,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::Solve(double tol,
 
 
 template<unsigned DIM>
-void AbstractNonlinearElasticityAssembler<DIM>::WriteOutput(unsigned counter)
+void AbstractNonlinearElasticitySolver<DIM>::WriteOutput(unsigned counter)
 {
     // only write output if the flag mWriteOutput has been set
     if (!mWriteOutput)
@@ -958,14 +958,14 @@ void AbstractNonlinearElasticityAssembler<DIM>::WriteOutput(unsigned counter)
 
 
 template<unsigned DIM>
-unsigned AbstractNonlinearElasticityAssembler<DIM>::GetNumNewtonIterations()
+unsigned AbstractNonlinearElasticitySolver<DIM>::GetNumNewtonIterations()
 {
     return mNumNewtonIterations;
 }
 
 
 template<unsigned DIM>
-void AbstractNonlinearElasticityAssembler<DIM>::SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&))
+void AbstractNonlinearElasticitySolver<DIM>::SetFunctionalBodyForce(c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&))
 {
     mUsingBodyForceFunction = true;
     mpBodyForceFunction = pFunction;
@@ -973,7 +973,7 @@ void AbstractNonlinearElasticityAssembler<DIM>::SetFunctionalBodyForce(c_vector<
 
 
 template<unsigned DIM>
-void AbstractNonlinearElasticityAssembler<DIM>::SetWriteOutput(bool writeOutput)
+void AbstractNonlinearElasticitySolver<DIM>::SetWriteOutput(bool writeOutput)
 {
     if (writeOutput && (mOutputDirectory==""))
     {
@@ -986,13 +986,13 @@ void AbstractNonlinearElasticityAssembler<DIM>::SetWriteOutput(bool writeOutput)
 // Constant setting definitions
 //
 template<unsigned DIM>
-const double AbstractNonlinearElasticityAssembler<DIM>::MAX_NEWTON_ABS_TOL = 1e-7;
+const double AbstractNonlinearElasticitySolver<DIM>::MAX_NEWTON_ABS_TOL = 1e-7;
 
 template<unsigned DIM>
-const double AbstractNonlinearElasticityAssembler<DIM>::MIN_NEWTON_ABS_TOL = 1e-10;
+const double AbstractNonlinearElasticitySolver<DIM>::MIN_NEWTON_ABS_TOL = 1e-10;
 
 template<unsigned DIM>
-const double AbstractNonlinearElasticityAssembler<DIM>::NEWTON_REL_TOL = 1e-4;
+const double AbstractNonlinearElasticitySolver<DIM>::NEWTON_REL_TOL = 1e-4;
 
 
-#endif /*ABSTRACTNONLINEARELASTICITYASSEMBLER_HPP_*/
+#endif /*ABSTRACTNONLINEARELASTICITYSOLVER_HPP_*/

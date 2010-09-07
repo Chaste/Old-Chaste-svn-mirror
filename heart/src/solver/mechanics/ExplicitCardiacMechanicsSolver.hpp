@@ -26,16 +26,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#ifndef EXPLICITCARDIACMECHANICSASSEMBLER_HPP_
-#define EXPLICITCARDIACMECHANICSASSEMBLER_HPP_
+#ifndef EXPLICITCARDIACMECHANICSSOLVER_HPP_
+#define EXPLICITCARDIACMECHANICSSOLVER_HPP_
 
-#include "AbstractCardiacMechanicsAssembler.hpp"
+#include "AbstractCardiacMechanicsSolver.hpp"
 #include "AbstractContractionModel.hpp"
 
 
 /**
- *  Explicit cardiac mechanics assembler for solving electromechanic problems where the
- *  contraction model is not stretch-rate-dependent (for those the implicit assembler is
+ *  Explicit cardiac mechanics solver for solving electromechanic problems where the
+ *  contraction model is not stretch-rate-dependent (for those the implicit solver is
  *  needed).
  *
  *  The general explicit solution procedure is to do, each timestep:
@@ -46,9 +46,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  (iv) solve for the deformation using this active tension.
  */
 template<unsigned DIM>
-class ExplicitCardiacMechanicsAssembler : public AbstractCardiacMechanicsAssembler<DIM>
+class ExplicitCardiacMechanicsSolver : public AbstractCardiacMechanicsSolver<DIM>
 {
-friend class TestExplicitCardiacMechanicsAssembler;
+friend class TestExplicitCardiacMechanicsSolver;
 
 private:
     /** This solver is an explicit solver (overloaded pure method) */
@@ -63,7 +63,7 @@ private:
 
     /**
      *  Get the active tension and other info at the given quadrature point. This is an explicit
-     *  assembler so just sets the active tension, it doesn't set the derivatives. It stores the
+     *  solver so just sets the active tension, it doesn't set the derivatives. It stores the
      *  stretch for the next timestep.
      *
      *  @param currentFibreStretch The stretch in the fibre direction
@@ -91,16 +91,16 @@ public:
      * @param pMaterialLaw The material law for the tissue. Defaults to NULL, in which case
      *   a default material law is used.
      */
-    ExplicitCardiacMechanicsAssembler(ContractionModel contractionModel,
-                                      QuadraticMesh<DIM>* pQuadMesh,
-                                      std::string outputDirectory,
-                                      std::vector<unsigned>& rFixedNodes,
-                                      AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
+    ExplicitCardiacMechanicsSolver(ContractionModel contractionModel,
+                                   QuadraticMesh<DIM>* pQuadMesh,
+                                   std::string outputDirectory,
+                                   std::vector<unsigned>& rFixedNodes,
+                                   AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw = NULL);
 
     /**
      *  Destructor
      */
-    virtual ~ExplicitCardiacMechanicsAssembler();
+    virtual ~ExplicitCardiacMechanicsSolver();
 
 
     /**
@@ -117,4 +117,4 @@ public:
     void Solve(double time, double nextTime, double odeTimestep);
 };
 
-#endif /*EXPLICITCARDIACMECHANICSASSEMBLER_HPP_*/
+#endif /*EXPLICITCARDIACMECHANICSSOLVER_HPP_*/

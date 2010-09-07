@@ -8,7 +8,7 @@ TestGaussianQuadratureRule.hpp
 TestLinearBasisFunction.hpp
 TestLinearHeatEquation.hpp
 TestMaterialLaws.hpp
-TestNonlinearElasticityAssembler.hpp
+TestNonlinearElasticitySolver.hpp
 TestNonlinearElasticityTools.hpp
 TestNonlinearHeatEquationPde.hpp
 TestPdeSimulationTime.hpp

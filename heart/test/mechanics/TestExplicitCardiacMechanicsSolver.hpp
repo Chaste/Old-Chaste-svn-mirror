@@ -27,20 +27,20 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef TESTEXPLICITCARDIACMECHANICSASSEMBLER_HPP_
-#define TESTEXPLICITCARDIACMECHANICSASSEMBLER_HPP_
+#ifndef TESTEXPLICITCARDIACMECHANICSSOLVER_HPP_
+#define TESTEXPLICITCARDIACMECHANICSSOLVER_HPP_
 
 #include <cxxtest/TestSuite.h>
 #include "UblasCustomFunctions.hpp"
-#include "ExplicitCardiacMechanicsAssembler.hpp"
-#include "ImplicitCardiacMechanicsAssembler.hpp"
+#include "ExplicitCardiacMechanicsSolver.hpp"
+#include "ImplicitCardiacMechanicsSolver.hpp"
 #include "MooneyRivlinMaterialLaw.hpp"
 #include "PetscSetupAndFinalize.hpp"
 #include "QuadraturePointsGroup.hpp"
 #include "NonlinearElasticityTools.hpp"
 #include "ReplicatableVector.hpp"
 
-class TestExplicitCardiacMechanicsAssembler : public CxxTest::TestSuite
+class TestExplicitCardiacMechanicsSolver : public CxxTest::TestSuite
 {
 public:
     void TestWithSimpleContractionModel() throw(Exception)
@@ -52,24 +52,24 @@ public:
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
         // NONPHYSIOL1 => NonphysiologicalContractionModel 1
-        ExplicitCardiacMechanicsAssembler<2> assembler(NONPHYSIOL1,&mesh,"TestExplicitCardiacMech",fixed_nodes,&law);
+        ExplicitCardiacMechanicsSolver<2> solver(NONPHYSIOL1,&mesh,"TestExplicitCardiacMech",fixed_nodes,&law);
 
         // coverage
-        QuadraturePointsGroup<2> quad_points(mesh, *(assembler.GetQuadratureRule()));
+        QuadraturePointsGroup<2> quad_points(mesh, *(solver.GetQuadratureRule()));
 
-        std::vector<double> calcium_conc(assembler.GetTotalNumQuadPoints(), 0.0);
-        std::vector<double> voltages(assembler.GetTotalNumQuadPoints(), 0.0);
+        std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints(), 0.0);
+        std::vector<double> voltages(solver.GetTotalNumQuadPoints(), 0.0);
 
-        assembler.SetCalciumAndVoltage(calcium_conc, voltages);
+        solver.SetCalciumAndVoltage(calcium_conc, voltages);
 
         // solve UP TO t=0. So Ta(lam_n,t_{n+1})=5*sin(0)=0, ie no deformation
-        assembler.Solve(-0.01,0.0,0.01);
-        TS_ASSERT_EQUALS(assembler.GetNumNewtonIterations(),0u);
+        solver.Solve(-0.01,0.0,0.01);
+        TS_ASSERT_EQUALS(solver.GetNumNewtonIterations(),0u);
 
-        assembler.Solve(0.24,0.25,0.01);
+        solver.Solve(0.24,0.25,0.01);
 
-        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[4](0),  0.8730, 1e-2);
-        TS_ASSERT_DELTA(assembler.rGetDeformedPosition()[4](1), -0.0867, 1e-2);
+        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[4](0),  0.8730, 1e-2);
+        TS_ASSERT_DELTA(solver.rGetDeformedPosition()[4](1), -0.0867, 1e-2);
     }
 
     // with stretch (and stretch-rate) independent contraction models the implicit and explicit schemes
@@ -83,8 +83,8 @@ public:
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
         // NONPHYSIOL 1 - contraction model is of the form sin(t)
-        ExplicitCardiacMechanicsAssembler<2> expl_solver(NONPHYSIOL1,&mesh,""/*"TestCompareExplAndImplCardiacSolvers_Exp"*/,fixed_nodes,&law);
-        ImplicitCardiacMechanicsAssembler<2> impl_solver(NONPHYSIOL1,&mesh,""/*"TestCompareExplAndImplCardiacSolvers_Imp"*/,fixed_nodes,&law);
+        ExplicitCardiacMechanicsSolver<2> expl_solver(NONPHYSIOL1,&mesh,""/*"TestCompareExplAndImplCardiacSolvers_Exp"*/,fixed_nodes,&law);
+        ImplicitCardiacMechanicsSolver<2> impl_solver(NONPHYSIOL1,&mesh,""/*"TestCompareExplAndImplCardiacSolvers_Imp"*/,fixed_nodes,&law);
 
         double dt = 0.25;
         for(double t=0; t<3; t+=dt)
@@ -113,8 +113,8 @@ public:
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
         // NONPHYSIOL 2 - contraction model is of the form lam*sin(t)
-        ExplicitCardiacMechanicsAssembler<2> expl_solver(NONPHYSIOL2,&mesh,"TestCompareExplAndImplCardiacSolversStretch_Exp",fixed_nodes,&law);
-        ImplicitCardiacMechanicsAssembler<2> impl_solver(NONPHYSIOL2,&mesh,"TestCompareExplAndImplCardiacSolversStretch_Imp",fixed_nodes,&law);
+        ExplicitCardiacMechanicsSolver<2> expl_solver(NONPHYSIOL2,&mesh,"TestCompareExplAndImplCardiacSolversStretch_Exp",fixed_nodes,&law);
+        ImplicitCardiacMechanicsSolver<2> impl_solver(NONPHYSIOL2,&mesh,"TestCompareExplAndImplCardiacSolversStretch_Imp",fixed_nodes,&law);
 
         expl_solver.WriteOutput(0);
         impl_solver.WriteOutput(0);
@@ -173,14 +173,14 @@ public:
         std::vector<unsigned> fixed_nodes
           = NonlinearElasticityTools<2>::GetNodesByComponentValue(mesh,0,0.0);
 
-        ExplicitCardiacMechanicsAssembler<2> expl_solver(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
+        ExplicitCardiacMechanicsSolver<2> expl_solver(NONPHYSIOL3,&mesh,"",fixed_nodes,&law);
 
-        ExplicitCardiacMechanicsAssembler<2> expl_solver_with_nash(NASH2004,&mesh,"",fixed_nodes,&law);
-        ExplicitCardiacMechanicsAssembler<2> expl_solver_with_kerchoffs(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
+        ExplicitCardiacMechanicsSolver<2> expl_solver_with_nash(NASH2004,&mesh,"",fixed_nodes,&law);
+        ExplicitCardiacMechanicsSolver<2> expl_solver_with_kerchoffs(KERCHOFFS2003,&mesh,"",fixed_nodes,&law);
 
         // bad contraction model
-        TS_ASSERT_THROWS_THIS(ExplicitCardiacMechanicsAssembler<2> assembler(NHS,&mesh,"",fixed_nodes,&law), "Unknown or stretch-rate-dependent contraction model");
+        TS_ASSERT_THROWS_THIS(ExplicitCardiacMechanicsSolver<2> solver(NHS,&mesh,"",fixed_nodes,&law), "Unknown or stretch-rate-dependent contraction model");
     }
 };
 
-#endif /*TESTEXPLICITCARDIACMECHANICSASSEMBLER_HPP_*/
+#endif /*TESTEXPLICITCARDIACMECHANICSSOLVER_HPP_*/

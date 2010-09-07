@@ -38,15 +38,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * Try recompiling with icpc version 10.0.025.
  */
 
-#include "NonlinearElasticityAssembler.hpp"
+#include "NonlinearElasticitySolver.hpp"
 #include "LinearBasisFunction.hpp"
 #include "QuadraticBasisFunction.hpp"
 #include <algorithm>
 
 //#include "Debug.hpp"
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
-                                                       bool assembleJacobian)
+void NonlinearElasticitySolver<DIM>::AssembleSystem(bool assembleResidual,
+                                                    bool assembleJacobian)
 {
     // Check we've actually been asked to do something!
     assert(assembleResidual || assembleJacobian);
@@ -201,7 +201,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleSystem(bool assembleResidual,
 }
 
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
+void NonlinearElasticitySolver<DIM>::AssembleOnElement(
             Element<DIM, DIM>& rElement,
             c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElem,
             c_matrix<double, STENCIL_SIZE, STENCIL_SIZE >& rAElemPrecond,
@@ -301,7 +301,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
     //////////////////////////////////////////////////
     for (unsigned quadrature_index=0; quadrature_index < this->mpQuadratureRule->GetNumQuadPoints(); quadrature_index++)
     {
-        // this is needed by the cardiac mechanics assembler
+        // this is needed by the cardiac mechanics solver
         unsigned current_quad_point_global_index =   rElement.GetIndex()*this->mpQuadratureRule->GetNumQuadPoints()
                                                    + quadrature_index;
 
@@ -571,15 +571,15 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnElement(
 
 
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
-                                                                         c_matrix<double,DIM,DIM>& rC, 
-                                                                         c_matrix<double,DIM,DIM>& rInvC, 
-                                                                         double pressure, 
-                                                                         unsigned elementIndex,
-                                                                         unsigned currentQuadPointGlobalIndex,
-                                                                         c_matrix<double,DIM,DIM>& rT,
-                                                                         FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
-                                                                         bool computeDTdE)
+void NonlinearElasticitySolver<DIM>::ComputeStressAndStressDerivative(AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
+                                                                      c_matrix<double,DIM,DIM>& rC, 
+                                                                      c_matrix<double,DIM,DIM>& rInvC, 
+                                                                      double pressure, 
+                                                                      unsigned elementIndex,
+                                                                      unsigned currentQuadPointGlobalIndex,
+                                                                      c_matrix<double,DIM,DIM>& rT,
+                                                                      FourthOrderTensor<DIM,DIM,DIM,DIM>& rDTdE,
+                                                                      bool computeDTdE)
 {
     // just call the method on the material law
     pMaterialLaw->ComputeStressAndStressDerivative(rC,rInvC,pressure,rT,rDTdE,computeDTdE);
@@ -587,7 +587,7 @@ void NonlinearElasticityAssembler<DIM>::ComputeStressAndStressDerivative(Abstrac
 
 
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::AssembleOnBoundaryElement(
+void NonlinearElasticitySolver<DIM>::AssembleOnBoundaryElement(
             BoundaryElement<DIM-1,DIM>& rBoundaryElement,
             c_matrix<double,BOUNDARY_STENCIL_SIZE,BOUNDARY_STENCIL_SIZE>& rAelem,
             c_vector<double,BOUNDARY_STENCIL_SIZE>& rBelem,
@@ -651,7 +651,7 @@ void NonlinearElasticityAssembler<DIM>::AssembleOnBoundaryElement(
 }
 
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::FormInitialGuess()
+void NonlinearElasticitySolver<DIM>::FormInitialGuess()
 {
     this->mCurrentSolution.resize(this->mNumDofs, 0.0);
 
@@ -679,7 +679,7 @@ void NonlinearElasticityAssembler<DIM>::FormInitialGuess()
 }
 
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
+void NonlinearElasticitySolver<DIM>::Initialise(std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
 {
     assert(mpQuadMesh);
 
@@ -719,7 +719,7 @@ void NonlinearElasticityAssembler<DIM>::Initialise(std::vector<c_vector<double,D
 }
 
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
+void NonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
 {
     if(DIM==2)
     {
@@ -806,7 +806,7 @@ void NonlinearElasticityAssembler<DIM>::AllocateMatrixMemory()
 
 
 template<size_t DIM>
-NonlinearElasticityAssembler<DIM>::NonlinearElasticityAssembler(
+NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
             QuadraticMesh<DIM>* pQuadMesh,
             AbstractIncompressibleMaterialLaw<DIM>* pMaterialLaw,
             c_vector<double,DIM> bodyForce,
@@ -814,9 +814,9 @@ NonlinearElasticityAssembler<DIM>::NonlinearElasticityAssembler(
             std::string outputDirectory,
             std::vector<unsigned>& fixedNodes,
             std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
-    : AbstractNonlinearElasticityAssembler<DIM>(DIM*pQuadMesh->GetNumNodes()+pQuadMesh->GetNumVertices(),
-                                                pMaterialLaw, bodyForce, density,
-                                                outputDirectory, fixedNodes),
+    : AbstractNonlinearElasticitySolver<DIM>(DIM*pQuadMesh->GetNumNodes()+pQuadMesh->GetNumVertices(),
+                                             pMaterialLaw, bodyForce, density,
+                                             outputDirectory, fixedNodes),
       mpQuadMesh(pQuadMesh)
 {
     Initialise(pFixedNodeLocations);
@@ -824,7 +824,7 @@ NonlinearElasticityAssembler<DIM>::NonlinearElasticityAssembler(
 
 
 template<size_t DIM>
-NonlinearElasticityAssembler<DIM>::NonlinearElasticityAssembler(
+NonlinearElasticitySolver<DIM>::NonlinearElasticitySolver(
             QuadraticMesh<DIM>* pQuadMesh,
             std::vector<AbstractIncompressibleMaterialLaw<DIM>*>& rMaterialLaws,
             c_vector<double,DIM> bodyForce,
@@ -832,9 +832,9 @@ NonlinearElasticityAssembler<DIM>::NonlinearElasticityAssembler(
             std::string outputDirectory,
             std::vector<unsigned>& fixedNodes,
             std::vector<c_vector<double,DIM> >* pFixedNodeLocations)
-    : AbstractNonlinearElasticityAssembler<DIM>(DIM*pQuadMesh->GetNumNodes()+pQuadMesh->GetNumVertices(),
-                                                rMaterialLaws, bodyForce, density,
-                                                outputDirectory, fixedNodes),
+    : AbstractNonlinearElasticitySolver<DIM>(DIM*pQuadMesh->GetNumNodes()+pQuadMesh->GetNumVertices(),
+                                             rMaterialLaws, bodyForce, density,
+                                             outputDirectory, fixedNodes),
       mpQuadMesh(pQuadMesh)
 {
     assert(rMaterialLaws.size()==pQuadMesh->GetNumElements());
@@ -843,7 +843,7 @@ NonlinearElasticityAssembler<DIM>::NonlinearElasticityAssembler(
 
 
 template<size_t DIM>
-NonlinearElasticityAssembler<DIM>::~NonlinearElasticityAssembler()
+NonlinearElasticitySolver<DIM>::~NonlinearElasticitySolver()
 {
 //    //Post-hoc debugging
 //    Mat matrix = this->mpLinearSystem->rGetLhsMatrix();
@@ -881,7 +881,7 @@ NonlinearElasticityAssembler<DIM>::~NonlinearElasticityAssembler()
 }
 
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::SetSurfaceTractionBoundaryConditions(
+void NonlinearElasticitySolver<DIM>::SetSurfaceTractionBoundaryConditions(
             std::vector<BoundaryElement<DIM-1,DIM>*>& rBoundaryElements,
             std::vector<c_vector<double,DIM> >& rSurfaceTractions)
 {
@@ -891,7 +891,7 @@ void NonlinearElasticityAssembler<DIM>::SetSurfaceTractionBoundaryConditions(
 }
 
 template<size_t DIM>
-void NonlinearElasticityAssembler<DIM>::SetFunctionalTractionBoundaryCondition(
+void NonlinearElasticitySolver<DIM>::SetFunctionalTractionBoundaryCondition(
             std::vector<BoundaryElement<DIM-1,DIM>*> rBoundaryElements,
             c_vector<double,DIM> (*pFunction)(c_vector<double,DIM>&))
 {
@@ -901,7 +901,7 @@ void NonlinearElasticityAssembler<DIM>::SetFunctionalTractionBoundaryCondition(
 }
 
 template<size_t DIM>
-std::vector<double>& NonlinearElasticityAssembler<DIM>::rGetPressures()
+std::vector<double>& NonlinearElasticitySolver<DIM>::rGetPressures()
 {
     this->mPressures.clear();
     this->mPressures.resize(mpQuadMesh->GetNumVertices());
@@ -914,7 +914,7 @@ std::vector<double>& NonlinearElasticityAssembler<DIM>::rGetPressures()
 }
 
 template<size_t DIM>
-std::vector<c_vector<double,DIM> >& NonlinearElasticityAssembler<DIM>::rGetDeformedPosition()
+std::vector<c_vector<double,DIM> >& NonlinearElasticitySolver<DIM>::rGetDeformedPosition()
 {
     this->mDeformedPosition.resize(mpQuadMesh->GetNumNodes(), zero_vector<double>(DIM));
     for (unsigned i=0; i<mpQuadMesh->GetNumNodes(); i++)
@@ -932,6 +932,6 @@ std::vector<c_vector<double,DIM> >& NonlinearElasticityAssembler<DIM>::rGetDefor
 // Explicit instantiation
 //////////////////////////////////////////////////////////////////////
 
-//template class NonlinearElasticityAssembler<1>;
-template class NonlinearElasticityAssembler<2>;
-template class NonlinearElasticityAssembler<3>;
+//template class NonlinearElasticitySolver<1>;
+template class NonlinearElasticitySolver<2>;
+template class NonlinearElasticitySolver<3>;
