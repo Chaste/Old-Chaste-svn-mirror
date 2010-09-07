@@ -609,52 +609,52 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MutableMesh<ELEMENT_DIM, SPACE_DIM>::InitialiseTriangulateIo(triangulateio& mesher_io)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::InitialiseTriangulateIo(triangulateio& mesherIo)
 {
-        mesher_io.numberofpoints = 0;
-        mesher_io.pointlist = NULL;
-        mesher_io.numberofpointattributes = 0;
-        mesher_io.pointattributelist = (double *) NULL;
-        mesher_io.pointmarkerlist = (int *) NULL;
-        mesher_io.numberofsegments = 0;
-        mesher_io.numberofholes = 0;
-        mesher_io.numberofregions = 0;
-        mesher_io.trianglelist = (int *) NULL;
-        mesher_io.triangleattributelist = (double *) NULL;
-        mesher_io.edgelist = (int *) NULL;
-        mesher_io.edgemarkerlist = (int *) NULL;
+        mesherIo.numberofpoints = 0;
+        mesherIo.pointlist = NULL;
+        mesherIo.numberofpointattributes = 0;
+        mesherIo.pointattributelist = (double *) NULL;
+        mesherIo.pointmarkerlist = (int *) NULL;
+        mesherIo.numberofsegments = 0;
+        mesherIo.numberofholes = 0;
+        mesherIo.numberofregions = 0;
+        mesherIo.trianglelist = (int *) NULL;
+        mesherIo.triangleattributelist = (double *) NULL;
+        mesherIo.edgelist = (int *) NULL;
+        mesherIo.edgemarkerlist = (int *) NULL;
 }
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-void MutableMesh<ELEMENT_DIM, SPACE_DIM>::FreeTriangulateIo(triangulateio& mesher_io)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::FreeTriangulateIo(triangulateio& mesherIo)
 {
-    if (mesher_io.numberofpoints != 0)
+    if (mesherIo.numberofpoints != 0)
     {
-        mesher_io.numberofpoints=0;
-        free(mesher_io.pointlist);
+        mesherIo.numberofpoints=0;
+        free(mesherIo.pointlist);
     }
             
     //These (and the above) should actually be safe since we explicity set to NULL above
-    free(mesher_io.pointattributelist);
-    free(mesher_io.pointmarkerlist);
-    free(mesher_io.trianglelist);
-    free(mesher_io.triangleattributelist);
-    free(mesher_io.edgelist);
-    free(mesher_io.edgemarkerlist);
+    free(mesherIo.pointattributelist);
+    free(mesherIo.pointmarkerlist);
+    free(mesherIo.trianglelist);
+    free(mesherIo.triangleattributelist);
+    free(mesherIo.edgelist);
+    free(mesherIo.edgemarkerlist);
 }    
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 template <class MESHER_IO>
-void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHER_IO& mesher_input)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHER_IO& mesherInput)
 {
     if (SPACE_DIM == 2)
     {
-        mesher_input.pointlist = (double *) malloc(GetNumNodes() * SPACE_DIM * sizeof(double));
+        mesherInput.pointlist = (double *) malloc(GetNumNodes() * SPACE_DIM * sizeof(double));
     }
     else
     {
-        mesher_input.pointlist =  new double[GetNumNodes() * SPACE_DIM];
+        mesherInput.pointlist =  new double[GetNumNodes() * SPACE_DIM];
     }
 
-    mesher_input.numberofpoints = GetNumNodes();
+    mesherInput.numberofpoints = GetNumNodes();
     unsigned new_index = 0;
     for (unsigned i=0; i<this->GetNumAllNodes(); i++)
     {
@@ -667,7 +667,7 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHER_IO
             map.SetNewIndex(i, new_index);
             for (unsigned j=0; j<SPACE_DIM; j++)
             {
-                mesher_input.pointlist[SPACE_DIM*new_index + j] = this->mNodes[i]->rGetLocation()[j];
+                mesherInput.pointlist[SPACE_DIM*new_index + j] = this->mNodes[i]->rGetLocation()[j];
             }
             new_index++;
         }
@@ -676,15 +676,46 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHER_IO
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 template <class MESHER_IO>
-void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesher_output)
+void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ImportFromMesher(MESHER_IO& mesherOutput, unsigned numberOfElements, int *elementList)
 {
-    assert(mesher_output.numberofcorners == ELEMENT_DIM+1);
+    assert(mesherOutput.numberofcorners == ELEMENT_DIM+1);
     Clear();
     // Construct the nodes
-    for (unsigned node_index=0; node_index<(unsigned)mesher_output.numberofpoints; node_index++)
+    for (unsigned node_index=0; node_index<(unsigned)mesherOutput.numberofpoints; node_index++)
     {
-        this->mNodes.push_back(new Node<SPACE_DIM>(node_index, &mesher_output.pointlist[node_index * SPACE_DIM], false));
+        this->mNodes.push_back(new Node<SPACE_DIM>(node_index, &mesherOutput.pointlist[node_index * SPACE_DIM], false));
     }
+
+    // Construct the elements
+    this->mElements.reserve(numberOfElements);
+
+    unsigned real_element_index=0;
+    for (unsigned element_index=0; element_index<numberOfElements; element_index++)
+    {
+        std::vector<Node<SPACE_DIM>*> nodes;
+        for (unsigned j=0; j<ELEMENT_DIM+1; j++)
+        {
+            unsigned global_node_index = elementList[element_index*(ELEMENT_DIM+1) + j];
+            assert(global_node_index < this->mNodes.size());
+            nodes.push_back(this->mNodes[global_node_index]);
+            
+        }
+        //For some reason, tetgen in library mode makes its initial Delauney with
+        //very thin slivers.  Hence we expect to ignore some of the elements!
+        Element<ELEMENT_DIM, SPACE_DIM>* p_element;
+        try
+        {
+            p_element = new Element<ELEMENT_DIM, SPACE_DIM>(real_element_index, nodes);
+            this->mElements.push_back(p_element);
+            real_element_index++;
+        }
+        catch (Exception &e)
+        {
+            //Tetgen is feeding us lies
+        }
+    }
+
+
 }
 
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -800,22 +831,9 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
         // Library call
         triangulate((char*)"Qze", &mesher_input, &mesher_output, NULL);
         
-        ImportFromMesher(mesher_output);
+        ImportFromMesher(mesher_output, mesher_output.numberoftriangles, mesher_output.trianglelist);
 
 
-        // Construct the elements
-        this->mElements.reserve(mesher_output.numberoftriangles);
-        for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftriangles; element_index++)
-        {
-            std::vector<Node<SPACE_DIM>*> nodes;
-            for (unsigned j=0; j<ELEMENT_DIM+1; j++)
-            {
-                unsigned global_node_index = mesher_output.trianglelist[element_index*(ELEMENT_DIM+1) + j];
-                assert(global_node_index < this->mNodes.size());
-                nodes.push_back(this->mNodes[global_node_index]);
-            }
-            this->mElements.push_back(new Element<ELEMENT_DIM, SPACE_DIM>(element_index, nodes));
-        }
 
         // Construct the BoundaryElements
         unsigned next_boundary_element_index = 0;
@@ -853,35 +871,8 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReMesh(NodeMap& map)
 
         tetgen::tetrahedralize((char*)"Qz", &mesher_input, &mesher_output);
         
-        ImportFromMesher(mesher_output);
+        ImportFromMesher(mesher_output, mesher_output.numberoftetrahedra, mesher_output.tetrahedronlist);
 
-        // Construct the elements
-        this->mElements.reserve(mesher_output.numberoftetrahedra);
-        unsigned real_element_index=0;
-        for (unsigned element_index=0; element_index<(unsigned)mesher_output.numberoftetrahedra; element_index++)
-        {
-            std::vector<Node<SPACE_DIM>*> nodes;
-            for (unsigned j=0; j<ELEMENT_DIM+1; j++)
-            {
-                unsigned global_node_index = mesher_output.tetrahedronlist[element_index*(ELEMENT_DIM+1) + j];
-                assert(global_node_index < this->mNodes.size());
-                nodes.push_back(this->mNodes[global_node_index]);
-                
-            }
-            //For some reason, tetgen in library mode makes its initial Delauney with
-            //very thin slivers.  Hence we expect to ignore some of the elements!
-            Element<ELEMENT_DIM, SPACE_DIM>* p_element;
-            try
-            {
-                p_element = new Element<ELEMENT_DIM, SPACE_DIM>(real_element_index, nodes);
-                this->mElements.push_back(p_element);
-                real_element_index++;
-            }
-            catch (Exception &e)
-            {
-                //Tetgen is feeding us lies
-            }
-        }
 
         // Construct the BoundaryElements (and mark boundary nodes)
         unsigned next_boundary_element_index = 0;
