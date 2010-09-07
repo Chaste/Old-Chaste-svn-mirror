@@ -839,7 +839,7 @@ def CheckForSpecialFiles(env, component, files, otherVars):
     special_files = [('mesh', 'src/3rdparty/tetgen1.4.2/predicates.cpp')]
     special_objs = []
     special_env = env.Clone()
-    special_env.Replace(CXXFLAGS='-O0')
+    special_env.Replace(CCFLAGS='-O0')
     for special_comp, special_file in special_files:
         if special_comp == component and special_file in files:
             # Remove from files
