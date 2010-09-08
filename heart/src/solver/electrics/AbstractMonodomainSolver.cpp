@@ -67,7 +67,7 @@ void AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::PrepareForSetupLinearSyste
 {
     // solve cell models
     double time = PdeSimulationTime::GetTime();
-    mpMonodomainCellCollection->SolveCellSystems(currentSolution, time, time+this->mDt);
+    mpMonodomainTissue->SolveCellSystems(currentSolution, time, time+this->mDt);
 }
 
 
@@ -102,12 +102,12 @@ void AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec ini
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::AbstractMonodomainSolver(
                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                 MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* pPde,
+                 MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                  unsigned numQuadPoints)
     : AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>(pMesh),
       mpBoundaryConditions(pBoundaryConditions),
-      mpMonodomainCellCollection(pPde),
+      mpMonodomainTissue(pPde),
       mNumQuadPoints(numQuadPoints)
 {
     assert(pPde);

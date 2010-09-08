@@ -25,8 +25,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef ABSTRACTCARDIACCELLCOLLECTION_HPP_
-#define ABSTRACTCARDIACCELLCOLLECTION_HPP_
+#ifndef ABSTRACTCARDIACTISSUE_HPP_
+#define ABSTRACTCARDIACTISSUE_HPP_
 
 #include <set>
 #include <vector>
@@ -55,7 +55,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
- * Class containing common functionality to monodomain and bidomain PDEs.
+ * Class containing "tissue-like" functionality used in monodomain and bidomain
+ * problems.
  *
  * Contains the cardiac cells (ODE systems for each node of the mesh) and 
  * conductivity tensors (dependent on fibre directions).
@@ -66,7 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * cells and putting them in replicated arrays for the PDE solvers to call.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
-class AbstractCardiacCellCollection : boost::noncopyable
+class AbstractCardiacTissue : boost::noncopyable
 {
 private:
 
@@ -86,7 +87,6 @@ private:
         // archive & mCellsDistributed; Archived in save/load_constructs at the bottom of mono/bidomainPde.hpp
         // archive & mIionicCacheReplicated; // will be regenerated
         // archive & mIntracellularStimulusCacheReplicated; // will be regenerated
-        // archive & mStride; // archiving constructor sets this.
         archive & mDoCacheReplication;
 
 
@@ -135,14 +135,6 @@ protected:
      */
     ReplicatableVector mIntracellularStimulusCacheReplicated;
 
-    /**
-     *  Constant set to 1 in monodomain and 2 in bidomain. Used when accessing
-     *  the voltage components in the solution vector (because the solution vector
-     *  is of the form (V_1, phi_1, V_2, phi_2, ......, V_N, phi_N), where V_j is
-     *  the voltage at node j and phi_j is the extracellular potential at node j.
-     */
-    const unsigned mStride;
-
     /** Local pointer to the HeartConfig singleton instance, for convenience. */
     HeartConfig* mpConfig;
 
@@ -178,24 +170,20 @@ public:
      * It creates all the cell objects, and sets up the conductivities.
      *
      * @param pCellFactory  factory to use to create cells.
-     * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
-    AbstractCardiacCellCollection(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory,
-                                  const unsigned stride=1);
+    AbstractCardiacTissue(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
 
     /**
      * This constructor is called by the archiver
      *
      * @param rCellsDistributed  pointers to the cardiac cells.
      * @param pMesh  a pointer to the AbstractTetrahedral mesh.
-     * @param stride  determines how to access \f$V_m\f$ in the solution vector (1 for monodomain, 2 for bidomain).
      */
-    AbstractCardiacCellCollection(std::vector<AbstractCardiacCell*>& rCellsDistributed,
-                                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                  const unsigned stride);
+    AbstractCardiacTissue(std::vector<AbstractCardiacCell*>& rCellsDistributed,
+                          AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
     /** Virtual destructor */
-    virtual ~AbstractCardiacCellCollection();
+    virtual ~AbstractCardiacTissue();
 
     /**
      * Add more cells to this cardiac PDE.
@@ -287,7 +275,7 @@ public:
     const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pGetMesh() const;
 
     /**
-     * Save our collection of cells to an archive.
+     * Save our tissue to an archive.
      *
      * Writes:
      *  -# #mpDistributedVectorFactory
@@ -324,7 +312,7 @@ public:
     }
 
     /**
-     * Load our collection of cells from an archive.
+     * Load our tissue from an archive.
      *
      * Handles the checkpoint migration case, deleting loaded cells immediately if they are
      * not local to this process.
@@ -353,7 +341,7 @@ public:
 #endif
 
         // We don't store a cell index in the archive, so need to work out what global
-        // index this collection of cells starts up.  If we're migrating (so have an
+        // index this tissue starts up.  If we're migrating (so have an
         // original factory) we use the original low index; otherwise we use the current
         // low index.
         unsigned index_low = p_factory->GetOriginalFactory() ? p_factory->GetOriginalFactory()->GetLow() : p_factory->GetLow();
@@ -404,7 +392,7 @@ public:
             FakeBathCell* p_fake = dynamic_cast<FakeBathCell*>(p_cell);
             if (local)
             {
-                rCells[new_local_index] = p_cell; // Add to local cells collection
+                rCells[new_local_index] = p_cell; // Add to local cells 
                 if (p_fake)
                 {
                     fake_bath_cells_local.insert(p_fake);
@@ -440,18 +428,18 @@ public:
     }
 };
 
-TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacCellCollection)
+TEMPLATED_CLASS_IS_ABSTRACT_2_UNSIGNED(AbstractCardiacTissue)
 
 namespace boost {
 namespace serialization {
 /**
  * Specify a version number for archive backwards compatibility.
  *
- * This is how to do BOOST_CLASS_VERSION(AbstractCardiacCellCollection, 1)
+ * This is how to do BOOST_CLASS_VERSION(AbstractCardiacTissue, 1)
  * with a templated class.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-struct version<AbstractCardiacCellCollection<ELEMENT_DIM, SPACE_DIM> >
+struct version<AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM> >
 {
     /** Version number */
     BOOST_STATIC_CONSTANT(unsigned, value = 1);
@@ -459,5 +447,5 @@ struct version<AbstractCardiacCellCollection<ELEMENT_DIM, SPACE_DIM> >
 } // namespace serialization
 } // namespace boost
 
-#endif /*ABSTRACTCARDIACCELLCOLLECTION_HPP_*/
+#endif /*ABSTRACTCARDIACTISSUE_HPP_*/
 

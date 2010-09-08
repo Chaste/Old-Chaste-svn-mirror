@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTMONODOMAINSOLVER_HPP_
 
 
-#include "MonodomainCellCollection.hpp"
+#include "MonodomainTissue.hpp"
 #include "MonodomainAssembler.hpp"
 #include "AbstractDynamicLinearPdeSolver.hpp"
 
@@ -47,8 +47,8 @@ protected:
     /** Boundary conditions */    
     BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* mpBoundaryConditions;
    
-    /** Monodomain PDE class (collection of cells */
-    MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCellCollection;
+    /** Monodomain tissue class (collection of cells, and conductivities) */
+    MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* mpMonodomainTissue;
     
     /**
      *  The monodomain assembler, used to set up the LHS vector,
@@ -89,7 +89,7 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     AbstractMonodomainSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                             MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* pPde,
+                             MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
                              BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                              unsigned numQuadPoints = 2);
     

@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define ABSTRACTBIDOMAINSOLVER_HPP_
 
 #include "AbstractDynamicLinearPdeSolver.hpp"
-#include "BidomainCellCollection.hpp"
+#include "BidomainTissue.hpp"
 #include "HeartConfig.hpp"
 #include "BidomainAssembler.hpp"
 
@@ -47,7 +47,7 @@ protected:
     bool mBathSimulation;
 
     /** The PDE to be solved. */
-    BidomainCellCollection<SPACE_DIM>* mpBidomainCellCollection;
+    BidomainTissue<SPACE_DIM>* mpBidomainTissue;
 
     /** Boundary conditions */    
     BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* mpBoundaryConditions;
@@ -153,7 +153,7 @@ public:
      */
     AbstractBidomainSolver(bool bathSimulation,
                            AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                           BidomainCellCollection<SPACE_DIM>* pPde,
+                           BidomainTissue<SPACE_DIM>* pPde,
                            BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
                            unsigned numQuadPoints = 2);
                        

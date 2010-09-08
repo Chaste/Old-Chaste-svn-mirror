@@ -1,4 +1,4 @@
-bidomain/TestBidomainCellCollection.hpp
+bidomain/TestBidomainTissue.hpp
 bidomain/TestBidomainProblem.hpp
 postprocessing/TestCellProperties.hpp
 mechanics/TestCardiacElectroMechanicsProblem.hpp
@@ -7,7 +7,7 @@ ionicmodels/TestHodgkinHuxleySquidAxon1952OriginalOdeSystem.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
 monodomain/TestMonodomainFitzHughNagumo.hpp
-monodomain/TestMonodomainCellCollection.hpp
+monodomain/TestMonodomainTissue.hpp
 TestPlaneStimulusCellFactory.hpp
 postprocessing/TestPropagationPropertiesCalculator.hpp
 TestStimulus.hpp

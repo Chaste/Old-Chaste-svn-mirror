@@ -40,7 +40,7 @@ void BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec current
     // create assembler
     if(!this->mpMonodomainAssembler)
     {
-        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainCellCollection,this->mDt,this->mNumQuadPoints);
+        this->mpMonodomainAssembler = new MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,this->mpMonodomainTissue,this->mDt,this->mNumQuadPoints);
     }        
 
     // use assembler to assemble LHS matrix and RHS vector
@@ -69,7 +69,7 @@ void BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec current
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::BasicMonodomainSolver(
                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                 MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* pPde,
+                 MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                  unsigned numQuadPoints)
     : AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)

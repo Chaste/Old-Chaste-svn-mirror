@@ -30,7 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef BASICMONODOMAINSOLVER_HPP_
 #define BASICMONODOMAINSOLVER_HPP_
 
-#include "MonodomainCellCollection.hpp"
+#include "MonodomainTissue.hpp"
 #include "MonodomainAssembler.hpp"
 #include "AbstractMonodomainSolver.hpp"
 
@@ -67,7 +67,7 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     BasicMonodomainSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                          MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* pPde,
+                          MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
                           BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                           unsigned numQuadPoints = 2);
     

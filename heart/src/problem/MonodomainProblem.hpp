@@ -34,10 +34,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractCardiacProblem.hpp"
-#include "AbstractCardiacCellCollection.hpp"
+#include "AbstractCardiacTissue.hpp"
 #include "AbstractDynamicLinearPdeSolver.hpp"
 #include "AbstractCardiacCellFactory.hpp"
-#include "MonodomainCellCollection.hpp"
+#include "MonodomainTissue.hpp"
 
 
 /**
@@ -58,16 +58,16 @@ class MonodomainProblem : public AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1> >(*this);
-        archive & mpMonodomainCellCollection;
+        archive & mpMonodomainTissue;
     }
 
 protected:
     /** The monodomain PDE object */
-    MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCellCollection;
+    MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* mpMonodomainTissue;
 
 public:
     /** Create our monodomain PDE */
-    AbstractCardiacCellCollection<ELEMENT_DIM, SPACE_DIM>* CreateCardiacCellCollection();
+    AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM>* CreateCardiacTissue();
 
     /** Create an suitable solver for monodomain problems */
     AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* CreateSolver();
@@ -91,7 +91,7 @@ public:
     ~MonodomainProblem();
 
     /** Get the monodomain PDE */
-    MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM> * GetMonodomainCellCollection();
+    MonodomainTissue<ELEMENT_DIM,SPACE_DIM> * GetMonodomainTissue();
 
     /**
      *  Print out time and max/min voltage values at current time.

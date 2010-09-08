@@ -34,16 +34,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "MatrixBasedMonodomainSolver.hpp"
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateCardiacCellCollection()
+AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateCardiacTissue()
 {
-    mpMonodomainCellCollection = new MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>(this->mpCellFactory);
-    return mpMonodomainCellCollection;
+    mpMonodomainTissue = new MonodomainTissue<ELEMENT_DIM,SPACE_DIM>(this->mpCellFactory);
+    return mpMonodomainTissue;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::CreateSolver()
 {
-    assert(mpMonodomainCellCollection);
+    assert(mpMonodomainTissue);
     /*
      * NOTE: The this->mpBoundaryConditionsContainer.get() lines below convert a
      * boost::shared_ptr to a normal pointer, as this is what the solvers are
@@ -58,7 +58,7 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELE
     {
         BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_solver
           = new BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                             mpMonodomainCellCollection,
+                                                             mpMonodomainTissue,
                                                              this->mpBoundaryConditionsContainer.get(),
                                                              2);
         return p_solver;
@@ -67,7 +67,7 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELE
     {
         MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>* p_solver
           = new MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(this->mpMesh,
-                                                                   mpMonodomainCellCollection,
+                                                                   mpMonodomainTissue,
                                                                    this->mpBoundaryConditionsContainer.get(),
                                                                    2);
 //// #1462
@@ -81,14 +81,14 @@ AbstractDynamicLinearPdeSolver<ELEMENT_DIM, SPACE_DIM, 1>* MonodomainProblem<ELE
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::MonodomainProblem(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
         : AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1>(pCellFactory),
-          mpMonodomainCellCollection(NULL)
+          mpMonodomainTissue(NULL)
 {
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::MonodomainProblem()
     : AbstractCardiacProblem<ELEMENT_DIM, SPACE_DIM, 1>(),
-      mpMonodomainCellCollection(NULL)
+      mpMonodomainTissue(NULL)
 {
 }
 
@@ -98,10 +98,10 @@ MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::~MonodomainProblem()
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
-MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM> * MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::GetMonodomainCellCollection()
+MonodomainTissue<ELEMENT_DIM,SPACE_DIM> * MonodomainProblem<ELEMENT_DIM, SPACE_DIM>::GetMonodomainTissue()
 {
-    assert(mpMonodomainCellCollection != NULL);
-    return mpMonodomainCellCollection;
+    assert(mpMonodomainTissue != NULL);
+    return mpMonodomainTissue;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

@@ -46,8 +46,8 @@ void BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(
 {
     unsigned node_global_index = pNode->GetIndex();
 
-    mIionic                 += phiI * mpBidomainCellCollection->rGetIionicCacheReplicated()[ node_global_index ];
-    mIIntracellularStimulus += phiI * mpBidomainCellCollection->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
+    mIionic                 += phiI * mpBidomainTissue->rGetIionicCacheReplicated()[ node_global_index ];
+    mIIntracellularStimulus += phiI * mpBidomainTissue->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
@@ -64,8 +64,8 @@ c_matrix<double,2*(ELEMENT_DIM+1),2*(ELEMENT_DIM+1)>
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
     double Cm = mpConfig->GetCapacitance();
 
-    const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = mpBidomainCellCollection->rGetIntracellularConductivityTensor(pElement->GetIndex());
-    const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_e = mpBidomainCellCollection->rGetExtracellularConductivityTensor(pElement->GetIndex());
+    const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = mpBidomainTissue->rGetIntracellularConductivityTensor(pElement->GetIndex());
+    const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_e = mpBidomainTissue->rGetExtracellularConductivityTensor(pElement->GetIndex());
 
 
     c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, rGradPhi);
@@ -159,11 +159,11 @@ c_vector<double, 2*ELEMENT_DIM> BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::Comput
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainAssembler(
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            BidomainCellCollection<SPACE_DIM>* pPde,
+            BidomainTissue<SPACE_DIM>* pPde,
             double dt,
             unsigned numQuadPoints)
     : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,true,true,CARDIAC>(pMesh,numQuadPoints),
-      mpBidomainCellCollection(pPde),
+      mpBidomainTissue(pPde),
       mDt(dt)
 {
     assert(pPde != NULL);

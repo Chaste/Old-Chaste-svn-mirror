@@ -50,7 +50,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
       mAllocatedMemoryForMesh(false),
       mWriteInfo(false),
       mPrintOutput(true),
-      mpCardiacCellCollection(NULL),
+      mpCardiacTissue(NULL),
       mpSolver(NULL),
       mpCellFactory(pCellFactory),
       mpMesh(NULL),
@@ -73,13 +73,13 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
     // the serialization methods
     : mMeshFilename(""),
       mUseMatrixBasedRhsAssembly(true),
-      mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacCellCollection
+      mAllocatedMemoryForMesh(false), // Handled by AbstractCardiacTissue
       mWriteInfo(false),
       mPrintOutput(true),
       mVoltageColumnId(UINT_MAX),
       mTimeColumnId(UINT_MAX),
       mNodeColumnId(UINT_MAX),
-      mpCardiacCellCollection(NULL),
+      mpCardiacTissue(NULL),
       mpSolver(NULL),
       mpCellFactory(NULL),
       mpMesh(NULL),
@@ -93,7 +93,7 @@ AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::AbstractCardiacProble
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::~AbstractCardiacProblem()
 {
-    delete mpCardiacCellCollection;
+    delete mpCardiacTissue;
     if (mSolution)
     {
         VecDestroy(mSolution);
@@ -175,8 +175,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
         mpCellFactory->FillInCellularTransmuralAreas();
     }
 
-    delete mpCardiacCellCollection; // In case we're called twice
-    mpCardiacCellCollection = CreateCardiacCellCollection();
+    delete mpCardiacTissue; // In case we're called twice
+    mpCardiacTissue = CreateCardiacTissue();
 
     HeartEventHandler::EndEvent(HeartEventHandler::INITIALISE);
 
@@ -203,9 +203,9 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetBoundaryCondi
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::PreSolveChecks()
 {
-    if ( mpCardiacCellCollection == NULL ) // if cell collection is NULL, Initialise() probably hasn't been called
+    if ( mpCardiacTissue == NULL ) // if tissue is NULL, Initialise() probably hasn't been called
     {
-        EXCEPTION("Cell collection is null, Initialise() probably hasn't been called");
+        EXCEPTION("Cardiac tissue is null, Initialise() probably hasn't been called");
     }
     if ( HeartConfig::Instance()->GetSimulationDuration() <= mCurrentTime)
     {
@@ -250,7 +250,7 @@ Vec AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::CreateInitialCond
          index != ic.End();
          ++index)
     {
-        stripe[0][index] = mpCardiacCellCollection->GetCardiacCell(index.Global)->GetVoltage();
+        stripe[0][index] = mpCardiacTissue->GetCardiacCell(index.Global)->GetVoltage();
         if (PROBLEM_DIM==2)
         {
             stripe[1][index] = 0;
@@ -311,9 +311,9 @@ AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM> & AbstractCardiacProblem<ELEMENT_
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::GetCellCollection()
+AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>* AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::GetTissue()
 {
-    return mpCardiacCellCollection;
+    return mpCardiacTissue;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
@@ -598,7 +598,7 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::WriteExtraVariab
              ++index)
         {
             // Store value for node "index"
-            distributed_var_data[index] = this->mpCardiacCellCollection->GetCardiacCell(index.Global)->GetStateVariable(mExtraVariablesId[var_index]);
+            distributed_var_data[index] = this->mpCardiacTissue->GetCardiacCell(index.Global)->GetStateVariable(mExtraVariablesId[var_index]);
         }
         distributed_var_data.Restore();
 

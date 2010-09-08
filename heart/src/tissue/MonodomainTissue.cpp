@@ -26,19 +26,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "MonodomainCellCollection.hpp"
+#include "MonodomainTissue.hpp"
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>::MonodomainCellCollection(
+MonodomainTissue<ELEMENT_DIM,SPACE_DIM>::MonodomainTissue(
             AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory)
-    :  AbstractCardiacCellCollection<ELEMENT_DIM, SPACE_DIM>(pCellFactory)
+    :  AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM>(pCellFactory)
 {
 }
 
 template <unsigned ELEMENT_DIM,unsigned SPACE_DIM>
-MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>::MonodomainCellCollection(std::vector<AbstractCardiacCell*> &rCellsDistributed,
+MonodomainTissue<ELEMENT_DIM,SPACE_DIM>::MonodomainTissue(std::vector<AbstractCardiacCell*> &rCellsDistributed,
                                                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh)
-        :  AbstractCardiacCellCollection<ELEMENT_DIM, SPACE_DIM>(rCellsDistributed, pMesh, 1u) // 1 for monodomain
+        :  AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM>(rCellsDistributed, pMesh)
 {
 }
 
@@ -48,17 +48,17 @@ MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>::MonodomainCellCollection(std::v
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class MonodomainCellCollection<1,1>;
-template class MonodomainCellCollection<1,2>;
-template class MonodomainCellCollection<1,3>;
-template class MonodomainCellCollection<2,2>;
-template class MonodomainCellCollection<3,3>;
+template class MonodomainTissue<1,1>;
+template class MonodomainTissue<1,2>;
+template class MonodomainTissue<1,3>;
+template class MonodomainTissue<2,2>;
+template class MonodomainTissue<3,3>;
 
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 1, 1)
-EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 1, 2)
-EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 1, 3)
-EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 2, 2)
-EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 3, 3)
+EXPORT_TEMPLATE_CLASS2(MonodomainTissue, 1, 1)
+EXPORT_TEMPLATE_CLASS2(MonodomainTissue, 1, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainTissue, 1, 3)
+EXPORT_TEMPLATE_CLASS2(MonodomainTissue, 2, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainTissue, 3, 3)

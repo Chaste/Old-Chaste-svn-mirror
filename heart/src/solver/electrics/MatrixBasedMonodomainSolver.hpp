@@ -89,7 +89,7 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     MatrixBasedMonodomainSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                                MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* pPde,
+                                MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
                                 BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                                 unsigned numQuadPoints = 2);
                      

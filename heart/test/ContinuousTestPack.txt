@@ -1,5 +1,5 @@
 bidomain/TestBidomainDistributedMesh.hpp
-bidomain/TestBidomainCellCollection.hpp
+bidomain/TestBidomainTissue.hpp
 bidomain/TestBidomainProblem.hpp
 bidomain/TestBidomainWithBathProblem.hpp
 convergence/TestConvergenceTester.hpp
@@ -18,7 +18,7 @@ mechanics/TestNhsModelWithBackwardSolver.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
 monodomain/TestMonodomainFitzHughNagumo.hpp
-monodomain/TestMonodomainCellCollection.hpp
+monodomain/TestMonodomainTissue.hpp
 postprocessing/TestCellProperties.hpp
 postprocessing/TestHdf5ToVisualizerConverters.hpp
 postprocessing/TestPostProcessingWriter.hpp

@@ -177,7 +177,7 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 /////////////////////////////////////////////////////////////////////
 
 // only makes sense in 3d, but we need the other to compile
-// AbstractCardiacPde and BidomainCellCollection.
+// AbstractCardiacPde and BidomainTissue.
 template class AxisymmetricConductivityTensors<1>;
 template class AxisymmetricConductivityTensors<2>;
 template class AxisymmetricConductivityTensors<3>;

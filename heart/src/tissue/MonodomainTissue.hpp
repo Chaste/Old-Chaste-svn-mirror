@@ -27,27 +27,28 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef MONODOMAINCELLCOLLECTION_HPP_
-#define MONODOMAINCELLCOLLECTION_HPP_
+#ifndef MONODOMAINTISSUE_HPP_
+#define MONODOMAINTISSUE_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/base_object.hpp>
 
 #include <vector>
-#include "AbstractCardiacCellCollection.hpp"
+#include "AbstractCardiacTissue.hpp"
 
 
 /**
- *  MonodomainCellCollection class.
+ *  MonodomainTissue class.
  * 
- *  See documentation for AbstractCardiacCellCollection.
+ *  Essentially identical to AbstractCardiacTissue - see documentation for 
+ *  AbstractCardiacTissue.
  */
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM = ELEMENT_DIM>
-class MonodomainCellCollection : public virtual AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>
+class MonodomainTissue : public virtual AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>
 {
 private:
-    friend class TestMonodomainCellCollection;
+    friend class TestMonodomainTissue;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -60,7 +61,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCardiacCellCollection<ELEMENT_DIM, SPACE_DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractCardiacTissue<ELEMENT_DIM, SPACE_DIM> >(*this);
     }
 
 
@@ -70,7 +71,7 @@ public:
      *
      *  @param pCellFactory  Provides the mesh and cells
      */
-    MonodomainCellCollection(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
+    MonodomainTissue(AbstractCardiacCellFactory<ELEMENT_DIM,SPACE_DIM>* pCellFactory);
 
 
     /**
@@ -79,19 +80,19 @@ public:
      * @param rCellsDistributed  local cell models (recovered from archive)
      * @param pMesh the mesh (also recovered from archive)
      */
-    MonodomainCellCollection(std::vector<AbstractCardiacCell*> & rCellsDistributed,
-                             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
+    MonodomainTissue(std::vector<AbstractCardiacCell*> & rCellsDistributed,
+                     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh);
 
 
 };
 
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp" // Must be last
-EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 1, 1)
-EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 1, 2)
-EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 1, 3)
-EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 2, 2)
-EXPORT_TEMPLATE_CLASS2(MonodomainCellCollection, 3, 3)
+EXPORT_TEMPLATE_CLASS2(MonodomainTissue, 1, 1)
+EXPORT_TEMPLATE_CLASS2(MonodomainTissue, 1, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainTissue, 1, 3)
+EXPORT_TEMPLATE_CLASS2(MonodomainTissue, 2, 2)
+EXPORT_TEMPLATE_CLASS2(MonodomainTissue, 3, 3)
 
 namespace boost
 {
@@ -100,7 +101,7 @@ namespace serialization
 
 template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void save_construct_data(
-    Archive & ar, const MonodomainCellCollection<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
+    Archive & ar, const MonodomainTissue<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
     const AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
     ar & p_mesh;
@@ -122,26 +123,26 @@ inline void save_construct_data(
  */
 template<class Archive, unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 inline void load_construct_data(
-    Archive & ar, MonodomainCellCollection<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
+    Archive & ar, MonodomainTissue<ELEMENT_DIM, SPACE_DIM> * t, const unsigned int file_version)
 {
     std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* p_mesh;
 
     ar & p_mesh;
     // Load only the cells we actually own
-    AbstractCardiacCellCollection<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(
+    AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::LoadCardiacCells(
             *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed, p_mesh);
 
-    // CreateIntracellularConductivityTensor() is called by AbstractCardiacCellCollection constructor and uses HeartConfig.
+    // CreateIntracellularConductivityTensor() is called by AbstractCardiacTissue constructor and uses HeartConfig.
     // So make sure that it is archived too (needs doing before construction so appears here instead of usual archive location).
     HeartConfig* p_config = HeartConfig::Instance();
     ar & *p_config;
     ar & p_config;
 
-    ::new(t)MonodomainCellCollection<ELEMENT_DIM, SPACE_DIM>(cells_distributed, p_mesh);
+    ::new(t)MonodomainTissue<ELEMENT_DIM, SPACE_DIM>(cells_distributed, p_mesh);
 }
 }
 } // namespace ...
 
 
-#endif /*MONODOMAINCELLCOLLECTION_HPP_*/
+#endif /*MONODOMAINTISSUE_HPP_*/

@@ -38,11 +38,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/shared_ptr.hpp>
 
 #include "AbstractCardiacProblem.hpp"
-#include "AbstractCardiacCellCollection.hpp"
+#include "AbstractCardiacTissue.hpp"
 #include "AbstractBidomainSolver.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "Electrodes.hpp"
-#include "BidomainCellCollection.hpp"
+#include "BidomainTissue.hpp"
 #include "HeartRegionCodes.hpp"
 #include "DistributedTetrahedralMesh.hpp"
 
@@ -73,7 +73,7 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
     void save(Archive & archive, const unsigned int version) const
     {
         archive & boost::serialization::base_object<AbstractCardiacProblem<DIM, DIM, 2> >(*this);
-        archive & mpBidomainCellCollection;
+        archive & mpBidomainTissue;
         //archive & mExtracelluarColumnId; // Created by InitialiseWriter, called from Solve
         archive & mRowForAverageOfPhiZeroed;
         archive & mHasBath;
@@ -90,7 +90,7 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
     void load(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCardiacProblem<DIM, DIM, 2> >(*this);
-        archive & mpBidomainCellCollection;
+        archive & mpBidomainTissue;
         //archive & mExtracelluarColumnId; // Created by InitialiseWriter, called from Solve
         archive & mRowForAverageOfPhiZeroed;
         archive & mHasBath;
@@ -109,7 +109,7 @@ class BidomainProblem : public AbstractCardiacProblem<DIM,DIM, 2>
 
 protected:
     /** The bidomain PDE */
-    BidomainCellCollection<DIM>* mpBidomainCellCollection;
+    BidomainTissue<DIM>* mpBidomainTissue;
 
     /** Nodes at which the extracellular voltage is fixed to zero (replicated) */
     std::vector<unsigned> mFixedExtracellularPotentialNodes;
@@ -147,7 +147,7 @@ protected:
     AbstractBidomainSolver<DIM,DIM>* mpSolver;
 
     /** Create our bidomain PDE object */
-    virtual AbstractCardiacCellCollection<DIM> *CreateCardiacCellCollection();
+    virtual AbstractCardiacTissue<DIM> *CreateCardiacTissue();
 
     /** Create a suitable bidomain solver */
     virtual AbstractDynamicLinearPdeSolver<DIM,DIM,2>* CreateSolver();
@@ -193,7 +193,7 @@ public:
     /**
      *  Get the pde. Can only be called after Initialise()
      */
-    BidomainCellCollection<DIM>* GetBidomainCellCollection();
+    BidomainTissue<DIM>* GetBidomainTissue();
 
     /**
      *  Print out time and max/min voltage/phi_e values at current time.

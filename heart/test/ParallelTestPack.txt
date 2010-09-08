@@ -1,9 +1,9 @@
 bidomain/TestBidomainDistributedMesh.hpp
-bidomain/TestBidomainCellCollection.hpp
+bidomain/TestBidomainTissue.hpp
 bidomain/TestBidomainProblem.hpp
 convergence/TestConvergenceTester.hpp
 TestCardiacSimulationArchiver.hpp
 TestElectrodes.hpp
 monodomain/TestMonodomainConductionVelocity.hpp
 monodomain/TestMonodomainProblem.hpp
-monodomain/TestMonodomainCellCollection.hpp
+monodomain/TestMonodomainTissue.hpp

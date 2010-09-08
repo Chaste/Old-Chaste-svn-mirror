@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "AbstractFeObjectAssembler.hpp"
-#include "MonodomainCellCollection.hpp"
+#include "MonodomainTissue.hpp"
 
 /**
  *  Assembler for assembling the LHS matrix and RHS vector of the linear
@@ -43,7 +43,7 @@ class MonodomainAssembler
 {
 protected:
     /** The PDE to be solved. */
-    MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* mpMonodomainCellCollection;
+    MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* mpMonodomainTissue;
 
     /** Local cache of the configuration singleton instance*/
     HeartConfig* mpConfig;
@@ -143,7 +143,7 @@ public:
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     MonodomainAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                        MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* pPde,
+                        MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
                         double dt,
                         unsigned numQuadPoints = 2);
 };

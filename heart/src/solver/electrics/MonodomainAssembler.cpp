@@ -44,7 +44,7 @@ c_matrix<double,1*(ELEMENT_DIM+1),1*(ELEMENT_DIM+1)> MonodomainAssembler<ELEMENT
     double Am = mpConfig->GetSurfaceAreaToVolumeRatio();
     double Cm = mpConfig->GetCapacitance();
 
-    const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = mpMonodomainCellCollection->rGetIntracellularConductivityTensor(pElement->GetIndex());
+    const c_matrix<double, SPACE_DIM, SPACE_DIM>& sigma_i = mpMonodomainTissue->rGetIntracellularConductivityTensor(pElement->GetIndex());
 
     c_matrix<double, SPACE_DIM, ELEMENT_DIM+1> temp = prod(sigma_i, rGradPhi);
     c_matrix<double, ELEMENT_DIM+1, ELEMENT_DIM+1> grad_phi_sigma_i_grad_phi =
@@ -91,18 +91,18 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities(double phiI, const Node<SPACE_DIM>* pNode)
 {
     unsigned node_global_index = pNode->GetIndex();
-    mIionic                 += phiI * mpMonodomainCellCollection->rGetIionicCacheReplicated()[ node_global_index ];
-    mIIntracellularStimulus += phiI * mpMonodomainCellCollection->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
+    mIionic                 += phiI * mpMonodomainTissue->rGetIionicCacheReplicated()[ node_global_index ];
+    mIIntracellularStimulus += phiI * mpMonodomainTissue->rGetIntracellularStimulusCacheReplicated()[ node_global_index ];
 }   
     
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainAssembler(
                         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                        MonodomainCellCollection<ELEMENT_DIM,SPACE_DIM>* pPde,
+                        MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
                         double dt,
                         unsigned numQuadPoints)
     : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>(pMesh,numQuadPoints),
-      mpMonodomainCellCollection(pPde),
+      mpMonodomainTissue(pPde),
       mDt(dt)
 {
     assert(pPde);

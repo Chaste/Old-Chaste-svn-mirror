@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef BIDOMAINCELLCOLLECTION_HPP_
-#define BIDOMAINCELLCOLLECTION_HPP_
+#ifndef BIDOMAINTISSUE_HPP_
+#define BIDOMAINTISSUE_HPP_
 
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
@@ -36,43 +36,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <boost/numeric/ublas/matrix.hpp>
 
-#include "AbstractCardiacCellCollection.hpp"
+#include "AbstractCardiacTissue.hpp"
 #include "AbstractConductivityTensors.hpp"
 
 
 
 
 /**
- * #
+ * BidomainTissue class.
  * 
- * 
- * BidomainCellCollection class.
- *
- * The bidmain equation is of the form:
- *
- * A_m ( C_m d(V_m)/dt + I_ion ) = div ( sigma_i grad( V_m + phi_e ) ) + I_intra_stim
- *   and
- * div ( (sigma_i + sigma_e) grad phi_e    +   sigma_i (grad V_m) )   = 0
- *
- * where V_m is the trans-membrane potential = phi_i - phi_e            (mV),
- *       phi_i is the intracellular potential                           (mV),
- *       phi_e is the intracellular potential                           (mV),
- * and   A_m is the surface area to volume ratio of the cell membrane   (1/cm),
- *       C_m is the membrane capacitance                                (uF/cm^2),
- *       sigma_i is the intracellular conductivity tensor               (mS/cm),
- *       sigma_e is the intracellular conductivity tensor               (mS/cm),
- * and   I_ion is the ionic current                                     (uA/cm^2),
- *       I_intra_stim is the internal stimulus                          (uA/cm^3),
- *
- * An extracellular stimulus can only be applied as a boundary condition through the Electrodes class, 
- * in which case the units are uA/cm^2.
+ * See documentation for AbstractCardiacTissue. This class also has extracellular
+ * conductivity tensors.
  *
  */
 template <unsigned SPACE_DIM>
-class BidomainCellCollection : public virtual AbstractCardiacCellCollection<SPACE_DIM>
+class BidomainTissue : public virtual AbstractCardiacTissue<SPACE_DIM>
 {
 private:
-    friend class TestBidomainCellCollection; // for testing.
+    friend class TestBidomainTissue; // for testing.
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -85,7 +66,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractCardiacCellCollection<SPACE_DIM> >(*this);
+        archive & boost::serialization::base_object<AbstractCardiacTissue<SPACE_DIM> >(*this);
         // Conductivity tensors are dealt with by HeartConfig, and the caches get regenerated.
     }
 
@@ -102,19 +83,19 @@ public:
      * Constructor sets up extracellular conductivity tensors.
      * @param pCellFactory factory to pass on to the base class constructor
      */
-    BidomainCellCollection(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
+    BidomainTissue(AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory);
 
     /**
      *  Archiving constructor
      * @param rCellsDistributed  local cell models (recovered from archive)
      * @param pMesh  a pointer to the AbstractTetrahedral mesh (recovered from archive).
      */
-    BidomainCellCollection(std::vector<AbstractCardiacCell*> & rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh);
+    BidomainTissue(std::vector<AbstractCardiacCell*> & rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh);
 
     /**
      * Destructor
      */
-    ~BidomainCellCollection();
+    ~BidomainTissue();
 
     /**
      * Get the extracellular conductivity tensor for the given element
@@ -125,7 +106,7 @@ public:
 
 // Declare identifier for the serializer
 #include "SerializationExportWrapper.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainCellCollection)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainTissue)
 
 namespace boost
 {
@@ -134,7 +115,7 @@ namespace serialization
 
 template<class Archive, unsigned SPACE_DIM>
 inline void save_construct_data(
-    Archive & ar, const BidomainCellCollection<SPACE_DIM> * t, const unsigned int file_version)
+    Archive & ar, const BidomainTissue<SPACE_DIM> * t, const unsigned int file_version)
 {
     const AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh = t->pGetMesh();
     ar & p_mesh;
@@ -156,27 +137,27 @@ inline void save_construct_data(
  */
 template<class Archive, unsigned SPACE_DIM>
 inline void load_construct_data(
-    Archive & ar, BidomainCellCollection<SPACE_DIM> * t, const unsigned int file_version)
+    Archive & ar, BidomainTissue<SPACE_DIM> * t, const unsigned int file_version)
 {
     std::vector<AbstractCardiacCell*> cells_distributed;
     AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* p_mesh;
 
     ar & p_mesh;
     // Load only the cells we actually own
-    AbstractCardiacCellCollection<SPACE_DIM,SPACE_DIM>::LoadCardiacCells(
+    AbstractCardiacTissue<SPACE_DIM,SPACE_DIM>::LoadCardiacCells(
             *ProcessSpecificArchive<Archive>::Get(), file_version, cells_distributed, p_mesh);
 
-    // CreateIntracellularConductivityTensor() is called by AbstractCardiacCellCollection constructor and uses HeartConfig.
+    // CreateIntracellularConductivityTensor() is called by AbstractCardiacTissue constructor and uses HeartConfig.
     // (as does CreateExtracellularConductivityTensor). So make sure that it is
     // archived too (needs doing before construction so appears here instead of usual archive location).
     HeartConfig* p_config = HeartConfig::Instance();
     ar & *p_config;
     ar & p_config;
 
-    ::new(t)BidomainCellCollection<SPACE_DIM>(cells_distributed, p_mesh);
+    ::new(t)BidomainTissue<SPACE_DIM>(cells_distributed, p_mesh);
 }
 }
 } // namespace ...
 
 
-#endif /*BIDOMAINCELLCOLLECTION_HPP_*/
+#endif /*BIDOMAINTISSUE_HPP_*/

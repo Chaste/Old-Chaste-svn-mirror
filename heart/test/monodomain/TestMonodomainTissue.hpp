@@ -27,8 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _TESTMONODOMAINPDE_HPP_
-#define _TESTMONODOMAINPDE_HPP_
+#ifndef _TESTMONODOMAINTISSUE_HPP_
+#define _TESTMONODOMAINTISSUE_HPP_
 
 
 #include <cxxtest/TestSuite.h>
@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "LuoRudy1991.hpp"
-#include "MonodomainCellCollection.hpp"
+#include "MonodomainTissue.hpp"
 #include "OdeSolution.hpp"
 #include "AbstractCardiacCellFactory.hpp"
 #include "DistributedVector.hpp"
@@ -83,10 +83,10 @@ public:
 };
 
 
-class TestMonodomainCellCollection : public CxxTest::TestSuite
+class TestMonodomainTissue : public CxxTest::TestSuite
 {
 public:
-    void TestMonodomainCellCollectionBasic( void )
+    void TestMonodomainTissueBasic( void )
     {
         HeartConfig::Instance()->Reset();
         unsigned num_nodes=2;
@@ -105,7 +105,7 @@ public:
         boost::shared_ptr<SimpleStimulus> p_stimulus = cell_factory.GetStimulus();
         boost::shared_ptr<ZeroStimulus> p_zero_stim(new ZeroStimulus);
 
-        MonodomainCellCollection<1> monodomain_cell_collection( &cell_factory );
+        MonodomainTissue<1> monodomain_tissue( &cell_factory );
 
         // voltage that gets passed in solving ode
         double initial_voltage = -83.853;
@@ -113,27 +113,27 @@ public:
         // initial condition;
         Vec voltage = PetscTools::CreateAndSetVec(num_nodes, initial_voltage);
 
-        // Solve 1 (PDE) timestep using MonodomainCellCollection
-        monodomain_cell_collection.SolveCellSystems(voltage, start_time, start_time+big_time_step);
+        // Solve 1 (PDE) timestep using MonodomainTissue
+        monodomain_tissue.SolveCellSystems(voltage, start_time, start_time+big_time_step);
 
         // Check results by solving ODE systems directly
         // Check node 0
-        double value_cell_collection = monodomain_cell_collection.rGetIionicCacheReplicated()[0];
+        double value_tissue = monodomain_tissue.rGetIionicCacheReplicated()[0];
         CellLuoRudy1991FromCellML ode_system_stimulated(p_solver, p_stimulus);
         ode_system_stimulated.ComputeExceptVoltage(start_time, start_time + big_time_step);
         double value_ode = ode_system_stimulated.GetIIonic();
-        TS_ASSERT_DELTA(value_cell_collection, value_ode, 0.000001);
+        TS_ASSERT_DELTA(value_tissue, value_ode, 0.000001);
 
         // shouldn't be different when called again as reset not yet been called
-        value_cell_collection = monodomain_cell_collection.rGetIionicCacheReplicated()[0];
-        TS_ASSERT_DELTA(value_cell_collection, value_ode, 0.000001);
+        value_tissue = monodomain_tissue.rGetIionicCacheReplicated()[0];
+        TS_ASSERT_DELTA(value_tissue, value_ode, 0.000001);
 
         // Check node 1
         CellLuoRudy1991FromCellML ode_system_not_stim(p_solver, p_zero_stim);
-        value_cell_collection = monodomain_cell_collection.rGetIionicCacheReplicated()[1];
+        value_tissue = monodomain_tissue.rGetIionicCacheReplicated()[1];
         ode_system_not_stim.ComputeExceptVoltage(start_time, start_time + big_time_step);
         value_ode = ode_system_not_stim.GetIIonic();
-        TS_ASSERT_DELTA(value_cell_collection, value_ode, 0.000001);
+        TS_ASSERT_DELTA(value_tissue, value_ode, 0.000001);
 
         // Reset the voltage vector from ODE systems
         DistributedVector dist_voltage = mesh.GetDistributedVectorFactory()->CreateDistributedVector(voltage);
@@ -152,25 +152,25 @@ public:
         }
         dist_voltage.Restore();
 
-        // Use MonodomainCellCollection to solve a second (PDE) time step
-        monodomain_cell_collection.SolveCellSystems(voltage, start_time, start_time+big_time_step);
-        value_cell_collection = monodomain_cell_collection.rGetIionicCacheReplicated()[0];
+        // Use MonodomainTissue to solve a second (PDE) time step
+        monodomain_tissue.SolveCellSystems(voltage, start_time, start_time+big_time_step);
+        value_tissue = monodomain_tissue.rGetIionicCacheReplicated()[0];
 
         // Check node 0 by solving ODE system directly
         ode_system_stimulated.ComputeExceptVoltage( start_time + big_time_step, start_time + 2*big_time_step );
         value_ode = ode_system_stimulated.GetIIonic();
-        TS_ASSERT_DELTA(value_cell_collection, value_ode, 1e-10);
+        TS_ASSERT_DELTA(value_tissue, value_ode, 1e-10);
 
         // Check node 1 by solving ODE system directly
         ode_system_not_stim.ComputeExceptVoltage( start_time + big_time_step, start_time + 2*big_time_step );
-        value_cell_collection = monodomain_cell_collection.rGetIionicCacheReplicated()[1];
+        value_tissue = monodomain_tissue.rGetIionicCacheReplicated()[1];
         value_ode = ode_system_not_stim.GetIIonic();
-        TS_ASSERT_DELTA(value_cell_collection, value_ode, 1e-10);
+        TS_ASSERT_DELTA(value_tissue, value_ode, 1e-10);
 
         VecDestroy(voltage);
     }
 
-    void TestMonodomainCellCollectionGetCardiacCell( void )
+    void TestMonodomainTissueGetCardiacCell( void )
     {
         HeartConfig::Instance()->Reset();
         TetrahedralMesh<1,1> mesh;
@@ -179,27 +179,27 @@ public:
         MyCardiacCellFactory cell_factory;
         cell_factory.SetMesh(&mesh);
 
-        MonodomainCellCollection<1> monodomain_cell_collection( &cell_factory );
+        MonodomainTissue<1> monodomain_tissue( &cell_factory );
 
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(0))
         {
-            AbstractCardiacCell* cell = monodomain_cell_collection.GetCardiacCell(0);
+            AbstractCardiacCell* cell = monodomain_tissue.GetCardiacCell(0);
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),-80,1e-10);
         }
 
         if (mesh.GetDistributedVectorFactory()->IsGlobalIndexLocal(1))
         {
-            AbstractCardiacCell* cell = monodomain_cell_collection.GetCardiacCell(1);
+            AbstractCardiacCell* cell = monodomain_tissue.GetCardiacCell(1);
             TS_ASSERT_DELTA(cell->GetStimulus(0.001),0,1e-10);
         }
     }
 
-    void TestSaveAndLoadCardiacCellCollection() throw (Exception)
+    void TestSaveAndLoadCardiacTissue() throw (Exception)
     {
         HeartConfig::Instance()->Reset();
         // Archive settings
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
-        std::string archive_file = "monodomain_cell_collection.arch";
+        std::string archive_file = "monodomain_tissue.arch";
 
         bool cache_replication_saved = false;
         double saved_printing_timestep = 2.0;
@@ -219,13 +219,13 @@ public:
             MyCardiacCellFactory cell_factory;
             cell_factory.SetMesh(&mesh);
 
-            MonodomainCellCollection<1> monodomain_cell_collection( &cell_factory );
-            monodomain_cell_collection.SetCacheReplication(cache_replication_saved); // Not the default to check it is archived...
+            MonodomainTissue<1> monodomain_tissue( &cell_factory );
+            monodomain_tissue.SetCacheReplication(cache_replication_saved); // Not the default to check it is archived...
 
-            tensor_before_archiving = monodomain_cell_collection.rGetIntracellularConductivityTensor(1);
+            tensor_before_archiving = monodomain_tissue.rGetIntracellularConductivityTensor(1);
 
             // Get some info about the first cell on this process (if any)
-            const std::vector<AbstractCardiacCell*>& r_cells = monodomain_cell_collection.rGetCellsDistributed();
+            const std::vector<AbstractCardiacCell*>& r_cells = monodomain_tissue.rGetCellsDistributed();
             has_cell = !r_cells.empty();
             if (has_cell)
             {
@@ -241,8 +241,8 @@ public:
             ArchiveOpener<boost::archive::text_oarchive, std::ofstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_oarchive* p_arch = arch_opener.GetCommonArchive();
 
-            AbstractCardiacCellCollection<1>* const p_archive_monodomain_cell_collection = &monodomain_cell_collection;
-            (*p_arch) << p_archive_monodomain_cell_collection;
+            AbstractCardiacTissue<1>* const p_archive_monodomain_tissue = &monodomain_tissue;
+            (*p_arch) << p_archive_monodomain_tissue;
 
             HeartConfig::Reset();
             TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), default_printing_timestep, 1e-9);
@@ -253,19 +253,19 @@ public:
             ArchiveOpener<boost::archive::text_iarchive, std::ifstream> arch_opener(archive_dir, archive_file);
             boost::archive::text_iarchive* p_arch = arch_opener.GetCommonArchive();
 
-            AbstractCardiacCellCollection<1>* p_monodomain_cell_collection;
-            (*p_arch) >> p_monodomain_cell_collection;
+            AbstractCardiacTissue<1>* p_monodomain_tissue;
+            (*p_arch) >> p_monodomain_tissue;
 
             // Test rGetIntracellularConductivityTensor
-            const c_matrix<double, 1, 1>& tensor_after_archiving = p_monodomain_cell_collection->rGetIntracellularConductivityTensor(1);
+            const c_matrix<double, 1, 1>& tensor_after_archiving = p_monodomain_tissue->rGetIntracellularConductivityTensor(1);
             TS_ASSERT_DELTA(tensor_before_archiving(0,0), tensor_after_archiving(0,0), 1e-9);
 
-            TS_ASSERT_EQUALS(cache_replication_saved, p_monodomain_cell_collection->GetDoCacheReplication());
+            TS_ASSERT_EQUALS(cache_replication_saved, p_monodomain_tissue->GetDoCacheReplication());
             TS_ASSERT_DELTA(HeartConfig::Instance()->GetPrintingTimeStep(), saved_printing_timestep, 1e-9);
             TS_ASSERT_DIFFERS(saved_printing_timestep, default_printing_timestep); // Test we are testing something in case default changes
 
             // Test cardiac cells have also been archived
-            const std::vector<AbstractCardiacCell*>& r_cells = p_monodomain_cell_collection->rGetCellsDistributed();
+            const std::vector<AbstractCardiacCell*>& r_cells = p_monodomain_tissue->rGetCellsDistributed();
             TS_ASSERT_EQUALS(has_cell, !r_cells.empty());
             if (has_cell)
             {
@@ -273,11 +273,11 @@ public:
                 TS_ASSERT_EQUALS(cell_v, r_cells[0]->GetVoltage());
             }
 
-            delete p_monodomain_cell_collection;
+            delete p_monodomain_tissue;
         }
     }
 };
 
 
 
-#endif //_TESTMONODOMAINPDE_HPP_
+#endif //_TESTMONODOMAINTISSUE_HPP_

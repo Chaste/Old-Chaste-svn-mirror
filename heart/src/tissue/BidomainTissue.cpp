@@ -26,7 +26,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "BidomainCellCollection.hpp"
+#include "BidomainTissue.hpp"
 
 #include "DistributedVector.hpp"
 #include "AxisymmetricConductivityTensors.hpp"
@@ -35,22 +35,22 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractChasteRegion.hpp"
 
 template <unsigned SPACE_DIM>
-BidomainCellCollection<SPACE_DIM>::BidomainCellCollection(
+BidomainTissue<SPACE_DIM>::BidomainTissue(
             AbstractCardiacCellFactory<SPACE_DIM>* pCellFactory)
-    : AbstractCardiacCellCollection<SPACE_DIM>(pCellFactory, 2 /*mStride*/)
+    : AbstractCardiacTissue<SPACE_DIM>(pCellFactory)
 {
     CreateExtracellularConductivityTensors();
 }
 
 template <unsigned SPACE_DIM>
-BidomainCellCollection<SPACE_DIM>::BidomainCellCollection(std::vector<AbstractCardiacCell*> &rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
-        :  AbstractCardiacCellCollection<SPACE_DIM>(rCellsDistributed, pMesh, 2u) // The 2 tells it this is a bidomain
+BidomainTissue<SPACE_DIM>::BidomainTissue(std::vector<AbstractCardiacCell*> &rCellsDistributed,AbstractTetrahedralMesh<SPACE_DIM,SPACE_DIM>* pMesh)
+        :  AbstractCardiacTissue<SPACE_DIM>(rCellsDistributed, pMesh)
 {
     CreateExtracellularConductivityTensors();
 }
 
 template <unsigned SPACE_DIM>
-void BidomainCellCollection<SPACE_DIM>::CreateExtracellularConductivityTensors()
+void BidomainTissue<SPACE_DIM>::CreateExtracellularConductivityTensors()
 {
     if (this->mpConfig->IsMeshProvided() && this->mpConfig->GetLoadMesh())
     {
@@ -144,7 +144,7 @@ void BidomainCellCollection<SPACE_DIM>::CreateExtracellularConductivityTensors()
 }
 
 template <unsigned SPACE_DIM>
-BidomainCellCollection<SPACE_DIM>::~BidomainCellCollection()
+BidomainTissue<SPACE_DIM>::~BidomainTissue()
 {
     if (mpExtracellularConductivityTensors)
     {
@@ -154,7 +154,7 @@ BidomainCellCollection<SPACE_DIM>::~BidomainCellCollection()
 
 
 template <unsigned SPACE_DIM>
-const c_matrix<double, SPACE_DIM, SPACE_DIM>& BidomainCellCollection<SPACE_DIM>::rGetExtracellularConductivityTensor(unsigned elementIndex)
+const c_matrix<double, SPACE_DIM, SPACE_DIM>& BidomainTissue<SPACE_DIM>::rGetExtracellularConductivityTensor(unsigned elementIndex)
 {
     assert(mpExtracellularConductivityTensors);
     return (*mpExtracellularConductivityTensors)[elementIndex];
@@ -165,11 +165,11 @@ const c_matrix<double, SPACE_DIM, SPACE_DIM>& BidomainCellCollection<SPACE_DIM>:
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////
 
-template class BidomainCellCollection<1>;
-template class BidomainCellCollection<2>;
-template class BidomainCellCollection<3>;
+template class BidomainTissue<1>;
+template class BidomainTissue<2>;
+template class BidomainTissue<3>;
 
 
 // Serialization for Boost >= 1.36
 #include "SerializationExportWrapperForCpp.hpp"
-EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainCellCollection)
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainTissue)

@@ -1,6 +1,6 @@
 # Renamed cardiac *Pde classes to be *CellCollection
-s/39 pack<void (MonodomainPde</50 pack<void (MonodomainCellCollection</
-s/35 pack<void (BidomainPde</46 pack<void (BidomainCellCollection</
+s/39 pack<void (MonodomainPde</42 pack<void (MonodomainTissue</
+s/35 pack<void (BidomainPde</38 pack<void (BidomainTissue</
 # Changed various cell models to be generated on-the-fly from CellML,
 # which changed the class name
 s/26 LuoRudyIModel1991OdeSystem/25 CellLuoRudy1991FromCellML/
