@@ -164,6 +164,14 @@ public:
      * @param nodeIndex  the index of the node corresponding to this cell in the mesh
      */
     void SetCellParameters(AbstractCardiacCell* pCell, unsigned nodeIndex);
+    
+    /**
+     * Set the intracellular stimulus for a cell based on the definitions in HeartConfig.
+     * 
+     * @param pCell  the cell to set stimulus of
+     * @param nodeIndex  the index of the node corresponding to this cell in the mesh
+     */
+    void SetCellIntracellularStimulus(AbstractCardiacCell* pCell, unsigned nodeIndex);
 };
 
 

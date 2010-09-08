@@ -107,7 +107,7 @@ private:
         else // (HeartConfig::Instance()->IsSimulationResumed())
         {
             p_problem.reset(CardiacSimulationArchiver<Problem>::Load(HeartConfig::Instance()->GetArchivedSimulationDir()));
-            /// \todo #1160 - logic that needs cell factory type functionality goes here
+            // Any changes to parameters that normally only take effect at problem creation time...
             HeartConfigRelatedCellFactory<SPACE_DIM> cell_factory;
             cell_factory.SetMesh(&(p_problem->rGetMesh()));
             AbstractCardiacTissue<SPACE_DIM, SPACE_DIM>* p_tissue = p_problem->GetTissue();
@@ -116,6 +116,9 @@ private:
                  node_global_index < p_vector_factory->GetHigh();
                  node_global_index++)
             {
+	            // Overwrite any previous stimuli if new ones are defined
+            	cell_factory.SetCellIntracellularStimulus(p_tissue->GetCardiacCell(node_global_index), node_global_index);
+	            // Modify cell model parameters
             	cell_factory.SetCellParameters(p_tissue->GetCardiacCell(node_global_index), node_global_index);
             }
         }

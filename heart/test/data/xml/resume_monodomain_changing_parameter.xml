@@ -6,6 +6,19 @@
 		<SpaceDimension>1</SpaceDimension>
 	    <SimulationDuration unit="ms">2.0</SimulationDuration>
 	    <Domain>Mono</Domain>
+	    <Stimuli>
+	        <Stimulus> <!-- #1 -->
+                <Strength unit="uA/cm^3">-200000.0</Strength>
+                <Duration unit="ms">1.0</Duration>
+                <Delay unit="ms">600.0</Delay>
+                <Location unit="cm">
+                    <Cuboid>
+                        <LowerCoordinates x="0.0" y="0.0" z="0.0"/>
+                        <UpperCoordinates x="0.02" y="0.0" z="0.0"/>
+                    </Cuboid>
+                </Location>
+            </Stimulus> 
+	    </Stimuli>
 	    <CellHeterogeneities>
             <!-- Change the model parameter on restart -->
 		    <CellHeterogeneity> <!-- #1 -->

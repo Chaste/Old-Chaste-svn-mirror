@@ -542,6 +542,12 @@ void HeartConfig::UpdateParametersFromResumeSimulation(boost::shared_ptr<cp::cha
 
     // New simulation duration
     HeartConfig::Instance()->SetSimulationDuration(pResumeParameters->ResumeSimulation().get().SimulationDuration());
+    
+    // Stimulus definition.  For these we always replace any previous definitions (at least for now...)
+    if (pResumeParameters->ResumeSimulation().get().Stimuli().present())
+    {
+    	mpUserParameters->Simulation().get().Stimuli().set(pResumeParameters->ResumeSimulation().get().Stimuli().get());
+    }
 
     // Cell heterogeneities.  Note that while we copy the elements here, other code in CardiacSimulation actually updates
     // the loaded simulation to take account of the new settings.
@@ -926,11 +932,11 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunct
                              std::vector<ChasteCuboid<DIM> >& rStimulatedAreas) const
 {
     CheckSimulationIsDefined("Stimuli");
-    XSD_ANON_SEQUENCE_TYPE(cp::simulation_type, Stimuli, Stimulus)&
+    XSD_SEQUENCE_TYPE(cp::stimuli_type::Stimulus)&
          stimuli = DecideLocation( & mpUserParameters->Simulation().get().Stimuli(),
-                           & mpDefaultParameters->Simulation().get().Stimuli(),
-                           "Stimuli")->get().Stimulus();
-    for (XSD_ANON_ITERATOR_TYPE(cp::simulation_type, Stimuli, Stimulus) i = stimuli.begin();
+		                           & mpDefaultParameters->Simulation().get().Stimuli(),
+		                           "Stimuli")->get().Stimulus();
+    for (XSD_ITERATOR_TYPE(cp::stimuli_type::Stimulus) i = stimuli.begin();
          i != stimuli.end();
          ++i)
     {

@@ -336,7 +336,7 @@ public:
                                                  "SaveBidomainShort", "SimulationResults", true, 1e-6));
     }
     
-    void doTestResumeChangingParameter(const std::string& rParametersFileName) throw(Exception)
+    void doTestResumeChangingSettings(const std::string& rParametersFileName) throw(Exception)
     {
         std::string foldername = "SaveMonodomainWithParameter";
     	{ // Save
@@ -358,7 +358,9 @@ public:
 	             node_global_index < p_vector_factory->GetHigh();
 	             node_global_index++)
 	        {
-	        	TS_ASSERT_EQUALS(p_mono_problem->GetTissue()->GetCardiacCell(node_global_index)->GetNumberOfParameters(), 1u);
+	        	AbstractCardiacCell* p_cell = p_mono_problem->GetTissue()->GetCardiacCell(node_global_index);
+	        	// Check parameter has been set in the central region
+	        	TS_ASSERT_EQUALS(p_cell->GetNumberOfParameters(), 1u);
 	        	double expected_value;
 	        	if (node_global_index <= 4 || node_global_index >= 16)
 	        	{
@@ -368,7 +370,27 @@ public:
 	        	{
 	        		expected_value = 0.0;
 	        	}
-	        	TS_ASSERT_EQUALS(p_mono_problem->GetTissue()->GetCardiacCell(node_global_index)->GetParameter(0), expected_value);
+	        	TS_ASSERT_EQUALS(p_cell->GetParameter(0), expected_value);
+	        	// Check stimulus has been replaced.  It started as 0-1ms at x<=0.02, and should now be 600-601ms at x<=0.02
+	        	if (node_global_index < 3)
+	        	{
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(0.0), 0.0);
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(0.5), 0.0);
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(1.0), 0.0);
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(599.9), 0.0);
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(600.0), -200000.0);
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(600.5), -200000.0);
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(601.0), -200000.0);
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(601.1), 0.0);
+	        	}
+	        	else
+	        	{
+	        		// Always zero...
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(0.0), 0.0);
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(0.5), 0.0);
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(600.5), 0.0);
+	        		TS_ASSERT_EQUALS(p_cell->GetStimulus(10.0), 0.0);
+	        	}
 	        }
 	        // compare the files, using the CompareFilesViaHdf5DataReader() method
 	        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_changing_parameter_results", false,
@@ -376,10 +398,10 @@ public:
     	}
     }
     
-    void TestResumeChangingParameter() throw(Exception)
+    void TestResumeChangingSettings() throw(Exception)
     {
-    	doTestResumeChangingParameter("heart/test/data/xml/save_monodomain_with_parameter.xml");
-    	doTestResumeChangingParameter("heart/test/data/xml/save_monodomain_with_parameter_append.xml");
+    	doTestResumeChangingSettings("heart/test/data/xml/save_monodomain_with_parameter.xml");
+    	doTestResumeChangingSettings("heart/test/data/xml/save_monodomain_with_parameter_append.xml");
     }
 
     void TestCardiacSimulationPatchwork() throw(Exception)
