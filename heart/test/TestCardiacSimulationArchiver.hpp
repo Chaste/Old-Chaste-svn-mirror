@@ -623,6 +623,10 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
         double boundary_flux = -11.0e3;
         double duration = 1.9; // of the stimulus, in ms
+        
+        HeartConfig::Instance()->SetElectrodeParameters(false/*don't ground*/, 0/*x*/, 
+                                                        0.0/*x=0*/, 0.1/*x=1*/,
+                                                        boundary_flux, 0.0, duration);        
 	        
         {
 		    std::string directory = "TestCreateArchiveForLoadAsSequentialWithBath";
@@ -631,14 +635,11 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
 	        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
 	            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 	        ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
-	        
-	        boost::shared_ptr<Electrodes<2> > p_electrodes(
-	            new Electrodes<2>(*p_mesh, false/*don't ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
-	                              boundary_flux, 0.0, duration));
-	
+
 	        BidomainProblem<2> bidomain_problem( &cell_factory, true );
-	        bidomain_problem.SetElectrodes(p_electrodes);
+	        
 	        bidomain_problem.SetMesh(p_mesh);
+            bidomain_problem.SetElectrodes();
 	        bidomain_problem.Initialise();
 	
 	        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
@@ -655,13 +656,10 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
 	            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 	        ZeroStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory;
 	
-	        boost::shared_ptr<Electrodes<2> > p_electrodes(
-	            new Electrodes<2>(*p_mesh, false/*don't ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
-	                              boundary_flux, 0.0, duration));
-	
 	        BidomainProblem<2> bidomain_problem( &cell_factory, true );
-	        bidomain_problem.SetElectrodes(p_electrodes);
+	        
 	        bidomain_problem.SetMesh(p_mesh);
+            bidomain_problem.SetElectrodes();
 	        bidomain_problem.Initialise();
 	
 	        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
@@ -959,13 +957,13 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
         HeartConfig::Instance()->SetOdeTimeStep(0.001);  // ms
         double boundary_flux = -11.0e3;
         double duration = 1.9; // of the stimulus, in ms
-        boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(*p_mesh, true/*do ground*/, 0/*x*/, 0.0/*x=0*/, 0.1/*x=1*/,
-                              boundary_flux, 0.0, duration));
+        HeartConfig::Instance()->SetElectrodeParameters(true/*do ground*/, 0/*x*/, 
+                                                        0.0/*x=0*/, 0.1/*x=1*/,
+                                                        boundary_flux, 0.0, duration);
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
-        bidomain_problem.SetElectrodes(p_electrodes);
         bidomain_problem.SetMesh(p_mesh);
+        bidomain_problem.SetElectrodes();
 
         // We solve for a small period of time so BCCs are created (next test wants to check it)
         HeartConfig::Instance()->SetSimulationDuration(0.1);

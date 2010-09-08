@@ -653,6 +653,11 @@ public:
 
     /** Whether to convert the output from HDF5 to Vtk readable format */
     bool GetVisualizeWithVtk() const;
+    
+    /**
+     * @return true if there is an electrodes section
+     */
+    bool IsElectrodesPresent() const;    
 
      /*
      *  Set methods
@@ -996,6 +1001,41 @@ public:
      * @param useVtk
      */
     void SetVisualizeWithVtk(bool useVtk=true);
+    
+    /**
+     * Setup electrode parameters.
+     *
+     *  @param groundSecondElectrode Whether to ground the second electrode (see class documentation)
+     *  @param index The value i when applying the electrodes to x_i=a and x_i=b (a<b)
+     *  @param lowerValue The value a when applying the electrodes to x_i=a and x_i=b (a<b) (should
+     *    be the minimum value of x_i for the given mesh)
+     *  @param upperValue The value b when applying the electrodes to x_i=a and x_i=b (a<b) (should
+     *    be the maximum value of x_i for the given mesh)
+     *  @param magnitude Magnitude of the stimulus
+     *  @param startTime Switch on time
+     *  @param duration Duration of the stimulus.
+     */
+    void SetElectrodeParameters( bool groundSecondElectrode,
+                                 unsigned index, double lowerValue, double upperValue,
+                                 double magnitude, double startTime, double duration );
+
+    /**
+     * Get electrode parameters.
+     *
+     *  @param rGroundSecondElectrode Whether to ground the second electrode (see class documentation)
+     *  @param rIndex The value i when applying the electrodes to x_i=a and x_i=b (a<b)
+     *  @param rLowerValue The value a when applying the electrodes to x_i=a and x_i=b (a<b) (should
+     *    be the minimum value of x_i for the given mesh)
+     *  @param rUpperValue The value b when applying the electrodes to x_i=a and x_i=b (a<b) (should
+     *    be the maximum value of x_i for the given mesh)
+     *  @param rMagnitude Magnitude of the stimulus
+     *  @param rStartTime Switch on time
+     *  @param rDuration Duration of the stimulus.
+     */
+    void GetElectrodeParameters(bool& rGroundSecondElectrode,
+                                unsigned& rIndex, double& rLowerValue, double& rUpperValue,
+                                double& rMagnitude, double& rStartTime, double& rDuration );
+    
 
 private:
     // Only to be accessed by the tests

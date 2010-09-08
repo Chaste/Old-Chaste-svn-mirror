@@ -132,6 +132,16 @@
       <xs:enumeration value="BiWithBath"/>
     </xs:restriction>
   </xs:simpleType>
+  <xs:simpleType name="axis_type">
+    <xs:annotation>
+      <xs:documentation>Sets either x, y or z axis for any application.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="x"/>
+      <xs:enumeration value="y"/>
+      <xs:enumeration value="z"/>
+    </xs:restriction>
+  </xs:simpleType>
   <xs:simpleType name="ionic_models_available_type">
     <xs:annotation>
       <xs:documentation xml:lang="en"> An enumeration of cardiac ionic models supplied with Chaste.
@@ -395,6 +405,50 @@
       <xs:annotation>
         <xs:documentation>Value for the parameter.</xs:documentation>
       </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+   <xs:complexType name="electrodes_type">
+    <xs:annotation>
+      <xs:documentation>Defines electrodes which stimulate a domain. These must be applied at flat surfaces at either
+        end of the domain (in either x, y or z direction).</xs:documentation>
+    </xs:annotation>
+      <xs:attribute name="ground_second_electrode" type="yesno_type" use="required">
+        <xs:annotation>
+          <xs:documentation>Whether or not the second electrode is grounded.</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    <xs:attribute name="perpendicular_to_axis" type="axis_type" use="required">
+        <xs:annotation>
+          <xs:documentation>Axis that the electrodes are perpendicular to (should be x, y or z).</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    <xs:attribute name="lower" type="xs:double" use="required">
+        <xs:annotation>
+          <xs:documentation>Coordinate value of the lower surface for the electrodes to be applied to (must be equal to
+            the minimum value of the dimension given by index).</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    <xs:attribute name="upper" type="xs:double" use="required">
+        <xs:annotation>
+          <xs:documentation>Coordinate value of the upper surface for the electrodes to be applied to (must be equal to
+            the maximum value of the dimension given by index).</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    <xs:attribute name="magnitude" type="xs:double" use="required">
+        <xs:annotation>
+          <xs:documentation>The strength of the stimulus.</xs:documentation>
+        </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="start_time" type="xs:double" use="required">
+      <xs:annotation>
+        <xs:documentation>The time at which to start applying the
+          stimulus.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="duration" type="xs:double" use="required">
+        <xs:annotation>
+          <xs:documentation>Time for which the electrodes are switched on (ms).</xs:documentation>
+        </xs:annotation>
     </xs:attribute>
   </xs:complexType>
   <xs:complexType name="cell_heterogeneity_type">
@@ -888,6 +942,11 @@
         <xs:annotation>
           <xs:documentation>One or more intra-cellular current stimuli.</xs:documentation>
         </xs:annotation>
+      </xs:element>
+      <xs:element name="Electrodes" type="electrodes_type" minOccurs="0">
+	<xs:annotation>
+          <xs:documentation>The electrodes that we want to use in the simulation.</xs:documentation>
+	</xs:annotation>
       </xs:element>
       <xs:element name="CellHeterogeneities" type="cell_heterogeneities_type" minOccurs="0">
         <xs:annotation>

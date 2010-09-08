@@ -225,11 +225,11 @@ public:
 
     /**
      *  Set an electrode object (which provides boundary conditions). Only
-     *  valid if there is a bath.
+     *  valid if there is a bath. For the time being these are being read from
+     *  HeartConfig \todo #1271
      *
-     * @param pElectrodes
      */
-    void SetElectrodes(boost::shared_ptr<Electrodes<DIM> > pElectrodes);
+    void SetElectrodes();
 
     /**
      *  Called at beginning of each time step in the main time-loop in

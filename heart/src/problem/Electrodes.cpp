@@ -47,7 +47,7 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
     assert(index < DIM);
     mGroundSecondElectrode = groundSecondElectrode;
     assert(duration > 0);
-    mEndTime = mStartTime + duration; // currently start time = 0 is hardcoded here
+    mEndTime = mStartTime + duration;
     mAreActive = false; // consider electrodes initially switched off!
 
     // check min x_i = a and max x_i = b, where i = index

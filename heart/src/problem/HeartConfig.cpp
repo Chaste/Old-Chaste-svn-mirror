@@ -1964,6 +1964,23 @@ bool HeartConfig::GetVisualizeWithVtk() const
 }
 
 
+bool HeartConfig::IsElectrodesPresent() const
+{
+    try
+    {
+        DecideLocation( & mpUserParameters->Simulation().get().Electrodes(),
+                        & mpDefaultParameters->Simulation().get().Electrodes(),
+                        "Electrodes")->present();
+        //If there's a section
+        return true;
+    }
+    catch (Exception &e)
+    {
+        //No section
+        return false;
+    }
+}
+
 /*
  *  Set methods
  */
@@ -2679,6 +2696,82 @@ void HeartConfig::SetVisualizeWithVtk(bool useVtk)
 
     mpUserParameters->Simulation().get().OutputVisualizer().get().vtk(
         useVtk ? cp::yesno_type::yes : cp::yesno_type::no);
+}
+
+void HeartConfig::SetElectrodeParameters(bool groundSecondElectrode,
+                                         unsigned index, double lowerValue, double upperValue,
+                                         double magnitude, double startTime, double duration )
+{
+    assert(index < 3);
+    
+    cp::axis_type axis = cp::axis_type::x;
+    if (index==1)
+    {
+        axis = cp::axis_type::y;
+    }
+    else if (index==2)
+    {
+        axis = cp::axis_type::z;
+    }
+        
+     
+    if (!IsElectrodesPresent())
+    {
+        cp::electrodes_type element( groundSecondElectrode ? cp::yesno_type::yes : cp::yesno_type::no,
+                                     axis,
+                                     lowerValue,
+                                     upperValue,
+                                     magnitude,
+                                     startTime,
+                                     duration );
+        mpUserParameters->Simulation().get().Electrodes().set(element);
+    }
+    else
+    {
+        mpUserParameters->Simulation().get().Electrodes().get().ground_second_electrode(groundSecondElectrode ? cp::yesno_type::yes : cp::yesno_type::no);
+        mpUserParameters->Simulation().get().Electrodes().get().perpendicular_to_axis(axis);
+        mpUserParameters->Simulation().get().Electrodes().get().lower(lowerValue);
+        mpUserParameters->Simulation().get().Electrodes().get().upper(upperValue);
+        mpUserParameters->Simulation().get().Electrodes().get().magnitude(magnitude);
+        mpUserParameters->Simulation().get().Electrodes().get().start_time(startTime);
+        mpUserParameters->Simulation().get().Electrodes().get().duration(duration);
+    }
+    
+}
+
+void HeartConfig::GetElectrodeParameters(bool& rGroundSecondElectrode,
+                                         unsigned& rIndex, double& rLowerValue, double& rUpperValue,
+                                         double& rMagnitude, double& rStartTime, double& rDuration )
+{
+    if (!IsElectrodesPresent())
+    {
+        EXCEPTION("Attempted to get electrodes that have not been defined.");
+    }
+    else
+    {
+        rGroundSecondElectrode = (mpUserParameters->Simulation().get().Electrodes().get().ground_second_electrode()==cp::yesno_type::yes);
+        
+        cp::axis_type axis = mpUserParameters->Simulation().get().Electrodes().get().perpendicular_to_axis();
+        if (axis==cp::axis_type::x)
+        {
+            rIndex = 0;
+        }
+        else if (axis==cp::axis_type::y)
+        {
+            rIndex = 1;
+        }
+        else
+        {
+            rIndex = 2;
+        }
+        
+        rLowerValue = mpUserParameters->Simulation().get().Electrodes().get().lower(); 
+        rUpperValue = mpUserParameters->Simulation().get().Electrodes().get().upper(); 
+        rMagnitude = mpUserParameters->Simulation().get().Electrodes().get().magnitude();
+        rStartTime = mpUserParameters->Simulation().get().Electrodes().get().start_time();
+        rDuration = mpUserParameters->Simulation().get().Electrodes().get().duration();
+    }
+    
 }
 
 /**********************************************************************

@@ -1032,11 +1032,11 @@ public:
         double start_time = 0.5;
         double duration = 1.9; // of the stimulus, in ms
 
-        boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, start_time, duration));
+        HeartConfig::Instance()->SetElectrodeParameters(false,0,0.0,0.1,
+                                                        boundary_flux, start_time, duration);
 
         BidomainProblem<2> no_bath_problem( &cell_factory, false );
-        TS_ASSERT_THROWS_THIS(no_bath_problem.SetElectrodes(p_electrodes),
+        TS_ASSERT_THROWS_THIS(no_bath_problem.SetElectrodes(),
                 "Cannot set electrodes when problem has been defined to not have a bath");
 
         delete p_mesh;

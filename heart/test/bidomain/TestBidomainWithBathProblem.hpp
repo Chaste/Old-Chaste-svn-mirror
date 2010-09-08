@@ -317,17 +317,17 @@ public:
         TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 
-        //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
+        //boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
         double boundary_flux = -11.0e3;
         double start_time = 0.5;
         double duration = 1.9; // of the stimulus, in ms
 
-        boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, start_time, duration));
-
-        bidomain_problem.SetElectrodes(p_electrodes);
+        HeartConfig::Instance()->SetElectrodeParameters(false,0,0.0,0.1,
+                                                        boundary_flux, start_time, duration);
+        
 
         bidomain_problem.SetMesh(p_mesh);
+        bidomain_problem.SetElectrodes();
         bidomain_problem.Initialise();
 
         bidomain_problem.Solve();
@@ -354,7 +354,7 @@ public:
             }
         }
 
-        TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
+        TS_ASSERT_EQUALS(bidomain_problem.mpElectrodes->mAreActive, false); // should be switched off by now..
         TS_ASSERT(ap_triggered);
 
         delete p_mesh;
@@ -379,17 +379,17 @@ public:
         TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
 
-        //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
+        //boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
         double boundary_flux = -11.0e3;
         double start_time = 1.0;
         double duration = 2.0; // of the stimulus, in ms
 
-        boost::shared_ptr<Electrodes<2> > p_electrodes(
-            new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, start_time, duration));
+        HeartConfig::Instance()->SetElectrodeParameters( true, 0, 0.0, 0.1, boundary_flux, 
+                                                start_time, duration );
 
-        bidomain_problem.SetElectrodes(p_electrodes);
 
         bidomain_problem.SetMesh(p_mesh);
+        bidomain_problem.SetElectrodes();
         bidomain_problem.Initialise();
 
         /*
@@ -412,7 +412,7 @@ public:
                 }
             }
 
-            TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
+            TS_ASSERT_EQUALS(bidomain_problem.mpElectrodes->mAreActive, false); // should be switched off by now..
         }
 
 
@@ -451,7 +451,7 @@ public:
             TS_ASSERT_DELTA(sol_repl[43], -80.2794, 1e-3);
             TS_ASSERT_DELTA(sol_repl[241], -80.2794, 1e-3);
 
-            TS_ASSERT_EQUALS(p_electrodes->mAreActive, false); // should be switched off by now..
+            TS_ASSERT_EQUALS(bidomain_problem.mpElectrodes->mAreActive, false); // should be switched off by now..
             TS_ASSERT(ap_triggered);
         }
 
@@ -483,15 +483,15 @@ public:
         HeartConfig::Instance()->SetOutputFilenamePrefix("matrix_based");
 
         BidomainWithBathProblem<2> matrix_based_bido( &cell_factory );
+        
+        HeartConfig::Instance()->SetElectrodeParameters(true,0,0.0,0.1,
+                                                boundary_flux, 0.0, duration);
 
         {
             Timer::Reset();
 
-            boost::shared_ptr<Electrodes<2> > p_electrodes(
-                new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, 0.0, duration));
-
-            matrix_based_bido.SetElectrodes(p_electrodes);
             matrix_based_bido.SetMesh(p_mesh);
+            matrix_based_bido.SetElectrodes();
             matrix_based_bido.Initialise();
             matrix_based_bido.Solve();
 
@@ -509,11 +509,8 @@ public:
         {
             Timer::Reset();
 
-            boost::shared_ptr<Electrodes<2> > p_electrodes(
-                new Electrodes<2>(*p_mesh,true,0,0.0,0.1,boundary_flux, 0.0, duration));
-
-            non_matrix_based_bido.SetElectrodes(p_electrodes);
             non_matrix_based_bido.SetMesh(p_mesh);
+            non_matrix_based_bido.SetElectrodes();
             non_matrix_based_bido.UseMatrixBasedRhsAssembly(false);
             non_matrix_based_bido.Initialise();
             non_matrix_based_bido.Solve();
@@ -565,15 +562,15 @@ public:
 
             BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
 
-            //boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
+            //boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
             double boundary_flux = -11.0e3;
             double duration = 1.9; // of the stimulus, in ms
 
-            boost::shared_ptr<Electrodes<2> > p_electrodes(
-                new Electrodes<2>(*p_mesh,false,0,0.0,0.1,boundary_flux, 0.0, duration));
+            HeartConfig::Instance()->SetElectrodeParameters(false,0,0.0,0.1,
+                                                            boundary_flux, 0.0, duration);
 
-            bidomain_problem.SetElectrodes(p_electrodes);
             bidomain_problem.SetMesh(p_mesh);
+            bidomain_problem.SetElectrodes();
             bidomain_problem.Initialise();
 
             // Save using helper class
@@ -728,7 +725,7 @@ public:
         centre(1) = 0.05; // cm
         BathCellFactory<2> cell_factory( 0.0, centre);
 
-        // boundary flux for Phi_e. -10e3 is under thershold, -14e3 crashes the cell model
+        // boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
         //
         // Will use printing dt = 1 in second run below, so choose start and end times of the 
         // electrode which don't coincide with printing times
@@ -749,11 +746,11 @@ public:
         TetrahedralMesh<2,2>* p_mesh1 = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
     
-        boost::shared_ptr<Electrodes<2> > p_electrodes1(
-           new Electrodes<2>(*p_mesh1,false,0,0.0,0.1,boundary_flux, start_time, duration));
+        HeartConfig::Instance()->SetElectrodeParameters(false,0,0.0,0.1,
+                                                        boundary_flux, start_time, duration);
     
-        bidomain_problem1.SetElectrodes(p_electrodes1);
         bidomain_problem1.SetMesh(p_mesh1);
+        bidomain_problem1.SetElectrodes();
         bidomain_problem1.PrintOutput(false);
         bidomain_problem1.Initialise();
  
@@ -773,11 +770,9 @@ public:
         TetrahedralMesh<2,2>* p_mesh2 = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
             "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
    
-        boost::shared_ptr<Electrodes<2> > p_electrodes2(
-            new Electrodes<2>(*p_mesh2,false,0,0.0,0.1,boundary_flux, start_time, duration));
     
-        bidomain_problem2.SetElectrodes(p_electrodes2);
         bidomain_problem2.SetMesh(p_mesh2);
+        bidomain_problem2.SetElectrodes();
         bidomain_problem2.PrintOutput(false);
         bidomain_problem2.Initialise();
 

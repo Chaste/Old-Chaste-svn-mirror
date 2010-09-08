@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include "DistributedVector.hpp"
 #include "ReplicatableVector.hpp"
+#include "Debug.hpp"
 
 template <unsigned DIM>
 void BidomainProblem<DIM>::AnalyseMeshForBath()
@@ -277,14 +278,26 @@ void BidomainProblem<DIM>::PreSolveChecks()
 }
 
 template<unsigned DIM>
-void BidomainProblem<DIM>::SetElectrodes(boost::shared_ptr<Electrodes<DIM> > pElectrodes)
+void BidomainProblem<DIM>::SetElectrodes()
 {
     if (!mHasBath)
     {
         EXCEPTION("Cannot set electrodes when problem has been defined to not have a bath");
     }
-
-    mpElectrodes = pElectrodes;
+    
+    if (this->mpMesh==NULL)
+    {
+        EXCEPTION("Must set the mesh before trying to set the electrodes!");
+    }
+    
+    bool ground_second_electrode;
+    unsigned index;
+    double lower_value, upper_value, magnitude, start_time, duration;
+    
+    //\todo #1271 could just get the electrodes constructor to do this itself, rather than using GetElectrodePameters here and just passing on to the Electrodes class.
+    //\todo '1271 This method could probably just be integrated into initialise  
+    HeartConfig::Instance()->GetElectrodeParameters(ground_second_electrode, index, lower_value, upper_value, magnitude, start_time, duration);
+    mpElectrodes = (boost::shared_ptr<Electrodes<DIM> >) new Electrodes<DIM>(*(this->mpMesh), ground_second_electrode, index, lower_value, upper_value, magnitude, start_time, duration);
 }
 
 template<unsigned DIM>
@@ -380,7 +393,6 @@ bool BidomainProblem<DIM>::GetHasBath()
 {
     return mHasBath;
 }
-
 
 /////////////////////////////////////////////////////////////////////
 // Explicit instantiation
