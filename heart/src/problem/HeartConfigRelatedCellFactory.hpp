@@ -157,6 +157,13 @@ public:
      */
     void FillInCellularTransmuralAreas();
 
+    /**
+     * Set parameters of a cell based on heterogeneity definitions in HeartConfig.
+     * 
+     * @param pCell  the cell to set parameters of
+     * @param nodeIndex  the index of the node corresponding to this cell in the mesh
+     */
+    void SetCellParameters(AbstractCardiacCell* pCell, unsigned nodeIndex);
 };
 
 

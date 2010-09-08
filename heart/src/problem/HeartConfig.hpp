@@ -147,6 +147,13 @@ private:
 
             HeartConfig::Instance()->SetSimulationDuration(p_new_parameters->ResumeSimulation().get().SimulationDuration());
 
+            // Cell heterogeneities.  Note that while we copy the element here, other code needs to actually update
+            // the loaded simulation to take account of the new settings.
+            if (p_new_parameters->ResumeSimulation().get().CellHeterogeneities().present())
+            {
+            	mpUserParameters->Simulation().get().CellHeterogeneities().set(p_new_parameters->ResumeSimulation().get().CellHeterogeneities().get());
+            }
+            
             if (p_new_parameters->ResumeSimulation().get().CheckpointSimulation().present())
             {
                 HeartConfig::Instance()->SetCheckpointSimulation(true,

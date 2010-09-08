@@ -335,6 +335,25 @@ public:
         TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_bidomain_short_results", false,
                                                  "SaveBidomainShort", "SimulationResults", true, 1e-6));
     }
+    
+    void TestResumeChangingParameter() throw(Exception)
+    {
+        std::string foldername = "SaveMonodomainWithParameter";
+    	{ // Save
+	        CardiacSimulation simulation("heart/test/data/xml/save_monodomain_with_parameter.xml");
+	        // Just check that the checkpoint exists
+	        FileFinder archive(foldername + "_checkpoints/1ms/" + foldername + "_1ms/archive.arch.0", RelativeTo::ChasteTestOutput);
+	        TS_ASSERT(archive.Exists());
+    	}
+    	
+    	{ // Load
+    		CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_changing_parameter.xml");
+
+	        // compare the files, using the CompareFilesViaHdf5DataReader() method
+	        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_changing_parameter_results", false,
+	                                                 foldername, "SimulationResults", true));
+    	}
+    }
 
     void TestCardiacSimulationPatchwork() throw(Exception)
     {
@@ -395,6 +414,7 @@ public:
                               "Checkpointing is not compatible with dynamically loaded cell models on Boost<1.37.");
 #endif
         // Coverage - using CVODE should throw
+#ifdef CHASTE_CVODE
         OutputFileHandler handler_cvode("DynamicallyLoadedModelCvode");
         if (PetscTools::AmMaster())
         {
@@ -408,6 +428,7 @@ public:
         CreateOptionsFile(handler_cvode, "luo_rudy_1991_dyn", args);
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/dynamic_cvode_model.xml"),
                               "CVODE cannot be used as a cell model solver in tissue simulations: do not use the --cvode flag.");
+#endif
     }
 };
 

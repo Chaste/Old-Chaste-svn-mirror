@@ -826,6 +826,18 @@
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
+  <xs:complexType name="cell_heterogeneities_type">
+    <xs:annotation>
+      <xs:documentation>A list of cell model heterogeneities.</xs:documentation>
+    </xs:annotation>
+	  <xs:sequence>
+	    <xs:element name="CellHeterogeneity" type="cell_heterogeneity_type" minOccurs="0" maxOccurs="unbounded">
+	      <xs:annotation>
+	        <xs:documentation>Defines a current-scaling heterogeneity in a set of cells in a given location (cuboid or transmural layer).</xs:documentation>
+	      </xs:annotation>
+	    </xs:element>
+	  </xs:sequence>
+  </xs:complexType>
   <xs:complexType name="simulation_type">
     <xs:annotation>
       <xs:documentation>Main XML component for running a cardaic bidomain or monodomain simulation</xs:documentation>
@@ -873,20 +885,10 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="CellHeterogeneities" minOccurs="0">
+      <xs:element name="CellHeterogeneities" type="cell_heterogeneities_type" minOccurs="0">
         <xs:annotation>
           <xs:documentation>Optional list of current-scaling heterogeneities in cells at given locations (cuboids or transmural layers).</xs:documentation>
         </xs:annotation>
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="CellHeterogeneity" type="cell_heterogeneity_type" minOccurs="0"
-              maxOccurs="unbounded">
-              <xs:annotation>
-                <xs:documentation>Defines a current-scaling heterogeneity in a set of cells in a given location (cuboid or transmural layer).</xs:documentation>
-              </xs:annotation>
-            </xs:element>
-          </xs:sequence>
-        </xs:complexType>
       </xs:element>
       <xs:element name="ConductivityHeterogeneities" minOccurs="0">
         <xs:annotation>
@@ -971,6 +973,11 @@ Note that in parallel the output meshes may be renumbered from the original inpu
       <xs:element name="SimulationDuration" type="time_type">
         <xs:annotation>
           <xs:documentation>Duration of this simulation (measured in milliseconds) from the beginning of the original simulation.  It should therefore be in the future of the time that the checkpoint was made.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CellHeterogeneities" type="cell_heterogeneities_type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Optional list of current-scaling heterogeneities in cells at given locations (cuboids or transmural layers).</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element name="CheckpointSimulation" type="checkpoint_type" minOccurs="0">

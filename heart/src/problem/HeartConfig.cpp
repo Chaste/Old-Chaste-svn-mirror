@@ -967,7 +967,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                                          std::vector<std::map<std::string, double> >* pParameterSettings)
 {
     CheckSimulationIsDefined("CellHeterogeneities");
-    XSD_ANON_SEQUENCE_TYPE(cp::simulation_type, CellHeterogeneities, CellHeterogeneity)&
+    XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity)&
          cell_heterogeneity = DecideLocation( & mpUserParameters->Simulation().get().CellHeterogeneities(),
                                               & mpDefaultParameters->Simulation().get().CellHeterogeneities(),
                                               "CellHeterogeneities")->get().CellHeterogeneity();
@@ -976,7 +976,7 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
     bool user_asking_for_transmural_layers = false;
     unsigned counter_of_heterogeneities = 0;
 
-    for (XSD_ANON_ITERATOR_TYPE(cp::simulation_type, CellHeterogeneities, CellHeterogeneity) i = cell_heterogeneity.begin();
+    for (XSD_ITERATOR_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity) i = cell_heterogeneity.begin();
          i != cell_heterogeneity.end();
          ++i)
     {
@@ -1271,8 +1271,8 @@ bool HeartConfig::GetOutputUsingOriginalNodeOrdering()
 {
     try 
     {
-        return (DecideLocation( & mpUserParameters->Simulation().get().OutputUsingOriginalNodeOrdering(),
-                            & mpDefaultParameters->Simulation().get().OutputUsingOriginalNodeOrdering(),
+        return (DecideLocation(& mpUserParameters->Simulation().get().OutputUsingOriginalNodeOrdering(),
+                               & mpDefaultParameters->Simulation().get().OutputUsingOriginalNodeOrdering(),
                               "OutputUsingOriginalNodeOrdering")->get()  == cp::yesno_type::yes);
     }
     catch (Exception &e)
@@ -1281,6 +1281,7 @@ bool HeartConfig::GetOutputUsingOriginalNodeOrdering()
         return false;
     }
 }
+
 bool HeartConfig::GetCheckpointSimulation() const
 {
     try
@@ -1292,7 +1293,7 @@ bool HeartConfig::GetCheckpointSimulation() const
                             & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
                             "Simulation/SaveSimulation");
         }
-        else
+        else /// \todo #1160 What code covers this?  Should be removed ideally.
         {
             CheckResumeSimulationIsDefined("GetSaveSimulation");
             DecideLocation( & mpUserParameters->ResumeSimulation().get().CheckpointSimulation(),
@@ -1316,7 +1317,7 @@ double HeartConfig::GetCheckpointTimestep() const
                         & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
                         "Simulation/SaveSimulation")->get().timestep();
     }
-    else
+    else /// \todo #1160 What code covers this?  Should be removed ideally.
     {
         CheckResumeSimulationIsDefined("GetSaveSimulation");
         return DecideLocation( & mpUserParameters->ResumeSimulation().get().CheckpointSimulation(),
@@ -1334,7 +1335,7 @@ unsigned HeartConfig::GetMaxCheckpointsOnDisk() const
                         & mpDefaultParameters->Simulation().get().CheckpointSimulation(),
                         "Simulation/SaveSimulation")->get().max_checkpoints_on_disk();
     }
-    else
+    else /// \todo #1160 What code covers this?  Should be removed ideally.
     {
         CheckResumeSimulationIsDefined("GetSaveSimulation");
         return DecideLocation( & mpUserParameters->ResumeSimulation().get().CheckpointSimulation(),

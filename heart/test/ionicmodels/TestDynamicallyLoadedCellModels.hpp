@@ -263,6 +263,7 @@ public:
             p_loader = converter.Convert(copied_file3);
             RunLr91Test(*p_loader, 0u, true, 1e-3, 70);
         }
+#ifdef CHASTE_CVODE
         {
             // With a for_model section and Cvode
             args[0] = "--opt";
@@ -278,6 +279,7 @@ public:
             p_loader = converter.Convert(copied_file3);
             RunLr91Test(*p_loader, 0u, true, 1, 70); // Large tolerance due to different ODE solver
         }
+#endif
     }
 
     void TestCellmlConverter() throw(Exception)

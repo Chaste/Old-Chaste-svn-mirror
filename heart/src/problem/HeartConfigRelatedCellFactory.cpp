@@ -221,6 +221,24 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
     }
     
     // Set parameters
+    try
+    {
+        SetCellParameters(p_cell, nodeIndex);
+    }
+    catch (const Exception& e)
+    {
+        delete p_cell;
+        throw e;
+    }
+
+    return p_cell;
+}
+
+
+template<unsigned SPACE_DIM>
+void HeartConfigRelatedCellFactory<SPACE_DIM>::SetCellParameters(AbstractCardiacCell* pCell,
+																 unsigned nodeIndex)
+{
     // Special case for backwards-compatibility: scale factors
     for (unsigned ht_index = 0;
          ht_index < mCellHeterogeneityAreas.size();
@@ -230,9 +248,9 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
         {
             try
             {
-                p_cell->SetParameter("ScaleFactorGks", mScaleFactorGks[ht_index]);
-                p_cell->SetParameter("ScaleFactorGkr", mScaleFactorGkr[ht_index]);
-                p_cell->SetParameter("ScaleFactorIto", mScaleFactorIto[ht_index]);
+            	pCell->SetParameter("ScaleFactorGks", mScaleFactorGks[ht_index]);
+            	pCell->SetParameter("ScaleFactorGkr", mScaleFactorGkr[ht_index]);
+            	pCell->SetParameter("ScaleFactorIto", mScaleFactorIto[ht_index]);
             }
             catch (const Exception& e)
             {
@@ -240,32 +258,22 @@ AbstractCardiacCell* HeartConfigRelatedCellFactory<SPACE_DIM>::CreateCellWithInt
             }
         }
     }
-    try
+    // SetParameter elements go next so they override the old ScaleFactor* elements.
+    for (unsigned ht_index = 0;
+         ht_index < mCellHeterogeneityAreas.size();
+         ++ht_index)
     {
-        // SetParameter elements go next so they override the old ScaleFactor* elements.
-        for (unsigned ht_index = 0;
-             ht_index < mCellHeterogeneityAreas.size();
-             ++ht_index)
+        if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
         {
-            if ( mCellHeterogeneityAreas[ht_index]->DoesContain(this->GetMesh()->GetNode(nodeIndex)->GetPoint()) )
+            for (std::map<std::string, double>::iterator param_it = mParameterSettings[ht_index].begin();
+                 param_it != mParameterSettings[ht_index].end();
+                 ++param_it)
             {
-                for (std::map<std::string, double>::iterator param_it = mParameterSettings[ht_index].begin();
-                     param_it != mParameterSettings[ht_index].end();
-                     ++param_it)
-                {
-                    unsigned param_index = p_cell->GetParameterIndex(param_it->first);
-                    p_cell->SetParameter(param_index, param_it->second);
-                }
+                unsigned param_index = pCell->GetParameterIndex(param_it->first);
+                pCell->SetParameter(param_index, param_it->second);
             }
         }
     }
-    catch (const Exception& e)
-    {
-        delete p_cell;
-        throw e;
-    }
-
-    return p_cell;
 }
 
 

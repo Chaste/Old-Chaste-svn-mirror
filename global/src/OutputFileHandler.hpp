@@ -93,7 +93,7 @@ public:
     /**
      *  Static method for getting the test output directory (the directory where
      *  chaste stores test output).  This is set from the environment variable
-     *  CHASTE_TESTOUTPUT, and defaults to "./testoutput" if it is not set.
+     *  CHASTE_TEST_OUTPUT, and defaults to "./testoutput" if it is not set.
      *
      *  Attempts to return an absolute path, but may get confused by odd setups.
      *  Eventually we'll move to using boost::filesystem, which would be more robust.

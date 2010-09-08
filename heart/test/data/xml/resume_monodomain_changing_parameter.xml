@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_1">
+
+	<ResumeSimulation>
+		<ArchiveDirectory relative_to="chaste_test_output">SaveMonodomainWithParameter_checkpoints/1ms/SaveMonodomainWithParameter_1ms</ArchiveDirectory>
+		<SpaceDimension>1</SpaceDimension>
+	    <SimulationDuration unit="ms">2.0</SimulationDuration>
+	    <Domain>Mono</Domain>
+	    <CellHeterogeneities>
+            <!-- Change the model parameter on restart -->
+		    <CellHeterogeneity> <!-- #1 -->
+	            <ScaleFactorGks unit="dimensionless">1.0</ScaleFactorGks>
+	            <ScaleFactorIto unit="dimensionless">1.0</ScaleFactorIto>
+	            <ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
+	            <Location unit="cm">
+	                <Cuboid>
+	                    <LowerCoordinates x="0.05" y="0" z="0"/>
+	                    <UpperCoordinates x="0.15" y="0" z="0"/>
+	                </Cuboid>
+	            </Location>
+	            <SetParameter name="fast_sodium_current_conductance" value="0.0"/>
+	        </CellHeterogeneity>
+	    </CellHeterogeneities>
+        <OutputVisualizer meshalyzer="yes" vtk="no" cmgui="no"/>
+	</ResumeSimulation>
+	
+	<!-- These elements must exist, but their contents are ignored -->
+	<Physiological/>
+	<Numerical/>		
+		    
+</ChasteParameters>

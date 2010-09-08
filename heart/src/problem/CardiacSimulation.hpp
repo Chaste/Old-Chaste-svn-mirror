@@ -107,6 +107,17 @@ private:
         else // (HeartConfig::Instance()->IsSimulationResumed())
         {
             p_problem.reset(CardiacSimulationArchiver<Problem>::Load(HeartConfig::Instance()->GetArchivedSimulationDir()));
+            /// \todo #1160 - logic that needs cell factory type functionality goes here
+            HeartConfigRelatedCellFactory<SPACE_DIM> cell_factory;
+            cell_factory.SetMesh(&(p_problem->rGetMesh()));
+            AbstractCardiacTissue<SPACE_DIM, SPACE_DIM>* p_tissue = p_problem->GetCellCollection();
+            DistributedVectorFactory* p_vector_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
+            for (unsigned node_global_index = p_vector_factory->GetLow();
+                 node_global_index < p_vector_factory->GetHigh();
+                 node_global_index++)
+            {
+            	cell_factory.SetCellParameters(p_tissue->GetCardiacCell(node_global_index), node_global_index);
+            }
         }
 
         if (HeartConfig::Instance()->GetCheckpointSimulation())
