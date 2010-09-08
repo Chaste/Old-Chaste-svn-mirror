@@ -143,12 +143,24 @@ Vec AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::GenerateNullBasis() const
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(Vec existingSolution)
 {
+    // If no dirichlet boundary conditions
+    //  (i) Check compatibility condition to check we are solving
+    //      a linear system that can be solved
+    // Then either
+    //  (a) If not setting average(phi)=0, we are solving a singular system,
+    //      so set up a null space
+    //  (b) Apply average(phi)=0 constraint by altering the last row, to
+    //      get a non-singular system
+    //
     if (!(GetBoundaryConditions()->HasDirichletBoundaryConditions()))
     {
-        // We're not pinning any nodes.
+        // first check compatibility condition
+        CheckCompatibilityCondition();
+
+        // Check whether applying average(phi_e)=0 constraint
         if (mRowForAverageOfPhiZeroed==INT_MAX)
         {
-            // We're not using the 'Average phi_e = 0' method, hence use a null space
+            // We're not using the constraint, hence use a null space
             if (!mNullSpaceCreated)
             {
                 // No null space set up, so create one and pass it to the linear system
@@ -162,7 +174,7 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(Vec exi
         }
         else
         {
-            // mRowForAverageOfPhiZeroed!=INT_MAX, i.e. we're using the 'Average phi_e = 0' method
+            // Using the average(phi_e)=0 constraint
 
             // CG (default solver) won't work since the system isn't symmetric anymore. Switch to GMRES
             this->mpLinearSystem->SetKspType("gmres"); // Switches the solver
@@ -194,14 +206,12 @@ void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::FinaliseLinearSystem(Vec exi
             this->mpLinearSystem->AssembleRhsVector();
         }
     }
-
-    CheckCompatibilityCondition();
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 void AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::CheckCompatibilityCondition()
 {
-    if (GetBoundaryConditions()->HasDirichletBoundaryConditions() || mRowForAverageOfPhiZeroed!=INT_MAX )
+    if (GetBoundaryConditions()->HasDirichletBoundaryConditions() )
     {
         // not a singular system, no compability condition
         return;

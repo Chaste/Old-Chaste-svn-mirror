@@ -114,10 +114,18 @@ protected:
 
     /**
      *  FinaliseAssembleSystem
+     * 
+     *  Called at the end of SetupLinearSystem(), before the system is solved.
      *
-     *  Called at the end of SetupLinearSystem(), before the system is solver
-     *  Here, used to avoid problems with phi_e drifting by one of 3 methods: 
-     *  pinning nodes, using a null space, or using an "average phi_e = 0" row.
+     *  If no dirichlet boundary conditions
+     *  (i) Check compatibility condition to check we are solving
+     *      a linear system that can be solved
+     *  Then either:
+     *  (a) If not setting average(phi)=0, we are solving a singular system,
+     *      so set up a null space.
+     *  (b) Apply average(phi)=0 constraint by altering the last row, to
+     *      get a non-singular system
+     * 
      *  @param existingSolution Solution at current time
      */
     virtual void FinaliseLinearSystem(Vec existingSolution);
