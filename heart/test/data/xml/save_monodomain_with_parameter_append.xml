@@ -36,6 +36,23 @@
 			</Stimulus>	
 		</Stimuli>
 		
+		
+        <CellHeterogeneities>
+            <!-- Set the model parameter -->
+            <CellHeterogeneity> <!-- #1 -->
+	            <ScaleFactorGks unit="dimensionless">1.0</ScaleFactorGks>
+	            <ScaleFactorIto unit="dimensionless">1.0</ScaleFactorIto>
+	            <ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
+	            <Location unit="cm">
+	                <Cuboid>
+	                    <LowerCoordinates x="0.05" y="0" z="0"/>
+	                    <UpperCoordinates x="0.15" y="0" z="0"/>
+	                </Cuboid>
+	            </Location>
+	            <SetParameter name="fast_sodium_current_conductance" value="23.0"/>
+	        </CellHeterogeneity>
+	    </CellHeterogeneities>
+		
 		<!-- 
 			Output 
 		-->

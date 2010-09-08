@@ -531,6 +531,58 @@ void HeartConfig::SetParametersFile(const std::string& rFileName)
 }
 
 
+void HeartConfig::UpdateParametersFromResumeSimulation(boost::shared_ptr<cp::chaste_parameters_type> pResumeParameters)
+{
+    // Check for user foolishness
+    if ( (pResumeParameters->ResumeSimulation().get().SpaceDimension() != HeartConfig::Instance()->GetSpaceDimension())
+         ||(pResumeParameters->ResumeSimulation().get().Domain() != HeartConfig::Instance()->GetDomain()))
+    {
+        EXCEPTION("Problem type and space dimension should match when restarting a simulation.");
+    }
+
+    // New simulation duration
+    HeartConfig::Instance()->SetSimulationDuration(pResumeParameters->ResumeSimulation().get().SimulationDuration());
+
+    // Cell heterogeneities.  Note that while we copy the elements here, other code in CardiacSimulation actually updates
+    // the loaded simulation to take account of the new settings.
+    if (pResumeParameters->ResumeSimulation().get().CellHeterogeneities().present())
+    {
+    	if (!mpUserParameters->Simulation().get().CellHeterogeneities().present())
+    	{
+    		// Original parameters had no heterogeneities, so just copy the whole element
+    		mpUserParameters->Simulation().get().CellHeterogeneities().set(pResumeParameters->ResumeSimulation().get().CellHeterogeneities().get());
+    	}
+    	else
+    	{
+    		// Need to append the new heterogeneity defitions to the original sequence
+	    	XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity)&
+	    	    new_seq = pResumeParameters->ResumeSimulation().get().CellHeterogeneities().get().CellHeterogeneity();
+	    	XSD_SEQUENCE_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity)&
+	    		orig_seq = mpUserParameters->Simulation().get().CellHeterogeneities().get().CellHeterogeneity();
+	    	for (XSD_ITERATOR_TYPE(cp::cell_heterogeneities_type::CellHeterogeneity) i = new_seq.begin();
+    	         i != new_seq.end();
+    	         ++i)
+    	    {
+	    		orig_seq.push_back(*i);
+    	    }
+    	}
+    }
+    
+    // Whether to checkpoint the resumed simulation
+    if (pResumeParameters->ResumeSimulation().get().CheckpointSimulation().present())
+    {
+        HeartConfig::Instance()->SetCheckpointSimulation(true,
+                                                         pResumeParameters->ResumeSimulation().get().CheckpointSimulation().get().timestep(),
+                                                         pResumeParameters->ResumeSimulation().get().CheckpointSimulation().get().max_checkpoints_on_disk());
+    }
+
+    //Visualization parameters are compulsory
+    HeartConfig::Instance()->SetVisualizeWithVtk(pResumeParameters->ResumeSimulation().get().OutputVisualizer().vtk() == cp::yesno_type::yes);
+    HeartConfig::Instance()->SetVisualizeWithCmgui(pResumeParameters->ResumeSimulation().get().OutputVisualizer().cmgui() == cp::yesno_type::yes);
+    HeartConfig::Instance()->SetVisualizeWithMeshalyzer(pResumeParameters->ResumeSimulation().get().OutputVisualizer().meshalyzer() == cp::yesno_type::yes);
+}
+
+
 void HeartConfig::Reset()
 {
     // Throw it away first, so that mpInstance is NULL when we...
@@ -959,6 +1011,7 @@ void HeartConfig::GetStimuli(std::vector<boost::shared_ptr<AbstractStimulusFunct
     }
 }
 
+
 template<unsigned DIM>
 void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* >& rCellHeterogeneityRegions,
                                          std::vector<double>& rScaleFactorGks,
@@ -1168,8 +1221,8 @@ void HeartConfig::GetConductivityHeterogeneities(
         }
         else if (ht.Location().Ellipsoid().present())
         {
-        	cp::point_type centre = ht.Location().Ellipsoid()->Centre();
-        	cp::point_type radii  = ht.Location().Ellipsoid()->Radii();
+            cp::point_type centre = ht.Location().Ellipsoid()->Centre();
+            cp::point_type radii  = ht.Location().Ellipsoid()->Radii();
             ChastePoint<DIM> chaste_point_a ( centre.x(), centre.y(), centre.z() );
             ChastePoint<DIM> chaste_point_b ( radii.x(), radii.y(), radii.z() );
             conductivitiesHeterogeneityAreas.push_back( new ChasteEllipsoid<DIM> ( chaste_point_a, chaste_point_b ) );

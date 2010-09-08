@@ -336,11 +336,11 @@ public:
                                                  "SaveBidomainShort", "SimulationResults", true, 1e-6));
     }
     
-    void TestResumeChangingParameter() throw(Exception)
+    void doTestResumeChangingParameter(const std::string& rParametersFileName) throw(Exception)
     {
         std::string foldername = "SaveMonodomainWithParameter";
     	{ // Save
-	        CardiacSimulation simulation("heart/test/data/xml/save_monodomain_with_parameter.xml");
+	        CardiacSimulation simulation(rParametersFileName);
 	        // Just check that the checkpoint exists
 	        FileFinder archive(foldername + "_checkpoints/1ms/" + foldername + "_1ms/archive.arch.0", RelativeTo::ChasteTestOutput);
 	        TS_ASSERT(archive.Exists());
@@ -374,6 +374,12 @@ public:
 	        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_changing_parameter_results", false,
 	                                                 foldername, "SimulationResults", true));
     	}
+    }
+    
+    void TestResumeChangingParameter() throw(Exception)
+    {
+    	doTestResumeChangingParameter("heart/test/data/xml/save_monodomain_with_parameter.xml");
+    	doTestResumeChangingParameter("heart/test/data/xml/save_monodomain_with_parameter_append.xml");
     }
 
     void TestCardiacSimulationPatchwork() throw(Exception)

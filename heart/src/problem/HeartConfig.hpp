@@ -139,35 +139,18 @@ private:
         // If we are resuming a simulation, update the simulation duration (and any other parameters to come...)
         if (p_new_parameters->ResumeSimulation().present())
         {
-            if ( (p_new_parameters->ResumeSimulation().get().SpaceDimension() != HeartConfig::Instance()->GetSpaceDimension())
-                 ||(p_new_parameters->ResumeSimulation().get().Domain() != HeartConfig::Instance()->GetDomain()))
-            {
-                EXCEPTION("Problem type and space dimension should match when restarting a simulation.");
-            }
-
-            HeartConfig::Instance()->SetSimulationDuration(p_new_parameters->ResumeSimulation().get().SimulationDuration());
-
-            // Cell heterogeneities.  Note that while we copy the element here, other code needs to actually update
-            // the loaded simulation to take account of the new settings.
-            if (p_new_parameters->ResumeSimulation().get().CellHeterogeneities().present())
-            {
-            	mpUserParameters->Simulation().get().CellHeterogeneities().set(p_new_parameters->ResumeSimulation().get().CellHeterogeneities().get());
-            }
-            
-            if (p_new_parameters->ResumeSimulation().get().CheckpointSimulation().present())
-            {
-                HeartConfig::Instance()->SetCheckpointSimulation(true,
-                                                                 p_new_parameters->ResumeSimulation().get().CheckpointSimulation().get().timestep(),
-                                                                 p_new_parameters->ResumeSimulation().get().CheckpointSimulation().get().max_checkpoints_on_disk());
-            }
-
-            //Visualization parameters are compulsory
-            HeartConfig::Instance()->SetVisualizeWithVtk(p_new_parameters->ResumeSimulation().get().OutputVisualizer().vtk() == cp::yesno_type::yes);
-            HeartConfig::Instance()->SetVisualizeWithCmgui(p_new_parameters->ResumeSimulation().get().OutputVisualizer().cmgui() == cp::yesno_type::yes);
-            HeartConfig::Instance()->SetVisualizeWithMeshalyzer(p_new_parameters->ResumeSimulation().get().OutputVisualizer().meshalyzer() == cp::yesno_type::yes);
+        	UpdateParametersFromResumeSimulation(p_new_parameters);
         }
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
+    
+    /**
+     * When loading a simulation from archive, some parameters can get overridden by the content of the ResumeSimulation
+     * element.  This method does that.
+     * 
+     * @param pResumeParameters  the parameters containing the ResumeSimulation element.
+     */
+    void UpdateParametersFromResumeSimulation(boost::shared_ptr<cp::chaste_parameters_type> pResumeParameters);
 
 public:
     /**
