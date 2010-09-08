@@ -230,7 +230,7 @@ public:
      * to always be the case at present, and so it can cope with more
      * unusual usage patterns.
      */
-    bool ReadyToDivide();
+    virtual bool ReadyToDivide();
 
     /**
      * This method must be implemented by subclasses in order to set the phase
