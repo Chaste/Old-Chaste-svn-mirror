@@ -1239,8 +1239,26 @@ template class TetrahedralMesh<3,3>;
  */
 template void TetrahedralMesh<2,2>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&);
 template void TetrahedralMesh<2,2>::ImportFromMesher<triangulateio>(triangulateio&, unsigned, int *, unsigned, int *, int *);
+
 template void TetrahedralMesh<3,3>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&);
 template void TetrahedralMesh<3,3>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned, int *, unsigned, int *, int *);
+
+//The following don't ever need to be instantiated, but are needed to keep some compilers happy
+template void TetrahedralMesh<1,2>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&);
+template void TetrahedralMesh<1,2>::ImportFromMesher<triangulateio>(triangulateio&, unsigned, int *, unsigned, int *, int *);
+
+template void TetrahedralMesh<1,3>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&);
+template void TetrahedralMesh<1,3>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned, int *, unsigned, int *, int *);
+template void TetrahedralMesh<2,3>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&);
+template void TetrahedralMesh<2,3>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned, int *, unsigned, int *, int *);
+
+
+//Intel compilation with IPO thinks that it's missing some bizarre instantiations
+template void TetrahedralMesh<3u, 3u>::ImportFromMesher<triangulateio>(triangulateio&, unsigned int, int*, unsigned int, int*, int*);
+template void TetrahedralMesh<1u, 1u>::ImportFromMesher<triangulateio>(triangulateio&, unsigned int, int*, unsigned int, int*, int*);
+template void TetrahedralMesh<1u, 1u>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned int, int*, unsigned int, int*, int*);
+template void TetrahedralMesh<2u, 2u>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned int, int*, unsigned int, int*, int*);
+ 
 /**
  * \endcond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
