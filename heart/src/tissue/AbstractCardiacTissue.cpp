@@ -290,7 +290,7 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::SolveCellSystems(Vec existing
         {
             // solve
             // Note: Voltage should not be updated. GetIIonic will be called later
-            // and needs the old voltage. The voltage will be updated from the pde.
+            // and needs the old voltage. The voltage will be updated in the PDE solve.
             mCellsDistributed[index.Local]->ComputeExceptVoltage(time, nextTime);
         }
         catch (Exception &e)

@@ -128,7 +128,7 @@ public:
         bidomain_tissue.SolveCellSystems(bidomain_vec, 0, big_time_step);
 
 
-        // Check that both the monodomain and bidomain PDE have the same ionic cache
+        // Check that both the monodomain and bidomain tissue have the same ionic cache
         for (unsigned node_index = mesh.GetDistributedVectorFactory()->GetLow();
              node_index < mesh.GetDistributedVectorFactory()->GetHigh();
              node_index++)
@@ -136,7 +136,7 @@ public:
             TS_ASSERT_EQUALS(monodomain_tissue.rGetIionicCacheReplicated()[node_index], bidomain_tissue.rGetIionicCacheReplicated()[node_index]);
         }
 
-        // Check that the bidomain PDE has the right intracellular stimulus at node 0 and 1
+        // Check that the bidomain tissue has the right intracellular stimulus at node 0 and 1
         TS_ASSERT_EQUALS(bidomain_tissue.rGetIntracellularStimulusCacheReplicated()[0], -80);
         TS_ASSERT_EQUALS(bidomain_tissue.rGetIntracellularStimulusCacheReplicated()[1], 0);
 

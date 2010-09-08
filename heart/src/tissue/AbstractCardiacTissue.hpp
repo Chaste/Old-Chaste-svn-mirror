@@ -82,9 +82,9 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // archive & mpMesh; Archived in save/load_constructs at the bottom of mono/bidomainPde.hpp
+        // archive & mpMesh; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
         // archive & mpIntracellularConductivityTensors; Loaded from HeartConfig every time constructor is called
-        // archive & mCellsDistributed; Archived in save/load_constructs at the bottom of mono/bidomainPde.hpp
+        // archive & mCellsDistributed; Archived in save/load_constructs at the bottom of Mono/BidomainTissue.hpp
         // archive & mIionicCacheReplicated; // will be regenerated
         // archive & mIntracellularStimulusCacheReplicated; // will be regenerated
         archive & mDoCacheReplication;
@@ -186,7 +186,7 @@ public:
     virtual ~AbstractCardiacTissue();
 
     /**
-     * Add more cells to this cardiac PDE.
+     * Add more cells to this class.
      *
      * This method is used by the checkpoint migration code to load a simulation checkpointed in parallel onto
      * a single process.  It adds the cells previously contained on one of the non-master processes to this
@@ -230,10 +230,6 @@ public:
     /**
      * Integrate the cell ODEs and update ionic current etc for each of the
      * cells, between the two times provided.
-     *
-     * \note This used to be called PrepareForAssembleSystem, but
-     * that method is now a virtual method in the assemblers not the
-     * pdes.
      *
      * @param existingSolution  the current voltage solution vector
      * @param time  the current simulation time

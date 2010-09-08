@@ -60,7 +60,6 @@ public:
 
     void TestLabellingNodes() throw (Exception)
     {
-        // all this is just to create a mesh, pde and bcc to pass to the solver
         HeartConfig::Instance()->SetSimulationDuration(0.01);  //ms
         HeartConfig::Instance()->SetMeshFileName("mesh/test/data/1D_0_to_1_10_elements_with_two_attributes");
         HeartConfig::Instance()->SetOutputDirectory("bidomain_bath");
