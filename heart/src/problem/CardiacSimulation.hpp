@@ -110,7 +110,7 @@ private:
             /// \todo #1160 - logic that needs cell factory type functionality goes here
             HeartConfigRelatedCellFactory<SPACE_DIM> cell_factory;
             cell_factory.SetMesh(&(p_problem->rGetMesh()));
-            AbstractCardiacTissue<SPACE_DIM, SPACE_DIM>* p_tissue = p_problem->GetCellCollection();
+            AbstractCardiacTissue<SPACE_DIM, SPACE_DIM>* p_tissue = p_problem->GetTissue();
             DistributedVectorFactory* p_vector_factory = p_problem->rGetMesh().GetDistributedVectorFactory();
             for (unsigned node_global_index = p_vector_factory->GetLow();
                  node_global_index < p_vector_factory->GetHigh();
@@ -162,6 +162,10 @@ private:
         {
             p_problem->Solve();
         }
+        if (mSaveProblemInstance)
+        {
+        	mSavedProblem = p_problem;
+        }
     }
 
     /**
@@ -193,14 +197,29 @@ public:
      *
      * This also runs the simulation immediately.
      *
-     * @param parameterFileName  The name of the chaste parameters xml file to use to run a simulation (not mandatory since HeartConfig may be set by hand)
+     * @param parameterFileName  The name of the chaste parameters xml file to use to run a simulation.
+     * @param saveProblemInstance  Whether to save a copy of the problem instance for examination by tests.
      */
-    CardiacSimulation(std::string parameterFileName);
+    CardiacSimulation(std::string parameterFileName,
+    		          bool saveProblemInstance=false);
+
+    boost::shared_ptr<AbstractUntemplatedCardiacProblem> GetSavedProblem();
+private:
+	/** Whether to save a copy of the problem instance for examination by tests. */
+	bool mSaveProblemInstance;
+	
+	/** The saved problem instance, if any. */
+	boost::shared_ptr<AbstractUntemplatedCardiacProblem> mSavedProblem;
 };
 
 //
 // Implementation must remain in this file (see comment by #include "CardiacSimulationArchiver.hpp").
 //
+
+boost::shared_ptr<AbstractUntemplatedCardiacProblem> CardiacSimulation::GetSavedProblem()
+{
+	return mSavedProblem;
+}
 
 std::string CardiacSimulation::BoolToString(bool yesNo)
 {
@@ -244,7 +263,9 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
     p_file->close();
 }
 
-CardiacSimulation::CardiacSimulation(std::string parameterFileName)
+CardiacSimulation::CardiacSimulation(std::string parameterFileName,
+									 bool saveProblemInstance)
+	: mSaveProblemInstance(saveProblemInstance)
 {
     // If we have been passed an XML file then parse the XML file, otherwise throw
     if (parameterFileName == "")

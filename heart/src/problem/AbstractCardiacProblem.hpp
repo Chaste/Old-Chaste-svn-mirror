@@ -80,12 +80,23 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 /**
+ * Empty untemplated base class so that CardiacSimulation::GetSavedProblem can work.
+ */
+class AbstractUntemplatedCardiacProblem : boost::noncopyable
+{
+public:
+	/** Virtual destructor to make this class polymorphic */
+	virtual ~AbstractUntemplatedCardiacProblem()
+	{}
+};
+
+/**
  * Base class for cardiac problems; contains code generic to both mono- and bidomain.
  *
  * See tutorials for usage.
  */
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
-class AbstractCardiacProblem : boost::noncopyable
+class AbstractCardiacProblem : public AbstractUntemplatedCardiacProblem
 {
     friend class TestBidomainWithBath;
     friend class TestCardiacSimulationArchiver;

@@ -347,8 +347,29 @@ public:
     	}
     	
     	{ // Load
-    		CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_changing_parameter.xml");
-
+    		CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_changing_parameter.xml", true);
+    		
+    		boost::shared_ptr<AbstractUntemplatedCardiacProblem> p_problem = simulation.GetSavedProblem();
+    		TS_ASSERT(p_problem);
+    		MonodomainProblem<1,1>* p_mono_problem = dynamic_cast<MonodomainProblem<1,1>*>(p_problem.get());
+    		TS_ASSERT(p_mono_problem != NULL);
+    		DistributedVectorFactory* p_vector_factory = p_mono_problem->rGetMesh().GetDistributedVectorFactory();
+	        for (unsigned node_global_index = p_vector_factory->GetLow();
+	             node_global_index < p_vector_factory->GetHigh();
+	             node_global_index++)
+	        {
+	        	TS_ASSERT_EQUALS(p_mono_problem->GetTissue()->GetCardiacCell(node_global_index)->GetNumberOfParameters(), 1u);
+	        	double expected_value;
+	        	if (node_global_index <= 4 || node_global_index >= 16)
+	        	{
+	        		expected_value = 23.0;
+	        	}
+	        	else
+	        	{
+	        		expected_value = 0.0;
+	        	}
+	        	TS_ASSERT_EQUALS(p_mono_problem->GetTissue()->GetCardiacCell(node_global_index)->GetParameter(0), expected_value);
+	        }
 	        // compare the files, using the CompareFilesViaHdf5DataReader() method
 	        TS_ASSERT( CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "resume_monodomain_changing_parameter_results", false,
 	                                                 foldername, "SimulationResults", true));
