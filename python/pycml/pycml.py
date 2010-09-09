@@ -2220,14 +2220,9 @@ class cellml_variable(Colourable, element_base):
                 #defn._unset_cached_links()
                 #defn.xml_parent.xml_remove_child(defn)
                 #self.component.math.xml_append(defn)
-                # Update the LHS
+                # Schedule the LHS of the defining expression for update
                 defn._cml_assigns_to = self
-                lhs = defn.eq.lhs
-                ci = lhs.xml_create_element(
-                    u'ci', NSS[u'm'], content=self.fullname(cellml=True))
-                ci._cml_variable = self
-                lhs.xml_parent.xml_insert_after(lhs, ci)
-                lhs.xml_parent.xml_remove_child(lhs)
+                defn._pe_process = u'retarget'
                 # Fix up usage counts
                 if update_usage:
                     self.get_source_variable()._decrement_usage_count()
@@ -4175,16 +4170,15 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
                 if self.variable.get_usage_count() == 1 and not self.variable.pe_keep:
                     # defn is defining expression, so will be a MathML element already,
                     # and should be reduced already as well due to topological sort.
-                    # Remove it from where it was, and replace the RHS here.
-                    defn.xml_parent.xml_remove_child(defn)
-                    rhs = list(defn.operands())[1]
+                    # Clone the RHS and instantiate it here.
+                    rhs = mathml.clone(list(defn.operands())[1])
                     DEBUG('partial-evaluator', "  to", rhs)
                     parent = self.xml_parent
                     parent.xml_insert_after(self, rhs)
                     parent.xml_remove_child(self)
                     parent._adjust_complexity(self, rhs)
-                    # Also remove it from the list of assignment exprs.
-                    self.model._remove_assignment(defn)
+                    # Flag the defining expression for removal
+                    defn._pe_process = u'remove'
                     # TODO: May want to update the usage counts of
                     # vars within the component where the RHS was,
                     # although this may not be needed.

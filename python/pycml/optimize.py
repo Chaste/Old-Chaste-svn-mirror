@@ -114,6 +114,10 @@ class PartialEvaluator(object):
         
         expr must be an instance of mathml_apply, mathml_ci or mathml_cn.
         """
+        if hasattr(expr, '_pe_process'):
+            # This expression has been reduced or evaluated already, but needs further
+            # processing later so hasn't been removed yet.
+            return
         if expr._get_binding_time() is BINDING_TIMES.static:
             # Evaluate
             value = expr.evaluate()
@@ -127,11 +131,8 @@ class PartialEvaluator(object):
                     expr.xml_remove_child(rhs)
                 elif expr.is_assignment():
                     # The variable assigned to will have its initial_value set,
-                    # so we don't need the expression any more
-#                    pass # it should be removed later
-# But if this loop repeats, it'll get dealt with twice...
-                    expr.xml_parent.xml_remove_child(expr)
-                    self.doc.model._remove_assignment(expr)
+                    # so we don't need the expression any more.  Flag it for removal.
+                    expr._pe_process = u'remove'
                 else:
                     # Replace the expression with a <cn> element giving the value
                     new_elt = expr._eval_self()
@@ -165,6 +166,20 @@ class PartialEvaluator(object):
         doc.model.do_binding_time_analysis()
         # Reduce/evaluate expressions
         self._do_reduce_eval_loop(self._get_assignment_exprs)
+        
+        # Process flagged expressions
+        for expr in list(self._get_assignment_exprs()):
+            if hasattr(expr, '_pe_process'):
+                if expr._pe_process == u'remove':
+                    expr.xml_parent.xml_remove_child(expr)
+                    self.doc.model._remove_assignment(expr)
+                elif expr._pe_process == u'retarget':
+                    lhs = expr.eq.lhs
+                    var = expr._cml_assigns_to
+                    ci = mathml_ci.create_new(lhs, var.fullname(cellml=True))
+                    ci._cml_variable = var
+                    lhs.xml_parent.xml_insert_after(lhs, ci)
+                    lhs.xml_parent.xml_remove_child(lhs)
         
         # Use canonical variable names in all ci elements
         for expr in list(self._get_assignment_exprs()):
