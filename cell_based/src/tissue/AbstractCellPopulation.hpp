@@ -763,7 +763,7 @@ AbstractCellPopulation<DIM>::Iterator::Iterator(AbstractCellPopulation& rCellPop
       mCellIter(cellIter)
 {
     // The cell population can now return empty if it only has ghost nodes
-    if (mrCellPopulation.rGetCells().size() == 0)
+    if (mrCellPopulation.rGetCells().empty())
     {
         mCellIter = mrCellPopulation.rGetCells().end();
     }

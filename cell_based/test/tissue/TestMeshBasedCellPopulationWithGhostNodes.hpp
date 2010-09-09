@@ -177,6 +177,60 @@ public:
     }
 
 
+    void TestCellPopulationIteratorWithNoCells()
+    {
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(10.0, 1);
+
+        // Create a simple mesh
+        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/square_128_elements");
+        MutableMesh<2,2> mesh;
+        mesh.ConstructFromMeshReader(mesh_reader);
+
+        // Create vector of cell location indices
+        std::vector<unsigned> cell_location_indices;
+        cell_location_indices.push_back(80);
+
+        // Create a single cell
+        std::vector<CellPtr> cells;
+        CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+        cells_generator.GenerateBasic(cells, cell_location_indices.size());
+        cells[0]->StartApoptosis();
+
+        // Create a cell population
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(mesh, cells, cell_location_indices);
+
+        // Iterate over cell population and check there is a single cell
+        unsigned counter = 0;
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+            counter++;
+        }
+        TS_ASSERT_EQUALS(counter, 1u);
+        TS_ASSERT_EQUALS(cell_population.rGetCells().empty(), false);
+
+        // Increment simulation time and update cell population 
+        p_simulation_time->IncrementTimeOneStep();
+
+        unsigned num_cells_removed = cell_population.RemoveDeadCells();
+        TS_ASSERT_EQUALS(num_cells_removed, 1u);
+
+        cell_population.Update();
+
+        // Iterate over cell population and check there are now no cells
+        counter = 0;
+        for (AbstractCellPopulation<2>::Iterator cell_iter = cell_population.Begin();
+             cell_iter != cell_population.End();
+             ++cell_iter)
+        {
+            counter++;
+        }
+        TS_ASSERT_EQUALS(counter, 0u);
+        TS_ASSERT_EQUALS(cell_population.rGetCells().empty(), true);
+    }
+
     void TestAreaBasedVisocityOnAPeriodicMesh() throw (Exception)
     {
         // Set up the simulation time
