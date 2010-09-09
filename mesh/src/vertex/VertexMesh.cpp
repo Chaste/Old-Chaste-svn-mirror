@@ -74,12 +74,13 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
             for (unsigned face_index=0; face_index<mElements[elem_index]->GetNumFaces(); face_index++)
             {
                 VertexElement<ELEMENT_DIM-1, SPACE_DIM>* p_face = mElements[elem_index]->GetFace(face_index);
+                unsigned global_index = p_face->GetIndex();
 
                 // If this face is not already contained in mFaces, add it, and update faces_counted
-                if (faces_counted.find(p_face->GetIndex()) == faces_counted.end())
+                if (faces_counted.find(global_index) == faces_counted.end())
                 {
                     mFaces.push_back(p_face);
-                    faces_counted.insert(p_face->GetIndex());
+                    faces_counted.insert(global_index);
                 }
             }
         }
@@ -88,11 +89,14 @@ VertexMesh<ELEMENT_DIM, SPACE_DIM>::VertexMesh(std::vector<Node<SPACE_DIM>*> nod
     // Register elements with nodes
     for (unsigned index=0; index<mElements.size(); index++)
     {
-        VertexElement<ELEMENT_DIM, SPACE_DIM>* p_temp_vertex_element = mElements[index];
-        for (unsigned node_index=0; node_index<p_temp_vertex_element->GetNumNodes(); node_index++)
+        VertexElement<ELEMENT_DIM, SPACE_DIM>* p_element = mElements[index];
+
+        unsigned element_index = p_element->GetIndex();
+        unsigned num_nodes_in_element = p_element->GetNumNodes();
+
+        for (unsigned node_index=0; node_index<num_nodes_in_element; node_index++)
         {
-            Node<SPACE_DIM>* p_temp_node = p_temp_vertex_element->GetNode(node_index);
-            p_temp_node->AddElement(p_temp_vertex_element->GetIndex());
+            p_element->GetNode(node_index)->AddElement(element_index);
         }
     }
 
@@ -197,8 +201,9 @@ VertexMesh<2,2>::VertexMesh(TetrahedralMesh<2,2>& rMesh)
         std::list<std::pair<unsigned, double> > index_angle_list;
         for (unsigned local_index=0; local_index<mElements[elem_index]->GetNumNodes(); local_index++)
         {
-            c_vector<double, 2> centre_to_vertex = mpDelaunayMesh->GetVectorFromAtoB(mpDelaunayMesh->GetNode(elem_index)->rGetLocation(),
-                                                                                     mElements[elem_index]->GetNodeLocation(local_index));
+            c_vector<double, 2> vectorA = mpDelaunayMesh->GetNode(elem_index)->rGetLocation();
+            c_vector<double, 2> vectorB = mElements[elem_index]->GetNodeLocation(local_index);
+            c_vector<double, 2> centre_to_vertex = mpDelaunayMesh->GetVectorFromAtoB(vectorA, vectorB);
 
             double angle = atan2(centre_to_vertex(1), centre_to_vertex(0));
             unsigned global_index = mElements[elem_index]->GetNodeGlobalIndex(local_index);
@@ -333,36 +338,38 @@ VertexMesh<3,3>::VertexMesh(TetrahedralMesh<3,3>& rMesh)
             // Add face to appropriate elements
             if (!p_node_a->IsBoundaryNode())
             {
-                if (index_element_map[p_node_a->GetIndex()])
+                unsigned node_a_index = p_node_a->GetIndex();
+                if (index_element_map[node_a_index])
                 {
                     // If there is already an element with this index, add the face to it...
-                    index_element_map[p_node_a->GetIndex()]->AddFace(p_face);
+                    index_element_map[node_a_index]->AddFace(p_face);
                 }
                 else
                 {
                     // ...otherwise create an element, add the face to it, and add to the map
-                    mVoronoiElementIndexMap[p_node_a->GetIndex()] = element_index;
+                    mVoronoiElementIndexMap[node_a_index] = element_index;
                     VertexElement<3,3>* p_element = new VertexElement<3,3>(element_index);
                     element_index++;
                     p_element->AddFace(p_face);
-                    index_element_map[p_node_a->GetIndex()] = p_element;
+                    index_element_map[node_a_index] = p_element;
                 }
             }
             if (!p_node_b->IsBoundaryNode())
             {
-                if (index_element_map[p_node_b->GetIndex()])
+                unsigned node_b_index = p_node_b->GetIndex();
+                if (index_element_map[node_b_index])
                 {
                     // If there is already an element with this index, add the face to it...
-                    index_element_map[p_node_b->GetIndex()]->AddFace(p_face);
+                    index_element_map[node_b_index]->AddFace(p_face);
                 }
                 else
                 {
                     // ...otherwise create an element, add the face to it, and add to the map
-                    mVoronoiElementIndexMap[p_node_b->GetIndex()] = element_index;
+                    mVoronoiElementIndexMap[node_b_index] = element_index;
                     VertexElement<3,3>* p_element = new VertexElement<3,3>(element_index);
                     element_index++;
                     p_element->AddFace(p_face);
-                    index_element_map[p_node_b->GetIndex()] = p_element;
+                    index_element_map[node_b_index] = p_element;
                 }
             }
         }

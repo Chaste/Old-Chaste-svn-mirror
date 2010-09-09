@@ -518,16 +518,17 @@ void MutableMesh<ELEMENT_DIM, SPACE_DIM>::ReIndex(NodeMap& map)
         {
             live_elements.push_back(this->mElements[i]);
 
+            unsigned this_element_index = this->mElements[i]->GetIndex();
             if (SPACE_DIM == ELEMENT_DIM)
             {
-                this->mElementJacobians[live_elements.size()-1] = this->mElementJacobians[this->mElements[i]->GetIndex()];
-                this->mElementInverseJacobians[live_elements.size()-1] = this->mElementInverseJacobians[this->mElements[i]->GetIndex()];
+                this->mElementJacobians[live_elements.size()-1] = this->mElementJacobians[this_element_index];
+                this->mElementInverseJacobians[live_elements.size()-1] = this->mElementInverseJacobians[this_element_index];
             }
             else
             {
-                this->mElementWeightedDirections[live_elements.size()-1] = this->mElementWeightedDirections[this->mElements[i]->GetIndex()];
+                this->mElementWeightedDirections[live_elements.size()-1] = this->mElementWeightedDirections[this_element_index];
             }
-            this->mElementJacobianDeterminants[live_elements.size()-1] = this->mElementJacobianDeterminants[this->mElements[i]->GetIndex()];
+            this->mElementJacobianDeterminants[live_elements.size()-1] = this->mElementJacobianDeterminants[this_element_index];
         }
     }
 

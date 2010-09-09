@@ -219,8 +219,8 @@ void VertexElement<ELEMENT_DIM, SPACE_DIM>::AddFace(VertexElement<ELEMENT_DIM-1,
     for (unsigned local_index=0; local_index<pFace->GetNumNodes(); local_index++)
     {
         // If this node is not already owned by this element...
-        if (std::find(node_indices.begin(), node_indices.end(), pFace->GetNodeGlobalIndex(local_index))
-            == node_indices.end())
+        unsigned global_index = pFace->GetNodeGlobalIndex(local_index);
+        if (node_indices.find(global_index) == node_indices.end())
         {
             // ... then add it to the element (and vice versa)
             this->AddNode(end_index, pFace->GetNode(local_index));
