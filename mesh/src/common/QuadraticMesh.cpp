@@ -42,9 +42,9 @@ template<unsigned DIM>
 void QuadraticMesh<DIM>::CountAndCheckVertices()
 {
     // count the number of vertices, and also check all vertices come before the
-    // rest of the nodes (as this is assumed in other parts of the code)
-    
-    ///\todo Oh no it isn't!  Where is the VVVV...IIIII pattern used?
+    // rest of the nodes (as this is assumed in
+    // NonlinearElasticitySolver<DIM>::AllocateMatrixMemory() )
+    //
     mNumVertices = 0;
     bool vertices_mode = true;
     for (unsigned i=0; i<this->GetNumNodes(); i++)

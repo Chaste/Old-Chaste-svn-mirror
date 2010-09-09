@@ -41,6 +41,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscSetupAndFinalize.hpp"
 #include "DistributedVector.hpp"
 #include "ArchiveOpener.hpp"
+#include "HeartConfig.hpp"
 
 class TestElectrodes : public CxxTest::TestSuite
 {
@@ -54,7 +55,10 @@ public:
         double magnitude = 543.324;
         double start_time = 1.0; //ms
         double duration = 2.0; //ms
-        Electrodes<2> electrodes(mesh,true,0,0.0,10.0,magnitude,start_time,duration);
+
+        HeartConfig::Instance()->SetElectrodeParameters(true, 0, 0.0, 10.0,
+                                                        magnitude, start_time, duration);
+        Electrodes<2> electrodes(mesh);
         
         TS_ASSERT_EQUALS(electrodes.HasGroundedElectrode(), true);
         TS_ASSERT_DELTA(electrodes.GetSwitchOnTime(), start_time, 1e-12);
@@ -96,9 +100,12 @@ public:
 
         TS_ASSERT_EQUALS(num_grounded_nodes_reduced, 11u);
 
-        TS_ASSERT_THROWS_THIS(Electrodes<2> bad_electrodes(mesh,true,0,5.0,10.0,magnitude,start_time,duration),
+        HeartConfig::Instance()->SetElectrodeParameters(true,0,5.0,10.0,magnitude,start_time,duration);
+        TS_ASSERT_THROWS_THIS(Electrodes<2> bad_electrodes(mesh),
                 "Minimum value of coordinate is not the value given");
-        TS_ASSERT_THROWS_THIS(Electrodes<2> bad_electrodes(mesh,true,0,0.0,30.0,magnitude,start_time,duration),
+
+        HeartConfig::Instance()->SetElectrodeParameters(true,0,0.0,30.0,magnitude,start_time,duration);
+        TS_ASSERT_THROWS_THIS(Electrodes<2> bad_electrodes(mesh),
                 "Maximum value of coordinate is not the value given");
 
         // Nothing at the beginning of the simulation
@@ -131,7 +138,9 @@ public:
 
         double magnitude = 543.324;
         double duration = 2.0;
-        Electrodes<2> electrodes(mesh,false,0,0,10,magnitude,0.0,duration);
+        
+        HeartConfig::Instance()->SetElectrodeParameters(false,0,0,10,magnitude,0.0,duration);
+        Electrodes<2> electrodes(mesh);
 
         TS_ASSERT_EQUALS(electrodes.HasGroundedElectrode(), false);
 
@@ -193,7 +202,8 @@ public:
         double flux_out_magnitude = flux_in_magnitude * 10/9;
 
         double duration = 2.0;
-        Electrodes<2> electrodes(mesh,false,0,0,10,flux_in_magnitude,0.0,duration);
+        HeartConfig::Instance()->SetElectrodeParameters(false,0,0,10,flux_in_magnitude,0.0,duration);
+        Electrodes<2> electrodes(mesh);
 
         TS_ASSERT_THROWS_ANYTHING(electrodes.ComputeElectrodesAreasAndCheckEquality(0,0,10));
 
@@ -227,7 +237,8 @@ public:
 
         double magnitude = 543.324;
         double duration = 2.0;
-        Electrodes<3> electrodes(mesh,true,1,0,10,magnitude,0.0,duration);
+        HeartConfig::Instance()->SetElectrodeParameters(true,1,0,10,magnitude,0.0,duration);
+        Electrodes<3> electrodes(mesh);
 
         boost::shared_ptr<BoundaryConditionsContainer<3,3,2> >  p_bcc = electrodes.GetBoundaryConditionsContainer();
 
@@ -266,7 +277,8 @@ public:
 
         double magnitude = 543.324;
         double duration = 2.0;
-        Electrodes<3> electrodes(mesh,false,1,0,10,magnitude,0.0,duration);
+        HeartConfig::Instance()->SetElectrodeParameters(false,1,0,10,magnitude,0.0,duration);
+        Electrodes<3> electrodes(mesh);
 
         boost::shared_ptr<BoundaryConditionsContainer<3,3,2> > p_bcc = electrodes.GetBoundaryConditionsContainer();
 

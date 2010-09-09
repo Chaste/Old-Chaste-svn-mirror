@@ -761,6 +761,7 @@ void NonlinearElasticitySolver<DIM>::AllocateMatrixMemory()
             num_non_zeros_each_row[DIM*i + 1] = num_non_zeros_upper_bound;
             num_non_zeros_each_row[DIM*i + 2] = num_non_zeros_upper_bound;
 
+            //Could do !mpQuadMesh->GetNode(i)->IsInternal()
             if(i<mpQuadMesh->GetNumVertices()) // then this is a vertex
             {
                 num_non_zeros_each_row[DIM*mpQuadMesh->GetNumNodes() + i] = num_non_zeros_upper_bound;

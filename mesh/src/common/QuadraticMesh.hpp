@@ -37,9 +37,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-///\todo: check node ordering [vertex, .., vertex, internal, .., internal]? and document is so.  See todo in CountAndCheckVertices()
-
-
 /**
  * A concrete quadratic mesh class that inherits from TetrahedralMesh.
  */

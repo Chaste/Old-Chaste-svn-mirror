@@ -141,23 +141,16 @@ private:
     Electrodes(){};
 
 public:
-    /** Constructor.
-     *  @param rMesh The mesh, assumed to be a cuboid.
-     *  @param groundSecondElectrode Whether to ground the second electrode (see class documentation)
-     *  @param index The value i when applying the electrodes to x_i=a and x_i=b (a<b)
-     *  @param lowerValue The value a when applying the electrodes to x_i=a and x_i=b (a<b) (should
-     *    be the minimum value of x_i for the given mesh)
-     *  @param upperValue The value b when applying the electrodes to x_i=a and x_i=b (a<b) (should
-     *    be the maximum value of x_i for the given mesh)
-     *  @param magnitude Magnitude of the stimulus
-     *  @param startTime Switch on time
-     *  @param duration Duration of the stimulus.
-     */
-    Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh,
-               bool groundSecondElectrode,
-               unsigned index, double lowerValue, double upperValue,
-               double magnitude, double startTime, double duration); // implemented in cpp
 
+
+    /** Constructor.
+     * Needs only a reference to a mesh.
+     * All other parameters from the HeartConfig class
+     * 
+     *  @param rMesh The mesh, assumed to be a cuboid.
+     */
+    Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh); // implemented in cpp
+    
     /**
      *  Get the boundary conditions container in which is set up the Neumann
      *  fluxes for the first electrode, and the opposite fluxes for the second
