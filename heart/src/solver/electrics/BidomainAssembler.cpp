@@ -159,14 +159,14 @@ c_vector<double, 2*ELEMENT_DIM> BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::Comput
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BidomainAssembler<ELEMENT_DIM,SPACE_DIM>::BidomainAssembler(
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            BidomainTissue<SPACE_DIM>* pPde,
+            BidomainTissue<SPACE_DIM>* pTissue,
             double dt,
             unsigned numQuadPoints)
     : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,2,true,true,CARDIAC>(pMesh,numQuadPoints),
-      mpBidomainTissue(pPde),
+      mpBidomainTissue(pTissue),
       mDt(dt)
 {
-    assert(pPde != NULL);
+    assert(pTissue != NULL);
     assert(dt > 0);
     mpConfig = HeartConfig::Instance();
 }

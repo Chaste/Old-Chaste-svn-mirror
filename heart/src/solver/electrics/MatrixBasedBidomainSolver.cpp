@@ -208,13 +208,13 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MatrixBasedBidomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedBidomainSolver(
         bool bathSimulation,
         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-        BidomainTissue<SPACE_DIM>* pPde,
+        BidomainTissue<SPACE_DIM>* pTissue,
         BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
         unsigned numQuadPoints)
-    : AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>(bathSimulation,pMesh,pPde,pBoundaryConditions)
+    : AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>(bathSimulation,pMesh,pTissue,pBoundaryConditions)
 {
-    // Tell pde there's no need to replicate ionic caches
-    pPde->SetCacheReplication(false);
+    // Tell tissue there's no need to replicate ionic caches
+    pTissue->SetCacheReplication(false);
     mVecForConstructingRhs = NULL;
 }
 

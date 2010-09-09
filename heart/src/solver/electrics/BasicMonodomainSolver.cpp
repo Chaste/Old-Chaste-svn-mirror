@@ -69,13 +69,13 @@ void BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::SetupLinearSystem(Vec current
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BasicMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::BasicMonodomainSolver(
                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                 MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
+                 MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                  unsigned numQuadPoints)
-    : AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)
+    : AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(pMesh,pTissue,pBoundaryConditions,numQuadPoints)
 {
-    // Tell pde there is a need to replicate ionic caches
-    pPde->SetCacheReplication(true);
+    // Tell tissue there is a need to replicate ionic caches
+    pTissue->SetCacheReplication(true);
 }
     
 

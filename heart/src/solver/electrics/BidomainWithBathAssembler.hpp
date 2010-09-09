@@ -84,15 +84,15 @@ public:
      * Constructor.
      *
      * @param pMesh pointer to the mesh
-     * @param pPde pointer to the PDE
+     * @param pTissue pointer to the tissue
      * @param dt timestep 
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     BidomainWithBathAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-		                      BidomainTissue<SPACE_DIM>* pPde,
+		                      BidomainTissue<SPACE_DIM>* pTissue,
                               double dt,
                               unsigned numQuadPoints = 2)
-      : BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh,pPde,dt,numQuadPoints)
+      : BidomainAssembler<ELEMENT_DIM,SPACE_DIM>(pMesh,pTissue,dt,numQuadPoints)
     {
     }
 

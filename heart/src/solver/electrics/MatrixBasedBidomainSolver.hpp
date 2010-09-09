@@ -91,13 +91,13 @@ public:
      *
      * @param bathSimulation Whether the simulation involves a perfusing bath
      * @param pMesh pointer to the mesh
-     * @param pPde pointer to the PDE
+     * @param pTissue pointer to the tissue
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     MatrixBasedBidomainSolver(bool bathSimulation,
                               AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                              BidomainTissue<SPACE_DIM>* pPde,
+                              BidomainTissue<SPACE_DIM>* pTissue,
                               BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
                               unsigned numQuadPoints = 2);
 

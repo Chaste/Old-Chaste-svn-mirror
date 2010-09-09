@@ -98,14 +98,14 @@ void MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::IncrementInterpolatedQuantities
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MonodomainAssembler<ELEMENT_DIM,SPACE_DIM>::MonodomainAssembler(
                         AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                        MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
+                        MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
                         double dt,
                         unsigned numQuadPoints)
     : AbstractFeObjectAssembler<ELEMENT_DIM,SPACE_DIM,1,true,true,CARDIAC>(pMesh,numQuadPoints),
-      mpMonodomainTissue(pPde),
+      mpMonodomainTissue(pTissue),
       mDt(dt)
 {
-    assert(pPde);
+    assert(pTissue);
     assert(dt>0);
     mpConfig = HeartConfig::Instance();
 }

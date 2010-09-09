@@ -34,12 +34,12 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 BasicBidomainSolver<ELEMENT_DIM,SPACE_DIM>::BasicBidomainSolver(
             bool bathSimulation,
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            BidomainTissue<SPACE_DIM>* pPde,
+            BidomainTissue<SPACE_DIM>* pTissue,
             BoundaryConditionsContainer<ELEMENT_DIM, SPACE_DIM, 2>* pBcc,
             unsigned numQuadPoints)
-    : AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>(bathSimulation,pMesh,pPde,pBcc,numQuadPoints)
+    : AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>(bathSimulation,pMesh,pTissue,pBcc,numQuadPoints)
 {
-    pPde->SetCacheReplication(true);
+    pTissue->SetCacheReplication(true);
 }
 
 

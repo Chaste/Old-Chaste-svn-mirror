@@ -84,12 +84,12 @@ public:
      * Constructor
      *
      * @param pMesh pointer to the mesh
-     * @param pPde pointer to the PDE
+     * @param pTissue pointer to the tissue
      * @param pBoundaryConditions pointer to the boundary conditions
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     AbstractMonodomainSolver(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                             MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
+                             MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
                              BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                              unsigned numQuadPoints = 2);
     

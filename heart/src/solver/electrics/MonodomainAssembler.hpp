@@ -138,12 +138,12 @@ public:
      * Constructor
      *
      * @param pMesh pointer to the mesh
-     * @param pPde pointer to the PDE
+     * @param pTissue pointer to the tissue
      * @param dt timestep
      * @param numQuadPoints number of quadrature points (defaults to 2)
      */
     MonodomainAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                        MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
+                        MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
                         double dt,
                         unsigned numQuadPoints = 2);
 };

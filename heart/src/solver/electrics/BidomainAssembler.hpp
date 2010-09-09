@@ -134,12 +134,12 @@ public:
      * Constructor stores the mesh and pde and sets up boundary conditions.
      *
      * @param pMesh pointer to the mesh
-     * @param pPde pointer to the PDE
+     * @param pTissue pointer to the tissue
      * @param dt timestep 
      * @param numQuadPoints number of quadrature points in each dimension
      */
     BidomainAssembler(AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                      BidomainTissue<SPACE_DIM>* pPde,
+                      BidomainTissue<SPACE_DIM>* pTissue,
                       double dt,
                       unsigned numQuadPoints = 2);
 

@@ -102,15 +102,15 @@ void AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec ini
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::AbstractMonodomainSolver(
                  AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-                 MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
+                 MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
                  BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
                  unsigned numQuadPoints)
     : AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,1>(pMesh),
       mpBoundaryConditions(pBoundaryConditions),
-      mpMonodomainTissue(pPde),
+      mpMonodomainTissue(pTissue),
       mNumQuadPoints(numQuadPoints)
 {
-    assert(pPde);
+    assert(pTissue);
     assert(pBoundaryConditions);
     this->mMatrixIsConstant = true;
 

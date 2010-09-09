@@ -155,13 +155,13 @@ void MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::InitialiseForSolve(Vec 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 MatrixBasedMonodomainSolver<ELEMENT_DIM,SPACE_DIM>::MatrixBasedMonodomainSolver(
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pPde,
+            MonodomainTissue<ELEMENT_DIM,SPACE_DIM>* pTissue,
             BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,1>* pBoundaryConditions,
             unsigned numQuadPoints)
-    : AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(pMesh,pPde,pBoundaryConditions,numQuadPoints)
+    : AbstractMonodomainSolver<ELEMENT_DIM,SPACE_DIM>(pMesh,pTissue,pBoundaryConditions,numQuadPoints)
 {
-    // Tell pde there's no need to replicate ionic caches
-    pPde->SetCacheReplication(false);
+    // Tell tissue there's no need to replicate ionic caches
+    pTissue->SetCacheReplication(false);
     mVecForConstructingRhs = NULL;
     
 //// #1462    

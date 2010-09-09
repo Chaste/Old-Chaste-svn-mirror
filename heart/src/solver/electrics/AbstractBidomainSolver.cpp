@@ -242,16 +242,16 @@ template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 AbstractBidomainSolver<ELEMENT_DIM,SPACE_DIM>::AbstractBidomainSolver(
             bool bathSimulation,
             AbstractTetrahedralMesh<ELEMENT_DIM,SPACE_DIM>* pMesh,
-            BidomainTissue<SPACE_DIM>* pPde,
+            BidomainTissue<SPACE_DIM>* pTissue,
             BoundaryConditionsContainer<ELEMENT_DIM,SPACE_DIM,2>* pBoundaryConditions,
             unsigned numQuadPoints)
     : AbstractDynamicLinearPdeSolver<ELEMENT_DIM,SPACE_DIM,2>(pMesh),
       mBathSimulation(bathSimulation),
-      mpBidomainTissue(pPde),
+      mpBidomainTissue(pTissue),
       mpBoundaryConditions(pBoundaryConditions),
       mNumQuadPoints(numQuadPoints)
 {
-    assert(pPde != NULL);
+    assert(pTissue != NULL);
     assert(pBoundaryConditions != NULL);
 
     mNullSpaceCreated = false;
