@@ -88,10 +88,19 @@ class OnlyWarningsFilter(logging.Filter):
     """A filter that only passes warning messages."""
     def filter(self, rec):
         return (logging.WARNING <= rec.levelno < logging.ERROR)
+
 class OnlyDebugFilter(logging.Filter):
     """A filter that only passes debug messages."""
     def filter(self, rec):
         return (logging.DEBUG <= rec.levelno < logging.INFO)
+
+class OnlyTheseSourcesFilter(logging.Filter):
+    """A filter that only emits messages from the given sources."""
+    def __init__(self, sources):
+        logging.Filter.__init__(self)
+        self.__sources = sources
+    def filter(self, rec):
+        return rec.name in self.__sources
 
 # Default config for root logger
 logging.basicConfig(level=logging.CRITICAL,
@@ -1902,6 +1911,7 @@ class cellml_variable(Colourable, element_base):
     def _decrement_usage_count(self, follow_maps=True):
         """Decrement our usage count."""
         DEBUG('partial-evaluator', "Dec usage for", self.fullname())
+        assert self._cml_usage_count > 0
         self._cml_usage_count -= 1
         if follow_maps and self._cml_var_type == VarTypes.Mapped:
             self.get_source_variable()._decrement_usage_count()
@@ -2200,7 +2210,7 @@ class cellml_variable(Colourable, element_base):
                 if update_usage:
                     src._used()
                     self.get_source_variable()._decrement_usage_count()
-            else:
+            else: # src.get_type() != VarTypes.Mapped
                 # This variable is the only reference to the ultimate defining
                 # expression, so become computed.
                 self._cml_var_type = VarTypes.Computed
@@ -4114,8 +4124,7 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
     def _reduce(self):
         """Reduce this expression by evaluating its static parts.
 
-        If this is a static variable, return its value (as a <cn>
-        element).
+        If this is a static variable, replace by its value (as a <cn> element).
 
         Otherwise the behaviour depends on the number of uses of this
         variable.  If there is only one, instantiate the definition of
@@ -4129,24 +4138,19 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
             value = self.evaluate()
             attrs = {(u'cml:units', NSS[u'cml']): self.variable.units}
             cn = self.xml_create_element(u'cn', NSS[u'm'],
-                                         content=unicode("%.12g"%value),
+                                         content=unicode("%.12g" % value),
                                          attributes=attrs)
+            DEBUG('partial-evaluator', "  value =", unicode(cn))
             self._xfer_complexity(cn)
             self.xml_parent.xml_insert_after(self, cn)
             self.xml_parent.xml_remove_child(self)
-            # Remove variable element?
             self.variable._decrement_usage_count()
-            if self.variable.get_usage_count() == 0:
-                self.variable.xml_parent._del_variable(self.variable)
         else:
             defns = self.variable._get_dependencies()
             if defns:
                 defn = defns[0]
             else:
-                # Just update the name to be canonical
-                self._rename()
-                DEBUG('partial-evaluator',
-                      "  set canonical name to", unicode(self))
+                # Just need to update the name to be canonical - done in later pass
                 defn = None
             if isinstance(defn, cellml_variable):
                 if self.variable.pe_keep:
@@ -4154,14 +4158,13 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
                     DEBUG('partial-evaluator', "Keeping",
                           self.variable.fullname())
                     self.variable._reduce(update_usage=True)
-                    self._rename()
                 else:
                     # Create a new <ci> element
                     ci = self.xml_create_element(
                         u'ci', NSS[u'm'], content=defn.fullname(cellml=True))
                     self._xfer_complexity(ci)
                     ci._cml_variable = defn
-                    DEBUG('partial-evaluator', "  to",defn.fullname())
+                    DEBUG('partial-evaluator', "  to", defn.fullname())
                     self.xml_parent.xml_insert_after(self, ci)
                     self.xml_parent.xml_remove_child(self)
                     # Decrement the usage count of just us, not source vars
@@ -4169,14 +4172,13 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
                     # May need to recurse down maps
                     ci._reduce()
             elif isinstance(defn, mathml_apply):
-                if self.variable.get_usage_count() == 1 and \
-                    not self.variable.pe_keep:
-                    # defn is defining expression, so will be a MathML
-                    # element already, and should be reduced already
-                    # as well.  Remove it from where it was, and
-                    # replace the RHS here.
+                if self.variable.get_usage_count() == 1 and not self.variable.pe_keep:
+                    # defn is defining expression, so will be a MathML element already,
+                    # and should be reduced already as well due to topological sort.
+                    # Remove it from where it was, and replace the RHS here.
                     defn.xml_parent.xml_remove_child(defn)
                     rhs = list(defn.operands())[1]
+                    DEBUG('partial-evaluator', "  to", rhs)
                     parent = self.xml_parent
                     parent.xml_insert_after(self, rhs)
                     parent.xml_remove_child(self)
@@ -4186,13 +4188,7 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
                     # TODO: May want to update the usage counts of
                     # vars within the component where the RHS was,
                     # although this may not be needed.
-                    # Decrement usage count & remove <variable> element if 0
                     self.variable._decrement_usage_count()
-                    if self.variable.get_usage_count() == 0:
-                        self.variable.xml_parent._del_variable(self.variable)
-                else:
-                    # Just update the name to be canonical
-                    self._rename()
             elif defn is not None:
                 raise ValueError("Unexpected variable definition: " + defn.xml())
         return

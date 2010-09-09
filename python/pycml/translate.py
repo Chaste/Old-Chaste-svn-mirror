@@ -2323,7 +2323,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     self.writeln('rResidual[', j, '] = rCurrentGuess[', j,
                                  '] - rY[', i, '] - mDt*',
                                  self.conversion_factor, '*',
-                                 self.code_name(var, True), self.STMT_END)
+                                 self.code_name(var, ode=True), self.STMT_END)
                 else:
                     self.writeln('rResidual[', j, '] = rCurrentGuess[', j,
                                  '] - rY[', i, '] - mDt*',
@@ -4469,6 +4469,10 @@ def get_options(args, default_options=None):
                       "'membrane,V'.")
     parser.add_option('-d', '--debug', action='store_true', default=False,
                       help="output debug info to stderr")
+    parser.add_option('-D', '--debug-source', action='append',
+                      help="only show debug info from the specified part of the"
+                      " code.  This option may appear more than once to select"
+                      " multiple sources.  Implies -d.")
     # What optimisations/transformations to do
     parser.add_option('-l', '--lookup-tables',
                       dest='lut', action='store_true', default=False,
@@ -4572,13 +4576,18 @@ def get_options(args, default_options=None):
 
 def load_model(model_file, options):
     """Load and validate a CellML model."""
+    # Setup logging
+    if options.debug_source:
+        options.debug = True
     if options.debug:
         formatter = logging.Formatter(fmt="%(name)s: %(message)s")
         handler = logging.StreamHandler(sys.stderr)
         handler.setFormatter(formatter)
         handler.addFilter(OnlyDebugFilter())
+        if options.debug_source:
+            handler.addFilter(OnlyTheseSourcesFilter(options.debug_source))
         logging.getLogger().addHandler(handler)
-        logging.getLogger().setLevel(logging.DEBUG)        
+        logging.getLogger().setLevel(logging.DEBUG)
 
     # We can't translate if some warnings occur, as well as if the
     # model is invalid
@@ -4605,7 +4614,7 @@ def run():
     """Translate the file given on the command line."""
     options, model_file = get_options(sys.argv[1:])
     doc = load_model(model_file, options)
-
+    
     # Apply protocol, if given
     if options.protocol:
         import protocol
@@ -4654,11 +4663,12 @@ def run():
         lin = optimize.LinearityAnalyser()
         lin.analyse_for_jacobian(doc, V=config.V_variable)
         options.translate_type = 'Maple'
+        options.maple_output = False # Just in case...!
 
     if options.pe:
         # Do partial evaluation
         pe = optimize.PartialEvaluator()
-        pe.parteval(doc)
+        pe.parteval(doc)#, solver_info)
 
     if options.lut:
         # Do the lookup table analysis
@@ -4667,9 +4677,9 @@ def run():
             config.find_lookup_variables(options.pe)
         elif options.pe:
             lut.set_params(table_var=u'membrane__V')
-        lut.analyse_model(doc)
+        lut.analyse_model(doc)#, solver_info)
 
-    if options.maple_output:
+    if options.maple_output: # TODO: Move before PE
         # Parse Jacobian matrix
         from maple_parser import MapleParser
         mp = MapleParser()
@@ -4684,8 +4694,6 @@ def run():
         solver_info.add_all_info()
         # Analyse the XML, adding cellml_variable references, etc.
         solver_info.add_variable_links()
-        if options.pe:
-            pe.parteval_si(solver_info)
 
     if options.translate:
         # Translate to code

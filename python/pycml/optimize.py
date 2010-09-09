@@ -77,10 +77,11 @@ class PartialEvaluator(object):
     def _rename_vars(self, elt):
         """Rename variables found in ci elements in this tree to use canonical names."""
         if isinstance(elt, mathml_ci):
-            var = elt.variable.get_source_variable(recurse=True)
-            elt.xml_remove_child(unicode(elt))
-            elt.xml_append(var.fullname(cellml=True))
-            elt._cml_variable = var
+            if elt.xml_parent.localName == u'bvar':
+                # The free variable in a derivative must refer directly to the ultimate source,
+                # since this is assumed in later stages and in code generation.
+                elt._cml_variable = elt.variable.get_source_variable(recurse=True)
+            elt._rename()
             self._debug("Using canonical name", unicode(elt))
         else:
             for e in self.doc.model.xml_element_children(elt):
@@ -127,6 +128,8 @@ class PartialEvaluator(object):
                 elif expr.is_assignment():
                     # The variable assigned to will have its initial_value set,
                     # so we don't need the expression any more
+#                    pass # it should be removed later
+# But if this loop repeats, it'll get dealt with twice...
                     expr.xml_parent.xml_remove_child(expr)
                     self.doc.model._remove_assignment(expr)
                 else:
@@ -163,36 +166,41 @@ class PartialEvaluator(object):
         # Reduce/evaluate expressions
         self._do_reduce_eval_loop(self._get_assignment_exprs)
         
-        # Use canonical variable names on LHS of assignments
+        # Use canonical variable names in all ci elements
         for expr in list(self._get_assignment_exprs()):
             # If the assigned-to variable isn't used or kept, remove the assignment
             if isinstance(expr.eq.lhs, mathml_ci):
                 var = expr.eq.lhs.variable
                 if not (var.get_usage_count() or var.pe_keep):
+                    expr.xml_parent.xml_remove_child(expr)
                     doc.model._remove_assignment(expr)
                     continue
-            self._rename_vars(expr.eq.lhs)
+            self._rename_vars(expr)
 
         # Tidy up kept variables, in case they aren't referenced in an eq'n.
         for var in doc.model.get_all_variables():
             if var.pe_keep:
                 var._reduce()
+        
+        # Remove unused variables
+        for var in list(doc.model.get_all_variables()):
+            assert var.get_usage_count() >= 0
+            if var.get_usage_count() == 0 and not var.pe_keep:
+                var.xml_parent._del_variable(var)
 
         # Collapse into a single component
         new_comp = cellml_component.create_new(doc, u'c')
         new_comp._cml_created_by_pe = True
         old_comps = list(getattr(doc.model, u'component', []))
         doc.model._add_component(new_comp)
-        # We iterate over a copy of the component list so we can
-        # delete components from the model in this loop, and so the
-        # new component exists in the model so we can add content to
-        # it.
+        # We iterate over a copy of the component list so we can delete components
+        # from the model in this loop, and so the new component exists in the model
+        # so we can add content to it.
         for comp in old_comps:
             # Move relevant contents into new_comp
             for units in list(getattr(comp, u'units', [])):
                 # Copy all <units> elements
-                # TODO: Just generate the ones we need,
-                # using _ensure_units_exist
+                # TODO: Just generate the ones we need, using _ensure_units_exist
                 comp.xml_remove_child(units)
                 new_comp.xml_append(units)
             for var in list(getattr(comp, u'variable', [])):
