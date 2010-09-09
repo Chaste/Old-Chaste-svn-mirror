@@ -1304,6 +1304,8 @@ public:
 
     void TestCellBasedSimulationWithPdesParameterOutputMethods() throw (Exception)
     {
+        EXIT_IF_PARALLEL; // defined in PetscTools
+
         // Create a simple mesh
         int num_cells_depth = 5;
         int num_cells_width = 5;
