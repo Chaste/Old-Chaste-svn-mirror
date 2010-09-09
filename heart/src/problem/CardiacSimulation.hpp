@@ -206,6 +206,10 @@ public:
     CardiacSimulation(std::string parameterFileName,
     		          bool saveProblemInstance=false);
 
+    /**
+     * Get the saved problem instance, if any.  Will return an empty pointer if the
+     * instance was not saved.
+     */
     boost::shared_ptr<AbstractUntemplatedCardiacProblem> GetSavedProblem();
 private:
 	/** Whether to save a copy of the problem instance for examination by tests. */
