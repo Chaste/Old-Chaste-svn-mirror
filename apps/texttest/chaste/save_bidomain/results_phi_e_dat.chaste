@@ -1,5 +1,5 @@
 Warning: These have been filtered by  /home/jonc/eclipse/workspace/Chaste/python/RoundResultsFiles.py .
-This means that all floating point numbers have been rounded to  9  decimal places.
+This means that all floating point numbers have been rounded to  8  decimal places.
 0
 0
 0
@@ -3267,7 +3267,7 @@ This means that all floating point numbers have been rounded to  9  decimal plac
 0.125895
 1.19966
 -0.0867177
-0.000297561
+0.00029756
 -0.0154282
 1.2167
 -0.00627455
@@ -37875,4 +37875,4 @@ This means that all floating point numbers have been rounded to  9  decimal plac
 -11.5285
 4.25027
 4.24877
-# Created by Chaste version 2.0.9862 on Fri, 20 Aug 2010 15:05:41 +0000.  Chaste was built on Fri, 06 Aug 2010 16:08:07 +0000 by machine (uname) 'Linux userpc58.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Fri Jun 18 14:18:04 UTC 2010 x86_64' using settings: default, no Chaste libraries.
+# Created by Chaste version 2.0.10177 on Thu, 09 Sep 2010 08:51:07 +0000.  Chaste was built on Wed, 01 Sep 2010 16:01:23 +0000 by machine (uname) 'Linux userpc58.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Wed Aug 25 14:39:49 UTC 2010 x86_64' using settings: default, no Chaste libraries.
