@@ -581,9 +581,9 @@ class CellMLTranslator(object):
             self.write(self.code_name(expr.operator().dependent_variable,
                                       ode=True))
 
-    def output_variable(self, ci_elt):
+    def output_variable(self, ci_elt, ode=False):
         """Output a ci element, i.e. a variable lookup."""
-        self.write(self.code_name(ci_elt.variable))
+        self.write(self.code_name(ci_elt.variable, ode=ode))
 
     def output_expr(self, expr, paren):
         """Output the expression expr.
@@ -868,7 +868,10 @@ class CellMLTranslator(object):
         """Return the variable object that has code_name varname."""
         if varname[0] == '(':
             cname, vname = varname[1:-1].split(',')
-            name = vname
+            if self.single_component and cname != self.model.component.name:
+                name = cname + u'__' + vname
+            else:
+                name = vname
         elif '__' in varname:
             if varname[:4] == 'var_':
                 cname, vname = varname[4:].split('__')
@@ -2614,24 +2617,21 @@ class CellMLToChasteTranslator(CellMLTranslator):
             # qualified name though.  This is typically because PE has been done.
             prefix = ['var_', 'd_dt_'][ode]
             varname = unicode(ci_elt)
-            if varname[0] == '(':
-                # (compname,varname)
-                cname, vname = varname[1:-1].split(u',')
-                if self.single_component:
-                    varname = vname
-                else:
-                    varname = cname + '__' + vname
-            elif varname == u'delta_t':
-                # Special case for the timestep in ComputeJacobian
-                prefix = ''
-                varname = 'dt'
-            elif varname.startswith(prefix):
-                # Possibly var_cname__vname
-                varname = varname[len(prefix):]
+            try:
+                var = self.varobj(varname)
+            except KeyError:
+                var = None
+            if var:
+                self.write(self.code_name(var, ode=ode))
             else:
-                # Assume it's a suitable name
-                pass
-            self.write(prefix + varname)
+                if varname == u'delta_t':
+                    # Special case for the timestep in ComputeJacobian
+                    prefix = ''
+                    varname = 'dt'
+                else:
+                    # Assume it's a suitable name
+                    pass
+                self.write(prefix + varname)
         return
 
 
@@ -2788,8 +2788,8 @@ class CellMLToMapleTranslator(CellMLTranslator):
         if self.compute_full_jacobian:
             # Jacobian calculation for the whole ODE system
             # i.e. each df_i/du_j
-            for i, var_i in enumerate(self.state_vars):
-                for j, var_j in enumerate(self.state_vars):
+            for var_i in self.state_vars:
+                for var_j in self.state_vars:
                     self.writeln('print("--', self.code_name(var_i), '/',
                                  self.code_name(var_j), '--");')
                     self.writeln('diff(', self.code_name(var_i, ode=True), ', ',
@@ -3938,7 +3938,7 @@ class SolverInfo(object):
         """Get or create a special component for containing special variables."""
         if not self._component:
             self._component = cellml_component.create_new(self._model, u'')
-            self._component.xml_parent = self._model
+            self._model._add_component(self._component, special=True)
         return self._component
 
 
@@ -4665,21 +4665,7 @@ def run():
         options.translate_type = 'Maple'
         options.maple_output = False # Just in case...!
 
-    if options.pe:
-        # Do partial evaluation
-        pe = optimize.PartialEvaluator()
-        pe.parteval(doc)#, solver_info)
-
-    if options.lut:
-        # Do the lookup table analysis
-        lut = optimize.LookupTableAnalyser()
-        if options.config_file:
-            config.find_lookup_variables(options.pe)
-        elif options.pe:
-            lut.set_params(table_var=u'membrane__V')
-        lut.analyse_model(doc)#, solver_info)
-
-    if options.maple_output: # TODO: Move before PE
+    if options.maple_output:
         # Parse Jacobian matrix
         from maple_parser import MapleParser
         mp = MapleParser()
@@ -4694,6 +4680,20 @@ def run():
         solver_info.add_all_info()
         # Analyse the XML, adding cellml_variable references, etc.
         solver_info.add_variable_links()
+
+    if options.pe:
+        # Do partial evaluation
+        pe = optimize.PartialEvaluator()
+        pe.parteval(doc, solver_info)
+
+    if options.lut:
+        # Do the lookup table analysis
+        lut = optimize.LookupTableAnalyser()
+        if options.config_file:
+            config.find_lookup_variables(options.pe)
+        elif options.pe:
+            lut.set_params(table_var=u'membrane__V')
+        lut.analyse_model(doc, solver_info)
 
     if options.translate:
         # Translate to code

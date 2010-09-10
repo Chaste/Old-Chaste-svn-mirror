@@ -73,7 +73,7 @@ class PartialEvaluator(object):
             return u'cn[' + unicode(expr) + u']'
         else:
             return '[unknown]'
-
+    
     def _rename_vars(self, elt):
         """Rename variables found in ci elements in this tree to use canonical names."""
         if isinstance(elt, mathml_ci):
@@ -86,15 +86,15 @@ class PartialEvaluator(object):
         else:
             for e in self.doc.model.xml_element_children(elt):
                 self._rename_vars(e)
-
-    def parteval_si(self, solver_info):
-        """Do partial evaluation of the mathematics in a SolverInfo section."""
-        self.doc = solver_info._model.xml_parent
-        # BTA
-        solver_info.do_binding_time_analysis()
-        # Reduce/evaluate expressions
-        self._do_reduce_eval_loop(solver_info.get_modifiable_mathematics)
     
+    def _use_vars(self, elt):
+        """Increment the usage of variables referenced within elt."""
+        if isinstance(elt, mathml_ci):
+            elt.variable._used()
+        else:
+            for e in self.doc.model.xml_element_children(elt):
+                self._use_vars(e)
+
     def _do_reduce_eval_loop(self, expr_source):
         """Do the reduce/evaluate loop.
         
@@ -142,10 +142,11 @@ class PartialEvaluator(object):
                 # Replace the expression with a <cn> element giving the value
                 expr._reduce()
             # Update variable usage counts
-            if expr.is_ode() or expr.is_assignment():
-                expr._update_usage_counts(expr.eq.rhs, remove=True)
-            elif isinstance(expr, mathml_apply):
-                expr._update_usage_counts(expr, remove=True)
+            if isinstance(expr, mathml_apply):
+                if expr.is_ode() or expr.is_assignment():
+                    expr._update_usage_counts(expr.eq.rhs, remove=True)
+                else:
+                    expr._update_usage_counts(expr, remove=True)
             elif isinstance(expr, mathml_ci):
                 expr.variable._decrement_usage_count()
         else:
@@ -158,25 +159,37 @@ class PartialEvaluator(object):
             if isinstance(e, mathml_apply):
                 assert e.is_ode() or e.is_assignment()
                 yield e
-
-    def parteval(self, doc):
+    
+    def parteval(self, doc, solver_info):
         """Do the partial evaluation."""
         self.doc = doc
-        # BTA
+        # Do BTA and reduce/eval of main model
         doc.model.do_binding_time_analysis()
-        # Reduce/evaluate expressions
         self._do_reduce_eval_loop(self._get_assignment_exprs)
+        
+        if solver_info.get_modifiable_mathematics():
+            # Do BTA and reduce/eval of solver info section
+            for expr in solver_info.get_modifiable_mathematics():
+                self._use_vars(expr)
+            solver_info.do_binding_time_analysis()
+            self._do_reduce_eval_loop(solver_info.get_modifiable_mathematics)
         
         # Process flagged expressions
         for expr in list(self._get_assignment_exprs()):
             if hasattr(expr, '_pe_process'):
                 if expr._pe_process == u'remove':
+                    if (expr._get_binding_time() == BINDING_TIMES.dynamic and
+                        isinstance(expr._cml_assigns_to, cellml_variable) and
+                        expr._cml_assigns_to.get_usage_count() > 1):
+                        print "Keeping", expr, "due to SolverInfo"
+                        continue
                     expr.xml_parent.xml_remove_child(expr)
                     self.doc.model._remove_assignment(expr)
                 elif expr._pe_process == u'retarget':
                     lhs = expr.eq.lhs
                     var = expr._cml_assigns_to
                     ci = mathml_ci.create_new(lhs, var.fullname(cellml=True))
+                    print "Retarget - need to check!", lhs, var, ci
                     ci._cml_variable = var
                     lhs.xml_parent.xml_insert_after(lhs, ci)
                     lhs.xml_parent.xml_remove_child(lhs)
@@ -190,6 +203,8 @@ class PartialEvaluator(object):
                     expr.xml_parent.xml_remove_child(expr)
                     doc.model._remove_assignment(expr)
                     continue
+            self._rename_vars(expr)
+        for expr in solver_info.get_modifiable_mathematics():
             self._rename_vars(expr)
 
         # Tidy up kept variables, in case they aren't referenced in an eq'n.
@@ -428,6 +443,25 @@ class LookupTableAnalyser(object):
                 r.append(u'bad_var ' + vname)
             return u','.join(r)
 
+    def create_state_from_annotations(self, expr):
+        """Create a LUTState instance from an already annotated expression."""
+        state = self.LUTState()
+        possible = expr.getAttributeNS(NSS['lut'], u'possible', '')
+        if possible == u'yes':
+            varname = expr.getAttributeNS(NSS['lut'], u'var')
+            state.table_var = expr.component.get_variable_by_name(varname)
+        elif possible == u'no':
+            reason = expr.getAttributeNS(NSS['lut'], u'reason', '')
+            reasons = reason.split(u',')
+            for reason in reasons:
+                if reason == u'no_var':
+                    state.has_var = False
+                elif reason == u'no_func':
+                    state.has_func = False
+                elif reason.startswith(u'bad_var '):
+                    state.bad_vars.add(reason[8:])
+        return state
+
     def analyse_for_lut(self, expr, var_checker_fn):
         """Check if the given expression can be replaced by a lookup table.
 
@@ -449,48 +483,59 @@ class LookupTableAnalyser(object):
         outermost qualifying expression, rather than also annotating
         qualifying subexpressions.
         """
-        # Initialise the indicators
-        state = self.LUTState()
-        # Process current node
-        if isinstance(expr, mathml_ci):
-            # Variable reference
-            if var_checker_fn(expr.variable):
-                # Could be a permitted var that isn't a keying var
-                if self.is_keying_var(expr.variable):
-                    state.has_var = True
-                    state.table_var = expr.variable
-            else:
-                state.bad_vars.add(expr.variable.name)
-        elif isinstance(expr, mathml_piecewise):
-            # Recurse into pieces & otherwise options
-            if hasattr(expr, u'otherwise'):
-                r = self.analyse_for_lut(child_i(expr.otherwise, 1),
-                                         var_checker_fn)
-                state.update(r)
-            for piece in getattr(expr, u'piece', []):
-                r = self.analyse_for_lut(child_i(piece, 1), var_checker_fn)
-                state.update(r)
-                r = self.analyse_for_lut(child_i(piece, 2), var_checker_fn)
-                state.update(r)
-        elif isinstance(expr, mathml_apply):
-            # Check function
-            if (not state.has_func and
-                expr.operator().localName in self.lut_expensive_funcs):
-                state.has_func = True
-            # Check operands
-            for operand in expr.operands():
-                r = self.analyse_for_lut(operand, var_checker_fn)
-                state.update(r)
-            # Check qualifiers
-            for qual in expr.qualifiers():
-                r = self.analyse_for_lut(qual, var_checker_fn)
-                state.update(r)
+        # If this is a cloned expression, then just copy any annotations
+        # on the original.
+        if isinstance(expr, mathml):
+            source_expr = expr.get_original_of_clone()
         else:
-            # Just recurse into children
-            for e in expr.xml_children:
-                if getattr(e, 'nodeType', None) == Node.ELEMENT_NODE:
-                    r = self.analyse_for_lut(e, var_checker_fn)
+            source_expr = None
+        if source_expr:
+            LookupTableAnalyser.copy_lut_annotations(source_expr, expr)
+            state = self.create_state_from_annotations(source_expr)
+            print expr, state.suitable(), state.reason()
+        else:
+            # Initialise the indicators
+            state = self.LUTState()
+            # Process current node
+            if isinstance(expr, mathml_ci):
+                # Variable reference
+                if var_checker_fn(expr.variable):
+                    # Could be a permitted var that isn't a keying var
+                    if self.is_keying_var(expr.variable):
+                        state.has_var = True
+                        state.table_var = expr.variable
+                else:
+                    state.bad_vars.add(expr.variable.name)
+            elif isinstance(expr, mathml_piecewise):
+                # Recurse into pieces & otherwise options
+                if hasattr(expr, u'otherwise'):
+                    r = self.analyse_for_lut(child_i(expr.otherwise, 1),
+                                             var_checker_fn)
                     state.update(r)
+                for piece in getattr(expr, u'piece', []):
+                    r = self.analyse_for_lut(child_i(piece, 1), var_checker_fn)
+                    state.update(r)
+                    r = self.analyse_for_lut(child_i(piece, 2), var_checker_fn)
+                    state.update(r)
+            elif isinstance(expr, mathml_apply):
+                # Check function
+                if (not state.has_func and
+                    expr.operator().localName in self.lut_expensive_funcs):
+                    state.has_func = True
+                # Check operands
+                for operand in expr.operands():
+                    r = self.analyse_for_lut(operand, var_checker_fn)
+                    state.update(r)
+                # Check qualifiers
+                for qual in expr.qualifiers():
+                    r = self.analyse_for_lut(qual, var_checker_fn)
+                    state.update(r)
+            else:
+                # Just recurse into children
+                for e in expr.xml_children:
+                    if getattr(e, 'nodeType', None) == Node.ELEMENT_NODE:
+                        r = self.analyse_for_lut(e, var_checker_fn)
+                        state.update(r)
         # Annotate the expression if appropriate
         if isinstance(expr, (mathml_apply, mathml_piecewise)):
             if state.suitable():
@@ -511,6 +556,13 @@ class LookupTableAnalyser(object):
                     expr.xml_set_attribute((u'lut:reason', NSS['lut']),
                                            state.reason())
         return state
+    
+    @staticmethod
+    def copy_lut_annotations(from_expr, to_expr):
+        """Copy any lookup table annotations from one expression to another."""
+        for pyname, fullname in from_expr.xml_attributes.iteritems():
+            if fullname[1] == NSS['lut']:
+                to_expr.xml_set_attribute(fullname, getattr(from_expr, pyname))
 
     def remove_lut_annotations(self, expr, remove_reason=False):
         """Remove lookup table annotations from the given expression.
@@ -537,7 +589,7 @@ class LookupTableAnalyser(object):
             if getattr(e, 'nodeType', None) == Node.ELEMENT_NODE:
                 self.remove_lut_annotations(e, remove_reason)
 
-    def analyse_model(self, doc,
+    def analyse_model(self, doc, solver_info,
                       annotate_failures=True,
                       annotate_outermost_only=True):
         """Analyse the given document.
@@ -556,6 +608,7 @@ class LookupTableAnalyser(object):
         annotate_outermost_only as False.
         """
         self.doc = doc
+        self.solver_info = solver_info
         self.annotate_failures = annotate_failures
         self.annotate_outermost_only = annotate_outermost_only
         doc.lookup_tables = {}
@@ -571,6 +624,8 @@ class LookupTableAnalyser(object):
             ops = expr.operands()
             ops.next()
             e = ops.next()
+            self.analyse_for_lut(e, checker_fn)
+        for expr in solver_info.get_modifiable_mathematics():
             self.analyse_for_lut(e, checker_fn)
 
         # Assign names (numbers) to the lookup tables found.
@@ -805,7 +860,11 @@ class LinearityAnalyser(object):
 
     def _clone(self, expr):
         """Properly clone a MathML sub-expression."""
-        return mathml.clone(expr)
+        if isinstance(expr, mathml):
+            clone = expr.clone_self(register=True)
+        else:
+            clone = mathml.clone(expr)
+        return clone
 
     def _make_apply(self, operator, ghs, i, filter_none=True,
                     preserve=False):
@@ -866,11 +925,8 @@ class LinearityAnalyser(object):
         g, h = gh
         assert h is None
         # Transfer the annotations into g
-        for pyname, fullname in expr.xml_attributes.iteritems():
-            if fullname[1] == NSS['lut']:
-                g.xml_set_attribute(fullname, getattr(expr, pyname))
-        # Make sure g has a reference to its component, for use by
-        # code generation.
+        LookupTableAnalyser.copy_lut_annotations(expr, g)
+        # Make sure g has a reference to its component, for use by code generation.
         g._cml_component = expr.component
         return
 

@@ -583,9 +583,12 @@ class cellml_model(element_base):
         
         del self._cml_variables[(compname, varname)]
 
-    def _add_component(self, comp):
+    def _add_component(self, comp, special=False):
         """Add a new component to the model."""
-        self.xml_append(comp)
+        if special:
+            comp.xml_parent = self
+        else:
+            self.xml_append(comp)
         self._cml_components[comp.name] = comp
 
     def _del_component(self, comp):
@@ -745,7 +748,7 @@ class cellml_model(element_base):
                 for iface in [u'private_interface', u'public_interface']:
                     if getattr(var, iface, u'none') == u'in':
                         try:
-                            src = var.get_source_variable()
+                            var.get_source_variable()
                         except TypeError:
                             # No source variable found
                             self.validation_error(u' '.join([
@@ -3571,6 +3574,7 @@ class mathml(element_base):
         super(mathml, self).__init__()
         self._cml_component = None
         self._cml_model = None
+        self._cml_source_expr_for_clone = None
         return
     
     def __repr__(self):
@@ -3623,11 +3627,37 @@ class mathml(element_base):
         expr.next_elem = next_elem # Restore siblings...
         expr.xml_parent = par      # ...and parent to original
         return new_expr
+    
+    def clone_self(self, register=False):
+        """Properly clone this expression.
+        
+        If register is True, then keep a link to this expression in the clone.
+        """
+        clone = mathml.clone(self)
+        if register:
+            clone._cml_source_expr_for_clone = self
+        return clone
+    
+    def get_original_of_clone(self):
+        """
+        If this is a clone with a registered original expression, return it.
+        Otherwise returns None.
+        """
+        return self._cml_source_expr_for_clone
 
     def get_component(self):
         "Cache & return the enclosing component element."
         if self._cml_component is None:
-            self._cml_component = self.xml_xpath(u'ancestor::cml:component')[0]
+            comp_list = self.xml_xpath(u'ancestor::cml:component')
+            if comp_list:
+                self._cml_component = comp_list[0]
+            else:
+                # It may be in the solver_info section, in which case fake a component
+                solver_info = self.xml_xpath(u'ancestor::solver:solver_info')
+                if solver_info:
+                    self._cml_component = self.model.get_component_by_name(u'')
+                else:
+                    raise ValueError("MathML element " + str(self) + " does not occur in a model component!")
         return self._cml_component
     component = property(get_component)
 
@@ -3953,7 +3983,7 @@ class mathml_constructor(mathml):
             # Add a new <units> element to the document if needed
             attrs = self._ensure_units_exist()
             new_elt = self.xml_create_element(u'cn', NSS[u'm'],
-                                              content=unicode("%.12g"%value),
+                                              content=unicode("%.12g" % value),
                                               attributes=attrs)
         return new_elt
 
