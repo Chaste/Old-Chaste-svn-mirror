@@ -532,12 +532,28 @@ class cellml_model(element_base):
     def get_component_by_name(self, compname):
         """Return the component object that has name `compname'."""
         return self._cml_components[compname]
+    
     def get_variable_by_name(self, compname, varname):
         """
         Return the variable object with name `varname' in component
         `compname'.
         """
-        return self._cml_variables[(compname, varname)]
+        try:
+            var = self._cml_variables[(compname, varname)]
+        except KeyError, e:
+            if compname == u'':
+                if self.component.ignore_component_name:
+                    compname = self.component.name
+                else:
+                    parts = varname.split(u'__')
+                    if len(parts) == 2:
+                        compname, varname = parts
+                    else:
+                        raise e
+                var = self._cml_variables[(compname, varname)]
+            else:
+                raise e
+        return var
     
     def get_variable_by_oxmeta_name(self, name, throw=True):
         """
@@ -4197,7 +4213,9 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
                     # May need to recurse down maps
                     ci._reduce()
             elif isinstance(defn, mathml_apply):
-                if self.variable.get_usage_count() == 1 and not self.variable.pe_keep:
+                if (not self.variable.pe_keep and
+                    (self.variable.get_usage_count() == 1 or
+                     self.rootNode.partial_evaluator.is_instantiable(defn))):
                     # defn is defining expression, so will be a MathML element already,
                     # and should be reduced already as well due to topological sort.
                     # Clone the RHS and instantiate it here.
@@ -4209,9 +4227,6 @@ class mathml_ci(mathml, mathml_units_mixin_tokens):
                     parent._adjust_complexity(self, rhs)
                     # Flag the defining expression for removal
                     defn._pe_process = u'remove'
-                    # TODO: May want to update the usage counts of
-                    # vars within the component where the RHS was,
-                    # although this may not be needed.
                     self.variable._decrement_usage_count()
             elif defn is not None:
                 raise ValueError("Unexpected variable definition: " + defn.xml())

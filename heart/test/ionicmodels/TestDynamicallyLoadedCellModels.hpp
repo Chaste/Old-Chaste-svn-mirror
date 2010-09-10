@@ -235,7 +235,7 @@ public:
         CellMLToSharedLibraryConverter converter;
         FileFinder copied_file(dirname + "/plain/" + model + ".cellml", RelativeTo::ChasteTestOutput);
         DynamicCellModelLoader* p_loader = converter.Convert(copied_file);
-        RunLr91Test(*p_loader, 0u, true);
+        RunLr91Test(*p_loader, 0u, true, 0.01); // Implementation of lookup tables has improved...
 
         {
             // Backward Euler
@@ -261,7 +261,7 @@ public:
             CreateOptionsFile(handler3, model, args, for_model);
             FileFinder copied_file3(dirname + "/O/" + model + ".cellml", RelativeTo::ChasteTestOutput);
             p_loader = converter.Convert(copied_file3);
-            RunLr91Test(*p_loader, 0u, true, 1e-3, 70);
+            RunLr91Test(*p_loader, 0u, true, 1e-2, 70);
         }
 #ifdef CHASTE_CVODE
         {

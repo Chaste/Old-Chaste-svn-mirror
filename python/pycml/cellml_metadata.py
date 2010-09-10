@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 This module abstracts the interface to RDF metadata about CellML models.
 """
 
+import logging
 import types
 
 import RDF

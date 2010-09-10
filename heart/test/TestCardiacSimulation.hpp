@@ -420,7 +420,7 @@ public:
 
         // compare the files, using the CompareFilesViaHdf5DataReader() method
         TS_ASSERT(CompareFilesViaHdf5DataReader("heart/test/data/cardiac_simulations", "patchwork_results", false,
-                                                foldername, "SimulationResults", true, 1e-8));
+                                                foldername, "SimulationResults", true, 1e-7));
     }
     
     void TestCardiacSimulationKirsten() throw(Exception)

@@ -3841,8 +3841,8 @@ class SolverInfo(object):
         solver_info = self._solver_info
         # Jacobian
         if hasattr(solver_info, u'jacobian'):
-            for entry in solver_info.jacobian.entry.math:
-                for elt in entry.xml_children:
+            for entry in solver_info.jacobian.entry:
+                for elt in entry.math.xml_children:
                     if getattr(elt, 'nodeType', None) == Node.ELEMENT_NODE:
                         func(elt)
         # Linearised ODEs
@@ -3850,6 +3850,14 @@ class SolverInfo(object):
             for elt in solver_info.linear_odes.math.xml_children:
                 if getattr(elt, 'nodeType', None) == Node.ELEMENT_NODE:
                     func(elt)
+    
+    def has_modifiable_mathematics(self):
+        """Check if the solver info blocks contain any modifiable mathematics."""
+        try:
+            self.get_modifiable_mathematics().next()
+            return True
+        except StopIteration:
+            return False
     
     def get_modifiable_mathematics(self):
         """Get an iterable over mathematical constructs in the solver info blocks that can be changed.
@@ -3859,8 +3867,8 @@ class SolverInfo(object):
         solver_info = self._solver_info
         # Jacobian - entry definitions can be changed
         if hasattr(solver_info, u'jacobian'):
-            for entry in solver_info.jacobian.entry.math:
-                for elt in entry.xml_children:
+            for entry in solver_info.jacobian.entry:
+                for elt in entry.math.xml_children:
                     if getattr(elt, 'nodeType', None) == Node.ELEMENT_NODE:
                         yield elt
         # Linearised ODEs - only g & h can be changed
@@ -3872,6 +3880,20 @@ class SolverInfo(object):
                 h = opers.next().operands().next()
                 yield g
                 yield h
+
+    def get_linearised_odes(self):
+        """Return an iterable over the linearised ODEs.
+        
+        Yields tuples (u, t, g, h) where du/dt = g + hu (and g, h are not functions of u).
+        """
+        if hasattr(self._solver_info, u'linear_odes'):
+            for ode in self._solver_info.linear_odes.math.apply:
+                u = ode.apply.ci.variable
+                t = ode.apply.bvar.ci.variable
+                opers = ode.apply[1].operands()
+                g = opers.next()
+                h = opers.next().operands().next()
+                yield (u, t, g, h)
     
     def _add_variable_links(self, elt):
         """Recursively link ci elements in the given XML tree to cellml_variable objects.
@@ -4088,6 +4110,12 @@ class ConfigurationStore(object):
     
     def finalize_config(self):
         """Having read all the configuration files, apply to the model."""
+        # If no LT options given, add defaults
+        if not self.lut_config_keys:
+            config_key = ('config-name', 'transmembrane_potential')
+            self.lut_config[config_key] = {}
+            self._set_lut_defaults(self.lut_config[config_key])
+            self.lut_config_keys.append(config_key)
         # Identify the variables in the model
         self.find_transmembrane_potential()
         self.find_membrane_capacitance()
@@ -4681,18 +4709,20 @@ def run():
         # Analyse the XML, adding cellml_variable references, etc.
         solver_info.add_variable_links()
 
+    if options.lut:
+        # Create the analyser so PE knows which variables are table keys
+        lut = optimize.LookupTableAnalyser()
+        config.find_lookup_variables()
+    else:
+        lut = None
+
     if options.pe:
         # Do partial evaluation
         pe = optimize.PartialEvaluator()
-        pe.parteval(doc, solver_info)
+        pe.parteval(doc, solver_info, lut)
 
     if options.lut:
         # Do the lookup table analysis
-        lut = optimize.LookupTableAnalyser()
-        if options.config_file:
-            config.find_lookup_variables(options.pe)
-        elif options.pe:
-            lut.set_params(table_var=u'membrane__V')
         lut.analyse_model(doc, solver_info)
 
     if options.translate:

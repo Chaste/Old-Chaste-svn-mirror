@@ -73,27 +73,23 @@ class PartialEvaluator(object):
             return u'cn[' + unicode(expr) + u']'
         else:
             return '[unknown]'
-    
-    def _rename_vars(self, elt):
-        """Rename variables found in ci elements in this tree to use canonical names."""
+        
+    def _process_ci_elts(self, elt, func):
+        """Apply func to all ci elements in the tree rooted at elt."""
         if isinstance(elt, mathml_ci):
-            if elt.xml_parent.localName == u'bvar':
-                # The free variable in a derivative must refer directly to the ultimate source,
-                # since this is assumed in later stages and in code generation.
-                elt._cml_variable = elt.variable.get_source_variable(recurse=True)
-            elt._rename()
-            self._debug("Using canonical name", unicode(elt))
+            func(elt)
         else:
             for e in self.doc.model.xml_element_children(elt):
-                self._rename_vars(e)
+                self._process_ci_elts(e, func)
     
-    def _use_vars(self, elt):
-        """Increment the usage of variables referenced within elt."""
-        if isinstance(elt, mathml_ci):
-            elt.variable._used()
-        else:
-            for e in self.doc.model.xml_element_children(elt):
-                self._use_vars(e)
+    def _rename_var(self, elt):
+        """Change this ci element to use a canonical name."""
+        if elt.xml_parent.localName == u'bvar':
+            # The free variable in a derivative must refer directly to the ultimate source,
+            # since this is assumed in later stages and in code generation.
+            elt._cml_variable = elt.variable.get_source_variable(recurse=True)
+        elt._rename()
+        self._debug("Using canonical name", unicode(elt))
 
     def _do_reduce_eval_loop(self, expr_source):
         """Do the reduce/evaluate loop.
@@ -159,18 +155,45 @@ class PartialEvaluator(object):
             if isinstance(e, mathml_apply):
                 assert e.is_ode() or e.is_assignment()
                 yield e
+
+    def is_instantiable(self, expr):
+        """Determine whether special conditions mean that this assignment can be instantiated.
+        
+        Normally an assignment can only be instantiated if the assigned-to variable is used only
+        once, in order to avoid code duplication.
+        However, if the definition under consideration for instantiation is a function only of a
+        single LT keying variable (and we will do LT) then code duplication doesn't really matter,
+        since the whole expression will be converted to a table anyway.  So we should instantiate
+        regardless of multiple uses in this case.
+        """
+        instantiate = False
+        if self.lookup_tables_analyser:
+            keying_vars = set()
+            all_keying = [True]
+            def func(ci_elt):
+                if self.lookup_tables_analyser.is_keying_var(ci_elt.variable):
+                    keying_vars.add(ci_elt.variable)
+                else:
+                    all_keying[0] = False
+            self._process_ci_elts(expr.eq.rhs, func)
+            instantiate = len(keying_vars) == 1 and all_keying[0]
+        return instantiate
     
-    def parteval(self, doc, solver_info):
+    def parteval(self, doc, solver_info, lookup_tables_analyser=None):
         """Do the partial evaluation."""
         self.doc = doc
+        self.lookup_tables_analyser = lookup_tables_analyser
+        if lookup_tables_analyser:
+            lookup_tables_analyser.doc = doc
+        doc.partial_evaluator = self
         # Do BTA and reduce/eval of main model
         doc.model.do_binding_time_analysis()
         self._do_reduce_eval_loop(self._get_assignment_exprs)
         
-        if solver_info.get_modifiable_mathematics():
+        if solver_info.has_modifiable_mathematics():
             # Do BTA and reduce/eval of solver info section
             for expr in solver_info.get_modifiable_mathematics():
-                self._use_vars(expr)
+                self._process_ci_elts(expr, lambda ci: ci.variable._used())
             solver_info.do_binding_time_analysis()
             self._do_reduce_eval_loop(solver_info.get_modifiable_mathematics)
         
@@ -181,7 +204,7 @@ class PartialEvaluator(object):
                     if (expr._get_binding_time() == BINDING_TIMES.dynamic and
                         isinstance(expr._cml_assigns_to, cellml_variable) and
                         expr._cml_assigns_to.get_usage_count() > 1):
-                        print "Keeping", expr, "due to SolverInfo"
+                        self._debug("Keeping", repr(expr), "due to SolverInfo")
                         continue
                     expr.xml_parent.xml_remove_child(expr)
                     self.doc.model._remove_assignment(expr)
@@ -203,9 +226,9 @@ class PartialEvaluator(object):
                     expr.xml_parent.xml_remove_child(expr)
                     doc.model._remove_assignment(expr)
                     continue
-            self._rename_vars(expr)
+            self._process_ci_elts(expr, self._rename_var)
         for expr in solver_info.get_modifiable_mathematics():
-            self._rename_vars(expr)
+            self._process_ci_elts(expr, self._rename_var)
 
         # Tidy up kept variables, in case they aren't referenced in an eq'n.
         for var in doc.model.get_all_variables():
@@ -489,10 +512,10 @@ class LookupTableAnalyser(object):
             source_expr = expr.get_original_of_clone()
         else:
             source_expr = None
-        if source_expr:
+        if source_expr and source_expr.getAttributeNS(NSS['lut'], u'possible', '') != '':
             LookupTableAnalyser.copy_lut_annotations(source_expr, expr)
             state = self.create_state_from_annotations(source_expr)
-            print expr, state.suitable(), state.reason()
+            DEBUG('lookup-tables', "No need to analyse clone", expr.xml(), state.suitable(), state.reason())
         else:
             # Initialise the indicators
             state = self.LUTState()
@@ -626,7 +649,10 @@ class LookupTableAnalyser(object):
             e = ops.next()
             self.analyse_for_lut(e, checker_fn)
         for expr in solver_info.get_modifiable_mathematics():
-            self.analyse_for_lut(e, checker_fn)
+            self.analyse_for_lut(expr, checker_fn)
+
+        if solver_info.has_modifiable_mathematics():
+            self._determine_unneeded_tables()
 
         # Assign names (numbers) to the lookup tables found.
         # Also work out which ones can share index variables into the
@@ -654,6 +680,40 @@ class LookupTableAnalyser(object):
             expr.classify_variables(root=True,
                                     dependencies_only=True,
                                     needs_special_treatment=self.calculate_dependencies)
+
+    def _find_tables(self, expr, table_dict):
+        """Helper method for _determine_unneeded_tables."""
+        if expr.getAttributeNS(NSS['lut'], u'possible', '') == u'yes':
+            table_dict[id(expr)] = expr
+        else:
+            for e in self.doc.model.xml_element_children(expr):
+                self._find_tables(e, table_dict)
+
+    def _determine_unneeded_tables(self):
+        """Determine whether some expressions identified as lookup tables aren't actually used.
+        
+        This occurs if some ODEs have been linearised, in which case the original definitions
+        will have been analysed for lookup tables, but aren't actually used.
+        
+        TODO: The original definitions might be used for computing derived quantities...
+        """
+        original_tables = {}
+        new_tables = {}
+        def f(exprs, table_dict):
+            exprs = filter(lambda n: isinstance(n, (mathml_ci, mathml_apply, mathml_piecewise)), exprs)
+            for node in self.doc.model.calculate_extended_dependencies(exprs):
+                if isinstance(node, mathml_apply):
+                    self._find_tables(node, table_dict)
+        for u, t, g, h in self.solver_info.get_linearised_odes():
+            original_defn = u._get_ode_dependency(t)
+            f([original_defn], original_tables)
+            f([g, h], new_tables)
+        for id_ in set(original_tables.keys()) - set(new_tables.keys()):
+            expr = original_tables[id_]
+            self.remove_lut_annotations(expr)
+            expr.xml_set_attribute((u'lut:reason', NSS['lut']),
+                                   u'Expression will not be used in generated code.')
+            DEBUG('lookup-tables', 'Not annotating probably unused expression', expr)
 
     def calculate_dependencies(self, expr):
         """Determine the dependencies of an expression that might use a lookup table.
@@ -754,7 +814,7 @@ class LinearityAnalyser(object):
                 # Recurse into defining expression
                 src_var = var.get_source_variable(recurse=True)
                 src_expr = self._get_rhs(src_var._get_dependencies()[0])
-                DEBUG('find_linear_deps', "--recurse for", src_var.name,
+                DEBUG('find-linear-deps', "--recurse for", src_var.name,
                       "to", src_expr)
                 result = self._check_expr(src_expr, state_var, bad_vars)
             else:
@@ -835,7 +895,7 @@ class LinearityAnalyser(object):
                 result = kind.None
             else:
                 result = self._check_expr(child, state_var, bad_vars)
-        DEBUG('find_linear_deps', "Expression", expr, "gives result", result)
+        DEBUG('find-linear-deps', "Expression", expr, "gives result", result)
         return result
 
     def find_linear_odes(self, state_vars, V, free_var):
