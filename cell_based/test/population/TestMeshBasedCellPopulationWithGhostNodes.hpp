@@ -680,7 +680,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements   cell_based/test/data/TestCellPopulationWritersIn3dWithGhostNodes/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes      cell_based/test/data/TestCellPopulationWritersIn3dWithGhostNodes/results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cell_based/test/data/TestCellPopulationWritersIn3dWithGhostNodes/results.vizcelltypes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellpopulationareas.dat       cell_based/test/data/TestCellPopulationWritersIn3dWithGhostNodes/tissueareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellpopulationareas.dat       cell_based/test/data/TestCellPopulationWritersIn3dWithGhostNodes/cellpopulationareas.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestCellPopulationWritersIn3dWithGhostNodes/cellareas.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "voronoi.dat           cell_based/test/data/TestCellPopulationWritersIn3dWithGhostNodes/voronoi.dat").c_str()), 0);
 

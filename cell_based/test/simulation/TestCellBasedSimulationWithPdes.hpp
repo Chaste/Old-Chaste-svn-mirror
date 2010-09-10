@@ -611,7 +611,7 @@ public:
         // Work out where the previous test wrote its files
         OutputFileHandler handler("TestSpheroidStatistics", false);
         std::string areas_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/cellpopulationareas.dat";
-        TS_ASSERT_EQUALS(system(("diff " + areas_results_file + " cell_based/test/data/TestSpheroidStatistics/tissueareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + areas_results_file + " cell_based/test/data/TestSpheroidStatistics/cellpopulationareas.dat").c_str()), 0);
 
         std::string dist_results_file = handler.GetOutputDirectoryFullPath() + "results_from_time_0/radial_dist.dat";
         TS_ASSERT_EQUALS(system(("diff " + dist_results_file + " cell_based/test/data/TestSpheroidStatistics/radial_dist.dat").c_str()), 0);
@@ -1341,12 +1341,12 @@ public:
 
 		std::string output_directory = "TestCellBasedSimulationOutputParameters";
 		OutputFileHandler output_file_handler(output_directory, false);
-		out_stream parameter_file = output_file_handler.OpenOutputFile("cell_population_sim_with_pde_results.parameters");
+		out_stream parameter_file = output_file_handler.OpenOutputFile("cell_based_sim_with_pde_results.parameters");
 		simulator.OutputSimulationParameters(parameter_file);
 		parameter_file->close();
 
 		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
-		TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_population_sim_with_pde_results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/tissue_sim_with_pde_results.parameters").c_str()), 0);
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_based_sim_with_pde_results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/cell_based_sim_with_pde_results.parameters").c_str()), 0);
 
 		///\todo check output of simulator.OutputSimulationSetup();
     }

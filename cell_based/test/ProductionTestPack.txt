@@ -14,8 +14,8 @@ odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
 simulation/TestCellBasedSimulation3d.hpp
 simulation/TestCellBasedSimulationWithPdes.hpp
-tissue/TestCellKillers.hpp
-tissue/TestCellwiseData.hpp
-tissue/TestMeshBasedCellPopulation.hpp
-tissue/TestNodeBasedCellPopulation.hpp
-tissue/TestPdeAndBoundaryConditions.hpp
+population/TestCellKillers.hpp
+population/TestCellwiseData.hpp
+population/TestMeshBasedCellPopulation.hpp
+population/TestNodeBasedCellPopulation.hpp
+population/TestPdeAndBoundaryConditions.hpp

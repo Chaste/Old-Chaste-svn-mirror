@@ -659,7 +659,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements   cell_based/test/data/TestCellPopulationWritersIn2d/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes      cell_based/test/data/TestCellPopulationWritersIn2d/results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cell_based/test/data/TestCellPopulationWritersIn2d/results.vizcelltypes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellpopulationareas.dat       cell_based/test/data/TestCellPopulationWritersIn2d/tissueareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellpopulationareas.dat       cell_based/test/data/TestCellPopulationWritersIn2d/cellpopulationareas.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestCellPopulationWritersIn2d/cellareas.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat         cell_based/test/data/TestCellPopulationWritersIn2d/cellmutationstates.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "voronoi.dat           cell_based/test/data/TestCellPopulationWritersIn2d/voronoi.dat").c_str()), 0);
@@ -748,7 +748,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizelements   cell_based/test/data/TestCellPopulationWritersIn3d/results.vizelements").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.viznodes      cell_based/test/data/TestCellPopulationWritersIn3d/results.viznodes").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.vizcelltypes  cell_based/test/data/TestCellPopulationWritersIn3d/results.vizcelltypes").c_str()), 0);
-        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellpopulationareas.dat       cell_based/test/data/TestCellPopulationWritersIn3d/tissueareas.dat").c_str()), 0);
+        TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellpopulationareas.dat       cell_based/test/data/TestCellPopulationWritersIn3d/cellpopulationareas.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellareas.dat         cell_based/test/data/TestCellPopulationWritersIn3d/cellareas.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "cellmutationstates.dat         cell_based/test/data/TestCellPopulationWritersIn3d/cellmutationstates.dat").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff " + results_dir + "voronoi.dat           cell_based/test/data/TestCellPopulationWritersIn3d/voronoi.dat").c_str()), 0);

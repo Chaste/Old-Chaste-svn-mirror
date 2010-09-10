@@ -27,10 +27,10 @@ simulation/TestCellBasedSimulation3d.hpp
 simulation/TestCellBasedSimulationWithNodeBasedCellPopulation.hpp
 simulation/TestCellBasedSimulationWithPdes.hpp
 simulation/TestCellBasedSimulationWithPdesAssembler.hpp
-tissue/TestCellKillers.hpp
-tissue/TestCellwiseData.hpp
-tissue/TestForces.hpp
-tissue/TestMeshBasedCellPopulation.hpp
-tissue/TestMeshBasedCellPopulationWithGhostNodes.hpp
-tissue/TestNodeBasedCellPopulation.hpp
-tissue/TestPdeAndBoundaryConditions.hpp
+population/TestCellKillers.hpp
+population/TestCellwiseData.hpp
+population/TestForces.hpp
+population/TestMeshBasedCellPopulation.hpp
+population/TestMeshBasedCellPopulationWithGhostNodes.hpp
+population/TestNodeBasedCellPopulation.hpp
+population/TestPdeAndBoundaryConditions.hpp
