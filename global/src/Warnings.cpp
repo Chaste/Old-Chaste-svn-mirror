@@ -87,7 +87,7 @@ Warnings::AddWarning(const std::string& rMessage, const std::string& rFilename, 
     
     std::stringstream line_number_stream;
     line_number_stream << lineNumber;
-    std::string context("Chaste warning: " + rFilename + ":"  + line_number_stream.str()  + ": ");
+    std::string context("Chaste warning: in file " + rFilename + " at line "  + line_number_stream.str()  + ": ");
     std::pair<std::string, std::string> item(context, rMessage);
     
     if (onlyOnce)

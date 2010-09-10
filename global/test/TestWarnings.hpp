@@ -56,12 +56,6 @@ public:
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 0u);
     }
     
-    void TestWarningsNoisy()
-    {
-        TS_ASSERT_THROWS_THIS(Warnings::Instance()->GetNextWarningMessage(),"There are no warnings");
-        WARNING("This one will get printed.");
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-    }
     
     void TestWarningsWithLogging()
     {
@@ -78,7 +72,7 @@ public:
     
     void TestWarningOnceOnly()
     {
-        for(unsigned year=1970; year<2200; year+=4)
+        for(unsigned year=1970; year<2100; year+=4)
         {
             WARN_ONCE_ONLY("Don't get your hopes up, England are not going to win the World Cup.");
         }
@@ -99,6 +93,15 @@ public:
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
         Warnings::QuietDestroy();
     }
+
+    void TestLastTestWithWarningsIsNoisy() //Needs to happen last (after any QuietDestroy()), so that a warning is printed 
+    {
+        TS_ASSERT_THROWS_THIS(Warnings::Instance()->GetNextWarningMessage(),"There are no warnings");
+        WARNING("This one will get printed.");
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
+    }
+
+
  };
 
 #endif //_TESTWARNINGS_HPP_
