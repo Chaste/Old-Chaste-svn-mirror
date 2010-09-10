@@ -4536,10 +4536,12 @@ def get_options(args, default_options=None):
                       action='store_true', default=False,
                       help="experimental Jacobian analysis; implies -t Maple")
     # Options specific to Maple output
-    parser.add_option('--omit-constants',
-                      action='store_true', default=False,
-                      help="when generating Maple code, don't include "
-                      "assignments of constants")
+#    parser.add_option('--omit-constants',
+#                      action='store_true', default=False,
+#                      help="when generating Maple code, don't include assignments of constants")
+    parser.add_option('--dont-omit-constants',
+                      dest='omit_constants', action='store_false', default=True,
+                      help="when generating Maple code, include assignments of constants")
     parser.add_option('--compute-full-jacobian',
                       action='store_true', default=False,
                       help="make generated Maple code compute the full Jacobian"
