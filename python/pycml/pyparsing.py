@@ -2536,7 +2536,7 @@ class OnlyOnce(object):
             self.called = True
             return results
         raise ParseException(s,l,"")
-    def reset():
+    def reset(self):
         self.called = False
 
 def traceParseAction(f):

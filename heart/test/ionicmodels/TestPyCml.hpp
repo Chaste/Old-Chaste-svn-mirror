@@ -309,6 +309,14 @@ public:
                                    "Lr91GetIIonicBackwardEuler", 1000, false);
         TS_ASSERT_DELTA( be.GetIIonic(), i_ionic, 1e-3);
 
+        // With zero g_Na
+        be.SetParameter(0u, 0.0);
+        be.SetStateVariables(be.GetInitialConditions());
+        RunOdeSolverWithIonicModel(&be,
+                                   end_time,
+                                   "Lr91BEFromPyCmlZeroGna");
+        CheckCellModelResults("Lr91BEFromPyCmlZeroGna", "Lr91FromPyCmlZeroGna", 1e-2);
+
 #ifdef CHASTE_CVODE
         // CVODE
         double max_dt = 1.0; //ms
