@@ -121,6 +121,9 @@ parser.add_option('-y', '--dll', '--dynamically-loadable',
                   "shared library and dynamically loaded.  If this option is "
                   "given, only one type of output will be generated (so you "
                   "can't combine, e.g. --cvode --normal).")
+parser.add_option('--assume-valid',
+                  action='store_true', default=False,
+                  help="skip some of the model validation checks")
 options, args = parser.parse_args()
 
 option_names = ['opt', 'normal', 'cvode', 'backward_euler']
@@ -203,7 +206,7 @@ if options.dynamically_loadable:
     essential_options.append('-y')
 
 # Whether to do a separate validation run
-if number_of_options > 1:
+if number_of_options > 1 or options.assume_valid:
     essential_options.append('--assume-valid')
 
 # What options should be passed on to PyCml?
@@ -274,7 +277,7 @@ def convert(model, output_dir):
     if not output_dir:
         output_dir = model_dir
 
-    if number_of_options > 1:
+    if number_of_options > 1 and not options.assume_valid:
         # Run validation separately
         cmd = [os.path.join(pycml_dir, 'validator.py')] + validation_options + [model]
         do_cmd(cmd, [])
