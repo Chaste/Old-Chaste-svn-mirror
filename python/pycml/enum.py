@@ -3,6 +3,7 @@
 # Submitter: Zoran Isailovski
 # Version: 1.6
 # Updated: 2005/05/09
+# License: http://www.python.org/psf/license/
 
 def Enum(*names):
    ##assert names, "Empty enums are not supported" # <- Don't like empty enums? Uncomment!
