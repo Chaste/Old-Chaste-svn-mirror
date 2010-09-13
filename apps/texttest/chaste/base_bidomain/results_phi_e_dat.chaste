@@ -248038,7 +248038,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -5.00756
 -5.00745
 -5.00523
--4.98653
+-4.98654
 -4.87815
 -4.41072
 -2.85702
@@ -256902,7 +256902,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -0.239183
 -0.226306
 -0.170743
-0.0203577
+0.0203578
 0.528915
 1.48904
 2.18159
@@ -259355,7 +259355,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -7.54053
 -7.54057
 -7.5409
--7.54218
+-7.54219
 -7.54116
 -7.49804
 -7.23489
@@ -259834,7 +259834,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 2.7922
 2.7922
 -7.54097
--7.54082
+-7.54083
 -7.54073
 -7.54071
 -7.54081
@@ -262414,7 +262414,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 2.7902
 2.79195
 2.79217
-2.79219
+2.7922
 2.7922
 -7.54052
 -7.54052
@@ -265241,7 +265241,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -5.9848
 -5.26033
 -3.30493
-0.0441975
+0.0441976
 1.95268
 2.59039
 2.7562
@@ -265722,7 +265722,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -0.287142
 -0.267829
 -0.192583
-0.0441897
+0.0441898
 0.630907
 1.68733
 2.46257
@@ -267207,7 +267207,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 2.7922
 2.7922
 2.7922
-2.79219
+2.7922
 2.7922
 2.7922
 2.7922
@@ -268591,7 +268591,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.3311
 3.33113
 -9.41512
--9.41512
+-9.41513
 -9.41514
 -9.41534
 -9.4166
@@ -268808,7 +268808,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -0.0542448
 -0.0491702
 -0.0236921
-0.0734432
+0.0734433
 0.363182
 1.03303
 2.12138
@@ -269189,7 +269189,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -7.89931
 -6.56213
 -3.89725
--0.0018965
+-0.00189649
 2.21103
 3.01772
 3.26013
@@ -269249,7 +269249,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -0.133857
 -0.127917
 -0.100901
--0.00260153
+-0.00260151
 0.284848
 0.949627
 2.08129
@@ -269822,7 +269822,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.33136
 3.3313
 3.33118
-3.33111
+3.33112
 3.33111
 3.33113
 3.33114
@@ -270512,7 +270512,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -7.85207
 -6.53854
 -3.92278
--0.0325563
+-0.0325562
 2.21802
 3.03152
 3.2678
@@ -270574,7 +270574,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -0.131332
 -0.0325659
 0.253776
-0.918374
+0.918375
 2.06697
 2.92222
 3.23325
@@ -270821,7 +270821,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -9.41514
 -9.41517
 -9.41508
--9.41193
+-9.41194
 -9.38193
 -9.20984
 -8.57223
@@ -270931,7 +270931,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -8.99112
 -8.37731
 -6.89841
--4.1253
+-4.12529
 -0.131566
 2.17796
 3.01826
@@ -271166,7 +271166,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.33116
 3.33114
 3.33112
-3.33112
+3.33113
 3.33113
 3.33114
 3.33114
@@ -272125,7 +272125,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -9.41546
 -9.41383
 -9.38865
--9.22607
+-9.22608
 -8.59565
 -7.03957
 -4.16398
@@ -272771,7 +272771,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.33114
 -0.0516968
 -0.134385
--0.158997
+-0.158996
 -0.165548
 -0.166808
 -0.165819
@@ -273195,7 +273195,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -4.19268
 -4.19416
 -4.19245
--4.18043
+-4.18042
 -4.1254
 -3.92332
 -3.32094
@@ -273210,7 +273210,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.33116
 3.33114
 3.33114
--0.0516968
+-0.0516967
 -0.134385
 -0.158996
 -0.165548
@@ -273651,7 +273651,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.33116
 3.33114
 3.33114
--0.0516967
+-0.0516966
 -0.134385
 -0.158996
 -0.165548
@@ -274082,7 +274082,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -3.92332
 -3.32094
 -1.81467
-0.918226
+0.918227
 2.5652
 3.13686
 3.29455
@@ -274098,7 +274098,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -0.165548
 -0.166808
 -0.165819
--0.159394
+-0.159393
 -0.131591
 -0.0328261
 0.253525
@@ -274378,7 +274378,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -4.19264
 -0.165588
 2.16186
-3.01167
+3.01168
 3.26201
 3.3199
 3.32992
@@ -274439,7 +274439,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -8.52762
 -6.99925
 -4.18042
--0.159396
+-0.159395
 2.16616
 3.01415
 3.26287
@@ -274754,7 +274754,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -8.63881
 -7.06682
 -4.08282
--0.0550964
+-0.0550963
 2.12507
 2.96794
 3.23896
@@ -275652,7 +275652,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -9.41521
 -9.41548
 -9.41398
--9.38892
+-9.38893
 -9.22603
 -8.59497
 -7.03895
@@ -275696,7 +275696,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -9.41132
 -9.37975
 -9.20431
--8.56434
+-8.56435
 -7.02413
 -4.19283
 -0.166063
@@ -275732,7 +275732,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.33114
 -9.41783
 -9.41394
--9.41203
+-9.41204
 -9.41132
 -9.41089
 -9.40716
@@ -276173,7 +276173,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.33114
 -9.41828
 -9.41422
--9.41225
+-9.41226
 -9.41154
 -9.41119
 -9.40755
@@ -276203,7 +276203,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -8.52424
 -6.99727
 -4.18173
--0.161551
+-0.16155
 2.16585
 3.0148
 3.26343
@@ -276279,7 +276279,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -4.08728
 -4.16609
 -4.18763
--4.19414
+-4.19413
 -4.19563
 -4.1939
 -4.18178
@@ -276677,7 +276677,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.33114
 -8.62611
 -8.58363
--8.56057
+-8.56058
 -8.55362
 -8.55168
 -8.54668
@@ -276959,7 +276959,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -8.59858
 -7.04828
 -4.11431
--0.087311
+-0.0873109
 2.12844
 2.9796
 3.24665
@@ -277100,7 +277100,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -9.18373
 -9.17861
 -9.17681
--9.17046
+-9.17047
 -9.1301
 -8.94365
 -8.32685
@@ -277620,7 +277620,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.33117
 3.33114
 3.33114
--0.1504
+-0.150399
 -0.245503
 -0.271916
 -0.27847
@@ -277883,7 +277883,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.9266
 -8.33732
 -3.86052
-0.705332
+0.705333
 3.10542
 4.06825
 4.39859
@@ -278022,7 +278022,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -8.36813
 -8.35696
 -8.33718
--8.33009
+-8.3301
 -8.32834
 -8.32164
 -8.27066
@@ -278034,7 +278034,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.3193
 4.14709
 4.42452
-4.50273
+4.50274
 4.5211
 4.52463
 4.52517
@@ -278106,7 +278106,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.03461
 4.05993
 4.06849
-4.07118
+4.07119
 4.07204
 4.07259
 4.0742
@@ -278147,7 +278147,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52522
 4.48616
 4.49256
-4.49535
+4.49536
 4.49631
 4.49658
 4.49667
@@ -278212,7 +278212,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52505
 4.52511
 4.52512
-4.52511
+4.52512
 4.52511
 4.52511
 4.52512
@@ -278415,7 +278415,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.50371
 4.5219
 4.52491
-4.52523
+4.52524
 4.52524
 4.52523
 -13.7382
@@ -278806,7 +278806,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -13.5597
 -11.7905
 -8.29019
--3.9602
+-3.96019
 0.604203
 3.14248
 4.11487
@@ -278954,7 +278954,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 0.785798
 1.13045
 1.87311
-3.10373
+3.10374
 4.0298
 4.39048
 4.49918
@@ -279008,7 +279008,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52522
 4.39859
 4.41614
-4.42269
+4.4227
 4.42485
 4.42547
 4.42574
@@ -279626,7 +279626,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.8458
 -8.32033
 -3.94304
-0.628389
+0.62839
 3.13864
 4.10455
 4.4189
@@ -279827,7 +279827,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52523
 0.69699
 0.629025
-0.603801
+0.603802
 0.595969
 0.594368
 0.596163
@@ -280151,7 +280151,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.7443
 -8.26747
 -3.96509
-0.595793
+0.595794
 3.14473
 4.12018
 4.42854
@@ -280214,7 +280214,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -9.8291
 -7.16874
 -3.52777
-0.776175
+0.776176
 3.21892
 4.14657
 4.43649
@@ -280294,7 +280294,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 3.14356
 3.14473
 3.14926
-3.1661
+3.16611
 3.21892
 3.35445
 3.62934
@@ -280747,7 +280747,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52599
 4.5254
 4.52524
-4.52522
+4.52523
 4.52522
 4.07203
 4.10484
@@ -280887,7 +280887,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52523
 4.52523
 4.52523
-4.52522
+4.52523
 4.52522
 4.52522
 4.52523
@@ -280949,7 +280949,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.8444
 -8.32025
 -3.94383
-0.627869
+0.62787
 3.13879
 4.10489
 4.41907
@@ -281470,11 +281470,11 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -14.2084
 -14.1913
 -14.0742
--13.5179
+-13.518
 -11.744
 -8.26756
 -3.96527
-0.595743
+0.595744
 3.14482
 4.12026
 4.42855
@@ -281992,7 +281992,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -8.32065
 -8.29176
 -8.2829
--8.27977
+-8.27978
 -8.26756
 -8.2033
 -7.94399
@@ -282038,7 +282038,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 0.595747
 0.60597
 0.646175
-0.776126
+0.776127
 1.1204
 1.86384
 3.1001
@@ -282432,7 +282432,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -8.32809
 -8.32065
 -8.29176
--8.2829
+-8.28291
 -8.27978
 -8.26756
 -8.2033
@@ -282472,7 +282472,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52523
 4.52523
 0.696429
-0.628517
+0.628518
 0.603339
 0.59553
 0.593945
@@ -282511,7 +282511,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52599
 4.5254
 4.52525
-4.52522
+4.52523
 4.52522
 4.07205
 4.10486
@@ -282651,7 +282651,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52523
 4.52523
 4.52523
-4.52522
+4.52523
 4.52522
 4.52522
 4.52523
@@ -282793,7 +282793,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -14.2084
 -14.1913
 -14.0742
--13.5179
+-13.518
 -11.7441
 -8.26756
 -3.96527
@@ -282952,7 +282952,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52599
 4.5254
 4.52525
-4.52522
+4.52523
 4.52522
 4.07205
 4.10486
@@ -283033,7 +283033,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.5257
 4.52533
 4.52518
-4.52518
+4.52519
 4.52521
 4.52523
 4.52523
@@ -283092,7 +283092,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52523
 4.52523
 4.52523
-4.52522
+4.52523
 4.52522
 4.52522
 4.52523
@@ -283595,7 +283595,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.8444
 -8.32024
 -3.94383
-0.627869
+0.62787
 3.13879
 4.10489
 4.41907
@@ -283611,7 +283611,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -14.2288
 -14.2278
 -14.2132
--14.1029
+-14.103
 -13.5596
 -11.791
 -8.29155
@@ -283637,7 +283637,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.7713
 -8.28282
 -3.96794
-0.595486
+0.595487
 3.1431
 4.11849
 4.42772
@@ -283800,7 +283800,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 0.595528
 0.593942
 0.595744
-0.605967
+0.605968
 0.646173
 0.776125
 1.1204
@@ -284060,14 +284060,14 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 0.603164
 3.14238
 4.11515
-4.42559
+4.4256
 4.50617
 4.52259
 4.52504
 4.52524
 4.52523
 4.52523
--14.2293
+-14.2294
 -14.229
 -14.2288
 -14.2286
@@ -284456,7 +284456,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.9001
 -8.32732
 -3.86585
-0.693249
+0.69325
 3.10512
 4.07229
 4.40173
@@ -284662,7 +284662,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -3.96946
 -3.96527
 -3.94108
--3.84283
+-3.84282
 -3.52791
 -2.73019
 -1.02441
@@ -284682,7 +284682,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 0.595413
 0.593825
 0.595627
-0.605854
+0.605855
 0.64607
 0.776025
 1.12027
@@ -284693,7 +284693,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.5009
 4.52323
 4.52568
-4.52543
+4.52544
 4.52527
 4.52523
 4.52523
@@ -284930,7 +284930,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52523
 -14.2288
 -14.2288
--14.2287
+-14.2288
 -14.2288
 -14.2279
 -14.2136
@@ -284981,11 +284981,11 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.7619
 -8.27843
 -3.96963
-0.593329
+0.59333
 3.14345
 4.11971
 4.42846
-4.50712
+4.50713
 4.52273
 4.525
 4.52522
@@ -285002,7 +285002,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.742
 -8.26624
 -3.96544
-0.595143
+0.595144
 3.14463
 4.12038
 4.42871
@@ -285227,7 +285227,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52262
 4.52275
 4.52273
-4.5227
+4.52271
 4.52273
 4.52284
 4.52315
@@ -285560,7 +285560,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.52523
 0.694058
 0.625987
-0.600733
+0.600734
 0.592904
 0.591319
 0.593147
@@ -285568,7 +285568,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 0.643782
 0.773742
 1.11771
-1.86096
+1.86097
 3.09832
 4.03286
 4.39482
@@ -285994,7 +285994,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.28109
 4.47464
 4.51844
-4.52507
+4.52508
 4.52541
 4.52528
 4.52523
@@ -286745,7 +286745,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.6235
 -8.23111
 -4.07302
-0.48956
+0.489561
 3.18149
 4.16749
 4.45539
@@ -286954,7 +286954,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.45765
 4.46263
 4.47391
-4.49372
+4.49373
 4.51763
 4.5321
 4.53324
@@ -287123,7 +287123,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -17.0996
 -11.3388
 -3.28025
-1.73403
+1.73404
 4.27507
 5.35411
 5.74846
@@ -287470,7 +287470,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91882
 5.91882
 5.91823
-5.91848
+5.91849
 5.91858
 5.9186
 5.9186
@@ -287550,7 +287550,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.87392
 5.90851
 5.91678
-5.91848
+5.91849
 5.91878
 5.91882
 -19.0271
@@ -288265,7 +288265,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91961
 5.91902
 5.91884
-5.91881
+5.91882
 5.91881
 5.75512
 5.77425
@@ -288582,7 +288582,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91881
 5.91882
 5.91882
--17.0494
+-17.0495
 -16.9762
 -16.9392
 -16.9228
@@ -288761,7 +288761,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.9151
 5.91608
 5.91755
-5.91903
+5.91904
 5.91973
 5.91956
 5.91911
@@ -289164,7 +289164,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.90916
 5.91986
 5.92108
-5.9199
+5.91991
 5.91907
 5.91882
 5.9188
@@ -289178,7 +289178,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.89146
 5.8917
 5.89249
-5.89455
+5.89456
 5.89894
 5.90606
 5.91413
@@ -289695,7 +289695,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91882
 5.91882
 5.91882
-5.91879
+5.9188
 5.91883
 5.91883
 5.91882
@@ -289942,7 +289942,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.5106
 5.81709
 5.89893
-5.91602
+5.91603
 5.91861
 5.91883
 5.91883
@@ -291274,7 +291274,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -3.42924
 -3.43908
 -3.44025
--3.43965
+-3.43966
 -3.4274
 -3.36819
 -3.15137
@@ -291393,7 +291393,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91911
 5.91882
 5.91879
-5.9188
+5.91881
 5.91882
 5.91882
 5.91026
@@ -291453,7 +291453,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91886
 5.91882
 5.9188
-5.9188
+5.91881
 5.91881
 5.91882
 5.91882
@@ -291703,7 +291703,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.23405
 2.38348
 4.57389
-5.51061
+5.51062
 5.81709
 5.89893
 5.91602
@@ -291783,7 +291783,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.4208
 5.42949
 5.45399
-5.51061
+5.51062
 5.61375
 5.74995
 5.85793
@@ -293042,7 +293042,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -3.42739
 -3.36818
 -3.15135
--2.53412
+-2.53413
 -1.23403
 0.758126
 3.19607
@@ -293529,7 +293529,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.57387
 4.88556
 5.32691
-5.68852
+5.68853
 5.85794
 5.90918
 5.91931
@@ -293575,7 +293575,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91982
 5.92101
 5.91985
-5.91905
+5.91906
 5.91882
 5.9188
 5.91881
@@ -293615,7 +293615,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91895
 5.91964
 5.91947
-5.91905
+5.91906
 5.91882
 5.91878
 5.9188
@@ -293646,7 +293646,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91859
 5.91878
 5.91881
-5.91879
+5.9188
 5.91878
 5.91878
 5.91878
@@ -293986,7 +293986,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.41715
 5.41815
 5.42082
-5.42951
+5.42952
 5.45401
 5.51063
 5.61377
@@ -294000,7 +294000,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91882
 5.91881
 5.91882
-5.75853
+5.75854
 5.77768
 5.78507
 5.78762
@@ -294207,7 +294207,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.89023
 5.91413
 5.91832
-5.91881
+5.91882
 5.91883
 5.91883
 -19.0275
@@ -294381,7 +294381,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 1.70941
 1.70931
 1.69253
-1.6843
+1.68431
 1.68224
 1.68575
 1.70367
@@ -294393,7 +294393,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.32683
 5.75011
 5.88256
-5.91417
+5.91418
 5.91898
 5.91907
 5.91888
@@ -296278,7 +296278,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.91927
 5.91932
 5.9194
-5.91947
+5.91948
 5.91944
 5.91921
 5.91892
@@ -297159,7 +297159,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.69809
 6.69817
 6.69835
-6.69869
+6.6987
 6.69917
 6.69962
 6.69983
@@ -297310,7 +297310,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -4.64014
 2.0357
 4.87959
-6.08602
+6.08603
 6.52486
 6.65812
 6.69168
@@ -297971,7 +297971,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.69946
 6.49624
 6.51692
-6.52484
+6.52485
 6.52781
 6.52888
 6.52951
@@ -299137,7 +299137,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -4.5165
 2.06891
 4.8903
-6.09757
+6.09758
 6.53213
 6.66089
 6.69232
@@ -299277,7 +299277,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.09071
 6.09215
 6.09362
-6.09757
+6.09758
 6.10964
 6.14143
 6.21057
@@ -300971,7 +300971,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.69896
 6.69946
 6.69948
-6.69947
+6.69948
 -4.32362
 -4.60773
 -4.64381
@@ -301191,7 +301191,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.69947
 6.69947
 6.69947
-6.69947
+6.69948
 6.69948
 6.69947
 6.69947
@@ -301862,7 +301862,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -4.61867
 -4.51663
 -4.1774
--3.24015
+-3.24016
 -1.12989
 1.6257
 4.00153
@@ -302706,7 +302706,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -12.8773
 -3.24002
 2.48006
-5.01595
+5.01596
 6.14146
 6.54643
 6.66499
@@ -302735,7 +302735,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.69897
 6.69946
 6.69948
-6.69947
+6.69948
 -4.32351
 -4.60764
 -4.64373
@@ -302820,7 +302820,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.69949
 6.69947
 6.69947
-6.49747
+6.49748
 6.51815
 6.52612
 6.52911
@@ -302955,7 +302955,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.69947
 6.69947
 6.69947
-6.69947
+6.69948
 6.69948
 6.69947
 6.69947
@@ -303564,7 +303564,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -20.1126
 -19.9154
 -18.9931
--14.9
+-14.9001
 -4.17673
 2.18169
 4.92446
@@ -304348,7 +304348,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.09165
 6.53008
 6.66081
-6.69265
+6.69266
 6.69869
 6.69947
 6.6995
@@ -304372,7 +304372,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.69303
 6.69874
 6.69946
-6.69948
+6.69949
 6.69948
 -20.4201
 -20.419
@@ -304846,7 +304846,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -20.148
 -19.3578
 -15.52
--4.69023
+-4.69024
 2.0106
 4.88502
 6.10984
@@ -304941,7 +304941,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.69958
 6.6995
 6.69948
--4.39909
+-4.3991
 -4.6858
 -4.72053
 -4.72235
@@ -305456,7 +305456,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.1899
 6.254
 6.36739
-6.51849
+6.5185
 6.64303
 6.69751
 6.70659
@@ -305583,7 +305583,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.69951
 6.6995
 6.69949
-6.69946
+6.69947
 6.69945
 6.69945
 6.69946
@@ -306814,7 +306814,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.04207
 7.04641
 7.04808
-7.04867
+7.04868
 7.049
 7.04963
 7.05135
@@ -307712,7 +307712,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10445
 7.10443
 7.10444
-7.10444
+7.10445
 7.08707
 7.09103
 7.09273
@@ -307933,7 +307933,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -20.5287
 -19.9686
 -16.7716
--7.09576
+-7.09577
 1.4562
 5.06444
 6.38888
@@ -309196,7 +309196,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -7.14923
 1.43665
 5.05655
-6.38376
+6.38377
 6.88635
 7.04877
 7.09274
@@ -309761,7 +309761,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.8362
 -15.1895
 -4.76358
-2.28029
+2.28028
 5.26534
 6.45302
 6.91271
@@ -309794,7 +309794,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10446
 -6.59122
 -7.02994
--7.14929
+-7.1493
 -7.16605
 -7.15663
 -7.09686
@@ -310237,7 +310237,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -7.02994
 -7.1493
 -7.16605
--7.15663
+-7.15664
 -7.09687
 -6.87327
 -6.22047
@@ -310251,7 +310251,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.07741
 7.09999
 7.10405
-7.10448
+7.10449
 7.10447
 7.10446
 1.49645
@@ -310259,7 +310259,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 1.43644
 1.43385
 1.43657
-1.45563
+1.45562
 1.52959
 1.75295
 2.28029
@@ -310411,7 +310411,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10425
 7.1043
 7.10439
-7.10448
+7.10449
 7.10456
 7.10456
 7.1045
@@ -310558,7 +310558,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -20.5388
 -19.9761
 -16.7929
--7.15654
+-7.15655
 1.4366
 5.05958
 6.38705
@@ -310692,7 +310692,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.07741
 7.09999
 7.10405
-7.10448
+7.10449
 7.10447
 7.10446
 1.49645
@@ -310852,7 +310852,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10425
 7.1043
 7.10439
-7.10448
+7.10449
 7.10456
 7.10456
 7.1045
@@ -311198,7 +311198,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10474
 7.1045
 7.10445
-7.10444
+7.10445
 6.85558
 6.87821
 6.88633
@@ -311564,7 +311564,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -7.09683
 -6.87322
 -6.22041
--4.76351
+-4.76352
 -2.21903
 1.51783
 4.40713
@@ -311639,7 +311639,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10474
 7.1045
 7.10445
-7.10444
+7.10445
 6.85558
 6.87821
 6.88633
@@ -311779,7 +311779,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10446
 7.10446
 7.10445
-7.10444
+7.10445
 7.10444
 7.10445
 7.10445
@@ -312045,7 +312045,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.05894
 5.05957
 5.06445
-5.08261
+5.08262
 5.13619
 5.26532
 5.51465
@@ -312080,7 +312080,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10474
 7.1045
 7.10445
-7.10444
+7.10445
 6.85558
 6.87822
 6.88634
@@ -312220,7 +312220,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10446
 7.10446
 7.10445
-7.10444
+7.10445
 7.10444
 7.10445
 7.10445
@@ -312305,7 +312305,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 1.43381
 5.05882
 6.38598
-6.88952
+6.88953
 7.05048
 7.09333
 7.10266
@@ -312444,7 +312444,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -7.16596
 -7.15658
 -7.09677
--6.87302
+-6.87303
 -6.22001
 -4.76307
 -2.21871
@@ -312610,7 +312610,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10413
 7.10424
 7.10425
-7.10423
+7.10424
 7.10423
 7.10423
 7.10426
@@ -313321,7 +313321,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10447
 7.10446
 -6.59842
--7.0383
+-7.03831
 -7.15818
 -7.17517
 -7.16563
@@ -313471,7 +313471,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10217
 7.10266
 7.10279
-7.10278
+7.10279
 7.10278
 7.10281
 7.10292
@@ -313763,7 +313763,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10446
 -6.63512
 -7.07576
--7.19548
+-7.19549
 -7.2122
 -7.20197
 -7.13925
@@ -314843,7 +314843,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.10451
 7.10451
 7.1045
-7.10448
+7.10449
 7.10446
 7.10443
 7.10443
@@ -314948,7 +314948,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.8106
 -17.4389
 -10.9937
-0.246764
+0.246763
 4.94869
 6.58159
 7.18835
@@ -315086,7 +315086,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49133
 -10.301
 -10.7645
--10.9506
+-10.9507
 -10.9975
 -10.9891
 -10.8909
@@ -315347,7 +315347,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7594
 -17.383
 -11.2404
-0.0939732
+0.0939731
 5.05144
 6.62503
 7.2032
@@ -315368,7 +315368,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7447
 -17.4255
 -11.4438
-0.00921423
+0.00921414
 5.07741
 6.63939
 7.21177
@@ -315389,7 +315389,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4403
 -11.4887
--0.00682317
+-0.00682327
 5.0841
 6.64302
 7.21475
@@ -315410,7 +315410,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7455
 -17.4381
 -11.4767
--0.00225994
+-0.00226003
 5.0874
 6.6445
 7.21598
@@ -315431,7 +315431,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7446
 -17.4047
 -11.376
-0.0325659
+0.0325658
 5.09663
 6.64741
 7.21719
@@ -315547,11 +315547,11 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49138
 7.49138
 0.328669
-0.0939741
-0.00560044
--0.0108923
--0.00623216
-0.0287186
+0.093974
+0.00560035
+-0.0108924
+-0.00623225
+0.0287185
 0.160216
 0.555491
 1.4774
@@ -315788,7 +315788,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7448
 -17.4258
 -11.4477
-0.00542119
+0.0054211
 5.07771
 6.63947
 7.21182
@@ -315809,7 +315809,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7296
 -17.4693
 -11.6591
--0.0865481
+-0.0865482
 5.10917
 6.65276
 7.21992
@@ -315851,7 +315851,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.73
 -17.4809
 -11.6865
--0.0935328
+-0.0935329
 5.1213
 6.65699
 7.22401
@@ -315872,7 +315872,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7271
 -17.4461
 -11.5829
--0.0566098
+-0.0566099
 5.13079
 6.65986
 7.22525
@@ -315893,7 +315893,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.699
 -17.3015
 -11.195
-0.0785644
+0.0785643
 5.16284
 6.66886
 7.22818
@@ -315988,12 +315988,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49139
 7.49137
 0.263922
-0.00903958
--0.0865463
+0.00903949
+-0.0865464
 -0.10042
--0.0938365
--0.0568292
-0.0784042
+-0.0938366
+-0.0568293
+0.0784041
 0.481052
 1.42241
 2.93067
@@ -316229,7 +316229,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7442
 -17.4413
 -11.4972
--0.0125459
+-0.012546
 5.08417
 6.64295
 7.21475
@@ -316292,7 +316292,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7295
 -17.4962
 -11.7302
--0.106147
+-0.106148
 5.13005
 6.65931
 7.22689
@@ -316313,7 +316313,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7262
 -17.4606
 -11.6245
--0.0681719
+-0.068172
 5.13962
 6.66218
 7.22816
@@ -316334,7 +316334,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6971
 -17.3149
 -11.2326
-0.0691927
+0.0691926
 5.17198
 6.6712
 7.23111
@@ -316409,7 +316409,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49136
 -10.997
 -11.4933
--11.7059
+-11.706
 -11.7464
 -11.73
 -11.6242
@@ -316429,12 +316429,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49139
 7.49137
 0.24571
--0.00846082
+-0.00846091
 -0.101726
 -0.113515
 -0.106048
--0.0680081
-0.0693859
+-0.0680082
+0.0693858
 0.475805
 1.42294
 2.93694
@@ -316670,7 +316670,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4456
 -11.5082
--0.0160415
+-0.0160416
 5.0853
 6.64372
 7.21575
@@ -316733,7 +316733,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7298
 -17.5001
 -11.739
--0.107899
+-0.1079
 5.13115
 6.65959
 7.22795
@@ -316754,7 +316754,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7262
 -17.4643
 -11.6324
--0.0695658
+-0.0695659
 5.14072
 6.66247
 7.22925
@@ -316775,7 +316775,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6969
 -17.3181
 -11.2387
-0.068679
+0.0686789
 5.17315
 6.67149
 7.23219
@@ -316870,13 +316870,13 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49138
 7.49136
 0.240882
--0.0120205
+-0.0120206
 -0.104205
 -0.115504
--0.107897
--0.069507
-0.0687558
-0.476601
+-0.107898
+-0.0695071
+0.0687557
+0.4766
 1.42528
 2.93929
 4.61787
@@ -316994,7 +316994,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49133
 7.49133
 7.49134
-7.49134
+7.49135
 7.48599
 7.48756
 7.48822
@@ -317074,7 +317074,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49134
 7.49134
 7.49134
-7.49134
+7.49135
 7.49135
 7.49135
 7.49135
@@ -317111,7 +317111,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4468
 -11.5114
--0.0172286
+-0.0172287
 5.08534
 6.64393
 7.21608
@@ -317195,7 +317195,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7262
 -17.4653
 -11.6352
--0.070666
+-0.0706661
 5.14049
 6.66258
 7.22965
@@ -317216,7 +317216,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6968
 -17.3189
 -11.241
-0.0678241
+0.067824
 5.17294
 6.6716
 7.2326
@@ -317237,7 +317237,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.5281
 -16.8372
 -10.0533
-0.476018
+0.476017
 5.26297
 6.69593
 7.24023
@@ -317311,12 +317311,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49137
 7.49136
 0.239346
--0.01326
--0.105344
+-0.0132601
+-0.105345
 -0.116698
--0.109139
--0.0706651
-0.0678399
+-0.10914
+-0.0706652
+0.0678398
 0.476035
 1.42501
 2.9389
@@ -317552,7 +317552,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4471
 -11.5125
--0.0177277
+-0.0177278
 5.0853
 6.644
 7.21619
@@ -317636,7 +317636,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7262
 -17.4656
 -11.6363
--0.0712751
+-0.0712752
 5.14039
 6.66268
 7.22979
@@ -317657,7 +317657,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6968
 -17.3192
 -11.242
-0.0672651
+0.067265
 5.17284
 6.6717
 7.23273
@@ -317751,13 +317751,13 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49133
 7.49137
 7.49136
-0.238807
--0.0137757
+0.238806
+-0.0137758
 -0.105908
 -0.117321
 -0.109786
--0.0712894
-0.0672651
+-0.0712895
+0.067265
 0.475509
 1.42451
 2.93841
@@ -317993,7 +317993,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4472
 -11.5129
--0.0179033
+-0.0179034
 5.0853
 6.64404
 7.21622
@@ -318014,7 +318014,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7296
 -17.4909
 -11.7208
--0.106357
+-0.106358
 5.11857
 6.6563
 7.22421
@@ -318077,7 +318077,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7262
 -17.4657
 -11.6367
--0.0714808
+-0.0714809
 5.1404
 6.66273
 7.22982
@@ -318098,7 +318098,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6968
 -17.3193
 -11.2424
-0.0670664
+0.0670663
 5.17284
 6.67174
 7.23276
@@ -318192,13 +318192,13 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49133
 7.49137
 7.49136
-0.23863
--0.0139546
+0.238629
+-0.0139547
 -0.106108
 -0.117537
 -0.110002
--0.0714977
-0.0670637
+-0.0714978
+0.0670636
 0.475306
 1.42431
 2.93824
@@ -318229,7 +318229,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.3458
 7.45377
 7.48513
-7.49125
+7.49126
 7.49171
 7.49148
 7.49138
@@ -318434,7 +318434,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4473
 -11.513
--0.0179521
+-0.0179522
 5.0853
 6.64405
 7.21622
@@ -318518,7 +318518,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7262
 -17.4657
 -11.6368
--0.0715292
+-0.0715293
 5.14041
 6.66274
 7.22983
@@ -318539,7 +318539,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6968
 -17.3193
 -11.2425
-0.0670182
+0.0670181
 5.17286
 6.67176
 7.23277
@@ -318634,12 +318634,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49137
 7.49136
 0.238579
--0.0140038
+-0.0140039
 -0.106161
 -0.11759
 -0.110053
--0.0715463
-0.0670153
+-0.0715464
+0.0670152
 0.475254
 1.42425
 2.9382
@@ -318875,7 +318875,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4473
 -11.513
--0.0179628
+-0.0179629
 5.08531
 6.64405
 7.21622
@@ -318917,7 +318917,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7295
 -17.5054
 -11.7604
--0.117435
+-0.117436
 5.12738
 6.65878
 7.22719
@@ -319075,12 +319075,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49137
 7.49136
 0.238567
--0.0140144
+-0.0140145
 -0.106171
 -0.117599
 -0.110061
 -0.0715541
-0.0670073
+0.0670072
 0.475245
 1.42424
 2.9382
@@ -319130,7 +319130,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.18479
 7.3458
 7.44417
-7.4825
+7.48251
 7.49146
 7.49218
 7.49171
@@ -319150,7 +319150,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.34156
 7.40208
 7.45376
-7.4825
+7.48251
 7.49169
 7.49262
 7.49197
@@ -319316,7 +319316,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4473
 -11.513
--0.0179642
+-0.0179643
 5.08531
 6.64405
 7.21622
@@ -319400,7 +319400,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7262
 -17.4657
 -11.6369
--0.0715373
+-0.0715374
 5.14042
 6.66275
 7.22983
@@ -319421,7 +319421,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6968
 -17.3193
 -11.2426
-0.0670095
+0.0670094
 5.17286
 6.67176
 7.23277
@@ -319516,12 +319516,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49137
 7.49136
 0.238565
--0.0140158
+-0.0140159
 -0.106172
 -0.1176
 -0.110061
--0.0715544
-0.0670068
+-0.0715545
+0.0670067
 0.475245
 1.42424
 2.9382
@@ -319757,7 +319757,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4473
 -11.513
--0.0179628
+-0.0179629
 5.08531
 6.64405
 7.21622
@@ -319841,7 +319841,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7262
 -17.4657
 -11.6369
--0.0715363
+-0.0715364
 5.14042
 6.66275
 7.22983
@@ -319862,7 +319862,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6968
 -17.3193
 -11.2426
-0.0670106
+0.0670105
 5.17286
 6.67176
 7.23277
@@ -319943,7 +319943,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.6369
 -11.2426
 -10.0547
--7.39563
+-7.39564
 -3.61339
 1.04074
 4.61631
@@ -319957,12 +319957,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49137
 7.49136
 0.238566
--0.0140144
+-0.0140145
 -0.106171
 -0.117599
 -0.11006
--0.0715533
-0.0670079
+-0.0715534
+0.0670078
 0.475246
 1.42425
 2.9382
@@ -320198,7 +320198,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4473
 -11.513
--0.0179573
+-0.0179574
 5.08531
 6.64405
 7.21622
@@ -320282,7 +320282,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7262
 -17.4657
 -11.6369
--0.0715333
+-0.0715334
 5.14042
 6.66274
 7.22983
@@ -320303,7 +320303,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6968
 -17.3193
 -11.2425
-0.0670144
+0.0670143
 5.17286
 6.67176
 7.23277
@@ -320344,7 +320344,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.528
 -18.9098
 -15.7257
--7.3956
+-7.39561
 1.42425
 5.4626
 6.75102
@@ -320398,12 +320398,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49137
 7.49136
 0.238572
--0.014009
+-0.0140091
 -0.106166
 -0.117595
 -0.110057
--0.0715505
-0.0670115
+-0.0715506
+0.0670114
 0.475252
 1.42425
 2.9382
@@ -320639,7 +320639,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4472
 -11.5129
--0.0179436
+-0.0179437
 5.0853
 6.64405
 7.21623
@@ -320723,7 +320723,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7262
 -17.4657
 -11.6368
--0.0715287
+-0.0715288
 5.14041
 6.66274
 7.22983
@@ -320744,7 +320744,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6968
 -17.3193
 -11.2425
-0.0670234
+0.0670233
 5.17286
 6.67176
 7.23277
@@ -320839,12 +320839,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49137
 7.49136
 0.238589
--0.0139957
+-0.0139958
 -0.106157
--0.117588
--0.110052
--0.0715463
-0.0670199
+-0.117589
+-0.110053
+-0.0715464
+0.0670198
 0.475269
 1.42427
 2.93821
@@ -321080,7 +321080,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7445
 -17.4472
 -11.5128
--0.0179374
+-0.0179375
 5.08528
 6.64405
 7.21624
@@ -321164,7 +321164,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7261
 -17.4657
 -11.6367
--0.0715474
+-0.0715475
 5.14038
 6.66274
 7.22984
@@ -321185,7 +321185,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6967
 -17.3192
 -11.2424
-0.0670232
+0.0670231
 5.17283
 6.67176
 7.23278
@@ -321280,13 +321280,13 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49137
 7.49136
 0.238607
--0.0139914
+-0.0139915
 -0.106167
 -0.117608
 -0.110077
--0.0715674
-0.067017
-0.475296
+-0.0715675
+0.0670169
+0.475295
 1.42431
 2.9382
 4.61625
@@ -321521,7 +321521,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7443
 -17.4471
 -11.5129
--0.0181099
+-0.01811
 5.08517
 6.64406
 7.2163
@@ -321563,7 +321563,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7293
 -17.5053
 -11.7605
--0.117676
+-0.117677
 5.12724
 6.6588
 7.22728
@@ -321605,7 +321605,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.726
 -17.4657
 -11.6369
--0.0717657
+-0.0717658
 5.14028
 6.66277
 7.22992
@@ -321626,7 +321626,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6965
 -17.3191
 -11.2423
-0.0668737
+0.0668736
 5.17275
 6.6718
 7.23286
@@ -321721,11 +321721,11 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49137
 7.49136
 0.238472
--0.0141712
+-0.0141713
 -0.106385
 -0.117851
 -0.110326
--0.0717943
+-0.0717944
 0.0668578
 0.475232
 1.42428
@@ -321941,7 +321941,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.8086
 -17.4479
 -11.0206
-0.223392
+0.223391
 4.949
 6.58363
 7.19053
@@ -321962,7 +321962,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7436
 -17.4478
 -11.5154
--0.0193751
+-0.0193752
 5.0848
 6.64422
 7.21658
@@ -322045,8 +322045,8 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -20.3869
 -19.7254
 -17.4663
--11.6393
--0.0730342
+-11.6394
+-0.0730343
 5.13995
 6.66297
 7.23023
@@ -322067,7 +322067,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6958
 -17.3195
 -11.2441
-0.0658318
+0.0658317
 5.17248
 6.67201
 7.23317
@@ -322161,13 +322161,13 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49135
 7.49138
 7.49136
-0.237289
--0.0154585
+0.237288
+-0.0154586
 -0.10774
 -0.119247
 -0.111716
--0.0730887
-0.0657878
+-0.0730888
+0.0657877
 0.474461
 1.42368
 2.93738
@@ -322403,7 +322403,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7414
 -17.4535
 -11.5307
--0.0253544
+-0.0253545
 5.08387
 6.6451
 7.21767
@@ -322487,7 +322487,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7236
 -17.4713
 -11.6531
--0.0786196
+-0.0786197
 5.13925
 6.66396
 7.23136
@@ -322508,7 +322508,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6937
 -17.3236
 -11.2562
-0.060905
+0.0609049
 5.17194
 6.67304
 7.23432
@@ -322607,8 +322607,8 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -0.113774
 -0.125288
 -0.117668
--0.0787191
-0.0608108
+-0.0787192
+0.0608107
 0.470357
 1.42036
 2.93462
@@ -322844,7 +322844,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7375
 -17.4813
 -11.5952
--0.0474078
+-0.0474079
 5.0835
 6.64915
 7.22126
@@ -322928,7 +322928,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7195
 -17.4954
 -11.7109
--0.0988797
+-0.0988798
 5.13971
 6.66814
 7.23499
@@ -322949,7 +322949,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6882
 -17.3456
 -11.3114
-0.0422518
+0.0422517
 5.1728
 6.6773
 7.23796
@@ -323044,12 +323044,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49139
 7.49137
 0.210246
--0.043356
+-0.0433561
 -0.135405
 -0.14665
 -0.13866
--0.0988618
-0.0422626
+-0.0988619
+0.0422625
 0.454103
 1.40749
 2.92653
@@ -323390,7 +323390,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.6751
 -17.4197
 -11.5026
--0.0202228
+-0.0202229
 5.19218
 6.69337
 7.24807
@@ -323486,11 +323486,11 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.49137
 0.150201
 -0.111149
--0.203504
+-0.203505
 -0.213402
 -0.204322
 -0.162796
--0.0184298
+-0.0184299
 0.399327
 1.36703
 2.91282
@@ -323705,7 +323705,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.7359
 -17.5616
 -11.8279
--0.064888
+-0.0648881
 5.09048
 6.66366
 7.23095
@@ -323925,12 +323925,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.4917
 7.49143
 7.49137
--0.0285954
+-0.0285955
 -0.353911
 -0.457758
 -0.46188
 -0.449257
--0.403622
+-0.403623
 -0.249522
 0.19427
 1.23921
@@ -324755,7 +324755,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.5352
 -16.0854
 -11.0582
--0.0512816
+-0.0512817
 5.35795
 6.94461
 7.50915
@@ -324815,7 +324815,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.66277
 -1.5206
 -1.1114
--0.0565027
+-0.0565028
 2.10622
 4.47226
 6.09078
@@ -325100,7 +325100,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.79244
 7.79655
 7.79726
-7.79733
+7.79734
 -20.3663
 -20.3652
 -20.3645
@@ -325242,7 +325242,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.49184
 7.26696
 7.61534
-7.74691
+7.74692
 7.7863
 7.7956
 7.79722
@@ -325256,7 +325256,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.74415
 -1.59946
 -1.18969
--0.147833
+-0.147834
 2.03527
 4.46684
 6.11545
@@ -325303,7 +325303,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.26691
 7.45432
 7.6194
-7.72869
+7.7287
 7.77942
 7.79511
 7.79792
@@ -325693,7 +325693,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.70739
 -1.79662
 -1.81434
--1.80572
+-1.80573
 -1.76147
 -1.61488
 -1.2023
@@ -326119,7 +326119,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -13.5631
 -11.3044
 -5.74539
-0.143096
+0.143095
 4.4764
 6.50081
 7.26767
@@ -326577,7 +326577,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.81847
 -1.80951
 -1.76473
--1.61703
+-1.61704
 -1.20268
 -0.157893
 2.0336
@@ -327001,7 +327001,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -13.5643
 -11.3058
 -5.74596
-0.143083
+0.143082
 4.47604
 6.49998
 7.2675
@@ -327020,7 +327020,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.76522
 -1.61746
 -1.20305
--0.158286
+-0.158287
 2.03318
 4.47603
 6.12362
@@ -327441,7 +327441,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -14.1518
 -13.5645
 -11.3062
--5.74639
+-5.7464
 0.142775
 4.47584
 6.49994
@@ -327762,7 +327762,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.885
 6.83475
 7.48149
-7.70691
+7.70692
 7.77538
 7.79289
 7.7966
@@ -328763,9 +328763,9 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -14.308
 -14.1519
 -13.5646
--11.3063
+-11.3064
 -5.7466
-0.142648
+0.142647
 4.47579
 6.49997
 7.26758
@@ -328863,7 +328863,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.68579
 7.69904
 7.70396
-7.70599
+7.706
 7.70691
 7.70761
 7.70896
@@ -329666,7 +329666,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.76548
 -1.61771
 -1.2033
--0.158606
+-0.158607
 2.03282
 4.47579
 6.12356
@@ -330006,7 +330006,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -17.8369
 -14.1518
 -1.6177
-4.95483
+4.95482
 6.8538
 7.48747
 7.70896
@@ -330029,7 +330029,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.20329
 5.09674
 6.89032
-7.49806
+7.49807
 7.7122
 7.77689
 7.79326
@@ -330424,7 +330424,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -20.0885
 -19.3584
 -17.9535
--14.3079
+-14.308
 -1.76551
 4.90175
 6.83957
@@ -330548,7 +330548,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.76553
 -1.61773
 -1.20328
--0.158543
+-0.158544
 2.03284
 4.47573
 6.12348
@@ -330768,7 +330768,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.6861
 7.76676
 7.78993
-7.79576
+7.79577
 7.79704
 7.79723
 -20.3681
@@ -330986,7 +330986,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.80247
 -1.81966
 -1.81073
--1.76587
+-1.76588
 -1.618
 -1.20344
 -0.158641
@@ -332033,7 +332033,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.79732
 7.79706
 7.79722
-7.79726
+7.79727
 7.79727
 7.79726
 7.79725
@@ -332672,7 +332672,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.0984
 -17.5016
 -13.6783
--1.30386
+-1.30387
 5.12022
 6.91794
 7.5153
@@ -332734,7 +332734,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -13.6786
 -11.5436
 -6.01629
-0.00359816
+0.00359806
 4.45831
 6.52227
 7.28384
@@ -332753,7 +332753,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.87463
 -1.72134
 -1.30076
--0.259236
+-0.259237
 1.95594
 4.45871
 6.1385
@@ -333322,7 +333322,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.79611
 7.79648
 7.79708
-7.79781
+7.79782
 7.7984
 7.79851
 7.79813
@@ -333616,7 +333616,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -14.123
 -12.8574
 -7.90964
--0.912733
+-0.912734
 3.90294
 6.36073
 7.33402
@@ -334478,7 +334478,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5437
 -13.7419
 -8.93115
-0.581359
+0.581358
 5.69618
 7.19264
 7.69804
@@ -334559,7 +334559,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.82439
 6.84653
 6.90101
-7.0123
+7.01231
 7.19275
 7.40698
 7.605
@@ -334709,7 +334709,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.9716
 7.97162
 7.97164
-7.97164
+7.97165
 7.97163
 7.97161
 7.97159
@@ -334977,7 +334977,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 4.24644
 4.25462
 4.28147
-4.36107
+4.36106
 4.56179
 4.98383
 5.70583
@@ -335124,7 +335124,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.97145
 7.97144
 7.97144
-7.97144
+7.97145
 7.97146
 7.9715
 7.97156
@@ -335841,7 +335841,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -3.08881
 -2.63088
 -1.61857
-0.557062
+0.557061
 3.7627
 6.13617
 7.15658
@@ -336084,7 +336084,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.97002
 7.97134
 7.97154
--20.1599
+-20.1598
 -20.1597
 -20.1595
 -20.1586
@@ -336095,7 +336095,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -19.1373
 -18.0317
 -14.5295
--3.32361
+-3.32362
 4.24394
 6.81417
 7.59262
@@ -336377,7 +336377,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.97171
 7.9716
 7.97159
-7.97158
+7.97159
 7.93214
 7.9382
 7.94071
@@ -336703,7 +336703,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -14.2342
 -13.1976
 -9.00837
--1.68728
+-1.68729
 3.76221
 6.54787
 7.41114
@@ -337164,7 +337164,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -3.08945
 -2.63137
 -1.61901
-0.556407
+0.556406
 3.76211
 6.1357
 7.15628
@@ -337605,7 +337605,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -3.08947
 -2.63138
 -1.61903
-0.556375
+0.556374
 3.76209
 6.13571
 7.1563
@@ -337964,7 +337964,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.7776
 -17.6314
 -14.2343
--2.63138
+-2.63139
 4.56434
 6.91204
 7.62105
@@ -338928,7 +338928,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -3.08947
 -2.63138
 -1.61902
-0.556386
+0.556385
 3.7621
 6.13571
 7.1563
@@ -340353,7 +340353,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.94185
 7.94232
 7.94264
-7.9432
+7.94321
 7.9445
 7.94711
 7.95152
@@ -340687,7 +340687,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -3.21179
 -3.32598
 -3.3516
--3.33925
+-3.33926
 -3.27694
 -3.09221
 -2.63345
@@ -340973,7 +340973,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.59788
 7.85922
 7.94255
-7.96534
+7.96535
 7.97053
 7.97147
 7.97158
@@ -341017,7 +341017,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.94333
 7.96554
 7.97054
-7.97145
+7.97146
 7.97157
 -20.0953
 -20.0802
@@ -341093,7 +341093,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5738
 -13.8094
 -9.03595
-0.545601
+0.5456
 5.70842
 7.20205
 7.70275
@@ -341113,7 +341113,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -14.237
 -13.2074
 -9.0358
--1.70518
+-1.70519
 3.75513
 6.54732
 7.4126
@@ -341492,7 +341492,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.7772
 -17.6402
 -14.2429
--2.66626
+-2.66627
 4.56231
 6.92007
 7.62789
@@ -342007,7 +342007,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.9717
 7.97165
 -2.93693
--3.36942
+-3.36943
 -3.49005
 -3.51533
 -3.5
@@ -342050,7 +342050,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.97162
 6.70789
 6.81386
-6.8477
+6.84771
 6.8575
 6.8622
 6.87059
@@ -342182,7 +342182,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.97158
 7.97158
 7.9716
-7.97162
+7.97163
 7.97166
 7.9717
 7.97171
@@ -342296,7 +342296,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.6558
 7.88231
 7.95203
-7.96877
+7.96878
 7.97156
 7.97173
 7.97167
@@ -342416,7 +342416,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.4372
 -14.1284
 -10.0301
-0.0281106
+0.0281105
 5.89289
 7.31655
 7.74222
@@ -342456,7 +342456,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -3.62944
 -3.13925
 -2.11851
-0.0462564
+0.0462563
 3.62288
 6.33007
 7.2817
@@ -343739,7 +343739,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6851
 -14.731
 -11.3272
--0.850388
+-0.850389
 5.27329
 7.23464
 7.82363
@@ -344687,7 +344687,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 7.26498
 7.68355
 7.91549
-8.05017
+8.05018
 8.11029
 8.12901
 8.13292
@@ -345104,7 +345104,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -2.9213
 -0.882998
 2.7523
-5.91287
+5.91286
 7.26555
 7.75431
 7.98275
@@ -345314,7 +345314,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.9329
 -17.9281
 -14.2183
--4.77538
+-4.77539
 3.3439
 6.5572
 7.61238
@@ -345443,7 +345443,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -5.0819
 3.42114
 6.78204
-7.70176
+7.70177
 7.99917
 8.0963
 8.12446
@@ -346863,7 +346863,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -5.60527
 -5.57918
 -5.44608
--5.08242
+-5.08243
 -4.29268
 -2.92172
 -0.883346
@@ -347277,7 +347277,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.13213
 8.133
 8.13311
--14.2235
+-14.2236
 -14.3092
 -14.3406
 -14.3529
@@ -347603,7 +347603,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.8708
 -17.7262
 -14.3454
--5.57918
+-5.57919
 3.23139
 6.73448
 7.68885
@@ -347742,7 +347742,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -4.74957
 -5.30406
 -5.54566
--5.60527
+-5.60528
 -5.57919
 -5.44609
 -5.08243
@@ -348028,7 +348028,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.72675
 7.68675
 7.99416
-8.09447
+8.09448
 8.12391
 8.13128
 8.13282
@@ -349052,7 +349052,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -13.4679
 -11.3757
 -3.80999
-2.75189
+2.75188
 6.42581
 7.52808
 7.90589
@@ -349064,7 +349064,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.13314
 -4.74981
 -5.30439
--5.54605
+-5.54606
 -5.6057
 -5.57962
 -5.44646
@@ -349072,7 +349072,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -4.29282
 -2.92179
 -0.883415
-2.75189
+2.75188
 5.91255
 7.26528
 7.75423
@@ -349472,7 +349472,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.7014
 -14.7762
 -11.3763
--0.883968
+-0.883969
 5.28226
 7.24868
 7.82744
@@ -350074,7 +350074,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.12245
 8.12357
 8.12405
-8.12424
+8.12425
 8.12437
 8.12459
 8.12508
@@ -350505,7 +350505,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.12947
 8.13306
 8.13398
-8.1337
+8.13371
 8.13333
 8.13316
 8.13311
@@ -350589,7 +350589,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.13315
 8.13313
 8.13311
-8.1331
+8.13311
 8.13311
 8.13311
 8.13311
@@ -351047,7 +351047,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.9335
 -17.8714
 -14.3353
--5.11259
+-5.1126
 3.30314
 6.58723
 7.63651
@@ -351951,7 +351951,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -17.283
 -14.4794
 -8.10221
-2.21007
+2.21006
 6.39269
 7.73524
 8.18131
@@ -352728,7 +352728,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.38966
 8.39238
 8.39524
-8.39758
+8.39759
 8.39898
 8.39946
 8.39944
@@ -353227,7 +353227,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.39904
 8.39904
 8.39904
-8.39906
+8.39907
 8.3991
 8.39915
 8.3992
@@ -353475,7 +353475,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -8.54658
 -9.2559
 -9.68456
--9.80279
+-9.8028
 -9.75845
 -9.51327
 -8.83027
@@ -353914,7 +353914,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.3991
 8.39919
 -8.58278
--9.29186
+-9.29187
 -9.72054
 -9.83757
 -9.79165
@@ -354155,7 +354155,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.479
 -17.1958
 -14.633
--9.32358
+-9.32359
 1.74025
 6.56191
 7.83253
@@ -354470,7 +354470,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.35946
 8.36631
 8.37517
-8.38456
+8.38457
 8.39266
 8.3978
 8.39972
@@ -354743,7 +354743,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -17.2955
 -16.3763
 -13.1777
--4.83122
+-4.83123
 3.45466
 7.05308
 7.96973
@@ -354796,7 +354796,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.39909
 8.39918
 -8.59635
--9.30423
+-9.30424
 -9.73199
 -9.84817
 -9.8015
@@ -354842,7 +354842,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 6.60419
 6.62431
 6.63753
-6.66051
+6.66052
 6.71623
 6.83733
 7.05307
@@ -355058,7 +355058,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.4621
 -17.1686
 -14.7013
--9.7401
+-9.74011
 1.56598
 6.60468
 7.85396
@@ -355142,7 +355142,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.2991
 -17.0801
 -14.3764
--8.86612
+-8.86613
 1.88415
 6.71626
 7.88502
@@ -356118,7 +356118,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.39828
 8.39909
 8.39918
--8.59773
+-8.59774
 -9.30548
 -9.73319
 -9.84937
@@ -356264,7 +356264,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.39917
 8.39916
 8.39916
-8.39916
+8.39917
 8.39479
 8.39583
 8.39629
@@ -356324,7 +356324,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.39918
 8.39916
 8.39916
-8.39916
+8.39917
 8.39917
 8.39917
 8.39917
@@ -357326,7 +357326,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.4136
 -17.1487
 -14.617
--9.55446
+-9.55447
 1.63624
 6.66057
 7.87113
@@ -357881,7 +357881,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.39383
 8.39828
 8.39909
-8.39918
+8.39919
 -8.59783
 -9.30562
 -9.73336
@@ -357908,7 +357908,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 1.56925
 1.52653
 1.54565
-1.63615
+1.63614
 1.88395
 2.44619
 3.45445
@@ -358081,7 +358081,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.39906
 8.39909
 8.39914
-8.39918
+8.39919
 8.39922
 8.39922
 8.3992
@@ -358124,7 +358124,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.4793
 -17.1963
 -14.6345
--9.3284
+-9.32841
 1.73874
 6.56232
 7.83279
@@ -358145,7 +358145,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.4621
 -17.1686
 -14.7017
--9.74141
+-9.74142
 1.56553
 6.60466
 7.85401
@@ -358188,7 +358188,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -17.1657
 -14.7053
 -9.80379
-1.54542
+1.54541
 6.63763
 7.86539
 8.23253
@@ -358362,7 +358362,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.36953
 8.3927
 8.39842
-8.39926
+8.39927
 8.39925
 8.39922
 6.42314
@@ -358853,7 +358853,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.22862
 8.23144
 8.23267
-8.23441
+8.23442
 8.23831
 8.2466
 8.26178
@@ -360094,7 +360094,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -10.0003
 -9.74766
 -9.05128
--7.5014
+-7.50141
 -4.94884
 -2.0547
 1.6483
@@ -360416,7 +360416,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -10.1327
 1.46515
 6.69579
-7.9028
+7.90281
 8.24958
 8.35832
 8.38987
@@ -360682,7 +360682,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.3975
 8.39752
 8.39759
-8.39773
+8.39774
 8.39801
 8.39841
 8.3989
@@ -360834,7 +360834,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -17.1004
 -14.8633
 -10.9935
-0.995018
+0.995017
 6.85868
 7.96858
 8.26932
@@ -360996,7 +360996,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 0.996767
 1.02388
 1.12662
-1.40036
+1.40035
 2.0304
 3.19946
 4.75651
@@ -361063,7 +361063,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.28017
 8.29212
 8.31021
-8.3328
+8.33281
 8.35618
 8.37809
 8.39458
@@ -361146,7 +361146,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.3992
 8.39923
 8.39927
-8.39933
+8.39934
 8.39939
 8.39941
 8.39936
@@ -361212,7 +361212,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6574
 -15.3407
 -12.2126
-0.520703
+0.520702
 6.13734
 7.8757
 8.43005
@@ -361220,7 +361220,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.67066
 8.68892
 8.69409
-8.69506
+8.69507
 -19.1032
 -19.1031
 -19.1028
@@ -361358,7 +361358,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.9289
 -16.0774
 -13.134
--6.88121
+-6.88122
 2.55779
 6.78547
 8.08116
@@ -361499,7 +361499,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.44172
 8.44627
 8.44867
-8.45173
+8.45174
 8.45832
 8.47206
 8.4965
@@ -361653,7 +361653,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.679
 -15.1898
 -12.456
-0.113036
+0.113035
 6.27475
 7.96
 8.46272
@@ -361674,7 +361674,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6671
 -15.2134
 -12.6
--0.0233347
+-0.0233348
 6.3006
 7.98492
 8.47362
@@ -361695,7 +361695,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6653
 -15.2287
 -12.6418
--0.0606263
+-0.0606264
 6.3083
 7.99461
 8.47789
@@ -361716,7 +361716,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6591
 -15.2139
 -12.6252
--0.0441018
+-0.0441019
 6.32072
 8.0008
 8.4801
@@ -361737,7 +361737,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6292
 -15.1429
 -12.5234
-0.0424751
+0.042475
 6.35309
 8.01044
 8.48288
@@ -361855,13 +361855,13 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -12.456
 -12.6035
 -12.6472
--12.6313
+-12.6314
 -12.5303
 -12.1747
 -10.935
 -7.68504
 -3.21556
-0.660891
+0.66089
 4.83268
 7.38064
 8.21617
@@ -361874,11 +361874,11 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69599
 0.520479
 0.113041
--0.0315769
--0.0717061
--0.0558797
-0.0305724
-0.273817
+-0.031577
+-0.0717062
+-0.0558798
+0.0305723
+0.273816
 0.879759
 2.19492
 4.1018
@@ -362094,7 +362094,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6681
 -15.2182
 -12.6055
--0.0335573
+-0.0335574
 6.29902
 7.98488
 8.47367
@@ -362262,7 +362262,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -14.8903
 -11.7773
 -3.50206
-3.9901
+3.99009
 7.41798
 8.28815
 8.56036
@@ -362302,7 +362302,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.253
 -8.13135
 -3.50672
-0.439858
+0.439857
 4.72546
 7.41902
 8.24575
@@ -362314,7 +362314,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69594
 8.69602
 0.406177
--0.0252979
+-0.025298
 -0.179015
 -0.220739
 -0.203794
@@ -362535,7 +362535,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6685
 -15.2415
 -12.6578
--0.0820224
+-0.0820225
 6.30324
 7.9938
 8.47773
@@ -362640,7 +362640,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5123
 -14.9899
 -12.4234
-0.0773332
+0.0773331
 6.47364
 8.06845
 8.50181
@@ -362723,7 +362723,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -13.256
 -11.8108
 -8.73046
-0.369268
+0.369267
 5.91977
 7.8895
 8.41414
@@ -362743,7 +362743,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.3507
 -8.27384
 -3.59885
-0.36903
+0.369029
 4.68865
 7.43397
 8.25692
@@ -362755,12 +362755,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69596
 8.69602
 0.364063
--0.0709083
+-0.0709085
 -0.2265
 -0.268929
 -0.251095
 -0.162759
-0.0766063
+0.0766061
 0.657657
 1.94871
 3.9531
@@ -362976,7 +362976,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6712
 -15.2514
 -12.6732
--0.095538
+-0.0955381
 6.30499
 7.99709
 8.47912
@@ -363081,7 +363081,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.514
 -14.9988
 -12.4388
-0.0674435
+0.0674434
 6.47788
 8.07236
 8.50277
@@ -363163,7 +363163,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -14.4244
 -13.2664
 -11.8214
--8.75994
+-8.75995
 0.354003
 5.9224
 7.89562
@@ -363182,7 +363182,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -12.7384
 -12.4389
 -11.3732
--8.3061
+-8.30611
 -3.61886
 0.353983
 4.68213
@@ -363196,12 +363196,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69596
 8.69601
 0.350799
--0.0837022
+-0.0837023
 -0.238765
 -0.280797
 -0.262199
 -0.172963
-0.0673924
+0.0673923
 0.648555
 1.93881
 3.94876
@@ -363312,7 +363312,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.68556
 8.68863
 8.69179
-8.69439
+8.6944
 8.69594
 8.69641
 8.6963
@@ -363417,7 +363417,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6727
 -15.2547
 -12.6774
--0.0989187
+-0.0989188
 6.30573
 7.99813
 8.47953
@@ -363522,7 +363522,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5151
 -15.0014
 -12.442
-0.0661493
+0.0661492
 6.47955
 8.07337
 8.50293
@@ -363637,12 +363637,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69595
 8.696
 0.346971
--0.0869736
+-0.0869737
 -0.241524
--0.283225
+-0.283226
 -0.264276
 -0.174667
-0.0661696
+0.0661695
 0.647786
 1.93845
 3.94971
@@ -363858,7 +363858,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6732
 -15.2557
 -12.6785
--0.099787
+-0.0997871
 6.30596
 7.99843
 8.47965
@@ -363921,7 +363921,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6495
 -15.2785
 -12.832
--0.264817
+-0.264818
 6.35911
 8.04245
 8.4949
@@ -363963,7 +363963,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5155
 -15.002
 -12.4426
-0.0659584
+0.0659583
 6.47996
 8.07355
 8.50297
@@ -364004,7 +364004,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.8226
 -15.8296
 -13.2691
--8.31194
+-8.31195
 1.93864
 6.99979
 8.19421
@@ -364078,12 +364078,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69595
 8.696
 0.34586
--0.0878466
+-0.0878467
 -0.242194
 -0.283788
 -0.264746
--0.175034
-0.0659594
+-0.175035
+0.0659592
 0.647763
 1.93866
 3.95022
@@ -364278,7 +364278,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.654
 -15.4318
 -12.445
-0.317357
+0.317356
 6.15335
 7.90973
 8.44814
@@ -364404,9 +364404,9 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5156
 -15.0022
 -12.4429
-0.0658103
+0.0658102
 6.48
-8.07357
+8.07358
 8.50298
 8.63853
 8.68069
@@ -364518,15 +364518,15 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69536
 8.69594
 8.696
-0.345508
--0.0881283
+0.345507
+-0.0881285
 -0.242427
 -0.28401
 -0.26496
 -0.17523
-0.0657992
-0.647638
-1.93857
+0.0657991
+0.647637
+1.93856
 3.9502
 5.92501
 7.4428
@@ -364845,7 +364845,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5157
 -15.0023
 -12.443
-0.065719
+0.0657189
 6.47999
 8.07358
 8.50299
@@ -364956,16 +364956,16 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.63175
 8.67729
 8.69185
-8.69535
+8.69536
 8.69594
 8.696
 0.34539
--0.088229
+-0.0882291
 -0.24252
 -0.284108
 -0.265062
 -0.17533
-0.0657047
+0.0657046
 0.64754
 1.93845
 3.95011
@@ -365181,7 +365181,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6735
 -15.2561
 -12.679
--0.100188
+-0.100189
 6.30601
 7.99853
 8.47969
@@ -365286,7 +365286,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5157
 -15.0023
 -12.443
-0.0656851
+0.065685
 6.47998
 8.07359
 8.503
@@ -365389,7 +365389,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.3787
 -8.31269
 -3.62161
-0.352652
+0.352651
 4.683
 7.44275
 8.26105
@@ -365400,13 +365400,13 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69535
 8.69594
 8.696
-0.345353
--0.0882618
+0.345352
+-0.0882619
 -0.242552
 -0.284142
--0.265097
+-0.265098
 -0.175365
-0.0656703
+0.0656701
 0.647501
 1.9384
 3.95006
@@ -365706,7 +365706,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6133
 -15.2052
 -12.7424
--0.175344
+-0.175345
 6.39419
 8.05217
 8.49741
@@ -365727,7 +365727,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5157
 -15.0023
 -12.443
-0.0656773
+0.0656771
 6.47998
 8.07359
 8.503
@@ -365842,12 +365842,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69594
 8.696
 0.345343
--0.08827
+-0.0882701
 -0.24256
 -0.284151
 -0.265106
 -0.175374
-0.0656624
+0.0656623
 0.647492
 1.93839
 3.95005
@@ -366126,7 +366126,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6497
 -15.2788
 -12.8324
--0.265164
+-0.265165
 6.35913
 8.0425
 8.49493
@@ -366147,7 +366147,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6133
 -15.2052
 -12.7424
--0.175346
+-0.175347
 6.39419
 8.05217
 8.49741
@@ -366168,7 +366168,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5157
 -15.0023
 -12.443
-0.0656762
+0.0656761
 6.47999
 8.07359
 8.503
@@ -366283,15 +366283,15 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69594
 8.696
 0.345342
--0.0882714
+-0.0882715
 -0.242562
--0.284153
+-0.284154
 -0.265109
 -0.175376
-0.0656613
+0.0656612
 0.647492
 1.93839
-3.95006
+3.95005
 5.92491
 7.44275
 8.20925
@@ -366304,7 +366304,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69604
 8.69602
 6.15482
-6.3073
+6.30729
 6.33613
 6.34431
 6.35905
@@ -366609,7 +366609,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5157
 -15.0023
 -12.443
-0.0656697
+0.0656696
 6.47998
 8.07359
 8.503
@@ -366692,14 +366692,14 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -13.2694
 -11.8239
 -8.76561
-0.352631
+0.35263
 5.92491
 7.89742
 8.41533
 8.59793
 8.66642
 8.6887
-8.69457
+8.69458
 8.69578
 8.69595
 -12.4493
@@ -366715,21 +366715,21 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 0.35263
 4.68299
 7.44275
-8.26105
+8.26106
 8.51943
 8.63176
 8.67729
 8.69185
-8.69535
+8.69536
 8.69594
 8.696
 0.345338
--0.0882792
+-0.0882793
 -0.242572
 -0.284166
 -0.265121
 -0.175387
-0.0656542
+0.0656541
 0.64749
 1.93839
 3.95005
@@ -366859,8 +366859,8 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69269
 8.69313
 8.69378
-8.69457
-8.69535
+8.69458
+8.69536
 8.69592
 8.69616
 8.69614
@@ -367010,7 +367010,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -12.8324
 -0.265248
 6.35911
-8.0425
+8.04251
 8.49494
 8.63612
 8.67996
@@ -367050,7 +367050,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5157
 -15.0023
 -12.4431
-0.0656197
+0.0656196
 6.47997
 8.0736
 8.50301
@@ -367071,7 +367071,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.2909
 -14.4276
 -11.3787
-0.647458
+0.647457
 6.66569
 8.11788
 8.51448
@@ -367165,12 +367165,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69595
 8.696
 0.345287
--0.0883406
+-0.0883408
 -0.242641
 -0.284238
 -0.265193
 -0.175452
-0.0656029
+0.0656028
 0.647451
 1.93836
 3.95003
@@ -367365,7 +367365,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.654
 -15.4322
 -12.4456
-0.316855
+0.316854
 6.15325
 7.90977
 8.4482
@@ -367491,7 +367491,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5157
 -15.0025
 -12.4434
-0.0653658
+0.0653657
 6.47993
 8.07364
 8.50306
@@ -367606,12 +367606,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69595
 8.696
 0.345
--0.0886538
+-0.0886539
 -0.242967
 -0.28457
 -0.265519
 -0.175751
-0.0653465
+0.0653464
 0.647221
 1.93812
 3.94986
@@ -367671,7 +367671,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.4476
 8.47954
 8.48943
-8.49315
+8.49316
 8.49499
 8.49748
 8.50306
@@ -367827,7 +367827,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6736
 -15.2576
 -12.6808
--0.101856
+-0.101857
 6.30564
 7.99866
 8.47989
@@ -367854,7 +367854,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.48966
 8.63405
 8.67909
-8.69195
+8.69196
 8.69514
 8.6957
 -19.1013
@@ -367932,7 +367932,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5157
 -15.0035
 -12.4448
-0.0643166
+0.0643165
 6.47976
 8.07379
 8.50322
@@ -368047,12 +368047,12 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69595
 8.696
 0.343781
--0.0899255
+-0.0899256
 -0.244251
 -0.285854
 -0.266768
 -0.176916
-0.0643012
+0.0643011
 0.646211
 1.93705
 3.9491
@@ -368154,7 +368154,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.67394
 8.6776
 8.67908
-8.67972
+8.67973
 8.68003
 8.6803
 8.68077
@@ -368247,7 +368247,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.654
 -15.4376
 -12.4531
-0.31127
+0.311269
 6.15218
 7.91019
 8.44877
@@ -368289,7 +368289,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6619
 -15.2856
 -12.8175
--0.252341
+-0.252342
 6.33464
 8.02551
 8.49017
@@ -368373,7 +368373,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5159
 -15.007
 -12.45
-0.0605477
+0.0605475
 6.47932
 8.07437
 8.50375
@@ -368488,14 +368488,14 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69596
 8.69601
 0.339496
--0.0943231
+-0.0943232
 -0.248636
 -0.290205
 -0.271001
 -0.180913
-0.0605977
+0.0605976
 0.642474
-1.93298
+1.93297
 3.94634
 5.92286
 7.44228
@@ -368814,7 +368814,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5159
 -15.0195
 -12.4676
-0.0482201
+0.04822
 6.47864
 8.07649
 8.50534
@@ -368928,13 +368928,13 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69549
 8.69599
 8.69602
-0.326292
+0.326291
 -0.107884
 -0.262186
 -0.303645
 -0.284118
 -0.193468
-0.0486604
+0.0486603
 0.630085
 1.91933
 3.9375
@@ -368976,7 +368976,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.0381
 8.04513
 8.05493
-8.07648
+8.07649
 8.12084
 8.19718
 8.30173
@@ -369255,7 +369255,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.516
 -15.0574
 -12.5197
-0.00977417
+0.00977405
 6.48023
 8.08408
 8.50982
@@ -369296,7 +369296,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.824
 -15.82
 -13.3361
--8.51924
+-8.51925
 1.87444
 7.00318
 8.20454
@@ -369338,7 +369338,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -13.3336
 -11.8873
 -8.92694
-0.266718
+0.266717
 5.91049
 7.90742
 8.4236
@@ -369369,13 +369369,13 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.69565
 8.69604
 8.69604
-0.288726
+0.288725
 -0.147245
 -0.302014
--0.343317
--0.323067
--0.231292
-0.0118944
+-0.343318
+-0.323068
+-0.231293
+0.0118943
 0.591395
 1.87673
 3.91143
@@ -369696,7 +369696,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.5141
 -15.1133
 -12.6367
--0.109882
+-0.109883
 6.50437
 8.11119
 8.52155
@@ -369779,7 +369779,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -13.4451
 -11.9872
 -9.20203
-0.0940739
+0.0940737
 5.90304
 7.9425
 8.44048
@@ -369799,7 +369799,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -11.7364
 -8.90033
 -4.03074
-0.0979657
+0.0979656
 4.58361
 7.47734
 8.29845
@@ -369814,10 +369814,10 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -0.261738
 -0.419944
 -0.46132
--0.439719
+-0.43972
 -0.346238
--0.101883
-0.472144
+-0.101884
+0.472143
 1.74817
 3.83729
 5.90443
@@ -369923,14 +369923,14 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.6834
 8.68382
 8.68462
-8.68603
+8.68604
 8.68814
 8.69078
 8.69345
 8.69556
 8.69665
 8.69675
-8.69639
+8.6964
 8.69609
 8.69597
 8.69594
@@ -370011,7 +370011,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.7062
 -15.3368
 -12.9055
--0.210873
+-0.210874
 6.31696
 8.03039
 8.49795
@@ -370095,7 +370095,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6705
 -15.1735
 -13.1461
--0.881371
+-0.881372
 6.55254
 8.17877
 8.54269
@@ -370116,7 +370116,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.6213
 -15.0972
 -13.0687
--0.785524
+-0.785525
 6.59207
 8.18827
 8.54455
@@ -370158,7 +370158,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -16.1975
 -14.4303
 -12.0938
-0.0294512
+0.0294511
 6.87956
 8.24731
 8.55811
@@ -370254,11 +370254,11 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -0.145223
 -0.663819
 -0.833691
--0.877078
+-0.877079
 -0.853193
 -0.757308
--0.511535
-0.0585178
+-0.511536
+0.0585176
 1.35001
 3.63845
 5.97165
@@ -370268,7 +370268,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.61225
 8.66836
 8.6914
-8.69652
+8.69653
 8.69661
 8.6962
 8.69605
@@ -370321,7 +370321,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.54213
 8.54399
 8.54852
-8.55763
+8.55764
 8.573
 8.59474
 8.62072
@@ -370518,7 +370518,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.08513
 5.63379
 7.88237
-8.56744
+8.56745
 8.78041
 8.84752
 8.86804
@@ -370693,7 +370693,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.8754
 8.87572
 -0.680187
--0.975836
+-0.975837
 -1.07952
 -1.11023
 -1.09324
@@ -371133,7 +371133,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.87432
 8.87564
 8.87586
--0.960031
+-0.960032
 -1.38884
 -1.50919
 -1.54267
@@ -371377,7 +371377,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.4944
 -13.0976
 -1.63405
-5.74027
+5.74026
 8.00923
 8.61729
 8.79705
@@ -371481,7 +371481,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.9195
 -14.9158
 -12.7243
--0.802553
+-0.802554
 6.15028
 8.14097
 8.65431
@@ -371963,7 +371963,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.4196
 -14.7519
 -12.2911
--6.51957
+-6.51958
 2.51875
 7.24943
 8.41143
@@ -373003,7 +373003,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.87586
 8.87585
 8.848
-8.85249
+8.8525
 8.85421
 8.85494
 8.85531
@@ -373175,7 +373175,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -18.7576
 -18.7537
 -18.7411
--18.6975
+-18.6974
 -18.5645
 -18.2352
 -17.5453
@@ -373304,7 +373304,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.4541
 -15.3112
 -14.9453
--13.8934
+-13.8935
 -12.3103
 -10.209
 -1.27652
@@ -373707,7 +373707,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.4249
 -13.8936
 -11.3503
-0.242204
+0.242203
 6.59805
 8.26942
 8.6872
@@ -374589,7 +374589,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.4249
 -13.8937
 -11.3504
-0.242092
+0.242091
 6.59802
 8.26942
 8.6872
@@ -374663,7 +374663,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.87589
 -1.11412
 -1.56216
--1.69532
+-1.69533
 -1.73288
 -1.71215
 -1.6203
@@ -374905,7 +374905,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.5147
 -13.1023
 -1.69912
-5.73148
+5.73147
 8.0258
 8.62436
 8.79976
@@ -375009,7 +375009,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.9185
 -14.9456
 -12.7608
--0.864289
+-0.86429
 6.1512
 8.15925
 8.66017
@@ -375491,7 +375491,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.4249
 -14.7617
 -12.3105
--6.57251
+-6.57252
 2.50125
 7.25798
 8.41735
@@ -375615,7 +375615,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.64398
 8.66017
 8.68721
-8.72395
+8.72396
 8.76459
 8.80293
 8.83346
@@ -375991,7 +375991,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.71219
 -1.62033
 -1.38861
--0.864303
+-0.864304
 0.242071
 2.50124
 5.18355
@@ -376735,7 +376735,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 5.79344
 8.06268
 8.63584
-8.80357
+8.80358
 8.85575
 8.87092
 8.87479
@@ -376794,7 +376794,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.4249
 -13.8942
 -11.3511
-0.241709
+0.241708
 6.59794
 8.26948
 8.68728
@@ -377033,7 +377033,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.87585
 8.87585
 8.87585
-8.87585
+8.87586
 8.87495
 8.8753
 8.87543
@@ -377053,7 +377053,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.87585
 8.87585
 8.87585
-8.87585
+8.87586
 8.87586
 -18.7742
 -18.7741
@@ -377307,7 +377307,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.87487
 8.87578
 8.8759
--1.11593
+-1.11594
 -1.56409
 -1.69735
 -1.73493
@@ -377363,7 +377363,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.68514
 8.7663
 8.81763
-8.85147
+8.85148
 8.86917
 8.87514
 8.87619
@@ -377516,7 +377516,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.84843
 8.86841
 8.87397
-8.87499
+8.875
 -18.7741
 -18.7739
 -18.7733
@@ -378117,7 +378117,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.4264
 -13.9198
 -11.3864
-0.221113
+0.221112
 6.59536
 8.27238
 8.68977
@@ -378199,7 +378199,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -0.882055
 0.221743
 2.47708
-5.17076
+5.17075
 7.24429
 8.2949
 8.64163
@@ -378258,7 +378258,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.63157
 8.63448
 8.63843
-8.64665
+8.64666
 8.66283
 8.68975
 8.7263
@@ -378638,7 +378638,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.67845
 -1.44297
 -0.919694
-0.178443
+0.178442
 2.42661
 5.14768
 7.24425
@@ -378670,7 +378670,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.87202
 8.87578
 8.87616
-8.876
+8.87601
 8.87593
 7.89249
 8.00009
@@ -378999,7 +378999,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -15.3992
 -14.0632
 -11.6362
-0.041132
+0.0411319
 6.61164
 8.30987
 8.70755
@@ -379079,7 +379079,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -1.80275
 -1.56073
 -1.03642
-0.0492944
+0.0492942
 2.28319
 5.0941
 7.26447
@@ -379109,7 +379109,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.82436
 8.85911
 8.87299
-8.8762
+8.87621
 8.8763
 8.87604
 8.87594
@@ -379142,7 +379142,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.65862
 8.66654
 8.68197
-8.70736
+8.70737
 8.74139
 8.77823
 8.81233
@@ -379501,7 +379501,7 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 -12.876
 -11.9118
 -8.03518
--2.20161
+-2.20162
 3.33622
 7.42019
 8.55895
@@ -379701,4 +379701,4 @@ This means that all floating point numbers have been rounded to  8  decimal plac
 8.87585
 8.87586
 8.87586
-# Created by Chaste version 2.0.10177 on Thu, 09 Sep 2010 08:47:05 +0000.  Chaste was built on Wed, 01 Sep 2010 16:01:23 +0000 by machine (uname) 'Linux userpc58.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Wed Aug 25 14:39:49 UTC 2010 x86_64' using settings: default, no Chaste libraries.
+# Created by Chaste version 2.0.10177 on Mon, 13 Sep 2010 13:01:22 +0000.  Chaste was built on Wed, 01 Sep 2010 16:01:23 +0000 by machine (uname) 'Linux userpc58.comlab.ox.ac.uk 2.6.24-28-generic #1 SMP Wed Aug 25 14:39:49 UTC 2010 x86_64' using settings: default, no Chaste libraries.
