@@ -383,7 +383,7 @@ public:
     /**
      * @return the value of the flag that tells whether the user asked for cellular heterogeneities with cuboids
      */
-    bool AreCellularlHeterogeneitiesSpecifiedByCuboids();
+    bool AreCellularHeterogeneitiesSpecifiedByCuboids();
 
     /**
      * @return the fraction of epicardial layer

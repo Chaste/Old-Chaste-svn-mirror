@@ -462,7 +462,7 @@
         RDF annotation.  The name of the parameter is the cmeta:id of the annotated variable.</xs:documentation>
     </xs:annotation>
     <xs:sequence>
-      <xs:element name="ScaleFactorGks" type="dimensionless_type">
+      <xs:element name="ScaleFactorGks" type="dimensionless_type" minOccurs="0">
         <xs:annotation>
           <xs:documentation>Scales the Gks slow delayed rectifier potassium current. (A value of 1.0
             will reset to the default value in the CellML definition.)
@@ -472,7 +472,7 @@
             support hardcoded into Chaste.</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="ScaleFactorIto" type="dimensionless_type">
+      <xs:element name="ScaleFactorIto" type="dimensionless_type" minOccurs="0">
         <xs:annotation>
           <xs:documentation>Scales the Ito transient outward potassium current. (A value of 1.0 will
             reset to the default value in the CellML definition.)
@@ -482,7 +482,7 @@
             support hardcoded into Chaste.</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="ScaleFactorGkr" type="dimensionless_type">
+      <xs:element name="ScaleFactorGkr" type="dimensionless_type" minOccurs="0">
         <xs:annotation>
           <xs:documentation>Scales the Gkr rapid delayed rectifier potassium current. (A value of
             1.0 will reset to the default value in the CellML definition.)

@@ -129,12 +129,13 @@
 	    	Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
 	   	-->
 		<CellHeterogeneities>
-		    <!-- Specify scaling factors for some cell model parameters in heterogeneous regions -->
-		    <!-- Works with cell models that allow scale factors (FaberRudy2000, MahajanShiferaw, Maleckar, tenTusscher) -->
-		    <!-- The values of Gks, Ito, Gkr can be scaled -->
+		    <!-- Specify different values for some cell model parameters in heterogeneous regions -->
+		    <!-- Any variable annotated as a modifiable parameter may be varied -->
+		    <!-- If the specified parameter is not found, an exception will be raised -->
 		    
 		    <!-- Heterogeneities in a cuboid region -->
 		  	<CellHeterogeneity> <!-- #1 -->
+		  	    <!-- The old ScaleFactor* elements are now deprecated, but still supported -->
 				<ScaleFactorGks unit="dimensionless">0.462</ScaleFactorGks>
 				<ScaleFactorIto unit="dimensionless">0.0</ScaleFactorIto>
 				<ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
@@ -146,19 +147,23 @@
 				</Location>
 				<SetParameter name="example" value="0.0"/>
 				<SetParameter name="example2" value="2.0"/>
+				<!-- The old ScaleFactor* elements may be replaced as follows -->
+				<SetParameter name="ScaleFactorGks" value="0.462"/>
+				<SetParameter name="ScaleFactorIto" value="0.0"/>
+				<SetParameter name="ScaleFactorGkr" value="1.0"/>
 			</CellHeterogeneity>	
 		
 		    <!-- More heterogeneities in a cuboid region -->
 		  	<CellHeterogeneity> <!-- #2 -->
-				<ScaleFactorGks unit="dimensionless">1.154</ScaleFactorGks>
-				<ScaleFactorIto unit="dimensionless">0.85</ScaleFactorIto>
-				<ScaleFactorGkr unit="dimensionless">1.0</ScaleFactorGkr>
 				<Location unit="cm">
 					<Cuboid>
 						<LowerCoordinates x="-0.5" y="-0.1" z="-1.0"/>
 						<UpperCoordinates x="0.5" y="0.1" z="1.0"/>
 					</Cuboid>
 				</Location>
+				<SetParameter name="ScaleFactorGkr" value="1.0"/>
+				<SetParameter name="ScaleFactorGks" value="1.154"/>
+				<SetParameter name="ScaleFactorIto" value="0.85"/>
 			</CellHeterogeneity>	
 
 		    <!-- Heterogeneities in a transmural region -->

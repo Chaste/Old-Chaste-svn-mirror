@@ -306,18 +306,29 @@ public:
                                                         scale_factor_gkr_3D,
                                                         &parameter_settings);
 
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), true);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularHeterogeneitiesSpecifiedByCuboids(), true);
         TS_ASSERT(cell_heterogeneity_areas_3D[0]->DoesContain(ChastePoint<3>(-1.0, 0, 0)));
         TS_ASSERT_EQUALS(scale_factor_gks_3D[0], 0.462);
         TS_ASSERT_EQUALS(scale_factor_ito_3D[0], 0.0);
         TS_ASSERT_EQUALS(scale_factor_gkr_3D[0], 1.0);
-        TS_ASSERT_EQUALS(scale_factor_gks_3D[1], 1.154);
-        TS_ASSERT_EQUALS(scale_factor_ito_3D[1], 0.85);
+        // The old scale factor elements have been removed from region 1, so values default to 1.0
+        TS_ASSERT_EQUALS(scale_factor_gks_3D[1], 1.0);
+        TS_ASSERT_EQUALS(scale_factor_ito_3D[1], 1.0);
         TS_ASSERT_EQUALS(scale_factor_gkr_3D[1], 1.0);
         
-        TS_ASSERT_EQUALS(parameter_settings[0].size(), 2u);
-        TS_ASSERT_EQUALS(parameter_settings[1].size(), 0u);
+        TS_ASSERT_EQUALS(parameter_settings[0].size(), 5u);
+        TS_ASSERT_EQUALS(parameter_settings[1].size(), 3u);
+        // Parameters get returned by name order since they're in a map
         std::map<std::string, double>::iterator param_it = parameter_settings[0].begin();
+        TS_ASSERT_EQUALS(param_it->first, "ScaleFactorGkr");
+        TS_ASSERT_EQUALS(param_it->second, 1.0);
+        param_it++;
+        TS_ASSERT_EQUALS(param_it->first, "ScaleFactorGks");
+        TS_ASSERT_EQUALS(param_it->second, 0.462);
+        param_it++;
+        TS_ASSERT_EQUALS(param_it->first, "ScaleFactorIto");
+        TS_ASSERT_EQUALS(param_it->second, 0.0);
+        param_it++;
         TS_ASSERT_EQUALS(param_it->first, "example");
         TS_ASSERT_EQUALS(param_it->second, 0.0);
         param_it++;
@@ -344,8 +355,8 @@ public:
         TS_ASSERT_EQUALS(scale_factor_gks_2D[0], 0.462);
         TS_ASSERT_EQUALS(scale_factor_ito_2D[0], 0.0);
         TS_ASSERT_EQUALS(scale_factor_gkr_2D[0], 1.0);
-        TS_ASSERT_EQUALS(scale_factor_gks_2D[1], 1.154);
-        TS_ASSERT_EQUALS(scale_factor_ito_2D[1], 0.85);
+        TS_ASSERT_EQUALS(scale_factor_gks_2D[1], 1.0);
+        TS_ASSERT_EQUALS(scale_factor_ito_2D[1], 1.0);
         TS_ASSERT_EQUALS(scale_factor_gkr_2D[1], 1.0);
 
         for (unsigned i = 0; i<cell_heterogeneity_areas_2D.size();i++)
@@ -368,8 +379,8 @@ public:
         TS_ASSERT_EQUALS(scale_factor_gks_1D[0], 0.462);
         TS_ASSERT_EQUALS(scale_factor_ito_1D[0], 0.0);
         TS_ASSERT_EQUALS(scale_factor_gkr_1D[0], 1.0);
-        TS_ASSERT_EQUALS(scale_factor_gks_1D[1], 1.154);
-        TS_ASSERT_EQUALS(scale_factor_ito_1D[1], 0.85);
+        TS_ASSERT_EQUALS(scale_factor_gks_1D[1], 1.0);
+        TS_ASSERT_EQUALS(scale_factor_ito_1D[1], 1.0);
         TS_ASSERT_EQUALS(scale_factor_gkr_1D[1], 1.0);
 
         for (unsigned i = 0; i<cell_heterogeneity_areas_1D.size();i++)
@@ -673,7 +684,7 @@ public:
             std::vector<double> scale_factor_ito;
             std::vector<double> scale_factor_gkr;
 
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), false);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularHeterogeneitiesSpecifiedByCuboids(), false);
             TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->GetCellHeterogeneities(cell_heterogeneity_areas,
                                                                                   scale_factor_gks,
                                                                                   scale_factor_ito,
@@ -681,7 +692,7 @@ public:
                                                                                   NULL),
                                   "Specification of cellular heterogeneities by cuboids and layers at the same time is not yet supported");
 
-            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularlHeterogeneitiesSpecifiedByCuboids(), true);
+            TS_ASSERT_EQUALS(HeartConfig::Instance()->AreCellularHeterogeneitiesSpecifiedByCuboids(), true);
         }
     }
     

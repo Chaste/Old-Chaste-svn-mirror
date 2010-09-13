@@ -1088,9 +1088,10 @@ void HeartConfig::GetCellHeterogeneities(std::vector<AbstractChasteRegion<DIM>* 
                 mIndexMid =  counter_of_heterogeneities;
             }
         }
-        rScaleFactorGks.push_back (ht.ScaleFactorGks());
-        rScaleFactorIto.push_back (ht.ScaleFactorIto());
-        rScaleFactorGkr.push_back (ht.ScaleFactorGkr());
+        // Old scale factors
+        rScaleFactorGks.push_back(ht.ScaleFactorGks().present() ? (double)ht.ScaleFactorGks().get() : 1.0);
+        rScaleFactorIto.push_back(ht.ScaleFactorIto().present() ? (double)ht.ScaleFactorIto().get() : 1.0);
+        rScaleFactorGkr.push_back(ht.ScaleFactorGkr().present() ? (double)ht.ScaleFactorGkr().get() : 1.0);
         
         // Named parameters
         if (pParameterSettings)
@@ -1149,7 +1150,7 @@ bool HeartConfig::AreCellularTransmuralHeterogeneitiesRequested()
     return mUserAskedForCellularTransmuralHeterogeneities;
 }
 
-bool HeartConfig::AreCellularlHeterogeneitiesSpecifiedByCuboids()
+bool HeartConfig::AreCellularHeterogeneitiesSpecifiedByCuboids()
 {
     return mUserAskedForCuboidsForCellularHeterogeneities;
 }
