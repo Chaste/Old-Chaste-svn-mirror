@@ -27,6 +27,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 # Parser for Maple output.
 # See also maple_parsing.txt for notes.
 
+import logging
+import sys
 from pyparsing import *
 
 
@@ -333,7 +335,8 @@ real.setName('Number')
 #  *, +, and, or - really n-ary, but binary is ok
 op_fact = Literal('!') # Check if use 2! or !2 (expects 2! at present)
 op_expt = Literal('^')
-op_sign = oneOf('+ -')
+#op_sign = oneOf('+ -')
+op_sign = Literal('-')
 op_prod = oneOf('* /')
 op_plus = oneOf('+ -')
 op_rel = oneOf('= <> <= >= < >')
@@ -365,9 +368,10 @@ def make_op_action(op_type):
         #return OpParseResults(toks, op_type)
     return parse_action
 
+
 _prec = operatorPrecedence(atom, [
     (op_fact, 1, opAssoc.LEFT, make_moperator('fact')),
-    (op_expt, 2, opAssoc.RIGHT, make_moperator('expt')), # Fudge associativity
+    (op_expt, 2, opAssoc.LEFT, make_moperator('expt')), # Fudge associativity
     (op_sign, 1, opAssoc.RIGHT, make_moperator('sign')),
     (op_prod, 2, opAssoc.LEFT, make_moperator('prod')),
     (op_plus, 2, opAssoc.LEFT, make_moperator('plus')),
@@ -450,8 +454,7 @@ class MapleParser(object):
                     # Extract the variable names
                     pos = s.find('/')
                     if pos == -1:
-                        # TODO: Raise some exception
-                        pass
+                        raise ValueError("Bad header in Maple output: " + s)
                     var_i = s[3:pos]
                     var_j = s[pos+1:-3]
                     curr_key = (var_i, var_j)
@@ -464,7 +467,17 @@ class MapleParser(object):
 
     def _parse_expr(self, key, expr_str, results, debug_res):
         """Parse a single expression, and store the result under key."""
-        r = expr.parseString(expr_str)
+        self._debug("Parsing derivative", key)
+        old_limit = sys.getrecursionlimit()
+        try:
+            r = expr.parseString(expr_str)
+        except RuntimeError, msg:
+            self._debug("Got RuntimeError:", msg)
+            new_limit = int(old_limit * 1.5)
+            self._debug("Failed to parse with recursion limit of %d; increasing to %d" % (old_limit, new_limit))
+            sys.setrecursionlimit(new_limit)
+            r = expr.parseString(expr_str)
+            sys.setrecursionlimit(old_limit)
         n = r[0].normalize()
         u = n.uniquify()
         debug_res[key] = (expr_str, r, n)
@@ -477,6 +490,11 @@ class MapleParser(object):
             if isinstance(v, ParserElement):
                 v.setDebug(debug)
         return
+
+    def _debug(self, *args):
+        """Log a debug message."""
+        logger = logging.getLogger('maple-parser')
+        logger.debug(' '.join(map(str, args)))
 
     def add_assignments(self, results):
         """Turn a results dictionary into assignment expressions.
@@ -495,12 +513,12 @@ class MapleParser(object):
             deriv = MDerivative(var_i, var_j)
             ass_expr = MOperator([deriv, v], 'rel', 'eq')
             res[k] = ass_expr
+        return res
         
 
 
 if __name__ == '__main__':
     # Parse files given on the command line
-    import sys
     mp = MapleParser()
 
     def prettyprint(results):

@@ -80,7 +80,7 @@ class Protocol(object):
         self.inputs = []
         self.outputs = []
         if not multi_stage:
-            raise NotImplemented
+            raise NotImplementedError
 
     def modify_model(self):
         """Actually apply protocol modifications to the model.
@@ -202,13 +202,13 @@ class Protocol(object):
             # It must already be mapped to src_var; we're done
             assert (target_var.get_source_variable() == src_var or
                     src_var.get_source_variable() == target_var)
-            #print "Connection exists between", src_var, "and target", target_var
+#            print "Connection exists between", src_var, "and target", target_var
             return
         elif target_var.get_type() == VarTypes.Unknown:
             # We've created this variable, so should be ok, but check for gotchas
             assert not(hasattr(target_var, u'initial_value'))
-            public_iface = getattr(target_var, u'public_interface', u'none')
-            private_iface = getattr(target_var, u'private_interface', u'none')
+#            public_iface = getattr(target_var, u'public_interface', u'none')
+#            private_iface = getattr(target_var, u'private_interface', u'none')
             if src_comp == target_comp.parent():
                 src_if = u'private'
                 target_if = u'public'
@@ -225,8 +225,8 @@ class Protocol(object):
                 if getattr(src_var, src_if + u'_interface', u'none') == u'in':
                     src_var = src_var.get_source_variable()
             # Check and set the interface attributes
-            #print "Connecting source", src_var, src_if, getattr(src_var, src_if + u'_interface', u'none'),
-            #print "to", target_var, target_if, getattr(target_var, target_if + u'_interface', u'none')
+#            print "Connecting source", src_var, src_if, getattr(src_var, src_if + u'_interface', u'none'),
+#            print "to", target_var, target_if, getattr(target_var, target_if + u'_interface', u'none')
             assert getattr(src_var, src_if + u'_interface', u'none') != u'in'
             assert getattr(target_var, target_if + u'_interface', u'none') != u'out'
             src_var.xml_set_attribute((src_if + u'_interface', None), u'out')

@@ -1632,12 +1632,6 @@ class CellMLToChasteTranslator(CellMLTranslator):
         stimulus_names = set('membrane_stimulus_current_'+ v for v in ['duration', 'amplitude', 'period', 'offset'])
         self.modifier_vars = set([v for v in self.metadata_vars if v.oxmeta_name not in stimulus_names])
 
-        #1544: temporary check for possible Bad Things
-        if (((self.use_modifiers and self.modifier_vars) or self.cell_parameters) and
-            self.use_backward_euler):
-            msg = "Backward Euler cell models cannot safely use modifiable parameters at present (see #1544)."
-            print >>sys.stderr, msg # Really want raise ConfigurationError(msg) but this breaks things!
-
         # Generate member variable declarations
         self.set_access('private')
         if kept_vars or self.metadata_vars:
@@ -2070,7 +2064,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                         stim_index = self.model.get_assignments().index(self.doc._cml_config.i_stim_var)
                         for node in conv_nodes - conv_nodes_new:
                             if self.model.get_assignments().index(node) > stim_index:
-                                raise NotImplemented
+                                raise NotImplementedError
                     self.output_equations(conv_nodes)
         for expr in (e for e in self.model.get_assignments() if e in nodeset):
             # Special-case the stimulus current
@@ -2971,7 +2965,7 @@ class CellMLToHaskellTranslator(CellMLTranslator):
         munged form.
         """
         if ode:
-            raise NotImplemented # Never used; see output_apply.
+            raise NotImplementedError # Never used; see output_apply.
         if self.single_component and '__' in var.name:
             name = var.name.replace('__', ',')
         elif full:

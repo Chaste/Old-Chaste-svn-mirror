@@ -1242,7 +1242,7 @@ def GetBuildType(buildType):
                 obj.build_dir += '_32bit'
                 obj._link_flags.extend(['-mtune=generic', '-m32'])
             else:
-                raise NotImplemented
+                raise NotImplementedError
         elif extra.startswith('hostconfig'):
             obj.SetHostConfig(extra[11:])
             obj.build_dir += '_' + extra
