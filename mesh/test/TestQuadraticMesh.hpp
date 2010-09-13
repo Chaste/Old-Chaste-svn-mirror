@@ -727,38 +727,26 @@ public:
         TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumBoundaryNodes(), 64u);
     }
 
-   void WontWorkTestLinearToQuadraticMeshConversion2dNonconvex() throw(Exception)
+   void TestLinearToQuadraticMeshConversion2dNonconvex() throw(Exception)
     {
-        QuadraticMesh<2> quad_mesh;
-        TrianglesMeshReader<2,2> reader("mesh/test/data/lshape");
-        quad_mesh.ConstructFromLinearMeshReader(reader);
+        TrianglesMeshReader<2,2> reader("mesh/test/data/l_shape");
+
         TetrahedralMesh<2,2> linear_mesh;
-        reader.Reset();
         linear_mesh.ConstructFromMeshReader(reader);
         
-        
-        TS_ASSERT_EQUALS(quad_mesh.GetNumNodes(), 289u);
-        TS_ASSERT_EQUALS(quad_mesh.GetNumVertices(), 81u);
-        TS_ASSERT_EQUALS(quad_mesh.GetNumElements(), 128u);
-        TS_ASSERT_EQUALS(quad_mesh.GetNumBoundaryNodes(), 64u);
+        TS_ASSERT_EQUALS(linear_mesh.GetNumNodes(), 8u);
+        TS_ASSERT_EQUALS(linear_mesh.GetNumElements(), 6u);
+        TS_ASSERT_EQUALS(linear_mesh.GetNumBoundaryNodes(), 8u);
+        TS_ASSERT_EQUALS(linear_mesh.GetVolume(), 3.0);
+        TS_ASSERT_EQUALS(linear_mesh.GetSurfaceArea(), 8.0);
 
-        //Output
-        TrianglesMeshWriter<2,2> mesh_writer("TestQuadraticMesh", "converted_square", false);
-        mesh_writer.WriteFilesUsingMesh(quad_mesh);  //Compare with 
-
-        // read in the new mesh to check it worked
-        OutputFileHandler handler("TestQuadraticMesh",false);
-        std::string full_new_mesh = handler.GetOutputDirectoryFullPath() + "converted_square";        
-
-        //Input again
-        QuadraticMesh<2> quad_mesh_after_conversion;
-        TrianglesMeshReader<2,2> quad_reader(full_new_mesh, 2, 2);
-        quad_mesh_after_conversion.ConstructFromMeshReader(quad_reader);
-        
-        TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumNodes(), 17*17u);
-        TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumVertices(), 81u);
-        TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumElements(), 128u);
-        TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumBoundaryNodes(), 64u);
+        reader.Reset();
+        QuadraticMesh<2> quad_mesh;
+        TS_ASSERT_THROWS_THIS(quad_mesh.ConstructFromLinearMeshReader(reader), "Importing from a linear mesh only works on convex meshes");
+        TS_ASSERT_EQUALS(quad_mesh.GetNumVertices(), 8u);
+        //TS_ASSERT_EQUALS(quad_mesh.GetNumElements(), 6u);
+        //TS_ASSERT_EQUALS(quad_mesh.GetVolume(), 3.0);
+        //TS_ASSERT_EQUALS(quad_mesh.GetSurfaceArea(), 8.0);
     }
 
     void TestLinearToQuadraticMeshConversion() throw(Exception)

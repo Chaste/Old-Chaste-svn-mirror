@@ -237,6 +237,8 @@ void QuadraticMesh<DIM>::ConstructFromLinearMeshReader(AbstractMeshReader<DIM, D
     TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(rMeshReader);
     
     NodeMap unused_map(this->GetNumNodes());
+    
+    double volume_before =  this->GetVolume();
     if (DIM==2)  // In 2D, remesh using triangle via library calls
     {
         struct triangulateio mesher_input, mesher_output;
@@ -270,6 +272,11 @@ void QuadraticMesh<DIM>::ConstructFromLinearMeshReader(AbstractMeshReader<DIM, D
         CountAndCheckVertices();
         AddNodesToBoundaryElements(NULL);
     }    
+    double volume_change =  (this->GetVolume() - volume_before)/volume_before;
+    if (volume_change > this->GetNumElements()*DBL_EPSILON)
+    {
+        EXCEPTION("Importing from a linear mesh only works on convex meshes");
+    }
 }
 
 

@@ -126,6 +126,7 @@ protected:
      * @param map is a NodeMap which associates the indices of nodes in the old mesh
      * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      * @param mesherInput is a triangulateio or tetgenio class (decided at compile time)
+     *  Note that only nodes are exported and thus any late mesh is based on the convex hull
      */
     template <class MESHER_IO>
     void ExportToMesher(NodeMap& map, MESHER_IO& mesherInput);
