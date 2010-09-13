@@ -284,7 +284,14 @@ void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& r
 
                 for (unsigned j=DIM; j<DIM*(DIM+1)/2; j++)
                 {
-                    (*iter)->AddNode( this->GetNode(nodes[j]) );
+                    Node <DIM> *p_internal_node = this->GetNode(nodes[j]);
+                    (*iter)->AddNode( p_internal_node );
+                    // add node to the boundary node list
+                    if (!p_internal_node->IsBoundaryNode())
+                    {
+                        p_internal_node->SetAsBoundaryNode();
+                        this->mBoundaryNodes.push_back(p_internal_node);
+                    }
                 }
             }
         }

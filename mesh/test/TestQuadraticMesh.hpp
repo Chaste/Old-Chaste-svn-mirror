@@ -426,9 +426,28 @@ public:
         TrianglesMeshReader<2,2> mesh_reader2("mesh/test/data/square_128_elements_fully_quadratic",2,2,false);
         mesh2.ConstructFromMeshReader(mesh_reader2);
 
-        // compare the boundary elements of both meshes, should be identical (as one was created from the other)
+        TrianglesMeshWriter<2,2> mesh_writer("TestQuadraticMesh","square");
+        mesh_writer.WriteFilesUsingMesh(mesh1);
+        
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<2,2> quadratic_mesh_reader(output_dir + "square", 2, 2);
+        
+        QuadraticMesh<2> mesh3;
+        mesh3.ConstructFromMeshReader(quadratic_mesh_reader);
+
+        TS_ASSERT_EQUALS(mesh1.GetNumBoundaryNodes(), 64u);
+        TS_ASSERT_EQUALS(mesh1.GetNumBoundaryElements(), 32u);
+        TS_ASSERT_EQUALS(mesh2.GetNumBoundaryNodes(), 64u);
+        TS_ASSERT_EQUALS(mesh2.GetNumBoundaryElements(), 32u);
+        TS_ASSERT_EQUALS(mesh3.GetNumBoundaryNodes(), 64u);
+        TS_ASSERT_EQUALS(mesh3.GetNumBoundaryElements(), 32u);
+
+
+        // compare the boundary elements of all meshes, should be identical
         QuadraticMesh<2>::BoundaryElementIterator iter1
                = mesh1.GetBoundaryElementIteratorBegin();
+        QuadraticMesh<2>::BoundaryElementIterator iter3
+               = mesh3.GetBoundaryElementIteratorBegin();
 
         for (QuadraticMesh<2>::BoundaryElementIterator iter2
                = mesh2.GetBoundaryElementIteratorBegin();
@@ -437,13 +456,19 @@ public:
         {
             TS_ASSERT_EQUALS( (*iter1)->GetNumNodes(), 3u );
             TS_ASSERT_EQUALS( (*iter2)->GetNumNodes(), 3u );
+            TS_ASSERT_EQUALS( (*iter3)->GetNumNodes(), 3u );
 
             for (unsigned i=0; i<3; i++)
             {
                TS_ASSERT_EQUALS( (*iter1)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));
+               TS_ASSERT_EQUALS( (*iter3)->GetNodeGlobalIndex(i), (*iter2)->GetNodeGlobalIndex(i));
             }
             iter1++;
+            iter3++;
         }
+        
+        
+
     }
 
     void TestWritingReadingBoundaryElementsFile3d() throw(Exception)
@@ -603,6 +628,21 @@ public:
             std::set<unsigned> containing_elems = mesh.GetNode(i)->rGetContainingElementIndices();
             TS_ASSERT_EQUALS(containing_elems.size(), 1u);
         }
+
+
+        TrianglesMeshWriter<1,1> mesh_writer("","QuadraticSlab1D");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<1,1> quadratic_mesh_reader(output_dir + "QuadraticSlab1D", 2, 2);
+        
+        QuadraticMesh<1> quad_mesh_read_back;
+        quad_mesh_read_back.ConstructFromMeshReader(quadratic_mesh_reader);
+
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumNodes(), 21u);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumVertices(), 11u);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumElements(), 10u);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumBoundaryNodes(), 2u);
     }
 
     
@@ -614,6 +654,22 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 11*21u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 2*10*20u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 120u);
+
+
+        TrianglesMeshWriter<2,2> mesh_writer("","QuadraticSlab2D");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<2,2> quadratic_mesh_reader(output_dir + "QuadraticSlab2D", 2, 2);
+        
+        QuadraticMesh<2> quad_mesh_read_back;
+        quad_mesh_read_back.ConstructFromMeshReader(quadratic_mesh_reader);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumNodes(), 21*41u);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumVertices(), 11*21u);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumElements(), 2*10*20u);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumBoundaryNodes(), 120u);
+
+
     }
 
     void TestConstructRegularSlabMesh_Directly_3d() throw(Exception)
@@ -624,7 +680,65 @@ public:
         TS_ASSERT_EQUALS(mesh.GetNumVertices(), 2*3*4u);
         TS_ASSERT_EQUALS(mesh.GetNumElements(), 6*1*2*3u);
         TS_ASSERT_EQUALS(mesh.GetNumBoundaryNodes(), 90u);
+        
+        TrianglesMeshWriter<3,3> mesh_writer("","QuadraticSlab3D");
+        mesh_writer.WriteFilesUsingMesh(mesh);
+        
+        std::string output_dir = mesh_writer.GetOutputDirectory();
+        TrianglesMeshReader<3,3> quadratic_mesh_reader(output_dir + "QuadraticSlab3D", 2, 2);
+        
+        QuadraticMesh<3> quad_mesh_read_back;
+        quad_mesh_read_back.ConstructFromMeshReader(quadratic_mesh_reader);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumNodes(), 3*5*7u);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumVertices(), 2*3*4u);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumElements(), 6*1*2*3u);
+        TS_ASSERT_EQUALS(quad_mesh_read_back.GetNumBoundaryNodes(), 90u);
+        
     }
+    
+//    void xTestLinearToQuadraticMeshConversion2d() throw(Exception)
+//    {
+//        QuadraticMesh<2> quad_mesh;
+//        TrianglesMeshReader<2,2> reader("mesh/test/data/square_128_elements");
+//        quad_mesh.ConstructFromMeshReader(reader);
+//        
+//        
+//        TS_ASSERT_EQUALS(quad_mesh.GetNumNodes(), 17*17u);
+//        TS_ASSERT_EQUALS(quad_mesh.GetNumElements(), 128u);
+//
+//
+//        //Output
+//        // read in the new mesh to check it worked
+//        OutputFileHandler handler("TestLinearToQuadraticMeshConverter",false);
+//        std::string full_new_mesh = handler.GetOutputDirectoryFullPath() + "square_128_elements_quadratic";        
+//
+//        //Input again
+//        QuadraticMesh<2> quad_mesh_after_conversion;
+//        TrianglesMeshReader<2,2> quad_reader(full_new_mesh, 2, 2);
+//        quad_mesh_after_conversion.ConstructFromMeshReader(quad_reader);
+//        
+//        TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumNodes(), 17*17u);
+//        TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumElements(), 128u);
+//    }
+//
+//    void TestLinearToQuadraticMeshConvertersion() throw(Exception)
+//    {
+//        QuadraticMesh<3> quad_mesh;
+//        TrianglesMeshReader<3,3> reader(full_new_mesh, 2, 2);
+//        LinearToQuadraticMeshConverter<3> converter("mesh/test/data/", "cube_136_elements", "TestLinearToQuadraticMeshConverter");
+//
+//        // read in the new mesh to check it worked
+//        OutputFileHandler handler("TestLinearToQuadraticMeshConverter",false);
+//        std::string full_new_mesh = handler.GetOutputDirectoryFullPath() + "cube_136_elements_quadratic";        
+//
+//        QuadraticMesh<3> quad_mesh_after_conversion;
+//        TrianglesMeshReader<3,3> reader(full_new_mesh, 2, 2);
+//        quad_mesh_after_conversion.ConstructFromMeshReader(reader);
+//
+//        TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumNodes(), 285u);
+//        TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumElements(), 136u);
+//    }
+//    
 };
 
 #endif // _TESTQUADRATICMESH_HPP_

@@ -48,7 +48,7 @@ private:
     /** Number of vertices, ie non-internal (non-quadratic), nodes. */
     unsigned mNumVertices;
 
-    /*
+    /**
      * Count nodes which are vertices (not marked as internal)
      * Check that internals appear after vertices in the list
      */
