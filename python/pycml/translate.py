@@ -1885,9 +1885,9 @@ class CellMLToChasteTranslator(CellMLTranslator):
                                                      'yes')
             if outputs:
                 self.output_comment('Protocol outputs')
-                self.writeln(self.vector_initialise('this->mOutputsInfo', len(outputs)))
+                self.writeln('this->mOutputsInfo.resize(', len(outputs), ');')
                 for i, output in enumerate(outputs):
-                    self.writeln(self.vector_index('this->mOutputsInfo', i), self.EQ_ASSIGN,
+                    self.writeln('this->mOutputsInfo[', i, ']', self.EQ_ASSIGN,
                                  'std::make_pair(', nl=False)
                     if output.get_type() == VarTypes.Free:
                         self.writeln('UNSIGNED_UNSET, FREE', indent=False, nl=False)
