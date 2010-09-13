@@ -220,6 +220,15 @@ public:
      */
     void ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader);
 
+    /**
+     * Load a quadratic mesh from a linear mesh file.
+     * 
+     * Constructs as linear mesh, then exports to triangle/tetgen
+     * 
+     * @param rMeshReader the mesh reader
+     */
+    void ConstructFromLinearMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader);
+
 
     /**
      *  Write the boundary elements to file (in case the boundary elements were linear when read and the

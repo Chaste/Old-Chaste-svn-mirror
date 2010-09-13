@@ -228,6 +228,50 @@ unsigned QuadraticMesh<DIM>::GetNumVertices()
 
 
 
+template<unsigned DIM>
+void QuadraticMesh<DIM>::ConstructFromLinearMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader)
+{
+    assert (DIM != 1);
+    
+    //Make a linear mesh
+    TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(rMeshReader);
+    
+    NodeMap unused_map(this->GetNumNodes());
+    if (DIM==2)  // In 2D, remesh using triangle via library calls
+    {
+        struct triangulateio mesher_input, mesher_output;
+        this->InitialiseTriangulateIo(mesher_input);
+        this->InitialiseTriangulateIo(mesher_output);
+
+        this->ExportToMesher(unused_map, mesher_input);
+
+        // Library call
+        triangulate((char*)"Qzeo2", &mesher_input, &mesher_output, NULL);
+        
+        this->ImportFromMesher(mesher_output, mesher_output.numberoftriangles, mesher_output.trianglelist, mesher_output.numberofedges, mesher_output.edgelist, mesher_output.edgemarkerlist);
+        CountAndCheckVertices();
+        AddNodesToBoundaryElements(NULL);
+
+        //Tidy up triangle
+        this->FreeTriangulateIo(mesher_input);
+        this->FreeTriangulateIo(mesher_output);
+    }
+    else // in 3D, remesh using tetgen
+    {
+
+        struct tetgen::tetgenio mesher_input, mesher_output;
+
+        this->ExportToMesher(unused_map, mesher_input);
+
+        // Library call
+        tetgen::tetrahedralize((char*)"Qzo2", &mesher_input, &mesher_output);
+        
+        this->ImportFromMesher(mesher_output, mesher_output.numberoftetrahedra, mesher_output.tetrahedronlist, mesher_output.numberoftrifaces, mesher_output.trifacelist, NULL);
+        CountAndCheckVertices();
+        AddNodesToBoundaryElements(NULL);
+    }    
+}
+
 
 template<unsigned DIM>
 void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& rAbsMeshReader)
@@ -238,7 +282,7 @@ void QuadraticMesh<DIM>::ConstructFromMeshReader(AbstractMeshReader<DIM, DIM>& r
 
     if (p_mesh_reader->GetOrderOfElements() == 1)
     {
-        EXCEPTION("Supplied mesh reader is reading a linear mesh into quadratic mesh");
+        EXCEPTION("Supplied mesh reader is reading a linear mesh into quadratic mesh.  Consider using ConstructFromLinearMeshReader");
     }
 
     TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(*p_mesh_reader);
