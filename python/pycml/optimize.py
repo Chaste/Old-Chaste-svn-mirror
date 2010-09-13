@@ -179,6 +179,53 @@ class PartialEvaluator(object):
             instantiate = len(keying_vars) == 1 and all_keying[0]
         return instantiate
     
+    def _is_source_of(self, v1, v2):
+        """Test if v1 is a source of the mapped variable v2."""
+        if v1 is v2:
+            return True
+        elif v2.get_type() == VarTypes.Mapped:
+            return self._is_source_of(v1, v2.get_source_variable())
+        else:
+            return False
+    
+    def _check_retargetting(self, ci_elt):
+        """Check if this new variable reference means a retarget needs to change.
+        
+        A retarget occurs when a kept dynamic mapped variable is changed to computed
+        because its source variable(s) are only used once and are not kept.  But new
+        mathematics may use one or more of those sources, in which case we need to
+        revert the retarget.
+        """
+        # Is this a retarget?
+        var = ci_elt.variable
+        root_defn = var.get_source_variable(recurse=True)._get_dependencies()
+        if root_defn:
+            root_defn = root_defn[0]
+        else:
+            return
+        if (isinstance(root_defn, mathml_apply)
+             and hasattr(root_defn, '_pe_process')
+             and root_defn._pe_process == 'retarget'):
+            # Are we a source of the 'new' assignee?
+            assignee = root_defn._cml_assigns_to
+            if not self._is_source_of(assignee, var):
+                if var.get_type() == VarTypes.Computed:
+                    # We were the original source variable; stop retargetting
+                    self._debug('Ceasing re-target of', root_defn, 'to', assignee)
+                    del root_defn._pe_process
+                    root_defn._cml_assigns_to = var
+                else:
+                    # Re-target to var instead
+                    self._debug('Changing re-target of', root_defn, 'from', assignee, 'to', var)
+                    var._cml_var_type = VarTypes.Computed
+                    root_defn._cml_assigns_to = var
+                    var._cml_depends_on = [root_defn]
+                    var._cml_source_var = None
+                # assignee should now map to var
+                assignee._cml_var_type = VarTypes.Mapped
+                assignee._cml_source_var = var
+                assignee._cml_depends_on = [var]
+    
     def parteval(self, doc, solver_info, lookup_tables_analyser=None):
         """Do the partial evaluation."""
         self.doc = doc
@@ -194,6 +241,7 @@ class PartialEvaluator(object):
             # Do BTA and reduce/eval of solver info section
             for expr in solver_info.get_modifiable_mathematics():
                 self._process_ci_elts(expr, lambda ci: ci.variable._used())
+                self._process_ci_elts(expr, self._check_retargetting)
             solver_info.do_binding_time_analysis()
             self._do_reduce_eval_loop(solver_info.get_modifiable_mathematics)
         
@@ -212,7 +260,7 @@ class PartialEvaluator(object):
                     lhs = expr.eq.lhs
                     var = expr._cml_assigns_to
                     ci = mathml_ci.create_new(lhs, var.fullname(cellml=True))
-                    print "Retarget - need to check!", lhs, var, ci
+                    self._debug('Re-targetting', lhs, var, ci)
                     ci._cml_variable = var
                     lhs.xml_parent.xml_insert_after(lhs, ci)
                     lhs.xml_parent.xml_remove_child(lhs)
