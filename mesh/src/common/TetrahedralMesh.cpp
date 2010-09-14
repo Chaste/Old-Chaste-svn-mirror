@@ -1258,7 +1258,7 @@ template void TetrahedralMesh<3u, 3u>::ImportFromMesher<triangulateio>(triangula
 template void TetrahedralMesh<1u, 1u>::ImportFromMesher<triangulateio>(triangulateio&, unsigned int, int*, unsigned int, int*, int*);
 template void TetrahedralMesh<1u, 1u>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned int, int*, unsigned int, int*, int*);
 template void TetrahedralMesh<2u, 2u>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned int, int*, unsigned int, int*, int*);
- 
+template void TetrahedralMesh<1u, 1u>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&);
 /**
  * \endcond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
