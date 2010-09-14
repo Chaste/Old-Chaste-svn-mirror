@@ -2065,7 +2065,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                         for node in conv_nodes - conv_nodes_new:
                             if self.model.get_assignments().index(node) > stim_index:
                                 raise NotImplementedError
-                    self.output_equations(conv_nodes)
+                    nodeset = nodeset | conv_nodes_new
         for expr in (e for e in self.model.get_assignments() if e in nodeset):
             # Special-case the stimulus current
             if self.use_chaste_stimulus:
