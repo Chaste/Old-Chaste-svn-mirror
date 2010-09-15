@@ -2700,8 +2700,8 @@ void HeartConfig::SetVisualizeWithVtk(bool useVtk)
 }
 
 void HeartConfig::SetElectrodeParameters(bool groundSecondElectrode,
-                                         unsigned index, double lowerValue, double upperValue,
-                                         double magnitude, double startTime, double duration )
+                                         unsigned index, double magnitude, 
+                                         double startTime, double duration )
 {
     assert(index < 3);
     
@@ -2720,8 +2720,7 @@ void HeartConfig::SetElectrodeParameters(bool groundSecondElectrode,
     {
         cp::electrodes_type element( groundSecondElectrode ? cp::yesno_type::yes : cp::yesno_type::no,
                                      axis,
-                                     lowerValue,
-                                     upperValue,
+                                     0.0, 1.0,      // \todo: these are ignored, remove them
                                      magnitude,
                                      startTime,
                                      duration );
@@ -2731,8 +2730,6 @@ void HeartConfig::SetElectrodeParameters(bool groundSecondElectrode,
     {
         mpUserParameters->Simulation().get().Electrodes().get().ground_second_electrode(groundSecondElectrode ? cp::yesno_type::yes : cp::yesno_type::no);
         mpUserParameters->Simulation().get().Electrodes().get().perpendicular_to_axis(axis);
-        mpUserParameters->Simulation().get().Electrodes().get().lower(lowerValue);
-        mpUserParameters->Simulation().get().Electrodes().get().upper(upperValue);
         mpUserParameters->Simulation().get().Electrodes().get().magnitude(magnitude);
         mpUserParameters->Simulation().get().Electrodes().get().start_time(startTime);
         mpUserParameters->Simulation().get().Electrodes().get().duration(duration);
@@ -2741,8 +2738,8 @@ void HeartConfig::SetElectrodeParameters(bool groundSecondElectrode,
 }
 
 void HeartConfig::GetElectrodeParameters(bool& rGroundSecondElectrode,
-                                         unsigned& rIndex, double& rLowerValue, double& rUpperValue,
-                                         double& rMagnitude, double& rStartTime, double& rDuration )
+                                         unsigned& rIndex, double& rMagnitude, 
+                                         double& rStartTime, double& rDuration )
 {
     if (!IsElectrodesPresent())
     {
@@ -2766,8 +2763,6 @@ void HeartConfig::GetElectrodeParameters(bool& rGroundSecondElectrode,
             rIndex = 2;
         }
         
-        rLowerValue = mpUserParameters->Simulation().get().Electrodes().get().lower(); 
-        rUpperValue = mpUserParameters->Simulation().get().Electrodes().get().upper(); 
         rMagnitude = mpUserParameters->Simulation().get().Electrodes().get().magnitude();
         rStartTime = mpUserParameters->Simulation().get().Electrodes().get().start_time();
         rDuration = mpUserParameters->Simulation().get().Electrodes().get().duration();

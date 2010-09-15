@@ -322,8 +322,7 @@ public:
         double start_time = 0.5;
         double duration = 1.9; // of the stimulus, in ms
 
-        HeartConfig::Instance()->SetElectrodeParameters(false,0,0.0,0.1,
-                                                        boundary_flux, start_time, duration);
+        HeartConfig::Instance()->SetElectrodeParameters(false,0, boundary_flux, start_time, duration);
         
 
         bidomain_problem.SetMesh(p_mesh);
@@ -384,8 +383,7 @@ public:
         double start_time = 1.0;
         double duration = 2.0; // of the stimulus, in ms
 
-        HeartConfig::Instance()->SetElectrodeParameters( true, 0, 0.0, 0.1, boundary_flux, 
-                                                start_time, duration );
+        HeartConfig::Instance()->SetElectrodeParameters( true, 0, boundary_flux,start_time, duration );
 
 
         bidomain_problem.SetMesh(p_mesh);
@@ -484,8 +482,7 @@ public:
 
         BidomainWithBathProblem<2> matrix_based_bido( &cell_factory );
         
-        HeartConfig::Instance()->SetElectrodeParameters(true,0,0.0,0.1,
-                                                boundary_flux, 0.0, duration);
+        HeartConfig::Instance()->SetElectrodeParameters(true,0,boundary_flux, 0.0, duration);
 
         {
             Timer::Reset();
@@ -566,8 +563,7 @@ public:
             double boundary_flux = -11.0e3;
             double duration = 1.9; // of the stimulus, in ms
 
-            HeartConfig::Instance()->SetElectrodeParameters(false,0,0.0,0.1,
-                                                            boundary_flux, 0.0, duration);
+            HeartConfig::Instance()->SetElectrodeParameters(false,0,boundary_flux, 0.0, duration);
 
             bidomain_problem.SetMesh(p_mesh);
             bidomain_problem.SetElectrodes();
@@ -746,8 +742,7 @@ public:
         TetrahedralMesh<2,2>* p_mesh1 = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
     
-        HeartConfig::Instance()->SetElectrodeParameters(false,0,0.0,0.1,
-                                                        boundary_flux, start_time, duration);
+        HeartConfig::Instance()->SetElectrodeParameters(false,0,boundary_flux, start_time, duration);
     
         bidomain_problem1.SetMesh(p_mesh1);
         bidomain_problem1.SetElectrodes();

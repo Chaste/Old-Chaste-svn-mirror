@@ -342,13 +342,11 @@ public:
         /* Electrodes work in two ways: the first electrode applies an input flux, and
          * the opposite electrode can either be grounded or apply an equal and opposite
          * flux (ie an output flux). The `false` here indicates the second electrode
-         * is not grounded, ie has an equal and opposite flux. The "0, 0.0, 0.1" indicates
-         * that the electrodes should be applied to the surfaces X=0.0 and X=0.1 (which
-         * must match the mesh provided) (so, for example, you should use "2, 0.0, 0.1" to
-         * apply electrodes to the surfaces Z=0.0 and Z=0.1, etc).
+         * is not grounded, ie has an equal and opposite flux. The "0" indicates
+         * that the electrodes should be applied to the bounding surfaces in the x-direction
+         * (1 would be y-direction, 2 z-direction), which are X=0.0 and X=0.1 in the given mesh.
          */
-        HeartConfig::Instance()->SetElectrodeParameters(false, 0, 0.0, 
-                                                        0.1, magnitude, start_time, duration);
+        HeartConfig::Instance()->SetElectrodeParameters(false, 0, magnitude, start_time, duration);
 
         /* Now create the problem class, using the cell factory and passing
          * in `true` as the second argument to indicate we are solving a bath

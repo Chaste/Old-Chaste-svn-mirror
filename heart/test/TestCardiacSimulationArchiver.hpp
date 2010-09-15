@@ -625,7 +625,6 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
         double duration = 1.9; // of the stimulus, in ms
         
         HeartConfig::Instance()->SetElectrodeParameters(false/*don't ground*/, 0/*x*/, 
-                                                        0.0/*x=0*/, 0.1/*x=1*/,
                                                         boundary_flux, 0.0, duration);        
 	        
         {
@@ -958,7 +957,6 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
         double boundary_flux = -11.0e3;
         double duration = 1.9; // of the stimulus, in ms
         HeartConfig::Instance()->SetElectrodeParameters(true/*do ground*/, 0/*x*/, 
-                                                        0.0/*x=0*/, 0.1/*x=1*/,
                                                         boundary_flux, 0.0, duration);
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );

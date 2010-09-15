@@ -300,8 +300,7 @@ public:
 //        double start_time = 0.1;
 //        double duration = 0.5; // of the stimulus, in ms
 //
-//        HeartConfig::Instance()->SetElectrodeParameters(false,0,0.0,1,
-//                                                        boundary_flux, start_time, duration);
+//        HeartConfig::Instance()->SetElectrodeParameters(false,0,boundary_flux, start_time, duration);
 //
 //        para_para_problem.SetElectrodes();
 //        para_para_problem.UseMatrixBasedRhsAssembly(false);

@@ -290,14 +290,7 @@ void BidomainProblem<DIM>::SetElectrodes()
         EXCEPTION("Must set the mesh before trying to set the electrodes!");
     }
     
-    bool ground_second_electrode;
-    unsigned index;
-    double lower_value, upper_value, magnitude, start_time, duration;
-    
-    //\todo #1271 could just get the electrodes constructor to do this itself, rather than using GetElectrodePameters here and just passing on to the Electrodes class.
     //\todo #1271 This method could probably just be integrated into initialise  
-    HeartConfig::Instance()->GetElectrodeParameters(ground_second_electrode, index, lower_value, upper_value, magnitude, start_time, duration);
-    //mpElectrodes = (boost::shared_ptr<Electrodes<DIM> >) new Electrodes<DIM>(*(this->mpMesh), ground_second_electrode, index, lower_value, upper_value, magnitude, start_time, duration);
     mpElectrodes = (boost::shared_ptr<Electrodes<DIM> >) new Electrodes<DIM>(*(this->mpMesh));
 }
 

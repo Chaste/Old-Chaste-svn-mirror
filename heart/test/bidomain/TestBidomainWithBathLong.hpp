@@ -188,8 +188,7 @@ public:
         double boundary_flux = -9e3;
         double duration = 2.5; //ms
 
-        HeartConfig::Instance()->SetElectrodeParameters(true,0,
-                                                        0.0,0.1,boundary_flux, 0.0, duration);
+        HeartConfig::Instance()->SetElectrodeParameters(true,0,boundary_flux, 0.0, duration);
         bidomain_problem.SetElectrodes();
         bidomain_problem.Solve();
 
@@ -258,8 +257,7 @@ public:
         double boundary_flux = -4e3;
         double duration = 2.5; //ms
 
-        HeartConfig::Instance()->SetElectrodeParameters(true,0,0.0,0.2,
-                                                        boundary_flux, 0.0, duration);
+        HeartConfig::Instance()->SetElectrodeParameters(true,0,boundary_flux, 0.0, duration);
         bidomain_problem.SetElectrodes();
         bidomain_problem.Solve();
 

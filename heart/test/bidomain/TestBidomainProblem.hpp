@@ -1032,8 +1032,7 @@ public:
         double start_time = 0.5;
         double duration = 1.9; // of the stimulus, in ms
 
-        HeartConfig::Instance()->SetElectrodeParameters(false,0,0.0,0.1,
-                                                        boundary_flux, start_time, duration);
+        HeartConfig::Instance()->SetElectrodeParameters(false,0,boundary_flux, start_time, duration);
 
         BidomainProblem<2> no_bath_problem( &cell_factory, false );
         TS_ASSERT_THROWS_THIS(no_bath_problem.SetElectrodes(),
