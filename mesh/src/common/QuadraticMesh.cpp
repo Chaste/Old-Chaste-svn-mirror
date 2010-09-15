@@ -231,7 +231,7 @@ unsigned QuadraticMesh<DIM>::GetNumVertices()
 template<unsigned DIM>
 void QuadraticMesh<DIM>::ConstructFromLinearMeshReader(AbstractMeshReader<DIM, DIM>& rMeshReader)
 {
-    assert (DIM != 1);
+    assert(DIM != 1);
     
     //Make a linear mesh
     TetrahedralMesh<DIM,DIM>::ConstructFromMeshReader(rMeshReader);
