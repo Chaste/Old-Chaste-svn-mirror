@@ -2720,7 +2720,6 @@ void HeartConfig::SetElectrodeParameters(bool groundSecondElectrode,
     {
         cp::electrodes_type element( groundSecondElectrode ? cp::yesno_type::yes : cp::yesno_type::no,
                                      axis,
-                                     0.0, 1.0,      // \todo: these are ignored, remove them
                                      magnitude,
                                      startTime,
                                      duration );
@@ -2728,13 +2727,12 @@ void HeartConfig::SetElectrodeParameters(bool groundSecondElectrode,
     }
     else
     {
-        mpUserParameters->Simulation().get().Electrodes().get().ground_second_electrode(groundSecondElectrode ? cp::yesno_type::yes : cp::yesno_type::no);
-        mpUserParameters->Simulation().get().Electrodes().get().perpendicular_to_axis(axis);
-        mpUserParameters->Simulation().get().Electrodes().get().magnitude(magnitude);
-        mpUserParameters->Simulation().get().Electrodes().get().start_time(startTime);
-        mpUserParameters->Simulation().get().Electrodes().get().duration(duration);
+        mpUserParameters->Simulation().get().Electrodes().get().GroundSecondElectrode(groundSecondElectrode ? cp::yesno_type::yes : cp::yesno_type::no);
+        mpUserParameters->Simulation().get().Electrodes().get().PerpendicularToAxis(axis);
+        mpUserParameters->Simulation().get().Electrodes().get().Strength(magnitude);
+        mpUserParameters->Simulation().get().Electrodes().get().StartTime(startTime);
+        mpUserParameters->Simulation().get().Electrodes().get().Duration(duration);
     }
-    
 }
 
 void HeartConfig::GetElectrodeParameters(bool& rGroundSecondElectrode,
@@ -2747,9 +2745,9 @@ void HeartConfig::GetElectrodeParameters(bool& rGroundSecondElectrode,
     }
     else
     {
-        rGroundSecondElectrode = (mpUserParameters->Simulation().get().Electrodes().get().ground_second_electrode()==cp::yesno_type::yes);
+        rGroundSecondElectrode = (mpUserParameters->Simulation().get().Electrodes().get().GroundSecondElectrode()==cp::yesno_type::yes);
         
-        cp::axis_type axis = mpUserParameters->Simulation().get().Electrodes().get().perpendicular_to_axis();
+        cp::axis_type axis = mpUserParameters->Simulation().get().Electrodes().get().PerpendicularToAxis();
         if (axis==cp::axis_type::x)
         {
             rIndex = 0;
@@ -2763,9 +2761,9 @@ void HeartConfig::GetElectrodeParameters(bool& rGroundSecondElectrode,
             rIndex = 2;
         }
         
-        rMagnitude = mpUserParameters->Simulation().get().Electrodes().get().magnitude();
-        rStartTime = mpUserParameters->Simulation().get().Electrodes().get().start_time();
-        rDuration = mpUserParameters->Simulation().get().Electrodes().get().duration();
+        rMagnitude = mpUserParameters->Simulation().get().Electrodes().get().Strength();
+        rStartTime = mpUserParameters->Simulation().get().Electrodes().get().StartTime();
+        rDuration = mpUserParameters->Simulation().get().Electrodes().get().Duration();
     }
     
 }

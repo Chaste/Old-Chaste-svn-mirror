@@ -125,6 +125,18 @@
 
 		</Stimuli>
 
+		<!--
+			Electrodes - use this to apply a stimulus when you have a bidomain with bath
+			problem (note: will throw an Exception if used when no bath is present).
+		-->
+		<Electrodes>
+			<GroundSecondElectrode>yes</GroundSecondElectrode>
+			<PerpendicularToAxis>x</PerpendicularToAxis>
+			<Strength unit="uA/cm^3">-11000</Strength>
+		    <StartTime unit="ms">1.0</StartTime> 
+		    <Duration unit="ms">2.0</Duration>
+		</Electrodes>
+		
 	    <!-- 
 	    	Ionic cell model heterogeneities (as many <CellHeterogeneity> definitions as needed) 
 	   	-->
