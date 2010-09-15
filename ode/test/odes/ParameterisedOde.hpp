@@ -30,51 +30,32 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define PARAMETERISEDODE_HPP_
 
 #include "AbstractOdeSystem.hpp"
-#include "OdeSystemInformation.hpp"
+#include "ChasteSerialization.hpp"
+#include <boost/serialization/base_object.hpp>
 
 /**
  * dy/dt = a, y(0) = 0, where a is a user-supplied parameter.
  */
 class ParameterisedOde : public AbstractOdeSystem
 {
-public:
-    ParameterisedOde() : AbstractOdeSystem(1) // 1 here is the number of variables
-    {
-        mpSystemInfo = OdeSystemInformation<ParameterisedOde>::Instance();
-        SetStateVariables(GetInitialConditions());
-        mParameters.push_back(0);
-    }
+    friend class boost::serialization::access;
 
-    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY)
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
     {
-        rDY[0] = mParameters[0];
+        archive & boost::serialization::base_object<AbstractOdeSystem>(*this);
     }
+    
+public:
+    ParameterisedOde();
+
+    void EvaluateYDerivatives(double time, const std::vector<double>& rY, std::vector<double>& rDY);
     
     std::vector<double> ComputeDerivedQuantities(double time,
-                                                 const std::vector<double>& rState)
-    {
-        std::vector<double> dqs;
-        dqs.push_back(2*mParameters[0] + rState[0]);
-        return dqs;
-    }
+                                                 const std::vector<double>& rState);
 };
 
-template<>
-void OdeSystemInformation<ParameterisedOde>::Initialise()
-{
-    this->mSystemName = "ParameterisedOde";
-    
-    this->mVariableNames.push_back("y");
-    this->mVariableUnits.push_back("dimensionless");
-    this->mInitialConditions.push_back(0.0);
-
-    this->mParameterNames.push_back("a");
-    this->mParameterUnits.push_back("dimensionless");
-    
-    this->mDerivedQuantityNames.push_back("2a_plus_y");
-    this->mDerivedQuantityUnits.push_back("dimensionless");
-
-    this->mInitialised = true;
-}
+#include "SerializationExportWrapper.hpp"
+CHASTE_CLASS_EXPORT(ParameterisedOde);
 
 #endif /*PARAMETERISEDODE_HPP_*/

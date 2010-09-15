@@ -34,10 +34,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "ChasteSerialization.hpp"
+#include <boost/serialization/split_member.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/version.hpp>
 #include "ClassIsAbstract.hpp"
 
 #include "AbstractParameterisedSystem.hpp"
+#include "Exception.hpp"
 
 /**
  * Abstract OdeSystem class.
@@ -79,7 +82,7 @@ class AbstractOdeSystem : public AbstractParameterisedSystem<std::vector<double>
 
 private:
 
-    /** Needed for serialization. */
+
     friend class boost::serialization::access;
     /**
      * Archive the member variables.
@@ -88,7 +91,7 @@ private:
      * @param version the current version of this class
      */
     template<class Archive>
-    void serialize(Archive & archive, const unsigned int version)
+    void save(Archive & archive, const unsigned int version) const
     {
         // Despite the fact that 3 of these variables actually live in our base class,
         // we still archive them here to maintain backwards compatibility.  Since the
@@ -98,11 +101,51 @@ private:
         archive & mUseAnalyticJacobian;
         archive & mStateVariables;
         archive & mParameters;
-
-		// This is always set up by subclass constructors, and is essentially
-		// 'static' data, so shouldn't go in the archive.
-		//archive &mpSystemInfo;
+        
+        if (version > 0)
+        {
+            archive & rGetParameterNames();
+        }
+        
+        // This is always set up by subclass constructors, and is essentially
+        // 'static' data, so shouldn't go in the archive.
+        //archive &mpSystemInfo;
     }
+    /**
+     * Archive the member variables.
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void load(Archive & archive, const unsigned int version)
+    {
+        archive & mNumberOfStateVariables;
+        archive & mUseAnalyticJacobian;
+        archive & mStateVariables;
+        archive & mParameters;
+        
+        if (version > 0)
+        {
+            std::vector<std::string> param_names;
+            archive & param_names;
+            
+            if (param_names.size() != rGetParameterNames().size())
+            {
+                EXCEPTION("Number of ODE parameters in archive does not match number in class.");
+            }
+            for (unsigned i=0; i<param_names.size(); ++i)
+            {
+                if (param_names[i] != rGetParameterNames()[i])
+                {
+                    std::string message = "ODE system parameter names do not match: '"
+                        + param_names[i] + "' in archive but '" + rGetParameterNames()[i] + "' in class."; 
+                    EXCEPTION(message);
+                }
+            }
+        }
+    }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 protected:
 
@@ -214,6 +257,6 @@ public:
 };
 
 CLASS_IS_ABSTRACT(AbstractOdeSystem)
-
+BOOST_CLASS_VERSION(AbstractOdeSystem, 1u)
 
 #endif //_ABSTRACTODESYSTEM_HPP_

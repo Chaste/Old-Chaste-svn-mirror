@@ -171,6 +171,70 @@ public:
         TS_ASSERT_THROWS_THIS(p_info->GetAnyVariableUnits(3u), "Invalid index passed to GetAnyVariableUnits.");
     }
     
+    
+    void TestArchivingOfParameters() throw (Exception)
+    {
+        OutputFileHandler handler("archive", false);
+        std::string archive_filename;
+        archive_filename = handler.GetOutputDirectoryFullPath() + "parameterised_ode.arch";
+        double param_value;
+        std::string param_name;
+        { // Save
+            AbstractOdeSystem * const p_ode = new ParameterisedOde;
+            
+            TS_ASSERT_EQUALS(p_ode->GetNumberOfParameters(), 1u);
+            param_value = p_ode->GetParameter(0);
+            param_name = p_ode->rGetParameterNames()[0];
+            
+            std::ofstream ofs(archive_filename.c_str());
+            boost::archive::text_oarchive output_arch(ofs);
+            output_arch << p_ode;
+            delete p_ode;
+        }
+        { // Normal load
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            AbstractOdeSystem* p_ode;
+            input_arch >> p_ode;
+            
+            TS_ASSERT_EQUALS(p_ode->GetSystemName(), "ParameterisedOde");
+            TS_ASSERT_EQUALS(p_ode->GetParameter(0), param_value);
+            TS_ASSERT_EQUALS(p_ode->rGetParameterNames()[0], param_name);
+            TS_ASSERT_EQUALS(p_ode->GetNumberOfParameters(), 1u);
+            
+            delete p_ode;
+        }
+        { // Load with param name changed
+            ParameterisedOde ode;
+            boost::shared_ptr<const AbstractOdeSystemInformation> p_info = ode.GetSystemInformation();
+            AbstractOdeSystemInformation* p_mod_info = const_cast<AbstractOdeSystemInformation*>(p_info.get());
+            std::string new_name("new_param_name");
+            TS_ASSERT_DIFFERS(p_mod_info->mParameterNames[0], new_name);
+            p_mod_info->mParameterNames[0] = new_name;
+            
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            AbstractOdeSystem* p_ode;
+            TS_ASSERT_THROWS_CONTAINS(input_arch >> p_ode, "ODE system parameter names do not match");
+            // Mend the ode system info for the following tests.
+            p_mod_info->mParameterNames[0] = param_name;
+        }
+        { // Load with a parameter added
+            ParameterisedOde ode;
+            boost::shared_ptr<const AbstractOdeSystemInformation> p_info = ode.GetSystemInformation();
+            AbstractOdeSystemInformation* p_mod_info = const_cast<AbstractOdeSystemInformation*>(p_info.get());
+            
+            p_mod_info->mParameterNames.push_back("new_name");
+            
+            std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
+            boost::archive::text_iarchive input_arch(ifs);
+            AbstractOdeSystem* p_ode;
+            TS_ASSERT_THROWS_CONTAINS(input_arch >> p_ode, "Number of ODE parameters in archive does not match number in class.");
+            // Mend the ode system info for the following tests.
+            p_mod_info->mParameterNames.resize(1u);
+        }       
+    }
+    
     void TestDerivedQuantities() throw (Exception)
     {
         ParameterisedOde ode;

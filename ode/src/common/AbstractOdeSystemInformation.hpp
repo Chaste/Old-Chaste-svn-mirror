@@ -54,6 +54,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 class AbstractOdeSystemInformation
 {
+    friend class TestAbstractOdeSystem;
+    
 protected:
     /** Human-friendly name for the ODE system */
     std::string mSystemName;
