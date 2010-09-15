@@ -99,6 +99,8 @@ private:
         {
             CheckForArchiveFix();
         }
+        // Paranoia check
+        assert(this->mParameters.size() == this->rGetParameterNames().size());
     }
     
     /**

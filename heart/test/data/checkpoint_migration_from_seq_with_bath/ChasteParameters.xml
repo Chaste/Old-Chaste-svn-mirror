@@ -10,6 +10,13 @@
         <cp:Hardcoded>LuoRudyI</cp:Hardcoded>
       </cp:Default>
     </cp:IonicModels>
+    <cp:Electrodes>
+      <cp:GroundSecondElectrode>yes</cp:GroundSecondElectrode>
+      <cp:PerpendicularToAxis>x</cp:PerpendicularToAxis>
+      <cp:Strength unit="uA/cm^3">-11000</cp:Strength>
+      <cp:StartTime unit="ms">0</cp:StartTime>
+      <cp:Duration unit="ms">1.9</cp:Duration>
+    </cp:Electrodes>
     <cp:OutputDirectory>TestCreateArchiveForLoadFromSequentialWithBath</cp:OutputDirectory>
     <cp:OutputFilenamePrefix>simulation</cp:OutputFilenamePrefix>
   </cp:Simulation>

@@ -116,6 +116,10 @@ void AbstractCardiacCell::CheckForArchiveFix()
         {
             this->mStateVariables[var_index_map[i]] = old_state[i];
         }
+        // It also didn't use to have parameters...
+        this->mParameters.resize(this->rGetParameterNames().size());
+        assert(this->mParameters.size() == 1u);
+        this->mParameters[0] = 23.0;
     }
 }
 
