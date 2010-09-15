@@ -151,6 +151,12 @@ protected:
 
     /** Create a suitable bidomain solver */
     virtual AbstractDynamicLinearPdeSolver<DIM,DIM,2>* CreateSolver();
+    
+    /**
+     *  Set an electrode object (which provides boundary conditions). Only
+     *  valid if there is a bath.
+     */
+    void SetElectrodes();
 
 public:
     /**
@@ -223,11 +229,7 @@ public:
      */
     void PreSolveChecks();
 
-    /**
-     *  Set an electrode object (which provides boundary conditions). Only
-     *  valid if there is a bath.
-     */
-    void SetElectrodes();
+   
 
     /**
      *  Called at beginning of each time step in the main time-loop in

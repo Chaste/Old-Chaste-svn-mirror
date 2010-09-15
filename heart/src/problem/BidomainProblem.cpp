@@ -282,16 +282,16 @@ void BidomainProblem<DIM>::SetElectrodes()
 {
     if (!mHasBath)
     {
-        EXCEPTION("Cannot set electrodes when problem has been defined to not have a bath");
+        //Cannot set electrodes when problem has been defined to not have a bath
+        return;
     }
     
-    if (this->mpMesh==NULL)
-    {
-        EXCEPTION("Must set the mesh before trying to set the electrodes!");
-    }
+    assert(this->mpMesh!=NULL);
     
-    //\todo #1271 This method could probably just be integrated into initialise  
-    mpElectrodes = (boost::shared_ptr<Electrodes<DIM> >) new Electrodes<DIM>(*(this->mpMesh));
+    if (HeartConfig::Instance()->IsElectrodesPresent())
+    { 
+        mpElectrodes = (boost::shared_ptr<Electrodes<DIM> >) new Electrodes<DIM>(*(this->mpMesh));
+    }
 }
 
 template<unsigned DIM>

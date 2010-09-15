@@ -324,11 +324,8 @@ public:
 
         HeartConfig::Instance()->SetElectrodeParameters(false,0, boundary_flux, start_time, duration);
         
-        //Cannot set Electrodes before setting the mesh ///\todo #1271 - won't be an issue if electrodes are set in initialise
-        TS_ASSERT_THROWS_THIS(bidomain_problem.SetElectrodes(), "Must set the mesh before trying to set the electrodes!");
               
         bidomain_problem.SetMesh(p_mesh);
-        bidomain_problem.SetElectrodes();
         bidomain_problem.Initialise();
 
         bidomain_problem.Solve();
@@ -389,7 +386,6 @@ public:
 
 
         bidomain_problem.SetMesh(p_mesh);
-        bidomain_problem.SetElectrodes();
         bidomain_problem.Initialise();
 
         /*
@@ -487,7 +483,6 @@ public:
 //
 //
 //        bidomain_problem.SetMesh(p_mesh);
-//        bidomain_problem.SetElectrodes();
 //        bidomain_problem.Initialise();
 //
 //        /*
@@ -588,7 +583,6 @@ public:
             Timer::Reset();
 
             matrix_based_bido.SetMesh(p_mesh);
-            matrix_based_bido.SetElectrodes();
             matrix_based_bido.Initialise();
             matrix_based_bido.Solve();
 
@@ -607,7 +601,6 @@ public:
             Timer::Reset();
 
             non_matrix_based_bido.SetMesh(p_mesh);
-            non_matrix_based_bido.SetElectrodes();
             non_matrix_based_bido.UseMatrixBasedRhsAssembly(false);
             non_matrix_based_bido.Initialise();
             non_matrix_based_bido.Solve();
@@ -666,7 +659,6 @@ public:
             HeartConfig::Instance()->SetElectrodeParameters(false,0,boundary_flux, 0.0, duration);
 
             bidomain_problem.SetMesh(p_mesh);
-            bidomain_problem.SetElectrodes();
             bidomain_problem.Initialise();
 
             // Save using helper class
@@ -845,7 +837,6 @@ public:
         HeartConfig::Instance()->SetElectrodeParameters(false,0,boundary_flux, start_time, duration);
     
         bidomain_problem1.SetMesh(p_mesh1);
-        bidomain_problem1.SetElectrodes();
         bidomain_problem1.PrintOutput(false);
         bidomain_problem1.Initialise();
  
@@ -867,7 +858,6 @@ public:
    
     
         bidomain_problem2.SetMesh(p_mesh2);
-        bidomain_problem2.SetElectrodes();
         bidomain_problem2.PrintOutput(false);
         bidomain_problem2.Initialise();
 

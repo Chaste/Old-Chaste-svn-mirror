@@ -193,8 +193,8 @@ void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::Initialise()
     mCurrentTime = 0.0;
     
     //For Bidomain with bath, this is where we set up the electrodes
-    ///\todo next in #1271
-    //SetElectrodes();
+    
+    SetElectrodes();
 }
 
 
@@ -695,7 +695,6 @@ bool AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::GetHasBath()
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM, unsigned PROBLEM_DIM>
 void AbstractCardiacProblem<ELEMENT_DIM,SPACE_DIM,PROBLEM_DIM>::SetElectrodes()
 {
-    //Implemented for Bidomain problems (with bath)
 }    
 
 

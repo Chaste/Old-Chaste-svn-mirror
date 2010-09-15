@@ -356,7 +356,6 @@ public:
 
         /* ..set the mesh and electrodes.. */
         bidomain_problem.SetMesh(&mesh);
-        bidomain_problem.SetElectrodes();
 
         /* ..and solve as before. */
         bidomain_problem.Initialise();

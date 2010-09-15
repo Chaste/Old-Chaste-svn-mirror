@@ -635,7 +635,6 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
 	        BidomainProblem<2> bidomain_problem( &cell_factory, true );
 	        
 	        bidomain_problem.SetMesh(p_mesh);
-            bidomain_problem.SetElectrodes();
 	        bidomain_problem.Initialise();
 	
 	        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
@@ -655,7 +654,6 @@ cp  /tmp/$USER/testoutput/TestCreateArchiveForLoadAsSequentialWithBathAndDistrib
 	        BidomainProblem<2> bidomain_problem( &cell_factory, true );
 	        
 	        bidomain_problem.SetMesh(p_mesh);
-            bidomain_problem.SetElectrodes();
 	        bidomain_problem.Initialise();
 	
 	        CardiacSimulationArchiver<BidomainProblem<2> >::Save(bidomain_problem, directory, false);
@@ -958,7 +956,6 @@ cp /tmp/$USER/testoutput/TestCreateArchiveForLoadFromSequentialWithBath/?* ./hea
 
         BidomainProblem<2> bidomain_problem( &cell_factory, true );
         bidomain_problem.SetMesh(p_mesh);
-        bidomain_problem.SetElectrodes();
 
         // We solve for a small period of time so BCCs are created (next test wants to check it)
         HeartConfig::Instance()->SetSimulationDuration(0.1);

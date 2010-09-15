@@ -302,7 +302,6 @@ public:
 //
 //        HeartConfig::Instance()->SetElectrodeParameters(false,0,boundary_flux, start_time, duration);
 //
-//        para_para_problem.SetElectrodes();
 //        para_para_problem.UseMatrixBasedRhsAssembly(false);
 //        para_para_problem.Initialise();
 //

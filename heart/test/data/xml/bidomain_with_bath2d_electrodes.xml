@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ChasteParameters xmlns="https://chaste.comlab.ox.ac.uk/nss/parameters/2_1">
+
+	<Simulation>       
+		<!-- 
+			Problem definition 
+		-->    
+	    <SimulationDuration unit="ms">0.5</SimulationDuration>
+	    <Domain>BiWithBath</Domain>
+	    <SpaceDimension>2</SpaceDimension>
+	    <IonicModels>
+	    	<Default><Hardcoded>LuoRudyI</Hardcoded></Default>
+    	</IonicModels>
+	    
+		<!-- 
+			Mesh definition 
+		-->    
+        <Mesh unit="cm">
+            <LoadMesh name="mesh/test/data/2D_0_to_1mm_400_elements_with_bath" conductivity_media="NoFibreOrientation"/>
+        </Mesh>
+		    
+	    <!-- 
+	    	Stimuli (as many <Stimulus> definitions as needed) 
+	   	-->
+   		<Stimuli>
+			<Stimulus> <!-- #1 -->
+				<Strength unit="uA/cm^3">0.0</Strength>
+				<Duration unit="ms">1.0</Duration>
+				<Delay unit="ms">0.0</Delay>
+				<Location unit="cm">
+					<Cuboid>
+						<LowerCoordinates x="0.0" y="0.0" z="0.0"/>
+						<UpperCoordinates x="0.1" y="0.1" z="0.1"/>
+					</Cuboid>
+				</Location>
+			</Stimulus>	
+		</Stimuli>
+		
+		<!--
+			Electrodes
+		-->
+		<Electrodes>
+			<GroundSecondElectrode>yes</GroundSecondElectrode>
+			<PerpendicularToAxis>x</PerpendicularToAxis>
+			<Strength unit="uA/cm^3">-11000</Strength>
+		    <StartTime unit="ms">1.0</StartTime> 
+		    <Duration unit="ms">2.0</Duration>
+		</Electrodes>
+		
+		<OutputDirectory>BidomainBath2dGroundedOnOffFromXml</OutputDirectory>
+		<OutputFilenamePrefix>bidomain_bath_2d_grounded_on_off</OutputFilenamePrefix>
+	</Simulation>
+	
+    <Physiological>
+    </Physiological>
+	<Numerical>
+		<TimeSteps ode="0.001" pde="0.01" printing="0.01" unit="ms" />
+	</Numerical>		
+		    
+</ChasteParameters>

@@ -189,7 +189,6 @@ public:
         double duration = 2.5; //ms
 
         HeartConfig::Instance()->SetElectrodeParameters(true,0,boundary_flux, 0.0, duration);
-        bidomain_problem.SetElectrodes();
         bidomain_problem.Solve();
 
         Vec sol = bidomain_problem.GetSolution();
@@ -258,7 +257,6 @@ public:
         double duration = 2.5; //ms
 
         HeartConfig::Instance()->SetElectrodeParameters(true,0,boundary_flux, 0.0, duration);
-        bidomain_problem.SetElectrodes();
         bidomain_problem.Solve();
 
         Vec sol = bidomain_problem.GetSolution();
