@@ -69,6 +69,17 @@ void FileFinder::SetAbsolutePath(const std::string& rRelativePath, RelativeTo::V
             mAbsPath = rRelativePath;
             break;
 
+        case RelativeTo::AbsoluteOrCwd:
+            if (FileFinder::IsAbsolutePath(rRelativePath))
+            {
+                mAbsPath = rRelativePath;
+            }
+            else
+            {
+                mAbsPath = GetCurrentWorkingDirectory() + "/" + rRelativePath;
+            }
+            break;
+
         default:
             // Getting here is impossible
             NEVER_REACHED;

@@ -46,7 +46,8 @@ struct RelativeTo
         CWD, /**< The current working directory */
         ChasteTestOutput, /**< The CHASTE_TEST_OUTPUT folder */
         ChasteSourceRoot, /**< The root of the Chaste source tree */
-        Absolute /**< This is an absolute path */
+        Absolute, /**< This is an absolute path */
+        AbsoluteOrCwd /**< If it starts with a / then it's absolute, otherwise interpret relative to CWD */
     };
 };
 
@@ -72,12 +73,15 @@ protected:
     void SetAbsolutePath(const std::string& rRelativePath,
                          RelativeTo::Value relativeTo);
 
+public:
     /**
      * Default constructor for subclasses to use.  They @b must call
      * SetAbsolutePath() in their constructor.
+     *
+     * This also allows classes to store a FileFinder instance that hasn't
+     * been properly set up yet, and assign to it later using operator=.
      */
     FileFinder();
-public:
 
     /**
      * Main constructor.

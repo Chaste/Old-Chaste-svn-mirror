@@ -57,6 +57,14 @@ public:
             TS_ASSERT(!file_finder2.IsDir());
             // Check the path is as expected
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
+
+            // file_name is relative
+            FileFinder file_finder3(file_name, RelativeTo::AbsoluteOrCwd);
+            TS_ASSERT(file_finder3.Exists());
+            TS_ASSERT(file_finder3.IsFile());
+            TS_ASSERT(!file_finder3.IsDir());
+            // Check the path is as expected
+            TS_ASSERT_EQUALS(file_finder3.GetAbsolutePath(), abs_path);
         }
 
         {
@@ -80,6 +88,10 @@ public:
             FileFinder file_finder2(abs_path, RelativeTo::Absolute);
             TS_ASSERT(file_finder2.Exists());
             TS_ASSERT_EQUALS(file_finder2.GetAbsolutePath(), abs_path);
+
+            FileFinder file_finder3(abs_path, RelativeTo::AbsoluteOrCwd);
+            TS_ASSERT(file_finder3.Exists());
+            TS_ASSERT_EQUALS(file_finder3.GetAbsolutePath(), abs_path);
         }
     }
 
