@@ -31,71 +31,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 
 template<unsigned SPACE_DIM>
-void AbstractConductivityTensors<SPACE_DIM>::OpenFibreOrientationFile()
+void AbstractConductivityTensors<SPACE_DIM>::OpenFibreOrientationFile(unsigned axiOrOrtho)
 {
-    mDataFile.open(mFibreOrientationFilename.c_str());
-    if (!mDataFile.is_open())
-    {
-        EXCEPTION("Wrong fibre orientation file name "+mFibreOrientationFilename);
-    }
+    assert(mUseFibreOrientation);
+    mFileReader.reset(new FibreReader<SPACE_DIM>(mFibreOrientationFile, axiOrOrtho));
 }
 
 template<unsigned SPACE_DIM>
 void AbstractConductivityTensors<SPACE_DIM>::CloseFibreOrientationFile()
 {
-    mDataFile.close();
-}
-
-template<unsigned SPACE_DIM>
-unsigned AbstractConductivityTensors<SPACE_DIM>::GetTokensAtNextLine(std::vector<double>& rTokens)
-{
-    std::string line;
-
-    bool comment_line;
-    bool blank_line;
-    //We've assuming this is a fresh vector.  Why?
-    assert(rTokens.size() == 0);
-    do
-    {
-        getline(mDataFile, line);
-
-        if (mDataFile.eof())
-        {
-            CloseFibreOrientationFile();
-            EXCEPTION("Fibre orientation file contains less fibre definitions than the number of elements in the mesh");
-        }
-
-        comment_line = (line.find('#',0) != std::string::npos);
-        blank_line = (line.find_first_not_of(" \t",0) == std::string::npos);
-    }
-    while(comment_line || blank_line);
-
-
-    std::stringstream line_stream(line);
-
-    // Read all the numbers from the line
-    while (!line_stream.eof())
-    {
-        double item;
-        line_stream >> item;
-        rTokens.push_back(item);
-    }
-
-    return rTokens.size();
-}
-
-template<unsigned SPACE_DIM>
-unsigned AbstractConductivityTensors<SPACE_DIM>::GetNumElementsFromFile()
-{
-    std::vector<double> tokens;
-
-    if (GetTokensAtNextLine(tokens) != 1)
-    {
-        CloseFibreOrientationFile();
-        EXCEPTION("First (non comment) line of the fibre orientation file should contain the number of elements of the mesh (and nothing else)");
-    }
-
-    return (unsigned) tokens[0];
+    mFileReader.reset();
 }
 
 
@@ -120,10 +65,10 @@ AbstractConductivityTensors<SPACE_DIM>::~AbstractConductivityTensors()
 }
 
 template<unsigned SPACE_DIM>
-void AbstractConductivityTensors<SPACE_DIM>::SetFibreOrientationFile(const std::string &rFibreOrientationFilename)
+void AbstractConductivityTensors<SPACE_DIM>::SetFibreOrientationFile(const FileFinder &rFibreOrientationFile)
 {
     mUseFibreOrientation = true;
-    mFibreOrientationFilename = rFibreOrientationFilename;
+    mFibreOrientationFile = rFibreOrientationFile;
 }
 
 template<unsigned SPACE_DIM>

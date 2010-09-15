@@ -30,9 +30,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <string>
-#include <fstream>
+#include <memory>
 #include "UblasIncludes.hpp"
+#include "FibreReader.hpp"
 #include "Exception.hpp"
+#include "FileFinder.hpp"
 
 /**
  * Base class for different representations of conductivity tensors.
@@ -58,29 +60,20 @@ protected:
     /** Set by Init() in the base classes*/
     bool mInitialised;
 
-    /** Name of fibre orienation file (see SetFibreOrientationFile)*/
-    std::string mFibreOrientationFilename;
+    /** Fibre orienation file (see SetFibreOrientationFile)*/
+    FileFinder mFibreOrientationFile;
 
-    /** File stream to use for GetTokensAtNextLine*/
-    std::ifstream mDataFile;
+    /** Fibre file reader */
+    std::auto_ptr<FibreReader<SPACE_DIM> > mFileReader;
 
-    /** Open mDataFile using the name mFibreOrientationFilename*/
-    void OpenFibreOrientationFile();
+    /** Open fibre file using the name #mFibreOrientationFile.
+     *
+     * @param axiOrOrtho  whether to expect axisymmetric (1) or orthotropic (2) conductivity tensors
+     */
+    void OpenFibreOrientationFile(unsigned axiOrOrtho);
 
-    /** Close mDataFile*/
+    /** Close fibre file*/
     void CloseFibreOrientationFile();
-
-    /** Read a line of numbers from mDataFile
-     * @param rTokens  a vector to store the data in
-     * @return the size of the vector
-     */
-    unsigned GetTokensAtNextLine(std::vector<double>& rTokens);
-
-    /** Read number of elements from mDataFile
-     * Note: Must be called before GetTokensAtNextLine (it assumes that
-     * it's reading the first line.
-     */
-    unsigned GetNumElementsFromFile();
 
 public:
 
@@ -91,9 +84,9 @@ public:
     /**
      *  Sets a file for reading the fibre orientation from.
      *
-     *  @param rFibreOrientationFilename Relative path to the file defining the fibre orientation
+     *  @param rFibreOrientationFile  the file defining the fibre orientation
      */
-    void SetFibreOrientationFile(const std::string &rFibreOrientationFilename);
+    void SetFibreOrientationFile(const FileFinder &rFibreOrientationFile);
 
     /**
      *  Sets constant conductivities for all the elements of the mesh.

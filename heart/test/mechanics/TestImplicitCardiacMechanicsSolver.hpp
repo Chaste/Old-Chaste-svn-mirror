@@ -278,9 +278,9 @@ public:
             {
                 TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("blah", false), "Fibre file must be a .ortho file");
                 TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("blah.ortho", false), "Could not open file");
-                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("heart/test/data/bad_4by4mesh_fibres.ortho", false), "Error occurred when reading file");
-                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("heart/test/data/badheader_4by4mesh_fibres.ortho", false), "found 32342, expected 32");
-                solver.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho", false);
+                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/bad_4by4mesh_fibres.ortho", false), "Error occurred when reading file");
+                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/badheader_4by4mesh_fibres.ortho", false), "found 32342, expected 32");
+                solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/4by4mesh_fibres.ortho", false);
             }
 
             QuadraturePointsGroup<2> quad_points(mesh, *(solver.GetQuadratureRule()));
@@ -424,9 +424,9 @@ public:
 
         ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirectionDefinePerQuadPoint",fixed_nodes,&law);
         
-        TS_ASSERT_THROWS_THIS( solver.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.ortho", true), "Fibre file must be a .orthoquad file");
-        TS_ASSERT_THROWS_CONTAINS( solver.SetVariableFibreSheetDirections("heart/test/data/badheader_4by4mesh_fibres.orthoquad", true), "found 45430, expected 288");
-        solver.SetVariableFibreSheetDirections("heart/test/data/4by4mesh_fibres.orthoquad", true);
+        TS_ASSERT_THROWS_THIS( solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/4by4mesh_fibres.ortho", true), "Fibre file must be a .orthoquad file");
+        TS_ASSERT_THROWS_CONTAINS( solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/badheader_4by4mesh_fibres.orthoquad", true), "found 45430, expected 288");
+        solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/4by4mesh_fibres.orthoquad", true);
 
         QuadraturePointsGroup<2> quad_points(mesh, *(solver.GetQuadratureRule()));
         std::vector<double> calcium_conc(solver.GetTotalNumQuadPoints());

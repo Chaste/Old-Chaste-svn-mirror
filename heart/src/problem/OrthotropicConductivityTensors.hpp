@@ -38,9 +38,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  This class provides an abstraction for the definition of constant/non-constant difussion tensors
  * associated to the different elements of the mesh.
  *
- *  After instanciating the class any of SetFibreOrientationFile() or SetNonConstantConductivities()
+ *  After instantiating the class any of SetFibreOrientationFile() or SetNonConstantConductivities()
  * (or both) can be called to implement fiber orientation or heterogeneous conductivity into the
- * tensors, respectively. If none of them is called a constant tensor (with constant conductivies)
+ * tensors, respectively. If none of them is called a constant tensor (with constant conductivities)
  * will be generated for all the elements of the mesh.
  *
  *  Init() should be called to actually create the tensors.
@@ -56,9 +56,9 @@ private:
     /**
      * Reads a line from the Conductivity Tensor file (see base class)
      * and interprets it as a SPACE_DIM*SPACE_DIM tensor
-     * @param orientMatrix matrix into which to read the tensor
+     * @param rOrientMatrix matrix into which to read the tensor
      */
-    void ReadOrientationMatrixFromFile (c_matrix<double,SPACE_DIM,SPACE_DIM>& orientMatrix);
+    void ReadOrientationMatrixFromFile (c_matrix<double,SPACE_DIM,SPACE_DIM>& rOrientMatrix);
 
 public:
 

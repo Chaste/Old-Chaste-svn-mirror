@@ -30,24 +30,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 template<unsigned SPACE_DIM>
-void OrthotropicConductivityTensors<SPACE_DIM>::ReadOrientationMatrixFromFile (c_matrix<double,SPACE_DIM,SPACE_DIM>& orientMatrix)
+void OrthotropicConductivityTensors<SPACE_DIM>::ReadOrientationMatrixFromFile (c_matrix<double,SPACE_DIM,SPACE_DIM>& rOrientMatrix)
 {
-    std::vector<double> items;
-    unsigned num_elems = this->GetTokensAtNextLine(items);
-
-    if (num_elems != SPACE_DIM*SPACE_DIM)
-    {
-        this->CloseFibreOrientationFile();
-        EXCEPTION("Orthotropic media defined. Number of vectors in fibre orientation file and size of them should match SPACE_DIM");
-    }
-
-    for (unsigned vector_index=0; vector_index<SPACE_DIM; vector_index++)
-    {
-        for (unsigned component_index=0; component_index<SPACE_DIM; component_index++)
-        {
-            orientMatrix(component_index, vector_index) = items[vector_index*SPACE_DIM + component_index];
-        }
-    }
+    this->mFileReader->GetNextFibreSheetAndNormalMatrix(rOrientMatrix);
 }
 
 template<unsigned SPACE_DIM>
@@ -72,8 +57,8 @@ void OrthotropicConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 
         if (this->mUseFibreOrientation)
         {
-            this->OpenFibreOrientationFile();
-            this->mNumElements = this->GetNumElementsFromFile();
+            this->OpenFibreOrientationFile(2);
+            this->mNumElements = this->mFileReader->GetNumLinesOfData();
         }
         else
         {

@@ -96,7 +96,7 @@ public:
         }
         assert(0);
         */
-        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/5by5mesh_curving_fibres.ortho", false);
+        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/5by5mesh_curving_fibres.ortho", false);
 
         // problem.SetNoElectricsOutput();
         problem.Solve();
@@ -191,7 +191,7 @@ public:
 ////                      << " 1 0 0\n";  
 ////        }
 
-        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/5by5by5_fibres_by_quadpt.orthoquad", true);
+        problem.SetVariableFibreSheetDirectionsFile("heart/test/data/fibre_tests/5by5by5_fibres_by_quadpt.orthoquad", true);
 
         problem.Solve();
 

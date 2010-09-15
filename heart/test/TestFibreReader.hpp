@@ -61,7 +61,7 @@ class TestFibreReader : public CxxTest::TestSuite
 public:
     void TestOrthoReaderSetup()
     {
-        cp::path_type path("heart/test/data/random_fibres.ortho");
+        cp::path_type path("heart/test/data/fibre_tests/random_fibres.ortho");
         path.relative_to(cp::relative_to_type::chaste_source_root);
         HeartFileFinder file_finder(path);
         
@@ -87,7 +87,7 @@ public:
 
     void TestAxiReaderSetup()
     {
-        cp::path_type path("heart/test/data/random_fibres.axi");
+        cp::path_type path("heart/test/data/fibre_tests/random_fibres.axi");
         path.relative_to(cp::relative_to_type::chaste_source_root);
         HeartFileFinder file_finder(path);
 
@@ -115,20 +115,20 @@ public:
         c_matrix<double, 2, 2> fibre_matrix;
 
         // file doesn't exist
-        cp::path_type  bad_path("heart/test/data/dgfsdgjdf.ortho");
+        cp::path_type  bad_path("heart/test/data/fibre_tests/dgfsdgjdf.ortho");
         bad_path.relative_to(cp::relative_to_type::chaste_source_root);
         HeartFileFinder bad_file_finder(bad_path);
-        TS_ASSERT_THROWS_CONTAINS( FibreReader<2> fibre_reader(bad_file_finder,2), "Failed to open");
+        TS_ASSERT_THROWS_CONTAINS( FibreReader<2> fibre_reader(bad_file_finder,2), "Failed to open fibre file");
 
         // line for first element is incomplete
-        cp::path_type  path1("heart/test/data/bad_ortho1.ortho");
+        cp::path_type  path1("heart/test/data/fibre_tests/bad_ortho1.ortho");
         path1.relative_to(cp::relative_to_type::chaste_source_root);
         HeartFileFinder finder1(path1);
         FibreReader<2> fibre_reader1(finder1,2);
         TS_ASSERT_THROWS_CONTAINS(fibre_reader1.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "A line is incomplete in");
 
         // line for third element is missing
-        cp::path_type  path2("heart/test/data/bad_ortho2.ortho");
+        cp::path_type  path2("heart/test/data/fibre_tests/bad_ortho2.ortho");
         path2.relative_to(cp::relative_to_type::chaste_source_root);
         HeartFileFinder finder2(path2);
         FibreReader<2> fibre_reader2(finder2,2);
@@ -137,7 +137,7 @@ public:
         TS_ASSERT_THROWS_CONTAINS(fibre_reader2.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "Fibre orientation file contains less");
 
         // line for second element has too many entries
-        cp::path_type  path3("heart/test/data/bad_ortho3.ortho");
+        cp::path_type  path3("heart/test/data/fibre_tests/bad_ortho3.ortho");
         path3.relative_to(cp::relative_to_type::chaste_source_root);
         HeartFileFinder finder3(path3);
         FibreReader<2> fibre_reader3(finder3,2);
@@ -145,23 +145,23 @@ public:
         TS_ASSERT_THROWS_CONTAINS(fibre_reader3.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "Too many entries in a line in");
 
         // first line doesn't give the number of lines of data
-        cp::path_type  path4("heart/test/data/bad_ortho4.ortho");
+        cp::path_type  path4("heart/test/data/fibre_tests/bad_ortho4.ortho");
         path4.relative_to(cp::relative_to_type::chaste_source_root);
         HeartFileFinder finder4(path4);
         TS_ASSERT_THROWS_CONTAINS( FibreReader<2> fibre_reader(finder4,2), "First (non comment) line of the fibre orientation file should contain the number of lines");
 
         // Can't read an 'orthotropic vector' or 'axisymmetric matrix'
         c_vector<double, 2> fibre_vector;
-        FileFinder finder5("heart/test/data/random_fibres.ortho", RelativeTo::ChasteSourceRoot);
+        FileFinder finder5("heart/test/data/fibre_tests/random_fibres.ortho", RelativeTo::ChasteSourceRoot);
         FibreReader<2> fibre_reader5(finder5, 2);
         TS_ASSERT_THROWS_THIS(fibre_reader5.GetNextFibreVector(fibre_vector), "Use GetNextFibreSheetAndNormalMatrix when reading orthotropic fibres.");
 
-        FileFinder finder6("heart/test/data/random_fibres.axi", RelativeTo::ChasteSourceRoot);
+        FileFinder finder6("heart/test/data/fibre_tests/random_fibres.axi", RelativeTo::ChasteSourceRoot);
         FibreReader<2> fibre_reader6(finder6, 1);
         TS_ASSERT_THROWS_THIS(fibre_reader6.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "Use GetNextFibreVector when reading axisymmetric fibres.");
 
         // Incomplete axi data
-        FileFinder finder7("heart/test/data/bad_axi.axi", RelativeTo::ChasteSourceRoot);
+        FileFinder finder7("heart/test/data/fibre_tests/bad_axi.axi", RelativeTo::ChasteSourceRoot);
         FibreReader<2> fibre_reader7(finder7, 1);
         TS_ASSERT_THROWS_CONTAINS(fibre_reader7.GetNextFibreVector(fibre_vector), "A line is incomplete in");
     }

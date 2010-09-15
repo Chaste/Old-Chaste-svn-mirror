@@ -38,7 +38,7 @@ FibreReader<DIM>::FibreReader(FileFinder& rFileFinder, unsigned axiOrOrtho)
     mDataFile.open(mFilePath.c_str());
     if (!mDataFile.is_open())
     {
-        EXCEPTION("Failed to open " + rFileFinder.GetAbsolutePath());
+        EXCEPTION("Failed to open fibre file " + rFileFinder.GetAbsolutePath());
     }
 
     if ((axiOrOrtho != 1) && (axiOrOrtho != 2))
@@ -86,7 +86,7 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
     {
         for(unsigned j=0; j<DIM; j++)
         {
-            rFibreMatrix(i,j) = mTokens[DIM*i + j];
+            rFibreMatrix(j,i) = mTokens[DIM*i + j];
         }
     }
 }

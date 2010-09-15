@@ -155,14 +155,20 @@ void AbstractCardiacTissue<ELEMENT_DIM,SPACE_DIM>::CreateIntracellularConductivi
         switch (mpConfig->GetConductivityMedia())
         {
             case cp::media_type::Orthotropic:
+            {
                 mpIntracellularConductivityTensors = new OrthotropicConductivityTensors<SPACE_DIM>;
-                mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".ortho");
+                FileFinder ortho_file(this->mpConfig->GetMeshName() + ".ortho", RelativeTo::AbsoluteOrCwd);
+                mpIntracellularConductivityTensors->SetFibreOrientationFile(ortho_file);
                 break;
+            }
 
             case cp::media_type::Axisymmetric:
+            {
                 mpIntracellularConductivityTensors = new AxisymmetricConductivityTensors<SPACE_DIM>;
-                mpIntracellularConductivityTensors->SetFibreOrientationFile(mpConfig->GetMeshName() + ".axi");
+                FileFinder axi_file(this->mpConfig->GetMeshName() + ".axi", RelativeTo::AbsoluteOrCwd);
+                mpIntracellularConductivityTensors->SetFibreOrientationFile(axi_file);
                 break;
+            }
 
             case cp::media_type::NoFibreOrientation:
                 /// \todo #1316 Create a class defining constant tensors to be used when no fibre orientation is provided.

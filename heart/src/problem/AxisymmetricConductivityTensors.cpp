@@ -34,20 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 void AxisymmetricConductivityTensors<SPACE_DIM>::ReadOrientationVectorFromFile (c_vector<double,SPACE_DIM>& rOrientVector)
 {
-    std::vector<double> tokens;
-
-    unsigned num_elems = this->GetTokensAtNextLine(tokens);
-
-    if (num_elems != 3u)
-    {
-        this->CloseFibreOrientationFile();
-        EXCEPTION("Axisymmetric media defined. Fibre orientation file should contain 3 values per element");
-    }
-
-    for (unsigned i=0; i<SPACE_DIM; i++)
-    {
-        rOrientVector[i] = tokens[i];
-    }
+    this->mFileReader->GetNextFibreVector(rOrientVector);
 }
 
 template<unsigned SPACE_DIM>
@@ -94,8 +81,8 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 
         if (this->mUseFibreOrientation)
         {
-            this->OpenFibreOrientationFile();
-            this->mNumElements = this->GetNumElementsFromFile();
+            this->OpenFibreOrientationFile(1);
+            this->mNumElements = this->mFileReader->GetNumLinesOfData();
         }
         else
         {

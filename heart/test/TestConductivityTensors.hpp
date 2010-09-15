@@ -104,36 +104,39 @@ public:
         {
             OrthotropicConductivityTensors<3> ortho_tensors;
             ortho_tensors.SetConstantConductivities( Create_c_vector(2.1, 0.8, 0.135) );
-            ortho_tensors.SetFibreOrientationFile("non_existing_file.fibres");
-            TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),
-                    "Wrong fibre orientation file name non_existing_file.fibres"); // non existing file
+            FileFinder file("non_existing_file.fibres", RelativeTo::CWD);
+            ortho_tensors.SetFibreOrientationFile(file);
+            TS_ASSERT_THROWS_CONTAINS(ortho_tensors.Init(),
+                    "Failed to open fibre file"); // non existing file
         }
 
         {
             OrthotropicConductivityTensors<3> ortho_tensors;
             ortho_tensors.SetConstantConductivities( Create_c_vector(2.1, 0.8, 0.135) );
-            ortho_tensors.SetFibreOrientationFile ("heart/test/data/SimpleOrthotropic2D.fibres");
-            TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),
-                    "Orthotropic media defined. Number of vectors in fibre orientation file and "
-                    "size of them should match SPACE_DIM"); // mismatching SPACE_DIM and # vectors in file
+            FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic2D.fibres", RelativeTo::ChasteSourceRoot);
+            ortho_tensors.SetFibreOrientationFile(file);
+            TS_ASSERT_THROWS_CONTAINS(ortho_tensors.Init(),
+                    "A line is incomplete in "); // mismatching SPACE_DIM and # vectors in file
         }
 
         {
             OrthotropicConductivityTensors<3> ortho_tensors;
             ortho_tensors.SetConstantConductivities( Create_c_vector(2.1, 0.8, 0.135) );
-            ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic2DWrongFormat.fibres");
+            FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic2DWrongFormat.fibres", RelativeTo::ChasteSourceRoot);
+            ortho_tensors.SetFibreOrientationFile(file);
             TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),
                     "First (non comment) line of the fibre orientation file should contain the number "
-                    "of elements of the mesh (and nothing else)"); // wrong file format
+                    "of lines of data in the file (and nothing else)"); // wrong file format
         }
 
         {
             OrthotropicConductivityTensors<3> ortho_tensors;
             ortho_tensors.SetConstantConductivities( Create_c_vector(2.1, 0.8, 0.135) );
-            ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3DShortFile.fibres");
+            FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic3DShortFile.fibres", RelativeTo::ChasteSourceRoot);
+            ortho_tensors.SetFibreOrientationFile(file);
             TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),
                     "Fibre orientation file contains less fibre definitions than the "
-                    "number of elements in the mesh"); // short file
+                    "number of lines of data defined at the beginning of the file"); // short file
         }
     }
 
@@ -143,7 +146,8 @@ public:
 
         OrthotropicConductivityTensors<3> ortho_tensors;
         ortho_tensors.SetConstantConductivities(constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3D.fibres");
+        FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic3D.fibres", RelativeTo::ChasteSourceRoot);
+        ortho_tensors.SetFibreOrientationFile(file);
         ortho_tensors.Init();
 
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -166,12 +170,14 @@ public:
 
         OrthotropicConductivityTensors<3> ortho_tensors;
         ortho_tensors.SetConstantConductivities(constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/box_shaped_heart/box_heart.ortho");
+        FileFinder ortho_file("heart/test/data/box_shaped_heart/box_heart.ortho", RelativeTo::ChasteSourceRoot);
+        ortho_tensors.SetFibreOrientationFile(ortho_file);
         ortho_tensors.Init();
 
         AxisymmetricConductivityTensors<3> axi_tensors;
         axi_tensors.SetConstantConductivities(constant_conductivities);
-        axi_tensors.SetFibreOrientationFile("heart/test/data/box_shaped_heart/box_heart.axi");
+        FileFinder axi_file("heart/test/data/box_shaped_heart/box_heart.axi", RelativeTo::ChasteSourceRoot);
+        axi_tensors.SetFibreOrientationFile(axi_file);
         axi_tensors.Init();
 
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -195,12 +201,13 @@ public:
 
         OrthotropicConductivityTensors<3> ortho_tensors;
         ortho_tensors.SetConstantConductivities(constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleAxisymmetric.fibre");
-        TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),"Wrong fibre orientation file name heart/test/data/SimpleAxisymmetric.fibre");
-
+        FileFinder file1("heart/test/data/fibre_tests/SimpleAxisymmetric.fibre", RelativeTo::ChasteSourceRoot);
+        ortho_tensors.SetFibreOrientationFile(file1);
+        TS_ASSERT_THROWS_CONTAINS(ortho_tensors.Init(), "Failed to open fibre file");
         AxisymmetricConductivityTensors<3> axi_tensors;
         axi_tensors.SetConstantConductivities(constant_conductivities);
-        axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleAxisymmetric.fibres");
+        FileFinder file2("heart/test/data/fibre_tests/SimpleAxisymmetric.fibres", RelativeTo::ChasteSourceRoot);
+        axi_tensors.SetFibreOrientationFile(file2);
         axi_tensors.Init();
 
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -272,7 +279,8 @@ public:
 
         OrthotropicConductivityTensors<1> ortho_tensors;
         ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic1D.fibres");
+        FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic1D.fibres", RelativeTo::ChasteSourceRoot);
+        ortho_tensors.SetFibreOrientationFile(file);
         ortho_tensors.Init();
 
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -291,7 +299,8 @@ public:
 
         OrthotropicConductivityTensors<2> ortho_tensors;
         ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic2D.fibres");
+        FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic2D.fibres", RelativeTo::ChasteSourceRoot);
+        ortho_tensors.SetFibreOrientationFile(file);
         ortho_tensors.Init();
 
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -313,7 +322,8 @@ public:
 
         OrthotropicConductivityTensors<3> ortho_tensors;
         ortho_tensors.SetNonConstantConductivities(&non_constant_conductivities);
-        ortho_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3D.fibres");
+        FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic3D.fibres", RelativeTo::ChasteSourceRoot);
+        ortho_tensors.SetFibreOrientationFile(file);
         ortho_tensors.Init();
 
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
@@ -332,10 +342,11 @@ public:
         AxisymmetricConductivityTensors<3> axi_tensors;
         axi_tensors.SetNonConstantConductivities(&non_constant_conductivities);
 
-        axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleOrthotropic3D.fibres");
-        TS_ASSERT_THROWS_THIS(axi_tensors.Init(),"Axisymmetric media defined. Fibre orientation file should contain 3 values per element");
+        axi_tensors.SetFibreOrientationFile(file);
+        TS_ASSERT_THROWS_CONTAINS(axi_tensors.Init(),"Too many entries in a line in");
 
-        axi_tensors.SetFibreOrientationFile("heart/test/data/SimpleAxisymmetric.fibres");
+        FileFinder axi_file("heart/test/data/fibre_tests/SimpleAxisymmetric.fibres", RelativeTo::ChasteSourceRoot);
+        axi_tensors.SetFibreOrientationFile(axi_file);
         axi_tensors.Init();
 
         for (unsigned tensor_index=0; tensor_index<4; tensor_index++)
