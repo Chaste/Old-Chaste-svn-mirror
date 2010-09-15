@@ -30,10 +30,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #define FIBREREADER_HPP_
 
 #include <string>
+#include <fstream>
 
 #include "HeartConfig.hpp"
 #include "FileFinder.hpp"
 #include "UblasIncludes.hpp"
+#include "HeartFileFinder.hpp"
 
 /**
  * TODO:DOX
@@ -42,6 +44,35 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class FibreReader
 {
+friend class TestFibreReader;
+
+private:
+    /** File stream to use for GetTokensAtNextLine*/
+    std::ifstream mDataFile;
+
+    /** Absolute path of the file being read */
+    std::string mFilePath;
+
+    /** Number of elements (in the mesh) read from the first line of the file */
+    unsigned mNumElements;
+
+    /** Vector which entries read from a line in a file is put into. */
+    std::vector<double> mTokens;
+
+    /**
+     *  Read a line of numbers from mDataFile.
+     *  Sets up the member variable mTokens with the data in the next line.
+     *  @return the number of data entries put into mTokens
+     */
+    unsigned GetTokensAtNextLine();
+
+    /**
+     *  Read number of elements from mDataFile
+     *  Note: Must be called before GetTokensAtNextLine (it assumes that
+     *  it's reading the first line).
+     */
+    void GetNumElementsFromFile();
+
 public:
     /**
      * TODO:DOX
@@ -51,15 +82,17 @@ public:
     FibreReader(HeartFileFinder& rFileFinder);
     
     /**
+     *  Destructor closes file
+     */
+    ~FibreReader();
+
+    /**
      * TODO:DOX
      * 
      * 
      * @param rFibreMatrix Matrix to be filled in.
      */
-    void GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix)
-    {
-      // todo (and move to cpp)
-    }
+    void GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix);
 };
 
 #endif /*FIBREREADER_HPP_*/
