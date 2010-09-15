@@ -2037,6 +2037,8 @@ class CellMLToChasteTranslator(CellMLTranslator):
         else:
             conv_time = ''
         get_stim = 'GetIntracellularAreaStimulus(' + conv_time + self.code_name(self.free_vars[0]) + ')'
+        if self.doc._cml_config.i_stim_negated:
+            get_stim = '-' + get_stim
         # Convert from Chaste stimulus units (uA/cm2) to model units
         stim_units = self.get_var_units(expr)
         conversion, conv_nodes = self.ionic_current_units_conversion(get_stim, stim_units, False)
@@ -3993,6 +3995,8 @@ class ConfigurationStore(object):
         self.i_ionic_vars = []
         # Whether GetIIonic will need to negate the sum of i_ionic_vars
         self.i_ionic_negated = False
+        # Whether the stimulus magnitude is positive, rather than negative
+        self.i_stim_negated = False
         return
 
     def read_configuration_file(self, config_file):
@@ -4208,6 +4212,14 @@ class ConfigurationStore(object):
             raise ConfigurationError('"' + defn_type + '" is not a valid variable definition type')
         return var
     
+    def _process_ci_elts(self, elt, func):
+        """Recursively apply func to any ci elements in the tree rooted at elt."""
+        if isinstance(elt, mathml_ci):
+            func(elt)
+        else:
+            for child in getattr(elt, 'xml_children', []):
+                self._process_ci_elts(child, func)
+    
     def _find_transmembrane_currents_from_voltage_ode(self):
         """Analyse the expression for dV/dt to determine the transmembrane currents.
         
@@ -4228,38 +4240,77 @@ class ConfigurationStore(object):
                   "transmembrane currents from dV/dt")
             return []
         stim_units = self.i_stim_var.component.get_units_by_name(self.i_stim_var.units)
-        def search_expr(expr):
-            """Recursively search for ci elements."""
-            if isinstance(expr, mathml_ci):
-                v = expr.variable.get_source_variable(recurse=True)
-                if v is not self.i_stim_var:
-                    # Check units
+        ionic_vars = []
+        def check_if_current(ci_elt):
+            """Check if this is a transmembrane current."""
+            v = ci_elt.variable.get_source_variable(recurse=True)
+            if v is not self.i_stim_var:
+                # Check units
+                u = v.component.get_units_by_name(v.units)
+                if u.dimensionally_equivalent(stim_units):
+                    ionic_vars.append(v)
+            # Fake this variable being 1 so we can check the sign of GetIIonic
+            ci_elt.variable.set_value(1.0)
+        def clear_values(expr, process_definitions=False):
+            """Recursively clear saved values for variables in this expression."""
+            def f(ci_elt):
+                ci_elt.variable.unset_values()
+                if hasattr(ci_elt.variable, '_cml_saved_bt'):
+                    ci_elt.variable._set_binding_time(ci_elt.variable._cml_saved_bt)
+                if process_definitions:
+                    defn = ci_elt.variable._get_dependencies()
+                    if defn and isinstance(defn[0], mathml_apply):
+                        clear_values(defn[0].eq.rhs, process_definitions=True)
+            self._process_ci_elts(expr, f)
+        def assign_values_for_stimulus_check(expr, found_stim=[False], vars=([], [])):
+            def f(ci_elt):
+                v = ci_elt.variable.get_source_variable(recurse=True)
+                if v is self.i_stim_var:
+                    ci_elt.variable.set_value(1.0)
+                    found_stim[0] = True
+                else:
                     u = v.component.get_units_by_name(v.units)
                     if u.dimensionally_equivalent(stim_units):
-                        ionic_vars.append(v)
-                # Fake this variable being 1 so we can check the sign of GetIIonic
-                expr.variable.set_value(1.0)
-            elif isinstance(expr, mathml_apply):
-                for o in expr.operands():
-                    search_expr(o)
-        def clear_values(expr):
-            """Recursively clear saved values for variables in this expression."""
-            if isinstance(expr, mathml_ci):
-                expr.variable.unset_values()
+                        vars[0].append(ci_elt.variable)
+                    else:
+                        vars[1].append(ci_elt.variable)
+            self._process_ci_elts(expr, f)
+            if not found_stim[0]:
+                new_vars = ([], [])
+                remove = []
+                for var in vars[0] + vars[1]:
+                    defn = var._get_dependencies()
+                    if defn and isinstance(defn[0], mathml_apply):
+                        assign_values_for_stimulus_check(defn[0].eq.rhs, found_stim, new_vars)
+                        remove.append(var)
+                        var._cml_saved_bt = var._get_binding_time()
+                        var._set_binding_time(BINDING_TIMES.static)
+                for i in [0, 1]:
+                    vars[i].extend(new_vars[i])
+                    for var in remove:
+                        try:
+                            vars[i].remove(var)
+                        except ValueError:
+                            pass
             else:
-                for elt in getattr(expr, 'xml_children', []):
-                    clear_values(elt)
-        ionic_vars = []
+                for var in vars[0]:
+                    var.set_value(0.0)
+                for var in vars[1]:
+                    var.set_value(1.0)
         # Iterate over all expressions in the model, to find the one for dV/d(something)
         for expr in (e for e in self.doc.model.get_assignments() if isinstance(e, mathml_apply) and e.is_ode()):
             # Assume the independent variable is time; if it isn't, we'll catch this later
             (dep_var, time_var) = expr.assigned_variable()
             if dep_var.get_source_variable(recurse=True) is self.V_variable:
                 # Recursively search for ci elements
-                search_expr(expr.eq.rhs)
+                self._process_ci_elts(expr.eq.rhs, check_if_current)
                 # Check the sign of the RHS
                 self.i_ionic_negated = expr.eq.rhs.evaluate() > 0.0
                 clear_values(expr.eq.rhs)
+                # Check the sign of the stimulus current
+                assign_values_for_stimulus_check(expr.eq.rhs)
+                self.i_stim_negated = expr.eq.rhs.evaluate() > 0.0
+                clear_values(expr.eq.rhs, process_definitions=True)
                 # Found dV/d(something); don't check any more expressions
                 break
         DEBUG('config', "Found ionic currents from dV/dt: ", ionic_vars)
