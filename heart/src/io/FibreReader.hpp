@@ -44,7 +44,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class FibreReader
 {
-friend class TestFibreReader;
 
 private:
     /** File stream to use for GetTokensAtNextLine*/
@@ -53,8 +52,8 @@ private:
     /** Absolute path of the file being read */
     std::string mFilePath;
 
-    /** Number of elements (in the mesh) read from the first line of the file */
-    unsigned mNumElements;
+    /** Number of lines of data in the file, read from the first line of the file */
+    unsigned mNumLinesOfData;
 
     /** Vector which entries read from a line in a file is put into. */
     std::vector<double> mTokens;
@@ -71,7 +70,7 @@ private:
      *  Note: Must be called before GetTokensAtNextLine (it assumes that
      *  it's reading the first line).
      */
-    void GetNumElementsFromFile();
+    void ReadNumLinesOfDataFromFile();
 
 public:
     /**
@@ -93,6 +92,15 @@ public:
      * @param rFibreMatrix Matrix to be filled in.
      */
     void GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix);
+
+    /**
+     *  Get the number of lines of data in the matrix - this is the value read from
+     *  the first line.
+     */
+    unsigned GetNumLinesOfData()
+    {
+        return mNumLinesOfData;
+    }
 };
 
 #endif /*FIBREREADER_HPP_*/

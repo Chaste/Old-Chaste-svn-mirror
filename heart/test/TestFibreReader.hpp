@@ -67,7 +67,7 @@ public:
         
         FibreReader<2> fibre_reader(file_finder);
         
-        TS_ASSERT_EQUALS(fibre_reader.mNumElements, 3u);
+        TS_ASSERT_EQUALS(fibre_reader.GetNumLinesOfData(), 3u);
 
         c_matrix<double, 2, 2> fibre_matrix;
 
@@ -119,11 +119,11 @@ public:
         fibre_reader3.GetNextFibreSheetAndNormalMatrix(fibre_matrix);
         TS_ASSERT_THROWS_CONTAINS(fibre_reader3.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "Too many entries in a line in");
 
-        // first line doesn't give the number of elements
+        // first line doesn't give the number of lines of data
         cp::path_type  path4("heart/test/data/bad_ortho4.ortho");
         path4.relative_to(cp::relative_to_type::chaste_source_root);
         HeartFileFinder finder4(path4);
-        TS_ASSERT_THROWS_CONTAINS( FibreReader<2> fibre_reader(finder4), "First (non comment) line of the fibre orientation file should contain the number of elements");
+        TS_ASSERT_THROWS_CONTAINS( FibreReader<2> fibre_reader(finder4), "First (non comment) line of the fibre orientation file should contain the number of lines");
     }
 };
 

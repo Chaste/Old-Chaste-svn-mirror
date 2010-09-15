@@ -40,7 +40,7 @@ FibreReader<DIM>::FibreReader(HeartFileFinder& rFileFinder)
 
     mTokens.resize(DIM*DIM);
 
-    GetNumElementsFromFile();
+    ReadNumLinesOfDataFromFile();
 }
 
 template<unsigned DIM>
@@ -87,16 +87,26 @@ unsigned FibreReader<DIM>::GetTokensAtNextLine()
         getline(mDataFile, line);
 
         std::cout << line << "\n" << std::flush;
-        if (mDataFile.eof())
+        if (line.empty() && mDataFile.eof())
         {
             mDataFile.close();
-            EXCEPTION("Fibre orientation file contains less fibre definitions than the number of elements in the mesh");
+            EXCEPTION("Fibre orientation file contains less fibre definitions than the number of lines of data defined at the beginning of the file");
         }
 
         comment_line = (line.find('#',0) != std::string::npos);
         blank_line = (line.find_first_not_of(" \t",0) == std::string::npos);
     }
     while(comment_line || blank_line);
+
+    std::string::iterator  iter=line.end();
+    iter--;
+    unsigned nchars2delete = 0;
+    while(*iter == ' ')
+    {
+        nchars2delete++;
+        iter--;
+    }
+    line.erase(line.length()-nchars2delete);
 
     std::stringstream line_stream(line);
 
@@ -118,15 +128,15 @@ unsigned FibreReader<DIM>::GetTokensAtNextLine()
 
 
 template<unsigned DIM>
-void FibreReader<DIM>::GetNumElementsFromFile()
+void FibreReader<DIM>::ReadNumLinesOfDataFromFile()
 {
     if (GetTokensAtNextLine() != 1)
     {
         mDataFile.close();
-        EXCEPTION("First (non comment) line of the fibre orientation file should contain the number of elements of the mesh (and nothing else)");
+        EXCEPTION("First (non comment) line of the fibre orientation file should contain the number of lines of data in the file (and nothing else)");
     }
 
-    mNumElements = (unsigned) mTokens[0];
+    mNumLinesOfData = (unsigned) mTokens[0];
 }
 
 
