@@ -220,6 +220,18 @@ public:
 
         TS_ASSERT_EQUALS(HeartConfig::Instance()->GetOutputUsingOriginalNodeOrdering(), true);
 
+        
+        bool ground_second_electrode;
+        unsigned axis_index;
+        double magnitude, start_time, duration;
+        HeartConfig::Instance()->GetElectrodeParameters(ground_second_electrode, axis_index, magnitude, start_time, duration);
+        TS_ASSERT_EQUALS(ground_second_electrode, true);    
+        TS_ASSERT_EQUALS(axis_index, 2u);    
+        TS_ASSERT_EQUALS(magnitude, -11000.0);    
+        TS_ASSERT_EQUALS(start_time, 1.0);    
+        TS_ASSERT_EQUALS(duration, 2.0);
+       
+        
         /// \todo: refactor from here until the end of the test into a different test
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersLoadMesh.xml");
 
@@ -1113,6 +1125,21 @@ public:
         HeartConfig::Instance()->GetConductionVelocityMaps(conduction_velocity_map_get);
         TS_ASSERT_EQUALS(conduction_velocity_map_get.size(),1u);
         TS_ASSERT_EQUALS(conduction_velocity_map_get[0],25u);
+        
+        bool ground_second_electrode;
+        unsigned axis_index;
+        double magnitude, start_time, duration;
+        //The electrodes section does not exist yet.
+        TS_ASSERT_THROWS_THIS( HeartConfig::Instance()->GetElectrodeParameters(
+                               ground_second_electrode, axis_index, magnitude, start_time, duration),
+                               "Attempted to get electrodes that have not been defined.");
+        HeartConfig::Instance()->SetElectrodeParameters(false, 2, 1066, 0.5, 0.5);
+        HeartConfig::Instance()->GetElectrodeParameters(ground_second_electrode, axis_index, magnitude, start_time, duration);
+        TS_ASSERT_EQUALS(ground_second_electrode, false);    
+        TS_ASSERT_EQUALS(axis_index, 2u);    
+        TS_ASSERT_EQUALS(magnitude, 1066.0);    
+        TS_ASSERT_EQUALS(start_time, 0.5);    
+        TS_ASSERT_EQUALS(duration, 0.5);
     }
 
     void TestWrite() throw (Exception)

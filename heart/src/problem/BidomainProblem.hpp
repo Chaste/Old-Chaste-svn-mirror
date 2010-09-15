@@ -225,9 +225,7 @@ public:
 
     /**
      *  Set an electrode object (which provides boundary conditions). Only
-     *  valid if there is a bath. For the time being these are being read from
-     *  HeartConfig \todo #1271
-     *
+     *  valid if there is a bath.
      */
     void SetElectrodes();
 

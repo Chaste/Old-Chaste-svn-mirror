@@ -37,19 +37,19 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh)
       mLeftElectrodeArea(0.0),
       mRightElectrodeArea(0.0)
 {
-    unsigned index;
+    unsigned axis_index;
     double magnitude, duration;
     
-    HeartConfig::Instance()->GetElectrodeParameters(mGroundSecondElectrode, index, magnitude, mStartTime, duration);
+    HeartConfig::Instance()->GetElectrodeParameters(mGroundSecondElectrode, axis_index, magnitude, mStartTime, duration);
     
-    assert(index < DIM);
+    assert(axis_index < DIM);
     assert(duration > 0);
     mEndTime = mStartTime + duration;
     mAreActive = false; // consider electrodes initially switched off!
 
     ChasteCuboid<DIM> bounding_box = mpMesh->CalculateBoundingBox();
-    double global_min = bounding_box.rGetLowerCorner()[index];
-    double global_max = bounding_box.rGetUpperCorner()[index];
+    double global_min = bounding_box.rGetLowerCorner()[axis_index];
+    double global_max = bounding_box.rGetUpperCorner()[axis_index];
 
     mpBoundaryConditionsContainer.reset(new BoundaryConditionsContainer<DIM,DIM,2>);
 
@@ -59,7 +59,7 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh)
 
     try
     {
-        ComputeElectrodesAreasAndCheckEquality(index, global_min, global_max);
+        ComputeElectrodesAreasAndCheckEquality(axis_index, global_min, global_max);
         input_flux = magnitude;
         output_flux = -input_flux;
 
@@ -79,20 +79,20 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh)
     ConstBoundaryCondition<DIM>* p_bc_flux_out = new ConstBoundaryCondition<DIM>(output_flux);
 
     // loop over boundary elements and add a non-zero phi_e boundary condition (ie extracellular
-    // stimulus) if (assuming index=0, etc) x=lowerValue (where x is the x-value of the centroid)
+    // stimulus) if (assuming axis_index=0, etc) x=lowerValue (where x is the x-value of the centroid)
     for (typename AbstractTetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
             = mpMesh->GetBoundaryElementIteratorBegin();
        iter != mpMesh->GetBoundaryElementIteratorEnd();
        iter++)
     {
-        if (fabs((*iter)->CalculateCentroid()[index] - global_min) < 1e-6)
+        if (fabs((*iter)->CalculateCentroid()[axis_index] - global_min) < 1e-6)
         {
             mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_flux_in,  1);
         }
 
         if (!mGroundSecondElectrode)
         {
-            if (fabs((*iter)->CalculateCentroid()[index] - global_max) < 1e-6)
+            if (fabs((*iter)->CalculateCentroid()[axis_index] - global_max) < 1e-6)
             {
                 mpBoundaryConditionsContainer->AddNeumannBoundaryCondition(*iter, p_bc_flux_out, 1);
             }
@@ -111,7 +111,7 @@ Electrodes<DIM>::Electrodes(AbstractTetrahedralMesh<DIM,DIM>& rMesh)
              iter != mpMesh->GetNodeIteratorEnd();
              ++iter)
         {
-            if (fabs((*iter).rGetLocation()[index]-global_max) < 1e-6)
+            if (fabs((*iter).rGetLocation()[axis_index]-global_max) < 1e-6)
             {
                 mpBoundaryConditionsContainer->AddDirichletBoundaryCondition(&(*iter), p_zero_bc, 1);
             }

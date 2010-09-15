@@ -324,7 +324,9 @@ public:
 
         HeartConfig::Instance()->SetElectrodeParameters(false,0, boundary_flux, start_time, duration);
         
-
+        //Cannot set Electrodes before setting the mesh ///\todo #1271 - won't be an issue if electrodes are set in initialise
+        TS_ASSERT_THROWS_THIS(bidomain_problem.SetElectrodes(), "Must set the mesh before trying to set the electrodes!");
+              
         bidomain_problem.SetMesh(p_mesh);
         bidomain_problem.SetElectrodes();
         bidomain_problem.Initialise();
@@ -455,6 +457,104 @@ public:
 
         delete p_mesh;
     }
+
+//    void xTest2dBathGroundedElectrodeStimulusSwitchesOnOffFromXml() throw (Exception)
+//    {
+//        HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/bidomain_with_bath2d_electrodes.xml");
+//        // Total execution time is 5 ms. Electrodes are on in [1.0, 3.0]
+//        HeartConfig::Instance()->SetOutputDirectory("BidomainBath2dGroundedOnOff");
+//        HeartConfig::Instance()->SetOutputFilenamePrefix("bidomain_bath_2d_grounded_on_off");
+//        HeartConfig::Instance()->SetOdeTimeStep(0.001);  //ms
+//
+//        // need to create a cell factory but don't want any intra stim, so magnitude
+//        // of stim is zero.
+//        c_vector<double,2> centre;
+//        centre(0) = 0.05; // cm
+//        centre(1) = 0.05; // cm
+//        BathCellFactory<2> cell_factory( 0.0, centre);
+//
+//        BidomainWithBathProblem<2> bidomain_problem( &cell_factory );
+//
+//        TetrahedralMesh<2,2>* p_mesh = Load2dMeshAndSetCircularTissue<TetrahedralMesh<2,2> >(
+//            "mesh/test/data/2D_0_to_1mm_400_elements", 0.05, 0.05, 0.02);
+//
+//        //boundary flux for Phi_e. -10e3 is under threshold, -14e3 crashes the cell model
+//        double boundary_flux = -11.0e3;
+//        double start_time = 1.0;
+//        double duration = 2.0; // of the stimulus, in ms
+//
+//        HeartConfig::Instance()->SetElectrodeParameters( true, 0, boundary_flux,start_time, duration );
+//
+//
+//        bidomain_problem.SetMesh(p_mesh);
+//        bidomain_problem.SetElectrodes();
+//        bidomain_problem.Initialise();
+//
+//        /*
+//         *  While t in [0.0, 1.0) electrodes are off
+//         */
+//        {
+//            HeartConfig::Instance()->SetSimulationDuration(0.5);  //ms
+//            bidomain_problem.Solve();
+//
+//            /// \todo: we don't need a ReplicatableVector here. Every processor can check locally
+//            Vec sol = bidomain_problem.GetSolution();
+//            ReplicatableVector sol_repl(sol);
+//
+//            for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+//            {
+//                // test phi_e close to 0 for all bath nodes since electrodes are off
+//                if (p_mesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // bath
+//                {
+//                    TS_ASSERT_DELTA(sol_repl[2*i+1], 0.0, 0.5);
+//                }
+//            }
+//
+//            TS_ASSERT_EQUALS(bidomain_problem.mpElectrodes->mAreActive, false); // should be switched off by now..
+//        }
+//
+//
+//        /*
+//         *  At the end of the simulation AP has been triggered
+//         */
+//        {
+//            HeartConfig::Instance()->SetSimulationDuration(5.0);  //ms
+//            bidomain_problem.Solve();
+//
+//            Vec sol = bidomain_problem.GetSolution();
+//            ReplicatableVector sol_repl(sol);
+//
+//            bool ap_triggered = false;
+//            /*
+//             * We are checking the last time step. This test will only make sure that an upstroke is triggered.
+//             * We ran longer simulation for 350 ms and a nice AP was observed.
+//             */
+//
+//            for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+//            {
+//                // test V = 0 for all bath nodes and that an AP is triggered in the tissue
+//                if (p_mesh->GetNode(i)->GetRegion() == HeartRegionCode::BATH) // bath
+//                {
+//                    TS_ASSERT_DELTA(sol_repl[2*i], 0.0, 1e-12);
+//                }
+//                else if (sol_repl[2*i] > 0.0)//at the last time step
+//                {
+//                    ap_triggered = true;
+//                }
+//            }
+//
+//            // Check that grounded electrode has been successfully removed and therefore phi_e !=0.
+//            // Nodes defining grounded electrode are 10, 21, 32, 43, 54, ... , 120
+//            TS_ASSERT_DELTA(sol_repl[21], -80.2794, 1e-3);
+//            TS_ASSERT_DELTA(sol_repl[43], -80.2794, 1e-3);
+//            TS_ASSERT_DELTA(sol_repl[241], -80.2794, 1e-3);
+//
+//            TS_ASSERT_EQUALS(bidomain_problem.mpElectrodes->mAreActive, false); // should be switched off by now..
+//            TS_ASSERT(ap_triggered);
+//        }
+//
+//        delete p_mesh;
+//    }
 
     void TestMatrixBasedAssembledBath(void)
     {

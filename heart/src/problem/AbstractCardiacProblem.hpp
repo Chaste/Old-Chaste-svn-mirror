@@ -639,6 +639,14 @@ public:
      * Return whether there's bath defined in this problem
      */
     virtual bool GetHasBath();
+    /**
+     *  Set an electrode object (which provides boundary conditions). Only
+     *  valid if there is a bath.
+     * 
+     * \todo this should become private (also in the override)
+     */
+    virtual void SetElectrodes();
+    
 };
 
 TEMPLATED_CLASS_IS_ABSTRACT_3_UNSIGNED(AbstractCardiacProblem)

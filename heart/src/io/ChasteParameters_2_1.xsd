@@ -57,6 +57,17 @@
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
+  <xs:complexType name="surface_stimulus_strength_type">
+    <xs:annotation>
+      <xs:documentation>Represents the strength of stimulus per unit area. Measured in
+        uA/cm^2.</xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="unit" type="xs:string" use="required" fixed="uA/cm^2"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
   <xs:complexType name="inverse_length_type">
     <xs:annotation>
       <xs:documentation>Used for variables with dimensions 1/length. Units of
@@ -423,9 +434,9 @@
           <xs:documentation>Axis that the electrodes are perpendicular to (should be x, y or z).</xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element name="Strength" type="stimulus_strength_type">
+      <xs:element name="Strength" type="surface_stimulus_strength_type">
         <xs:annotation>
-          <xs:documentation>The strength of the stimulus (units).  TODO: #1217 </xs:documentation>
+          <xs:documentation>The strength of the stimulus on the electrodes (uA/cm^2).</xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element name="StartTime" type="time_type">

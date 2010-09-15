@@ -131,8 +131,8 @@
 		-->
 		<Electrodes>
 			<GroundSecondElectrode>yes</GroundSecondElectrode>
-			<PerpendicularToAxis>x</PerpendicularToAxis>
-			<Strength unit="uA/cm^3">-11000</Strength>
+			<PerpendicularToAxis>z</PerpendicularToAxis>
+			<Strength unit="uA/cm^2">-11000</Strength>
 		    <StartTime unit="ms">1.0</StartTime> 
 		    <Duration unit="ms">2.0</Duration>
 		</Electrodes>
