@@ -28,8 +28,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "FibreReader.hpp"
 
+#include <sstream>
+#include "Exception.hpp"
+
 template<unsigned DIM>
-FibreReader<DIM>::FibreReader(HeartFileFinder& rFileFinder)
+FibreReader<DIM>::FibreReader(FileFinder& rFileFinder, unsigned axiOrOrtho)
 {
     mFilePath = rFileFinder.GetAbsolutePath();
     mDataFile.open(mFilePath.c_str());
@@ -38,7 +41,20 @@ FibreReader<DIM>::FibreReader(HeartFileFinder& rFileFinder)
         EXCEPTION("Failed to open " + rFileFinder.GetAbsolutePath());
     }
 
-    mTokens.resize(DIM*DIM);
+    if ((axiOrOrtho != 1) && (axiOrOrtho != 2))
+    {
+        EXCEPTION("Wrong type of conductivity tensor");
+    }
+    if (axiOrOrtho == 1)
+    {
+        mNumItemsPerLine = DIM;
+    }
+    else
+    {
+        mNumItemsPerLine = DIM*DIM;
+    }
+
+    mTokens.resize(mNumItemsPerLine);
 
     ReadNumLinesOfDataFromFile();
 }
@@ -52,8 +68,13 @@ FibreReader<DIM>::~FibreReader()
 template<unsigned DIM>
 void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix)
 {
+    if (mNumItemsPerLine != DIM*DIM)
+    {
+        EXCEPTION("Use GetNextFibreVector when reading axisymmetric fibres.");
+    }
+
     unsigned num_entries = GetTokensAtNextLine();
-    if(num_entries < DIM*DIM)
+    if(num_entries < mNumItemsPerLine)
     {
         std::stringstream string_stream;
         string_stream << "A line is incomplete in " << mFilePath
@@ -70,6 +91,28 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
     }
 }
 
+template<unsigned DIM>
+void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector)
+{
+    if (mNumItemsPerLine != DIM)
+    {
+        EXCEPTION("Use GetNextFibreSheetAndNormalMatrix when reading orthotropic fibres.");
+    }
+
+    unsigned num_entries = GetTokensAtNextLine();
+    if(num_entries < mNumItemsPerLine)
+    {
+        std::stringstream string_stream;
+        string_stream << "A line is incomplete in " << mFilePath
+                      << " - each line should contain " << DIM << " entries";
+        EXCEPTION(string_stream.str());
+    }
+
+    for(unsigned i=0; i<DIM; i++)
+    {
+        rFibreVector(i) = mTokens[i];
+    }
+}
 
 
 template<unsigned DIM>
@@ -80,13 +123,12 @@ unsigned FibreReader<DIM>::GetTokensAtNextLine()
     bool comment_line;
     bool blank_line;
 
-    assert(mTokens.size() == DIM*DIM);
+    assert(mTokens.size() == mNumItemsPerLine);
 
     do
     {
         getline(mDataFile, line);
 
-        std::cout << line << "\n" << std::flush;
         if (line.empty() && mDataFile.eof())
         {
             mDataFile.close();
@@ -115,8 +157,7 @@ unsigned FibreReader<DIM>::GetTokensAtNextLine()
     {
         double item;
         line_stream >> item;
-        std::cout << "\tread " << item <<"\n" << std::flush;
-        if(index >= DIM*DIM)
+        if(index >= mNumItemsPerLine)
         {
             EXCEPTION("Too many entries in a line in " + mFilePath);
         }

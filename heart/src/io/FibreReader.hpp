@@ -31,11 +31,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <fstream>
+#include <vector>
 
-#include "HeartConfig.hpp"
-#include "FileFinder.hpp"
 #include "UblasIncludes.hpp"
-#include "HeartFileFinder.hpp"
+#include "FileFinder.hpp"
 
 /**
  * TODO:DOX
@@ -54,6 +53,9 @@ private:
 
     /** Number of lines of data in the file, read from the first line of the file */
     unsigned mNumLinesOfData;
+
+    /** How many items we expect to find per line: DIM for axisymmetric, DIM*DIM for orthotropic */
+    unsigned mNumItemsPerLine;
 
     /** Vector which entries read from a line in a file is put into. */
     std::vector<double> mTokens;
@@ -77,8 +79,9 @@ public:
      * TODO:DOX
      * 
      * @param rFileFinder the path to the fibre direction file
+     * @param axiOrOrtho 1 for axisymmetric, 2 for orthotropic
      */
-    FibreReader(HeartFileFinder& rFileFinder);
+    FibreReader(FileFinder& rFileFinder, unsigned axiOrOrtho);
     
     /**
      *  Destructor closes file
@@ -92,6 +95,15 @@ public:
      * @param rFibreMatrix Matrix to be filled in.
      */
     void GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix);
+
+    /**
+     * TODO:DOX
+     *
+     *
+     * @param rFibreVector Vector to be filled in.
+     */
+    void GetNextFibreVector(c_vector<double,DIM>& rFibreVector);
+
 
     /**
      *  Get the number of lines of data in the matrix - this is the value read from
