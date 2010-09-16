@@ -45,7 +45,7 @@ class FibreReader
 {
 
 private:
-    /** File stream to use for GetTokensAtNextLine*/
+    /** File stream to use for GetTokensAtNextLine */
     std::ifstream mDataFile;
 
     /** Absolute path of the file being read */
@@ -61,14 +61,14 @@ private:
     std::vector<double> mTokens;
 
     /**
-     *  Read a line of numbers from mDataFile.
-     *  Sets up the member variable mTokens with the data in the next line.
-     *  @return the number of data entries put into mTokens
+     *  Read a line of numbers from #mDataFile.
+     *  Sets up the member variable #mTokens with the data in the next line.
+     *  @return the number of data entries put into #mTokens
      */
     unsigned GetTokensAtNextLine();
 
     /**
-     *  Read number of elements from mDataFile
+     *  Read number of elements from #mDataFile.
      *  Note: Must be called before GetTokensAtNextLine (it assumes that
      *  it's reading the first line).
      */
@@ -76,37 +76,48 @@ private:
 
 public:
     /**
-     * TODO:DOX
+     * Create a new FibreReader.
      * 
-     * @param rFileFinder the path to the fibre direction file
-     * @param axiOrOrtho 1 for axisymmetric, 2 for orthotropic
+     * @param rFileFinder  the path to the fibre direction file
+     * @param axiOrOrtho  1 for axisymmetric, 2 for orthotropic
      */
     FibreReader(FileFinder& rFileFinder, unsigned axiOrOrtho);
     
     /**
-     *  Destructor closes file
+     *  Destructor closes file.
      */
     ~FibreReader();
 
     /**
-     * TODO:DOX
+     * Read the next fibre direction matrix from the file.  Must only be used when
+     * reading an orthotropic file.  These have lines of the form
+     * \code
+     *  fibre0 fibre1 fibre2 sheet0 sheet1 sheet2 normal0 normal1 normal2
+     * \endcode
+     * which are converted to the matrix
+     * \code
+     *     [ fibre0   sheet0   normal0  ]
+     *     [ fibre1   sheet1   normal1  ]
+     *     [ fibre2   sheet2   normal2  ]
+     * \endcode
      * 
-     * 
-     * @param rFibreMatrix Matrix to be filled in.
+     * @param rFibreMatrix  matrix to be filled in
      */
     void GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix);
 
     /**
-     * TODO:DOX
+     * Read the next fibre direction vector from the file.  Must only be used when
+     * reading an axisymmetric file.  These have lines of the form
+     * \code
+     *  fibre0 fibre1 fibre2
+     * \endcode
      *
-     *
-     * @param rFibreVector Vector to be filled in.
+     * @param rFibreVector  vector to be filled in
      */
     void GetNextFibreVector(c_vector<double,DIM>& rFibreVector);
 
-
     /**
-     *  Get the number of lines of data in the matrix - this is the value read from
+     *  Get the number of lines of data in the file - this is the value read from
      *  the first line.
      */
     unsigned GetNumLinesOfData()

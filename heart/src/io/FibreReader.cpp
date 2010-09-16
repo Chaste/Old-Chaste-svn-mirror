@@ -34,16 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 FibreReader<DIM>::FibreReader(FileFinder& rFileFinder, unsigned axiOrOrtho)
 {
-    mFilePath = rFileFinder.GetAbsolutePath();
-    mDataFile.open(mFilePath.c_str());
-    if (!mDataFile.is_open())
-    {
-        EXCEPTION("Failed to open fibre file " + rFileFinder.GetAbsolutePath());
-    }
-
     if ((axiOrOrtho != 1) && (axiOrOrtho != 2))
     {
-        EXCEPTION("Wrong type of conductivity tensor");
+        EXCEPTION("Fibres must be axisymmetric or orthotropic");
     }
     if (axiOrOrtho == 1)
     {
@@ -53,9 +46,16 @@ FibreReader<DIM>::FibreReader(FileFinder& rFileFinder, unsigned axiOrOrtho)
     {
         mNumItemsPerLine = DIM*DIM;
     }
-
     mTokens.resize(mNumItemsPerLine);
 
+    mFilePath = rFileFinder.GetAbsolutePath();
+    mDataFile.open(mFilePath.c_str());
+    if (!mDataFile.is_open())
+    {
+        EXCEPTION("Failed to open fibre file " + rFileFinder.GetAbsolutePath());
+    }
+
+    // Note: this method will close the file on error
     ReadNumLinesOfDataFromFile();
 }
 

@@ -120,6 +120,9 @@ public:
         HeartFileFinder bad_file_finder(bad_path);
         TS_ASSERT_THROWS_CONTAINS( FibreReader<2> fibre_reader(bad_file_finder,2), "Failed to open fibre file");
 
+        // Not axi or ortho
+        TS_ASSERT_THROWS_THIS(FibreReader<2> fibre_reader(bad_file_finder, 0), "Fibres must be axisymmetric or orthotropic");
+
         // line for first element is incomplete
         cp::path_type  path1("heart/test/data/fibre_tests/bad_ortho1.ortho");
         path1.relative_to(cp::relative_to_type::chaste_source_root);
