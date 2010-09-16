@@ -62,7 +62,7 @@ public:
     void TestOrthoReaderSetup()
     {
         FileFinder file_finder("heart/test/data/fibre_tests/random_fibres.ortho", RelativeTo::ChasteSourceRoot);
-        FibreReader<2> fibre_reader(file_finder, 2u);
+        FibreReader<2> fibre_reader(file_finder, ORTHO);
         
         TS_ASSERT_EQUALS(fibre_reader.GetNumLinesOfData(), 4u);
 
@@ -91,14 +91,14 @@ public:
         fibre_reader.GetNextFibreSheetAndNormalMatrix(fibre_matrix);
         TS_ASSERT_DELTA(UblasMatrixInfinityNorm<2>(fibre_matrix-correct_matrix), 0, 1e-9);
 
-//#1231: TODO: this should throw an exception saying trying to read too much.. (throws a different exception) 
-        //fibre_reader.GetNextFibreSheetAndNormalMatrix(fibre_matrix);
+        // called too many times
+        TS_ASSERT_THROWS_CONTAINS(fibre_reader.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "End of file")
     }
 
     void TestAxiReaderSetup()
     {
         FileFinder file_finder("heart/test/data/fibre_tests/random_fibres.axi", RelativeTo::ChasteSourceRoot);
-        FibreReader<2> fibre_reader(file_finder, 1u);
+        FibreReader<2> fibre_reader(file_finder, AXISYM);
 
         TS_ASSERT_EQUALS(fibre_reader.GetNumLinesOfData(), 3u);
 
@@ -123,47 +123,44 @@ public:
 
         // file doesn't exist
         FileFinder finder0("heart/test/data/fibre_tests/dgfsdgjdf.ortho", RelativeTo::ChasteSourceRoot);
-        TS_ASSERT_THROWS_CONTAINS( FibreReader<2> fibre_reader(finder0,2), "Failed to open fibre file");
-
-        // Not axi or ortho
-        TS_ASSERT_THROWS_THIS(FibreReader<2> fibre_reader(finder0, 0), "Fibres must be axisymmetric or orthotropic");
+        TS_ASSERT_THROWS_CONTAINS( FibreReader<2> fibre_reader(finder0,ORTHO), "Failed to open fibre file");
 
         // line for first element is incomplete
         FileFinder finder1("heart/test/data/fibre_tests/bad_ortho1.ortho", RelativeTo::ChasteSourceRoot);
-        FibreReader<2> fibre_reader1(finder1,2);
+        FibreReader<2> fibre_reader1(finder1, ORTHO);
         TS_ASSERT_THROWS_CONTAINS(fibre_reader1.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "A line is incomplete in");
 
         // line for third element is missing
         FileFinder finder2("heart/test/data/fibre_tests/bad_ortho2.ortho", RelativeTo::ChasteSourceRoot);
-        FibreReader<2> fibre_reader2(finder2,2);
+        FibreReader<2> fibre_reader2(finder2, ORTHO);
         fibre_reader2.GetNextFibreSheetAndNormalMatrix(fibre_matrix);
         fibre_reader2.GetNextFibreSheetAndNormalMatrix(fibre_matrix);
-        TS_ASSERT_THROWS_CONTAINS(fibre_reader2.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "Fibre orientation file contains less");
+        TS_ASSERT_THROWS_CONTAINS(fibre_reader2.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "End of file");
 
         // line for second element has too many entries
         FileFinder finder3("heart/test/data/fibre_tests/bad_ortho3.ortho", RelativeTo::ChasteSourceRoot);
-        FibreReader<2> fibre_reader3(finder3,2);
+        FibreReader<2> fibre_reader3(finder3, ORTHO);
         fibre_reader3.GetNextFibreSheetAndNormalMatrix(fibre_matrix);
         TS_ASSERT_THROWS_CONTAINS(fibre_reader3.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "Too many entries in a line in");
 
         // first line doesn't give the number of lines of data
         FileFinder finder4("heart/test/data/fibre_tests/bad_ortho4.ortho", RelativeTo::ChasteSourceRoot);
-        TS_ASSERT_THROWS_CONTAINS( FibreReader<2> fibre_reader(finder4,2), "First (non comment) line of the fibre orientation file should contain the number of lines");
+        TS_ASSERT_THROWS_CONTAINS( FibreReader<2> fibre_reader(finder4,ORTHO), "First (non comment) line of the fibre orientation file should contain the number of lines");
 
         // Wrong method call, can't read an 'orthotropic vector'
         c_vector<double, 2> fibre_vector;
         FileFinder finder5("heart/test/data/fibre_tests/random_fibres.ortho", RelativeTo::ChasteSourceRoot);
-        FibreReader<2> fibre_reader5(finder5, 2);
+        FibreReader<2> fibre_reader5(finder5, ORTHO);
         TS_ASSERT_THROWS_THIS(fibre_reader5.GetNextFibreVector(fibre_vector), "Use GetNextFibreSheetAndNormalMatrix when reading orthotropic fibres.");
 
         // wrong method call, can't read an 'axisymmetric matrix'
         FileFinder finder6("heart/test/data/fibre_tests/random_fibres.axi", RelativeTo::ChasteSourceRoot);
-        FibreReader<2> fibre_reader6(finder6, 1);
+        FibreReader<2> fibre_reader6(finder6, AXISYM);
         TS_ASSERT_THROWS_THIS(fibre_reader6.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "Use GetNextFibreVector when reading axisymmetric fibres.");
 
         // Incomplete axi data
         FileFinder finder7("heart/test/data/fibre_tests/bad_axi.axi", RelativeTo::ChasteSourceRoot);
-        FibreReader<2> fibre_reader7(finder7, 1);
+        FibreReader<2> fibre_reader7(finder7, AXISYM);
         TS_ASSERT_THROWS_CONTAINS(fibre_reader7.GetNextFibreVector(fibre_vector), "A line is incomplete in");
     }
 };

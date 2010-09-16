@@ -36,7 +36,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 #include "FileFinder.hpp"
 
-
+/** 
+ * Simple enumeration for use in FibreReader constructor 
+ */
+typedef enum FibreFileType_
+{
+    AXISYM=0,
+    ORTHO
+} FibreFileType;
 
 /**
  * A class for reading .axi files (files which define the fibre direction
@@ -81,9 +88,9 @@ public:
      * Create a new FibreReader.
      * 
      * @param rFileFinder  the path to the fibre direction file
-     * @param axiOrOrtho  1 for axisymmetric, 2 for orthotropic
+     * @param fibreFileType AXISYM or ORTHO depending on type of file to be read
      */
-    FibreReader(FileFinder& rFileFinder, unsigned axiOrOrtho);
+    FibreReader(FileFinder& rFileFinder, FibreFileType fibreFileType);
     
     /**
      *  Destructor closes file.

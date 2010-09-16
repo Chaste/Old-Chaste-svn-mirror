@@ -31,11 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AxisymmetricConductivityTensors.hpp"
 #include "Exception.hpp"
 
-template<unsigned SPACE_DIM>
-void AxisymmetricConductivityTensors<SPACE_DIM>::ReadOrientationVectorFromFile (c_vector<double,SPACE_DIM>& rOrientVector)
-{
-    this->mFileReader->GetNextFibreVector(rOrientVector);
-}
 
 template<unsigned SPACE_DIM>
 AxisymmetricConductivityTensors<SPACE_DIM>::AxisymmetricConductivityTensors()
@@ -81,7 +76,8 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 
         if (this->mUseFibreOrientation)
         {
-            this->OpenFibreOrientationFile(1);
+            // open file
+            this->mFileReader.reset(new FibreReader<SPACE_DIM>(this->mFibreOrientationFile, AXISYM));
             this->mNumElements = this->mFileReader->GetNumLinesOfData();
         }
         else
@@ -141,7 +137,7 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 
             if (this->mUseFibreOrientation)
             {
-                ReadOrientationVectorFromFile(fibre_vector);
+                this->mFileReader->GetNextFibreVector(fibre_vector);
             }
 
             this->mTensors.push_back( conductivity_matrix(1,1) * identity_matrix<double>(SPACE_DIM) +
@@ -150,7 +146,8 @@ void AxisymmetricConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 
         if (this->mUseFibreOrientation)
         {
-            this->CloseFibreOrientationFile();
+            // close fibre file
+            this->mFileReader.reset();
         }
     }
 

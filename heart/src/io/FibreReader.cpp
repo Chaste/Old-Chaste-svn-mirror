@@ -32,17 +32,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 
 template<unsigned DIM>
-FibreReader<DIM>::FibreReader(FileFinder& rFileFinder, unsigned axiOrOrtho)
+FibreReader<DIM>::FibreReader(FileFinder& rFileFinder, FibreFileType fibreFileType)
 {
-    if ((axiOrOrtho != 1) && (axiOrOrtho != 2))
-    {
-        EXCEPTION("Fibres must be axisymmetric or orthotropic");
-    }
-    if (axiOrOrtho == 1)
+    if (fibreFileType == AXISYM)
     {
         mNumItemsPerLine = DIM;
     }
-    else
+    else //(fibreFileType == ORTHO)
     {
         mNumItemsPerLine = DIM*DIM;
     }
@@ -132,7 +128,10 @@ unsigned FibreReader<DIM>::GetTokensAtNextLine()
         if (line.empty() && mDataFile.eof())
         {
             mDataFile.close();
-            EXCEPTION("Fibre orientation file contains less fibre definitions than the number of lines of data defined at the beginning of the file");
+            std::string error =   "End of file " + mFilePath + " reached. Either file contains less "
+                                + "definitions than defined in header, or one of the GetNext[..] methods "
+                                + "has been called too often";
+            EXCEPTION(error);
         }
 
         comment_line = (line.find('#',0) != std::string::npos);
@@ -140,7 +139,7 @@ unsigned FibreReader<DIM>::GetTokensAtNextLine()
     }
     while(comment_line || blank_line);
 
-    std::string::iterator  iter=line.end();
+    std::string::iterator iter=line.end();
     iter--;
     unsigned nchars2delete = 0;
     while(*iter == ' ')

@@ -30,19 +30,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Exception.hpp"
 #include <sstream>
 
-template<unsigned SPACE_DIM>
-void AbstractConductivityTensors<SPACE_DIM>::OpenFibreOrientationFile(unsigned axiOrOrtho)
-{
-    assert(mUseFibreOrientation);
-    mFileReader.reset(new FibreReader<SPACE_DIM>(mFibreOrientationFile, axiOrOrtho));
-}
-
-template<unsigned SPACE_DIM>
-void AbstractConductivityTensors<SPACE_DIM>::CloseFibreOrientationFile()
-{
-    mFileReader.reset();
-}
-
 
 template<unsigned SPACE_DIM>
 AbstractConductivityTensors<SPACE_DIM>::AbstractConductivityTensors()

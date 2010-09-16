@@ -134,9 +134,7 @@ public:
             ortho_tensors.SetConstantConductivities( Create_c_vector(2.1, 0.8, 0.135) );
             FileFinder file("heart/test/data/fibre_tests/SimpleOrthotropic3DShortFile.fibres", RelativeTo::ChasteSourceRoot);
             ortho_tensors.SetFibreOrientationFile(file);
-            TS_ASSERT_THROWS_THIS(ortho_tensors.Init(),
-                    "Fibre orientation file contains less fibre definitions than the "
-                    "number of lines of data defined at the beginning of the file"); // short file
+            TS_ASSERT_THROWS_CONTAINS(ortho_tensors.Init(),"End of file"); // short file
         }
     }
 
@@ -361,9 +359,7 @@ public:
             TS_ASSERT_EQUALS(axi_tensors[tensor_index](2,1), 0.0);
             TS_ASSERT_EQUALS(axi_tensors[tensor_index](2,2), 10*tensor_index);
         }
-
     }
-
 };
 
 #endif /*TESTFIBREORIENTATIONTENSORS_HPP_*/

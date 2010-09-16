@@ -38,16 +38,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 class AxisymmetricConductivityTensors : public AbstractConductivityTensors<SPACE_DIM>
 {
-private:
-
-    /**
-     * Read from mDataFile with GetTokensAtNextLine
-     * @param rOrientVector  vector into which to read the orientation
-     */
-    void ReadOrientationVectorFromFile (c_vector<double,SPACE_DIM>& rOrientVector);
-
 public:
-    /**Constructor*/
+    /** Constructor */
     AxisymmetricConductivityTensors();
 
     /**

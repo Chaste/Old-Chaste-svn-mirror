@@ -52,21 +52,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned SPACE_DIM>
 class OrthotropicConductivityTensors : public AbstractConductivityTensors<SPACE_DIM>
 {
-private:
-    /**
-     * Reads a line from the Conductivity Tensor file (see base class)
-     * and interprets it as a SPACE_DIM*SPACE_DIM tensor
-     * @param rOrientMatrix matrix into which to read the tensor
-     */
-    void ReadOrientationMatrixFromFile (c_matrix<double,SPACE_DIM,SPACE_DIM>& rOrientMatrix);
-
 public:
 
     /**
      *  Computes the tensors based in all the info set
      */
     void Init() throw (Exception);
-
 };
 
 #endif /*ORTHOTROPICCONDUCTIVITYTENSORS_HPP_*/

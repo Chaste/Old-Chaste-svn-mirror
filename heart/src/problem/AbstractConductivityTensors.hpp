@@ -66,15 +66,6 @@ protected:
     /** Fibre file reader */
     std::auto_ptr<FibreReader<SPACE_DIM> > mFileReader;
 
-    /** Open fibre file using the name #mFibreOrientationFile.
-     *
-     * @param axiOrOrtho  whether to expect axisymmetric (1) or orthotropic (2) conductivity tensors
-     */
-    void OpenFibreOrientationFile(unsigned axiOrOrtho);
-
-    /** Close fibre file*/
-    void CloseFibreOrientationFile();
-
 public:
 
     AbstractConductivityTensors();

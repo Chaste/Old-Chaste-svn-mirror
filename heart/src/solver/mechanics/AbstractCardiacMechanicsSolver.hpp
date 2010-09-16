@@ -502,7 +502,7 @@ void AbstractCardiacMechanicsSolver<DIM>::SetVariableFibreSheetDirections(std::s
     mFibreSheetDirectionsDefinedByQuadraturePoint = definedPerQuadraturePoint;
     
     FileFinder finder(orthoFile, RelativeTo::ChasteSourceRoot);
-    FibreReader<DIM> reader(finder, 2); // 2 for ortho
+    FibreReader<DIM> reader(finder, ORTHO);
     
     unsigned num_entries = reader.GetNumLinesOfData();
 

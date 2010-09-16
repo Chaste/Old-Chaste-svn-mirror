@@ -29,11 +29,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "OrthotropicConductivityTensors.hpp"
 #include "Exception.hpp"
 
-template<unsigned SPACE_DIM>
-void OrthotropicConductivityTensors<SPACE_DIM>::ReadOrientationMatrixFromFile (c_matrix<double,SPACE_DIM,SPACE_DIM>& rOrientMatrix)
-{
-    this->mFileReader->GetNextFibreSheetAndNormalMatrix(rOrientMatrix);
-}
 
 template<unsigned SPACE_DIM>
 void OrthotropicConductivityTensors<SPACE_DIM>::Init() throw (Exception)
@@ -57,7 +52,8 @@ void OrthotropicConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 
         if (this->mUseFibreOrientation)
         {
-            this->OpenFibreOrientationFile(2);
+            // open file
+            this->mFileReader.reset(new FibreReader<SPACE_DIM>(this->mFibreOrientationFile, ORTHO));
             this->mNumElements = this->mFileReader->GetNumLinesOfData();
         }
         else
@@ -109,7 +105,7 @@ void OrthotropicConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 
             if (this->mUseFibreOrientation)
             {
-                ReadOrientationMatrixFromFile(orientation_matrix);
+                this->mFileReader->GetNextFibreSheetAndNormalMatrix(orientation_matrix);
             }
 
             c_matrix<double,SPACE_DIM,SPACE_DIM> temp;
@@ -119,7 +115,8 @@ void OrthotropicConductivityTensors<SPACE_DIM>::Init() throw (Exception)
 
         if (this->mUseFibreOrientation)
         {
-            this->CloseFibreOrientationFile();
+            // close fibre file
+            this->mFileReader.reset();
         }
     }
 
