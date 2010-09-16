@@ -2715,23 +2715,26 @@ void HeartConfig::SetElectrodeParameters(bool groundSecondElectrode,
         axis = cp::axis_type::z;
     }
         
+    XSD_CREATE_WITH_FIXED_ATTR1(cp::surface_stimulus_strength_type, strength, magnitude, "uA/cm^2");
+    XSD_CREATE_WITH_FIXED_ATTR1(cp::time_type, start_time, startTime, "ms");
+    XSD_CREATE_WITH_FIXED_ATTR1(cp::time_type, duration_time, duration, "ms");
      
     if (!IsElectrodesPresent())
     {
         cp::electrodes_type element( groundSecondElectrode ? cp::yesno_type::yes : cp::yesno_type::no,
                                      axis,
-                                     magnitude,
-                                     startTime,
-                                     duration );
+                                     strength,
+                                     start_time,
+                                     duration_time );
         mpUserParameters->Simulation().get().Electrodes().set(element);
     }
     else
     {
         mpUserParameters->Simulation().get().Electrodes().get().GroundSecondElectrode(groundSecondElectrode ? cp::yesno_type::yes : cp::yesno_type::no);
         mpUserParameters->Simulation().get().Electrodes().get().PerpendicularToAxis(axis);
-        mpUserParameters->Simulation().get().Electrodes().get().Strength(magnitude);
-        mpUserParameters->Simulation().get().Electrodes().get().StartTime(startTime);
-        mpUserParameters->Simulation().get().Electrodes().get().Duration(duration);
+        mpUserParameters->Simulation().get().Electrodes().get().Strength(strength);
+        mpUserParameters->Simulation().get().Electrodes().get().StartTime(start_time);
+        mpUserParameters->Simulation().get().Electrodes().get().Duration(duration_time);
     }
 }
 

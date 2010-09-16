@@ -181,7 +181,6 @@ public:
         }
 
         bidomain_problem.SetMesh(&mesh);
-        bidomain_problem.Initialise();
 
         //boundary flux for Phi_e
         //-4e3 is enough to trigger an action potential, -3e3 is below threshold, -5e3 crashes the cell model.
@@ -189,6 +188,7 @@ public:
         double duration = 2.5; //ms
 
         HeartConfig::Instance()->SetElectrodeParameters(true,0,boundary_flux, 0.0, duration);
+        bidomain_problem.Initialise();
         bidomain_problem.Solve();
 
         Vec sol = bidomain_problem.GetSolution();
@@ -250,13 +250,13 @@ public:
         }
 
         bidomain_problem.SetMesh(&mesh);
-        bidomain_problem.Initialise();
 
         //boundary flux for Phi_e
         double boundary_flux = -4e3;
         double duration = 2.5; //ms
 
         HeartConfig::Instance()->SetElectrodeParameters(true,0,boundary_flux, 0.0, duration);
+        bidomain_problem.Initialise();
         bidomain_problem.Solve();
 
         Vec sol = bidomain_problem.GetSolution();
