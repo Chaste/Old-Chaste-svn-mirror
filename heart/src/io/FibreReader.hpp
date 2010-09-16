@@ -112,8 +112,10 @@ public:
      * \endcode
      * 
      * @param rFibreMatrix  matrix to be filled in
+     * @param checkOrthogonality  if true, checks if the matrix is orthogonal
+     *    and throws an exception if not
      */
-    void GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix);
+    void GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix, bool checkOrthogonality=true);
 
     /**
      * Read the next fibre direction vector from the file.  Must only be used when
@@ -123,8 +125,10 @@ public:
      * \endcode
      *
      * @param rFibreVector  vector to be filled in
+     * @param checkOrthogonality  if true, checks if the read vector is normalised 
+     *   and throws an exception if not
      */
-    void GetNextFibreVector(c_vector<double,DIM>& rFibreVector);
+    void GetNextFibreVector(c_vector<double,DIM>& rFibreVector, bool checkNormalised=true);
 
     /**
      *  Get the number of lines of data in the file - this is the value read from

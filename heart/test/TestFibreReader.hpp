@@ -76,7 +76,8 @@ public:
         correct_matrix(1,1) = -1.0;
         TS_ASSERT_DELTA(UblasMatrixInfinityNorm<2>(fibre_matrix-correct_matrix), 0, 1e-9);
 
-        fibre_reader.GetNextFibreSheetAndNormalMatrix(fibre_matrix);
+        // this one isn't orthogonal - the false prevents this being checked
+        fibre_reader.GetNextFibreSheetAndNormalMatrix(fibre_matrix, false);
         correct_matrix(0,1) = 1.0;
         correct_matrix(1,0) = 1.0;
         TS_ASSERT_DELTA(UblasMatrixInfinityNorm<2>(fibre_matrix-correct_matrix), 0, 1e-9);
@@ -90,6 +91,9 @@ public:
         correct_matrix(1,1) =  1.0/sqrt(2);  // sheet1
         fibre_reader.GetNextFibreSheetAndNormalMatrix(fibre_matrix);
         TS_ASSERT_DELTA(UblasMatrixInfinityNorm<2>(fibre_matrix-correct_matrix), 0, 1e-9);
+
+        // next matrix is not orthogonal, here we make sure this is checked
+        TS_ASSERT_THROWS_CONTAINS(fibre_reader.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "not orthogonal")
 
         // called too many times
         TS_ASSERT_THROWS_CONTAINS(fibre_reader.GetNextFibreSheetAndNormalMatrix(fibre_matrix), "End of file")
@@ -109,12 +113,19 @@ public:
         TS_ASSERT_DELTA(fibre_vector(1), 1, 1e-9);
 
         fibre_reader.GetNextFibreVector(fibre_vector);
-        TS_ASSERT_DELTA(fibre_vector(0), 5, 1e-9);
-        TS_ASSERT_DELTA(fibre_vector(1), -8.8, 1e-9);
+        TS_ASSERT_DELTA(fibre_vector(0), 0.6, 1e-9);
+        TS_ASSERT_DELTA(fibre_vector(1), -0.8, 1e-9);
 
-        fibre_reader.GetNextFibreVector(fibre_vector);
+        // next vector is not normalised, the false below prevents this being checked 
+        fibre_reader.GetNextFibreVector(fibre_vector, false);
         TS_ASSERT_DELTA(fibre_vector(0), 2, 1e-9);
         TS_ASSERT_DELTA(fibre_vector(1), 6, 1e-9);
+
+        // next vector is not normalised, here we make sure this is checked
+        TS_ASSERT_THROWS_CONTAINS(fibre_reader.GetNextFibreVector(fibre_vector), "not normalised")
+
+        // called too many times
+        TS_ASSERT_THROWS_CONTAINS(fibre_reader.GetNextFibreVector(fibre_vector), "End of file")
     }
 
     void TestFibreReaderExceptions()

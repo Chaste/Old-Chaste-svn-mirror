@@ -62,7 +62,8 @@ FibreReader<DIM>::~FibreReader()
 }
 
 template<unsigned DIM>
-void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix)
+void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>& rFibreMatrix,
+                                                        bool checkOrthogonality)
 {
     if (mNumItemsPerLine != DIM*DIM)
     {
@@ -85,10 +86,33 @@ void FibreReader<DIM>::GetNextFibreSheetAndNormalMatrix(c_matrix<double,DIM,DIM>
             rFibreMatrix(j,i) = mTokens[DIM*i + j];
         }
     }
+
+    if(checkOrthogonality)
+    {
+        c_matrix<double,DIM,DIM>  temp = prod(trans(rFibreMatrix),rFibreMatrix);
+        // check temp is equal to the identity
+        for(unsigned i=0; i<DIM; i++)
+        {   
+            for(unsigned j=0; j<DIM; j++)
+            {
+                double val = (i==j ? 1.0 : 0.0);
+
+                if(fabs(temp(i,j)-val)>1e-4)
+                {
+                    std::stringstream string_stream;
+                    string_stream << "Read fibre-sheet matrix, " << rFibreMatrix << " from file " 
+                                  << " which is not orthogonal (tolerance 1e-4)"; 
+                    EXCEPTION(string_stream.str());
+                }
+            }
+        }
+    }
+
 }
 
 template<unsigned DIM>
-void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector)
+void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector, 
+                                          bool checkNormalised)
 {
     if (mNumItemsPerLine != DIM)
     {
@@ -108,18 +132,24 @@ void FibreReader<DIM>::GetNextFibreVector(c_vector<double,DIM>& rFibreVector)
     {
         rFibreVector(i) = mTokens[i];
     }
+    
+    if(checkNormalised && fabs(norm_2(rFibreVector)-1)>1e-4)
+    {
+        std::stringstream string_stream;
+        string_stream << "Read vector " << rFibreVector << " from file " 
+                      << mFilePath << " which is not normalised (tolerance 1e-4)";
+        EXCEPTION(string_stream.str());
+    }
 }
 
 
 template<unsigned DIM>
 unsigned FibreReader<DIM>::GetTokensAtNextLine()
 {
-    std::string line;
-
-    bool comment_line;
-    bool blank_line;
-
     assert(mTokens.size() == mNumItemsPerLine);
+
+    std::string line;
+    bool blank_line;
 
     do
     {
@@ -134,12 +164,15 @@ unsigned FibreReader<DIM>::GetTokensAtNextLine()
             EXCEPTION(error);
         }
 
-        comment_line = (line.find('#',0) != std::string::npos);
+        // get rid of any comments
+        line = line.substr(0, line.find('#'));
+
         blank_line = (line.find_first_not_of(" \t",0) == std::string::npos);
     }
-    while(comment_line || blank_line);
+    while(blank_line);
 
-    std::string::iterator iter=line.end();
+    // get rid of any trailing whitespace
+    std::string::iterator iter = line.end();
     iter--;
     unsigned nchars2delete = 0;
     while(*iter == ' ')

@@ -100,14 +100,6 @@ protected:
     /** The fibre direction for the current element being assembled on */    
     c_vector<double,DIM> mCurrentElementFibreDirection;
 
-
-    /** Check whether the given matrix is orthogonal, by computing A^T A and verifying whether each
-      * component matches the identity matrix, to a given tolerance.
-      * @param rMatrix reference to the matrix being tested
-      */
-    void CheckOrthogonality(c_matrix<double,DIM,DIM>& rMatrix);
-
-
     /**
      *  Whether the solver is implicit or not (ie whether the contraction model depends on lambda (and depends on
      *  lambda at the current time)). For whether dTa_dLam dependent terms need to be added to the Jacbobian
@@ -207,7 +199,21 @@ public:
     void SetConstantFibreSheetDirections(const c_matrix<double,DIM,DIM>& rFibreSheetMatrix)
     {
         mConstantFibreSheetDirections = rFibreSheetMatrix;
-        CheckOrthogonality(mConstantFibreSheetDirections);
+        // check orthogonality
+        c_matrix<double,DIM,DIM>  temp = prod(trans(rFibreSheetMatrix),rFibreSheetMatrix);
+        for(unsigned i=0; i<DIM; i++)
+        {
+            for(unsigned j=0; j<DIM; j++)
+            {
+                double val = (i==j ? 1.0 : 0.0);
+                if(fabs(temp(i,j)-val)>1e-4)
+                {
+                    std::stringstream string_stream;
+                    string_stream << "The given fibre-sheet matrix, " << rFibreSheetMatrix << ", is not orthogonal";
+                    EXCEPTION(string_stream.str());
+                }
+            }
+        }
     }
 
     /**
@@ -527,34 +533,9 @@ void AbstractCardiacMechanicsSolver<DIM>::SetVariableFibreSheetDirections(std::s
     {
         reader.GetNextFibreSheetAndNormalMatrix( (*mpVariableFibreSheetDirections)[index] );
     }
-    
-    for(unsigned index=0; index<num_entries; index++)
-    {
-        CheckOrthogonality((*mpVariableFibreSheetDirections)[index]);
-    }
 }
 
 
-template<unsigned DIM>
-void AbstractCardiacMechanicsSolver<DIM>::CheckOrthogonality(c_matrix<double,DIM,DIM>& rMatrix)
-{
-    c_matrix<double,DIM,DIM>  temp = prod(trans(rMatrix),rMatrix);
-    double tol = 1e-4;
-    // check temp is equal to the identity
-    for(unsigned i=0; i<DIM; i++)
-    {
-        for(unsigned j=0; j<DIM; j++)
-        {
-            double val = (i==j ? 1.0 : 0.0);
-            if(fabs(temp(i,j)-val)>tol)
-            {
-                std::stringstream string_stream;
-                string_stream << "The given fibre-sheet matrix, " << rMatrix << ", is not orthogonal"
-                              << " (A^T A not equal to I to tolerance " << tol << ")";
-                EXCEPTION(string_stream.str());
-            }
-        }
-    }
-}
+
 
 #endif /*ABSTRACTCARDIACMECHANICSSOLVER_HPP_*/
