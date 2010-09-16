@@ -276,9 +276,6 @@ public:
             }
             else
             {
-                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("blah", false), "Fibre file must be a .ortho file");
-                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("blah.ortho", false), "Could not open file");
-                TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/bad_4by4mesh_fibres.ortho", false), "Error occurred when reading file");
                 TS_ASSERT_THROWS_CONTAINS(solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/badheader_4by4mesh_fibres.ortho", false), "found 32342, expected 32");
                 solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/4by4mesh_fibres.ortho", false);
             }
@@ -309,10 +306,10 @@ public:
 
             std::vector<double>& lambda = solver.rGetFibreStretches();
 
-            for(unsigned i=0; i<lambda.size(); i++)
-            {
-                //std::cout << quad_points.Get(i)(0) << " " << quad_points.Get(i)(1) << " " << lambda[i] << "\n";
-            }
+            //for(unsigned i=0; i<lambda.size(); i++)
+            //{
+            //    std::cout << quad_points.Get(i)(0) << " " << quad_points.Get(i)(1) << " " << lambda[i] << "\n";
+            //}
 
             // hardcoded test
             TS_ASSERT_DELTA(lambda[34], 0.9693, 1e-3);  // ** different value to previous test - attributing the difference in results to the fact mesh isn't rotation-invariant
@@ -424,7 +421,6 @@ public:
 
         ImplicitCardiacMechanicsSolver<2> solver(NHS, &mesh,"ImplicitCardiacMech/FibresInYDirectionDefinePerQuadPoint",fixed_nodes,&law);
         
-        TS_ASSERT_THROWS_THIS( solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/4by4mesh_fibres.ortho", true), "Fibre file must be a .orthoquad file");
         TS_ASSERT_THROWS_CONTAINS( solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/badheader_4by4mesh_fibres.orthoquad", true), "found 45430, expected 288");
         solver.SetVariableFibreSheetDirections("heart/test/data/fibre_tests/4by4mesh_fibres.orthoquad", true);
 

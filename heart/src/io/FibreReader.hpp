@@ -36,14 +36,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "UblasIncludes.hpp"
 #include "FileFinder.hpp"
 
+
+
 /**
- * TODO:DOX
- * 
+ * A class for reading .axi files (files which define the fibre direction
+ * for each element) and .ortho files (files which define the fibre, sheet
+ * and normal directions for each element. 
  */
 template<unsigned DIM>
 class FibreReader
 {
-
 private:
     /** File stream to use for GetTokensAtNextLine */
     std::ifstream mDataFile;
@@ -87,6 +89,7 @@ public:
      *  Destructor closes file.
      */
     ~FibreReader();
+
 
     /**
      * Read the next fibre direction matrix from the file.  Must only be used when

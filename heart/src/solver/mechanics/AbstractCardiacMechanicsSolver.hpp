@@ -34,6 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticBasisFunction.hpp" // not included in NonlinearElasticitySolver.hpp, just the cpp
 #include "LinearBasisFunction.hpp"
 #include "AbstractContractionModel.hpp"
+#include "FibreReader.hpp"
+
 
 /**
  *  AbstractCardiacMechanicsSolver
@@ -371,7 +373,7 @@ void AbstractCardiacMechanicsSolver<DIM>::ComputeStressAndStressDerivative(Abstr
         
     for(unsigned i=0; i<DIM; i++)
     {
-        mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(0,i);
+        mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(i,0);
     }
     
     
@@ -499,68 +501,34 @@ void AbstractCardiacMechanicsSolver<DIM>::SetVariableFibreSheetDirections(std::s
 {
     mFibreSheetDirectionsDefinedByQuadraturePoint = definedPerQuadraturePoint;
     
-    if(!mFibreSheetDirectionsDefinedByQuadraturePoint)
-    {
-        if((orthoFile.length()<7) || orthoFile.substr(orthoFile.length()-6,orthoFile.length()) != ".ortho")
-        {
-            EXCEPTION("Fibre file must be a .ortho file");
-        }
-    }
-    else
-    {
-        if((orthoFile.length()<11) || orthoFile.substr(orthoFile.length()-10,orthoFile.length()) != ".orthoquad")
-        {
-            EXCEPTION("Fibre file must be a .orthoquad file");
-        }
-    }
+    FileFinder finder(orthoFile, RelativeTo::ChasteSourceRoot);
+    FibreReader<DIM> reader(finder, 2); // 2 for ortho
+    
+    unsigned num_entries = reader.GetNumLinesOfData();
 
-    std::ifstream ifs(orthoFile.c_str());
-    if (!ifs.is_open())
-    {
-        EXCEPTION("Could not open file: " + orthoFile);
-    }
-
-    unsigned num_entries_in_ortho_file;
-    ifs >> num_entries_in_ortho_file;
-    if(!mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries_in_ortho_file!=this->mpQuadMesh->GetNumElements()) )
+    if(!mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries!=this->mpQuadMesh->GetNumElements()) )
     {
         std::stringstream ss;
         ss << "Number of entries defined at top of file " << orthoFile << " does not match number of elements in the mesh, "
-           << "found " <<  num_entries_in_ortho_file << ", expected " << this->mpQuadMesh->GetNumElements();
+           << "found " <<  num_entries << ", expected " << this->mpQuadMesh->GetNumElements();
         EXCEPTION(ss.str());
     }
 
-    if(mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries_in_ortho_file!=mTotalQuadPoints) )
+    if(mFibreSheetDirectionsDefinedByQuadraturePoint && (num_entries!=mTotalQuadPoints) )
     {
         std::stringstream ss;
         ss << "Number of entries defined at top of file " << orthoFile << " does not match number of quadrature points defined, "
-           << "found " <<  num_entries_in_ortho_file << ", expected " << mTotalQuadPoints;
+           << "found " <<  num_entries << ", expected " << mTotalQuadPoints;
         EXCEPTION(ss.str());
     }
     
-    mpVariableFibreSheetDirections = new std::vector<c_matrix<double,DIM,DIM> >(num_entries_in_ortho_file, zero_matrix<double>(DIM,DIM));
-    for(unsigned index=0; index<num_entries_in_ortho_file; index++)
+    mpVariableFibreSheetDirections = new std::vector<c_matrix<double,DIM,DIM> >(num_entries, zero_matrix<double>(DIM,DIM));
+    for(unsigned index=0; index<num_entries; index++)
     {
-        for(unsigned j=0; j<DIM*DIM; j++)
-        {
-            double data;
-            ifs >> data;
-            if(ifs.fail())
-            {
-                std::stringstream error_message;
-                error_message << "Error occurred when reading file " << orthoFile;
-                delete mpVariableFibreSheetDirections;
-                mpVariableFibreSheetDirections = NULL; // important!
-                EXCEPTION(error_message.str());
-            }
-
-            (*mpVariableFibreSheetDirections)[index](j/DIM,j%DIM) = data;
-        }
+        reader.GetNextFibreSheetAndNormalMatrix( (*mpVariableFibreSheetDirections)[index] );
     }
-
-    ifs.close();
-
-    for(unsigned index=0; index<num_entries_in_ortho_file; index++)
+    
+    for(unsigned index=0; index<num_entries; index++)
     {
         CheckOrthogonality((*mpVariableFibreSheetDirections)[index]);
     }
@@ -582,7 +550,7 @@ void AbstractCardiacMechanicsSolver<DIM>::CheckOrthogonality(c_matrix<double,DIM
             {
                 std::stringstream string_stream;
                 string_stream << "The given fibre-sheet matrix, " << rMatrix << ", is not orthogonal"
-                   << " (A^T A not equal to I to tolerance " << tol << ")";
+                              << " (A^T A not equal to I to tolerance " << tol << ")";
                 EXCEPTION(string_stream.str());
             }
         }
