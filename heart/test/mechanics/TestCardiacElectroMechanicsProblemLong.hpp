@@ -43,7 +43,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 class TestCardiacElectroMechanicsProblemLong : public CxxTest::TestSuite
 {
 public:
-    void xxTest2dHardcodedResult() throw(Exception)
+    void Test2dHardcodedResult() throw(Exception)
     {
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 2> cell_factory(-1000*1000);
 
@@ -115,7 +115,7 @@ public:
 
 
 
-    void xxTest3d() throw(Exception)
+    void Test3d() throw(Exception)
     {
         PlaneStimulusCellFactory<CellLuoRudy1991FromCellML, 3> cell_factory(-1000*1000);
 
