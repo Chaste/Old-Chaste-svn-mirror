@@ -42,6 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #endif // CHASTE_CAN_CHECKPOINT_DLLS
 
 #include "RunAndCheckIonicModels.hpp"
+#include "DynamicLoadingHelperFunctions.hpp"
+
 #include "SimpleStimulus.hpp"
 #include "EulerIvpOdeSolver.hpp"
 #include "DynamicCellModelLoader.hpp"
@@ -108,62 +110,13 @@ private:
     }
     
     AbstractCardiacCellInterface* CreateLr91CellFromLoader(DynamicCellModelLoader& rLoader,
-                                                  unsigned vIndex=4u)
+                                                           unsigned vIndex=4u)
     {
-        // Set stimulus
-        double magnitude = -25.5;
-        double duration  = 2.0 ;  // ms
-        double when = 50.0; // ms
-
-        boost::shared_ptr<SimpleStimulus> p_stimulus(new SimpleStimulus(magnitude, duration, when));
-        boost::shared_ptr<EulerIvpOdeSolver> p_solver(new EulerIvpOdeSolver);
-
-        // Load the cell model dynamically
-        AbstractCardiacCellInterface* p_cell = rLoader.CreateCell(p_solver, p_stimulus);
-
-        // Simple sanity checks
+        AbstractCardiacCellInterface* p_cell = CreateCellWithStandardStimulus(rLoader);
         TS_ASSERT_EQUALS(p_cell->GetVoltageIndex(), vIndex);
-        AbstractDynamicallyLoadableEntity* p_entity = dynamic_cast<AbstractDynamicallyLoadableEntity*>(p_cell);
-        TS_ASSERT(p_entity != NULL);
-        if (p_entity != NULL)
-        {
-            TS_ASSERT_EQUALS(&rLoader, p_entity->GetLoader());
-        }
-
         return p_cell;
     }
-
-    void CreateOptionsFile(const OutputFileHandler& rHandler,
-                           const std::string& rModelName,
-                           const std::vector<std::string>& rArgs,
-                           const std::string& rExtraXml="")
-    {
-        if (PetscTools::AmMaster())
-        {
-            out_stream p_optfile = rHandler.OpenOutputFile(rModelName + "-conf.xml");
-            (*p_optfile) << "<?xml version='1.0'?>" << std::endl
-                         << "<pycml_config>" << std::endl
-                         << "<command_line_args>" << std::endl;
-            for (unsigned i=0; i<rArgs.size(); i++)
-            {
-                (*p_optfile) << "<arg>" << rArgs[i] << "</arg>" << std::endl;
-            }
-            (*p_optfile) << "</command_line_args>" << std::endl
-                         << rExtraXml
-                         << "</pycml_config>" << std::endl;
-            p_optfile->close();
-        }
-        PetscTools::Barrier("CreateOptionsFile");
-    }
     
-    void CopyFile(const OutputFileHandler& rDestDir,
-                  const FileFinder& rSourceFile)
-    {
-        if (PetscTools::AmMaster())
-        {
-            EXPECT0(system, "cp " + rSourceFile.GetAbsolutePath() + " " + rDestDir.GetOutputDirectoryFullPath());
-        }
-    }
 public:
     /**
      * This is based on TestOdeSolverForLR91WithDelayedSimpleStimulus from
