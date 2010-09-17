@@ -191,30 +191,12 @@ public:
 
 
     /**
-     *    Set a constant fibre-sheet-normal direction (a matrix) to something other than the default (fibres in X-direction,
+     *  Set a constant fibre-sheet-normal direction (a matrix) to something other than the default (fibres in X-direction,
      *  sheet in the XY plane)
      *  @param rFibreSheetMatrix The fibre-sheet-normal matrix (fibre dir the first column, normal-to-fibre-in sheet in second
      *  column, sheet-normal in third column).
      */
-    void SetConstantFibreSheetDirections(const c_matrix<double,DIM,DIM>& rFibreSheetMatrix)
-    {
-        mConstantFibreSheetDirections = rFibreSheetMatrix;
-        // check orthogonality
-        c_matrix<double,DIM,DIM>  temp = prod(trans(rFibreSheetMatrix),rFibreSheetMatrix);
-        for(unsigned i=0; i<DIM; i++)
-        {
-            for(unsigned j=0; j<DIM; j++)
-            {
-                double val = (i==j ? 1.0 : 0.0);
-                if(fabs(temp(i,j)-val)>1e-4)
-                {
-                    std::stringstream string_stream;
-                    string_stream << "The given fibre-sheet matrix, " << rFibreSheetMatrix << ", is not orthogonal";
-                    EXCEPTION(string_stream.str());
-                }
-            }
-        }
-    }
+    void SetConstantFibreSheetDirections(const c_matrix<double,DIM,DIM>& rFibreSheetMatrix);
 
     /**
      *  Set a variable fibre-sheet-normal direction (matrices), from file.
@@ -381,10 +363,10 @@ void AbstractCardiacMechanicsSolver<DIM>::ComputeStressAndStressDerivative(Abstr
     {
         mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(i,0);
     }
-    
-    
+
     // 1. Compute T and dTdE for the PASSIVE part of the strain energy.
-    pMaterialLaw->SetChangeOfBasisMatrix(*mpCurrentElementFibreSheetMatrix);
+    c_matrix<double,DIM,DIM> temp = trans(*mpCurrentElementFibreSheetMatrix);
+    pMaterialLaw->SetChangeOfBasisMatrix(temp);
     pMaterialLaw->ComputeStressAndStressDerivative(rC,rInvC,pressure,rT,rDTdE,assembleJacobian);
 
     // 2. Compute the active tension and add to the stress and stress-derivative
@@ -460,9 +442,9 @@ void AbstractCardiacMechanicsSolver<DIM>::ComputeDeformationGradientAndStretchIn
         mpCurrentElementFibreSheetMatrix = mpVariableFibreSheetDirections ? &(*mpVariableFibreSheetDirections)[elem_index] : &mConstantFibreSheetDirections;
         for(unsigned i=0; i<DIM; i++)
         {
-            mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(0,i);
+            mCurrentElementFibreDirection(i) = (*mpCurrentElementFibreSheetMatrix)(i,0);
         }
-
+        
         // get the displacement at this element
         for (unsigned II=0; II<NUM_VERTICES_PER_ELEMENT; II++)
         {
@@ -536,6 +518,27 @@ void AbstractCardiacMechanicsSolver<DIM>::SetVariableFibreSheetDirections(std::s
 }
 
 
+
+template<unsigned DIM>
+void AbstractCardiacMechanicsSolver<DIM>::SetConstantFibreSheetDirections(const c_matrix<double,DIM,DIM>& rFibreSheetMatrix)
+{
+    mConstantFibreSheetDirections = rFibreSheetMatrix;
+    // check orthogonality
+    c_matrix<double,DIM,DIM>  temp = prod(trans(rFibreSheetMatrix),rFibreSheetMatrix);
+    for(unsigned i=0; i<DIM; i++)
+    {
+        for(unsigned j=0; j<DIM; j++)
+        {
+            double val = (i==j ? 1.0 : 0.0);
+            if(fabs(temp(i,j)-val)>1e-4)
+            {
+                std::stringstream string_stream;
+                string_stream << "The given fibre-sheet matrix, " << rFibreSheetMatrix << ", is not orthogonal";
+                EXCEPTION(string_stream.str());
+            }
+        }
+    }
+}
 
 
 #endif /*ABSTRACTCARDIACMECHANICSSOLVER_HPP_*/
