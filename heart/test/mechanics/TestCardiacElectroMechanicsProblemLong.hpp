@@ -157,7 +157,7 @@ public:
 
         // set up two meshes of 1mm by 1mm by 1mm
         TetrahedralMesh<3,3> electrics_mesh;
-        electrics_mesh.ConstructRegularSlabMesh(0.1, 0.1, 0.1, 0.1);
+        electrics_mesh.ConstructRegularSlabMesh(0.01, 0.1, 0.1, 0.1);
     
         QuadraticMesh<3> mechanics_mesh(0.02, 0.1, 0.1, 0.1);
 
