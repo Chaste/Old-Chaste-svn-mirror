@@ -125,7 +125,7 @@ public:
      * \endcode
      *
      * @param rFibreVector  vector to be filled in
-     * @param checkOrthogonality  if true, checks if the read vector is normalised 
+     * @param checkNormalised  if true, checks if the read vector is normalised 
      *   and throws an exception if not
      */
     void GetNextFibreVector(c_vector<double,DIM>& rFibreVector, bool checkNormalised=true);
