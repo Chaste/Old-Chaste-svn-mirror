@@ -365,8 +365,7 @@ void AbstractCardiacMechanicsSolver<DIM>::ComputeStressAndStressDerivative(Abstr
     }
 
     // 1. Compute T and dTdE for the PASSIVE part of the strain energy.
-    c_matrix<double,DIM,DIM> temp = trans(*mpCurrentElementFibreSheetMatrix);
-    pMaterialLaw->SetChangeOfBasisMatrix(temp);
+    pMaterialLaw->SetChangeOfBasisMatrix(*mpCurrentElementFibreSheetMatrix);
     pMaterialLaw->ComputeStressAndStressDerivative(rC,rInvC,pressure,rT,rDTdE,assembleJacobian);
 
     // 2. Compute the active tension and add to the stress and stress-derivative
