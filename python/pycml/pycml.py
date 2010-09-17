@@ -350,7 +350,15 @@ class element_base(amara.bindery.element_base):
     def __init__(self):
         self.xml_attributes = {} # Amara should really do this!
         super(element_base, self).__init__()
-        return
+    
+    def __delattr__(self, key):
+        """
+        Bypass Amara's __delattr__ for attribute names that start with _cml_
+        """
+        if key.startswith('_cml_'):
+            del self.__dict__[key]
+        else:
+            amara.bindery.element_base.__delattr__(self, key)
     
     def __setattr__(self, key, value):
         """
@@ -360,7 +368,6 @@ class element_base(amara.bindery.element_base):
             self.__dict__[key] = value
         else:
             amara.bindery.element_base.__setattr__(self, key, value)
-        return
     
     @property
     def rootNode(self):
@@ -1981,12 +1988,17 @@ class cellml_variable(Colourable, element_base):
         source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
         return cellml_metadata.get_target(self.model, source, property)
     
-    def remove_rdf_annotations(self):
-        """Remove all RDF annotations about this variable."""
+    def remove_rdf_annotations(self, property=None):
+        """Remove all RDF annotations about this variable.
+        
+        If property is given, only remove annotations with the given property.
+        """
         meta_id = self.cmeta_id
         if meta_id:
             source = cellml_metadata.create_rdf_node(fragment_id=meta_id)
-            cellml_metadata.remove_statements(self.model, source, None, None)
+            if property:
+                property = cellml_metadata.create_rdf_node(property)
+            cellml_metadata.remove_statements(self.model, source, property, None)
 
     def set_rdf_annotation_from_boolean(self, property, is_yes):
         """Set an RDF annotation as 'yes' or 'no' depending on a boolean value."""
@@ -1996,15 +2008,36 @@ class cellml_variable(Colourable, element_base):
             val = 'no'
         self.add_rdf_annotation(property, val)
 
-    def _set_binding_time(self, bt):
+    def _set_binding_time(self, bt, temporary=False):
         """Set the binding time of this variable.
         
         Options are members of the BINDING_TIMES Enum.
+        
+        If temporary is True, then we're temporarily overriding the normal setting,
+        so save any existing annotation for later replacement.
         """
         assert bt in BINDING_TIMES
+        if temporary:
+            self._cml_saved_bt = self.get_rdf_annotation(('pe:binding_time', NSS[u'pe']))
         self.add_rdf_annotation(('pe:binding_time', NSS[u'pe']), str(bt))
         self._cml_binding_time = bt
         return
+    
+    def _unset_binding_time(self, only_temporary=False):
+        """Unset any stored binding time.
+        
+        If the stored BT was a temporary setting, replace it with the original value.
+        """
+        self._cml_binding_time = None
+        if hasattr(self, '_cml_saved_bt'):
+            if self._cml_saved_bt:
+                self._set_binding_time(getattr(BINDING_TIMES, self._cml_saved_bt))
+            else:
+                self.remove_rdf_annotations(('pe:binding_time', NSS[u'pe']))
+            del self._cml_saved_bt
+        elif not only_temporary:
+            self.remove_rdf_annotations(('pe:binding_time', NSS[u'pe']))
+        
     def _get_binding_time(self):
         """Return the binding time of this variable, as a member of
         the BINDING_TIMES Enum.

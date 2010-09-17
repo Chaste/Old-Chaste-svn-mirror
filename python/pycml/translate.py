@@ -4255,8 +4255,7 @@ class ConfigurationStore(object):
             """Recursively clear saved values for variables in this expression."""
             def f(ci_elt):
                 ci_elt.variable.unset_values()
-                if hasattr(ci_elt.variable, '_cml_saved_bt'):
-                    ci_elt.variable._set_binding_time(ci_elt.variable._cml_saved_bt)
+                ci_elt.variable._unset_binding_time(only_temporary=True)
                 if process_definitions:
                     defn = ci_elt.variable._get_dependencies()
                     if defn and isinstance(defn[0], mathml_apply):
@@ -4283,8 +4282,7 @@ class ConfigurationStore(object):
                     if defn and isinstance(defn[0], mathml_apply):
                         assign_values_for_stimulus_check(defn[0].eq.rhs, found_stim, new_vars)
                         remove.append(var)
-                        var._cml_saved_bt = var._get_binding_time()
-                        var._set_binding_time(BINDING_TIMES.static)
+                        var._set_binding_time(BINDING_TIMES.static, temporary=True)
                 for i in [0, 1]:
                     vars[i].extend(new_vars[i])
                     for var in remove:
@@ -4336,6 +4334,7 @@ class ConfigurationStore(object):
         # Find the stimulus current, if it exists for this kind of model (some are self-excitatory)
         if not self.doc.model.is_self_excitatory():
             self.i_stim_var = self._find_var('membrane_stimulus_current', self.i_stim_definitions)
+            DEBUG('config', 'Found stimulus', self.i_stim_var)
             if not self.i_stim_var:
                 # No match :(
                 msg = "No stimulus current found; you'll have trouble generating Chaste code"
@@ -4423,6 +4422,7 @@ class ConfigurationStore(object):
                 raise ConfigurationError('The name of V must contain both '
                                          'component and variable name')
         self.V_variable = self._find_var('membrane_voltage', self.V_definitions)
+        DEBUG('config', 'Found V', self.V_variable)
         if not self.V_variable:
             raise ConfigurationError('No transmembrane potential found; check your configuration')
         return self.V_variable
@@ -4432,6 +4432,7 @@ class ConfigurationStore(object):
         
         Uses first metadata, if present, then the configuration file."""
         self.Cm_variable = self._find_var('membrane_capacitance', self.Cm_definitions)
+        DEBUG('config', 'Found capacitance', self.Cm_variable)
 
     def find_lookup_variables(self, pe_done=False):
         """Find the variable objects used as lookup table keys.
@@ -4459,6 +4460,7 @@ class ConfigurationStore(object):
                     new_config[var] = {}
                 new_config[var].update(self.lut_config[key])
         self.lut_config = new_config
+        DEBUG('config', 'Lookup tables configuration:', new_config)
         return
 
     # TODO - move into seperate metadata class?

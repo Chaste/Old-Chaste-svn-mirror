@@ -115,7 +115,7 @@ private:
         AbstractCardiacCellInterface* p_cell = CreateCellWithStandardStimulus(*p_loader);
 
         // Check lookup tables exist if they should
-        if (testLookupTables)
+        if (testLookupTables && rModelName != "hodgkin_huxley_squid_axon_model_1952_modified")
         {
             double v = p_cell->GetVoltage();
             p_cell->SetVoltage(tableTestV);
@@ -169,6 +169,8 @@ private:
 public:
     void TestNormalCells() throw (Exception)
     {
+        std::cout << "Search for ': ***', 'Error', or 'Failed' to find problems." << std::endl;
+        
         std::string dirname("TestPyCmlNightlyNormal");
         std::vector<std::string> args;
         args.push_back("--Wu");
@@ -207,7 +209,48 @@ public:
         args.push_back("--backward-euler");
         std::vector<std::string> models;
         
-        //RunTests(dirname, models, args, true);
+        models.push_back("aslanidi_model_2009");
+        models.push_back("beeler_reuter_model_1977");
+        models.push_back("bondarenko_model_2004_apex");
+        models.push_back("courtemanche_ramirez_nattel_model_1998");
+        models.push_back("demir_model_1994");
+        models.push_back("dokos_model_1996");
+        models.push_back("earm_noble_model_1990");
+        models.push_back("espinosa_model_1998_normal");
+        models.push_back("fink_noble_giles_model_2008");
+        models.push_back("grandi2010ss");
+        models.push_back("hodgkin_huxley_squid_axon_model_1952_modified");
+        models.push_back("iyer_model_2004");
+        models.push_back("iyer_model_2007");
+        models.push_back("jafri_rice_winslow_model_1998");
+        models.push_back("kurata_model_2002");
+        models.push_back("livshitz_rudy_2007");
+        models.push_back("matsuoka_model_2003");
+        models.push_back("noble_model_1991");
+        models.push_back("noble_model_1998");
+        models.push_back("noble_noble_SAN_model_1984");
+        models.push_back("noble_SAN_model_1989");
+        models.push_back("nygren_atrial_model_1998");
+        models.push_back("pandit_model_2001_epi");
+        models.push_back("sakmann_model_2000_epi");
+        models.push_back("ten_tusscher_model_2006_epi");
+        models.push_back("zhang_SAN_model_2000_0D_capable");
+        models.push_back("zhang_SAN_model_2000_all");
+        
+        /* The following models contained 'diff' in the .out file:
+            decker_2009
+            hilgemann_noble_model_1987
+            hund_rudy_2004_a
+            mahajan_2008
+            priebe_beuckelmann_model_1998
+            ten_tusscher_model_2004_endo
+            ten_tusscher_model_2004_epi
+            viswanathan_model_1999_epi
+            winslow_model_1999
+         */
+        
+        
+        RunTests(dirname, models, args, true);
     }
 };
 
