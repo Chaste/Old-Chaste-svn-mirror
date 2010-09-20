@@ -118,7 +118,7 @@ public:
 
         /* Next, we generate a mesh. The basic Chaste mesh is {{{TetrahedralMesh}}}.
          * To enforce periodicity at the left and right hand sides of the mesh, we
-         * use a sublcass called {{{Cylindrical2dMesh}}}, which has extra methods for
+         * use a subclass called {{{Cylindrical2dMesh}}}, which has extra methods for
          * maintaining periodicity. To create a {{{Cylindrical2dMesh}}}, we can use
          * the {{{HoneycombMeshGenerator}}}. This generates a honeycomb-shaped mesh,
          * in which all nodes are equidistant. Here the first and second arguments

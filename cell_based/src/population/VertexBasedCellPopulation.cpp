@@ -261,7 +261,7 @@ void VertexBasedCellPopulation<DIM>::UpdateNodeLocations(const std::vector< c_ve
          */
         if (norm_2(displacement)>0.5*mrMesh.GetCellRearrangementThreshold())
         {
-        	WARN_ONCE_ONLY("Vertices are moving more than half the CellRearangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
+        	WARN_ONCE_ONLY("Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
         	displacement *= 0.5*mrMesh.GetCellRearrangementThreshold()/norm_2(displacement);
         }
 
