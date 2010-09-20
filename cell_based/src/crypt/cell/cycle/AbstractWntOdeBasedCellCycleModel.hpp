@@ -71,6 +71,11 @@ protected:
      * Get the Wnt level experienced by the cell.
      */
     double GetWntLevel();
+    
+    /**
+     * Call base class UpdateCellCyclePhase, then UpdateCellProliferativeType.
+     */
+    void UpdateCellCyclePhase();
 
 public:
 

@@ -99,15 +99,8 @@ void WntCellCycleModel::Initialise()
     ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 }
 
-bool WntCellCycleModel::SolveOdeToTime(double currentTime)
+void WntCellCycleModel::AdjustOdeParameters(double currentTime)
 {
-    // We are in G0 or G1 phase - running cell cycle ODEs
-#ifdef CHASTE_CVODE
-    const double dt = SimulationTime::Instance()->GetTimeStep();
-#else
-    double dt = 0.0001; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
-#endif // CHASTE_CVODE
-
     double wnt_level = GetWntLevel();
 
     // Pass this time step's Wnt stimulus into the solver as a constant over this timestep.
@@ -115,12 +108,6 @@ bool WntCellCycleModel::SolveOdeToTime(double currentTime)
 
     // Use the cell's current mutation status as another input
     static_cast<WntCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
-
-    mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
-
-    mLastTime = currentTime;// normally done in Abstract class, but no harm in doing it here to prevent following line throwing an error.
-    UpdateCellProliferativeType();
-    return mpOdeSolver->StoppingEventOccurred();
 }
 
 // Serialization for Boost >= 1.36

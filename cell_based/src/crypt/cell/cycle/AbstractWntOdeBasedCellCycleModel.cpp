@@ -85,17 +85,23 @@ void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
     }
 }
 
+void AbstractWntOdeBasedCellCycleModel::UpdateCellCyclePhase()
+{
+    AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase();
+    if (SimulationTime::Instance()->GetTime() == mLastTime
+        || GetOdeStopTime() == mLastTime)
+    {
+        // Should only be called if we're still running ODEs
+        UpdateCellProliferativeType();
+    }
+}
+
 void AbstractWntOdeBasedCellCycleModel::UpdateCellProliferativeType()
 {
     assert(mpOdeSystem != NULL);
     assert(mpCell != NULL);
-    if (SimulationTime::Instance()->GetTime() > mLastTime)
-    {
-        EXCEPTION("WntCellCycleModel::UpdateCellProliferativeType() should only be called when the cell cycle model has been evaluated to the current time\n");
-    }
     ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 }
-
 
 double AbstractWntOdeBasedCellCycleModel::GetAverageTransitCellCycleTime()
 {

@@ -94,14 +94,6 @@ public:
     AbstractCellCycleModel* CreateCellCycleModel();
 
     /**
-     * Solve the ODEs up to the current time and return whether a stopping event occurred.
-     *
-     * @param currentTime the current time
-     * @return whether a stopping event occurred
-     */
-    bool SolveOdeToTime(double currentTime);
-
-    /**
      * Get the duration of the cell's S phase.
      */
     double GetSDuration();

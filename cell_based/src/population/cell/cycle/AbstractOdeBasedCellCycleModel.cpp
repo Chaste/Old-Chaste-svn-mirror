@@ -35,9 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime,
                                                                boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
-    : mpOdeSystem(NULL),
-      mpOdeSolver(pOdeSolver),
-      mLastTime(lastTime),
+    : CellCycleModelOdeHandler(lastTime, pOdeSolver),
       mDivideTime(lastTime),
       mFinishedRunningOdes(false),
       mG2PhaseStartTime(DBL_MAX)
@@ -47,10 +45,6 @@ AbstractOdeBasedCellCycleModel::AbstractOdeBasedCellCycleModel(double lastTime,
 
 AbstractOdeBasedCellCycleModel::~AbstractOdeBasedCellCycleModel()
 {
-    if (mpOdeSystem != NULL)
-    {
-        delete mpOdeSystem;
-    }
 }
 
 void AbstractOdeBasedCellCycleModel::SetBirthTime(double birthTime)
@@ -132,7 +126,6 @@ void AbstractOdeBasedCellCycleModel::UpdateCellCyclePhase()
                     mCurrentCellCyclePhase = S_PHASE;
                 }
             }
-            mLastTime = current_time;   // This is the last time the ODEs were evaluated.
         }
         else
         {
@@ -158,13 +151,12 @@ void AbstractOdeBasedCellCycleModel::ResetForDivision()
 
 double AbstractOdeBasedCellCycleModel::GetOdeStopTime()
 {
-    assert(mpOdeSolver->StoppingEventOccurred());
-    return mpOdeSolver->GetStoppingTime();
-}
-
-const boost::shared_ptr<AbstractCellCycleModelOdeSolver> AbstractOdeBasedCellCycleModel::GetOdeSolver() const
-{
-    return mpOdeSolver;
+    double stop_time = DOUBLE_UNSET;
+    if (mpOdeSolver->StoppingEventOccurred())
+    {
+        stop_time = mpOdeSolver->GetStoppingTime();
+    }
+    return stop_time;
 }
 
 void AbstractOdeBasedCellCycleModel::SetFinishedRunningOdes(bool finishedRunningOdes)
@@ -191,14 +183,4 @@ void AbstractOdeBasedCellCycleModel::SetStateVariables(const std::vector<double>
 {
     assert(mpOdeSystem);
     mpOdeSystem->SetStateVariables(rStateVariables);
-}
-
-void AbstractOdeBasedCellCycleModel::SetOdeSystem(AbstractOdeSystem* pOdeSystem)
-{
-    mpOdeSystem = pOdeSystem;
-}
-
-AbstractOdeSystem* AbstractOdeBasedCellCycleModel::GetOdeSystem() const
-{
-    return mpOdeSystem;
 }

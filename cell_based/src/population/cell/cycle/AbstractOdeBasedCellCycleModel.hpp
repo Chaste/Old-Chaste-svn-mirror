@@ -35,8 +35,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 #include "AbstractCellCycleModel.hpp"
-#include "AbstractOdeSystem.hpp"
-#include "AbstractCellCycleModelOdeSolver.hpp"
+#include "CellCycleModelOdeHandler.hpp"
 #include "SimulationTime.hpp"
 
 /**
@@ -45,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * of Tyson & Novak), such as solving the ODEs until a stopping condition
  * is met.
  */
-class AbstractOdeBasedCellCycleModel : public AbstractCellCycleModel
+class AbstractOdeBasedCellCycleModel : public AbstractCellCycleModel, public CellCycleModelOdeHandler
 {
 private:
 
@@ -61,29 +60,13 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<AbstractCellCycleModel>(*this);
-        archive & mpOdeSystem;
-        archive & mpOdeSolver;
-        archive & mLastTime;
+        archive & boost::serialization::base_object<CellCycleModelOdeHandler>(*this);
         archive & mDivideTime;
         archive & mFinishedRunningOdes;
         archive & mG2PhaseStartTime;
     }
 
 protected:
-
-    /** The system of ODEs for the cell cycle model. */
-    AbstractOdeSystem* mpOdeSystem;
-
-    /**
-     * The ODE solver.
-     * 
-     * Subclasses need to set this in their constructor to point to an instance
-     * of a suitable class. See for example the CellCycleModelOdeSolver class.
-     */
-    boost::shared_ptr<AbstractCellCycleModelOdeSolver> mpOdeSolver;
-
-    /** The last time the cell cycle ODEs were evaluated. */
-    double mLastTime;
 
     /** The time at which the cell should divide - Set this to DBL_MAX in constructor. */
     double mDivideTime;
@@ -114,7 +97,7 @@ public:
                                    boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * This destructor deletes the mpOdeSystem.
+     * Destructor.
      */
     virtual ~AbstractOdeBasedCellCycleModel();
 
@@ -125,15 +108,6 @@ public:
      * Can be overridden if they should do something more subtle.
      */
     virtual void UpdateCellCyclePhase();
-
-    /**
-     * This method must be implemented by each subclass - solves the ODEs to a given time.
-     *
-     * @param currentTime the current time
-     *
-     * @return Whether a stopping event occurred.
-     */
-    virtual bool SolveOdeToTime(double currentTime)=0;
 
     /**
      * Get the time at which the ODE stopping event occurred.
@@ -176,11 +150,6 @@ public:
     virtual void ResetForDivision();
 
     /**
-     * @return mpOdeSolver (used in archiving).
-     */
-    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> GetOdeSolver() const;
-
-    /**
      * Set mFinishedRunningOdes. Used in CreateCellCycleModel().
      * 
      * @param finishedRunningOdes the new value of mFinishedRunningOdes
@@ -214,18 +183,6 @@ public:
      * @param rStateVariables vector containing values for the state variables
      */
     void SetStateVariables(const std::vector<double>& rStateVariables);
-
-    /**
-     * Get mpOdeSystem.
-     */
-    AbstractOdeSystem* GetOdeSystem() const;
-
-    /**
-     * Set mpOdeSystem. Used in CreateCellCycleModel().
-     * 
-     * @param pOdeSystem the ODE system
-     */
-    void SetOdeSystem(AbstractOdeSystem* pOdeSystem);
 };
 
 CLASS_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)

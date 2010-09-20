@@ -47,6 +47,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(boost::shared_ptr<AbstractCel
         mpOdeSolver = CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance();
         mpOdeSolver->SetSizeOfOdeSystem(6);
         mpOdeSolver->Initialise();
+        SetTimeStep(0.1/60.0);
 #endif //CHASTE_CVODE
     }
 }
@@ -102,15 +103,6 @@ AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
     p_model->SetCellProliferativeType(mCellProliferativeType);
 
     return p_model;
-}
-
-bool TysonNovakCellCycleModel::SolveOdeToTime(double currentTime)
-{
-    double dt = 0.1/60.0;
-
-    mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
-
-    return mpOdeSolver->StoppingEventOccurred();
 }
 
 double TysonNovakCellCycleModel::GetSDuration()

@@ -136,10 +136,9 @@ void Alarcon2004OxygenBasedCellCycleModel::Initialise()
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
 }
 
-
-bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
+void Alarcon2004OxygenBasedCellCycleModel::AdjustOdeParameters(double currentTime)
 {
-    double dt = 0.0001; // the time step must be this small because the Runge-Kutter solver has poor stability
+    SetTimeStep(0.0001);
 
     // Pass this time step's oxygen concentration into the solver as a constant over this timestep
     switch (mDimension)
@@ -169,9 +168,6 @@ bool Alarcon2004OxygenBasedCellCycleModel::SolveOdeToTime(double currentTime)
     // Use whether the cell is currently labelled as another input
     bool is_labelled = mpCell->HasCellProperty<CellLabel>();
     static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(mpOdeSystem)->SetIsLabelled(is_labelled);
-
-    mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
-    return mpOdeSolver->StoppingEventOccurred();
 }
 
 // Serialization for Boost >= 1.36

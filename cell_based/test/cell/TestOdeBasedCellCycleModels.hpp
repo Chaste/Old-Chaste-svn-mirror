@@ -83,7 +83,7 @@ public:
 
         /*
          * For coverage, we create another cell cycle model that is identical except that we
-         * manually pass in an ODE solver. In this case, our ODE solver (RungeKutta4IvpOdeSolver)
+         * manually pass in an ODE solver. In this case, our ODE solver (BackwardEulerIvpOdeSolver)
          * is the same type as the solver used by the cell cycle model if no solver is provided
          * (unless CVODE is used), so our results should be identical.
          */
@@ -95,6 +95,7 @@ public:
         TysonNovakCellCycleModel* p_other_cell_model = new TysonNovakCellCycleModel(p_solver);
         p_other_cell_model->SetBirthTime(p_simulation_time->GetTime());
         p_other_cell_model->SetCellProliferativeType(STEM);
+        p_other_cell_model->SetTimeStep(0.1/60.0);
 
         CellPtr p_other_cell(new Cell(p_healthy_state, p_other_cell_model));
 
@@ -795,7 +796,6 @@ public:
         for (unsigned i=0; i<num_timesteps/2; i++)
         {
             p_simulation_time->IncrementTimeOneStep();
-            TS_ASSERT_THROWS_THIS(p_cell_model_1->UpdateCellProliferativeType(), "WntCellCycleModel::UpdateCellProliferativeType() should only be called when the cell cycle model has been evaluated to the current time\n");
             CheckReadyToDivideAndPhaseIsUpdated(p_cell_model_1, expected_g1_duration);
         }
 

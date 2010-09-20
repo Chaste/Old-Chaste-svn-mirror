@@ -43,9 +43,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Wnt-dependent cell cycle model.
- *
- * Note that this class uses C++'s default copying semantics, and so doesn't implement a copy constructor
- * or operator=.
  */
 class AbstractVanLeeuwen2009WntSwatCellCycleModel : public AbstractWntOdeBasedCellCycleModel
 {
@@ -74,6 +71,12 @@ private:
      */
     void ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 
+    /**
+     * Adjust any ODE parameters needed before solving until currentTime.
+     * 
+     * @param currentTime  the time up to which the system will be solved.
+     */
+    void AdjustOdeParameters(double currentTime);
 public:
 
     /**
@@ -89,14 +92,6 @@ public:
      * In this case we set up a new ODE system for a daughter cell.
      */
     void Initialise();
-
-    /**
-     * Solve the ODE to the current time.
-     *
-     * @param currentTime the current time
-     * @return Whether a stopping event occurred.
-     */
-    bool SolveOdeToTime(double currentTime);
 
     /**
      * @return the level of membrane bound beta-catenin. To be used in cell-cell adhesion calculations.

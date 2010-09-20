@@ -42,6 +42,7 @@ VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo::VanLeeuwen2009WntSwatCellCycle
 #else
         mpOdeSolver = CellCycleModelOdeSolver<VanLeeuwen2009WntSwatCellCycleModelHypothesisTwo, RungeKutta4IvpOdeSolver>::Instance();
         mpOdeSolver->Initialise();
+        SetTimeStep(0.00005);
 #endif //CHASTE_CVODE
     }
 }

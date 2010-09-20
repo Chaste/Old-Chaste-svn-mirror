@@ -67,26 +67,13 @@ void AbstractVanLeeuwen2009WntSwatCellCycleModel::Initialise()
     ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 }
 
-bool AbstractVanLeeuwen2009WntSwatCellCycleModel::SolveOdeToTime(double currentTime)
+void AbstractVanLeeuwen2009WntSwatCellCycleModel::AdjustOdeParameters(double currentTime)
 {
-    // We are in G0 or G1 phase - running cell cycle ODEs
-#ifdef CHASTE_CVODE
-    const double dt = SimulationTime::Instance()->GetTimeStep();
-#else
-    double dt = 0.00005; // Needs to be this precise to stop crazy errors whilst we are still using rk4.
-#endif // CHASTE_CVODE
-
     // Pass this time step's Wnt stimulus into the solver as a constant over this timestep.
     mpOdeSystem->rGetStateVariables()[21] = GetWntLevel();
 
     // Use the cell's current mutation status as another input
     static_cast<VanLeeuwen2009WntSwatCellCycleOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
-
-    mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, dt);
-
-    mLastTime = currentTime; // normally done in Abstract class, but no harm in doing it here to prevent following line throwing an error.
-    UpdateCellProliferativeType();
-    return mpOdeSolver->StoppingEventOccurred();
 }
 
 double AbstractVanLeeuwen2009WntSwatCellCycleModel::GetMembraneBoundBetaCateninLevel()

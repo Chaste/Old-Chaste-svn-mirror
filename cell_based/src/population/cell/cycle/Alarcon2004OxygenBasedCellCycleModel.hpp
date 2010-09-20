@@ -58,6 +58,12 @@ private:
         archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
     }
 
+    /**
+     * Adjust any ODE parameters needed before solving until currentTime.
+     * 
+     * @param currentTime  the time up to which the system will be solved.
+     */
+    void AdjustOdeParameters(double currentTime);
 public:
 
     /**
@@ -97,14 +103,6 @@ public:
      * This overridden method sets up a new ODE system.
      */
     void Initialise();
-
-    /**
-     * Solve the ODEs up to the current time and return whether a stopping event occurred.
-     *
-     * @param currentTime the current time
-     * @return whether a stopping event occurred
-     */
-    bool SolveOdeToTime(double currentTime);
 };
 
 // Declare identifier for the serializer
