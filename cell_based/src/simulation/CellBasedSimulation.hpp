@@ -62,6 +62,7 @@ class CellBasedSimulation
     // private functions eg. DoCellBirth
     friend class TestCryptSimulation2d;
     friend class TestCellBasedSimulation3d;
+    friend class TestCellBasedSimulation;
 
 protected:
 
@@ -404,7 +405,7 @@ public:
 
     /**
      * Set mOutputNodeVelocities.
-     * 
+     *
      * @param outputNodeVelocities the new value of mOutputNodeVelocities
      */
     void SetOutputNodeVelocities(bool outputNodeVelocities);

@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "CellBasedEventHandler.hpp"
 #include "LogFile.hpp"
 #include "Version.hpp"
+#include "ExecutableSupport.hpp"
 
 template<unsigned DIM>
 CellBasedSimulation<DIM>::CellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
@@ -651,24 +652,31 @@ void CellBasedSimulation<DIM>::UpdateCellPopulation()
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::OutputSimulationSetup()
 {
-    // Create Output file
+
+	// Create Output file
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory + "/", false);
+	ExecutableSupport::WriteMachineInfoFile(this->mSimulationOutputDirectory + "/system.info");
 
-    out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
+	out_stream build_info_file = output_file_handler.OpenOutputFile("build.info");
+    ExecutableSupport::WriteLibraryInfo(build_info_file);
 
-    *parameter_file << "<Chaste>\n" ;
+
 
     // Output Chaste provenance information
-    *parameter_file << "\t<ChasteInfo>\n" ;
+    *build_info_file << "\t<ChasteInfo>\n" ;
 
-    *parameter_file << "\t\t<VersionString>"<< ChasteBuildInfo::GetVersionString() << "</VersionString>\n";
-    *parameter_file << "\t\t<IsWorkingCopyModified>"<< ChasteBuildInfo::IsWorkingCopyModified() << "</IsWorkingCopyModified>\n";
-    *parameter_file << "\t\t<BuildInformation>"<< ChasteBuildInfo::GetBuildInformation() << "</BuildInformation>\n";
-    *parameter_file << "\t\t<BuildTime>"<< ChasteBuildInfo::GetBuildTime() << "</BuildTime>\n";
-    *parameter_file << "\t\t<CurrentTime>"<< ChasteBuildInfo::GetCurrentTime() << "</CurrentTime>\n";
-    *parameter_file << "\t\t<BuilderUnameInfo>"<< ChasteBuildInfo::GetBuilderUnameInfo() << "</BuilderUnameInfo>\n";
+    *build_info_file << "\t\t<VersionString>"<< ChasteBuildInfo::GetVersionString() << "</VersionString> <--! build specific -->\n";
+    *build_info_file << "\t\t<IsWorkingCopyModified>"<< ChasteBuildInfo::IsWorkingCopyModified() << "</IsWorkingCopyModified>\n";
+    *build_info_file << "\t\t<BuildInformation>"<< ChasteBuildInfo::GetBuildInformation() << "</BuildInformation>\n";
+    *build_info_file << "\t\t<BuildTime>"<< ChasteBuildInfo::GetBuildTime() << "</BuildTime>\n";
+    *build_info_file << "\t\t<CurrentTime>"<< ChasteBuildInfo::GetCurrentTime() << "</CurrentTime>\n";
+    *build_info_file << "\t\t<BuilderUnameInfo>"<< ChasteBuildInfo::GetBuilderUnameInfo() << "</BuilderUnameInfo>\n";
 
-    *parameter_file << "\t</ChasteInfo>\n";
+    *build_info_file << "\t</ChasteInfo>\n";
+
+    build_info_file->close();
+
+    out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
     // Output CellBasedSimulation details
     ///\todo This should be independent of boost version (#1453)
@@ -677,6 +685,7 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 //		simulation_type = GetIdentifier();
 //	#endif
 
+    *parameter_file << "<Chaste>\n" ;
     *parameter_file <<  "\n\t<" << simulation_type << ">" "\n";
 	OutputSimulationParameters(parameter_file);
     *parameter_file <<  "\t</" << simulation_type << ">" "\n";
@@ -731,7 +740,6 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 	//*parameter_file << "\t\t<CryptProjectionParameterB>"<< p_inst->GetCryptProjectionParameterB() << "</CryptProjectionParameterB>\n";
 
     *parameter_file <<  "\t</CellBasedConfig>\n";
-
     *parameter_file << "</Chaste>\n" ;
 
     parameter_file->close();

@@ -1,0 +1,45 @@
+<Chaste>
+
+	<Should be simulation type here see #1453>
+		<Dt>0.00833333</Dt>
+		<EndTime>0</EndTime>
+		<SamplingTimestepMultiple>1</SamplingTimestepMultiple>
+		<OutputNodeVelocities>0</OutputNodeVelocities>
+	</Should be simulation type here see #1453>
+
+	<MeshBasedCellPopulation-2>
+		<UseAreaBasedDampingConstant>0</UseAreaBasedDampingConstant> 
+		<AreaBasedDampingConstantParameter>0.1</AreaBasedDampingConstantParameter> 
+		<OutputVoronoiData>0</OutputVoronoiData> 
+		<OutputCellPopulationVolumes>0</OutputCellPopulationVolumes> 
+		<MeinekeDivisionSeparation>0.3</MeinekeDivisionSeparation> 
+		<OutputCellIdData>0</OutputCellIdData> 
+		<OutputCellMutationStates>0</OutputCellMutationStates> 
+		<OutputCellAncestors>0</OutputCellAncestors> 
+		<OutputCellProliferativeTypes>0</OutputCellProliferativeTypes> 
+		<OutputCellVariables>0</OutputCellVariables> 
+		<OutputCellCyclePhases>0</OutputCellCyclePhases> 
+		<OutputCellAges>0</OutputCellAges> 
+		<OutputCellVolumes>0</OutputCellVolumes> 
+	</MeshBasedCellPopulation-2>
+
+	<Forces>
+	</Forces>
+
+	<CellKillers>
+	</CellKillers>
+
+	<CellBasedConfig>
+		<SG2MDuration>10</SG2MDuration>
+		<SDuration>5</SDuration>
+		<G2Duration>4</G2Duration>
+		<Duration>1</Duration>
+		<StemCellG1Duration>14</StemCellG1Duration>
+		<TransitCellG1Duration>2</TransitCellG1Duration>
+		<CryptLength>4.33013</CryptLength>
+		<CryptWidth>5</CryptWidth>
+		<MechanicsCutOffLength>1.79769e+308</MechanicsCutOffLength>
+		<DampingConstantNormal>1</DampingConstantNormal>
+		<DampingConstantMutant>1</DampingConstantMutant>
+	</CellBasedConfig>
+</Chaste>

@@ -546,7 +546,22 @@ public:
 		std::string results_dir = output_file_handler.GetOutputDirectoryFullPath();
 		TS_ASSERT_EQUALS(system(("diff " + results_dir + "cell_based_sim_results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/cell_based_sim_results.parameters").c_str()), 0);
 
-		///\todo check output of simulator.OutputSimulationSetup();
+		simulator.SetOutputDirectory("TestCellBasedSimulationOutputParameters");
+		simulator.OutputSimulationSetup();
+		TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/results.parameters").c_str()), 0);
+
+		//Check that the files which we don't want to compare actually exist
+		std::ifstream machine_file;
+		std::string command = results_dir+"/system.info.0";
+		machine_file.open(command.c_str());
+		TS_ASSERT(machine_file.is_open());
+		machine_file.close();
+
+		std::ifstream info_file;
+		command = results_dir+"/build.info";
+		info_file.open(command.c_str());
+		TS_ASSERT(info_file.is_open());
+		info_file.close();
     }
 };
 #endif /*TESTCELLBASEDSIMULATION_HPP_*/

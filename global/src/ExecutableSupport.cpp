@@ -40,7 +40,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include <hdf5.h>
-#include <xsd/cxx/version.hxx>
+//#include <xsd/cxx/version.hxx>
 
 void ExecutableSupport::InitializePetsc(int* pArgc, char*** pArgv)
 {
@@ -54,7 +54,7 @@ void ExecutableSupport::InitializePetsc(int* pArgc, char*** pArgv)
 void ExecutableSupport::ShowCopyright()
 {
     //Compilation information
-    std::stringstream provenance_msg;        
+    std::stringstream provenance_msg;
     provenance_msg << "This version of Chaste was compiled on:\n";
     provenance_msg << ChasteBuildInfo::GetBuildTime() << " by " << ChasteBuildInfo::GetBuilderUnameInfo() << " (uname)\n";
     provenance_msg << "from revision number " << ChasteBuildInfo::GetRevisionNumber() << " with build type " << ChasteBuildInfo::GetBuildInformation() << ".\n\n";
@@ -80,15 +80,15 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
         //Write provenance information to stdout
         std::cout << provenance_msg.str() << std::flush;
     }
-    
+
     //Write provenance information to a file
     OutputFileHandler out_file_handler("",false);
-    out_stream out_file = out_file_handler.OpenOutputFile("provenance_info_", PetscTools::GetMyRank(), ".txt");       
+    out_stream out_file = out_file_handler.OpenOutputFile("provenance_info_", PetscTools::GetMyRank(), ".txt");
     *out_file << provenance_msg.str();
-    
+
     WriteLibraryInfo( out_file );
 
-    out_file->close();        
+    out_file->close();
 }
 
 void ExecutableSupport::ShowParallelLaunching()
@@ -114,12 +114,12 @@ void ExecutableSupport::WriteMachineInfoFile(std::string fileBaseName)
     std::stringstream file_name;
     file_name << fileBaseName << "." <<  PetscTools::GetMyRank();
     out_stream out_file = out_file_handler.OpenOutputFile(file_name.str());
-    *out_file << "Process " << PetscTools::GetMyRank() << " of " 
-        << PetscTools::GetNumProcs() << "." << std::endl << std::flush;       
+    *out_file << "Process " << PetscTools::GetMyRank() << " of "
+        << PetscTools::GetNumProcs() << "." << std::endl << std::flush;
 
     struct utsname uts_info;
     uname(&uts_info);
-    
+
     *out_file << "uname sysname  = " << uts_info.sysname << std::endl << std::flush;
     *out_file << "uname nodename = " << uts_info.nodename << std::endl << std::flush;
     *out_file << "uname release  = " << uts_info.release << std::endl << std::flush;
@@ -127,70 +127,73 @@ void ExecutableSupport::WriteMachineInfoFile(std::string fileBaseName)
     *out_file << "uname machine  = " << uts_info.machine << std::endl << std::flush;
     char buffer[100];
     FILE * system_info;
-    
+
     *out_file << "\nInformation on number and type of processors:\n";
-    system_info = popen("grep ^model.name /proc/cpuinfo" ,"r");    
+    system_info = popen("grep ^model.name /proc/cpuinfo" ,"r");
     while ( fgets(buffer, 100, system_info) != NULL )
     {
         *out_file << buffer;
-    }    
+    }
     fclose(system_info);
 
     *out_file << "\nInformation on processor caches, in the same order as above:\n";
-    system_info = popen("grep ^cache.size /proc/cpuinfo" ,"r");    
+    system_info = popen("grep ^cache.size /proc/cpuinfo" ,"r");
     while ( fgets(buffer, 100, system_info) != NULL )
     {
         *out_file << buffer;
-    }    
+    }
     fclose(system_info);
-    
+
     *out_file << "\nInformation on system memory:\n";
-    system_info = popen("grep ^MemTotal /proc/meminfo" ,"r");    
+    system_info = popen("grep ^MemTotal /proc/meminfo" ,"r");
     while ( fgets(buffer, 100, system_info) != NULL )
     {
         *out_file << buffer;
-    }    
+    }
     fclose(system_info);
-    
+
     out_file->close();
 }
 
 void ExecutableSupport::WriteLibraryInfo( out_stream &outFile )
 {
-    *outFile << "Compiler: " << ChasteBuildInfo::GetCompilerType() 
-             << ", version " << ChasteBuildInfo::GetCompilerVersion() << std::endl; 
+    *outFile << "Compiler: " << ChasteBuildInfo::GetCompilerType()
+             << ", version " << ChasteBuildInfo::GetCompilerVersion() << std::endl;
 
     *outFile << "Compiler flags \"" << ChasteBuildInfo::GetCompilerFlags() << "\"" << std::endl;
-    
+
     *outFile << std::endl;
     *outFile << "Library versions: " << std::endl;
     *outFile << "  PETSc: " << PETSC_VERSION_MAJOR << "." << PETSC_VERSION_MINOR << "." << PETSC_VERSION_SUBMINOR << std::endl;
     *outFile << "  Boost: " << BOOST_VERSION  / 100000 << "." << BOOST_VERSION / 100 % 1000 << "." << BOOST_VERSION % 100 << std::endl;
     *outFile << "  HDF5: " << H5_VERS_MAJOR <<  "." << H5_VERS_MINOR << "." << H5_VERS_RELEASE << std::endl;
-    *outFile << "  XSD: " <<  XSD_STR_VERSION << std::endl;
+    ///\todo #1432 - In general we don't have XSD source (only a binary).  Even if we have both, then we still want to know the version of the binary
+    //  *outFile << "  XSD: " <<  XSD_STR_VERSION << std::endl;
 
     *outFile << std::endl;
     *outFile << "Includes support for: " << std::endl;
-    
+
 #ifdef CHASTE_VTK
     *outFile << "  VTK: yes" << std::endl;
+    ///\todo #1432 - Let's have the VTK version too
 #else
     *outFile << "  VTK: no" << std::endl;
-#endif    
-    
+#endif
+
 #ifdef CHASTE_CVODE
     *outFile << "  CVODE: yes" << std::endl;
+    ///\todo #1432 - Let's have the CVODE version too
 #else
     *outFile << "  CVODE: no" << std::endl;
-#endif    
+#endif
 
 #ifdef CHASTE_ADAPTIVITY
     *outFile << "  Adaptivity: yes" << std::endl;
 #else
     *outFile << "  Adaptivity: no" << std::endl;
-#endif    
+#endif
 
-}    
+}
 
 void ExecutableSupport::StandardStartup(int* pArgc, char*** pArgv)
 {
@@ -204,14 +207,14 @@ void ExecutableSupport::PrintError(const std::string& rMessage, bool masterOnly)
     if (!masterOnly || PetscTools::AmMaster())
     {
         // Write the error message to stderr
-        std::cerr << rMessage << std::endl;        
+        std::cerr << rMessage << std::endl;
     }
 
     // Write the error message to file
     OutputFileHandler out_file_handler("",false);
     out_stream out_file = out_file_handler.OpenOutputFile("chaste_errors_", PetscTools::GetMyRank(), ".txt", std::ios::out | std::ios::app);
     *out_file << rMessage << std::endl;
-    out_file->close();    
+    out_file->close();
 }
 
 void ExecutableSupport::FinalizePetsc()
