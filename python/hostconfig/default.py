@@ -80,7 +80,7 @@ other_libraries = ['boost_serialization', 'xerces-c', 'hdf5', 'z', 'parmetis', '
 
 tools = {'mpirun': chaste_libs_path+'mpi/bin/mpirun',
          'mpicxx': chaste_libs_path+'mpi/bin/mpicxx',
-         'xsd': chaste_libs_path+'xsd-3.2.0-i686-linux-gnu/bin/xsd'}
+         'xsd': chaste_libs_path+'bin/xsd'}
 
 
 # use_vtk set to false initially. Change to True if VTK development libraries are 
