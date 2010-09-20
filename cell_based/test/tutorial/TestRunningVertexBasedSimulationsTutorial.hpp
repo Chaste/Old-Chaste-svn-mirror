@@ -193,7 +193,7 @@ public:
 	*
 	* EMPTYLINE
 	*
-	* When you visualise the results, you should see the cells whose centres lie at and above 4.0 dividing first. This is due
+	* When you visualize the results, you should see the cells whose centres lie at and above 4.0 dividing first. This is due
 	* to the implementation of the {{{CellsGenerator}}}, which assigned a birthtime of (0 - i), where i is the element index of the cell.
 	*
 	* EMPTYLINE
@@ -275,7 +275,7 @@ public:
 	*
 	* EMPTYLINE
 	*
-	* When you visualise the results, you should see three colours of cells: a row of blue stem cells, 3 rows of yellow transit
+	* When you visualize the results, you should see three colours of cells: a row of blue stem cells, 3 rows of yellow transit
 	* cells, and 5 rows of pink differentiated cells. Cells above 6.0 will be sloughed off immediately.
 	*
 	* EMPTYLINE
@@ -348,6 +348,20 @@ public:
 	/* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.*/
 	 SimulationTime::Destroy();
 	}
+	/*
+	* EMPTYLINE
+	*
+	* To visualize the results, open a new terminal, {{{cd}}} to the Chaste directory,
+	* then {{{cd}}} to {{{anim}}}. Then do: {{{java Visualize2dVertexCells /tmp/$USER/testoutput/VertexCryptWithSimpleWntCellCycleModel/results_from_time_0}}}.
+	* You may have to do: {{{javac Visualize2dVertexCells.java}}} beforehand to create the
+	* java executable.
+	*
+	* EMPTYLINE
+	*
+	* When you visualize the results, you should see two colours of cells: yellow transit
+	* cells and pink differentiated cells. Cells above 6.0 will be sloughed off immediately.
+	*/
+
 };
 
 #endif /* TESTRUNNINGVERTEXBASEDSIMULATIONSTUTORIAL_HPP_ */
