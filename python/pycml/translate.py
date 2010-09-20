@@ -878,6 +878,9 @@ class CellMLTranslator(object):
             else:
                 cname, vname = varname.split('__')
             name = cname + u'__' + vname
+        elif varname[:4] == 'var_' and self.single_component:
+            # It may have been a single component model
+            name = varname[4:]
         else:
             return None
         if self.single_component:
@@ -3750,7 +3753,7 @@ class SolverInfo(object):
         """
         solver_info = self._solver_info
         model = self._model
-        if not hasattr(solver_info, u'linear_odes'):
+        if not hasattr(solver_info, u'linear_odes') and model._cml_linear_update_exprs:
             odes_elt = model.xml_create_element(u'linear_odes', NSS[u'solver'])
             solver_info.xml_append(odes_elt)
             odes_math = model.xml_create_element(u'math', NSS[u'm'])
@@ -3764,6 +3767,19 @@ class SolverInfo(object):
                 rhs = mathml_apply.create_new(model, u'plus', [g, hu])
                 odes_math.xml_append(mathml_diff.create_new(
                     model, free_var.fullname(), var.fullname(), rhs))
+            # Ensure that the model has a special component
+            self._get_special_component()
+    
+    def _fix_jac_var_name(self, vname):
+        """
+        If PE will be performed on a model with a single component, then we'll need full names in
+        the variable attributes.
+        """
+        if vname[:4] == 'var_' and len(self._model.component) == 1 and not self._model.component.ignore_component_name:
+            name = unicode('var_' + self._model.component.name + '__' + vname[4:])
+        else:
+            name = unicode(vname)
+        return name
     
     def add_jacobian_matrix(self):
         """Jacobian matrix elements.
@@ -3777,7 +3793,7 @@ class SolverInfo(object):
         """
         solver_info = self._solver_info
         model = self._model
-        if not hasattr(solver_info, u'jacobian'):
+        if not hasattr(solver_info, u'jacobian') and model._cml_jacobian:
             jac_elt = model.xml_create_element(u'jacobian', NSS[u'solver'])
             solver_info.xml_append(jac_elt)
             jac_vars = model._cml_jacobian.keys()
@@ -3786,8 +3802,8 @@ class SolverInfo(object):
             for v_i, v_j in jac_vars:
                 # Add (i,j)-th entry
                 binder = make_xml_binder()
-                attrs = {u'var_i': unicode(v_i),
-                         u'var_j': unicode(v_j)}
+                attrs = {u'var_i': self._fix_jac_var_name(v_i),
+                         u'var_j': self._fix_jac_var_name(v_j)}
                 entry = model.xml_create_element(u'entry', NSS[u'solver'], attributes=attrs)
                 jac_elt.xml_append(entry)
                 entry_doc = amara_parse(model._cml_jacobian[(v_i, v_j)].xml(),
@@ -3921,6 +3937,10 @@ class SolverInfo(object):
         elif varname == u'delta_t':
             # Special case for the timestep in ComputeJacobian
             return self._get_special_variable(u'dt', VarTypes.Free)
+        elif varname[:4] == 'var_':
+            # It may be a single component model
+            cname = self._model.component.name
+            vname = varname[4:]
         else:
             raise ValueError("Unrecognised variable name in SolverInfo: " + varname)
         # Determine the variable object from cname,vname

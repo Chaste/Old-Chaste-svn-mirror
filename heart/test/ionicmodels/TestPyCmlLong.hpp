@@ -218,8 +218,8 @@ public:
         models.push_back("earm_noble_model_1990");
         models.push_back("espinosa_model_1998_normal");
         models.push_back("fink_noble_giles_model_2008");
-        //models.push_back("grandi2010ss");
-        //models.push_back("hodgkin_huxley_squid_axon_model_1952_modified");
+        models.push_back("grandi2010ss");
+        models.push_back("hodgkin_huxley_squid_axon_model_1952_modified");
         models.push_back("iyer_model_2004");
         models.push_back("iyer_model_2007");
         models.push_back("jafri_rice_winslow_model_1998");
@@ -234,8 +234,8 @@ public:
         models.push_back("pandit_model_2001_epi");
         models.push_back("sakmann_model_2000_epi");
         models.push_back("ten_tusscher_model_2006_epi");
-        //models.push_back("zhang_SAN_model_2000_0D_capable");
-        //models.push_back("zhang_SAN_model_2000_all");
+        models.push_back("zhang_SAN_model_2000_0D_capable");
+        models.push_back("zhang_SAN_model_2000_all");
         
         /* The following models contained 'diff' in the .out file:
             decker_2009
