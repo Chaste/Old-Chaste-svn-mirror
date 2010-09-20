@@ -33,7 +33,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp" // For NEVER_REACHED
 
 Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
-    : AbstractOdeBasedCellCycleModelWithStoppingEvent(SimulationTime::Instance()->GetTime(), pOdeSolver)
+    : AbstractOdeBasedCellCycleModel(SimulationTime::Instance()->GetTime(), pOdeSolver)
 {
     if (!mpOdeSolver)
     {
@@ -44,7 +44,7 @@ Alarcon2004OxygenBasedCellCycleModel::Alarcon2004OxygenBasedCellCycleModel(boost
 
 void Alarcon2004OxygenBasedCellCycleModel::ResetForDivision()
 {
-    AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
+    AbstractOdeBasedCellCycleModel::ResetForDivision();
     assert(mpOdeSystem != NULL);
 
     // This model needs the protein concentrations and phase resetting to G0/G1.

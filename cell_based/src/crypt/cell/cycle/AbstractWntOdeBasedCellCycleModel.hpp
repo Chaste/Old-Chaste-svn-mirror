@@ -32,7 +32,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ClassIsAbstract.hpp"
 #include <boost/serialization/base_object.hpp>
 
-#include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
+#include "AbstractOdeBasedCellCycleModel.hpp"
 #include "WntConcentration.hpp"
 
 /**
@@ -47,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * random periods of time). The CellProliferativeType is updated dependent on the
  * concentration of beta-catenin (given by one of the ODEs).
  */
-class AbstractWntOdeBasedCellCycleModel : public AbstractOdeBasedCellCycleModelWithStoppingEvent
+class AbstractWntOdeBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
 
@@ -62,7 +62,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
+        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
     }
 
 protected:

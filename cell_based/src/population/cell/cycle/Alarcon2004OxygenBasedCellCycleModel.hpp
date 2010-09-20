@@ -33,14 +33,14 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-#include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
+#include "AbstractOdeBasedCellCycleModel.hpp"
 #include "Alarcon2004OxygenBasedCellCycleOdeSystem.hpp"
 
 /**
  * Oxygen-dependent ODE-based cell cycle model. Published by Alarcon et al.
  * (doi:10.1016/j.jtbi.2004.04.016).
  */
-class Alarcon2004OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModelWithStoppingEvent
+class Alarcon2004OxygenBasedCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
 
@@ -55,7 +55,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
+        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
     }
 
     /**
@@ -64,6 +64,7 @@ private:
      * @param currentTime  the time up to which the system will be solved.
      */
     void AdjustOdeParameters(double currentTime);
+
 public:
 
     /**
@@ -72,14 +73,6 @@ public:
      * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      */
     Alarcon2004OxygenBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
-
-    /**
-     * Constructor used in archiving.
-     * 
-     * @param unused an unused argument
-     */
-    Alarcon2004OxygenBasedCellCycleModel(double unused)
-    {}
 
     /**
      * Resets the oxygen-based model to the start of the cell cycle
@@ -110,33 +103,5 @@ public:
 CHASTE_CLASS_EXPORT(Alarcon2004OxygenBasedCellCycleModel)
 #include "CellCycleModelOdeSolverExportWrapper.hpp"
 EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(Alarcon2004OxygenBasedCellCycleModel)
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate an Alarcon2004OxygenBasedCellCycleModel instance.
- */
-template<class Archive>
-inline void save_construct_data(
-    Archive & ar, const Alarcon2004OxygenBasedCellCycleModel * t, const unsigned int file_version)
-{
-}
-
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate an Alarcon2004OxygenBasedCellCycleModel instance.
- */
-template<class Archive>
-inline void load_construct_data(
-    Archive & ar, Alarcon2004OxygenBasedCellCycleModel * t, const unsigned int file_version)
-{
-    double unused = 0.0;
-    ::new(t)Alarcon2004OxygenBasedCellCycleModel(unused);
-}
-}
-} // namespace ...
 
 #endif /*ALARCON2004OXYGENBASEDCELLCYCLEMODEL_HPP_*/

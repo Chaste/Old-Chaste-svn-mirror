@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 AbstractWntOdeBasedCellCycleModel::AbstractWntOdeBasedCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
-    : AbstractOdeBasedCellCycleModelWithStoppingEvent(SimulationTime::Instance()->GetTime(), pOdeSolver)
+    : AbstractOdeBasedCellCycleModel(SimulationTime::Instance()->GetTime(), pOdeSolver)
 {
 }
 
@@ -71,7 +71,7 @@ double AbstractWntOdeBasedCellCycleModel::GetWntLevel()
 
 void AbstractWntOdeBasedCellCycleModel::ResetForDivision()
 {
-    AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
+    AbstractOdeBasedCellCycleModel::ResetForDivision();
 
     assert(mpOdeSystem != NULL);
 

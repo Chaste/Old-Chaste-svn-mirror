@@ -96,14 +96,6 @@ public:
     StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * Constructor used in archiving.
-     * 
-     * @param unused an unused argument
-     */
-    StochasticWntCellCycleModel(double unused)
-    {}
-
-    /**
      * Overridden builder method to create new copies of
      * this cell cycle model.
      */
@@ -140,34 +132,5 @@ public:
 CHASTE_CLASS_EXPORT(StochasticWntCellCycleModel)
 #include "CellCycleModelOdeSolverExportWrapper.hpp"
 EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(StochasticWntCellCycleModel)
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a StochasticWntCellCycleModel instance.
- */
-template<class Archive>
-inline void save_construct_data(
-    Archive & ar, const StochasticWntCellCycleModel * t, const unsigned int file_version)
-{
-}
-
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a StochasticWntCellCycleModel instance.
- */
-template<class Archive>
-inline void load_construct_data(
-    Archive & ar, StochasticWntCellCycleModel * t, const unsigned int file_version)
-{
-    double unused = 0.0;
-    ::new(t)StochasticWntCellCycleModel(unused);
-}
-}
-} // namespace
-
 
 #endif /*STOCHASTICWNTCELLCYCLEMODEL_HPP_*/

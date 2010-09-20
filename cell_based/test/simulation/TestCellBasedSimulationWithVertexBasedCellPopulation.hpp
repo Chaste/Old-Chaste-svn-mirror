@@ -38,7 +38,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "VertexBasedCellPopulation.hpp"
 #include "NagaiHondaForce.hpp"
-#include "NagaiHondaDifferentialAdhesionForce.hpp"
 #include "WelikyOsterForce.hpp"
 #include "AbstractCellKiller.hpp"
 #include "TargetedCellKiller.hpp"

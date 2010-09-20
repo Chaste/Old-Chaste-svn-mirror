@@ -77,12 +77,6 @@ protected:
     /** The start time for the G2 phase. */
     double mG2PhaseStartTime;
 
-    /**
-     * Private constructor for use in archiving.
-     */
-    AbstractOdeBasedCellCycleModel()
-    {}
-
 public:
 
     /**

@@ -31,7 +31,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-#include "AbstractOdeBasedCellCycleModelWithStoppingEvent.hpp"
+#include "AbstractOdeBasedCellCycleModel.hpp"
 #include "TysonNovak2001OdeSystem.hpp"
 
 
@@ -44,7 +44,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Time taken to progress through the cycle is deterministic and given by
  *  an ODE system independent of external factors.
  */
-class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModelWithStoppingEvent
+class TysonNovakCellCycleModel : public AbstractOdeBasedCellCycleModel
 {
 private:
 
@@ -61,7 +61,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModelWithStoppingEvent>(*this);
+        archive & boost::serialization::base_object<AbstractOdeBasedCellCycleModel>(*this);
     }
 
 public:
@@ -74,15 +74,7 @@ public:
     TysonNovakCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * Constructor used in archiving.
-     * 
-     * @param unused an unused argument
-     */
-    TysonNovakCellCycleModel(double unused)
-    {}
-
-    /**
-     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision()
+     * Reset cell cycle model by calling AbstractOdeBasedCellCycleModel::ResetForDivision()
      * and setting initial conditions for protein concentrations.
      */
     void ResetForDivision();
@@ -134,33 +126,5 @@ public:
 CHASTE_CLASS_EXPORT(TysonNovakCellCycleModel)
 #include "CellCycleModelOdeSolverExportWrapper.hpp"
 EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(TysonNovakCellCycleModel)
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a TysonNovakCellCycleModel instance.
- */
-template<class Archive>
-inline void save_construct_data(
-    Archive & ar, const TysonNovakCellCycleModel * t, const unsigned int file_version)
-{
-}
-
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a TysonNovakCellCycleModel instance.
- */
-template<class Archive>
-inline void load_construct_data(
-    Archive & ar, TysonNovakCellCycleModel * t, const unsigned int file_version)
-{
-    double unused = 0.0;
-    ::new(t)TysonNovakCellCycleModel(unused);
-}
-}
-} // namespace ...
 
 #endif /*TYSONNOVAKCELLCYCLEMODEL_HPP_*/

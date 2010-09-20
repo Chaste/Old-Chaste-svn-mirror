@@ -29,7 +29,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TysonNovakCellCycleModel.hpp"
 
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
-    : AbstractOdeBasedCellCycleModelWithStoppingEvent(SimulationTime::Instance()->GetTime(), pOdeSolver)
+    : AbstractOdeBasedCellCycleModel(SimulationTime::Instance()->GetTime(), pOdeSolver)
 {
     mpOdeSystem = new TysonNovak2001OdeSystem;
     mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
@@ -54,7 +54,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(boost::shared_ptr<AbstractCel
 
 void TysonNovakCellCycleModel::ResetForDivision()
 {
-    AbstractOdeBasedCellCycleModelWithStoppingEvent::ResetForDivision();
+    AbstractOdeBasedCellCycleModel::ResetForDivision();
 
     assert(mpOdeSystem != NULL);
 

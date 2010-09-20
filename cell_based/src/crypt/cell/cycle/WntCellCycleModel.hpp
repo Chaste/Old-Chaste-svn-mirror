@@ -92,14 +92,6 @@ public:
     WntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
 
     /**
-     * Constructor used in archiving.
-     * 
-     * @param unused an unused argument
-     */
-    WntCellCycleModel(double unused)
-    {}
-
-    /**
      * Overridden builder method to create new copies of
      * this cell cycle model.
      */
@@ -120,33 +112,5 @@ public:
 CHASTE_CLASS_EXPORT(WntCellCycleModel)
 #include "CellCycleModelOdeSolverExportWrapper.hpp"
 EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(WntCellCycleModel)
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a WntCellCycleModel instance.
- */
-template<class Archive>
-inline void save_construct_data(
-    Archive & ar, const WntCellCycleModel * t, const unsigned int file_version)
-{
-}
-
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a WntCellCycleModel instance.
- */
-template<class Archive>
-inline void load_construct_data(
-    Archive & ar, WntCellCycleModel * t, const unsigned int file_version)
-{
-    double unused = 0.0;
-    ::new(t)WntCellCycleModel(unused);
-}
-}
-} // namespace
 
 #endif /*WNTCELLCYCLEMODEL_HPP_*/
