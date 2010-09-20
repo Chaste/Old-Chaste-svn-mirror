@@ -143,7 +143,10 @@ class MVariable(MExpression):
 
     def mathml(self):
         """Return a serialised MathML representation of this expression."""
-        return '<ci>' + self._name + '</ci>'
+        if self._name == 'Pi':
+            return '<pi/>'
+        else:
+            return '<ci>' + self._name + '</ci>'
 
 class MFunction(MExpression):
     """A function call."""
@@ -429,11 +432,12 @@ class MapleParser(object):
                     self._parse_expr(curr_key, s, results, debug_res)
                     curr_key = None
                     s = ""
+                # The 'footer' sometimes appears in the middle...
+                continue
             if line[0] == '"':
                 # Start of a header
                 if s and not in_header:
                     self._parse_expr(curr_key, s, results, debug_res)
-                    curr_key = None
                     s = ""
                 in_header = True
                 curr_key = None
