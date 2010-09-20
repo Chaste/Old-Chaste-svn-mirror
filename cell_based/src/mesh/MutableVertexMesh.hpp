@@ -103,7 +103,7 @@ protected:
                            bool placeOriginalElementBelow=false);
 
     /**
-     * Helper method for ReMesh to check if any neighbouring nodes in an element are within the mCellRearangementThreshold
+     * Helper method for ReMesh to check if any neighbouring nodes in an element are within the mCellRearrangementThreshold
      * and perform any T1Swaps if required
      *
      * \todo This method currently assumes SPACE_DIM = 2 (see #866)
@@ -243,7 +243,7 @@ public:
      * @param vertexElements vector of pointers to VertexElements
      * @param cellRearrangementThreshold the minimum threshold distance for element rearrangment (defaults to 0.01)
      * @param t2Threshold the maximum threshold distance for Type 2 swaps (defaults to 0.001)
-     * @param cellRearrangementRatio ratio between the minimum threshold distance for element 
+     * @param cellRearrangementRatio ratio between the minimum threshold distance for element
      *                                rearrangment node separation after remeshing (defaults to 1.5)
      */
     MutableVertexMesh(std::vector<Node<SPACE_DIM>*> nodes,

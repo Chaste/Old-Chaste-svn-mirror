@@ -1670,7 +1670,7 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT3Swap(Node<SPACE_DIM>* p
 	mLocationsOfT3Swaps.push_back(intersection);
 
     /*
-     * If the edge is shorter than 4.0*mCellRearrangementRatio*mCellRearangementThreshold move vertexA and vertexB
+     * If the edge is shorter than 4.0*mCellRearrangementRatio*mCellRearrangementThreshold move vertexA and vertexB
      * 4.0*mCellRearrangementRatio*mCellRearrangementThreshold apart. \todo investigate if moving A and B causes other issues with nearby nodes.
      *
      * Note: this distance so that there is always enough room for new nodes (if necessary)
@@ -1699,7 +1699,7 @@ void MutableVertexMesh<ELEMENT_DIM, SPACE_DIM>::PerformT3Swap(Node<SPACE_DIM>* p
     }
 
     /*
-     * If the intersection is within mCellRearrangementRatio^2*mCellRearangementThreshold of vertexA or vertexB move it
+     * If the intersection is within mCellRearrangementRatio^2*mCellRearrangementThreshold of vertexA or vertexB move it
      * mCellRearrangementRatio^2*mCellRearrangementThreshold away.
      *
      * Note: this distance so that there is always enough room for new nodes (if necessary).
