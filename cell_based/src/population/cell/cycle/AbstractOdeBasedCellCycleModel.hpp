@@ -164,25 +164,11 @@ public:
     void SetDivideTime(double divideTime);
 
     /**
-     * Set mLastTime.
-     * 
-     * @param lastTime the new value of mLastTime
-     */
-    void SetLastTime(double lastTime);
-
-    /**
      * Set mG2PhaseStartTime. Used in CreateCellCycleModel().
      * 
      * @param g2PhaseStartTime the new value of mG2PhaseStartTime
      */
     void SetG2PhaseStartTime(double g2PhaseStartTime);
-
-    /**
-     * Set the values of the state variables in the cell cycle model's ODE system.
-     *
-     * @param rStateVariables vector containing values for the state variables
-     */
-    void SetStateVariables(const std::vector<double>& rStateVariables);
 };
 
 CLASS_IS_ABSTRACT(AbstractOdeBasedCellCycleModel)

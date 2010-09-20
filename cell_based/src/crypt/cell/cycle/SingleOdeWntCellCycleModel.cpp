@@ -30,9 +30,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SingleOdeWntCellCycleModel.hpp"
 
 SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
-    : mpOdeSystem(NULL),
-      mpOdeSolver(pOdeSolver),
-      mLastTime(DBL_MAX) // Ensure this is set properly before we try to use it.
+    : CellCycleModelOdeHandler(DOUBLE_UNSET, pOdeSolver)
 {
     if (mpOdeSolver == boost::shared_ptr<AbstractCellCycleModelOdeSolver>())
     {
@@ -43,17 +41,10 @@ SingleOdeWntCellCycleModel::SingleOdeWntCellCycleModel(boost::shared_ptr<Abstrac
 #else
         mpOdeSolver = CellCycleModelOdeSolver<SingleOdeWntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance();
         mpOdeSolver->Initialise();
+        SetDt(0.001);
 #endif //CHASTE_CVODE
     }
     assert(mpOdeSolver->IsSetUp());
-}
-
-SingleOdeWntCellCycleModel::~SingleOdeWntCellCycleModel()
-{
-    if (mpOdeSystem != NULL)
-    {
-        delete mpOdeSystem;
-    }
 }
 
 AbstractCellCycleModel* SingleOdeWntCellCycleModel::CreateCellCycleModel()
@@ -82,7 +73,7 @@ AbstractCellCycleModel* SingleOdeWntCellCycleModel::CreateCellCycleModel()
 void SingleOdeWntCellCycleModel::UpdateCellCyclePhase()
 {
     assert(SimulationTime::Instance()->IsStartTimeSetUp());
-    UpdateBetaCateninLevel();
+    SolveOdeToTime(SimulationTime::Instance()->GetTime());
     ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
     AbstractSimpleCellCycleModel::UpdateCellCyclePhase(); /// Don't call the SimpleWntCellCycleModel - it will overwrite this.
 }
@@ -102,36 +93,18 @@ void SingleOdeWntCellCycleModel::Initialise()
     // This call actually sets up the G1 phase to something sensible (random number generated)
     SimpleWntCellCycleModel::Initialise();
 
-    mLastTime = mBirthTime;
+    SetLastTime(mBirthTime);
 
     ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 }
 
-void SingleOdeWntCellCycleModel::UpdateBetaCateninLevel()
+void SingleOdeWntCellCycleModel::AdjustOdeParameters(double currentTime)
 {
-    assert(mpOdeSystem != NULL);
-    assert(mpCell != NULL);
-    assert(mLastTime < DBL_MAX - 1e5);
-
-    // We run the cell cycle ODEs whatever time we are interested in
-#ifdef CHASTE_CVODE
-    const double dt = SimulationTime::Instance()->GetTimeStep(); // Use the mechanics time step as max time step.
-#else
-    double dt = 0.001;
-#endif // CHASTE_CVODE
-
     // Pass this time step's Wnt stimulus into the solver as a constant over this timestep.
     mpOdeSystem->rGetStateVariables()[2] = this->GetWntLevel();
 
     // Use the cell's current mutation status as another input
     static_cast<Mirams2010WntOdeSystem*>(mpOdeSystem)->SetMutationState(mpCell->GetMutationState());
-
-    double current_time = SimulationTime::Instance()->GetTime();
-    if (mLastTime < current_time)
-    {
-        mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, current_time, dt);
-        mLastTime = current_time;
-    }
 }
 
 void SingleOdeWntCellCycleModel::ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel()
@@ -161,27 +134,6 @@ void SingleOdeWntCellCycleModel::SetBetaCateninDivisionThreshold(double betaCate
 double SingleOdeWntCellCycleModel::GetBetaCateninDivisionThreshold()
 {
     return mBetaCateninDivisionThreshold;
-}
-
-const boost::shared_ptr<AbstractCellCycleModelOdeSolver> SingleOdeWntCellCycleModel::GetOdeSolver() const
-{
-    return mpOdeSolver;
-}
-
-void SingleOdeWntCellCycleModel::SetLastTime(double lastTime)
-{
-    mLastTime = lastTime;
-}
-
-void SingleOdeWntCellCycleModel::SetStateVariables(const std::vector<double>& rStateVariables)
-{
-    assert(mpOdeSystem);
-    mpOdeSystem->SetStateVariables(rStateVariables);
-}
-
-void SingleOdeWntCellCycleModel::SetOdeSystem(AbstractOdeSystem* pOdeSystem)
-{
-    mpOdeSystem = pOdeSystem;
 }
 
 // Declare identifier for the serializer

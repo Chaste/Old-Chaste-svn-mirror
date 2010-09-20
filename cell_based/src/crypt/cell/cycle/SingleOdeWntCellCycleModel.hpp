@@ -36,6 +36,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "SimpleWntCellCycleModel.hpp"
 #include "Mirams2010WntOdeSystem.hpp"
 #include "AbstractCellCycleModelOdeSolver.hpp"
+#include "CellCycleModelOdeHandler.hpp"
 
 /**
  * Wnt-dependent cell cycle model. Needs to operate with a WntConcentration
@@ -46,7 +47,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * updated dependent on the concentration of beta-catenin (given by one
  * of the ODEs).
  */
-class SingleOdeWntCellCycleModel : public SimpleWntCellCycleModel
+class SingleOdeWntCellCycleModel : public SimpleWntCellCycleModel, public CellCycleModelOdeHandler
 {
 private:
 
@@ -62,24 +63,9 @@ private:
     void serialize(Archive & archive, const unsigned int version)
     {
         archive & boost::serialization::base_object<SimpleWntCellCycleModel>(*this);
-        archive & mpOdeSystem;
-        archive & mpOdeSolver;
+        archive & boost::serialization::base_object<CellCycleModelOdeHandler>(*this);
         archive & mBetaCateninDivisionThreshold;
-        archive & mLastTime;
     }
-
-    /**
-     * Pointer to the ODE system developed by Mirams et al (2010).
-     */
-    AbstractOdeSystem* mpOdeSystem;
-
-    /**
-     * The ODE solver.
-     * 
-     * Subclasses need to set this in their constructor to point to an instance
-     * of a suitable class. See for example the CellCycleModelOdeSolver class.
-     */
-    boost::shared_ptr<AbstractCellCycleModelOdeSolver> mpOdeSolver;
 
     /**
      * The cell differentiates when the beta-catenin level drops
@@ -89,9 +75,6 @@ private:
      * Set and Get methods are also provided.
      */
     double mBetaCateninDivisionThreshold;
-
-    /** The last time at which the ODEs were solved up to */
-    double mLastTime;
 
     /**
      * Called by ::Initialise() and ::UpdateCellProliferativeType() only.
@@ -104,9 +87,12 @@ private:
     void ChangeCellProliferativeTypeDueToCurrentBetaCateninLevel();
 
     /**
-     * This method runs the ODEs and updates the beta-catenin level.
+     * Adjust any ODE parameters needed before solving until currentTime.
+     * Defaults to do nothing.
+     * 
+     * @param currentTime  the time up to which the system will be solved.
      */
-    void UpdateBetaCateninLevel();
+    virtual void AdjustOdeParameters(double currentTime);
 
 public:
 
@@ -116,19 +102,6 @@ public:
      * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      */
     SingleOdeWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());
-
-    /**
-     * Constructor used in archiving.
-     * 
-     * @param unused an unused argument
-     */
-    SingleOdeWntCellCycleModel(double unused)
-    {}
-
-    /**
-     * Destructor.
-     */
-    ~SingleOdeWntCellCycleModel();
 
     /**
      * Initialise the cell cycle model at the start of a simulation.
@@ -166,32 +139,6 @@ public:
      * Get #mBetaCateninDivisionThreshold.
      */
     double GetBetaCateninDivisionThreshold();
-
-     /**
-      * @return mpOdeSolver (used in archiving).
-      */
-    const boost::shared_ptr<AbstractCellCycleModelOdeSolver> GetOdeSolver() const;
-
-    /**
-     * Set mLastTime.
-     * 
-     * @param lastTime the new value of mLastTime
-     */
-    void SetLastTime(double lastTime);
-
-    /**
-     * Set the values of the state variables in the cell cycle model's ODE system.
-     *
-     * @param rStateVariables vector containing values for the state variables
-     */
-    void SetStateVariables(const std::vector<double>& rStateVariables);
-
-    /**
-     * Set mpOdeSystem. Used in CreateCellCycleModel().
-     * 
-     * @param pOdeSystem the ODE system
-     */
-    void SetOdeSystem(AbstractOdeSystem* pOdeSystem);
 };
 
 // Declare identifier for the serializer
@@ -199,34 +146,5 @@ public:
 CHASTE_CLASS_EXPORT(SingleOdeWntCellCycleModel)
 #include "CellCycleModelOdeSolverExportWrapper.hpp"
 EXPORT_CELL_CYCLE_MODEL_ODE_SOLVER(SingleOdeWntCellCycleModel)
-
-namespace boost
-{
-namespace serialization
-{
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a SingleOdeWntCellCycleModel instance.
- */
-template<class Archive>
-inline void save_construct_data(
-    Archive & ar, const SingleOdeWntCellCycleModel * t, const unsigned int file_version)
-{
-}
-
-/**
- * Allow us to not need a default constructor, by specifying how Boost should
- * instantiate a SingleOdeWntCellCycleModel instance.
- */
-template<class Archive>
-inline void load_construct_data(
-    Archive & ar, SingleOdeWntCellCycleModel * t, const unsigned int file_version)
-{
-    double unused = 0.0;
-    ::new(t)SingleOdeWntCellCycleModel(unused);
-}
-}
-} // namespace
-
 
 #endif /*SINGLEODEWNTCELLCYCLEMODEL_HPP_*/

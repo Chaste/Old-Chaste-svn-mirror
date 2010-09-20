@@ -138,7 +138,7 @@ void Alarcon2004OxygenBasedCellCycleModel::Initialise()
 
 void Alarcon2004OxygenBasedCellCycleModel::AdjustOdeParameters(double currentTime)
 {
-    SetTimeStep(0.0001);
+    SetDt(0.0001);
 
     // Pass this time step's oxygen concentration into the solver as a constant over this timestep
     switch (mDimension)

@@ -133,14 +133,28 @@ public:
      * @return mpOdeSolver
      */
     const boost::shared_ptr<AbstractCellCycleModelOdeSolver> GetOdeSolver() const;
-    
+
+    /**
+     * Set mLastTime.
+     * 
+     * @param lastTime the new value of mLastTime
+     */
+    void SetLastTime(double lastTime);
+
     /**
      * Set the time step to use to solve the ODE system.
      * For some adaptive solvers (e.g. CVODE) this is the maximum step to use.
      * 
      * @param timeStep  time step to use
      */
-    void SetTimeStep(double timeStep);
+    void SetDt(double timeStep);
+
+    /**
+     * Set the values of the state variables in the cell cycle model's ODE system.
+     *
+     * @param rStateVariables vector containing values for the state variables
+     */
+    void SetStateVariables(const std::vector<double>& rStateVariables);
 };
 
 #endif /*CELLCYCLEMODELODEHANDLER_HPP_*/

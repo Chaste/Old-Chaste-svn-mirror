@@ -47,7 +47,7 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(boost::shared_ptr<AbstractCel
         mpOdeSolver = CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance();
         mpOdeSolver->SetSizeOfOdeSystem(6);
         mpOdeSolver->Initialise();
-        SetTimeStep(0.1/60.0);
+        SetDt(0.1/60.0);
 #endif //CHASTE_CVODE
     }
 }

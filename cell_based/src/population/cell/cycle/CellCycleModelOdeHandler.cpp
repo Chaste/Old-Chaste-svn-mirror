@@ -60,7 +60,7 @@ const boost::shared_ptr<AbstractCellCycleModelOdeSolver> CellCycleModelOdeHandle
     return mpOdeSolver;
 }
 
-void CellCycleModelOdeHandler::SetTimeStep(double timeStep)
+void CellCycleModelOdeHandler::SetDt(double timeStep)
 {
     mDt = timeStep;
 }
@@ -80,23 +80,37 @@ double CellCycleModelOdeHandler::GetDt()
 
 bool CellCycleModelOdeHandler::SolveOdeToTime(double currentTime)
 {
-    AdjustOdeParameters(currentTime);
-
-    mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, GetDt());
-
-    bool stopping_event_occurred = mpOdeSolver->StoppingEventOccurred();
-    if (stopping_event_occurred)
+    bool stopping_event_occurred = false;
+    if (mLastTime < currentTime)
     {
-        mLastTime = mpOdeSolver->GetStoppingTime();
-    }
-    else
-    {
-        mLastTime = currentTime;
-    }
+        AdjustOdeParameters(currentTime);
     
+        mpOdeSolver->SolveAndUpdateStateVariable(mpOdeSystem, mLastTime, currentTime, GetDt());
+    
+        stopping_event_occurred = mpOdeSolver->StoppingEventOccurred();
+        if (stopping_event_occurred)
+        {
+            mLastTime = mpOdeSolver->GetStoppingTime();
+        }
+        else
+        {
+            mLastTime = currentTime;
+        }
+    }
     return stopping_event_occurred;
 }
 
 void CellCycleModelOdeHandler::AdjustOdeParameters(double currentTime)
 {
+}
+
+void CellCycleModelOdeHandler::SetLastTime(double lastTime)
+{
+    mLastTime = lastTime;
+}
+
+void CellCycleModelOdeHandler::SetStateVariables(const std::vector<double>& rStateVariables)
+{
+    assert(mpOdeSystem);
+    mpOdeSystem->SetStateVariables(rStateVariables);
 }

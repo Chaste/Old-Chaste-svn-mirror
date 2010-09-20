@@ -169,18 +169,7 @@ void AbstractOdeBasedCellCycleModel::SetDivideTime(double divideTime)
     mDivideTime = divideTime;
 }
 
-void AbstractOdeBasedCellCycleModel::SetLastTime(double lastTime)
-{
-    mLastTime = lastTime;
-}
-
 void AbstractOdeBasedCellCycleModel::SetG2PhaseStartTime(double g2PhaseStartTime)
 {
     mG2PhaseStartTime = g2PhaseStartTime;
-}
-
-void AbstractOdeBasedCellCycleModel::SetStateVariables(const std::vector<double>& rStateVariables)
-{
-    assert(mpOdeSystem);
-    mpOdeSystem->SetStateVariables(rStateVariables);
 }
