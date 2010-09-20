@@ -126,7 +126,7 @@ public:
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
         Warnings::QuietDestroy();
     }
 
@@ -233,7 +233,7 @@ public:
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
         Warnings::QuietDestroy();
     }
 
@@ -299,7 +299,7 @@ public:
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
         Warnings::QuietDestroy();
     }
 
@@ -365,7 +365,7 @@ public:
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
         Warnings::QuietDestroy();
     }
 
@@ -424,7 +424,7 @@ public:
         CellBasedSimulation<2> simulator(cell_population, force_collection);
         simulator.SetOutputDirectory("TestVertexMonolayerWithCellDeath");
         simulator.SetEndTime(0.5);
-        
+
         // Create a cell killer and pass in to simulation (note we must account for element index changes following each kill)
         TargetedCellKiller<2> cell0_killer(&cell_population, 0);    // element on the SW corner
         TargetedCellKiller<2> cell2_killer(&cell_population, 2);    // element on the S boundary
@@ -449,7 +449,7 @@ public:
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 2u);
-		TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
+		TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
 		TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Cell removed due to T2Swap this is not counted in the dead cells counter");
 		Warnings::QuietDestroy();
     }
@@ -511,7 +511,7 @@ public:
 
 		// Test Warnings
 		TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-		TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
+		TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
 		Warnings::QuietDestroy();
 	}
 
@@ -580,7 +580,7 @@ public:
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
         Warnings::QuietDestroy();
     }
 
@@ -737,7 +737,7 @@ public:
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
-        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
+        TS_ASSERT_EQUALS(Warnings::Instance()->GetNextWarningMessage(),"Vertices are moving more than half the CellRearrangementThreshold this could cause elements to become inverted the motion has been restricted: - To avoid these warnings use a smaller timestep");
         Warnings::QuietDestroy();
 
     }

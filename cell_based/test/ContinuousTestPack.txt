@@ -15,12 +15,13 @@ crypt/TestCryptSimulation2d.hpp
 crypt/TestCryptStatistics.hpp
 crypt/TestCylindrical2dMesh.hpp
 crypt/TestCylindrical2dVertexMesh.hpp
+crypt/TestCylindricalHoneycombVertexMeshGenerator.hpp
 crypt/TestSingleOdeWntCellCycleModel.hpp
 crypt/TestVanLeeuwen2009WntSwatCellCycleOdeSystem.hpp
+crypt/TestVertexCryptBoundaryForce.hpp
 crypt/TestVertexCryptSimulation2d.hpp
 crypt/TestWntCellCycleOdeSystem.hpp
 crypt/TestWntConcentration.hpp
-mesh/TestCylindricalHoneycombVertexMeshGenerator.hpp
 mesh/TestHoneycombMeshGenerator.hpp
 mesh/TestHoneycombMutableVertexMeshGenerator.hpp
 mesh/TestMutableVertexMesh.hpp
