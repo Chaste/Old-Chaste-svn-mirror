@@ -49,6 +49,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #undef REAL
 #undef VOID
 
+#include "Debug.hpp"
 /////////////////////////////////////////////////////////////////////////////////////
 //   IMPLEMENTATION
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1071,6 +1072,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::InitialiseTriangulateIo(triangulat
         mesherIo.numberofregions = 0;
         mesherIo.trianglelist = (int *) NULL;
         mesherIo.triangleattributelist = (double *) NULL;
+        mesherIo.numberoftriangleattributes = 0;
         mesherIo.edgelist = (int *) NULL;
         mesherIo.edgemarkerlist = (int *) NULL;
 }
@@ -1093,7 +1095,7 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::FreeTriangulateIo(triangulateio& m
 }    
 template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 template <class MESHER_IO>
-void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHER_IO& mesherInput)
+void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHER_IO& mesherInput, int *elementList)
 {
     if (SPACE_DIM == 2)
     {
@@ -1120,6 +1122,24 @@ void TetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ExportToMesher(NodeMap& map, MESHE
                 mesherInput.pointlist[SPACE_DIM*new_index + j] = this->mNodes[i]->rGetLocation()[j];
             }
             new_index++;
+        }
+    }
+    if(elementList != NULL)
+    {
+        unsigned element_index=0u;
+        //Assume there is enough space for this
+        mesherInput.numberofcorners=ELEMENT_DIM+1;
+        for (typename TetrahedralMesh<ELEMENT_DIM,SPACE_DIM>::ElementIterator elem_iter = this->GetElementIteratorBegin();
+             elem_iter != this->GetElementIteratorEnd();
+             ++elem_iter)
+        {         
+            
+            for (unsigned j=0; j<=ELEMENT_DIM; j++)
+            {
+                elementList[element_index*(ELEMENT_DIM+1) + j] = (*elem_iter).GetNodeGlobalIndex(j);
+                //PRINT_3_VARIABLES((*elem_iter).GetNodeGlobalIndex(j), element_index*(ELEMENT_DIM+1) + j, elementList[element_index*(ELEMENT_DIM+1) + j]);
+            }
+            element_index++;
         }
     }        
 }
@@ -1237,19 +1257,19 @@ template class TetrahedralMesh<3,3>;
  * \cond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods
  */
-template void TetrahedralMesh<2,2>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&);
+template void TetrahedralMesh<2,2>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&, int*);
 template void TetrahedralMesh<2,2>::ImportFromMesher<triangulateio>(triangulateio&, unsigned, int *, unsigned, int *, int *);
 
-template void TetrahedralMesh<3,3>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&);
+template void TetrahedralMesh<3,3>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&, int*);
 template void TetrahedralMesh<3,3>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned, int *, unsigned, int *, int *);
 
 //The following don't ever need to be instantiated, but are needed to keep some compilers happy
-template void TetrahedralMesh<1,2>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&);
+template void TetrahedralMesh<1,2>::ExportToMesher<triangulateio>(NodeMap&, triangulateio&, int*);
 template void TetrahedralMesh<1,2>::ImportFromMesher<triangulateio>(triangulateio&, unsigned, int *, unsigned, int *, int *);
 
-template void TetrahedralMesh<1,3>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&);
+template void TetrahedralMesh<1,3>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&, int*);
 template void TetrahedralMesh<1,3>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned, int *, unsigned, int *, int *);
-template void TetrahedralMesh<2,3>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&);
+template void TetrahedralMesh<2,3>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&, int*);
 template void TetrahedralMesh<2,3>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned, int *, unsigned, int *, int *);
 
 
@@ -1258,7 +1278,7 @@ template void TetrahedralMesh<3u, 3u>::ImportFromMesher<triangulateio>(triangula
 template void TetrahedralMesh<1u, 1u>::ImportFromMesher<triangulateio>(triangulateio&, unsigned int, int*, unsigned int, int*, int*);
 template void TetrahedralMesh<1u, 1u>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned int, int*, unsigned int, int*, int*);
 template void TetrahedralMesh<2u, 2u>::ImportFromMesher<tetgen::tetgenio>(tetgen::tetgenio&, unsigned int, int*, unsigned int, int*, int*);
-template void TetrahedralMesh<1u, 1u>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&);
+template void TetrahedralMesh<1u, 1u>::ExportToMesher<tetgen::tetgenio>(NodeMap&, tetgen::tetgenio&, int*);
 /**
  * \endcond
  * Get Doxygen to ignore, since it's confused by explicit instantiation of templated methods

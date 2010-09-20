@@ -727,7 +727,7 @@ public:
         TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumBoundaryNodes(), 64u);
     }
 
-   void TestLinearToQuadraticMeshConversion2dNonconvex() throw(Exception)
+    void TestLinearToQuadraticMeshConversion2dNonconvex() throw(Exception)
     {
         TrianglesMeshReader<2,2> reader("mesh/test/data/l_shape");
 
@@ -742,14 +742,14 @@ public:
 
         reader.Reset();
         QuadraticMesh<2> quad_mesh;
-        TS_ASSERT_THROWS_THIS(quad_mesh.ConstructFromLinearMeshReader(reader), "Importing from a linear mesh only works on convex meshes");
+        quad_mesh.ConstructFromLinearMeshReader(reader);
         TS_ASSERT_EQUALS(quad_mesh.GetNumVertices(), 8u);
-        //TS_ASSERT_EQUALS(quad_mesh.GetNumElements(), 6u);
-        //TS_ASSERT_EQUALS(quad_mesh.GetVolume(), 3.0);
-        //TS_ASSERT_EQUALS(quad_mesh.GetSurfaceArea(), 8.0);
+        TS_ASSERT_EQUALS(quad_mesh.GetNumElements(), 6u);
+        TS_ASSERT_EQUALS(quad_mesh.GetVolume(), 3.0);
+        TS_ASSERT_EQUALS(quad_mesh.GetSurfaceArea(), 8.0);
     }
 
-    void TestLinearToQuadraticMeshConversion() throw(Exception)
+    void TestLinearToQuadraticMeshConversion3d() throw(Exception)
     {
         QuadraticMesh<3> quad_mesh;
         TrianglesMeshReader<3,3> reader("mesh/test/data/cube_136_elements");
@@ -779,6 +779,29 @@ public:
         TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumElements(), 136u);
         TS_ASSERT_EQUALS(quad_mesh_after_conversion.GetNumBoundaryNodes(), 194u);
     }    
+    void TestLinearToQuadraticMeshConversion3dNonconvex() throw(Exception)
+    {
+        TrianglesMeshReader<3,3> reader("mesh/test/data/l_shape3d");
+
+        TetrahedralMesh<3,3> linear_mesh;
+        linear_mesh.ConstructFromMeshReader(reader);
+        
+        TS_ASSERT_EQUALS(linear_mesh.GetNumNodes(), 16u);
+        TS_ASSERT_EQUALS(linear_mesh.GetNumElements(), 18u); //3 cubes
+        TS_ASSERT_EQUALS(linear_mesh.GetNumBoundaryNodes(), 16u); //All on boundary
+        TS_ASSERT_DELTA(linear_mesh.GetVolume(), 3.0, 1e-15);  //3 cubes
+        TS_ASSERT_DELTA(linear_mesh.GetSurfaceArea(), 14.0, 1e-15);
+
+        reader.Reset();
+        QuadraticMesh<3> quad_mesh;
+        quad_mesh.ConstructFromLinearMeshReader(reader);
+        TS_ASSERT_EQUALS(quad_mesh.GetNumVertices(), 16u);
+        TS_ASSERT_EQUALS(quad_mesh.GetNumElements(), 18u);
+        TS_ASSERT_EQUALS(quad_mesh.GetNumNodes(), 63u);
+        TS_ASSERT_EQUALS(quad_mesh.GetNumBoundaryNodes(), 58u); //All on boundary
+        TS_ASSERT_DELTA(quad_mesh.GetVolume(), 3.0, 1e-15);
+        TS_ASSERT_DELTA(quad_mesh.GetSurfaceArea(), 14.0, 1e-15);
+    }
 };
 
 #endif // _TESTQUADRATICMESH_HPP_

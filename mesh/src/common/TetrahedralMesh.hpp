@@ -127,9 +127,12 @@ protected:
      * with indices of nodes in the new mesh.  This should be created with the correct size (NumAllNodes)
      * @param mesherInput is a triangulateio or tetgenio class (decided at compile time)
      *  Note that only nodes are exported and thus any late mesh is based on the convex hull
+     * @param elementList is a pointer to either mesherInput.trianglelist or mesherInput.tetrahedronlist (used when we are not remeshing, but converting the form of an existing mesh)
+     * Note that this should have been re-malloced and mesherInput.numberoftriangles or mesherInput.numberoftetrahedra should be set prior to the call when elementList is non-NULL
+     * 
      */
     template <class MESHER_IO>
-    void ExportToMesher(NodeMap& map, MESHER_IO& mesherInput);
+    void ExportToMesher(NodeMap& map, MESHER_IO& mesherInput, int *elementList=NULL);
 
     /**
      * Import the mesh from an external mesher

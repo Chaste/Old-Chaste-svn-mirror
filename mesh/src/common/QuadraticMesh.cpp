@@ -238,17 +238,18 @@ void QuadraticMesh<DIM>::ConstructFromLinearMeshReader(AbstractMeshReader<DIM, D
     
     NodeMap unused_map(this->GetNumNodes());
     
-    double volume_before =  this->GetVolume();
     if (DIM==2)  // In 2D, remesh using triangle via library calls
     {
         struct triangulateio mesher_input, mesher_output;
         this->InitialiseTriangulateIo(mesher_input);
         this->InitialiseTriangulateIo(mesher_output);
 
-        this->ExportToMesher(unused_map, mesher_input);
+        mesher_input.numberoftriangles = this->GetNumElements();
+        mesher_input.trianglelist = (int *) malloc(this->GetNumElements() * (DIM+1) * sizeof(int));
+        this->ExportToMesher(unused_map, mesher_input, mesher_input.trianglelist);
 
         // Library call
-        triangulate((char*)"Qzeo2", &mesher_input, &mesher_output, NULL);
+        triangulate((char*)"Qzero2", &mesher_input, &mesher_output, NULL);
         
         this->ImportFromMesher(mesher_output, mesher_output.numberoftriangles, mesher_output.trianglelist, mesher_output.numberofedges, mesher_output.edgelist, mesher_output.edgemarkerlist);
         CountAndCheckVertices();
@@ -263,20 +264,17 @@ void QuadraticMesh<DIM>::ConstructFromLinearMeshReader(AbstractMeshReader<DIM, D
 
         struct tetgen::tetgenio mesher_input, mesher_output;
 
-        this->ExportToMesher(unused_map, mesher_input);
+        mesher_input.numberoftetrahedra = this->GetNumElements();
+        mesher_input.tetrahedronlist = new int[this->GetNumElements() * (DIM+1)];
+        this->ExportToMesher(unused_map, mesher_input, mesher_input.tetrahedronlist);
 
         // Library call
-        tetgen::tetrahedralize((char*)"Qzo2", &mesher_input, &mesher_output);
+        tetgen::tetrahedralize((char*)"Qzro2", &mesher_input, &mesher_output);
         
         this->ImportFromMesher(mesher_output, mesher_output.numberoftetrahedra, mesher_output.tetrahedronlist, mesher_output.numberoftrifaces, mesher_output.trifacelist, NULL);
         CountAndCheckVertices();
         AddNodesToBoundaryElements(NULL);
     }    
-    double volume_change =  (this->GetVolume() - volume_before)/volume_before;
-    if (volume_change > this->GetNumElements()*DBL_EPSILON)
-    {
-        EXCEPTION("Importing from a linear mesh only works on convex meshes");
-    }
 }
 
 
