@@ -117,7 +117,7 @@ if single_test_suite:
     single_test_suite = single_test_suite.split(os.path.sep)
     if (len(single_test_suite)<2):
         raise ValueError('Path to test suite is too short')
-    for i in [-2, -3]:
+    for i in [-2, -3, -4]:
         if single_test_suite[i] == 'test':
             single_test_suite_dir = single_test_suite[i-1]
             single_test_suite = os.path.sep.join(single_test_suite[i+1:])
