@@ -24,7 +24,6 @@ crypt/simulation/TestCryptSimulation2d.hpp
 crypt/statistics/TestCryptStatistics.hpp
 crypt/simulation/TestVertexCryptSimulation2d.hpp
 mesh/TestHoneycombMeshGenerator.hpp
-mesh/TestHoneycombMutableVertexMeshGenerator.hpp
 odes/TestAlarcon2004OxygenBasedCellCycleOdeSystem.hpp
 odes/TestTysonNovak2001OdeSystem.hpp
 simulation/TestPdesForCellBasedSimulations.hpp
