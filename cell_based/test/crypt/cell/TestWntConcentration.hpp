@@ -124,7 +124,7 @@ public:
         TS_ASSERT_EQUALS(p_wnt->IsWntSetUp(), false);
         p_wnt->SetType(EXPONENTIAL);
 
-        TS_ASSERT_EQUALS(p_wnt->GetWntConcentrationParameter(),1.0);
+        TS_ASSERT_DELTA(p_wnt->GetWntConcentrationParameter(),1.0, 1e-9);
 
         double height = 100;
         double wnt_level = 0.0;
@@ -148,6 +148,7 @@ public:
         CellBasedConfig::Instance()->SetCryptLength(30.0);
         crypt_length = 30.0;
         p_wnt->SetWntConcentrationParameter(0.5);
+        TS_ASSERT_DELTA(p_wnt->GetWntConcentrationParameter(),0.5, 1e-9);
         wnt_level = p_wnt->GetWntLevel(height);
         TS_ASSERT_DELTA(wnt_level, exp(-(height/crypt_length)/0.5), 1e-9);
 
@@ -284,8 +285,10 @@ public:
 
         double wnt_at_cell0 = p_wnt->GetWntLevel(*cell_iter);
 
-        double a = p_params->GetCryptProjectionParameterA();
-        double b = p_params->GetCryptProjectionParameterB();
+        double a = p_wnt->GetCryptProjectionParameterA();
+        double b = p_wnt->GetCryptProjectionParameterB();
+        TS_ASSERT_DELTA(a, 0.5, 1e-12);
+		TS_ASSERT_DELTA(b, 2.0, 1e-12);
 
         while (cell_iter != crypt.End())
         {
@@ -318,7 +321,10 @@ public:
 
         // Create an output archive
         {
-            WntConcentration<2>::Instance()->SetType(LINEAR);
+            WntConcentration<2>* p_wnt1 = WntConcentration<2>::Instance();
+            p_wnt1->SetType(LINEAR);
+            p_wnt1->SetCryptProjectionParameterA(3.3);
+            p_wnt1->SetCryptProjectionParameterB(4.4);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -342,9 +348,12 @@ public:
             double wnt_level = p_wnt->GetWntLevel(height);
 
             TS_ASSERT_DELTA(wnt_level, 1.0-height/CellBasedConfig::Instance()->GetCryptLength(), 1e-9);
+            TS_ASSERT_DELTA(p_wnt->GetCryptProjectionParameterA(), 3.3, 1e-12);
+            TS_ASSERT_DELTA(p_wnt->GetCryptProjectionParameterB(), 4.4, 1e-12);
         }
 
         WntConcentration<2>::Destroy();
+
     }
 
 
@@ -453,6 +462,21 @@ public:
 
         WntConcentration<2>::Destroy();
     }
+
+
+    void TestCryptProjectionParameterAAndBGettersAndSetters()
+    {
+        WntConcentration<2>* p_wnt1 = WntConcentration<2>::Instance();
+
+        p_wnt1->SetCryptProjectionParameterA(0.8);
+        p_wnt1->SetCryptProjectionParameterB(1.3);
+
+        WntConcentration<2>* p_wnt2 = WntConcentration<2>::Instance();
+
+        TS_ASSERT_DELTA(p_wnt2->GetCryptProjectionParameterA(), 0.8, 1e-12);
+        TS_ASSERT_DELTA(p_wnt2->GetCryptProjectionParameterB(), 1.3, 1e-12);
+    }
+
 };
 
 #endif /*TESTWNTCONCENTRATION_HPP_*/

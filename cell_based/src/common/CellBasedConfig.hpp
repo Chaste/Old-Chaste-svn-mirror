@@ -94,14 +94,6 @@ public:
      */
     double GetDampingConstantMutant();
     /**
-     * @return mCryptProjectionParameterA
-     */
-    double GetCryptProjectionParameterA();
-    /**
-     * @return mCryptProjectionParameterB
-     */
-    double GetCryptProjectionParameterB();
-    /**
      * @return mMechanicsCutOffLength
      */
     double GetMechanicsCutOffLength();
@@ -146,14 +138,6 @@ public:
      * Set mDampingConstantMutant.
      */
     void SetDampingConstantMutant(double);
-    /**
-     * Set mCryptProjectionParameterA.
-     */
-    void SetCryptProjectionParameterA(double);
-    /**
-     * Set mCryptProjectionParameterB.
-     */
-    void SetCryptProjectionParameterB(double);
     /**
      * Set mMechanicsCutOffLength.
      */
@@ -240,18 +224,6 @@ private:
     double mDampingConstantMutant;
 
     /**
-     * Parameter a, for use in crypt projection simulations, in which the crypt
-     * surface is given in cylindrical polar coordinates by z = a*r^b.
-     */
-    double mCryptProjectionParameterA;
-
-    /**
-     * Parameter b, for use in crypt projection simulations, in which the crypt
-     * surface is given in cylindrical polar coordinates by z = a*r^b.
-     */
-    double mCryptProjectionParameterB;
-
-    /**
      * Mechanics cut off length.
      * Used in NodeBasedCellPopulation.
      */
@@ -279,8 +251,6 @@ private:
         archive & mCryptWidth;
         archive & mDampingConstantNormal;
         archive & mDampingConstantMutant;
-        archive & mCryptProjectionParameterA;
-        archive & mCryptProjectionParameterB;
         archive & mMechanicsCutOffLength;
     }
 };

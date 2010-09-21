@@ -104,6 +104,20 @@ private:
      */
     double mWntConcentrationParameter;
 
+    /**
+     * Parameter a, for use in crypt projection simulations, in which the crypt
+     * surface is given in cylindrical polar coordinates by z = a*r^b.
+     * mCryptProjectionParameterA has no units
+     */
+    double mCryptProjectionParameterA;
+
+    /**
+     * Parameter b, for use in crypt projection simulations, in which the crypt
+     * surface is given in cylindrical polar coordinates by z = a*r^b.
+     * mCryptProjectionParameterB has no units
+     */
+    double mCryptProjectionParameterB;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -124,6 +138,8 @@ private:
         archive & mConstantWntValueForTesting;
         archive & mUseConstantWntValueForTesting;
         archive & mWntConcentrationParameter;
+        archive & mCryptProjectionParameterA;
+        archive & mCryptProjectionParameterB;
     }
 
 protected:
@@ -153,6 +169,8 @@ public:
      *  Should be called at the end of a simulation.
      */
     static void Destroy();
+
+    ///\todo Include a Reset() method as in `CellBasedConfig`
 
     /**
      *  Get the Wnt level at a given height in the crypt. Note the
@@ -236,10 +254,27 @@ public:
 
     /**
      * Set mWntConcentrationParameter.
-     * 
+     *
      * @param wntConcentrationParameter the new value of mWntConcentrationParameter
      */
     void SetWntConcentrationParameter(double wntConcentrationParameter);
+
+    /**
+     * @return mCryptProjectionParameterA
+     */
+    double GetCryptProjectionParameterA();
+    /**
+     * @return mCryptProjectionParameterB
+     */
+    double GetCryptProjectionParameterB();
+    /**
+     * Set mCryptProjectionParameterA.
+     */
+    void SetCryptProjectionParameterA(double);
+    /**
+     * Set mCryptProjectionParameterB.
+     */
+    void SetCryptProjectionParameterB(double);
 };
 
 #endif /*WNTCONCENTRATION_HPP_*/

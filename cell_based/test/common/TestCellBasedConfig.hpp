@@ -64,9 +64,7 @@ private:
         TS_ASSERT_DELTA(p_inst->GetMechanicsCutOffLength(), DBL_MAX, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetDampingConstantNormal(), 1.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetDampingConstantMutant(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetCryptProjectionParameterA(), 0.5, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetCryptProjectionParameterB(), 2.0, 1e-12);
-    }
+     }
 
 public:
 
@@ -88,8 +86,6 @@ public:
         p_inst->SetMechanicsCutOffLength(1.5);
         p_inst->SetDampingConstantNormal(2.0);
         p_inst->SetDampingConstantMutant(3.0);
-        p_inst->SetCryptProjectionParameterA(0.8);
-        p_inst->SetCryptProjectionParameterB(1.3);
         p_inst->Reset();
 
         CheckValuesAreTheDefaultValues();
@@ -109,8 +105,6 @@ public:
         p_inst1->SetMechanicsCutOffLength(3.0);
         p_inst1->SetDampingConstantNormal(2.0);
         p_inst1->SetDampingConstantMutant(3.0);
-        p_inst1->SetCryptProjectionParameterA(0.8);
-        p_inst1->SetCryptProjectionParameterB(1.3);
 
         CellBasedConfig* p_inst2 = CellBasedConfig::Instance();
 
@@ -124,8 +118,6 @@ public:
         TS_ASSERT_DELTA(p_inst2->GetMechanicsCutOffLength(), 3.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetDampingConstantNormal(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetDampingConstantMutant(), 3.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetCryptProjectionParameterA(), 0.8, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetCryptProjectionParameterB(), 1.3, 1e-12);
     }
 
     void TestArchiveCellBasedConfig()
@@ -147,8 +139,6 @@ public:
             p_inst1->SetMechanicsCutOffLength(3.0);
             p_inst1->SetDampingConstantNormal(2.0);
             p_inst1->SetDampingConstantMutant(3.0);
-            p_inst1->SetCryptProjectionParameterA(0.8);
-            p_inst1->SetCryptProjectionParameterB(1.3);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -170,8 +160,6 @@ public:
             p_inst1->SetMechanicsCutOffLength(1.5);
             p_inst1->SetDampingConstantNormal(1.0);
             p_inst1->SetDampingConstantMutant(2.0);
-            p_inst1->SetCryptProjectionParameterA(0.5);
-            p_inst1->SetCryptProjectionParameterB(2.0);
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -191,8 +179,6 @@ public:
             TS_ASSERT_DELTA(p_inst1->GetMechanicsCutOffLength(), 3.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetDampingConstantNormal(), 2.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetDampingConstantMutant(), 3.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetCryptProjectionParameterA(), 0.8, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetCryptProjectionParameterB(), 1.3, 1e-12);
         }
     }
 };

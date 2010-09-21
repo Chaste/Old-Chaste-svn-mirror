@@ -48,7 +48,10 @@ WntConcentration<DIM>::WntConcentration()
       mTypeSet(false),
       mConstantWntValueForTesting(0),
       mUseConstantWntValueForTesting(false),
-      mWntConcentrationParameter(1.0)
+      mWntConcentrationParameter(1.0),
+      mCryptProjectionParameterA(0.5),
+      mCryptProjectionParameterB(2.0)
+
 {
     // Make sure there's only one instance - enforces correct serialization
     assert(mpInstance == NULL);
@@ -84,8 +87,8 @@ double WntConcentration<DIM>::GetWntLevel(CellPtr pCell)
 
     if (mWntType==RADIAL)
     {
-        double a = CellBasedConfig::Instance()->GetCryptProjectionParameterA();
-        double b = CellBasedConfig::Instance()->GetCryptProjectionParameterB();
+        double a = GetCryptProjectionParameterA();
+        double b = GetCryptProjectionParameterB();
         height = a*pow(norm_2(mpCellPopulation->GetLocationOfCellCentre(pCell)), b);
     }
     else
@@ -193,8 +196,8 @@ c_vector<double, DIM> WntConcentration<DIM>::GetWntGradient(c_vector<double, DIM
         }
         else if (mWntType==RADIAL) // RADIAL Wnt concentration
         {
-            double a = CellBasedConfig::Instance()->GetCryptProjectionParameterA();
-            double b = CellBasedConfig::Instance()->GetCryptProjectionParameterB();
+            double a = GetCryptProjectionParameterA();
+            double b = GetCryptProjectionParameterB();
             double r = norm_2(rLocation);
             double r_critical = pow(mWntConcentrationParameter*crypt_height/a, 1.0/b);
 
@@ -255,6 +258,28 @@ void WntConcentration<DIM>::SetWntConcentrationParameter(double wntConcentration
 {
     assert(wntConcentrationParameter > 0.0);
     mWntConcentrationParameter = wntConcentrationParameter;
+}
+template<unsigned DIM>
+double WntConcentration<DIM>::GetCryptProjectionParameterA()
+{
+    return mCryptProjectionParameterA;
+}
+template<unsigned DIM>
+double WntConcentration<DIM>::GetCryptProjectionParameterB()
+{
+    return mCryptProjectionParameterB;
+}
+template<unsigned DIM>
+void WntConcentration<DIM>::SetCryptProjectionParameterA(double cryptProjectionParameterA)
+{
+    assert(cryptProjectionParameterA >= 0.0);
+    mCryptProjectionParameterA = cryptProjectionParameterA;
+}
+template<unsigned DIM>
+void WntConcentration<DIM>::SetCryptProjectionParameterB(double cryptProjectionParameterB)
+{
+    assert(cryptProjectionParameterB >= 0.0);
+    mCryptProjectionParameterB = cryptProjectionParameterB;
 }
 
 /////////////////////////////////////////////////////////////////////////////

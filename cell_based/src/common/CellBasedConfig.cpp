@@ -56,8 +56,6 @@ CellBasedConfig::CellBasedConfig()
  * mCryptLength has units of cell size at equilibrium rest length
  * mDampingConstantNormal has units of kg s^-1
  * mDampingConstantMutant has units of kg s^-1
- * mCryptProjectionParameterA has no units
- * mCryptProjectionParameterB has no units
  * mMechanicsCutOffLength has units of cell size at equilibrium rest length
  */
 void CellBasedConfig::Reset()
@@ -73,9 +71,6 @@ void CellBasedConfig::Reset()
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
     mDampingConstantNormal = 1.0;   // denoted by nu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
     mDampingConstantMutant = 1.0;
-
-    mCryptProjectionParameterA = 0.5;
-    mCryptProjectionParameterB = 2.0;
 
     /*
      * The following parameter is specific to cell-centre based models, which were originally based on the
@@ -127,14 +122,6 @@ double CellBasedConfig::GetDampingConstantNormal()
 double CellBasedConfig::GetDampingConstantMutant()
 {
     return mDampingConstantMutant;
-}
-double CellBasedConfig::GetCryptProjectionParameterA()
-{
-    return mCryptProjectionParameterA;
-}
-double CellBasedConfig::GetCryptProjectionParameterB()
-{
-    return mCryptProjectionParameterB;
 }
 double CellBasedConfig::GetMechanicsCutOffLength()
 {
@@ -189,16 +176,6 @@ void CellBasedConfig::SetDampingConstantMutant(double dampingConstantMutant)
 {
     assert(dampingConstantMutant > 0.0);
     mDampingConstantMutant = dampingConstantMutant;
-}
-void CellBasedConfig::SetCryptProjectionParameterA(double cryptProjectionParameterA)
-{
-    assert(cryptProjectionParameterA >= 0.0);
-    mCryptProjectionParameterA = cryptProjectionParameterA;
-}
-void CellBasedConfig::SetCryptProjectionParameterB(double cryptProjectionParameterB)
-{
-    assert(cryptProjectionParameterB >= 0.0);
-    mCryptProjectionParameterB = cryptProjectionParameterB;
 }
 void CellBasedConfig::SetMechanicsCutOffLength(double mechanicsCutOffLength)
 {
