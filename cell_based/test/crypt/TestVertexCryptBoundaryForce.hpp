@@ -61,7 +61,7 @@ public:
 
     }
 
-    void TestVertexCryptBoundaryForce() throw (Exception)
+    void TestVertexCryptBoundaryForceMethods() throw (Exception)
 	{
 		// Create a simple 2D VertexMesh
 		HoneycombMutableVertexMeshGenerator generator(5, 5, false, 0.1, 0.5);
