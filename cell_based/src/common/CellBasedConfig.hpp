@@ -147,10 +147,6 @@ public:
      */
     void SetDampingConstantMutant(double);
     /**
-     * Set mWntStemThreshold.
-     */
-    void SetWntStemThreshold(double);
-    /**
      * Set mCryptProjectionParameterA.
      */
     void SetCryptProjectionParameterA(double);
