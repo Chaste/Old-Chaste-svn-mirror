@@ -79,6 +79,12 @@ Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNode(unsigned index) c
     return mNodes[local_index];
 }
 
+template <unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeOrHaloNode(unsigned index) const
+{
+    return GetNode(index);
+}
+
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
 Node<SPACE_DIM>* AbstractMesh<ELEMENT_DIM, SPACE_DIM>::GetNodeFromPrePermutationIndex(unsigned index) const
 {
@@ -392,7 +398,7 @@ unsigned AbstractMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumContainingElement
             max_num=num;
         }
     }
-    return max_num;    
+    return max_num;
 }
 
 template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>

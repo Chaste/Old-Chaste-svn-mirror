@@ -119,6 +119,11 @@ public:
         TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[0], 1.0, 1e-6);
         TS_ASSERT_DELTA(mesh.GetNode(1)->GetPoint()[1], 0.0, 1e-6);
 
+        TS_ASSERT_DELTA(mesh.GetNodeOrHaloNode(0)->GetPoint()[0],  0.9980267283, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNodeOrHaloNode(0)->GetPoint()[1], -0.0627905195, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNodeOrHaloNode(1)->GetPoint()[0], 1.0, 1e-6);
+        TS_ASSERT_DELTA(mesh.GetNodeOrHaloNode(1)->GetPoint()[1], 0.0, 1e-6);
+
         // Check first element has the right nodes
         TetrahedralMesh<2,2>::ElementIterator iter = mesh.GetElementIteratorBegin();
         TS_ASSERT_EQUALS(iter->GetNodeGlobalIndex(0), 309u);

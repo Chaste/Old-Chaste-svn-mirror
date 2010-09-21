@@ -171,6 +171,14 @@ public:
     Node<SPACE_DIM>* GetNode(unsigned index) const;
 
     /**
+     * Get the node with a given index in the mesh (synonym of GetNode()).
+     *
+     * @param index the global index of the node
+     * @return a pointer to the node.
+     */
+    virtual Node<SPACE_DIM>* GetNodeOrHaloNode(unsigned index) const;
+
+    /**
      * Get the node with a given index in the mesh, prior to any node permutation
      * being applied.  For non-permuted meshes, this will have the same effect
      * as GetNode.
@@ -275,16 +283,16 @@ public:
      * @return The maximum distance between any nodes in this dimension.
      */
     virtual double GetWidth(const unsigned& rDimension) const;
-    
+
     /**
      * Calculate the bounding box (width extremes for all dimensions of the mesh.
      * Overridden in Distribute case
-     * 
+     *
      * @return The minimum and maximum co-ordinates of any node in each dimension
-     * 
+     *
      */
     virtual ChasteCuboid<SPACE_DIM> CalculateBoundingBox() const;
-    
+
     /**
      * Scale the mesh.
      *
@@ -366,7 +374,7 @@ public:
      */
     bool IsMeshChanging() const;
 
-    
+
     /**
      * @return Iterates through local nodes and finds the maximum number of containing elements for all locally owned nodes
      * Useful for determining FEM matrix fill.
