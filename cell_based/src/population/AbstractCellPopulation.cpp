@@ -621,7 +621,7 @@ template<unsigned DIM>
 void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFile)
 {
 	///\todo This should be independent of boost version (#1453)
-	std::string cell_population_type = "Should be cell population type here see #1453";
+	std::string cell_population_type = "Should be CellPopulation type here see #1453";
 	#if BOOST_VERSION >= 103700
 		cell_population_type = GetIdentifier();
 	#endif

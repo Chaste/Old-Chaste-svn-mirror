@@ -7,7 +7,7 @@
 		<OutputNodeVelocities>0</OutputNodeVelocities>
 	</Should be simulation type here see #1453>
 
-	<Should be cell population type here see #1453>
+	<MeshBasedCellPopulation-2>
 		<UseAreaBasedDampingConstant>0</UseAreaBasedDampingConstant> 
 		<AreaBasedDampingConstantParameter>0.1</AreaBasedDampingConstantParameter> 
 		<OutputVoronoiData>0</OutputVoronoiData> 
@@ -21,7 +21,7 @@
 		<OutputCellCyclePhases>0</OutputCellCyclePhases> 
 		<OutputCellAges>0</OutputCellAges> 
 		<OutputCellVolumes>0</OutputCellVolumes> 
-	</Should be cell population type here see #1453>
+	</MeshBasedCellPopulation-2>
 
 	<Forces>
 	</Forces>
