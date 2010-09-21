@@ -33,7 +33,13 @@ AbstractCellCycleModel::AbstractCellCycleModel()
       mG1Duration(DOUBLE_UNSET),
       mReadyToDivide(false),
       mDimension(0),
-      mMinimumGapDuration(0.01) // an educated guess
+      mMinimumGapDuration(0.01), // an educated guess
+      // Default parameter values
+	  mStemCellG1Duration(14.0),
+	  mTransitCellG1Duration(2.0),
+	  mSDuration(5.0),               // apparently between 5-6 hours normally
+	  mG2Duration(4.0),              // apparently 3-4 hours normally
+	  mMDuration(1.0)               // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
 {
 }
 
@@ -87,24 +93,73 @@ void AbstractCellCycleModel::ResetForDivision()
     mReadyToDivide = false;
 }
 
-double AbstractCellCycleModel::GetSDuration()
-{
-    return CellBasedConfig::Instance()->GetSDuration();
-}
-
 double AbstractCellCycleModel::GetG1Duration()
 {
     return mG1Duration;
 }
 
+///////////////////////////////////////////////////////////////////////
+// Getter methods
+///////////////////////////////////////////////////////////////////////
+
+double AbstractCellCycleModel::GetStemCellG1Duration()
+{
+    return mStemCellG1Duration;
+}
+
+double AbstractCellCycleModel::GetTransitCellG1Duration()
+{
+    return mTransitCellG1Duration;
+}
+
+double AbstractCellCycleModel::GetSG2MDuration()
+{
+    return mSDuration + mG2Duration + mMDuration;
+}
+
+double AbstractCellCycleModel::GetSDuration()
+{
+    return mSDuration;
+}
+
 double AbstractCellCycleModel::GetG2Duration()
 {
-    return CellBasedConfig::Instance()->GetG2Duration();
+    return mG2Duration;
 }
 
 double AbstractCellCycleModel::GetMDuration()
 {
-    return CellBasedConfig::Instance()->GetMDuration();
+    return mMDuration;
+}
+
+///////////////////////////////////////////////////////////////////////
+// Setter methods
+///////////////////////////////////////////////////////////////////////
+
+void AbstractCellCycleModel::SetStemCellG1Duration(double stemCellG1Duration)
+{
+    assert(stemCellG1Duration > 0.0);
+    mStemCellG1Duration = stemCellG1Duration;
+}
+void AbstractCellCycleModel::SetTransitCellG1Duration(double transitCellG1Duration)
+{
+    assert(transitCellG1Duration > 0.0);
+    mTransitCellG1Duration = transitCellG1Duration;
+}
+void AbstractCellCycleModel::SetSDuration(double SDuration)
+{
+    assert(SDuration > 0.0);
+    mSDuration = SDuration;
+}
+void AbstractCellCycleModel::SetG2Duration(double G2Duration)
+{
+    assert(G2Duration > 0.0);
+    mG2Duration = G2Duration;
+}
+void AbstractCellCycleModel::SetMDuration(double MDuration)
+{
+    assert(MDuration > 0.0);
+    mMDuration = MDuration;
 }
 
 bool AbstractCellCycleModel::ReadyToDivide()

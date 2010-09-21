@@ -46,7 +46,7 @@ typedef boost::shared_ptr<Cell> CellPtr;
 /**
  * The AbstractCellCycleModel contains basic information to all cell cycle models.
  * It handles assignment of birth time, cell cycle phase and a Cell.
- * 
+ *
  * Cell cycle models are noncopyable since cells are noncopyable.
  */
 class AbstractCellCycleModel : boost::noncopyable
@@ -126,11 +126,40 @@ protected:
     /**
      * Minimum possbile duration of either of the gap phases (G1 or G2).
      * Has units of hours.
-     * 
+     *
      * Used to guarantee a strictly positive duration in cell cycle models that
      * use normal random deviates for G1 or G2 phases.
      */
     double mMinimumGapDuration;
+
+    /**
+	 * Duration of G1 phase for stem cells.
+	 * May be used as a mean duration for stochastic cell cycle models.
+	 *
+	 */
+	double mStemCellG1Duration;
+
+	/**
+	 * Duration of G1 phase for transit cells.
+	 * May be used as a mean duration for stochastic cell cycle models.
+	 */
+	double mTransitCellG1Duration;
+
+	/**
+	 * Duration of S phase for all cell types.
+	 */
+	double mSDuration;
+
+	/**
+	 * Duration of G2 phase for all cell types.
+	 */
+	double mG2Duration;
+
+	/**
+	 * Duration of M phase for all cell types.
+	 */
+	double mMDuration;
+
 
 public:
 
@@ -275,19 +304,55 @@ public:
     virtual double GetG1Duration();
 
     /**
-     * @return the duration of the S phase of the cell cycle
+	 * @return mStemCellG1Duration
+	 */
+    double GetStemCellG1Duration();
+
+    /**
+	 * @return mTransitCellG1Duration
+	 */
+	double GetTransitCellG1Duration();
+
+	/**
+	 * @return mSDuration + mG2Duration + mMDuration
+	 */
+	double GetSG2MDuration();
+
+    /**
+     * @return the duration of the S phase of the cell cycle mSDuration
      */
     virtual double GetSDuration();
 
     /**
-     * @return the duration of the G2 phase of the cell cycle
+     * @return the duration of the G2 phase of the cell cycle mG2Duration
      */
     virtual double GetG2Duration();
 
     /**
-     * @return the duration of the M phase of the cell cycle
+     * @return the duration of the M phase of the cell cycle mMDuration
      */
     virtual double GetMDuration();
+
+    /**
+	 * Set mStemCellG1Duration.
+	 */
+	void SetStemCellG1Duration(double);
+	/**
+	 * Set mTransitCellG1Duration.
+	 */
+	void SetTransitCellG1Duration(double);
+	/**
+	 * Set mSDuration.
+	 */
+	void SetSDuration(double);
+	/**
+	 * Set mG2Duration.
+	 */
+	void SetG2Duration(double);
+	/**
+	 * Set mMDuration.
+	 */
+	void SetMDuration(double);
 
     /**
      * Return the typical cell cycle duration for a transit cell, in hours.
@@ -325,7 +390,7 @@ public:
 
     /**
      * Set mMinimumGapDuration.
-     * 
+     *
      * @param minimumGapDuration the new value of mMinimumGapDuration
      */
     void SetMinimumGapDuration(double minimumGapDuration);
