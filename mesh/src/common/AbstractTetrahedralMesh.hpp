@@ -327,19 +327,19 @@ public:
     /**
      * Construct a 1D linear grid on [0,width]
      *
-     * ELEMENT_DIM must be equal to 1. If SPACE_DIM > 1 then the 
+     * ELEMENT_DIM must be equal to 1. If SPACE_DIM > 1 then the
      * y & z default to 0.0 for every node.
      *
      * @param width  width of the mesh (in the x-direction)
-     * 
+     *
      * In this method the width is also THE NUMBER OF ELEMENTS IN THE x-direction.
-     *  
+     *
      * Overridden in DistributedTetrahedralMesh
      */
     virtual void ConstructLinearMesh(unsigned width);
-    
 
-    
+
+
     /**
      * Construct a 2D rectangular grid on [0,width]x[0,height].
      *
@@ -349,36 +349,36 @@ public:
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
      * @param stagger  whether the mesh should 'jumble' up the elements (defaults to true)
-     * 
+     *
      * In this method the width is also THE NUMBER OF ELEMENTS IN THE x-direction,
      * and similarly with the y direction.
-     * 
+     *
      * Overridden in DistributedTetrahedralMesh
      */
     virtual void ConstructRectangularMesh(unsigned width, unsigned height, bool stagger=true);
 
 
-     
+
     /** Construct a 3D cuboid grid on [0,width]x[0,height]x[0,depth].
      *
      * @param width  width of the mesh (in the x-direction)
      * @param height  height of the mesh (in the y-direction)
      * @param depth  depth of the mesh (in the z-direction).
-     * 
+     *
      * In this method the width is also THE NUMBER OF ELEMENTS IN THE x-direction,
      * and similarly with the y and z directions.
-     *  
+     *
      * Overridden in DistributedTetrahedralMesh
      */
     virtual void ConstructCuboid(unsigned width, unsigned height, unsigned depth);
 
 
 
-    /** 
-     *  Create a 1D mesh on [0, width], 2D mesh on [0, width]x[0 height] with staggering or 
+    /**
+     *  Create a 1D mesh on [0, width], 2D mesh on [0, width]x[0 height] with staggering or
      *  3D mesh on [0, width]x[0 height]x[0 depth with a given axis-aligned space step.
      *  If SPACE_DIM > ELEMENT_DIM then the y & z default to 0.0 for every node.
-     *  
+     *
      *  @param spaceStep The axis-aligned space step
      *  @param width The width (x-dimension)
      *  @param height The height (y-dimension - ignored if ELEMENT_DIM is 1D)
@@ -403,16 +403,24 @@ public:
      * @param elementIndex is the global index of the element
      */
     virtual bool CalculateDesignatedOwnershipOfElement( unsigned elementIndex );
-    
+
     /**
-     * @return Iterates through local nodes and finds the node with the/a maximum number of 
+     * @return Iterates through local nodes and finds the node with the/a maximum number of
      * containing elements for all locally owned nodes.  At that representative node the
-     * node connectivity (number of nodes in forward star) is determined. 
-     * 
+     * node connectivity (number of nodes in forward star) is determined.
+     *
      * Useful for determining FEM matrix fill.
      */
     unsigned CalculateMaximumNodeConnectivityPerProcess() const;
-    
+
+    /**
+     * Utility method to give the functionality of iterating through the halo nodes of a process. Will return an empty
+     * std::vector (i.e. no halo nodes) unless overridden by distributed derived classes.
+     *
+     * @param rHaloIndices  A vector to fill with the global indices of the nodes which are locally halos
+     */
+    virtual void GetHaloNodeIndices(std::vector<unsigned>& rHaloIndices) const;
+
 
 
     //////////////////////////////////////////////////////////////////////

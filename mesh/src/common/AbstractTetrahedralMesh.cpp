@@ -569,13 +569,13 @@ unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumNodeCo
         //Coverage of this block requires a mesh regular slab mesh with the number of
         //elements in the primary dimension less than (num_procs - 1), e.g.
         //a 1D mesh one element wide with num_procs >=3.
-         
+
         //This process owns no nodes and thus owns none of the mesh
         assert(this->mNodes.size() == 0u);
         return(1u);
         //Note that if a process owns no nodes, then it will still need to enter the collective
-        //call to MatMPIAIJSetPreallocation.  In PetscTools::SetupMat, the rowPreallocation parameter 
-        //uses the special value zero to indicate no preallocation. 
+        //call to MatMPIAIJSetPreallocation.  In PetscTools::SetupMat, the rowPreallocation parameter
+        //uses the special value zero to indicate no preallocation.
 #undef COVERAGE_IGNORE
     }
     //connected_node_index now has the index of a maximally connected node
@@ -591,8 +591,16 @@ unsigned AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::CalculateMaximumNodeCo
             forward_star_nodes.insert(p_elem->GetNodeGlobalIndex(i));
         }
     }
-    return forward_star_nodes.size();    
+    return forward_star_nodes.size();
 }
+
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetHaloNodeIndices(std::vector<unsigned>& rHaloIndices) const
+{
+    //Make sure the output vector is empty
+    rHaloIndices.clear();
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////

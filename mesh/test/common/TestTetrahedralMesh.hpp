@@ -129,6 +129,12 @@ public:
         TS_ASSERT_EQUALS(mesh.IsMeshChanging(), false);
         TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 8U);
         TS_ASSERT_EQUALS(mesh.CalculateMaximumNodeConnectivityPerProcess(),  9U);
+
+        // Check that there are no halo nodes (coverage)
+        std::vector<unsigned> halo_indices;
+        mesh.GetHaloNodeIndices(halo_indices);
+        unsigned num_halo_nodes = halo_indices.size();
+        TS_ASSERT_EQUALS( num_halo_nodes, 0u );
     }
 
     void TestMeshConstructionFromMeshReaderIndexedFromOne() throw(Exception)
@@ -241,7 +247,7 @@ public:
         TS_ASSERT_EQUALS( mesh_reader.GetNumFaces(), 0u);
         TS_ASSERT_EQUALS( mesh.GetNumBoundaryElements(), 0u);
         TS_ASSERT_EQUALS( mesh.CalculateMaximumContainingElementsPerProcess(), 2U); //It's 1D
-        
+
     }
 
     void Test1DMeshIn2DSpace() throw(Exception)
@@ -596,7 +602,7 @@ public:
 
         TrianglesMeshWriter<2,2> mesh_writer("","RectangleMeshStagger");
         mesh_writer.WriteFilesUsingMesh(mesh);
-        
+
         // test the other version of this method
         TetrahedralMesh<2,2> mesh2;
         mesh2.ConstructRegularSlabMesh(4.0, width, height);
@@ -683,12 +689,12 @@ public:
 
         TrianglesMeshWriter<1,1> mesh_writer("","LineMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
-        
+
         // test other version of the method
         TetrahedralMesh<1,1> mesh2;
         unsigned wrong_step = width/2; // 39/2=19 not 19.5
         TS_ASSERT_THROWS_THIS(mesh2.ConstructRegularSlabMesh(wrong_step, width),"Space step does not divide the size of the mesh");
-        
+
         mesh2.ConstructRegularSlabMesh(width/2.0, width);
         TS_ASSERT_DELTA(mesh2.GetVolume(), width, 1e-7);
         TS_ASSERT_EQUALS(mesh2.GetNumElements(), 2u);
@@ -826,10 +832,10 @@ public:
         }
         TS_ASSERT( mesh.CheckIsConforming() );
         TS_ASSERT_EQUALS(mesh.CalculateMaximumContainingElementsPerProcess(), 24U); //Four surrounding cubes may have all 6 tetrahedra meeting at a node
-        
+
         TrianglesMeshWriter<3,3> mesh_writer("", "CuboidMesh");
         mesh_writer.WriteFilesUsingMesh(mesh);
-        
+
         // test the other version of this method
         TetrahedralMesh<3,3> mesh2;
         mesh2.ConstructRegularSlabMesh(1.0, width, height, depth);
@@ -1083,7 +1089,7 @@ public:
 
         TS_ASSERT_DELTA(width, 2, 1e-6);
         TS_ASSERT_DELTA(height, 2, 1e-6);
-        
+
         ChasteCuboid<2> bounds=mesh.CalculateBoundingBox();
         TS_ASSERT_DELTA(bounds.rGetUpperCorner()[0], 1, 1e-6);
         TS_ASSERT_DELTA(bounds.rGetUpperCorner()[1], 1, 1e-6);
@@ -1245,8 +1251,8 @@ public:
         TS_ASSERT_EQUALS(indices[0], 89u);
         TS_ASSERT_EQUALS(indices[1], 90u);
         TS_ASSERT_EQUALS(indices[5], 110u);
-        
-        
+
+
         std::set<unsigned> test_elements;
         test_elements.insert(0);
         TS_ASSERT_EQUALS(mesh.GetNearestElementIndexFromTestElements(point1, test_elements), 0u);
@@ -1393,7 +1399,7 @@ public:
 
         double third = 1.0L/3.0L;
         mesh.ConstructRegularSlabMesh(third, 1.0, 1.0, 1.0);
-   
+
         ChastePoint<3> point_on_edge1(5.0/6.0,   0.5,       1.0);
         ChastePoint<3> point_on_edge2(5.0L/6.0L, 0.5,       1.0);
         ChastePoint<3> point_on_edge3(5.0L/6.0L, 0.5L,      1.0L);
@@ -1573,7 +1579,7 @@ public:
 
         TS_ASSERT_THROWS_THIS(cuboid_mesh.GetMeshFileBaseName(),"This mesh was not constructed from a file.");
     }
-    
+
     void TestCalculateBoundingBox() throw(Exception)
     {
         TetrahedralMesh<1,1> mesh1d;
@@ -1581,13 +1587,13 @@ public:
         ChasteCuboid<1> extremes1d = mesh1d.CalculateBoundingBox();
         TS_ASSERT_DELTA(extremes1d.rGetLowerCorner()[0], 0.0, 1e-12);
         TS_ASSERT_DELTA(extremes1d.rGetUpperCorner()[0], 3.0, 1e-12);
-        
+
         mesh1d.GetNode(0)->rGetModifiableLocation()[0] = -0.1;
         mesh1d.Scale(0.5);
         extremes1d = mesh1d.CalculateBoundingBox();
         TS_ASSERT_DELTA(extremes1d.rGetLowerCorner()[0], -0.05, 1e-12);
         TS_ASSERT_DELTA(extremes1d.rGetUpperCorner()[0], 1.5, 1e-12);
-        
+
         TetrahedralMesh<2,2> mesh2d;
         mesh2d.ConstructRectangularMesh(2,2);
         ChasteCuboid<2> extremes2d = mesh2d.CalculateBoundingBox();
@@ -1603,7 +1609,7 @@ public:
         TS_ASSERT_DELTA(extremes2d.rGetUpperCorner()[0], 0.0, 1e-12);
         TS_ASSERT_DELTA(extremes2d.rGetLowerCorner()[1], 0.0, 1e-12);
         TS_ASSERT_DELTA(extremes2d.rGetUpperCorner()[1], 6.0, 1e-12);
-        
+
         TetrahedralMesh<3,3> mesh3d;
         mesh3d.ConstructCuboid(4,5,6);
         ChasteCuboid<3> extremes3d = mesh3d.CalculateBoundingBox();
@@ -1612,10 +1618,9 @@ public:
         TS_ASSERT_DELTA(extremes3d.rGetLowerCorner()[1], 0.0, 1e-12);
         TS_ASSERT_DELTA(extremes3d.rGetUpperCorner()[1], 5.0, 1e-12);
         TS_ASSERT_DELTA(extremes3d.rGetLowerCorner()[2], 0.0, 1e-12);
-        TS_ASSERT_DELTA(extremes3d.rGetUpperCorner()[2], 6.0, 1e-12);        
+        TS_ASSERT_DELTA(extremes3d.rGetUpperCorner()[2], 6.0, 1e-12);
     }
-        
-    
+
     void TestArchiving() throw(Exception)
     {
         FileFinder archive_dir("archive", RelativeTo::ChasteTestOutput);
