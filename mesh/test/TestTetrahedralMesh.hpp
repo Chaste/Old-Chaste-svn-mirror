@@ -906,37 +906,6 @@ public:
         TS_ASSERT_EQUALS(mesh.GetElement(0)->GetNode(3)->GetIndex(), 1u);  // 1 was 0
     }
 
-    void TestPermuteWithMetisBinaries() throw(Exception)
-    {
-        TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
-        TetrahedralMesh<2,2> mesh;
-        mesh.ConstructFromMeshReader(mesh_reader);
-
-        TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[0],  0.9980, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[1], -0.0627, 1e-4);
-
-        mesh.PermuteNodesWithMetisBinaries(4);
-        TS_ASSERT_DELTA(mesh.GetNode(236)->rGetLocation()[0],  0.9980, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(236)->rGetLocation()[1], -0.0627, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[0], -0.7705, 1e-4);
-        TS_ASSERT_DELTA(mesh.GetNode(0)->rGetLocation()[1], 0.6374, 1e-4);
-
-        TrianglesMeshReader<3,3> mesh_reader2("mesh/test/data/3D_0_to_.5mm_1889_elements_irregular");
-        TetrahedralMesh<3,3> mesh2;
-        mesh2.ConstructFromMeshReader(mesh_reader2);
-
-        TS_ASSERT_DELTA(mesh2.GetNode(0)->rGetLocation()[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(mesh2.GetNode(0)->rGetLocation()[1], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(mesh2.GetNode(0)->rGetLocation()[2], 0.0000, 1e-4);
-
-        mesh2.PermuteNodesWithMetisBinaries(4);
-        TS_ASSERT_DELTA(mesh2.GetNode(0)->rGetLocation()[0], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(mesh2.GetNode(0)->rGetLocation()[1], 0.0000, 1e-4);
-        TS_ASSERT_DELTA(mesh2.GetNode(0)->rGetLocation()[2], 0.0000, 1e-4);
-
-        TrianglesMeshWriter<3,3> mesh_writer("","3D_0_to_.5mm_1889_elements_irregular_metis");
-        mesh_writer.WriteFilesUsingMesh(mesh2);
-    }
 
     void TestClear() throw(Exception)
     {

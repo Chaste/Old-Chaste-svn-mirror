@@ -225,14 +225,6 @@ public:
 
     /**
      * Permute the nodes so that they appear in a different order in mNodes
-     * (and their mIndex's are altered accordingly) using Metis binaries.
-     *
-     * @param numProcs Number of processors (e.g. number of partitions)
-     */
-    void PermuteNodesWithMetisBinaries(unsigned numProcs);
-
-    /**
-     * Permute the nodes so that they appear in a different order in mNodes
      * (and their mIndex's are altered accordingly).
      * @param perm is a vector containing the new indices
      */
