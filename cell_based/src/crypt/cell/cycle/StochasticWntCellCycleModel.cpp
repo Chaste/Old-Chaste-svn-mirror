@@ -46,43 +46,43 @@ StochasticWntCellCycleModel::StochasticWntCellCycleModel(boost::shared_ptr<Abstr
     }
 }
 
-void StochasticWntCellCycleModel::SetG2Duration()
+void StochasticWntCellCycleModel::GenerateStochasticG2Duration()
 {
-    CellBasedConfig* p_config = CellBasedConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
-    double mean = p_config->GetG2Duration();
+    double mean = AbstractCellCycleModel::GetG2Duration();
+
     double standard_deviation = 0.9;
 
-    mG2Duration = p_gen->NormalRandomDeviate(mean, standard_deviation);
+    mStochasticG2Duration = p_gen->NormalRandomDeviate(mean, standard_deviation);
 
     // Check that the normal random deviate has not returned a small or negative G2 duration
-    if (mG2Duration < mMinimumGapDuration)
+    if (mStochasticG2Duration < mMinimumGapDuration)
     {
-        mG2Duration = mMinimumGapDuration;
+    	mStochasticG2Duration = mMinimumGapDuration;
     }
 }
 
 void StochasticWntCellCycleModel::InitialiseDaughterCell()
 {
-    SetG2Duration();
+    GenerateStochasticG2Duration();
 }
 
 void StochasticWntCellCycleModel::Initialise()
 {
     WntCellCycleModel::Initialise();
-    SetG2Duration();
+    GenerateStochasticG2Duration();
 }
 
 void StochasticWntCellCycleModel::ResetForDivision()
 {
     AbstractWntOdeBasedCellCycleModel::ResetForDivision();
-    SetG2Duration();
+    GenerateStochasticG2Duration();
 }
 
 double StochasticWntCellCycleModel::GetG2Duration()
 {
-    return mG2Duration;
+    return mStochasticG2Duration;
 }
 
 AbstractCellCycleModel* StochasticWntCellCycleModel::CreateCellCycleModel()

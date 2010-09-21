@@ -34,49 +34,48 @@ StochasticOxygenBasedCellCycleModel::StochasticOxygenBasedCellCycleModel()
 {
 }
 
-void StochasticOxygenBasedCellCycleModel::SetG2Duration()
+void StochasticOxygenBasedCellCycleModel::GenerateStochasticG2Duration()
 {
-    CellBasedConfig* p_params = CellBasedConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
-    double mean = p_params->GetG2Duration();
+    double mean = AbstractCellCycleModel::GetG2Duration();
     double standard_deviation = 1.0;
 
-    mG2Duration = p_gen->NormalRandomDeviate(mean, standard_deviation);
+    mStochasticG2Duration = p_gen->NormalRandomDeviate(mean, standard_deviation);
 
     // Check that the normal random deviate has not returned a small or negative G2 duration
-    if (mG2Duration < mMinimumGapDuration)
+    if (mStochasticG2Duration < mMinimumGapDuration)
     {
-        mG2Duration = mMinimumGapDuration;
+    	mStochasticG2Duration = mMinimumGapDuration;
     }
 }
 
 void StochasticOxygenBasedCellCycleModel::InitialiseDaughterCell()
 {
     SimpleOxygenBasedCellCycleModel::InitialiseDaughterCell();
-    SetG2Duration();
+    GenerateStochasticG2Duration();
 }
 
 void StochasticOxygenBasedCellCycleModel::Initialise()
 {
     AbstractSimpleCellCycleModel::Initialise();
-    SetG2Duration();
+    GenerateStochasticG2Duration();
 }
 
 void StochasticOxygenBasedCellCycleModel::ResetForDivision()
 {
     SimpleOxygenBasedCellCycleModel::ResetForDivision();
-    SetG2Duration();
+    GenerateStochasticG2Duration();
 }
 
 double StochasticOxygenBasedCellCycleModel::GetG2Duration()
 {
-    return mG2Duration;
+    return mStochasticG2Duration;
 }
 
-void StochasticOxygenBasedCellCycleModel::SetG2Duration(double g2Duration)
+void StochasticOxygenBasedCellCycleModel::SetStochasticG2Duration(double g2Duration)
 {
-    mG2Duration = g2Duration;
+    mStochasticG2Duration = g2Duration;
 }
 
 AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleModel()
@@ -91,7 +90,7 @@ AbstractCellCycleModel* StochasticOxygenBasedCellCycleModel::CreateCellCycleMode
     p_model->SetQuiescentConcentration(mQuiescentConcentration);
     p_model->SetCriticalHypoxicDuration(mCriticalHypoxicDuration);
     p_model->SetCurrentHypoxiaOnsetTime(mCurrentHypoxiaOnsetTime);
-    p_model->SetG2Duration(mG2Duration);
+    p_model->SetStochasticG2Duration(mG2Duration);
 
     return p_model;
 }

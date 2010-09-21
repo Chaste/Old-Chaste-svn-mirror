@@ -97,10 +97,6 @@ public:
      * @return mMechanicsCutOffLength
      */
     double GetMechanicsCutOffLength();
-    /**
-     * @return mMatureCellTargetArea
-     */
-    double GetMatureCellTargetArea();
 
     /**
      * Set mStemCellG1Duration.

@@ -52,20 +52,20 @@ private:
         archive & *p_gen;
         archive & p_gen;
 
-        archive & mG2Duration;
+        archive & mStochasticG2Duration;
     }
 
     /**
      * The duration of the G2 phase, set stochastically.
      */
-    double mG2Duration;
+    double mStochasticG2Duration;
 
     /**
      * Stochastically set the G2 duration.  Called on cell creation at
      * the start of a simulation, and for both parent and daughter
      * cells at cell division.
      */
-    void SetG2Duration();
+    void GenerateStochasticG2Duration();
 
 public:
 
@@ -90,16 +90,16 @@ public:
     void ResetForDivision();
 
     /**
-     * @return mG2Duration.
+     * @return mStochasticG2Duration.
      */
     double GetG2Duration();
 
     /**
-     * Set mG2Duration.
-     * 
-     * @param g2Duration the new value of mG2Duration
+     * Set mStochasticG2Duration.
+     *
+     * @param g2Duration the new value of mStochasticG2Duration
      */
-    void SetG2Duration(double g2Duration);
+    void SetStochasticG2Duration(double g2Duration);
 
     /**
      * Overridden builder method to create new copies of

@@ -194,14 +194,12 @@ unsigned AbstractCellCycleModel::GetDimension()
 
 double AbstractCellCycleModel::GetAverageTransitCellCycleTime()
 {
-    return CellBasedConfig::Instance()->GetTransitCellG1Duration()
-            + CellBasedConfig::Instance()->GetSG2MDuration();
+    return mTransitCellG1Duration + GetSG2MDuration();
 }
 
 double AbstractCellCycleModel::GetAverageStemCellCycleTime()
 {
-    return CellBasedConfig::Instance()->GetStemCellG1Duration()
-            + CellBasedConfig::Instance()->GetSG2MDuration();
+    return mStemCellG1Duration + GetSG2MDuration();
 }
 
 bool AbstractCellCycleModel::CanCellTerminallyDifferentiate()

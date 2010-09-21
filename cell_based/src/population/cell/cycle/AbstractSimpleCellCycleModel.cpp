@@ -54,10 +54,10 @@ void AbstractSimpleCellCycleModel::SetG1Duration()
     switch (mCellProliferativeType)
     {
         case STEM:
-            mG1Duration = CellBasedConfig::Instance()->GetStemCellG1Duration();
+            mG1Duration = GetStemCellG1Duration();
             break;
         case TRANSIT:
-            mG1Duration = CellBasedConfig::Instance()->GetTransitCellG1Duration();
+            mG1Duration = GetTransitCellG1Duration();
             break;
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;

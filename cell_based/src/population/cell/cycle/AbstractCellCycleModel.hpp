@@ -86,6 +86,11 @@ private:
         archive & mDimension;
         archive & mCellProliferativeType;
         archive & mMinimumGapDuration;
+        archive & mStemCellG1Duration;
+        archive & mTransitCellG1Duration;
+        archive & mSDuration;
+        archive & mG2Duration;
+        archive & mMDuration;
     }
 
 protected:

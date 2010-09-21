@@ -67,30 +67,28 @@ private:
         archive & *p_gen;
         archive & p_gen;
 
-        archive & mG2Duration;
+        archive & mStochasticG2Duration;
     }
 
     /** The duration of the G2 phase, set stochastically. */
-    double mG2Duration;
+    double mStochasticG2Duration;
 
     /**
-     * This method overrides that in WntCellCycleModel and
-     * introduces the stochastic element of this class.
+     * This method introduces the stochastic element of this class.
      *
      * We allow the duration of the G2 phase of the cell cycle to
      * vary as a normal random deviate with a mean of its deterministic
      * duration, a standard deviation of 0.9 hours, and a cutoff to
      * ensure that it is greater than some minimum value.
      *
-     * @return the duration of the G2 phases of the cell cycle.
      */
-    void SetG2Duration();
+    void GenerateStochasticG2Duration();
 
 public:
 
     /**
      * The standard constructor called in tests.
-     * 
+     *
      * @param pOdeSolver An optional pointer to a cell cycle model ODE solver object (allows the use of different ODE solvers)
      */
     StochasticWntCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver = boost::shared_ptr<AbstractCellCycleModelOdeSolver>());

@@ -102,9 +102,6 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         // Set up mesh
         MutableMesh<2,2> mesh;
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
@@ -120,6 +117,11 @@ public:
             p_model->SetCellProliferativeType(STEM);
             p_model->SetHypoxicConcentration(0.9);
             p_model->SetQuiescentConcentration(0.9);
+
+            //Use non default G1Durations
+			p_model->SetStemCellG1Duration(8.0);
+			p_model->SetTransitCellG1Duration(8.0);
+
 
             CellPtr p_cell(new Cell(p_state, p_model));
 
@@ -207,9 +209,6 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
@@ -224,6 +223,10 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
+
+            //Use non default G1Durations
+            p_model->SetStemCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
 
             CellPtr p_cell(new Cell(p_state, p_model));
 
@@ -316,9 +319,6 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
@@ -336,6 +336,10 @@ public:
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
             CellPtr p_cell(new Cell(p_state, p_model));
+
+            //Use non default G1Durations
+            p_model->SetStemCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
 
             double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
             p_cell->SetBirthTime(birth_time);
@@ -409,9 +413,6 @@ public:
     {
 		EXIT_IF_PARALLEL; // defined in PetscTools
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
 		// Set up mesh
 		unsigned num_cells_depth = 5;
 		unsigned num_cells_width = 5;
@@ -428,6 +429,10 @@ public:
 			SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
 			p_model->SetDimension(2);
 			p_model->SetCellProliferativeType(STEM);
+
+			//Use non default G1Durations
+            p_model->SetStemCellG1Duration(8.0);
+	        p_model->SetTransitCellG1Duration(8.0);
 
 			CellPtr p_cell(new Cell(p_state, p_model));
 			double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
@@ -512,9 +517,6 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
@@ -531,6 +533,11 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
+
+            //Use non default G1Durations
+            p_model->SetStemCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
+
             CellPtr p_cell(new Cell(p_state, p_model));
             p_cell->SetBirthTime(-0.1);
 
@@ -628,9 +635,6 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
@@ -645,6 +649,11 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
+
+            //Use non default G1Durations
+			p_model->SetStemCellG1Duration(8.0);
+			p_model->SetTransitCellG1Duration(8.0);
+
 
             CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
@@ -816,9 +825,6 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
@@ -833,6 +839,10 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
+
+            //Use non default G1Durations
+			p_model->SetStemCellG1Duration(8.0);
+			p_model->SetTransitCellG1Duration(8.0);
 
             CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
@@ -942,9 +952,6 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         // Create a cigar-shaped mesh
         TrianglesMeshReader<2,2> mesh_reader("mesh/test/data/disk_522_elements");
         MutableMesh<2,2>* p_mesh = new MutableMesh<2,2>;
@@ -959,6 +966,11 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
+
+            //Use non default G1Durations
+			p_model->SetStemCellG1Duration(8.0);
+			p_model->SetTransitCellG1Duration(8.0);
+
 
             CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*18.0;
@@ -1026,9 +1038,6 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         // Set up mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
@@ -1043,6 +1052,11 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
+
+            //Use non default G1Durations
+			p_model->SetStemCellG1Duration(8.0);
+			p_model->SetTransitCellG1Duration(8.0);
+
 
             CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;
@@ -1135,9 +1149,6 @@ public:
             return;
         }
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         std::string output_directory = "TestArchivingWithCellwisePde";
         double end_time = 0.1;
 
@@ -1155,6 +1166,10 @@ public:
             SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel();
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(STEM);
+
+            //Use non default G1Durations
+			p_model->SetStemCellG1Duration(8.0);
+			p_model->SetTransitCellG1Duration(8.0);
 
             CellPtr p_cell(new Cell(p_state, p_model));
             double birth_time = -1.0 - ((double) i/p_mesh->GetNumNodes())*18.0;

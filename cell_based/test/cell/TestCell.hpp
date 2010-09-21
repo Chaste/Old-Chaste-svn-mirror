@@ -206,7 +206,7 @@ public:
 
         FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
         p_model->SetCellProliferativeType(STEM);
-        
+
         TS_ASSERT_THROWS_THIS(CellPtr p_another_bad_cell(new Cell(p_label, &fixed_model)),
                               "Attempting to create cell with a cell mutation state is not a subtype of AbstractCellMutationState");
 
@@ -249,13 +249,6 @@ public:
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
 
         // We are going to start at t=0 and jump up in steps of 6.0
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
-        // This test needs particular cell cycle times
-        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
-
         p_simulation_time->IncrementTimeOneStep(); //t=6
 
         // Cover bad cell cycle model
@@ -269,11 +262,21 @@ public:
         CellPtr p_stem_cell(new Cell(p_healthy_state, p_model));
         p_stem_cell->InitialiseCellCycleModel();
 
+        // This test needs particular cell cycle times
+        TS_ASSERT_DELTA(p_model->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_model->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_model->GetSG2MDuration(), 10.0, 1e-12);
+
         // Test coverage of operator=
         FixedDurationGenerationBasedCellCycleModel* p_model2 = new FixedDurationGenerationBasedCellCycleModel();
         p_model2->SetCellProliferativeType(TRANSIT);
         CellPtr p_other_cell(new Cell(p_healthy_state, p_model2));
         p_other_cell->InitialiseCellCycleModel();
+
+        // This test needs particular cell cycle times
+        TS_ASSERT_DELTA(p_model2->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_model2->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_model2->GetSG2MDuration(), 10.0, 1e-12);
 
         TS_ASSERT_EQUALS(p_other_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
         p_other_cell = p_stem_cell;
@@ -463,12 +466,6 @@ public:
 
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(6000.0, 1000);
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
-        // This test needs particular cell cycle times
-        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
 
         p_simulation_time->IncrementTimeOneStep();
         boost::shared_ptr<AbstractCellProperty> p_healthy_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
@@ -478,6 +475,11 @@ public:
         p_stem_model->SetCellProliferativeType(STEM);
         CellPtr p_stem_cell(new Cell(p_healthy_state, p_stem_model));
         p_stem_cell->InitialiseCellCycleModel();
+
+        // This test needs particular cell cycle times could also test for other cell cycle models
+        TS_ASSERT_DELTA(p_stem_model->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_stem_model->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_stem_model->GetSG2MDuration(), 10.0, 1e-12);
 
         StochasticDurationGenerationBasedCellCycleModel* p_stoch_model = new StochasticDurationGenerationBasedCellCycleModel();
         p_stoch_model->SetCellProliferativeType(STEM);
@@ -539,12 +541,6 @@ public:
         // Go up in steps of 0.01 to test stochasticity in cell cycle models
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 5400);
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
-        // This test needs particular cell cycle times
-        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
 
         for (unsigned i=0; i<600; i++)
         {
@@ -559,6 +555,11 @@ public:
         p_transit_model->SetGeneration(2);
         CellPtr p_transit_cell(new Cell(p_healthy_state, p_transit_model));
         p_transit_cell->InitialiseCellCycleModel();
+
+        // This test needs particular cell cycle times
+        TS_ASSERT_DELTA(p_transit_model->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_transit_model->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_transit_model->GetSG2MDuration(), 10.0, 1e-12);
 
         for (unsigned i=0; i<1199; i++)
         {
@@ -593,13 +594,6 @@ public:
 
     void Test0DBucketStochastic()
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
-        // This test needs particular cell cycle times
-        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
-
         const double end_time = 70.0;
         const unsigned number_of_simulations = 1000;
 
@@ -626,6 +620,11 @@ public:
             CellPtr p_stem_cell(new Cell(p_healthy_state, p_model));
             p_stem_cell->InitialiseCellCycleModel();
             cells.push_back(p_stem_cell);
+
+            // This test needs particular cell cycle times
+            TS_ASSERT_DELTA(p_model->GetStemCellG1Duration(), 14.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetTransitCellG1Duration(), 2.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetSG2MDuration(), 10.0, 1e-12);
 
             // Produce the offspring of the cells
             std::vector<CellPtr>::iterator cell_iterator = cells.begin();
@@ -683,8 +682,6 @@ public:
         TS_ASSERT_DELTA(stem_cell_mean, 1.0, 1e-12);
         TS_ASSERT_DELTA(transit_cell_mean, 6.84, 1.0);
         TS_ASSERT_DELTA(differentiated_cell_mean, 16.0, 1.0);
-
-        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
     }
 
     void TestInitialise0DBucket()
@@ -803,9 +800,6 @@ public:
     void TestWithWntCellCycleModel() throw(Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        CellBasedConfig* p_parameters = CellBasedConfig::Instance();
-
-        double SG2MDuration = p_parameters->GetSG2MDuration();
 
         unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
@@ -819,6 +813,8 @@ public:
         p_cell_cycle_model1->SetCellProliferativeType(TRANSIT);
         CellPtr p_wnt_cell(new Cell(p_healthy_state, p_cell_cycle_model1));
         p_wnt_cell->InitialiseCellCycleModel();
+
+        double SG2MDuration = p_cell_cycle_model1->GetSG2MDuration();
 
 #ifdef CHASTE_CVODE
         const double expected_g1_duration = 5.96441;
@@ -885,14 +881,6 @@ public:
      */
     void TestWithStochasticWntCellCycleModel() throw(Exception)
     {
-        CellBasedConfig* p_parameters = CellBasedConfig::Instance();
-
-        // These are the first three normal random with mean 10, s.d. 1 and this seed (0)
-        double SG2MDuration1 = p_parameters->GetSDuration() + 3.16084 + p_parameters->GetMDuration();
-        double SG2MDuration2 = p_parameters->GetSDuration() + 5.0468  + p_parameters->GetMDuration();
-        double SG2MDuration3 = p_parameters->GetSDuration() + 3.34408 + p_parameters->GetMDuration();
-        double g1_duration = 5.971;
-
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         unsigned num_steps = 100;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
@@ -907,6 +895,12 @@ public:
         p_cell_model->SetCellProliferativeType(TRANSIT);
         CellPtr p_wnt_cell(new Cell(p_healthy_state, p_cell_model));
         p_wnt_cell->InitialiseCellCycleModel();
+
+        // These are the first three normal random with mean 10, s.d. 1 and this seed (0)
+		double SG2MDuration1 = p_cell_model->GetSDuration() + 3.16084 + p_cell_model->GetMDuration();
+		double SG2MDuration2 = p_cell_model->GetSDuration() + 5.0468  + p_cell_model->GetMDuration();
+		double SG2MDuration3 = p_cell_model->GetSDuration() + 3.34408 + p_cell_model->GetMDuration();
+		double g1_duration = 5.971;
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
@@ -1452,17 +1446,11 @@ public:
     void ThisTestBreaksSomeBuildsTestCellDivisionStops()
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
+		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
 
-        // If the value of GetStemCellG1Duration() changes in p_params the simulation time
-        // step and end time will need to be changed accordingly so that
-        // IncrementTimeOneStep() gets the cell to correct division times
-
-        // This test needs particular cell cycle times
-        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
+        // If the value of GetStemCellG1Duration() changes in the cell cycle model
+		// the simulation time step and end time will need to be changed accordingly
+		// so that IncrementTimeOneStep() gets the cell to correct division times
 
         // SimulationTime returns 0 hours
         p_simulation_time->IncrementTimeOneStep();
@@ -1474,6 +1462,11 @@ public:
         p_cell_model->SetCellProliferativeType(STEM);
         CellPtr p_stem_cell(new Cell(p_healthy_state, p_cell_model));
         p_stem_cell->InitialiseCellCycleModel();
+
+        // This test needs particular cell cycle times
+        TS_ASSERT_DELTA(p_cell_model->GetStemCellG1Duration(), 14.0, 1e-12);
+        TS_ASSERT_DELTA(p_cell_model->GetTransitCellG1Duration(), 2.0, 1e-12);
+        TS_ASSERT_DELTA(p_cell_model->GetSG2MDuration(), 10.0, 1e-12);
 
         p_simulation_time->IncrementTimeOneStep();
         p_simulation_time->IncrementTimeOneStep();

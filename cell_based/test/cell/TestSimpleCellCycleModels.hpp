@@ -116,11 +116,12 @@ public:
 
         double hepa_one_cell_birth_time = p_simulation_time->GetTime();
 
-        p_params->SetStemCellG1Duration(8.0);
-        p_params->SetTransitCellG1Duration(8.0);
-
         FixedDurationGenerationBasedCellCycleModel* p_hepa_one_model = new FixedDurationGenerationBasedCellCycleModel;
         p_hepa_one_model->SetCellProliferativeType(STEM);
+
+        // Change G1 Duration for this model
+        p_hepa_one_model->SetStemCellG1Duration(8.0);
+        p_hepa_one_model->SetTransitCellG1Duration(8.0);
 
         CellPtr p_hepa_one_cell(new Cell(p_healthy_state, p_hepa_one_model));
         p_hepa_one_cell->InitialiseCellCycleModel();
@@ -142,18 +143,19 @@ public:
         p_params->SetStemCellG1Duration(8.0);
         p_params->SetTransitCellG1Duration(8.0);
 
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        unsigned num_steps = 100;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
-            2.0*(p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration()), num_steps);
-
         TS_ASSERT_THROWS_NOTHING(StochasticDurationGenerationBasedCellCycleModel cell_model3);
 
         StochasticDurationGenerationBasedCellCycleModel* p_stem_model = new StochasticDurationGenerationBasedCellCycleModel;
         p_stem_model->SetCellProliferativeType(STEM);
 
+        // Change G1 Duration for this model
+        p_stem_model->SetStemCellG1Duration(8.0);
+
         StochasticDurationGenerationBasedCellCycleModel* p_transit_model = new StochasticDurationGenerationBasedCellCycleModel;
         p_transit_model->SetCellProliferativeType(TRANSIT);
+
+        // Change G1 Duration for this model
+        p_stem_model->SetTransitCellG1Duration(8.0);
 
         StochasticDurationGenerationBasedCellCycleModel* p_diff_model = new StochasticDurationGenerationBasedCellCycleModel;
         p_diff_model->SetCellProliferativeType(DIFFERENTIATED);
@@ -168,6 +170,12 @@ public:
 
         CellPtr p_diff_cell(new Cell(p_healthy_state, p_diff_model));
         p_diff_cell->InitialiseCellCycleModel();
+
+
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+		unsigned num_steps = 100;
+		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
+						2.0*(p_stem_model->GetStemCellG1Duration() + p_stem_model->GetSG2MDuration()), num_steps);
 
         for (unsigned i=0; i<num_steps; i++)
         {
