@@ -76,10 +76,11 @@ private :
         archive & boost::serialization::base_object<AbstractTwoBodyInteractionForce<DIM> >(*this);
         archive & mMeinekeSpringStiffness;
         archive & mMeinekeDivisionRestingSpringLength;
+        archive & mMeinekeSpringGrowthDuration;
     }
 
 protected:
-    
+
     /**
     * Spring stiffness.
     *
@@ -92,11 +93,19 @@ protected:
     /**
      * Initial resting spring length after cell division.
      * Has units of cell size at equilibrium rest length
-     * 
+     *
      * The value of this parameter should be larger than mDivisionSeparation,
      * because of pressure from neighbouring springs.
      */
     double mMeinekeDivisionRestingSpringLength;
+
+    /**
+     * The time it takes for the springs rest length to increase from
+     * mMeinekeDivisionRestingSpringLength to its natural length.
+     *
+     * The value of this parameter is usually the same as the M Phase of the cell cycle and defaults to 1.
+     */
+    double mMeinekeSpringGrowthDuration;
 
 
 public :
@@ -153,6 +162,10 @@ public :
      * @return mMeinekeDivisionRestingSpringLength
      */
     double GetMeinekeDivisionRestingSpringLength();
+    /**
+     * @return mMeinekeSpringGrowthDuration
+     */
+    double GetMeinekeSpringGrowthDuration();
 
     /**
      * Set mMeinekeSpringStiffness.
@@ -162,10 +175,17 @@ public :
     void SetMeinekeSpringStiffness(double springStiffness);
     /**
      * Set mMeinekeDivisionRestingSpringLength.
-     * 
+     *
      * @param divisionRestingSpringLength the new value of mMeinekeDivisionRestingSpringLength
      */
     void SetMeinekeDivisionRestingSpringLength(double divisionRestingSpringLength);
+
+    /**
+	 * Set mMeinekeSpringGrowthDuration.
+	 *
+	 * @param springGrowthDuration the new value of mMeinekeSpringGrowthDuration
+	 */
+	void SetMeinekeSpringGrowthDuration(double springGrowthDuration);
 
     /**
      * Outputs force Parameters to file

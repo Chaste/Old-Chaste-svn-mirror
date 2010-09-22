@@ -244,7 +244,7 @@ double NagaiHondaForce<DIM>::GetTargetAreaOfCell(const CellPtr pCell) const
     if (g1_duration == DBL_MAX) // don't use magic number, compare to DBL_MAX
     {
         // This is just for fixed cell cycle models, need to work out how to find the g1 duration
-        g1_duration = CellBasedConfig::Instance()->GetTransitCellG1Duration();
+        g1_duration = pCell->GetCellCycleModel()->GetTransitCellG1Duration();
     }
 
     if (pCell->HasCellProperty<ApoptoticCellProperty>())
@@ -297,7 +297,7 @@ void NagaiHondaForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 	*rParamsFile <<  "\t\t\t<NagaiHondaCellCellAdhesionEnergyParameter>"<<  mNagaiHondaCellCellAdhesionEnergyParameter << "</NagaiHondaCellCellAdhesionEnergyParameter> \n" ;
 	*rParamsFile <<  "\t\t\t<NagaiHondaCellBoundaryAdhesionEnergyParameter>"<<  mNagaiHondaCellBoundaryAdhesionEnergyParameter << "</NagaiHondaCellBoundaryAdhesionEnergyParameter> \n" ;
 	*rParamsFile <<  "\t\t\t<MatureCellTargetArea>"<<  mMatureCellTargetArea << "</MatureCellTargetArea> \n" ;
-	
+
 	// Call direct parent class
 	AbstractForce<DIM>::OutputForceParameters(rParamsFile);
 }

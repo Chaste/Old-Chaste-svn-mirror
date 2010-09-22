@@ -9,4 +9,5 @@
 			<ApoptoticSpringCompressionStiffness>11.25</ApoptoticSpringCompressionStiffness> 
 			<MeinekeSpringStiffness>15</MeinekeSpringStiffness> 
 			<MeinekeDivisionRestingSpringLength>0.5</MeinekeDivisionRestingSpringLength> 
+			<MeinekeSpringGrowthDuration>1</MeinekeSpringGrowthDuration> 
 			<UseCutoffPoint>0</UseCutoffPoint> 

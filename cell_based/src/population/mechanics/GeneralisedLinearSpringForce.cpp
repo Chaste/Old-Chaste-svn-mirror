@@ -33,7 +33,8 @@ template<unsigned DIM>
 GeneralisedLinearSpringForce<DIM>::GeneralisedLinearSpringForce()
    : AbstractTwoBodyInteractionForce<DIM>(),
      mMeinekeSpringStiffness(15.0),        // denoted by mu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
-     mMeinekeDivisionRestingSpringLength(0.5)
+     mMeinekeDivisionRestingSpringLength(0.5),
+     mMeinekeSpringGrowthDuration(1.0)
 {
 	if (DIM == 1)
 	{
@@ -119,13 +120,11 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     assert(!std::isnan(ageA));
     assert(!std::isnan(ageB));
 
-    double m_duration = p_config->GetMDuration();
-
     /*
      * If the cells are both newly divided, then the rest length of the spring
      * connecting them grows linearly with time, until 1 hour after division.
      */
-    if (ageA < m_duration && ageB < m_duration)
+    if (ageA < mMeinekeSpringGrowthDuration && ageB < mMeinekeSpringGrowthDuration)
     {
         if (rCellPopulation.IsMeshBasedCellPopulation())
         {
@@ -137,9 +136,9 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
             {
                 // Spring rest length increases from a small value to the normal rest length over 1 hour
                 double lambda = mMeinekeDivisionRestingSpringLength;
-                rest_length = lambda + (1.0 - lambda) * ageA/m_duration;
+                rest_length = lambda + (1.0 - lambda) * ageA/mMeinekeSpringGrowthDuration;
             }
-            if (ageA + SimulationTime::Instance()->GetTimeStep() >= m_duration)
+            if (ageA + SimulationTime::Instance()->GetTimeStep() >= mMeinekeSpringGrowthDuration)
             {
                 // This spring is about to go out of scope
                 p_static_cast_cell_population->UnmarkSpring(cell_pair);
@@ -149,7 +148,7 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
         {
             // Spring rest length increases from mDivisionRestingSpringLength to normal rest length, 1.0, over 1 hour
             double lambda = mMeinekeDivisionRestingSpringLength;
-            rest_length = lambda + (1.0 - lambda) * ageA/m_duration;
+            rest_length = lambda + (1.0 - lambda) * ageA/mMeinekeSpringGrowthDuration;
         }
     }
 
@@ -222,6 +221,12 @@ double GeneralisedLinearSpringForce<DIM>::GetMeinekeDivisionRestingSpringLength(
 {
     return mMeinekeDivisionRestingSpringLength;
 }
+template<unsigned DIM>
+double GeneralisedLinearSpringForce<DIM>::GetMeinekeSpringGrowthDuration()
+{
+    return mMeinekeSpringGrowthDuration;
+}
+
 
 template<unsigned DIM>
 void GeneralisedLinearSpringForce<DIM>::SetMeinekeSpringStiffness(double springStiffness)
@@ -240,10 +245,19 @@ void GeneralisedLinearSpringForce<DIM>::SetMeinekeDivisionRestingSpringLength(do
 }
 
 template<unsigned DIM>
+void GeneralisedLinearSpringForce<DIM>::SetMeinekeSpringGrowthDuration(double springGrowthDuration)
+{
+    assert(springGrowthDuration >= 0.0);
+
+    mMeinekeSpringGrowthDuration = springGrowthDuration;
+}
+
+template<unsigned DIM>
 void GeneralisedLinearSpringForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
 	*rParamsFile <<  "\t\t\t<MeinekeSpringStiffness>"<<  mMeinekeSpringStiffness << "</MeinekeSpringStiffness> \n" ;
 	*rParamsFile <<  "\t\t\t<MeinekeDivisionRestingSpringLength>"<<  mMeinekeDivisionRestingSpringLength << "</MeinekeDivisionRestingSpringLength> \n" ;
+	*rParamsFile <<  "\t\t\t<MeinekeSpringGrowthDuration>"<<  mMeinekeSpringGrowthDuration << "</MeinekeSpringGrowthDuration> \n" ;
 
 	// Call direct parent class
 	AbstractTwoBodyInteractionForce<DIM>::OutputForceParameters(rParamsFile);

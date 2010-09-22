@@ -975,9 +975,9 @@ public:
             ChemotacticForce<2> chemotactic_force;
 
             // Change the value of a CellBasedConfig member
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetStemCellG1Duration(), 14.0, 1e-6);
-            CellBasedConfig::Instance()->SetStemCellG1Duration(17.68);
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetStemCellG1Duration(), 17.68, 1e-6);
+            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), DBL_MAX, 1e-6);
+            CellBasedConfig::Instance()->SetMechanicsCutOffLength(10.0);
+            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), 10.0, 1e-6);
 
             // Serialize force (and hence CellBasedConfig) via pointer
             std::ofstream ofs(archive_filename.c_str());
@@ -992,7 +992,7 @@ public:
 
         {
             // Check CellBasedConfig is reset
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetStemCellG1Duration(), 14.0, 1e-6);
+            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), DBL_MAX, 1e-6);
 
             ArchiveLocationInfo::SetMeshPathname("mesh/test/data/", "square_2_elements");
 
@@ -1005,7 +1005,7 @@ public:
             input_arch >> p_chemotactic_force;
 
             // Check CellBasedConfig has been correctly archived
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetStemCellG1Duration(), 17.68, 1e-6);
+            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), 10.0, 1e-6);
 
             // Tidy up
             delete p_chemotactic_force;
@@ -1325,9 +1325,6 @@ public:
         }
 
         {
-            // Check CellBasedConfig is reset
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetStemCellG1Duration(), 14.0, 1e-6);
-
             ArchiveLocationInfo::SetMeshPathname("mesh/test/data/", "square_2_elements");
 
             // Create an input archive
@@ -1472,9 +1469,9 @@ public:
             boost::archive::text_oarchive output_arch(ofs);
 
             // Change the value of a CellBasedConfig member
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetTransitCellG1Duration(), 2.0, 1e-6);
-            CellBasedConfig::Instance()->SetTransitCellG1Duration(15.3);
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetTransitCellG1Duration(), 15.3, 1e-6);
+            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), DBL_MAX, 1e-6);
+            CellBasedConfig::Instance()->SetMechanicsCutOffLength(10.0);
+            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), 10.0, 1e-6);
 
             // Serialize via pointer
             WelikyOsterForce<2>* const p_force = &force;
@@ -1486,7 +1483,7 @@ public:
 
         {
             // Check CellBasedConfig is reset
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetTransitCellG1Duration(), 2.0, 1e-6);
+            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), DBL_MAX, 1e-6);
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
