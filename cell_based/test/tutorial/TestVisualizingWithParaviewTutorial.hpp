@@ -44,28 +44,43 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *
  * EMPTYLINE
  *
- * In this tutorial we show how Chaste is used to run crypt simulations.
- * Full details of the computational model can be found in the paper by
- * van Leeuwen ''et al'' (2009) [doi:10.1111/j.1365-2184.2009.00627.x].
+ * In this tutorial we show how Chaste is used to generate simulations
+ * that can be viewed in paraview, and how to use paraview itself. Two examples
+ * are provided - one using a cell-centre based model, and the second using
+ * a vertex model. To be able to view these simulations, you must first have
+ * downloaded and installed VTK and paraview, and updated your hostconfig file
+ * to ensure that it knows to use VTK.
  *
- * The first thing to do is include the following header, which allows us
- * to use certain methods in our test (this header file should be included
+ * For the tests we require the following headers. Firstly, we need the test suite below,
+ * which allows us to use certain methods in our test (this header file should be included
  * in any Chaste test).
  */
 #include <cxxtest/TestSuite.h>
 
 /*
- * The next header file defines a stochastic cell-cycle model.
+ * The next two header files define a stochastic and fixed duration cell-cycle model respectively.
  */
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
-/* The next header file defines a helper class for generating a suitable mesh. */
+#include "FixedDurationGenerationBasedCellCycleModel.hpp"
+/* The next header file defines a helper class for generating a suitable mesh for a cell-centre model. */
 #include "HoneycombMeshGenerator.hpp"
-/* The next header file defines a {{{CellPopulation}}} class that uses a mesh. */
-#include "MeshBasedCellPopulation.hpp"
+/* The next header file defines a helper class for generating a suitable vertex mesh. */
+#include "HoneycombMutableVertexMeshGenerator.hpp"
+/* The next header file defines a helper class for generating
+ * a vector of cells for a given mesh. */
+#include "CellsGenerator.hpp"
+/* The next header file defines a {{{CellPopulation}}} class that uses a mesh, which contains ghost nodes. */
+#include "MeshBasedCellPopulationWithGhostNodes.hpp"
+/* The next header file defines a vertex-based {{{CellPopulation}}} class.*/
+#include "VertexBasedCellPopulation.hpp"
 /* The next header file defines a force law, based on a linear spring, for describing
  * the mechanical interactions between neighbouring cells in the cell population.
  */
 #include "GeneralisedLinearSpringForce.hpp"
+/* The next header file defines a force law for describing the mechanical interactions
+ * between neighbouring cells in the cell population, subject to each vertex.
+ */
+#include "NagaiHondaForce.hpp"
 /* The next header file defines the class that simulates the evolution of a {{{CellPopulation}}}.
  */
 #include "CellBasedSimulation.hpp"
@@ -83,8 +98,7 @@ public:
      * EMPTYLINE
      *
      * In the first test, we run a simple cell-based simulation, in which we use
-     * a honeycomb mesh, give each cell a stochastic cell-cycle model, and enforce
-     * random cell killing.
+     * a honeycomb mesh with ghost nodes, and give each cell a stochastic cell-cycle model.
      */
 	void Test2DMonolayerSimulationForVisualizing() throw (Exception)
     {
@@ -97,24 +111,27 @@ public:
          * model parameter values.
          */
         SimulationTime::Instance()->SetStartTime(0.0);
+    	CellBasedConfig::Instance()->Reset();
 
         /* Next, we generate a mesh we use the {{{HoneycombMeshGenerator}}}. This
          * generates a honeycomb-shaped mesh, in which all nodes are equidistant.
          * Here the first and second arguments define the size of the mesh - we have
-         * chosen a mesh that is 5 nodes (i.e. cells) wide, and 5 nodes high.
-         * The third argument indicates that we want 0 ghost nodes around the mesh.
+         * chosen a mesh that is 10 nodes (i.e. cells) wide, and 10 nodes high.
+         * The third argument indicates that we want 2 layers of ghost nodes around the mesh.
          * The last boolean parameter indicates that we do not want cylindrical boundary
-         * conditions.
+         * conditions. We generate a pointer to the mesh, and then get the location indices of
+         * the real cells.
          */
-        HoneycombMeshGenerator generator(5, 5, 0, false);
-        MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(2.5);
+        HoneycombMeshGenerator generator(10, 10, 2, false);
+        MutableMesh<2,2>* p_mesh = generator.GetMesh();
+        std::vector<unsigned> location_indices = generator.GetCellLocationIndices();
 
         /* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
-         * Then we loop over the number of nodes in the mesh and assign a cell
+         * Then we loop over the number of real nodes in the mesh and assign a cell
          * to each node. Each cell will have a randomly chosen birth time. */
         std::vector<CellPtr> cells;
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
-        for (unsigned i=0; i<p_mesh->GetNumNodes(); i++)
+        for (unsigned i=0; i<location_indices.size(); i++)
         {
             StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(TRANSIT);
@@ -132,9 +149,9 @@ public:
         /* Now we have a mesh and a set of cells to go with it we can create a ''CellPopulation''.
          * In general, this class associates a collection of cells with a set of nodes or a mesh.
          * For this test we use a particular type of cell population called a
-         * {{{MeshBasedCellPopulation}}}.
+         * {{{MeshBasedCellPopulationWithGhostNodes}}}.
          */
-        MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
+        MeshBasedCellPopulationWithGhostNodes<2> cell_population(*p_mesh, cells, location_indices);
 
         /* In order to output the .vtu files required for paraview, we explicitly
          * instruct the simulation to output the data we need.
@@ -172,6 +189,107 @@ public:
         SimulationTime::Destroy();
         RandomNumberGenerator::Destroy();
     }
+
+	/*
+	* EMPTYLINE
+	*
+	* To visualize the results, you must first open paraview. Open the folder containing your test output using the 'file' menu at
+	* the top. The output will be located in {{{/tmp/$USER/testoutput/Test2DMonolayerSimulationForVisualizing/results_from_time_0}}}. 
+	* There will be a .vtu file generated for every timestep, which must all be opened at once to view the simulation. To do this, 
+	* simply select {{{results_..vtu}}}. You should now see {{{results_*}}} in the pipeline browser. Click {{{Apply}}} in the properties tab
+	* of the object inspector, and you should now see a visualisation in the right hand window. 
+	* 
+	* At this stage, it will be necessary to refine how you wish to view this particular visualisation. The viewing styles can be edited using
+	* the display tab of the object inspector. In particular, under {{{Style}}}, the representation drop down menu allows you to view 
+	* the cells as a surface with edges, or as simply a wireframe. It is advisable at this point to make yourself familiar with the different
+	* viewing options, colour and size settings. 
+	* 
+	* At this stage, the viewer is showing all cells in the simulation, including the ghost nodes. In order to view only real cells, you must 
+	* apply a threshold. This is achieved using the threshold button on the third toolbar (the icon is a cube with a green 'T' inside). Once you
+	* click the threshold button, you will see a new threshold appear below your results in the pipeline browser. Go to the properties tab and 
+	* reset the lower threshold to be less than 0, and the upper threshold to be between 0 and 1, ensuring that the 'Non-ghosts' option is 
+	* selected in the 'Scalars' drop down menu. Once you have edited this, click apply (you may need to click it twice), and the visualisation on the 
+	* right window will have changed to eliminate ghost nodes.
+	* 
+	* To view the simulation, simply use the animation buttons located on the top toolbar. You can also save a screenshot, or an animation, using 
+	* the appropriate options from the file menu. Next to the threshold button are two other useful options, 'slice' and 'clip', but these will 
+	* only be applicable for 3D visualisations.
+	*
+	* EMPTYLINE
+	* 
+	* == Test 2 - a basic vertex-based simulation ==
+	*
+	* EMPTYLINE
+	*
+	* Here, we run a simple vertex-based simulation, in which we create a monolayer
+	* of cells using a mutable vertex mesh. Each cell is assigned a fixed cell-cycle model.
+	*/
+	void TestMonolayerFixedCellCycle() throw(Exception)
+	{
+		/* First re-initialize time to zero, and reset the {{{CellBasedConfig}}} singleton, again. */
+		SimulationTime::Instance()->SetStartTime(0.0);
+		CellBasedConfig::Instance()->Reset();
+	
+		/* Next, we generate a vertex mesh. To create a {{{MutableVertexMesh}}}, we can use
+		* the {{{HoneycombMutableVertexMeshGenerator}}}. This generates a honeycomb-shaped mesh,
+		* in which all nodes are equidistant. Here the first and second arguments
+		* define the size of the mesh - we have chosen a mesh that is 6 elements (i.e.
+		* cells) wide, and 9 elements high.
+		*/
+		HoneycombMutableVertexMeshGenerator generator(6, 9);	// Parameters are: cells across, cells up
+		MutableVertexMesh<2,2>* p_mesh = generator.GetMutableMesh();
+	
+		/* Having created a mesh, we now create a {{{std::vector}}} of {{{CellPtr}}}s.
+		* To do this, we the `CellsGenerator` helper class, which is templated over the type
+		* of cell model required (here {{{FixedDurationGenerationBasedCellCycleModel}}})
+		* and the dimension. We create an empty vector of cells and pass this into the
+		* method along with the mesh. The second argument represents the size of that the vector
+		* {{{cells}}} should become - one cell for each element. */
+		std::vector<CellPtr> cells;
+		CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
+		cells_generator.GenerateBasic(cells, p_mesh->GetNumElements());
+	
+		/* Now we have a mesh and a set of cells to go with it, we can create a {{{CellPopulation}}}.
+		* In general, this class associates a collection of cells with a set of elements or a mesh.
+		* For this test, because we have a {{{MutableVertexMesh}}}, we use a particular type of
+		* cell population called a {{{VertexBasedCellPopulation}}}.
+		*/
+		VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
+	
+		/* We must now create one or more force laws, which determine the mechanics of the vertices
+		* of each cell in a cell population. For this test, we use one force law, based on the
+		* Nagai-Honda mechanics. We put a pointer to this force into a vector.
+		*/
+		NagaiHondaForce<2> force;
+		std::vector<AbstractForce<2>* > force_collection;
+		force_collection.push_back(&force);
+	
+		/* Now we define the cell-based simulation object, passing in the cell population and collection
+		* of force laws:
+		*/
+		CellBasedSimulation<2> simulator(cell_population, force_collection);
+	
+		/* Set the output directory on the simulator and the end time (in hours).
+		*/
+		simulator.SetOutputDirectory("Test2DVertexMonolayerSimulationForVisualizing");
+		simulator.SetEndTime(1.0);
+		
+		/* To run the simulation, we call {{{Solve()}}}. */
+		simulator.Solve();
+	
+		/* {{{SimulationTime::Destroy()}}} '''must''' be called at the end of the test.
+		* If not, when {{{SimulationTime::Instance()->SetStartTime(0.0);}}} is called
+		* at the beginning of the next test in this file, an assertion will be triggered.
+		*/
+		SimulationTime::Destroy();
+	}
+	/*
+	* EMPTYLINE
+	*
+	* To visualize the results, follow the instructions above for the first simulation, ensuring that you open the 
+	* test output from the new folder, {{{Test2DVertexMonolayerSimulationForVisualizing}}}.
+	*
+	*/
 
 };
 
