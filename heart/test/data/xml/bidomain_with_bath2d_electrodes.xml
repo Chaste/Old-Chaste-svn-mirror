@@ -22,19 +22,7 @@
 	    <!-- 
 	    	Stimuli (as many <Stimulus> definitions as needed) 
 	   	-->
-   		<Stimuli>
-			<Stimulus> <!-- #1 -->
-				<Strength unit="uA/cm^3">0.0</Strength>
-				<Duration unit="ms">1.0</Duration>
-				<Delay unit="ms">0.0</Delay>
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="0.0" y="0.0" z="0.0"/>
-						<UpperCoordinates x="0.1" y="0.1" z="0.1"/>
-					</Cuboid>
-				</Location>
-			</Stimulus>	
-		</Stimuli>
+   		
 		
 		<!--
 			Electrodes

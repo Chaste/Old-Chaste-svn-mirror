@@ -9,9 +9,6 @@ link_test_path:cube_1626_elements.node
 link_test_path:Memfem_slab.pts
 link_test_path:Memfem_slab.tetras
 link_test_path:Memfem_slab.tri
-link_test_path:2D_0_to_1mm_400_elements_with_bath.node
-link_test_path:2D_0_to_1mm_400_elements_with_bath.ele
-link_test_path:2D_0_to_1mm_400_elements_with_bath.edge
 link_test_path:luo_rudy_1991.cellml
 # Directories containing an archived simulation
 link_test_path:save_bidomain
@@ -45,7 +42,7 @@ resumed_bi_h5:SaveBidomain/BidomainLR91_3d.h5
 resumed_mono_h5:SaveMonodomain/MonodomainLR91_2d.h5
 
 [collate_script]
-# We need to translate hdf5 files into text in order to compare them with difff
+# We need to translate hdf5 files into text in order to compare them with diff
 results_h5:h5dump
 # (After h5dump) some HDF5 file results are piped through a filter to round to a certain number of decimal places
 results_h5:$TEXTTEST_CHECKOUT/python/RoundResultsFiles.py 8

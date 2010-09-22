@@ -51,8 +51,8 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
     }
     catch (Exception& e)
     {
-        // No stimuli provided in XML so we should have hit a parsing exception
-        NEVER_REACHED;
+        // No stimuli provided in XML - let's hope that there are some electrodes instead
+        assert(HeartConfig::Instance()->IsElectrodesPresent());
     }
 
     // Read and store Cell Heterogeneities
