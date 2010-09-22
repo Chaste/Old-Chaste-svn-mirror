@@ -19,24 +19,7 @@
         <Mesh unit="cm">
             <LoadMesh name="2D_0_to_1mm_400_elements_with_bath" conductivity_media="NoFibreOrientation"/>
         </Mesh>
-		    
-	    <!-- 
-	    	Stimuli (as many <Stimulus> definitions as needed) 
-	   	-->
-   		<Stimuli>
-			<Stimulus> <!-- NOTE THAT THIS IS A ZERO STIMULUS.  The actual stimulus is delivered by the electrodes-->
-				<Strength unit="uA/cm^3">0.0</Strength>
-				<Duration unit="ms">1.0</Duration>
-				<Delay unit="ms">0.0</Delay>
-				<Location unit="cm">
-					<Cuboid>
-						<LowerCoordinates x="0.0" y="0.0" z="0.0"/>
-						<UpperCoordinates x="0.1" y="0.1" z="0.1"/>
-					</Cuboid>
-				</Location>
-			</Stimulus>	
-		</Stimuli>
-		
+
 		<!--
 			Electrodes
 		-->
@@ -49,6 +32,10 @@
 		</Electrodes>
 		
 		<OutputDirectory>ChasteResults</OutputDirectory>
+		<!--
+			Save Simulation
+		-->
+		<CheckpointSimulation timestep="25.0" unit="ms" max_checkpoints_on_disk="2"/>			
 		
   </Simulation>
 		

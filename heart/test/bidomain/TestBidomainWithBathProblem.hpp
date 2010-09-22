@@ -536,7 +536,6 @@ public:
         delete p_mesh;
     }
 
-    // #1169
     void TestArchivingBidomainProblemWithElectrodes(void) throw(Exception)
     {
         std::string archive_dir = "BidomainWithElectrodesArchiving";

@@ -561155,7 +561155,7 @@
 0
 0
 4.6166
-4.61606
+4.61607
 4.61563
 0
 0
@@ -860528,7 +860528,7 @@
 6.77741
 6.77753
 6.77769
-6.77781
+6.77782
 0
 0
 0
@@ -979532,7 +979532,7 @@
 7.17862
 7.17897
 7.17929
-7.17939
+7.1794
 0
 0
 0
@@ -1104637,7 +1104637,7 @@
 0
 0
 0
-7.35382
+7.35383
 7.35417
 7.35447
 0
@@ -1105219,4 +1105219,4 @@
 0
 0
 0
-# Created by Chaste version 2.0.10438 on Wed, 22 Sep 2010 14:21:52 +0000.  Chaste was built on Wed, 22 Sep 2010 13:26:52 +0000 by machine (uname) 'Linux chaste-bob 2.6.24-27-server #1 SMP Fri Mar 12 01:23:09 UTC 2010 x86_64' using settings: GccOpt, shared libraries.
+# Created by Chaste version 2.0.10443 on Wed, 22 Sep 2010 15:28:12 +0000.  Chaste was built on Wed, 22 Sep 2010 15:21:00 +0000 by machine (uname) 'Linux chaste-bob 2.6.24-27-server #1 SMP Fri Mar 12 01:23:09 UTC 2010 x86_64' using settings: GccOpt, shared libraries.

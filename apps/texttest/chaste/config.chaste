@@ -9,6 +9,9 @@ link_test_path:cube_1626_elements.node
 link_test_path:Memfem_slab.pts
 link_test_path:Memfem_slab.tetras
 link_test_path:Memfem_slab.tri
+link_test_path:2D_0_to_1mm_400_elements_with_bath.node
+link_test_path:2D_0_to_1mm_400_elements_with_bath.ele
+link_test_path:2D_0_to_1mm_400_elements_with_bath.edge
 link_test_path:luo_rudy_1991.cellml
 # Directories containing an archived simulation
 link_test_path:save_bidomain
