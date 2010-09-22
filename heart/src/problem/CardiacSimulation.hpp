@@ -285,7 +285,6 @@ CardiacSimulation::CardiacSimulation(std::string parameterFileName,
     HeartEventHandler::Report();
 }
 
-
 void CardiacSimulation::ReadParametersFromFile(std::string parameterFileName)
 {
     // Ensure the singleton is in a clean state

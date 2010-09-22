@@ -207,9 +207,11 @@ public:
     void SetFixedSchemaLocations(const SchemaLocationsMap& rSchemaLocations);
 
     /**
-     * @param rFileName The name of the default file - set by default to "ChasteDefaults.xml" on construction
+     * Allows users to override the built-in defaults.
+     * @param rFileName The name of the defaults file
      */
     void SetDefaultsFile(const std::string& rFileName);
+    
     /**
      * #mpUserParameters  is set to a new context associated with a parameters file
      * @param rFileName The name of the parameters file

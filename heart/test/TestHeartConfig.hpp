@@ -1228,9 +1228,6 @@ public:
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetDefaultsFile("DoesNotExist.xml"),
                 "Missing file parsing configuration file: DoesNotExist.xml");
         HeartConfig::Reset();
-        TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteInconsistent.xml"),
-                "Ode time-step should not be greater than PDE time-step");
-        HeartConfig::Reset();
         TS_ASSERT_THROWS_THIS(HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteInconsistent.xml"),
                 "Ode time-step should not be greater than PDE time-step");
         HeartConfig::Reset();
@@ -1321,7 +1318,7 @@ public:
         HeartConfig::Instance()->SetUseFixedSchemaLocation(true);
         HeartConfig::Instance()->SetDefaultsFile("heart/test/data/xml/ChasteDefaultsRelease1.xml");
         HeartConfig::Instance()->SetParametersFile("heart/test/data/xml/ChasteParametersRelease1.xml");
-        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), false);
+        TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingSectionPresent(), false); // Comes from latest defaults
         TS_ASSERT_EQUALS(HeartConfig::Instance()->IsPostProcessingRequested(), false);
 
         // Check that release 1.1 xml can be loaded with release 1.1 schema
