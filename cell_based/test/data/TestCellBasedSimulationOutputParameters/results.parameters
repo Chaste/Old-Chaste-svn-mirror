@@ -30,12 +30,6 @@
 	</CellKillers>
 
 	<CellBasedConfig>
-		<SG2MDuration>10</SG2MDuration>
-		<SDuration>5</SDuration>
-		<G2Duration>4</G2Duration>
-		<Duration>1</Duration>
-		<StemCellG1Duration>14</StemCellG1Duration>
-		<TransitCellG1Duration>2</TransitCellG1Duration>
 		<CryptLength>4.33013</CryptLength>
 		<CryptWidth>5</CryptWidth>
 		<MechanicsCutOffLength>1.79769e+308</MechanicsCutOffLength>

@@ -167,8 +167,8 @@ public:
             p_model->SetCellProliferativeType(DIFFERENTIATED);
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                (CellBasedConfig::Instance()->GetStemCellG1Duration()
-                                    + CellBasedConfig::Instance()->GetSG2MDuration() );
+                                ( p_model->GetStemCellG1Duration()
+                                + p_model->GetSG2MDuration() );
 
             CellPtr p_cell(new Cell(p_state, p_model));
             p_cell->SetBirthTime(birth_time);
@@ -273,8 +273,8 @@ public:
             p_model->SetCellProliferativeType(STEM);
 
             double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-                                (CellBasedConfig::Instance()->GetStemCellG1Duration()
-                                    + CellBasedConfig::Instance()->GetSG2MDuration() );
+                                (  p_model->GetStemCellG1Duration()
+                                 + p_model->GetSG2MDuration() );
             CellPtr p_cell(new Cell(p_state, p_model));
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
@@ -334,8 +334,8 @@ public:
 			p_model->SetCellProliferativeType(STEM);
 
 			double birth_time = -RandomNumberGenerator::Instance()->ranf()*
-								(CellBasedConfig::Instance()->GetStemCellG1Duration()
-									+ CellBasedConfig::Instance()->GetSG2MDuration() );
+								(  p_model->GetStemCellG1Duration()
+						         + p_model->GetSG2MDuration() );
 			CellPtr p_cell(new Cell(p_state, p_model));
 			p_cell->SetBirthTime(birth_time);
 			cells.push_back(p_cell);
@@ -429,8 +429,9 @@ public:
 
             CellPtr p_cell(new Cell(p_state, p_model));
 
-            double birth_time = -RandomNumberGenerator::Instance()->ranf()*(p_params->GetTransitCellG1Duration()
-                                               +p_params->GetSG2MDuration());
+            double birth_time = -RandomNumberGenerator::Instance()->ranf()*
+                                (  p_model->GetTransitCellG1Duration()
+                                 + p_model->GetSG2MDuration());
 
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
@@ -548,7 +549,7 @@ public:
 
 		simulator.SetOutputDirectory("TestCellBasedSimulationOutputParameters");
 		simulator.OutputSimulationSetup();
-		///\todo #1453 This is to do with the pre Boost 1.37 problem --- 
+		///\todo #1453 This is to do with the pre Boost 1.37 problem ---
         //TS_ASSERT_EQUALS(system(("diff " + results_dir + "results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/results.parameters").c_str()), 0);
         TS_ASSERT_EQUALS(system(("diff --ignore-matching-lines=\"CellPopulation\" " + results_dir + "results.parameters  cell_based/test/data/TestCellBasedSimulationOutputParameters/results.parameters").c_str()), 0);
 

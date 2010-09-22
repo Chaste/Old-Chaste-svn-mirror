@@ -34,8 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  *  Fixed cell cycle model.
  *
  *  Cell cycle time is deterministic for stem and transit cells (with values
- *  CellBasedConfig::StemCellG1Duration + SG2MDuration
- *  and CellBasedConfig::TransitCellG1Duration + SG2MDuration)
+ *  StemCellG1Duration + SG2MDuration
+ *  and TransitCellG1Duration + SG2MDuration (values found in AbstractCellCycleModel))
  */
 class FixedDurationGenerationBasedCellCycleModel : public AbstractSimpleGenerationBasedCellCycleModel
 {

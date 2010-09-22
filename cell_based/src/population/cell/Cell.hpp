@@ -197,7 +197,7 @@ public:
 
     /**
      * Set mApoptosisTime.
-     * 
+     *
      * @param apoptosisTime the new value of mApoptosisTime
      */
     void SetApoptosisTime(double apoptosisTime);
@@ -229,7 +229,7 @@ public:
      *     rGetCellPropertyCollection().AddProperty()
      * directly, to ensure that the cell property keeps correct track of the
      * number of cells with it (if this is done).
-     * 
+     *
      * @param rProperty the property to add
      */
     void AddCellProperty(const boost::shared_ptr<AbstractCellProperty>& rProperty);
@@ -291,7 +291,7 @@ public:
 
     /**
      * Make the cell enter apoptosis and sets #mDeathTime using the apoptosis
-     * time as defined in the CellBasedConfig singleton.
+     * time as defined by mApoptosisTime.
      *
      * @param setDeathTime whether we tell the cell exactly when to die (defaults to true)
      */

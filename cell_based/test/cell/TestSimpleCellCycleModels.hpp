@@ -55,14 +55,6 @@ public:
 
     void TestFixedDurationGenerationBasedCellCycleModel() throw(Exception)
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-
-        unsigned num_steps = 100;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
-            2.0*(p_params->GetStemCellG1Duration()
-                  +p_params->GetSG2MDuration()     ), num_steps);
-
         TS_ASSERT_THROWS_NOTHING(FixedDurationGenerationBasedCellCycleModel model3);
 
         FixedDurationGenerationBasedCellCycleModel* p_stem_model = new FixedDurationGenerationBasedCellCycleModel;
@@ -71,6 +63,14 @@ public:
 
         CellPtr p_stem_cell(new Cell(p_healthy_state, p_stem_model));
         p_stem_cell->InitialiseCellCycleModel();
+
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+
+        unsigned num_steps = 100;
+        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(
+            2.0*(p_stem_model->GetStemCellG1Duration() + p_stem_model->GetSG2MDuration()),
+            num_steps);
+
 
         TS_ASSERT_EQUALS(p_stem_model->GetCurrentCellCyclePhase(),M_PHASE);
         TS_ASSERT_EQUALS(p_stem_model->GetGeneration(), 0u);
@@ -105,8 +105,8 @@ public:
         {
             p_simulation_time->IncrementTimeOneStep();
 
-            CheckReadyToDivideAndPhaseIsUpdated(p_stem_model, p_params->GetStemCellG1Duration());
-            CheckReadyToDivideAndPhaseIsUpdated(p_transit_model, p_params->GetTransitCellG1Duration());
+            CheckReadyToDivideAndPhaseIsUpdated(p_stem_model, p_stem_model->GetStemCellG1Duration());
+            CheckReadyToDivideAndPhaseIsUpdated(p_transit_model, p_transit_model->GetTransitCellG1Duration());
             CheckReadyToDivideAndPhaseIsUpdated(p_diff_model, 100);
         }
 
@@ -139,10 +139,6 @@ public:
 
     void TestStochasticDurationGenerationBasedCellCycleModel() throw(Exception)
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-        p_params->SetStemCellG1Duration(8.0);
-        p_params->SetTransitCellG1Duration(8.0);
-
         TS_ASSERT_THROWS_NOTHING(StochasticDurationGenerationBasedCellCycleModel cell_model3);
 
         StochasticDurationGenerationBasedCellCycleModel* p_stem_model = new StochasticDurationGenerationBasedCellCycleModel;
@@ -204,8 +200,6 @@ public:
 
     void TestSimpleWntCellCycleModel() throw(Exception)
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
         // Set up the simulation time
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
@@ -347,7 +341,6 @@ public:
 
         // Test the case of a radial Wnt concentration
 
-        p_params->Reset();
         RandomNumberGenerator::Instance()->Reseed(0);
 
         // Set up the Wnt concentration
@@ -461,9 +454,6 @@ public:
 
     void TestSimpleOxygenBasedCellCycleModel() throw(Exception)
     {
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are updated correctly
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
@@ -471,6 +461,9 @@ public:
         SimpleOxygenBasedCellCycleModel* p_model = new SimpleOxygenBasedCellCycleModel;
         p_model->SetDimension(2);
         p_model->SetCellProliferativeType(STEM);
+
+        p_model->SetStemCellG1Duration(8.0);
+        p_model->SetTransitCellG1Duration(8.0);
 
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         CellPtr p_cell(new Cell(p_state, p_model));
@@ -636,9 +629,6 @@ public:
 
     void TestStochasticOxygenBasedCellCycleModel() throw(Exception)
     {
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         // Check that mCurrentHypoxiaOnsetTime and mCurrentHypoxicDuration are updated correctly
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(3.0, 3);
@@ -646,6 +636,9 @@ public:
         StochasticOxygenBasedCellCycleModel* p_model = new StochasticOxygenBasedCellCycleModel;
         p_model->SetDimension(2);
         p_model->SetCellProliferativeType(STEM);
+
+        p_model->SetStemCellG1Duration(8.0);
+        p_model->SetTransitCellG1Duration(8.0);
 
         // Coverage
         TS_ASSERT_DELTA(p_model->GetHypoxicConcentration(), 0.4, 1e-6);
@@ -925,7 +918,7 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetSDuration(), 5.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetSDuration(), 5.0, 1e-12);
 
             CellPtr const p_const_cell = p_cell;
             output_arch << p_const_cell;
@@ -954,10 +947,6 @@ public:
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
 
-            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
-
-            p_inst1->SetSDuration(101.0);
-
             // Restore from the archive
             input_arch >> p_cell;
 
@@ -970,16 +959,13 @@ public:
             TS_ASSERT_DELTA(p_model->GetAge(), 2.1, 1e-12);
             TS_ASSERT_EQUALS(p_model->GetCurrentCellCyclePhase(), G_ONE_PHASE);
             TS_ASSERT_EQUALS(p_model->GetCellProliferativeType(), TRANSIT);
-
-            TS_ASSERT_DELTA(p_inst1->GetSDuration(), 5.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetSDuration(), 5.0, 1e-12);
         }
     }
 
 
     void TestArchiveSimpleWntCellCycleModel()
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "simple_wnt_cell_cycle.arch";
 
@@ -991,33 +977,33 @@ public:
 
         // Create an output archive
         {
+            // Set up the Wnt concentration for testing
+            WntConcentration<1>::Instance()->SetConstantWntValueForTesting(0.7);
+
+            // Create cell cycle model
+            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel;
+            p_cell_model->SetDimension(1);
+            p_cell_model->SetBirthTime(-1.0);
+            p_cell_model->SetCellProliferativeType(STEM);
+
             // Set up the simulation time
             SimulationTime* p_simulation_time = SimulationTime::Instance();
 
             // The number for the G1 duration is taken from
             // the first random number generated
             double g1_duration = 1.0676;
-
-            double end_time = g1_duration + p_params->GetSG2MDuration() + 5.0;
-
+            double end_time = g1_duration + p_cell_model->GetSG2MDuration() + 5.0;
             unsigned num_timesteps = 50;
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
 
-            // Set up the Wnt concentration for testing
-            WntConcentration<1>::Instance()->SetConstantWntValueForTesting(0.7);
-
-            // Create cell cycle model and associated cell
-            SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel;
-            p_cell_model->SetDimension(1);
-            p_cell_model->SetBirthTime(-1.0);
-            p_cell_model->SetCellProliferativeType(STEM);
-
+            // Set up associated cell
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
-            CellPtr p_stem_cell(new Cell(p_healthy_state, p_cell_model));
-            p_stem_cell->InitialiseCellCycleModel();
+			CellPtr p_stem_cell(new Cell(p_healthy_state, p_cell_model));
+			p_stem_cell->InitialiseCellCycleModel();
 
-            while (p_cell_model->GetAge() < g1_duration + p_params->GetSG2MDuration()
+
+            while (p_cell_model->GetAge() < g1_duration + p_cell_model->GetSG2MDuration()
                     - p_simulation_time->GetTimeStep()) // minus one to match birth time.
             {
                 p_simulation_time->IncrementTimeOneStep();
@@ -1051,10 +1037,6 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
-
-            p_inst1->SetSDuration(101.0);
-
             CellPtr p_cell;
 
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
@@ -1076,13 +1058,14 @@ public:
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
 
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetSG2MDuration(), 10.0, 1e-12);
 
             TS_ASSERT_DELTA(p_gen->ranf(), random_number_test, 1e-7);
             TS_ASSERT_EQUALS((static_cast<SimpleWntCellCycleModel*>(p_cell_model))->GetDimension(), 1u);
             TS_ASSERT_EQUALS(p_cell_model->GetCellProliferativeType(), TRANSIT);
 
             // Tidy up
+            RandomNumberGenerator::Destroy();
             SimulationTime::Destroy();
         }
 
@@ -1090,7 +1073,6 @@ public:
          * Test the case of a radial Wnt concentration
          */
 
-        p_params->Reset();
         RandomNumberGenerator::Instance()->Reseed(0);
 
         OutputFileHandler handler2("archive", false);
@@ -1105,23 +1087,24 @@ public:
 
         // Create an output archive
         {
-            // Set up the simulation time
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
+        	// Set up the simulation time note here it needs to be done before we create a cell cycle model.
+        	SimulationTime* p_simulation_time = SimulationTime::Instance();
+        	p_simulation_time->SetStartTime(0.0);
 
-            // The number for the G1 duration is taken from
-            // the first random number generated
-            double g1_duration = 1.0676;
-
-            double end_time = g1_duration + p_params->GetSG2MDuration() + 5.0;
-
-            unsigned num_timesteps = 50;
-            p_simulation_time->SetStartTime(0.0);
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
-
+            // Create cell cycle model
             SimpleWntCellCycleModel* p_cell_model = new SimpleWntCellCycleModel;
             p_cell_model->SetDimension(2);
             p_cell_model->SetBirthTime(-1.0);
             p_cell_model->SetCellProliferativeType(STEM);
+
+            // Set end time for simulation
+			// The number for the G1 duration is taken from
+			// the first random number generated
+			double g1_duration = 1.0676;
+
+			double end_time = g1_duration + p_cell_model->GetSG2MDuration() + 5.0;
+			unsigned num_timesteps = 50;
+			p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
 
             boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
 
@@ -1129,7 +1112,7 @@ public:
             p_cell->InitialiseCellCycleModel();
 
             // Run to division age minus one time step to match birth time
-            while (p_cell_model->GetAge() < g1_duration + p_params->GetSG2MDuration()
+            while (p_cell_model->GetAge() < g1_duration + p_cell_model->GetSG2MDuration()
                                             - p_simulation_time->GetTimeStep())
             {
                 p_simulation_time->IncrementTimeOneStep();
@@ -1157,6 +1140,7 @@ public:
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
             random_number_test = p_gen->ranf();
 
+			// Tidy Up
             RandomNumberGenerator::Destroy();
             SimulationTime::Destroy();
         }
@@ -1164,10 +1148,6 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
-
-            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
-
-            p_inst1->SetSDuration(101.0);
 
             CellPtr p_cell;
 
@@ -1194,9 +1174,13 @@ public:
             TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
 
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetSG2MDuration(), 10.0, 1e-12);
 
             TS_ASSERT_DELTA(p_gen->ranf(), random_number_test, 1e-7);
+
+            // Tidy up
+            RandomNumberGenerator::Destroy();
+            SimulationTime::Destroy();
         }
 
         // Tidy up
@@ -1311,10 +1295,6 @@ public:
             SimulationTime* p_simulation_time = SimulationTime::Instance();
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
-
-            CellBasedConfig* inst1 = CellBasedConfig::Instance();
-
-            inst1->SetSDuration(101.0);
 
             CellPtr p_cell;
 

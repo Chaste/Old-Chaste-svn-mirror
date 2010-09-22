@@ -725,19 +725,11 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
     *parameter_file <<  "\n\t<CellBasedConfig>\n";
 
     CellBasedConfig* p_inst = CellBasedConfig::Instance();
-    *parameter_file << "\t\t<SG2MDuration>"<< p_inst->GetSG2MDuration() << "</SG2MDuration>\n";
-    *parameter_file << "\t\t<SDuration>"<< p_inst->GetSDuration() << "</SDuration>\n";
-	*parameter_file << "\t\t<G2Duration>"<< p_inst->GetG2Duration() << "</G2Duration>\n";
-	*parameter_file << "\t\t<Duration>"<< p_inst->GetMDuration() << "</Duration>\n";
-	*parameter_file << "\t\t<StemCellG1Duration>"<< p_inst->GetStemCellG1Duration() << "</StemCellG1Duration>\n";
-	*parameter_file << "\t\t<TransitCellG1Duration>"<< p_inst->GetTransitCellG1Duration() << "</TransitCellG1Duration>\n";
 	*parameter_file << "\t\t<CryptLength>"<< p_inst->GetCryptLength() << "</CryptLength>\n";
 	*parameter_file << "\t\t<CryptWidth>"<< p_inst->GetCryptWidth() << "</CryptWidth>\n";
 	*parameter_file << "\t\t<MechanicsCutOffLength>"<< p_inst->GetMechanicsCutOffLength() << "</MechanicsCutOffLength>\n";
 	*parameter_file << "\t\t<DampingConstantNormal>"<< p_inst->GetDampingConstantNormal() << "</DampingConstantNormal>\n";
 	*parameter_file << "\t\t<DampingConstantMutant>"<< p_inst->GetDampingConstantMutant() << "</DampingConstantMutant>\n";
-	//*parameter_file << "\t\t<CryptProjectionParameterA>"<< p_inst->GetCryptProjectionParameterA() << "</CryptProjectionParameterA>\n";
-	//*parameter_file << "\t\t<CryptProjectionParameterB>"<< p_inst->GetCryptProjectionParameterB() << "</CryptProjectionParameterB>\n";
 
     *parameter_file <<  "\t</CellBasedConfig>\n";
     *parameter_file << "</Chaste>\n" ;

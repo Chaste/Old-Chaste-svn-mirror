@@ -47,11 +47,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  */
 void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel,
                                          double g1Duration,
-                                         double g2Duration=CellBasedConfig::Instance()->GetG2Duration())
+                                         double g2Duration=DBL_MAX)
 {
-    // A number of CellBasedConfig parameters are called in this method,
-    // so for convenience we create a pointer to the instance
-    CellBasedConfig* p_params = CellBasedConfig::Instance();
+	if (g2Duration==DBL_MAX)
+	{
+		g2Duration = pModel->GetG2Duration();
+	}
+
 
     double age = pModel->GetAge();
 
@@ -59,7 +61,7 @@ void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel,
 
     // If the G1 duration is incorrect, print out the mismatch
     if ((pModel->GetCellProliferativeType() != DIFFERENTIATED) &&
-        (age >= p_params->GetMDuration()) &&
+        (age >= pModel->GetMDuration()) &&
         (pModel->GetG1Duration() != DOUBLE_UNSET) &&
         (fabs(pModel->GetG1Duration() - g1Duration) > G1TOL))
     {
@@ -74,13 +76,13 @@ void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel,
         TS_ASSERT_EQUALS(pModel->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(), G_ZERO_PHASE);
     }
-    else if (age < p_params->GetMDuration())
+    else if (age < pModel->GetMDuration())
     {
         // If the cell in M phase, then it must not be ready to divide
         TS_ASSERT_EQUALS(pModel->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(), M_PHASE);
     }
-    else if (age < p_params->GetMDuration() + g1Duration - G1TOL)
+    else if (age < pModel->GetMDuration() + g1Duration - G1TOL)
     {
         // The next cell cycle phase after M is G1; cells in G1 phase
         // must still not be ready to divide
@@ -93,18 +95,18 @@ void CheckReadyToDivideAndPhaseIsUpdated(AbstractCellCycleModel* pModel,
             std::cout << "Expected G1: " << g1Duration
                       << "; actual: " << pModel->GetG1Duration()
                       << "; age = " << age
-                      << "; G1-S transition = " << p_params->GetMDuration() + g1Duration
+                      << "; G1-S transition = " << pModel->GetMDuration() + g1Duration
                       << std::endl;
         }
     }
-    else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration() - G1TOL)
+    else if (age < pModel->GetMDuration() + g1Duration + pModel->GetSDuration() - G1TOL)
     {
         // The next cell cycle phase after G1 is S; cells in S phase
         // must still not be ready to divide
         TS_ASSERT_EQUALS(pModel->ReadyToDivide(), false);
         TS_ASSERT_EQUALS(pModel->GetCurrentCellCyclePhase(), S_PHASE);
     }
-    else if (age < p_params->GetMDuration() + g1Duration + p_params->GetSDuration() + g2Duration  - G1TOL)
+    else if (age < pModel->GetMDuration() + g1Duration + pModel->GetSDuration() + g2Duration  - G1TOL)
     {
         // The next cell cycle phase after S is G2; cells in G2 phase
         // must still not be ready to divide

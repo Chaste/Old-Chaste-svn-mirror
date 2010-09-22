@@ -87,7 +87,7 @@ public:
          * is the same type as the solver used by the cell cycle model if no solver is provided
          * (unless CVODE is used), so our results should be identical.
          */
-        boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> > 
+        boost::shared_ptr<CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver> >
             p_solver(CellCycleModelOdeSolver<TysonNovakCellCycleModel, BackwardEulerIvpOdeSolver>::Instance());
         p_solver->SetSizeOfOdeSystem(6);
         p_solver->Initialise();
@@ -251,12 +251,6 @@ public:
      */
     void TestWntCellCycleModelForVaryingWntStimulus() throw(Exception)
     {
-        // Set up simulation time
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-        double end_time = 10.0 + CellBasedConfig::Instance()->GetMDuration(); // hours
-        unsigned num_timesteps = 1000*(unsigned)end_time;
-        p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps); // 15.971 hours to go into S phase
-
         // Set up Wnt concentration
         double wnt_level = 1.0;
         WntConcentration<2>::Instance()->SetConstantWntValueForTesting(wnt_level);
@@ -265,6 +259,13 @@ public:
         WntCellCycleModel* p_cell_model = new WntCellCycleModel();
         p_cell_model->SetDimension(2);
         p_cell_model->SetCellProliferativeType(STEM);
+
+        // Set up simulation time
+        SimulationTime* p_simulation_time = SimulationTime::Instance();
+        double end_time = 10.0 + p_cell_model->GetMDuration(); // hours
+		unsigned num_timesteps = 1000*(unsigned)end_time;
+		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps); // 15.971 hours to go into S phase
+
 
         TS_ASSERT_EQUALS(p_cell_model->CanCellTerminallyDifferentiate(), false);
 
@@ -292,7 +293,7 @@ public:
         p_solver->CheckForStoppingEvents();
         p_solver->SetMaxSteps(10000);
 #else
-        boost::shared_ptr<CellCycleModelOdeSolver<WntCellCycleModel, RungeKutta4IvpOdeSolver> > 
+        boost::shared_ptr<CellCycleModelOdeSolver<WntCellCycleModel, RungeKutta4IvpOdeSolver> >
             p_solver(CellCycleModelOdeSolver<WntCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
         p_solver->Initialise();
 #endif //CHASTE_CVODE
@@ -708,7 +709,7 @@ public:
         CellPtr p_stem_cell(new Cell(p_healthy_state, p_cell_model));
         p_stem_cell->InitialiseCellCycleModel();
 
-        double SG2M_duration = CellBasedConfig::Instance()->GetSG2MDuration();
+        double SG2M_duration = p_cell_model->GetSG2MDuration();
         TS_ASSERT_THROWS_NOTHING(WntCellCycleModel cell_model_3());
 
         // Create another cell cycle model and associated cell
@@ -1052,7 +1053,7 @@ public:
         p_cell_3d->InitialiseCellCycleModel();
 
         // For coverage, we create another cell cycle model that is identical to p_model_2d except for the ODE solver
-        boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> > 
+        boost::shared_ptr<CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver> >
             p_solver(CellCycleModelOdeSolver<Alarcon2004OxygenBasedCellCycleModel, RungeKutta4IvpOdeSolver>::Instance());
         p_solver->Initialise();
 
@@ -1229,10 +1230,6 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
-
-            p_inst1->SetSDuration(101.0);
-
             CellPtr p_cell;
 
             // Create an input archive
@@ -1249,7 +1246,7 @@ public:
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(p_cell_model->GetAge(), 17.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetSG2MDuration(), 10.0, 1e-12);
             TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), G_TWO_PHASE);
             TS_ASSERT_EQUALS((static_cast<WntCellCycleModel*>(p_cell_model))->GetDimension(), 3u);
         }
@@ -1306,10 +1303,6 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
-
-            p_inst1->SetSDuration(101.0);
-
             CellPtr p_cell;
 
             // Create an input archive
@@ -1326,7 +1319,7 @@ public:
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(p_cell_model->GetAge(), 18.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetSG2MDuration(), 10.0, 1e-12);
             TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), G_TWO_PHASE);
         }
 
@@ -1381,10 +1374,6 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
-
-            p_inst1->SetSDuration(101.0);
-
             CellPtr p_cell;
 
             // Create an input archive
@@ -1401,7 +1390,7 @@ public:
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
             TS_ASSERT_DELTA(p_cell_model->GetAge(), 18.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetSG2MDuration(), 10.0, 1e-12);
             TS_ASSERT_EQUALS(p_cell_model->GetCurrentCellCyclePhase(), G_TWO_PHASE);
         }
 
@@ -1479,10 +1468,6 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(16.0, 2);
 
-            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
-
-            p_inst1->SetSDuration(101.0);
-
             CellPtr p_stoc_cell;
             CellPtr p_wnt_cell;
 
@@ -1528,7 +1513,7 @@ public:
 
             TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetBirthTime(), 0.0, 1e-12);
             TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetAge(), 16.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(p_stoc_cell->GetCellCycleModel()->GetSG2MDuration(), 10.0, 1e-12);
         }
 
         // Tidy up
@@ -1567,7 +1552,7 @@ public:
             p_simulation_time->IncrementTimeOneStep();
             TS_ASSERT_EQUALS(p_cell->GetCellCycleModel()->ReadyToDivide(), true);
 
-            Alarcon2004OxygenBasedCellCycleOdeSystem* p_ode_system = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_cell_model->GetOdeSystem()); 
+            Alarcon2004OxygenBasedCellCycleOdeSystem* p_ode_system = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_cell_model->GetOdeSystem());
             TS_ASSERT_EQUALS(p_ode_system->IsLabelled(), false);
 
             // Create an output archive
@@ -1588,10 +1573,6 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CellBasedConfig* inst1 = CellBasedConfig::Instance();
-
-            inst1->SetSDuration(101.0);
-
             CellPtr p_cell;
 
             // Create an input archive
@@ -1610,9 +1591,9 @@ public:
 
             TS_ASSERT_DELTA(p_model->GetBirthTime(), -10.0, 1e-12);
             TS_ASSERT_DELTA(p_model->GetAge(), 20.0, 1e-12);
-            TS_ASSERT_DELTA(inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetSG2MDuration(), 10.0, 1e-12);
 
-            Alarcon2004OxygenBasedCellCycleOdeSystem* p_ode_system = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_model->GetOdeSystem()); 
+            Alarcon2004OxygenBasedCellCycleOdeSystem* p_ode_system = static_cast<Alarcon2004OxygenBasedCellCycleOdeSystem*>(p_model->GetOdeSystem());
             TS_ASSERT(p_ode_system != NULL);
             TS_ASSERT_EQUALS(p_ode_system->IsLabelled(), false);
         }

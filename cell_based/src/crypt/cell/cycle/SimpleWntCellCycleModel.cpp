@@ -60,7 +60,6 @@ void SimpleWntCellCycleModel::SetG1Duration()
 {
     assert(mpCell != NULL);
 
-    CellBasedConfig* p_params = CellBasedConfig::Instance();
     RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
 
     switch (mCellProliferativeType)
@@ -68,16 +67,16 @@ void SimpleWntCellCycleModel::SetG1Duration()
         case STEM:
             if (mUseCellProliferativeTypeDependentG1Duration)
             {
-                mG1Duration = p_gen->NormalRandomDeviate(p_params->GetStemCellG1Duration(), 1.0);
+                mG1Duration = p_gen->NormalRandomDeviate(GetStemCellG1Duration(), 1.0);
             }
             else
             {
                 // Normally stem cells should behave just like transit cells in a Wnt simulation
-                mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(), 1.0);
+                mG1Duration = p_gen->NormalRandomDeviate(GetTransitCellG1Duration(), 1.0);
             }
             break;
         case TRANSIT:
-            mG1Duration = p_gen->NormalRandomDeviate(p_params->GetTransitCellG1Duration(), 1.0);
+            mG1Duration = p_gen->NormalRandomDeviate(GetTransitCellG1Duration(), 1.0);
             break;
         case DIFFERENTIATED:
             mG1Duration = DBL_MAX;

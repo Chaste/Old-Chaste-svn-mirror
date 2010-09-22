@@ -245,8 +245,6 @@ public:
 
     void TestArchiving()
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "single_ode_wnt.arch";
 
@@ -258,12 +256,6 @@ public:
         {
             // The number for the G1 duration is taken from the first random number generated
             double g1_duration = 1.0676;
-
-            // Set up the simulation time
-            SimulationTime* p_simulation_time = SimulationTime::Instance();
-            double end_time = g1_duration + p_params->GetSG2MDuration() + 5.0;
-            unsigned num_timesteps = 50;
-            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
 
             // Set up the Wnt concentration for testing
             WntConcentration<2>::Instance()->SetConstantWntValueForTesting(0.7);
@@ -279,7 +271,14 @@ public:
             CellPtr p_stem_cell(new Cell(p_healthy_state, p_cell_model));
             p_stem_cell->InitialiseCellCycleModel();
 
-            while (p_cell_model->GetAge() < g1_duration + p_params->GetSG2MDuration()
+            // Set up the simulation time
+            SimulationTime* p_simulation_time = SimulationTime::Instance();
+            double end_time = g1_duration + p_cell_model->GetSG2MDuration() + 5.0;
+            unsigned num_timesteps = 50;
+            p_simulation_time->SetEndTimeAndNumberOfTimeSteps(end_time, num_timesteps);
+
+
+            while (p_cell_model->GetAge() < g1_duration + p_cell_model->GetSG2MDuration()
                     - p_simulation_time->GetTimeStep()) // minus one to match birth time.
             {
                 p_simulation_time->IncrementTimeOneStep();
@@ -318,9 +317,6 @@ public:
             p_simulation_time->SetStartTime(0.0);
             p_simulation_time->SetEndTimeAndNumberOfTimeSteps(1.0, 1);
 
-            CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
-            p_inst1->SetSDuration(101.0);
-
             CellPtr p_cell;
 
             RandomNumberGenerator* p_gen = RandomNumberGenerator::Instance();
@@ -344,7 +340,7 @@ public:
             TS_ASSERT_EQUALS(p_cell_model->ReadyToDivide(), true);
 
             TS_ASSERT_DELTA(p_cell_model->GetBirthTime(), -1.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 10.0, 1e-12);
+            TS_ASSERT_DELTA(p_cell_model->GetSG2MDuration(), 10.0, 1e-12);
 
             TS_ASSERT_DELTA(p_gen->ranf(), random_number_test, 1e-7);
             TS_ASSERT_EQUALS((static_cast<SingleOdeWntCellCycleModel*>(p_cell_model))->GetDimension(), 2u);

@@ -53,12 +53,6 @@ private:
     {
         CellBasedConfig* p_inst = CellBasedConfig::Instance();
 
-        TS_ASSERT_DELTA(p_inst->GetSG2MDuration(), 10.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetSDuration(), 5.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetG2Duration(), 4.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetMDuration(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetStemCellG1Duration(), 14.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetTransitCellG1Duration(), 2.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptLength(), 22.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptWidth(), 10.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetMechanicsCutOffLength(), DBL_MAX, 1e-12);
@@ -77,11 +71,6 @@ public:
     {
         CellBasedConfig* p_inst = CellBasedConfig::Instance();
 
-        p_inst->SetSDuration(11.0);
-        p_inst->SetG2Duration(11.0);
-        p_inst->SetMDuration(11.0);
-        p_inst->SetStemCellG1Duration(35.0);
-        p_inst->SetTransitCellG1Duration(45.0);
         p_inst->SetCryptLength(100.0);
         p_inst->SetMechanicsCutOffLength(1.5);
         p_inst->SetDampingConstantNormal(2.0);
@@ -96,11 +85,6 @@ public:
     {
         CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
 
-        p_inst1->SetSDuration(4.0);
-        p_inst1->SetG2Duration(3.0);
-        p_inst1->SetMDuration(2.0);
-        p_inst1->SetStemCellG1Duration(35.0);
-        p_inst1->SetTransitCellG1Duration(45.0);
         p_inst1->SetCryptLength(100.0);
         p_inst1->SetMechanicsCutOffLength(3.0);
         p_inst1->SetDampingConstantNormal(2.0);
@@ -108,12 +92,6 @@ public:
 
         CellBasedConfig* p_inst2 = CellBasedConfig::Instance();
 
-        TS_ASSERT_DELTA(p_inst2->GetSG2MDuration(), 9.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetSDuration(), 4.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetG2Duration(), 3.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetMDuration(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetStemCellG1Duration(), 35.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetTransitCellG1Duration(), 45.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetCryptLength(), 100.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetMechanicsCutOffLength(), 3.0, 1e-12);
         TS_ASSERT_DELTA(p_inst2->GetDampingConstantNormal(), 2.0, 1e-12);
@@ -130,11 +108,6 @@ public:
             CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
 
             // Change the value of each member variable
-            p_inst1->SetSDuration(4.0);
-            p_inst1->SetG2Duration(3.0);
-            p_inst1->SetMDuration(2.0);
-            p_inst1->SetStemCellG1Duration(35.0);
-            p_inst1->SetTransitCellG1Duration(45.0);
             p_inst1->SetCryptLength(100.0);
             p_inst1->SetMechanicsCutOffLength(3.0);
             p_inst1->SetDampingConstantNormal(2.0);
@@ -151,11 +124,6 @@ public:
             CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
 
             // Restore the member variables to their default values
-            p_inst1->SetSDuration(5.0);
-            p_inst1->SetG2Duration(4.0);
-            p_inst1->SetMDuration(1.0);
-            p_inst1->SetStemCellG1Duration(14.0);
-            p_inst1->SetTransitCellG1Duration(2.0);
             p_inst1->SetCryptLength(22.0);
             p_inst1->SetMechanicsCutOffLength(1.5);
             p_inst1->SetDampingConstantNormal(1.0);
@@ -169,12 +137,6 @@ public:
             input_arch >> *p_inst1;
 
             // Check they are the changed values
-            TS_ASSERT_DELTA(p_inst1->GetSG2MDuration(), 9.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetSDuration(), 4.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetG2Duration(), 3.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetMDuration(), 2.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetStemCellG1Duration(), 35.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetTransitCellG1Duration(), 45.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetCryptLength(), 100.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetMechanicsCutOffLength(), 3.0, 1e-12);
             TS_ASSERT_DELTA(p_inst1->GetDampingConstantNormal(), 2.0, 1e-12);

@@ -69,7 +69,7 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        // Make sure the SimulationTime and CellBasedConfig singletons get saved too
+        // Make sure the SimulationTime singleton get saved too
         SimulationTime* p_time = SimulationTime::Instance();
         archive & *p_time;
         archive & p_time;

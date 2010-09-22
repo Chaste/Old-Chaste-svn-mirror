@@ -66,7 +66,7 @@ protected:
     /**
      * Subclasses can override this function if they wish, this just
      * allocates the default values for each of the different cell
-     * types' G1 durations as defined in the CellBasedConfig singleton.
+     * types' G1 durations as defined in AbstractCellCycleModel.
      */
     virtual void SetG1Duration();
 

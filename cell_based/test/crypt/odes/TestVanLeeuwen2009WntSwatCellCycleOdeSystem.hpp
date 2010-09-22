@@ -611,9 +611,6 @@ public:
      */
     void TestVanLeeuwen2009WntOdeSolutionDoesNotGoNegative() throw (Exception)
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-        p_params->Reset();
-
         double time_of_each_run = 0.01; // for each run
 
         unsigned cells_across = 4;
