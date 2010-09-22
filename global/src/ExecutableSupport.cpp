@@ -42,8 +42,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <hdf5.h>
 
 #ifdef CHASTE_VTK
-/// \todo #1432 - Get this line to compile correctly
-//#include <vtkVersion.h>
+#define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
+#include <vtkVersion.h>
 #endif
 
 #ifdef CHASTE_CVODE
@@ -183,9 +183,7 @@ void ExecutableSupport::WriteLibraryInfo( out_stream &outFile )
     *outFile << "Includes support for: " << std::endl;
 
 #ifdef CHASTE_VTK
-    *outFile << "  VTK: yes" << std::endl;
-    //*outFile << "  VTK: " << VTK_MAJOR_VERSION << "." << VTK_MINOR_VERSION << std::endl;
-    /// \todo #1432 - Get this line to compile correctly
+    *outFile << "  VTK: " << VTK_MAJOR_VERSION << "." << VTK_MINOR_VERSION << std::endl;
 #else
     *outFile << "  VTK: no" << std::endl;
 #endif
