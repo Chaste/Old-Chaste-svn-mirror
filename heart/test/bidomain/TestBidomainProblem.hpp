@@ -56,6 +56,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Electrodes.hpp"
 #include "SimpleBathProblemSetup.hpp"
 
+#ifdef CHASTE_VTK
+#define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
+#include <vtkVersion.h>
+#endif
+
 class DelayedTotalStimCellFactory : public AbstractCardiacCellFactory<1>
 {
 private:
@@ -690,8 +695,14 @@ public:
         //Note that "grep -b AAAAAAAAAAAAAAAAAAA heart/test/data/VtkData/bidomain/axi3d.vtu" (or similar)
         //indicates that the real data starts at byte 21435
         //VTK base64 encoded data is quite fragile, so it's not wise to do byte-for-byte comparison
-        TS_ASSERT_EQUALS(system(("cmp -n 22525 " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
-
+        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+        {
+            TS_ASSERT_EQUALS(system(("cmp -n 22525 " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d.vtu").c_str()), 0);
+        }
+        else
+        {
+            TS_ASSERT_EQUALS(system(("cmp -n 22525 " + results_dir + "/axi3d.vtu heart/test/data/VtkData/bidomain/axi3d_v52.vtu").c_str()), 0);
+        }
 
         //info file
         TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/axi3d_times.info heart/test/data/CmguiData/bidomain/axi3d_times.info").c_str()), 0);

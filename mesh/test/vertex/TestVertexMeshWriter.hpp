@@ -39,6 +39,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "VtkMeshWriter.hpp"
 #include "VertexMeshReader.hpp"
 
+#ifdef CHASTE_VTK
+#define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
+#include <vtkVersion.h>
+#endif
+
 class TestVertexMeshWriter : public CxxTest::TestSuite
 {
 public:
@@ -106,7 +111,17 @@ public:
 
         //1.5K uncompressed, 1.5K compressed
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_2d.vtu";
-        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d.vtu").c_str()), 0);
+
+        std::string target_file;
+        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+        {
+            target_file = "mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d.vtu";
+        }
+        else
+        {
+            target_file = "mesh/test/data/TestVertexMeshWriter/vertex_mesh_2d_v52.vtu";
+        }
+        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " " + target_file).c_str()), 0);
 
 #endif //CHASTE_VTK
     }
@@ -164,7 +179,16 @@ public:
 
         //1.5K uncompressed, 1.5K compressed
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_42.vtu";
-        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_42.vtu").c_str()), 0);
+        std::string target_file;
+        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+        {
+            target_file = "mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_42.vtu";
+        }
+        else
+        {
+            target_file = "mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_42_v52.vtu";
+        }
+        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " " + target_file).c_str()), 0);
 #endif //CHASTE_VTK
     }
 
@@ -214,7 +238,16 @@ public:
 
         //1.5K uncompressed, 1.5K compressed
         std::string results_file3 = handler.GetOutputDirectoryFullPath() + "vertex_mesh_3d_with_faces_42.vtu";
-        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMeshWriter/vertex_mesh_3d_with_faces_42.vtu").c_str()), 0);
+        std::string target_file;
+        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+        {
+            target_file = "vertex_mesh_3d_with_faces_42.vtu";
+        }
+        else
+        {
+            target_file = "vertex_mesh_3d_with_faces_42_v52.vtu";
+        }
+        TS_ASSERT_EQUALS(system(("cmp  " + results_file3 + " mesh/test/data/TestVertexMeshWriter/" + target_file).c_str()), 0);
 #endif //CHASTE_VTK
     }
 

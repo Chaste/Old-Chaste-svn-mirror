@@ -42,6 +42,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TetrahedralMesh.hpp"
 #include "TrianglesMeshReader.hpp"
 
+#ifdef CHASTE_VTK
+#define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
+#include <vtkVersion.h>
+#endif
+
 typedef Hdf5ToVtkConverter<3,3> VTK_3D;
 typedef Hdf5ToCmguiConverter<3,3> CMGUI_3D;
 typedef Hdf5ToMeshalyzerConverter<3,3> MESHA_3D;
@@ -390,8 +395,19 @@ public :
 
         // compare the voltage file with a correct version that is known to visualize correctly in Vtk
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
+
+        std::string target_file;
+        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+        {
+            target_file = "heart/test/data/VtkData/bidomain/cube_2mm_12_elements.vtu";
+        }
+        else
+        {
+            target_file = "heart/test/data/VtkData/bidomain/cube_2mm_12_elements_v52.vtu";
+        }
+
         std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/vtk_output/cube_2mm_12_elements.vtu"
-                                     + " heart/test/data/VtkData/bidomain/cube_2mm_12_elements.vtu";
+                                     + " " + target_file;
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 #endif //CHASTE_VTK
     }
@@ -417,10 +433,20 @@ public :
         //This barrier just slows things down a bit
         PetscTools::Barrier();
 
+        std::string target_file;
+        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+        {
+            target_file = "heart/test/data/VtkData/monodomain/2D_0_to_1mm_400_elements.vtu";
+        }
+        else
+        {
+            target_file = "heart/test/data/VtkData/monodomain/2D_0_to_1mm_400_elements_v52.vtu";
+        }
+
         // compare the voltage file with a correct version that visualizes Vm correctly in VTK
         std::string test_output_directory = OutputFileHandler::GetChasteTestOutputDirectory();
         std::string command_first_time_step = "diff -a -I \"Created by Chaste\" " + test_output_directory + working_directory +"/vtk_output/2D_0_to_1mm_400_elements.vtu"
-                                     + " heart/test/data/VtkData/monodomain/2D_0_to_1mm_400_elements.vtu";
+                                     + " " + target_file;
         TS_ASSERT_EQUALS(system(command_first_time_step.c_str()), 0);
 #endif //CHASTE_VTK
 

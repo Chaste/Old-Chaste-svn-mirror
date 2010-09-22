@@ -44,6 +44,11 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "QuadraticMesh.hpp"
 #include <iostream>
 
+#ifdef CHASTE_VTK
+#define _BACKWARD_BACKWARD_WARNING_H 1 //Cut out the strstream deprecated warning for now (gcc4.3)
+#include <vtkVersion.h>
+#endif
+
 class TestMeshWriters : public CxxTest::TestSuite
 {
 
@@ -761,7 +766,17 @@ public:
 
         //1.6K uncompressed, 1.3K compressed
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements.vtu").c_str()), 0);
+
+        std::string target_file;
+        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+        {
+            target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements.vtu";
+        }
+        else
+        {
+            target_file = "mesh/test/data/TestVtkMeshWriter/cube_2mm_12_elements_v52.vtu";
+        }
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/cube_2mm_12_elements.vtu " + target_file).c_str()), 0);
 #endif //CHASTE_VTK
     }
 
@@ -795,7 +810,17 @@ public:
         writer.WriteFilesUsingMesh(mesh);
         //13K uncompressed, 3.7K compressed
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/2D_0_to_1mm_200_elements.vtu mesh/test/data/TestVtkMeshWriter/2D_0_to_1mm_200_elements.vtu").c_str()), 0);
+
+        std::string target_file;
+        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+        {
+            target_file = "mesh/test/data/TestVtkMeshWriter/2D_0_to_1mm_200_elements.vtu";
+        }
+        else
+        {
+            target_file = "mesh/test/data/TestVtkMeshWriter/2D_0_to_1mm_200_elements_v52.vtu";
+        }
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/2D_0_to_1mm_200_elements.vtu " + target_file).c_str()), 0);
 #endif //CHASTE_VTK
     }
 
@@ -831,7 +856,17 @@ public:
 
         //32K uncompressed, 19K compressed
         std::string results_dir = OutputFileHandler::GetChasteTestOutputDirectory() + "TestVtkMeshWriter/";
-        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/heart_decimation.vtu mesh/test/data/TestVtkMeshWriter/heart_decimation.vtu").c_str()), 0);
+
+        std::string target_file;
+        if (VTK_MAJOR_VERSION == 5 && VTK_MINOR_VERSION==0)
+        {
+            target_file = "mesh/test/data/TestVtkMeshWriter/heart_decimation.vtu";
+        }
+        else
+        {
+            target_file = "mesh/test/data/TestVtkMeshWriter/heart_decimation_v52.vtu";
+        }
+        TS_ASSERT_EQUALS(system(("diff -a -I \"Created by Chaste\" " + results_dir + "/heart_decimation.vtu " + target_file).c_str()), 0);
 #endif //CHASTE_VTK
     }
 

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="4"                    NumberOfCells="1"                   >
+      <PointData>
+        <DataArray type="Float64" Name="Distance from origin" format="appended" RangeMin="1.2990381057"         RangeMax="2.1650635095"         offset="0"                   />
+      </PointData>
+      <CellData>
+        <DataArray type="Float64" Name="Cell IDs" format="appended" RangeMin="0"                    RangeMax="0"                    offset="48"                  />
+      </CellData>
+      <Points>
+        <DataArray type="Float64" Name="Vertex positions" NumberOfComponents="3" format="appended" RangeMin="1.2990381057"         RangeMax="2.1650635095"         offset="64"                  />
+      </Points>
+      <Cells>
+        <DataArray type="Int64" Name="connectivity" format="appended" RangeMin=""                     RangeMax=""                     offset="200"                 />
+        <DataArray type="Int64" Name="offsets" format="appended" RangeMin=""                     RangeMax=""                     offset="248"                 />
+        <DataArray type="UInt8" Name="types" format="appended" RangeMin=""                     RangeMax=""                     offset="264"                 />
+      </Cells>
+    </Piece>
+  </UnstructuredGrid>
+  <AppendedData encoding="base64">
+   _IAAAAIA5Qi7cyPQ/gDlCLtzI9D/rLzfRDFIBQIA5Qi7cyPQ/CAAAAAAAAAAAAAAAYAAAAAAAAAAAAPQ/AAAAAAAA0L8AAAAAAADQvwAAAAAAANC/AAAAAAAA0L8AAAAAAAD0PwAAAAAAAPQ/AAAAAAAA9D8AAAAAAAD0PwAAAAAAANC/AAAAAAAA9D8AAAAAAADQvw==IAAAAAMAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAEAAAAAAAAACAAAAAQAAAAAAAAAAQAAACk=
+  </AppendedData>
+</VTKFile>

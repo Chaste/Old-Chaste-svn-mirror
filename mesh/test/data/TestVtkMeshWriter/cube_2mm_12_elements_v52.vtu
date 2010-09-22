@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid" version="0.1" byte_order="LittleEndian">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="12"                   NumberOfCells="12"                  >
+      <PointData>
+      </PointData>
+      <CellData>
+      </CellData>
+      <Points>
+        <DataArray type="Float64" Name="Vertex positions" NumberOfComponents="3" format="appended" RangeMin="0"                    RangeMax="0.34641016151"        offset="0"                   />
+      </Points>
+      <Cells>
+        <DataArray type="Int64" Name="connectivity" format="appended" RangeMin=""                     RangeMax=""                     offset="392"                 />
+        <DataArray type="Int64" Name="offsets" format="appended" RangeMin=""                     RangeMax=""                     offset="912"                 />
+        <DataArray type="UInt8" Name="types" format="appended" RangeMin=""                     RangeMax=""                     offset="1048"                />
+      </Cells>
+    </Piece>
+  </UnstructuredGrid>
+  <AppendedData encoding="base64">
+   _IAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/mpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAmpmZmZmZyT8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACamZmZmZnJP5qZmZmZmck/AAAAAAAAAACamZmZmZnJP5qZmZmZmck/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAAmpmZmZmZyT+amZmZmZnJP2sr9pfdk7k/AAAAAAAAAAAAAAAAAAAAAJqZmZmZmck/gzekUYGTuT8AAAAAAAAAAMo2cAfqlLk/mpmZmZmZyT+amZmZmZnJPwAAAAAAAAAA5JnhUAmZuT+amZmZmZnJPw==gAEAAAsAAAAAAAAAAwAAAAAAAAAIAAAAAAAAAAAAAAAAAAAACgAAAAAAAAAIAAAAAAAAAAUAAAAAAAAACwAAAAAAAAAKAAAAAAAAAAUAAAAAAAAACQAAAAAAAAAGAAAAAAAAAAsAAAAAAAAAAwAAAAAAAAAKAAAAAAAAAAgAAAAAAAAAAQAAAAAAAAAIAAAAAAAAAAUAAAAAAAAACQAAAAAAAAADAAAAAAAAAAsAAAAAAAAACgAAAAAAAAAHAAAAAAAAAAQAAAAAAAAACAAAAAAAAAALAAAAAAAAAAUAAAAAAAAACwAAAAAAAAAIAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAkAAAAAAAAAAgAAAAAAAAAGAAAAAAAAAAMAAAAAAAAACgAAAAAAAAAJAAAAAAAAAAIAAAAAAAAACgAAAAAAAAAIAAAAAAAAAAMAAAAAAAAACQAAAAAAAAAIAAAAAAAAAAoAAAAAAAAABQAAAAAAAAAJAAAAAAAAAA==YAAAAAQAAAAAAAAACAAAAAAAAAAMAAAAAAAAABAAAAAAAAAAFAAAAAAAAAAYAAAAAAAAABwAAAAAAAAAIAAAAAAAAAAkAAAAAAAAACgAAAAAAAAALAAAAAAAAAAwAAAAAAAAAA==DAAAAAoKCgoKCgoKCgoKCg==
+  </AppendedData>
+</VTKFile>
+
+<!-- Created by Chaste version 2.0.10424 on Wed, 22 Sep 2010 08:51:07 +0000.  Chaste was built on Tue, 21 Sep 2010 17:29:58 +0000 by machine (uname) 'Linux userpc59.comlab.ox.ac.uk 2.6.32-24-generic #43-Ubuntu SMP Thu Sep 16 14:58:24 UTC 2010 x86_64' using settings: default, shared libraries.
+-->
