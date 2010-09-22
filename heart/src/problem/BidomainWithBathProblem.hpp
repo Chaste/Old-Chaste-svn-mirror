@@ -33,11 +33,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteSerialization.hpp"
 #include <boost/serialization/base_object.hpp>
 
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-
 #include "BidomainProblem.hpp"
+#include "AbstractCardiacCellFactory.hpp"
 
 /**
  * Class which specifies and solves a bidomain problem.
@@ -50,6 +47,19 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 class BidomainWithBathProblem : public BidomainProblem<DIM>
 {
+    /** Needed for serialization. */
+    friend class boost::serialization::access;
+    /**
+     * Serialize this class
+     *
+     * @param archive the archive
+     * @param version the current version of this class
+     */
+    template<class Archive>
+    void serialize(Archive & archive, const unsigned int version)
+    {
+        archive & boost::serialization::base_object< BidomainProblem<DIM> >(*this);
+    }
 public:
     /**
      * Constructor
@@ -68,5 +78,8 @@ public:
      */
      ~BidomainWithBathProblem();
 };
+
+#include "SerializationExportWrapper.hpp" // Must be last
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(BidomainWithBathProblem)
 
 #endif /*BIDOMAINWITHBATHPROBLEM_HPP_*/

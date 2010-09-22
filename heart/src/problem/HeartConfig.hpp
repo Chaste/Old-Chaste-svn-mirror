@@ -39,6 +39,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ChasteParameters_2_1.hpp"
 
 #include "AbstractStimulusFunction.hpp"
+// These are needed here for Boost < 1.37
+#include "SimpleStimulus.hpp"
+#include "RegularStimulus.hpp"
+
 #include "ChasteCuboid.hpp"
 #include "ChasteEllipsoid.hpp"
 #include "AbstractTetrahedralMesh.hpp"
