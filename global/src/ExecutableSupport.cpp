@@ -176,8 +176,10 @@ void ExecutableSupport::WriteLibraryInfo( out_stream &outFile )
     *outFile << "  PETSc: " << PETSC_VERSION_MAJOR << "." << PETSC_VERSION_MINOR << "." << PETSC_VERSION_SUBMINOR << std::endl;
     *outFile << "  Boost: " << BOOST_VERSION  / 100000 << "." << BOOST_VERSION / 100 % 1000 << "." << BOOST_VERSION % 100 << std::endl;
     *outFile << "  HDF5: " << H5_VERS_MAJOR <<  "." << H5_VERS_MINOR << "." << H5_VERS_RELEASE << std::endl;
-    ///\todo #1432 - In general we don't have XSD source (only a binary).  Even if we have both, then we still want to know the version of the binary
-    //  *outFile << "  XSD: " <<  XSD_STR_VERSION << std::endl;
+
+    *outFile << std::endl;
+    *outFile << "Binary versions: " << std::endl;
+    *outFile << "  XSD: " <<  ChasteBuildInfo::GetXsdVersion() << std::endl;
 
     *outFile << std::endl;
     *outFile << "Includes support for: " << std::endl;

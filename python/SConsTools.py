@@ -318,6 +318,11 @@ def GetVersionCpp(templateFilePath, env):
         compiler_version = subprocess.Popen( [ "icpc", "-dumpversion" ], stdout=subprocess.PIPE ).communicate()[0].strip()
     else:
         compiler_version = "unknown"
+
+    command = env['build'].tools['xsd'] + ' version 2>&1'
+    xsd_version_string = os.popen(command).readline().strip()
+    xsd_version = xsd_version_string[-5:]
+
     subst = {'example': '%(example)s',
              'chaste_root': chaste_root,
              'revision': chaste_revision,
@@ -331,7 +336,8 @@ def GetVersionCpp(templateFilePath, env):
              'build_info': env['CHASTE_BUILD_INFO'],
              'compiler_type': compiler_type,
              'compiler_version': compiler_version,
-             'cc_flags': env['build'].CcFlags()}
+             'cc_flags': env['build'].CcFlags(),
+             'xsd_version': xsd_version}
     return open(templateFilePath).read() % subst
 
 def GetChasteBuildRootCpp(env):

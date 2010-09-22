@@ -129,3 +129,8 @@ std::string ChasteBuildInfo::GetProvenanceString()
     prov << "." << std::endl;
     return prov.str();
 }
+
+const char* ChasteBuildInfo::GetXsdVersion()
+{
+	return "%(xsd_version)s";
+}

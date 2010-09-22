@@ -121,6 +121,11 @@ public:
      */
      static const char* GetCompilerFlags();
 
+     /**
+      * Get the XSD binary version number.
+      */
+     static const char* GetXsdVersion();
+
     /**
      * Get a single-line string representation of the provenance information to be attached
      * to any files we generate.  This includes the version of the Chaste code used, how and
