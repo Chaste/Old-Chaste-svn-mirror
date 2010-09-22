@@ -40,6 +40,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "ChasteSerialization.hpp"
 #include <hdf5.h>
+
+#ifdef CHASTE_VTK
+/// \todo #1432 - Get this line to compile correctly
+//#include <vtkVersion.h>
+#endif
+
+#ifdef CHASTE_CVODE
+#include <sundials/sundials_config.h>
+#endif
 //#include <xsd/cxx/version.hxx>
 
 void ExecutableSupport::InitializePetsc(int* pArgc, char*** pArgv)
@@ -175,16 +184,16 @@ void ExecutableSupport::WriteLibraryInfo( out_stream &outFile )
 
 #ifdef CHASTE_VTK
     *outFile << "  VTK: yes" << std::endl;
-    ///\todo #1432 - Let's have the VTK version too
+    //*outFile << "  VTK: " << VTK_MAJOR_VERSION << "." << VTK_MINOR_VERSION << std::endl;
+    /// \todo #1432 - Get this line to compile correctly
 #else
     *outFile << "  VTK: no" << std::endl;
 #endif
 
 #ifdef CHASTE_CVODE
-    *outFile << "  CVODE: yes" << std::endl;
-    ///\todo #1432 - Let's have the CVODE version too
+    *outFile << "  SUNDIALS: " << SUNDIALS_PACKAGE_VERSION << " (includes Cvode of a different version number)" << std::endl;
 #else
-    *outFile << "  CVODE: no" << std::endl;
+    *outFile << "  SUNDIALS: no" << std::endl;
 #endif
 
 #ifdef CHASTE_ADAPTIVITY
