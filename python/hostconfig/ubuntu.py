@@ -66,10 +66,23 @@ if ubuntu_ver >= [9,10]:
     boost_suffix = '-mt'
 else:
     boost_suffix = ''
+
 other_libraries = libs_for_petsc + \
                   ['boost_serialization'+boost_suffix, 'xerces-c',
                    'hdf5', 'z',
                    'parmetis', 'metis']
+
+use_vtk = False
+
+#Extra libraries for VTK output
+if use_vtk:
+    if ubuntu_ver >= [10,04]:
+        other_includepaths.append('/usr/include/vtk-5.2')
+        other_libraries.extend(['vtkIO',  'vtkCommon', 'vtkGraphics', 'z'])
+    else: # The libraries.extend command below may need changing, as it hasn't been tested yet.
+        other_includepaths.extend('/usr/include/vtk-5.0')
+        other_libraries.extend(['vtkIO','vtkGraphics','vtkCommon', 'z'])
+
 
 # Figure out which lapack/blas packages are actually installed!
 if os.path.exists('/usr/lib/liblapack-3.so'):
