@@ -173,7 +173,7 @@ protected:
      * Check consistency of our internal data structures.
      */
     virtual void Validate()=0;
-    
+
     /**
      * Constructor for use by archiving only. Please use the other constructor.
      *
@@ -215,13 +215,9 @@ public:
     std::list<CellPtr>& rGetCells();
 
     /**
-     * \todo This method returns true if the cell population is a MeshBasedCellPopulation or a
-     *       VertexBasedCellPopulation, but is actually used to tell force laws whether
-     *       the cell population is a MeshBasedCellPopulation. See #1303.
-     *
-     * @return whether the cell population contains a mesh.
+     * @return whether the cell population is a MeshBasedCellPopulation.
      */
-    bool HasMesh();
+    bool IsMeshBasedCellPopulation();
 
     /**
      * As this method is pure virtual, it must be overridden
@@ -511,7 +507,7 @@ public:
      * extended_type_info and returns the identifier of the derived class
      * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
      * derived class, and is usually just the name of the class).
-     * 
+     *
      * Note that you must include the headers <boost/archive/text_oarchive.hpp>
      * and <boost/archive/text_iarchive.hpp> in any test suite that calls this
      * method, or any other method that calls this method.
@@ -560,56 +556,56 @@ public:
 
     /**
      * Set mOutputCellIdData.
-     * 
+     *
      * @param outputCellIdData the new value of mOutputCellIdData
      */
     void SetOutputCellIdData(bool outputCellIdData);
 
     /**
      * Set mOutputCellMutationStates.
-     * 
+     *
      * @param outputCellMutationStates the new value of mOutputCellMutationStates
      */
     void SetOutputCellMutationStates(bool outputCellMutationStates);
 
     /**
      * Set mOutputCellAncestors.
-     * 
+     *
      * @param outputCellAncestors the new value of mOutputCellAncestors
      */
     void SetOutputCellAncestors(bool outputCellAncestors);
 
     /**
      * Set mOutputCellProliferativeTypes.
-     * 
+     *
      * @param outputCellProliferativeTypes the new value of mOutputCellProliferativeTypes
      */
     void SetOutputCellProliferativeTypes(bool outputCellProliferativeTypes);
 
     /**
      * Set mOutputCellVariables.
-     * 
+     *
      * @param outputCellVariables the new value of mOutputCellVariables
      */
     void SetOutputCellVariables(bool outputCellVariables);
 
     /**
      * Set mOutputCellCyclePhases.
-     * 
+     *
      * @param outputCellCyclePhases the new value of mOutputCellCyclePhases
      */
     void SetOutputCellCyclePhases(bool outputCellCyclePhases);
 
     /**
      * Set mOutputCellAges.
-     * 
+     *
      * @param outputCellAges the new value of mOutputCellAges
      */
     void SetOutputCellAges(bool outputCellAges);
 
     /**
      * Set mOutputCellVolumes.
-     * 
+     *
      * @param outputCellVolumes the new value of mOutputCellVolumes
      */
     void SetOutputCellVolumes(bool outputCellVolumes);

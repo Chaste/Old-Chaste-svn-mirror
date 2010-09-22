@@ -113,7 +113,7 @@ std::list<CellPtr>& AbstractCellPopulation<DIM>::rGetCells()
 }
 
 template<unsigned DIM>
-bool AbstractCellPopulation<DIM>::HasMesh()
+bool AbstractCellPopulation<DIM>::IsMeshBasedCellPopulation()
 {
     return mCellPopulationContainsMesh;
 }
@@ -160,7 +160,7 @@ std::vector<unsigned> AbstractCellPopulation<DIM>::GetCellMutationStateCount()
     // An ordering must have been specified for cell mutation states
     SetDefaultMutationStateOrdering();
 
-    const std::vector<boost::shared_ptr<AbstractCellProperty> >& r_cell_properties = 
+    const std::vector<boost::shared_ptr<AbstractCellProperty> >& r_cell_properties =
         mpCellPropertyRegistry->rGetAllCellProperties();
 
     std::vector<unsigned> cell_mutation_state_count;
@@ -265,9 +265,9 @@ void AbstractCellPopulation<DIM>::CreateOutputFiles(const std::string& rDirector
 
         *mpCellMutationStatesFile << "Time\t ";
 
-        const std::vector<boost::shared_ptr<AbstractCellProperty> >& r_cell_properties = 
+        const std::vector<boost::shared_ptr<AbstractCellProperty> >& r_cell_properties =
             mpCellPropertyRegistry->rGetAllCellProperties();
-    
+
         std::vector<unsigned> cell_mutation_state_count;
         for (unsigned i=0; i<r_cell_properties.size(); i++)
         {
@@ -652,7 +652,7 @@ std::string AbstractCellPopulation<DIM>::GetIdentifier() const
      * As AbstractCellPopulation is a templated class, the variable below will be initialised
      * to a string of the form "pack<void (NameOfDerivedType< DIM >)>::type". We must
      * therefore strip away parts of the string, leaving "NameOfDerivedType<DIM>".
-     * 
+     *
      */
 	#if BOOST_VERSION >= 103700
 		std::string identifier = boost::serialization::type_info_implementation<AbstractCellPopulation>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();

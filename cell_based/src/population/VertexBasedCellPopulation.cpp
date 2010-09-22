@@ -41,8 +41,6 @@ VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM,
       mrMesh(rMesh),
       mDeleteMesh(deleteMesh)
 {
-    this->mCellPopulationContainsMesh = true;
-
     // Check the mesh contains boundary nodes
     bool contains_boundary_nodes = false;
     for (typename MutableVertexMesh<DIM,DIM>::NodeIterator node_iter = mrMesh.GetNodeIteratorBegin();
@@ -72,7 +70,6 @@ template<unsigned DIM>
 VertexBasedCellPopulation<DIM>::VertexBasedCellPopulation(MutableVertexMesh<DIM, DIM>& rMesh)
              : mrMesh(rMesh)
 {
-    this->mCellPopulationContainsMesh = true;
     mDeleteMesh = true;
 }
 

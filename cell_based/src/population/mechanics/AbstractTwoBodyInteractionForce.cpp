@@ -57,7 +57,7 @@ template<unsigned DIM>
 void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_vector<double, DIM> >& rForces,
                                                                 AbstractCellPopulation<DIM>& rCellPopulation)
 {
-    if (rCellPopulation.HasMesh())
+    if (rCellPopulation.IsMeshBasedCellPopulation())
     {
         MeshBasedCellPopulation<DIM>* p_static_cast_cell_population = static_cast<MeshBasedCellPopulation<DIM>*>(&rCellPopulation);
 
