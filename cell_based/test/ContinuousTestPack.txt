@@ -1,3 +1,5 @@
+cell/TestArchiveCell.hpp
+cell/TestCell.hpp
 cell/TestCellCycleModelOdeSolver.hpp
 cell/TestCellMutationStates.hpp
 cell/TestCellPropertyCollection.hpp
@@ -5,7 +7,6 @@ cell/TestCellPropertyRegistry.hpp
 cell/TestCellsGenerator.hpp
 cell/TestOdeBasedCellCycleModels.hpp
 cell/TestSimpleCellCycleModels.hpp
-cell/TestCell.hpp
 common/TestSimulationTime.hpp
 common/TestCellBasedConfig.hpp
 crypt/cell/TestCellsGeneratorForVertex.hpp
