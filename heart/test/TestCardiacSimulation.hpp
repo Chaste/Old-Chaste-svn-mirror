@@ -441,6 +441,16 @@ public:
 
 
     }
+    
+    void TestElectrodes() throw(Exception)
+    {
+        CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath2d_electrodes.xml");
+        std::string foldername = "ChasteResults_electrodes";
+
+        TS_ASSERT( CompareFilesViaHdf5DataReaderGlobalNorm("heart/test/data/cardiac_simulations", "electrodes_results", false,
+                   foldername, "SimulationResults", true, 1e-8));
+    }
+    
     void TestExceptions() throw(Exception)
     {
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/monodomain8d_small.xml"),
