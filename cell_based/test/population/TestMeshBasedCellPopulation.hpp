@@ -177,13 +177,26 @@ public:
 
         // Check the cell pair was created correctly
         std::set<CellPtr>::iterator cell_pair_iter = cell_pair.begin();
-
+        ///\todo This ought to be a pair or an ordered pair, not a set
         CellPtr p_cell0 = *cell_pair_iter;
-        TS_ASSERT_EQUALS(p_cell0->HasCellProperty<CellLabel>(), true);
+        //Check the order of the iterator
+        if (p_cell0 == cells[0])
+        {
+            TS_ASSERT_EQUALS(p_cell0->HasCellProperty<CellLabel>(), true);
+            TS_ASSERT_EQUALS(p_cell0->GetMutationState()->IsType<ApcOneHitCellMutationState>(), false);
 
-        ++cell_pair_iter;
-        CellPtr p_cell1 = *cell_pair_iter;
-        TS_ASSERT_EQUALS(p_cell1->GetMutationState()->IsType<ApcOneHitCellMutationState>(), true);
+
+            ++cell_pair_iter;
+            CellPtr p_cell1 = *cell_pair_iter;
+            TS_ASSERT_EQUALS(p_cell1, cells[1]);
+            TS_ASSERT_EQUALS(p_cell1->GetMutationState()->IsType<ApcOneHitCellMutationState>(), true);
+            TS_ASSERT_EQUALS(p_cell1->HasCellProperty<CellLabel>(), false);
+        }
+        else
+        {
+            //We shouldn't rely on the order of a set iterator
+            TS_TRACE("Set iterator used here - ought to be std::pair<>");
+        }
     }
 
     void TestGetDampingConstant()
