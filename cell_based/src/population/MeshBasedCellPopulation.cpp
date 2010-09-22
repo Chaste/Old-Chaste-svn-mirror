@@ -31,6 +31,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "TrianglesMeshWriter.hpp"
 #include "CellBasedEventHandler.hpp"
 #include "ApoptoticCellProperty.hpp"
+#include "Cylindrical2dVertexMesh.hpp"
+#include "Cylindrical2dMesh.hpp"
 
 template<unsigned DIM>
 MeshBasedCellPopulation<DIM>::MeshBasedCellPopulation(MutableMesh<DIM, DIM>& rMesh,
@@ -822,11 +824,37 @@ typename MeshBasedCellPopulation<DIM>::SpringIterator MeshBasedCellPopulation<DI
     return SpringIterator(*this, mrMesh.EdgesEnd());
 }
 
-template<unsigned DIM>
-void MeshBasedCellPopulation<DIM>::CreateVoronoiTessellation()
+/** 
+ * 
+ */
+template<>
+void MeshBasedCellPopulation<2>::CreateVoronoiTessellation()
 {
     delete mpVoronoiTessellation;
-    mpVoronoiTessellation = new VertexMesh<DIM, DIM>(mrMesh);
+    
+    bool is_periodic = false;
+    
+    // Check if mesh is cylindrical, add in boolean
+    
+    if ( (dynamic_cast<Cylindrical2dVertexMesh*>(&mrMesh)) || 
+    		(dynamic_cast<Cylindrical2dMesh*>(&mrMesh)) )
+    {
+    	is_periodic = true;
+    }    
+    
+    mpVoronoiTessellation = new VertexMesh<2, 2>(mrMesh, is_periodic);
+}
+
+/**
+ * The cylindrical mesh is only defined in 2D, hence there is
+ * a separate definition for this method in 3D, which doesn't have the capability 
+ * of dealing with periodic boundaries in 3D. This is /todo #1374.
+ */
+template<>
+void MeshBasedCellPopulation<3>::CreateVoronoiTessellation()
+{
+    delete mpVoronoiTessellation;
+    mpVoronoiTessellation = new VertexMesh<3, 3>(mrMesh);
 }
 
 /**

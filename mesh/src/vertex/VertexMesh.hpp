@@ -239,8 +239,9 @@ public:
      * \todo Merge with 3D Voronoi constructor? (#1075)
      *
      * @param rMesh a tetrahedral mesh
+     * @param isPeriodic a boolean that indicates whether the mesh is periodic or not
      */
-    VertexMesh(TetrahedralMesh<2,2>& rMesh);
+    VertexMesh(TetrahedralMesh<2,2>& rMesh, bool isPeriodic=false);
 
     /**
      * Alternative 3D 'Voronoi' constructor. Creates a Voronoi tessellation of a given tetrahedral mesh,
