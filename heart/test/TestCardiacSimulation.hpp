@@ -468,6 +468,9 @@ public:
         FileFinder model("file_does_not_exist.so", RelativeTo::ChasteSourceRoot);
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/missing_dynamic_model.xml"),
                               "Dynamically loadable cell model '" + model.GetAbsolutePath() + "' does not exist.");
+        TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/bidomain_with_bath2d_noelectrodes.xml"), 
+        		              "Simulation needs a stimulus (either <Stimuli> or <Electrodes>).");
+
 #ifndef CHASTE_CAN_CHECKPOINT_DLLS
         TS_ASSERT_THROWS_THIS(CardiacSimulation simulation("heart/test/data/xml/dynamic_checkpoint.xml"),
                               "Checkpointing is not compatible with dynamically loaded cell models on Boost<1.37.");

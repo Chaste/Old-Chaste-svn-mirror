@@ -52,7 +52,10 @@ HeartConfigRelatedCellFactory<SPACE_DIM>::HeartConfigRelatedCellFactory()
     catch (Exception& e)
     {
         // No stimuli provided in XML - let's hope that there are some electrodes instead
-        assert(HeartConfig::Instance()->IsElectrodesPresent());
+        if(HeartConfig::Instance()->IsElectrodesPresent() == false)
+        {
+        	EXCEPTION("Simulation needs a stimulus (either <Stimuli> or <Electrodes>).");
+        }
     }
 
     // Read and store Cell Heterogeneities
