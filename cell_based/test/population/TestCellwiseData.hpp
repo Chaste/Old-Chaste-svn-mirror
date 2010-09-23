@@ -105,7 +105,7 @@ public:
         c_vector<double,2> new_cell_location;
         new_cell_location[0] = 0.2;
         new_cell_location[1] = 0.3;
-        cell_population.AddCell(p_new_cell, new_cell_location);
+        cell_population.AddCell(p_new_cell, new_cell_location, cells[0] /*random choice of parent*/);
 
         TS_ASSERT_THROWS_NOTHING(p_data->ReallocateMemory());
         TS_ASSERT_EQUALS(p_data->mData.size(), cell_population.rGetMesh().GetNumNodes());

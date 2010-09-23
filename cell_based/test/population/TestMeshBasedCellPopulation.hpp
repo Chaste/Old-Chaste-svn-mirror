@@ -163,40 +163,16 @@ public:
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
 
-        // Give cells 0 and 1 specific mutations to enable later testing
-        boost::shared_ptr<AbstractCellProperty> p_label(CellPropertyRegistry::Instance()->Get<CellLabel>());
-        boost::shared_ptr<AbstractCellProperty> p_apc1(CellPropertyRegistry::Instance()->Get<ApcOneHitCellMutationState>());
-        cells[0]->AddCellProperty(p_label);
-        cells[1]->SetMutationState(p_apc1);
-
         // Create cell population
         MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
-        // Create cell pair
-        std::set<CellPtr> cell_pair = cell_population.CreateCellPair(cells[0], cells[1]);
-
-        // Check the cell pair was created correctly
-        std::set<CellPtr>::iterator cell_pair_iter = cell_pair.begin();
-        ///\todo This ought to be a pair or an ordered pair, not a set
-        CellPtr p_cell0 = *cell_pair_iter;
-        //Check the order of the iterator
-        if (p_cell0 == cells[0])
-        {
-            TS_ASSERT_EQUALS(p_cell0->HasCellProperty<CellLabel>(), true);
-            TS_ASSERT_EQUALS(p_cell0->GetMutationState()->IsType<ApcOneHitCellMutationState>(), false);
-
-
-            ++cell_pair_iter;
-            CellPtr p_cell1 = *cell_pair_iter;
-            TS_ASSERT_EQUALS(p_cell1, cells[1]);
-            TS_ASSERT_EQUALS(p_cell1->GetMutationState()->IsType<ApcOneHitCellMutationState>(), true);
-            TS_ASSERT_EQUALS(p_cell1->HasCellProperty<CellLabel>(), false);
-        }
-        else
-        {
-            //We shouldn't rely on the order of a set iterator
-            TS_TRACE("Set iterator used here - ought to be std::pair<>");
-        }
+        // Create two cell pairs
+        std::pair<CellPtr,CellPtr> cell_pair1 = cell_population.CreateCellPair(cells[0], cells[1]);
+        std::pair<CellPtr,CellPtr> cell_pair2 = cell_population.CreateCellPair(cells[1], cells[0]);
+        TS_ASSERT_EQUALS(cell_pair1, cell_pair2);
+        TS_ASSERT_EQUALS((cell_pair1.first == cells[0] || cell_pair1.first == cells[1]), true);
+        TS_ASSERT_EQUALS((cell_pair1.second == cells[0] || cell_pair1.second == cells[1]), true);
+        TS_ASSERT_DIFFERS(cell_pair1.first,  cell_pair1.second);
     }
 
     void TestGetDampingConstant()
@@ -340,7 +316,7 @@ public:
         new_cell_location[0] = 2;
         new_cell_location[1] = 2;
 
-        cell_population.AddCell(p_cell, new_cell_location);
+        cell_population.AddCell(p_cell, new_cell_location, cells[3] /*random choice of parent*/);
 
         // CellPopulation should have updated mesh and cells
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), old_num_nodes+1);
@@ -852,7 +828,7 @@ public:
                 cell_locations.push_back(p_cell_population->GetLocationOfCellCentre(*cell_iter));
             }
 
-            std::set<CellPtr> cell_pair_0_1 = p_cell_population->CreateCellPair(p_cell_population->GetCellUsingLocationIndex(0), p_cell_population->GetCellUsingLocationIndex(1));
+            std::pair<CellPtr,CellPtr> cell_pair_0_1 = p_cell_population->CreateCellPair(p_cell_population->GetCellUsingLocationIndex(0), p_cell_population->GetCellUsingLocationIndex(1));
             p_cell_population->MarkSpring(cell_pair_0_1);
 
             // Set area-based viscosity
@@ -901,7 +877,7 @@ public:
             }
 
             // Check the marked spring
-            std::set<CellPtr> cell_pair_0_1 = p_cell_population->CreateCellPair(p_cell_population->GetCellUsingLocationIndex(0), p_cell_population->GetCellUsingLocationIndex(1));
+            std::pair<CellPtr,CellPtr> cell_pair_0_1 = p_cell_population->CreateCellPair(p_cell_population->GetCellUsingLocationIndex(0), p_cell_population->GetCellUsingLocationIndex(1));
             TS_ASSERT_EQUALS(p_cell_population->IsMarkedSpring(cell_pair_0_1), true);
 
             // Check the simulation time has been restored (through the cell)
@@ -937,10 +913,10 @@ public:
 
         MeshBasedCellPopulation<2> cell_population(mesh, cells);
 
-        std::set<CellPtr> cell_pair_1_2 = cell_population.CreateCellPair(cell_population.GetCellUsingLocationIndex(1), cell_population.GetCellUsingLocationIndex(2));
-        std::set<CellPtr> cell_pair_3_4 = cell_population.CreateCellPair(cell_population.GetCellUsingLocationIndex(3), cell_population.GetCellUsingLocationIndex(4));
-        std::set<CellPtr> cell_pair_1_4 = cell_population.CreateCellPair(cell_population.GetCellUsingLocationIndex(1), cell_population.GetCellUsingLocationIndex(4));
-        std::set<CellPtr> cell_pair_0_2 = cell_population.CreateCellPair(cell_population.GetCellUsingLocationIndex(0), cell_population.GetCellUsingLocationIndex(2));
+        std::pair<CellPtr,CellPtr> cell_pair_1_2 = cell_population.CreateCellPair(cell_population.GetCellUsingLocationIndex(1), cell_population.GetCellUsingLocationIndex(2));
+        std::pair<CellPtr,CellPtr> cell_pair_3_4 = cell_population.CreateCellPair(cell_population.GetCellUsingLocationIndex(3), cell_population.GetCellUsingLocationIndex(4));
+        std::pair<CellPtr,CellPtr> cell_pair_1_4 = cell_population.CreateCellPair(cell_population.GetCellUsingLocationIndex(1), cell_population.GetCellUsingLocationIndex(4));
+        std::pair<CellPtr,CellPtr> cell_pair_0_2 = cell_population.CreateCellPair(cell_population.GetCellUsingLocationIndex(0), cell_population.GetCellUsingLocationIndex(2));
 
         // Mark some springs
         cell_population.MarkSpring(cell_pair_1_2);

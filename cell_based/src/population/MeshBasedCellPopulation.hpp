@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #ifndef MESHBASEDCELLPOPULATION_HPP_
 #define MESHBASEDCELLPOPULATION_HPP_
 
+#include <map>
 #include "AbstractCentreBasedCellPopulation.hpp"
 #include "MutableMesh.hpp"
 #include "VertexMesh.hpp"
@@ -126,7 +127,7 @@ protected:
      * Currently used to track cells in the process of dividing
      * (which are represented as two cells joined by a shorter spring).
      */
-    std::set<std::set<CellPtr> > mMarkedSprings;
+    std::set<std::pair<CellPtr,CellPtr> > mMarkedSprings;
 
     /** Results file for elements. */
     out_stream mpVizElementsFile;
@@ -276,11 +277,12 @@ public:
      *
      * @param pNewCell  the cell to add
      * @param rCellDivisionVector  the position in space at which to put it
-     * @param pParentCell pointer to a parent cell (if required)
+     * @param pParentCell pointer to a parent cell - this is required for
+     *  mesh-based cell populations
      *
      * @return address of cell as it appears in the cell list (internal of this method uses a copy constructor along the way)
      */
-    virtual CellPtr AddCell(CellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, CellPtr pParentCell=CellPtr());
+    virtual CellPtr AddCell(CellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, CellPtr pParentCell);
 
     /**
      * Overridden CreateOutputFiles() method.
@@ -476,32 +478,33 @@ public:
     /**
      * Helper method that returns a set of pointers to two given Cells.
      * Used by the spring marking routines.
+     * Elements are ordered by pointer values.
      *
      * @param pCell1 a Cell
      * @param pCell2 a Cell
      */
-    std::set<CellPtr> CreateCellPair(CellPtr pCell1, CellPtr pCell2);
+    std::pair<CellPtr,CellPtr> CreateCellPair(CellPtr pCell1, CellPtr pCell2);
 
     /**
      * @param rCellPair a set of pointers to Cells
      *
      * @return whether the spring between two given cells is marked.
      */
-    bool IsMarkedSpring(const std::set<CellPtr>& rCellPair);
+    bool IsMarkedSpring(const std::pair<CellPtr,CellPtr>& rCellPair);
 
     /**
      * Mark the spring between the given cells.
      *
      * @param rCellPair a set of pointers to Cells
      */
-    void MarkSpring(std::set<CellPtr>& rCellPair);
+    void MarkSpring(std::pair<CellPtr,CellPtr>& rCellPair);
 
     /**
      * Stop marking the spring between the given cells.
      *
      * @param rCellPair a set of pointers to Cells
      */
-    void UnmarkSpring(std::set<CellPtr>& rCellPair);
+    void UnmarkSpring(std::pair<CellPtr,CellPtr>& rCellPair);
 
     /**
      * @return mAreaBasedDampingConstantParameter
@@ -510,7 +513,7 @@ public:
 
     /**
      * Set mAreaBasedDampingConstantParameter.
-     * 
+     *
      * @param areaBasedDampingConstantParameter the new value of mAreaBasedDampingConstantParameter
      */
     void SetAreaBasedDampingConstantParameter(double areaBasedDampingConstantParameter);
@@ -527,7 +530,7 @@ public:
 
     /**
      * Set mOutputCellPopulationVolumes.
-     * 
+     *
      * @param outputCellPopulationVolumes the new value of mOutputCellPopulationVolumes
      */
     void SetOutputCellPopulationVolumes(bool outputCellPopulationVolumes);

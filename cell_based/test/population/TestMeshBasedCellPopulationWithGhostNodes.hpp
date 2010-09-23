@@ -211,7 +211,7 @@ public:
         TS_ASSERT_EQUALS(counter, 1u);
         TS_ASSERT_EQUALS(cell_population.rGetCells().empty(), false);
 
-        // Increment simulation time and update cell population 
+        // Increment simulation time and update cell population
         p_simulation_time->IncrementTimeOneStep();
 
         unsigned num_cells_removed = cell_population.RemoveDeadCells();
@@ -405,7 +405,7 @@ public:
         c_vector<double,2> new_location;
         new_location[0] = 0.3433453454443;
         new_location[0] = 0.3435346344234;
-        cell_population.AddCell(p_new_cell, new_location);
+        cell_population.AddCell(p_new_cell, new_location, cells[0] /*random choice of parent*/);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
         TS_ASSERT_EQUALS(cell_population.GetNumRealCells(), 71u);
@@ -426,7 +426,7 @@ public:
         c_vector<double,2> new_location2;
         new_location2[0] = 0.6433453454443;
         new_location2[0] = 0.6435346344234;
-        cell_population.AddCell(p_new_cell2, new_location2);
+        cell_population.AddCell(p_new_cell2, new_location2, cells[1] /*random choice of parent*/);
 
         TS_ASSERT_EQUALS(mesh.GetNumNodes(), 82u);
         TS_ASSERT_EQUALS(cell_population.GetNumRealCells(), 71u);
