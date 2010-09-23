@@ -5,7 +5,7 @@
 		<!-- 
 			Problem definition 
 		-->    
-	    <SimulationDuration unit="ms">5.0</SimulationDuration>
+	    <SimulationDuration unit="ms">2.0</SimulationDuration>
 	    <Domain>BiWithBath</Domain>
 	    <SpaceDimension>2</SpaceDimension>
 	    <IonicModels>
@@ -31,8 +31,8 @@
 			<GroundSecondElectrode>yes</GroundSecondElectrode>
 			<PerpendicularToAxis>x</PerpendicularToAxis>
 			<Strength unit="uA/cm^2">-11000</Strength>
-		    <StartTime unit="ms">1.0</StartTime> 
-		    <Duration unit="ms">2.0</Duration>
+		    <StartTime unit="ms">0.0</StartTime> 
+		    <Duration unit="ms">1.0</Duration>
 		</Electrodes>
 		
 		<OutputDirectory>ChasteResults_electrodes</OutputDirectory>
@@ -51,7 +51,7 @@
   <Numerical>
     <TimeSteps ode="0.001" pde="0.01" printing="0.01" unit="ms"/>
     <KSPTolerances>
-      <KSPAbsolute>0.0002</KSPAbsolute>
+      <KSPAbsolute>1e-7</KSPAbsolute>
     </KSPTolerances>
     <KSPSolver>cg</KSPSolver>
     <KSPPreconditioner>bjacobi</KSPPreconditioner>

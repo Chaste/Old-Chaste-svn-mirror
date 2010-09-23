@@ -51,7 +51,7 @@
   <Numerical>
     <TimeSteps ode="0.001" pde="0.01" printing="0.01" unit="ms"/>
     <KSPTolerances>
-      <KSPAbsolute>0.0002</KSPAbsolute>
+      <KSPAbsolute>1e-6</KSPAbsolute>
     </KSPTolerances>
     <KSPSolver>cg</KSPSolver>
     <KSPPreconditioner>bjacobi</KSPPreconditioner>
