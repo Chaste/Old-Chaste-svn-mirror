@@ -133,7 +133,7 @@ public:
      * and the spring system will resemble a parallelogram. However we keep
      * the simulation time at 1.0 in order to keep the test short.
      */
-    void xTest2DSpringSystem() throw (Exception)
+    void Test2DSpringSystem() throw (Exception)
     {
         // Create mesh
         double crypt_length = 10;
@@ -200,7 +200,7 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + elem_results_file + " cell_based/test/data/Crypt2DSpringsResults/results.vizelements").c_str()), 0);
     }
 
-    void xTestWithMultipleCellKillers() throw (Exception)
+    void TestWithMultipleCellKillers() throw (Exception)
     {
        unsigned cells_across = 7;
        unsigned cells_up = 11;
@@ -275,7 +275,7 @@ public:
        TS_ASSERT_EQUALS(crypt.GetNumRealCells(), num_cells-2u);
     }
 
-    void xTestUpdatePositions() throw (Exception)
+    void TestUpdatePositions() throw (Exception)
     {
         // Create mesh
         HoneycombMeshGenerator generator(3, 3, 1, false);
@@ -355,7 +355,7 @@ public:
         }
     }
 
-    void xTest2DCylindrical() throw (Exception)
+    void Test2DCylindrical() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 6;
@@ -420,7 +420,7 @@ public:
     }
 
 
-    void xTest2DCylindricalMultipleDivisions() throw (Exception)
+    void Test2DCylindricalMultipleDivisions() throw (Exception)
     {
         // Create a log of this test
         LogFile* p_log_file = LogFile::Instance();
@@ -500,7 +500,7 @@ public:
     // So bizarrely the crypt shrinks as the rest lengths are shortened!
     // But at least it uses Wnt cell cycle and runs reasonably quickly...
     // For a better test with more randomly distributed cell ages see the Nightly test pack.
-    void xTestWithWntDependentCells() throw (Exception)
+    void TestWithWntDependentCells() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 6;
@@ -555,7 +555,7 @@ public:
     }
 
     // A better check that the loaded mesh is the same as that saved
-    void xTestMeshSurvivesSaveLoad() throw (Exception)
+    void TestMeshSurvivesSaveLoad() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 6;
@@ -617,7 +617,7 @@ public:
     }
 
     // A check that save and load works when a Voronoi tessellation is involved
-    void xTestMeshSurvivesSaveLoadWithVoronoiTessellation() throw (Exception)
+    void TestMeshSurvivesSaveLoadWithVoronoiTessellation() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 6;
@@ -674,7 +674,7 @@ public:
         WntConcentration<2>::Destroy();
     }
 
-    void xTestStandardResultForArchivingTestsBelow() throw (Exception)
+    void TestStandardResultForArchivingTestsBelow() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 6;
@@ -744,8 +744,8 @@ public:
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cell_based/test/data/CellCyclePhaseOutput/cellcyclephases.dat").c_str()), 0);
     }
 
-    // xTesting Save
-    void xTestSave() throw (Exception)
+    // Testing Save
+    void TestSave() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 6;
@@ -798,7 +798,7 @@ public:
 
 
     // Testing Load (based on previous two tests)
-    void xTestLoad() throw (Exception)
+    void TestLoad() throw (Exception)
     {
         // Load the simulation from the TestSave method above and
         // run it from 0.1 to 0.2
@@ -864,7 +864,7 @@ public:
      * to be 'mature' cells which won't shrink together.
      * Limited this by using only four cells of minimum age.
      */
-    void xTestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
+    void TestWntCellsCannotMoveAcrossYEqualsZero() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 2;
@@ -976,7 +976,7 @@ public:
     }
 
 
-    void xTestCellIdOutput() throw (Exception)
+    void TestCellIdOutput() throw (Exception)
     {
         // Resetting the Maximum cell Id to zero (to account for previous tests)
         Cell::ResetMaxCellId();
@@ -1035,7 +1035,7 @@ public:
 
     // This is a strange test -- all cells divide within a quick time, it gives
     // good testing of the periodic boundaries though... [comment no longer valid?]
-    void xTestWithTysonNovakCells() throw (Exception)
+    void TestWithTysonNovakCells() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 6;
@@ -1107,7 +1107,7 @@ public:
      *
      * Note - if the previous test is changed we need to update the file this test refers to.
      */
-    void xTestVisualizerOutput() throw (Exception)
+    void TestVisualizerOutput() throw (Exception)
     {
         // Work out where one of the previous tests wrote its files
         OutputFileHandler handler("Crypt2DCylindricalMultipleDivisions", false);
@@ -1127,7 +1127,7 @@ public:
     }
 
 
-    void xTestAddCellKiller() throw (Exception)
+    void TestAddCellKiller() throw (Exception)
     {
         // Create mesh
         double crypt_length = 9.3;
@@ -1170,7 +1170,7 @@ public:
     }
 
 
-    void xTestCalculateCellDivisionVectorConfMesh() throw (Exception)
+    void TestCalculateCellDivisionVectorConfMesh() throw (Exception)
     {
         // Set up model parameters
         CellBasedConfig::Instance()->Reset();
@@ -1211,7 +1211,7 @@ public:
     }
 
 
-    void xTestCalculateCellDivisionVectorConfMeshStemCell() throw (Exception)
+    void TestCalculateCellDivisionVectorConfMeshStemCell() throw (Exception)
     {
         // Make a parent node
         c_vector<double,2> location;
@@ -1258,7 +1258,7 @@ public:
     }
 
 
-    void xTestCalculateCellDivisionVectorCylindricalMesh() throw (Exception)
+    void TestCalculateCellDivisionVectorCylindricalMesh() throw (Exception)
     {
         // Make a mesh
         c_vector<double,2> location;
@@ -1293,7 +1293,7 @@ public:
     }
 
 
-    void xTestCalculateCellDivisionVectorCylindricalMeshStemCell() throw (Exception)
+    void TestCalculateCellDivisionVectorCylindricalMeshStemCell() throw (Exception)
     {
         // Make a mesh
         c_vector<double,2> location;
@@ -1334,7 +1334,7 @@ public:
 
 
     // Short test which sets mNoBirth for coverage
-    void xTestNoBirth() throw (Exception)
+    void TestNoBirth() throw (Exception)
     {
         std::string output_directory = "Crypt2DCylindricalNoBirth";
 
@@ -1391,7 +1391,7 @@ public:
 
 
     // Test death on a non-periodic mesh. Note that birth does occur too.
-    void xTestRandomDeathOnNonPeriodicCrypt() throw (Exception)
+    void TestRandomDeathOnNonPeriodicCrypt() throw (Exception)
     {
         // Create mesh
         unsigned cells_across = 2;
@@ -1435,7 +1435,7 @@ public:
     }
 
 
-    void xTestUsingJiggledBottomSurface()
+    void TestUsingJiggledBottomSurface()
     {
         // Create mesh
         HoneycombMeshGenerator generator(4, 4, 0, true, 1.0);
@@ -1484,7 +1484,7 @@ public:
      * Test that the cell count vectors are correctly initialized when a
      * simulation is saved then loaded.
      */
-    void xTestCellCountInitialization()
+    void TestCellCountInitialization()
     {
         // Create mesh
         HoneycombMeshGenerator generator(4, 4, 0, true, 1.0);
@@ -1685,7 +1685,7 @@ public:
     }
 
 
-    void xTestWriteBetaCatenin() throw (Exception)
+    void TestWriteBetaCatenin() throw (Exception)
     {
         // Create mesh
         HoneycombMeshGenerator generator(5, 4, 1);
@@ -1734,7 +1734,7 @@ public:
         WntConcentration<2>::Destroy();
     }
 
-    void xTestCryptSimulation2DParameterOutput() throw (Exception)
+    void TestCryptSimulation2DParameterOutput() throw (Exception)
 	{
 		// Create mesh
 		unsigned cells_across = 6;
@@ -1778,7 +1778,7 @@ public:
 	}
 
 
-    void xTestAncestorCryptSimulations() throw (Exception)
+    void TestAncestorCryptSimulations() throw (Exception)
     {
         std::string output_directory = "AncestorCrypt";
 
@@ -1867,11 +1867,11 @@ public:
         delete p_params;
     }
     
-    void Test2DCylindricalMeshForVisualizationInParaview() throw (Exception)
+    void xTest2DCylindricalMeshForVisualizationInParaview() throw (Exception)
     {
         // Create mesh
-        unsigned cells_across = 2;
-        unsigned cells_up = 2;
+        unsigned cells_across = 12;
+        unsigned cells_up = 12;
         unsigned thickness_of_ghost_layer = 0;
 
         HoneycombMeshGenerator generator(cells_across, cells_up, thickness_of_ghost_layer, true);
