@@ -382,13 +382,13 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements(TrianglesMeshReader<DIM,DIM>
             pMeshReader->Reset();
         }
 
-        //unsigned counter = 0;
+        unsigned counter = 0;
         for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
                = this->GetBoundaryElementIteratorBegin();
              iter != this->GetBoundaryElementIteratorEnd();
              ++iter)
         {
-            //std::cout << "\rAddNodesToBoundaryElements: " << counter++ << " of " << this->GetNumBoundaryElements() << std::flush;
+            std::cout << "\rAddNodesToBoundaryElements: " << counter++ << " of " << this->GetNumBoundaryElements() << std::flush;
 
             // collect the nodes of this boundary element in a set
             std::set<unsigned> boundary_element_node_indices;
@@ -399,12 +399,17 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements(TrianglesMeshReader<DIM,DIM>
 
             bool found_this_boundary_element = false;
 
-            // Loop over elements, then loop over each face of that element, and see if it matches
+            // Loop over elements surrounding this face, then loop over each face of that element, and see if it matches
             // this boundary element.
             // Note, if we know what elem it should be in (boundary_element_file_has_containing_element_info==true)
             // we will reset elem_index immediately (below)
-            for (unsigned elem_index=0; elem_index<this->GetNumElements(); elem_index++)
-            {
+            Node<DIM>* p_representative_node = (*iter)->GetNode(0);
+            for (typename Node<DIM>::ContainingElementIterator element_iter = p_representative_node->ContainingElementsBegin();
+                 element_iter != p_representative_node->ContainingElementsEnd();
+                 ++element_iter)
+            {     
+                unsigned elem_index = *element_iter;
+                
                 // we know what elem it should be in
                 if(boundary_element_file_has_containing_element_info)
                 {
