@@ -1008,25 +1008,28 @@ std::pair<CellPtr,CellPtr> MeshBasedCellPopulation<DIM>::CreateCellPair(CellPtr 
 template<unsigned DIM>
 bool MeshBasedCellPopulation<DIM>::IsMarkedSpring(const std::pair<CellPtr,CellPtr>& rCellPair)
 {
-	//std::pair<CellPtr,CellPtr> ordered_pair = CreateCellPair(rCellPair.first,rCellPair.second);
+	// the pair should be ordered like this (CreateCellPair will ensure this)
 	assert(rCellPair.first->GetCellId() < rCellPair.second->GetCellId());
+
     return mMarkedSprings.find(rCellPair) != mMarkedSprings.end();
 }
 
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::MarkSpring(std::pair<CellPtr,CellPtr>& rCellPair)
 {
-//	std::pair<CellPtr,CellPtr> ordered_pair = CreateCellPair(rCellPair.first,rCellPair.second);
+	// the pair should be ordered like this (CreateCellPair will ensure this)
 	assert(rCellPair.first->GetCellId() < rCellPair.second->GetCellId());
-    mMarkedSprings.insert(rCellPair);
+
+	mMarkedSprings.insert(rCellPair);
 }
 
 template<unsigned DIM>
 void MeshBasedCellPopulation<DIM>::UnmarkSpring(std::pair<CellPtr,CellPtr>& rCellPair)
 {
-//	std::pair<CellPtr,CellPtr> ordered_pair = CreateCellPair(rCellPair.first,rCellPair.second);
+	// the pair should be ordered like this (CreateCellPair will ensure this)
 	assert(rCellPair.first->GetCellId() < rCellPair.second->GetCellId());
-    mMarkedSprings.erase(rCellPair);
+
+	mMarkedSprings.erase(rCellPair);
 }
 
 template<unsigned DIM>

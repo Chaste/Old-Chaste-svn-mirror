@@ -478,7 +478,8 @@ public:
     /**
      * Helper method that returns a set of pointers to two given Cells.
      * Used by the spring marking routines.
-     * Elements are ordered by pointer values.
+     * Elements in the returned pair are ordered by cell ID number - the
+     * cell in the pair will have a smaller ID.
      *
      * @param pCell1 a Cell
      * @param pCell2 a Cell
