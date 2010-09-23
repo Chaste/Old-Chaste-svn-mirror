@@ -33,16 +33,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <iostream>
 
+#include "AbstractCardiacCell.hpp"
+#include "AbstractCardiacCellInterface.hpp"
+#include "AbstractCvodeCell.hpp"
+
 #include "DynamicLoadingHelperFunctions.hpp"
 
 #include "DynamicCellModelLoader.hpp"
 #include "DynamicModelLoaderRegistry.hpp"
 #include "FileFinder.hpp"
 #include "CellMLToSharedLibraryConverter.hpp"
-
-#include "AbstractCardiacCellInterface.hpp"
-#include "AbstractCardiacCell.hpp"
-#include "AbstractCvodeCell.hpp"
 
 #include "PetscSetupAndFinalize.hpp"
 
