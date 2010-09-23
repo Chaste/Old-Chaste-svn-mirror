@@ -382,13 +382,11 @@ void QuadraticMesh<DIM>::AddNodesToBoundaryElements(TrianglesMeshReader<DIM,DIM>
             pMeshReader->Reset();
         }
 
-        unsigned counter = 0;
         for (typename TetrahedralMesh<DIM,DIM>::BoundaryElementIterator iter
                = this->GetBoundaryElementIteratorBegin();
              iter != this->GetBoundaryElementIteratorEnd();
              ++iter)
         {
-            std::cout << "\rAddNodesToBoundaryElements: " << counter++ << " of " << this->GetNumBoundaryElements() << std::flush;
 
             // collect the nodes of this boundary element in a set
             std::set<unsigned> boundary_element_node_indices;
