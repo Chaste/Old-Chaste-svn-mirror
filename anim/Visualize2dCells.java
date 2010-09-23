@@ -1238,7 +1238,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
     {
         try
         {
-            // Scan through each element
+            // Scan through each element (through every frame of the movie)
             for (int time_index=0; time_index<numSteps; time_index++)
             {
                 image_cells[time_index] = new int[memory_factor*numCells[time_index]]; // reserve plenty of memory
@@ -1246,7 +1246,7 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                 // Fill image_nodes with an identity map (at each time step each node maps to itself)
                 for (int i=0; i<numCells[time_index]; i++)
                 {
-                    image_cells[time_index][i] = i;
+                    image_cells[time_index][i] = i;		// Fill with as many image nodes as are cells in that time frame
                 }
 
                 if ( (elementFilePresent) && (!isSparseMesh) )
@@ -1254,7 +1254,9 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
                     // Draw elements first
                     for (int i=0; i<numElements[time_index]; i++)
                     {
-                        // What nodes are we joining up?
+                        // What nodes are we joining up? Go into the element file and get
+                    	// the nodes that correspond to each element
+                    	// element node1 node2 node3
                         int indexA = element_nodes[time_index][3*i];
                         int indexB = element_nodes[time_index][3*i+1];
                         int indexC = element_nodes[time_index][3*i+2];
@@ -1345,22 +1347,24 @@ public class Visualize2dCells implements ActionListener, AdjustmentListener, Ite
             if (image_cells[time_index][node_index] == node_index)
             {
                 // Make a new image of Cell A
-                RealPoint new_point = positions[time_index][node_index];
-                RealPoint new_point2 = new RealPoint(0.0,0.0);
-                new_point2.y = new_point.y;
-
-                if (new_point.x < half_width)
+                RealPoint old_point = positions[time_index][node_index];
+                RealPoint new_point = new RealPoint(0.0,0.0);
+                new_point.y = old_point.y;
+               
+                // if your original node is on the left, your new image node is that plus crypt width
+                if (old_point.x < half_width)	
                 {
-                    new_point2.x = new_point.x + crypt_width;
+                    new_point.x = old_point.x + crypt_width;
                 }
-                if (new_point.x > half_width)
+                // if your original node is on the right, your new image node is that minus crypt width
+                if (old_point.x > half_width)	
                 {
-                    new_point2.x = new_point.x - crypt_width;
+                    new_point.x = old_point.x - crypt_width;
                 }
 
-                // New ghost node
-                positions[time_index][numCells[time_index]] = new_point2;
-                cell_type[time_index][numCells[time_index]] = canvas.INVISIBLE_COLOUR;
+                // For the visualiser, we make a new ghost node at that image location
+                positions[time_index][numCells[time_index]] = new_point;	// Adds one to the vector of positions
+                cell_type[time_index][numCells[time_index]] = canvas.INVISIBLE_COLOUR;	// Same for cell type
 
                 // Update the image record
                 image_cells[time_index][node_index] = numCells[time_index];
