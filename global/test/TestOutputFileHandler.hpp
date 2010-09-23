@@ -171,6 +171,24 @@ public:
         return_value = system(command.c_str());
         TS_ASSERT_DIFFERS(return_value, 0);
         PetscTools::Barrier();
+
+        //
+        // Test we can make a directory of folders and delete them all.
+        //
+        OutputFileHandler handler4("what_about_me/and_me/and_me/and_da_da_da",true);
+
+        // Check we have made a subdirectory
+        command = "test -d " + OutputFileHandler::GetChasteTestOutputDirectory() + "what_about_me/and_me";
+        return_value = system(command.c_str());
+        TS_ASSERT_EQUALS(return_value, 0);
+        PetscTools::Barrier();
+
+        OutputFileHandler handler5("what_about_me",true);
+
+        // Check we have wiped the sub-directories
+        return_value = system(command.c_str());
+        TS_ASSERT_DIFFERS(return_value, 0);
+        PetscTools::Barrier();
     }
 
 

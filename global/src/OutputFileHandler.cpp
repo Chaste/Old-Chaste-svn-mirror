@@ -105,24 +105,45 @@ std::string OutputFileHandler::GetChasteTestOutputDirectory()
 std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& rDirectory) const
 {
     std::string directory_root = GetChasteTestOutputDirectory();
-    std::string directory = directory_root + rDirectory;
-    AddTrailingSlash(directory);
+    std::string directories_to_add = rDirectory; // Get from a const to something we can mess with.
+    AddTrailingSlash(directories_to_add);
+    std::string directory = directory_root + directories_to_add;
 
     // Are we the master process?  Only the master should make any new directories
     if (PetscTools::AmMaster())
     {
-        // Re-create the output directory structure:
-        std::string command = "test -d " + directory;
+        // If necessary make the ChasteTestOutputDirectory - don't make it deleteable by Chaste.
+        std::string command = "test -d " + directory_root;
         int return_value = system(command.c_str());
         if (return_value!=0)
         {
             // We make as many folders as necessary here.
-            EXPECT0(system,"mkdir -p " + directory);
+            EXPECT0(system,"mkdir -p " + directory_root);
+        }
 
-            /// \todo Put the Chaste signature file in all folders we have created
-            EXPECT0(system,"touch " + directory + ".chaste_deletable_folder");
+        // Now make all the sub-folders requested one-by-one and add the .chaste_deletable_folder file to them.
+        std::string remaining_directories = directories_to_add;
+        std::string directory_to_add = "";
+
+        // Create the output directory structure one folder at a time.
+        while (remaining_directories.find("/") != std::string::npos)
+        {
+            size_t found = remaining_directories.find_first_of("/");
+            directory_to_add += remaining_directories.substr(0,found+1);
+            remaining_directories = remaining_directories.substr(found+1);
+
+            command = "test -d " + directory_root + directory_to_add;
+            return_value = system(command.c_str());
+            if (return_value!=0)
+            {
+                // We make only the next folder here
+                EXPECT0(system,"mkdir " + directory_root + directory_to_add);
+                // Put the Chaste signature file into this folder
+                EXPECT0(system,"touch " + directory_root + directory_to_add + ".chaste_deletable_folder");
+            }
         }
     }
+
     // Wait for master to finish before going on to use the directory.
     PetscTools::Barrier("OutputFileHandler::MakeFoldersAndReturnFullPath");
 
@@ -166,7 +187,7 @@ void OutputFileHandler::SetArchiveDirectory() const
 void OutputFileHandler::AddTrailingSlash(std::string& rDirectory)
 {
     // Add a trailing slash if not already there
-    if (! ( *(rDirectory.end()-1) == '/'))
+    if (rDirectory!="" && !( *(rDirectory.end()-1) == '/'))
     {
         rDirectory = rDirectory + "/";
     }
