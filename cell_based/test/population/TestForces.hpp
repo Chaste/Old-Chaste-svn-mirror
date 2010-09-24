@@ -97,15 +97,19 @@ public:
         // Test set/get method
         TS_ASSERT_DELTA(linear_force.GetMeinekeDivisionRestingSpringLength(), 0.5, 1e-6);
         TS_ASSERT_DELTA(linear_force.GetMeinekeSpringStiffness(), 15.0, 1e-6);
+        TS_ASSERT_DELTA(linear_force.GetMeinekeSpringGrowthDuration(), 1.0, 1e-6);
 
         linear_force.SetMeinekeDivisionRestingSpringLength(0.8);
         linear_force.SetMeinekeSpringStiffness(20.0);
+        linear_force.SetMeinekeSpringGrowthDuration(2.0);
 
         TS_ASSERT_DELTA(linear_force.GetMeinekeDivisionRestingSpringLength(), 0.8, 1e-6);
         TS_ASSERT_DELTA(linear_force.GetMeinekeSpringStiffness(), 20.0, 1e-6);
+        TS_ASSERT_DELTA(linear_force.GetMeinekeSpringGrowthDuration(), 2.0, 1e-6);
 
         linear_force.SetMeinekeDivisionRestingSpringLength(0.5);
         linear_force.SetMeinekeSpringStiffness(15.0);
+        linear_force.SetMeinekeSpringGrowthDuration(1.0);
 
         /*
          ************************************************************************

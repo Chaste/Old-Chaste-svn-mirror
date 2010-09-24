@@ -134,6 +134,25 @@ public:
         }
 
         TS_ASSERT_DELTA(p_hepa_one_model->GetAge() + hepa_one_cell_birth_time, p_simulation_time->GetTime(), 1e-9);
+
+        // Test Get and Set Methods
+        TS_ASSERT_DELTA(p_stem_model->GetSDuration(), 5.0, 1e-9);
+        TS_ASSERT_DELTA(p_stem_model->GetG2Duration(), 4.0, 1e-9);
+        TS_ASSERT_DELTA(p_stem_model->GetMDuration(), 1.0, 1e-9);
+        TS_ASSERT_DELTA(p_stem_model->GetTransitCellG1Duration(), 2.0, 1e-9);
+        TS_ASSERT_DELTA(p_stem_model->GetStemCellG1Duration(), 14.0, 1e-9);
+
+        p_stem_model->SetSDuration(7.4);
+		p_stem_model->SetG2Duration(1.4);
+		p_stem_model->SetMDuration(0.72);
+		p_stem_model->SetTransitCellG1Duration(9.4);
+		p_stem_model->SetStemCellG1Duration(9.4);
+
+        TS_ASSERT_DELTA(p_stem_model->GetSDuration(), 7.4, 1e-9);
+        TS_ASSERT_DELTA(p_stem_model->GetG2Duration(), 1.4, 1e-9);
+        TS_ASSERT_DELTA(p_stem_model->GetMDuration(), 0.72, 1e-9);
+        TS_ASSERT_DELTA(p_stem_model->GetTransitCellG1Duration(), 9.4, 1e-9);
+        TS_ASSERT_DELTA(p_stem_model->GetStemCellG1Duration(), 9.4, 1e-9);
     }
 
 
