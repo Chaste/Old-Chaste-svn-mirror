@@ -897,7 +897,7 @@ public:
         cell_iterator->SetBirthTime(-1.0);   // Make cell cycle models do minimum work
         ++cell_iterator;
         cell_iterator->SetBirthTime(-1.0);
-        
+
         boost::shared_ptr<AbstractCellProperty> p_apc1(crypt.GetCellPropertyRegistry()->Get<ApcOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellProperty> p_bcat1(crypt.GetCellPropertyRegistry()->Get<BetaCateninOneHitCellMutationState>());
         boost::shared_ptr<AbstractCellProperty> p_label(crypt.GetCellPropertyRegistry()->Get<CellLabel>());
@@ -1505,8 +1505,8 @@ public:
         cells[2]->SetMutationState(CellPropertyRegistry::Instance()->Get<ApcTwoHitCellMutationState>());
         cells[3]->SetMutationState(CellPropertyRegistry::Instance()->Get<BetaCateninOneHitCellMutationState>());
         cells[4]->AddCellProperty(CellPropertyRegistry::Instance()->Get<CellLabel>());
-        cells[2]->SetBirthTime(1.5-(CellBasedConfig::Instance()->GetStemCellG1Duration()
-                                   + CellBasedConfig::Instance()->GetSG2MDuration()));
+        cells[2]->SetBirthTime(1.5-(cells[2]->GetCellCycleModel()->GetStemCellG1Duration()
+                                   + cells[2]->GetCellCycleModel()->GetSG2MDuration()));
 
         // Create cell population
         MeshBasedCellPopulationWithGhostNodes<2> crypt(*p_mesh, cells, location_indices);
@@ -1866,7 +1866,7 @@ public:
         delete p_crypt;
         delete p_params;
     }
-    
+
     void xTest2DCylindricalMeshForVisualizationInParaview() throw (Exception)
     {
         // Create mesh
@@ -1910,7 +1910,7 @@ public:
 
         // Run simulation
         simulator.Solve();
-    }    
+    }
 
 
 };

@@ -147,7 +147,7 @@ CHASTE_CLASS_EXPORT(MotileCellProperty)
 
 /* This completes the code for {{{MotileCellProperty}}}. Note that usually this code would
  * be separated out into a separate declaration in a .hpp file and definition in a .cpp file.
- * 
+ *
  * === The Tests ===
  *
  * EMPTYLINE
@@ -195,7 +195,7 @@ public:
 
         /* We can also test that archiving is implemented correctly for our cell
          * property, as follows (further details on how to implement and
-         * test archiving can be found on the BoostSerialization page).  */ 
+         * test archiving can be found on the BoostSerialization page).  */
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "property.arch";
 
@@ -253,7 +253,7 @@ public:
         HoneycombMeshGenerator generator(10, 10, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(5);
 
-        /* We now create a shared pointer to our new property, as follows. */ 
+        /* We now create a shared pointer to our new property, as follows. */
         boost::shared_ptr<AbstractCellProperty> p_motile(new MotileCellProperty);
 
         /* Next, we create some cells, as follows. */
@@ -279,8 +279,8 @@ public:
              * of a stem cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                    (CellBasedConfig::Instance()->GetStemCellG1Duration()
-                                        + CellBasedConfig::Instance()->GetSG2MDuration());
+                                    (p_model->GetStemCellG1Duration()
+                                        + p_model->GetSG2MDuration());
 
             /* Finally, we set the birth time and push the cell back into the vector of cells. */
             p_cell->SetBirthTime(birth_time);

@@ -69,13 +69,13 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_state(new WildTypeCellMutationState);
         for (unsigned elem_index=0; elem_index<p_mesh->GetNumElements(); elem_index++)
         {
-            double birth_time = - RandomNumberGenerator::Instance()->ranf()*
-                                 ( CellBasedConfig::Instance()->GetTransitCellG1Duration()
-                                    + CellBasedConfig::Instance()->GetSG2MDuration() );
-
             SimpleWntCellCycleModel* p_model = new SimpleWntCellCycleModel;
             p_model->SetDimension(2);
             p_model->SetCellProliferativeType(TRANSIT);
+
+            double birth_time = - RandomNumberGenerator::Instance()->ranf()*
+                                             ( p_model->GetTransitCellG1Duration()
+                                                + p_model->GetSG2MDuration() );
 
             CellPtr p_cell(new Cell(p_state, p_model));
             p_cell->SetBirthTime(birth_time);

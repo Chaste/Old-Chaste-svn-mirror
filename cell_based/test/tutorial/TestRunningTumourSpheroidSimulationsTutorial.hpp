@@ -112,8 +112,7 @@ public:
          */
         SimulationTime::Instance()->SetStartTime(0.0);
         CellBasedConfig::Instance()->Reset();
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
+
 
         /*
          * Now we want to create a ''non-periodic'' 'honeycomb' mesh.
@@ -158,13 +157,19 @@ public:
             CellPtr p_cell(new Cell(p_state, p_model));
 
             /*
+			 * ...then alter the default cell cycle times
+			 */
+            p_model->SetStemCellG1Duration(8.0);
+            p_model->SetTransitCellG1Duration(8.0);
+
+            /*
              * We now define a random birth time, chosen from [-T,0], where
              * T = t,,1,, + t,,2,,, where t,,1,, is a parameter representing the G,,1,, duration
              * of a 'stem' cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                 (  CellBasedConfig::Instance()->GetStemCellG1Duration()
-                                  + CellBasedConfig::Instance()->GetSG2MDuration() );
+                                 (  p_model->GetStemCellG1Duration()
+                                  + p_model->GetSG2MDuration() );
             /*
              * ...then we set the birth time and push the cell back into the vector
              * of cells.
@@ -211,9 +216,9 @@ public:
         CellwiseSourcePde<2> pde(cell_population, -0.03);
 
         /*
-         * To pass the PDE to our simulator, it first needs to be encapsulated in a 
+         * To pass the PDE to our simulator, it first needs to be encapsulated in a
          * {{{PdeAndBoundaryConditions}}} object, together with the boundary condition for
-         * the PDE. The latter is specified by the second and third arguments of the 
+         * the PDE. The latter is specified by the second and third arguments of the
          * {{{PdeAndBoundaryConditions}}} constructor below: the second argument defines the value
          * of the boundary condition and the third argument defines whether it is of Neumann type
          * (true) or Dirichlet type (false). Thus, in our case, we are a specifying no-flux
@@ -231,7 +236,7 @@ public:
          */
         std::vector<PdeAndBoundaryConditions<2>*> pde_and_bc_collection;
         pde_and_bc_collection.push_back(&pde_and_bc);
-        
+
         /*
          * We must now create one or more force laws, which determine the mechanics of
          * the cell population. For this test, we assume that a cell experiences a force from each

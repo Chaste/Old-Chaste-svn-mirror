@@ -192,7 +192,6 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -204,22 +203,24 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            CellProliferativeType cell_type;
+        	StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+
+        	CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
-                                                  + p_params->GetSG2MDuration()); // hours - doesn't matter for stem cell
+                birth_time = -p_rand_gen->ranf()*(p_model->GetStemCellG1Duration()
+                                                  + p_model->GetSG2MDuration()); // hours - doesn't matter for stem cell
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
-                                                    + p_params->GetSG2MDuration()); // hours
+                birth_time = -p_rand_gen->ranf()*(p_model->GetTransitCellG1Duration()
+                                                    + p_model->GetSG2MDuration()); // hours
             }
             else
             {
@@ -228,7 +229,6 @@ public:
                 birth_time = 0; // hours
             }
 
-            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
@@ -346,7 +346,6 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -358,22 +357,23 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            CellProliferativeType cell_type;
+        	StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+        	CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
-                                                  + p_params->GetSG2MDuration()); // hours - doesn't matter for stem cell
+                birth_time = -p_rand_gen->ranf()*(p_model->GetStemCellG1Duration()
+                                                  + p_model->GetSG2MDuration()); // hours - doesn't matter for stem cell
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
-                                                    + p_params->GetSG2MDuration()); // hours
+                birth_time = -p_rand_gen->ranf()*(p_model->GetTransitCellG1Duration()
+                                                    + p_model->GetSG2MDuration()); // hours
             }
             else
             {
@@ -382,7 +382,6 @@ public:
                 birth_time = 0; // hours
             }
 
-            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
@@ -434,20 +433,10 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
         mesh.ConstructLinearMesh(22);
-
-        // For Tyson-Novak Cells
-        double temp_stem = p_params->GetStemCellG1Duration() + p_params->GetSG2MDuration();
-        double temp_transit = p_params->GetTransitCellG1Duration() + p_params->GetSG2MDuration();
-        p_params->SetStemCellG1Duration(0.12);
-        p_params->SetTransitCellG1Duration(0.12);
-        p_params->SetSDuration(0.01);
-        p_params->SetG2Duration(0.01);
-        p_params->SetMDuration(0.01);
 
         // Set up cells by iterating through the nodes
         unsigned num_cells_at_start = mesh.GetNumNodes();
@@ -456,19 +445,28 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            CellProliferativeType cell_type;
+            TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel();
+            // For Tyson-Novak Cells
+            p_model->SetStemCellG1Duration(0.12);
+            p_model->SetTransitCellG1Duration(0.12);
+            p_model->SetSDuration(0.01);
+            p_model->SetG2Duration(0.01);
+            p_model->SetMDuration(0.01);
+
+
+        	CellProliferativeType cell_type;
             double birth_time;
             if (i == 0)
             {
                 cell_type = STEM;
-                birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
-                                                  + p_params->GetSG2MDuration());
+                birth_time = -p_rand_gen->ranf()*(p_model->GetStemCellG1Duration()
+                                                  + p_model->GetSG2MDuration());
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
-                birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
-                                                    + p_params->GetSG2MDuration());
+                birth_time = -p_rand_gen->ranf()*(p_model->GetTransitCellG1Duration()
+                                                    + p_model->GetSG2MDuration());
             }
             else
             {
@@ -476,7 +474,6 @@ public:
                 birth_time = 0;
             }
 
-            TysonNovakCellCycleModel* p_model = new TysonNovakCellCycleModel();
             p_model->SetCellProliferativeType(cell_type);
 
             CellPtr p_cell(new Cell(p_healthy_state, p_model));
@@ -491,6 +488,8 @@ public:
 
         // Create force law
         GeneralisedLinearSpringForce<1> linear_force;
+        // Sets the MeinekeSpringGrowthDuration to be the default MPhase Duration
+        linear_force.SetMeinekeSpringGrowthDuration(cells[0]->GetCellCycleModel()->GetMDuration());
         std::vector<AbstractForce<1>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -513,9 +512,6 @@ public:
          */
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), num_cells_at_start + 23u);
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 2*num_cells_at_start);
-
-        p_params->SetStemCellG1Duration(temp_stem - 10.0);
-        p_params->SetTransitCellG1Duration(temp_transit - 10.0);
     }
 
 
@@ -528,11 +524,6 @@ public:
     {
         // Get pointers to singleton object
         CellBasedConfig* p_params = CellBasedConfig::Instance();
-
-        // The stem cell cycle time must still be 24 h, otherwise this test may not pass
-        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
 
         p_params->SetCryptLength(5.0);
 
@@ -571,6 +562,11 @@ public:
             FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
+
+            // The stem cell cycle time must still be 24 h, otherwise this test may not pass
+			TS_ASSERT_DELTA(p_model->GetStemCellG1Duration(), 14.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetTransitCellG1Duration(), 2.0, 1e-12);
+            TS_ASSERT_DELTA(p_model->GetSG2MDuration(), 10.0, 1e-12);
 
             CellPtr p_cell(new Cell(p_healthy_state, p_model));
             p_cell->InitialiseCellCycleModel();
@@ -645,11 +641,6 @@ public:
         // Get pointers to singleton object
         CellBasedConfig* p_params = CellBasedConfig::Instance();
 
-        // The stem cell cycle time must still be 24 h, otherwise this test may not pass
-        TS_ASSERT_DELTA(p_params->GetStemCellG1Duration(), 14.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetTransitCellG1Duration(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_params->GetSG2MDuration(), 10.0, 1e-12);
-
         p_params->SetCryptLength(5.0);
 
         // Create a mesh with nodes equally spaced a unit distance apart
@@ -665,6 +656,12 @@ public:
         for (unsigned i=0; i<num_cells; i++)
         {
             WntCellCycleModel* p_cell_cycle_model1 = new WntCellCycleModel();
+
+            // The stem cell cycle time must still be 24 h, otherwise this test may not pass
+            TS_ASSERT_DELTA(p_cell_cycle_model1->GetStemCellG1Duration(), 14.0, 1e-12);
+            TS_ASSERT_DELTA(p_cell_cycle_model1->GetTransitCellG1Duration(), 2.0, 1e-12);
+            TS_ASSERT_DELTA(p_cell_cycle_model1->GetSG2MDuration(), 10.0, 1e-12);
+
             p_cell_cycle_model1->SetDimension(1);
             p_cell_cycle_model1->SetCellProliferativeType(TRANSIT);
             CellPtr p_cell(new Cell(p_healthy_state, p_cell_cycle_model1));
@@ -744,7 +741,6 @@ public:
     void TestSave() throw (Exception)
     {
         // Get pointers to singleton object
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
@@ -757,22 +753,24 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
-            CellProliferativeType cell_type;
+        	FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
+
+        	CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
             if (i == 0)
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
-                                                  + p_params->GetSG2MDuration());
+                birth_time = -p_rand_gen->ranf()*(p_model->GetStemCellG1Duration()
+                                                  + p_model->GetSG2MDuration());
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1)/5;
-                birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
-                                                    + p_params->GetSG2MDuration());
+                birth_time = -p_rand_gen->ranf()*(p_model->GetTransitCellG1Duration()
+                                                    + p_model->GetSG2MDuration());
             }
             else
             {
@@ -781,7 +779,6 @@ public:
                 birth_time = 0;
             }
 
-            FixedDurationGenerationBasedCellCycleModel* p_model = new FixedDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 
@@ -894,7 +891,6 @@ public:
     {
         // Get pointers to singleton objects
         RandomNumberGenerator* p_rand_gen = RandomNumberGenerator::Instance();
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
 
         // Create a mesh with nodes equally spaced a unit distance apart
         MutableMesh<1,1> mesh;
@@ -906,6 +902,8 @@ public:
 
         for (unsigned i=0; i<mesh.GetNumNodes(); i++)
         {
+        	StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
+
             CellProliferativeType cell_type;
             unsigned generation;
             double birth_time;
@@ -913,15 +911,15 @@ public:
             {
                 cell_type = STEM;
                 generation = 0;
-                birth_time = -p_rand_gen->ranf()*(p_params->GetStemCellG1Duration()
-                                                  + p_params->GetSG2MDuration()); // hours - doesn't matter for stem cell
+                birth_time = -p_rand_gen->ranf()*(p_model->GetStemCellG1Duration()
+                                                  + p_model->GetSG2MDuration()); // hours - doesn't matter for stem cell
             }
             else if (i < 15)
             {
                 cell_type = TRANSIT;
                 generation = 1 + (i - 1) / 5;
-                birth_time = -p_rand_gen->ranf()*(p_params->GetTransitCellG1Duration()
-                                                    + p_params->GetSG2MDuration()); // hours
+                birth_time = -p_rand_gen->ranf()*(p_model->GetTransitCellG1Duration()
+                                                    + p_model->GetSG2MDuration()); // hours
             }
             else
             {
@@ -930,7 +928,6 @@ public:
                 birth_time = 0; // hours
             }
 
-            StochasticDurationGenerationBasedCellCycleModel* p_model = new StochasticDurationGenerationBasedCellCycleModel();
             p_model->SetCellProliferativeType(cell_type);
             p_model->SetGeneration(generation);
 

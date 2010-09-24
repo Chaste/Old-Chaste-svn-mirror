@@ -453,9 +453,6 @@ public:
 
     void TestOxygenBasedCellKiller() throw(Exception)
     {
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         SimulationTime* p_simulation_time = SimulationTime::Instance();
         double end_time = 1.0;
         unsigned num_timesteps = 100*(unsigned)end_time; // ensure the time step is not too small
@@ -470,6 +467,13 @@ public:
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 2> cells_generator;
         cells_generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        // Set some model parameters for the cell cycle model
+        for(unsigned index=0; index < cells.size(); index++)
+		{
+        	cells[index]->GetCellCycleModel()->SetStemCellG1Duration(8.0);
+			cells[index]->GetCellCycleModel()->SetTransitCellG1Duration(8.0);
+		}
 
         // Create cell population
         MeshBasedCellPopulation<2> cell_population(mesh, cells);

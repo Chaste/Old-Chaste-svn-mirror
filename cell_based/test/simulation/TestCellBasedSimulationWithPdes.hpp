@@ -1252,9 +1252,6 @@ public:
     {
         EXIT_IF_PARALLEL; // defined in PetscTools
 
-        CellBasedConfig::Instance()->SetStemCellG1Duration(8.0);
-        CellBasedConfig::Instance()->SetTransitCellG1Duration(8.0);
-
         TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_136_elements");
         MutableMesh<3,3> mesh;
         mesh.ConstructFromMeshReader(mesh_reader);
@@ -1266,6 +1263,13 @@ public:
         std::vector<CellPtr> cells;
         CellsGenerator<FixedDurationGenerationBasedCellCycleModel, 3> generator;
         generator.GenerateBasic(cells, mesh.GetNumNodes());
+
+        // Set some model parameters for the cell cycle model
+		for(unsigned index=0; index < cells.size(); index++)
+		{
+			cells[index]->GetCellCycleModel()->SetTransitCellG1Duration(8.0);
+			cells[index]->GetCellCycleModel()->SetStemCellG1Duration(8.0);
+		}
 
         // Set up cell population
         MeshBasedCellPopulation<3> cell_population(mesh, cells);

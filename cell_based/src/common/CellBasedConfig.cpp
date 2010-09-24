@@ -83,30 +83,30 @@ void CellBasedConfig::Reset()
 // Getter methods
 ///////////////////////////////////////////////////////////////////////
 
-double CellBasedConfig::GetStemCellG1Duration()
-{
-    return mStemCellG1Duration;
-}
-double CellBasedConfig::GetTransitCellG1Duration()
-{
-    return mTransitCellG1Duration;
-}
-double CellBasedConfig::GetSG2MDuration()
-{
-    return mSDuration + mG2Duration + mMDuration;
-}
-double CellBasedConfig::GetSDuration()
-{
-    return mSDuration;
-}
-double CellBasedConfig::GetG2Duration()
-{
-    return mG2Duration;
-}
-double CellBasedConfig::GetMDuration()
-{
-    return mMDuration;
-}
+//double CellBasedConfig::GetStemCellG1Duration()
+//{
+//    return mStemCellG1Duration;
+//}
+//double CellBasedConfig::GetTransitCellG1Duration()
+//{
+//    return mTransitCellG1Duration;
+//}
+//double CellBasedConfig::GetSG2MDuration()
+//{
+//    return mSDuration + mG2Duration + mMDuration;
+//}
+//double CellBasedConfig::GetSDuration()
+//{
+//    return mSDuration;
+//}
+//double CellBasedConfig::GetG2Duration()
+//{
+//    return mG2Duration;
+//}
+//double CellBasedConfig::GetMDuration()
+//{
+//    return mMDuration;
+//}
 double CellBasedConfig::GetCryptLength()
 {
     return mCryptLength;
@@ -132,31 +132,31 @@ double CellBasedConfig::GetMechanicsCutOffLength()
 // Setter methods
 ///////////////////////////////////////////////////////////////////////
 
-void CellBasedConfig::SetStemCellG1Duration(double stemCellG1Duration)
-{
-    assert(stemCellG1Duration > 0.0);
-    mStemCellG1Duration = stemCellG1Duration;
-}
-void CellBasedConfig::SetTransitCellG1Duration(double transitCellG1Duration)
-{
-    assert(transitCellG1Duration > 0.0);
-    mTransitCellG1Duration = transitCellG1Duration;
-}
-void CellBasedConfig::SetSDuration(double SDuration)
-{
-    assert(SDuration > 0.0);
-    mSDuration = SDuration;
-}
-void CellBasedConfig::SetG2Duration(double G2Duration)
-{
-    assert(G2Duration > 0.0);
-    mG2Duration = G2Duration;
-}
-void CellBasedConfig::SetMDuration(double MDuration)
-{
-    assert(MDuration > 0.0);
-    mMDuration = MDuration;
-}
+//void CellBasedConfig::SetStemCellG1Duration(double stemCellG1Duration)
+//{
+//    assert(stemCellG1Duration > 0.0);
+//    mStemCellG1Duration = stemCellG1Duration;
+//}
+//void CellBasedConfig::SetTransitCellG1Duration(double transitCellG1Duration)
+//{
+//    assert(transitCellG1Duration > 0.0);
+//    mTransitCellG1Duration = transitCellG1Duration;
+//}
+//void CellBasedConfig::SetSDuration(double SDuration)
+//{
+//    assert(SDuration > 0.0);
+//    mSDuration = SDuration;
+//}
+//void CellBasedConfig::SetG2Duration(double G2Duration)
+//{
+//    assert(G2Duration > 0.0);
+//    mG2Duration = G2Duration;
+//}
+//void CellBasedConfig::SetMDuration(double MDuration)
+//{
+//    assert(MDuration > 0.0);
+//    mMDuration = MDuration;
+//}
 void CellBasedConfig::SetCryptLength(double cryptLength)
 {
     assert(cryptLength > 0.0);

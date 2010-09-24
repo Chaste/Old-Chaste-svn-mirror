@@ -47,7 +47,7 @@ class TestCellBasedSimulation3d : public AbstractCellBasedTestSuite
 private:
     double mLocationGhosts;
     double mLocationWithoutGhosts;
-    
+
     MutableMesh<3,3>* Make3dMesh(unsigned width=3, unsigned height=3, unsigned depth=3)
     {
         MutableMesh<3,3>* p_mesh = new MutableMesh<3,3>;
@@ -191,8 +191,8 @@ public:
             CellPtr p_cell(new Cell(p_state, p_model));
 
             p_cell->SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
-                               ( CellBasedConfig::Instance()->GetStemCellG1Duration()
-                                 + CellBasedConfig::Instance()->GetSG2MDuration()   ));
+                               ( p_model->GetStemCellG1Duration()
+                                 + p_model->GetSG2MDuration()   ));
 
             cells.push_back(p_cell);
         }
@@ -269,8 +269,8 @@ public:
             CellPtr p_cell(new Cell(p_state, p_model));
 
             p_cell->SetBirthTime(-RandomNumberGenerator::Instance()->ranf()*
-                                (  CellBasedConfig::Instance()->GetStemCellG1Duration() +
-                                   CellBasedConfig::Instance()->GetSG2MDuration()  ));
+                                (  p_model->GetStemCellG1Duration() +
+                                   p_model->GetSG2MDuration()  ));
 
             cells2.push_back(p_cell);
 

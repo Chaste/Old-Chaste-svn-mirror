@@ -95,13 +95,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * 172R-H gain-of-function mutant, which is equivalent to the common 175R-H
  * human breast cancer mutant; for further details on this mutant, see for
  * example Murphy et al, FASEB J. 14:2291-2302 (2000).
- * 
+ *
  * Wild-type p53 has been referred to as the "guardian of the genome",
  * responding to DNA damage or checkpoint failure by either arresting cell
  * cycle progression to facilitate DNA repair or initiating an apoptotic
  * pathway to remove damaged cells. Approximately 40% of human breast cancers
  * contain alterations in p53.
- * 
+ *
  * As we can see, apart from a serialize() method and a constructor, this class
  * does not contain any member variables or methods. This is because generally
  * a cell's mutation state is used, much like a flag, by other classes when
@@ -197,7 +197,7 @@ public:
 
         /* We can also test that archiving is implemented correctly for our cell
          * mutation state, as follows (further details on how to implement and
-         * test archiving can be found on the BoostSerialization page).  */ 
+         * test archiving can be found on the BoostSerialization page).  */
         OutputFileHandler handler("archive", false);
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "mutation.arch";
 
@@ -255,7 +255,7 @@ public:
         HoneycombMeshGenerator generator(10, 10, 0, false);
         MutableMesh<2,2>* p_mesh = generator.GetCircularMesh(5);
 
-        /* We now create a shared pointer to our new cell mutation state, as follows. */ 
+        /* We now create a shared pointer to our new cell mutation state, as follows. */
         boost::shared_ptr<AbstractCellMutationState> p_state(new P53GainOfFunctionCellMutationState);
 
         /* Next, we create some cells, as follows. */
@@ -272,8 +272,8 @@ public:
              * of a stem cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                    (CellBasedConfig::Instance()->GetStemCellG1Duration()
-                                        + CellBasedConfig::Instance()->GetSG2MDuration());
+                                    (p_model->GetStemCellG1Duration()
+                                        + p_model->GetSG2MDuration());
             /* We then set the birth time and push the cell back into the vector of cells. */
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);
