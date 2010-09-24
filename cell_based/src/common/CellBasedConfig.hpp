@@ -54,30 +54,6 @@ public:
     static CellBasedConfig* Instance();
 
     /**
-     * @return mStemCellG1Duration
-     */
-    double GetStemCellG1Duration();
-    /**
-     * @return mTransitCellG1Duration
-     */
-    double GetTransitCellG1Duration();
-    /**
-     * @return mSDuration + mG2Duration + mMDuration
-     */
-    double GetSG2MDuration();
-    /**
-     * @return mSDuration
-     */
-    double GetSDuration();
-    /**
-     * @return mG2Duration
-     */
-    double GetG2Duration();
-    /**
-     * @return mMDuration
-     */
-    double GetMDuration();
-    /**
      * @return mCryptLength
      */
     double GetCryptLength();
@@ -98,26 +74,6 @@ public:
      */
     double GetMechanicsCutOffLength();
 
-    /**
-     * Set mStemCellG1Duration.
-     */
-    void SetStemCellG1Duration(double);
-    /**
-     * Set mTransitCellG1Duration.
-     */
-    void SetTransitCellG1Duration(double);
-    /**
-     * Set mSDuration.
-     */
-    void SetSDuration(double);
-    /**
-     * Set mG2Duration.
-     */
-    void SetG2Duration(double);
-    /**
-     * Set mMDuration.
-     */
-    void SetMDuration(double);
     /**
      * Set mCryptLength.
      */
@@ -167,34 +123,6 @@ private:
     static CellBasedConfig* mpInstance;
 
     /**
-     * Duration of G1 phase for stem cells.
-     * May be used as a mean duration for stochastic cell cycle models.
-     *
-     */
-    double mStemCellG1Duration;
-
-    /**
-     * Duration of G1 phase for transit cells.
-     * May be used as a mean duration for stochastic cell cycle models.
-     */
-    double mTransitCellG1Duration;
-
-    /**
-     * Duration of S phase for all cell types.
-     */
-    double mSDuration;
-
-    /**
-     * Duration of G2 phase for all cell types.
-     */
-    double mG2Duration;
-
-    /**
-     * Duration of M phase for all cell types.
-     */
-    double mMDuration;
-
-    /**
      * The length of the crypt, non-dimensionalised with cell length.
      * This parameter determines when cells are sloughed from the crypt.
      */
@@ -238,11 +166,6 @@ private:
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        archive & mStemCellG1Duration;
-        archive & mTransitCellG1Duration;
-        archive & mSDuration;
-        archive & mG2Duration;
-        archive & mMDuration;
         archive & mCryptLength;
         archive & mCryptWidth;
         archive & mDampingConstantNormal;

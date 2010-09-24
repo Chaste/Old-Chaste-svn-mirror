@@ -47,11 +47,6 @@ CellBasedConfig::CellBasedConfig()
 }
 
 /**
- * mStemCellG1Duration has units of hours
- * mTransitCellG1Duration has units of hours
- * mSDuration has units of hours
- * mG2Duration has units of hours
- * mMDuration has units of hours
  * mCryptWidth has units of cell size at equilibrium rest length
  * mCryptLength has units of cell size at equilibrium rest length
  * mDampingConstantNormal has units of kg s^-1
@@ -61,12 +56,6 @@ CellBasedConfig::CellBasedConfig()
 void CellBasedConfig::Reset()
 {
     // Default parameter values
-    mStemCellG1Duration = 14.0;
-    mTransitCellG1Duration = 2.0;
-    mSDuration = 5.0;               // apparently between 5-6 hours normally
-    mG2Duration = 4.0;              // apparently 3-4 hours normally
-    mMDuration = 1.0;               // taken from Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
-
     mCryptWidth = 10.0;
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
     mDampingConstantNormal = 1.0;   // denoted by nu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
@@ -83,30 +72,6 @@ void CellBasedConfig::Reset()
 // Getter methods
 ///////////////////////////////////////////////////////////////////////
 
-double CellBasedConfig::GetStemCellG1Duration()
-{
-    return mStemCellG1Duration;
-}
-double CellBasedConfig::GetTransitCellG1Duration()
-{
-    return mTransitCellG1Duration;
-}
-double CellBasedConfig::GetSG2MDuration()
-{
-    return mSDuration + mG2Duration + mMDuration;
-}
-double CellBasedConfig::GetSDuration()
-{
-    return mSDuration;
-}
-double CellBasedConfig::GetG2Duration()
-{
-    return mG2Duration;
-}
-double CellBasedConfig::GetMDuration()
-{
-    return mMDuration;
-}
 double CellBasedConfig::GetCryptLength()
 {
     return mCryptLength;
@@ -132,31 +97,6 @@ double CellBasedConfig::GetMechanicsCutOffLength()
 // Setter methods
 ///////////////////////////////////////////////////////////////////////
 
-void CellBasedConfig::SetStemCellG1Duration(double stemCellG1Duration)
-{
-    assert(stemCellG1Duration > 0.0);
-    mStemCellG1Duration = stemCellG1Duration;
-}
-void CellBasedConfig::SetTransitCellG1Duration(double transitCellG1Duration)
-{
-    assert(transitCellG1Duration > 0.0);
-    mTransitCellG1Duration = transitCellG1Duration;
-}
-void CellBasedConfig::SetSDuration(double SDuration)
-{
-    assert(SDuration > 0.0);
-    mSDuration = SDuration;
-}
-void CellBasedConfig::SetG2Duration(double G2Duration)
-{
-    assert(G2Duration > 0.0);
-    mG2Duration = G2Duration;
-}
-void CellBasedConfig::SetMDuration(double MDuration)
-{
-    assert(MDuration > 0.0);
-    mMDuration = MDuration;
-}
 void CellBasedConfig::SetCryptLength(double cryptLength)
 {
     assert(cryptLength > 0.0);

@@ -34,7 +34,7 @@ AbstractCellCycleModel::AbstractCellCycleModel()
       mReadyToDivide(false),
       mDimension(0),
       mMinimumGapDuration(0.01), // an educated guess
-      // Default parameter values
+      // Default parameter values all have units of hours.
 	  mStemCellG1Duration(14.0),
 	  mTransitCellG1Duration(2.0),
 	  mSDuration(5.0),               // apparently between 5-6 hours normally
