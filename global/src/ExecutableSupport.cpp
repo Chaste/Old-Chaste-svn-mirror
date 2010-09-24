@@ -51,6 +51,13 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #endif
 //#include <xsd/cxx/version.hxx>
 
+std::string ExecutableSupport::mOutputDirectory;
+
+void ExecutableSupport::SetOutputDirectory(const std::string& rOutputDirectory)
+{
+    mOutputDirectory = rOutputDirectory;
+}
+
 void ExecutableSupport::InitializePetsc(int* pArgc, char*** pArgv)
 {
     // Store the arguments in case other code needs them
@@ -89,15 +96,6 @@ along with Chaste.  If not, see <http://www.gnu.org/licenses/>.\n\n";
         //Write provenance information to stdout
         std::cout << provenance_msg.str() << std::flush;
     }
-
-    //Write provenance information to a file
-    OutputFileHandler out_file_handler("",false);
-    out_stream out_file = out_file_handler.OpenOutputFile("provenance_info_", PetscTools::GetMyRank(), ".txt");
-    *out_file << provenance_msg.str();
-
-    WriteLibraryInfo( out_file );
-
-    out_file->close();
 }
 
 void ExecutableSupport::ShowParallelLaunching()
@@ -119,9 +117,9 @@ void ExecutableSupport::ShowParallelLaunching()
 
 void ExecutableSupport::WriteMachineInfoFile(std::string fileBaseName)
 {
-    OutputFileHandler out_file_handler("",false);
+    OutputFileHandler out_file_handler(mOutputDirectory, false);
     std::stringstream file_name;
-    file_name << fileBaseName << "." <<  PetscTools::GetMyRank();
+    file_name << fileBaseName << "_" << PetscTools::GetMyRank() << ".txt";
     out_stream out_file = out_file_handler.OpenOutputFile(file_name.str());
     *out_file << "Process " << PetscTools::GetMyRank() << " of "
         << PetscTools::GetNumProcs() << "." << std::endl << std::flush;
@@ -138,7 +136,7 @@ void ExecutableSupport::WriteMachineInfoFile(std::string fileBaseName)
     FILE * system_info;
 
     *out_file << "\nInformation on number and type of processors:\n";
-    system_info = popen("grep ^model.name /proc/cpuinfo" ,"r");
+    system_info = popen("grep ^model.name /proc/cpuinfo", "r");
     while ( fgets(buffer, 100, system_info) != NULL )
     {
         *out_file << buffer;
@@ -146,7 +144,7 @@ void ExecutableSupport::WriteMachineInfoFile(std::string fileBaseName)
     fclose(system_info);
 
     *out_file << "\nInformation on processor caches, in the same order as above:\n";
-    system_info = popen("grep ^cache.size /proc/cpuinfo" ,"r");
+    system_info = popen("grep ^cache.size /proc/cpuinfo", "r");
     while ( fgets(buffer, 100, system_info) != NULL )
     {
         *out_file << buffer;
@@ -154,12 +152,29 @@ void ExecutableSupport::WriteMachineInfoFile(std::string fileBaseName)
     fclose(system_info);
 
     *out_file << "\nInformation on system memory:\n";
-    system_info = popen("grep ^MemTotal /proc/meminfo" ,"r");
+    system_info = popen("grep ^MemTotal /proc/meminfo", "r");
     while ( fgets(buffer, 100, system_info) != NULL )
     {
         *out_file << buffer;
     }
     fclose(system_info);
+
+    out_file->close();
+}
+
+void ExecutableSupport::WriteProvenanceInfoFile()
+{
+    OutputFileHandler out_file_handler(mOutputDirectory, false);
+    out_stream out_file = out_file_handler.OpenOutputFile("provenance_info_", PetscTools::GetMyRank(), ".txt");
+
+    //Compilation information
+    std::stringstream provenance_msg;
+    provenance_msg << "This version of Chaste was compiled on:\n";
+    provenance_msg << ChasteBuildInfo::GetBuildTime() << " by " << ChasteBuildInfo::GetBuilderUnameInfo() << " (uname)\n";
+    provenance_msg << "from revision number " << ChasteBuildInfo::GetRevisionNumber() << " with build type " << ChasteBuildInfo::GetBuildInformation() << ".\n\n";
+    *out_file << provenance_msg.str();
+
+    WriteLibraryInfo( out_file );
 
     out_file->close();
 }
@@ -220,7 +235,7 @@ void ExecutableSupport::PrintError(const std::string& rMessage, bool masterOnly)
     }
 
     // Write the error message to file
-    OutputFileHandler out_file_handler("",false);
+    OutputFileHandler out_file_handler(mOutputDirectory, false);
     out_stream out_file = out_file_handler.OpenOutputFile("chaste_errors_", PetscTools::GetMyRank(), ".txt", std::ios::out | std::ios::app);
     *out_file << rMessage << std::endl;
     out_file->close();

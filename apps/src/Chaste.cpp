@@ -31,14 +31,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
  * don't ever test it with VTK support turned off!
  */
 
-#include <iostream>
-
 // Most of the work is done by this class.  It must be included first.
 #include "CardiacSimulation.hpp"
 
+#include <string>
+
 #include "ExecutableSupport.hpp"
-#include "Exception.hpp"
-#include "PetscTools.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -57,7 +55,7 @@ int main(int argc, char *argv[])
         {
             std::string xml_file_name(argv[1]);
             // Creates & runs the simulation
-            CardiacSimulation simulation(xml_file_name);
+            CardiacSimulation simulation(xml_file_name, true);
         }
     }
     catch (const Exception& e)
@@ -65,8 +63,6 @@ int main(int argc, char *argv[])
         ExecutableSupport::PrintError(e.GetMessage());
         exit_code = ExecutableSupport::EXIT_ERROR;
     }
-
-    ExecutableSupport::WriteMachineInfoFile("machine_info");
 
     ExecutableSupport::FinalizePetsc();
     return exit_code;

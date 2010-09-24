@@ -63,10 +63,27 @@ public:
     static void ShowParallelLaunching();
     
     /**
-     * Write to a log file info about the machine that ran the code
+     * Set the directory to which the files created by WriteMachineInfoFile,
+     * and WriteProvenanceInfoFile will be written.
+     * By default they will write to the CHASTE_TEST_OUTPUT folder.
+     *
+     * @param rOutputDirectory  the directory to write to
+     */
+    static void SetOutputDirectory(const std::string& rOutputDirectory);
+
+    /**
+     * Write to log files information about the machine that ran the code.
+     * Each process will output its own file.
+     *
      * @param fileBaseName base name of the file to write to 
      */
     static void WriteMachineInfoFile(std::string fileBaseName);
+
+    /**
+     * Write to log files provenance information about this executable.
+     * Each process will output its own file, named provenance_info.n.txt.
+     */
+    static void WriteProvenanceInfoFile();
 
     /**
      * Write information about library and compiler versions to the provenance_info.txt
@@ -114,7 +131,9 @@ public:
      * bad arguments passed on command line.
      */
     static const int EXIT_BAD_ARGUMENTS = 2;
- 
+
+private:
+    static std::string mOutputDirectory;
 };
 
 #endif /* EXECUTABLESUPPORT_HPP_ */

@@ -67,6 +67,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PostProcessingWriter.hpp"
 
 #include "OutputDirectoryFifoQueue.hpp"
+#include "ExecutableSupport.hpp"
 
 /**
  * A class which encapsulates the executable functionality.
@@ -201,9 +202,11 @@ public:
      * This also runs the simulation immediately.
      *
      * @param parameterFileName  The name of the chaste parameters xml file to use to run a simulation.
+     * @param writeProvenanceInfo  Whether to write provanence and machine information files.
      * @param saveProblemInstance  Whether to save a copy of the problem instance for examination by tests.
      */
     CardiacSimulation(std::string parameterFileName,
+                      bool writeProvenanceInfo=false,
     		          bool saveProblemInstance=false);
 
     /**
@@ -271,6 +274,7 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
 }
 
 CardiacSimulation::CardiacSimulation(std::string parameterFileName,
+                                     bool writeProvenanceInfo,
 									 bool saveProblemInstance)
 	: mSaveProblemInstance(saveProblemInstance)
 {
@@ -283,6 +287,12 @@ CardiacSimulation::CardiacSimulation(std::string parameterFileName,
     Run();
     HeartEventHandler::Headings();
     HeartEventHandler::Report();
+    if (writeProvenanceInfo)
+    {
+        ExecutableSupport::SetOutputDirectory(HeartConfig::Instance()->GetOutputDirectory());
+        ExecutableSupport::WriteProvenanceInfoFile();
+        ExecutableSupport::WriteMachineInfoFile("machine_info");
+    }
 }
 
 void CardiacSimulation::ReadParametersFromFile(std::string parameterFileName)

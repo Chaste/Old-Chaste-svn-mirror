@@ -655,12 +655,10 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 
 	// Create Output file
     OutputFileHandler output_file_handler(this->mSimulationOutputDirectory + "/", false);
-	ExecutableSupport::WriteMachineInfoFile(this->mSimulationOutputDirectory + "/system.info");
+	ExecutableSupport::WriteMachineInfoFile(this->mSimulationOutputDirectory + "/system_info");
 
 	out_stream build_info_file = output_file_handler.OpenOutputFile("build.info");
     ExecutableSupport::WriteLibraryInfo(build_info_file);
-
-
 
     // Output Chaste provenance information
     *build_info_file << "\t<ChasteInfo>\n" ;

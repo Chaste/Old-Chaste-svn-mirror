@@ -555,7 +555,7 @@ public:
 
 		//Check that the files which we don't want to compare actually exist
 		std::ifstream machine_file;
-		std::string command = results_dir+"/system.info.0";
+		std::string command = results_dir+"/system_info_0.txt";
 		machine_file.open(command.c_str());
 		TS_ASSERT(machine_file.is_open());
 		machine_file.close();

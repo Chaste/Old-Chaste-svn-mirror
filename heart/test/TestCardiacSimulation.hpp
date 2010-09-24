@@ -347,7 +347,7 @@ public:
     	}
     	
     	{ // Load
-    		CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_changing_parameter.xml", true);
+    		CardiacSimulation simulation("heart/test/data/xml/resume_monodomain_changing_parameter.xml", false, true);
     		
     		boost::shared_ptr<AbstractUntemplatedCardiacProblem> p_problem = simulation.GetSavedProblem();
     		TS_ASSERT(p_problem);
