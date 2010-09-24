@@ -1,6 +1,8 @@
 The following new files/directories were created:
 <Test Directory>
 ----SaveMonodomain
+--------machine_info_0.txt
+--------provenance_info_0.txt
 --------cmgui_output
 ------------.chaste_deletable_folder
 ------------ChasteDefaults.xml
@@ -209,8 +211,6 @@ The following new files/directories were created:
 ------------MonodomainLR91_2d_98.exnode
 ------------MonodomainLR91_2d_99.exnode
 ------------MonodomainLR91_2d_times.info
-----machine_info.0
-----provenance_info_0.txt
 
 The following existing files/directories changed their contents:
 <Test Directory>
