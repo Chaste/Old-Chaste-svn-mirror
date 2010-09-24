@@ -30,12 +30,10 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include <cxxtest/TestSuite.h>
 
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-
 #include <fstream>
 #include <iostream>
 
+#include "Cell.hpp"
 #include "AbstractCellBasedTestSuite.hpp"
 #include "WildTypeCellMutationState.hpp"
 #include "FixedDurationGenerationBasedCellCycleModel.hpp"
@@ -46,7 +44,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "StochasticWntCellCycleModel.hpp"
 #include "StochasticDurationGenerationBasedCellCycleModel.hpp"
 #include "TysonNovakCellCycleModel.hpp"
-//#include "Cell.hpp"
 
 
 class TestCell: public AbstractCellBasedTestSuite
@@ -623,11 +620,6 @@ public:
             CellPtr p_stem_cell(new Cell(p_healthy_state, p_model));
             p_stem_cell->InitialiseCellCycleModel();
             cells.push_back(p_stem_cell);
-
-            // This test needs particular cell cycle times
-            TS_ASSERT_DELTA(p_model->GetStemCellG1Duration(), 14.0, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetTransitCellG1Duration(), 2.0, 1e-12);
-            TS_ASSERT_DELTA(p_model->GetSG2MDuration(), 10.0, 1e-12);
 
             // Produce the offspring of the cells
             std::vector<CellPtr>::iterator cell_iterator = cells.begin();
@@ -1355,119 +1347,6 @@ public:
 
         TS_ASSERT_EQUALS(p_cell->GetCellId(), 0u);
         TS_ASSERT_EQUALS(p_cell2->GetCellId(), 1u);
-    }
-
-    void ThisTestBreaksSomeBuildsTestCellDivisionStops()
-    {
-        SimulationTime* p_simulation_time = SimulationTime::Instance();
-		p_simulation_time->SetEndTimeAndNumberOfTimeSteps(54.0, 9);
-
-        // If the value of GetStemCellG1Duration() changes in the cell cycle model
-		// the simulation time step and end time will need to be changed accordingly
-		// so that IncrementTimeOneStep() gets the cell to correct division times
-
-        // SimulationTime returns 0 hours
-        p_simulation_time->IncrementTimeOneStep();
-        // SimulationTime returns 6 hours
-
-        boost::shared_ptr<AbstractCellProperty> p_healthy_state(CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>());
-
-        FixedDurationGenerationBasedCellCycleModel* p_cell_model = new FixedDurationGenerationBasedCellCycleModel();
-        p_cell_model->SetCellProliferativeType(STEM);
-        CellPtr p_stem_cell(new Cell(p_healthy_state, p_cell_model));
-        p_stem_cell->InitialiseCellCycleModel();
-
-        // This test needs particular cell cycle times
-        TS_ASSERT_DELTA(p_cell_model->GetStemCellG1Duration(), 14.0, 1e-12);
-        TS_ASSERT_DELTA(p_cell_model->GetTransitCellG1Duration(), 2.0, 1e-12);
-        TS_ASSERT_DELTA(p_cell_model->GetSG2MDuration(), 10.0, 1e-12);
-
-        p_simulation_time->IncrementTimeOneStep();
-        p_simulation_time->IncrementTimeOneStep();
-        p_simulation_time->IncrementTimeOneStep();
-        p_simulation_time->IncrementTimeOneStep();
-
-        // SimulationTime returns 30 hours
-
-        // Create transit progeny of stem
-        TS_ASSERT_EQUALS(p_stem_cell->ReadyToDivide(), true);
-        CellPtr p_daughter_cell = p_stem_cell->Divide();
-
-        std::vector<CellPtr> cells;
-        std::vector<CellPtr> newly_born;
-
-        // Track all the offspring of the daughter cell
-        // after 3 generations they should become differentiated
-        // and stop dividing
-        cells.push_back(p_daughter_cell);
-
-        std::vector<CellPtr>::iterator cell_iterator;
-
-        unsigned expected_num_cells[6];
-        expected_num_cells[0] = 0;
-        expected_num_cells[1] = 1;
-        expected_num_cells[2] = 2;
-        expected_num_cells[3] = 4;
-        expected_num_cells[4] = 8;
-        expected_num_cells[5] = 8;
-
-        TS_ASSERT_EQUALS(expected_num_cells[1], cells.size());
-
-        for (unsigned generation=2; generation<6; generation++)
-        {
-            // Produce the offspring of the cells
-            cell_iterator = cells.begin();
-
-            p_simulation_time->IncrementTimeOneStep();
-            p_simulation_time->IncrementTimeOneStep();
-
-            while (cell_iterator < cells.end())
-            {
-                if ((*cell_iterator)->ReadyToDivide())
-                {
-                    CellPtr p_new_cell = (*cell_iterator)->Divide();
-                    TS_ASSERT_DELTA((*cell_iterator)->GetAge(), 0, 1e-9);
-                    if ((*cell_iterator)->GetCellCycleModel()->GetCellProliferativeType()==STEM)
-                    {
-                        TS_ASSERT_EQUALS(p_new_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
-                        TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>((*cell_iterator)->GetCellCycleModel())->GetGeneration(), 0u);
-                    }
-                    else if ((*cell_iterator)->GetCellCycleModel()->GetCellProliferativeType()==TRANSIT)
-                    {
-                        TS_ASSERT_EQUALS(p_new_cell->GetCellCycleModel()->GetCellProliferativeType(), TRANSIT);
-                        TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>((*cell_iterator)->GetCellCycleModel())->GetGeneration(), generation);
-                    }
-                    else
-                    {
-                        TS_ASSERT_EQUALS(p_new_cell->GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
-                        TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>((*cell_iterator)->GetCellCycleModel())->GetGeneration(), generation);
-                    }
-
-                    TS_ASSERT_DELTA(p_new_cell->GetAge(), 0, 1e-9);
-                    TS_ASSERT_EQUALS(static_cast<FixedDurationGenerationBasedCellCycleModel*>(p_new_cell->GetCellCycleModel())->GetGeneration(), generation);
-
-                    newly_born.push_back(p_new_cell);
-                }
-                ++cell_iterator;
-            }
-
-            // Copy offspring in newly_born vector to cells vector
-            cell_iterator = newly_born.begin();
-            while (cell_iterator < newly_born.end())
-            {
-                cells.push_back(*cell_iterator);
-                ++cell_iterator;
-            }
-            newly_born.clear();
-
-            // Check cell counts
-            TS_ASSERT_EQUALS(expected_num_cells[generation], cells.size());
-        }
-
-        for (unsigned i=0; i<cells.size(); i++)
-        {
-            TS_ASSERT_EQUALS(cells[i]->GetCellCycleModel()->GetCellProliferativeType(), DIFFERENTIATED);
-        }
     }
 };
 
