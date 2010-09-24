@@ -31,9 +31,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 TysonNovakCellCycleModel::TysonNovakCellCycleModel(boost::shared_ptr<AbstractCellCycleModelOdeSolver> pOdeSolver)
     : AbstractOdeBasedCellCycleModel(SimulationTime::Instance()->GetTime(), pOdeSolver)
 {
-    mpOdeSystem = new TysonNovak2001OdeSystem;
-    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
-
     if (!mpOdeSolver)
     {
 #ifdef CHASTE_CVODE
@@ -50,6 +47,15 @@ TysonNovakCellCycleModel::TysonNovakCellCycleModel(boost::shared_ptr<AbstractCel
         SetDt(0.1/60.0);
 #endif //CHASTE_CVODE
     }
+}
+
+void TysonNovakCellCycleModel::Initialise()
+{
+    assert(mpOdeSystem == NULL);
+    mpOdeSystem = new TysonNovak2001OdeSystem;
+    mpOdeSystem->SetStateVariables(mpOdeSystem->GetInitialConditions());
+
+    AbstractCellCycleModel::Initialise();
 }
 
 void TysonNovakCellCycleModel::ResetForDivision()
@@ -92,6 +98,7 @@ AbstractCellCycleModel* TysonNovakCellCycleModel::CreateCellCycleModel()
 
     // Use the current values of the state variables in mpOdeSystem as an initial condition for the new cell cycle model's ODE system
     assert(mpOdeSystem);
+    p_model->SetOdeSystem(new TysonNovak2001OdeSystem);
     p_model->SetStateVariables(mpOdeSystem->rGetStateVariables());
 
     // Set the values of the new cell cycle model's member variables

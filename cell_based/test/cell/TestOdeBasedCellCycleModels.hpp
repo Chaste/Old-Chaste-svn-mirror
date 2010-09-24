@@ -80,6 +80,7 @@ public:
 
         boost::shared_ptr<AbstractCellMutationState> p_healthy_state(new WildTypeCellMutationState);
         CellPtr p_cell(new Cell(p_healthy_state, p_cell_model));
+        p_cell->InitialiseCellCycleModel();
 
         /*
          * For coverage, we create another cell cycle model that is identical except that we
@@ -98,6 +99,7 @@ public:
         p_other_cell_model->SetDt(0.1/60.0);
 
         CellPtr p_other_cell(new Cell(p_healthy_state, p_other_cell_model));
+        p_other_cell->InitialiseCellCycleModel();
 
         // Test the cell is ready to divide at the right time
         for (unsigned i=0; i<num_timesteps/2; i++)
@@ -203,6 +205,7 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_mutation(new ApcOneHitCellMutationState);
 
         CellPtr p_tyson_novak_cell(new Cell(p_mutation, p_repeating_cell_model));
+        p_tyson_novak_cell->InitialiseCellCycleModel();
 
         // Run through the cell cycle model for a certain duration
         // and test how many times it has stopped for division
