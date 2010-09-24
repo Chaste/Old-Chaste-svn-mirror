@@ -103,8 +103,6 @@ public:
         CellBasedConfig* p_inst = CellBasedConfig::Instance();
         TS_ASSERT_DELTA(p_inst->GetCryptLength(), 20.151744972676, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptWidth(), 12.1, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetDampingConstantNormal(), 1.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetDampingConstantMutant(), 1.0, 1e-12);
 
         // Tidy up
         SimulationTime::Destroy();

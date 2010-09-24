@@ -270,7 +270,7 @@ public:
 
     void TestGetDampingConstant()
     {
-        CellBasedConfig::Instance()->SetDampingConstantMutant(8.0);
+
 
         // Create mesh
         HoneycombMutableVertexMeshGenerator generator(3, 3);
@@ -307,9 +307,11 @@ public:
         VertexBasedCellPopulation<2> cell_population(*p_mesh, cells);
         cell_population.InitialiseCells(); // this method must be called explicitly as there is no simulation
 
+        cell_population.SetDampingConstantMutant(8.0);
+
         // Test GetDampingConstant()
-        double normal_damping_constant = CellBasedConfig::Instance()->GetDampingConstantNormal();
-        double mutant_damping_constant = CellBasedConfig::Instance()->GetDampingConstantMutant();
+        double normal_damping_constant = cell_population.GetDampingConstantNormal();
+        double mutant_damping_constant = cell_population.GetDampingConstantMutant();
 
         // Node 0 is contained in cell 0 only, therefore should have mutant damping constant
         double damping_constant_at_node_0 = cell_population.GetDampingConstant(0);

@@ -140,7 +140,7 @@ public:
      *
      * Note that by default, the normal and mutant damping constants are the same.
      * To alter the damping constant for mutant cells, call the method
-     * CellBasedConfig::SetDampingConstantMutant().
+     * SetDampingConstantMutant() on the CellPopulation.
      *
      * @param nodeIndex the global index of this node
      * @return the damping constant at the Cell associated with this node

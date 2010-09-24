@@ -736,8 +736,6 @@ public:
 		// Sets the MeinekeSpringGrowthDuration to be the default MPhase Duration
 		meineke_force.SetMeinekeSpringGrowthDuration(cells[0]->GetCellCycleModel()->GetMDuration());
 
-		CellBasedConfig::Instance()->SetDampingConstantMutant(CellBasedConfig::Instance()->GetDampingConstantNormal());
-
 		// Pass force law into collection
 		std::vector<AbstractForce<2>*> force_collection;
 		force_collection.push_back(&meineke_force);
@@ -759,8 +757,6 @@ public:
 		simulator.AddCellKiller(p_cell_killer);
 
 		// Unusual set-up here (corresponds to the Meineke crypt model parameters)
-		CellBasedConfig::Instance()->SetDampingConstantNormal(1.0);
-		CellBasedConfig::Instance()->SetDampingConstantMutant(CellBasedConfig::Instance()->GetDampingConstantNormal());
 		simulator.UseJiggledBottomCells();
 
 		// Run simulation

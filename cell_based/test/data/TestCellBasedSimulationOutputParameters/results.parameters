@@ -13,6 +13,8 @@
 		<OutputVoronoiData>0</OutputVoronoiData> 
 		<OutputCellPopulationVolumes>0</OutputCellPopulationVolumes> 
 		<MeinekeDivisionSeparation>0.3</MeinekeDivisionSeparation> 
+		<DampingConstantNormal>1</DampingConstantNormal>
+		<DampingConstantMutant>1</DampingConstantMutant>
 		<OutputCellIdData>0</OutputCellIdData> 
 		<OutputCellMutationStates>0</OutputCellMutationStates> 
 		<OutputCellAncestors>0</OutputCellAncestors> 
@@ -33,7 +35,5 @@
 		<CryptLength>4.33013</CryptLength>
 		<CryptWidth>5</CryptWidth>
 		<MechanicsCutOffLength>1.79769e+308</MechanicsCutOffLength>
-		<DampingConstantNormal>1</DampingConstantNormal>
-		<DampingConstantMutant>1</DampingConstantMutant>
 	</CellBasedConfig>
 </Chaste>

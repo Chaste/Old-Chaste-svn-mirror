@@ -1783,13 +1783,6 @@ public:
     {
         std::string output_directory = "AncestorCrypt";
 
-        // Set up model parameters
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-        p_params->SetDampingConstantNormal(1.0); // normally 1
-
-        // Do not give mutant cells any different movement properties to normal ones
-        p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
-
         // Create mesh
         unsigned cells_across = 13;
         unsigned cells_up = 25;
@@ -1865,7 +1858,6 @@ public:
         // Tidy up
         WntConcentration<2>::Destroy();
         delete p_crypt;
-        delete p_params;
     }
 
     void xTest2DCylindricalMeshForVisualizationInParaview() throw (Exception)

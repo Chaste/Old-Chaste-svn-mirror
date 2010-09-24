@@ -49,8 +49,6 @@ CellBasedConfig::CellBasedConfig()
 /**
  * mCryptWidth has units of cell size at equilibrium rest length
  * mCryptLength has units of cell size at equilibrium rest length
- * mDampingConstantNormal has units of kg s^-1
- * mDampingConstantMutant has units of kg s^-1
  * mMechanicsCutOffLength has units of cell size at equilibrium rest length
  */
 void CellBasedConfig::Reset()
@@ -58,8 +56,6 @@ void CellBasedConfig::Reset()
     // Default parameter values
     mCryptWidth = 10.0;
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
-    mDampingConstantNormal = 1.0;   // denoted by nu in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
-    mDampingConstantMutant = 1.0;
 
     /*
      * The following parameter is specific to cell-centre based models, which were originally based on the
@@ -80,14 +76,6 @@ double CellBasedConfig::GetCryptWidth()
 {
     return mCryptWidth;
 }
-double CellBasedConfig::GetDampingConstantNormal()
-{
-    return mDampingConstantNormal;
-}
-double CellBasedConfig::GetDampingConstantMutant()
-{
-    return mDampingConstantMutant;
-}
 double CellBasedConfig::GetMechanicsCutOffLength()
 {
     return mMechanicsCutOffLength;
@@ -106,16 +94,6 @@ void CellBasedConfig::SetCryptWidth(double cryptWidth)
 {
     assert(cryptWidth > 0.0);
     mCryptWidth = cryptWidth;
-}
-void CellBasedConfig::SetDampingConstantNormal(double dampingConstantNormal)
-{
-    assert(dampingConstantNormal > 0.0);
-    mDampingConstantNormal = dampingConstantNormal;
-}
-void CellBasedConfig::SetDampingConstantMutant(double dampingConstantMutant)
-{
-    assert(dampingConstantMutant > 0.0);
-    mDampingConstantMutant = dampingConstantMutant;
 }
 void CellBasedConfig::SetMechanicsCutOffLength(double mechanicsCutOffLength)
 {

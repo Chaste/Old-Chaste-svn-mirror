@@ -732,8 +732,6 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 	*parameter_file << "\t\t<CryptLength>"<< p_inst->GetCryptLength() << "</CryptLength>\n";
 	*parameter_file << "\t\t<CryptWidth>"<< p_inst->GetCryptWidth() << "</CryptWidth>\n";
 	*parameter_file << "\t\t<MechanicsCutOffLength>"<< p_inst->GetMechanicsCutOffLength() << "</MechanicsCutOffLength>\n";
-	*parameter_file << "\t\t<DampingConstantNormal>"<< p_inst->GetDampingConstantNormal() << "</DampingConstantNormal>\n";
-	*parameter_file << "\t\t<DampingConstantMutant>"<< p_inst->GetDampingConstantMutant() << "</DampingConstantMutant>\n";
 
     *parameter_file <<  "\t</CellBasedConfig>\n";
     *parameter_file << "</Chaste>\n" ;

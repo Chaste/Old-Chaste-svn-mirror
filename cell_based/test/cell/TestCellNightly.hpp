@@ -172,9 +172,6 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
-        CellBasedConfig* p_parameters = CellBasedConfig::Instance();
-        double s_g2_duration = p_parameters->GetSG2MDuration();
-
         unsigned num_steps = 200;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
@@ -187,6 +184,8 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_apc1(new ApcOneHitCellMutationState);
         CellPtr p_wnt_cell(new Cell(p_apc1, p_cell_cycle_model1));
         p_wnt_cell->InitialiseCellCycleModel();
+
+        double s_g2_duration = p_cell_cycle_model1->GetSG2MDuration();
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
@@ -246,9 +245,6 @@ public:
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
 
-        CellBasedConfig* p_parameters = CellBasedConfig::Instance();
-        double s_g2_duration = p_parameters->GetSG2MDuration();
-
         unsigned num_steps = 200;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
 
@@ -261,6 +257,8 @@ public:
         boost::shared_ptr<AbstractCellMutationState> p_bcat1(new BetaCateninOneHitCellMutationState);
         CellPtr p_wnt_cell(new Cell(p_bcat1, p_cell_cycle_model1));
         p_wnt_cell->InitialiseCellCycleModel();
+
+        double s_g2_duration = p_cell_cycle_model1->GetSG2MDuration();
 
         for (unsigned i=0; i<num_steps/2; i++)
         {
@@ -320,9 +318,6 @@ public:
     void TestWithWntCellCycleModelAndMutationAPC2() throw(Exception)
     {
         SimulationTime* p_simulation_time = SimulationTime::Instance();
-        CellBasedConfig* p_parameters = CellBasedConfig::Instance();
-
-        double s_g2_duration = p_parameters->GetSG2MDuration();
 
         unsigned num_steps = 200;
         p_simulation_time->SetEndTimeAndNumberOfTimeSteps(50.0, num_steps+1);
@@ -351,6 +346,8 @@ public:
         TS_ASSERT_EQUALS(p_this_state->IsType<ApcOneHitCellMutationState>(), true);
 
         p_wnt_cell->SetMutationState(p_apc2);
+
+        double s_g2_duration = p_cell_cycle_model1->GetSG2MDuration();
 
         for (unsigned i=0; i<num_steps/2; i++)
         {

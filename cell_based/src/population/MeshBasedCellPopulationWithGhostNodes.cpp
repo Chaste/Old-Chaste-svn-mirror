@@ -137,7 +137,7 @@ void MeshBasedCellPopulationWithGhostNodes<DIM>::UpdateGhostPositions(double dt)
 
         c_vector<double, DIM> force = CalculateForceBetweenGhostNodes(nodeA_global_index, nodeB_global_index);
 
-        double damping_constant = CellBasedConfig::Instance()->GetDampingConstantNormal();
+        double damping_constant = this->GetDampingConstantNormal();
 
         if (!this->mIsGhostNode[nodeA_global_index])
         {

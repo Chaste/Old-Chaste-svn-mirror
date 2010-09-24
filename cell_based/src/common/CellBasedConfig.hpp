@@ -62,14 +62,6 @@ public:
      */
     double GetCryptWidth();
     /**
-     * @return mDampingConstantNormal
-     */
-    double GetDampingConstantNormal();
-    /**
-     * @return mDampingConstantMutant
-     */
-    double GetDampingConstantMutant();
-    /**
      * @return mMechanicsCutOffLength
      */
     double GetMechanicsCutOffLength();
@@ -82,14 +74,6 @@ public:
      * Set mCryptWidth.
      */
     void SetCryptWidth(double);
-    /**
-     * Set mDampingConstantNormal.
-     */
-    void SetDampingConstantNormal(double);
-    /**
-     * Set mDampingConstantMutant.
-     */
-    void SetDampingConstantMutant(double);
     /**
      * Set mMechanicsCutOffLength.
      */
@@ -135,19 +119,6 @@ private:
     double mCryptWidth;
 
     /**
-     * Damping constant for normal cells.
-     * Represented by the parameter eta in the model by Meineke et al (2001) in
-     * their off-lattice model of the intestinal crypt
-     * (doi:10.1046/j.0960-7722.2001.00216.x).
-     */
-    double mDampingConstantNormal;
-
-    /**
-     * Damping constant for mutant cells.
-     */
-    double mDampingConstantMutant;
-
-    /**
      * Mechanics cut off length.
      * Used in NodeBasedCellPopulation.
      */
@@ -168,8 +139,6 @@ private:
     {
         archive & mCryptLength;
         archive & mCryptWidth;
-        archive & mDampingConstantNormal;
-        archive & mDampingConstantMutant;
         archive & mMechanicsCutOffLength;
     }
 };

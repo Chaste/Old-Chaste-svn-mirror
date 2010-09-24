@@ -155,8 +155,6 @@ public:
 
     void TestMakeMeinekeGraphs() throw (Exception)
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
         std::string output_directory = "MakeMeinekeGraphs";
 
         // Create mesh
@@ -206,11 +204,6 @@ public:
         simulator.AddCellKiller(&cell_killer);
 
         // UNUSUAL SET UP HERE /////////////////////////////////////
-
-        p_params->SetDampingConstantNormal(1.0);    // normally 1
-
-        // Do not give mutant cells any different movement properties to normal ones
-        p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
 
         simulator.UseJiggledBottomCells();
 
@@ -364,12 +357,6 @@ public:
             labelled_cells_counter[i] = 0;
         }
 
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
-        p_params->SetDampingConstantNormal(1.0);    // normally 1
-        // Do not give mutant cells any different movement properties to normal ones
-        p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
-
         double time_of_each_run;
         AbstractCellKiller<2>* p_cell_killer;
         std::vector<bool> labelled;
@@ -485,7 +472,6 @@ public:
         std::string results_file = handler.GetOutputDirectoryFullPath() + "percentage_of_labelled_cells.dat";
         TS_ASSERT_EQUALS(system(("diff " + results_file + " cell_based/test/data/MakeMoreMeinekeGraphs/percentage_of_labelled_cells.dat").c_str()), 0);
 
-        delete p_params;
         RandomNumberGenerator::Destroy();
     }
 };

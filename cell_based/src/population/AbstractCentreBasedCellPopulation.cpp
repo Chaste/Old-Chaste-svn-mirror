@@ -118,11 +118,11 @@ double AbstractCentreBasedCellPopulation<DIM>::GetDampingConstant(unsigned nodeI
     CellPtr p_cell = this->GetCellUsingLocationIndex(nodeIndex);
     if (p_cell->GetMutationState()->IsType<WildTypeCellMutationState>() && !p_cell->HasCellProperty<CellLabel>())
     {
-        return CellBasedConfig::Instance()->GetDampingConstantNormal();
+        return this->GetDampingConstantNormal();
     }
     else
     {
-        return CellBasedConfig::Instance()->GetDampingConstantMutant();
+        return this->GetDampingConstantMutant();
     }
 }
 

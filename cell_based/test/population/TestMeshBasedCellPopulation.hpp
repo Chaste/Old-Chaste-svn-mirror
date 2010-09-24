@@ -177,9 +177,6 @@ public:
 
     void TestGetDampingConstant()
     {
-        // Change the mutant damping constant to be different from the normal
-        CellBasedConfig::Instance()->SetDampingConstantMutant(23.57);
-
         // Create a simple mesh
         unsigned num_cells_depth = 5;
         unsigned num_cells_width = 5;
@@ -207,6 +204,9 @@ public:
         // Create cell population
         MeshBasedCellPopulation<2> cell_population(*p_mesh, cells);
 
+        // Change the mutant damping constant to be different from the normal
+        cell_population.SetDampingConstantMutant(23.57);
+
         TS_ASSERT_EQUALS(cell_population.UseAreaBasedDampingConstant(), false);
 
         double damping_const_0 = cell_population.GetDampingConstant(0);
@@ -216,16 +216,26 @@ public:
         double damping_const_4 = cell_population.GetDampingConstant(4);
 
         // Check that each mutation state gives the correct damping constant
-        TS_ASSERT_DELTA(damping_const_0, CellBasedConfig::Instance()->GetDampingConstantNormal(), 1e-6);
-        TS_ASSERT_DELTA(damping_const_1, CellBasedConfig::Instance()->GetDampingConstantMutant(), 1e-6);
-        TS_ASSERT_DELTA(damping_const_2, CellBasedConfig::Instance()->GetDampingConstantMutant(), 1e-6);
-        TS_ASSERT_DELTA(damping_const_3, CellBasedConfig::Instance()->GetDampingConstantMutant(), 1e-6);
-        TS_ASSERT_DELTA(damping_const_4, CellBasedConfig::Instance()->GetDampingConstantMutant(), 1e-6);
+        TS_ASSERT_DELTA(damping_const_0, cell_population.GetDampingConstantNormal(), 1e-6);
+        TS_ASSERT_DELTA(damping_const_1, cell_population.GetDampingConstantMutant(), 1e-6);
+        TS_ASSERT_DELTA(damping_const_2, cell_population.GetDampingConstantMutant(), 1e-6);
+        TS_ASSERT_DELTA(damping_const_3, cell_population.GetDampingConstantMutant(), 1e-6);
+        TS_ASSERT_DELTA(damping_const_4, cell_population.GetDampingConstantMutant(), 1e-6);
 
         // Coverage
         TS_ASSERT_DELTA(cell_population.GetAreaBasedDampingConstantParameter(), 0.1, 1e-6);
         cell_population.SetAreaBasedDampingConstantParameter(0.5);
         TS_ASSERT_DELTA(cell_population.GetAreaBasedDampingConstantParameter(), 0.5, 1e-6);
+
+        //test Get and Set methods for DampingConstantNormal and DampingConstantNormalMutant
+        TS_ASSERT_DELTA(cell_population.GetDampingConstantNormal(),1.0, 1e-6);
+        TS_ASSERT_DELTA(cell_population.GetDampingConstantMutant(),23.57, 1e-6);
+
+        cell_population.SetDampingConstantNormal(2.0);
+        cell_population.SetDampingConstantMutant(3.0);
+
+        TS_ASSERT_DELTA(cell_population.GetDampingConstantNormal(),2.0, 1e-6);
+        TS_ASSERT_DELTA(cell_population.GetDampingConstantMutant(),3.0, 1e-6);
 
     }
 
@@ -251,11 +261,11 @@ public:
 
         double damping_const = cell_population.GetDampingConstant(8);
 
-        TS_ASSERT_DELTA(damping_const, CellBasedConfig::Instance()->GetDampingConstantNormal(), 1e-6);
+        TS_ASSERT_DELTA(damping_const, cell_population.GetDampingConstantNormal(), 1e-6);
 
         double mutant_damping_const = cell_population.GetDampingConstant(9);
 
-        TS_ASSERT_DELTA(mutant_damping_const, CellBasedConfig::Instance()->GetDampingConstantMutant(), 1e-6);
+        TS_ASSERT_DELTA(mutant_damping_const, cell_population.GetDampingConstantMutant(), 1e-6);
 
         cell_population.SetAreaBasedDampingConstant(true);
 
@@ -267,7 +277,7 @@ public:
         double area_based_damping_const = cell_population.GetDampingConstant(8);
 
         // Since the cell population is in mechanical equilibrium, we should get the same damping constant as before
-        TS_ASSERT_DELTA(area_based_damping_const, CellBasedConfig::Instance()->GetDampingConstantNormal(), 1e-6);
+        TS_ASSERT_DELTA(area_based_damping_const, cell_population.GetDampingConstantNormal(), 1e-6);
     }
 
     void TestSetNodeAndAddCell()

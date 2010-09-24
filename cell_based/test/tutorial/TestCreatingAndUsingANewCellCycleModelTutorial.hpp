@@ -159,10 +159,10 @@ private:
         switch (mCellProliferativeType)
         {
             case STEM:
-                mG1Duration = -log(uniform_random_number)*CellBasedConfig::Instance()->GetStemCellG1Duration();
+                mG1Duration = -log(uniform_random_number)*GetStemCellG1Duration();
                 break;
             case TRANSIT:
-                mG1Duration = -log(uniform_random_number)*CellBasedConfig::Instance()->GetTransitCellG1Duration();
+                mG1Duration = -log(uniform_random_number)*GetTransitCellG1Duration();
                 break;
             case DIFFERENTIATED:
                 mG1Duration = DBL_MAX;
@@ -254,7 +254,7 @@ public:
 
         /* Find the mean G1 duration and test that it is within some tolerance of
          * the expected value: */
-        double expected_mean_g1_duration = CellBasedConfig::Instance()->GetStemCellG1Duration();
+        double expected_mean_g1_duration = cells[0]->GetCellCycleModel()->GetStemCellG1Duration();
         double sample_mean_g1_duration = 0.0;
 
         for (unsigned i=0; i<num_cells; i++)
@@ -273,8 +273,8 @@ public:
         /* Use the helper method {{{CheckReadyToDivideAndPhaseIsUpdated()}}} to
          * test that this cell progresses correctly through the cell cycle. */
         unsigned num_steps = 100;
-        double mean_cell_cycle_time = CellBasedConfig::Instance()->GetStemCellG1Duration()
-                                        + CellBasedConfig::Instance()->GetSG2MDuration();
+        double mean_cell_cycle_time = cells[0]->GetCellCycleModel()->GetStemCellG1Duration()
+                                        + cells[0]->GetCellCycleModel()->GetSG2MDuration();
 
         SimulationTime::Instance()->SetEndTimeAndNumberOfTimeSteps(mean_cell_cycle_time, num_steps);
 
@@ -400,8 +400,8 @@ public:
              * of a stem cell, and t,,2,, is the basic S+G,,2,,+M phases duration.
              */
             double birth_time = - RandomNumberGenerator::Instance()->ranf() *
-                                    (CellBasedConfig::Instance()->GetStemCellG1Duration()
-                                        + CellBasedConfig::Instance()->GetSG2MDuration());
+                                    (p_model->GetStemCellG1Duration()
+                                        + p_model->GetSG2MDuration());
             /* We then set the birth time and push the cell back into the vector of cells. */
             p_cell->SetBirthTime(birth_time);
             cells.push_back(p_cell);

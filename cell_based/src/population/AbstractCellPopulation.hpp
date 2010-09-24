@@ -82,6 +82,8 @@ private:
         archive & mCellCyclePhaseCount;
         archive & mCellPopulationContainsMesh;
         archive & mpCellPropertyRegistry;
+        archive & mDampingConstantNormal;
+        archive & mDampingConstantMutant;
         archive & mOutputCellIdData;
         archive & mOutputCellMutationStates;
         archive & mOutputCellAncestors;
@@ -144,6 +146,19 @@ protected:
 
     /** Cell property registry. */
     boost::shared_ptr<CellPropertyRegistry> mpCellPropertyRegistry;
+
+    /**
+     * Damping constant for normal cells has units of kg s^-1
+     * Represented by the parameter eta in the model by Meineke et al (2001) in
+     * their off-lattice model of the intestinal crypt
+     * (doi:10.1046/j.0960-7722.2001.00216.x).
+     */
+    double mDampingConstantNormal;
+
+    /**
+     * Damping constant for mutant cells has units of kg s^-1
+     */
+    double mDampingConstantMutant;
 
     /** Whether to write cell ID data to file. */
     bool mOutputCellIdData;
@@ -515,6 +530,16 @@ public:
      */
     std::string GetIdentifier() const;
 
+
+    /**
+	 * @return mDampingConstantNormal
+	 */
+	double GetDampingConstantNormal();
+	/**
+	 * @return mDampingConstantMutant
+	 */
+	double GetDampingConstantMutant();
+
     /**
      * @return mOutputCellIdData
      */
@@ -554,6 +579,16 @@ public:
      * @return mOutputCellVolumes
      */
     bool GetOutputCellVolumes();
+
+    /**
+ 	 * Set mDampingConstantNormal.
+	 */
+	void SetDampingConstantNormal(double);
+
+	/**
+	 * Set mDampingConstantMutant.
+	 */
+	void SetDampingConstantMutant(double);
 
     /**
      * Set mOutputCellIdData.

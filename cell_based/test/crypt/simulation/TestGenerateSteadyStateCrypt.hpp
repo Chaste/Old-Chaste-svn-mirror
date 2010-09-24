@@ -106,17 +106,10 @@ public:
         simulator.AddCellKiller(&cell_killer);
 
         // UNUSUAL SET UP HERE /////////////////////////////////////
-
-        p_params->SetDampingConstantNormal(1.0);    // normally 1
-
-        // Do not give mutant cells any different movement properties to normal ones
-        p_params->SetDampingConstantMutant(p_params->GetDampingConstantNormal());
-
         linear_force.SetMeinekeSpringStiffness(30.0); //normally 15.0;
         // 0.3/30 = 0.01 (i.e. Meineke's values)
 
         simulator.UseJiggledBottomCells();
-
         // END OF UNUSUAL SET UP! //////////////////////////////////
 
         simulator.Solve();

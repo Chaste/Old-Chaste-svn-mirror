@@ -4,6 +4,8 @@
 		<OutputVoronoiData>1</OutputVoronoiData> 
 		<OutputCellPopulationVolumes>1</OutputCellPopulationVolumes> 
 		<MeinekeDivisionSeparation>0.3</MeinekeDivisionSeparation> 
+		<DampingConstantNormal>1</DampingConstantNormal>
+		<DampingConstantMutant>1</DampingConstantMutant>
 		<OutputCellIdData>0</OutputCellIdData> 
 		<OutputCellMutationStates>1</OutputCellMutationStates> 
 		<OutputCellAncestors>1</OutputCellAncestors> 
