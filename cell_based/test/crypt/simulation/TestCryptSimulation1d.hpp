@@ -477,7 +477,6 @@ public:
             p_model->SetCellProliferativeType(cell_type);
 
             CellPtr p_cell(new Cell(p_healthy_state, p_model));
-            p_cell->InitialiseCellCycleModel();
             p_cell->SetBirthTime(birth_time);
 
             cells.push_back(p_cell);

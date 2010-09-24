@@ -197,7 +197,7 @@ public:
      * @param locationIndices an optional vector of location indices that correspond to real cells
      */
     AbstractCellPopulation(std::vector<CellPtr>& rCells,
-                   const std::vector<unsigned> locationIndices=std::vector<unsigned>());
+                           const std::vector<unsigned> locationIndices=std::vector<unsigned>());
 
     /**
      * Base class with virtual methods needs a virtual destructor.
@@ -503,7 +503,8 @@ public:
     virtual void OutputCellPopulationParameters(out_stream& rParamsFile)=0;
 
     /**
-     * Return the unique identifier. This method uses Boost's serialization's
+     * Return the unique identifier of the concrete class.
+     * This method uses Boost's serialization's
      * extended_type_info and returns the identifier of the derived class
      * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
      * derived class, and is usually just the name of the class).

@@ -266,16 +266,17 @@ public:
         force_collection.push_back(&linear_force);
 
         // Set up cell-based simulation
-        CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
-        simulator.SetOutputDirectory("CellBasedSimulationWithOxygen");
-        simulator.SetEndTime(0.5);
+        boost::shared_ptr<CellBasedSimulation<2> > p_simulator(new CellBasedSimulationWithPdes<2>(cell_population, force_collection, pde_and_bc_collection));
+        TS_ASSERT_EQUALS(p_simulator->GetIdentifier(), "CellBasedSimulationWithPdes-2");
+        p_simulator->SetOutputDirectory("CellBasedSimulationWithOxygen");
+        p_simulator->SetEndTime(0.5);
 
         // Set up cell killer and pass into simulation
         OxygenBasedCellKiller<2> killer(&cell_population);
-        simulator.AddCellKiller(&killer);
+        p_simulator->AddCellKiller(&killer);
 
         // Run cell-based simulation
-        TS_ASSERT_THROWS_NOTHING(simulator.Solve());
+        TS_ASSERT_THROWS_NOTHING(p_simulator->Solve());
 
         // Tidy up
         CellwiseData<2>::Destroy();
@@ -1355,8 +1356,7 @@ public:
         // Set up cell-based simulation
 		CellBasedSimulationWithPdes<2> simulator(cell_population, force_collection, pde_and_bc_collection);
 
-        ///\todo uncomment see #1453
-        //TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulationWithPDE<2>");
+        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulationWithPdes-2");
 
 		std::string output_directory = "TestCellBasedSimulationOutputParameters";
 		OutputFileHandler output_file_handler(output_directory, false);

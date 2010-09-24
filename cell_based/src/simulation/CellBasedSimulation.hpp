@@ -39,7 +39,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "AbstractCellPopulation.hpp"
 #include "RandomNumberGenerator.hpp"
 
-
 /**
  * Run an off-lattice 2D or 3D cell-based simulation using a cell-centre- or vertex-based
  * cell population.
@@ -282,9 +281,9 @@ public:
      *  @param initialiseCells Whether to initialise cells (set to false when loading from an archive)
      */
     CellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                     std::vector<AbstractForce<DIM>*> forceCollection,
-                     bool deleteCellPopulationAndForceCollection=false,
-                     bool initialiseCells=true);
+                        std::vector<AbstractForce<DIM>*> forceCollection,
+                        bool deleteCellPopulationAndForceCollection=false,
+                        bool initialiseCells=true);
 
     /**
      * Destructor.
@@ -419,7 +418,26 @@ public:
      * @param rParamsFile the file stream to which the parameters are output
      */
     virtual void OutputSimulationParameters(out_stream& rParamsFile);
+
+    /**
+     * Return the unique identifier of the concrete class.
+     * 
+     * This method uses Boost's serialization's
+     * extended_type_info and returns the identifier of the derived class
+     * (this is defined when the macro CHASTE_CLASS_EXPORT is invoked in each
+     * derived class, and is usually just the name of the class).
+     *
+     * Note that you must include the headers <boost/archive/text_oarchive.hpp>
+     * and <boost/archive/text_iarchive.hpp> in any test suite that calls this
+     * method, or any other method that calls this method.
+     */
+    std::string GetIdentifier() const;
 };
+
+
+#include "SerializationExportWrapper.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellBasedSimulation)
+
 
 
 namespace boost
@@ -455,7 +473,7 @@ inline void load_construct_data(
     ar >> force_collection;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)CellBasedSimulation<DIM>(*p_cell_population, force_collection, true);
+    ::new(t)CellBasedSimulation<DIM>(*p_cell_population, force_collection, true, false);
 }
 }
 } // namespace

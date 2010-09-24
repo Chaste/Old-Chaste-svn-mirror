@@ -421,9 +421,9 @@ void AbstractCellPopulation<DIM>::GenerateCellResults(unsigned locationIndex,
         }
         if (p_cell->HasCellProperty<CellLabel>())
         {
-        	CellPropertyCollection collection = p_cell->rGetCellPropertyCollection().GetProperties<CellLabel>();
-        	boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(collection.GetProperty());
-        	colour = p_label->GetColour();
+            CellPropertyCollection collection = p_cell->rGetCellPropertyCollection().GetProperties<CellLabel>();
+            boost::shared_ptr<CellLabel> p_label = boost::static_pointer_cast<CellLabel>(collection.GetProperty());
+            colour = p_label->GetColour();
         }
     }
 
@@ -536,7 +536,7 @@ void AbstractCellPopulation<DIM>::WriteTimeAndNodeResultsToFiles()
     // Write node data to file
     for (unsigned node_index=0; node_index<GetNumNodes(); node_index++)
     {
-    	if ( !GetNode(node_index)->IsDeleted())
+        if ( !GetNode(node_index)->IsDeleted())
         {
             const c_vector<double,DIM>& position = GetNode(node_index)->rGetLocation();
 
@@ -620,16 +620,15 @@ void AbstractCellPopulation<DIM>::WriteCellIdDataToFile()
 template<unsigned DIM>
 void AbstractCellPopulation<DIM>::OutputCellPopulationInfo(out_stream& rParamsFile)
 {
-	///\todo This should be independent of boost version (#1453)
-	std::string cell_population_type = "Should be CellPopulation type here see #1453";
-	#if BOOST_VERSION >= 103700
-		cell_population_type = GetIdentifier();
-	#endif
+//    ///\todo This should be independent of boost version (#1453)
+//    std::string cell_population_type = "Should be CellPopulation type here see #1453";
+//#if BOOST_VERSION >= 103700
+    std::string cell_population_type = GetIdentifier();
+//#endif
 
-
-	*rParamsFile <<  "\t<" << cell_population_type << ">" "\n";
-	OutputCellPopulationParameters(rParamsFile);
-	*rParamsFile <<  "\t</" << cell_population_type << ">" "\n";
+    *rParamsFile <<  "\t<" << cell_population_type << ">" "\n";
+    OutputCellPopulationParameters(rParamsFile);
+    *rParamsFile <<  "\t</" << cell_population_type << ">" "\n";
 }
 
 template<unsigned DIM>
@@ -645,51 +644,18 @@ void AbstractCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rPa
     *rParamsFile <<  "\t\t<OutputCellVolumes>"<<  mOutputCellVolumes << "</OutputCellVolumes> \n" ;
 }
 
+#include "TidyTemplatedExportIdentifier.hpp"
+
 template<unsigned DIM>
 std::string AbstractCellPopulation<DIM>::GetIdentifier() const
 {
-    /**
-     * As AbstractCellPopulation is a templated class, the variable below will be initialised
-     * to a string of the form "pack<void (NameOfDerivedType< DIM >)>::type". We must
-     * therefore strip away parts of the string, leaving "NameOfDerivedType<DIM>".
-     *
-     */
-	#if BOOST_VERSION >= 103700
-		std::string identifier = boost::serialization::type_info_implementation<AbstractCellPopulation>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
-	#else
-		std::string identifier = boost::serialization::type_info_implementation<AbstractCellPopulation>::type::get_derived_extended_type_info(*this)->get_key();
-    #endif
+#if BOOST_VERSION >= 103700
+    std::string identifier = boost::serialization::type_info_implementation<AbstractCellPopulation>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
+#else
+    std::string identifier = boost::serialization::type_info_implementation<AbstractCellPopulation>::type::get_derived_extended_type_info(*this)->get_key();
+#endif
 
-	// First remove spaces, so identifier now takes the form "pack<void(NameOfDerivedType<DIM>)>::type"
-	std::string::iterator end_pos = std::remove(identifier.begin(), identifier.end(), ' ');
-	identifier.erase(end_pos, identifier.end());
-
-	// Then remove "pack<void(", so identifier now takes the form "NameOfDerivedType<DIM>)>::type"
-    std::string s1 = "pack<void(";
-    std::string::size_type i = identifier.find(s1);
-    if (i != identifier.npos)
-    {
-        identifier.erase(i, s1.length());
-    }
-
-	// Then rereplace "<" with "-", so identifier now takes the form "NameOfDerivedType-DIM>)>::type"
-    std::string s2 = "<";
-    std::string s3 = "-";
-    i = identifier.find(s2);
-    if (i != identifier.npos)
-    {
-        identifier.replace(i, s2.length(), s3);
-    }
-
-    // Finally remove ")>::type", so that identifier now takes the form "NameOfDerivedType<DIM>"
-    std::string s4 = ">)>::type";
-    i = identifier.find(s4);
-    if (i != identifier.npos)
-    {
-        identifier.erase(i, s4.length());
-    }
-
-	return identifier;
+    return TidyTemplatedExportIdentifier(identifier);
 }
 
 

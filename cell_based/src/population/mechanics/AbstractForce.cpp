@@ -41,12 +41,11 @@ AbstractForce<DIM>::~AbstractForce()
 template<unsigned DIM>
 void AbstractForce<DIM>::OutputForceInfo(out_stream& rParamsFile)
 {
-	///\todo This should be independent of boost version (#1453)
-	std::string force_type = "Should be force type here see #1453";
-	#if BOOST_VERSION >= 103700
-		force_type = GetIdentifier();
-	#endif
-
+//	///\todo This should be independent of boost version (#1453)
+//	std::string force_type = "Should be force type here see #1453";
+//#if BOOST_VERSION >= 103700
+	std::string force_type = GetIdentifier();
+//#endif
 
     *rParamsFile <<  "\t\t<" << force_type << ">" "\n";
     OutputForceParameters(rParamsFile);
@@ -59,51 +58,17 @@ void AbstractForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
     // No parameters to ouput
 }
 
+#include "TidyTemplatedExportIdentifier.hpp"
+
 template<unsigned DIM>
 std::string AbstractForce<DIM>::GetIdentifier() const
 {
-    /**
-     * As this class is templated, the variable below will be initialised
-     * to a string of the form "pack<void (NameOfDerivedType< DIM >)>::type". We must
-     * therefore strip away parts of the string, leaving "NameOfDerivedType<DIM>".
-     */
-
-    #if BOOST_VERSION >= 103700
-        std::string identifier = boost::serialization::type_info_implementation<AbstractForce>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
-    #else
-        std::string identifier = boost::serialization::type_info_implementation<AbstractForce>::type::get_derived_extended_type_info(*this)->get_key();
-    #endif
-
-	// First remove spaces, so identifier now takes the form "pack<void(NameOfDerivedType<DIM>)>::type"
-	std::string::iterator end_pos = std::remove(identifier.begin(), identifier.end(), ' ');
-	identifier.erase(end_pos, identifier.end());
-
-	// Then remove "pack<void(", so identifier now takes the form "NameOfDerivedType<DIM>)>::type"
-	std::string s1 = "pack<void(";
-	std::string::size_type i = identifier.find(s1);
-	if (i != identifier.npos)
-	{
-		identifier.erase(i, s1.length());
-	}
-
-	// Then rereplace "<" with "-", so identifier now takes the form "NameOfDerivedType-DIM>)>::type"
-	std::string s2 = "<";
-	std::string s3 = "-";
-	i = identifier.find(s2);
-	if (i != identifier.npos)
-	{
-		identifier.replace(i, s2.length(), s3);
-	}
-
-	// Finally remove ")>::type", so that identifier now takes the form "NameOfDerivedType<DIM>"
-	std::string s4 = ">)>::type";
-	i = identifier.find(s4);
-	if (i != identifier.npos)
-	{
-		identifier.erase(i, s4.length());
-	}
-
-	return identifier;
+#if BOOST_VERSION >= 103700
+    std::string identifier = boost::serialization::type_info_implementation<AbstractForce>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
+#else
+    std::string identifier = boost::serialization::type_info_implementation<AbstractForce>::type::get_derived_extended_type_info(*this)->get_key();
+#endif
+    return TidyTemplatedExportIdentifier(identifier);
 }
 
 /////////////////////////////////////////////////////////////////////////////

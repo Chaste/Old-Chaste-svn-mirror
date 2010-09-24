@@ -1,11 +1,11 @@
 <Chaste>
 
-	<Should be simulation type here see #1453>
+	<CellBasedSimulation-2>
 		<Dt>0.00833333</Dt>
 		<EndTime>0</EndTime>
 		<SamplingTimestepMultiple>1</SamplingTimestepMultiple>
 		<OutputNodeVelocities>0</OutputNodeVelocities>
-	</Should be simulation type here see #1453>
+	</CellBasedSimulation-2>
 
 	<MeshBasedCellPopulation-2>
 		<UseAreaBasedDampingConstant>0</UseAreaBasedDampingConstant> 

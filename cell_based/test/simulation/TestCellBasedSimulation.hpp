@@ -34,6 +34,8 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <ctime>
 #include <cmath>
 
+#include "CheckpointArchiveTypes.hpp"
+
 #include "CellBasedSimulation.hpp"
 #include "HoneycombMeshGenerator.hpp"
 #include "CryptCellsGenerator.hpp"
@@ -48,25 +50,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "WildTypeCellMutationState.hpp"
 #include "StochasticWntCellCycleModel.hpp"
 
-// Simple subclass of CellBasedSimulation which just overloads StoppingEventHasOccurred
-// for testing the stopping event functionality..
-class CellBasedSimulationWithMyStoppingEvent : public CellBasedSimulation<2>
-{
-private:
-    // define a stopping event with says stop if t>3.14
-    bool StoppingEventHasOccurred()
-    {
-        return  (SimulationTime::Instance()->GetTime() > 3.1415);
-    }
-
-public:
-    CellBasedSimulationWithMyStoppingEvent(AbstractCellPopulation<2>& rCellPopulation,
-                                        std::vector<AbstractForce<2>* > forceCollection)
-      : CellBasedSimulation<2>(rCellPopulation, forceCollection)
-   {
-   }
-};
-
+#include "CellBasedSimulationWithMyStoppingEvent.hpp"
 
 /**
  *  Note: Most tests of CellBasedSimulation are in TestCryptSimulation2d
@@ -125,6 +109,7 @@ public:
 
         // Set up cell-based simulation
         CellBasedSimulation<2> simulator(cell_population, force_collection);
+        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CellBasedSimulation-2");
         simulator.SetOutputDirectory("CellBasedSimulationWritingProteins");
         simulator.SetEndTime(0.5);
 

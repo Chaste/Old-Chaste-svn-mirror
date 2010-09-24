@@ -777,6 +777,7 @@ public:
 
         // Create crypt simulation from cell population and force law
         CryptSimulation2d simulator(crypt, force_collection);
+        TS_ASSERT_EQUALS(simulator.GetIdentifier(), "CryptSimulation2d");
         simulator.SetOutputDirectory("Crypt2DPeriodicSaveAndLoad");
 
         // Our full end time is 0.25, here we run until 0.1 then load and run more below.

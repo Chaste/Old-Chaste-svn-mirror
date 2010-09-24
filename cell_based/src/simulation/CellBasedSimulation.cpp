@@ -38,11 +38,17 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "Version.hpp"
 #include "ExecutableSupport.hpp"
 
+#include <typeinfo>
+#include <boost/serialization/extended_type_info.hpp>
+#include <boost/serialization/extended_type_info_typeid.hpp>
+#include <boost/serialization/extended_type_info_no_rtti.hpp>
+#include <boost/serialization/type_info_implementation.hpp>
+
 template<unsigned DIM>
 CellBasedSimulation<DIM>::CellBasedSimulation(AbstractCellPopulation<DIM>& rCellPopulation,
-                                        std::vector<AbstractForce<DIM>*> forceCollection,
-                                        bool deleteCellPopulationAndForceCollection,
-                                        bool initialiseCells)
+                                              std::vector<AbstractForce<DIM>*> forceCollection,
+                                              bool deleteCellPopulationAndForceCollection,
+                                              bool initialiseCells)
     : mEndTime(0.0),  // hours - this is set later on
       mrCellPopulation(rCellPopulation),
       mDeleteCellPopulation(deleteCellPopulationAndForceCollection),
@@ -677,10 +683,10 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
     out_stream parameter_file = output_file_handler.OpenOutputFile("results.parameters");
 
     // Output CellBasedSimulation details
-    ///\todo This should be independent of boost version (#1453)
-	std::string simulation_type = "Should be simulation type here see #1453";
+//    ///\todo This should be independent of boost version (#1453)
+//	std::string simulation_type = "Should be simulation type here see #1453";
 //	#if BOOST_VERSION >= 103700
-//		simulation_type = GetIdentifier();
+    std::string simulation_type = GetIdentifier();
 //	#endif
 
     *parameter_file << "<Chaste>\n" ;
@@ -755,6 +761,111 @@ void CellBasedSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFil
 	  *rParamsFile << "\t\t<SamplingTimestepMultiple>"<< mSamplingTimestepMultiple << "</SamplingTimestepMultiple>\n";
 	  *rParamsFile << "\t\t<OutputNodeVelocities>"<< mOutputNodeVelocities << "</OutputNodeVelocities>\n";
 }
+
+#include "TidyTemplatedExportIdentifier.hpp"
+
+/**
+ * \internal
+ * Empty cell population for use in CellBasedSimulation<DIM>::GetIdentifier.
+ */
+template<unsigned DIM>
+class EmptyCellPopulation : public AbstractCellPopulation<DIM>
+{
+    void Validate()
+    {
+        NEVER_REACHED;
+    }
+public:
+    unsigned GetNumNodes()
+    {
+        NEVER_REACHED;
+    }
+    c_vector<double, DIM> GetLocationOfCellCentre(CellPtr pCell)
+    {
+        NEVER_REACHED;
+    }
+    Node<DIM>* GetNode(unsigned index)
+    {
+        NEVER_REACHED;
+    }
+    unsigned AddNode(Node<DIM>* pNewNode)
+    {
+        NEVER_REACHED;
+    }
+    void SetNode(unsigned nodeIndex, ChastePoint<DIM>& rNewLocation)
+    {
+        NEVER_REACHED;
+    }
+    bool IsCellAssociatedWithADeletedLocation(CellPtr pCell)
+    {
+        NEVER_REACHED;
+    }
+    void UpdateNodeLocations(const std::vector< c_vector<double, DIM> >& rNodeForces, double dt)
+    {
+        NEVER_REACHED;
+    }
+    double GetDampingConstant(unsigned nodeIndex)
+    {
+        NEVER_REACHED;
+    }
+    CellPtr AddCell(CellPtr pNewCell, const c_vector<double,DIM>& rCellDivisionVector, CellPtr pParentCell=CellPtr())
+    {
+        NEVER_REACHED;
+    }
+    unsigned RemoveDeadCells()
+    {
+        NEVER_REACHED;
+    }
+    void Update(bool hasHadBirthsOrDeaths=true)
+    {
+        NEVER_REACHED;
+    }
+    void GenerateCellResultsAndWriteToFiles()
+    {
+        NEVER_REACHED;
+    }
+    void OutputCellPopulationParameters(out_stream& rParamsFile)
+    {
+        NEVER_REACHED;
+    }
+};
+
+template<unsigned DIM>
+std::string CellBasedSimulation<DIM>::GetIdentifier() const
+{
+#if BOOST_VERSION >= 103700
+    std::string identifier = boost::serialization::type_info_implementation<CellBasedSimulation>::type::get_const_instance().get_derived_extended_type_info(*this)->get_key();
+#else
+    std::string identifier;
+    // For the benefit of old boost versions, check if the concrete class is CellBasedSimulation
+    const std::type_info& r_our_info = typeid(*this);
+    EmptyCellPopulation<DIM> cells;
+    std::vector<AbstractForce<DIM>*> forces;
+    CellBasedSimulation<DIM> ref_obj(cells, forces, false, false);
+    const std::type_info& r_base_info = typeid(ref_obj);
+    if (r_our_info == r_base_info)
+    {
+        std::stringstream id;
+        id << "CellBasedSimulation-" << DIM;
+        identifier = id.str();
+    }
+    else
+    {
+#if BOOST_VERSION >= 103400
+        identifier = boost::serialization::type_info_implementation<CellBasedSimulation<DIM> >::type::get_derived_extended_type_info(*this)->get_key();
+#else
+        identifier = "Unknown CellBasedSimulation subclass (see #1453)";
+#endif // BOOST_VERSION >= 103400
+    }
+#endif // BOOST_VERSION >= 103700
+
+    return TidyTemplatedExportIdentifier(identifier);
+}
+
+
+// Serialization for Boost >= 1.36
+#include "SerializationExportWrapperForCpp.hpp"
+EXPORT_TEMPLATE_CLASS_SAME_DIMS(CellBasedSimulation)
 
 ////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
