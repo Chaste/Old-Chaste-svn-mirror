@@ -28,6 +28,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Cell.hpp"
 #include "ApoptoticCellProperty.hpp"
+#include "CellPropertyRegistry.hpp"
 
 unsigned Cell::mMaxCellId = 0;
 
@@ -105,14 +106,10 @@ Cell::Cell(boost::shared_ptr<AbstractCellProperty> pMutationState,
 
 Cell::~Cell()
 {
-    // Decrement cell count for each cell property in mCellPropertyCollection
-    for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
-         property_iter != mCellPropertyCollection.End();
-         ++property_iter)
+    if (!mIsDead)
     {
-        (*property_iter)->DecrementCellCount();
+        Kill();
     }
-
     delete mpCellCycleModel;
 }
 
@@ -272,6 +269,13 @@ bool Cell::IsDead()
 
 void Cell::Kill()
 {
+    // Increment cell count for each cell property in mCellPropertyCollection
+    for (CellPropertyCollection::Iterator property_iter = mCellPropertyCollection.Begin();
+         property_iter != mCellPropertyCollection.End();
+         ++property_iter)
+    {
+        (*property_iter)->DecrementCellCount();
+    }
     mIsDead = true;
 }
 

@@ -41,7 +41,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "ApoptoticCellProperty.hpp"
 #include "AbstractCellCycleModel.hpp"
 #include "SimulationTime.hpp"
-#include "CellPropertyRegistry.hpp"
 #include "CellPropertyCollection.hpp"
 
 class AbstractCellCycleModel; // Circular definition (cells need to know about cycle models and vice-versa).
