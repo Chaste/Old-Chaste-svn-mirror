@@ -57,7 +57,6 @@ public:
      */
     void TestGenerateSteadyStateCryptArchives() throw (Exception)
     {
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
         std::string output_directory = "SteadyStateCrypt";
 
         double end_of_simulation = 150.0; // hours
