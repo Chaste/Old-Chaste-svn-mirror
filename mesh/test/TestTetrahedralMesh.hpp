@@ -1679,6 +1679,39 @@ public:
         }
     }
 
+    void oneDayTestDeepCopy() throw (Exception)
+    {
+
+        TetrahedralMesh<3,3> copy_mesh;
+
+        c_vector <double, 3> node3_location;
+        node3_location[0]=0.0;
+        node3_location[1]=0.2;
+        node3_location[2]=0.0;
+        {
+            TrianglesMeshReader<3,3> mesh_reader("mesh/test/data/cube_2mm_12_elements");
+
+            TetrahedralMesh<3,3> mesh;
+            mesh.ConstructFromMeshReader(mesh_reader);
+
+            TS_ASSERT_EQUALS(mesh.GetNumNodes(), 12u);
+            TS_ASSERT_EQUALS(mesh.GetNumElements(),12u);
+            TS_ASSERT_EQUALS(mesh.GetNumBoundaryElements(), 20u);
+            TS_ASSERT_DELTA(mesh.GetVolume(), 0.008, 1e-8);
+            TS_ASSERT_DELTA(mesh.GetSurfaceArea(), 0.24, 1e-8);
+            TS_ASSERT_DELTA(norm_2(mesh.GetNode(3)->rGetLocation()-node3_location), 0.0, 1e-15)
+
+//Doesn't exist yet        copy_mesh.ConstructFromMesh(mesh);
+            //Original mesh goes out of scope here, so we'd like the copy not to be a shallow one.
+        }
+        TS_ASSERT_EQUALS(copy_mesh.GetNumNodes(), 0u);
+        TS_ASSERT_EQUALS(copy_mesh.GetNumElements(), 0u);
+        TS_ASSERT_EQUALS(copy_mesh.GetNumBoundaryElements(), 0u);
+        TS_ASSERT_EQUALS(copy_mesh.GetVolume(), 0.0);
+        TS_ASSERT_EQUALS(copy_mesh.GetSurfaceArea(), 0.0);
+//Not yet        TS_ASSERT_DELTA(norm_2(copy_mesh.GetNode(3)->rGetLocation()-node3_location), 0.0, 1e-15)
+    }
+
 
 };
 #endif //_TESTTETRAHEDRALMESH_HPP_

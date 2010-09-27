@@ -1,9 +1,9 @@
-common/TestChastePoint.hpp
-common/TestElement.hpp
-common/TestMutableMeshRemesh.hpp
-common/TestNode.hpp
-common/TestTetrahedralMesh.hpp
-common/TestTransformations.hpp
+TestChastePoint.hpp
+TestElement.hpp
+TestMutableMeshRemesh.hpp
+TestNode.hpp
+TestTetrahedralMesh.hpp
+TestTransformations.hpp
 reader/TestFemlabMeshReader.hpp
 reader/TestMemfemMeshReader.hpp
 reader/TestTrianglesMeshReader.hpp
