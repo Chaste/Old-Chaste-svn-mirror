@@ -177,19 +177,6 @@ public:
 
         TS_ASSERT(&(p_daughter_cell->rGetCellPropertyCollection()) != &(p_cell->rGetCellPropertyCollection()));
 
-        /// \todo #1285 Check that the registry gets updated...
-//        TS_ASSERT_EQUALS(p_cell->HasCellProperty<WildTypeCellMutationState>(), true);
-//        TS_ASSERT_EQUALS(p_daughter_cell->HasCellProperty<WildTypeCellMutationState>(), true);
-//        unsigned num_wild_type = CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>()->GetCellCount();
-//        TS_ASSERT_EQUALS(num_wild_type, 2u);
-//
-//        p_daughter_cell->Kill();
-//        num_wild_type = CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>()->GetCellCount();
-//        TS_ASSERT_EQUALS(num_wild_type, 1u);
-//
-//        p_cell->Kill();
-//        num_wild_type = CellPropertyRegistry::Instance()->Get<WildTypeCellMutationState>()->GetCellCount();
-//        TS_ASSERT_EQUALS(num_wild_type, 0u);
     }
 
     void TestCellsAgeingCorrectly() throw(Exception)
