@@ -117,10 +117,10 @@ private:
                  node_global_index < p_vector_factory->GetHigh();
                  node_global_index++)
             {
-	            // Overwrite any previous stimuli if new ones are defined
-            	cell_factory.SetCellIntracellularStimulus(p_tissue->GetCardiacCell(node_global_index), node_global_index);
-	            // Modify cell model parameters
-            	cell_factory.SetCellParameters(p_tissue->GetCardiacCell(node_global_index), node_global_index);
+                // Overwrite any previous stimuli if new ones are defined
+                cell_factory.SetCellIntracellularStimulus(p_tissue->GetCardiacCell(node_global_index), node_global_index);
+                // Modify cell model parameters
+                cell_factory.SetCellParameters(p_tissue->GetCardiacCell(node_global_index), node_global_index);
             }
         }
 
@@ -168,7 +168,7 @@ private:
         }
         if (mSaveProblemInstance)
         {
-        	mSavedProblem = p_problem;
+            mSavedProblem = p_problem;
         }
     }
 
@@ -207,7 +207,7 @@ public:
      */
     CardiacSimulation(std::string parameterFileName,
                       bool writeProvenanceInfo=false,
-    		          bool saveProblemInstance=false);
+                      bool saveProblemInstance=false);
 
     /**
      * Get the saved problem instance, if any.  Will return an empty pointer if the
@@ -215,11 +215,11 @@ public:
      */
     boost::shared_ptr<AbstractUntemplatedCardiacProblem> GetSavedProblem();
 private:
-	/** Whether to save a copy of the problem instance for examination by tests. */
-	bool mSaveProblemInstance;
-	
-	/** The saved problem instance, if any. */
-	boost::shared_ptr<AbstractUntemplatedCardiacProblem> mSavedProblem;
+    /** Whether to save a copy of the problem instance for examination by tests. */
+    bool mSaveProblemInstance;
+    
+    /** The saved problem instance, if any. */
+    boost::shared_ptr<AbstractUntemplatedCardiacProblem> mSavedProblem;
 };
 
 //
@@ -228,7 +228,7 @@ private:
 
 boost::shared_ptr<AbstractUntemplatedCardiacProblem> CardiacSimulation::GetSavedProblem()
 {
-	return mSavedProblem;
+    return mSavedProblem;
 }
 
 std::string CardiacSimulation::BoolToString(bool yesNo)
@@ -275,8 +275,8 @@ void CardiacSimulation::CreateResumeXmlFile(const std::string& rOutputDirectory,
 
 CardiacSimulation::CardiacSimulation(std::string parameterFileName,
                                      bool writeProvenanceInfo,
-									 bool saveProblemInstance)
-	: mSaveProblemInstance(saveProblemInstance)
+                                     bool saveProblemInstance)
+    : mSaveProblemInstance(saveProblemInstance)
 {
     // If we have been passed an XML file then parse the XML file, otherwise throw
     if (parameterFileName == "")
