@@ -1,5 +1,6 @@
 cell/TestCellNightly.hpp
 crypt/simulation/TestCryptSimulation2dNightly.hpp
+crypt/simulation/TestCryptSimulationAnother2dNightly.hpp
 tutorial/TestCreatingAndUsingANewCellCycleModelTutorial.hpp
 tutorial/TestCreatingAndUsingANewCellKillerTutorial.hpp
 tutorial/TestCreatingAndUsingANewCellMutationStateTutorial.hpp
