@@ -33,7 +33,6 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include "Cell.hpp"
 #include "WildTypeCellMutationState.hpp"
-#include "CellPropertyRegistry.hpp"
 
 /**
  * A helper class for generating a vector of cells for a given mesh.
