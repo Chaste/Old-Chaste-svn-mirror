@@ -101,7 +101,7 @@ public:
         // Set length of simulation here
         simulator.SetEndTime(time_of_each_run);
 
-        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(),0.01);
+        SloughingCellKiller<2> cell_killer(&simulator.rGetCellPopulation(), CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&cell_killer);
 
         // UNUSUAL SET UP HERE /////////////////////////////////////
