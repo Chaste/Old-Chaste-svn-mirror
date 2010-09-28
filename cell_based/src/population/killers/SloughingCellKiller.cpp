@@ -30,10 +30,15 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include "PetscTools.hpp"
 
 template <unsigned DIM>
-SloughingCellKiller<DIM>::SloughingCellKiller(AbstractCellPopulation<DIM>* pCrypt, bool sloughSides)
+SloughingCellKiller<DIM>::SloughingCellKiller(AbstractCellPopulation<DIM>* pCrypt, double sloughHeight, bool sloughSides, double sloughWidth)
     : AbstractCellKiller<DIM>(pCrypt),
       mSloughSides(sloughSides)
 {
+    assert(sloughHeight > 0.0);
+    mSloughHeight = sloughHeight;
+
+    assert(sloughWidth > 0.0);
+    mSloughWidth = sloughWidth;
 }
 
 template <unsigned DIM>
@@ -43,21 +48,32 @@ bool SloughingCellKiller<DIM>::GetSloughSides() const
 }
 
 template <unsigned DIM>
+double SloughingCellKiller<DIM>::GetSloughHeight() const
+{
+    return mSloughHeight;
+}
+
+template <unsigned DIM>
+double SloughingCellKiller<DIM>::GetSloughWidth() const
+{
+    return mSloughWidth;
+}
+
+
+template <unsigned DIM>
 void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
 {
     switch (DIM)
     {
         case 1:
         {
-            double crypt_length = CellBasedConfig::Instance()->GetCryptLength();
-
             for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
                  cell_iter != this->mpCellPopulation->End();
                  ++cell_iter)
             {
                 double x = this->mpCellPopulation->GetLocationOfCellCentre(*cell_iter)[0];
 
-                if (x > crypt_length)
+                if (x > mSloughHeight)
                 {
                     cell_iter->Kill();
                 }
@@ -66,9 +82,6 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
         }
         case 2:
         {
-            double crypt_length = CellBasedConfig::Instance()->GetCryptLength();
-            double crypt_width = CellBasedConfig::Instance()->GetCryptWidth();
-
             for (typename AbstractCellPopulation<DIM>::Iterator cell_iter = this->mpCellPopulation->Begin();
                  cell_iter != this->mpCellPopulation->End();
                  ++cell_iter)
@@ -77,7 +90,7 @@ void SloughingCellKiller<DIM>::TestAndLabelCellsForApoptosisOrDeath()
                 double x = location[0];
                 double y = location[1];
 
-                if ( (y>crypt_length) ||  (mSloughSides && ((x<0.0) || (x>crypt_width))) )
+                if ( (y>mSloughHeight) ||  (mSloughSides && ((x<0.0) || (x>mSloughWidth))) )
                 {
                     cell_iter->Kill();
                 }

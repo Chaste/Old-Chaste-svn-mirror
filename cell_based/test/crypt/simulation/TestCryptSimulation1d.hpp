@@ -160,7 +160,7 @@ public:
         simulator.SetEndTime(1.0);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         TS_ASSERT_EQUALS(simulator.rGetCellPopulation().GetNumRealCells(), 25u);
@@ -406,7 +406,7 @@ public:
         simulator.SetEndTime(10.0);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -589,7 +589,7 @@ public:
         simulator.SetEndTime(40);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -803,7 +803,7 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -951,7 +951,7 @@ public:
         simulator.SetEndTime(10.0);
 
         // Add sloughing cell killer to simulation
-        SloughingCellKiller<1> sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<1> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Test Output methods

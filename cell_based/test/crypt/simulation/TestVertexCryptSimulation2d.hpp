@@ -303,7 +303,7 @@ public:
 
         // Make crypt shorter for sloughing
         CellBasedConfig::Instance()->SetCryptLength(5.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -348,7 +348,7 @@ public:
 
         // Make crypt shorter for sloughing
         CellBasedConfig::Instance()->SetCryptLength(20.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -398,7 +398,7 @@ public:
 
         // Make crypt shorter for sloughing
         CellBasedConfig::Instance()->SetCryptLength(10.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -448,7 +448,7 @@ public:
 
         // Make crypt shorter for sloughing
         CellBasedConfig::Instance()->SetCryptLength(20.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -499,7 +499,7 @@ public:
 
         // Make crypt shorter for sloughing
         CellBasedConfig::Instance()->SetCryptLength(6.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -608,7 +608,7 @@ public:
         simulator.SetEndTime(0.25);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -616,17 +616,17 @@ public:
 
         // Test the locations of a few nodes
         std::vector<double> node_4_location = simulator.GetNodeLocation(4);
-        TS_ASSERT_DELTA(node_4_location[0], 3.9992, 1e-4);
-        TS_ASSERT_DELTA(node_4_location[1], 0.1757, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[0], 0.0009, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[1], 0.0699, 1e-4);
 
         std::vector<double> node_5_location = simulator.GetNodeLocation(5);
-        TS_ASSERT_DELTA(node_5_location[0], 0.9755, 1e-3);
-        TS_ASSERT_DELTA(node_5_location[1], 0.1715, 1e-4);
+        TS_ASSERT_DELTA(node_5_location[0], 1.0, 1e-3);
+        TS_ASSERT_DELTA(node_5_location[1], 0.0704, 1e-4);
 
         // Test the Wnt concentration result
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.GetCellUsingLocationIndex(2)), 0.9748, 1e-4);
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.GetCellUsingLocationIndex(3)), 0.9736, 1e-4);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.GetCellUsingLocationIndex(2)), 0.9769, 1e-4);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(crypt.GetCellUsingLocationIndex(3)), 0.9769, 1e-4);
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);
@@ -662,7 +662,7 @@ public:
         VertexCryptSimulation2d simulator(crypt, force_collection);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
    		std::string output_directory = "TestVertexCryptSimulation2dOutputParameters";
@@ -712,7 +712,7 @@ public:
         simulator.SetEndTime(0.1);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -764,20 +764,20 @@ public:
 
         // Test the locations of a few nodes
         std::vector<double> node_4_location = p_simulator2->GetNodeLocation(4);
-        TS_ASSERT_DELTA(node_4_location[0], 3.9992, 1e-4);
-        TS_ASSERT_DELTA(node_4_location[1], 0.1757, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[0], 0.0009, 1e-4);
+        TS_ASSERT_DELTA(node_4_location[1], 0.0699, 1e-4);
 
         std::vector<double> node_5_location = p_simulator2->GetNodeLocation(5);
-        TS_ASSERT_DELTA(node_5_location[0], 0.9755, 1e-3);
-        TS_ASSERT_DELTA(node_5_location[1], 0.1715, 1e-4);
+        TS_ASSERT_DELTA(node_5_location[0], 1.0, 1e-3);
+        TS_ASSERT_DELTA(node_5_location[1], 0.0704, 1e-4);
 
         // Test Wnt concentration was set up correctly
         TS_ASSERT_EQUALS(WntConcentration<2>::Instance()->IsWntSetUp(), true);
 
         // Test the Wnt concentration result
         WntConcentration<2>* p_wnt = WntConcentration<2>::Instance();
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetCellPopulation().GetCellUsingLocationIndex(2)), 0.9748, 1e-4);
-        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetCellPopulation().GetCellUsingLocationIndex(3)), 0.9736, 1e-4);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetCellPopulation().GetCellUsingLocationIndex(2)), 0.9769, 1e-4);
+        TS_ASSERT_DELTA(p_wnt->GetWntLevel(p_simulator2->rGetCellPopulation().GetCellUsingLocationIndex(3)), 0.9769, 1e-4);
 
         // Test Warnings
         TS_ASSERT_EQUALS(Warnings::Instance()->GetNumWarnings(), 1u);

@@ -252,7 +252,11 @@ public:
         p_params->SetCryptLength(0.5);
 
         // Create cell killer and kill cells
-        SloughingCellKiller<2> sloughing_cell_killer(&cell_population, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&cell_population,
+                                                     CellBasedConfig::Instance()->GetCryptLength(),
+                                                     true,
+                                                     CellBasedConfig::Instance()->GetCryptWidth());
+
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         TS_ASSERT_EQUALS(sloughing_cell_killer.GetIdentifier(), "SloughingCellKiller-2");
@@ -323,7 +327,8 @@ public:
         p_params->SetCryptLength(0.5);
 
         // Create cell killer and kill cells
-        SloughingCellKiller<2> sloughing_cell_killer(&cell_population);
+        SloughingCellKiller<2> sloughing_cell_killer(&cell_population, CellBasedConfig::Instance()->GetCryptLength());
+
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
@@ -387,7 +392,7 @@ public:
         p_params->SetCryptLength(crypt_length);
 
         // Create cell killer and kill cells
-        SloughingCellKiller<1> sloughing_cell_killer(&cell_population);
+        SloughingCellKiller<1> sloughing_cell_killer(&cell_population, CellBasedConfig::Instance()->GetCryptLength());
         sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath();
 
         // Check that cells were labelled for death correctly
@@ -444,7 +449,8 @@ public:
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
         // Create cell killer
-        SloughingCellKiller<3> sloughing_cell_killer(&cell_population);
+        SloughingCellKiller<3> sloughing_cell_killer(&cell_population, 1.0); // number is irrelevent as long as its positive.
+
 
         // Check that an exception is thrown, as this method is not yet implemented in 3D
         TS_ASSERT_THROWS_THIS(sloughing_cell_killer.TestAndLabelCellsForApoptosisOrDeath(), "SloughingCellKiller is not yet implemented in 3D");
@@ -632,14 +638,9 @@ public:
         OutputFileHandler handler("archive", false);    // don't erase contents of folder
         std::string archive_filename = handler.GetOutputDirectoryFullPath() + "sloughing_killer.arch";
 
-        CellBasedConfig* p_params = CellBasedConfig::Instance();
-
-        p_params->SetCryptLength(10.0);
-        p_params->SetCryptWidth(5.0);
-
         {
             // Create an output archive
-            SloughingCellKiller<2> cell_killer(NULL, true);
+            SloughingCellKiller<2> cell_killer(NULL, 10.0, true, 5.0);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -649,11 +650,9 @@ public:
             output_arch << p_cell_killer;
 
             TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
+            TS_ASSERT_DELTA(p_cell_killer->GetSloughHeight(), 10.0, 1e-9);
+            TS_ASSERT_DELTA(p_cell_killer->GetSloughWidth(), 5.0, 1e-9);
         }
-
-        // Change the model parameters
-        p_params->SetCryptLength(12.0);
-        p_params->SetCryptWidth(6.0);
 
         {
             // Create an input archive
@@ -667,6 +666,8 @@ public:
 
             // Test we have restored the sloughing properties correctly
             TS_ASSERT_EQUALS(p_cell_killer->GetSloughSides(), true);
+            TS_ASSERT_DELTA(p_cell_killer->GetSloughHeight(), 10.0, 1e-9);
+            TS_ASSERT_DELTA(p_cell_killer->GetSloughWidth(), 5.0, 1e-9);
 
             delete p_cell_killer;
         }

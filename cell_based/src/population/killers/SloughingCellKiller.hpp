@@ -34,11 +34,9 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/serialization/base_object.hpp>
 
 /**
- *  A cell killer that kills cells if they are outside the crypt.
- *
- *  The crypt width and height is taken from the CellBasedConfig singleton
- *  object. The crypt is assumed to start at x=0 and y=0. By default only cells
- *  are sloughed if y>crypt_height. To slough the sides call the constructor
+ *  A cell killer that kills cells if they are outside the domain.
+ *  The domain is assumed to start at x=0 and y=0. By default only cells
+ *  are sloughed if y>mSloughLength. To slough the sides call the constructor
  *  with the appropriate parameter.
  */
 template<unsigned DIM>
@@ -48,6 +46,18 @@ private:
 
     /** Whether cells should be sloughed from the sides of the crypt. */
     bool mSloughSides;
+
+    /**
+     * The height of the domain, non-dimensionalised with cell length.
+     * This parameter determines when cells are sloughed from the domain.
+     */
+    double mSloughHeight;
+
+    /**
+    * The width of the domain, non-dimensionalised with cell length.
+    * This determines when cells are sloughed from sides of the domain in 2D.
+    */
+    double mSloughWidth;
 
     /** Needed for serialization. */
     friend class boost::serialization::access;
@@ -67,6 +77,8 @@ private:
     {
         archive & boost::serialization::base_object<AbstractCellKiller<DIM> >(*this);
         //archive & mSloughSides; // done in load_construct_data
+        //archive & mSloughLength; // done in load_construct_data
+        //archive & mSloughWidth; // done in load_construct_data
 
         // Make sure CellPopulation configuration archived
         CellBasedConfig* p_config = CellBasedConfig::Instance();
@@ -79,15 +91,27 @@ public:
     /**
      * Default constructor.
      *
-     * @param pCrypt pointer to a crypt
-     * @param sloughSides whether to slough cells at the side of the crypt
+     * @param pCrypt pointer to a cell population
+     * @param sloughHeight the height at which to slogh from the domain
+     * @param sloughSides whether to slough cells at the side of the domain
+     * @param sloughWidth the width of the domain (note slogh on left and right)
      */
-    SloughingCellKiller(AbstractCellPopulation<DIM>* pCrypt, bool sloughSides=false);
+    SloughingCellKiller(AbstractCellPopulation<DIM>* pCrypt, double sloughHeight, bool sloughSides=false, double sloughWidth = 10.0);
 
     /**
      * @return mSloughSides.
      */
     bool GetSloughSides() const;
+
+    /**
+     * @return mSloughHeight.
+     */
+    double GetSloughHeight() const;
+
+    /**
+     * @return mSloughWidth.
+     */
+    double GetSloughWidth() const;
 
     /**
      *  Loops over cells and kills cells outside boundary.
@@ -115,6 +139,10 @@ inline void save_construct_data(
     ar << p_crypt;
     bool slough_sides = t->GetSloughSides();
     ar << slough_sides;
+    double slough_height = t->GetSloughHeight();
+    ar << slough_height;
+    double slough_width = t->GetSloughWidth();
+    ar << slough_width;
 }
 
 /**
@@ -129,9 +157,13 @@ inline void load_construct_data(
     ar >> p_crypt;
     bool slough_sides;
     ar >> slough_sides;
+    double slough_height;
+    ar >> slough_height;
+    double slough_width;
+    ar >> slough_width;
 
     // Invoke inplace constructor to initialise instance
-    ::new(t)SloughingCellKiller<DIM>(p_crypt, slough_sides);
+    ::new(t)SloughingCellKiller<DIM>(p_crypt, slough_height, slough_sides, slough_width);
 }
 }
 } // namespace ...
