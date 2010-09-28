@@ -754,10 +754,10 @@ void CellBasedSimulation<DIM>::SetOutputNodeVelocities(bool outputNodeVelocities
 template<unsigned DIM>
 void CellBasedSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFile)
 {
-	  *rParamsFile << "\t\t<Dt>"<< mDt << "</Dt>\n";
-	  *rParamsFile << "\t\t<EndTime>"<< mEndTime << "</EndTime>\n";
-	  *rParamsFile << "\t\t<SamplingTimestepMultiple>"<< mSamplingTimestepMultiple << "</SamplingTimestepMultiple>\n";
-	  *rParamsFile << "\t\t<OutputNodeVelocities>"<< mOutputNodeVelocities << "</OutputNodeVelocities>\n";
+    *rParamsFile << "\t\t<Dt>" << mDt << "</Dt>\n";
+    *rParamsFile << "\t\t<EndTime>" << mEndTime << "</EndTime>\n";
+    *rParamsFile << "\t\t<SamplingTimestepMultiple>" << mSamplingTimestepMultiple << "</SamplingTimestepMultiple>\n";
+    *rParamsFile << "\t\t<OutputNodeVelocities>" << mOutputNodeVelocities << "</OutputNodeVelocities>\n";
 }
 
 #include "TidyTemplatedExportIdentifier.hpp"
