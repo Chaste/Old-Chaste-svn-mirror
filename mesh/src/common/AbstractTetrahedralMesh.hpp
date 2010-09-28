@@ -289,6 +289,17 @@ public:
     virtual void ConstructFromMeshReader(AbstractMeshReader<ELEMENT_DIM, SPACE_DIM>& rMeshReader)=0;
 
     /**
+     * Construct the mesh using another mesh.
+     * This takes a mesh of a given concrete class and produces a deep copy.
+     *
+     * Use with caution when copying between subclasses.
+     * \todo Can we make this const?
+     * @param rOtherMesh the mesh to copy
+     */
+    void ConstructFromMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rOtherMesh);
+    
+    
+    /**
      * Return a pointer to the first boundary element in the mesh.
      */
     BoundaryElementIterator GetBoundaryElementIteratorBegin() const;

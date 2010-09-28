@@ -601,6 +601,56 @@ void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::GetHaloNodeIndices(std::ve
     rHaloIndices.clear();
 }
 
+template<unsigned ELEMENT_DIM, unsigned SPACE_DIM>
+void AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>::ConstructFromMesh(AbstractTetrahedralMesh<ELEMENT_DIM, SPACE_DIM>& rOtherMesh)
+{
+    for (unsigned i=0; i<rOtherMesh.GetNumNodes(); i++)
+    {
+        Node<SPACE_DIM>* p_node =  rOtherMesh.GetNode(i);
+        assert(!p_node->IsDeleted());
+        c_vector<double, SPACE_DIM> location=p_node->rGetLocation();
+        bool is_boundary=p_node->IsBoundaryNode();
+        
+        Node<SPACE_DIM>* p_node_copy = new Node<SPACE_DIM>(i, location, is_boundary);
+        this->mNodes.push_back( p_node_copy );
+        if (is_boundary)
+        {
+            this->mBoundaryNodes.push_back( p_node_copy );
+        }
+    }
+
+    for (unsigned i=0; i<rOtherMesh.GetNumElements(); i++)
+    {
+        Element<ELEMENT_DIM, SPACE_DIM>* p_elem =  rOtherMesh.GetElement(i);
+        assert(!p_elem->IsDeleted());
+        std::vector<Node<SPACE_DIM>*> nodes_for_element;
+        for (unsigned j=0; j<p_elem->GetNumNodes(); j++)
+        {
+            nodes_for_element.push_back(this->mNodes[ p_elem->GetNodeGlobalIndex(j) ]);
+        }
+        Element<ELEMENT_DIM, SPACE_DIM>* p_elem_copy=new Element<ELEMENT_DIM, SPACE_DIM>(i, nodes_for_element);
+        p_elem_copy->RegisterWithNodes();
+        this->mElements.push_back(p_elem_copy);
+    }
+    
+    for (unsigned i=0; i<rOtherMesh.GetNumBoundaryElements(); i++)
+    {
+        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_b_elem =  rOtherMesh.GetBoundaryElement(i);
+        assert(!p_b_elem->IsDeleted());
+        std::vector<Node<SPACE_DIM>*> nodes_for_element;
+        for (unsigned j=0; j<p_b_elem->GetNumNodes(); j++)
+        {
+            nodes_for_element.push_back(this->mNodes[ p_b_elem->GetNodeGlobalIndex(j) ]);
+        }
+        BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>* p_b_elem_copy=new BoundaryElement<ELEMENT_DIM-1, SPACE_DIM>(i, nodes_for_element);
+        p_b_elem_copy->RegisterWithNodes();
+        this->mBoundaryElements.push_back(p_b_elem_copy);
+    }
+    this->RefreshMesh();
+
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
 /////////////////////////////////////////////////////////////////////////////////////
