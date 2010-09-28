@@ -847,14 +847,14 @@ void Hdf5DataWriter::PutUnlimitedVariable(double value)
         EXCEPTION("PutUnlimitedVariable() called but no unlimited dimension has been set");
     }
 
+    // Make sure that everything is actually extended to the correct dimension.
+    PossiblyExtend();
+
     // This data is only written by the master
     if (!PetscTools::AmMaster())
     {
         return;
     }
-
-    // Make sure that everything is actually extended to the correct dimension.
-    PossiblyExtend();
 
     hsize_t size[1] = {1};
     hid_t memspace = H5Screate_simple(1, size, NULL);
