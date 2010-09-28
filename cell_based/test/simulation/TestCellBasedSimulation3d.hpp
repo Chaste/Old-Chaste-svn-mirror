@@ -102,7 +102,7 @@ public:
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
         GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<3>* > force_collection;
         force_collection.push_back(&linear_force);
 
@@ -148,7 +148,7 @@ public:
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
         GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<3>* > force_collection;
         force_collection.push_back(&linear_force);
 
@@ -200,7 +200,7 @@ public:
         MeshBasedCellPopulation<3> cell_population(mesh, cells);
 
         GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<3>* > force_collection;
         force_collection.push_back(&linear_force);
 
@@ -289,7 +289,7 @@ public:
         MeshBasedCellPopulationWithGhostNodes<3> cell_population(*p_mesh, cells, location_indices);
 
         GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<3>*> force_collection;
         force_collection.push_back(&linear_force);
 

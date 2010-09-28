@@ -37,19 +37,21 @@ NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM
       mNodes(nodes.begin(), nodes.end()),
       mAddedNodes(true),
       mpBoxCollection(NULL),
-      mDeleteNodes(deleteNodes)
+      mDeleteNodes(deleteNodes),
+      mMechanicsCutOffLength(DBL_MAX)
 {
     Validate();
 }
 
 // archiving constructor
 template<unsigned DIM>
-NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes, bool deleteNodes)
+NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes, double mechanicsCutOffLength, bool deleteNodes)
     : AbstractCentreBasedCellPopulation<DIM>(),
       mNodes(nodes.begin(), nodes.end()),
       mAddedNodes(true),
       mpBoxCollection(NULL),
-      mDeleteNodes(deleteNodes)
+      mDeleteNodes(deleteNodes),
+      mMechanicsCutOffLength(mechanicsCutOffLength)
 {
     // No Validate() because the cells are not associated with the cell population yet in archiving
 }
@@ -61,7 +63,8 @@ NodeBasedCellPopulation<DIM>::NodeBasedCellPopulation(const AbstractMesh<DIM,DIM
     : AbstractCentreBasedCellPopulation<DIM>(rCells),
       mAddedNodes(false),
       mpBoxCollection(NULL),
-      mDeleteNodes(true)
+      mDeleteNodes(true),
+      mMechanicsCutOffLength(DBL_MAX)
 {
     unsigned num_nodes = rMesh.GetNumNodes();
 
@@ -278,17 +281,16 @@ void NodeBasedCellPopulation<DIM>::Update(bool hasHadBirthsOrDeaths)
         domain_size(2*i+1) = mMaxSpatialPositions(i);
     }
 
-    double cut_off_length = CellBasedConfig::Instance()->GetMechanicsCutOffLength();
-    if (cut_off_length == DBL_MAX)
+    if (mMechanicsCutOffLength == DBL_MAX)
     {
         std::string error =  std::string("NodeBasedCellPopulation cannot create boxes if the cut-off length has not been set - ")
-                           + std::string("Call UseCutoffPoint() on the force law, or SetMechanicsCutOffLength on CellBasedConfig");
+                           + std::string("Call SetMechanicsCutOffLength on the CellPopulation ensuring it is larger than GetCutOffLength() on the force law");
         EXCEPTION(error);
     }
 
     // Add this parameter and suggest that mechanics systems set it.
     // Allocates memory for mpBoxCollection and does the splitting and putting nodes into boxes
-    SplitUpIntoBoxes(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), domain_size);
+    SplitUpIntoBoxes(mMechanicsCutOffLength, domain_size);
 
     mpBoxCollection->CalculateNodePairs(mNodes, mNodePairs);
 }
@@ -365,12 +367,28 @@ std::set< std::pair<Node<DIM>*, Node<DIM>* > >& NodeBasedCellPopulation<DIM>::rG
 template<unsigned DIM>
 void NodeBasedCellPopulation<DIM>::OutputCellPopulationParameters(out_stream& rParamsFile)
 {
-	// Currently no specific parameters to output all come from parent classes
+    *rParamsFile << "\t\t<MechanicsCutOffLength>"<< mMechanicsCutOffLength << "</MechanicsCutOffLength>\n";
+
+    // Currently no specific parameters to output all come from parent classes
 
 	// Call direct parent class method
 	AbstractCentreBasedCellPopulation<DIM>::OutputCellPopulationParameters(rParamsFile);
 
 }
+
+template<unsigned DIM>
+void NodeBasedCellPopulation<DIM>::SetMechanicsCutOffLength(double mechanicsCutOffLength)
+{
+    assert(mechanicsCutOffLength > 0.0);
+    mMechanicsCutOffLength = mechanicsCutOffLength;
+}
+
+template<unsigned DIM>
+double NodeBasedCellPopulation<DIM>::GetMechanicsCutOffLength()
+{
+    return mMechanicsCutOffLength;
+}
+
 
 
 /////////////////////////////////////////////////////////////////////////////

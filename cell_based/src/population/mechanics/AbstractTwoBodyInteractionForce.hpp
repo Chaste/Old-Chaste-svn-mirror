@@ -54,12 +54,18 @@ private :
         // If Archive is an output archive, then '&' resolves to '<<'
         // If Archive is an input archive, then '&' resolves to '>>'
         archive & boost::serialization::base_object<AbstractForce<DIM> >(*this);
-        archive & mUseCutoffPoint;
+        archive & mUseCutOffLength;
+        archive & mMechanicsCutOffLength;
     }
 
 protected:
     /** Whether to have zero force if the cells are far enough apart */
-    bool mUseCutoffPoint;
+    bool mUseCutOffLength;
+
+    /**
+     * Mechanics cut off length.
+     */
+    double mMechanicsCutOffLength;
 
 public :
 
@@ -68,21 +74,20 @@ public :
      */
     AbstractTwoBodyInteractionForce();
 
-
     /**
      * Use a cutoff point, ie specify zero force if two cells are greater
      * than the cutoff distance apart
      *
-     * @param cutoffPoint the cutoff to use
+     * @param cutOffLength the cutoff to use
      */
-    void UseCutoffPoint(double cutoffPoint);
+    void SetCutOffLength(double cutOffLength);
 
     /**
-     * Get the cutoff point.
+     * Get the cutoff length.
      *
-     * @return CutoffPoint
+     * @return mCutOffLenght
      */
-    double GetCutoffPoint();
+    double GetCutOffLength();
 
     /**
      * Calculates the force between two nodes.

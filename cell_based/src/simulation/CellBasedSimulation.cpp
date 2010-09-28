@@ -731,8 +731,6 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
     CellBasedConfig* p_inst = CellBasedConfig::Instance();
 	*parameter_file << "\t\t<CryptLength>"<< p_inst->GetCryptLength() << "</CryptLength>\n";
 	*parameter_file << "\t\t<CryptWidth>"<< p_inst->GetCryptWidth() << "</CryptWidth>\n";
-	*parameter_file << "\t\t<MechanicsCutOffLength>"<< p_inst->GetMechanicsCutOffLength() << "</MechanicsCutOffLength>\n";
-
     *parameter_file <<  "\t</CellBasedConfig>\n";
     *parameter_file << "</Chaste>\n" ;
 

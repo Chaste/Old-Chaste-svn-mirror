@@ -61,9 +61,6 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
                                                                                     unsigned nodeBGlobalIndex,
                                                                                     AbstractCellPopulation<DIM>& rCellPopulation)
 {
-    // Helper pointer
-    CellBasedConfig* p_config = CellBasedConfig::Instance();
-
     // We should only ever calculate the force between two distinct nodes
     assert(nodeAGlobalIndex != nodeBGlobalIndex);
 
@@ -96,12 +93,12 @@ c_vector<double, DIM> GeneralisedLinearSpringForce<DIM>::CalculateForceBetweenNo
     unit_difference /= distance_between_nodes;
 
     /*
-     * If mUseCutoffPoint has been set, then there is zero force between
-     * two nodes located a distance apart greater than mUseCutoffPoint.
+     * If mUseCutOffLength has been set, then there is zero force between
+     * two nodes located a distance apart greater than mMechanicsCutOffLength in AbstractTwoBodyInteractionForce.
      */
-    if (this->mUseCutoffPoint)
+    if (this->mUseCutOffLength)
     {
-        if (distance_between_nodes >= p_config->GetMechanicsCutOffLength())
+        if (distance_between_nodes >= this->GetCutOffLength())
         {
             return zero_vector<double>(DIM); // c_vector<double,DIM>() is not guaranteed to be fresh memory
         }

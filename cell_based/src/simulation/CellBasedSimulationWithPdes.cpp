@@ -94,7 +94,7 @@ void CellBasedSimulationWithPdes<DIM>::WriteVisualizerSetupFile()
     {
         if (dynamic_cast<AbstractTwoBodyInteractionForce<DIM>*>(this->mForceCollection[i]))
         {
-            double cutoff = (static_cast<AbstractTwoBodyInteractionForce<DIM>*>(this->mForceCollection[i]))->GetCutoffPoint();
+            double cutoff = (static_cast<AbstractTwoBodyInteractionForce<DIM>*>(this->mForceCollection[i]))->GetCutOffLength();
             *(this->mpVizSetupFile) << "Cutoff\t" << cutoff << "\n";
         }
     }

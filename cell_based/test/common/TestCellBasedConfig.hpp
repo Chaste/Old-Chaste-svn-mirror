@@ -55,7 +55,6 @@ private:
 
         TS_ASSERT_DELTA(p_inst->GetCryptLength(), 22.0, 1e-12);
         TS_ASSERT_DELTA(p_inst->GetCryptWidth(), 10.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst->GetMechanicsCutOffLength(), DBL_MAX, 1e-12);
      }
 
 public:
@@ -70,7 +69,6 @@ public:
         CellBasedConfig* p_inst = CellBasedConfig::Instance();
 
         p_inst->SetCryptLength(100.0);
-        p_inst->SetMechanicsCutOffLength(1.5);
         p_inst->Reset();
 
         CheckValuesAreTheDefaultValues();
@@ -82,12 +80,10 @@ public:
         CellBasedConfig* p_inst1 = CellBasedConfig::Instance();
 
         p_inst1->SetCryptLength(100.0);
-        p_inst1->SetMechanicsCutOffLength(3.0);
 
         CellBasedConfig* p_inst2 = CellBasedConfig::Instance();
 
         TS_ASSERT_DELTA(p_inst2->GetCryptLength(), 100.0, 1e-12);
-        TS_ASSERT_DELTA(p_inst2->GetMechanicsCutOffLength(), 3.0, 1e-12);
     }
 
     void TestArchiveCellBasedConfig()
@@ -101,7 +97,6 @@ public:
 
             // Change the value of each member variable
             p_inst1->SetCryptLength(100.0);
-            p_inst1->SetMechanicsCutOffLength(3.0);
 
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
@@ -115,7 +110,6 @@ public:
 
             // Restore the member variables to their default values
             p_inst1->SetCryptLength(22.0);
-            p_inst1->SetMechanicsCutOffLength(1.5);
 
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
@@ -126,7 +120,6 @@ public:
 
             // Check they are the changed values
             TS_ASSERT_DELTA(p_inst1->GetCryptLength(), 100.0, 1e-12);
-            TS_ASSERT_DELTA(p_inst1->GetMechanicsCutOffLength(), 3.0, 1e-12);
         }
     }
 };

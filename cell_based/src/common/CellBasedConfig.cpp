@@ -56,12 +56,6 @@ void CellBasedConfig::Reset()
     // Default parameter values
     mCryptWidth = 10.0;
     mCryptLength = 22.0;            // this is MOUSE (small intestine)
-
-    /*
-     * The following parameter is specific to cell-centre based models, which were originally based on the
-     * model described in Meineke et al, 2001 (doi:10.1046/j.0960-7722.2001.00216.x)
-     */
-    mMechanicsCutOffLength = DBL_MAX; // This needs to be set by a caller
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -75,10 +69,6 @@ double CellBasedConfig::GetCryptLength()
 double CellBasedConfig::GetCryptWidth()
 {
     return mCryptWidth;
-}
-double CellBasedConfig::GetMechanicsCutOffLength()
-{
-    return mMechanicsCutOffLength;
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -94,9 +84,4 @@ void CellBasedConfig::SetCryptWidth(double cryptWidth)
 {
     assert(cryptWidth > 0.0);
     mCryptWidth = cryptWidth;
-}
-void CellBasedConfig::SetMechanicsCutOffLength(double mechanicsCutOffLength)
-{
-    assert(mechanicsCutOffLength > 0.0);
-    mMechanicsCutOffLength = mechanicsCutOffLength;
 }

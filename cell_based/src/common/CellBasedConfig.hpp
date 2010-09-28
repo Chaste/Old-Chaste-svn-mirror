@@ -61,10 +61,6 @@ public:
      * @return mCryptWidth
      */
     double GetCryptWidth();
-    /**
-     * @return mMechanicsCutOffLength
-     */
-    double GetMechanicsCutOffLength();
 
     /**
      * Set mCryptLength.
@@ -74,10 +70,6 @@ public:
      * Set mCryptWidth.
      */
     void SetCryptWidth(double);
-    /**
-     * Set mMechanicsCutOffLength.
-     */
-    void SetMechanicsCutOffLength(double);
 
     /**
      *  Reset all parameters to their defaults
@@ -118,12 +110,6 @@ private:
     */
     double mCryptWidth;
 
-    /**
-     * Mechanics cut off length.
-     * Used in NodeBasedCellPopulation.
-     */
-    double mMechanicsCutOffLength;
-
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -139,7 +125,6 @@ private:
     {
         archive & mCryptLength;
         archive & mCryptWidth;
-        archive & mMechanicsCutOffLength;
     }
 };
 

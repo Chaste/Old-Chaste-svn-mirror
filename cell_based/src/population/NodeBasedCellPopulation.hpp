@@ -77,6 +77,12 @@ private:
      */
     bool mDeleteNodes;
 
+    /**
+     * Mechanics cut off length.
+     * Used in order to calculate the BoxCollection.
+     */
+    double mMechanicsCutOffLength;
+
     /** Needed for serialization. */
     friend class boost::serialization::access;
     /**
@@ -156,9 +162,10 @@ public:
      * Note that the cell population will take responsibility for freeing the memory used by the nodes.
      *
      * @param nodes a vector of Nodes
+     * @param mechanicsCutOffLength the cut of length for mechanics uised to create the BoxedCollection to improve speed
      * @param deleteNodes whether to delete nodes in destructor
      */
-    NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes, bool deleteNodes=true);
+    NodeBasedCellPopulation(const std::vector<Node<DIM>* > nodes, double mechanicsCutOffLength, bool deleteNodes=true);
 
     /**
      * Constructor which takes in a mesh and takes a copy of its nodes. The mesh is not
@@ -251,6 +258,16 @@ public:
      * @param rParamsFile the file stream to which the parameters are output
      */
     void OutputCellPopulationParameters(out_stream& rParamsFile);
+
+    /**
+     * @return mMechanicsCutOffLength
+     */
+    double GetMechanicsCutOffLength();
+
+    /**
+     * Set mMechanicsCutOffLength.
+     */
+    void SetMechanicsCutOffLength(double);
 };
 
 
@@ -367,6 +384,9 @@ inline void save_construct_data(
     Archive & ar, const NodeBasedCellPopulation<DIM> * t, const BOOST_PFTO unsigned int file_version)
 {
     ar & t->rGetNodes();
+//    const double cut_off_length = t->GetMechanicsCutOffLength();
+//    ar << cut_off_length;
+
 }
 
 /**
@@ -380,8 +400,12 @@ inline void load_construct_data(
     std::vector<Node<DIM>* > nodes;
     ar >> nodes;
 
+    // load the cut of distance
+    double cut_off_length = 1.0; //\todo this is temporary till we fix archiving
+//    ar >> cut_off_length;
+
     // Invoke inplace constructor to initialize instance
-    ::new(t)NodeBasedCellPopulation<DIM>(nodes);
+    ::new(t)NodeBasedCellPopulation<DIM>(nodes, cut_off_length);
 }
 
 }} // close namespaces

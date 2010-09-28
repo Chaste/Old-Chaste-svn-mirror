@@ -244,7 +244,7 @@ public:
          * model was first proposed in the context of crypt modelling by Meineke ''et al''
          * (Cell Prolif. 34:253-266, 2001), we call this object a
          * {{{GeneralisedLinearSpringForce}}}. We pass a pointer to this force into a vector.
-         * Note that we have called the method {{{UseCutoffPoint}}} on the
+         * Note that we have called the method {{{SetCutOffLength}}} on the
          * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
          * laws - this modifies the force law so that two neighbouring cells do not impose
          * a force on each other if they are located more than 3 units (=3 cell widths)
@@ -253,7 +253,7 @@ public:
          * on the spheroid boundary.
          */
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(3);
+        linear_force.SetCutOffLength(3);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 

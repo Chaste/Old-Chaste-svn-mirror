@@ -294,7 +294,7 @@ public:
         /* We must now create one or more force laws, which determine the mechanics of
          * the cell population. For this test, we assume that a cell experiences a force from each
          * neighbour that can be represented as a linear overdamped spring, and so use
-         * a {{{GeneralisedLinearSpringForce}}} object. Note that we have called the method {{{UseCutoffPoint}}} on the
+         * a {{{GeneralisedLinearSpringForce}}} object. Note that we have called the method {{{SetCutOffLength}}} on the
          * {{{GeneralisedLinearSpringForce}}} before passing it into the collection of force
          * laws - this modifies the force law so that two neighbouring cells do not impose
          * a force on each other if they are located more than 3 units (=3 cell widths)
@@ -303,7 +303,7 @@ public:
          * on the cell population boundary.
          */
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(3);
+        linear_force.SetCutOffLength(3);
 
         /* We then pass a pointer to the force into a vector. */
         std::vector<AbstractForce<2>*> force_collection;

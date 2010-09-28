@@ -32,24 +32,24 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 AbstractTwoBodyInteractionForce<DIM>::AbstractTwoBodyInteractionForce()
    : AbstractForce<DIM>(),
-     mUseCutoffPoint(false)
+     mUseCutOffLength(false)
 {
 }
 
 
 template<unsigned DIM>
-void AbstractTwoBodyInteractionForce<DIM>::UseCutoffPoint(double cutoffPoint)
+void AbstractTwoBodyInteractionForce<DIM>::SetCutOffLength(double cutOffLength)
 {
-    assert(cutoffPoint > 0.0);
-    mUseCutoffPoint = true;
-    CellBasedConfig::Instance()->SetMechanicsCutOffLength(cutoffPoint);
+    assert(cutOffLength > 0.0);
+    mUseCutOffLength = true;
+    mMechanicsCutOffLength=cutOffLength;
 }
 
 
 template<unsigned DIM>
-double AbstractTwoBodyInteractionForce<DIM>::GetCutoffPoint()
+double AbstractTwoBodyInteractionForce<DIM>::GetCutOffLength()
 {
-    return CellBasedConfig::Instance()->GetMechanicsCutOffLength();
+    return mMechanicsCutOffLength;
 }
 
 
@@ -128,7 +128,8 @@ void AbstractTwoBodyInteractionForce<DIM>::AddForceContribution(std::vector<c_ve
 template<unsigned DIM>
 void AbstractTwoBodyInteractionForce<DIM>::OutputForceParameters(out_stream& rParamsFile)
 {
-	*rParamsFile <<  "\t\t\t<UseCutoffPoint>"<<  mUseCutoffPoint << "</UseCutoffPoint> \n" ;
+	*rParamsFile <<  "\t\t\t<UseCutOffLength>"<<  mUseCutOffLength << "</UseCutOffLength> \n" ;
+	*rParamsFile <<  "\t\t\t<CutOffLength>"<<  mMechanicsCutOffLength << "</CutOffLength> \n" ;
 
 	// Call direct parent class
 	AbstractForce<DIM>::OutputForceParameters(rParamsFile);

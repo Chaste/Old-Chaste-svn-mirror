@@ -187,7 +187,7 @@ public:
 
         // Create force law
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(sqrt(2)); // root2 is a sensible choice
+        linear_force.SetCutOffLength(sqrt(2)); // root2 is a sensible choice
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 

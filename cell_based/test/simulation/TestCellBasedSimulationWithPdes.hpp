@@ -158,7 +158,7 @@ public:
         // Use an extremely small cutoff so that no cells interact
         // - this is to ensure that in the Solve method, the cells don't move
         // (we need to call Solve to set up the .vizpdesolution file)
-        linear_force.UseCutoffPoint(0.0001);
+        linear_force.SetCutOffLength(0.0001);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -261,7 +261,7 @@ public:
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -384,7 +384,7 @@ public:
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -485,7 +485,7 @@ public:
 
 		// Set up force law
 		GeneralisedLinearSpringForce<2> linear_force;
-		linear_force.UseCutoffPoint(1.5);
+		linear_force.SetCutOffLength(1.5);
 		std::vector<AbstractForce<2>*> force_collection;
 		force_collection.push_back(&linear_force);
 
@@ -574,7 +574,7 @@ public:
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -697,7 +697,7 @@ public:
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -886,7 +886,7 @@ public:
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -1005,7 +1005,7 @@ public:
 
         // Set up force law
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -1090,7 +1090,7 @@ public:
         pde_and_bc_collection.push_back(&pde_and_bc);
 
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -1203,7 +1203,7 @@ public:
 
         // Set up mechanics system
         GeneralisedLinearSpringForce<2> linear_force;
-        linear_force.UseCutoffPoint(3.0);
+        linear_force.SetCutOffLength(3.0);
         std::vector<AbstractForce<2>*> force_collection;
         force_collection.push_back(&linear_force);
 
@@ -1297,7 +1297,7 @@ public:
 
         // Set up force law
         GeneralisedLinearSpringForce<3> linear_force;
-        linear_force.UseCutoffPoint(1.5);
+        linear_force.SetCutOffLength(1.5);
         std::vector<AbstractForce<3>*> force_collection;
         force_collection.push_back(&linear_force);
 

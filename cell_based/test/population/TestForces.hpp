@@ -203,10 +203,10 @@ public:
         double dist = norm_2( p_mesh->GetVectorFromAtoB(p_element->GetNode(0)->rGetLocation(),
                               p_element->GetNode(1)->rGetLocation()) );
 
-        linear_force.UseCutoffPoint(dist-0.1);
+        linear_force.SetCutOffLength(dist-0.1);
 
         // Coverage
-        TS_ASSERT_DELTA(linear_force.GetCutoffPoint(), dist-0.1, 1e-4);
+        TS_ASSERT_DELTA(linear_force.GetCutOffLength(), dist-0.1, 1e-4);
 
         force_on_spring = linear_force.CalculateForceBetweenNodes(p_element->GetNodeGlobalIndex(1),
                                                                   p_element->GetNodeGlobalIndex(0),
@@ -829,7 +829,7 @@ public:
             // Serialize via pointer
             LinearSpringWithVariableSpringConstantsForce<2>* const p_linear_force = &linear_force;
 
-            p_linear_force->UseCutoffPoint(1.1);
+            p_linear_force->SetCutOffLength(1.1);
             p_linear_force->SetEdgeBasedSpringConstant(true);
             p_linear_force->SetMutantSprings(true, 0.2, 0.3);
             p_linear_force->SetBetaCateninSprings(true);
@@ -854,8 +854,8 @@ public:
             input_arch >> p_linear_force;
 
             // Test the member data
-            TS_ASSERT_EQUALS(p_linear_force->mUseCutoffPoint, true);
-            TS_ASSERT_EQUALS(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), 1.1);
+            TS_ASSERT_EQUALS(p_linear_force->mUseCutOffLength, true);
+            TS_ASSERT_EQUALS(p_linear_force->mMechanicsCutOffLength, 1.1);
             TS_ASSERT_EQUALS(p_linear_force->mUseEdgeBasedSpringConstant, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseEdgeBasedSpringConstant, true);
             TS_ASSERT_EQUALS(p_linear_force->mUseMutantSprings, true);
@@ -978,26 +978,15 @@ public:
             // Create force
             ChemotacticForce<2> chemotactic_force;
 
-            // Change the value of a CellBasedConfig member
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), DBL_MAX, 1e-6);
-            CellBasedConfig::Instance()->SetMechanicsCutOffLength(10.0);
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), 10.0, 1e-6);
-
-            // Serialize force (and hence CellBasedConfig) via pointer
+            // Serialize force via pointer
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
             ChemotacticForce<2>* const p_chemotactic_force = &chemotactic_force;
             output_arch << p_chemotactic_force;
-
-            // Tidy up
-            CellBasedConfig::Instance()->Reset();
         }
 
         {
-            // Check CellBasedConfig is reset
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), DBL_MAX, 1e-6);
-
             ArchiveLocationInfo::SetMeshPathname("mesh/test/data/", "square_2_elements");
 
             // Create an input archive
@@ -1008,8 +997,8 @@ public:
             ChemotacticForce<2>* p_chemotactic_force;
             input_arch >> p_chemotactic_force;
 
-            // Check CellBasedConfig has been correctly archived
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), 10.0, 1e-6);
+            //\TODO need to test something here. For example
+            // Check member variables have been correctly archived
 
             // Tidy up
             delete p_chemotactic_force;
@@ -1472,23 +1461,12 @@ public:
             std::ofstream ofs(archive_filename.c_str());
             boost::archive::text_oarchive output_arch(ofs);
 
-            // Change the value of a CellBasedConfig member
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), DBL_MAX, 1e-6);
-            CellBasedConfig::Instance()->SetMechanicsCutOffLength(10.0);
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), 10.0, 1e-6);
-
             // Serialize via pointer
             WelikyOsterForce<2>* const p_force = &force;
             output_arch << p_force;
-
-            // Tidy up
-            CellBasedConfig::Instance()->Reset();
         }
 
         {
-            // Check CellBasedConfig is reset
-            TS_ASSERT_DELTA(CellBasedConfig::Instance()->GetMechanicsCutOffLength(), DBL_MAX, 1e-6);
-
             // Create an input archive
             std::ifstream ifs(archive_filename.c_str(), std::ios::binary);
             boost::archive::text_iarchive input_arch(ifs);
