@@ -1302,7 +1302,10 @@ class CellMLToChasteTranslator(CellMLTranslator):
         ms = cellml_units.create_new(
             self.model, 'milliseconds',
             [{'units': 'second', 'prefix': 'milli'}])
-        current_units = self.get_var_units(self.doc._cml_config.i_stim_var)
+        if self.doc._cml_config.i_stim_var:
+            current_units = self.get_var_units(self.doc._cml_config.i_stim_var)
+        else:
+            current_units = None
         if var_units.dimensionally_equivalent(ms): # Check against time
             if not var_units.equals(ms):
                 if not to_chaste:
@@ -1312,7 +1315,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
                     conversion_factor = (var_units.get_multiplicative_factor() /
                                          ms.get_multiplicative_factor())
                 conversion += ' * ' + str(conversion_factor)
-        elif var_units.dimensionally_equivalent(current_units): # Check against current
+        elif current_units and var_units.dimensionally_equivalent(current_units): # Check against current
             conversion, nodes_used = self.ionic_current_units_conversion(conversion, var_units, to_chaste)
         return conversion, nodes_used
     

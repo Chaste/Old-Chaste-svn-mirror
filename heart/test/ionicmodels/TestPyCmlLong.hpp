@@ -158,6 +158,7 @@ private:
         rModels.push_back("pandit_model_2001_epi");
         rModels.push_back("priebe_beuckelmann_model_1998");
         rModels.push_back("sakmann_model_2000_epi");
+        rModels.push_back("stewart_zhang_model_2008_ss");
         rModels.push_back("ten_tusscher_model_2004_endo");
         rModels.push_back("ten_tusscher_model_2004_epi");
         rModels.push_back("ten_tusscher_model_2006_epi");
