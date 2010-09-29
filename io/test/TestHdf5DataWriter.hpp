@@ -759,6 +759,7 @@ public:
 		}
 
 		writer.Close();
+		VecDestroy(solution);
 		delete p_factory;
 	}
 
