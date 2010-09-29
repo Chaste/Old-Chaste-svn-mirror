@@ -133,6 +133,7 @@ public:
     static const int EXIT_BAD_ARGUMENTS = 2;
 
 private:
+    /** The output directory to put machine provenance information into */
     static std::string mOutputDirectory;
 };
 
