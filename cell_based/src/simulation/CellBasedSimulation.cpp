@@ -727,10 +727,8 @@ void CellBasedSimulation<DIM>::OutputSimulationSetup()
 
     // Output Extra Parameters from CellBasedConfig
     *parameter_file <<  "\n\t<CellBasedConfig>\n";
-
-    CellBasedConfig* p_inst = CellBasedConfig::Instance();
-	*parameter_file << "\t\t<CryptLength>"<< p_inst->GetCryptLength() << "</CryptLength>\n";
-	*parameter_file << "\t\t<CryptWidth>"<< p_inst->GetCryptWidth() << "</CryptWidth>\n";
+	*parameter_file << "\t\t<CryptLength>"<< mpConfig->GetCryptLength() << "</CryptLength>\n";
+	*parameter_file << "\t\t<CryptWidth>"<< mpConfig->GetCryptWidth() << "</CryptWidth>\n";
     *parameter_file <<  "\t</CellBasedConfig>\n";
     *parameter_file << "</Chaste>\n" ;
 
@@ -847,13 +845,13 @@ std::string CellBasedSimulation<DIM>::GetIdentifier() const
     }
     else
     {
-#if BOOST_VERSION >= 103400
-        identifier = boost::serialization::type_info_implementation<CellBasedSimulation<DIM> >::type::get_derived_extended_type_info(*this)->get_key();
-#else
-        identifier = "Unknown CellBasedSimulation subclass (see #1453)";
-#endif // BOOST_VERSION >= 103400
+        #if BOOST_VERSION >= 103400
+                identifier = boost::serialization::type_info_implementation<CellBasedSimulation<DIM> >::type::get_derived_extended_type_info(*this)->get_key();
+        #else
+                identifier = "Unknown CellBasedSimulation subclass (see #1453)";
+        #endif // BOOST_VERSION >= 103400
     }
-#endif // BOOST_VERSION >= 103700
+    #endif // BOOST_VERSION >= 103700
 
     return TidyTemplatedExportIdentifier(identifier);
 }

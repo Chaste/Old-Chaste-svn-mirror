@@ -79,11 +79,6 @@ private:
         //archive & mSloughSides; // done in load_construct_data
         //archive & mSloughLength; // done in load_construct_data
         //archive & mSloughWidth; // done in load_construct_data
-
-        // Make sure CellPopulation configuration archived
-        CellBasedConfig* p_config = CellBasedConfig::Instance();
-        archive & *p_config;
-        archive & p_config;
     }
 
 public:

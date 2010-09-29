@@ -34,6 +34,7 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 #include "AbstractCellPopulation.hpp"
+#include "CellBasedConfig.hpp"
 
 /**
  * Possible types of WntConcentration, currently:

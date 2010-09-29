@@ -176,7 +176,7 @@ public:
     /**
      * Get the target area of a given cell. This grows linearly from
      * 0.5*A to A during the G1 phase of the cell cycle, then remains
-     * at A for the rest of the cell cycle, where A denotes the CellBasedConfig
+     * at A for the rest of the cell cycle, where A denotes the
      * member variable mMatureCellTargetArea.
      *
      * @param pCell the cell

@@ -60,9 +60,6 @@ class AbstractForce
     template<class Archive>
     void serialize(Archive & archive, const unsigned int version)
     {
-        CellBasedConfig* p_config = CellBasedConfig::Instance();
-        archive & *p_config;
-        archive & p_config;
     }
 
 public:
