@@ -181,7 +181,7 @@ if not dyn_libs_only:
         SConsignFile('.sconsign')
 else:
     # Use a .sconsign file in the folder we're building
-    # TODO: this means XSD gets re-run...
+    # TODO: this means XSD gets re-run, which gives issues for parallel test runs...
     assert(len(COMMAND_LINE_TARGETS) == 1)
     SConsignFile(os.path.join(COMMAND_LINE_TARGETS[0], '.sconsign'))
 
