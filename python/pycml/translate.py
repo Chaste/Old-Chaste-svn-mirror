@@ -813,6 +813,8 @@ class CellMLTranslator(object):
             self.write(' : ')
         if hasattr(expr, u'otherwise'):
             self.output_expr(child_i(expr.otherwise, 1), True) # Default case
+        else:
+            self.write('(1.0/0.0)')
         self.close_paren(paren)
 
     def open_paren(self, paren):

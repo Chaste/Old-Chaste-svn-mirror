@@ -142,6 +142,7 @@ private:
         rModels.push_back("hilgemann_noble_model_1987");
         rModels.push_back("hodgkin_huxley_squid_axon_model_1952_modified");
         rModels.push_back("hund_rudy_2004_a");
+        rModels.push_back("iribe_model_2006_without_otherwise_section");
         rModels.push_back("iyer_model_2004");
         rModels.push_back("iyer_model_2007");
         rModels.push_back("jafri_rice_winslow_model_1998");
