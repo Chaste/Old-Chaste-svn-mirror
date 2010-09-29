@@ -179,9 +179,10 @@ public:
 
         /* Before running the simulation, we add a cell killer. This object
          * dictates conditions under which cells die. For this test, we use
-         * a {{{SloughingCellKiller}}}, which kills cells above a certain height.
+         * a {{{SloughingCellKiller}}}, which kills cells above a certain
+         * height which is passed in as a parameter.
          */
-        SloughingCellKiller<2> killer(&cell_population);
+        SloughingCellKiller<2> killer(&cell_population, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&killer);
 
         /* To run the simulation, we call {{{Solve()}}}. */
@@ -253,7 +254,7 @@ public:
         simulator.SetEndTime(1);
 
         /* Create a killer, as before. */
-        SloughingCellKiller<2> killer(&cell_population);
+        SloughingCellKiller<2> killer(&cell_population, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&killer);
 
         /* Solve. */

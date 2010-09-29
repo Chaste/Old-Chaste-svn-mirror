@@ -102,7 +102,7 @@ public:
 
         // Make crypt shorter for sloughing
         CellBasedConfig::Instance()->SetCryptLength(20.0);
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation

@@ -253,7 +253,7 @@ public:
 	* a {{{SloughingCellKiller}}}, which kills cells above a certain height.
 	*/
 	CellBasedConfig::Instance()->SetCryptLength(6.0);
-	SloughingCellKiller<2> sloughing_cell_killer(&crypt);
+	SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
 	simulator.AddCellKiller(&sloughing_cell_killer);
 
 	/* To run the simulation, we call {{{Solve()}}}. */
@@ -335,7 +335,7 @@ public:
 
 	/* Before running the simulation, we add a cell killer, as before.*/
 	CellBasedConfig::Instance()->SetCryptLength(6.0);
-	SloughingCellKiller<2> sloughing_cell_killer(&crypt);
+	SloughingCellKiller<2> sloughing_cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
 	simulator.AddCellKiller(&sloughing_cell_killer);
 
 	/* Here we impose a boundary condition at the base: that cells

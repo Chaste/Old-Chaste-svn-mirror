@@ -100,7 +100,11 @@ public:
         simulator.SetEndTime(4.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> sloughing_cell_killer(&crypt, true);
+        SloughingCellKiller<2> sloughing_cell_killer(&crypt,
+                                                     CellBasedConfig::Instance()->GetCryptLength()
+                                                     true,
+                                                     CellBasedConfig::Instance()->GetCryptWidth());
+
         simulator.AddCellKiller(&sloughing_cell_killer);
 
         // Run simulation
@@ -137,7 +141,7 @@ public:
         simulator.SetEndTime(4.0);
 
         // Create cell killer and pass in to crypt simulation
-        SloughingCellKiller<2> cell_killer(&crypt);
+        SloughingCellKiller<2> cell_killer(&crypt, CellBasedConfig::Instance()->GetCryptLength());
         simulator.AddCellKiller(&cell_killer);
 
         // Run simulation
@@ -265,7 +269,7 @@ public:
 		simulator.SetSamplingTimestepMultiple(10);
 
 		// Set up sloughing cell killer and pass in to simulation
-		AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), 0.01);
+		AbstractCellKiller<2>* p_cell_killer = new SloughingCellKiller<2>(&simulator.rGetCellPopulation(), CellBasedConfig::Instance()->GetCryptLength());
 		simulator.AddCellKiller(p_cell_killer);
 
 		// Unusual set-up here (corresponds to the Meineke crypt model parameters)

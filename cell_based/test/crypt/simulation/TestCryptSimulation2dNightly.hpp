@@ -116,8 +116,8 @@ public:
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt,
-                                                     CellBasedConfig::Instance()->GetCryptLength()
-                                                     true
+                                                     CellBasedConfig::Instance()->GetCryptLength(),
+                                                     true,
                                                      CellBasedConfig::Instance()->GetCryptWidth());
         simulator.AddCellKiller(&sloughing_cell_killer);
 
@@ -279,8 +279,8 @@ public:
 
         // Create cell killer and pass in to crypt simulation
         SloughingCellKiller<2> sloughing_cell_killer(&crypt,
-                                                     CellBasedConfig::Instance()->GetCryptLength()
-                                                     true
+                                                     CellBasedConfig::Instance()->GetCryptLength(),
+                                                     true,
                                                      CellBasedConfig::Instance()->GetCryptWidth());
 
         simulator.AddCellKiller(&sloughing_cell_killer);
