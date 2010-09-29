@@ -38,9 +38,12 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 namespace std { using ::isnan; }
 #endif
 
-// The following might generate a compiler warning, but that's better than an error!
 #ifndef NAN
 #include <cmath>
+/**
+ * A NAN macro for compilers which don't have this GNU extension.
+ * The following might generate a compiler warning, but that's better than an error!
+ */
 #define NAN sqrt(-1.0)
 #endif
 

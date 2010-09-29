@@ -761,8 +761,8 @@ void CellBasedSimulation<DIM>::OutputSimulationParameters(out_stream& rParamsFil
 #include "TidyTemplatedExportIdentifier.hpp"
 
 /**
- * \internal
  * Empty cell population for use in CellBasedSimulation<DIM>::GetIdentifier.
+ * \internal
  */
 template<unsigned DIM>
 class EmptyCellPopulation : public AbstractCellPopulation<DIM>
