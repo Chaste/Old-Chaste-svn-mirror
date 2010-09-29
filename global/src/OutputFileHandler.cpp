@@ -137,7 +137,7 @@ std::string OutputFileHandler::MakeFoldersAndReturnFullPath(const std::string& r
             if (return_value!=0)
             {
                 // We make only the next folder here
-                EXPECT0(system,"mkdir " + directory_root + directory_to_add);
+                EXPECT0(system,"mkdir -p " + directory_root + directory_to_add);
                 // Put the Chaste signature file into this folder
                 EXPECT0(system,"touch " + directory_root + directory_to_add + ".chaste_deletable_folder");
             }
