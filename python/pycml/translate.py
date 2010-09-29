@@ -153,6 +153,7 @@ class CellMLTranslator(object):
     FALSE = 'false'
     PI = 'M_PI'
     E = 'M_E'
+    NOT_A_NUMBER = 'NAN' # GNU extension, but fairly common
     
     # Whether the target language uses a subsidiary file, such as
     # a header file in C/C++
@@ -484,7 +485,7 @@ class CellMLTranslator(object):
             if init_val is None:
                 init_comm = ' // Value not given in model'
                 # Don't want compiler error, but shouldn't be a real number
-                init_val = 'NAN'
+                init_val = self.NOT_A_NUMBER
             else:
                 init_comm = ''
             self.writeln('mInitialConditions.push_back(', init_val, ');',
@@ -814,7 +815,7 @@ class CellMLTranslator(object):
         if hasattr(expr, u'otherwise'):
             self.output_expr(child_i(expr.otherwise, 1), True) # Default case
         else:
-            self.write('(1.0/0.0)')
+            self.write(self.NOT_A_NUMBER)
         self.close_paren(paren)
 
     def open_paren(self, paren):
@@ -2529,7 +2530,7 @@ class CellMLToChasteTranslator(CellMLTranslator):
             if init_val is None:
                 init_comm = ' // Value not given in model'
                 # Don't want compiler error, but shouldn't be a real number
-                init_val = 'NAN'
+                init_val = self.NOT_A_NUMBER
             else:
                 init_comm = ''
             self.writeln('this->mInitialConditions.push_back(', init_val, ');',
@@ -3344,6 +3345,7 @@ class CellMLToMatlabTranslator(CellMLTranslator):
     # Some constants are different
     PI = 'pi'
     E = 'exp(1)'
+    NOT_A_NUMBER = 'NaN'
 
     def __init__(self, **kwargs):
         super(CellMLToMatlabTranslator, self).__init__(**kwargs)
@@ -3431,7 +3433,7 @@ class CellMLToMatlabTranslator(CellMLTranslator):
                 self.writeln('state_var_names{', i+1, '}', self.EQ_ASSIGN,
                              "'", var.fullname(), "';")
                 self.writeln('initial_values(', i+1, ')', self.EQ_ASSIGN,
-                             getattr(var, u'initial_value', 'NaN'), ';')
+                             getattr(var, u'initial_value', self.NOT_A_NUMBER), ';')
             t_var = self.free_vars[0]
             t_units = t_var.component.get_units_by_name(t_var.units)
             self.writeln('t_units = ', t_units.get_multiplicative_factor(), ';')
@@ -3535,7 +3537,7 @@ class CellMLToMatlabTranslator(CellMLTranslator):
         if hasattr(expr, u'otherwise'):
             self.output_expr(child_i(expr.otherwise, 1), paren) # Default case
         else:
-            self.write('NaN') # If this is hit, things get ugly
+            self.write(self.NOT_A_NUMBER) # If this is hit, things get ugly
         for i in range(num_ifs):
             self.close_paren(True)
 
