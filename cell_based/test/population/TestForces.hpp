@@ -98,19 +98,26 @@ public:
         TS_ASSERT_DELTA(linear_force.GetMeinekeDivisionRestingSpringLength(), 0.5, 1e-6);
         TS_ASSERT_DELTA(linear_force.GetMeinekeSpringStiffness(), 15.0, 1e-6);
         TS_ASSERT_DELTA(linear_force.GetMeinekeSpringGrowthDuration(), 1.0, 1e-6);
+        TS_ASSERT_EQUALS(linear_force.GetUseCutOffLength(), false);
+        TS_ASSERT_DELTA(linear_force.GetCutOffLength(), DBL_MAX, 1e-6);
 
         linear_force.SetMeinekeDivisionRestingSpringLength(0.8);
         linear_force.SetMeinekeSpringStiffness(20.0);
         linear_force.SetMeinekeSpringGrowthDuration(2.0);
+        linear_force.SetCutOffLength(1.5);
 
         TS_ASSERT_DELTA(linear_force.GetMeinekeDivisionRestingSpringLength(), 0.8, 1e-6);
         TS_ASSERT_DELTA(linear_force.GetMeinekeSpringStiffness(), 20.0, 1e-6);
         TS_ASSERT_DELTA(linear_force.GetMeinekeSpringGrowthDuration(), 2.0, 1e-6);
+        TS_ASSERT_EQUALS(linear_force.GetUseCutOffLength(), true);
+        TS_ASSERT_DELTA(linear_force.GetCutOffLength(), 1.5, 1e-6);
 
         linear_force.SetMeinekeDivisionRestingSpringLength(0.5);
         linear_force.SetMeinekeSpringStiffness(15.0);
         linear_force.SetMeinekeSpringGrowthDuration(1.0);
 
+        // Reset cut off length
+        linear_force.SetCutOffLength(DBL_MAX);
         /*
          ************************************************************************
          ************************************************************************
@@ -738,6 +745,7 @@ public:
 
 		// Test with LinearSpringWithVariableSpringConstantsForce<2> variable_force;
     	LinearSpringWithVariableSpringConstantsForce<2> variable_force;
+    	variable_force.SetCutOffLength(1.5);
 		TS_ASSERT_EQUALS(variable_force.GetIdentifier(), "LinearSpringWithVariableSpringConstantsForce-2");
 
 		out_stream variable_force_parameter_file = output_file_handler.OpenOutputFile("variable_results.parameters");
@@ -749,7 +757,7 @@ public:
 
 		// Test with GeneralisedLinearSpringForce
 		GeneralisedLinearSpringForce<2> linear_force;
-
+		linear_force.SetCutOffLength(1.5);
 		TS_ASSERT_EQUALS(linear_force.GetIdentifier(), "GeneralisedLinearSpringForce-2");
 
 		out_stream linear_force_parameter_file = output_file_handler.OpenOutputFile("linear_results.parameters");

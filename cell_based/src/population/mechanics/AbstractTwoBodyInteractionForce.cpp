@@ -32,10 +32,16 @@ along with Chaste. If not, see <http://www.gnu.org/licenses/>.
 template<unsigned DIM>
 AbstractTwoBodyInteractionForce<DIM>::AbstractTwoBodyInteractionForce()
    : AbstractForce<DIM>(),
-     mUseCutOffLength(false)
+     mUseCutOffLength(false),
+     mMechanicsCutOffLength(DBL_MAX)
 {
 }
 
+template<unsigned DIM>
+bool AbstractTwoBodyInteractionForce<DIM>::GetUseCutOffLength()
+{
+    return mUseCutOffLength;
+}
 
 template<unsigned DIM>
 void AbstractTwoBodyInteractionForce<DIM>::SetCutOffLength(double cutOffLength)

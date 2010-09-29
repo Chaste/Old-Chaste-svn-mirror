@@ -75,6 +75,13 @@ public :
     AbstractTwoBodyInteractionForce();
 
     /**
+     * Whether the force is using a cut of length
+     *
+     * @return mUseCutOffLength
+     */
+    bool GetUseCutOffLength();
+
+    /**
      * Use a cutoff point, ie specify zero force if two cells are greater
      * than the cutoff distance apart
      *
